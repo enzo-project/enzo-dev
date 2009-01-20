@@ -330,7 +330,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
       Temp = Temp->NextGridThisLevel;
     }
-    dt = CommunicationMinValue(dtProc);
+
+    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
  
     if (Initialdt != 0) {
       dt = min(dt, Initialdt);

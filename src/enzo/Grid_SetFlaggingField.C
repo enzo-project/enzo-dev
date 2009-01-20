@@ -176,6 +176,29 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 	return FAIL;
       }
       break;
+
+      /* ==== METHOD 10: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
+ 
+    case 10:
+ 
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
+      if (NumberOfFlaggedCells < 0) {
+        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMustRefineRegion.\n");
+        return FAIL;
+      }
+      break;
+ 
+
+      /* ==== METHOD 11: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
+ 
+    case 11:
+ 
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
+      if (NumberOfFlaggedCells < 0) {
+        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMetallicity.\n");
+        return FAIL;
+      }
+      break;
  
     /* ==== undefined ==== */
  

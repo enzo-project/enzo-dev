@@ -55,6 +55,22 @@ int grid::ComputeTemperatureField(float *temperature)
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
  
+  /* If Gadget equilibrium cooling is on, call the appropriate routine,
+     then exit - don't use the rest of the routine. */
+
+  if(GadgetEquilibriumCooling){
+    if(DualEnergyFormalism)
+      result = this->GadgetComputeTemperatureDEF(Time, temperature);
+    else
+      result = this->GadgetComputeTemperature(Time,temperature);
+
+    if(result == FAIL) {
+      fprintf(stderr, "Error in grid->ComputePressure: Gadget.\n");
+      return FAIL;
+    }
+    return SUCCESS;
+  }
+
   /* Compute the pressure first. */
  
   if (DualEnergyFormalism)

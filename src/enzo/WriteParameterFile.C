@@ -225,7 +225,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
   fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
   fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
- 
+  fprintf(fptr, "MustRefineRegionMinRefinementLevel = %"ISYM"\n", MustRefineRegionMinRefinementLevel);
+  fprintf(fptr, "MetallicityRefinementMinLevel = %"ISYM"\n", MetallicityRefinementMinLevel);
+  fprintf(fptr, "MetallicityRefinementMinMetallicity      = %"GSYM"\n", 
+	  MetallicityRefinementMinMetallicity);
+
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
   fprintf(fptr, "DomainRightEdge        = ");
@@ -237,8 +241,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, RefineRegionLeftEdge);
   fprintf(fptr, "RefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, RefineRegionRightEdge);
+  fprintf(fptr, "MustRefineRegionLeftEdge   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionLeftEdge);
+  fprintf(fptr, "MustRefineRegionRightEdge  = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
   fprintf(fptr, "\n");
- 
+  
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
     if (DataLabel[dim])
       fprintf(fptr, "DataLabel[%"ISYM"]              = %s\n", dim, DataLabel[dim]);
@@ -300,9 +308,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "DualEnergyFormalismEta1     = %e\n", DualEnergyFormalismEta1);
   fprintf(fptr, "DualEnergyFormalismEta2     = %e\n", DualEnergyFormalismEta2);
   fprintf(fptr, "ParticleCourantSafetyNumber = %"FSYM"\n\n", ParticleCourantSafetyNumber);
+  fprintf(fptr, "RootGridCourantSafetyNumber = %"FSYM"\n\n", RootGridCourantSafetyNumber);
   fprintf(fptr, "RandomForcing               = %"ISYM"\n", RandomForcing);     //AK
   fprintf(fptr, "RandomForcingEdot           = %"GSYM"\n", RandomForcingEdot); //AK
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
+  fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);

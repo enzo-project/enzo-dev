@@ -112,6 +112,20 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
 
+extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
+             float *d, float *dm, float *temp, float *coolrate, float *u, float *v, float *w,
+                float *cooltime,
+             float *dt, float *r, float *metal, float *dx, FLOAT *t, float *z, 
+             int *procnum,
+             float *d1, float *x1, float *v1, float *t1,
+             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
+     		 int *ibuff, 
+             int *imetal, hydro_method *imethod, float *mintdyn,
+             float *odthresh, float *massff, float *smthrest, int *level,
+                 int *np,
+             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+	     float *mp, float *tdp, float *tcp, float *metalf, int ran1_init);
+
 #ifdef STAR1
 extern "C" void FORTRAN_NAME(star_feedback1)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v,
@@ -149,6 +163,19 @@ extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf,
+			float *justburn);
+
+extern "C" void FORTRAN_NAME(star_feedback5)(int *nx, int *ny, int *nz,
+             float *d, float *dm, float *te, float *ge, float *u, float *v, 
+		       float *w, float *metal,
+             int *idual, int *imetal, hydro_method *imethod, float *dt, 
+		       float *r, float *dx, FLOAT *t, float *z, 
+             float *d1, float *x1, float *v1, float *t1,
+                       float *sn_param, float *m_eject, float *yield,
+             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
+		       int *ibuff,
+             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+	     float *mp, float *tdp, float *tcp, float *metalf,
 			float *justburn);
  
 extern "C" void FORTRAN_NAME(star_feedback4)(int *nx, int *ny, int *nz,
@@ -875,6 +902,34 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           ParticleAttribute[2], &RadiationData.IntegratedStarFormation);
  
   } 
+
+
+  if (StarParticleFeedback == 5) {  
+
+    //---- SPRINGEL & HERNQUIST ALGORITHM
+
+      FORTRAN_NAME(star_feedback5)(
+       GridDimension, GridDimension+1, GridDimension+2,
+          BaryonField[DensNum], dmfield, 
+          BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+       &DualEnergyFormalism, &MetallicityField, &HydroMethod, 
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp, 
+          &Time, &zred,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+          &StarEnergyToThermalFeedback, &StarMassEjectionFraction, 
+          &StarMetalYield,
+       &NumberOfParticles,
+          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       ParticlePosition[0], ParticlePosition[1], 
+          ParticlePosition[2], 
+       ParticleVelocity[0], ParticleVelocity[1], 
+          ParticleVelocity[2], 
+       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+          ParticleAttribute[2], &RadiationData.IntegratedStarFormation);
+      //fprintf(stderr,"After feedback is called");
+
+  } // end: if (StarParticleFeedback == 5)
 
   /* Convert the species back from fractional densities to real densities. */
  

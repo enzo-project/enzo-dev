@@ -25,6 +25,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "Gadget.h"
 
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -104,8 +105,7 @@ int grid::SolveRateAndCoolEquations()
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
   /* Find Multi-species fields. */
@@ -113,8 +113,7 @@ int grid::SolveRateAndCoolEquations()
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
   /* Find photo-ionization fields */
@@ -124,8 +123,7 @@ int grid::SolveRateAndCoolEquations()
   if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->IdentifyRadiativeTransferFields.");
 }
 
   /* Compute size of the current grid. */
@@ -167,8 +165,7 @@ int grid::SolveRateAndCoolEquations()
 
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
 
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -177,8 +174,7 @@ int grid::SolveRateAndCoolEquations()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in GetUnits.");
   }
 
   float afloat = float(a);
@@ -207,9 +203,10 @@ int grid::SolveRateAndCoolEquations()
 
   /* Calculate the rates due to the radiation field. */
 
-  if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-    fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("");
+  if (!GadgetEquilibriumCooling) {
+    if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
+        ENZO_FAIL("Error in RadiationFieldCalculateRates.");
+    }
   }
 
   /* Set up information for rates which depend on the radiation field. */
