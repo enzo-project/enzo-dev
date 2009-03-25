@@ -267,6 +267,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   /* Clean up */
 
   delete [] p;
+  if (GridRank < 2) delete [] v;
+  if (GridRank < 3) delete [] w;
+  
   
   return SUCCESS;
 
