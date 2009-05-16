@@ -45,7 +45,7 @@ OUTPUT   = out.compile
 ENZO_DIR = .
 MODULES  = 
 
-SVN      = svn
+SVN      = /usr/local/apps/SVN-1.3.0-neon/bin/svn
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
