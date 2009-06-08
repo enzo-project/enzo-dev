@@ -92,7 +92,8 @@ c
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
-      real    odthresh, masseff, starmass, min_tdyn, efficiency, lifetime
+      real    odthresh, masseff, starmass, min_tdyn, efficiency
+      real    lifetime
       real    metalcrit
 c
 c  Locals:

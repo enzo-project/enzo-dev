@@ -501,7 +501,8 @@ c  cooling at T=T_cmb
 c
          logtcmb = log(comp2)
          tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem)+1)
-         dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) / dlogtem
+         dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) 
+     $	/ dlogtem
          do i = is+1, ie+1
             if (itmask(i)) then
                log_xe = max(min(log(de(i,j,k) / d(i,j,k)), logxe1), 
@@ -515,22 +516,22 @@ c
 c  Interpolate metal cooling in temperature and electron fraction
 c
                metalc(i) = 
-     $              metala(indixe(i),   xe_idx  ) * (1-dlogxe) * (1-dlogT) +
-     $              metala(indixe(i)+1, xe_idx  ) * (dlogxe  ) * (1-dlogT) +
-     $              metala(indixe(i),   xe_idx+1) * (1-dlogxe) * (dlogT)   +
-     $              metala(indixe(i)+1, xe_idx+1) * (dlogxe  ) * (dlogT)
+     $         metala(indixe(i),   xe_idx  ) * (1-dlogxe) * (1-dlogT) +
+     $         metala(indixe(i)+1, xe_idx  ) * (dlogxe  ) * (1-dlogT) +
+     $          metala(indixe(i),   xe_idx+1) * (1-dlogxe) * (dlogT)   +
+     $          metala(indixe(i)+1, xe_idx+1) * (dlogxe  ) * (dlogT)
 c
 c  Subtract metal cooling at T_cmb
 c
                metalc_cmb = 
-     $              metala(tcmb_idx,   xe_idx  ) * (1-dlogxe) * (1-dlogTcmb) +
-     $              metala(tcmb_idx+1, xe_idx  ) * (dlogxe  ) * (1-dlogTcmb) +
-     $              metala(tcmb_idx,   xe_idx+1) * (1-dlogxe) * (dlogTcmb)   +
-     $              metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
+     $        metala(tcmb_idx,   xe_idx  ) * (1-dlogxe) * (1-dlogTcmb) +
+     $        metala(tcmb_idx+1, xe_idx  ) * (dlogxe  ) * (1-dlogTcmb) +
+     $        metala(tcmb_idx,   xe_idx+1) * (1-dlogxe) * (dlogTcmb)   +
+     $          metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
                metalc(i) = metalc(i) - metalc_cmb
 
                xi = min(3.0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
-               edot(i,18) = -metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
+              edot(i,18) = -metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
 #ifdef UNUSED
                if (xi .gt. 1e-06) then
                   write(6,777) i,j,k, exp(log_xe), exp(logtem(i)), 
