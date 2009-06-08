@@ -1,0 +1,43 @@
+#
+# PROBLEM DEFINITION FILE: Double Mach Reflection test (see WC84, Section IVc)
+#
+# Mach = 10 shock in air at 60 degrees angle with respect to a reflecting wall.
+# The gas density ahead of the shock is 1.4, and the pressure is 1.0; density
+# behind the shock is 8.0.
+#
+# Compare with WC84 Figure 4 at t = 2.0. Note, the diffusion is OFF here;
+# also note the figure shows only a part of the domain: 0 < x < 3.
+#
+# Most of the required parameters were hardwired, see DoubleMachInitialize.C.
+#
+#  define problem
+#
+ProblemType            = 4        // Double Mach Reflection
+TopGridRank            = 2
+TopGridDimensions      = 480 120  // The same resolution as in WC84
+DomainRightEdge        = 4.0 1.0
+HydroMethod            = 0
+#
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.205
+dtDataDump             = 0.1
+DataDumpName           = doubleMach_
+#
+#  set Hydro parameters
+#
+Gamma                  = 1.4     // air
+CourantSafetyNumber    = 0.8     // ppm
+PPMDiffusionParameter  = 1       // diffusion  on
+PPMFlatteningParameter = 3       // flattening on
+PPMSteepeningParameter = 1       // steepening on
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // static hierarchy
+MaximumRefinementLevel    = 0
+#
+#  set some misc global parameters
+#
+tiny_number            = 1.0e-6  // fixes velocity slope problem

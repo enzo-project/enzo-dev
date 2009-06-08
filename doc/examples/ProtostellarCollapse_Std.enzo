@@ -1,0 +1,60 @@
+#
+# AMR PROBLEM DEFINITION FILE: Protostellar Collapse test
+#
+#  define problem
+#
+ProblemType                =  61
+TopGridRank                =  3
+TopGridDimensions          =  32 32 32
+LeftFaceBoundaryCondition  =  3 3 3   // periodic
+RightFaceBoundaryCondition =  3 3 3
+#
+#  Gravity
+#
+SelfGravity                = 1
+GravitationalConstant      = 1142.0
+TopGridGravityBoundary     = 0       // periodic solver (FFT)
+GravityBoundaryFaces      = 1 1 1    // isolating in all directions
+GravityBoundaryRestart     = 0       // read boundary restart if possible
+GravityBoundaryName       = potbdry  // default boundary restart file
+#WritePotential             = 1
+WritePotential             = 0
+#
+# problem parameters
+#
+ProtostellarCollapseSubgridLeft     = 0.44
+ProtostellarCollapseSubgridRight    = 0.56
+#ProtostellarCollapseSubgridLeft     = 0.0
+#ProtostellarCollapseSubgridRight    = 0.0
+ProtostellarCollapseCoreRadius      = 0.05
+#ProtostellarCollapseAngularVelocity = 6.0
+#
+#  set I/O and stop/start parameters
+#
+StopTime                  = 0.01
+dtDataDump                = 0.0001
+DataDumpName              = pc_amr_
+#
+#  set hydro parameters
+#
+Gamma                     = 1.001
+PPMDiffusionParameter     = 1
+PPMFlatteningParameter    = 3
+PPMSteepeningParameter    = 0
+CourantSafetyNumber       = 0.5
+FluxCorrection            = 1
+HydroMethod               = 0
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy
+#MaximumRefinementLevel    = 2
+MaximumRefinementLevel    = 0
+RefineBy                  = 4    // refinement factor
+CellFlaggingMethod        = 6
+RefineByJeansLengthSafetyFactor = 16.0
+MinimumEfficiency         = 0.3  // fraction efficiency
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10   // # of greens function at any one time

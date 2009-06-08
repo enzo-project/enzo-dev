@@ -1,0 +1,50 @@
+#
+# PROBLEM DEFINITION FILE: Implosion test (AMR version)
+#
+#  A 2D converging shock test problem.
+#
+#  Liska & Wendroff, 2003, SIAM J. Sci. Comp., 25, N3, 995-1017
+#  http://www-troja.fjfi.cvut.cz/~liska/CompareEuler/compare8
+#
+#  Jim Stone's Athena test page
+#  http://www.astro.princeton.edu/~jstone/tests/implode/Implode.html
+#
+#  problem setup
+#
+ProblemType               = 6       // implosion
+Gamma                     = 1.4
+DomainRightEdge           = 0.3 0.3
+ImplosionSubgridRight     = 0.16    // eliminates start-up errors
+#
+#  grid setup
+#
+TopGridRank               = 2
+TopGridDimensions         = 50 50
+#
+#  set I/O and stop/start parameters
+#
+StopTime                  = 2.5
+dtDataDump                = 0.5         # Changed from 0.005 to reduce output  -jb
+DataDumpName              = implosion_L3x2_
+#
+#  hydro parameters
+#
+HydroMethod               = 0       // ppm - 0; zeus - 2
+PPMDiffusionParameter     = 1
+PPMFlatteningParameter    = 3
+PPMSteepeningParameter    = 1
+CourantSafetyNumber       = 0.8     // ppm - 0.8; zeus - 0.5
+#
+#  mesh refinement parameters
+#
+StaticHierarchy           = 0       // dynamic hierarchy
+MaximumRefinementLevel    = 3       // use up to 2 levels
+CellFlaggingMethod        = 1       // slope in density
+RefineBy                  = 2
+MinimumSlopeForRefinement = 0.03
+MinimumEfficiency         = 0.9     // good value for 2D
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-6
+

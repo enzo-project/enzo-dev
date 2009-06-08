@@ -1,0 +1,225 @@
+/***********************************************************************
+/
+/  INITIALIZE A SHOCK IN A BOX
+/
+/  written by: Greg Bryan
+/  date:       November, 1994
+/  modified1:
+/
+/  PURPOSE:
+/
+/  RETURNS: SUCCESS or FAIL
+/
+************************************************************************/
+ 
+// This routine intializes a new simulation based on the parameter file.
+//
+ 
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "TopGridData.h"
+ 
+int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			  TopGridData &MetaData, ExternalBoundary &Exterior)
+{
+  char *DensName = "Density";
+  char *TEName = "TotalEnergy";
+  char *Vel1Name = "x-velocity";
+  char *Vel2Name = "y-velocity";
+  char *Vel3Name = "z-velocity";
+ 
+  /* declarations */
+ 
+  char line[MAX_LINE_LENGTH];
+  int dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
+       SubgridDims[MAX_DIMENSION], ShockInABoxDirection;
+  float ShockInABoxDensity[2], ShockInABoxPressure[2], ShockInABoxVelocity[2];
+  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+ 
+  /* set default parameters */
+ 
+  FLOAT ShockInABoxBoundary = 0.5;     //
+ 
+  float d1 = 1, v1 = 0, m = 2, p1 = 1, d2, p2, v2, c1, shockspeed = 0;
+ 
+  d2 = d1*((Gamma+1)*m*m)/((Gamma-1)*m*m + 2);
+  p2 = p1*(2.0*Gamma*m*m - (Gamma-1))/(Gamma+1);
+  c1 = sqrt(Gamma*p1/d1);
+  v2 = m*c1*(1-d1/d2);
+ 
+  shockspeed = 0.9*c1 * m;
+ 
+  ShockInABoxDirection   = 0;
+  ShockInABoxDensity[0]  = d1;
+  ShockInABoxVelocity[0] = shockspeed-v1;
+  ShockInABoxPressure[0] = p1;
+ 
+  ShockInABoxDensity[1]  = d2;
+  ShockInABoxPressure[1] = p2;
+  ShockInABoxVelocity[1] = shockspeed-v2;
+ 
+  FLOAT ShockInABoxSubgridLeft  = 0.0;
+  FLOAT ShockInABoxSubgridRight = 0.0;
+ 
+  /* read input from file */
+ 
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+ 
+    ret = 0;
+ 
+    /* read parameters */
+ 
+    ret += sscanf(line, "ShockInABoxBoundary = %"PSYM, &ShockInABoxBoundary);
+ 
+    ret += sscanf(line, "ShockInABoxLeftDensity = %"FSYM,
+		  &ShockInABoxDensity[0]);
+    ret += sscanf(line, "ShockInABoxLeftPressure = %"FSYM,
+		  &ShockInABoxPressure[0]);
+    ret += sscanf(line, "ShockInABoxLeftVelocity = %"FSYM,
+		  &ShockInABoxVelocity[0]);
+ 
+    ret += sscanf(line, "ShockInABoxRightDensity = %"FSYM,
+		  &ShockInABoxDensity[1]);
+    ret += sscanf(line, "ShockInABoxRightPressure = %"FSYM,
+		  &ShockInABoxPressure[1]);
+    ret += sscanf(line, "ShockInABoxRightVelocity = %"FSYM,
+		  &ShockInABoxVelocity[1]);
+ 
+    ret += sscanf(line, "ShockInABoxSubgridLeft = %"PSYM,
+		  &ShockInABoxSubgridLeft);
+    ret += sscanf(line, "ShockInABoxSubgridRight = %"PSYM,
+		  &ShockInABoxSubgridRight);
+ 
+    /* if the line is suspicious, issue a warning */
+ 
+    if (ret == 0 && strstr(line, "=") && strstr(line, "ShockInABox"))
+      fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
+ 
+  }
+ 
+  /* set up grid */
+ 
+  if (TopGrid.GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
+						ShockInABoxBoundary,
+						ShockInABoxDensity,
+						ShockInABoxPressure,
+						ShockInABoxVelocity) == FAIL) {
+    fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
+    return FAIL;
+  }
+ 
+  /* If requested, create a subgrid */
+ 
+  for (dim = 0; dim < MetaData.TopGridRank; dim++)
+    NumberOfSubgridZones[dim] =
+      nint((ShockInABoxSubgridRight - ShockInABoxSubgridLeft)/
+	   ((DomainRightEdge[dim] - DomainLeftEdge[dim] )/
+	    float(MetaData.TopGridDims[dim])))
+	*RefineBy;
+ 
+  if (NumberOfSubgridZones[0] > 0) {
+ 
+    /* create a new HierarchyEntry, attach to the top grid and fill it out */
+ 
+    HierarchyEntry *Subgrid    = new HierarchyEntry;
+    TopGrid.NextGridNextLevel  = Subgrid;
+    Subgrid->NextGridNextLevel = NULL;
+    Subgrid->NextGridThisLevel = NULL;
+    Subgrid->ParentGrid        = &TopGrid;
+ 
+    /* compute the dimensions and left/right edges for the subgrid */
+ 
+    for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
+      LeftEdge[dim]    = ShockInABoxSubgridLeft;
+      RightEdge[dim]   = ShockInABoxSubgridRight;
+    }
+ 
+    /* create a new subgrid and initialize it */
+ 
+    Subgrid->GridData = new grid;
+    Subgrid->GridData->InheritProperties(TopGrid.GridData);
+    Subgrid->GridData->PrepareGrid(MetaData.TopGridRank, SubgridDims,
+				   LeftEdge, RightEdge, 0);
+    if (Subgrid->GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
+						   ShockInABoxBoundary,
+						   ShockInABoxDensity,
+						   ShockInABoxPressure,
+						   ShockInABoxVelocity)
+	== FAIL) {
+      fprintf(stderr, "Error in ShockTubeInitializeGrid (subgrid).\n");
+      return FAIL;
+    }			
+  }
+ 
+  /* Initialize the exterior. */
+ 
+  Exterior.Prepare(TopGrid.GridData);
+ 
+  float InflowValue[5], Dummy[5];
+  InflowValue[0] = ShockInABoxDensity[0];
+  InflowValue[1] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
+                   + 0.5*POW(ShockInABoxVelocity[0], 2);
+  InflowValue[2] = ShockInABoxVelocity[0];
+  InflowValue[3] = 0.0;
+  InflowValue[4] = 0.0;
+ 
+  if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
+					      Dummy) == FAIL) {
+    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+      return FAIL;
+    }
+ 
+  if (MetaData.TopGridRank > 1)
+    Exterior.InitializeExternalBoundaryFace(1, reflecting, reflecting,
+					    Dummy, Dummy);
+  if (MetaData.TopGridRank > 2)
+    Exterior.InitializeExternalBoundaryFace(2, reflecting, reflecting,
+					    Dummy, Dummy);
+ 
+ 
+  /* set up field names and units */
+ 
+  DataLabel[0] = DensName;
+  DataLabel[1] = TEName;
+  DataLabel[2] = Vel1Name;
+  DataLabel[3] = Vel2Name;
+  DataLabel[4] = Vel3Name;
+ 
+  DataUnits[0] = NULL;
+  DataUnits[1] = NULL;
+  DataUnits[2] = NULL;
+  DataUnits[3] = NULL;
+  DataUnits[4] = NULL;
+ 
+  /* Write parameters to parameter output file */
+ 
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    fprintf(Outfptr, "ShockInABoxDirection     = %"ISYM"\n", ShockInABoxDirection);
+    fprintf(Outfptr, "ShockInABoxBoundary      = %"GOUTSYM"\n\n",
+	    ShockInABoxBoundary);
+ 
+    fprintf(Outfptr, "ShockInABoxLeftDensity   = %"FSYM"\n", ShockInABoxDensity[0]);
+    fprintf(Outfptr, "ShockInABoxLeftPressure  = %"FSYM"\n",
+	    ShockInABoxPressure[0]);
+    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %"FSYM"\n\n",
+	    ShockInABoxVelocity[0]);
+ 
+    fprintf(Outfptr, "ShockInABoxRightDensity  = %"FSYM"\n", ShockInABoxDensity[1]);
+    fprintf(Outfptr, "ShockInABoxRightPressure = %"FSYM"\n",
+	    ShockInABoxPressure[1]);
+    fprintf(Outfptr, "ShockInABoxRightVelocity = %"FSYM"\n\n",
+	    ShockInABoxVelocity[1]);
+  }
+ 
+  return SUCCESS;
+}

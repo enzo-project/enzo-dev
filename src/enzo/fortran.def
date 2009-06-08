@@ -1,0 +1,24 @@
+#define MAX_ANY_SINGLE_DIRECTION 3079
+
+#ifdef p4
+#define tiny 1.0e-20
+#define huge 1.0e+20
+#define REALSUB real
+#endif
+
+#ifdef p8
+#define tiny 1.0e-20
+#define huge 1.0e+20
+#define REALSUB real*8
+#endif
+
+#ifdef p16
+#define tiny 1.0e-20
+#define huge 1.0e+20
+#define REALSUB real*16
+#endif
+
+#define MAX_COLOR 30
+#define RADIATION
+#define NO_CEN_METALS
+#define JHW_METALS_NORMZ 0.1

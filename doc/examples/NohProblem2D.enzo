@@ -1,0 +1,36 @@
+#
+# PROBLEM DEFINITION FILE: 
+#
+#  2D Noh Problem (Noch Ein Test Problem, unigrid version)
+#
+#  See: Liska & Wendroff, SIAM J. Sci. Comput. 25, 995-1017, 2003)
+#
+#  define problem
+#
+ProblemType            = 9
+TopGridRank            = 2
+TopGridDimensions      = 100 100
+HydroMethod            = 0
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 2.0
+dtDataDump             = 0.4
+DataDumpName           = noh2D_
+#
+#  set hydro parameters
+#
+Gamma                  = 1.666667
+PPMDiffusionParameter  = 1
+PPMSteepeningParameter = 1
+CourantSafetyNumber    = 0.8
+#
+#  set grid refinement parameters
+#
+StaticHierarchy        = 0    // dynamic hierarchy
+MaximumRefinementLevel = 0    // 0 AMR levels
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10
+

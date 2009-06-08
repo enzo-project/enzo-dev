@@ -1,0 +1,65 @@
+#
+# AMR PROBLEM DEFINITION FILE: Spherical Infall Test Problem
+#
+#  define problem
+#
+ProblemType                = 24      // Spherical Infall
+TopGridRank                = 3
+TopGridDimensions          = 16 16 16
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BCs
+LeftFaceBoundaryCondition  = 3 3 3   // but periodic for fluid
+RightFaceBoundaryCondition = 3 3 3
+#S2ParticleSize             = 3.0
+#GravityResolution          = 1.0
+#PressureFree               = 0       // turn on pressure
+#
+#  define intialization parameters
+#
+SphericalInfallInitialPerturbation = 0.5
+SphericalInfallNumberOfParticles   = 0
+SphericalInfallUseBaryons          = 1
+#SphericalInfallSubgridLeft        = 0.4375   // start of subgrid
+#SphericalInfallSubgridRight       = 0.5625   // end of subgrid
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyHubbleConstantNow = 0.5     // h = 0.5
+CosmologyComovingBoxSize   = 25.0    // 25 Mpc/h
+CosmologyMaxExpansionRate  = 0.02    // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 99  // 
+CosmologyFinalRedshift     = 0       // stop  at z=0
+GravitationalConstant      = 1.0     // this must be true for cosmology
+CosmologyOmegaMatterNow    = 1.0
+CosmologyOmegaLambdaNow    = 0.0
+#
+#  set I/O and stop/start parameters
+#
+#StopTime               = 0.0
+#StopCycle              = 10
+dtDataDump             = 50000
+DataDumpName           = data
+#
+#  set hydro parameters
+#
+Gamma                  = 1.66667
+CourantSafetyNumber    = 0.5     // 
+PPMDiffusionParameter  = 0       // diffusion off
+DualEnergyFormalism    = 1       // use total & internal energy equations
+InterpolationMethod    = 1       // SecondOrderA
+#
+#  set grid refinement parameters
+#
+StaticHierarchy                 = 0    // dynamic hierarchy
+MaximumRefinementLevel          = 3    // use up to 3 levels
+RefineBy                        = 3    // refinement factor
+CellFlaggingMethod              = 2    // baryon overdensity
+MinimumOverDensityForRefinement = 2.0  // times the initial overdensity
+MinimumEfficiency               = 0.3  // fraction efficiency
+RefineRegionLeftEdge            = 0.2 0.2 0.2 // this stops the 'middle planes' from being
+RefineRegionRightEdge           = 0.8 0.8 0.8 //   refined (slows things down)
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10

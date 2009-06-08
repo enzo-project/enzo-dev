@@ -1,0 +1,46 @@
+#
+# PROBLEM DEFINITION FILE: Implosion test (unigrid version)
+#
+#  A 2D converging shock test problem.
+#
+#  Liska & Wendroff, 2003, SIAM J. Sci. Comp., 25, N3, 995-1017
+#  http://www-troja.fjfi.cvut.cz/~liska/CompareEuler/compare8
+#
+#  Jim Stone's Athena test page
+#  http://www.astro.princeton.edu/~jstone/tests/implode/Implode.html
+#
+#  problem setup
+#
+ProblemType               = 6       // implosion
+Gamma                     = 1.4
+DomainRightEdge           = 0.3 0.3
+#
+#  grid setup
+#
+TopGridRank               = 2
+TopGridDimensions         = 400 400
+#
+#  set I/O and stop/start parameters
+#
+StopTime                  = 2.5
+StopCycle                 = 20000
+dtDataDump                = 0.5         # Changed from 0.005 to reduce output  -jb
+DataDumpName              = implosion_
+#
+#  set hydro parameters
+#
+HydroMethod               = 0       // PPM - 0; ZEUS - 2
+PPMDiffusionParameter     = 1
+PPMFlatteningParameter    = 3
+PPMSteepeningParameter    = 1
+CourantSafetyNumber       = 0.8     // ppm - 0.8; zeus - 0.5
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0       // dynamic hierarchy
+MaximumRefinementLevel    = 0       // use up to 0 levels
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-6  // fixes velocity slope problem
+

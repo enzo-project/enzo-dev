@@ -1,0 +1,599 @@
+#=======================================================================
+#
+# FILE:        Make.config.targets
+#
+# SUMMARY:     Make targets for managing configuration settings
+#
+# AUTHOR:      James Bordner (jobordner@ucsd.edu)
+#
+# DATE:        2007-02-21
+#
+# DESCRIPTION  See 'gmake help-config' for definitive description of targets
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+help-config:
+	@echo "========================================================================"
+	@echo "   ENZO CONFIGURATION HELP"
+	@echo "========================================================================"
+	@echo
+	@echo "NUMERICAL PARAMETERS"
+	@echo
+	@echo "   Set maximum subgrids"
+	@echo
+	@echo "      gmake max-subgrids-###"
+	@echo
+	@echo "   Set maximum baryon fields"
+	@echo
+	@echo "      gmake max-baryons-###"
+	@echo
+	@echo "   Set maximum tasks per node"
+	@echo
+	@echo "      gmake max-tasks-per-node-###"
+	@echo
+	@echo
+	@echo "CONFIGURATION SETTINGS"
+	@echo
+	@echo "   Set integer size"
+	@echo
+	@echo "      gmake integers-32"
+	@echo "      gmake integers-64"
+	@echo
+	@echo "   Set floating-point precision"
+	@echo
+	@echo "      gmake precision-32"
+	@echo "      gmake precision-64"
+	@echo
+	@echo "   Set particle position precision"
+	@echo
+	@echo "      gmake particles-32"
+	@echo "      gmake particles-64"
+	@echo "      gmake particles-128"
+	@echo
+	@echo "   Set inits precision"
+	@echo
+	@echo "      gmake inits-32"
+	@echo "      gmake inits-64"
+	@echo
+	@echo "   Set IO precision"
+	@echo
+	@echo "      gmake io-32"
+	@echo "      gmake io-64"
+	@echo
+	@echo "   Set whether to use MPI"
+	@echo
+	@echo "      gmake use-mpi-yes"
+	@echo "      gmake use-mpi-no"
+	@echo
+	@echo "   Set address/pointer size"
+	@echo
+	@echo "      gmake object-mode-32"
+	@echo "      gmake object-mode-64"
+	@echo
+	@echo "   Set whether to use unigrid taskmap performance mod"
+	@echo
+	@echo "      gmake taskmap-yes"
+	@echo "      gmake taskmap-no"
+	@echo
+	@echo "   Set whether to use 'packed AMR' mods"
+	@echo
+	@echo "      gmake packed-amr-yes"
+	@echo "      gmake packed-amr-no"
+	@echo
+	@echo "   Set whether to use 'packed memory' mods (requires packed AMR)"
+	@echo
+	@echo "      gmake packed-mem-yes"
+	@echo "      gmake packed-mem-no"
+	@echo
+	@echo "   Set whether to call jbPerf performance tool"
+	@echo
+	@echo "      gmake jbperf-yes"
+	@echo "      gmake jbperf-no"
+	@echo
+	@echo "   Set whether to use the PAPI library with jbPerf"
+	@echo
+	@echo "      gmake papi-yes"
+	@echo "      gmake papi-no"
+	@echo
+	@echo "   Set whether to perform unigrid communication transpose"
+	@echo
+	@echo "      gmake unigrid-transpose-yes"
+	@echo "      gmake unigrid-transpose-no"
+	@echo
+	@echo "   Set whether to use out-of-core handling of the boundary"
+	@echo
+	@echo "      gmake ooc-boundary-yes"
+	@echo "      gmake ooc-boundary-no"
+	@echo
+	@echo "   Set optimization/debug/warning levels"
+	@echo
+	@echo "      gmake opt-warn"
+	@echo "      gmake opt-debug"
+	@echo "      gmake opt-high"
+	@echo "      gmake opt-aggressive"
+	@echo
+	@echo "   Include hooks for test suites"
+	@echo
+	@echo "      gmake testing-yes"
+	@echo "      gmake testing-no"
+	@echo
+	@echo "   Include isolated boundary conditions"
+	@echo 
+	@echo "      gmake isolated-bcs-yes"
+	@echo "      gmake isolated-bcs-no"
+	@echo
+	@echo "   Include tracer particle velocity information"
+	@echo
+	@echo "      gmake tpvel-yes"
+	@echo "      gmake tpvel-no"
+	@echo 
+	@echo "   Include radiative transfer (adaptive ray tracing)"
+	@echo
+	@echo "      gmake photon-yes"
+	@echo "      gmake photon-no"
+	@echo 
+
+#-----------------------------------------------------------------------
+
+show-flags:
+	@echo
+	@echo "CPP = `which $(CPP)`"
+	@echo "CC  = `which $(CC)`"
+	@echo "CXX = `which $(CXX)`"
+	@echo "FC  = `which $(FC)`"
+	@echo "F90 = `which $(F90)`"
+	@echo "LD  = `which $(LD)`"
+	@echo ""
+	@echo "DEFINES = $(DEFINES)"
+	@echo ""
+	@echo "INCLUDES = $(INCLUDES)"
+	@echo ""
+	@echo "CPPFLAGS = $(CPPFLAGS)"
+	@echo "CFLAGS   = $(CFLAGS)"
+	@echo "CXXFLAGS = $(CXXFLAGS)"
+	@echo "FFLAGS   = $(FFLAGS)"
+	@echo "F90FLAGS = $(F90FLAGS)"
+	@echo "LDFLAGS  = $(LDFLAGS)"
+	@echo ""
+	@echo "LIBS     = $(LIBS)"
+	@echo
+
+#-----------------------------------------------------------------------
+
+show-config:
+	@echo
+	@echo "   MACHINE: $(MACH_TEXT)"
+	@echo
+	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
+	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
+	@echo "   PARAMETER_MAX_TASKS_PER_NODE: $(PARAMETER_MAX_TASKS_PER_NODE)"
+	@echo
+	@echo "   CONFIG_PRECISION:             $(CONFIG_PRECISION)"
+	@echo "   CONFIG_PARTICLES:             $(CONFIG_PARTICLES)"
+	@echo "   CONFIG_INTEGERS:              $(CONFIG_INTEGERS)" 
+	@echo "   CONFIG_INITS:                 $(CONFIG_INITS)"
+	@echo "   CONFIG_IO:                    $(CONFIG_IO)"
+	@echo "   CONFIG_USE_MPI:               $(CONFIG_USE_MPI)"
+	@echo "   CONFIG_OBJECT_MODE:           $(CONFIG_OBJECT_MODE)"
+	@echo "   CONFIG_TASKMAP:               $(CONFIG_TASKMAP)"
+	@echo "   CONFIG_PACKED_AMR:            $(CONFIG_PACKED_AMR)"
+	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
+	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
+	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
+	@echo "   CONFIG_UNIGRID_TRANSPOSE:     $(CONFIG_UNIGRID_TRANSPOSE)"
+	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
+	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
+	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
+	@echo "   CONFIG_ISOBCS:                $(CONFIG_ISOBCS)"
+	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
+	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
+	@echo
+
+#-----------------------------------------------------------------------
+
+.PHONY: suggest-clean
+suggest-clean:
+	@echo
+	@echo " *** Execute 'gmake clean' before rebuilding executables ***"
+	@echo
+
+#-----------------------------------------------------------------------
+
+show-version:
+	@echo
+	@echo "SVN Branch   `$(SVN) info $(TOP_DIR) | awk '/URL/{print $$2}'`"
+	@echo "SVN Revision `$(SVN) info $(TOP_DIR) | awk '/Revision/{print $$2}'`"
+	@echo
+
+#-----------------------------------------------------------------------
+
+show-diff:
+	@$(SVN) diff
+
+#-----------------------------------------------------------------------
+.PHONY: default
+
+default:
+	@rm -f $(MAKE_CONFIG_OVERRIDE)
+	@touch $(MAKE_CONFIG_OVERRIDE)
+	@$(MAKE) show-config
+	@$(MAKE) suggest-clean
+
+#-----------------------------------------------------------------------
+
+max-subgrids-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v PARAMETER_MAX_SUBGRIDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "PARAMETER_MAX_SUBGRIDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep PARAMETER_MAX_SUBGRIDS:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+max-baryons-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v PARAMETER_MAX_BARYONS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "PARAMETER_MAX_BARYONS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep PARAMETER_MAX_BARYONS:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+max-tasks-per-node-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v PARAMETER_MAX_TASKS_PER_NODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "PARAMETER_MAX_TASKS_PER_NODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep PARAMETER_MAX_TASKS_PER_NODE:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+machine-%: suggest-clean
+	@if [ -e $(ENZO_DIR)/Make.mach.$* ] || [ -e $(HOME)/.enzo/Make.mach.$* ]; then \
+           tmp=.config.temp; \
+           grep -v CONFIG_MACHINE $(MAKE_CONFIG_MACHINE) > $${tmp}; \
+           mv $${tmp} $(MAKE_CONFIG_MACHINE); \
+           echo "CONFIG_MACHINE = $*" >> $(MAKE_CONFIG_MACHINE); \
+	   $(MAKE)  show-config | grep MACHINE; \
+	else \
+           echo; \
+	   echo "   No such machine file "'"'"Make.mach.$*"'"'; \
+           echo; \
+        fi
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_INTEGERS = integers-32 integers-64
+.PHONY: $(VALID_INTEGERS)
+
+integers-32: CONFIG_INTEGERS-32
+integers-64: CONFIG_INTEGERS-64
+integers-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_INTEGERS)]\n\n"
+CONFIG_INTEGERS-%: suggest-clean
+	@tmp=.config.temp; \
+	grep -v CONFIG_INTEGERS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_INTEGERS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_INTEGERS:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PRECISION = precision-32 precision-64
+.PHONY: $(VALID_PRECISION)
+
+precision-32: CONFIG_PRECISION-32
+precision-64: CONFIG_PRECISION-64
+precision-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PRECISION)]\n\n"
+CONFIG_PRECISION-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PRECISION $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PRECISION = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PRECISION:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PARTICLES = particles-32 particles-64 particles-128
+.PHONY: $(VALID_PARTICLES)
+.PHONE: particles-%
+
+particles-32:  CONFIG_PARTICLES-32
+particles-64:  CONFIG_PARTICLES-64
+particles-128: CONFIG_PARTICLES-128
+particles-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PARTICLES)]\n\n"
+CONFIG_PARTICLES-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PARTICLES $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PARTICLES = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PARTICLES:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_INITS = inits-32 inits-64
+.PHONY: $(VALID_INITS)
+
+inits-32: CONFIG_INITS-32
+inits-64: CONFIG_INITS-64
+inits-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_INITS)]\n\n"
+CONFIG_INITS-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_INITS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_INITS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_INITS:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_IO = io-32 io-64
+.PHONY: $(VALID_IO)
+
+io-32: CONFIG_IO-32
+io-64: CONFIG_IO-64
+io-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_IO)]\n\n"
+CONFIG_IO-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_IO:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_USE-MPI = use-mpi-yes use-mpi-no
+.PHONY: $(VALID_USE-MPI)
+
+use-mpi-yes: CONFIG_USE-MPI-yes
+use-mpi-no: CONFIG_USE-MPI-no
+use-mpi-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_USE-MPI)]\n\n"
+CONFIG_USE-MPI-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_USE_MPI $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_USE_MPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_USE_MPI:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_OBJECT-MODE = object-mode-32 object-mode-64
+.PHONY: $(VALID_OBJECT-MODE)
+
+object-mode-32: CONFIG_OBJECT-MODE-32
+object-mode-64: CONFIG_OBJECT-MODE-64
+object-mode-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OBJECT-MODE)]\n\n"
+CONFIG_OBJECT-MODE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_OBJECT_MODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_OBJECT_MODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_TASKMAP = taskmap-yes taskmap-no
+.PHONY: $(VALID_TASKMAP)
+
+taskmap-yes: CONFIG_TASKMAP-yes
+taskmap-no: CONFIG_TASKMAP-no
+taskmap-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TASKMAP)]\n\n"
+CONFIG_TASKMAP-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_TASKMAP $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_TASKMAP = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_TASKMAP:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PACKED-AMR = packed-amr-yes packed-amr-no
+.PHONY: $(VALID_PACKED-AMR)
+
+packed-amr-yes: CONFIG_PACKED-AMR-yes
+packed-amr-no: CONFIG_PACKED-AMR-no
+packed-amr-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PACKED-AMR)]\n\n"
+CONFIG_PACKED-AMR-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PACKED_AMR $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PACKED_AMR = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PACKED_AMR:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PACKED-MEM = packed-mem-yes packed-mem-no
+.PHONY: $(VALID_PACKED-MEM)
+
+packed-mem-yes: CONFIG_PACKED-MEM-yes
+packed-mem-no: CONFIG_PACKED-MEM-no
+packed-mem-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PACKED-MEM)]\n\n"
+CONFIG_PACKED-MEM-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PACKED_MEM $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PACKED_MEM = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PACKED_MEM:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_JBPERF = jbperf-yes jbperf-no
+.PHONY: $(VALID_JBPERF)
+
+jbperf-yes: CONFIG_JBPERF-yes
+jbperf-no: CONFIG_JBPERF-no
+jbperf-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_JBPERF)]\n\n"
+CONFIG_JBPERF-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_JBPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_JBPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_JBPERF:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PAPI = papi-yes papi-no
+.PHONY: $(VALID_PAPI)
+
+papi-yes: CONFIG_PAPI-yes
+papi-no: CONFIG_PAPI-no
+papi-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PAPI)]\n\n"
+CONFIG_PAPI-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PAPI $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PAPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PAPI:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_UNIGRID-TRANSPOSE = unigrid-transpose-yes unigrid-transpose-no
+.PHONY: $(VALID_UNIGRID-TRANSPOSE)
+
+unigrid-transpose-yes: CONFIG_UNIGRID-TRANSPOSE-yes
+unigrid-transpose-no: CONFIG_UNIGRID-TRANSPOSE-no
+unigrid-transpose-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_UNIGRID-TRANSPOSE)]\n\n"
+CONFIG_UNIGRID-TRANSPOSE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_UNIGRID_TRANSPOSE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_UNIGRID_TRANSPOSE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_UNIGRID_TRANSPOSE:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_OOC-BOUNDARY = ooc-boundary-yes ooc-boundary-no
+.PHONY: $(VALID_OOC-BOUNDARY)
+
+ooc-boundary-yes: CONFIG_OOC-BOUNDARY-yes
+ooc-boundary-no: CONFIG_OOC-BOUNDARY-no
+ooc-boundary-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OOC-BOUNDARY)]\n\n"
+CONFIG_OOC-BOUNDARY-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_OOC_BOUNDARY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_OOC_BOUNDARY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_OOC_BOUNDARY:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_OPT = opt-warn opt-debug opt-high opt-aggressive
+.PHONY: $(VALID_OPT)
+
+opt-warn:       CONFIG_OPT-warn
+opt-debug:      CONFIG_OPT-debug
+opt-high:       CONFIG_OPT-high
+opt-aggressive: CONFIG_OPT-aggressive
+opt-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OPT)]\n\n"
+CONFIG_OPT-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_OPT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_OPT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_OPT:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_TESTING = testing-yes testing-no
+.PHONY: $(VALID_TESTING)
+
+testing-yes: CONFIG_TESTING-yes
+testing-no: CONFIG_TESTING-no
+testing-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TESTING)]\n\n"
+CONFIG_TESTING-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_TESTING $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_TESTING = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_TESTING:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_ISOBCS = isolated-bcs-yes isolated-bcs-no
+.PHONY: $(VALID_ISOBCS)
+
+isolated-bcs-yes: CONFIG_ISOBCS-yes
+isolated-bcs-no: CONFIG_ISOBCS-no
+
+isolated-bcs-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ISOBCS)]\n\n"
+CONFIG_ISOBCS-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_ISOBCS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ISOBCS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_ISOBCS:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_TPVEL = tpvel-yes tpvel-no
+.PHONY: $(VALID_TPVEL)
+
+tpvel-yes: CONFIG_TPVEL-yes
+tpvel-no: CONFIG_TPVEL-no
+tpvel-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TPVEL)]\n\n"
+CONFIG_TPVEL-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_TPVEL = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_TPVEL:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PHOTON = photon-yes photon-no
+.PHONY: $(VALID_PHOTON)
+
+photon-yes: CONFIG_PHOTON-yes
+photon-no: CONFIG_PHOTON-no
+photon-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
+CONFIG_PHOTON-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_PHOTON:
+	@echo
+

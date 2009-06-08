@@ -1,0 +1,215 @@
+#=======================================================================
+# File:        Make.config.settings
+# Author:      James Bordner (jobordner@ucsd.edu)
+# Description: This file contains all default compile-time configuration 
+# Description: settings and parameter values
+#=======================================================================
+#
+# Parameters:
+#
+#    PARAMETER_MAX_SUBGRIDS
+#    PARAMETER_MAX_BARYONS
+#    PARAMETER_MAX_TASKS_PER_NODE
+#
+# Configuration settings
+# 
+#    CONFIG_INTEGERS
+#    CONFIG_PRECISION
+#    CONFIG_PARTICLES
+#    CONFIG_INITS
+#    CONFIG_IO
+#    CONFIG_USE_MPI
+#    CONFIG_OBJECT_MODE
+#    CONFIG_TASKMAP
+#    CONFIG_PACKED_AMR
+#    CONFIG_PACKED_MEM
+#    CONFIG_JBPERF
+#    CONFIG_PAPI
+#    CONFIG_UNIGRID_TRANSPOSE
+#    CONFIG_OOC_BOUNDARY
+#    CONFIG_OPT
+#    CONFIG_TESTING
+#    CONFIG_ISOBCS
+#    CONFIG_TPVEL
+#
+#=======================================================================
+
+    PARAMETER_MAX_SUBGRIDS       = 100000
+    PARAMETER_MAX_BARYONS        = 20
+    PARAMETER_MAX_TASKS_PER_NODE = 8
+
+
+#=======================================================================
+# CONFIG_INTEGERS
+#=======================================================================
+#    32            use 32-bit integers
+#    64            use 64-bit integers
+#-----------------------------------------------------------------------
+
+     CONFIG_INTEGERS = 64
+
+#=======================================================================
+# CONFIG_PRECISION
+#=======================================================================
+#    32            use 32-bit precision for floating point data
+#    64            use 64-bit precision for floating point data
+#-----------------------------------------------------------------------
+
+     CONFIG_PRECISION = 64
+
+#=======================================================================
+# CONFIG_PARTICLES
+#=======================================================================
+#    32            use  32-bit precision for particle positions
+#    64            use  64-bit precision for particle positions
+#   128            use 128-bit precision for particle positions
+#-----------------------------------------------------------------------
+
+     CONFIG_PARTICLES = 64
+
+#=======================================================================
+# CONFIG_INITS
+#=======================================================================
+#    32            use 32-bit precision for inits
+#    64            use 64-bit precision for inits
+#-----------------------------------------------------------------------
+
+     CONFIG_INITS = 64
+
+#=======================================================================
+# CONFIG_IO
+#=======================================================================
+#    32            use 32-bit precision for IO
+#    64            use 64-bit precision for IO
+#-----------------------------------------------------------------------
+
+     CONFIG_IO = 32
+
+#=======================================================================
+# CONFIG_USE_MPI
+#=======================================================================
+#    yes           compile with MPI
+#     no           don't compile with MPI
+#-----------------------------------------------------------------------
+
+     CONFIG_USE_MPI = yes
+
+#=======================================================================
+# CONFIG_OBJECT_MODE
+#=======================================================================
+#    32            compile using 32-bit object format
+#    64            compile using 64-bit object format
+#-----------------------------------------------------------------------
+
+     CONFIG_OBJECT_MODE = 64
+
+#=======================================================================
+# CONFIG_TASKMAP
+#=======================================================================
+#    yes           use unigrid taskmapping
+#    no            don't use unigrid taskmapping
+#-----------------------------------------------------------------------
+
+     CONFIG_TASKMAP = no
+
+#=======================================================================
+# CONFIG_PACKED_AMR
+#=======================================================================
+#    yes           use packed AMR
+#    no            don't use packed AMR
+#-----------------------------------------------------------------------
+
+     CONFIG_PACKED_AMR = yes
+
+#=======================================================================
+# CONFIG_PACKED_MEM
+#=======================================================================
+#    yes           use packed mem with packed AMR
+#    no            don't use packed mem with packed AMR
+#-----------------------------------------------------------------------
+
+     CONFIG_PACKED_MEM = no
+
+#=======================================================================
+# CONFIG_JBPERF
+#=======================================================================
+#    yes           use jbPerf performance profiling package
+#    no            don't use jbPerf performance profiling package
+#-----------------------------------------------------------------------
+
+     CONFIG_JBPERF = no
+
+#=======================================================================
+# CONFIG_PAPI
+#=======================================================================
+#    yes           use PAPI hardware counter package with jbPerf
+#    no            don't use PAPI hardware counter package with jbPerf
+#-----------------------------------------------------------------------
+
+     CONFIG_PAPI = no
+
+#=======================================================================
+# CONFIG_UNIGRID_TRANSPOSE
+#=======================================================================
+#    yes           use unigrid transpose optimizations
+#    no            don't use unigrid transpose optimizations
+#-----------------------------------------------------------------------
+
+     CONFIG_UNIGRID_TRANSPOSE = yes
+
+#=======================================================================
+# CONFIG_OOC_BOUNDARY
+#=======================================================================
+#    yes           use out-of-core top-grid boundary conditions
+#    no            don't use out-of-core top-grid boundary conditions
+#-----------------------------------------------------------------------
+
+     CONFIG_OOC_BOUNDARY = no
+
+#=======================================================================
+# CONFIG_OPT
+#=======================================================================
+#    warn          Write out verbose warnings when compiling
+#    debug         Compile for debugging
+#    high          Use conservative but high optimization
+#    aggressive    Use aggressive optimization
+#-----------------------------------------------------------------------
+
+     CONFIG_OPT = debug
+
+#=======================================================================
+# CONFIG_TESTING
+#=======================================================================
+#    yes           Include hooks for test suites
+#    no            Do not include hooks for test suites
+#-----------------------------------------------------------------------
+
+     CONFIG_TESTING = no
+
+#=======================================================================
+# CONFIG_ISOBCS
+#=======================================================================
+#    yes           Include isolated boundary conditions (using FFT)
+#    no            Do not include isolated boundary conditions (using FFT)
+#-----------------------------------------------------------------------
+
+     CONFIG_ISOBCS = no
+
+#=======================================================================
+# CONFIG_TPVEL
+#=======================================================================
+#    yes           Include tracer particle velocity info printout
+#    no            Do not include tracer particle velocity info printout
+#-----------------------------------------------------------------------
+
+     CONFIG_TPVEL = no
+
+#=======================================================================
+# CONFIG_PHOTON
+#=======================================================================
+#    yes           Include adaptive ray tracing for radiative transfer
+#    no            Do not include adaptive ray tracing
+#-----------------------------------------------------------------------
+
+     CONFIG_PHOTON = no
+

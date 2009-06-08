@@ -1,0 +1,35 @@
+#!/bin/csh -f
+
+# Create empty src/*/DEPEND files.  These files are currently required
+# by make, but should not be stored in the subversion repository.
+# This is because the DEPEND files will change later, and the contents
+# will be machine-dependent.
+
+set EXECS = (enzo ring inits enzohop)
+
+foreach exec ($EXECS)
+
+   set depend_file = src/$exec/DEPEND
+
+   rm -f $depend_file
+   touch $depend_file
+
+end
+
+# Create empty src/enzo/Make.config.override file.  This file is
+# required by make, but should not be stored in the subversion
+# repository.  This is because the file will change later, and the
+# contents will be configuration-dependent.
+
+rm -f src/enzo/Make.config.override
+touch src/enzo/Make.config.override
+
+# Initialize the Make.config.machine file if it does not exist
+# Leave alone if it does exist
+
+if (! -e src/enzo/Make.config.machine) then
+   echo "CONFIG_MACHINE = unknown" > src/enzo/Make.config.machine
+endif
+
+
+

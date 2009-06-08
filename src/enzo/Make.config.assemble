@@ -1,0 +1,691 @@
+#-----------------------------------------------------------------------
+#
+# This make include file is used for assigning appropriate values to
+# the following variables given CONFIG_* and MACH_* variables:
+#
+# Compilers
+#
+#    CPP                C preprocessor
+#    CC                 C compiler
+#    CXX                C++ compiler
+#    FC                 Fortran 77 compiler
+#    F90                Fortran 90 compiler
+#    LD                 Linker 
+# 
+# Compiler flags
+#
+#    CPPFLAGS           Flags for the C preprocessor
+#    CFLAGS             Flags for the C compiler
+#    CXXFLAGS           Flags for the C++ compiler
+#    FFLAGS             Flags for the Fortran 77 compiler
+#    F90FLAGS           Flags for the Fortran 90 compiler
+#    LDFLAGS            Flags for the Linker      
+#                      
+# Preprocessor defines
+#
+#    DEFINES            Preprocessor defines for C, C++, and Fortran
+#
+# Object files
+#
+#    OBJS              List of all object files to compile
+#    OBJS_LIB          Same list, without X_Main.o
+#
+#
+# Libraries
+#
+#    LIBS              List of all libraries to link
+#
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# SET PARAMETER DEFINES FOR HARKNESS VERSION 2008-05-15
+#-----------------------------------------------------------------------
+
+    ASSEMBLE_PARAMETER_DEFINES = \
+          -D__max_subgrids=$(PARAMETER_MAX_SUBGRIDS) \
+          -D__max_baryons=$(PARAMETER_MAX_BARYONS) \
+          -D__max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE)
+
+#-----------------------------------------------------------------------
+# DETERMINE INTEGER SIZE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_INTEGERS = 1
+
+    # Settings for 32-bit integers
+
+    ifeq ($(CONFIG_INTEGERS),32)
+        ERROR_INTEGERS = 0
+        ASSEMBLE_INTEGER_DEFINES = -DSMALL_INTS
+        ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_32)
+    endif
+
+    # Settings for 64-bit integers
+
+    ifeq ($(CONFIG_INTEGERS),64)
+        ERROR_INTEGERS = 0
+        ASSEMBLE_INTEGER_DEFINES = -DLARGE_INTS
+        ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_64)
+    endif
+
+    # error if CONFIG_INTEGERS is incorrect
+
+    ifeq ($(ERROR_INTEGERS),1)
+       .PHONY: error_integers
+       error_integers:
+	$(error Illegal value '$(CONFIG_INTEGERS)' for $$(CONFIG_INTEGERS))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE FLOATING POINT PRECISION SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PRECISION = 1
+
+    # Settings for 32-bit floating point precision
+
+    ifeq ($(CONFIG_PRECISION),32)
+        ERROR_PRECISION = 0
+        ASSEMBLE_PRECISION_DEFINES = -Dr4
+        ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
+    endif
+
+    # Settings for 64-bit floating point precision
+
+    ifeq ($(CONFIG_PRECISION),64)
+        ERROR_PRECISION = 0
+        ASSEMBLE_PRECISION_DEFINES = -Dr8
+        ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
+    endif
+
+    # error if CONFIG_PRECISION is incorrect
+
+    ifeq ($(ERROR_PRECISION),1)
+       .PHONY: error_precision
+       error_precision:
+	$(error Illegal value '$(CONFIG_PRECISION)' for $$(CONFIG_PRECISION))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PARTICLE PRECISION SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PARTICLES = 1
+
+    # Settings for 32-bit particle position precision
+
+    ifeq ($(CONFIG_PARTICLES),32)
+        ERROR_PARTICLES = 0
+        ASSEMBLE_PARTICLES_DEFINES = -Dp4
+    endif
+
+    # Settings for 64-bit particle position precision
+
+    ifeq ($(CONFIG_PARTICLES),64)
+        ERROR_PARTICLES = 0
+        ASSEMBLE_PARTICLES_DEFINES = -Dp8
+    endif
+
+    # Settings for 128-bit particle position precision
+
+    ifeq ($(CONFIG_PARTICLES),128)
+        ERROR_PARTICLES = 0
+        ASSEMBLE_PARTICLES_DEFINES = -Dp16
+    endif
+
+    # error if CONFIG_PARTICLES is incorrect
+
+    ifeq ($(ERROR_PARTICLES),1)
+       .PHONY: error_particles
+       error_particles:
+	$(error Illegal value '$(CONFIG_PARTICLES)' for $$(CONFIG_PARTICLES))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE INITS PRECISION
+#-----------------------------------------------------------------------
+
+    ERROR_INITS = 1
+
+    # Settings for 32-bit inits
+
+    ifeq ($(CONFIG_INITS),32)
+        ERROR_INITS = 0
+        ASSEMBLE_INITS_DEFINES = -DINITS32
+    endif
+
+    # Settings for 64-bit inits
+
+    ifeq ($(CONFIG_INITS),64)
+        ERROR_INITS = 0
+        ASSEMBLE_INITS_DEFINES = -DINITS64
+    endif
+
+    # error if CONFIG_INITS is incorrect
+
+    ifeq ($(ERROR_INITS),1)
+       .PHONY: error_inits
+       error_inits: ;  $(error Illegal value $(CONFIG_INITS) for $$(CONFIG_INITS))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE IO PRECISION SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_IO = 1
+
+    # Settings for 32-bit I/O
+
+    ifeq ($(CONFIG_IO),32)
+        ERROR_IO = 0
+        ASSEMBLE_IO_DEFINES = -DIO_32
+    endif
+
+    # Settings for 64-bit io
+
+    ifeq ($(CONFIG_IO),64)
+        ERROR_IO = 0
+        ASSEMBLE_IO_DEFINES = -DIO_64
+    endif
+
+    # error if CONFIG_IO is incorrect
+
+    ifeq ($(ERROR_IO),1)
+       .PHONY: error_io
+       error_io:
+	$(error Illegal value '$(CONFIG_IO)' for $$(CONFIG_IO))
+    endif
+
+#=======================================================================
+# DETERMINE MPI USAGE
+#=======================================================================
+
+    ERROR_USE_MPI = 1
+
+    ASSEMBLE_CPP = $(MACH_CPP)
+
+    # compilers and settings if USE_MPI is yes
+
+    ifeq ($(CONFIG_USE_MPI),yes)
+        ERROR_USE_MPI = 0
+        ASSEMBLE_CC  = $(MACH_CC_MPI)
+        ASSEMBLE_CXX = $(MACH_CXX_MPI)
+        ASSEMBLE_FC  = $(MACH_FC_MPI)
+        ASSEMBLE_F90 = $(MACH_F90_MPI)
+        ASSEMBLE_LD  = $(MACH_LD_MPI)
+        ASSEMBLE_MPI_DEFINES  = -DUSE_MPI
+        ASSEMBLE_MPI_INCLUDES = $(MACH_INCLUDES_MPI)
+        ASSEMBLE_MPI_LIBS     = $(MACH_LIBS_MPI)
+    endif
+
+    # compilers and settings if USE_MPI is no
+
+    ifeq ($(CONFIG_USE_MPI),no)
+        ERROR_USE_MPI = 0
+        ASSEMBLE_CC  = $(MACH_CC_NOMPI)
+        ASSEMBLE_CXX = $(MACH_CXX_NOMPI)
+        ASSEMBLE_FC  = $(MACH_FC_NOMPI)
+        ASSEMBLE_F90 = $(MACH_F90_NOMPI)
+        ASSEMBLE_LD  = $(MACH_LD_NOMPI)
+    endif
+
+    # error if CONFIG_USE_MPI is incorrect
+
+    ifeq ($(ERROR_USE_MPI),1)
+       .PHONY: error_compilers
+       error_compilers:
+	$(error Illegal value '$(CONFIG_USE_MPI)' for $$(CONFIG_USE_MPI))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE OBJECT MODE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_OBJECT_MODE = 1
+
+    # Settings for compiling 32-bit object files
+
+    ifeq ($(CONFIG_OBJECT_MODE),32)
+	ERROR_OBJECT_MODE = 0
+    endif
+
+    # Settings for compiling 64-bit object files
+
+    ifeq ($(CONFIG_OBJECT_MODE),64)
+        ERROR_OBJECT_MODE = 0
+    endif
+
+    # error if CONFIG_OBJECT_MODE is incorrect
+
+    ifeq ($(ERROR_OBJECT_MODE),1)
+       .PHONY: error_object_mode
+       error_object_mode:
+	$(error Illegal value '$(CONFIG_OBJECT_MODE)' for $$(CONFIG_OBJECT_MODE))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE TASKMAP SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_TASKMAP = 1
+
+    # Settings for using TASKMAP mods
+
+    ifeq ($(CONFIG_TASKMAP),yes)
+        ERROR_TASKMAP = 0
+        ASSEMBLE_TASKMAP_DEFINES = -DTASKMAP -DENABLE_TASKMAP
+    endif
+
+    # Settings for not using TASKMAP mods
+
+    ifeq ($(CONFIG_TASKMAP),no)
+        ERROR_TASKMAP = 0
+        ASSEMBLE_TASKMAP_DEFINES = 
+    endif
+
+    # error if CONFIG_TASKMAP is incorrect
+
+    ifeq ($(ERROR_TASKMAP),1)
+       .PHONY: error_taskmap
+       error_taskmap:
+	$(error Illegal value '$(CONFIG_TASKMAP)' for $$(CONFIG_TASKMAP))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PACKED_AMR SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PACKED_AMR = 1
+
+    # Settings for using PACKED_AMR mods
+
+    ifeq ($(CONFIG_PACKED_AMR),yes)
+        ERROR_PACKED_AMR = 0
+        ASSEMBLE_PACKED_AMR_DEFINES = \
+                 -DUSE_HDF5_GROUPS
+    endif
+#                 -DSINGLE_HDF5_OPEN_ON_INPUT
+
+    # Settings for not using PACKED_AMR mods
+
+    ifeq ($(CONFIG_PACKED_AMR),no)
+        ERROR_PACKED_AMR = 0
+        ASSEMBLE_PACKED_AMR_DEFINES = 
+    endif
+
+    # error if CONFIG_PACKED_AMR is incorrect
+
+    ifeq ($(ERROR_PACKED_AMR),1)
+       .PHONY: error_packed_amr
+       error_packed_amr:
+	$(error Illegal value '$(CONFIG_PACKED_AMR)' for $$(CONFIG_PACKED_AMR))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PACKED_MEM SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PACKED_MEM = 1
+
+    # Settings for using PACKED_MEM mods
+
+    ifeq ($(CONFIG_PACKED_MEM),yes)
+        ERROR_PACKED_MEM = 0
+        ASSEMBLE_PACKED_MEM_DEFINES = -DUSE_HDF5_OUTPUT_BUFFERING
+    endif
+
+    # Settings for not using PACKED_MEM mods
+
+    ifeq ($(CONFIG_PACKED_MEM),no)
+        ERROR_PACKED_MEM = 0
+        ASSEMBLE_PACKED_MEM_DEFINES = 
+    endif
+
+    # error if CONFIG_PACKED_MEM is incorrect
+
+    ifeq ($(ERROR_PACKED_MEM),1)
+       .PHONY: error_packed_mem
+       error_packed_mem:
+	$(error Illegal value '$(CONFIG_PACKED_MEM)' for $$(CONFIG_PACKED_MEM))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE JBPERF SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_JBPERF = 1
+
+    # Settings to turn jbPerf ON
+
+    ifeq ($(CONFIG_JBPERF),yes)
+        ERROR_JBPERF = 0
+        ASSEMBLE_JBPERF_DEFINES = -DUSE_JBPERF -DJBPERF_LEVEL_2
+        ASSEMBLE_JBPERF_INCLUDES = $(MACH_INCLUDES_JBPERF)
+        ASSEMBLE_JBPERF_LIBS     = $(MACH_LIBS_JBPERF)
+    endif
+
+    # Settings to turn jbPerf OFF
+
+    ifeq ($(CONFIG_JBPERF),no)
+        ERROR_JBPERF = 0
+    endif
+
+    # error if CONFIG_JBPERF is incorrect
+
+    ifeq ($(ERROR_JBPERF),1)
+       .PHONY: error_jbperf
+       error_jbperf:
+	$(error Illegal value '$(CONFIG_JBPERF)' for $$(CONFIG_JBPERF))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PAPI SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PAPI = 1
+
+    # Settings to turn papi ON
+
+    ifeq ($(CONFIG_PAPI),yes)
+        ERROR_PAPI = 0
+        ASSEMBLE_PAPI_DEFINES = -DUSE_PAPI
+        ASSEMBLE_PAPI_INCLUDES = $(MACH_INCLUDES_PAPI)
+        ASSEMBLE_PAPI_LIBS     = $(MACH_LIBS_PAPI)
+    endif
+
+    # Settings to turn papi OFF
+
+    ifeq ($(CONFIG_PAPI),no)
+        ERROR_PAPI = 0
+    endif
+
+    # error if CONFIG_PAPI is incorrect
+
+    ifeq ($(ERROR_PAPI),1)
+       .PHONY: error_papi
+       error_papi:
+	$(error Illegal value '$(CONFIG_PAPI)' for $$(CONFIG_PAPI))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE UNIGRID_TRANSPOSE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_UNIGRID_TRANSPOSE = 1
+
+    # Settings to turn unigrid transpose ON
+
+    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),yes)
+        ERROR_UNIGRID_TRANSPOSE = 0
+        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES = -DUNIGRID_TRANSPOSE
+    endif
+
+    # Settings to turn unigrid transpose OFF
+
+    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),no)
+        ERROR_UNIGRID_TRANSPOSE = 0
+        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES =
+    endif
+
+    # error if CONFIG_UNIGRID_TRANSPOSE is incorrect
+
+    ifeq ($(ERROR_UNIGRID_TRANSPOSE),1)
+       .PHONY: error_unigrid_transpose
+       error_unigrid_transpose:
+	$(error Illegal value '$(CONFIG_UNIGRID_TRANSPOSE)' for $$(CONFIG_UNIGRID_TRANSPOSE))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE OOC_BOUNDARY SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_OOC_BOUNDARY = 1
+
+    # Settings to turn out-of-core boundary conditions ON
+
+    ifeq ($(CONFIG_OOC_BOUNDARY),yes)
+        ERROR_OOC_BOUNDARY = 0
+        ASSEMBLE_OOC_BOUNDARY_DEFINES = -DOOC_BOUNDARY
+    endif
+
+    # Settings to turn out-of-core boundary conditions OFF
+
+    ifeq ($(CONFIG_OOC_BOUNDARY),no)
+        ERROR_OOC_BOUNDARY = 0
+        ASSEMBLE_OOC_BOUNDARY_DEFINES =
+    endif
+
+    # error if CONFIG_OOC_BOUNDARY is incorrect
+
+    ifeq ($(ERROR_OOC_BOUNDARY),1)
+       .PHONY: error_ooc_boundary
+       error_ooc_boundary:
+	$(error Illegal value '$(CONFIG_OOC_BOUNDARY)' for $$(CONFIG_OOC_BOUNDARY))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE OPTIMIZATION LEVEL SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_OPT = 1
+
+    # Settings for verbose warnings 
+
+    ifeq ($(CONFIG_OPT),warn)
+        ERROR_OPT = 0
+        ASSEMBLE_OPT_FLAGS = $(MACH_OPT_WARN)
+    endif
+
+    # Settings for debugging
+
+    ifeq ($(CONFIG_OPT),debug)
+        ERROR_OPT = 0
+        ASSEMBLE_OPT_FLAGS = $(MACH_OPT_DEBUG)
+    endif
+
+    # Settings for high conservative optimization
+
+    ifeq ($(CONFIG_OPT),high)
+        ERROR_OPT = 0
+        ASSEMBLE_OPT_FLAGS = $(MACH_OPT_HIGH)
+    endif
+
+    # Settings for aggressive optimization
+
+    ifeq ($(CONFIG_OPT),aggressive)
+        ERROR_OPT = 0
+        ASSEMBLE_OPT_FLAGS = $(MACH_OPT_AGGRESSIVE)
+    endif
+
+    # error if CONFIG_OPT is incorrect
+
+    ifeq ($(ERROR_OPT),1)
+       .PHONY: error_opt
+       error_opt:
+	$(error Illegal value '$(CONFIG_OPT)' for $$(CONFIG_OPT))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE TEST SUITE HOOK SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_TESTING = 1
+
+    # Settings for test suite hooks on
+
+    ifeq ($(CONFIG_TESTING),yes)
+        ERROR_TESTING = 0
+        ASSEMBLE_TESTING_DEFINES = -DCONFIG_TESTING
+    endif
+
+    # Settings for test suite hooks off
+
+    ifeq ($(CONFIG_TESTING),no)
+        ERROR_TESTING = 0
+        ASSEMBLE_TESTING_DEFINES = 
+    endif
+
+    # error if CONFIG_TESTING is incorrect
+
+    ifeq ($(ERROR_TESTING),1)
+       .PHONY: error_testing
+       error_testing:
+	$(error Illegal value '$(CONFIG_TESTING)' for $$(CONFIG_TESTING))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE ISOLATED GRAVITY BOUNDARY CONDITION (ISOBCS) SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_ISOBCS = 1
+
+    # Settings to turn isolated gravity boundary conditions ON
+
+    ifeq ($(CONFIG_ISOBCS),yes)
+        ERROR_ISOBCS = 0
+        ASSEMBLE_ISOBCS_DEFINES = -DISOLATED_GRAVITY
+    endif
+
+    # Settings to turn isolated gravity boundary conditions OFF
+
+    ifeq ($(CONFIG_ISOBCS),no)
+        ERROR_ISOBCS = 0
+        ASSEMBLE_ISOBCS_DEFINES =
+    endif
+
+    # error if CONFIG_ISOBCS is incorrect
+
+    ifeq ($(ERROR_ISOBCS),1)
+       .PHONY: error_isobcs
+       error_isobcs:
+	$(error Illegal value '$(CONFIG_ISOBCS)' for $$(CONFIG_ISOBCS))
+    endif
+
+
+#-----------------------------------------------------------------------
+# DETERMINE TRACER PARTICLE VELOCITY OUTPUT SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_TPVEL = 1
+
+    # Settings to turn isolated gravity boundary conditions ON
+
+    ifeq ($(CONFIG_TPVEL),yes)
+        ERROR_TPVEL = 0
+        ASSEMBLE_TPVEL_DEFINES = -DTP_VELOCITY
+    endif
+
+    # Settings to turn isolated gravity boundary conditions OFF
+
+    ifeq ($(CONFIG_TPVEL),no)
+        ERROR_TPVEL = 0
+        ASSEMBLE_TPVEL_DEFINES =
+    endif
+
+    # error if CONFIG_TPVEL is incorrect
+
+    ifeq ($(ERROR_TPVEL),1)
+       .PHONY: error_tpvel
+       error_tpvel:
+	$(error Illegal value '$(CONFIG_TPVEL)' for $$(CONFIG_TPVEL))
+    endif
+
+
+#-----------------------------------------------------------------------
+# DETERMINE RADIATIVE TRANSFER SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PHOTON = 1
+
+    # Settings to turn radiative transfer ON
+
+    ifeq ($(CONFIG_PHOTON),yes)
+        ERROR_PHOTON = 0
+        ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
+	OBJS_PHOTON_LIB = $(POBJS_CONFIG_LIB)
+    endif
+
+    # Settings to turn radiative transfer OFF
+
+    ifeq ($(CONFIG_PHOTON),no)
+        ERROR_PHOTON = 0
+        ASSEMBLE_PHOTON_DEFINES =
+	OBJS_PHOTON_LIB = 
+    endif
+
+    # error if CONFIG_PHOTON is incorrect
+
+    ifeq ($(ERROR_PHOTON),1)
+       .PHONY: error_transfer
+       error_tpvel:
+	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+    endif
+
+
+
+#=======================================================================
+# ASSIGN ALL OUTPUT VARIABLES
+#=======================================================================
+
+    CPP      = $(ASSEMBLE_CPP)
+    CC       = $(ASSEMBLE_CC)
+    CXX      = $(ASSEMBLE_CXX)
+    FC       = $(ASSEMBLE_FC)
+    F90      = $(ASSEMBLE_F90)
+    LD       = $(ASSEMBLE_LD)
+
+    CPPFLAGS = $(MACH_CPPFLAGS)
+    CFLAGS   = $(MACH_CFLAGS) \
+               $(ASSEMBLE_OPT_FLAGS)
+    CXXFLAGS = $(MACH_CXXFLAGS) \
+               $(ASSEMBLE_OPT_FLAGS)
+    FFLAGS   = $(MACH_FFLAGS) \
+               $(ASSEMBLE_PRECISION_FFLAGS) \
+               $(ASSEMBLE_INTEGER_FFLAGS) \
+               $(ASSEMBLE_OPT_FLAGS)
+    F90FLAGS = $(MACH_F90FLAGS) \
+               $(ASSEMBLE_PRECISION_FFLAGS) \
+               $(ASSEMBLE_INTEGER_FFLAGS) \
+               $(ASSEMBLE_OPT_FLAGS)
+    LDFLAGS  = $(MACH_LDFLAGS) \
+               $(ASSEMBLE_OPT_FLAGS)
+
+    DEFINES = $(MACH_DEFINES) \
+              $(MAKEFILE_DEFINES) \
+              $(ASSEMBLE_PARAMETER_DEFINES) \
+              $(ASSEMBLE_INITS_DEFINES) \
+              $(ASSEMBLE_INTEGER_DEFINES) \
+              $(ASSEMBLE_IO_DEFINES) \
+              $(ASSEMBLE_JBPERF_DEFINES) \
+              $(ASSEMBLE_MPI_DEFINES) \
+              $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
+              $(ASSEMBLE_PAPI_DEFINES) \
+              $(ASSEMBLE_PARTICLES_DEFINES) \
+              $(ASSEMBLE_PRECISION_DEFINES) \
+              $(ASSEMBLE_TASKMAP_DEFINES) \
+              $(ASSEMBLE_PACKED_AMR_DEFINES) \
+              $(ASSEMBLE_PACKED_MEM_DEFINES) \
+              $(ASSEMBLE_TESTING_DEFINES) \
+              $(ASSEMBLE_ISOBCS_DEFINES) \
+              $(ASSEMBLE_TPVEL_DEFINES) \
+              $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
+
+    INCLUDES = $(MACH_INCLUDES) \
+               $(ASSEMBLE_MPI_INCLUDES) \
+               $(ASSEMBLE_HYPRE_INCLUDES) \
+               $(ASSEMBLE_JBPERF_INCLUDES) \
+               $(ASSEMBLE_PAPI_INCLUDES) \
+               $(MAKEFILE_INCLUDES)
+
+    OBJS_LIB = $(OBJS_CONFIG_LIB) \
+    	       $(OBJS_PHOTON_LIB)
+
+    LIBS = $(MACH_LIBS) \
+           $(ASSEMBLE_MPI_LIBS) \
+           $(ASSEMBLE_HYPRE_LIBS) \
+           $(ASSEMBLE_JBPERF_LIBS) \
+           $(ASSEMBLE_PAPI_LIBS)
+
+

@@ -1,0 +1,4 @@
+#define ENZO_VERSION_DATE     "10 April 2008"
+#define ENZO_VERSION_MAJOR    0
+#define ENZO_VERSION_MINOR    0
+#define ENZO_VERSION_REVISION 0

@@ -1,0 +1,152 @@
+#=======================================================================
+#
+# FILE:        Make.mach.nics-kraken
+#
+# DESCRIPTION: Makefile settings for NICS' Kraken
+#
+# AUTHOR:      Alexei Kritsuk
+#
+# DATE:        2008-05-31
+#
+#=======================================================================
+
+MACH_TEXT  = NICS Kraken
+MACH_VALID = 1
+MACH_FILE  = Make.mach.nics-kraken
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    = 
+LOCAL_HDF5_INSTALL   = /sw/xt/pkgs/hdf5/1.6.7/cnl2.0_pgi7.0.7
+
+LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
+LOCAL_SPRNG_INSTALL  = /sw/xt/pkgs/sprng/2.0b/cnl2.0_pgi7.0.7
+LOCAL_PNG_INSTALL    = 
+LOCAL_HYPRE_INSTALL  = 
+LOCAL_JBPERF_INSTALL = 
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /lib/cpp 
+
+# With MPI
+
+MACH_CC_MPI    = cc
+MACH_CXX_MPI   = CC -DMPICH_IGNORE_CXX_SEEK
+MACH_FC_MPI    = ftn
+MACH_F90_MPI   = ftn
+MACH_LD_MPI    = CC
+
+# Without MPI
+
+MACH_CC_NOMPI  = cc
+MACH_CXX_NOMPI = CC
+MACH_FC_NOMPI  = ftn
+MACH_F90_NOMPI = ftn
+MACH_LD_NOMPI  = CC
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
+#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
+MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = 
+MACH_FFLAGS   = 
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = -Wl,-static 
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -i4
+MACH_FFLAGS_INTEGER_64 = -i8
+MACH_FFLAGS_REAL_32    = -r4
+MACH_FFLAGS_REAL_64    = -r8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+#
+#  Use optimization -O2 or greater with PGI compilers at your own
+#  risk!  Older versions of Grid_PPMDirectEuler.C compiled with -O2
+#  led to incorrect results on many test problems, and CURRENT
+#  (-r1995) versions of ffte4X.src and ZeusSource.C lead to incorrect
+#  results for ZeldovichPancake and ExtremeAdvectionTest tests,
+#  respectively.  jobordner@ucsd.edu
+#
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+
+MACH_OPT_WARN        = 
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O1
+MACH_OPT_AGGRESSIVE  = -O1 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch -Kieee
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
+LOCAL_INCLUDES_HYPRE  = 
+LOCAL_INCLUDES_JBPERF = 
+LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
+LOCAL_INCLUDES_PNG    =
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
+#MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+# make sure to "load module iobuf" before compiling, only then IOBUF environment
+# variables will be properly set
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = 
+LOCAL_LIBS_JBPERF = 
+LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
+#LOCAL_LIBS_SPRNG  =
+LOCAL_LIBS_PNG    = 
+
+LOCAL_LIBS_MACH   =  $(LOCAL_LIBS_SPRNG) \
+                    -L/sw/xt/pkgs/szip/2.1/sles9.2_pgi7.0.7/lib -lsz \
+                    -L/usr/local/lib -lz \
+                    -L/opt/acml/4.0.1a/pgi64/lib -lacml -lm \
+                    -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \
+                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl 
+#                    -L/usr/local/packages/gmp-4.1.4/lib -lgmp
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)

@@ -1,0 +1,49 @@
+<# -*-C++-*-
+ProblemType             = 62
+TopGridRank             = 3
+StopTime                = 50.0
+
+#StopCycle = 50
+#CycleSkipDataDump = 1
+dtDataDump = 0.5
+
+TopGridDimensions       = 16 16 16
+
+MultiSpecies            = 2
+RadiativeCooling        = 1
+MetalCooling            = 1
+RadiationFieldType      = 0
+
+ComovingCoordinates     = 0
+
+HydroMethod             = -1
+DualEnergyFormalism     = 1 
+#InterpolationMethod     = 1
+
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3       // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+StaticHierarchy            = 1
+MaximumRefinementLevel     = 0        // use up to __ levels
+RefineBy                   = 2        // refinement factor
+CellFlaggingMethod         = 2        // use baryon mass for refinement 
+MinimumOverDensityForRefinement = 1.1 // times the initial density
+
+GravitationalConstant      = 1
+SelfGravity                = 1
+
+CoolingTestMinimumDensity      = 0.01
+CoolingTestMaximumDensity      = 1e6
+CoolingTestMinimumTemperature  = 100.0
+CoolingTestMaximumTemperature  = 1e6
+CoolingTestMinimumColour       = 1e-6
+CoolingTestMaximumColour       = 1.0
+CoolingTestUseMetals	       = 1
+CoolingTestUseElectronFraction = 0
+CoolingTestH2Fraction	       = 1e-6
+CoolingTestElectronFraction    = 1e-3
+
+DensityUnits = 1.673e-24
+LengthUnits  = 3.086e24
+TimeUnits    = 3.1557e+13

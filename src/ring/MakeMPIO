@@ -1,0 +1,139 @@
+#=======================================================================
+#  MAKEFILE FOR PARALLEL COOPERATIVE MPI-IO RING I/O
+#  Robert Harkness, 26th June 2006
+#=======================================================================
+#
+# ENZO_INT is SMALL_INTS for 32 bits or LARGE_INTS for 64 bits
+# ENZO_XPR is r4 (32 bits) or r8 (64 bits) for float and real
+
+null :=
+hdf5 := hdf5
+
+ENZO_PPR = p8
+ENZO_XPR = r8
+ENZO_INT = LARGE_INTS
+#ENZO_INT = SMALL_INTS
+
+SYSTEM := $(shell uname -s)
+UNAMEM := $(shell uname -m)
+
+ifeq ($(ENZO_ARCH),$(null))
+
+ifeq ($(SYSTEM),UNICOS/mp)
+  ENZO_ARCH = crayx1pp
+  ENZO_MESS = mpi
+endif
+
+ifeq ($(SYSTEM),IRIX64)
+  ENZO_ARCH = irix64pp
+  ENZO_MESS = mpi
+endif
+
+ifeq ($(SYSTEM),OSF1)
+  ENZO_ARCH = osf64pp
+  ENZO_MESS = mpi
+endif
+
+ifeq ($(SYSTEM),AIX)
+  ifeq ($(OBJECT_MODE),$(null))
+    ENZO_ARCH = aix32pp
+    ENZO_MESS = mpi
+  endif
+  ifeq ($(OBJECT_MODE),64)
+    ENZO_ARCH = aix64pp
+    ENZO_MESS = mpi
+  endif
+endif
+
+ifeq ($(SYSTEM),SunOS)
+  ENZO_ARCH = sun64pp
+  ENZO_MESS = mpi
+endif
+
+ifeq ($(SYSTEM),Linux)
+  ifeq ($(UNAMEM),ia64)
+    ENZO_ARCH = altix_v8pp
+    ENZO_MESS = mpi
+  endif
+  ifeq ($(UNAMEM),i686)
+    ENZO_ARCH = xeon_tacc
+    ENZO_MESS = mpi
+  endif
+  ifeq ($(UNAMEM),x86_64)
+    ENZO_ARCH = xt3_pgi
+    ENZO_MESS = mpi
+  endif
+endif
+
+endif
+
+
+ifeq ($(ENZO_HDF),$(null))
+  ENZO_HDF := hdf5
+endif
+
+ifeq ($(ENZO_END),$(null))
+  ENZO_END := HDF5_BE
+endif
+
+ifeq ($(SYSTEM),Linux)
+  CPP_FLAG := -traditional
+endif
+
+#-------------------  object files  ------------------------------------
+
+OBJ = MPIO_SSring.o \
+	Enzo_Dims_create.o \
+	Mpich_V1_Dims_create.o
+
+ifeq ($(ENZO_INT),SMALL_INTS)
+  EXENAME := MPIO_Zring_32
+else
+  EXENAME := MPIO_Zring_64
+endif
+
+#-------------------  macro definitions -------------------------------
+
+.SUFFIXES:
+.SUFFIXES: .src .c .f .o .C
+
+HEADER  = macros_and_parameters.h mpio_extern_hdf5.h
+EXEDIR  =
+
+#------------------ include machine-dependent macros -----------------
+
+INCLUDE_MAKEFILE = $(HOME)/MakeMacros/MPIO/Make.${ENZO_ARCH}.${ENZO_MESS}
+include ${INCLUDE_MAKEFILE}
+
+#--------------------  implicit rules ---------------------------------
+
+.src.o:
+	${CPP} ${DEFINES} -P ${CPP_FLAG} $< > $*.f
+	${FC} ${FC_OPT} ${DEBUG} ${OPTS} $*.f 
+.C.o:
+	${CCxx} ${CCxx_OPT} -D${ENZO_INT} -D${ENZO_XPR} -D${ENZO_END} ${DEBUG} ${OPTS} $*.C
+.c.o:
+	${CC} ${CC_OPT} -D${ENZO_INT} -D${ENZO_XPR} -D${ENZO_END} ${DEBUG} ${OPTS} -c $<
+
+#-------------------------  main targets ------------------------------
+
+${EXENAME} : ${OBJ}
+	${LDR} ${LDR_OPT} ${DEBUG} -o ${EXEDIR}${EXENAME} ${OBJ} ${LIB}
+
+#---------------------  special compilation rules ---------------------
+
+
+#----------------------------- help ------------------------------------
+
+help:
+	@echo Type 'make' to generate executable
+	@echo Type 'make clean' to remove object files, etc
+
+#----------------------------- clean ------------------------------------
+
+clean:
+	rm -f *.o *.f ${EXEDIR}${EXENAME}
+
+#-----------------------------------------------------------------------
+
+${OBJ}: ${HEADER}

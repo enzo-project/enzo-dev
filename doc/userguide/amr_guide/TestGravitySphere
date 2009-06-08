@@ -1,0 +1,48 @@
+#
+# AMR PROBLEM DEFINITION FILE: Gravity Test (Sphere) Problem
+#
+#  define problem
+#
+ProblemType            = 25      // Gravity test (Sphere)
+TopGridRank            = 3
+TopGridDimensions      = 32 32 32
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 0       // Periodic BCs
+#NumberOfParticles      = 5000
+#
+TestGravitySphereInteriorDensity   = 100000.0
+TestGravitySphereExteriorDensity   = 0.01
+TestGravitySphereRadius            = 0.01
+TestGravitySphereUseBaryons        = 1
+#TestGravitySphereSubgridLeft       = 0.4375   // start of subgrid
+#TestGravitySphereSubgridRight      = 0.5625   // end of subgrid
+TestGravitySphereType              = 0
+TestGravitySphereRefineAtStart     = 1
+TestGravitySphereCenter            = 0.49 0.5 0.5
+#TestGravitySphereCenter            = 0.484375 0.484375 0.484375
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.00001
+dtDataDump             = 0.01
+#
+#  set hydro parameters
+#
+CourantSafetyNumber    = 0.5     // 
+PPMDiffusionParameter  = 0       // diffusion off
+HydroMethod            = 2
+#
+#  set grid refinement parameters
+#
+StaticHierarchy                 = 0    // dynamic hierarchy
+MaximumRefinementLevel          = 6    // use up to 3 levels
+MaximumGravityRefinementLevel   = 6
+RefineBy                        = 2    // refinement factor
+MinimumOverDensityForRefinement = 0.1
+CellFlaggingMethod              = 2
+FluxCorrection                  = 0
+ConservativeInterpolation       = 0
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem

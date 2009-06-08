@@ -1,0 +1,119 @@
+#=======================================================================
+#
+# FILE:        Make.mach.ubuntu-hardy
+#
+# DESCRIPTION: Makefile settings for a machine running Ubuntu 8.04
+#
+# AUTHOR:      Rick Wagner (rick@ucsd.edu)
+#
+# DATE:        2008-09-16
+#
+# This configuration assumes that build-essentials, gfortran, 
+# OpenMPI and HDF5 have been installed using apt-get.
+#
+#=======================================================================
+
+MACH_TEXT  = Generic Ubuntu 8.04
+MACH_VALID = 1
+MACH_FILE  = Make.mach.ubuntu-hardy
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_HDF5_INSTALL = /usr/local/hdf5/1.8.2s
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = cpp # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_FC_MPI    = gfortran # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = gfortran # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpic++ # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = g++ # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DSIB1 -DSIB2 -DSIB3 -DSIB4 -DSIB5 \
+	        -DSTATIC_SIBLING_LIST -DFLUX_FIX -DNO_IO_LOG \
+		-DENABLE_LOAD_BALANCE -DOPTIMIZED_CTP
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS =
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  = 
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = 
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8 
+MACH_FFLAGS_REAL_32    = 
+MACH_FFLAGS_REAL_64    = -fdefault-real-8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 -g
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_JBPERF = # jbPerf includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_JBPERF = # jbPerf libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+
+LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)

@@ -1,0 +1,30 @@
+#include <stdio.h>
+ 
+#include "macros_and_parameters.h"
+ 
+void fcol(FLOAT *x, int n, int m, FILE *log_fptr)
+{
+ 
+  int nrow,mrow;
+  int i,j;
+ 
+  nrow = n/m;
+  mrow = n - nrow * m;
+ 
+  if( mrow > 0 )
+  {
+    nrow = nrow+1;
+  }
+ 
+  fprintf(log_fptr, "\n");
+ 
+  for(j=0;j<n;j=j+m)
+  {
+    for(i=j;i<min(j+m,n);i++)
+    {
+      fprintf(log_fptr, "%12.4e", x[i]);
+    }
+    fprintf(log_fptr, "\n");
+  }
+ 
+}

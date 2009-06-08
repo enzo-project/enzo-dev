@@ -1,0 +1,15 @@
+#!/bin/tcsh                                                                                                                        
+
+# Pathnames are hard coded into the parameter, 
+# boundary, and hierarchy files.
+# If you need to move a simulation, put the 
+# data where you want it, and run this script 
+# in the directory containing the data.
+
+if ( `ls -1 *.hierarchy |wc -l ` != 1 ) exit
+set paramfile = `basename *.hierarchy .hierarchy`           # Find the parameter file.                                             
+set dir1 = `grep GlobalDir  $paramfile | awk '{print $3}'`  # Find the hard-coded directory                                        
+set dir2 = `cd ..; pwd`                                     # The working directory                                                
+foreach i ($paramfile $paramfile.hierarchy $paramfile.boundary) # Find the files to alter                                          
+    sed -e "s:"$dir1":"$dir2":g" $i > tmp; mv tmp $i        # Replace the directory. sed is rad.                                   
+end
