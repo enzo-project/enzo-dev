@@ -23,13 +23,13 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define TOLERANCE 1e-06
 #endif
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define TOLERANCE 1e-12
 #endif
-#ifdef r16
+#ifdef CONFIG_BFLOAT_16
 #define TOLERANCE 1e-15
 #endif
 

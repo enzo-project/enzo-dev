@@ -27,13 +27,13 @@
 #include "GridList.h"
 #include "Grid.h"
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define ROUNDOFF 1e-6
 #endif
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define ROUNDOFF 1e-12
 #endif
-#ifdef r16
+#ifdef CONFIG_BFLOAT_16
 #define ROUNDOFF 1e-16
 #endif
 
