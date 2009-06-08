@@ -34,6 +34,8 @@
 /                Optional StaticSiblingList for root grid
 /  modified8:  April, 2009 by John Wise
 /                Added star particle class and radiative transfer
+/  modified9:  June, 2009 by Matthew Turk
+/                Added Python
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -222,6 +224,12 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
+#ifdef EMBEDDED_PYTHON
+int CallPython(TopGridData &MetaData, FLOAT CurrentTime);
+int ExposeDataHierarchy(TopGridData &MetaData, HierarchyEntry *Grid, 
+		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
+void ExposeGridHierarchy(int NumberOfGrids);
+#endif
 #define TIME_MESSAGING 
 
 
@@ -1034,6 +1042,53 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
     }
+
+#ifdef EMBEDDED_PYTHON
+#ifdef USE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+    if ( LevelArray[level+1] == NULL) {
+    //if ( level == 0) {
+#ifdef USE_MPI
+    MPI_Barrier(MPI_COMM_WORLD);
+#endif
+        PyDict_Clear(grid_dictionary);
+        PyDict_Clear(old_grid_dictionary);
+
+        LevelHierarchyEntry *Temp2 = LevelArray[0];
+        /* Count the grids */
+        int num_grids = 0;
+        /* I think there is a better idiom for this somewhere
+           but I couldn't find it, and I think this works     */
+        int start_index = 1;
+        FLOAT WriteTime;
+        for (int lc = 0; LevelArray[lc] != NULL; lc++){
+            Temp2 = LevelArray[lc];
+            while (Temp2 != NULL) {
+                num_grids++; Temp2 = Temp2->NextGridThisLevel;
+            }
+        }
+        ExposeGridHierarchy(num_grids);
+/*
+        if (ExposeGridHierarchy(num_grids) == FAIL) {
+            fprintf(stderr, "Error in ExposeGridHierarchy\n");
+            return FAIL;
+        }
+*/
+        Temp2 = LevelArray[0];
+        if(Temp2->NextGridThisLevel == NULL){fprintf(stderr,"NULLness\n");}
+        while (Temp2->NextGridThisLevel != NULL)
+            Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
+        WriteTime = LevelArray[level]->GridData->ReturnTime();
+        fprintf(stderr, "Times: %"GOUTSYM" %"GOUTSYM"\n", WriteTime, MetaData->Time);
+        if (ExposeDataHierarchy(*MetaData, Temp2->GridHierarchyEntry, start_index,
+                    WriteTime, 1, 0, 0) == FAIL) {
+            fprintf(stderr, "Error in ExposeDataHierarchy\n");
+            return FAIL;
+        }
+        CallPython(*MetaData, WriteTime);
+    }
+#endif
  
     /* Check for new output from new file in file system, but only
        when at bottom of hierarchy */
