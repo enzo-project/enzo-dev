@@ -160,7 +160,7 @@ typedef int            HDF5_hid_t;
 #define ABS(A) labs((long_int) (A))
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define Eflt float
 #define FSYM "f"
 #define FloatDataType MPI_FLOAT
@@ -173,7 +173,7 @@ typedef int            HDF5_hid_t;
 #endif
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define Eflt double
 #define FSYM "lf"
 #define FloatDataType MPI_DOUBLE
@@ -200,7 +200,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_FILE_R4
 #endif
 
-#ifdef p8
+#ifdef CONFIG_PFLOAT_8
 #define FLOAT double
 #define PSYM "lf"
 #define GSYM "g"
@@ -211,7 +211,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_FILE_R8
 #endif
 
-#ifdef p16
+#ifdef CONFIG_PFLOAT_16
 #define FLOAT long_double
 #define PSYM "Lf"
 #define GSYM "g"

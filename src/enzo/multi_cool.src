@@ -82,12 +82,12 @@
       integer itmax, ijk
       parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
       real tolerance
       parameter (tolerance = 1.0e-05)
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
       real tolerance
       parameter (tolerance = 1.0e-10)
 #endif
