@@ -189,7 +189,7 @@ typedef int            HDF5_hid_t;
 #endif
 #endif
 
-#ifdef p4
+#ifdef CONFIG_PFLOAT_4
 #define FLOAT float
 #define PSYM "f"
 #define GSYM "g"
