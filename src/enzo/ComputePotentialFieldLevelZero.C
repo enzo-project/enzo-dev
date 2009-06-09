@@ -79,7 +79,7 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 				  int DomainDim[], TopGridData *MetaData);
 #endif /* ISOLATED_GRAVITY */
 
-#ifdef SIB5
+#ifdef FAST_SIB
 int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      SiblingGridList SiblingList[],
 				      HierarchyEntry *Grids[],
@@ -93,7 +93,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
 
 
-#ifdef SIB5
+#ifdef FAST_SIB
 int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 				   SiblingGridList SiblingList[],
 				   HierarchyEntry *Grids[],
@@ -107,7 +107,7 @@ int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 
   /* call the periodic solver */
 
-#ifdef SIB5
+#ifdef FAST_SIB
   if (ComputePotentialFieldLevelZeroPer(MetaData, SiblingList, Grids, NumberOfGrids) == FAIL) {
     fprintf(stderr, "Error in ComputePotentialFieldLevelZeroPer.\n");
     return FAIL;
@@ -132,7 +132,7 @@ int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 /*  the pre-existing code that Greg Bryan wrote.                  */
 /******************************************************************/
 
-#ifdef SIB5
+#ifdef FAST_SIB
 int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      SiblingGridList SiblingList[],
 				      HierarchyEntry *Grids[],
@@ -390,7 +390,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   CommunicationReceiveIndex = 0;
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 
-#ifdef SIB5
+#ifdef FAST_SIB
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
       if (Grids[grid1]->GridData->CheckForOverlap(
@@ -420,7 +420,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
   CommunicationDirection = COMMUNICATION_SEND;
 
-#ifdef SIB5
+#ifdef FAST_SIB
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
       if (Grids[grid1]->GridData->CheckForOverlap(
