@@ -128,7 +128,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
      optimized version of CommunicationTransferParticles. */
 
 #ifdef OPTIMIZED_CTP
-  int NumberOfGrids = 0, Layout[MAX_DIMENSION];
+  int NumberOfGrids = 0, Layout[MAX_DIMENSION] = {1,1,1};
   Temp = LevelArray[0];
   while (Temp != NULL) {
     NumberOfGrids++;
