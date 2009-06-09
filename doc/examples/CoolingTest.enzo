@@ -47,3 +47,6 @@ CoolingTestElectronFraction    = 1e-3
 DensityUnits = 1.673e-24
 LengthUnits  = 3.086e24
 TimeUnits    = 3.1557e+13
+
+OutputTemperature = 1
+OutputCoolingTime = 1
