@@ -213,3 +213,12 @@
 
      CONFIG_PHOTON = no
 
+#======================================================================= 
+# CONFIG_LOAD_BALANCE 
+#======================================================================= 
+#    yes           Use round-robin load balancing of grids 
+#    no            Do not use load balancing 
+#----------------------------------------------------------------------- 
+ 
+     CONFIG_LOAD_BALANCE = yes
+
