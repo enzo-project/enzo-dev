@@ -159,6 +159,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   for (dim = 0; dim < MAX_CUBE_DUMPS; dim++)
     if (CubeDumps[dim] != NULL)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
+
+  fprintf(fptr,"LoadBalancing         = %"ISYM"\n",LoadBalancing);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)
     if (TimeActionType[dim] > 0) {
@@ -297,6 +299,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   if (CoolData.ParameterFilename != NULL)
     fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
+
+  fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
+  fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);

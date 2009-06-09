@@ -591,6 +591,34 @@
 	$(error Illegal value '$(CONFIG_TPVEL)' for $$(CONFIG_TPVEL))
     endif
 
+#-----------------------------------------------------------------------
+# DETERMINE LOAD BALANCING SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_LOAD_BALANCE = 1
+
+    # Settings to turn isolated gravity boundary conditions ON
+
+    ifeq ($(CONFIG_LOAD_BALANCE),yes)
+        ERROR_LOAD_BALANCE = 0
+        ASSEMBLE_LOAD_BALANCE_DEFINES = -DENABLE_LOAD_BALANCE
+    endif
+
+    # Settings to turn isolated gravity boundary conditions OFF
+
+    ifeq ($(CONFIG_LOAD_BALANCE),no)
+        ERROR_LOAD_BALANCE = 0
+        ASSEMBLE_LOAD_BALANCE_DEFINES =
+    endif
+
+    # error if CONFIG_LOAD_BALANCE is incorrect
+
+    ifeq ($(ERROR_LOAD_BALANCE),1)
+       .PHONY: error_load_balance
+       error_load_balance:
+	$(error Illegal value '$(CONFIG_LOAD_BALANCE)' for $$(CONFIG_LOAD_BALANCE))
+    endif
+
 
 #-----------------------------------------------------------------------
 # DETERMINE RADIATIVE TRANSFER SETTINGS
@@ -670,10 +698,11 @@
               $(ASSEMBLE_ISOBCS_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_LOAD_BALANCE_DEFINES) \
               $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
-               $(ASSEMBLE_MPI_INCLUDES) \
+    	       $(ASSEMBLE_MPI_INCLUDES) \
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_JBPERF_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
