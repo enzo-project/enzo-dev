@@ -57,7 +57,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   SphereContained = TRUE;
   SkipMassRemoval = FALSE;
-  StarType = abs(this->type);
+  StarType = ABS(this->type);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     AvgVelocity[dim] = 0.0;
 

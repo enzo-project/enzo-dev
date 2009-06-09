@@ -1517,7 +1517,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   // Flag cells that overlap a subgrid (used for analysis).
   int FlagRefinedCells(grid *Subgrid);
   
-#if defined(p8) || defined(p16)
+#if defined(CONFIG_PFLOAT_8) || defined(CONFIG_PFLOAT_16)
   // FLOAT version of above
   inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
