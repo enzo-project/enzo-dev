@@ -455,12 +455,18 @@ int RebuildHierarchy(TopGridData *MetaData,
       FastSiblingLocatorFinalize(&ChainingMesh);
  
       /* Redistribute grids over processors to Load balance. */
-#ifdef ENABLE_LOAD_BALANCE 
-      TIME_MSG("Load balancing");
-      CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
-				    MoveParticles);
-      TIME_MSG("Finished load balancing");
-#endif
+      switch( LoadBalancing ){
+      case 1:
+	TIME_MSG("Load balancing");
+	CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
+				      MoveParticles);
+	TIME_MSG("Finished load balancing");
+	break;
+      default:
+	
+	break;
+      }
+
 
       /* If this is the finest level with static subgrids, the grids
 	 should be distributed enough to collect the particles on each

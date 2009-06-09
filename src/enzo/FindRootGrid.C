@@ -23,13 +23,13 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define ROUNDOFF 1e-5
 #endif
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define ROUNDOFF 1e-10
 #endif
-#ifdef r16
+#ifdef CONFIG_BFLOAT_16
 #define ROUNDOFF 1e-14
 #endif
 

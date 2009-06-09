@@ -324,7 +324,7 @@ int grid::WriteGridX(FILE *fptr, char *base_name, int grid_id)
     /* If this is cosmology, compute the temperature field as well since
        its such a pain to compute after the fact. */
  
-    if (ComovingCoordinates) {
+    if (OutputTemperature) {
  
       /* Allocate field and compute temperature. */
  

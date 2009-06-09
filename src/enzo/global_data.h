@@ -27,6 +27,11 @@
 # define EXTERN extern
 #endif
 
+/* Load Balancing.  Currently only memory count method implemented
+                          0 = off
+                          1 = Equalize processor memory count */
+EXTERN int LoadBalancing;
+
 /* debugging, extraction flags */
 
 EXTERN int debug;
@@ -92,6 +97,7 @@ EXTERN int MaximumParticleRefinementLevel;
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
+
 
 /* Velocity to limit timesteps */
 
@@ -255,6 +261,14 @@ EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
+
+/* Output cooling time with grid data. */
+
+EXTERN int OutputCoolingTime;
+
+/* Output temperature with grid data. */
+
+EXTERN int OutputTemperature;
 
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 

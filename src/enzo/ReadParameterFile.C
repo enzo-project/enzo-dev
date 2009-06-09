@@ -184,6 +184,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         return FAIL;
       }
     }
+
+    ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
  
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;
@@ -331,6 +333,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     if (sscanf(line, "CoolDataParameterFile = %s", dummy) == 1)
       CoolData.ParameterFilename = dummy;
+
+    ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
+    ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
 
     ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
 		  &ZEUSQuadraticArtificialViscosity);

@@ -67,23 +67,23 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, " 64 bit Integer initial conditions\n");
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
     fprintf(opf, " Float precision is 32 bits\n");
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
     fprintf(opf, " Float precision is 64 bits\n");
 #endif
 
-#ifdef p4
+#ifdef CONFIG_PFLOAT_4
     fprintf(opf, " Position and time precision is 32 bits - NOT SUPPORTED!\n");
 #endif
 
-#ifdef p8
+#ifdef CONFIG_PFLOAT_8
     fprintf(opf, " Position and time precision is 64 bits\n");
 #endif
 
-#ifdef p16
+#ifdef CONFIG_PFLOAT_16
     fprintf(opf, " Position and time precision is 128 bits\n");
 #endif
 
