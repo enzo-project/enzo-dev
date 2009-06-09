@@ -1517,9 +1517,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   // Flag cells that overlap a subgrid (used for analysis).
   int FlagRefinedCells(grid *Subgrid);
   
-#if defined(CONFIG_PFLOAT_8) || defined(CONFIG_PFLOAT_16)
-  // FLOAT version of above
-  inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
+  inline int IsInVolume( float *LeftEdge, float *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
       if( (GridLeftEdge[i] >= RightEdge[i]) ||
 	  (GridRightEdge[i] <= LeftEdge[i]) ){
@@ -1528,10 +1526,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
      return TRUE;
   }
-#else
+#if defined(CONFIG_BFLOAT_4) || defined(CONFIG_PFLOAT_16) 
   // Check to see if the grid overlaps a volume.
   // Doesn't care about periodicity. */
-  inline int IsInVolume( float *LeftEdge, float *RightEdge ){
+  inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
       if( (GridLeftEdge[i] >= RightEdge[i]) ||
 	  (GridRightEdge[i] <= LeftEdge[i]) ){
@@ -1544,9 +1542,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 #endif
 
 
-#if defined(CONFIG_PFLOAT_8) || defined(CONFIG_PFLOAT_16)
   // Check to see if a FLOAT point is in the grid.
-  inline int PointInGrid( FLOAT *point ){
+  inline int PointInGrid( float *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
 	  (point[i] <= GridRightEdge[i])) == FALSE )
@@ -1554,9 +1551,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
     return TRUE;
   }
-#else
+#if defined(CONFIG_BFLOAT_4) || defined(CONFIG_PFLOAT_16)
   // Check to see if a point is in the grid.
-  inline int PointInGrid( float *point ){
+  inline int PointInGrid( FLOAT *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
 	  (point[i] <= GridRightEdge[i])) == FALSE )
