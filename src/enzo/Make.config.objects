@@ -98,6 +98,8 @@ OBJS_CONFIG_LIB = \
 	EvolveHierarchy.o \
         expand_terms.o \
 	ExternalBoundary_AddField.o \
+	ExposeDataHierarchy.o \
+	ExposeGridHierarchy.o \
 	ExternalBoundary_AppendForcingToBaryonFields.o \
 	ExternalBoundary_constructor.o \
 	ExternalBoundary_DetachForcingFromBaryonFields.o \
@@ -198,6 +200,7 @@ OBJS_CONFIG_LIB = \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_CoolingTestInitializeGrid.o \
+	Grid_ConvertToNumpy.o \
 	Grid_CopyBaryonFieldToOldBaryonField.o \
 	Grid_CopyOverlappingMassField.o \
 	Grid_CopyParentToGravitatingFieldBoundary.o \
@@ -355,6 +358,7 @@ OBJS_CONFIG_LIB = \
 	InitializeEquilibriumCoolData.o \
 	InitializeLocal.o \
 	InitializeNew.o \
+	InitializePythonInterface.o \
 	InitializeRadiationFieldData.o \
 	InitializeRateData.o \
 	interp1d.o \
