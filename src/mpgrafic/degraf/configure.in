@@ -1,0 +1,117 @@
+AC_INIT(configure.in)
+
+AM_INIT_AUTOMAKE(degraf, 0.1)
+AM_CONFIG_HEADER(config.h)
+
+AC_LANG_FORTRAN77
+# MPI stuff
+AC_PROG_FC
+AC_ARG_VAR(MPIFC,[MPI Fortran compiler command])
+AC_CHECK_PROGS(MPIFC, mpif90 mpxlf95_r mpxlf90_r mpxlf95 mpxlf90 mpf90 cmpif90c, $FC)
+FC="$MPIFC"
+F77="$FC"
+AC_SUBST(MPIFC)
+
+AC_PROG_CC
+AC_FC_LIBRARY_LDFLAGS
+
+# One dimension per file
+AC_ARG_ENABLE(onedim,
+[AS_HELP_STRING([--enable-onedim], [Write one (instead of three) dimension per file])],
+[case "${enableval}" in
+  yes) onedim=true ;;
+  no)  onedim=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-onedim) ;;
+esac], [onedim=false])
+AM_CONDITIONAL(ONEDIM, test x$onedim = xtrue)
+
+# Enzo
+AC_ARG_ENABLE(enzo,
+[AS_HELP_STRING([--enable-enzo], [use parallel HDF5 output for use with Enzo])],
+[case "${enableval}" in
+  yes) enzo=true ;;
+  no)  enzo=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-enzo) ;;
+esac], [enzo=false])
+AM_CONDITIONAL(ENZO, test x$enzo = xtrue)
+
+HDF_PREFIX=no
+if test $enzo = true; then
+   AC_ARG_WITH(hdf, [AS_HELP_STRING([--with-hdf=DIR],[path to HDF5 library])])
+   case "${withval}" in
+     no)
+	echo "Parallel HDF5 is required for use with Enzo" ;;
+     *)
+        echo -n "checking for HDF5 with Fortran and MPI... "
+	for i in ${withval} /usr /usr/local ; do
+	    if test -r $i/include/h5fdmpio.mod ; then
+	       HDF_LIBDIR=-L$i/lib
+	       HDF_INCLUDEDIR=-I$i/include
+	       HDF_PREFIX=$i
+	       echo "yes"
+	       break
+	    fi
+	done
+   	if test "$HDF_LIBDIR" = ""; then
+     	   echo "no"
+     	   AC_MSG_WARN([[Did not find HDF5 compiled with Fortran and MPI support in /usr /usr/local ${withval}]])
+     	   AC_MSG_WARN([[Turning off --enable-enzo]])
+     	   AM_CONDITIONAL(ENZO, xfalse)
+   	fi ;;
+   esac
+fi
+
+# Precision
+AC_ARG_VAR(PRECISION,[Single or double precision calculations])
+AC_ARG_ENABLE([single],[AS_HELP_STRING([--enable-single],
+	[use single precision (default is double)])],
+	[use_single=yes],
+	[use_single=no])
+AC_ARG_VAR(FFTWPREC,[fftw precision prefix])
+
+if test x$use_single = xyes; then
+	AC_CHECK_LIB(sfftw,fftw3d_f77_create_plan,[],[
+	echo "Error! You need to have (single precision) fftw library." 
+	exit -1 
+	])
+	AC_CHECK_LIB(srfftw,rfftw3d_f77_create_plan,[],[
+	echo "Error! You need to have (single precision) rfftw library."
+	exit -1
+	])	
+	AC_CHECK_LIB(sfftw_mpi,fftw3d_f77_mpi_create_plan,[],[
+	echo "Error! You need to have (single precision) fftw_mpi library."
+	exit -1
+	])
+	AC_CHECK_LIB(srfftw_mpi,rfftw3d_f77_mpi_create_plan,[],[
+	echo "Error! You need to have (single precision) rfftw_mpi library."
+	exit -1
+	])	
+	FFTWPREC=s
+	PRECISION=SING
+else
+	AC_CHECK_LIB(dfftw,fftw3d_f77_create_plan,[],[
+	echo "Error! You need to have (double precision) fftw library." 
+	exit -1 
+	])
+	AC_CHECK_LIB(drfftw,rfftw3d_f77_create_plan,[],[
+	echo "Error! You need to have (double precision) rfftw library."
+	exit -1
+	])
+	AC_CHECK_LIB(dfftw_mpi,fftw3d_f77_mpi_create_plan,[],[
+	echo "Error! You need to have (double precision) fftw_mpi library."
+	exit -1
+	])
+	AC_CHECK_LIB(drfftw_mpi,rfftw3d_f77_mpi_create_plan,[],[
+	echo "Error! You need to have (double precision) rfftw_mpi library."
+	exit -1
+	])	
+	FFTWPREC=d
+	PRECISION=DOUB
+fi
+AC_SUBST(FFTWPREC)
+AC_SUBST(PRECISION)
+AC_SUBST(HDF_LIBDIR)
+AC_SUBST(HDF_INCLUDEDIR)
+AC_SUBST(HDF_PREFIX)
+
+AC_OUTPUT(Makefile src/Makefile)

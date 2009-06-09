@@ -1,0 +1,7 @@
+&parameters
+nfiles = 7
+inputfiles = 'ic_deltab' 'ic_velcx' 'ic_velcy' 'ic_velcz' 'ic_velbx' 'ic_velby' 'ic_velbz'
+degramax = 4
+recurse = .true.
+shift = 0.2 0.2 0.2
+/

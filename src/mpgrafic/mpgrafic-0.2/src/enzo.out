@@ -1,0 +1,134 @@
+
+ Will generate initial conditions on grid of size           32          32          32
+
+ Select type of initial power spectrum (matter transfer function):
+     1 for T(k) from linger.dat
+     2 for T(k) from approx. analytical fit (BBKS)
+     3 for T(k)=1 (scale-free)
+     4 for T(k) from approx. analytical fit (E&Hu)
+ Enter case (1,2,3 or 4) now:
+           4
+ Enter Omega_m, Omega_v, H0 (km/s/Mpc, set H0=1 for scale-free case)
+  0.25799999      0.74199998       71.900002    
+ Enter Omega_b
+  4.41000015E-02
+  Initializing power spectrum for Omega_m, Omega_v, H0=  0.25799999      0.74199998       71.900002    
+ Enter long-wave spectral index n (scale-invariant is n=1)
+  0.96300000    
+ Enter desired normalization at a=1:
+   Qrms-ps/micro-K (if > 0) or -sigma_8 (if < 0) = ?
+ Computing Delta_2(k) using Sachs-Wolfe approxmation
+ This may take several minutes.
+ Qrms-ps/micro-K=   21.411215    
+
+ I can write the power spectrum of delta_rho/rho to disk (power.dat).
+ If you would like this, please enter kmin and kmax (1/Mpc)
+ Enter 0,0 if you don't want the power spectrum written to a file
+  9.99999978E-03  100.000000    
+ Enter dx (initial particle spacing in Mpc, not Mpc/h)
+    or enter -boxlength in Mpc/h
+    i.e. dx in Mpc if > 0, or -boxlength in Mpc/h if < 0
+  -2.8759999    
+   dx=  0.12500000      Mpc
+ Enter 1 if these initial conditions will not be refined, otherwise
+   enter the ultimate refinement factor for the smallest grid spacing
+   (This is used only to set astart.)
+           1
+ Scaling initial conditions to starting a=  3.02015580E-02
+   when sigma(delta) at ultimate refinement scale=  0.20000002    
+ vfact=   210.14662    
+ Enter 0 for final output or 1 for further refinement
+           0
+ Setting output grid to           32          32          32
+ Enter <RETURN> to skip output grid size
+ Enter <RETURN> to skip output grid offset
+ Enter <RETURN> to skip final grid size
+ Enter <RETURN> to skip final grid offset
+ Will produce output files ic_deltab, ic_velb[xyz], ic_velc[xyz]
+
+ Subgrid white noise:
+   Choose irand (1 or 2) from the following list:
+     irand=1 to generate new noise and save to file
+     irand=2 to read noise from existing file
+ Enter irand
+           1
+   Enter random number seed (9-digit integer, ignored if irand=2)
+   200805140
+   Enter filename of white noise file (or <RETURN> if irand=0)
+ white-256.dat                                                                                                                   
+  Enter 1 if padding of large scales is required, 0 otherwise
+           0
+  Enter padding file name (white noise format, ignored if ipad=0)
+ white-128.dat                                                                                                                   
+ Warning: Generating new random numbers in mpic4!
+ ic4 white noise: chisq, dof, nu=   32276.318                    32767  -2.7107024    
+ Statistics of ic4 for idim, itide=           0           0
+    Mean sigma, sampled sigma, maximum=  0.21922708      0.11159261      0.65075064    
+           0 -2.27968339E-02
+           0 -5.04099950E-03
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+ Statistics of ic4 for idim, itide=           1           0
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  1.14263827E-02  5.74111156E-02
+           1  1.32856723E-02
+           1 -2.05394699E-05
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+ Statistics of ic4 for idim, itide=           2           0           2  1.42771605E-05
+
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  2.02243458E-02  7.32608065E-02
+           2  6.92865252E-03
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+ Statistics of ic4 for idim, itide=           3           0           3   0.0000000    
+
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  1.36825964E-02  5.91935180E-02
+           3 -9.38496552E-03
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+           1 -7.82387772E-13 Statistics of ic4 for idim, itide=           1           0
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  1.14259012E-02  5.30091897E-02
+           1  1.46363396E-02
+
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+ Statistics of ic4 for idim, itide=           2           0
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  2.02240758E-02  7.30739236E-02
+           2  1.03755826E-02
+           2 -9.91328981E-13
+ Reading random numbers used in ic4 from white-256.dat
+   Random numbers generated with iseed=   200805140
+ Mean value of the white noise box =  -1.22646348047106279E-003
+ Will be removed
+ Standard deviation of the white noise box =   0.99246917077382246     
+ Will be factored out so that input stdev=1
+ ic4 white noise: chisq, dof, nu=   32767.998                    32767  5.51676564E-03
+ Statistics of ic4 for idim, itide=           3           0
+    Mean sigma, sampled sigma, maximum=  3.16701867E-02  1.36819445E-02  5.81221767E-02
+           3 -6.45048637E-03
+           3   0.0000000    

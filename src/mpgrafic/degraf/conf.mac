@@ -1,0 +1,10 @@
+#!/bin/sh
+./configure \
+    CFLAGS="-g" \
+    FCFLAGS="-g" \
+    LDFLAGS="-g -bind_at_load" \
+    FC=mpif90 \
+    CC=mpicc \
+    --enable-enzo \
+    --enable-onedim \
+    --with-hdf=/usr/local/hdf5/1.8.2p

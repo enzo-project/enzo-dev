@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE KDevPrjSession>
+<KDevPrjSession>
+ <DocsAndViews NumberOfDocuments="4" >
+  <Doc0 NumberOfViews="1" URL="file:///home/prunet/kdevelop/degraf/configure.in" >
+   <View0 Encoding="" line="41" Type="Source" />
+  </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/prunet/kdevelop/degraf/src/parameters.nml" >
+   <View0 Encoding="" line="7" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/prunet/kdevelop/degraf/src/Makefile.am" >
+   <View0 Encoding="" line="8" Type="Source" />
+  </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:///home/prunet/kdevelop/degraf/src/degraf.f90" >
+   <View0 Encoding="" line="231" Type="Source" />
+  </Doc3>
+ </DocsAndViews>
+ <pluginList>
+  <kdevdebugger>
+   <breakpointList/>
+   <showInternalCommands value="0" />
+  </kdevdebugger>
+  <kdevbookmarks>
+   <bookmarks/>
+  </kdevbookmarks>
+  <kdevvalgrind>
+   <executable path="" params="" />
+   <valgrind path="" params="" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
+  </kdevvalgrind>
+ </pluginList>
+</KDevPrjSession>

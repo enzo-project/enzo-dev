@@ -1,0 +1,9 @@
+&parameters
+nfiles = 1
+inputfiles = 'GridDensity' 'GridVelocities' 'ParticleVelocities'
+degramax = 2
+recurse = .true.
+shift = 0 0 0
+width_in = 0.5
+buffercells = 2
+/
