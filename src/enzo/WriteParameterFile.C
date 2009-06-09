@@ -159,6 +159,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   for (dim = 0; dim < MAX_CUBE_DUMPS; dim++)
     if (CubeDumps[dim] != NULL)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
+
+  fprintf(fptr,"LoadBalancing         = %"ISYM"\n",LoadBalancing);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)
     if (TimeActionType[dim] > 0) {

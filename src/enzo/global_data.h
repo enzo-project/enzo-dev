@@ -27,6 +27,11 @@
 # define EXTERN extern
 #endif
 
+/* Load Balancing.  Currently only memory count method implemented
+                          0 = off
+                          1 = Equalize processor memory count */
+EXTERN int LoadBalancing;
+
 /* debugging, extraction flags */
 
 EXTERN int debug;
@@ -92,6 +97,7 @@ EXTERN int MaximumParticleRefinementLevel;
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
+
 
 /* Velocity to limit timesteps */
 
