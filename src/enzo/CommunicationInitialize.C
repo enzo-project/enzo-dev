@@ -78,3 +78,15 @@ int CommunicationFinalize()
  
   return SUCCESS;
 }
+
+void CommunicationAbort(int status)
+{
+
+#ifdef USE_MPI
+  MPI_Abort(MPI_COMM_WORLD,status);
+#else
+  abort(status);
+#endif
+
+  return;
+}

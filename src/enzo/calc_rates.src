@@ -829,6 +829,10 @@ c
 c       31) H2I   + p   -> 2HI
 c
 c        sigma31(n) = 0.0
+
+C	 BUG FIX: (n) subscripts below were (i)
+C	 reported by Patrick McDonald, modified in revision 2310
+
         if (nu .ge. e28b .and. nu .lt. e24) THEN
            sigma31(n) = 3.71e-18
         else

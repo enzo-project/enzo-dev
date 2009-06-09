@@ -468,6 +468,8 @@ Eint32 main(Eint32 argc, char *argv[])
   buff[0] = new double[dbuff_size];
   buff[1] = new double[dbuff_size];
  
+  double tiny_shift = 1e-12;
+
   rank = 3;
   ngrids = 1;
  
@@ -561,34 +563,34 @@ Eint32 main(Eint32 argc, char *argv[])
  
         if ( n == jcpu )
         {
-      // rank to coordinate
-        m = n;
-        i = m/(b*c);
-        m = m%(b*c);
-        j = m/c;
-        m = m%c;
-        k = m;
-      // coordinate to rank check
-        m = ((i*b*c) + j*c) + k;
-        fprintf(log,"Grid %"ISYM"  {%"ISYM" %"ISYM" %"ISYM"}  %"ISYM"\n",n,i,j,k,m);
+	  // rank to coordinate
+	  m = n;
+	  i = m/(b*c);
+	  m = m%(b*c);
+	  j = m/c;
+	  m = m%c;
+	  k = m;
+	  // coordinate to rank check
+	  m = ((i*b*c) + j*c) + k;
+	  fprintf(log,"Grid %"ISYM"  {%"ISYM" %"ISYM" %"ISYM"}  %"ISYM"\n",n,i,j,k,m);
  
-        Left[0] =  x0 + dx * (double) ii;
-        Right[0] = x0 + dx * (double) (ii+1);
-        Left[1] =  y0 + dy * (double) jj;
-        Right[1] = y0 + dy * (double) (jj+1);
-        Left[2] =  z0 + dz * (double) kk;
-        Right[2] = z0 + dz * (double) (kk+1);
+	  Left[0] =  x0 + dx * (double) ii;
+	  Right[0] = x0 + dx * (double) (ii+1);
+	  Left[1] =  y0 + dy * (double) jj;
+	  Right[1] = y0 + dy * (double) (jj+1);
+	  Left[2] =  z0 + dz * (double) kk;
+	  Right[2] = z0 + dz * (double) (kk+1);
  
-        GridLeft[jcpu][0] = Left[0];
-        GridLeft[jcpu][1] = Left[1];
-        GridLeft[jcpu][2] = Left[2];
+	  GridLeft[jcpu][0] = Left[0];
+	  GridLeft[jcpu][1] = Left[1];
+	  GridLeft[jcpu][2] = Left[2];
  
-        GridRight[jcpu][0] = Right[0];
-        GridRight[jcpu][1] = Right[1];
-        GridRight[jcpu][2] = Right[2];
+	  GridRight[jcpu][0] = Right[0];
+	  GridRight[jcpu][1] = Right[1];
+	  GridRight[jcpu][2] = Right[2];
  
-        for (m = 0; m < rank; m++)
-          fprintf(log, "Grid %"ISYM"    Left   %16.8"FSYM"   Right  %16.8"FSYM"\n", gridcounter, Left[m], Right[m]);
+	  for (m = 0; m < rank; m++)
+	    fprintf(log, "Grid %"ISYM"    Left   %16.8"FSYM"   Right  %16.8"FSYM"\n", gridcounter, Left[m], Right[m]);
  
         }
  
@@ -847,17 +849,26 @@ Eint32 main(Eint32 argc, char *argv[])
  
       if ( dpos == Left[dim] )
       {
-         fprintf(stderr, "Particle on left boundary [%"ISYM"] [%"ISYM"] %16.8"FSYM"\n", i, ic, buff[i][ic]);
-         hits = hits + 1;
+	//fprintf(stderr, "Particle on left boundary [%"ISYM"] [%"ISYM"] %16.8"FSYM"\n", i, ic, buff[i][ic]);
+	dpos += tiny_shift;
+	buff[i][ic] = dpos;
+	hits = hits + 1;
       }
  
       if ( dpos == Right[dim] )
       {
-         fprintf(stderr, "Particle on right boundary [%"ISYM"] [%"ISYM"] %16.8"FSYM"\n", i, ic, buff[i][ic]);
-         hits = hits + 1;
+	//fprintf(stderr, "Particle on right boundary [%"ISYM"] [%"ISYM"] %16.8"FSYM"\n", i, ic, buff[i][ic]);
+	if (dpos == SubDomainRightEdge[dim]) {
+	  dpos -= tiny_shift;
+	}
+	else {
+	  dpos += tiny_shift;
+	}
+	buff[i][ic] = dpos;
+	hits = hits + 1;
       }
- 
-      if ( buff[i][ic] < Left[dim] || buff[i][ic] > Right[dim] )
+
+      if ( dpos < Left[dim] || dpos > Right[dim] )
       {
     //  Mask[ipc] = 0;
         MaskAddr = ipc;
@@ -904,7 +915,8 @@ Eint32 main(Eint32 argc, char *argv[])
 // FAIL here if any particles are on the mesh
 // Do not count the fakes
  
-  assert( hits == 0 );
+  fprintf(stderr,"Proc %"ISYM": Particles shifted from grid boundary %"ISYM" times.\n",jcpu,hits);
+//  assert( hits == 0 );
  
 // CHOP if(0)
 // CHOP {
