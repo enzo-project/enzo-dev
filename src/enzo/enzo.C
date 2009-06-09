@@ -100,8 +100,8 @@ int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
-void CommunicationAbort(int);
 
+void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
 
 #ifdef TASKMAP
