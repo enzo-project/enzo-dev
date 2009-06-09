@@ -114,6 +114,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
+
+  LoadBalancing = 1; //On, memory equalization method
  
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
@@ -258,7 +260,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.alpha0             = 1.5;               // radiation spectral slope
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
- 
+
+  OutputCoolingTime = 0;
+  OutputTemperature = 0;
+
   ZEUSLinearArtificialViscosity    = 0.0;
   ZEUSQuadraticArtificialViscosity = 2.0;
   UseMinimumPressureSupport        = FALSE;

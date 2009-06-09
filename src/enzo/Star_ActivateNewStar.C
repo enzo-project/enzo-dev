@@ -28,7 +28,7 @@ void Star::ActivateNewStar(FLOAT Time)
   int StarType;
   FILE *fptr;
   if (this->IsUnborn()) {  // unborn
-    StarType = abs(type);
+    StarType = ABS(type);
     switch (StarType) {
     case PopII:
       if (Mass > StarClusterMinimumMass) {

@@ -1,18 +1,18 @@
 #=======================================================================
 #
-# FILE:        Make.mach.nics-kraken
+# FILE:        Make.mach.red
 #
-# DESCRIPTION: Makefile settings for NICS' Kraken
+# DESCRIPTION: Makefile settings for SLAC's red
 #
-# AUTHOR:      Alexei Kritsuk
+# AUTHOR:      Matthew Turk
 #
-# DATE:        2008-05-31
+# DATE:        2009-06-03
 #
 #=======================================================================
 
-MACH_TEXT  = NICS Kraken
+MACH_TEXT  = Red
 MACH_VALID = 1
-MACH_FILE  = Make.mach.nics-kraken
+MACH_FILE  = Make.mach.red
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -23,55 +23,52 @@ MACH_FILE  = Make.mach.nics-kraken
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt5/hdf5/1.6.7/cnl2.1_pgi7.2.3
-
-LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
-LOCAL_SPRNG_INSTALL  = /sw/xt5/sprng/2.0b/cnl2.1_pgi7.2.3
-LOCAL_PNG_INSTALL    = 
-LOCAL_HYPRE_INSTALL  = 
-LOCAL_JBPERF_INSTALL = 
+LOCAL_MPI_INSTALL    = /usr
+LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-ia64/
+LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-ia64/
+LOCAL_INT_INSTALL     = /afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys/
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /lib/cpp 
+MACH_CPP       = /usr/bin/cpp 
 
 # With MPI
 
-MACH_CC_MPI    = cc
-MACH_CXX_MPI   = CC -DMPICH_IGNORE_CXX_SEEK
-MACH_FC_MPI    = ftn
-MACH_F90_MPI   = ftn
-MACH_LD_MPI    = CC
+MACH_CC_MPI    = $(LOCAL_INT_INSTALL)/cc/bin/icc
+MACH_CXX_MPI   = $(LOCAL_INT_INSTALL)/cc/bin/icc
+MACH_FC_MPI    = $(LOCAL_INT_INSTALL)/fc/bin/ifort
+MACH_F90_MPI   = $(LOCAL_INT_INSTALL)/fc/bin/ifort
+MACH_LD_MPI    = $(LOCAL_INT_INSTALL)/cc/bin/icc
 
 # Without MPI
 
-MACH_CC_NOMPI  = cc
-MACH_CXX_NOMPI = CC
-MACH_FC_NOMPI  = ftn
-MACH_F90_NOMPI = ftn
-MACH_LD_NOMPI  = CC
+MACH_CC_NOMPI  = $(LOCAL_INT_INSTALL)/icc
+MACH_CXX_NOMPI = $(LOCAL_INT_INSTALL)/icc
+MACH_FC_NOMPI  = $(LOCAL_INT_INSTALL)/ifort
+MACH_F90_NOMPI = $(LOCAL_INT_INSTALL)/ifort
+MACH_LD_NOMPI  = $(LOCAL_INT_INSTALL)/icc
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
-MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DOPTIMIZED_CTP -DENABLE_LOAD_BALANCE \
+	-DSIB1 -DSIB2 -DSIB3 -DSIB4 -DSIB5
+	#-DEMBEDDED_PYTHON
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
 MACH_CPPFLAGS = -P -traditional
-MACH_CFLAGS   = 
-MACH_CXXFLAGS = 
-MACH_FFLAGS   = 
-MACH_F90FLAGS = 
-MACH_LDFLAGS  = -Wl,-static 
+MACH_CFLAGS   = -ftz -IPF_fp_speculationfast -IPF_fma -mp -cxxlib-icc 
+MACH_CXXFLAGS = -ftz -IPF_fp_speculationfast -IPF_fma -mp -cxxlib-icc 
+MACH_FFLAGS   = -IPF_fp_speculationfast -IPF_fma -mp -132 -ftz
+MACH_F90LAGS  = -IPF_fp_speculationfast -IPF_fma -mp -132 -ftz
+MACH_LDFLAGS  = -ftz
+#,-static 
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -99,23 +96,19 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O1
-MACH_OPT_AGGRESSIVE  = -O1 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch -Kieee
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
 
 #-----------------------------------------------------------------------
 # Includes
 #-----------------------------------------------------------------------
 
-LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
-LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_JBPERF = 
-LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
-LOCAL_INCLUDES_PNG    =
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
-#MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) #$(LOCAL_INCLUDES_PYTHON)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -129,24 +122,15 @@ MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 # variables will be properly set
 #
 
-LOCAL_LIBS_MPI    = 
-LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
-LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
-LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_JBPERF = 
-LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
-#LOCAL_LIBS_SPRNG  =
-LOCAL_LIBS_PNG    = 
+LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
-LOCAL_LIBS_MACH   =  $(LOCAL_LIBS_SPRNG) \
-                    -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
-                    -L/usr/local/lib -lz \
-                    -L/opt/acml/4.0.1a/pgi64/lib -lacml -lm \
-                    -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \
-                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl 
-#                    -L/usr/local/packages/gmp-4.1.4/lib -lgmp
+LOCAL_LIBS_MACH   =  -L$(LOCAL_INT_INSTALL)/fc/lib/ \
+                     -limf -lifcore -lifport \
+                     -L$(LOCAL_INT_INSTALL)/cc/lib/ \
+                     -lifcore -lifport -limf -lcprts \
+                     -lstdc++ -lg2c
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
-MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
-MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)

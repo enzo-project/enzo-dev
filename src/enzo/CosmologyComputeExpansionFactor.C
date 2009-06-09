@@ -19,13 +19,13 @@
  
 #define OMEGA_TOLERANCE 1.0e-5
  
-#ifdef p4
+#ifdef CONFIG_PFLOAT_4
 #define ETA_TOLERANCE 1.0e-5
 #endif
-#ifdef p8
+#ifdef CONFIG_PFLOAT_8
 #define ETA_TOLERANCE 1.0e-10
 #endif
-#ifdef p16
+#ifdef CONFIG_PFLOAT_16
 #define ETA_TOLERANCE 1.0e-20
 #endif
  
