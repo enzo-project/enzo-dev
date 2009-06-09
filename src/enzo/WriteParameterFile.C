@@ -297,6 +297,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   if (CoolData.ParameterFilename != NULL)
     fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
+
+  fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
+  fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);

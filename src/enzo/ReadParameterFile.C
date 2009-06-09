@@ -332,6 +332,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "CoolDataParameterFile = %s", dummy) == 1)
       CoolData.ParameterFilename = dummy;
 
+    ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
+    ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
+
     ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
 		  &ZEUSQuadraticArtificialViscosity);
     ret += sscanf(line, "ZEUSLinearArtificialViscosity = %"FSYM,

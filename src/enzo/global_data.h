@@ -256,6 +256,14 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 
+/* Output cooling time with grid data. */
+
+EXTERN int OutputCoolingTime;
+
+/* Output temperature with grid data. */
+
+EXTERN int OutputTemperature;
+
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 
 EXTERN float ZEUSLinearArtificialViscosity;

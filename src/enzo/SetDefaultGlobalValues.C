@@ -258,7 +258,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.alpha0             = 1.5;               // radiation spectral slope
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
- 
+
+  OutputCoolingTime = 0;
+  OutputTemperature = 0;
+
   ZEUSLinearArtificialViscosity    = 0.0;
   ZEUSQuadraticArtificialViscosity = 2.0;
   UseMinimumPressureSupport        = FALSE;
