@@ -14,15 +14,15 @@
 /    doing a new run, a restart, an extraction, or a projection.
 /
 ************************************************************************/
- 
-#ifdef USE_MPI
-#include "mpi.h"
-#endif /* USE_MPI */
+
  
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+ 
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
  
 #include "svn_version.def"
 #include "performance.h"
@@ -46,6 +46,9 @@
 #include "PhotonCommunication.h"
 #endif
 #undef DEFINE_STORAGE
+#ifdef EMBEDDED_PYTHON
+int InitializePythonInterface(int argc, char **argv);
+#endif
  
 // Function prototypes
  
@@ -478,6 +481,11 @@ Eint32 main(Eint32 argc, char *argv[])
   fprintf(memtracePtr, "Call evolve hierarchy %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
 #endif
 
+#ifdef EMBEDDED_PYTHON
+  // We initialize our Python interface now
+  if(debug)fprintf(stdout, "Initializing Python interface\n");
+  InitializePythonInterface(argc, argv);
+#endif 
 
 
  
