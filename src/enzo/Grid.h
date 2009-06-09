@@ -1576,6 +1576,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 #   include "Grid_AnalyzeClusters.h"
 #endif
 
+#ifdef EMBEDDED_PYTHON
+    void ConvertToNumpy(int GridID, PyArrayObject *container[],
+                        int ParentID, int level, FLOAT WriteTime);
+#endif
 //------------------------------------------------------------------------
 // Methods for star formation
 //------------------------------------------------------------------------
