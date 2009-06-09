@@ -1,6 +1,6 @@
 #ifdef CRAYX1
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 
       subroutine cray_1d(x, rank, n1, n2, n3, idir)
 
@@ -117,7 +117,7 @@
 
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 
       subroutine cray_1d(x, rank, n1, n2, n3, idir)
 
