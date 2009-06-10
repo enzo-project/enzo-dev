@@ -719,7 +719,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
    data model.  Note that it uses file pointers/handlers that are statically                                       
    declared above. */
 
-/*
+
 #ifdef USE_HDF4
 int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id, 
 	      int32 &sds_index, char *name)
@@ -741,4 +741,4 @@ int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id,
   return SUCCESS;
 }
 #endif
-*/
+

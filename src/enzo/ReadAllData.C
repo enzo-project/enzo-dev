@@ -106,6 +106,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Close main file. */
  
   fclose(fptr);
+  fprintf(stderr, "Here we are!!\n");
  
   /* Read Boundary condition info. */
  
@@ -114,6 +115,15 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 	    MetaData.BoundaryConditionName);
     return FAIL;
   }
+  fprintf(stderr, "Here we are!!-2\n");
+
+#ifdef USE_HDF4
+  if (Exterior->ReadExternalBoundary(fptr) == FAIL) {  
+    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+            MetaData.BoundaryConditionName);                  
+    return FAIL;                                                                 
+  }
+#else
   if(LoadGridDataAtStart){    
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
@@ -127,8 +137,12 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       return FAIL;
     }
   }
+#endif
+
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
+
+  fprintf(stderr, "Here we are!!-3\n");
 
   /* Create the memory map name */
 
