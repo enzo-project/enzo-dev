@@ -95,7 +95,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						  TestGravityUseBaryons
 						  ) == FAIL){
     fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -135,7 +135,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	 POW(float(RefineBy), MetaData.TopGridRank), 0, TestGravityUseBaryons)
 	== FAIL) {
       fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			
  
     /* Generate a static refine region. */

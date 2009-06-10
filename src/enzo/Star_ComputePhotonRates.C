@@ -92,7 +92,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     break;
   default:
     fprintf(stderr, "Star type = %"ISYM" not understood.\n", this->type);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   } // ENDSWITCH
 
   return SUCCESS;

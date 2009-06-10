@@ -68,7 +68,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -77,7 +77,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Open output file. */
@@ -86,7 +86,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
  
   if ((fptr = fopen(PeakOutputName, "a")) == FAIL) {
     fprintf(stderr, "Error opening %s.\n", PeakOutputName);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Compute the MinimumPeakDensity. */

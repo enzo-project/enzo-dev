@@ -53,7 +53,7 @@ int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
   if (FastFourierTransformSGIMATH(buffer, Rank, DimensionReal,
 				  Dimension, direction, type) == FAIL) {
     fprintf(stderr, "Error in FastFourierTransformSGIMATH.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
 #define GOT_FFT
@@ -83,7 +83,7 @@ int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
   if (FastFourierTransformPrepareComplex(buffer, Rank, DimensionReal,
 				         Dimension, direction, type) == FAIL) {
     fprintf(stderr, "Error in FastFourierTransformPrepareComplex.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
 #endif /* GOT_FFT */

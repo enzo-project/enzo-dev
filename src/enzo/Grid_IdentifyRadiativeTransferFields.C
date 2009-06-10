@@ -54,7 +54,7 @@ int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaHINum,
 	      "kphHeII=%"ISYM", gammaHeII=%"ISYM", kdissH2I=%"ISYM"\n",
 	      kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, 
 	      gammaHeIINum, kdissH2INum);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
 

@@ -54,7 +54,7 @@ int grid::AddRadiationPressureAcceleration()
   if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
       == FAIL) {
     fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Add acceleration fields from radiation pressure */

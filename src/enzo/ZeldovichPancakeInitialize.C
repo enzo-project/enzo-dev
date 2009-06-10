@@ -48,7 +48,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
  
   if (!ComovingCoordinates) {
     fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (!SelfGravity)
@@ -104,7 +104,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 					  ZeldovichPancakeInitialTemperature
 						       ) == FAIL) {
     fprintf(stderr, "Error in ZeldovichPancakeInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

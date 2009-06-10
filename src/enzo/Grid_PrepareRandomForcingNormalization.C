@@ -38,7 +38,7 @@ int grid::PrepareRandomForcingNormalization(float * GlobVal, int GlobNum)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "GPRFN: Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Allocate field and compute temperature (it is actually c^2) */
@@ -50,7 +50,7 @@ int grid::PrepareRandomForcingNormalization(float * GlobVal, int GlobNum)
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Loop over active part of fields and sum up each of the required

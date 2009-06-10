@@ -52,7 +52,7 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
       fprintf(stdout, "SplitPhotonPackage: Problem splitting %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
 	      PP, NewPack, NewPack->PreviousPackage,
 	      NewPack->PreviousPackage->NextPackage, NewPack->NextPackage);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   } // for childrays=0,3
     

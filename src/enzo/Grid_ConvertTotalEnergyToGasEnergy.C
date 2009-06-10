@@ -47,7 +47,7 @@ int grid::ConvertTotalEnergyToGasEnergy()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "CTETGE: Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Subtract kinetic component. */

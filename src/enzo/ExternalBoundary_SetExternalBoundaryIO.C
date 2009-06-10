@@ -89,7 +89,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   if (FieldRank != BoundaryRank) {
     fprintf(stderr, "FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
             FieldRank, BoundaryRank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* find requested field type */
@@ -99,7 +99,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (FieldType == BoundaryFieldType[field]) break;
   if (field == NumberOfBaryonFields) {
     fprintf(stderr, "Field type (%"ISYM") not found in Boundary.\n", FieldType);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* error check: make sure the boundary type array exists */
@@ -111,7 +111,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (BoundaryDimension[dim] != 1) {
       if (BoundaryType[field][dim][0] == NULL) {
 	fprintf(stderr, "BoundaryType not yet declared.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
 #endif
@@ -208,7 +208,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (x-left).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
         }
@@ -242,7 +242,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (x-left).\n",
 		    BoundaryType[field][0][0][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}
@@ -308,7 +308,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (x-right).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
         }
@@ -343,7 +343,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (x-right).\n",
 		    BoundaryType[field][0][1][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}
@@ -412,7 +412,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 		    btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
         }
@@ -446,7 +446,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (y-left).\n",
 		    BoundaryType[field][1][0][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}
@@ -513,7 +513,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 		    btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
         }
@@ -548,7 +548,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (y-right).\n",
 		    BoundaryType[field][1][1][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}
@@ -616,7 +616,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-left).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
         }
 
@@ -649,7 +649,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-left).\n",
 		    BoundaryType[field][2][0][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}
@@ -715,7 +715,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-right).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
         }
@@ -750,7 +750,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
 		    BoundaryType[field][2][1][bindex]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	}

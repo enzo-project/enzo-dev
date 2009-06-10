@@ -36,7 +36,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
 
   if (NumberOfGrids < 1) {
     fprintf(stderr, "NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Determine total number of stars. */
@@ -89,7 +89,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
           MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
 	if (FromGrid[grid]->CommunicationSendStars(this, ProcessorNumber) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
         }
 
     } // ENDELSE same processor

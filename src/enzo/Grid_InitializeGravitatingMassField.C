@@ -45,7 +45,7 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
  
   if (RefinementFactor < 1 || RefinementFactor > RefineBy) {
     fprintf(stderr, "RefinementFactor = %"ISYM" out of range.\n", RefinementFactor);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Check to see if the field was already initialized. */

@@ -59,7 +59,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 {
 
   /* Return if this doesn't concern us. */
-  throw EnzoFatalException("Intentional failure in "__FILE__);
+  //throw(EnzoFatalException("I am failing"));
+  ENZO_FAIL("Intentional failure")
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
@@ -90,7 +91,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       if ((ColourNum =
            FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
         fprintf(stderr, "Could not find ElectronDensity.\n");
-        ENZO_FAIL("Error in: "__FILE__);
+        ENZO_FAIL("");
       }
 
       /* Generate an array of field numbers corresponding to the colour fields
@@ -129,7 +130,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       GammaField = new float[size];
       if (this->ComputeGammaField(GammaField) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeGammaField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     } else {
       GammaField = new float[1];
@@ -146,7 +147,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (UseMinimumPressureSupport == TRUE && level > MaximumRefinementLevel-1)
       if (this->SetMinimumSupport(MinimumSupportEnergyCoefficient) == FAIL) {
 	fprintf(stderr, "Error in grid->SetMinimumSupport,\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     /* allocate space for fluxes */
@@ -227,7 +228,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
 	  == FAIL) {
 	fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     /* Create a cell width array to pass (and convert to absolute coords). */
@@ -285,7 +286,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                         &NumberOfColours, colourpt, coloff, colindex);
 #else /* PPM_LR */
       fprintf(stderr, "PPM LR is not supported.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
 #endif /* PPM_LR */
     }
 
@@ -296,7 +297,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 			   SubgridFluxes,
 			   NumberOfColours, colnum, LowestLevel,
 			   MinimumSupportEnergyCoefficient) == FAIL)
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
 	
 
     /* Clean up allocated fields. */

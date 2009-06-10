@@ -126,7 +126,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry *GridHierarchyPointer[],
 
       if (vec2pix_nest(Nside, r_photon, &ipix) == FAIL) {
 	fprintf(stderr, "Error in vec2pix_nest.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       // Group pixels together according to processor number

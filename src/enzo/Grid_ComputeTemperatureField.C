@@ -64,7 +64,7 @@ int grid::ComputeTemperatureField(float *temperature)
  
   if (result == FAIL) {
     fprintf(stderr, "Error in grid->ComputePressure.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Compute the size of the fields. */
@@ -77,7 +77,7 @@ int grid::ComputeTemperatureField(float *temperature)
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
     fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
  
@@ -100,7 +100,7 @@ int grid::ComputeTemperatureField(float *temperature)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* For Sedov Explosion compute temperature without floor */
@@ -128,7 +128,7 @@ int grid::ComputeTemperatureField(float *temperature)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Compute temperature with mu calculated directly. */

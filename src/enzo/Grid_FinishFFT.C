@@ -69,7 +69,7 @@ int grid::FinishFFT(region *InitialRegion, int Field, int DomainDim[])
       FieldPointer = PotentialField;
     } else {
       fprintf(stderr, "Field %"ISYM" not recognized.\n", Field);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Copy region data into grid. */

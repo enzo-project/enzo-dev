@@ -90,7 +90,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataCubes\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  

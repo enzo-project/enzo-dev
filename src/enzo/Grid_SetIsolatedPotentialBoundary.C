@@ -35,7 +35,7 @@ int grid::SetIsolatedPotentialBoundary()
 
   if (PotentialField == NULL || GravitatingMassFieldCellSize == FLOAT_UNDEFINED) {
     fprintf(stderr, "Potential NULL or gravity unitialized.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Set start index and dimension of active part of potential field. */

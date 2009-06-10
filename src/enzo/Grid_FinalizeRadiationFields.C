@@ -50,7 +50,7 @@ int grid::FinalizeRadiationFields(void)
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Find radiative transfer fields. */
@@ -61,7 +61,7 @@ int grid::FinalizeRadiationFields(void)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Get units. */
@@ -71,7 +71,7 @@ int grid::FinalizeRadiationFields(void)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   float DensityConversion = DensityUnits / 1.673e-24;

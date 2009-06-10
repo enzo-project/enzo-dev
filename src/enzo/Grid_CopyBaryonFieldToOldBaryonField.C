@@ -62,7 +62,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
  
     if (BaryonField[field] == NULL) {
       fprintf(stderr, "BaryonField missing.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Create OldBaryonField if necessary. */
@@ -99,7 +99,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       }else{
 
         fprintf(stderr,"Error-- in CopyBF to Old, no AccelerationField.\n");
-        ENZO_FAIL("Error in: "__FILE__);
+        ENZO_FAIL("");
 
       }
 

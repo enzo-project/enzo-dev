@@ -87,7 +87,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (ReadAllData(LastFileNameWritten, &TopGrid,
 		  MetaData, Exterior) == FAIL) {
     fprintf(stderr, "Error reloading data: %s\n", LastFileNameWritten);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   AddLevel(LevelArray, &TopGrid, 0);
   fprintf(stderr, "done\n");
@@ -98,12 +98,12 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
       fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -112,7 +112,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in RebuildHierarchy.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

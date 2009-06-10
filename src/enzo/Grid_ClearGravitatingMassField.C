@@ -37,7 +37,7 @@ int grid::ClearGravitatingMassField()
  
   if (GravitatingMassFieldCellSize == FLOAT_UNDEFINED) {
     fprintf(stderr, "GravitatingMassField uninitialized.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* compute size of the gravitating mass field */
@@ -55,7 +55,7 @@ int grid::ClearGravitatingMassField()
     GravitatingMassField = new float[size];
   if (GravitatingMassField == NULL) {
     fprintf(stderr, "malloc error (out of memory?)\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   for (i = 0; i < size; i++)

@@ -115,7 +115,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						ShockInABoxPressure,
 						ShockInABoxVelocity) == FAIL) {
     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -158,7 +158,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						   ShockInABoxVelocity)
 	== FAIL) {
       fprintf(stderr, "Error in ShockTubeInitializeGrid (subgrid).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			
   }
  
@@ -177,7 +177,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
     fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   if (MetaData.TopGridRank > 1)

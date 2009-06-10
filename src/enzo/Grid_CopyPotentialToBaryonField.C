@@ -44,7 +44,7 @@ int grid::CopyPotentialToBaryonField()
  
   if (BaryonField[field] == NULL) {
     fprintf(stderr, "GravPotential field missing.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
  
@@ -52,7 +52,7 @@ int grid::CopyPotentialToBaryonField()
  
   if (PotentialField == NULL) {
     fprintf(stderr, "PotentialField missing.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Well, it appears that currently GravitatingMassField is larger

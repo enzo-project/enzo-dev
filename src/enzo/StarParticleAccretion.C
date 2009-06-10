@@ -35,12 +35,12 @@ int StarParticleAccretion(Star *&AllStars)
 
     if (ThisStar->CalculateMassAccretion() == FAIL) {
       fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     if (ThisStar->Accrete() == FAIL) {
       fprintf(stderr, "Error in star::Accrete.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     
   }

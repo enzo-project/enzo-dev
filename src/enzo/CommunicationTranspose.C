@@ -206,7 +206,7 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 	       &status) != MPI_SUCCESS) {
 	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
 		status.MPI_ERROR);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
 #ifdef MPI_INSTRUMENTATION

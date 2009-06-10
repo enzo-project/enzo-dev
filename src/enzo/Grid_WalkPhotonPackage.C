@@ -149,7 +149,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	     (*PP)->PreviousPackage, 
 	     (*PP)->PreviousPackage->NextPackage, 
 	     PhotonPackages);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   FLOAT dir_vec[3];
@@ -158,7 +158,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, 
 	     (*PP) );
     (*PP)->Photons=0;
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   //  if (DEBUG) fprintf(stderr,"%"GSYM" %"GSYM" %"GSYM". \n", dir_vec[0],dir_vec[1],dir_vec[2]);
@@ -405,7 +405,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       fprintf(stdout, "grid::WalkPhotonPackage: "
 	      "GravityBoundaryType = RadiationBoundary undefined %"ISYM".\n",
 	      GravityBoundaryType);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
 
@@ -919,7 +919,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	fprintf(stdout, "grid::WalkPhotonPackage: GravityBoundaryType = "
 		"RadiationBoundary undefined %"ISYM".\n",
 		GravityBoundaryType);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     } // ENDIF photon leaving grid
 

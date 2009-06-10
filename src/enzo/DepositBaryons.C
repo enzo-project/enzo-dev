@@ -62,7 +62,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
  
   if (Grid->GridData->DepositBaryons(Grid->GridData, TimeMidStep) == FAIL) {
     fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Recursively deposit baryons in children (at TimeMidStep). */
@@ -71,7 +71,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
     if (DepositBaryonsChildren(Grid, Grid->NextGridNextLevel, TimeMidStep)
 	== FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   return SUCCESS;
@@ -102,7 +102,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
   if (Grid->GridData->DepositBaryons(DepositGrid->GridData, DepositTime)
       == FAIL) {
     fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Next grid on this level. */
@@ -111,7 +111,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridThisLevel,
 			       DepositTime) == FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren(1).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Recursively deposit baryons in children. */
@@ -120,7 +120,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridNextLevel,
 			       DepositTime) == FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren(2).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   return SUCCESS;

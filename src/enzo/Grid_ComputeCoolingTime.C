@@ -102,7 +102,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find Multi-species fields. */
@@ -111,7 +111,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Find photo-ionization fields */
@@ -122,7 +122,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Get easy to handle pointers for each variable. */
@@ -174,7 +174,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
  
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
     fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Set up information for rates which depend on the radiation field. */

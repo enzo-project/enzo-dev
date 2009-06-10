@@ -39,7 +39,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
   if (ProblemType == 2)
     if (Exterior->SetWavePoolBoundary(Time) == FAIL) {
       fprintf(stderr, "Error in exterior->SetWavePoolBoundary.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* For Shock Pool problem, compute the new inflow boundary conditions. */
@@ -47,7 +47,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
   if (ProblemType == 3)
     if (Exterior->SetShockPoolBoundary(Time) == FAIL) {
       fprintf(stderr, "Error in exterior->SetShockPoolBoundary.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* For the DoubleMach problem, set the bew inflow boundary conditions. */
@@ -56,7 +56,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
     if (Exterior->SetDoubleMachBoundary(Time, CellLeftEdge[0], CellWidth[0])
 	== FAIL) {
       fprintf(stderr, "Error in exterior->SetDoubleMachBoundary.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* For 2D/3D Noh problem apply time-dependent boundary conditions on Right faces
@@ -66,7 +66,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
   if (ProblemType == 9)
     if (this->ComputeExternalNohBoundary() == FAIL) {
       fprintf(stderr, "Error in grid->ComputeExternalNohBoundary.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
   /* Compute offset from corner of domain. */
@@ -85,7 +85,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
  
     if (BaryonField[field] == NULL) {
       fprintf(stderr, "Baryon field missing.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef OOC_BOUNDARY
@@ -97,7 +97,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 				      BaryonField[field], FieldType[field])
 	== FAIL) {
       fprintf(stderr, "Error in Exterior->SetExternalBoundary.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   }
@@ -110,7 +110,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 					       ParticlePosition,
 					       ParticleVelocity) == FAIL) {
       fprintf(stderr, "Error in Exterior->SetExternalBoundaryParticles.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   return SUCCESS;

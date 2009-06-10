@@ -197,7 +197,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	  if (FindSuperSource(&NewPack, RecvBuffer[i].buffer.SuperSourceID) 
 	      == FAIL) {
 	    fprintf(stderr, "Error in FindSuperSource.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	} else
 	  NewPack->CurrentSource = NULL;

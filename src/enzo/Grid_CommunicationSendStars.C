@@ -102,7 +102,7 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
 	Eint32 errlen;
 	MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
 	fprintf(stderr, "MPI Error: %s\n", errstr);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
 

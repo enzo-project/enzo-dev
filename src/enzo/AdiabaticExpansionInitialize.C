@@ -59,7 +59,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
  
   if (!ComovingCoordinates) {
     fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set default parameters */
@@ -100,7 +100,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
@@ -123,7 +123,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 					      InitialGasEnergy, InitialVels
 					      ) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

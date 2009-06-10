@@ -88,7 +88,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     OldSourceClusteringTree = SourceClusteringTree;
     if (ReassignSuperSources(LevelArray) == FAIL) {
       fprintf(stderr, "Error in ReassignSuperSources.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     SourceClusteringTree = NULL;
 //    if (SourceClusteringTree != NULL)
@@ -172,7 +172,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   default:
     fprintf(stderr, "sort_dim = %"ISYM" ?!  This should never be greater than 2.\n",
 	    sort_dim);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   } // ENDSWITCH
   loop_count++;
 

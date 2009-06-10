@@ -89,7 +89,7 @@ int ShockTubeInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid)
 						ShockTubePressure,
 						ShockTubeVelocity) == FAIL) {
     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

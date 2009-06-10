@@ -29,7 +29,7 @@ int ReassignSuperSources(LevelHierarchyEntry *LevelArray[])
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->ReassignSuperSources() == FAIL) {
 	fprintf(stderr, "Error in grid::ReassignSuperSources.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
   return SUCCESS;

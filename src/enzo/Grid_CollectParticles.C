@@ -117,7 +117,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
 	fprintf(stderr, "malloc error (out of memory?)\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* Copy this grid's particles to the new space. */

@@ -135,7 +135,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
   else {
     fprintf(stderr, "DepositField = %"ISYM" not recognized.\n", DepositField);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }  
 
   /* If on different processors, generate a temporary field to hold
@@ -182,7 +182,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 		int(GridLeftEdge[dim]/CellSize));
 
 	fprintf(stderr, "Offset[%d] = %d < 0\n", dim, Offset[dim]);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       Dimension[dim] = int((GridRightEdge[dim] - LeftEdge[dim])/CellSize) + 3;
       size *= Dimension[dim];

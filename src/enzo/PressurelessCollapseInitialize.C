@@ -92,7 +92,7 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 					  PressurelessCollapseNumberOfCells
 						       ) == FAIL) {
     fprintf(stderr, "Error in PressurelessCollapseInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

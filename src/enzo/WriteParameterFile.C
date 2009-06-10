@@ -58,7 +58,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData.Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* write data to Parameter output file */
@@ -482,13 +482,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
       fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
       fprintf(stderr, "Error in WriteUnits.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
 
@@ -498,13 +498,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in WritePhotonSources.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 #endif
 

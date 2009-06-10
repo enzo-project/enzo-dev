@@ -62,7 +62,7 @@ int CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
   if (Grids[grid]->GridData->ComputeEnergy(&EnergySum[level][0]) ==
       FAIL) {
     fprintf(stderr, "Error in grid->ComputeEnergy.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If this is the last grid, sum it up and output result. */
@@ -112,7 +112,7 @@ int CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
     FILE *fptr;
     if ((fptr = fopen("amr_energy.out", "a")) == NULL) {
       fprintf(stderr, "error opening amr_energy.out\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     if (PrintHeader) {

@@ -35,13 +35,13 @@ int grid::PrepareGreensFunction()
  
   if (PotentialField != NULL) {
     fprintf(stderr, "Potential field not null.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (GravityBoundaryType != TopGridPeriodic) {
     fprintf(stderr, "GravityBoundaryType %"ISYM" not supported.\n",
 	    GravityBoundaryType);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Compute size and allocate field with size of GravitatingMassField. */

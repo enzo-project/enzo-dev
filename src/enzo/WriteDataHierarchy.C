@@ -48,14 +48,14 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
   if (WriteTime < 0) {
     if (Grid->GridData->WriteGrid(fptr, base_name, GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
   else
     if (Grid->GridData->WriteGridInterpolate(WriteTime, fptr, base_name,
 					     GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   // Write movie data if the last output of the run
@@ -67,7 +67,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
 					  MetaData.StopTime,
 					  1, Zero) == FAIL) {
       fprintf(stderr, "Error in WriteNewMovieData.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
 
@@ -84,7 +84,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
     if (WriteDataHierarchy(fptr, MetaData, Grid->NextGridThisLevel, 
 			   base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataHierarchy(1).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  
@@ -101,7 +101,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
     if (WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel, 
 			   base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataHierarchy(1).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  

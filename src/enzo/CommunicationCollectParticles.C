@@ -147,20 +147,20 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 		(SubgridPointers[k], ZERO_UNDER_SUBGRID_FIELD, float(k+1),
 		 ZeroOnAllProcs) == FAIL) {
 	      fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
  
 	if (GridHierarchyPointer[j]->GridData->
 	    MoveSubgridStars(NumberOfSubgrids, SubgridPointers, TRUE) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveSubgridStars.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
 	if (GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
 	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT) == FAIL) {
 	  fprintf(stderr, "Error in TransferSubgridParticles(OUT).\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
  
       } // ENDIF subgrids exist
@@ -183,7 +183,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       if (CommunicationShareParticles(NumberToMove, SendList, NumberOfReceives,
 				      SharedList) == FAIL) {
 	fprintf(stderr, "Error in CommunicationShareParticles.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     } // ENDELSE local
@@ -204,7 +204,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, jstart, jend, 
 	     SharedList, KeepLocal, ParticlesAreLocal, COPY_IN) == FAIL) {
 	  fprintf(stderr, "Error in grid->TransferSubgridParticles(IN).\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	jstart = jend;
       } // ENDFOR grids
@@ -320,7 +320,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       if (GridHierarchyPointer[j]->GridData->CollectParticles
 	  (j, NumberToMove, StartNum, Zero, SendList, COPY_OUT) == FAIL) {
 	fprintf(stderr, "Error in grid->CollectParticles(OUT).\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     /* Share the particle move list */
@@ -329,7 +329,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     if (CommunicationShareParticles(NumberToMove, SendList, NumberOfReceives,
 				    SharedList) == FAIL) {
       fprintf(stderr, "Error in CommunicationShareParticles.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   
     /* Copy particles back to grids */
@@ -348,7 +348,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	    CollectParticles(j, NumberToMove, jstart, jend, SharedList, 
 			     COPY_IN) == FAIL) {
 	  fprintf(stderr, "Error in grid->CollectParticles(IN).\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	jstart = jend;
       } // ENDFOR grids

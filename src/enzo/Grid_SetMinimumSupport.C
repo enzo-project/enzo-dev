@@ -40,7 +40,7 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
 	fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     float CosmoFactor = 1.0/a;
  
@@ -57,7 +57,7 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Set minimum GE. */
@@ -85,7 +85,7 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
 	  BaryonField[GENum][i] = max(BaryonField[GENum][i],
 				      MinimumSupportEnergyCoefficient *
 				      BaryonField[DensNum][i]);
-	if (GridRank != 3) ENZO_FAIL("Error in: "__FILE__);
+	if (GridRank != 3) ENZO_FAIL("");
 	for (i = 0; i < size; i++)
 	  BaryonField[TENum][i] = max(BaryonField[GENum][i] + 0.5*
 		       (BaryonField[Vel1Num][i]*BaryonField[Vel1Num][i] +
@@ -96,7 +96,7 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
       }
       else {
 	fprintf(stderr, "not implemented.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
  

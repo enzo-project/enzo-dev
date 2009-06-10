@@ -77,7 +77,7 @@ float grid::ComputeRT_TimeStep()
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Compute the field size. */
@@ -231,7 +231,7 @@ float grid::ComputeRT_TimeStep()
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
 	== FAIL) {
       fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     for (i = 0; i < size; i++)

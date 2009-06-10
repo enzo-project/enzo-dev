@@ -74,7 +74,7 @@ int ExternalBoundary::InitializeExternalBoundaryFace(int dim,
  
   if (dim > BoundaryRank) {
     fprintf(stderr, "Dimension %"ISYM" > BoundaryRank %"ISYM".\n", dim, BoundaryRank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* compute size of entire mesh */

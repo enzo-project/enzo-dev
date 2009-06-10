@@ -56,12 +56,12 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
  
   if (BaryonField[NumberOfBaryonFields] == NULL && level >= 0) {
     fprintf(stderr, "UNDER_SUBGRID_FLAG field not set.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (SelfGravity && GravityResolution != 1) {
     fprintf(stderr, "ProjectToPlane assumes GravityResolution == 1.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Declarations */
@@ -88,7 +88,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Find metallicity field and set flag. */
@@ -145,7 +145,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   if (ComovingCoordinates) {
     const double SolarMass = 1.989e33, Mpc = 3.0824e24;
@@ -183,7 +183,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   if (NumberOfBaryonFields > 0) {
     if (this->ComputeTemperatureField(temperature) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Set the temperature to zero wherever the baryon density is. */
@@ -431,7 +431,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
       if (this->ComputeElementalDensity(temperature, elemental_density, 6)
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeElementalDensity\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       FORTRAN_NAME(projplane)(elemental_density, NULL,
                              BaryonField[NumberOfBaryonFields], &One,

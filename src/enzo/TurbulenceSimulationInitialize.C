@@ -204,7 +204,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (TurbulenceSimulationVelocityNames[0] == NULL) {
     fprintf(stderr, "Missing initial data.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (CellFlaggingMethod[0] != 3)
@@ -281,7 +281,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
 			   TurbulenceSimulationSubgridsAreStatic,
 			   TotalRefinement) == FAIL) {
       fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
   }
  
   /* Set boundary conditions if necessary. */
@@ -420,7 +420,7 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 			TurbulenceSimulationSubgridsAreStatic,
 			TotalRefinement) == FAIL) {
       fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     Temp = Temp->NextGridThisLevel;

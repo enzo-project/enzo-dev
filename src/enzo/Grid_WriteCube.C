@@ -525,7 +525,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       // Copy active part of field into grid

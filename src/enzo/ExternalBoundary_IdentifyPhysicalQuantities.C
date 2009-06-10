@@ -40,7 +40,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((DensNum = FindField(Density, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "EBIPQ: Cannot find density.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find Total energy, if possible. */
@@ -48,7 +48,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((TENum = FindField(TotalEnergy, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "Cannot find total energy.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find gas energy, if possible. */
@@ -57,7 +57,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((GENum = FindField(InternalEnergy, BoundaryFieldType,
 			   NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find gas energy.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Find Velocity1, if possible. */
@@ -65,7 +65,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((Vel1Num = FindField(Velocity1, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "Cannot find Velocity1.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find Velocity2, if possible. */
@@ -74,7 +74,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((Vel2Num = FindField(Velocity2, BoundaryFieldType,
 			     NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find Velocity2.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Find Velocity3, if possible. */
@@ -83,7 +83,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((Vel3Num = FindField(Velocity3, BoundaryFieldType,
 			     NumberOfBaryonFields)) == 0) {
       fprintf(stderr, "Cannot find Velocity3.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   return SUCCESS;

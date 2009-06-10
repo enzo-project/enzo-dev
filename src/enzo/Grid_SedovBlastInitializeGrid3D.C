@@ -33,7 +33,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
     return SUCCESS;
 
   if (GridRank != 3)
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
 
   /* declarations */
 
@@ -48,7 +48,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
   if ((fptr = fopen(SedovBlastFileName, "r")) == NULL) {
     printf("Cannot open SedovBlast Initial Data File %s\n", 
 	   SedovBlastFileName);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int nl = 0, nlines;

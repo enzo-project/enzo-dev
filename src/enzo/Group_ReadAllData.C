@@ -115,11 +115,11 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   if ((fptr = fopen(name, "r")) == NULL) {
     fprintf(stderr, "Error opening input file %s.\n", name);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
     fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Close main file. */
@@ -153,19 +153,19 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   if(LoadGridDataAtStart){    
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }else{
     if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
@@ -194,7 +194,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 #ifdef TASKMAP
   if ((mptr = fopen(memorymapname, "r")) == NULL) {
     fprintf(stderr, "Error opening MemoryMap file %s.\n", memorymapname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   Eint64 GridIndex[MAX_NUMBER_OF_TASKS], OldPN, Mem[MAX_NUMBER_OF_TASKS];
@@ -209,7 +209,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
     fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   fclose(mptr);
@@ -225,7 +225,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   // #ifdef SINGLE_HDF5_OPEN_ON_INPUT
   //   if ((tptr = fopen(taskmapname, "r")) == NULL) {
   //     fprintf(stderr, "Error opening TaskMap file %s.\n", taskmapname);
-  //     ENZO_FAIL("Error in: "__FILE__);
+  //     ENZO_FAIL("");
   //   }
   
   //   Eint64 OldPN;
@@ -252,7 +252,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   if ((fptr = fopen(hierarchyname, "r")) == NULL) {
     fprintf(stderr, "Error opening hierarchy file %s.\n", hierarchyname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
 
@@ -298,7 +298,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   GridID = 1;
   if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if(LoadGridDataAtStart){
@@ -323,7 +323,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   if (ReadStarParticleData(fptr) == FAIL) {
     fprintf(stderr, "Error in ReadStarParticleData.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Create radiation name and read radiation data. */
@@ -334,11 +334,11 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     strcat(radiationname, RadiationSuffix);
     if ((Radfptr = fopen(radiationname, "r")) == NULL) {
       fprintf(stderr, "Error opening radiation file %s.\n", name);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
       fprintf(stderr, "Error in ReadRadiationData.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     fclose(Radfptr);
   }

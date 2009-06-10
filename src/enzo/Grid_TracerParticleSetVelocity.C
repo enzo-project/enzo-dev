@@ -58,7 +58,7 @@ int grid::TracerParticleSetVelocity()
   float *VelocityFields[MAX_DIMENSION];
   if ((Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields)) < 0) {
     fprintf(stderr, "Could not find baryon velocity.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   for (dim = 0; dim < GridRank; dim++)
     VelocityFields[dim] = BaryonField[Vel1Num+dim];

@@ -98,18 +98,18 @@ int WriteMovieData(char *basename, int filenumber,
  
   if ((Gridfptr = fopen(gridname, "w")) == NULL) {
     fprintf(stderr, "Error opening grid output file %s\n", gridname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if ((DMfptr = fopen(dmname, "w")) == NULL) {
     fprintf(stderr, "Error opening dm output file %s\n", dmname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (StarParticleCreation > 0)
     if ((Starfptr = fopen(starname, "w")) == NULL) {
       fprintf(stderr, "Error opening star output file %s\n", starname);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* --------------------------------------------------------------- */
@@ -150,7 +150,7 @@ int WriteMovieData(char *basename, int filenumber,
 				    NumberOfValuesPerPoint,
 				    PointValueNames, BaseRadius) == FAIL) {
 	fprintf(stderr, "Error in grid->OutputGridMovieData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* Next grid on this level. */
@@ -179,7 +179,7 @@ int WriteMovieData(char *basename, int filenumber,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, WriteTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);    
+    ENZO_FAIL("");    
   }
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(WriteTime, &a, &dadt);
@@ -188,7 +188,7 @@ int WriteMovieData(char *basename, int filenumber,
  
   if ((Summaryfptr = fopen(summaryname, "w")) == NULL) {
     fprintf(stderr, "Error opening summary output file %s\n", summaryname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Output summary information:

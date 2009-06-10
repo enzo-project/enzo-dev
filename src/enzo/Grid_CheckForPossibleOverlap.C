@@ -142,7 +142,7 @@ int grid::CheckForPossibleOverlapHelper(grid *OtherGrid,
 	  OtherGrid->GravitatingMassFieldDimension[dim]);
  
     if (Left[dim]+0.5*GravitatingMassFieldCellSize >= Right[dim])
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
   }
  
   return TRUE;

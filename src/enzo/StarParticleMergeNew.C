@@ -74,7 +74,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
 	printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       if (ThisStar->Mergable(OtherStar))
 	if (ThisStar->Separation2(OtherStar) < rmerge2) {

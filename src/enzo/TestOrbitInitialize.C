@@ -98,7 +98,7 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						TestOrbitUseBaryons
 						  ) == FAIL){
     fprintf(stderr, "Error in TestOrbitInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* set up field names and units */

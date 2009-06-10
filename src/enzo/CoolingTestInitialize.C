@@ -124,7 +124,7 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, 
 	    "WARNING: CoolingTestUseMetals and CoolingTestUseElectronFraction "
 	    "are both TRUE.  Please pick one or the other.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Override some parameters and defaults */
@@ -153,7 +153,7 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr,
     FILE *test_fptr = fopen(MetalCoolingTable, "r");
     if (test_fptr == NULL) {
       fprintf(stderr, "Error opening metal cooling table %s\n", MetalCoolingTable);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     fclose(test_fptr);
 
@@ -187,7 +187,7 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr,
 				CoolingTestUseMetals,
 				CoolingTestUseElectronFraction) == FAIL) {
     fprintf(stderr, "Error in CoolingTestInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Convert minimum initial overdensity for refinement to mass

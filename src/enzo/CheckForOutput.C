@@ -63,13 +63,13 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #else
     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #endif
 
@@ -87,13 +87,13 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #else
     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #endif
 
@@ -122,13 +122,13 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #else
     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
     }
 #endif
     WroteData = TRUE;
@@ -153,12 +153,12 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef USE_HDF5_GROUPS
 	  if (Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
 	    fprintf(stderr, "Error in Group_WriteAllData.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 #else
 	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
 	    fprintf(stderr, "Error in WriteAllData.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 #endif
 

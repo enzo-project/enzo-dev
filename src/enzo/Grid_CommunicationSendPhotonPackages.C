@@ -122,7 +122,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, NumberOfPhotonPackages, 
 		PP->CurrentTime);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       // Next photon
@@ -151,7 +151,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       FromNumber = min(index, FromNumber);
       fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %"ISYM"\n", 
 	      FromNumber);
-      //ENZO_FAIL("Error in: "__FILE__);
+      //ENZO_FAIL("");
     }
 
   } /* ENDIF PackPhotons */
@@ -222,7 +222,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	  Eint32 errlen;
 	  MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
 	  fprintf(stderr, "MPI Error: %s\n", errstr);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
     } /* ENDIF (MyProcessorNumber == ToProcessor) */
@@ -270,13 +270,13 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
 		NewPP->CurrentTime);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       if (RadiativeTransferSourceClustering) {
 	if (FindSuperSource(&NewPP, buffer[index].SuperSourceID) == FAIL) {
 	  fprintf(stderr, "Error in FindSuperSource.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       } else
 	NewPP->CurrentSource = NULL;

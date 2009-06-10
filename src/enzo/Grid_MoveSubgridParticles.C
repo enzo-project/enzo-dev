@@ -41,7 +41,7 @@ int start;
  
   if (ProcessorNumber != FromGrid->ProcessorNumber) {
     fprintf(stderr, "This routine not parallelized.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If there are no particles to move, we're done. */

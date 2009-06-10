@@ -80,6 +80,6 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
 	  "x y z = %"FSYM" %"FSYM" %"FSYM"\n", 
 	  BumpPos[0], BumpPos[1], BumpPos[2]);
   dummy = nGrids0-1;
-  ENZO_FAIL("Error in: "__FILE__);
+  ENZO_FAIL("");
 
 }

@@ -43,7 +43,7 @@ int grid::RestoreEnergyConsistency(int Region)
  
   if (Region != ENTIRE_REGION && Region != ONLY_BOUNDARY) {
     fprintf(stderr, "Region type %"ISYM" unknown.\n", Region);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If there is no work, we're done. */
@@ -57,7 +57,7 @@ int grid::RestoreEnergyConsistency(int Region)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* a) Correct the entire field. */

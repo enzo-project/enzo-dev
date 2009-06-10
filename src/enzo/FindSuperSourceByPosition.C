@@ -28,7 +28,7 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
     if (temp == NULL) {
       fprintf(stderr, "FindSuperSourceByPosition: NULL leaf in clustering tree.  "
 	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     dim_search = loop_count % MAX_DIMENSION;

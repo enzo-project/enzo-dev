@@ -42,7 +42,7 @@ int grid::ReassignSuperSources(void)
     LeafID = PP->CurrentSource->LeafID;
     if (FindSuperSource(&PP, LeafID, FALSE) == FAIL) {
       fprintf(stderr, "Error in FindSuperSource.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     radius2 = 0;
@@ -61,7 +61,7 @@ int grid::ReassignSuperSources(void)
 	LeafID == INT_UNDEFINED)
       if (FindSuperSourceByPosition(&PP) == FAIL) {
 	fprintf(stderr, "Error in FindSuperSourceByPosition.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
   } // ENDFOR photons

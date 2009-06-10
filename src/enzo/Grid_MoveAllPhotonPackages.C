@@ -34,7 +34,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
     fprintf(stderr, 
 	    "grid::MoveAllPhotonPackages: NumberOfGrids(%"ISYM") must be > 0.\n", 
 	    NumberOfGrids);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Determine total number of particles. */
@@ -146,7 +146,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 	       ProcessorNumber, NumberOfPhotonPackages, 
                FromGrid[gridcount]->NumberOfPhotonPackages, &PP) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendPhotonPackages.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	count += FromGrid[gridcount]->ReturnNumberOfPhotonPackages();
 	if (DEBUG)

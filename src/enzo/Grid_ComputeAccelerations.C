@@ -49,14 +49,14 @@ int grid::ComputeAccelerations(int level)
  
     if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Add any fixed (external) acceleration to field. */
 /*
     if (this->AddExternalAcceleration() == FAIL) {
       fprintf(stderr, "Error in grid->AddFixedAcceleration.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 */
     /* Clear particle accelerations. */
@@ -93,7 +93,7 @@ int grid::ComputeAccelerations(int level)
 
      if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
   } // end: if (NumberOfBaryonFields > 0)

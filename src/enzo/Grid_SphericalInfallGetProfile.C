@@ -63,7 +63,7 @@ int grid::SphericalInfallGetProfile(int level, int ReportLevel)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If using comoving coordinates, compute the expansion factor a.  Otherwise,
@@ -145,7 +145,7 @@ int grid::SphericalInfallGetProfile(int level, int ReportLevel)
  
   if ((fptr = fopen(SphericalInfallReportName, mode)) == FAIL) {
     fprintf(stderr, "Error opening %s.\n", SphericalInfallReportName);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   fprintf(fptr, "# l %"ISYM" t = %"FSYM" L = %"GSYM" %"GSYM" %"GSYM" %"GSYM" d(max) = %"GSYM" S(min) = %"GSYM" v_dmax = %"GSYM" div_v_max = %"GSYM"  dt/dt_divv = %"GSYM"\n",

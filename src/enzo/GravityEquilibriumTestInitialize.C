@@ -82,7 +82,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 				GravityEquilibriumTestScaleHeight
 						  ) == FAIL){
     fprintf(stderr, "Error in GravityEquilibriumTestInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

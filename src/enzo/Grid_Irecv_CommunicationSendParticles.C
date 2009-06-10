@@ -143,7 +143,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
       ToGrid->AllocateNewParticles(NewNumber);
       if (ToStart > 0) {
 	fprintf(stderr, "Unallocated Number, yet FromStart = %"ISYM"\n", FromStart);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
  

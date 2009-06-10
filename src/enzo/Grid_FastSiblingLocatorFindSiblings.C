@@ -119,7 +119,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
 	    AlreadyPresent = FALSE;
             if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
               fprintf(stderr, "DC no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings);
-              ENZO_FAIL("Error in: "__FILE__);
+              ENZO_FAIL("");
             }
 	    for (n = 0; n < list->NumberOfSiblings; n++)
 	      if (current_link->GridData == TempList[n])
@@ -136,7 +136,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
 					 RightBoundaryCondition) == TRUE) {
                 if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
                   fprintf(stderr, "DC2 no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings);
-                  ENZO_FAIL("Error in: "__FILE__);
+                  ENZO_FAIL("");
                 }
 		TempList[list->NumberOfSiblings++] = current_link->GridData;
 	      } 
@@ -171,7 +171,7 @@ int grid::FastSiblingLocatorFindSiblings(ChainingMeshStructure *Mesh,
 					  RightBoundaryCondition) == TRUE) {
           if ( list->NumberOfSiblings > MAX_NUMBER_OF_SUBGRIDS ) {
             fprintf(stderr, "DC3 no of sibs > MAX_NUMBER_OF_SUBGRIDS %"ISYM"\n", list->NumberOfSiblings);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
 
 	  TempList[list->NumberOfSiblings++] = current_link->GridData;

@@ -44,7 +44,7 @@ int grid::ConvertToCellCenteredRadiation()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int rkph, rgamma, field;
@@ -68,21 +68,21 @@ int grid::ConvertToCellCenteredRadiation()
 
       if (InterpolatedField[rkph] == NULL) {
 	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rkph);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       if (InterpolatedField[rgamma] == NULL) {
 	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rgamma);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       if (this->ComputeCellCenteredField(rkph) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCellCenteredField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       if (this->ComputeCellCenteredField(rgamma) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCellCenteredField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     } // ENDIF fields to interpolate

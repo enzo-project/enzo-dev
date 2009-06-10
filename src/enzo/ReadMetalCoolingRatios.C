@@ -37,7 +37,7 @@ int ReadMetalCoolingRatios(char *filename)
 
   if ((fptr = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Error opening metal cooling table %s\n", filename);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   // The second and third lines have the number of bins and temp/x_e
@@ -48,7 +48,7 @@ int ReadMetalCoolingRatios(char *filename)
   if ((sscanf(line, "# %"ISYM" %"ISYM, &CoolData.MR_NumberOfTemperatureBins, 
 	      &CoolData.MR_NumberOfElectronFracBins)) != 2) {
     fprintf(stderr, "Error reading number of bins (line 2)\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   fgets(line, MAX_LINE_LENGTH, fptr);
@@ -56,7 +56,7 @@ int ReadMetalCoolingRatios(char *filename)
 	      &CoolData.MR_TemperatureStart, &CoolData.MR_TemperatureEnd,
 	      &CoolData.MR_ElectronFracStart, &CoolData.MR_ElectronFracEnd)) != 4) {
     fprintf(stderr, "Error reading number of ranges (line 3)\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int prev_pos;
@@ -95,7 +95,7 @@ int ReadMetalCoolingRatios(char *filename)
 	if ((fscanf(fptr, "%"GSYM, &CoolData.metal_ratios[index])) == EOF) {
 	  fprintf(stderr, "EOF reached at itemp = %"ISYM", ixe = %"ISYM", icool = %"ISYM"\n", 
 		  itemp, ixe, icool);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       } // ENDFOR icool
     } // ENDFOR temperature

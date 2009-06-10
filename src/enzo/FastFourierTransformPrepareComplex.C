@@ -48,7 +48,7 @@ int FastFourierTransformPrepareComplex(float *buffer, int Rank,
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Does not support Rank = %"ISYM"\n", Rank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   // Copy passed dims to Real dims to make sure they are at least 3d.

@@ -47,7 +47,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
  
     if (Grid->GridData->WriteStuff(fptr, base_name, GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Write out pointer information for the next grid this level */
@@ -63,7 +63,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
     if (WriteHierarchyStuff(fptr, Grid->NextGridThisLevel, base_name, GridID,
 			   WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteHierarchyStuff(1).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  
@@ -80,7 +80,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
     if (WriteHierarchyStuff(fptr, Grid->NextGridNextLevel, base_name, GridID,
 			   WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteHierarchyStuff(1).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  

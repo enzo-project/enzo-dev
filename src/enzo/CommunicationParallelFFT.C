@@ -104,7 +104,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
     if (CommunicationTranspose(InRegion, NumberOfInRegions, strip1,
 			       NumberOfProcessors, NORMAL_ORDER) == FAIL) {
       fprintf(stderr, "Error in CommunicationTranspose.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Compute the size of the each FFT 'slice', and the actual dimensions,
@@ -126,7 +126,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 				 strip1[MyProcessorNumber].RegionDim, TempInts,
 				 direction, REAL_TO_COMPLEX) == FAIL) {
 	  fprintf(stderr, "Error in forward ParallelFFT call.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	j += size;
       } // end: loop over last dims
@@ -139,7 +139,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
       if (CommunicationTranspose(strip1, NumberOfProcessors, strip0,
 			      NumberOfProcessors, TRANSPOSE_FORWARD) == FAIL) {
 	fprintf(stderr, "Error in CommunicationTranspose (forward).\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* FFT last dim (complex to complex).  Note that the data has been
@@ -156,7 +156,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 				 1, &fft_size, &fft_size, direction,
 				 COMPLEX_TO_COMPLEX) == FAIL) {
 	  fprintf(stderr, "Error in forward ParallelFFT call.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
  
     } // end: if (Rank > 1)
@@ -175,7 +175,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 				((Rank>1) ? TRANSPOSE_REVERSE : NORMAL_ORDER))
 	  == FAIL) {
 	fprintf(stderr, "Error in CommunicationTranspose.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       *OutRegion = InRegion;
       *NumberOfOutRegions = NumberOfInRegions;
@@ -196,7 +196,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 			     ((Rank>1) ? TRANSPOSE_FORWARD : NORMAL_ORDER) )
 	  == FAIL) {
 	fprintf(stderr, "Error in CommunicationTranspose.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     } else {
  
@@ -224,7 +224,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 				 1, &fft_size, &fft_size, direction,
 				 COMPLEX_TO_COMPLEX) == FAIL) {
 	  fprintf(stderr, "Error in forward ParallelFFT call.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
  
       /* Transpose to striped0 regions (reverse order within blocks). */
@@ -232,7 +232,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
       if (CommunicationTranspose(strip0, NumberOfProcessors, strip1,
 			      NumberOfProcessors, TRANSPOSE_REVERSE) == FAIL) {
 	fprintf(stderr, "Error in CommunicationTranspose (reverse).\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
     } // end: if (Rank > 1)
@@ -251,7 +251,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 				 strip1[MyProcessorNumber].RegionDim, TempInts,
 				 direction, REAL_TO_COMPLEX) == FAIL) {
 	  fprintf(stderr, "Error in forward ParallelFFT call.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	j += size;
       } // end: loop over last dims
@@ -262,7 +262,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 			       InRegion, NumberOfInRegions,
 			       NORMAL_ORDER) == FAIL) {
       fprintf(stderr, "Error in CommunicationTranspose.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     *OutRegion = InRegion;
     *NumberOfOutRegions = NumberOfProcessors;

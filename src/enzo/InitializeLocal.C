@@ -66,12 +66,12 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
       if (PartitionNestedGrids) {
 	if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	  fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       } else {
 	if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	  fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       }
     }
@@ -84,7 +84,7 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
     if (ParallelRootGridIO == TRUE && ProblemType == 60)
       if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
   }
 

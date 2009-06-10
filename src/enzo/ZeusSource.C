@@ -101,7 +101,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	    printf("%"ISYM"\n", IDX(i,j,k));
 	    fprintf(stderr, "zeus_source1: e,d=%"GSYM",%"GSYM" i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
 		    e[IDX(i,j,k)],d[IDX(i,j,k)],i,j,k);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	}
       }
@@ -334,7 +334,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	  fprintf(stderr, "grav_z=%"GSYM",%"GSYM",%"GSYM"\n", gr_zacc[IDX(i,j,k-1)],gr_zacc[IDX(i,j,k)], gr_zacc[IDX(i,j,k+1)]);
 	  for (n=is; n <= ie; n++)
 	    fprintf(stderr, "d,e,y,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
       } // end: loop over i
@@ -352,7 +352,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	if (e[IDX(i,j,k)] <= 0.0 || d[IDX(i,j,k)] <= 0.0) {
 	  fprintf(stderr, "zeus_source2: e,d=%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
 		  e(i,j,j),d[IDX(i,j,k)],i,j,k);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       }
     }

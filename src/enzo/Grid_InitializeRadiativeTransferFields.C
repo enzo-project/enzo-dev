@@ -39,7 +39,7 @@ int grid::InitializeRadiativeTransferFields()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int i,j,k, index;
@@ -66,7 +66,7 @@ int grid::InitializeRadiativeTransferFields()
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
 	== FAIL) {
       fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     /* Initialize acceleration fields from radiation pressure */

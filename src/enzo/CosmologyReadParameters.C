@@ -91,7 +91,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
   if (CosmologyComputeTimeFromRedshift(InitialRedshift,
 				       &InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   if (*InitTime == 0.0)
     *InitTime = InitialTimeInCodeUnits;
@@ -100,7 +100,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   if (CosmologyComputeTimeFromRedshift(FinalRedshift, StopTime) == FAIL) {
     fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Convert the output redshifts into time, for later convenience. */

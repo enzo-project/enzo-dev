@@ -75,7 +75,7 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
   else {
     fprintf(stderr, "Unrecognized mass refinement flagging method (%"ISYM")\n", 
 	    method);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   for (i = 0; i < size; i++)

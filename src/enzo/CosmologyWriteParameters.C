@@ -31,7 +31,7 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
   FLOAT a, dadt, FinalRedshift, CurrentRedshift;
   if (CosmologyComputeExpansionFactor(StopTime, &a, &dadt) == FAIL) {
     fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   FinalRedshift = (1 + InitialRedshift)/a - 1;
  

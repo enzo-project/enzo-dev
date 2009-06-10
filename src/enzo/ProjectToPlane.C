@@ -212,7 +212,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
  
   if (ProjectionDimension < 0 || ProjectionDimension > MetaData.TopGridRank) {
     fprintf(stderr, "Invalid ProjectionDimension (%"ISYM").\n",ProjectionDimension);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Check to see if the file ProjectParameters exists.  If it does, read

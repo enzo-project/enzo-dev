@@ -63,7 +63,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   
   /* Light crossing time */
@@ -92,7 +92,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     dtPhoton, PhotonTime);
     if (EvolvePhotons(MetaData, LevelArray, AllStars) == FAIL) {
       fprintf(stderr, "Error in EvolvePhotons.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     PhotonCount = 0;
@@ -131,7 +131,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
 	  fprintf(stderr, "Error in AddH2Dissociation.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
   return SUCCESS;

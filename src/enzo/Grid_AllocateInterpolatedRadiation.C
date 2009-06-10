@@ -36,7 +36,7 @@ int grid::AllocateInterpolatedRadiation()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int i,j,k, index, field, dim, vcsize = 1;

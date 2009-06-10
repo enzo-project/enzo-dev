@@ -68,7 +68,7 @@ int grid::InitializeGravitatingMassFieldParticles(int RefinementFactor)
     case GravityUndefined:
     default:
       fprintf(stderr, "GravityBoundaryType undefined.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Set unused dims. */

@@ -75,14 +75,14 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       if (Grids[grid]->GridData->SetExternalBoundaryValues(Exterior)
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
     else {
       if ((Grids[grid]->GridData->InterpolateBoundaryFromParent
 	   (Grids[grid]->ParentGrid->GridData)) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
  
@@ -127,7 +127,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       if ((Grids[grid]->GridData->InterpolateBoundaryFromParent
 	   (Grids[grid]->ParentGrid->GridData)) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
     /* b) Copy any overlapping zones for sibling grids.  */
@@ -195,7 +195,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (DepositParticleMassField(Grids[grid], EvaluateTime) == FAIL) {
       fprintf(stderr, "Error in DepositParticleMassField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -209,7 +209,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (DepositParticleMassField(Grids[grid], EvaluateTime) == FAIL) {
       fprintf(stderr, "Error in DepositParticleMassField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -226,7 +226,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     if (PrepareGravitatingMassField(Grids[grid], MetaData, LevelArray,
 				    level, When) == FAIL) {
       fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -241,7 +241,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     if (PrepareGravitatingMassField(Grids[grid], MetaData, LevelArray,
 				    level, When) == FAIL) {
       fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -263,7 +263,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 				   MetaData->RightFaceBoundaryCondition,
 				   &grid::CopyOverlappingMassField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -281,7 +281,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 				   MetaData->RightFaceBoundaryCondition,
 				   &grid::CopyOverlappingMassField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -296,7 +296,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): CPFLZero (send-receive)\n", MyProcessorNumber);
     if (ComputePotentialFieldLevelZero(MetaData, Grids, NumberOfGrids) == FAIL) {
       fprintf(stderr, "Error in ComputePotentialFieldLevelZero.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  
@@ -317,7 +317,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 							 EvaluateTime)
 		== FAIL) {
 	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
             if (CopyGravPotential)
             {
@@ -341,7 +341,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 				   MetaData->RightFaceBoundaryCondition,
 				   &grid::CopyPotentialField) == FAIL) {
 	       fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	       ENZO_FAIL("Error in: "__FILE__);
+	       ENZO_FAIL("");
 	     }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -359,7 +359,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 				   MetaData->RightFaceBoundaryCondition,
 				   &grid::CopyPotentialField) == FAIL) {
 	       fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	       ENZO_FAIL("Error in: "__FILE__);
+	       ENZO_FAIL("");
 	     }
 
 #ifdef FORCE_MSG_PROGRESS
@@ -419,7 +419,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	  Temp3 = Temp3->ParentGrid;
         if (Temp->GridData->InterpolateAccelerations(Temp3->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->InterpolateAccelerations.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
         }
         Temp = Temp->NextGridThisLevel;
       }
@@ -437,7 +437,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	  Temp3 = Temp3->ParentGrid;
         if (Temp->GridData->InterpolateAccelerations(Temp3->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->InterpolateAccelerations.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
         }
         Temp = Temp->NextGridThisLevel;
       }
@@ -499,7 +499,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
       if (NextGrid->GridData->GetProjectedBoundaryFluxes(
 		      Grids[grid]->GridData, SubgridFluxesRefined) == FAIL) {
 	fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       NextGrid = NextGrid->NextGridThisLevel;
@@ -516,7 +516,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
       if (NextGrid->GridData->ProjectSolutionToParentGrid
 	                                   (*Grids[grid]->GridData) == FAIL) {
 	fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       NextGrid = NextGrid->NextGridThisLevel;
@@ -545,7 +545,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
       if (NextGrid->GridData->GetProjectedBoundaryFluxes(
 		      Grids[grid]->GridData, SubgridFluxesRefined) == FAIL) {
 	fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 	
       /* Correct this grid for the refined fluxes (step #19)
@@ -556,7 +556,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
 	   SubgridFluxesEstimate[grid][NumberOfSubgrids[grid] - 1]     )
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       NextGrid = NextGrid->NextGridThisLevel;
@@ -573,7 +573,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
       if (NextGrid->GridData->ProjectSolutionToParentGrid
 	                                   (*Grids[grid]->GridData) == FAIL) {
 	fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       NextGrid = NextGrid->NextGridThisLevel;

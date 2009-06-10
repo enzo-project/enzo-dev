@@ -149,7 +149,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 					 SphericalInfallSubgridIsStatic
 						  ) == FAIL){
     fprintf(stderr, "Error in SphericalInfallInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -207,7 +207,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 				   FALSE)
 	== FAIL) {
       fprintf(stderr, "Error in SphericalInfallInitializeGrid (2).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			
   }
  

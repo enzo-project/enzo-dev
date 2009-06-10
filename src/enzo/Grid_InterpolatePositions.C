@@ -46,12 +46,12 @@ int grid::InterpolatePositions(FLOAT *Position[], int dim, float *Field,
  
   if (InterpolationField == NULL) {
     fprintf(stderr, "AccelerationField[%"ISYM"] absent.\n", dim);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (GravitatingMassFieldCellSize <= 0) {
     fprintf(stderr, "GravitatingMassFieldCellSize undefined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Set the left edge of the field. */

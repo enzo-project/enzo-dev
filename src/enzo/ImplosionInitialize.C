@@ -143,7 +143,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      ImplosionTotalEnergy,
 					      ImplosionVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* set up the diamond */
@@ -152,7 +152,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      ImplosionDiamondTotalEnergy)
       == FAIL) {
     fprintf(stderr, "Error in ImplosionInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
  
@@ -217,7 +217,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						   ImplosionTotalEnergy,
 					        ImplosionVelocity) == FAIL) {
 	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* set up the diamond */
@@ -227,7 +227,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				  ImplosionDiamondTotalEnergy)
 	  == FAIL) {
 	fprintf(stderr, "Error in ImplosionInitialize[Sub]Grid.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
     else

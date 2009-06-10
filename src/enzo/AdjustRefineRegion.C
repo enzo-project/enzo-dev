@@ -62,7 +62,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->FindMinimumParticleMass(MinParticleMass, level) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMinimumParticleMass.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
   CommunicationMinValue(MinParticleMass);
 
@@ -113,7 +113,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
       if (Temp->GridData->FindMassiveParticles(MinParticleMass, level, 
 				ParticlePos, NumberOfParticles, TRUE) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMassiveParticles(count).\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -125,7 +125,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
       if (Temp->GridData->FindMassiveParticles(MinParticleMass, level, 
 				ParticlePos, NumberOfParticles, FALSE) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMassiveParticles.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
   // Define some convenient variables, such as (1) a flagging field
@@ -301,7 +301,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 	  fprintf(stderr, "RefineRegionRightEdgeCell = %"ISYM" %"ISYM" %"ISYM"\n", 
 		  RefineRegionRightEdgeCell[0], RefineRegionRightEdgeCell[1], 
 		  RefineRegionRightEdgeCell[2]);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
     } // ENDFOR region faces

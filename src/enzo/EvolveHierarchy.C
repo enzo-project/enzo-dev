@@ -137,7 +137,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
   if (Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout) == FAIL) {
     fprintf(stderr, "Error in Enzo_Dims_create.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
@@ -148,7 +148,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 		"i.e. mod(Dims[i], Layout[i]) != 0\n"
 		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
 		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim]);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 #endif /* OPTIMIZED_CTP */
 
@@ -183,12 +183,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
       fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -199,12 +199,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
 //    if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
 //      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-//      ENZO_FAIL("Error in: "__FILE__);
+//      ENZO_FAIL("");
 //    }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -215,7 +215,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   if (CommunicationReceiveHandler() == FAIL) {
     fprintf(stderr, "Error in CommunicationReceiveHandle.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
 #ifdef FORCE_MSG_PROGRESS
@@ -242,7 +242,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
     fprintf(stderr, "Error in CheckForOutput.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
 #ifdef MEM_TRACE
@@ -266,7 +266,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in RebuildHierarchy.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
 #ifdef MEM_TRACE
@@ -415,7 +415,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior);
 #endif
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 #ifdef USE_MPI 
@@ -437,7 +437,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (ProblemType != 25)
       if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
 #ifdef MEM_TRACE
@@ -478,21 +478,21 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (CheckForTimeAction(LevelArray, MetaData) == FAIL) {
       fprintf(stderr, "Error in CheckForTimeActions.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Check for output. */
  
     if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
       fprintf(stderr, "Error in CheckForOutput.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     /* Check for resubmission */
     
     if (CheckForResubmit(MetaData, Stop) == FAIL) {
       fprintf(stderr, "Error in CheckForResubmit.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     /* Try to cut down on memory fragmentation. */
@@ -503,7 +503,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       if (ReduceFragmentation(TopGrid, MetaData, Exterior, LevelArray)
 	  == FAIL) {
 	fprintf(stderr, "Error in ReduceFragmentation.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
 #endif /* REDUCE_FRAGMENTATION */
@@ -601,13 +601,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
       fprintf(stderr, "Error in Group_WriteAllData.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 #else
     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
       fprintf(stderr, "Error in WriteAllData.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 #endif
  

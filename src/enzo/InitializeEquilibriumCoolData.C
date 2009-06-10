@@ -44,7 +44,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   FILE *fptr = fopen("cool_rates.in", "r");
   if (fptr == NULL) {
     fprintf(stderr, "Error opening cool_rates.in\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Read rate data, skipping over comments (count first). */
@@ -87,7 +87,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (ComovingCoordinates) {
@@ -95,7 +95,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);

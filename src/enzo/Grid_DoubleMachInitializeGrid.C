@@ -35,7 +35,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
  
   if (GridRank < 2) {
     fprintf(stderr, "GridRank must be > 1\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* create fields */

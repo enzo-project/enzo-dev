@@ -39,14 +39,14 @@ int ExternalBoundary::SetExternalBoundaryParticles(int FieldRank,
   if (FieldRank != BoundaryRank) {
     fprintf(stderr, "FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
             FieldRank, BoundaryRank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Error check: allowed boundary types. */
  
   if (ParticleBoundaryType != periodic) {
     fprintf(stderr, "only periodic particle boundary conditions supported.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* PERIODIC BOUNDARY: wrap particles in each dimension. */

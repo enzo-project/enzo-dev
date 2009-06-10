@@ -115,7 +115,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      WavePoolTotalEnergy,
 					      WavePoolVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -156,7 +156,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						 WavePoolTotalEnergy,
 						 WavePoolVelocity) == FAIL) {
       fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			
   }
  

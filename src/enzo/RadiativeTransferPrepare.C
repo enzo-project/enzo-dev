@@ -43,7 +43,7 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   if (RadiativeTransferComputeTimestep(LevelArray, MetaData, 
 				       dtLevelAbove) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferComputeTimestep.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Convert star particles into radiation sources only if we're going
@@ -52,7 +52,7 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   if (dtPhoton > 0.0 && LevelArray[level]->GridData->ReturnTime() >= PhotonTime)
     if (StarParticleRadTransfer(LevelArray, level, AllStars) == FAIL) {
       fprintf(stderr, "Error in StarParticleRadTransfer.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   
   /* If the first timestep after restart and we have radiation
@@ -62,7 +62,7 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   if (MetaData->FirstTimestepAfterRestart == TRUE)
     if (RestartPhotons(MetaData, LevelArray, AllStars) == FAIL) {
       fprintf(stderr, "Error in RestartPhotons.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 

@@ -53,7 +53,7 @@ int grid::ComovingExpansionTerms()
     if (CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt) 
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     float Coefficient = dtFixed*dadt/a;
 
@@ -70,7 +70,7 @@ int grid::ComovingExpansionTerms()
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     float *PressureDual, *Pressure = new float[size];
@@ -90,13 +90,13 @@ int grid::ComovingExpansionTerms()
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   PressureDual) == FAIL) {
 	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
       fprintf(stderr, "Error in ComputePressure.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     /* Call fortran routine to do the real work. */
@@ -121,7 +121,7 @@ int grid::ComovingExpansionTerms()
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
       fprintf(stderr, "Error in ComputePressure.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     for (i = 0; i < size; i++)
@@ -188,7 +188,7 @@ int grid::ComovingExpansionTerms()
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   Pressure) == FAIL) {
 	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       /* Replace pressure with the time-centered combination 3*p/d. */

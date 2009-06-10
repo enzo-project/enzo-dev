@@ -112,7 +112,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      KHOuterInternalEnergy,
 					      KHOuterVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* set up the inner flow and add noise to velocities */
@@ -125,7 +125,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					 KHOuterVelocity[0]) 
       == FAIL) {
     fprintf(stderr, "Error in KHInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
 

@@ -29,7 +29,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
 {
  
 //  if (this != FromGrid)
-//    ENZO_FAIL("Error in: "__FILE__);
+//    ENZO_FAIL("");
  
   FLOAT HoldLeftEdge[MAX_DIMENSION];
  
@@ -50,7 +50,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
 					 ParticleAcceleration[dim],
 					 NumberOfParticles) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolatePositions.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       if(ProblemType==29){

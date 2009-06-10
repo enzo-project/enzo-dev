@@ -37,7 +37,7 @@ int grid::ComputeCellCenteredField(int Num)
 
   if (InterpolatedField[Num] == NULL) {
     fprintf(stderr, "Interpolated field #%"ISYM" does not exist.\n", Num);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* declarations */

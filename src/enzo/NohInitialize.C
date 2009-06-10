@@ -111,7 +111,7 @@ int NohInitialize(FILE *fptr,
 					  NohPressure,
 					  NohVelocity) == FAIL) {
     fprintf(stderr, "Error in NohInitializeGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* If requested, create a subgrid */
@@ -152,7 +152,7 @@ int NohInitialize(FILE *fptr,
 					  NohVelocity)
 	== FAIL) {
       fprintf(stderr, "Error in NohInitializeGrid (subgrid).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			   
   }
 

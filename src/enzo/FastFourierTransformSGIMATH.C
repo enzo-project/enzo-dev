@@ -148,7 +148,7 @@ int FastFourierTransformSGIMATH(float *buffer, int Rank, int DimensionReal[],
   /* This is an error. */
  
   fprintf(stderr, "What are we doing here!?!\n");
-  ENZO_FAIL("Error in: "__FILE__);
+  ENZO_FAIL("");
  
 #endif /* IRIS4 && SGI_MATH */
  

@@ -38,7 +38,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
  
   if (FlaggingField == NULL) {
     fprintf(stderr, "Flagging Field is undefined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* compute size */

@@ -79,7 +79,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   if (this != OtherGrid || DoSelf)
     if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
       fprintf(stderr, "Error in grid->*CopyFunction\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* For periodic boundary conditions, do some extra checks.  This insures
@@ -124,7 +124,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      (i != 0 || j != 0 || k != 0) && FullPeriod == TRUE) {
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      fprintf(stderr, "Error in grid->*CopyFunction (2)\n");
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
 	  }
  
@@ -134,7 +134,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      FullPeriod == FALSE && (ABS(i)+ABS(j)+ABS(k) == 1)) {
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      fprintf(stderr, "Error in grid->*CopyFunction (3)\n");
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
 	  }
  

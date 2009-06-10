@@ -52,7 +52,7 @@ int grid::ShockTubeInitializeGrid(int ShockTubeDirection,
   if (ShockTubeDirection > GridRank-1 ||
       GridDimension[ShockTubeDirection] == 1) {
     fprintf(stderr, "ShockTubeDirection is not properly defined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   size = 1;

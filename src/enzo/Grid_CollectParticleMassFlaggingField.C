@@ -42,7 +42,7 @@ int grid::CollectParticleMassFlaggingField(void)
  
   if (ParticleMassFlaggingField == NULL) {
     fprintf(stderr, "ParticleMassFlaggingField is undefined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* compute size */

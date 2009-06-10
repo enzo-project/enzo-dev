@@ -45,7 +45,7 @@ int grid::ComputeVertexCenteredField(int Num)
   if (BaryonField[Num] == NULL) {
     fprintf(stderr, "grid::ComputeVertexCenteredField called with inconsistent "
 	    "field number");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Compute the size of the new grid adds one cell to the active region */

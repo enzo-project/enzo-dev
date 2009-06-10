@@ -42,7 +42,7 @@ int grid::AddToBoundaryFluxes(fluxes *BoundaryFluxesToBeAdded)
  
   if (BoundaryFluxes == NULL) {
     fprintf(stderr, "grid->AddToBoundarFluxes BoundaryFluxes not defined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* add the fluxes of the structure pointed to by the argument to

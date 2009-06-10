@@ -92,7 +92,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
              SendList[GridsToSend].Pointer,
 	     COPY_OUT) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticles.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       GridsToSend++;
     }
@@ -183,7 +183,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     }
     if (NumberOfSharedGrids != NumberOfGrids) {
       fprintf(stderr, "CTP error\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
 /*
@@ -338,7 +338,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	      NumberOfGrids, SharedList[grid].ToGrid, LocalNumberToMove,
 	      LocalPointer, COPY_IN) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticless\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
     } // end: if grid is on my processor

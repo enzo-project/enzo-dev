@@ -43,7 +43,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
     if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
                           TimeUnits, VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in CosmologyGetUnits.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
   else {

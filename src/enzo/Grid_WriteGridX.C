@@ -332,7 +332,7 @@ int grid::WriteGridX(FILE *fptr, char *base_name, int grid_id)
       float *temperature = new float[size];
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* Copy active part of field into grid */

@@ -56,7 +56,7 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
   /* Set cell size. */

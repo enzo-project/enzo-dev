@@ -186,7 +186,7 @@ int grid::ReadRandomForcingFields(FILE *fptr)
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                          Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "GRRFF: Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     int vel = Vel1Num;
     printf("RandomForcing: Fields %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",

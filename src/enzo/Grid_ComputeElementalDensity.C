@@ -235,7 +235,7 @@ int grid::ComputeElementalDensity(float *temperature,
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
     fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Find metallicity field and set flag. */
@@ -254,7 +254,7 @@ int grid::ComputeElementalDensity(float *temperature,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Set lookup table pointer and size. */
@@ -269,7 +269,7 @@ int grid::ComputeElementalDensity(float *temperature,
   case 6: break; /* general Oxygen */
   default:
     fprintf(stderr, "Unrecognized element type: %"ISYM"\n", Type);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (Type < 6) {
@@ -293,15 +293,15 @@ int grid::ComputeElementalDensity(float *temperature,
       printf("reading %s\n", filename);
       if ((fptr = fopen(filename, "r")) == NULL) {
 	fprintf(stderr, "Erroring opening %s.\n", filename);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       if (fscanf(fptr, "NumberOfDensityPoints = %"ISYM"\n", TableSize) != 1) {
 	fprintf(stderr, "Erroring reading number of density points\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       if (fscanf(fptr, "NumberOfTemperaturePoints = %"ISYM"\n", TableSize+1) != 1) {
 	fprintf(stderr, "Erroring reading number of temperature points\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       printf("NumberOfBins (temp,dens) = %"ISYM",%"ISYM"\n", TableSize[0], TableSize[1]);
  
@@ -314,7 +314,7 @@ int grid::ComputeElementalDensity(float *temperature,
 		     TableDensity+i, TableTemperature+j,
 		     LookupTable+n, &DummyFloat) != 4) {
 	    fprintf(stderr, "Error reading table %"ISYM" %"ISYM"\n", i, j);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
       fclose(fptr);
       TableRead = TRUE;

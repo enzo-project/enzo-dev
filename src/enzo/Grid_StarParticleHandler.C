@@ -237,7 +237,7 @@ int grid::StarParticleHandler(int level)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (MultiSpecies > 1) {
@@ -343,7 +343,7 @@ int grid::StarParticleHandler(int level)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);    
+    ENZO_FAIL("");    
   }
  
   float CellWidthTemp = float(CellWidth[0][0]);
@@ -568,7 +568,7 @@ int grid::StarParticleHandler(int level)
 		      ParticleAttribute[1], ParticleType, &SinkParticleType, 
 		      &JeansLengthRefinement, temperature) == FAIL) {
 	fprintf(stderr, "Error in star_maker3\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       /* Delete any merged particles (Mass == FLOAT_UNDEFINED) */

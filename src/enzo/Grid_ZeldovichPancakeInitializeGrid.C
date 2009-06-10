@@ -50,11 +50,11 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   if (ZeldovichPancakeDirection < 0 || ZeldovichPancakeDirection >= GridRank) {
     fprintf(stderr, "ZeldovichPancakeDirection is improperly set.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   if (ZeldovichPancakeOmegaCDMNow != 0) {
     fprintf(stderr, "Dark matter not yet supported.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* create fields */
@@ -84,7 +84,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 
 	       InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Determine the size of the fields. */

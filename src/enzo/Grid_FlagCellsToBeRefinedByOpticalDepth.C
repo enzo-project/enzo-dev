@@ -43,7 +43,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   if (FlaggingField == NULL) {
     fprintf(stderr, "Flagging Field is undefined.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* compute size */
@@ -59,7 +59,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Find radiative transfer fields. */
@@ -70,7 +70,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Get density units. */
@@ -80,7 +80,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Calculate conversion factor to optical depth */

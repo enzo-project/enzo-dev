@@ -65,7 +65,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  if (sscanf((*++argv), "%"PSYM, &RegionStartCoordinate[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading Begin coordinates\n", myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -88,7 +88,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  if (sscanf((*++argv), "%"ISYM, &RegionEnd[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading End indexes.\n", myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -104,7 +104,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  if (sscanf((*++argv), "%"PSYM, &RegionEndCoordinate[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading Finish coordinates\n",myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -132,7 +132,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  if (sscanf((*++argv), "%"ISYM, &RegionLevel) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading level.\n", myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -140,7 +140,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	else {
 	  if (MyProcessorNumber == ROOT_PROCESSOR)
 	    fprintf(stderr, "%s: Need to specify level.\n", myname);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	break;
  
@@ -164,7 +164,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading ProjectionDimension.\n",
 		      myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -172,7 +172,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	else {
 	  if (MyProcessorNumber == ROOT_PROCESSOR)
 	    fprintf(stderr, "%s: Need to specify level.\n", myname);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 	project = TRUE;
 	break;
@@ -192,7 +192,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  if (sscanf((*++argv), "%"ISYM, &RegionStart[dim++]) != 1) {
 	    if (MyProcessorNumber == ROOT_PROCESSOR)
 	      fprintf(stderr, "%s: error reading Start indexes.\n", myname);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	  while (*(argv[0]+1))
 	    ++argv[0];
@@ -210,7 +210,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
       default:
 	if (MyProcessorNumber == ROOT_PROCESSOR)
 	  fprintf(stderr, "%s: unknown command-line option: -%s.\n",myname,&c);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
 	
       } // end of switch(c)
  
@@ -219,7 +219,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
   if (argc != 1) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       PrintUsage(myname);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   *ParameterFile = argv[0];
  

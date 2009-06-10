@@ -90,7 +90,7 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField)
   if (this->DepositPositions(ParticlePosition, ParticleMassPointer,
 			     NumberOfParticles, DepositField) == FAIL) {
     fprintf(stderr, "Error in grid->DepositPositions\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If necessary, delete the particle mass temporary. */

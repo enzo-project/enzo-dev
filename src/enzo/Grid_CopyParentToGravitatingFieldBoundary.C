@@ -97,7 +97,7 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
 	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
       fprintf(stderr, "ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
 	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim]);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  

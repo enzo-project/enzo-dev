@@ -56,7 +56,7 @@ int grid::Group_WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_nam
   if (Time != WriteTime) {
     if (Time <= OldTime) {
       fprintf(stderr, "WGI: fields are at the same time or worse.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     } else {
       coef1 = max((Time - WriteTime)/
 		  (Time - OldTime), 0.0);
@@ -81,7 +81,7 @@ int grid::Group_WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_nam
   float TimeDifference = WriteTime - Time;
   if (this->UpdateParticlePosition(TimeDifference) == FAIL) {
     fprintf(stderr, "Error in grid->UpdateParticlePosition.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Write grid (temporarily replace Time with WriteTime). */
@@ -90,7 +90,7 @@ int grid::Group_WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_nam
   Time = WriteTime;
   if (this->Group_WriteGrid(fptr, base_name, grid_id, file_id) == FAIL) {
     fprintf(stderr, "Error in grid->Group_WriteGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   Time = SavedTime;
  

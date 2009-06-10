@@ -207,7 +207,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   /* Receive grids */
 
   if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
 
   /* Update processor numbers */
   

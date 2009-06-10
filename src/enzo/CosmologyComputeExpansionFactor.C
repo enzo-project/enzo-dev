@@ -42,7 +42,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
  
   if (InitialTimeInCodeUnits == 0) {
     fprintf(stderr, "The cosmology parameters seem to be improperly set.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   *a = FLOAT_UNDEFINED;
@@ -95,7 +95,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
     }
     if (i == 40) {
       fprintf(stderr, "Case 2 -- no convergence after %"ISYM" iterations.\n", i);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Now use eta to compute the expansion factor (eq. 13-10, part 2). */
@@ -133,7 +133,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
  
   if ((*a) == FLOAT_UNDEFINED) {
     fprintf(stderr, "Cosmology selected is not implemented.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

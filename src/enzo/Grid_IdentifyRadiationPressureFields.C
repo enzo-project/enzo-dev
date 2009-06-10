@@ -44,7 +44,7 @@ int grid::IdentifyRadiationPressureFields(int &RPresNum1, int &RPresNum2,
       fprintf(stderr, "Grid_IdentifyRadiationPressureFields: failed\n");
       fprintf(stderr, "RadPressure0 = %"ISYM", RadPressure1 = %"ISYM", RadPressure2 = %"ISYM"\n",
 	      RPresNum1, RPresNum2, RPresNum3);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
 

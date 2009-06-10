@@ -61,7 +61,7 @@ int grid::CosmologyInitializeParticles(
 	       &TimeUnits, &VelocityUnits, &MassUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Check if we have one component per file */
@@ -70,7 +70,7 @@ int grid::CosmologyInitializeParticles(
       CosmologySimulationParticleVelocityNames[0] != NULL) {
     fprintf(stderr, "grid::CosmologyInitializeParticles: Both 3-component and 1-component "
 	    "particle velocity files are defined.  Choose one or the other!\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL)
@@ -163,14 +163,14 @@ int grid::CosmologyInitializeParticles(
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, 0, 1) == FAIL) {
 	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     } else {
       if (ReadFile(CosmologySimulationParticleVelocityName, GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, dim, 3) == FAIL) {
 	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
       }
     } // ENDELSE OneComponentPerFile
     temp_vel[dim] = new float[size];
@@ -183,7 +183,7 @@ int grid::CosmologyInitializeParticles(
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading particle mass.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     mass = new float[size];
     for (i = 0; i < size; i++)
@@ -196,7 +196,7 @@ int grid::CosmologyInitializeParticles(
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &int_tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading particle mass.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     types = new int[size];
     for (i = 0; i < size; i++)

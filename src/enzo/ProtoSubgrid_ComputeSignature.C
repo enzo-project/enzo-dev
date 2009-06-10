@@ -33,7 +33,7 @@ int ProtoSubgrid::ComputeSignature(int dim)
  
   if (dim >= GridRank) {
     fprintf(stderr, "Project: dim = %"ISYM" > GridRank = %"ISYM"\n", dim, GridRank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Already done? */

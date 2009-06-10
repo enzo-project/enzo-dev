@@ -98,7 +98,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
       if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
 	fprintf(stderr, "particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
 		subgrid[i], NumberOfSubgrids);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       
     } // ENDFOR particles
@@ -201,7 +201,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
       fprintf(stderr, "malloc error (out of memory?)\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Copy this grid's particles to the new space. */

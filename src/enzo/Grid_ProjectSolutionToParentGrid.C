@@ -107,7 +107,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Compute the ratio Volume[ThisGridCell]/Volume[ParentCell]. */

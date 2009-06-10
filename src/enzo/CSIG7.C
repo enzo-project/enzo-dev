@@ -164,7 +164,7 @@ int grid::CosmologySimulationInitializeGrid(
      if ( (ParallelRootGridIO != TRUE) || (ParallelParticleIO != TRUE) )
      {
        fprintf(stderr, "ParallelRootGridIO and ParallelParticleIO MUST be set for > 64 cpus!\n");
-       ENZO_FAIL("Error in: "__FILE__);
+       ENZO_FAIL("");
      }
   }
  
@@ -296,7 +296,7 @@ int grid::CosmologySimulationInitializeGrid(
 		   &TimeUnits, &VelocityUnits, &MassUnits, 
 		   InitialTimeInCodeUnits) == FAIL) {
         fprintf(stderr, "Error in GetUnits.\n");
-        ENZO_FAIL("Error in: "__FILE__);
+        ENZO_FAIL("");
       }
  
       // Determine the size of the fields
@@ -336,7 +336,7 @@ int grid::CosmologySimulationInitializeGrid(
                         GridStartIndex, GridEndIndex, Offset, BaryonField[0],
                         &tempbuffer, 0, 1) == FAIL) {
             fprintf(stderr, "Error reading density field.\n");
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
         }
  
@@ -347,7 +347,7 @@ int grid::CosmologySimulationInitializeGrid(
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
 		    BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
             fprintf(stderr, "Error reading total energy field.\n");
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
         }
  
@@ -358,7 +358,7 @@ int grid::CosmologySimulationInitializeGrid(
 		 GridStartIndex, GridEndIndex, Offset, BaryonField[2],
 		 &tempbuffer, 0, 1) == FAIL) {
             fprintf(stderr, "Error reading gas energy field.\n");
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
         }
  
@@ -370,7 +370,7 @@ int grid::CosmologySimulationInitializeGrid(
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   BaryonField[vel+dim], &tempbuffer, dim, 3) == FAIL) {
               fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-              ENZO_FAIL("Error in: "__FILE__);
+              ENZO_FAIL("");
             }
         }
 
@@ -453,7 +453,7 @@ int grid::CosmologySimulationInitializeGrid(
                         GridStartIndex, GridEndIndex, Offset, BaryonField[0],
                         &tempbuffer, 0, 1) == FAIL) {
             fprintf(stderr, "Error reading density field.\n");
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
         }
  
@@ -465,7 +465,7 @@ int grid::CosmologySimulationInitializeGrid(
                           GridStartIndex, GridEndIndex, Offset, BaryonField[vel+dim],
                           &tempbuffer, dim, 3) == FAIL) {
               fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-              ENZO_FAIL("Error in: "__FILE__);
+              ENZO_FAIL("");
             }
         }
 
@@ -623,7 +623,7 @@ int grid::CosmologySimulationInitializeGrid(
       if (TempInt != 1) {
         fprintf(stderr, "Rank (%"ISYM") is not one in file %s.\n", TempInt,
                 CosmologySimulationParticlePositionName);
-        ENZO_FAIL("Error in: "__FILE__);
+        ENZO_FAIL("");
       }
  
       // If doing parallel root grid IO then read in the full list of particle
@@ -802,7 +802,7 @@ int grid::CosmologySimulationInitializeGrid(
           if ( TotParticleCount != TotalParticleCount )
           {
             printf("DISASTER! Inconsistent particle count\n");
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
  
           NumberOfParticles = NumSortedParticles;
@@ -1468,7 +1468,7 @@ int grid::CosmologySimulationInitializeGrid(
               if ( Slab_Rank != 2 )
               {
                 printf(" MAJOR ERROR!! Particle Slab_Rank != 2\n");
-                ENZO_FAIL("Error in: "__FILE__);
+                ENZO_FAIL("");
               }
  
               Slab_Dims[0] = component_rank_attr;
@@ -2416,7 +2416,7 @@ int grid::CosmologySimulationInitializeGrid(
           if (ReadFile(CosmologySimulationParticlePositionName, 1, Dim,
                        Start, End, Zero, NULL, &tempbuffer, dim, 3) == FAIL) {
             fprintf(stderr, "Error reading particle position %"ISYM".\n", dim);
-            ENZO_FAIL("Error in: "__FILE__);
+            ENZO_FAIL("");
           }
           for (i = Start[0]; i <= End[0]; i++) {
             ParticlePosition[dim][i] = FLOAT(tempbuffer[i]);
@@ -2436,7 +2436,7 @@ int grid::CosmologySimulationInitializeGrid(
 	  if (ReadFile(CosmologySimulationParticleVelocityName, 1, Dim,
 	     Start, End, Zero, ParticleVelocity[dim], &tempbuffer, dim, 3) == FAIL) {
 	    fprintf(stderr, "Error reading particle velocity %"ISYM".\n", dim);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	}
       }
@@ -2447,7 +2447,7 @@ int grid::CosmologySimulationInitializeGrid(
 	if (ReadFile(CosmologySimulationParticleMassName, 1, Dim, Start, End,
 		     Zero, ParticleMass, &tempbuffer, 0, 1) == FAIL) {
 	  fprintf(stderr, "Error reading particle masses.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       }
  
@@ -2457,7 +2457,7 @@ int grid::CosmologySimulationInitializeGrid(
 	if (ReadIntFile(CosmologySimulationParticleTypeName, 1, Dim, Start, End,
 		     Zero, ParticleType, &int_tempbuffer, 0, 1) == FAIL) {
 	  fprintf(stderr, "Error reading particle types.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       }
  
@@ -2471,7 +2471,7 @@ int grid::CosmologySimulationInitializeGrid(
  
     if (NumberOfParticles > 0 && CosmologySimulationParticleVelocityName == NULL) {
       fprintf(stderr, "Error -- no velocity field specified.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
       //  printf("CosmologySimulation warning: setting velocities to zero.\n");
       //      for (dim = 0; dim < GridRank; dim++)
       //	for (i = 0; i < NumberOfParticles; i++)

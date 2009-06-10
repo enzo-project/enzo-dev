@@ -60,7 +60,7 @@ int WriteStreamData(HierarchyEntry *Grids[], int NumberOfGrids,
 			  MetaData->StopTime,
 			  EndStep, CycleCount) == FAIL) {
       fprintf(stderr, "Error in WriteNewMovie.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
   } /* END: grid loop */

@@ -111,7 +111,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity) == FAIL) {
 	  fprintf(stderr, "Error in GetEnclosedMass.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
 	Temp = Temp->NextGridThisLevel;

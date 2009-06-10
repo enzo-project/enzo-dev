@@ -97,7 +97,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
  
   else {
     fprintf(stderr, "DepositField = %"ISYM" not recognized.\n", DepositField);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Error check. */
@@ -105,12 +105,12 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
   if (DepositFieldPointer == NULL) {
     fprintf(stderr, "DepositFieldPointer (%"ISYM") is NULL, Number = %"ISYM".\n",
 	    DepositField, Number);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (GridRank != 3) {
     fprintf(stderr, "New gravity module currently supports only 3d.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (DepositPositionsParticleSmoothRadius < CellSize)

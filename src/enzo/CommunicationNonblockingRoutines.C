@@ -304,7 +304,7 @@ int InitiatePhotonNumberSend(int *nPhoton)
       if (nPhoton[proc] > TOOLARGE || nPhoton[proc] < 0) {
 	printf("CTPh[P%"ISYM"]: WARNING -- Number of sent photons = %"ISYM" bad?\n",
 	       MyProcessorNumber, nPhoton[proc]);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
       MPI_Isend(nPhoton+proc, 1, MPI_INT, proc, MPI_NPHOTON_TAG, MPI_COMM_WORLD,
 		&dummy_req);
@@ -374,7 +374,7 @@ int InitializePhotonReceive(int group_size)
 	      if (nPhoton_RECV > TOOLARGE) {
 		printf("CTPh[P%"ISYM"]: WARNING -- Number of received photons"
 		       " = %"ISYM" too large?\n", MyProcessorNumber, nPhoton_RECV);
-		ENZO_FAIL("Error in: "__FILE__);
+		ENZO_FAIL("");
 	      }
 	      RecvList = new GroupPhotonList[nPhoton_RECV];
 	      tag = MPI_PHOTONGROUP_TAG*10+nPhoton_RECV;

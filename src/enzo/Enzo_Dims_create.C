@@ -57,7 +57,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
   // MPI_SUCCESS == 0
   if (XXMPI_Dims_create(mcpu, rank, mpi_layout) != 0) {
     fprintf(stderr, "Error in MPI_Dims_create.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   for ( i = 0; i < ndims; i++ ) {
@@ -68,7 +68,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
 
   //#else /* USE_MPI */
 
-  //ENZO_FAIL("Error in: "__FILE__);
+  //ENZO_FAIL("");
 
   //#endif /* USE_MPI */
 

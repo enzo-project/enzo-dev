@@ -33,7 +33,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
 
   if (GridRank < 2 || GridRank > 3) {
     fprintf(stderr, "GridRank must be 2 or 3\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* create fields */

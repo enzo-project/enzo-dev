@@ -38,7 +38,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   if ((fptr = fopen(MetalCoolingTable, "r")) == NULL) {
     fprintf(stderr, "Error opening metal cooling table %s\n", MetalCoolingTable);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   // The second and third lines have the number of bins and temp/x_e
@@ -49,7 +49,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
   if ((sscanf(line, "# %"ISYM" %"ISYM, &NumberOfTemperatureBins, 
 	      &CoolData.NumberOfElectronFracBins)) != 2) {
     fprintf(stderr, "Error reading number of bins (line 2)\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (NumberOfTemperatureBins != CoolData.NumberOfTemperatureBins) {
@@ -57,7 +57,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 	    "Number of temperature bins (=%"ISYM") in metal cooling table MUST equal\n"
 	    "NumberOfTemperatureBins in other rate tables (=%"ISYM")\n",
 	    NumberOfTemperatureBins, CoolData.NumberOfTemperatureBins);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   fgets(line, MAX_LINE_LENGTH, fptr);
@@ -66,7 +66,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 	      TemperatureRange, TemperatureRange+1,
 	      &CoolData.ElectronFracStart, &CoolData.ElectronFracEnd)) != 4) {
     fprintf(stderr, "Error reading number of ranges (line 3)\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (TemperatureRange[0] != CoolData.TemperatureStart ||
@@ -76,7 +76,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 	    "temperature range [%"GSYM", %"GSYM"] in the other rate tables.\n",
 	    TemperatureRange[0], TemperatureRange[1], CoolData.TemperatureStart,
 	    CoolData.TemperatureEnd);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   int prev_pos;
@@ -102,7 +102,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
       if ((fscanf(fptr, "%"FSYM, &CoolData.metals[index])) == EOF) {
 	fprintf(stderr, "EOF reached at itemp = %"ISYM", ixe = %"ISYM"\n", 
 		itemp, ixe);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
 

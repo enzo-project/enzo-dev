@@ -85,7 +85,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
  
     if (GridOffset[dim] < 0) {
       fprintf(stderr, "GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim, GridOffset[dim]);
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   }
  
@@ -129,7 +129,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
  
   if (FromGrid->AccelerationField[0] == NULL) {
     fprintf(stderr, "FromGrid->AccelerationField is NULL.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Allocate acceleration fields. */

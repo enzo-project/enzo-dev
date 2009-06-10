@@ -100,7 +100,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      ((WriteTime < 0) ? NEW_ONLY : NEW_AND_OLD),
 			      StartIndex, TempDims, FALSE) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
     /* Copy particles. */
@@ -109,7 +109,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       if (OldGrid->CommunicationSendParticles(NewGrid, NewProc, 0,
 			    OldGrid->ReturnNumberOfParticles(), -1) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationSendParticles.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
     /* Next Grid */

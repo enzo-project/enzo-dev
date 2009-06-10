@@ -59,7 +59,7 @@ int ProtoSubgrid::ShrinkToMinimumSize()
  
     if (i == GridDimension[dim]) {
       fprintf(stderr, "No flagged cells in ProtoSubgrid!\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Look for the end. */

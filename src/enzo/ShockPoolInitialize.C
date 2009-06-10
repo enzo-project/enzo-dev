@@ -162,7 +162,7 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      ShockPoolTotalEnergy,
 					      ShockPoolVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -203,7 +203,7 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						 ShockPoolTotalEnergy,
 						 ShockPoolVelocity) == FAIL) {
       fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }			
   }
  

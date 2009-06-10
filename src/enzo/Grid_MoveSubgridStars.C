@@ -57,7 +57,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
   if (BaryonField[NumberOfBaryonFields] == NULL &&
       MyProcessorNumber == ProcessorNumber) {
     fprintf(stderr, "Subgrid field not present.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Loop over particles and count the number in each subgrid. */
@@ -90,7 +90,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid < -1 || subgrid > NumberOfSubgrids-1) {
 	fprintf(stderr, "particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid,
 		NumberOfSubgrids);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       MoveStar = PopStar(cstar);  // also advances to NextStar
@@ -131,7 +131,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
 	if (this->CommunicationSendStars(ToGrids[subgrid], 
 		  ToGrids[subgrid]->ProcessorNumber) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
       }
 

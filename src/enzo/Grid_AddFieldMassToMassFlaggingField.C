@@ -40,7 +40,7 @@ int grid::AddFieldMassToMassFlaggingField()
  
     if (MassFlaggingField == NULL) {
       fprintf(stderr, "MassFlaggingField not present.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Find density field */
@@ -48,7 +48,7 @@ int grid::AddFieldMassToMassFlaggingField()
     if ((DensField = FindField(Density, FieldType,
                                NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find density.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* calculate grid size */

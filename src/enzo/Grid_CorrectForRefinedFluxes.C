@@ -70,7 +70,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* If using comoving coordinates, compute a(t) because we'll need it
@@ -81,7 +81,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 //    if (ComovingCoordinates)
 //      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
 //        fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-//        ENZO_FAIL("Error in: "__FILE__);
+//        ENZO_FAIL("");
 //      }
  
     /* Main loop over all faces. */
@@ -100,7 +100,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      (InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 	       RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
 	    fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
  
 	/* Error check Fluxes to make sure they all exist. */
@@ -111,7 +111,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      (InitialFluxes->RightFluxes[field][dim] == NULL) ||
 	      (RefinedFluxes->RightFluxes[field][dim] == NULL)) {
 	    fprintf(stderr,"Some Flux data is not present.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
  
 	/* Compute Start and end indicies of flux region (with respect to
@@ -137,7 +137,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %ld\n",
 		    CellLeftEdge[i][0], CellWidth[i][0],
 		    InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	}
  
@@ -281,7 +281,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
-//		  ENZO_FAIL("Error in: "__FILE__);
+//		  ENZO_FAIL("");
 		}
  
 		/* Right side */
@@ -316,7 +316,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
-//		  ENZO_FAIL("Error in: "__FILE__);
+//		  ENZO_FAIL("");
 		}
  
 	      }

@@ -37,7 +37,7 @@ int grid::ComovingGravitySourceTerm()
  
   if (GravitationalConstant != 1) {
     fprintf(stderr, "GravitationalConstant must be 1!.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   /* Set AverageDensity (held in global_data.h). */

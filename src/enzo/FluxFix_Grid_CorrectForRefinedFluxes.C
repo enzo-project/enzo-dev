@@ -93,7 +93,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 
     //dcc kludge:  Just remove a(t)? 09/06/05 
@@ -105,7 +105,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     //    if (ComovingCoordinates)
     //      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
     //        fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-    //        ENZO_FAIL("Error in: "__FILE__);
+    //        ENZO_FAIL("");
     //      }
  
  
@@ -124,7 +124,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		(InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 		 RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
 	      fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
 	}
  
@@ -242,7 +242,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %lld\n",
 		      CellLeftEdge[i][0], CellWidth[i][0],
 		      InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
-	      ENZO_FAIL("Error in: "__FILE__);
+	      ENZO_FAIL("");
 	    }
 	  }
 	
@@ -447,7 +447,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      fprintf(stderr,"ERROR: CorrectForRefinedFluxes causing problems.\n");
 		      fprintf(stderr,"      Density or Energy is negative.\n");
 		      fprintf(stderr,"      Please contact your Enzo service professional.\n");
-		      ENZO_FAIL("Error in: "__FILE__);
+		      ENZO_FAIL("");
 		    }
 		  }// for (i = Start[0]; i <= End[0]; i++) {
 		} // for (j = Start[1]; j <= End[1]; j++){

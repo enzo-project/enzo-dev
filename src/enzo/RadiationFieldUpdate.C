@@ -136,7 +136,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   if (ComovingCoordinates) {
@@ -145,13 +145,13 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     aaanew = float(a)*aUnits;
  
     if (CosmologyComputeExpansionFactor(Time-dt, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
     aaa    = float(a)*aUnits;
     afloat = float(a);

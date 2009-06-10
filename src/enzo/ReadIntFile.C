@@ -128,7 +128,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check name
  
   if (name == NULL) {
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   // Open the HDF5 file and dataset
@@ -272,17 +272,17 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (Npart != component_rank_attr) {
     fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   if (TempInt != Rank) {
     fprintf(stderr, "Rank mismatch in %s.\n", name);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   // Check dimensions
@@ -291,7 +291,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
     for (dim = 0; dim < Rank; dim++)
       if (TempIntArray[dim] != (EndIndex[dim]-StartIndex[dim]+1)) {
 	fprintf(stderr, "Dimension mismatch in %s.\n", name);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
   // Compute size of HDF5 field

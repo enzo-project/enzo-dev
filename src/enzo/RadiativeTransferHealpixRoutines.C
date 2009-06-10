@@ -351,12 +351,12 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
   npix = 12 * nside*nside;
   if( ipix<0 || ipix>npix-1 ) {
     fprintf(stderr, "%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* initiates the array for the pixel number -> (x,y) mapping */

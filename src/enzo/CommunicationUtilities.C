@@ -439,6 +439,6 @@ int CommunicationShouldExit(int FromProc, int ToProc)
         MyProcessorNumber != ToProc)
       return SUCCESS;
 
-    ENZO_FAIL("Error in: "__FILE__); /* i.e. method should not exit immediately. */
+    ENZO_FAIL(""); /* i.e. method should not exit immediately. */
 
 }

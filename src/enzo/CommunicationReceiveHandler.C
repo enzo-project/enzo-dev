@@ -86,7 +86,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 #if 0
     if (NumberOfCompleteRequests == MPI_UNDEFINED) {
       fprintf(stderr, "Error in MPI_Waitsome\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
 #endif
 
@@ -197,7 +197,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  if (grid_one->GetProjectedBoundaryFluxes(grid_two, 
 					       SubgridFluxesRefined) == FAIL) {
 	    fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 	
 	  /* Correct this grid for the refined fluxes (step #19)
@@ -211,7 +211,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1],
 	       FluxFlag, MetaData)) == FAIL) {
 	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 #else
 	  if ((errcode = grid_two->CorrectForRefinedFluxes
@@ -219,7 +219,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1]     ))
 	      == FAIL) {
 	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 #endif
 	  break;
@@ -262,7 +262,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	default:
 	  fprintf(stderr, "Unrecognized call type %"ISYM"\n", 
 		  CommunicationReceiveCallType[index]);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 
 	} // end: switch on call type
 
@@ -271,7 +271,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	if (errcode == FAIL) {
 	  fprintf(stderr, "Error in CommunicationReceiveHandler, method %"ISYM"\n",
 		  CommunicationReceiveCallType[index]);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	}
 
 	/* Mark this receive complete. */

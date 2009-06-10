@@ -135,7 +135,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
     if (BaryonField[NumberOfBaryonFields] == NULL) {
       fprintf(stderr, "UNDER_SUBGRID_FIELD not allocated.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Set points under this subgrid to Value (typically 1). */
@@ -160,7 +160,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
   else {
     fprintf(stderr, "FieldsToZero = %"ISYM" not recognized.\n", FieldsToZero);
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

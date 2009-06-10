@@ -120,14 +120,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
     if (fscanf(fptr, "BoundaryRank = %"ISYM"\n", &BoundaryRank) != 1) {
       fprintf(stderr, "Error reading BoundaryRank.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     fscanf(fptr, "BoundaryDimension =");
  
     if (ReadListOfInts(fptr, BoundaryRank, BoundaryDimension) == FAIL) {
       fprintf(stderr, "Error reading BoundaryDimension.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* read baryon field quantities */
@@ -135,14 +135,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
     if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
 	       &NumberOfBaryonFields) != 1) {
       fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     /* Read particle boundary type. */
  
     if (fscanf(fptr, "ParticleBoundaryType = %"ISYM"\n",&ParticleBoundaryType) != 1) {
       fprintf(stderr, "Error reading ParticleBoundaryType.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
  
     if (NumberOfBaryonFields > 0) {
@@ -154,14 +154,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
       if (ReadListOfInts(fptr, NumberOfBaryonFields, BoundaryFieldType)
 	  == FAIL) {
 	fprintf(stderr, "Error reading BoundaryFieldType.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* read hdf file name */
  
       if (fscanf(fptr, "BaryonFileName = %s\n", hdfname) != 1) {
 	fprintf(stderr, "Error reading BaryonFileName.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
  
       /* read BoundaryValue present line */
@@ -170,7 +170,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
       if (ReadListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent) == FAIL) {
 	fprintf(stderr, "Error reading BoundaryValuePresent.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
   }
@@ -286,7 +286,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	/*
 	  if (TempInt != index) {
 	  fprintf(stderr, "HDF file rank does not match BoundaryRank.\n");
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	  }
  
 	  for (i = 0; i < index; i++)
@@ -294,7 +294,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	  fprintf(stderr, "HDF file dims do not match BoundaryDims.\n");
 	  fprintf(stderr, " Dims[%"ISYM"] = %"ISYM"   HDF Dims[%"ISYM"] = %"ISYM"\n", i, Dims[i],
 	  index-i-1, TempIntArray[index-i-1]);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	  }
 	*/
 	/* Allocate temporary space. */

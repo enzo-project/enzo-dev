@@ -213,7 +213,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
 	fprintf(stderr, "malloc error (out of memory?)\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
 #ifdef USE_MPI

@@ -115,7 +115,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   //   Allocate fields for photo ionization and heating rates
@@ -255,7 +255,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   if (this->InitializeRadiativeTransferFields() == FAIL) {
     fprintf(stderr, "\nError in InitializeRadiativeTransferFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* Loop over the mesh. */

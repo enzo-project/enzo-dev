@@ -111,7 +111,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("Error in: "__FILE__);
+      ENZO_FAIL("");
     }
   CurrentRedshift = (1 + InitialRedshift)/a - 1;
 
@@ -140,12 +140,12 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       if (NewMovieEntries == 0) {
 	if ((index = fopen(iname, "w")) == NULL) {
 	  fprintf(stderr, "Error opening movie index file %s\n", iname);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	} 
       } else {
 	if ((index = fopen(iname, "a")) == NULL) {
 	  fprintf(stderr, "Error opening movie index file %s\n", iname);
-	  ENZO_FAIL("Error in: "__FILE__);
+	  ENZO_FAIL("");
 	} 
       }
 
@@ -197,7 +197,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       float *temperature = new float[size];
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -227,12 +227,12 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     if (MovieEntriesPP[ProcessorNumber] == 0) {
       if ((movie = fopen(fname, "wb")) == NULL) {
 	fprintf(stderr, "Error opening movie file %s\n", fname);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     } else {
       if ((movie = fopen(fname, "ab")) == NULL) {
 	fprintf(stderr, "Error opening movie file %s\n", fname);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
     }
 
@@ -260,14 +260,14 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
       if ((movie = fopen(fname, "wb")) == NULL) {
 	fprintf(stderr, "Error opening movie file %s\n", fname);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     } else {
       
       if ((movie = fopen(fname, "ab")) == NULL) {
 	fprintf(stderr, "Error opening movie file %s\n", fname);
-	ENZO_FAIL("Error in: "__FILE__);
+	ENZO_FAIL("");
       }
 
     }

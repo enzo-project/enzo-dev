@@ -69,7 +69,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   /* allocate temporary array of pointers */
@@ -196,7 +196,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 		    (long) (pow(2,NewPack->level)), NewPack->ipix, 
 		    NewPack->Photons, NewPack );
 	    NewPack->Photons=-1;
-	    ENZO_FAIL("Error in: "__FILE__);
+	    ENZO_FAIL("");
 	  }
 
 	  NewPack->CrossSection = 

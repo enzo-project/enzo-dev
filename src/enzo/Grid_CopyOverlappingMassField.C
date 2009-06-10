@@ -37,7 +37,7 @@ int grid::CopyOverlappingMassField(grid *OtherGrid,
  
   if (OtherGrid == NULL) {
     fprintf(stderr, "Grid_CopyOverlappingMassField: NULL OtherGrid!\n");
-    ENZO_FAIL("Error in: "__FILE__);
+    ENZO_FAIL("");
   }
 
   this->DebugCheck("CopyOverlappingMassField");
