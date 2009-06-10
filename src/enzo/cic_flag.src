@@ -46,7 +46,7 @@ c
      &        leftedge(3)
       REALSUB cellsize
       integer itype(npositions)
-      logical ffield(dim1, dim2, dim3)
+      integer ffield(dim1, dim2, dim3)
 c
 c  locals
 c
@@ -83,8 +83,8 @@ c
 c
 c           set flagging field
 c
-            ffield(i1  ,1,1) = .true.
-            ffield(i1+1,1,1) = .true.
+            ffield(i1  ,1,1) = 1
+            ffield(i1+1,1,1) = 1
 c
             endif
 c
@@ -114,10 +114,10 @@ c
 c
 c           Interpolate from field into sumfield
 c
-            ffield(i1  ,j1  ,1) = .true.
-            ffield(i1+1,j1  ,1) = .true.
-            ffield(i1  ,j1+1,1) = .true.
-            ffield(i1+1,j1+1,1) = .true.
+            ffield(i1  ,j1  ,1) = 1
+            ffield(i1+1,j1  ,1) = 1
+            ffield(i1  ,j1+1,1) = 1
+            ffield(i1+1,j1+1,1) = 1
 c
             endif
 c
@@ -149,14 +149,14 @@ c
 c
 c           Set flagging field
 c     
-            ffield(i1  ,j1  ,k1  ) = .true.
-            ffield(i1+1,j1  ,k1  ) = .true.
-            ffield(i1  ,j1+1,k1  ) = .true.
-            ffield(i1+1,j1+1,k1  ) = .true.
-            ffield(i1  ,j1  ,k1+1) = .true.
-            ffield(i1+1,j1  ,k1+1) = .true.
-            ffield(i1  ,j1+1,k1+1) = .true.
-            ffield(i1+1,j1+1,k1+1) = .true.
+            ffield(i1  ,j1  ,k1  ) = 1
+            ffield(i1+1,j1  ,k1  ) = 1
+            ffield(i1  ,j1+1,k1  ) = 1
+            ffield(i1+1,j1+1,k1  ) = 1
+            ffield(i1  ,j1  ,k1+1) = 1
+            ffield(i1+1,j1  ,k1+1) = 1
+            ffield(i1  ,j1+1,k1+1) = 1
+            ffield(i1+1,j1+1,k1+1) = 1
 c
             endif
 c

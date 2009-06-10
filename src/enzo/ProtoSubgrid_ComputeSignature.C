@@ -21,9 +21,9 @@
  
 /* function prototypes */
  
-extern "C" void FORTRAN_NAME(projectbool)(int *rank, int *i1, int *i2, int *i3,
-					  int *iline, int *pdim, bool *field,
-					  int *line);
+extern "C" void FORTRAN_NAME(project)(int *rank, int *i1, int *i2, int *i3,
+				      int *iline, int *pdim, int *field,
+				      int *line);
  
 int ProtoSubgrid::ComputeSignature(int dim)
 {
@@ -51,9 +51,9 @@ int ProtoSubgrid::ComputeSignature(int dim)
     for (int i = 0; i < GridDimension[dim]; i++)
       Signature[dim][i] += (GridFlaggingField[i]) ? 1 : 0;
   else
-    FORTRAN_NAME(projectbool)(&GridRank, GridDimension, GridDimension+1,
-			      GridDimension+2, &GridDimension[dim], &dim,
-			      GridFlaggingField, Signature[dim]);
+    FORTRAN_NAME(project)(&GridRank, GridDimension, GridDimension+1,
+			  GridDimension+2, &GridDimension[dim], &dim,
+			  GridFlaggingField, Signature[dim]);
  
   /*  if (debug) {
       printf ("sig[%"ISYM"]=%"ISYM": ", dim, GridDimension[dim]);

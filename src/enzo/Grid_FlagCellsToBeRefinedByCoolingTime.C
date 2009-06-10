@@ -89,7 +89,7 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
     for (i = 0; i < size; i++)
       if (cooling_time[i]*cooling_time[i]*BaryonField[FieldIndex][i]*Coef
 	  < 1.0)
-	FlaggingField[i] = true;
+	FlaggingField[i]++;
   } else {
     for (i = 0; i < size; i++) {
       gas_energy = BaryonField[TENum][i];
@@ -97,7 +97,7 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
 	gas_energy -= 0.5*BaryonField[Vel1Num+dim][i]*
 	                  BaryonField[Vel1Num+dim][i];
       if (cooling_time[i]*cooling_time[i]*gas_energy*Coef < 1.0)
-	FlaggingField[i] = true;
+	FlaggingField[i]++;
     }
   }
  
@@ -109,7 +109,7 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
  
   return NumberOfFlaggedCells;
