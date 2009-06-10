@@ -307,15 +307,12 @@ int InitializeRateData(FLOAT Time)
 
   /* If table exists, read metal cooling rates */
 
-  FILE *fptr;
-  if ((fptr = fopen(MetalCoolingTable, "r")) != NULL) {
-    fclose(fptr);
+  if (MetalCooling == JHW_METAL_COOLING)
     if (ReadMetalCoolingRates(TemperatureUnits, LengthUnits, aUnits, 
 			      DensityUnits, TimeUnits, afloat) == FAIL) {
       fprintf(stderr, "Error in ReadMetalCoolingRates.\n");
       return FAIL;
     }
-  }
 
   return SUCCESS;
 }
