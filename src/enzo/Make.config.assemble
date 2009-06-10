@@ -83,7 +83,7 @@
 
     ERROR_PRECISION = 1
 
-    # Settings for 32-bit floating point precision
+    # Settings for 32-bit floating point baryon precision
 
     ifeq ($(CONFIG_PRECISION),32)
         ERROR_PRECISION = 0
@@ -91,7 +91,7 @@
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
     endif
 
-    # Settings for 64-bit floating point precision
+    # Settings for 64-bit floating point baryon precision
 
     ifeq ($(CONFIG_PRECISION),64)
         ERROR_PRECISION = 0

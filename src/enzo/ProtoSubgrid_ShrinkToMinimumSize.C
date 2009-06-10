@@ -19,7 +19,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-extern "C" void FORTRAN_NAME(copy3dbool)(bool *source, bool *dest,
+extern "C" void FORTRAN_NAME(copy3dint)(int *source, int *dest,
                                    int *sdim1, int *sdim2, int *sdim3,
                                    int *ddim1, int *ddim2, int *ddim3,
                                    int *sstart1, int *sstart2, int *sstart3,
@@ -88,9 +88,9 @@ int ProtoSubgrid::ShrinkToMinimumSize()
  
     /* Create new buffer and copy selected region of the GridFlaggingField. */
  
-    bool *TempBuffer = new bool[size];
+    int *TempBuffer = new int[size];
  
-    FORTRAN_NAME(copy3dbool)(GridFlaggingField, TempBuffer,
+    FORTRAN_NAME(copy3dint)(GridFlaggingField, TempBuffer,
 			 GridDimension, GridDimension+1, GridDimension+2,
 			 NewGridDim, NewGridDim+1, NewGridDim+2,
 			 StartIndex, StartIndex+1, StartIndex+2,

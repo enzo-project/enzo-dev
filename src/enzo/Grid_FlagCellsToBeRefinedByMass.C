@@ -78,13 +78,13 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
   }
  
   for (i = 0; i < size; i++)
-    FlaggingField[i] = ffield[i] > ModifiedMinimumMassForRefinement;
+    FlaggingField[i] += (ffield[i] > ModifiedMinimumMassForRefinement) ? 1 : 0;
  
   /* Count number of flagged Cells. */
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
  
   /* remove MassFlaggingField. */

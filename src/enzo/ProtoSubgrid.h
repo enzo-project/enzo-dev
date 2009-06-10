@@ -28,7 +28,7 @@ class ProtoSubgrid
 
   int NumberFlagged;
 
-  bool *GridFlaggingField;
+  int  *GridFlaggingField;
   int  *Signature[MAX_DIMENSION];
 
  public:

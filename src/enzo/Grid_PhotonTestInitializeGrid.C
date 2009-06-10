@@ -51,7 +51,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float SphereTemperature[MAX_SPHERES],
 			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
 			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-                             float SphereFracKeplarianRot[MAX_SPHERES],
+                             float SphereFracKeplerianRot[MAX_SPHERES],
                              float SphereTurbulence[MAX_SPHERES],
                              float SphereCutOff[MAX_SPHERES],
                              float SphereAng1[MAX_SPHERES],
@@ -275,7 +275,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
     Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
-    if (SphereFracKeplarianRot[sphere] > 0.0) {
+    if (SphereFracKeplerianRot[sphere] > 0.0) {
       if (SphereType[sphere] == 5) {
 	SphereCoreDens = (SphereDensity[sphere]*DensityUnits) * 
 	  pow(SphereCoreRadius[sphere] / SphereRadius[sphere], -2);
@@ -304,11 +304,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
       
       VelocityKep = sqrt(6.673e-8*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
       SphereRotationalPeriod[sphere] = 2*pi*SphereRadius[sphere]*(LengthUnits)/
-	(SphereFracKeplarianRot[sphere]*VelocityKep);
+	(SphereFracKeplerianRot[sphere]*VelocityKep);
       SphereRotationalPeriod[sphere] = SphereRotationalPeriod[sphere]/(TimeUnits);
 
       printf("\nKeplerian Rotation Period (s): %"FSYM"\n", SphereRotationalPeriod[sphere] 
-	     * SphereFracKeplarianRot[sphere]*TimeUnits);
+	     * SphereFracKeplerianRot[sphere]*TimeUnits);
       printf("\nSphere Rotation Period (s): %"FSYM"\n", SphereRotationalPeriod[sphere]
 	     * TimeUnits);
     } else

@@ -113,7 +113,7 @@ class grid
 //
 //  Rebuild Hierarchy Temporaries
 //
-  bool  *FlaggingField;             // Boolean flagging field (for refinement)
+  int   *FlaggingField;             // Boolean flagging field (for refinement)
   float *MassFlaggingField;         // Used by mass flagging criteria
   float *ParticleMassFlaggingField; // Used by particle mass flagging criteria
 //

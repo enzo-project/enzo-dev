@@ -113,8 +113,8 @@ int grid::FlagCellsToBeRefinedByShear()
 	    DelVel2 *= DelVel2;
 	    DelVelocity[index] += DelVel1 + DelVel2;
 	    if (dim == GridRank-1)
-	      FlaggingField[index] =
-		DelVelocity[index] > MinimumShearForRefinement;
+	      FlaggingField[index] +=
+		(DelVelocity[index] > MinimumShearForRefinement) ? 1 : 0;
 	  }
  
       Offset *= GridDimension[dim];

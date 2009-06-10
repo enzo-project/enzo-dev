@@ -114,7 +114,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 	      //	      max(tau0, MAX(tau1,tau2)) > MAX_TAU) {
 	      tau1 > MAX_TAU) {
 
-	    FlaggingField[index+i] = true;
+	    FlaggingField[index+i]++;
 	    NumberOfFlaggedCells_TAU++;
 
 	    avgTau  += tau1;//tau0 + tau1 + tau2;
@@ -151,7 +151,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
 
   if (NumberOfFlaggedCells_TAU) {
