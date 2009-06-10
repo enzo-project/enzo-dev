@@ -8,7 +8,7 @@
 
 #include "message.h"
 
-#define ENZO_FAIL(A) throw(EnzoFatalException(A));
+#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
 
 /* Modifiable Parameters */
 

@@ -23,16 +23,23 @@
 // http://www.ibm.com/developerworks/linux/library/l-cppexcep.html
 //
 
+// This must be included BEFORE macros_and_parameters.h
+// so we use int here
+
  class EnzoFatalException
  {
  public:
-     EnzoFatalException(const char * error_msg)
+     EnzoFatalException(const char *error_msg,
+                        const char *filename = NULL,
+                        int line_number = 0)
      {
          void * array[25];
          int nSize = backtrace(array, 25);
          char ** symbols = backtrace_symbols(array, nSize);
          fprintf(stderr, "Caught fatal exception:\n\n");
-         fprintf(stderr, "   '%s'\n\n", error_msg);
+         fprintf(stderr, "   '%s'\n", error_msg);
+         if(filename != NULL)
+            fprintf(stderr, "at %s:%d\n\n", filename, line_number);
          fprintf(stderr, "Backtrace:\n\n");
 
          for (int i = 0; i < nSize; i++)
