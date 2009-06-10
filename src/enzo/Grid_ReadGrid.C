@@ -42,8 +42,10 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
 #ifdef USE_HDF4
-static int32 sd_id, sds_index; // HDF4 (SD) handlers (type 1 I/O)                                                  
-#endif /* USE_HDF4 */
+int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id, 
+	      int32 &sds_index, char *name);
+static int32 sd_id, sds_index; // HDF4 (SD) handlers                                               
+#endif 
  
 int grid::ReadGrid(FILE *fptr, int GridID, 
 		   int ReadText, int ReadData)
@@ -80,9 +82,9 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
 #ifdef USE_HDF4
     int32 TempIntArray2[MAX_DIMENSION];
-    int32 num_type, attributes, TempInt;
+    int32 sds_id, num_type2, attributes, TempInt;  
     sds_index = 0;  // start at first SDS                                                                            
-#endif /* USE_DF4 */
+#endif 
  
 #ifdef IO_LOG
   int         io_log = 1;
@@ -288,7 +290,33 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
       if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
-      
+
+#ifdef USE_HDF4
+      fprintf(stderr, "Here I am!\n");
+      fprintf(stderr, "Here I am!\n");
+#endif
+
+      /*      
+#ifdef USE_HDF4
+      if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
+	fprintf(stderr, "Error opening file %s.\n", name);
+	return FAIL;
+      }
+
+      sds_id = SDselect(sd_id, sds_index++);
+      while (SDiscoordvar(sds_id)) {
+	SDendaccess(sds_id);
+	sds_id = SDselect(sd_id, sds_index++);
+      }
+      if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
+		    &attributes) == HDF_FAIL) {
+	fprintf(stderr, "Error reading dims0 from %s.\n", name);
+	return FAIL;
+      }
+      SDendaccess(sds_id);
+      sds_index--;
+#endif 
+      */
 
       /* fill in ActiveDim for dims up to 3d */
  
@@ -322,7 +350,22 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       for (field = 0; field < NumberOfBaryonFields; field++) {
  
 	/* get data into temporary array */
- 
+
+#ifdef USE_HDF4
+      fprintf(stderr, "Here I am!-2\n");
+      fprintf(stderr, "Here I am!-2\n");
+#endif
+
+	/*
+#ifdef USE_HDF4
+      if (ReadField(temp, TempIntArray2, GridRank, active_size, sd_id, 
+		    sds_index, name) == FAIL) {
+	fprintf(stderr, "Error reading field %d.\n", field);
+	return FAIL;
+      }
+#else
+	*/
+
 	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
@@ -359,7 +402,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 		float(temp[(i-GridStartIndex[0])                         +
 			   (j-GridStartIndex[1])*ActiveDim[0]            +
 			   (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ]);
- 
+	//#endif 
+
       } // end: loop over fields
  
       delete [] temp;
@@ -681,3 +725,32 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   return SUCCESS;
  
 }
+
+/* ----------------------------------------------------------------------                                          
+   This routine reads one data field from the file using the appropriate                                           
+   data model.  Note that it uses file pointers/handlers that are statically                                       
+   declared above. */
+
+/*
+#ifdef USE_HDF4
+int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id, 
+	      int32 &sds_index, char *name)
+{
+  int32 sds_id, start[] = {0, 0, 0};
+
+  sds_id = SDselect(sd_id, sds_index++);
+  while (SDiscoordvar(sds_id)) {
+    SDendaccess(sds_id);
+    sds_id = SDselect(sd_id, sds_index++);
+  }
+  if (SDreaddata(sds_id, start, (int32 *) NULL, Size, (VOIDP) temp)
+      == HDF_FAIL) {
+    fprintf(stderr, "Error reading data from %s.\n", name);
+    return FAIL;
+  }
+  SDendaccess(sds_id);
+
+  return SUCCESS;
+}
+#endif
+*/

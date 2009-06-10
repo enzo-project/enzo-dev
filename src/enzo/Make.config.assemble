@@ -656,18 +656,16 @@
 
     ERROR_USE_HDF4 = 1
 
-    # compilers and settings if USE_MPI is yes
+    # compilers and settings if USE_HDF4 is yes
 
-    ifeq ($(CONFIG_USE_MPI),yes)
+    ifeq ($(CONFIG_USE_HDF4),yes)
         ERROR_USE_HDF4 = 0
         ASSEMBLE_HDF4_DEFINES  = -DUSE_HDF4
-        ASSEMBLE_PACKED_MEM_DEFINES = 
-        ASSEMBLE_PACKED_AMR_DEFINES = 
     endif
 
-    # compilers and settings if USE_MPI is no
+    # compilers and settings if USE_HDF4 is no
 
-    ifeq ($(CONFIG_USE_MPI),no)
+    ifeq ($(CONFIG_USE_HDF4),no)
         ERROR_USE_HDF4 = 0
         ASSEMBLE_HDF4_DEFINES  =
     endif
@@ -728,7 +726,8 @@
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_LOAD_BALANCE_DEFINES) \
-              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
+              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES) \
+	      $(ASSEMBLE_HDF4_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \

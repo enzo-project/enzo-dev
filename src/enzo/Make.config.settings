@@ -31,6 +31,7 @@
 #    CONFIG_TESTING
 #    CONFIG_ISOBCS
 #    CONFIG_TPVEL
+#    CONFIG_USE_HDF4	
 #
 #=======================================================================
 
@@ -229,4 +230,4 @@
 #    no            For most of the users (hdf5)
 #----------------------------------------------------------------------- 
  
-     CONFIG_USE_HDF4 = yes
+     CONFIG_USE_HDF4 = no
