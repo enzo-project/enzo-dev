@@ -177,7 +177,7 @@ extern "C" void FORTRAN_NAME(cluster_maker)
    float *mp, float *tdp, float *tcp, float *metalf, 
    int *type, int *ctype, float *justburn, int *iradtrans);
 
-extern "C" int sink_maker(int *nx, int *ny, int *nz, int *size,
+int sink_maker(int *nx, int *ny, int *nz, int *size,
              float *d, float *u, float *v, float *w,
              float *dt, float *r, float *dx, FLOAT *t, float *z, 
              int *procnum,
@@ -566,7 +566,7 @@ int grid::StarParticleHandler(int level)
 		      ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
 		      ParticleAttribute[1], ParticleType, &SinkParticleType, 
 		      &JeansLengthRefinement, temperature) == FAIL) {
-	fprintf(stderr, "Error in star_maker3\n");
+	fprintf(stderr, "Error in sink_maker\n");
 	return FAIL;
       }
 
