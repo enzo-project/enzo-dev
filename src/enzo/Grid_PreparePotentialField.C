@@ -74,8 +74,12 @@ int grid::PreparePotentialField(grid *ParentGrid)
   // Only done in COMMUNICATION_SEND because
   // CommunicationMethodShouldExit() will exit in other modes when the
   // grids are on the same processor.
-  if (ProcessorNumber == ParentGrid->ProcessorNumber)
+  if (ProcessorNumber == ProcessorNumber &&
+      CommunicationDirection != COMMUNICATION_POST_RECEIVE) {
+    if (PotentialField != NULL)
+      delete [] PotentialField;
     PotentialField = new float[size];
+  }
  
   /* Declarations. */
  
