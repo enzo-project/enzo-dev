@@ -18,6 +18,7 @@
 #include <stdio.h>
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -89,7 +90,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataCubes\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  

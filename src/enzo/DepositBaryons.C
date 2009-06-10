@@ -16,6 +16,7 @@
 #endif /* USE_MPI */ 
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
  
   if (Grid->GridData->DepositBaryons(Grid->GridData, TimeMidStep) == FAIL) {
     fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Recursively deposit baryons in children (at TimeMidStep). */
@@ -70,7 +71,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
     if (DepositBaryonsChildren(Grid, Grid->NextGridNextLevel, TimeMidStep)
 	== FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   return SUCCESS;
@@ -101,7 +102,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
   if (Grid->GridData->DepositBaryons(DepositGrid->GridData, DepositTime)
       == FAIL) {
     fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Next grid on this level. */
@@ -110,7 +111,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridThisLevel,
 			       DepositTime) == FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren(1).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   /* Recursively deposit baryons in children. */
@@ -119,7 +120,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridNextLevel,
 			       DepositTime) == FAIL) {
       fprintf(stderr, "Error in DepositBaryonsChildren(2).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   return SUCCESS;

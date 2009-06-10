@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -45,7 +46,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
   if (time < OldTime || time > Time) {
     fprintf(stderr, "requested time is outside available range.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute interpolation coefficients. */
@@ -69,7 +70,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
@@ -158,7 +159,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Find the temperature units. */
@@ -166,7 +167,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
       fprintf(stderr, "Error in GetUnits.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     for (i = 0; i < size; i++) {

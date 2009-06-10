@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -319,7 +320,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   if (CommunicationReceiverPhotons(LevelArray, keep_transporting) == FAIL) {
     fprintf(stderr, "Error in CommunicationReceiverPhotons.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
       
   /* Clean up */

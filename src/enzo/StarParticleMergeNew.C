@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -73,7 +74,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
 	printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       if (ThisStar->Mergable(OtherStar))
 	if (ThisStar->Separation2(OtherStar) < rmerge2) {

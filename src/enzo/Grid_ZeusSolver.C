@@ -45,6 +45,7 @@ c     minsupecoef - coefficient for minimum pressure support (0 - not used)
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -111,7 +112,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   for (i = 0; i < GridRank; i++)
     if (GridDimension[i] > MAX_ANY_SINGLE_DIRECTION) {
       printf("ZEUS_MAIN: A grid dimension is too long (increase max_any_single_direction.)\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   /* Allocate temporary space for Zeus_Hydro. */
@@ -178,7 +179,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       fprintf(stderr, "ZeusSolver: too-fast velocity (pre-call)\n");
       fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
 		 
@@ -197,7 +198,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     fprintf(stderr, "P(%"ISYM"): Error in ZeusSource on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
 	    nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Error check */
@@ -209,7 +210,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       fprintf(stderr, "ZeusSolver: too-fast velocity (post-source)\n");
       fprintf(stderr, "u,v,w,d,e=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"  dx=%"GSYM"  dt=%"GSYM"\n", 
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
 
@@ -258,7 +259,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
 	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   
   } // end loop over n

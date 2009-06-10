@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,14 +39,14 @@ int ExternalBoundary::SetExternalBoundaryParticles(int FieldRank,
   if (FieldRank != BoundaryRank) {
     fprintf(stderr, "FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
             FieldRank, BoundaryRank);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Error check: allowed boundary types. */
  
   if (ParticleBoundaryType != periodic) {
     fprintf(stderr, "only periodic particle boundary conditions supported.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* PERIODIC BOUNDARY: wrap particles in each dimension. */

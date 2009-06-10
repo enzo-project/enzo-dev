@@ -20,6 +20,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 #ifdef GOT_FFT
@@ -52,7 +53,7 @@ int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
   if (FastFourierTransformSGIMATH(buffer, Rank, DimensionReal,
 				  Dimension, direction, type) == FAIL) {
     fprintf(stderr, "Error in FastFourierTransformSGIMATH.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
 #define GOT_FFT
@@ -82,7 +83,7 @@ int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
   if (FastFourierTransformPrepareComplex(buffer, Rank, DimensionReal,
 				         Dimension, direction, type) == FAIL) {
     fprintf(stderr, "Error in FastFourierTransformPrepareComplex.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
 #endif /* GOT_FFT */

@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -116,7 +117,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (SupernovaRestartName == NULL) {
     fprintf(stderr, "Missing restart file name.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* -------------------------------------------------------------------- */
@@ -128,7 +129,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
       == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "Error in ParameterFile %s.\n", SupernovaRestartName);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stderr, "Successfully read restart file %s.\n",
@@ -154,7 +155,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (ComovingCoordinates) {
@@ -200,7 +201,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       SupernovaRestartColourField,
 			       &NumberOfCellsSet) == FAIL) {
 	fprintf(stderr, "Error in grid->SupernovaRestartInitialize\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       Temp = Temp->NextGridThisLevel;
     }
@@ -218,7 +219,7 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
       if (Temp->GridData->ProjectSolutionToParentGrid(
                 *(Temp->GridHierarchyEntry->ParentGrid->GridData)) == FAIL) {
 	fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       Temp2 = Temp->NextGridThisLevel;
       delete Temp;   // clean up as we go along

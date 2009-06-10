@@ -24,6 +24,7 @@
 
  
 //#include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -185,7 +186,7 @@ int grid::ReadRandomForcingFields(FILE *fptr)
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                          Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "GRRFF: Error in IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     int vel = Vel1Num;
     printf("RandomForcing: Fields %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",

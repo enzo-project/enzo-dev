@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -58,18 +59,18 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
     fprintf(stderr, "Error opening ParameterFile %s\n", ParameterFile);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   if (RadiativeTransferReadParameters(fptr) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferReadParameters.\n");;
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   rewind(fptr);
   if (ProblemType == 50)
     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in ReadPhotonSources.\n");;
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   PhotonTime = MetaData.Time;
 
@@ -86,7 +87,7 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 //    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 //      if (Temp->GridData->FindNewStarParticles(level) == FAIL) {
 //	fprintf(stderr, "Error in grid::FindStarParticles.\n");
-//	return FAIL;
+//	ENZO_FAIL("Error in: "__FILE__);
 //      }
 
   /* If we're restarting from a non-radiative run, create radiation
@@ -144,7 +145,7 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->AddFields(TypesToAdd, FieldsToAdd) == FAIL) {
 	fprintf(stderr, "Error in grid::AddFields\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
   /* Add external boundaries */

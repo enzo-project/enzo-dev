@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,7 +48,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
   if (CommunicationDirection != COMMUNICATION_RECEIVE) {
     if (CurrentGrid->InitializeGravitatingMassField(RefinementFactor) == FAIL){
       fprintf(stderr, "Error in grid->InitializeGravitatingMassField.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     CurrentGrid->ClearGravitatingMassField();
 //  fprintf(stderr, "  PGMF - Initialize & Clear GravitatingMassField\n");
@@ -60,7 +61,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
    if (CurrentGrid->CopyParentToGravitatingFieldBoundary(
 				         Grid->ParentGrid->GridData) == FAIL) {
      fprintf(stderr, "Error in grid->CopyParentToGravitatingFieldBoundary.\n");
-     return FAIL;
+     ENZO_FAIL("Error in: "__FILE__);
    }
  
   /* Baryons: deposit mass into GravitatingMassField. */
@@ -71,7 +72,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
  
   if (DepositBaryons(Grid, When) == FAIL) {
     fprintf(stderr, "Error in grid->AddBaryonsToGravitatingMassField\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Particles: go through all the other grids on this level and add all
@@ -83,14 +84,14 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
   if (CopyOverlappingParticleMassFields(CurrentGrid, MetaData,
 					LevelArray, level) == FAIL) {
     fprintf(stderr, "Error in CopyOverlappingParticleMassFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
 #ifdef UNUSED
   FLOAT Zero[] = {0,0,0};
   if (CurrentGrid->AddOverlappingParticleMassField(CurrentGrid,Zero) == FAIL) {
     fprintf(stderr, "Error in grid->AddOverlappingParticleMassField.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 #endif /* UNUSED */
  
@@ -109,7 +110,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
     if (Grid->ParentGrid->GridData->DepositParticlePositions(CurrentGrid,
 			       TimeMidStep, GRAVITATING_MASS_FIELD) == FAIL) {
       fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
 #endif /* UNUSED */
@@ -121,7 +122,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
     if (ComovingCoordinates)
       if (CurrentGrid->ComovingGravitySourceTerm() == FAIL) {
 	fprintf(stderr, "Error in grid->ComovingGravitySourceTerm.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
@@ -132,7 +133,7 @@ int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
     if (CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData)
 	== FAIL) {
       fprintf(stderr, "Error in grid->PreparePotential.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
  

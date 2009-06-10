@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -74,7 +75,7 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
   else {
     fprintf(stderr, "Unrecognized mass refinement flagging method (%"ISYM")\n", 
 	    method);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   for (i = 0; i < size; i++)

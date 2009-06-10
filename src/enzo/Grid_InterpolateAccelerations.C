@@ -15,6 +15,7 @@
 #endif /* USE_MPI */
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -84,7 +85,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
  
     if (GridOffset[dim] < 0) {
       fprintf(stderr, "GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim, GridOffset[dim]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  
@@ -128,7 +129,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
  
   if (FromGrid->AccelerationField[0] == NULL) {
     fprintf(stderr, "FromGrid->AccelerationField is NULL.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Allocate acceleration fields. */

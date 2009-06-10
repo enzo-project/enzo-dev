@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -79,6 +80,6 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
 	  "x y z = %"FSYM" %"FSYM" %"FSYM"\n", 
 	  BumpPos[0], BumpPos[1], BumpPos[2]);
   dummy = nGrids0-1;
-  return FAIL;
+  ENZO_FAIL("Error in: "__FILE__);
 
 }

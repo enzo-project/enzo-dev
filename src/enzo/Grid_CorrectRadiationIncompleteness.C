@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -45,7 +46,7 @@ int grid::CorrectRadiationIncompleteness(void)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   int nsrc;

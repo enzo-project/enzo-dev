@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -58,7 +59,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
  
   if (!ComovingCoordinates) {
     fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set default parameters */
@@ -99,7 +100,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
@@ -122,7 +123,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 					      InitialGasEnergy, InitialVels
 					      ) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set up field names and units */

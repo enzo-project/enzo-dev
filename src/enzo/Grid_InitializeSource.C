@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -41,7 +42,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Find Multi-species fields. */
@@ -53,7 +54,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   /* Get units. */
@@ -64,7 +65,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   int pos[3], rmin[3], radius = 1000000, dim, i, j, k;;

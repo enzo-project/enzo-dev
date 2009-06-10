@@ -14,6 +14,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (CommunicationUpdateStarParticleCount(Grids, MetaData,
 					   NumberOfGrids) == FAIL) {
     fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Update position and velocity of star particles from the actual
@@ -76,14 +77,14 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleAddFeedback.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Update star particles for any accretion */
 
   if (StarParticleAccretion(AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleAccretion.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Collect all sink particles and report the total mass to STDOUT */
@@ -105,7 +106,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (StarParticleDeath(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleDeath.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* 

@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -97,7 +98,7 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						TestOrbitUseBaryons
 						  ) == FAIL){
     fprintf(stderr, "Error in TestOrbitInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* set up field names and units */

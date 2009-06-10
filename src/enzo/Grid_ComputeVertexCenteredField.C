@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,7 +45,7 @@ int grid::ComputeVertexCenteredField(int Num)
   if (BaryonField[Num] == NULL) {
     fprintf(stderr, "grid::ComputeVertexCenteredField called with inconsistent "
 	    "field number");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Compute the size of the new grid adds one cell to the active region */

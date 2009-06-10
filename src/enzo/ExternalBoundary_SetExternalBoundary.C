@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,7 +48,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   if (FieldRank != BoundaryRank) {
     fprintf(stderr, "FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
             FieldRank, BoundaryRank);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* find requested field type */
@@ -57,7 +58,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (FieldType == BoundaryFieldType[field]) break;
   if (field == NumberOfBaryonFields) {
     fprintf(stderr, "Field type (%"ISYM") not found in Boundary.\n", FieldType);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* error check: make sure the boundary type array exists */
@@ -66,7 +67,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
     if (BoundaryDimension[dim] != 1) {
       if (BoundaryType[field][dim][0] == NULL) {
 	fprintf(stderr, "BoundaryType not yet declared.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
  
@@ -102,7 +103,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (x-left).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}
   }
@@ -135,7 +136,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (x-right).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}							
   }
@@ -170,7 +171,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (y-left).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}
   }
@@ -203,7 +204,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (y-right).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}							
   }
@@ -238,7 +239,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (z-left).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}
   }
@@ -271,7 +272,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (z-right).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}							
   }

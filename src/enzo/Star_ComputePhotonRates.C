@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,7 +92,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     break;
   default:
     fprintf(stderr, "Star type = %"ISYM" not understood.\n", this->type);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   } // ENDSWITCH
 
   return SUCCESS;

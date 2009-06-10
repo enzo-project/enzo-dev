@@ -14,6 +14,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
@@ -30,7 +31,7 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
   FLOAT a, dadt, FinalRedshift, CurrentRedshift;
   if (CosmologyComputeExpansionFactor(StopTime, &a, &dadt) == FAIL) {
     fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   FinalRedshift = (1 + InitialRedshift)/a - 1;
  

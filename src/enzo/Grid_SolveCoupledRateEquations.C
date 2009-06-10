@@ -16,6 +16,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -102,7 +103,7 @@ int grid::SolveCoupledRateEquations()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Find Multi-species fields. */
@@ -111,7 +112,7 @@ int grid::SolveCoupledRateEquations()
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   /* Find photo-ionization fields */
@@ -122,7 +123,7 @@ int grid::SolveCoupledRateEquations()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Get easy to handle pointers for each variable. */
@@ -144,7 +145,7 @@ int grid::SolveCoupledRateEquations()
     if (CosmologyComputeExpansionFactor(PhotonTime+0.5*dtFixed, &a, &dadt) 
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -154,7 +155,7 @@ int grid::SolveCoupledRateEquations()
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   float afloat = float(a);
@@ -185,7 +186,7 @@ int grid::SolveCoupledRateEquations()
 
   if (RadiationFieldCalculateRates(PhotonTime+0.5*dtFixed) == FAIL) {
     fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Set up information for rates which depend on the radiation field. */
@@ -261,7 +262,7 @@ int grid::SolveCoupledRateEquations()
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
   }
 
   return SUCCESS;

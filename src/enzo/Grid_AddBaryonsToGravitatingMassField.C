@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,14 +45,14 @@ int grid::AddBaryonsToGravitatingMassField()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Error check. */
  
   if (GravitatingMassField == NULL) {
     fprintf(stderr, "GravitatingMassField not allocated.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute Offset between baryon field and GravitatingMassField. */
@@ -62,7 +63,7 @@ int grid::AddBaryonsToGravitatingMassField()
 			GravitatingMassFieldLeftEdge[dim])/CellWidth[dim][0]);
     if (Offset[dim] < 0) {
       fprintf(stderr, "Offset[%"ISYM"] = %"ISYM" < 0\n", dim, Offset[dim]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  

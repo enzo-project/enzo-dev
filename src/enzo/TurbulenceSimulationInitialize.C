@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -203,7 +204,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (TurbulenceSimulationVelocityNames[0] == NULL) {
     fprintf(stderr, "Missing initial data.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (CellFlaggingMethod[0] != 3)
@@ -280,7 +281,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
 			   TurbulenceSimulationSubgridsAreStatic,
 			   TotalRefinement) == FAIL) {
       fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Set boundary conditions if necessary. */
@@ -419,7 +420,7 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 			TurbulenceSimulationSubgridsAreStatic,
 			TotalRefinement) == FAIL) {
       fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     Temp = Temp->NextGridThisLevel;

@@ -27,6 +27,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -132,7 +133,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check name
  
   if (name == NULL) {
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   // Open the HDF5 file and dataset
@@ -276,17 +277,17 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (Npart != component_rank_attr) {
     fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (TempInt != Rank) {
     fprintf(stderr, "Rank mismatch in %s.\n", name);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   // Check dimensions
@@ -295,7 +296,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
     for (dim = 0; dim < Rank; dim++)
       if (TempIntArray[dim] != (EndIndex[dim]-StartIndex[dim]+1)) {
 	fprintf(stderr, "Dimension mismatch in %s.\n", name);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
   // Compute size of HDF5 field

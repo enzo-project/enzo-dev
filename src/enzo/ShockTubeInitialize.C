@@ -17,6 +17,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -88,7 +89,7 @@ int ShockTubeInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid)
 						ShockTubePressure,
 						ShockTubeVelocity) == FAIL) {
     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set up field names and units */

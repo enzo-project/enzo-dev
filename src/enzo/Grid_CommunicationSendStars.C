@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -101,7 +102,7 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
 	Eint32 errlen;
 	MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
 	fprintf(stderr, "MPI Error: %s\n", errstr);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
 

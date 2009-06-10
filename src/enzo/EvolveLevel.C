@@ -73,6 +73,7 @@
 #include <math.h>
 
 #include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -292,7 +293,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                               MetaData->LeftFaceBoundaryCondition,
                               MetaData->RightFaceBoundaryCondition) == FAIL) {
           fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-          return FAIL;
+          ENZO_FAIL("Error in: "__FILE__);
         }
 
       /* Clean up the chaining mesh. */
@@ -342,7 +343,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			      MetaData->LeftFaceBoundaryCondition,
 			      MetaData->RightFaceBoundaryCondition) == FAIL) {
       fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   /* Clean up the chaining mesh. */
@@ -358,7 +359,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RefineRegionAutoAdjust && level == 0)
     if (AdjustRefineRegion(LevelArray, MetaData) == FAIL) {
       fprintf(stderr, "Error in AdjustRefineRegion.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   /* ================================================================== */
@@ -368,11 +369,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef SIB2
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                             Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
 #endif
  
   JBPERF_STOP("evolve-level-02"); // SetBoundaryConditions()
@@ -460,7 +461,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (StarParticleInitialize(LevelArray, level, MetaData, 
 				 AllStars) == FAIL) {
 	fprintf(stderr, "Error in StarParticleInitalize.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
     /* Initialize the radiative transfer */
@@ -470,7 +471,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 				   dtLevelAbove) == FAIL) {
 	fprintf(stderr, "Error in RadiativeTransferPrepare.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #endif /* TRANSFER */
 
@@ -485,7 +486,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	NextGrid = NextGrid->NextGridThisLevel;
 	if (++counter > MAX_NUMBER_OF_SUBGRIDS) {
 	  fprintf(stderr, "More subgrids than MAX_NUMBER_OF_SUBGRIDS.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
       NumberOfSubgrids[grid1] = counter + 1;
@@ -563,13 +564,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (PrepareDensityField(LevelArray, SiblingList,
 			      level, MetaData, When) == FAIL) {
 	fprintf(stderr, "Error in PrepareDensityField.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #else   // !SIB3
     if (SelfGravity)
       if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
 #endif  // end SIB3
  
@@ -583,7 +584,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                                              &norm, &TopGridTimeStep)
            == FAIL ) {
         fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
  
     JBPERF_STOP("evolve-level-07"); // PrepareDensityField()
@@ -633,11 +634,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
 		== FAIL) {
 	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
 	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
@@ -655,7 +656,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UniformGravity || PointSourceGravity)
 	if (Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ==FAIL) {
 	  fprintf(stderr,"Error in grid->ComputeAccelerationFieldExternal.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
       JBPERF_STOP_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
@@ -666,7 +667,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (RadiativeTransfer && RadiationPressure)
 	if (Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL) {
 	  fprintf(stderr,"Error in grid->AddRadiationPressureAcceleration.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 #endif /* TRANSFER */
 
@@ -676,7 +677,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (CheckEnergyConservation(Grids, grid, NumberOfGrids, level,
 				    dtThisLevel) == FAIL) {
 	  fprintf(stderr, "Error in CheckEnergyConservation.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 */
 #ifdef SAB
@@ -694,14 +695,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 				  level, MetaData,
 				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
 	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #else
       if( SetAccelerationBoundary(Grids, NumberOfGrids,
 				  level, MetaData,
 				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
 	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #endif
     }
@@ -716,7 +717,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	if (Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
 	  fprintf(stderr, "Error in grid->CopyBaryonFieldToOldBaryonField.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
       JBPERF_STOP("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
@@ -743,7 +744,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
 	fprintf(stderr, "Error in grid->SolveHydroEquations.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       JBPERF_STOP("evolve-level-13"); // SolveHydroEquations()
@@ -760,7 +761,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		 level, dtPhoton, PhotonTime);
 	if (EvolvePhotons(MetaData, LevelArray, AllStars) == FAIL) {
 	  fprintf(stderr, "Error in EvolvePhotons.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       } /* ENDWHILE evolve photon */
 #endif /* TRANSFER */
@@ -775,7 +776,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
 	  fprintf(stderr, "Error in grid->SolveRateEquations.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
 	JBPERF_STOP("evolve-level-14"); // change this?
@@ -791,7 +792,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (MultiSpecies)
 	  if (Grids[grid1]->GridData->SolveRateEquations() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveRateEquations.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
  
 	JBPERF_STOP("evolve-level-14"); // SolveRateEquations()
@@ -807,7 +808,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (RadiativeCooling)
 	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
  
 	JBPERF_STOP("evolve-level-15"); // SolveRadiativeCooling()
@@ -824,7 +825,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (UpdateParticlePositions(Grids[grid1]->GridData) == FAIL) {
 	fprintf(stderr, "Error in UpdateParticlePositions.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       JBPERF_STOP("evolve-level-16"); // UpdateParticlePositions()
@@ -850,7 +851,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (StarParticleCreation || StarParticleFeedback) {
 	if (Grids[grid1]->GridData->StarParticleHandler(level) == FAIL) {
 	  fprintf(stderr, "Error in grid->StarParticleWrapper");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
  
@@ -897,11 +898,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef SIB2
     if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			      level, MetaData, Exterior, LevelArray[level]) == FAIL)
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
 #else
     if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                               Exterior, LevelArray[level]) == FAIL)
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
 #endif
 
     JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
@@ -914,7 +915,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			     level, AllStars) == FAIL) {
       fprintf(stderr, "Error in StarParticleFinalize.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     JBPERF_STOP("evolve-level-22"); // StarParticleFinalize()
@@ -932,7 +933,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  MetaData->MovieDumpNumber++, LevelArray, MetaData,
 			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	  fprintf(stderr, "Error in WriteMovieData.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
  
@@ -953,7 +954,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 				    LevelArray, MetaData,
 			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	  fprintf(stderr, "Error in WriteTracerParticleData.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
  
@@ -970,12 +971,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef SIB3
       if (PrepareDensityField(LevelArray, SiblingList, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
 #else   // !SIB3
       if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
 #endif  // end SIB3
  
@@ -991,7 +992,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
                 == FAIL) {
               fprintf(stderr, "Error in grid->SolveForPotential.\n");
-              return FAIL;
+              ENZO_FAIL("Error in: "__FILE__);
             }
           // fprintf(stderr, "Call CP from EvolveLevel\n");
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
@@ -1022,14 +1023,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #else
       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #endif
 
@@ -1055,20 +1056,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #else
       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #endif
       if (MyProcessorNumber == ROOT_PROCESSOR)
       if (unlink("outputNow")) {
     fprintf(stderr, "Error deleting 'outputNow'\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
       }
     } 
       
@@ -1129,14 +1130,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             Temp2->GridHierarchyEntry, *MetaData, Exterior,
             LevelArray[level]->GridData->ReturnTime()) == FAIL) {
         fprintf(stderr, "Error in Group_WriteAllData.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
 #else
       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
             Temp2->GridHierarchyEntry, *MetaData, Exterior,
             LevelArray[level]->GridData->ReturnTime()) == FAIL) {
         fprintf(stderr, "Error in WriteAllData.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
 #endif
 
@@ -1161,20 +1162,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #else
       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 #endif
       if (MyProcessorNumber == ROOT_PROCESSOR)
     if (unlink("stopNow")) {
       fprintf(stderr, "Error deleting stopNow\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     } 
       fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
       my_exit(EXIT_SUCCESS);
@@ -1199,7 +1200,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (WriteStreamData(Grids, NumberOfGrids, MetaData,
 			      LevelCycleCount[mlevel], TRUE) == FAIL) {
 	    fprintf(stderr, "Error in WriteStreamData.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	}
 
@@ -1230,7 +1231,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
 
@@ -1244,7 +1245,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (WriteStreamData(Grids, NumberOfGrids, MetaData, 
 			  LevelCycleCount[level]) == FAIL) {
 	fprintf(stderr, "Error in WriteStreamData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
 
@@ -1275,7 +1276,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (CreateSUBlingList(MetaData, Grids,
                               NumberOfGrids, &SUBlingList) == FAIL) {
         fprintf(stderr, "Error in CreateSUBlingList.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
       if (dbx) fprintf(stderr, "EL: CSL exit \n");
     }
@@ -1300,11 +1301,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			     SubgridFluxesEstimate,
 			     SUBlingList,
 			     MetaData) == FAIL)
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
 #else
     if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate) == FAIL)
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
 #endif
 
     JBPERF_STOP("evolve-level-28"); // UpdateFromFinerGrids()
@@ -1316,7 +1317,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Clean up SUBlings */
       if (DeleteSUBlingList( NumberOfGrids, SUBlingList ) == FAIL) {
         fprintf(stderr, "Error in DeleteSUBlingList.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
     }
 #endif
@@ -1343,7 +1344,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])
 	    == FAIL) {
 	  fprintf(stderr, "Error in grid->AddToBoundaryFluxes.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
       /* Delete fluxes pointed to by SubgridFluxesEstimate[subgrid]. */
@@ -1369,7 +1370,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	level <= RadiationFieldLevelRecompute)
       if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
 	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
     JBPERF_STOP("evolve-level-30"); // RadiationFieldUpdate()
@@ -1382,7 +1383,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (dtThisLevelSoFar < dtLevelAbove) {
       if (RebuildHierarchy(MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
 

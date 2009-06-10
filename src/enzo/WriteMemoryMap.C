@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,7 +37,7 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *Grid,
  
   if (Grid->GridData->WriteMemoryMap(fptr, base_name, GridID) == FAIL) {
     fprintf(stderr, "Error in grid->WriteMemoryMap.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   NextGridThisLevelID = GridID + 1;
@@ -46,7 +47,7 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *Grid,
     GridID++;
     if (WriteMemoryMap(fptr, Grid->NextGridThisLevel, base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteMemoryMap (1).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  

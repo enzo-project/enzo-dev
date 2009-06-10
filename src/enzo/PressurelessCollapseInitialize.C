@@ -17,6 +17,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,7 +92,7 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 					  PressurelessCollapseNumberOfCells
 						       ) == FAIL) {
     fprintf(stderr, "Error in PressurelessCollapseInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set up field names and units */

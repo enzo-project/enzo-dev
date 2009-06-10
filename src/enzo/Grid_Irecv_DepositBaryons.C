@@ -19,6 +19,7 @@
  
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -77,7 +78,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Error check: subgrid covering field must exist on entry. */
@@ -85,7 +86,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   if (MyProcessorNumber == ProcessorNumber &&
       BaryonField[NumberOfBaryonFields] == NULL) {
     fprintf(stderr, "subgrid covering field missing\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute refinement factors. */
@@ -139,12 +140,12 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     if (TargetGrid != this && GridStart[dim] < 0) {
       fprintf(stderr, "GridStart[%"ISYM"] = %"GSYM" < 0.\n", dim,GridStart[dim]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     if (RegionDim[dim] < 2) {
       fprintf(stderr, "RegionDim[%"ISYM"] = %"ISYM" < 2\n", dim, RegionDim[dim]);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   }
@@ -168,7 +169,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       if (CosmologyComputeExpansionFactor(0.5*(Time+DepositTime), &a, &dadt)
 	  == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     float dt = (DepositTime - Time)/a;
     dt = 0;

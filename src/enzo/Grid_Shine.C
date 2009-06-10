@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -68,7 +69,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* allocate temporary array of pointers */
@@ -195,7 +196,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 		    (long) (pow(2,NewPack->level)), NewPack->ipix, 
 		    NewPack->Photons, NewPack );
 	    NewPack->Photons=-1;
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 
 	  NewPack->CrossSection = 

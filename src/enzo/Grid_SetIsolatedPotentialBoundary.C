@@ -14,6 +14,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,7 +35,7 @@ int grid::SetIsolatedPotentialBoundary()
 
   if (PotentialField == NULL || GravitatingMassFieldCellSize == FLOAT_UNDEFINED) {
     fprintf(stderr, "Potential NULL or gravity unitialized.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Set start index and dimension of active part of potential field. */

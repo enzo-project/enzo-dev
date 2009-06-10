@@ -16,6 +16,7 @@
 #include <string.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,7 +35,7 @@ int ReadStarParticleData(FILE *fptr)
     if (fscanf(fptr, "NumberOfStarParticles = %"ISYM"\n",
 	       &NumberOfStarParticles) != 1) {
       fprintf(stderr, "Error reading NumberOfStarParticles.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   } else
     NumberOfStarParticles = 0;

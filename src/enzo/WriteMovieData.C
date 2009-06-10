@@ -18,6 +18,7 @@
 
 
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -97,18 +98,18 @@ int WriteMovieData(char *basename, int filenumber,
  
   if ((Gridfptr = fopen(gridname, "w")) == NULL) {
     fprintf(stderr, "Error opening grid output file %s\n", gridname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if ((DMfptr = fopen(dmname, "w")) == NULL) {
     fprintf(stderr, "Error opening dm output file %s\n", dmname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (StarParticleCreation > 0)
     if ((Starfptr = fopen(starname, "w")) == NULL) {
       fprintf(stderr, "Error opening star output file %s\n", starname);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   /* --------------------------------------------------------------- */
@@ -149,7 +150,7 @@ int WriteMovieData(char *basename, int filenumber,
 				    NumberOfValuesPerPoint,
 				    PointValueNames, BaseRadius) == FAIL) {
 	fprintf(stderr, "Error in grid->OutputGridMovieData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       /* Next grid on this level. */
@@ -178,7 +179,7 @@ int WriteMovieData(char *basename, int filenumber,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, WriteTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;    
+    ENZO_FAIL("Error in: "__FILE__);    
   }
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(WriteTime, &a, &dadt);
@@ -187,7 +188,7 @@ int WriteMovieData(char *basename, int filenumber,
  
   if ((Summaryfptr = fopen(summaryname, "w")) == NULL) {
     fprintf(stderr, "Error opening summary output file %s\n", summaryname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Output summary information:

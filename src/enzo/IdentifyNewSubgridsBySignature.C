@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,7 +39,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 
   if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
     fprintf(stderr, "PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   int index = 0;
@@ -51,7 +52,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
  
     if (Subgrid->ShrinkToMinimumSize() == FAIL) {
       fprintf(stderr, "Error in ProtoSubgrid->ShrinkToMinimumSize.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Iterate on this grid until it is acceptable. */
@@ -74,14 +75,14 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 
 	if (Subgrid->FindGridsByZeroSignature(dim, NumberOfNewGrids, GridEnds) == FAIL) {
 	 fprintf(stderr, "Error in ProtoSubgrid->FindGridsByZeroSignature.\n");
-	 return FAIL;
+	 ENZO_FAIL("Error in: "__FILE__);
 	}
  
 	/* Error check. */
  
 	if (NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS) {
 	  fprintf(stderr, "Increase MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
 	/* If there are any new grids created this way, then make them and
@@ -126,7 +127,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	  if (Subgrid->ComputeSecondDerivative(dim, TempInt,
 					       &GridEnds[dim*2]) == FAIL) {
 	   fprintf(stderr,"Error in ProtoSubgrid->ComputeSecondDerivative.\n");
-	   return FAIL;
+	   ENZO_FAIL("Error in: "__FILE__);
 	  }
 	
 	  if (TempInt > MaxZeroCrossingStrength) {
@@ -140,7 +141,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	
 	if (StrongestDim < 0) {
 	  fprintf(stderr, "Error in IdentifyNewSubgridsBySignature.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 	
 	/* Create new subgrids (two). */
@@ -172,7 +173,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
  
       if (Subgrid->ShrinkToMinimumSize() == FAIL) {
 	fprintf(stderr, "Error in ProtoSubgrid->ShrinkToMinimumSize.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
     } // end: while (Subgrid->AcceptableSubgrid() == FALSE)

@@ -20,6 +20,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -114,7 +115,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      WavePoolTotalEnergy,
 					      WavePoolVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If requested, create a subgrid */
@@ -155,7 +156,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						 WavePoolTotalEnergy,
 						 WavePoolVelocity) == FAIL) {
       fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }			
   }
  

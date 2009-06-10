@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,7 +37,7 @@ int grid::ComovingGravitySourceTerm()
  
   if (GravitationalConstant != 1) {
     fprintf(stderr, "GravitationalConstant must be 1!.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Set AverageDensity (held in global_data.h). */

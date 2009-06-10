@@ -16,6 +16,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -151,7 +152,7 @@ int InitializeRateData(FLOAT Time)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (ComovingCoordinates) {
@@ -159,7 +160,7 @@ int InitializeRateData(FLOAT Time)
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);

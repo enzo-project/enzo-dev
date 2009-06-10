@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaHINum,
 	      "kphHeII=%"ISYM", gammaHeII=%"ISYM", kdissH2I=%"ISYM"\n",
 	      kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, 
 	      gammaHeIINum, kdissH2INum);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
 

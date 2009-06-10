@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -70,7 +71,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   if (!ComovingCoordinates) {
     fprintf(stderr, "RadiationField only defined for cosmology.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   CosmologyComputeExpansionFactor(Time, &a, &dadt);
@@ -78,7 +79,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;    
+    ENZO_FAIL("Error in: "__FILE__);    
   }
 
   aUnits = 1.0/(1.0 + InitialRedshift);
@@ -365,13 +366,13 @@ int RadiationFieldCalculateRates(FLOAT Time)
   if (RadiationFieldType < 0 || RadiationFieldType > 12) {
     fprintf(stderr, "RadiationFieldType %"ISYM" not recognized.\n", 
 	    RadiationFieldType);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
    }
 
   if (AdjustUVBackground < 0 || AdjustUVBackground > 2 ) {
    fprintf(stderr, "AdjustUVBackground Type %"ISYM" not recognized.\n",
             AdjustUVBackground);
-   return FAIL;
+   ENZO_FAIL("Error in: "__FILE__);
   }
 
   if (AdjustUVBackground == 0 ) {

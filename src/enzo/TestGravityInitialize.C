@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -94,7 +95,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						  TestGravityUseBaryons
 						  ) == FAIL){
     fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If requested, create a subgrid */
@@ -134,7 +135,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	 POW(float(RefineBy), MetaData.TopGridRank), 0, TestGravityUseBaryons)
 	== FAIL) {
       fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }			
  
     /* Generate a static refine region. */

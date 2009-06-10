@@ -27,6 +27,7 @@
 #include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #define DEFINE_STORAGE

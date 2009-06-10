@@ -19,6 +19,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -105,7 +106,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (GridParent[j]->GridData->MoveAllParticles(grids2,
 						 ContigiousGridList) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllParticles.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
  
@@ -125,7 +126,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     }
     if (CommunicationTransferParticles(GridPointer, grids) == FAIL) {
       fprintf(stderr, "Error in CommunicationTransferParticles.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  
@@ -189,7 +190,7 @@ int RebuildHierarchy(TopGridData *MetaData,
       for (j = 0; j < grids; j++)
 	if (FindSubgrids(GridHierarchyPointer[j], i) == FAIL) {
 	  fprintf(stderr, "Error in FindSubgrids.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
       /* Create a temporary array of the new subgrids (which are on this
@@ -223,7 +224,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		              SubgridHierarchyPointer[k]->GridData,
 		              ZERO_UNDER_SUBGRID_FIELD, float(k+1)) == FAIL) {
 	      fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	    ToGrids[k] = SubgridHierarchyPointer[k]->GridData;
 	  }
@@ -231,7 +232,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridParticlesFast(
 				 subgrids, ToGrids, TRUE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridParticlesFast.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
  
 	}
@@ -268,7 +269,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (SubgridHierarchyPointer[j]->GridData->CopyZonesFromGridCountOnly(
 		                          Temp->GridData, Overlap) == FAIL) {
 	    fprintf(stderr, "Error in grid->CopyZonesFromGridCountOnly.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 	  NumberOfOverlaps[oldgrid] += Overlap;
 	}
@@ -318,7 +319,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    if (SubgridHierarchyPointer[j]->GridData->CopyZonesFromGrid(
                                        Temp->GridData, ZeroVector) == FAIL) {
 	      fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
  
 	    /* Check if we can delete the old subgrid yet. */
@@ -364,7 +365,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
 	if (TempLevelArray[i+1]->GridData != NULL) {
 	  fprintf(stderr, "An old subgrid was not deleted.  Why?\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
 	/* Remove the LevelHierarchy entry for that grid. */
@@ -425,7 +426,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		              SubgridHierarchyPointer[k]->GridData,
 		              ZERO_UNDER_SUBGRID_FIELD, float(k+1)) == FAIL) {
 	      fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	    ToGrids[k] = SubgridHierarchyPointer[k]->GridData;
 	  }
@@ -433,7 +434,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridParticlesFast(
 				 subgrids, ToGrids, FALSE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridParticlesFast.\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
  
 	}
@@ -446,7 +447,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (Temp->GridData->InterpolateBoundaryFromParent
 	    (Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
  
 	Temp = Temp->NextGridThisLevel;

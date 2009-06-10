@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -73,7 +74,7 @@ int ExternalBoundary::InitializeExternalBoundaryFace(int dim,
  
   if (dim > BoundaryRank) {
     fprintf(stderr, "Dimension %"ISYM" > BoundaryRank %"ISYM".\n", dim, BoundaryRank);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* compute size of entire mesh */

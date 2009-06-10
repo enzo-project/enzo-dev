@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,7 +35,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
   if (PressurelessCollapseDirection > GridRank-1 ||
       GridDimension[PressurelessCollapseDirection] == 1) {
     fprintf(stderr, "PressurelessCollapseDirection not properly defined.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* create fields */

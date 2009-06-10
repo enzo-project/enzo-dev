@@ -34,6 +34,7 @@
 //   also need to be taken into account.
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -92,7 +93,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     //dcc kludge:  Just remove a(t)? 09/06/05 
@@ -104,7 +105,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     //    if (ComovingCoordinates)
     //      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
     //        fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-    //        return FAIL;
+    //        ENZO_FAIL("Error in: "__FILE__);
     //      }
  
  
@@ -123,7 +124,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		(InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 		 RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
 	      fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	}
  
@@ -241,7 +242,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %lld\n",
 		      CellLeftEdge[i][0], CellWidth[i][0],
 		      InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	  }
 	
@@ -446,7 +447,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      fprintf(stderr,"ERROR: CorrectForRefinedFluxes causing problems.\n");
 		      fprintf(stderr,"      Density or Energy is negative.\n");
 		      fprintf(stderr,"      Please contact your Enzo service professional.\n");
-		      return FAIL;
+		      ENZO_FAIL("Error in: "__FILE__);
 		    }
 		  }// for (i = Start[0]; i <= End[0]; i++) {
 		} // for (j = Start[1]; j <= End[1]; j++){

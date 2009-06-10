@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -52,7 +53,7 @@ int grid::ComovingExpansionTerms()
     if (CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt) 
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     float Coefficient = dtFixed*dadt/a;
 
@@ -69,7 +70,7 @@ int grid::ComovingExpansionTerms()
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     float *PressureDual, *Pressure = new float[size];
@@ -89,13 +90,13 @@ int grid::ComovingExpansionTerms()
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   PressureDual) == FAIL) {
 	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
       fprintf(stderr, "Error in ComputePressure.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     /* Call fortran routine to do the real work. */
@@ -120,7 +121,7 @@ int grid::ComovingExpansionTerms()
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
       fprintf(stderr, "Error in ComputePressure.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     for (i = 0; i < size; i++)
@@ -187,7 +188,7 @@ int grid::ComovingExpansionTerms()
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   Pressure) == FAIL) {
 	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
       /* Replace pressure with the time-centered combination 3*p/d. */

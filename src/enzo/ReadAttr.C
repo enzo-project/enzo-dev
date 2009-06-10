@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 void my_exit(int status);
  

@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -52,7 +53,7 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
       HeIIINum < 0) {
     fprintf(stderr, "De=%"ISYM", HI=%"ISYM", HII=%"ISYM", HeI=%"ISYM", HeII=%"ISYM", HeIII=%"ISYM"\n",
 	    DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Find Fields for the 9-species model. */
@@ -64,7 +65,7 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
  
     if (HMNum < 0 || H2INum < 0 || H2IINum < 0) {
       fprintf(stderr, "H2 related field missing.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   }
@@ -78,7 +79,7 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
  
     if (DINum < 0 || DIINum < 0 || HDINum < 0) {
       fprintf(stderr, "HD related field missing.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   }

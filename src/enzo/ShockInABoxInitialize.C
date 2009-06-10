@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -114,7 +115,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						ShockInABoxPressure,
 						ShockInABoxVelocity) == FAIL) {
     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If requested, create a subgrid */
@@ -157,7 +158,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						   ShockInABoxVelocity)
 	== FAIL) {
       fprintf(stderr, "Error in ShockTubeInitializeGrid (subgrid).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }			
   }
  
@@ -176,7 +177,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
     fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   if (MetaData.TopGridRank > 1)

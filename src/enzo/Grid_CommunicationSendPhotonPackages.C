@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -121,7 +122,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, NumberOfPhotonPackages, 
 		PP->CurrentTime);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
       // Next photon
@@ -150,7 +151,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       FromNumber = min(index, FromNumber);
       fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %"ISYM"\n", 
 	      FromNumber);
-      //return FAIL;
+      //ENZO_FAIL("Error in: "__FILE__);
     }
 
   } /* ENDIF PackPhotons */
@@ -221,7 +222,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	  Eint32 errlen;
 	  MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
 	  fprintf(stderr, "MPI Error: %s\n", errstr);
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 
     } /* ENDIF (MyProcessorNumber == ToProcessor) */
@@ -269,13 +270,13 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
 		NewPP->CurrentTime);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
       if (RadiativeTransferSourceClustering) {
 	if (FindSuperSource(&NewPP, buffer[index].SuperSourceID) == FAIL) {
 	  fprintf(stderr, "Error in FindSuperSource.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       } else
 	NewPP->CurrentSource = NULL;

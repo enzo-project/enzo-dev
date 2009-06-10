@@ -18,6 +18,7 @@
 //   (allocate old baryon fields if they don't exist).
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
  
     if (BaryonField[field] == NULL) {
       fprintf(stderr, "BaryonField missing.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Create OldBaryonField if necessary. */
@@ -98,7 +99,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       }else{
 
         fprintf(stderr,"Error-- in CopyBF to Old, no AccelerationField.\n");
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
 
       }
 

@@ -19,6 +19,7 @@
 #include <assert.h>
 #include "h5utilities.h"
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -60,7 +61,7 @@ int grid::CosmologyInitializeParticles(
 	       &TimeUnits, &VelocityUnits, &MassUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Check if we have one component per file */
@@ -69,7 +70,7 @@ int grid::CosmologyInitializeParticles(
       CosmologySimulationParticleVelocityNames[0] != NULL) {
     fprintf(stderr, "grid::CosmologyInitializeParticles: Both 3-component and 1-component "
 	    "particle velocity files are defined.  Choose one or the other!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL)
@@ -162,14 +163,14 @@ int grid::CosmologyInitializeParticles(
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, 0, 1) == FAIL) {
 	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     } else {
       if (ReadFile(CosmologySimulationParticleVelocityName, GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, dim, 3) == FAIL) {
 	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
       }
     } // ENDELSE OneComponentPerFile
     temp_vel[dim] = new float[size];
@@ -182,7 +183,7 @@ int grid::CosmologyInitializeParticles(
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading particle mass.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     mass = new float[size];
     for (i = 0; i < size; i++)
@@ -195,7 +196,7 @@ int grid::CosmologyInitializeParticles(
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &int_tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading particle mass.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     types = new int[size];
     for (i = 0; i < size; i++)

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -303,7 +304,7 @@ int InitiatePhotonNumberSend(int *nPhoton)
       if (nPhoton[proc] > TOOLARGE || nPhoton[proc] < 0) {
 	printf("CTPh[P%"ISYM"]: WARNING -- Number of sent photons = %"ISYM" bad?\n",
 	       MyProcessorNumber, nPhoton[proc]);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       MPI_Isend(nPhoton+proc, 1, MPI_INT, proc, MPI_NPHOTON_TAG, MPI_COMM_WORLD,
 		&dummy_req);
@@ -373,7 +374,7 @@ int InitializePhotonReceive(int group_size)
 	      if (nPhoton_RECV > TOOLARGE) {
 		printf("CTPh[P%"ISYM"]: WARNING -- Number of received photons"
 		       " = %"ISYM" too large?\n", MyProcessorNumber, nPhoton_RECV);
-		return FAIL;
+		ENZO_FAIL("Error in: "__FILE__);
 	      }
 	      RecvList = new GroupPhotonList[nPhoton_RECV];
 	      tag = MPI_PHOTONGROUP_TAG*10+nPhoton_RECV;

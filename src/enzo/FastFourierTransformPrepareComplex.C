@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 // Function prototypes
@@ -47,7 +48,7 @@ int FastFourierTransformPrepareComplex(float *buffer, int Rank,
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Does not support Rank = %"ISYM"\n", Rank);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   // Copy passed dims to Real dims to make sure they are at least 3d.

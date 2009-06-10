@@ -1,6 +1,7 @@
 #define DEBUG 0
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "PhotonPackage.h"
 
@@ -51,7 +52,7 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
       fprintf(stdout, "SplitPhotonPackage: Problem splitting %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
 	      PP, NewPack, NewPack->PreviousPackage,
 	      NewPack->PreviousPackage->NextPackage, NewPack->NextPackage);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   } // for childrays=0,3
     

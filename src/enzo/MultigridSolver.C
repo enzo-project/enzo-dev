@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 /* function prototypes */
@@ -71,7 +72,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
       Dims[dim][depth+1] = (Dims[dim][depth]+1)/2;
 /*      if (Dims[dim][depth+1]*2-1 != Dims[dim][depth]+1) {
 	fprintf(stderr, "Dims[%"ISYM"]=%"ISYM" not of form 2^j+1\n", dim, Dims[dim][0]);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 */
       MinDim = min(Dims[dim][depth+1], MinDim);
@@ -91,12 +92,12 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
  
   if (depth == MAX_DEPTH) {
     fprintf(stderr, "Depth(%"ISYM") > MAX_DEPTH\n", depth);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (start_depth > bottom) {
     fprintf(stderr, "Start depth(%"ISYM") > bottom(%"ISYM")!\n", start_depth, bottom);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Initial smoothing of density field, if requested. */
@@ -238,7 +239,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   if (tol_check > tolerance) {
     fprintf(stderr, "Too many iterations (%"ISYM"): tol=%"GSYM", check=%"GSYM"\n", iter,
 	    tolerance, tol_check);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Free allocated memory. */

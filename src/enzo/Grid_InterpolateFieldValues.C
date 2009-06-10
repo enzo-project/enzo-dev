@@ -19,6 +19,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -100,7 +101,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     int densfield;
     if ((densfield=FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "No density field!\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Set up array of flags if we are using SecondOrderB interpolation
@@ -183,7 +184,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
         fprintf(stderr, "Parent grid not big enough for interpolation.\n");
         fprintf(stderr, " ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n",
                 dim, ParentStartIndex[dim], ParentTempDim[dim]);
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
  
       /* Compute the dimensions of the current grid temporary field. */
@@ -335,7 +336,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	BaryonField[field] = new float[GridSize];
       if (BaryonField[field] == NULL) {
 	fprintf(stderr, "malloc error (out of memory?)\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       FORTRAN_NAME(copy3d)(FieldPointer, BaryonField[field],
 			   TempDim, TempDim+1, TempDim+2,
@@ -359,7 +360,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     if (DualEnergyFormalism)
       if (this->RestoreEnergyConsistency(ENTIRE_REGION) == FAIL) {
 	fprintf(stderr, "Error in grid->RestoreEnergyConsisitency.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       //      if (this->RestoreEnergyConsistency(ONLY_BOUNDARY) == FAIL) {
  

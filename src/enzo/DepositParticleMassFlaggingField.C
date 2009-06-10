@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -106,7 +107,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	if (Temp->GridData->SetParticleMassFlaggingField
 	    (Zero, Zero, level, ParticleMassMethod) == FAIL) {
 	  fprintf(stderr, "Error in grid->SetParticleMassFlaggingField(send).\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -345,7 +346,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 		   nSends) == FAIL) {
 		fprintf(stderr, "Error in grid->SetParticleMassFlaggingField"
 			"(receive).\n");
-		return FAIL;
+		ENZO_FAIL("Error in: "__FILE__);
 	      }
 	      delete [] SendProcs;
 	    } // ENDIF nSends > 0
@@ -359,13 +360,13 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	  if (Grids[grid1]->GridData->SetParticleMassFlaggingField
 	      (StartProc, EndProc, level, ParticleMassMethod) == FAIL) {
 	    fprintf(stderr, "Error in grid->SetParticleMassFlaggingField(send).\n");
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
 
 	/* Wait for the receives and sum field */
 
 	if (CommunicationReceiveHandler() == FAIL)
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 
 #ifdef TIMING
 	tt1 = ReturnWallTime();

@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -78,7 +79,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   if (this != OtherGrid || DoSelf)
     if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
       fprintf(stderr, "Error in grid->*CopyFunction\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   /* For periodic boundary conditions, do some extra checks.  This insures
@@ -123,7 +124,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      (i != 0 || j != 0 || k != 0) && FullPeriod == TRUE) {
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      fprintf(stderr, "Error in grid->*CopyFunction (2)\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	  }
  
@@ -133,7 +134,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      FullPeriod == FALSE && (ABS(i)+ABS(j)+ABS(k) == 1)) {
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      fprintf(stderr, "Error in grid->*CopyFunction (3)\n");
-	      return FAIL;
+	      ENZO_FAIL("Error in: "__FILE__);
 	    }
 	  }
  

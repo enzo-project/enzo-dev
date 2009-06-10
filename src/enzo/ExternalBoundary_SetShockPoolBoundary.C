@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -52,7 +53,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set the appropriate BoundaryValues on the left side */

@@ -24,6 +24,7 @@ c     w       - z-velocity field
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "Fluxes.h"
 #include "fortran.def"
@@ -185,7 +186,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 
 	if (e[IDX(i,j,k)] <= 0.0 || dnew <= 0.0) {
 	  printf("zeus_y negative e or d error: d,e,dnew,dt=%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n",d[IDX(i,j,k)],e[IDX(i,j,k)],dnew,dt);
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 
 	d[IDX(i,j,k)] = dnew;
@@ -203,7 +204,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 	  for (j1=0; j1 < jn; j1++)
 	    printf("%"ISYM" d,u,v,e,w,d-1,f2,u*,f1,uav=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", 
 		   j1, d[IDX(i,j1,k)],u[IDX(i,j1,k)],v[IDX(i,j1,k)], e[IDX(i,j1,k)],w[IDX(i,j1,k)],d[IDX(i,j1-1,k)], f2[j1],ustar[j1],f1[IDX(i,j1,k)],uavgi[j1]);
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
       }
 

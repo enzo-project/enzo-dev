@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 
 void my_exit(int status);
@@ -56,7 +57,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
   // MPI_SUCCESS == 0
   if (XXMPI_Dims_create(mcpu, rank, mpi_layout) != 0) {
     fprintf(stderr, "Error in MPI_Dims_create.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   for ( i = 0; i < ndims; i++ ) {
@@ -67,7 +68,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
 
   //#else /* USE_MPI */
 
-  //return FAIL;
+  //ENZO_FAIL("Error in: "__FILE__);
 
   //#endif /* USE_MPI */
 

@@ -17,6 +17,7 @@
 // Copy the potential field to baryon field
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -43,7 +44,7 @@ int grid::CopyPotentialToBaryonField()
  
   if (BaryonField[field] == NULL) {
     fprintf(stderr, "GravPotential field missing.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
  
@@ -51,7 +52,7 @@ int grid::CopyPotentialToBaryonField()
  
   if (PotentialField == NULL) {
     fprintf(stderr, "PotentialField missing.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Well, it appears that currently GravitatingMassField is larger

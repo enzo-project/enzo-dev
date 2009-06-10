@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -84,7 +85,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       // Calculate photon luminosity
       if (cstar->ComputePhotonRates(energies, Q) == FAIL) {
 	fprintf(stderr, "Error in ComputePhotonRates.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
       QTotal = 0;

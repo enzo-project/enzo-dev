@@ -21,6 +21,7 @@
 #include <math.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   if (Time != WriteTime) {
     if (Time <= OldTime) {
       fprintf(stderr, "WGI: fields are at the same time or worse.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     } else {
       coef1 = max((Time - WriteTime)/
 		  (Time - OldTime), 0.0);
@@ -78,7 +79,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   float TimeDifference = WriteTime - Time;
   if (this->UpdateParticlePosition(TimeDifference) == FAIL) {
     fprintf(stderr, "Error in grid->UpdateParticlePosition.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Write grid (temporarily replace Time with WriteTime). */
@@ -87,7 +88,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   Time = WriteTime;
   if (this->WriteGrid(fptr, base_name, grid_id) == FAIL) {
     fprintf(stderr, "Error in grid->WriteGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   Time = SavedTime;
  

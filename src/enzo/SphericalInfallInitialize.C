@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -148,7 +149,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 					 SphericalInfallSubgridIsStatic
 						  ) == FAIL){
     fprintf(stderr, "Error in SphericalInfallInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If requested, create a subgrid */
@@ -206,7 +207,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 				   FALSE)
 	== FAIL) {
       fprintf(stderr, "Error in SphericalInfallInitializeGrid (2).\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }			
   }
  

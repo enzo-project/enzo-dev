@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 
 void quickSort(int a[], int b[], int l, int r);
@@ -350,12 +351,12 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   npix = 12 * nside*nside;
   if( ipix<0 || ipix>npix-1 ) {
     fprintf(stderr, "%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* initiates the array for the pixel number -> (x,y) mapping */

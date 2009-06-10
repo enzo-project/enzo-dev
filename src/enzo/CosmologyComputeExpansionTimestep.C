@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
@@ -30,7 +31,7 @@ int CosmologyComputeExpansionTimestep(FLOAT time, float *dtExpansion)
  
   if (InitialTimeInCodeUnits == 0) {
     fprintf(stderr, "The cosmology parameters seem to be improperly set.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute the expansion factors. */
@@ -38,7 +39,7 @@ int CosmologyComputeExpansionTimestep(FLOAT time, float *dtExpansion)
   FLOAT a, dadt;
   if (CosmologyComputeExpansionFactor(time, &a, &dadt) == FAIL) {
     fprintf(stderr, "Error in ComputeExpnasionFactors.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute the maximum allwed timestep given the maximum allowed

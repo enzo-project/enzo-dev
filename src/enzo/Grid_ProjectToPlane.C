@@ -17,6 +17,7 @@
 #include <math.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -55,12 +56,12 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
  
   if (BaryonField[NumberOfBaryonFields] == NULL && level >= 0) {
     fprintf(stderr, "UNDER_SUBGRID_FLAG field not set.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (SelfGravity && GravityResolution != 1) {
     fprintf(stderr, "ProjectToPlane assumes GravityResolution == 1.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Declarations */
@@ -87,7 +88,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   /* Find metallicity field and set flag. */
@@ -144,7 +145,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   if (ComovingCoordinates) {
     const double SolarMass = 1.989e33, Mpc = 3.0824e24;
@@ -182,7 +183,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   if (NumberOfBaryonFields > 0) {
     if (this->ComputeTemperatureField(temperature) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Set the temperature to zero wherever the baryon density is. */
@@ -430,7 +431,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
       if (this->ComputeElementalDensity(temperature, elemental_density, 6)
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeElementalDensity\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       FORTRAN_NAME(projplane)(elemental_density, NULL,
                              BaryonField[NumberOfBaryonFields], &One,

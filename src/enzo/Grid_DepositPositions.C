@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -96,7 +97,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
  
   else {
     fprintf(stderr, "DepositField = %"ISYM" not recognized.\n", DepositField);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Error check. */
@@ -104,12 +105,12 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
   if (DepositFieldPointer == NULL) {
     fprintf(stderr, "DepositFieldPointer (%"ISYM") is NULL, Number = %"ISYM".\n",
 	    DepositField, Number);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (GridRank != 3) {
     fprintf(stderr, "New gravity module currently supports only 3d.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (DepositPositionsParticleSmoothRadius < CellSize)

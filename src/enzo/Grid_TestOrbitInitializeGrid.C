@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,7 +40,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
 
   if (UseBaryons) {
     fprintf(stderr, "UseBaryons not implemented yet.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   NumberOfParticles = NumberOfTestParticles + 1;
@@ -57,7 +58,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Set number of particles for this grid and allocate space. */
@@ -98,7 +99,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
 
   if (NumberOfTestParticles != 1) {
     fprintf(stderr, "Only 1 test particle may be created (for now).\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* This is an orbit in the x-y plane. */

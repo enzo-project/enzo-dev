@@ -16,6 +16,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -86,7 +87,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (ReadAllData(LastFileNameWritten, &TopGrid,
 		  MetaData, Exterior) == FAIL) {
     fprintf(stderr, "Error reloading data: %s\n", LastFileNameWritten);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   AddLevel(LevelArray, &TopGrid, 0);
   fprintf(stderr, "done\n");
@@ -97,12 +98,12 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
       fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -111,7 +112,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in RebuildHierarchy.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   return SUCCESS;

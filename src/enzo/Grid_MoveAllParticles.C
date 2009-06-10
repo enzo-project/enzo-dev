@@ -18,6 +18,7 @@
 //
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -31,7 +32,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
  
   if (NumberOfGrids < 1) {
     fprintf(stderr, "NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Determine total number of local particles. */
@@ -71,7 +72,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   
   if (Velocity[GridRank-1] == NULL) {
     fprintf(stderr, "malloc error (out of memory?)\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute the decrease in mass for particles moving to this grid

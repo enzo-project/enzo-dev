@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -68,7 +69,7 @@ int grid::FinishFFT(region *InitialRegion, int Field, int DomainDim[])
       FieldPointer = PotentialField;
     } else {
       fprintf(stderr, "Field %"ISYM" not recognized.\n", Field);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Copy region data into grid. */

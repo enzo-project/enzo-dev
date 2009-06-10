@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,7 +29,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
 {
  
 //  if (this != FromGrid)
-//    return FAIL;
+//    ENZO_FAIL("Error in: "__FILE__);
  
   FLOAT HoldLeftEdge[MAX_DIMENSION];
  
@@ -49,7 +50,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
 					 ParticleAcceleration[dim],
 					 NumberOfParticles) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolatePositions.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       if(ProblemType==29){

@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -48,14 +49,14 @@ int grid::ComputeAccelerations(int level)
  
     if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Add any fixed (external) acceleration to field. */
 /*
     if (this->AddExternalAcceleration() == FAIL) {
       fprintf(stderr, "Error in grid->AddFixedAcceleration.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 */
     /* Clear particle accelerations. */
@@ -92,7 +93,7 @@ int grid::ComputeAccelerations(int level)
 
      if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   } // end: if (NumberOfBaryonFields > 0)

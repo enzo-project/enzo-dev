@@ -19,6 +19,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -106,7 +107,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute the ratio Volume[ThisGridCell]/Volume[ParentCell]. */

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -41,7 +42,7 @@ int grid::ReassignSuperSources(void)
     LeafID = PP->CurrentSource->LeafID;
     if (FindSuperSource(&PP, LeafID, FALSE) == FAIL) {
       fprintf(stderr, "Error in FindSuperSource.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
     radius2 = 0;
@@ -60,7 +61,7 @@ int grid::ReassignSuperSources(void)
 	LeafID == INT_UNDEFINED)
       if (FindSuperSourceByPosition(&PP) == FAIL) {
 	fprintf(stderr, "Error in FindSuperSourceByPosition.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
 
   } // ENDFOR photons

@@ -23,6 +23,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -211,7 +212,7 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
  
   if (ProjectionDimension < 0 || ProjectionDimension > MetaData.TopGridRank) {
     fprintf(stderr, "Invalid ProjectionDimension (%"ISYM").\n",ProjectionDimension);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Check to see if the file ProjectParameters exists.  If it does, read

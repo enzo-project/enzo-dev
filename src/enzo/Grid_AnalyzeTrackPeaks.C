@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,7 +68,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -76,7 +77,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Open output file. */
@@ -85,7 +86,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
  
   if ((fptr = fopen(PeakOutputName, "a")) == FAIL) {
     fprintf(stderr, "Error opening %s.\n", PeakOutputName);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Compute the MinimumPeakDensity. */

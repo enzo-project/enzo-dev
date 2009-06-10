@@ -17,6 +17,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,7 +48,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
  
   if (!ComovingCoordinates) {
     fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (!SelfGravity)
@@ -103,7 +104,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 					  ZeldovichPancakeInitialTemperature
 						       ) == FAIL) {
     fprintf(stderr, "Error in ZeldovichPancakeInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set up field names and units */

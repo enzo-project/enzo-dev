@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -125,7 +126,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 	Temp->GridData->ClearFlaggingField();
 	if (Temp->GridData->SetFlaggingField(dummy, level-1) == FAIL) {
 	  if (isRoot) fprintf(stderr, "Error in grid->SetFlaggingField.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in: "__FILE__);
 	}
 	CellsFlagged[level] += Temp->GridData->FlagBufferZones();
 	Temp->GridData->DeleteFlaggingField();

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -181,7 +182,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++; CubeDumps[dim] = dummy;
       if (dim >= MAX_CUBE_DUMPS) {
         fprintf(stderr, "CubeDump %"ISYM" > maximum allowed.\n", dim);
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
     }
 
@@ -191,7 +192,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++; TimeActionType[dim] = int_dummy;
       if (dim >= MAX_TIME_ACTIONS-1) {
 	fprintf(stderr, "Time action %"ISYM" > maximum allowed.\n", dim);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
     if (sscanf(line, "TimeActionRedshift[%"ISYM"] = ", &dim) == 1)
@@ -356,7 +357,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
         fprintf(stderr, "StaticRegion number %"ISYM" > MAX allowed\n", dim);
-        return FAIL;
+        ENZO_FAIL("Error in: "__FILE__);
       }
       ret++;
       StaticRefineRegionLevel[dim] = int_dummy;
@@ -605,14 +606,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (CosmologyReadParameters(fptr, &MetaData.StopTime, &MetaData.Time)
 	== FAIL) {
       fprintf(stderr, "Error in ReadCosmologyParameters.\n");;
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     rewind(fptr);
   }
   else {
     if (ReadUnits(fptr) == FAIL){
       fprintf(stderr, "Error in ReadUnits. \n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     rewind(fptr);
   }
@@ -622,14 +623,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (MultiSpecies > 0)
     if (InitializeRateData(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeRateData.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
   if (MultiSpecies             == 0 && 
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeEquilibriumCoolData.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
  
@@ -638,7 +639,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11)
     if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
 	fprintf(stderr, "Error in InitializeRadiationFieldData.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */
@@ -752,7 +753,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if ( (MetaData.GlobalDir != NULL) && (MetaData.LocalDir != NULL) ) {
     fprintf(stderr, "Cannot select GlobalDir AND LocalDir!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   char *cwd_buffer = new char[MAX_LINE_LENGTH];

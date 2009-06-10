@@ -20,6 +20,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -89,7 +90,7 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField)
   if (this->DepositPositions(ParticlePosition, ParticleMassPointer,
 			     NumberOfParticles, DepositField) == FAIL) {
     fprintf(stderr, "Error in grid->DepositPositions\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* If necessary, delete the particle mass temporary. */

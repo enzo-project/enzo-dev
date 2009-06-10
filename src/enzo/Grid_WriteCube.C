@@ -22,6 +22,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -524,7 +525,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       // Copy active part of field into grid

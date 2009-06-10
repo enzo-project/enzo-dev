@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,7 +37,7 @@ int grid::ClearGravitatingMassField()
  
   if (GravitatingMassFieldCellSize == FLOAT_UNDEFINED) {
     fprintf(stderr, "GravitatingMassField uninitialized.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* compute size of the gravitating mass field */
@@ -54,7 +55,7 @@ int grid::ClearGravitatingMassField()
     GravitatingMassField = new float[size];
   if (GravitatingMassField == NULL) {
     fprintf(stderr, "malloc error (out of memory?)\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   for (i = 0; i < size; i++)

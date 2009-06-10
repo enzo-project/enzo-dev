@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,7 +40,7 @@ int grid::AddFieldMassToMassFlaggingField()
  
     if (MassFlaggingField == NULL) {
       fprintf(stderr, "MassFlaggingField not present.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Find density field */
@@ -47,7 +48,7 @@ int grid::AddFieldMassToMassFlaggingField()
     if ((DensField = FindField(Density, FieldType,
                                NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find density.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* calculate grid size */

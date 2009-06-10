@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -43,7 +44,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   FILE *fptr = fopen("cool_rates.in", "r");
   if (fptr == NULL) {
     fprintf(stderr, "Error opening cool_rates.in\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Read rate data, skipping over comments (count first). */
@@ -86,7 +87,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   if (ComovingCoordinates) {
@@ -94,7 +95,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);

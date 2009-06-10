@@ -20,6 +20,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 /* Defines */
@@ -147,7 +148,7 @@ int FastFourierTransformSGIMATH(float *buffer, int Rank, int DimensionReal[],
   /* This is an error. */
  
   fprintf(stderr, "What are we doing here!?!\n");
-  return FAIL;
+  ENZO_FAIL("Error in: "__FILE__);
  
 #endif /* IRIS4 && SGI_MATH */
  

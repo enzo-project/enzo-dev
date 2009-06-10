@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,7 +45,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
 	   - 1.0) > 1.0e-4 ||
       fabs(OmegaMatterNow - 1.0) > 1.0e-4) {
     fprintf(stderr, "SphericalInfall only works for Omega = 1");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (UseBaryons) {
@@ -82,7 +83,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
     if (POW(nint(POW(NumberOfParticles, 1.0/float(GridRank))),
 	    float(GridRank)) != NumberOfParticles) {
       fprintf(stderr, "NumberOfParticles must be N^%"ISYM".\n", GridRank);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Set ParticleDimension to be the number of particle per dim. */
@@ -102,7 +103,7 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
     if (ParticleDimension[0]*ParticleDimension[1]*ParticleDimension[2] !=
 	NumberOfParticles) {
       fprintf(stderr, "NumberOfParticles must equal active cells.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 #endif /* UNUSED */
  

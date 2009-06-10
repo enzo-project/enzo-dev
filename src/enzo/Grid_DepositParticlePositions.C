@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -134,7 +135,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
   else {
     fprintf(stderr, "DepositField = %"ISYM" not recognized.\n", DepositField);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }  
 
   /* If on different processors, generate a temporary field to hold
@@ -181,7 +182,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 		int(GridLeftEdge[dim]/CellSize));
 
 	fprintf(stderr, "Offset[%d] = %d < 0\n", dim, Offset[dim]);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       Dimension[dim] = int((GridRightEdge[dim] - LeftEdge[dim])/CellSize) + 3;
       size *= Dimension[dim];

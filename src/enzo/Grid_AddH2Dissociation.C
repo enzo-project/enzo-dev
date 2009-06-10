@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::AddH2Dissociation(Star *AllStars)
 				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				  DIINum, HDINum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Get photo-ionization fields */
@@ -64,7 +65,7 @@ int grid::AddH2Dissociation(Star *AllStars)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* For now, initialize H2 photo-dissociation field. */
@@ -89,7 +90,7 @@ int grid::AddH2Dissociation(Star *AllStars)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   // Absorb the unit conversions into the cross-section
@@ -111,7 +112,7 @@ int grid::AddH2Dissociation(Star *AllStars)
 
     if (cstar->ComputePhotonRates(energies, Luminosity) == FAIL) {
       fprintf(stderr, "Error in ComputePhotonRates.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     H2Luminosity = Luminosity[3];
 

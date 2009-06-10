@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -96,11 +97,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   if ((fptr = fopen(name, "r")) == NULL) {
     fprintf(stderr, "Error opening input file %s.\n", name);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
     fprintf(stderr, "Error in ReadParameterFile.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Close main file. */
@@ -112,19 +113,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   if(LoadGridDataAtStart){    
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }else{
     if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
   }
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
@@ -154,7 +155,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TASKMAP
   if ((mptr = fopen(memorymapname, "r")) == NULL) {
     fprintf(stderr, "Error opening MemoryMap file %s.\n", memorymapname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   Eint64 GridIndex[MAX_NUMBER_OF_TASKS], OldPN, Mem[MAX_NUMBER_OF_TASKS];
@@ -169,7 +170,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
     fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   fclose(mptr);
@@ -186,7 +187,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   // #ifdef SINGLE_HDF5_OPEN_ON_INPUT
   //   if ((tptr = fopen(taskmapname, "r")) == NULL) {
   //     fprintf(stderr, "Error opening TaskMap file %s.\n", taskmapname);
-  //     return FAIL;
+  //     ENZO_FAIL("Error in: "__FILE__);
   //   }
   
   //   Eint64 OldPN;
@@ -213,19 +214,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   if ((fptr = fopen(hierarchyname, "r")) == NULL) {
     fprintf(stderr, "Error opening hierarchy file %s.\n", hierarchyname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
   GridID = 1;
   if (ReadDataHierarchy(fptr, TopGrid, GridID, NULL) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
 
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr) == FAIL) {
     fprintf(stderr, "Error in ReadStarParticleData.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Create radiation name and read radiation data. */
@@ -236,11 +237,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     strcat(radiationname, RadiationSuffix);
     if ((Radfptr = fopen(radiationname, "r")) == NULL) {
       fprintf(stderr, "Error opening radiation file %s.\n", name);
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
       fprintf(stderr, "Error in ReadRadiationData.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
     fclose(Radfptr);
   }

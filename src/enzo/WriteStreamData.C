@@ -13,6 +13,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -59,7 +60,7 @@ int WriteStreamData(HierarchyEntry *Grids[], int NumberOfGrids,
 			  MetaData->StopTime,
 			  EndStep, CycleCount) == FAIL) {
       fprintf(stderr, "Error in WriteNewMovie.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
 
   } /* END: grid loop */

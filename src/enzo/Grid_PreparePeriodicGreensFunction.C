@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,7 +37,7 @@ int grid::PreparePeriodicGreensFunction(region *GreensRegion)
   if (GravityBoundaryType != TopGridPeriodic) {
     fprintf(stderr, "GravityBoundaryType %"ISYM" not supported.\n",
 	    GravityBoundaryType);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* -------------------------------------------------- */

@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -234,7 +235,7 @@ int grid::ComputeElementalDensity(float *temperature,
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
     fprintf(stderr, "Cannot find density.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Find metallicity field and set flag. */
@@ -253,7 +254,7 @@ int grid::ComputeElementalDensity(float *temperature,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Set lookup table pointer and size. */
@@ -268,7 +269,7 @@ int grid::ComputeElementalDensity(float *temperature,
   case 6: break; /* general Oxygen */
   default:
     fprintf(stderr, "Unrecognized element type: %"ISYM"\n", Type);
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   if (Type < 6) {
@@ -292,15 +293,15 @@ int grid::ComputeElementalDensity(float *temperature,
       printf("reading %s\n", filename);
       if ((fptr = fopen(filename, "r")) == NULL) {
 	fprintf(stderr, "Erroring opening %s.\n", filename);
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       if (fscanf(fptr, "NumberOfDensityPoints = %"ISYM"\n", TableSize) != 1) {
 	fprintf(stderr, "Erroring reading number of density points\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       if (fscanf(fptr, "NumberOfTemperaturePoints = %"ISYM"\n", TableSize+1) != 1) {
 	fprintf(stderr, "Erroring reading number of temperature points\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
       printf("NumberOfBins (temp,dens) = %"ISYM",%"ISYM"\n", TableSize[0], TableSize[1]);
  
@@ -313,7 +314,7 @@ int grid::ComputeElementalDensity(float *temperature,
 		     TableDensity+i, TableTemperature+j,
 		     LookupTable+n, &DummyFloat) != 4) {
 	    fprintf(stderr, "Error reading table %"ISYM" %"ISYM"\n", i, j);
-	    return FAIL;
+	    ENZO_FAIL("Error in: "__FILE__);
 	  }
       fclose(fptr);
       TableRead = TRUE;

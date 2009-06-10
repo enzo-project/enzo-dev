@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,7 +58,7 @@ int grid::ComputeGammaField(float *GammaField)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("Error in: "__FILE__);
     }
  
     /* Compute the temperature. */

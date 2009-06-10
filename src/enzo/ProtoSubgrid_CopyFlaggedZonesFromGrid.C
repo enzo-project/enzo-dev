@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,7 +39,7 @@ int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid)
  
   if (Grid->FlaggingField == NULL) {
     fprintf(stderr, "FlaggingField absent in grid!\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* Set scalars. */

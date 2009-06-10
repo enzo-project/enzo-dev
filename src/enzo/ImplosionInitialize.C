@@ -49,6 +49,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -142,7 +143,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      ImplosionTotalEnergy,
 					      ImplosionVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
   /* set up the diamond */
@@ -151,7 +152,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      ImplosionDiamondTotalEnergy)
       == FAIL) {
     fprintf(stderr, "Error in ImplosionInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("Error in: "__FILE__);
   }
  
  
@@ -216,7 +217,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						   ImplosionTotalEnergy,
 					        ImplosionVelocity) == FAIL) {
 	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
  
       /* set up the diamond */
@@ -226,7 +227,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				  ImplosionDiamondTotalEnergy)
 	  == FAIL) {
 	fprintf(stderr, "Error in ImplosionInitialize[Sub]Grid.\n");
-	return FAIL;
+	ENZO_FAIL("Error in: "__FILE__);
       }
     }
     else
