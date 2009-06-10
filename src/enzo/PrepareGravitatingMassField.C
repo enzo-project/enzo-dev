@@ -29,7 +29,7 @@
 
 /* function prototypes */
 
-#ifndef SIB3
+#ifndef FAST_SIB
 int CopyOverlappingParticleMassFields(grid* CurrentGrid,
 				      TopGridData *MetaData,
 				      LevelHierarchyEntry *LevelArray[],
@@ -78,7 +78,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
 
 /************************************************************************/
 
-#ifdef SIB3
+#ifdef FAST_SIB
 int PrepareGravitatingMassField2(HierarchyEntry *Grid, int grid1,
 				 SiblingGridList SiblingList[],
 				 TopGridData *MetaData, int level,
@@ -112,7 +112,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
  
 //  fprintf(stderr, "  PGMF - CopyOverlappingParticleMassField\n");
  
-#ifdef SIB3
+#ifdef FAST_SIB
   for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
     if (CurrentGrid->CheckForOverlap(SiblingList[grid1].GridList[grid2],
                                      MetaData->LeftFaceBoundaryCondition,
