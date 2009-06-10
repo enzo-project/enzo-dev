@@ -661,6 +661,8 @@
     ifeq ($(CONFIG_USE_MPI),yes)
         ERROR_USE_HDF4 = 0
         ASSEMBLE_HDF4_DEFINES  = -DUSE_HDF4
+        ASSEMBLE_PACKED_MEM_DEFINES = 
+        ASSEMBLE_PACKED_AMR_DEFINES = 
     endif
 
     # compilers and settings if USE_MPI is no

@@ -138,6 +138,11 @@ help-config:
 	@echo "      gmake load-balance-yes"
 	@echo "      gmake load-balance-no"
 	@echo 
+	@echo "   Set whether to use HDF4"
+	@echo
+	@echo "      gmake use-hdf4-yes"
+	@echo "      gmake use-hdf4-no"
+	@echo
 
 #-----------------------------------------------------------------------
 
@@ -194,6 +199,7 @@ show-config:
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_LOAD_BALANCE:          $(CONFIG_LOAD_BALANCE)" 
+	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -618,4 +624,21 @@ CONFIG_LOAD_BALANCE-%:
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_LOAD_BALANCE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE) show-config | grep CONFIG_LOAD_BALANCE:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_USE-HDF4 = use-hdf4-yes use-hdf4-no
+.PHONY: $(VALID_USE-HDF4)
+
+use-hdf4-yes: CONFIG_USE-HDF4-yes
+use-hdf4-no: CONFIG_USE-HDF4-no
+use-hdf4-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_USE-HDF4)]\n\n"
+CONFIG_USE-HDF4-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_USE_HDF4 $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_USE_HDF4 = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_USE_HDF4:
 	@echo
