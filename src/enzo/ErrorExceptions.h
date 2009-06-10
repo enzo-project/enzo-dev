@@ -26,11 +26,14 @@
  class EnzoFatalException
  {
  public:
-     EnzoFatalException()
+     EnzoFatalException(const char * error_msg)
      {
          void * array[25];
          int nSize = backtrace(array, 25);
          char ** symbols = backtrace_symbols(array, nSize);
+         fprintf(stderr, "Caught fatal exception:\n\n");
+         fprintf(stderr, "   '%s'\n\n", error_msg);
+         fprintf(stderr, "Backtrace:\n\n");
 
          for (int i = 0; i < nSize; i++)
          {

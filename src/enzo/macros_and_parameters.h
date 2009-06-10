@@ -8,6 +8,7 @@
 
 #include "message.h"
 
+#define ENZO_FAIL(A) throw(EnzoFatalException(A));
 
 /* Modifiable Parameters */
 
