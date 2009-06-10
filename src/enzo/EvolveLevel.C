@@ -97,16 +97,16 @@ float CommunicationMinValue(float Value);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
  
-#ifdef SIB3
+#ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
 			int level, TopGridData *MetaData, FLOAT When);
-#else  // !SIB3
+#else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
-#endif  // end SIB3
+#endif  // end FAST_SIB
  
-#ifdef SIB2
+#ifdef FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData,
@@ -118,7 +118,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
 #ifdef SAB
-#ifdef SIB2
+#ifdef FAST_SIB
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
@@ -365,7 +365,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* For each grid: a) interpolate boundaries from its parent.
                     b) copy any overlapping zones.  */
  
-#ifdef SIB2
+#ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
     return FAIL;
@@ -558,20 +558,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     When = 0.5;
  
-#ifdef SIB3
+#ifdef FAST_SIB
     if (SelfGravity)
       if (PrepareDensityField(LevelArray, SiblingList,
 			      level, MetaData, When) == FAIL) {
 	fprintf(stderr, "Error in PrepareDensityField.\n");
 	return FAIL;
       }
-#else   // !SIB3
+#else   // !FAST_SIB
     if (SelfGravity)
       if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
         return FAIL;
       }
-#endif  // end SIB3
+#endif  // end FAST_SIB
  
  
 //  fprintf(stderr, "%"ISYM": EvolveLevel: Exit PrepareDensityField\n", MyProcessorNumber);
@@ -688,7 +688,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     if ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0) {
-#ifdef SIB2
+#ifdef FAST_SIB
       if( SetAccelerationBoundary(Grids, NumberOfGrids,
 				  SiblingList,
 				  level, MetaData,
@@ -894,7 +894,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     JBPERF_START("evolve-level-21"); // SetBoundaryConditions()
     TIME_MSG("EvolveLevel: after main loop");
 
-#ifdef SIB2
+#ifdef FAST_SIB
     if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			      level, MetaData, Exterior, LevelArray[level]) == FAIL)
       return FAIL;
@@ -967,17 +967,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       CopyGravPotential = TRUE;
       When = 0.0;
  
-#ifdef SIB3
+#ifdef FAST_SIB
       if (PrepareDensityField(LevelArray, SiblingList, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
         return FAIL;
       }
-#else   // !SIB3
+#else   // !FAST_SIB
       if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
         return FAIL;
       }
-#endif  // end SIB3
+#endif  // end FAST_SIB
  
       CopyGravPotential = FALSE;
  
