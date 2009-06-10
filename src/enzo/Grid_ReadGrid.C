@@ -293,11 +293,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
 #ifdef USE_HDF4
       fprintf(stderr, "Here I am!\n");
-      fprintf(stderr, "Here I am!\n");
-#endif
 
-      /*      
-#ifdef USE_HDF4
       if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
 	fprintf(stderr, "Error opening file %s.\n", name);
 	return FAIL;
@@ -316,7 +312,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       SDendaccess(sds_id);
       sds_index--;
 #endif 
-      */
 
       /* fill in ActiveDim for dims up to 3d */
  
@@ -353,19 +348,12 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
 #ifdef USE_HDF4
       fprintf(stderr, "Here I am!-2\n");
-      fprintf(stderr, "Here I am!-2\n");
-#endif
-
-	/*
-#ifdef USE_HDF4
       if (ReadField(temp, TempIntArray2, GridRank, active_size, sd_id, 
 		    sds_index, name) == FAIL) {
 	fprintf(stderr, "Error reading field %d.\n", field);
 	return FAIL;
       }
 #else
-	*/
-
 	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
@@ -402,7 +390,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 		float(temp[(i-GridStartIndex[0])                         +
 			   (j-GridStartIndex[1])*ActiveDim[0]            +
 			   (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ]);
-	//#endif 
+#endif 
 
       } // end: loop over fields
  
