@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 
   if (MetaData.TopGridRank != 3) {
     printf("Cannot do ProtostellarCollapse in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }    
 
   /* Setup and parameters:
@@ -137,7 +138,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 					      ProtostellarCollapseOuterEnergy,
 					      ProtostellarCollapseVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Create as many subgrids as there are refinement levels 
@@ -226,7 +227,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 							ProtostellarCollapseOuterEnergy,
 							ProtostellarCollapseVelocity) == FAIL) {
 	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       /* set up the dense core on the finest resolution subgrid */
@@ -239,7 +240,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				    ProtostellarCollapseAngularVelocity) 
 	    == FAIL) {
 	  fprintf(stderr, "Error in ProtostellarCollapseInitialize[Sub]Grid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
     }
     else
@@ -254,7 +255,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			     *(Subgrid[lev-1]->GridData))
 	  == FAIL) {
 	fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
   
   /* set up the root grid */
@@ -263,7 +264,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   else
@@ -273,7 +274,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			  ProtostellarCollapseCoreRadius,
 			  ProtostellarCollapseAngularVelocity) == FAIL) {
       fprintf(stderr, "Error in ProtostellarCollapseInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   /* set up field names and units */

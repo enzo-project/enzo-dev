@@ -24,6 +24,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -331,7 +332,7 @@ int grid::WriteGridX(FILE *fptr, char *base_name, int grid_id)
       float *temperature = new float[size];
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* Copy active part of field into grid */

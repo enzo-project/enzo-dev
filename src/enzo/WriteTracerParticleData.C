@@ -21,6 +21,7 @@
  
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,7 +68,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, WriteTime) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(WriteTime, &a, &dadt);
@@ -87,7 +88,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
  
   if ((fptr = fopen(name, "ab")) == NULL) {
     fprintf(stderr, "Error opening output file %s\n", name);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Output header information to the file :
@@ -135,7 +136,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
  
       if (Temp->GridData->TracerParticleOutputData(fptr, WriteTime) == FAIL) {
 	fprintf(stderr, "Error in grid->OutputTracerParticleData.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* Next grid on this level. */

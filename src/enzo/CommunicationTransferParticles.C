@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,7 +92,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
              SendList[GridsToSend].Pointer,
 	     COPY_OUT) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       GridsToSend++;
     }
@@ -182,7 +183,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     }
     if (NumberOfSharedGrids != NumberOfGrids) {
       fprintf(stderr, "CTP error\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
 /*
@@ -337,7 +338,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	      NumberOfGrids, SharedList[grid].ToGrid, LocalNumberToMove,
 	      LocalPointer, COPY_IN) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticless\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     } // end: if grid is on my processor

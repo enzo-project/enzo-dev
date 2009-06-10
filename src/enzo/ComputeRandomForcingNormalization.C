@@ -11,6 +11,7 @@
 ************************************************************************/
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,7 +45,7 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
  
   if (level != 0) {
     fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Create an array (Grids) of all the grids on level 0. */
@@ -64,7 +65,7 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 								 GlobNum)
 	== FAIL) {
       fprintf(stderr, "Error in grid->PrepareRandomForcingNormalization.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Communicate grid-specific sums and compute global sums;

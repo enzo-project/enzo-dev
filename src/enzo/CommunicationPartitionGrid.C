@@ -20,6 +20,7 @@
 #include <string.h>
 #include <math.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -98,7 +99,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
   if (MPI_Dims_create(Nnodes, Ndims, LayoutDims) != MPI_SUCCESS) {
     fprintf(stderr, "Error in MPI_Dims_create.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 */
 
@@ -108,7 +109,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 
   if (Enzo_Dims_create(Nnodes, Ndims, LayoutDims) != SUCCESS) {
     fprintf(stderr, "Error in Enzo_Dims_create.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   for (dim = 0; dim < Rank; dim++)
@@ -255,7 +256,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     if (ParentGridNum == INT_UNDEFINED) {
       fprintf(stderr, "CommunicationPartitionGrid: grid %d, Parent not found?\n",
 	      gridnum);
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -481,7 +482,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  if (OldGrid->ZeroSolutionUnderSubgrid(NewGrid,
 		   ZERO_UNDER_SUBGRID_FIELD, float(gridcounter+1)) == FAIL) {
 	    fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	SubGrids[gridcounter] = NewGrid;
  
@@ -498,7 +499,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   if (!ParallelRootGridIO)
     if (OldGrid->MoveSubgridParticlesFast(gridcounter, SubGrids, TRUE) == FAIL) {
       fprintf(stderr, "Error in grid->MoveSubgridParticlesFast.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   delete [] SubGrids;
@@ -548,7 +549,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
           if (NewGrid->CopyZonesFromGrid(OldGrid, Zero) == FAIL) {
             fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-            return FAIL;
+            ENZO_FAIL("");
           }
 
         } // ENDIF no PartitionNestedGrids
@@ -561,7 +562,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
         if(NewGrid->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge) == FAIL) {
           fprintf(stderr, "Error in grid->ReturnGridInfo.\n");
-          return FAIL;
+          ENZO_FAIL("");
         }
  
 	/* Move Grid from current processor to new Processor. */

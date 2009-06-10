@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -51,7 +52,7 @@ int Star::CalculateMassAccretion(void)
   if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					      Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find Multi-species fields. */
@@ -62,7 +63,7 @@ int Star::CalculateMassAccretion(void)
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
 	== FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   int igrid[MAX_DIMENSION], dim, index, size = 1;
@@ -77,7 +78,7 @@ int Star::CalculateMassAccretion(void)
 
   if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in ComputeTemperatureField.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (AccretionType == LOCAL_ACCRETION) {
@@ -146,7 +147,7 @@ int Star::CalculateMassAccretion(void)
       AccretionType == RADIAL_ACCRETION) {
     fprintf(stderr, "AccretionType = %"ISYM" not implemented yet.\n", 
 	    AccretionType);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   delete [] temperature;

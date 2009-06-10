@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,21 +43,21 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->FindAllStarParticles(level) == FAIL) {
 	  fprintf(stderr, "Error in grid::FindAllStarParticles.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
   /* Create a master list of all star particles */
 
   if (StarParticleFindAll(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleFindAll.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Merge any newly created, clustered particles */
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleMergeNew.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* 

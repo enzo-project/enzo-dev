@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -68,7 +69,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   GridPointer[0]->ReturnGridInfo(&Rank, Dims, Left, Right); // need rank
   if (Enzo_Dims_create(NumberOfGrids, Rank, LayoutTemp) == FAIL) {
     fprintf(stderr, "Error in Enzo_Dims_create.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Layout[MAX_DIMENSION-1-dim] = LayoutTemp[dim];
@@ -110,7 +111,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 				       NumberToMove, Zero, Zero, SendList, 
 				       Layout, GridMap, COPY_OUT) == FAIL) {
       fprintf(stderr, "Error in grid->CommunicationTransferParticles(OUT).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   int TotalNumberToMove = 0;
@@ -140,7 +141,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   if (CommunicationShareParticles(NumberToMove, SendList, NumberOfReceives,
 				  SharedList) == FAIL) {
     fprintf(stderr, "Error in CommunicationShareParticles.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 #endif
@@ -164,7 +165,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	  (GridPointer, NumberOfGrids, j, NumberToMove, jstart, jend, 
 	   SharedList, Layout, GridMap, COPY_IN) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticles(IN).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       jstart = jend;
     } // ENDFOR grids
@@ -183,7 +184,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
       if (GridPointer[j]->ReturnProcessorNumber() == MyProcessorNumber)
 	if (GridPointer[j]->CleanUpMovedParticles() == FAIL) {
 	  fprintf(stderr, "Error in grid->CleanUpMovedParticles.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
   } // ENDELSE NumberOfReceives > 0
@@ -198,7 +199,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     for (j = SharedList[NumberOfReceives-1].grid; j < NumberOfGrids; j++)
       if (GridPointer[j]->CleanUpMovedParticles() == FAIL) {
 	fprintf(stderr, "Error in grid->CleanUpMovedParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
   if (MyProcessorNumber == ROOT_PROCESSOR && NumberOfReceives > 0)

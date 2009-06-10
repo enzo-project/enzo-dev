@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::AddRadiationPressureAcceleration()
   if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
       == FAIL) {
     fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Add acceleration fields from radiation pressure */

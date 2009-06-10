@@ -50,6 +50,7 @@
 #endif /* USE_MPI */
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -110,12 +111,12 @@ int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 #ifdef FAST_SIB
   if (ComputePotentialFieldLevelZeroPer(MetaData, SiblingList, Grids, NumberOfGrids) == FAIL) {
     fprintf(stderr, "Error in ComputePotentialFieldLevelZeroPer.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }   
 #else
   if (ComputePotentialFieldLevelZeroPer(MetaData, Grids, NumberOfGrids) == FAIL) {
     fprintf(stderr, "Error in ComputePotentialFieldLevelZeroPer.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 #endif
     
@@ -167,7 +168,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(MidTime, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* If we are doing an isolated case then we do not have to tranpose the field
@@ -195,7 +196,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 	if (Grids[grid1]->GridData->PreparePeriodicGreensFunction(
 					     &(GreensRegion[grid1])) == FAIL) {
 	  fprintf(stderr, "Error in grid->PreparePeriodicGreensFunction.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
     } else {
@@ -212,7 +213,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 					  MetaData) 
 	    == FAIL) {
 	  fprintf(stderr, "Error in PrepareIsolatedGreensFunction.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
       /* Forward FFT Greens function. */
@@ -223,7 +224,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				   DomainDim, MetaData->TopGridRank,
 				   FFT_FORWARD, TransposeOnCompletion) == FAIL) {
 	fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       /* Clean up. */
@@ -234,7 +235,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 #else  /* ISOLATED_GRAVITY */
 
       fprintf(stderr, "You do not have isolated BC's turned on.  Recompile.\n");
-      return FAIL;
+      ENZO_FAIL("");
 
 #endif /* ISOLATED_GRAVITY */
  
@@ -252,7 +253,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 					  GRAVITATING_MASS_FIELD, DomainDim)
 	== FAIL) {
       fprintf(stderr, "Error in grid->PrepareFFT.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
 #ifdef ISOLATED_GRAVITY
@@ -276,7 +277,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 			       FFT_FORWARD, TRUE) == FAIL) {
 #endif /* ISOLATED_GRAVITY */
     fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Quick error check. */
@@ -284,7 +285,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   if (NumberOfOutRegions != NumberOfGreensRegions) {
     fprintf(stderr, "OutRegion(%"ISYM") != GreensRegion(%"ISYM")\n", NumberOfOutRegions,
 	    NumberOfGreensRegions);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Compute coefficient for Greens function. */
@@ -346,7 +347,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 			       FFT_INVERSE, TRUE) == FAIL) {
 #endif /* ISOLATED_GRAVITY */
     fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Copy Potential in active region into while grid. */
@@ -355,7 +356,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
     if (Grids[grid1]->GridData->FinishFFT(&InitialRegion[grid1], POTENTIAL_FIELD,
 			       DomainDim) == FAIL) {
       fprintf(stderr, "Error in grid->FinishFFT.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Update boundary regions of potential
@@ -376,7 +377,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       Grids[grid1]->GridData->SetIsolatedPotentialBoundary();
 #else  /* ISOLATED_GRAVITY */
     fprintf(stderr, "recompile with isolated boundary conditions turned on!\n");
-    return FAIL;
+    ENZO_FAIL("");
 #endif /* ISOLATED_GRAVITY */
   }
 
@@ -399,7 +400,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempRight,
 				      &grid::CopyPotentialField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 #else
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
@@ -408,7 +409,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempLeft, BCTempRight,
      	                              &grid::CopyPotentialField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 #endif
 
@@ -429,7 +430,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempRight,
 				      &grid::CopyPotentialField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	return FAIL;
+	ENZO_FAIL("");
      }
 #else
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
@@ -438,7 +439,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempLeft, BCTempRight,
      	                              &grid::CopyPotentialField) == FAIL) {
 	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 #endif 
 
@@ -449,7 +450,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   /* Process the receives */
 
   if (CommunicationReceiveHandler() == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  

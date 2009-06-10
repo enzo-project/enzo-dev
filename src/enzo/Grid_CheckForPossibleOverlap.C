@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -141,7 +142,7 @@ int grid::CheckForPossibleOverlapHelper(grid *OtherGrid,
 	  OtherGrid->GravitatingMassFieldDimension[dim]);
  
     if (Left[dim]+0.5*GravitatingMassFieldCellSize >= Right[dim])
-      return FAIL;
+      ENZO_FAIL("");
   }
  
   return TRUE;

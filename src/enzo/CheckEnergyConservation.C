@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -61,7 +62,7 @@ int CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
   if (Grids[grid]->GridData->ComputeEnergy(&EnergySum[level][0]) ==
       FAIL) {
     fprintf(stderr, "Error in grid->ComputeEnergy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* If this is the last grid, sum it up and output result. */
@@ -111,7 +112,7 @@ int CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
     FILE *fptr;
     if ((fptr = fopen("amr_energy.out", "a")) == NULL) {
       fprintf(stderr, "error opening amr_energy.out\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (PrintHeader) {

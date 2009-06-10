@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -32,7 +33,7 @@ int ProtoSubgrid::ComputeSignature(int dim)
  
   if (dim >= GridRank) {
     fprintf(stderr, "Project: dim = %"ISYM" > GridRank = %"ISYM"\n", dim, GridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Already done? */

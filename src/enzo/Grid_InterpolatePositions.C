@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -45,12 +46,12 @@ int grid::InterpolatePositions(FLOAT *Position[], int dim, float *Field,
  
   if (InterpolationField == NULL) {
     fprintf(stderr, "AccelerationField[%"ISYM"] absent.\n", dim);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (GravitatingMassFieldCellSize <= 0) {
     fprintf(stderr, "GravitatingMassFieldCellSize undefined.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Set the left edge of the field. */

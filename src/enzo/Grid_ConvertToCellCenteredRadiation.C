@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -43,7 +44,7 @@ int grid::ConvertToCellCenteredRadiation()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   int rkph, rgamma, field;
@@ -67,21 +68,21 @@ int grid::ConvertToCellCenteredRadiation()
 
       if (InterpolatedField[rkph] == NULL) {
 	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rkph);
-	return FAIL;
+	ENZO_FAIL("");
       }
       if (InterpolatedField[rgamma] == NULL) {
 	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rgamma);
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       if (this->ComputeCellCenteredField(rkph) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCellCenteredField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       if (this->ComputeCellCenteredField(rgamma) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCellCenteredField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
     } // ENDIF fields to interpolate

@@ -12,6 +12,7 @@
  
 // Delete all the data associated with the fluxes structure in the argument
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "Fluxes.h"
  

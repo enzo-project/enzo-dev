@@ -22,6 +22,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -265,17 +266,17 @@ int ReadGridFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (Npart != component_rank_attr) {
     fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (TempInt != Rank) {
     fprintf(stderr, "Rank mismatch in %s.\n", name);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Compute size of the expected HDF5 field
@@ -289,7 +290,7 @@ int ReadGridFile(char *name, int Rank, int Dim[], int StartIndex[],
 
   if (size != xfer_size ) {
     fprintf(stderr, "Expected size and HDF5 grid file size do not agree.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   for (dim = 0; dim < Rank; dim++) {

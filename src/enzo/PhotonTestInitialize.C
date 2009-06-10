@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -233,7 +234,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   if (ProblemType == 50)
     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in ReadPhotonSources.\n");;
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   PhotonTime = InitialTimeInCodeUnits;
@@ -261,7 +262,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
 	     RefineByOpticalDepth) == FAIL) {
     fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Convert minimum initial overdensity for refinement to mass
@@ -292,7 +293,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     for (level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -314,7 +315,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 	     RefineByOpticalDepth) == FAIL) {
 	  fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -336,7 +337,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       for (level2 = level-1; level2 < MaximumRefinementLevel; level2++) {
 	if (RebuildHierarchy(&MetaData, LevelArray, level2) == FAIL) {
 	  fprintf(stderr, "Error in RebuildHierarchy.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}	
 
 	if (LevelArray[level2+1] == NULL)
@@ -360,7 +361,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 		    RefineByOpticalDepth) == FAIL) {
 	    fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -374,7 +375,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	  if (Temp->GridData->ProjectSolutionToParentGrid(
 				  *LevelArray[level-1]->GridData) == FAIL) {
 	    fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}

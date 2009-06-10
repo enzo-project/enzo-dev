@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -85,7 +86,7 @@ int grid::MergePausedPhotonPackages() {
     if (pix2vec_nest((long) (1 << PP->level), PP->ipix, original_vec) == FAIL) {
       fprintf(stderr, "grid::MergePausedPhotonPackages -- pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
 	      (long) (1 << PP->level), PP->ipix, PP->Photons);
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     length = 0.0;
@@ -119,7 +120,7 @@ int grid::MergePausedPhotonPackages() {
     if (vec2pix_nest( (long) (1 << PP->level), vec, &(PP->ipix) ) == FAIL) {
       fprintf(stderr, "grid::MergePausedPhotonPackages -- vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
 	      (long) (1 << PP->level), PP->ipix, PP->Photons);
-      return FAIL;
+      ENZO_FAIL("");
     }
     //      printf("after %x:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
     //	     PP, PP->level, PP->ipix, PP->Radius,
