@@ -499,8 +499,9 @@ Eint32 main(Eint32 argc, char *argv[])
     }
   }
   } catch(EnzoFatalException&) {
-    fprintf(stderr, "Got an exception!\n");
-    my_exit(EXIT_FAILURE);
+    fprintf(stderr, "Failure reported on processor %"ISYM"\n",
+                MyProcessorNumber);
+    CommunicationAbort(EXIT_FAILURE);
   }
 
  
