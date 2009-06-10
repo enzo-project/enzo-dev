@@ -81,7 +81,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereTemperature[MAX_SPHERES],
     CollapseTestSphereVelocity[MAX_SPHERES][MAX_DIMENSION],
     CollapseTestUniformVelocity[MAX_DIMENSION],
-    CollapseTestFracKeplarianRot[MAX_SPHERES],
+    CollapseTestFracKeplerianRot[MAX_SPHERES],
     CollapseTestSphereTurbulence[MAX_SPHERES],
     CollapseTestSphereDispersion[MAX_SPHERES],
     CollapseTestSphereCutOff[MAX_SPHERES],
@@ -99,7 +99,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereCoreRadius[sphere] = 0.1;
     CollapseTestSphereDensity[sphere]    = 1.0;
     CollapseTestSphereTemperature[sphere] = 1.0;
-    CollapseTestFracKeplarianRot[sphere] = 0.0;
+    CollapseTestFracKeplerianRot[sphere] = 0.0;
     CollapseTestSphereTurbulence[sphere] = 0.0;
     CollapseTestSphereDispersion[sphere] = 0.0;
     CollapseTestSphereCutOff[sphere] = 6.5;
@@ -174,9 +174,9 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		    &sphere, &CollapseTestSphereVelocity[sphere][0],
 		    &CollapseTestSphereVelocity[sphere][1],
 		    &CollapseTestSphereVelocity[sphere][2]);
-    if (sscanf(line, "CollapseTestFracKeplarianRot[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "CollapseTestFracKeplarianRot[%"ISYM"] = %"FSYM, &sphere,
-                    &CollapseTestFracKeplarianRot[sphere]);
+    if (sscanf(line, "CollapseTestFracKeplerianRot[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "CollapseTestFracKeplerianRot[%"ISYM"] = %"FSYM, &sphere,
+                    &CollapseTestFracKeplerianRot[sphere]);
     if (sscanf(line, "CollapseTestSphereTurbulence[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "CollapseTestSphereTurbulence[%"ISYM"] = %"FSYM, &sphere,
                     &CollapseTestSphereTurbulence[sphere]);
@@ -214,7 +214,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	     CollapseTestSphereCoreRadius, CollapseTestSphereDensity,
 	     CollapseTestSphereTemperature, CollapseTestSphereMetallicity,
 	     CollapseTestSpherePosition, CollapseTestSphereVelocity,
-             CollapseTestFracKeplarianRot, CollapseTestSphereTurbulence,
+             CollapseTestFracKeplerianRot, CollapseTestSphereTurbulence,
 	     CollapseTestSphereDispersion,
              CollapseTestSphereCutOff, CollapseTestSphereAng1,
              CollapseTestSphereAng2, CollapseTestSphereNumShells,
@@ -318,7 +318,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  CollapseTestSphereCoreRadius, CollapseTestSphereDensity,
 		  CollapseTestSphereTemperature, CollapseTestSphereMetallicity,
 		  CollapseTestSpherePosition, CollapseTestSphereVelocity,
-		  CollapseTestFracKeplarianRot, CollapseTestSphereTurbulence,
+		  CollapseTestFracKeplerianRot, CollapseTestSphereTurbulence,
 		  CollapseTestSphereDispersion,
 		  CollapseTestSphereCutOff, CollapseTestSphereAng1,
 		  CollapseTestSphereAng2, CollapseTestSphereNumShells,
@@ -363,7 +363,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		 CollapseTestSphereCoreRadius, CollapseTestSphereDensity,
 		 CollapseTestSphereTemperature, CollapseTestSphereMetallicity,
 		 CollapseTestSpherePosition, CollapseTestSphereVelocity,
-		 CollapseTestFracKeplarianRot, CollapseTestSphereTurbulence,
+		 CollapseTestFracKeplerianRot, CollapseTestSphereTurbulence,
 		 CollapseTestSphereDispersion,
 		 CollapseTestSphereCutOff, CollapseTestSphereAng1,
 		 CollapseTestSphereAng2, CollapseTestSphereNumShells,
@@ -472,8 +472,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(Outfptr, "CollapseTestSphereVelocity[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			CollapseTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "CollapseTestFracKeplarianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              CollapseTestFracKeplarianRot[sphere]);
+      fprintf(Outfptr, "CollapseTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
+              CollapseTestFracKeplerianRot[sphere]);
       fprintf(Outfptr, "CollapseTestSphereTurbulence[%"ISYM"] = %"GOUTSYM"\n", sphere,
               CollapseTestSphereTurbulence[sphere]);
       fprintf(Outfptr, "CollapseTestSphereCutOff[%"ISYM"] = %"GOUTSYM"\n", sphere,
