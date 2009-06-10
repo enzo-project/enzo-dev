@@ -31,7 +31,7 @@
  
 /* Call correct routine for single/double precision. */
  
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define RTOC(X)          scfft##X
 #define RTOC_INVERSE(X)  csfft##X
 #define RTOC_SCALE(X)    sscal##X
@@ -40,7 +40,7 @@
 #define CMPLX_CAST    (complex *)
 #endif /* r4 */
  
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define RTOC(X)          dzfft##X
 #define RTOC_INVERSE(X)  zdfft##X
 #define RTOC_SCALE(X)    dscal##X

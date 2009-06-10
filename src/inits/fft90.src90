@@ -139,11 +139,11 @@ MODULE singleton
   PRIVATE
   PUBLIC:: fft, fftn, fftkind
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
   REAL*4 :: TYPE_DUMMY
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
   REAL*8 :: TYPE_DUMMY
 #endif
 
