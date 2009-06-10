@@ -1,6 +1,6 @@
 #ifdef XT3
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 
       subroutine acml_st1(x, n1, idir)
 
@@ -42,7 +42,7 @@
 
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 
       subroutine acml_st1(x, n1, idir)
 

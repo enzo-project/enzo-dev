@@ -1,6 +1,6 @@
 #ifdef ALTIX
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 
 
       subroutine sgi_st1(x, n1, idir)
@@ -45,7 +45,7 @@
 
 
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 
       subroutine sgi_st1(x, n1, idir)
 

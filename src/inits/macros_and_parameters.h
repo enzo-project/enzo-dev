@@ -108,7 +108,7 @@ typedef int            MPI_Arg;
 #define ABS(A) labs((long_int) (A))
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define Eflt float
 #define FLOAT float
 #define FSYM "f"
@@ -118,7 +118,7 @@ typedef int            MPI_Arg;
 #define HDF5_FILE_REAL HDF5_FILE_R4
 #endif /* r4 */
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define Eflt double
 #define FLOAT double
 #define FSYM "lf"
