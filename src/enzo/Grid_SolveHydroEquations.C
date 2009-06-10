@@ -17,6 +17,7 @@
 //
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,6 +58,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 {
 
   /* Return if this doesn't concern us. */
+  throw EnzoFatalException();
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
