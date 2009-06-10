@@ -12,7 +12,10 @@
 ************************************************************************/
  
 //  Input a grid from file pointer fpt
- 
+
+#ifdef USE_HDF4
+#include "mfhdf.h"
+#endif /* USE_HDF4 */
 #include <hdf5.h>
 #include <string.h>
 #include <stdio.h>
@@ -38,6 +41,9 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
+#ifdef USE_HDF4
+static int32 sd_id, sds_index; // HDF4 (SD) handlers (type 1 I/O)                                                  
+#endif /* USE_HDF4 */
  
 int grid::ReadGrid(FILE *fptr, int GridID, 
 		   int ReadText, int ReadData)
@@ -71,6 +77,12 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
                                     "metallicity_fraction", "alpha_fraction"};
+
+#ifdef USE_HDF4
+    int32 TempIntArray2[MAX_DIMENSION];
+    int32 num_type, attributes, TempInt;
+    sds_index = 0;  // start at first SDS                                                                            
+#endif /* USE_DF4 */
  
 #ifdef IO_LOG
   int         io_log = 1;
@@ -324,7 +336,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
         if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
 	h5_status = H5Sclose(file_dsp_id);
         if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
