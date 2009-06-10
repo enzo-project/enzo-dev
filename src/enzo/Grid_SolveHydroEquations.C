@@ -59,7 +59,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 {
 
   /* Return if this doesn't concern us. */
-  throw EnzoFatalException("Intentional failure");
+  throw EnzoFatalException("Intentional failure in "__FILE__);
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
