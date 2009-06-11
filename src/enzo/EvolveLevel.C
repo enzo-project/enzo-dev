@@ -203,8 +203,10 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     float dtLevelAbove);
 #endif
 
-int SetLevelTimeStep(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		int level, float dtLevelAbove, ExternalBoundary *Exterior);
+int SetLevelTimeStep(HierarchyEntry *Grids[],
+        int NumberOfGrids, int level,
+        float *dtThisLevelSoFar, float *dtThisLevel,
+        float dtLevelAbove);
 
 void my_exit(int status);
  
@@ -237,7 +239,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dbx = 0;
  
   FLOAT When;
-  float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
+  //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
+  float dtThisLevelSoFar = 0.0, dtThisLevel;
   int RefinementFactors[MAX_DIMENSION];
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
@@ -399,7 +402,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   while (dtThisLevelSoFar < dtLevelAbove) {
  
-    SetLevelTimeStep(MetaData, LevelArray, level, dtLevelAbove, Exterior);
+    SetLevelTimeStep(Grids, NumberOfGrids, level, 
+        &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
 
     /* Initialize the star particles */
 
