@@ -777,7 +777,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  fprintf(stderr, "Error in grid->SolveRateEquations.\n");
 	  return FAIL;
 	}
- 
+
 	JBPERF_STOP("evolve-level-14"); // change this?
 
 //      fprintf(stderr, "%"ISYM": Called SolveCoolAndRateEquations\n", MyProcessorNumber);
