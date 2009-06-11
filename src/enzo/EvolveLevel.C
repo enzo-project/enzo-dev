@@ -222,8 +222,6 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
-#define TIME_MESSAGING 
-
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)

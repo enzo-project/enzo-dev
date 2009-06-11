@@ -167,12 +167,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   Temp = LevelArray[0];
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+  MemInUse = mused();
+  fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
 #endif
 
 #ifdef FORCE_MSG_PROGRESS
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationReceiveIndex = 0;
@@ -209,7 +209,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   if (CommunicationReceiveHandler() == FAIL) {
@@ -218,7 +218,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 
 #ifdef FORCE_MSG_PROGRESS
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
  
 #ifdef MEM_TRACE
@@ -396,7 +396,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     tlev0 = MPI_Wtime();
 #endif
  
@@ -418,7 +418,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
 #ifdef USE_MPI 
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
  

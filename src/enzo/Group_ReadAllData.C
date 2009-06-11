@@ -40,6 +40,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
 
 // HDF5 function prototypes
@@ -106,7 +107,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 //  Start I/O timing
 
 #ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
   io_start = MPI_Wtime();
 #endif /* USE_MPI */
  
@@ -184,9 +185,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   /* Read the memory map */
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
 
   // fprintf(stderr, "All at sync point - read MemoryMap and assign Grid->Task\n");
 
@@ -260,9 +259,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
     fprintf(stderr, "OPEN %s on processor %"ISYM"\n", groupfilename, MyProcessorNumber);
 
-#ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif USE_MPI
+    CommunicationBarrier();
 
 #ifdef SINGLE_HDF5_OPEN_ON_INPUT
 

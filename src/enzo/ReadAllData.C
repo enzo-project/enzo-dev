@@ -36,6 +36,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 /* function prototypes */
@@ -88,7 +89,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 //  Start I/O timing
 
 #ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
   io_start = MPI_Wtime();
 #endif /* USE_MPI */
  
@@ -147,9 +148,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   /* Read the memory map */
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
 
 #ifdef TASKMAP
   if ((mptr = fopen(memorymapname, "r")) == NULL) {

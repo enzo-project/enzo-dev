@@ -61,6 +61,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "communication.h" 
+#include "CommunicationUtilities.h"
 
 /* Function prototypes */
 
@@ -381,7 +382,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* Post the receives */
@@ -413,7 +414,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 #endif
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* Send the data */
@@ -443,7 +444,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 #endif 
 
 #ifdef FORCE_MSG_PROGRESS
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* Process the receives */

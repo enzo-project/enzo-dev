@@ -42,6 +42,8 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
+
 void my_exit(int status);
  
 // HDF5 function prototypes
@@ -320,7 +322,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 #ifdef USE_MPI
   iot1a = MPI_Wtime();
-  MPI_Barrier( MPI_COMM_WORLD );
+  CommunicationBarrier();
   dc_start = MPI_Wtime();
   iot1b = MPI_Wtime();
 #endif /* USE_MPI */
@@ -350,9 +352,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       for ( ii = 0; ii < nn; ii++ )
       {
 
-#ifdef USE_MPI 
-        MPI_Barrier(MPI_COMM_WORLD);
-#endif
+        CommunicationBarrier();
         if( pe == ii )
         {
  
@@ -423,7 +423,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 #ifdef USE_MPI
   iot2a = MPI_Wtime();
-  MPI_Barrier( MPI_COMM_WORLD );
+  CommunicationBarrier();
   dc_stop = MPI_Wtime();
   iot2b = MPI_Wtime();
 #endif /* USE_MPI */
@@ -651,9 +651,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
   MetaData.Time = SavedTime;
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
 // if (debug)
     //  fprintf(stderr, "WriteAllData: finished writing data\n");
  
@@ -667,7 +665,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 #ifdef USE_MPI
   iot3a = MPI_Wtime();
-  MPI_Barrier( MPI_COMM_WORLD );
+  CommunicationBarrier();
   iot3b = MPI_Wtime();
 #endif /* USE_MPI */
  
@@ -675,7 +673,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 #ifdef USE_MPI
   iot4a = MPI_Wtime();
-  MPI_Barrier( MPI_COMM_WORLD );
+  CommunicationBarrier();
   iot4b = MPI_Wtime();
 #endif /* USE_MPI */
 

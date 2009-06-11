@@ -27,6 +27,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
  
 /* function prototypes */
  
@@ -80,9 +81,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Reload data (unfortunately also reads in ExternalBoundary). */
  
   fprintf(stderr, "reading %s...", LastFileNameWritten);
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
   if (ReadAllData(LastFileNameWritten, &TopGrid,
 		  MetaData, Exterior) == FAIL) {
     fprintf(stderr, "Error reloading data: %s\n", LastFileNameWritten);
