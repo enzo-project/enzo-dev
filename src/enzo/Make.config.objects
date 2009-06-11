@@ -269,6 +269,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MoveSubgridParticlesFast.o \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
+	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
