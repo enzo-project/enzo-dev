@@ -778,13 +778,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TIME_MSG("EvolveLevel: after main loop");
 
 #ifdef FAST_SIB
-    if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			      level, MetaData, Exterior, LevelArray[level]) == FAIL)
-      ENZO_FAIL("");
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			      level, MetaData, Exterior, LevelArray[level]);
 #else
-    if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                              Exterior, LevelArray[level]) == FAIL)
-      ENZO_FAIL("");
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                              Exterior, LevelArray[level]);
 #endif
 
     JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
@@ -793,13 +791,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
  
     JBPERF_START("evolve-level-22"); // StarParticleFinalize()
-
-    if (StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			     level, AllStars) == FAIL) {
-      fprintf(stderr, "Error in StarParticleFinalize.\n");
-      ENZO_FAIL("");
-    }
-
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			     level, AllStars);
     JBPERF_STOP("evolve-level-22"); // StarParticleFinalize()
 
     /* Check for movie output (only check if this is bottom of hierarchy). */
