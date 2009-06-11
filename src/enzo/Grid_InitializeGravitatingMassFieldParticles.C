@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,7 +68,7 @@ int grid::InitializeGravitatingMassFieldParticles(int RefinementFactor)
     case GravityUndefined:
     default:
       fprintf(stderr, "GravityBoundaryType undefined.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Set unused dims. */

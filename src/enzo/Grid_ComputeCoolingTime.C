@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -64,6 +65,7 @@ extern "C" void FORTRAN_NAME(cool_multi_time)(
 	float *hyd01ka, float *h2k01a, float *vibha, float *rotha,
 	   float *rotla,
 	float *gpldl, float *gphdl, float *HDltea, float *HDlowa,
+	float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
 	float *metala, int *n_xe, float *xe_start, float *xe_end,
 	float *inutot, int *iradfield, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
@@ -101,7 +103,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Find Multi-species fields. */
@@ -110,7 +112,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Find photo-ionization fields */
@@ -121,7 +123,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Get easy to handle pointers for each variable. */
@@ -173,7 +175,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
  
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
     fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Set up information for rates which depend on the radiation field. */
@@ -222,6 +224,8 @@ int grid::ComputeCoolingTime(float *cooling_time)
           CoolData.roth, CoolData.rotl,
        CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit,
           CoolData.HDlte, CoolData.HDlow,
+       CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp,
+       CoolData.GAel,
           CoolData.metals, &CoolData.NumberOfElectronFracBins, 
           &CoolData.ElectronFracStart, &CoolData.ElectronFracEnd,
        RadiationData.Spectrum[0], &RadiationFieldType,

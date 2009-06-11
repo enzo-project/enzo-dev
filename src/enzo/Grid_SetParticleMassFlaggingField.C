@@ -17,6 +17,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -117,7 +118,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	if (this->DepositParticlePositionsLocal(this->ReturnTime(),
 					PARTICLE_MASS_FLAGGING_FIELD) == FAIL) {
 	  fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 	DepositParticleMaximumParticleMass = 0;
@@ -133,7 +134,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	    this->DepositMustRefineParticles(ParticleMassMethod, level);
 	  if (NumberOfFlaggedCells < 0) {
 	    fprintf(stderr, "Error in grid->DepositMustRefineParticles.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	}
 	

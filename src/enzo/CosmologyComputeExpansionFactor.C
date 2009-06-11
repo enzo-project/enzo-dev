@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
@@ -41,7 +42,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
  
   if (InitialTimeInCodeUnits == 0) {
     fprintf(stderr, "The cosmology parameters seem to be improperly set.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   *a = FLOAT_UNDEFINED;
@@ -94,7 +95,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
     }
     if (i == 40) {
       fprintf(stderr, "Case 2 -- no convergence after %"ISYM" iterations.\n", i);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Now use eta to compute the expansion factor (eq. 13-10, part 2). */
@@ -132,7 +133,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt)
  
   if ((*a) == FLOAT_UNDEFINED) {
     fprintf(stderr, "Cosmology selected is not implemented.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

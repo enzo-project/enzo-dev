@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -87,7 +88,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     OldSourceClusteringTree = SourceClusteringTree;
     if (ReassignSuperSources(LevelArray) == FAIL) {
       fprintf(stderr, "Error in ReassignSuperSources.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     SourceClusteringTree = NULL;
 //    if (SourceClusteringTree != NULL)
@@ -171,7 +172,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   default:
     fprintf(stderr, "sort_dim = %"ISYM" ?!  This should never be greater than 2.\n",
 	    sort_dim);
-    return FAIL;
+    ENZO_FAIL("");
   } // ENDSWITCH
   loop_count++;
 

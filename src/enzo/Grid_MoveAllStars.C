@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -35,7 +36,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
 
   if (NumberOfGrids < 1) {
     fprintf(stderr, "NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Determine total number of stars. */
@@ -88,7 +89,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
           MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
 	if (FromGrid[grid]->CommunicationSendStars(this, ProcessorNumber) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
         }
 
     } // ENDELSE same processor

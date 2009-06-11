@@ -24,6 +24,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -359,7 +360,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* Copy active part of field into grid */
@@ -424,7 +425,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       if (this->ComputeCoolingTime(cooling_time) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Make all cooling time values positive and convert to seconds.
@@ -755,7 +756,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
  
     if (ParticleType == NULL)
-      return FAIL;
+      ENZO_FAIL("");
  
     for (i = 0; i < NumberOfParticles; i++)
       tempint[i] = ParticleType[i];

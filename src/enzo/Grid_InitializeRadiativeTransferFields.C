@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,7 +39,7 @@ int grid::InitializeRadiativeTransferFields()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   int i,j,k, index;
@@ -65,7 +66,7 @@ int grid::InitializeRadiativeTransferFields()
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
 	== FAIL) {
       fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     /* Initialize acceleration fields from radiation pressure */

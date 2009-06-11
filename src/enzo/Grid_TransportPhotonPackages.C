@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -65,7 +66,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     fprintf(stderr, "Grid_TransportPhotonPackage: failed\n");
     fprintf(stderr, "Grid_TransportPhotonPackage: "
 	    "Transfer in less than 3D is not implemented.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (PhotonPackages->NextPackage == NULL)
@@ -77,7 +78,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stdout, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find Multi-species fields. */
@@ -87,7 +88,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find radiative transfer fields. */
@@ -98,7 +99,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   int RPresNum1, RPresNum2, RPresNum3;
@@ -106,7 +107,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3)
 	== FAIL) {
       fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 
@@ -117,7 +118,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
@@ -146,7 +147,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 	if (this->ComputeVertexCenteredField(i) == FAIL) {
 	  fprintf(stderr, "Error in grid->ComputeVertexCenteredField "
 		  "(field %"ISYM").\n", i);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
   count = 0;
@@ -252,7 +253,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if (PP == NULL && PausedPP->NextPackage != NULL) {
       if (this->MergePausedPhotonPackages() == FAIL) {
 	fprintf(stderr, "Error in grid::MergePausedPhotonPackages.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       // Reset temp pointers
       PP = PhotonPackages->NextPackage;

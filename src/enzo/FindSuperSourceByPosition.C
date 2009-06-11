@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,7 +28,7 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
     if (temp == NULL) {
       fprintf(stderr, "FindSuperSourceByPosition: NULL leaf in clustering tree.  "
 	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID);
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     dim_search = loop_count % MAX_DIMENSION;

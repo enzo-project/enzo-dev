@@ -17,6 +17,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -205,7 +206,7 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 	       &status) != MPI_SUCCESS) {
 	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
 		status.MPI_ERROR);
-	return FAIL;
+	ENZO_FAIL("");
       }
  
 #ifdef MPI_INSTRUMENTATION

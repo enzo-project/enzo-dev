@@ -4,6 +4,7 @@
 // Pointer juggling for the boundary set of the acceleration field.
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -134,11 +135,11 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
   for (grid = 0; grid < NumberOfGrids; grid++) {
     if( Grids[grid]->GridData->AttachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in AttachAcceleration \n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     if( Grids[grid]->ParentGrid->GridData->AttachAcceleration() ==FAIL ){
       fprintf(stderr,"Error in AttachAcceleration, Parent \n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   }
@@ -146,11 +147,11 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData,
 			    NULL, NULL) == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
 			    NULL, NULL) == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 #endif
   
   
@@ -158,11 +159,11 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 
     if( Grids[grid]->GridData->DetachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in DetachAcceleration\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     if( Grids[grid]->ParentGrid->GridData->DetachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in DetachAcceleration, parent\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   }

@@ -495,6 +495,10 @@ class grid
 // Functions for radiative cooling and multi-species rate equations
 //
 
+/* Handle the selection of cooling and chemistry modules */
+
+   int MultiSpeciesHandler();
+
 /* Solve the radiative cooling/heating equations  */
 
    int SolveRadiativeCooling();

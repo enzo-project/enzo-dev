@@ -23,6 +23,7 @@
 #endif /* USE_MPI */
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -99,7 +100,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
     if(AccelerationHack != TRUE) {  //this code is also used to set the acceleration field.
       if ((densfield=FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
         fprintf(stderr, "No density field!\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
     }
  
@@ -140,7 +141,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
     if (Time != ParentGrid->Time) {
       if (ParentGrid->Time <= ParentGrid->OldTime) {
 	fprintf(stderr, "ParentGrid fields are at the same time or worse.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       coef1 = max((ParentGrid->Time -                Time)/
                   (ParentGrid->Time - ParentGrid->OldTime), 0.0);
@@ -207,7 +208,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
         fprintf(stderr, "Parent grid not big enough for interpolation.\n");
         fprintf(stderr, " ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n",
                 dim, ParentStartIndex[dim], ParentTempDim[dim]);
-        return FAIL;
+        ENZO_FAIL("");
       }
  
       /* Compute the dimensions of the current grid temporary field. */
@@ -435,7 +436,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
     if (DualEnergyFormalism)
       if (this->RestoreEnergyConsistency(ONLY_BOUNDARY) == FAIL) {
 	fprintf(stderr, "Error in grid->RestoreEnergyConsisitency.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
   } // end: if (NumberOfBaryonFields > 0)

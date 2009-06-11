@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -97,7 +98,7 @@ int CommunicationReceiveFluxes(fluxes *Fluxes, int FromProc,
 		 MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
       fprintf(stderr, "Proc %d MPI_Recv error %d\n", MyProcessorNumber,
 	      status.MPI_ERROR);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
 #ifdef MPI_INSTRUMENTATION

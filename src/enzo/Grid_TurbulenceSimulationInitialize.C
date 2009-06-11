@@ -31,6 +31,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -90,7 +91,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   if ( NumberOfProcessors > 64 )
     if (ParallelRootGridIO != TRUE) {
       fprintf(stderr, "ParallelRootGridIO MUST be set for > 64 cpus!\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   */
  
@@ -190,7 +191,7 @@ int grid::TurbulenceSimulationInitializeGrid(
               GridStartIndex, GridEndIndex, Offset, BaryonField[0],
               &tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading density field.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Read the total energy field. */
@@ -200,7 +201,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
 		    BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading total energy field.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Read the gas energy field. */
@@ -211,7 +212,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 		     GridStartIndex, GridEndIndex, Offset, BaryonField[2],
 		     &tempbuffer, 0, 1) == FAIL) {
       fprintf(stderr, "Error reading gas energy field.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Read the velocity fields. */
@@ -223,7 +224,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 		   BaryonField[vel+dim], &tempbuffer, 0, 1) == FAIL) {
 	//	   BaryonField[vel+dim], &tempbuffer, dim, 3) == FAIL) {
 	fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-	return FAIL;
+	ENZO_FAIL("");
       }
  
   /* Get RandomForcing data */
@@ -239,7 +240,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 			  RandomForcingField[dim], &tempbuffer, 0, 1) == FAIL) {
 	  //		  RandomForcingField[dim], &tempbuffer, dim, 3) == FAIL) {
 	  fprintf(stderr, "Error reading RandomForcing field %"ISYM".\n", dim);
-	  return FAIL;
+	  ENZO_FAIL("");
       }
   }
  

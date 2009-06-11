@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,13 +35,13 @@ int grid::PrepareGreensFunction()
  
   if (PotentialField != NULL) {
     fprintf(stderr, "Potential field not null.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (GravityBoundaryType != TopGridPeriodic) {
     fprintf(stderr, "GravityBoundaryType %"ISYM" not supported.\n",
 	    GravityBoundaryType);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Compute size and allocate field with size of GravitatingMassField. */

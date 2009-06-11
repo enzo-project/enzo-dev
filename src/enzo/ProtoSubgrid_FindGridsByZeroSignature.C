@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,12 +28,12 @@ int ProtoSubgrid::FindGridsByZeroSignature(int dim, int &NumberOfNewGrids,
  
   if (dim >= GridRank) {
     fprintf(stderr, "Passed dim(%"ISYM") > GridRank(%"ISYM")\n", dim, GridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (Signature[dim] == NULL) {
     fprintf(stderr, "Signature %"ISYM" not yet computed.\n", dim);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Initialize */
@@ -57,7 +58,7 @@ int ProtoSubgrid::FindGridsByZeroSignature(int dim, int &NumberOfNewGrids,
 
       if ( NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS ) {
         fprintf(stderr, "PE %"ISYM" NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS in ProtoSubgrid_FindGridsByZeroSignature\n", MyProcessorNumber);
-        return FAIL;
+        ENZO_FAIL("");
       }
 
     }

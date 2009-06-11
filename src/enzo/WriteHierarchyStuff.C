@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -46,7 +47,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
  
     if (Grid->GridData->WriteStuff(fptr, base_name, GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Write out pointer information for the next grid this level */
@@ -62,7 +63,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
     if (WriteHierarchyStuff(fptr, Grid->NextGridThisLevel, base_name, GridID,
 			   WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteHierarchyStuff(1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  
@@ -79,7 +80,7 @@ int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
     if (WriteHierarchyStuff(fptr, Grid->NextGridNextLevel, base_name, GridID,
 			   WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteHierarchyStuff(1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  

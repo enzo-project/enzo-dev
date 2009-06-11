@@ -56,7 +56,7 @@ MACH_LD_NOMPI  = $(LOCAL_INT_INSTALL)/icc
 #-----------------------------------------------------------------------
 
 MACH_DEFINES = -DLINUX -DH5_USE_16_API -DOPTIMIZED_CTP -DENABLE_LOAD_BALANCE \
-	-DSIB1 -DSIB2 -DSIB3 -DSIB4 -DSIB5
+	-DFAST_SIB
 	#-DEMBEDDED_PYTHON
 
 #-----------------------------------------------------------------------

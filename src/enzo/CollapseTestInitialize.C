@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -225,7 +226,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
              CollapseTestInitialTemperature, CollapseTestInitialDensity,
 	     0) == FAIL) {
     fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Convert minimum initial overdensity for refinement to mass
@@ -329,7 +330,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  CollapseTestInitialTemperature, CollapseTestInitialDensity,
 		  lev-1) == FAIL) {
 		fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-		return FAIL;
+		ENZO_FAIL("");
 	      }
 	      
 	    } // ENDIF zones exist
@@ -352,7 +353,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       for (level = 0; level < MaximumRefinementLevel; level++) {
 	if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	  fprintf(stderr, "Error in RebuildHierarchy.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	if (LevelArray[level+1] == NULL)
 	  break;
@@ -374,7 +375,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		 CollapseTestInitialTemperature, CollapseTestInitialDensity,
 		 level+1) == FAIL) {
 	    fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -389,7 +390,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	if (Temp->GridData->ProjectSolutionToParentGrid(
 			      *LevelArray[level-1]->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	Temp = Temp->NextGridThisLevel;
       }

@@ -269,6 +269,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MoveSubgridParticlesFast.o \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
+	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
@@ -395,6 +396,7 @@ OBJS_CONFIG_LIB = \
 	OptimizedUnigridCommunicationTranspose.o \
 	Options.o \
 	OutputAsParticleData.o \
+	OutputFromEvolveLevel.o\
 	OutputLevelInformation.o \
 	P_ColumnFormat.o \
 	performance.o \
@@ -453,6 +455,7 @@ OBJS_CONFIG_LIB = \
 	SedovBlastInitialize.o \
 	select_fft.o \
 	SetDefaultGlobalValues.o \
+	SetLevelTimeStep.o \
 	sgi_st1_fft64.o \
 	ShockInABoxInitialize.o \
 	ShockPoolInitialize.o \

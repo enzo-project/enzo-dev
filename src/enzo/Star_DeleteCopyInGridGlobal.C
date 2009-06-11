@@ -13,6 +13,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -24,13 +25,10 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
+#include "CommunicationUtilities.h"
 
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif /* USE_MPI */
 
 int Star::DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[])
 {
@@ -47,7 +45,7 @@ int Star::DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[])
       }
 
 #ifdef USE_MPI
-  CommunicationAllReduceValuesINT(&changedGrid, 1, MPI_MAX);
+  CommunicationAllReduceValues(&changedGrid, 1, MPI_MAX);
 #endif
 
   if (changedGrid == INT_UNDEFINED) {

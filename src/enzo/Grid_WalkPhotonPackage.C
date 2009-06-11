@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -148,7 +149,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	     (*PP)->PreviousPackage, 
 	     (*PP)->PreviousPackage->NextPackage, 
 	     PhotonPackages);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   FLOAT dir_vec[3];
@@ -157,7 +158,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, 
 	     (*PP) );
     (*PP)->Photons=0;
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   //  if (DEBUG) fprintf(stderr,"%"GSYM" %"GSYM" %"GSYM". \n", dir_vec[0],dir_vec[1],dir_vec[2]);
@@ -404,7 +405,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       fprintf(stdout, "grid::WalkPhotonPackage: "
 	      "GravityBoundaryType = RadiationBoundary undefined %"ISYM".\n",
 	      GravityBoundaryType);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 
@@ -918,7 +919,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	fprintf(stdout, "grid::WalkPhotonPackage: GravityBoundaryType = "
 		"RadiationBoundary undefined %"ISYM".\n",
 		GravityBoundaryType);
-	return FAIL;
+	ENZO_FAIL("");
       }
     } // ENDIF photon leaving grid
 

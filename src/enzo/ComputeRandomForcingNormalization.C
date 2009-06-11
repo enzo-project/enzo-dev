@@ -9,8 +9,14 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -21,15 +27,13 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
  
 /* ======================================================================= */
 /* Function prototypes. */
  
 int   GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 			HierarchyEntry **Grids[]);
-int   CommunicationAllSumValues(float *Values, int Number);
-float CommunicationMinValue(float Value);
-float CommunicationMaxValue(float Value);
  
 /* This routine calculates the normalization for Random Forcing on
    level 0 (since this involves communication). */
@@ -38,14 +42,14 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 				      int level, TopGridData *MetaData,
 				      float * norm, float * pTopGridTimeStep)
 {
+
+  /* Return if this does not concern us */
+  if (!RandomForcing) return SUCCESS;
  
   /* If level is above 0 then complain: forcing will only work on level 0
      grid(s). */
- 
-  if (level != 0) {
-    fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-    return FAIL;
-  }
+
+  if ((MetaData->CycleNumber <= 0) || (level != 0)) return SUCCESS;
  
   /* Create an array (Grids) of all the grids on level 0. */
  
@@ -63,8 +67,7 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
     if (Grids[grid]->GridData->PrepareRandomForcingNormalization(GlobVal,
 								 GlobNum)
 	== FAIL) {
-      fprintf(stderr, "Error in grid->PrepareRandomForcingNormalization.\n");
-      return FAIL;
+      ENZO_FAIL("Error in grid->PrepareRandomForcingNormalization.");
     }
  
   /* Communicate grid-specific sums and compute global sums;

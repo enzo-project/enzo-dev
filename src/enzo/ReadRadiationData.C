@@ -16,6 +16,7 @@
 #include <string.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -48,7 +49,7 @@ int ReadRadiationData(FILE *fptr)
   if (fscanf(fptr, "TimeFieldLastUpdated = %"PSYM,
 	     &RadiationData.TimeFieldLastUpdated) != 1) {
     fprintf(stderr, "Error reading TimeFieldLastUpdated.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* read in field. */
@@ -59,7 +60,7 @@ int ReadRadiationData(FILE *fptr)
 	       RadiationData.Spectrum[2]+i, RadiationData.Spectrum[3]+i)
 	!= 4) {
       fprintf(stderr, "Error reading RadiationData line %"ISYM"\n", i);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Compute the units. */
@@ -72,14 +73,14 @@ int ReadRadiationData(FILE *fptr)
 	       &TimeUnits, &VelocityUnits, &MassUnits,
 	       RadiationData.TimeFieldLastUpdated) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (ComovingCoordinates) {
     if (CosmologyComputeExpansionFactor(RadiationData.TimeFieldLastUpdated,
 					&a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     aUnits = 1.0/(1.0 + InitialRedshift);
   }

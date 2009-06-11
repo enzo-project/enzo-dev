@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -24,8 +25,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "Star.h"
+#include "CommunicationUtilities.h"
 
-float CommunicationMinValue(float Value);
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],

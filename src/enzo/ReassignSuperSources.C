@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,7 +29,7 @@ int ReassignSuperSources(LevelHierarchyEntry *LevelArray[])
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->ReassignSuperSources() == FAIL) {
 	fprintf(stderr, "Error in grid::ReassignSuperSources.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
   return SUCCESS;

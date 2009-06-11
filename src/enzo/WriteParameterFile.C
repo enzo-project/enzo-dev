@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,7 +58,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData.Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* write data to Parameter output file */
@@ -117,6 +118,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
+
+  fprintf(fptr, "SubcycleNumber = %"ISYM"\n", MetaData.SubcycleNumber);
+  fprintf(fptr, "SubcycleSkipDataDump = %"ISYM"\n", MetaData.SubcycleSkipDataDump);
+  fprintf(fptr, "SubcycleLastDataDump = %"ISYM"\n", MetaData.SubcycleLastDataDump);
  
   fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
 	  MetaData.OutputFirstTimeAtLevel);
@@ -481,13 +486,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
       fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
       fprintf(stderr, "Error in WriteUnits.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 
@@ -497,13 +502,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in WritePhotonSources.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 #endif
 

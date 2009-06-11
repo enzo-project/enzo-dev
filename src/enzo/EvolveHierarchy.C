@@ -35,6 +35,7 @@
 #include <stdio.h>
  
 #include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,6 +48,7 @@
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
 #include "communication.h"
+#include "CommunicationUtilities.h"
  
 // function prototypes
  
@@ -78,7 +80,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 			   LevelHierarchyEntry *LevelArray[]);
 int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
 				LevelHierarchyEntry *LevelArray[], int level);
-float CommunicationMinValue(float Value);
 int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			ExternalBoundary *Exterior,
 			LevelHierarchyEntry *LevelArray[]);
@@ -136,7 +137,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
   if (Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout) == FAIL) {
     fprintf(stderr, "Error in Enzo_Dims_create.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
@@ -147,7 +148,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 		"i.e. mod(Dims[i], Layout[i]) != 0\n"
 		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
 		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim]);
-      return FAIL;
+      ENZO_FAIL("");
     }
 #endif /* OPTIMIZED_CTP */
 
@@ -167,12 +168,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   Temp = LevelArray[0];
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+  MemInUse = mused();
+  fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
 #endif
 
 #ifdef FORCE_MSG_PROGRESS
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationReceiveIndex = 0;
@@ -182,12 +183,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
       fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -198,27 +199,27 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
 //    if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
 //      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-//      return FAIL;
+//      ENZO_FAIL("");
 //    }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   if (CommunicationReceiveHandler() == FAIL) {
     fprintf(stderr, "Error in CommunicationReceiveHandle.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 #ifdef FORCE_MSG_PROGRESS
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
  
 #ifdef MEM_TRACE
@@ -241,7 +242,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
     fprintf(stderr, "Error in CheckForOutput.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 #ifdef MEM_TRACE
@@ -265,7 +266,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in RebuildHierarchy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 #ifdef MEM_TRACE
@@ -396,7 +397,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     tlev0 = MPI_Wtime();
 #endif
  
@@ -414,11 +415,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior);
 #endif
-      return FAIL;
+      ENZO_FAIL("");
     }
 
 #ifdef USE_MPI 
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
  
@@ -436,7 +437,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (ProblemType != 25)
       if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
 #ifdef MEM_TRACE
@@ -477,21 +478,21 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (CheckForTimeAction(LevelArray, MetaData) == FAIL) {
       fprintf(stderr, "Error in CheckForTimeActions.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Check for output. */
  
     if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
       fprintf(stderr, "Error in CheckForOutput.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     /* Check for resubmission */
     
     if (CheckForResubmit(MetaData, Stop) == FAIL) {
       fprintf(stderr, "Error in CheckForResubmit.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     /* Try to cut down on memory fragmentation. */
@@ -502,7 +503,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       if (ReduceFragmentation(TopGrid, MetaData, Exterior, LevelArray)
 	  == FAIL) {
 	fprintf(stderr, "Error in ReduceFragmentation.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
 #endif /* REDUCE_FRAGMENTATION */
@@ -600,13 +601,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
       fprintf(stderr, "Error in Group_WriteAllData.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 #else
     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
       fprintf(stderr, "Error in WriteAllData.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 #endif
  

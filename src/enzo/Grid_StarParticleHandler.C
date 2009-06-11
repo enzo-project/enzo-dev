@@ -16,6 +16,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -236,7 +237,7 @@ int grid::StarParticleHandler(int level)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (MultiSpecies > 1) {
@@ -342,7 +343,7 @@ int grid::StarParticleHandler(int level)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;    
+    ENZO_FAIL("");
   }
  
   float CellWidthTemp = float(CellWidth[0][0]);
@@ -566,8 +567,8 @@ int grid::StarParticleHandler(int level)
 		      ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
 		      ParticleAttribute[1], ParticleType, &SinkParticleType, 
 		      &JeansLengthRefinement, temperature) == FAIL) {
-	fprintf(stderr, "Error in sink_maker\n");
-	return FAIL;
+	fprintf(stderr, "Error in star_maker3\n");
+    ENZO_FAIL("");
       }
 
       /* Delete any merged particles (Mass == FLOAT_UNDEFINED) */

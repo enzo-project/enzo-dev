@@ -20,6 +20,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,7 +43,7 @@ int grid::RestoreEnergyConsistency(int Region)
  
   if (Region != ENTIRE_REGION && Region != ONLY_BOUNDARY) {
     fprintf(stderr, "Region type %"ISYM" unknown.\n", Region);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* If there is no work, we're done. */
@@ -56,7 +57,7 @@ int grid::RestoreEnergyConsistency(int Region)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* a) Correct the entire field. */

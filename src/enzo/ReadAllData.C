@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,6 +37,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 /* function prototypes */
@@ -88,7 +90,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 //  Start I/O timing
 
 #ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
   io_start = MPI_Wtime();
 #endif /* USE_MPI */
  
@@ -96,11 +98,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   if ((fptr = fopen(name, "r")) == NULL) {
     fprintf(stderr, "Error opening input file %s.\n", name);
-    return FAIL;
+    ENZO_FAIL("");
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
     fprintf(stderr, "Error in ReadParameterFile.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Close main file. */
@@ -113,7 +115,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    return FAIL;
+    ENZO_FAIL("");
   }
   fprintf(stderr, "Here we are!!-2\n");
 
@@ -128,13 +130,13 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }else{
     if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
 	      MetaData.BoundaryConditionName);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 #endif
@@ -161,14 +163,12 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   /* Read the memory map */
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
 
 #ifdef TASKMAP
   if ((mptr = fopen(memorymapname, "r")) == NULL) {
     fprintf(stderr, "Error opening MemoryMap file %s.\n", memorymapname);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   Eint64 GridIndex[MAX_NUMBER_OF_TASKS], OldPN, Mem[MAX_NUMBER_OF_TASKS];
@@ -183,7 +183,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
     fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   fclose(mptr);
@@ -200,7 +200,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   // #ifdef SINGLE_HDF5_OPEN_ON_INPUT
   //   if ((tptr = fopen(taskmapname, "r")) == NULL) {
   //     fprintf(stderr, "Error opening TaskMap file %s.\n", taskmapname);
-  //     return FAIL;
+  //     ENZO_FAIL("");
   //   }
   
   //   Eint64 OldPN;
@@ -227,19 +227,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   if ((fptr = fopen(hierarchyname, "r")) == NULL) {
     fprintf(stderr, "Error opening hierarchy file %s.\n", hierarchyname);
-    return FAIL;
+    ENZO_FAIL("");
   }
   GridID = 1;
   if (ReadDataHierarchy(fptr, TopGrid, GridID, NULL) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr) == FAIL) {
     fprintf(stderr, "Error in ReadStarParticleData.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Create radiation name and read radiation data. */
@@ -250,11 +250,11 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     strcat(radiationname, RadiationSuffix);
     if ((Radfptr = fopen(radiationname, "r")) == NULL) {
       fprintf(stderr, "Error opening radiation file %s.\n", name);
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
       fprintf(stderr, "Error in ReadRadiationData.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     fclose(Radfptr);
   }

@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 /* Original includes for Enzo */
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "error.h"
@@ -93,7 +94,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x0recvbuf, x0buffsize, DataType, x0l, 
 		    msg_xch_x0l, MPI_COMM_WORLD, &id_recv_x0l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0L receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -107,7 +108,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x0sendbuf, x0buffsize, DataType, x0r, 
 		    msg_xch_x0l, MPI_COMM_WORLD, &id_send_x0l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0R send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -115,7 +116,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x0l != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x0l, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0L wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=0; k<edim2; k++)
@@ -133,7 +134,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x0recvbuf, x0buffsize, DataType, x0r, 
 		    msg_xch_x0r, MPI_COMM_WORLD, &id_recv_x0r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0R receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -147,7 +148,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x0sendbuf, x0buffsize, DataType, x0l, 
 		    msg_xch_x0r, MPI_COMM_WORLD, &id_send_x0r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0L send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -155,7 +156,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x0r != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x0r, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x0R wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=0; k<edim2; k++)
@@ -182,7 +183,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x1recvbuf, x1buffsize, DataType, x1l, 
 		    msg_xch_x1l, MPI_COMM_WORLD, &id_recv_x1l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1L receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -196,7 +197,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x1sendbuf, x1buffsize, DataType, x1r, 
 		    msg_xch_x1l, MPI_COMM_WORLD, &id_send_x1l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1R send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -204,7 +205,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x1l != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x1l, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1L wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=0; k<edim2; k++)
@@ -222,7 +223,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x1recvbuf, x1buffsize, DataType, x1r, 
 		    msg_xch_x1r, MPI_COMM_WORLD, &id_recv_x1r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1R receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -236,7 +237,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x1sendbuf, x1buffsize, DataType, x1l, 
 		    msg_xch_x1r, MPI_COMM_WORLD, &id_send_x1r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1L send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -244,7 +245,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x1r != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x1r, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x1R wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=0; k<edim2; k++)
@@ -271,7 +272,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x2recvbuf, x2buffsize, DataType, x2l, 
 		    msg_xch_x2l, MPI_COMM_WORLD, &id_recv_x2l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2L receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -286,7 +287,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x2sendbuf, x2buffsize, DataType, x2r, 
 		    msg_xch_x2l, MPI_COMM_WORLD, &id_send_x2l) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2R send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -294,7 +295,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x2l != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x2l, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2L wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=0; k<GravityGhosts; k++)
@@ -312,7 +313,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Irecv(x2recvbuf, x2buffsize, DataType, x2r, 
 		    msg_xch_x2r, MPI_COMM_WORLD, &id_recv_x2r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2R receive error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -326,7 +327,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
       if (MPI_Isend(x2sendbuf, x2buffsize, DataType, x2l, 
 		    msg_xch_x2r, MPI_COMM_WORLD, &id_send_x2r) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2L send error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     
@@ -334,7 +335,7 @@ int GravityBdryExchange(float *enzovec, int *layout, int *location,
     if (x2r != MPI_PROC_NULL) {
       if (MPI_Wait(&id_recv_x2r, &status) != 0) {
 	fprintf(stderr,"GravityBdryExchange p%"ISYM": x2R wait error\n",myrank);
-	return FAIL;
+	ENZO_FAIL("");
       }
       
       for (idx=0, k=edim2-GravityGhosts; k<edim2; k++)

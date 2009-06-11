@@ -12,6 +12,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -134,7 +135,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
     if (BaryonField[NumberOfBaryonFields] == NULL) {
       fprintf(stderr, "UNDER_SUBGRID_FIELD not allocated.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Set points under this subgrid to Value (typically 1). */
@@ -159,7 +160,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
   else {
     fprintf(stderr, "FieldsToZero = %"ISYM" not recognized.\n", FieldsToZero);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

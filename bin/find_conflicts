@@ -1,0 +1,140 @@
+#! /usr/bin/perl
+
+### Enzo parameter file conflict finder.
+### June 10, 2009
+### Author: Britton D. Smith <britton.smith@colorado.edu>
+### Affiliation: CASA/University of CO, Boulder
+
+#############################################################
+# Characters recognized by comments in the intput files.
+@comments = ("#","//");
+
+$conflict_file = "enzo_parameter_conflicts.txt";
+&loadConflicts($conflict_file);
+
+$parameter_file = shift @ARGV;
+die "Usage: $0 <parameter file>\n" unless ($parameter_file);
+&readParameterFile($parameter_file);
+
+$totalConflicts = 0;
+&findConflicts();
+
+#############################################################
+
+# Check the list of conflicts against the parameter hash.
+sub findConflicts {
+
+  my $matches;
+
+  for (my $q = 0;$q < @conflicts;$q++) {
+    $matches = 0;
+
+    for (my $w = 0;$w < @{$conflicts[$q]{situations}};$w++) {
+
+    MATCH: for (my $e = 0;$e < @{$conflicts[$q]{situations}[$w]{value}};$e++) {
+	my $compare = sprintf "\$check = int(%s %s %s)",
+	  $parameters{$conflicts[$q]{situations}[$w]{parameter}},
+	    $conflicts[$q]{situations}[$w]{comparison},
+	      $conflicts[$q]{situations}[$w]{value}[$e];
+	eval $compare;
+	if ($check) {
+	  $matches++;
+	  last MATCH;
+	}
+      }
+
+      if ($matches == scalar @{$conflicts[$q]{situations}}) {
+	&printConflict($q);
+	$totalConflicts++;
+      }
+    }
+  }
+
+  printf "%d conflict%s found.\n",($totalConflicts,(($totalConflicts != 1) ? 's':''));
+
+}
+
+sub printConflict {
+  my ($cNumber) = @_;
+
+  print "Conflict found:\n";
+  for (my $w = 0;$w < @{$conflicts[$cNumber]{situations}};$w++) {
+    print "\t$conflicts[$cNumber]{situations}[$w]{parameter} = $parameters{$conflicts[$cNumber]{situations}[$w]{parameter}}\n";
+  }
+  print "Message: $conflicts[$cNumber]{message}\n";
+  print "\n";
+  
+}
+
+sub readParameterFile {
+  my ($file) = @_;
+
+  %parameters = ();
+
+  open (IN,"<$file") or die "Couldn't open parameter file: $file.\n";
+  while (my $line = <IN>) {
+    chomp $line;
+    foreach $comment (@comments) {
+      $line =~ s/$comment.*//;
+    }
+    if ($line =~ /^\s*([^\s]+)\s*=\s*([^\s]+)\s*$/) {
+      my $parameter = $1;
+      my $value = $2;
+      $parameters{$parameter} = $value;
+    }
+  }
+  close (IN);
+
+}
+
+sub loadConflicts {
+  my ($file) = @_;
+
+  @conflicts = ();
+  my $nConflicts = -1;
+  my $inConflict = 0;
+  my $situations;
+
+  open (IN,"<$file") or die "Couldn't open conflict file: $file.\n";
+ LINE: while (my $line = <IN>) {
+    chomp $line;
+    foreach $comment (@comments) {
+      $line =~ s/$comment.*//;
+    }
+    $line =~ s/^\s+//g;
+    $line =~ s/\s+$//g;
+
+    next LINE unless ($line);
+
+    if ($line =~ /{/) {
+      $inConflict = 1;
+      $nConflicts++;
+      $situations = 0;
+    }
+    elsif ($line =~ /\}/) {
+      $inConflict = 0;
+    }
+    elsif (!($inConflict)) {
+      next LINE;
+    }
+    elsif ($line =~ /^Message\s*=\s*(.+)/) {
+      $conflicts[$nConflicts]{message} = $1;
+    }
+    elsif ($line =~ /([^<>=\s]+)\s*([<>=]+)\s*([^\s<>=]+)/) {
+      my $parameter = $1;
+      my $comparison = $2;
+      my $values = $3;
+      my @values = ($values);
+      if ($values =~ /\,/) {
+	$values =~ s/\s+//g;
+ 	@values = split ",",$values;
+      }
+      $conflicts[$nConflicts]{situations}[$situations]{parameter} = $parameter;
+      $conflicts[$nConflicts]{situations}[$situations]{comparison} = $comparison;
+      @{$conflicts[$nConflicts]{situations}[$situations]{value}} = @values;
+      $situations++;
+    }
+  }
+  close (IN);
+
+}

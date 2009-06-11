@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -64,7 +65,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
 
   if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level) == FAIL) {
     fprintf(stderr, "Error in grid->SetFlaggingField.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Add a buffer region around each flagged cell. */
@@ -78,7 +79,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
   if (CurrentGrid->SetFlaggingFieldStaticRegions(level, NumberOfFlaggedCells)
       == FAIL) {
     fprintf(stderr, "Error in grid->SetFlaggingFieldStaticRegions.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (debug1)
@@ -103,7 +104,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
  
     if (SubgridList[0]->CopyFlaggedZonesFromGrid(CurrentGrid) == FAIL) {
       fprintf(stderr, "Error in ProtoSubgrid->CopyFlaggedZonesFromGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Recursively break up this ProtoSubgrid and add new ones based on the
@@ -111,7 +112,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
  
     if (IdentifyNewSubgridsBySignature(SubgridList, NumberOfSubgrids) == FAIL){
       fprintf(stderr, "Error in IdentifyNewSubgridsBySignature.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* For each subgrid, create a new grid based on the current grid (i.e.
@@ -121,7 +122,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
 
     if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
       fprintf(stderr, "PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS\n", MyProcessorNumber);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     for (i = 0; i < NumberOfSubgrids; i++) {

@@ -17,6 +17,7 @@
 #endif /* USE_MPI */
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,11 +29,11 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
+#include "CommunicationUtilities.h"
 
 #ifdef USE_MPI
 static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_STAR;
-int CommunicationAllReduceValuesINT(int *Values, int Number, MPI_Op ReduceOperation);
 #endif
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);
@@ -68,13 +69,13 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       // velocity)
       if (Grids[GridNum]->GridData->UpdateStarParticles(level) == FAIL) {
 	fprintf(stderr, "Error in grid::UpdateStarParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Then find any newly created star particles
       if (Grids[GridNum]->GridData->FindNewStarParticles(level) == FAIL) {
 	fprintf(stderr, "Error in grid::FindNewStarParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Now copy any stars into the local linked list
@@ -94,7 +95,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     /* Synchronize number of stars across processors */
 
 #ifdef USE_MPI
-    CommunicationAllReduceValuesINT(NumberOfStarsInGrids, NumberOfGrids, MPI_MAX);
+    CommunicationAllReduceValues(NumberOfStarsInGrids, NumberOfGrids, MPI_MAX);
     for (GridNum = 0; GridNum < NumberOfGrids; GridNum++)
       Grids[GridNum]->GridData->SetNumberOfStars(NumberOfStarsInGrids[GridNum]);
 #endif

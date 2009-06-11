@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -40,7 +41,7 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
     if (ProcessorNumber == MyProcessorNumber) {
       if (BaryonField[n] != NULL) {
 	fprintf(stderr, "BaryonField[%"ISYM"] already assigned?\n", n);
-	return FAIL;
+	ENZO_FAIL("");
       }
       BaryonField[n] = new float[size];
       value = (TypesToAdd[i] == SNColour || TypesToAdd[i] == Metallicity) ?

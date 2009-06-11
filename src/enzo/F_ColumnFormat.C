@@ -1,5 +1,6 @@
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 void fpcol(float *x, int n, int m, FILE *log_fptr)

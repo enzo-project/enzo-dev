@@ -22,6 +22,7 @@
      &                hyd01k, h2k01, vibh, roth, rotl,
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                metala, n_xe, xe_start, xe_end, 
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
@@ -75,6 +76,8 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      &        metala(nratec, n_xe)
+      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+     &        gaHpa(nratec), gaela(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -114,6 +117,8 @@
      &     brem(in)
       real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), metalc(in)
+      real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
+     &     galdl(in)
 
 !  Metal cooling locals
 
@@ -367,6 +372,49 @@
 
       if (ispecies .gt. 1) then
 
+#define USE_GLOVER_ABEL2008
+#ifdef USE_GLOVER_ABEL2008
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+            gaHI(i) = gaHIa(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHIa(indixe(i)+1) - gaHIa(indixe(i)))/tdef(i)
+            gaH2(i) = gaH2a(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaH2a(indixe(i)+1) - gaH2a(indixe(i)))/tdef(i)
+            gaHe(i) = gaHea(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHea(indixe(i)+1) - gaHea(indixe(i)))/tdef(i)
+            gaHp(i) = gaHpa(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))/tdef(i)
+            gael(i) = gaela(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))/tdef(i)
+            gphdl(i) = gphdla(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))/tdef(i)
+            end if
+         enddo
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+#ifdef OPTICAL_DEPTH_FUDGE
+            nH2 = 0.5*H2I(i,j,k)
+            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4.0 +
+     &                HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            fH2 = nH2/(nH2 + nother)
+            fudge = sqrt((40.0 * 10**(4.8 * 
+     &               sqrt(max(log10(tgas(i)),2.0)-2.0)) / fH2**2)/
+     &               ((nH2 + nother)*dom) )
+            fudge = min(fudge, 1.0)
+#endif /* OPTICAL_DEPTH_FUDGE */
+
+            galdl(i) = gaHI(i) * HI(i,j,k)  + gaH2(i) * H2I(i,j,k)
+     &               + gaHe(i) * HeI(i,j,k) + gaHp(i) * HII(i,j,k)
+     &               + gael(i) * de(i,j,k)
+            gphdl1 = gphdl(i)/dom
+            edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*
+     &           gphdl(i)/(1.0 + gphdl1/galdl(i)) / (2.0*dom)
+
+            end if
+         enddo
+#else
+
 #define USE_GALLI_PALLA1999
 #define NO_OPTICAL_DEPTH_FUDGE
 
@@ -448,6 +496,7 @@
          enddo
 
 #endif /* USE_GALLI_PALLA1999 */
+#endif /* USE_GLOVER_ABEL2008 */
 
       endif
 
@@ -456,10 +505,16 @@
       if (ispecies .gt. 2) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            hdlte(i) = hdltea(indixe(i)) + (logtem(i) - t1(i))
-     &         *(hdltea(indixe(i)+1) - hdltea(indixe(i)))/tdef(i)
-            hdlow(i) = hdlowa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))/tdef(i)
+c CMB cooling floor
+               if (tgas(i) .gt. comp2) then
+                  hdlte(i) = hdltea(indixe(i)) + (logtem(i) - t1(i))
+     &             *(hdltea(indixe(i)+1) - hdltea(indixe(i)))/tdef(i)
+                  hdlow(i) = hdlowa(indixe(i)) + (logtem(i) - t1(i))
+     &             *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))/tdef(i)
+               else
+                  hdlte(i) = tiny
+                  hdlow(i) = tiny
+               endif
             end if
          enddo
 

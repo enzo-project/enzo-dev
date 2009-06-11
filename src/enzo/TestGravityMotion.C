@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -71,7 +72,7 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->TestGravityMotionInitializeGrid(
                                   TestGravityParticleVelocity) == FAIL) {
     fprintf(stderr, "Error in TestGravityMotionInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   /* Write parameters to parameter output file */
  

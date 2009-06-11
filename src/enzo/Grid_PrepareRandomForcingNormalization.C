@@ -15,6 +15,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -37,7 +38,7 @@ int grid::PrepareRandomForcingNormalization(float * GlobVal, int GlobNum)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "GPRFN: Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Allocate field and compute temperature (it is actually c^2) */
@@ -49,7 +50,7 @@ int grid::PrepareRandomForcingNormalization(float * GlobVal, int GlobNum)
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Loop over active part of fields and sum up each of the required

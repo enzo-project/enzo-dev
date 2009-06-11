@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -32,7 +33,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
     return SUCCESS;
 
   if (GridRank != 3)
-    return FAIL;
+    ENZO_FAIL("");
 
   /* declarations */
 
@@ -47,7 +48,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
   if ((fptr = fopen(SedovBlastFileName, "r")) == NULL) {
     printf("Cannot open SedovBlast Initial Data File %s\n", 
 	   SedovBlastFileName);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   int nl = 0, nlines;

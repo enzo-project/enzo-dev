@@ -16,6 +16,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,6 +28,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
  
 /* function prototypes */
  
@@ -80,13 +82,11 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Reload data (unfortunately also reads in ExternalBoundary). */
  
   fprintf(stderr, "reading %s...", LastFileNameWritten);
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
   if (ReadAllData(LastFileNameWritten, &TopGrid,
 		  MetaData, Exterior) == FAIL) {
     fprintf(stderr, "Error reloading data: %s\n", LastFileNameWritten);
-    return FAIL;
+    ENZO_FAIL("");
   }
   AddLevel(LevelArray, &TopGrid, 0);
   fprintf(stderr, "done\n");
@@ -97,12 +97,12 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
       fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL) {
       fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     Temp = Temp->NextGridThisLevel;
   }
@@ -111,7 +111,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in RebuildHierarchy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

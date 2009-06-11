@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,14 +29,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "Star.h"
+#include "CommunicationUtilities.h"
 
-float CommunicationMinValue(float Value);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif /* USE_MPI */
 
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData)
@@ -61,7 +57,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->FindMinimumParticleMass(MinParticleMass, level) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMinimumParticleMass.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
   CommunicationMinValue(MinParticleMass);
 
@@ -112,7 +108,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
       if (Temp->GridData->FindMassiveParticles(MinParticleMass, level, 
 				ParticlePos, NumberOfParticles, TRUE) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMassiveParticles(count).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -124,7 +120,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
       if (Temp->GridData->FindMassiveParticles(MinParticleMass, level, 
 				ParticlePos, NumberOfParticles, FALSE) == FAIL) {
 	fprintf(stderr, "Error in grid::FindMassiveParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
   // Define some convenient variables, such as (1) a flagging field
@@ -156,7 +152,9 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   // deal with integers.
   
   TotalNumberOfParticles = NumberOfParticles;
-  CommunicationAllSumIntegerValues(&TotalNumberOfParticles, 1);
+#ifdef USE_MPI
+  CommunicationAllReduceValues(&TotalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
 
   int irand, threshold;
   int nRemoveLast, nRemoveTotal, nRemoveCurrent, NumberToRemove;
@@ -269,14 +267,13 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 	if (!RemoveFlag[i]) ParticlesLeft++;
 
       // Synchronize over all processors
-      CommunicationAllSumIntegerValues(&ParticlesLeft, 1);
-      //CommunicationAllSumIntegerValues(&NumberToRemove, 1);
 #ifdef USE_MPI
-      CommunicationAllReduceValuesINT(&nRemoveLast, 1, MPI_MIN);
-      CommunicationAllReduceValuesINT(RefineRegionLeftEdgeCell, 
-				      MAX_DIMENSION, MPI_MAX);
-      CommunicationAllReduceValuesINT(RefineRegionRightEdgeCell, 
-				      MAX_DIMENSION, MPI_MIN);
+      CommunicationAllReduceValues(&ParticlesLeft, 1, MPI_SUM);
+      CommunicationAllReduceValues(&nRemoveLast, 1, MPI_MIN);
+      CommunicationAllReduceValues(RefineRegionLeftEdgeCell, 
+				   MAX_DIMENSION, MPI_MAX);
+      CommunicationAllReduceValues(RefineRegionRightEdgeCell, 
+				   MAX_DIMENSION, MPI_MIN);
 #endif /* USE_MPI */
 
 //      if (debug) {
@@ -300,13 +297,15 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 	  fprintf(stderr, "RefineRegionRightEdgeCell = %"ISYM" %"ISYM" %"ISYM"\n", 
 		  RefineRegionRightEdgeCell[0], RefineRegionRightEdgeCell[1], 
 		  RefineRegionRightEdgeCell[2]);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
     } // ENDFOR region faces
 
     // Synchronize over all processors
-    CommunicationAllSumIntegerValues(&nRemoveTotal, 1);
+#ifdef USE_MPI
+    CommunicationAllReduceValues(&nRemoveTotal, 1, MPI_SUM);
+#endif /* USE_MPI */
 
   } // ENDWHILE particles left
 
