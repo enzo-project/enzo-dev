@@ -117,7 +117,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.GlobalDir           = NULL;
 
   LoadBalancing = 1; //On, memory equalization method
- 
+
+  FileDirectedOutput = 1;
+
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
     TimeActionRedshift[i]  = -1;

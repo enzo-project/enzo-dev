@@ -395,6 +395,7 @@ OBJS_CONFIG_LIB = \
 	OptimizedUnigridCommunicationTranspose.o \
 	Options.o \
 	OutputAsParticleData.o \
+	OutputFromEvolveLevel.o\
 	OutputLevelInformation.o \
 	P_ColumnFormat.o \
 	performance.o \
