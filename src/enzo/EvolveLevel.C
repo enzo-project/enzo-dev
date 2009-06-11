@@ -661,50 +661,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling) {
- 
 	JBPERF_START("evolve-level-14"); // change this?
-
-	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
-	  fprintf(stderr, "Error in grid->SolveRateEquations.\n");
-	  ENZO_FAIL("");
-	}
- 
-	JBPERF_STOP("evolve-level-14"); // change this?
-
-//      fprintf(stderr, "%"ISYM": Called SolveCoolAndRateEquations\n", MyProcessorNumber);
-
-      } else {
-
-//      fprintf(stderr, "%"ISYM": Calling MultiSpecies\n", MyProcessorNumber);
- 
-	JBPERF_START("evolve-level-14"); // SolveRateEquations()
-
-	if (MultiSpecies)
-	  if (Grids[grid1]->GridData->SolveRateEquations() == FAIL) {
-	    fprintf(stderr, "Error in grid->SolveRateEquations.\n");
-	    ENZO_FAIL("");
-	  }
- 
-	JBPERF_STOP("evolve-level-14"); // SolveRateEquations()
-
-//      fprintf(stderr, "%"ISYM": Called MultiSpecies\n", MyProcessorNumber);
- 
-	/* Include radiative cooling/heating. */
- 
-//      fprintf(stderr, "%"ISYM": Calling RadiativeCooling\n", MyProcessorNumber);
- 
-	JBPERF_START("evolve-level-15"); // SolveRadiativeCooling()
-
-	if (RadiativeCooling)
-	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
-	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
-	    ENZO_FAIL("");
-	  }
- 
-	JBPERF_STOP("evolve-level-15"); // SolveRadiativeCooling()
-
-      }
+    Grids[grid1]->GridData->MultiSpeciesHandler();
+    JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
 
       /* Update particle positions (if present). */
  
