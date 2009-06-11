@@ -160,7 +160,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     }
 
 #ifdef USE_HDF4
-    if (fscanf(fptr, "Time = %f\n", &Time) != 1) {
+    if (fscanf(fptr, "Time = %"FSYM"\n", &Time) != 1) {
       fprintf(stderr, "Error reading Time.\n");
       return FAIL;
     }
