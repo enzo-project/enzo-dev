@@ -157,6 +157,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       fprintf(stderr, "Error reading Time.\n");
       return FAIL;
     }
+
+#ifdef USE_HDF4
+    if (fscanf(fptr, "Time = %f\n", &Time) != 1) {
+      fprintf(stderr, "Error reading Time.\n");
+      return FAIL;
+    }
+#endif
  
     if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
       fprintf(stderr, "Error reading SubgridsAreStatic.\n");
@@ -276,21 +283,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     if (MyProcessorNumber == ProcessorNumber){
 
-      if(!ReadText){
-	// build filename from grid id
-	char id[MAX_GRID_TAG_SIZE];
-	sprintf(id, "%"GRID_TAG_FORMAT""ISYM, GridID);
-	strcpy(name, PrevParameterFileName);
-	strcat(name, ".grid");
-	strcat(name, id);
-      }
-      
-      if (io_log) fprintf(log_fptr,"H5Fopen with Name %s\n",name);
- 
-      file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
-      if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-      if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
-
 #ifdef USE_HDF4
       fprintf(stderr, "Here I am!\n");
 
@@ -311,7 +303,27 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       }
       SDendaccess(sds_id);
       sds_index--;
-#endif 
+
+      if (TempInt != GridRank) {
+	fprintf(stderr, "HDF rank (%d) does not match GridRank.\n", TempInt);
+	return FAIL;
+      }
+#else
+      if(!ReadText){
+	// build filename from grid id
+	char id[MAX_GRID_TAG_SIZE];
+	sprintf(id, "%"GRID_TAG_FORMAT""ISYM, GridID);
+	strcpy(name, PrevParameterFileName);
+	strcat(name, ".grid");
+	strcat(name, id);
+      }
+      
+      if (io_log) fprintf(log_fptr,"H5Fopen with Name %s\n",name);
+ 
+      file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
+      if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+      if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+#endif
 
       /* fill in ActiveDim for dims up to 3d */
  
@@ -347,12 +359,12 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	/* get data into temporary array */
 
 #ifdef USE_HDF4
-      fprintf(stderr, "Here I am!-2\n");
-      if (ReadField(temp, TempIntArray2, GridRank, active_size, sd_id, 
-		    sds_index, name) == FAIL) {
-	fprintf(stderr, "Error reading field %d.\n", field);
-	return FAIL;
-      }
+	fprintf(stderr, "Here I am!-2\n");
+	if (ReadField(temp, TempIntArray2, GridRank, active_size, sd_id, 
+		      sds_index, name) == FAIL) {
+	  fprintf(stderr, "Error reading field %d.\n", field);
+	  return FAIL;
+	}
 #else
 	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -418,6 +430,12 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       if (NumberOfBaryonFields == 0) {
  
+#ifdef USE_HDF4
+	if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
+	  fprintf(stderr, "Error opening file %s.\n", name);
+	  return FAIL;
+	}
+#else
 	if (MyProcessorNumber == ProcessorNumber)
 	  {
 	    strcpy(logname, name);
@@ -430,6 +448,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
         if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+#endif
  
       } // end: if (NumberOfBaryonFields == 0)
  

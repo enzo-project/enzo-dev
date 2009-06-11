@@ -16,7 +16,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
+#ifdef USE_HDF4
+#include <df.h>
+#endif 
 
 
  
@@ -455,7 +457,8 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
   int Dims[MAX_DIMENSION], index, size, i;
   int BoundaryValuePresent[2*MAX_DIMENSION];
-  int field, TempInt, j;
+  int field, j;
+  intn TempInt2;
   int32 TempIntArray[MAX_DIMENSION];
   float32 *buffer;
   char hdfname[MAX_LINE_LENGTH];
@@ -529,11 +532,11 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 	    Dims[index++] = BoundaryDimension[i];
 	    size *= BoundaryDimension[i];
 	  }
-	index = MAX(BoundaryRank-1, 1);   // make index at least 1
+	index = max(BoundaryRank-1, 1);   // make index at least 1
 
 	/* Read HDF dims */
 
-	if (DFSDgetdims(hdfname, &TempInt, TempIntArray, BoundaryRank) 
+	if (DFSDgetdims(hdfname, &TempInt2, TempIntArray, BoundaryRank) 
 	    == HDF_FAIL) {
 	  fprintf(stderr, "Error in DFSDgetdims.\n");
 	  return FAIL;
@@ -541,7 +544,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
 	/* Check rank and dimensions (dims are stored backwards for us). */
 
-	if (TempInt != index) {
+	if (TempInt2 != index) {
 	  fprintf(stderr, "HDF file rank does not match BoundaryRank.\n");
 	  return FAIL;
 	}
@@ -569,7 +572,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
 	    /* read BoundaryType (then convert to int) */
 
-	    if (DFSDgetdata(hdfname, TempInt, TempIntArray, (VOIDP) buffer)
+	    if (DFSDgetdata(hdfname, TempInt2, TempIntArray, (VOIDP) buffer)
 		== HDF_FAIL) {
 	      fprintf(stderr, "Error in DFSDgetdata(0).\n");
 	      return FAIL;
@@ -583,7 +586,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
 	    if (BoundaryValuePresent[2*dim+i]) {
 	      BoundaryValue[field][dim][i] = new float[size];
-	      if (DFSDgetdata(hdfname, TempInt, TempIntArray, (VOIDP)
+	      if (DFSDgetdata(hdfname, TempInt2, TempIntArray, (VOIDP)
 			      buffer) == HDF_FAIL) {
 		fprintf(stderr, "Error in DFSDgetdata(1).\n");
 		fprintf(stderr, "dim = %d field = %d i = %d\n", dim, field, i);
@@ -600,7 +603,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
   }
 
-  return ENZO_SUCCESS;
+  return SUCCESS;
 
 }
 #endif

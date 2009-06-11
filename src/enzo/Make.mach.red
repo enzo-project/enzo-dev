@@ -25,7 +25,7 @@ MACH_FILE  = Make.mach.red
 
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-ia64/
-LOCAL_HDF4_INSTALL   = /usr/work/mturk/local/
+LOCAL_HDF4_INSTALL   = /u/ki/mturk/Research/local-red/
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-ia64/
 LOCAL_INT_INSTALL     = /afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys/
 
@@ -126,7 +126,7 @@ MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
-LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -ldf -ljpeg -lz
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
 LOCAL_LIBS_MACH   =  -L$(LOCAL_INT_INSTALL)/fc/lib/ \
