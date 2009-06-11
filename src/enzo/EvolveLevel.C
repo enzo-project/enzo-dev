@@ -151,7 +151,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
 
 
-OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
+int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
 		      int level, ExternalBoundary *Exterior);
  
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],

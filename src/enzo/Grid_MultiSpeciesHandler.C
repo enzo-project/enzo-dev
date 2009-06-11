@@ -12,18 +12,28 @@
 /    SUCCESS or FAIL
 /
 ************************************************************************/
+
+#include <stdio.h>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
  
 int grid::MultiSpeciesHandler()
 {
   if ((!MultiSpecies) && (!RadiativeCooling)) return SUCCESS; 
 
   if (MultiSpecies && RadiativeCooling) {
-	  Grids[grid1]->GridData->SolveRateAndCoolEquations();
+	  this->SolveRateAndCoolEquations();
   } else {
     if (MultiSpecies)
-      Grids[grid1]->GridData->SolveRateEquations();
+      this->SolveRateEquations();
     if (RadiativeCooling)
-      Grids[grid1]->GridData->SolveRadiativeCooling();
+      this->SolveRadiativeCooling();
   }
 
   return SUCCESS;
