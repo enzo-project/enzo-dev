@@ -290,10 +290,10 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 #ifdef USE_MPI
       CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
 #endif
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	printf("CCP: Collecting a total of %"ISYM" particles over"
-	       " grids %"ISYM"->%"ISYM".\n", 
-	       AllMovedParticles, StartGrid, EndGrid);
+//      if (MyProcessorNumber == ROOT_PROCESSOR)
+//	printf("CCP: Collecting a total of %"ISYM" particles over"
+//	       " grids %"ISYM"->%"ISYM".\n", 
+//	       AllMovedParticles, StartGrid, EndGrid);
 
       //EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 

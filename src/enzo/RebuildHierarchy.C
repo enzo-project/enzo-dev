@@ -342,18 +342,9 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 the finest level with static subgrids and after load
 	 balancing to distribute memory usage.. */
 
-      tt0 = ReturnWallTime();
-      if (CommunicationCollectParticles(LevelArray, i, ParticlesAreLocal,
-					SUBGRIDS_LOCAL) == FAIL) {
-	fprintf(stderr, "Error in CommunicationCollectParticles(subgrids).\n");
-	ENZO_FAIL("");
-      }
+      CommunicationCollectParticles(LevelArray, i, ParticlesAreLocal,
+				    SUBGRIDS_LOCAL);
       TIME_MSG("Moved subgrid particles");
-      if (MyProcessorNumber == ROOT_PROCESSOR) {
-	tt1 = ReturnWallTime();
-	printf("RebuildHierarchy[AA]: Took %lg seconds to move particles to"
-	       " subgrids.\n", tt1-tt0);
-      }
 
       /* 3d) Create an array of the new subgrids. */
  
@@ -472,22 +463,12 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 host processor. */
 
       if (i == MaximumStaticSubgridLevel) {
-	tt0 = ReturnWallTime();
 	TIME_MSG("Collecting particles");
 	for (j = level; j <= MaximumStaticSubgridLevel+1; j++)
 	  if (LevelArray[j] != NULL)
-	    if (CommunicationCollectParticles(LevelArray, j, ParticlesAreLocal,
-					      SIBLINGS_ONLY) == FAIL) {
-	      fprintf(stderr, "Error in CommunicationCollectParticles(siblings).\n");
-	      ENZO_FAIL("");
-	    }
-	//CommunicationSyncNumberOfParticles(SubgridHierarchyPointer, subgrids);
+	    CommunicationCollectParticles(LevelArray, j, ParticlesAreLocal,
+					  SIBLINGS_ONLY);
 	TIME_MSG("Finished collecting particles");
-	if (MyProcessorNumber == ROOT_PROCESSOR) {
-	  tt1 = ReturnWallTime();
-	  printf("RebuildHierarchy[AA]: Took %lg seconds to move particles "
-		 "to correct processor.\n", tt1-tt0);
-	}
       }
 
       /* 3h) Clean up the LevelHierarchy entries for the old subgrids.
