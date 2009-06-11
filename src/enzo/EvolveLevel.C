@@ -626,12 +626,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  in preparation for the new step. */
  
       JBPERF_START("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
-
-	if (Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyBaryonFieldToOldBaryonField.\n");
-	  ENZO_FAIL("");
-	}
- 
+	  Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
       JBPERF_STOP("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
 
       /* Add RandomForcing fields to velocities after the copying of current
@@ -639,29 +634,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          It makes no sense to force on the very first time step. */
  
       JBPERF_START_LOW("evolve-level-12"); // AddRandomForcing()
-
-      if (RandomForcing && MetaData->CycleNumber > 0) //AK
-        if(Grids[grid1]->GridData->AddRandomForcing(&norm,
-                                                   TopGridTimeStep) == FAIL)
-          fprintf(stderr, "Error in AddRandomForcing.\n");
- 
+      if (MetaData->CycleNumber > 0)
+        Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
       JBPERF_STOP_LOW("evolve-level-12"); // AddRandomForcing()
 
       /* Call hydro solver and save fluxes around subgrids. */
- 
       JBPERF_START("evolve-level-13"); // SolveHydroEquations()
-
-//      fprintf(stderr, "%"ISYM": Calling Hydro\n", MyProcessorNumber);
- 
-      if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
-	 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
-	fprintf(stderr, "Error in grid->SolveHydroEquations.\n");
-	ENZO_FAIL("");
-      }
- 
+      Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
       JBPERF_STOP("evolve-level-13"); // SolveHydroEquations()
-
-//      fprintf(stderr, "%"ISYM": Called Hydro\n", MyProcessorNumber);
  
       /* Solve the radiative transfer */
 	
@@ -725,25 +706,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 	JBPERF_STOP("evolve-level-15"); // SolveRadiativeCooling()
 
-//      fprintf(stderr, "%"ISYM": Called RadiativeCooling\n", MyProcessorNumber);
-
       }
 
       /* Update particle positions (if present). */
  
-//      fprintf(stderr, "%"ISYM": Calling UpdatePP\n", MyProcessorNumber);
- 
       JBPERF_START("evolve-level-16"); // UpdateParticlePositions()
-
-      if (UpdateParticlePositions(Grids[grid1]->GridData) == FAIL) {
-	fprintf(stderr, "Error in UpdateParticlePositions.\n");
-	ENZO_FAIL("");
-      }
- 
+      UpdateParticlePositions(Grids[grid1]->GridData);
       JBPERF_STOP("evolve-level-16"); // UpdateParticlePositions()
 
-//      fprintf(stderr, "%"ISYM": Called UpdatePP\n", MyProcessorNumber);
- 
       /* Include 'star' particle creation and feedback.
          (first, set the under_subgrid field). */
  

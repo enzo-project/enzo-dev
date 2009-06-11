@@ -61,6 +61,8 @@ int grid::SolveRateEquations()
 {
  
   /* Return if this doesn't concern us. */
+  /* We should be calling SolveRateAndCoolingEquations if both are true */
+  if (!((MultiSpecies) && (!RadiativeCooling))) return SUCCESS;
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;

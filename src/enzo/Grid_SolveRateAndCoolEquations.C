@@ -78,6 +78,8 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 
 int grid::SolveRateAndCoolEquations()
 {
+  /* Return if this doesn't concern us. */
+  if (!(MultiSpecies && RadiativeCooling)) return SUCCESS;
 
   /* Return if this doesn't concern us. */
   

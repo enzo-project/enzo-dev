@@ -27,6 +27,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
 {
  
   /* Return if this doesn't concern us. */
+  if (!(RandomForcing)) return SUCCESS;
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
