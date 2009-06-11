@@ -6,7 +6,27 @@
 // 
 // Purpose   : Control various outputs from the EvolveLevel routine.
 
-//Needs some headers
+ 
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
+ 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <math.h>
+
+#include "performance.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "TopGridData.h"
+#include "LevelHierarchy.h"
 
 int WriteMovieData(char *basename, int filenumber,
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -16,15 +36,26 @@ int WriteStreamData(HierarchyEntry *Grids[], int NumberOfGrids,
 int WriteTracerParticleData(char *basename, int filenumber,
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 		   FLOAT WriteTime);
+#ifdef USE_HDF5_GROUPS
+int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
+		       TopGridData &MetaData, ExternalBoundary *Exterior,
+		       FLOAT WriteTime = -1);
+#else
+int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
+                 TopGridData &MetaData, ExternalBoundary *Exterior,
+                 FLOAT WriteTime = -1);
+#endif
+void my_exit(int status);
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 
-int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[]){
-  /*Crap I need:
-    LevelArray
-    MetaData
-    level
-    Exterior
-  */
-  int Write = FALSE, ExitEnzo = FALSE;
+EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+
+int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
+			  int level, ExternalBoundary *Exterior){
+
+  int Write = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  HierarchyEntry **Grids;    
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -74,7 +105,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[]){
     // a file stopNow will output and then exit enzo.
     
     int outputNow = -1, stopNow = -1, subcycleCount=-1;
-    if( UseFileDirectedOutput == TRUE){
+    if( FileDirectedOutput == TRUE){
       
 #ifdef USE_MPI
       MPI_Barrier(MPI_COMM_WORLD);
@@ -137,8 +168,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[]){
 	  } 
       } 
       
-      /* Check for stop by file-touching */
-      
 #ifdef USE_MPI
       MPI_Barrier(MPI_COMM_WORLD);
 #endif
@@ -164,9 +193,20 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[]){
       Write = TRUE;
     }
   }//Finest Level
+
+  // Streaming movie output (only run if everything is evolved)
+  NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+  if (MovieSkipTimestep != INT_UNDEFINED) {
+    if (WriteStreamData(Grids, NumberOfGrids, MetaData, 
+			LevelCycleCount[level]) == FAIL) {
+      fprintf(stderr, "Error in WriteStreamData.\n");
+      return FAIL;
+    }
+  }
+
+  delete []Grids;
   if( ExitEnzo == TRUE ){
     // Write movie data in all grids if necessary
-    HierarchyEntry **Grids;    
     if (MovieSkipTimestep != INT_UNDEFINED)
       for (int mlevel = 0; mlevel < MAX_DEPTH_OF_HIERARCHY; mlevel++) {
 	if (LevelArray[mlevel] == NULL) break;
@@ -178,7 +218,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[]){
 	  return FAIL;
 	}
       }
-    
+    delete []Grids;    
     fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
     my_exit(EXIT_SUCCESS);
   }

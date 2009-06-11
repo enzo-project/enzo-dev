@@ -140,6 +140,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
  
+    /* Subcycle directed output */
+    ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
+                  &MetaData.SubcycleSkipDataDump);
+    ret += sscanf(line, "SubcycleLastDataDump = %"ISYM, 
+                  &MetaData.SubcycleLastDataDump);
+    ret += sscanf(line, "SubcycleNumber = %"ISYM, 
+                  &MetaData.SubcycleNumber);
+
+    ret += sscanf(line,"FileDirectedOutput = %"ISYM,
+		  &FileDirectedOutput);
+
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
     ret += sscanf(line, "HistoryDumpNumber = %"ISYM, &MetaData.HistoryDumpNumber);

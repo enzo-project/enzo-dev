@@ -148,7 +148,10 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
  
 int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
-OutputFromEvolveLevel(moo);
+
+
+OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
+		      int level, ExternalBoundary *Exterior);
  
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
@@ -945,7 +948,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     JBPERF_STOP("evolve-level-25"); // PrepareDensityField()
 
-    OutputFromEvolveLevel(moo)
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
@@ -955,12 +957,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
  
     JBPERF_STOP("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
-
-    /* Update SubcycleNumber if this is the bottom of the hierarchy --
-       Note that this not unique based on which level is the highest,
-       it just keeps going */
-
-    if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -978,15 +974,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
-    // Streaming movie output (only run if everything is evolved)
 
-    if (MovieSkipTimestep != INT_UNDEFINED) {
-      if (WriteStreamData(Grids, NumberOfGrids, MetaData, 
-			  LevelCycleCount[level]) == FAIL) {
-	fprintf(stderr, "Error in WriteStreamData.\n");
-	return FAIL;
-      }
-    }
+    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    /* Update SubcycleNumber if this is the bottom of the hierarchy --
+       Note that this not unique based on which level is the highest,
+       it just keeps going */
+
+    if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
+
 
     if (dbx) fprintf(stderr, "EL Level %"ISYM" returns from Level %"ISYM"\n", level, level+1);
 
