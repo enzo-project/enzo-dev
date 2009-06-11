@@ -64,8 +64,7 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
     if (Grids[grid]->GridData->PrepareRandomForcingNormalization(GlobVal,
 								 GlobNum)
 	== FAIL) {
-      fprintf(stderr, "Error in grid->PrepareRandomForcingNormalization.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->PrepareRandomForcingNormalization.");
     }
  
   /* Communicate grid-specific sums and compute global sums;

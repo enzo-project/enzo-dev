@@ -307,8 +307,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       if (DepositParticleMassField(Grids[grid1], EvaluateTime) == FAIL) {
-	fprintf(stderr, "Error in DepositParticleMassField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in DepositParticleMassField.");
       }
 
 #ifdef FORCE_MSG_PROGRESS 

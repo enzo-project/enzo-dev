@@ -559,15 +559,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  /* Compute the potential. */
  
 	  if (level > 0)
-	    if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
-		== FAIL) {
-	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      ENZO_FAIL("");
-	    }
-	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
-	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
-	    ENZO_FAIL("");
-	  }
+	    Grids[grid1]->GridData->SolveForPotential(Dummy, level);
+	  Grids[grid1]->GridData->ComputeAccelerations(level);
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
 	     now done in PrepareDensity. */
@@ -580,23 +573,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Gravity: compute field due to preset sources. */
  
       JBPERF_START_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
-
-      if (UniformGravity || PointSourceGravity)
-	if (Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ==FAIL) {
-	  fprintf(stderr,"Error in grid->ComputeAccelerationFieldExternal.\n");
-	  ENZO_FAIL("");
-	}
+	  Grids[grid1]->GridData->ComputeAccelerationFieldExternal();
  
       JBPERF_STOP_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
 
       /* Radiation Pressure: add to acceleration field */
 
 #ifdef TRANSFER
-      if (RadiativeTransfer && RadiationPressure)
-	if (Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL) {
-	  fprintf(stderr,"Error in grid->AddRadiationPressureAcceleration.\n");
-	  ENZO_FAIL("");
-	}
+	  Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL);
 #endif /* TRANSFER */
 
       /* Check for energy conservation. */

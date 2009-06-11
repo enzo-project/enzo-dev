@@ -34,6 +34,9 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int grid::ComputeAccelerationFieldExternal()
 {
  
+  /* Return if this does not concern us */
+  if (!(UniformGravity || PointSourceGravity)) return SUCCESS;
+
   /* Return if this grid is not on this processor. */
  
   if (MyProcessorNumber != ProcessorNumber)
