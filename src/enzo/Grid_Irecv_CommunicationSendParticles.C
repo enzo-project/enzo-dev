@@ -29,7 +29,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "communication.h"
- 
+#include "CommunicationUtilities.h"
+
 /* function prototypes */
  
 #ifdef USE_MPI
@@ -39,7 +40,6 @@ static int FirstTimeCalled = TRUE;
 static MPI_Datatype ParticleDataType;
 #endif /* USE_MPI */
 
-int CommunicationShouldExit(int FromProc, int ToProc);
 void my_exit(int status);
  
 /* Send particle from this grid to ToGrid on processor ToProcessor, using

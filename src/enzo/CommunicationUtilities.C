@@ -1,10 +1,10 @@
 /***********************************************************************
 /
-/  COMMUNICATION ROUTINE: FIND MINIMUM VALUE AMOUNG PROCESSORS
+/  COMMUNICATION ROUTINES: WRAPPED AND OVERLOADED MPI ROUTINES
 /
 /  written by: Greg Bryan
 /  date:       December, 1997
-/  modified1:
+/  modified1:  June, 2009 by John H. Wise (overloaded routines)
 /
 /  PURPOSE:
 /
@@ -27,85 +27,242 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+
+#ifdef MPI_INSTRUMENTATION
+#define START_TIMING starttime = MPI_Wtime();
+#define END_TIMING				\
+  endtime = MPI_Wtime();			\
+  timer[16]+= endtime-starttime;		\
+  counter[16] ++;				\
+  GlobalCommunication += endtime-starttime;	\
+  CommunicationTime += endtime-starttime;
+#else
+#define START_TIMING ;
+#define END_TIMING ;
+#endif
+
  
+/***********************************************************************
+                             MINIMUM VALUE
+************************************************************************/
  
- 
- 
-float CommunicationMinValue(float Value)
+Eflt32 CommunicationMinValue(Eflt32 Value)
 {
  
   if (NumberOfProcessors == 1)
     return Value;
  
-  float ReturnValue = Value;
- 
 #ifdef USE_MPI
  
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
- 
-//  printf("min: %"ISYM" sending %"FSYM"\n", MyProcessorNumber, Value);
- 
-#ifdef MPI_INSTRUMENTATION
-  starttime = MPI_Wtime();
-#endif
-
-  Count = 1;
- 
+  Eflt32 ReturnValue = Value;
+  START_TIMING;
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = 1;
   MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
- 
-#ifdef MPI_INSTRUMENTATION
-  endtime = MPI_Wtime();
-  timer[16]+= endtime-starttime;
-  counter[16] ++;
-  GlobalCommunication += endtime-starttime;
-  CommunicationTime += endtime-starttime;
-#endif /* MPI_INSTRUMENTATION */
+  END_TIMING;
  
 #endif /* USE_MPI */
  
   return ReturnValue;
 }
- 
- 
-float CommunicationMaxValue(float Value)
+
+Eflt64 CommunicationMinValue(Eflt64 Value)
 {
  
   if (NumberOfProcessors == 1)
     return Value;
  
-  float ReturnValue = Value;
+#ifdef USE_MPI
+ 
+  Eflt64 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+Eflt128 CommunicationMinValue(Eflt128 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
  
 #ifdef USE_MPI
  
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
+  Eflt128 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = 1;
+  
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
+  END_TIMING;
  
-//  printf("min: %"ISYM" sending %"FSYM"\n", MyProcessorNumber, Value);
+#endif /* USE_MPI */
  
-#ifdef MPI_INSTRUMENTATION
-  starttime = MPI_Wtime();
-#endif
+  return ReturnValue;
+}
 
-  Count = 1;
+Eint32 CommunicationMinValue(Eint32 Value)
+{
  
-  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  if (NumberOfProcessors == 1)
+    return Value;
  
-#ifdef MPI_INSTRUMENTATION
-  endtime = MPI_Wtime();
-  timer[16]+= endtime-starttime;
-  counter[16] ++;
-  GlobalCommunication += endtime-starttime;
-  CommunicationTime += endtime-starttime;
-#endif /* MPI_INSTRUMENTATION */
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = 1;
+  Eint32 ReturnValue = Value;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
+  END_TIMING;
  
 #endif /* USE_MPI */
  
   return ReturnValue;
 }
  
+Eint64 CommunicationMinValue(Eint64 Value)
+{
  
-int CommunicationSumValues(float *Values, int Number)
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eint64 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
+  END_TIMING;
+
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+/***********************************************************************
+                             MAXIMUM VALUE
+************************************************************************/
+ 
+Eflt32 CommunicationMaxValue(Eflt32 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eflt32 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+Eflt64 CommunicationMaxValue(Eflt64 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eflt64 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+Eflt128 CommunicationMaxValue(Eflt128 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eflt128 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+Eint32 CommunicationMaxValue(Eint32 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eint32 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+Eint64 CommunicationMaxValue(Eint64 Value)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return Value;
+ 
+#ifdef USE_MPI
+ 
+  Eint64 ReturnValue = Value;
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = 1;
+
+  START_TIMING;
+  MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MAX, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+#endif /* USE_MPI */
+ 
+  return ReturnValue;
+}
+
+/***********************************************************************
+                              SUM VALUES
+************************************************************************/ 
+ 
+int CommunicationSumValues(Eflt32 *Values, int Number)
 {
  
   if (NumberOfProcessors == 1)
@@ -113,17 +270,17 @@ int CommunicationSumValues(float *Values, int Number)
  
 #ifdef USE_MPI
  
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = Number;
  
   int i;
-  float *buffer = new float[Number];
+  Eflt32 *buffer = new Eflt32[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
  
-  Count = Number;
-
+  START_TIMING;
   MPI_Reduce(buffer, Values, Count, DataType, MPI_SUM, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  END_TIMING;
  
   delete [] buffer;
  
@@ -131,11 +288,8 @@ int CommunicationSumValues(float *Values, int Number)
  
   return SUCCESS;
 }
- 
- 
- 
- 
-int CommunicationAllSumValues(float *Values, int Number)
+
+int CommunicationSumValues(Eflt64 *Values, int Number)
 {
  
   if (NumberOfProcessors == 1)
@@ -143,17 +297,130 @@ int CommunicationAllSumValues(float *Values, int Number)
  
 #ifdef USE_MPI
  
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
-  MPI_Arg Count;
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = Number;
  
   int i;
-  float *buffer = new float[Number];
+  Eflt64 *buffer = new Eflt64[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
  
-  Count = Number;
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, MPI_SUM, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  END_TIMING;
  
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationSumValues(Eflt128 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eflt128 *buffer = new Eflt128[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, MPI_SUM, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationSumValues(Eint32 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eint32 *buffer = new Eint32[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, MPI_SUM, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationSumValues(Eint64 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eint64 *buffer = new Eint64[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, MPI_SUM, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+ 
+/***********************************************************************
+                           SUM ALL VALUES
+************************************************************************/ 
+ 
+int CommunicationAllSumValues(Eflt32 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eflt32 *buffer = new Eflt32[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
   MPI_Allreduce(buffer, Values, Count, DataType, MPI_SUM, MPI_COMM_WORLD);
+  END_TIMING;
  
   delete [] buffer;
  
@@ -161,28 +428,107 @@ int CommunicationAllSumValues(float *Values, int Number)
  
   return SUCCESS;
 }
- 
- 
- 
- 
-int CommunicationAllSumIntegerValues(int *Values, int Number)
+
+int CommunicationAllSumValues(Eflt64 *Values, int Number)
 {
+ 
   if (NumberOfProcessors == 1)
     return SUCCESS;
  
 #ifdef USE_MPI
-
-  MPI_Datatype DataTypeInt = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT; 
-  MPI_Arg Count;
+ 
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = Number;
  
   int i;
-  int *buffer = new int[Number];
+  Eflt64 *buffer = new Eflt64[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
  
-  Count = Number;
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, MPI_SUM, MPI_COMM_WORLD);
+  END_TIMING;
  
-  MPI_Allreduce(buffer, Values, Count, DataTypeInt, MPI_SUM, MPI_COMM_WORLD);
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationAllSumValues(Eflt128 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eflt128 *buffer = new Eflt128[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, MPI_SUM, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationAllSumValues(Eint32 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eint32 *buffer = new Eint32[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, MPI_SUM, MPI_COMM_WORLD);
+  END_TIMING;
+ 
+  delete [] buffer;
+ 
+#endif /* USE_MPI */
+ 
+  return SUCCESS;
+}
+
+int CommunicationAllSumValues(Eint64 *Values, int Number)
+{
+ 
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+ 
+#ifdef USE_MPI
+ 
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = Number;
+ 
+  int i;
+  Eint64 *buffer = new Eint64[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+ 
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, MPI_SUM, MPI_COMM_WORLD);
+  END_TIMING;
  
   delete [] buffer;
  
@@ -192,208 +538,269 @@ int CommunicationAllSumIntegerValues(int *Values, int Number)
 }
 
 #ifdef USE_MPI
-  
-int CommunicationReduceValues(float *Values, int Number, 
+/***********************************************************************
+                        GENERAL REDUCE CALL
+************************************************************************/ 
+
+int CommunicationReduceValues(Eflt32 *Values, int Number, 
 			      MPI_Op ReduceOperation)
 {
   
   if (NumberOfProcessors == 1)
     return SUCCESS;
 
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = Number;
   
   int i;
-  float *buffer = new float[Number];
+  Eflt32 *buffer = new Eflt32[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
 
-  MPI_Reduce(buffer, Values, Number, DataType, ReduceOperation, ROOT_PROCESSOR,
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, ReduceOperation, ROOT_PROCESSOR,
 	     MPI_COMM_WORLD);
+  END_TIMING;
 
   delete [] buffer;
 
   return SUCCESS;
 }
 
-int CommunicationAllReduceValues(float *Values, int Number, 
+
+int CommunicationReduceValues(Eflt64 *Values, int Number, 
+			      MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eflt64 *buffer = new Eflt64[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, ReduceOperation, ROOT_PROCESSOR,
+	     MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+
+int CommunicationReduceValues(Eflt128 *Values, int Number, 
+			      MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eflt128 *buffer = new Eflt128[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, ReduceOperation, ROOT_PROCESSOR,
+	     MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+
+int CommunicationReduceValues(Eint32 *Values, int Number, 
+			      MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eint32 *buffer = new Eint32[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, ReduceOperation, ROOT_PROCESSOR,
+	     MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+
+int CommunicationReduceValues(Eint64 *Values, int Number, 
+			      MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eint64 *buffer = new Eint64[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Reduce(buffer, Values, Count, DataType, ReduceOperation, ROOT_PROCESSOR,
+	     MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+
+/***********************************************************************
+                        GENERAL ALLREDUCE CALL
+************************************************************************/ 
+
+int CommunicationAllReduceValues(Eflt32 *Values, int Number, 
 				 MPI_Op ReduceOperation)
 {
   
   if (NumberOfProcessors == 1)
     return SUCCESS;
 
-  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
+  MPI_Datatype DataType = MPI_FLOAT;
+  MPI_Arg Count = Number;
   
   int i;
-  float *buffer = new float[Number];
+  Eflt32 *buffer = new Eflt32[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
 
-  MPI_Allreduce(buffer, Values, Number, DataType, ReduceOperation,
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, ReduceOperation,
 		MPI_COMM_WORLD);
+  END_TIMING;
 
   delete [] buffer;
 
   return SUCCESS;
 }
 
-
-int CommunicationAllReduceValuesFLOAT(FLOAT *Values, int Number, 
-				      MPI_Op ReduceOperation)
+int CommunicationAllReduceValues(Eflt64 *Values, int Number, 
+				 MPI_Op ReduceOperation)
 {
   
   if (NumberOfProcessors == 1)
     return SUCCESS;
 
-  MPI_Datatype DataType;
-  switch(sizeof(FLOAT)) {
-    case 4:
-        DataType = MPI_FLOAT;
-        break;
-    case 8:
-        DataType = MPI_DOUBLE;
-        break;
-    case 16:
-        DataType = MPI_LONG_DOUBLE;
-        break;
-  }
-   
+  MPI_Datatype DataType = MPI_DOUBLE;
+  MPI_Arg Count = Number;
   
   int i;
-  FLOAT *buffer = new FLOAT[Number];
+  Eflt64 *buffer = new Eflt64[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
 
-  MPI_Allreduce(buffer, Values, Number, DataType, ReduceOperation, MPI_COMM_WORLD);
-
-  delete [] buffer;
-
-  return SUCCESS;
-}
-
-int CommunicationReduceValuesFLOAT(FLOAT *Values, int Number, 
-			      MPI_Op ReduceOperation)
-{
-  
-  if (NumberOfProcessors == 1)
-    return SUCCESS;
-
-  MPI_Datatype DataType;
-  switch(sizeof(FLOAT)) {
-    case 4:
-        DataType = MPI_FLOAT;
-        break;
-    case 8:
-        DataType = MPI_DOUBLE;
-        break;
-    case 16:
-        DataType = MPI_LONG_DOUBLE;
-        break;
-  }
-   
-  
-  int i;
-  FLOAT *buffer = new FLOAT[Number];
-  for (i = 0; i < Number; i++)
-    buffer[i] = Values[i];
-
-  MPI_Reduce(buffer, Values, Number, DataType, ReduceOperation, ROOT_PROCESSOR,
-	     MPI_COMM_WORLD);
-
-  delete [] buffer;
-
-  return SUCCESS;
-}
-
-int CommunicationReduceValuesDouble(double *Values, int Number, 
-				    MPI_Op ReduceOperation)
-{
-  
-  if (NumberOfProcessors == 1)
-    return SUCCESS;
-
-  MPI_Datatype DataType;
-  DataType = MPI_DOUBLE;
-  
-  int i;
-  double *buffer = new double[Number];
-  for (i = 0; i < Number; i++)
-    buffer[i] = Values[i];
-
-  MPI_Reduce(buffer, Values, Number, DataType, ReduceOperation, ROOT_PROCESSOR,
-	     MPI_COMM_WORLD);
-
-  delete [] buffer;
-
-  return SUCCESS;
-}
-
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation)
-{
-  
-  if (NumberOfProcessors == 1)
-    return SUCCESS;
-
-  int i;
-  int *buffer = new int[Number];
-  for (i = 0; i < Number; i++)
-    buffer[i] = Values[i];
-
-  MPI_Allreduce(buffer, Values, Number, MPI_INT, ReduceOperation,
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, ReduceOperation,
 		MPI_COMM_WORLD);
+  END_TIMING;
 
   delete [] buffer;
 
   return SUCCESS;
 }
 
-#endif /* USE_MPI */
-  
-int CommunicationSumValuesFLOAT(FLOAT *Values, int Number)
-{
-#ifdef USE_MPI
-  return CommunicationReduceValuesFLOAT(Values, Number, MPI_SUM);
-#else /* USE_MPI */
-  return SUCCESS;
-#endif /* USE_MPI */
-}
-
-  
-int CommunicationAllSumValuesFLOAT(FLOAT *Values, int Number)
+int CommunicationAllReduceValues(Eflt128 *Values, int Number, 
+				 MPI_Op ReduceOperation)
 {
   
   if (NumberOfProcessors == 1)
     return SUCCESS;
 
-#ifdef USE_MPI
-
+  MPI_Datatype DataType = MPI_LONG_DOUBLE;
+  MPI_Arg Count = Number;
+  
   int i;
-  FLOAT *buffer = new FLOAT[Number];
+  Eflt128 *buffer = new Eflt128[Number];
   for (i = 0; i < Number; i++)
     buffer[i] = Values[i];
 
-  MPI_Datatype DataType;
-  switch(sizeof(FLOAT)) {
-    case 4:
-        DataType = MPI_FLOAT;
-        break;
-    case 8:
-        DataType = MPI_DOUBLE;
-        break;
-    case 16:
-        DataType = MPI_LONG_DOUBLE;
-        break;
-  }
- 
-  MPI_Allreduce(buffer, Values, Number, DataType, MPI_SUM, MPI_COMM_WORLD);
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, ReduceOperation,
+		MPI_COMM_WORLD);
+  END_TIMING;
 
   delete [] buffer;
 
-#endif /* USE_MPI */
+  return SUCCESS;
+}
+
+int CommunicationAllReduceValues(Eint32 *Values, int Number, 
+				 MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_INT;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eint32 *buffer = new Eint32[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, ReduceOperation,
+		MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
 
   return SUCCESS;
 }
+
+int CommunicationAllReduceValues(Eint64 *Values, int Number, 
+				 MPI_Op ReduceOperation)
+{
+  
+  if (NumberOfProcessors == 1)
+    return SUCCESS;
+
+  MPI_Datatype DataType = MPI_LONG_LONG_INT;
+  MPI_Arg Count = Number;
+  
+  int i;
+  Eint64 *buffer = new Eint64[Number];
+  for (i = 0; i < Number; i++)
+    buffer[i] = Values[i];
+
+  START_TIMING;
+  MPI_Allreduce(buffer, Values, Count, DataType, ReduceOperation,
+		MPI_COMM_WORLD);
+  END_TIMING;
+
+  delete [] buffer;
+
+  return SUCCESS;
+}
+
+#endif /* USE_MPI */
+/***********************************************************************
+                               BARRIER
+************************************************************************/ 
 
 int CommunicationBarrier()
 {
@@ -403,8 +810,10 @@ int CommunicationBarrier()
   return SUCCESS;
 }
 
-/* Just like grid::CommunicationMethodShouldExit (in Grid.h) but for
-   any processor numbers */
+/************************************************************************
+  Just like grid::CommunicationMethodShouldExit (in Grid.h) but for
+  any processor numbers
+************************************************************************/
 
 int CommunicationShouldExit(int FromProc, int ToProc)
 {

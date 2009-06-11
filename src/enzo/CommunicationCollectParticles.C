@@ -31,15 +31,12 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
  
 Eint32 compare_grid(const void *a, const void *b);
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif /* USE_MPI */
 int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 				       int NumberOfGrids);
 int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
@@ -278,7 +275,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       }
 
 #ifdef USE_MPI
-      CommunicationAllReduceValuesINT(&EndGrid, 1, MPI_MIN);
+      CommunicationAllReduceValues(&EndGrid, 1, MPI_MIN);
 #endif
 
       TotalNumberToMove = 0;
@@ -290,7 +287,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
       AllMovedParticles = TotalNumberToMove;
 #ifdef USE_MPI
-      CommunicationAllReduceValuesINT(&AllMovedParticles, 1, MPI_SUM);
+      CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
 #endif
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("CCP: Collecting a total of %"ISYM" particles over"

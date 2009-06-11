@@ -24,6 +24,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 
 #define NO_DEATH 0
 #define KILL_STAR 1
@@ -38,9 +39,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 int StarParticleAccretion(Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 void DeleteStarList(Star * &Node);
-#ifdef USE_MPI
-int CommunicationReduceValues(float *Values, int Number, MPI_Op ReduceOperation);
-#endif
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 

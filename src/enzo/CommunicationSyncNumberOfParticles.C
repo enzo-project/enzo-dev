@@ -28,9 +28,8 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 
-int CommunicationAllSumIntegerValues(int *Values, int Number);
- 
 int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 				       int NumberOfGrids)
 {
@@ -45,7 +44,9 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
     else
       AllNumberOfParticles[i] = 0;
 
-  CommunicationAllSumIntegerValues(AllNumberOfParticles, NumberOfGrids);
+#ifdef USE_MPI
+  CommunicationAllReduceValues(AllNumberOfParticles, NumberOfGrids, MPI_SUM);
+#endif
 
   for (i = 0; i < NumberOfGrids; i++)
     GridHierarchyPointer[i]->GridData->SetNumberOfParticles(AllNumberOfParticles[i]);

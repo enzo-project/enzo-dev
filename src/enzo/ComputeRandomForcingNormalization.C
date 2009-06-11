@@ -9,6 +9,11 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "macros_and_parameters.h"
@@ -21,15 +26,13 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
  
 /* ======================================================================= */
 /* Function prototypes. */
  
 int   GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 			HierarchyEntry **Grids[]);
-int   CommunicationAllSumValues(float *Values, int Number);
-float CommunicationMinValue(float Value);
-float CommunicationMaxValue(float Value);
  
 /* This routine calculates the normalization for Random Forcing on
    level 0 (since this involves communication). */

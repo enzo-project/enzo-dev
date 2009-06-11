@@ -27,6 +27,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "communication.h"
+#include "CommunicationUtilities.h"
 
 #ifdef USE_MPI
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
@@ -41,7 +42,6 @@ int FindSuperSource(PhotonPackageEntry **PP, int &LeafID,
 		    int SearchNewTree = TRUE);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
-int CommunicationShouldExit(int FromProc, int ToProc);
 
 int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  int ToNumber, int FromNumber, 

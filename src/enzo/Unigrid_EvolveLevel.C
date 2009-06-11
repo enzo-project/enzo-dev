@@ -84,7 +84,6 @@ int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
 			     int NumberOfGrids, int level, float dt);
-float CommunicationMinValue(float Value);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],

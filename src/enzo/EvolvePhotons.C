@@ -34,6 +34,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 
 /* function prototypes */
 void my_exit(int status);
@@ -43,17 +44,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-float CommunicationMinValue(float Value);
 int InitiateKeepTransportingCheck(int keep_transporting);
 int StopKeepTransportingCheck();
 int InitializePhotonCommunication();
 int KeepTransportingCheck(int &keep_transporting);
-#ifdef USE_MPI
-int CommunicationReduceValuesDouble(double *Values, int Number, 
-				    MPI_Op ReduceOperation);
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif /* USE_MPI */
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
@@ -174,8 +168,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_MPI
   if (RadiativeTransferInterpolateField)
-    CommunicationAllReduceValuesINT(FieldsToInterpolate,
-				    MAX_NUMBER_OF_BARYON_FIELDS, MPI_MAX);
+    CommunicationAllReduceValues(FieldsToInterpolate,
+				 MAX_NUMBER_OF_BARYON_FIELDS, MPI_MAX);
 #endif /* USE_MPI */  
 
   /* Initialize interpolated radiation fields */  
@@ -279,7 +273,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (RadiativeTransferPhotonEscapeRadius > 0) {
 #ifdef USE_MPI
-    CommunicationReduceValuesDouble(EscapedPhotonCount, 4, MPI_SUM);
+    CommunicationReduceValues(EscapedPhotonCount, 4, MPI_SUM);
 #endif /* USE_MPI */
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 

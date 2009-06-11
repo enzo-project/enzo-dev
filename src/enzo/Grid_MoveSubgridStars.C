@@ -24,11 +24,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
+#include "CommunicationUtilities.h"
 
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
@@ -117,7 +114,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
 
   if (AllLocal == FALSE)
 #ifdef USE_MPI
-    CommunicationAllReduceValuesINT(StarsToMove, NumberOfSubgrids, MPI_MAX);
+    CommunicationAllReduceValues(StarsToMove, NumberOfSubgrids, MPI_MAX);
 #endif
 
   /* Transfer stars to other processors (and clean up). */

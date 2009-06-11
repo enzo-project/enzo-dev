@@ -24,8 +24,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "Star.h"
+#include "CommunicationUtilities.h"
 
-float CommunicationMinValue(float Value);
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],

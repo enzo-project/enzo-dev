@@ -28,14 +28,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "Star.h"
+#include "CommunicationUtilities.h"
 
-float CommunicationMinValue(float Value);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif /* USE_MPI */
 
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData)
@@ -156,7 +151,9 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   // deal with integers.
   
   TotalNumberOfParticles = NumberOfParticles;
-  CommunicationAllSumIntegerValues(&TotalNumberOfParticles, 1);
+#ifdef USE_MPI
+  CommunicationAllReduceValues(&TotalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
 
   int irand, threshold;
   int nRemoveLast, nRemoveTotal, nRemoveCurrent, NumberToRemove;
@@ -269,14 +266,13 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 	if (!RemoveFlag[i]) ParticlesLeft++;
 
       // Synchronize over all processors
-      CommunicationAllSumIntegerValues(&ParticlesLeft, 1);
-      //CommunicationAllSumIntegerValues(&NumberToRemove, 1);
 #ifdef USE_MPI
-      CommunicationAllReduceValuesINT(&nRemoveLast, 1, MPI_MIN);
-      CommunicationAllReduceValuesINT(RefineRegionLeftEdgeCell, 
-				      MAX_DIMENSION, MPI_MAX);
-      CommunicationAllReduceValuesINT(RefineRegionRightEdgeCell, 
-				      MAX_DIMENSION, MPI_MIN);
+      CommunicationAllReduceValues(&ParticlesLeft, 1, MPI_SUM);
+      CommunicationAllReduceValues(&nRemoveLast, 1, MPI_MIN);
+      CommunicationAllReduceValues(RefineRegionLeftEdgeCell, 
+				   MAX_DIMENSION, MPI_MAX);
+      CommunicationAllReduceValues(RefineRegionRightEdgeCell, 
+				   MAX_DIMENSION, MPI_MIN);
 #endif /* USE_MPI */
 
 //      if (debug) {
@@ -306,7 +302,9 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
     } // ENDFOR region faces
 
     // Synchronize over all processors
-    CommunicationAllSumIntegerValues(&nRemoveTotal, 1);
+#ifdef USE_MPI
+    CommunicationAllReduceValues(&nRemoveTotal, 1, MPI_SUM);
+#endif /* USE_MPI */
 
   } // ENDWHILE particles left
 

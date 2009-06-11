@@ -37,6 +37,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "fortran.def"
+#include "CommunicationUtilities.h"
  
 // Function prototypes
  
@@ -44,7 +45,6 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
 
 #ifdef MEM_TRACE
 Eint64 mused(void);
@@ -871,8 +871,10 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     LocalNumberOfParticles = 0;
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
     // printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
- 
-    CommunicationAllSumIntegerValues(&LocalNumberOfParticles, 1);
+
+#ifdef USE_MPI 
+    CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
     Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
  
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();

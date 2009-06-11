@@ -11,6 +11,10 @@
 /           Stepping outward by a cell width.
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -25,8 +29,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
-
-int CommunicationAllSumValues(float *Values, int Number);
+#include "CommunicationUtilities.h"
 
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     float &Radius, double &EjectaDensity, 

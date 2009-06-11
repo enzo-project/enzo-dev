@@ -37,6 +37,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "fortran.def"
+#include "CommunicationUtilities.h"
 
 #define CONTAINED_WITHIN_PARENT 
  
@@ -46,7 +47,6 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
  
 // Cosmology Parameters (that need to be shared)
@@ -917,7 +917,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
       // printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
  
-      CommunicationAllSumIntegerValues(&LocalNumberOfParticles, 1);
+#ifdef USE_MPI
+      CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
+#endif /* USE_MPI */
       Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
  
       LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
