@@ -372,8 +372,8 @@
 
       if (ispecies .gt. 1) then
 
-#define NEW_H2_COOL
-#ifdef NEW_H2_COOL
+#define USE_GLOVER_ABEL2008
+#ifdef USE_GLOVER_ABEL2008
          do i = is+1, ie+1
             if ( itmask(i) ) then
             gaHI(i) = gaHIa(indixe(i)) + (logtem(i) - t1(i))
@@ -496,7 +496,7 @@
          enddo
 
 #endif /* USE_GALLI_PALLA1999 */
-#endif /* NEW_H2_COOL */
+#endif /* USE_GLOVER_ABEL2008 */
 
       endif
 
