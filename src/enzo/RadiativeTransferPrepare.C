@@ -38,6 +38,9 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     float dtLevelAbove)
 {
 
+  /* Return if this does not concern us */
+  if (!(RadiativeTransfer)) return SUCCESS;
+
   /* Determine the photon timestep */
 
   if (RadiativeTransferComputeTimestep(LevelArray, MetaData, 

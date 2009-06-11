@@ -39,14 +39,14 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 				      int level, TopGridData *MetaData,
 				      float * norm, float * pTopGridTimeStep)
 {
+
+  /* Return if this does not concern us */
+  if (!RandomForcing) return SUCCESS;
  
   /* If level is above 0 then complain: forcing will only work on level 0
      grid(s). */
- 
-  if (level != 0) {
-    fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-    ENZO_FAIL("");
-  }
+
+  if ((MetaData->CycleNumber <= 0) || (level != 0)) return SUCCESS;
  
   /* Create an array (Grids) of all the grids on level 0. */
  

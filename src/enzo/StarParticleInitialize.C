@@ -31,6 +31,9 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 			   TopGridData *MetaData, Star *&AllStars)
 {
 
+  /* Return if this does not concern us */
+  if (!(StarParticleCreation || StarParticleFeedback)) return SUCCESS;
+
   int level;
   Star *cstar;
   LevelHierarchyEntry *Temp;

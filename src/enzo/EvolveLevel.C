@@ -408,22 +408,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Initialize the star particles */
 
     Star *AllStars = NULL;
-    if (StarParticleCreation || StarParticleFeedback)
-      if (StarParticleInitialize(LevelArray, level, MetaData, 
-				 AllStars) == FAIL) {
-	fprintf(stderr, "Error in StarParticleInitalize.\n");
-	ENZO_FAIL("");
-      }
+    StarParticleInitialize(LevelArray, level, MetaData, AllStars);
 
     /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
-    if (RadiativeTransfer)
-      if (RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
-				   dtLevelAbove) == FAIL) {
-	fprintf(stderr, "Error in RadiativeTransferPrepare.\n");
-	ENZO_FAIL("");
-      }
+    RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
+				   dtLevelAbove);
 #endif /* TRANSFER */
 
     /* For each grid, compute the number of it's subgrids. */
@@ -511,18 +502,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     When = 0.5;
  
 #ifdef FAST_SIB
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, SiblingList,
-			      level, MetaData, When) == FAIL) {
-	fprintf(stderr, "Error in PrepareDensityField.\n");
-	ENZO_FAIL("");
-      }
+     PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
-        fprintf(stderr, "Error in PrepareDensityField.\n");
-        ENZO_FAIL("");
-      }
+     PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
  
  
@@ -530,13 +512,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     /* Prepare normalization for random forcing. Involves top grid only. */
  
-    if (RandomForcing && MetaData->CycleNumber > 0 && level == 0)
-      if ( ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
-                                             &norm, &TopGridTimeStep)
-           == FAIL ) {
-        fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-        ENZO_FAIL("");
-      }
+    ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
+                                             &norm, &TopGridTimeStep);
  
     JBPERF_STOP("evolve-level-07"); // PrepareDensityField()
 

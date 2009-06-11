@@ -262,6 +262,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When)
 #endif  // end FAST_SIB
 {
+
+  /* Return if this does not concern us */
+  if (!(SelfGravity)) return SUCCESS;
  
   int grid1, grid2, StartGrid, EndGrid;
  
