@@ -42,6 +42,7 @@
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
 #include "communication.h"
+#include "CommunicationUtilities.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
 #endif
@@ -440,11 +441,11 @@ Eint32 main(Eint32 argc, char *argv[])
     }
  
 #ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     t_init1 = MPI_Wtime();
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "INITIALIZATION TIME = %16.8e\n", (t_init1-t_init0));
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
 #endif /* USE_MPI */
 
   }

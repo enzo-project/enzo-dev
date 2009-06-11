@@ -28,6 +28,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
@@ -105,10 +106,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
-
-#ifdef USE_MPI 
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
  
 //  Stop I/O timing
  

@@ -58,7 +58,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   /* -------------- FIRST PASS ----------------- */
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND;
@@ -108,7 +108,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   } // end loop over grids
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
  
   /* -------------- SECOND PASS ----------------- */
@@ -143,7 +143,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   } // end loop over grids
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -186,7 +186,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField (Send)\n");
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND;
@@ -198,7 +198,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   if (traceMPI) fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField (Receive)\n");
@@ -212,7 +212,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* Grids: compute the GravitatingMassField (baryons & particles). */
@@ -229,7 +229,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", MyProcessorNumber);
@@ -244,7 +244,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* Copy overlapping mass fields to ensure consistency and B.C.'s. */
@@ -266,7 +266,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): COMF2 (receive)\n", MyProcessorNumber);
@@ -284,7 +284,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       }
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -328,7 +328,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
           if (traceMPI) fprintf(tracePtr, "ITPOT send\n");
 
 #ifdef FORCE_MSG_PROGRESS 
-          MPI_Barrier(MPI_COMM_WORLD);
+          CommunicationBarrier();
 #endif
 
 	  CommunicationDirection = COMMUNICATION_SEND;
@@ -344,7 +344,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	     }
 
 #ifdef FORCE_MSG_PROGRESS 
-          MPI_Barrier(MPI_COMM_WORLD);
+          CommunicationBarrier();
 #endif
 
           if (traceMPI) fprintf(tracePtr, "ITPOT recv\n");
@@ -362,7 +362,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	     }
 
 #ifdef FORCE_MSG_PROGRESS
-          MPI_Barrier(MPI_COMM_WORLD);
+          CommunicationBarrier();
 #endif
 
 	  CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -407,7 +407,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       LevelHierarchyEntry *Temp = LevelArray[reallevel];
 
 #ifdef FORCE_MSG_PROGRESS 
-      MPI_Barrier(MPI_COMM_WORLD);
+      CommunicationBarrier();
 #endif
 
       CommunicationDirection = COMMUNICATION_SEND;
@@ -424,7 +424,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       }
 
 #ifdef FORCE_MSG_PROGRESS 
-      MPI_Barrier(MPI_COMM_WORLD);
+      CommunicationBarrier();
 #endif
 
       CommunicationDirection = COMMUNICATION_RECEIVE;
@@ -442,7 +442,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       }
 
 #ifdef FORCE_MSG_PROGRESS 
-      MPI_Barrier(MPI_COMM_WORLD);
+      CommunicationBarrier();
 #endif
 
       CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -480,7 +480,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
   /* -------------- FIRST PASS ----------------- */
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND;
@@ -524,7 +524,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
   } // end of loop over subgrids
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   /* -------------- SECOND PASS ----------------- */
@@ -581,7 +581,7 @@ int UpdateFromFinerGrids(int bogus_level, HierarchyEntry *Grids[], int NumberOfG
   } // end of loop over subgrids
 
 #ifdef FORCE_MSG_PROGRESS 
-  MPI_Barrier(MPI_COMM_WORLD);
+  CommunicationBarrier();
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;

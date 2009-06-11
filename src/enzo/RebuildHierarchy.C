@@ -60,8 +60,6 @@ int SetSubgridMarker(TopGridData &MetaData,
 #endif
 double ReturnWallTime(void);
 
-#define NO_TIME_MESSAGING
- 
 /* RebuildHierarchy function */
  
 int RebuildHierarchy(TopGridData *MetaData,

@@ -30,6 +30,7 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
  
 // Function prototypes
  
@@ -64,9 +65,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 
   /* Initialize storage for grid left edges */
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
  
   /* Attach RandomForcingFields as BaryonFields (for the duration
      of partitioning only). */
@@ -505,9 +504,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
   /* Distribute new grids amoung processors (and copy out fields). */
 
-#ifdef USE_MPI 
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
  
   gridcounter = 0;
   ThisGrid = Grid;
@@ -605,9 +602,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
       }
 
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
  
   /* Clean up. */
 
@@ -628,9 +623,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   }
 
   if (debug) printf("Exit CommunicationPartitionGrid.\n");
-#ifdef USE_MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif /* USE_MPI */
+  CommunicationBarrier();
  
   return SUCCESS;
 }
