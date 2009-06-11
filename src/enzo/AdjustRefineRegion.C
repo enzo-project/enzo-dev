@@ -34,8 +34,11 @@
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
-		       TopGridData *MetaData)
+		       TopGridData *MetaData, int EL_level)
 {
+
+  if (!(RefineRegionAutoAdjust && EL_level == 0))
+    return SUCCESS;
 
   if (RefineRegionLeftEdge[0] == DomainLeftEdge[0] &&
       RefineRegionRightEdge[0] == DomainRightEdge[0])

@@ -179,11 +179,11 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
-		       TopGridData *MetaData);
+		       TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars);
+		  Star *AllStars, int level);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -346,11 +346,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      particles are included.  We don't want the more massive particles
      to contaminate the high-resolution region. */
 
-  if (RefineRegionAutoAdjust && level == 0)
-    if (AdjustRefineRegion(LevelArray, MetaData) == FAIL) {
-      fprintf(stderr, "Error in AdjustRefineRegion.\n");
-      ENZO_FAIL("");
-    }
+  AdjustRefineRegion(LevelArray, MetaData, level);
 
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.
@@ -631,25 +627,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Solve the radiative transfer */
 	
 #ifdef TRANSFER
-      while ((dtPhoton > 0.) && RadiativeTransfer &&
-	     (Grids[grid1]->GridData->ReturnTime() >= PhotonTime))  {
-	if (debug) 
-	  printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
-		 level, dtPhoton, PhotonTime);
-	if (EvolvePhotons(MetaData, LevelArray, AllStars) == FAIL) {
-	  fprintf(stderr, "Error in EvolvePhotons.\n");
-	  ENZO_FAIL("");
-	}
-      } /* ENDWHILE evolve photon */
+      EvolvePhotons(MetaData, LevelArray, AllStars, level);
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-	JBPERF_START("evolve-level-14"); // change this?
-    Grids[grid1]->GridData->MultiSpeciesHandler();
-    JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
+      JBPERF_START("evolve-level-14"); // change this?
+      Grids[grid1]->GridData->MultiSpeciesHandler();
+      JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
 
       /* Update particle positions (if present). */
  
