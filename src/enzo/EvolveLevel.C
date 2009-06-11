@@ -560,7 +560,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Radiation Pressure: add to acceleration field */
 
 #ifdef TRANSFER
-	  Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL);
+      Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
 
       /* Check for energy conservation. */
