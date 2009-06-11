@@ -14,6 +14,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -56,7 +57,7 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->ApplyTimeAction(TimeActionType[i],
 					   TimeActionParameter[i]) == FAIL) {
 	    fprintf(stderr, "Errot in grid->ApplyTimeAction\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -96,7 +97,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	       LengthUnits, TemperatureUnits, TimeUnits, 
 	       VelocityUnits) == FAIL) {
       fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     if (SphereContained == FALSE)
@@ -117,7 +118,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 				EjectaMetalDensity, EjectaThermalEnergy, 
 				CellsModified) == FAIL) {
 	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
     /* Only kill a Pop III star after it has gone SN */

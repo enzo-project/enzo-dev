@@ -453,6 +453,7 @@ OBJS_CONFIG_LIB = \
 	SedovBlastInitialize.o \
 	select_fft.o \
 	SetDefaultGlobalValues.o \
+	SetLevelTimeStep.o \
 	sgi_st1_fft64.o \
 	ShockInABoxInitialize.o \
 	ShockPoolInitialize.o \

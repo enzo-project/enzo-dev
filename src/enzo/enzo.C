@@ -24,8 +24,10 @@
 #include <string.h>
 #include <unistd.h>
  
+#include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #define DEFINE_STORAGE
@@ -484,6 +486,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   // Call the main evolution routine
  
+  try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Error in EvolveHierarchy.\n");
@@ -495,6 +498,11 @@ Eint32 main(Eint32 argc, char *argv[])
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Successful run, exiting.\n");
     }
+  }
+  } catch(EnzoFatalException&) {
+    fprintf(stderr, "Failure reported on processor %"ISYM"\n",
+                MyProcessorNumber);
+    CommunicationAbort(EXIT_FAILURE);
   }
 
  

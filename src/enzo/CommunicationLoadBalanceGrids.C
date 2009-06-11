@@ -16,6 +16,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -206,7 +207,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   /* Receive grids */
 
   if (CommunicationReceiveHandler() == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 
   /* Update processor numbers */
   

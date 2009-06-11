@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -107,7 +108,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
   for (i = 0; i < 4; i++)
@@ -128,7 +129,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RadiativeTransferSourceClustering == TRUE) {
     if (CreateSourceClusteringTree(NULL, NULL, LevelArray) == FAIL) {
       fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     //PrintSourceClusteringTree(SourceClusteringTree);
   }
@@ -145,7 +146,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->PointInGrid(RS->Position)) {
 	    if (Temp->GridData->Shine(RS) == FAIL) {
 	      fprintf(stderr, "Error in Shine.\n");
-	      return FAIL;
+	      ENZO_FAIL("");
 	    }
 	    Continue = FALSE; // do not continue with this source
 	  } // If source in grid
@@ -160,7 +161,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (level == 0 && Continue) {  // this should never happen ... 
 	fprintf(stderr, "Could not find grid for source %x: Pos: %"FSYM" %"FSYM" %"FSYM"\n",
 		RS, RS->Position[0], RS->Position[1], RS->Position[2]);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }    // Loop through levels 
     RS = RS->NextSource;
@@ -179,7 +180,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 //	if (Temp->GridData->AllocateInterpolatedRadiation() == FAIL) {
 //	  fprintf(stderr, "Error in grid->AllocateInterpolatedRadiation.\n");
-//	  return FAIL;
+//	  ENZO_FAIL("");
 //	}
 
   /* Evolve all photons by fixed timestep. */
@@ -219,7 +220,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			    nGrids0, Helper, Grids[GridNum]->GridData) == FAIL) {
 	  fprintf(stderr, "Error in %"ISYM" th grid. "
 		  "grid->TransportPhotonPackages.\n",GridNum);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
       } // ENDFOR grids
@@ -239,7 +240,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, 
 				     keep_transporting) == FAIL) {
       fprintf(stderr, "Error in CommunicationTransferPhotons.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     /* Receive keep_transporting messages and take the MAX */
@@ -282,14 +283,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (TotalEscapedPhotonCount[0] <= 0) {
 	if ((fptr = fopen(PhotonEscapeFilename, "w")) == NULL) {
 	  fprintf(stderr, "Error opening file %s\n", PhotonEscapeFilename);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	fprintf(fptr, 
 		"# Time TotalPhotons fesc(0.5rvir) fesc(rvir) fesc(2rvir)\n");
       } else {
 	if ((fptr = fopen(PhotonEscapeFilename, "a")) == NULL) {
 	  fprintf(stderr, "Error opening file %s\n", PhotonEscapeFilename);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       }
 
@@ -329,7 +330,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (Temp->GridData->RadiationPresent() == TRUE)
 	if (Temp->GridData->FinalizeRadiationFields() == FAIL) {
 	  fprintf(stderr, "Error in FinalizeRadiationFields.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
@@ -340,24 +341,24 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    RadiativeTransferOpticallyThinH2)
 	  if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
 	    fprintf(stderr, "Error in AddH2Dissociation.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
 //	if (Temp->GridData->CorrectRadiationIncompleteness() == FAIL) {
 //	  fprintf(stderr, "Error in CorrectionRadiationIncompleteness.\n");
-//	  return FAIL;
+//	  ENZO_FAIL("");
 //	}
 
 //	if (RadiativeTransferInterpolateField)
 //	  if (Temp->GridData->ConvertToCellCenteredRadiation() == FAIL) {
 //	    fprintf(stderr, "Error in grid->ConvertToCellCenteredRadiation.\n");
-//	    return FAIL;
+//	    ENZO_FAIL("");
 //	  }
 
 	if (RadiativeTransferCoupledRateSolver)
 	  if (Temp->GridData->SolveCoupledRateEquations() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveCoupledRateEquations.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
 	if (RadiativeTransferCoupledRateSolver &&
@@ -375,7 +376,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (Temp->GridData->RadiationPresent() == FALSE)
 	  if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
 	    fprintf(stderr, "Error in AddH2Dissociation.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
   debug = debug_store;

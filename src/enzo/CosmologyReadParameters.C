@@ -14,6 +14,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -90,7 +91,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
   if (CosmologyComputeTimeFromRedshift(InitialRedshift,
 				       &InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   if (*InitTime == 0.0)
     *InitTime = InitialTimeInCodeUnits;
@@ -99,7 +100,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   if (CosmologyComputeTimeFromRedshift(FinalRedshift, StopTime) == FAIL) {
     fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Convert the output redshifts into time, for later convenience. */

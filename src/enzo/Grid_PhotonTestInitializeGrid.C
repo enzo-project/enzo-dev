@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -114,7 +115,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   //   Allocate fields for photo ionization and heating rates
@@ -254,7 +255,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   if (this->InitializeRadiativeTransferFields() == FAIL) {
     fprintf(stderr, "\nError in InitializeRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Loop over the mesh. */

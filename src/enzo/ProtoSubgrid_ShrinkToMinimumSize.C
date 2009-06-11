@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -58,7 +59,7 @@ int ProtoSubgrid::ShrinkToMinimumSize()
  
     if (i == GridDimension[dim]) {
       fprintf(stderr, "No flagged cells in ProtoSubgrid!\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Look for the end. */

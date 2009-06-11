@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,12 +35,12 @@ int StarParticleAccretion(Star *&AllStars)
 
     if (ThisStar->CalculateMassAccretion() == FAIL) {
       fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     if (ThisStar->Accrete() == FAIL) {
       fprintf(stderr, "Error in star::Accrete.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     
   }

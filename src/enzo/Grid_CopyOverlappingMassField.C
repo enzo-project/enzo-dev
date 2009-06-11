@@ -17,6 +17,7 @@
 #endif /* USE_MPI */
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,7 +37,7 @@ int grid::CopyOverlappingMassField(grid *OtherGrid,
  
   if (OtherGrid == NULL) {
     fprintf(stderr, "Grid_CopyOverlappingMassField: NULL OtherGrid!\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   this->DebugCheck("CopyOverlappingMassField");

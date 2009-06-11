@@ -1,5 +1,6 @@
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 void pcol(FLOAT *x, int n, int m, FILE *log_fptr)

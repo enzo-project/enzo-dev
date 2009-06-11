@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -37,7 +38,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
  
   if (FlaggingField == NULL) {
     fprintf(stderr, "Flagging Field is undefined.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* compute size */

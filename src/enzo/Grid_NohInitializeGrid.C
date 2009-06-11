@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -32,7 +33,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
 
   if (GridRank < 2 || GridRank > 3) {
     fprintf(stderr, "GridRank must be 2 or 3\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* create fields */

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -212,7 +213,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
 	fprintf(stderr, "malloc error (out of memory?)\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
 #ifdef USE_MPI

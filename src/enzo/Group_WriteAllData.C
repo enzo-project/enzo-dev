@@ -32,6 +32,7 @@
 #include <stdio.h>
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -469,14 +470,14 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(name, "w")) == NULL) {
       fprintf(stderr, "Error opening output file %s\n", name);
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (WriteTime >= 0)
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     if (WriteParameterFile(fptr, MetaData) == FAIL) {
       fprintf(stderr, "Error in WriteParameterFile\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     fclose(fptr);
   
@@ -488,13 +489,13 @@ int Group_WriteAllData(char *basename, int filenumber,
     if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) {
       fprintf(stderr, "Error opening boundary condition file: %s\n",
 	      MetaData.BoundaryConditionName);
-      return FAIL;
+      ENZO_FAIL("");
     }
     strcat(MetaData.BoundaryConditionName, hdfsuffix);
     if (Exterior->WriteExternalBoundary(fptr, MetaData.BoundaryConditionName)
 	== FAIL) {
       fprintf(stderr, "Error in WriteExternalBoundary\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     fclose(fptr);
  
@@ -530,12 +531,12 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) {
       fprintf(stderr, "Error opening hierarchy file %s\n", hierarchyname);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid, gridbasename, GridID, WriteTime, file_id) == FAIL) {
     fprintf(stderr, "Error in Group_WriteDataHierarchy\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   // At this point all the grid data has been written
@@ -553,12 +554,12 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((mptr = fopen(memorymapname, "w")) == NULL) {
       fprintf(stderr, "Error opening memory map file %s\n", memorymapname);
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   if (WriteMemoryMap(mptr, TempTopGrid, gridbasename, GridKD, WriteTime) == FAIL) {
     fprintf(stderr, "Error in WriteMemoryMap\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   // Output configure
@@ -566,7 +567,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((optr = fopen(configurename, "w")) == NULL) {
       fprintf(stderr, "Error opening configure file %s\n", configurename);
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     WriteConfigure(optr);
@@ -578,12 +579,12 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   if ((tptr = fopen(taskmapname, "w")) == NULL) {
     fprintf(stderr, "Error opening task map file %s\n", taskmapname);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL) {
     fprintf(stderr, "Error in WriteTaskMap\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   int TGdims[3];
@@ -597,7 +598,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataCubes\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  
@@ -614,7 +615,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
   if (WriteStarParticleData(fptr) == FAIL) {
     fprintf(stderr, "Error in WriteStarParticleData\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Create radiation name and write radiation data
@@ -629,11 +630,11 @@ int Group_WriteAllData(char *basename, int filenumber,
  
     if ((Radfptr = fopen(radiationname, "w")) == NULL) {
       fprintf(stderr, "Error opening radiation file %s\n", radiationname);
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (WriteRadiationData(Radfptr) == FAIL) {
       fprintf(stderr, "Error in WriteRadiationData\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     fclose(Radfptr);

@@ -26,6 +26,7 @@
  
 #include <stdio.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,7 +45,7 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
  
   if (RefinementFactor < 1 || RefinementFactor > RefineBy) {
     fprintf(stderr, "RefinementFactor = %"ISYM" out of range.\n", RefinementFactor);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Check to see if the field was already initialized. */

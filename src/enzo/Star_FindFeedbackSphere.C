@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -113,7 +114,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity) == FAIL) {
 	  fprintf(stderr, "Error in GetEnclosedMass.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 	Temp = Temp->NextGridThisLevel;

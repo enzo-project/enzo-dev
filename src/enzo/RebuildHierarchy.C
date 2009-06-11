@@ -22,6 +22,7 @@
 #include <string.h>
 #include <time.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -152,13 +153,13 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    MoveAllStars(grids2, ContigiousGridList, 
 			 MetaData->TopGridDims[0]) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllStars.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 	if (GridParent[j]->GridData->MoveAllParticles(grids2,
 					   ContigiousGridList) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllParticles.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 #ifdef TRANSFER   
@@ -166,7 +167,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (GridParent[j]->GridData->
 	    MoveAllPhotonPackages(grids2, ContigiousGridList) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllPhotonPackages(%"ISYM").\n", level);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 #endif // TRANSFER
 	
@@ -192,7 +193,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
     if (CommunicationTransferParticles(GridPointer, grids) == FAIL) {
       fprintf(stderr, "Error in CommunicationTransferParticles.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   } // ENDIF level 0
@@ -208,7 +209,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     if (CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal, 
 				      SIBLINGS_ONLY) == FAIL) {
       fprintf(stderr, "Error in CommunicationCollectParticles(root).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     ParticlesAreLocal = true;
     TIME_MSG("After CommunicationCollectParticles.");
@@ -287,7 +288,7 @@ int RebuildHierarchy(TopGridData *MetaData,
       if (DepositParticleMassFlaggingField(LevelArray, i, 
 					   ParticlesAreLocal) == FAIL) {
 	fprintf(stderr, "Error in DepositParticleMassFlaggingField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       /* 3b.2) Loop over grids creating new (but empty!) subgrids
@@ -298,7 +299,7 @@ int RebuildHierarchy(TopGridData *MetaData,
       for (j = 0; j < grids; j++)
 	if (FindSubgrids(GridHierarchyPointer[j], i) == FAIL) {
 	  fprintf(stderr, "Error in FindSubgrids.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
       TIME_MSG("Found new subgrids");
@@ -345,7 +346,7 @@ int RebuildHierarchy(TopGridData *MetaData,
       if (CommunicationCollectParticles(LevelArray, i, ParticlesAreLocal,
 					SUBGRIDS_LOCAL) == FAIL) {
 	fprintf(stderr, "Error in CommunicationCollectParticles(subgrids).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       TIME_MSG("Moved subgrid particles");
       if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -424,7 +425,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 			      MetaData->LeftFaceBoundaryCondition,
 			      MetaData->RightFaceBoundaryCondition) == FAIL) {
 	  fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	/* For each of the sibling grids, copy data. */
@@ -433,7 +434,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (SiblingList.GridList[j]->CopyZonesFromGrid(
 		                        Temp->GridData, ZeroVector) == FAIL) {
 	    fprintf(stderr, "Error in grid->CopyZonesFromGridCountOnly.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	}
  
@@ -478,7 +479,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    if (CommunicationCollectParticles(LevelArray, j, ParticlesAreLocal,
 					      SIBLINGS_ONLY) == FAIL) {
 	      fprintf(stderr, "Error in CommunicationCollectParticles(siblings).\n");
-	      return FAIL;
+	      ENZO_FAIL("");
 	    }
 	//CommunicationSyncNumberOfParticles(SubgridHierarchyPointer, subgrids);
 	TIME_MSG("Finished collecting particles");
@@ -497,7 +498,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
 	if (TempLevelArray[i+1]->GridData != NULL) {
 	  fprintf(stderr, "An old subgrid was not deleted.  Why?\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	/* Remove the LevelHierarchy entry for that grid. */
@@ -558,7 +559,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		              SubgridHierarchyPointer[k]->GridData,
 		              ZERO_UNDER_SUBGRID_FIELD, float(k+1)) == FAIL) {
 	      fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	      return FAIL;
+	      ENZO_FAIL("");
 	    }
 	    ToGrids[k] = SubgridHierarchyPointer[k]->GridData;
 	  }
@@ -566,13 +567,13 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridStars(
 				 subgrids, ToGrids, FALSE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridStars.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridParticlesFast(
 				 subgrids, ToGrids, FALSE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridParticlesFast.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
  
 	}
@@ -585,7 +586,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (Temp->GridData->InterpolateBoundaryFromParent
 	    (Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	Temp = Temp->NextGridThisLevel;
@@ -600,7 +601,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 #ifdef TRANSFER
   if (SetSubgridMarker(*MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in SetSubgridMarker from RebuildHierarchy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 #endif /* TRANSFER  */
  

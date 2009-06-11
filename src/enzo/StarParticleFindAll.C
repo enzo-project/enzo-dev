@@ -17,6 +17,7 @@
 #endif /* USE_MPI */
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -68,13 +69,13 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       // velocity)
       if (Grids[GridNum]->GridData->UpdateStarParticles(level) == FAIL) {
 	fprintf(stderr, "Error in grid::UpdateStarParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Then find any newly created star particles
       if (Grids[GridNum]->GridData->FindNewStarParticles(level) == FAIL) {
 	fprintf(stderr, "Error in grid::FindNewStarParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Now copy any stars into the local linked list

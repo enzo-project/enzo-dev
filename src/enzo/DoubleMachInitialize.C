@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -77,7 +78,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (TopGrid.GridData->DoubleMachInitializeGrid(d0, e0, u0, v0, w0) == FAIL) {
     fprintf(stderr, "Error in DoubleMachInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* If requested, create a subgrid */
@@ -116,7 +117,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid->GridData->DoubleMachInitializeGrid(d0, e0, u0, v0, w0)
 	== FAIL) {
       fprintf(stderr, "Error in DoubleMachInitializeGrid (subgrid).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }			
   }
  
@@ -134,7 +135,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
     fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   Exterior.InitializeExternalBoundaryFace(1, inflow, inflow, InflowValue,

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -37,12 +38,12 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
  
   if (BaryonField[NumberOfBaryonFields] == NULL) {
     fprintf(stderr, "UNDER_SUBGRID_FLAG field not set.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (SelfGravity && GravityResolution != 1) {
     fprintf(stderr, "OutputAsParticleData assumes GravityResolution == 1.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Declarations */
@@ -59,7 +60,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (ComovingCoordinates) {
@@ -108,7 +109,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Compute the temperature. */
@@ -116,7 +117,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     float *temperature = new float[size];
     if (this->ComputeTemperatureField(temperature) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Find the start and stop indicies in the ProjectionDimension of this

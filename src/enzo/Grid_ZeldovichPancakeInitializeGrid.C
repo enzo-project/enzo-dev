@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -49,11 +50,11 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   if (ZeldovichPancakeDirection < 0 || ZeldovichPancakeDirection >= GridRank) {
     fprintf(stderr, "ZeldovichPancakeDirection is improperly set.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   if (ZeldovichPancakeOmegaCDMNow != 0) {
     fprintf(stderr, "Dark matter not yet supported.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* create fields */
@@ -83,7 +84,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 
 	       InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Determine the size of the fields. */
