@@ -203,6 +203,9 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     float dtLevelAbove);
 #endif
 
+int SetLevelTimeStep(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+		int level, float dtLevelAbove, ExternalBoundary *Exterior);
+
 void my_exit(int status);
  
  
@@ -396,63 +399,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   while (dtThisLevelSoFar < dtLevelAbove) {
  
-    /* Determine the timestep for this iteration of the loop. */
- 
-    JBPERF_START("evolve-level-04"); // SetTimeStep()
-
-    if (level == 0) {
- 
-      /* For root level, use dtLevelAbove. */
- 
-      dtThisLevel      = dtLevelAbove;
-      dtThisLevelSoFar = dtLevelAbove;
-      dtActual         = dtLevelAbove;
- 
-    } else {
- 
-      /* Compute the mininum timestep for all grids. */
- 
-      dtThisLevel = huge_number;
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-	dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
-	dtThisLevel = min(dtThisLevel, dtGrid);
-      }
-      dtThisLevel = CommunicationMinValue(dtThisLevel);
-
-      dtActual = dtThisLevel;
-
-#ifdef USE_DT_LIMIT
-
-//    dtLimit = LevelZeroDeltaT/(4.0)/POW(RefineBy,level);
-
-      dtLimit = 0.5/(4.0)/POW(2.0,level);
-
-      if ( dtActual < dtLimit ) {
-        dtThisLevel = dtLimit;
-      }
-
-#endif
- 
-      /* Advance dtThisLevelSoFar (don't go over dtLevelAbove). */
- 
-      if (dtThisLevelSoFar+dtThisLevel*1.05 >= dtLevelAbove) {
-	dtThisLevel      = dtLevelAbove - dtThisLevelSoFar;
-	dtThisLevelSoFar = dtLevelAbove;
-      }
-      else
-	dtThisLevelSoFar += dtThisLevel;
- 
-    }
-
-    if (debug) printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM"  (%"GSYM"/%"GSYM")\n", level, dtThisLevel, dtActual,
-		      dtThisLevelSoFar, dtLevelAbove);
- 
-    /* Set all grid's timestep to this minimum dt. */
- 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->SetTimeStep(dtThisLevel);
- 
-    JBPERF_STOP("evolve-level-04"); // SetTimeStep()
+    SetLevelTimeStep(MetaData, LevelArray, level, dtLevelAbove, Exterior);
 
     /* Initialize the star particles */
 
