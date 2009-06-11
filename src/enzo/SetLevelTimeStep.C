@@ -35,7 +35,6 @@ int SetLevelTimeStep(HierarchyEntry *Grids[],
 {
     float dtGrid, dtActual, dtLimit;
     int grid1;
-    *dtThisLevelSoFar = 0.0;
     JBPERF_START("evolve-level-04"); // SetTimeStep()
 
     if (level == 0) {
