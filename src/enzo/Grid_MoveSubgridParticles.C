@@ -13,6 +13,7 @@
 //
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -40,7 +41,7 @@ int start;
  
   if (ProcessorNumber != FromGrid->ProcessorNumber) {
     fprintf(stderr, "This routine not parallelized.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* If there are no particles to move, we're done. */

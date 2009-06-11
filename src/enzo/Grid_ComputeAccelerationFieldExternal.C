@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -33,6 +34,9 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int grid::ComputeAccelerationFieldExternal()
 {
  
+  /* Return if this does not concern us */
+  if (!(UniformGravity || PointSourceGravity)) return SUCCESS;
+
   /* Return if this grid is not on this processor. */
  
   if (MyProcessorNumber != ProcessorNumber)
@@ -68,7 +72,7 @@ int grid::ComputeAccelerationFieldExternal()
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	  == FAIL) {
 	fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     /* Loop over grid, adding acceleration to field. */

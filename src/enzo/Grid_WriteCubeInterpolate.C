@@ -21,6 +21,7 @@
 #include <math.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -54,7 +55,7 @@ int grid::WriteCubeInterpolate(FLOAT WriteTime, char *base_name, int grid_id, in
   if (Time != WriteTime) {
     if (Time <= OldTime) {
       fprintf(stderr, "WGI: fields are at the same time or worse.\n");
-      return FAIL;
+      ENZO_FAIL("");
     } else {
       coef1 = max((Time - WriteTime)/
 		  (Time - OldTime), 0.0);
@@ -80,7 +81,7 @@ int grid::WriteCubeInterpolate(FLOAT WriteTime, char *base_name, int grid_id, in
   float TimeDifference = WriteTime - Time;
   if (this->UpdateParticlePosition(TimeDifference) == FAIL) {
     fprintf(stderr, "Error in grid->UpdateParticlePosition.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Write grid (temporarily replace Time with WriteTime). */
@@ -90,7 +91,7 @@ int grid::WriteCubeInterpolate(FLOAT WriteTime, char *base_name, int grid_id, in
  
   if (this->WriteCube(base_name, grid_id, TGdims) == FAIL) {
     fprintf(stderr, "Error in grid->WriteCube.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   Time = SavedTime;

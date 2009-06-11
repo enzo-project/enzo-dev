@@ -36,6 +36,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
@@ -53,7 +54,7 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
   FLOAT a, dadt;
   if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
     fprintf(stderr, "Error in ComputeExpansionFactor.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Compute the current redshift (remember a(init) = 1). */

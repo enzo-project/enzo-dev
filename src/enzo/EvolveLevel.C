@@ -73,6 +73,7 @@
 #include <math.h>
 
 #include "performance.h"
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -83,6 +84,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
  
 /* function prototypes */
  
@@ -93,20 +95,19 @@ int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
 			     int NumberOfGrids, int level, float dt);
-float CommunicationMinValue(float Value);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
  
-#ifdef SIB3
+#ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
 			int level, TopGridData *MetaData, FLOAT When);
-#else  // !SIB3
+#else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
-#endif  // end SIB3
+#endif  // end FAST_SIB
  
-#ifdef SIB2
+#ifdef FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData,
@@ -118,7 +119,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
 #ifdef SAB
-#ifdef SIB2
+#ifdef FAST_SIB
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
@@ -148,24 +149,10 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
  
 int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
-int WriteStreamData(HierarchyEntry *Grids[], int NumberOfGrids, 
-		    TopGridData *MetaData, int CycleCount, int EndStep = FALSE);
-int WriteMovieData(char *basename, int filenumber,
-		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-		   FLOAT WriteTime);
-int WriteTracerParticleData(char *basename, int filenumber,
-		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-		   FLOAT WriteTime);
 
-#ifdef USE_HDF5_GROUPS
-int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1);
-#else
-int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1);
-#endif
+
+int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
+		      int level, ExternalBoundary *Exterior);
  
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
@@ -202,6 +189,11 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     float dtLevelAbove);
 #endif
 
+int SetLevelTimeStep(HierarchyEntry *Grids[],
+        int NumberOfGrids, int level,
+        float *dtThisLevelSoFar, float *dtThisLevel,
+        float dtLevelAbove);
+
 void my_exit(int status);
  
  
@@ -222,8 +214,6 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
-#define TIME_MESSAGING 
-
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)
@@ -233,7 +223,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dbx = 0;
  
   FLOAT When;
-  float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
+  //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
+  float dtThisLevelSoFar = 0.0, dtThisLevel;
   int RefinementFactors[MAX_DIMENSION];
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
@@ -292,7 +283,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                               MetaData->LeftFaceBoundaryCondition,
                               MetaData->RightFaceBoundaryCondition) == FAIL) {
           fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-          return FAIL;
+          ENZO_FAIL("");
         }
 
       /* Clean up the chaining mesh. */
@@ -342,7 +333,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			      MetaData->LeftFaceBoundaryCondition,
 			      MetaData->RightFaceBoundaryCondition) == FAIL) {
       fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Clean up the chaining mesh. */
@@ -358,21 +349,21 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RefineRegionAutoAdjust && level == 0)
     if (AdjustRefineRegion(LevelArray, MetaData) == FAIL) {
       fprintf(stderr, "Error in AdjustRefineRegion.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.
                     b) copy any overlapping zones.  */
  
-#ifdef SIB2
+#ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                             Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 #endif
  
   JBPERF_STOP("evolve-level-02"); // SetBoundaryConditions()
@@ -395,83 +386,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   while (dtThisLevelSoFar < dtLevelAbove) {
  
-    /* Determine the timestep for this iteration of the loop. */
- 
-    JBPERF_START("evolve-level-04"); // SetTimeStep()
-
-    if (level == 0) {
- 
-      /* For root level, use dtLevelAbove. */
- 
-      dtThisLevel      = dtLevelAbove;
-      dtThisLevelSoFar = dtLevelAbove;
-      dtActual         = dtLevelAbove;
- 
-    } else {
- 
-      /* Compute the mininum timestep for all grids. */
- 
-      dtThisLevel = huge_number;
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-	dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
-	dtThisLevel = min(dtThisLevel, dtGrid);
-      }
-      dtThisLevel = CommunicationMinValue(dtThisLevel);
-
-      dtActual = dtThisLevel;
-
-#ifdef USE_DT_LIMIT
-
-//    dtLimit = LevelZeroDeltaT/(4.0)/POW(RefineBy,level);
-
-      dtLimit = 0.5/(4.0)/POW(2.0,level);
-
-      if ( dtActual < dtLimit ) {
-        dtThisLevel = dtLimit;
-      }
-
-#endif
- 
-      /* Advance dtThisLevelSoFar (don't go over dtLevelAbove). */
- 
-      if (dtThisLevelSoFar+dtThisLevel*1.05 >= dtLevelAbove) {
-	dtThisLevel      = dtLevelAbove - dtThisLevelSoFar;
-	dtThisLevelSoFar = dtLevelAbove;
-      }
-      else
-	dtThisLevelSoFar += dtThisLevel;
- 
-    }
-
-    if (debug) printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM"  (%"GSYM"/%"GSYM")\n", level, dtThisLevel, dtActual,
-		      dtThisLevelSoFar, dtLevelAbove);
- 
-    /* Set all grid's timestep to this minimum dt. */
- 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->SetTimeStep(dtThisLevel);
- 
-    JBPERF_STOP("evolve-level-04"); // SetTimeStep()
+    SetLevelTimeStep(Grids, NumberOfGrids, level, 
+        &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
 
     /* Initialize the star particles */
 
     Star *AllStars = NULL;
-    if (StarParticleCreation || StarParticleFeedback)
-      if (StarParticleInitialize(LevelArray, level, MetaData, 
-				 AllStars) == FAIL) {
-	fprintf(stderr, "Error in StarParticleInitalize.\n");
-	return FAIL;
-      }
+    StarParticleInitialize(LevelArray, level, MetaData, AllStars);
 
     /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
-    if (RadiativeTransfer)
-      if (RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
-				   dtLevelAbove) == FAIL) {
-	fprintf(stderr, "Error in RadiativeTransferPrepare.\n");
-	return FAIL;
-      }
+    RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
+				   dtLevelAbove);
 #endif /* TRANSFER */
 
     /* For each grid, compute the number of it's subgrids. */
@@ -485,7 +412,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	NextGrid = NextGrid->NextGridThisLevel;
 	if (++counter > MAX_NUMBER_OF_SUBGRIDS) {
 	  fprintf(stderr, "More subgrids than MAX_NUMBER_OF_SUBGRIDS.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       }
       NumberOfSubgrids[grid1] = counter + 1;
@@ -558,33 +485,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     When = 0.5;
  
-#ifdef SIB3
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, SiblingList,
-			      level, MetaData, When) == FAIL) {
-	fprintf(stderr, "Error in PrepareDensityField.\n");
-	return FAIL;
-      }
-#else   // !SIB3
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
-        fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
-      }
-#endif  // end SIB3
+#ifdef FAST_SIB
+     PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else   // !FAST_SIB
+     PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
  
  
 //  fprintf(stderr, "%"ISYM": EvolveLevel: Exit PrepareDensityField\n", MyProcessorNumber);
  
     /* Prepare normalization for random forcing. Involves top grid only. */
  
-    if (RandomForcing && MetaData->CycleNumber > 0 && level == 0)
-      if ( ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
-                                             &norm, &TopGridTimeStep)
-           == FAIL ) {
-        fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
-        return FAIL;
-      }
+    ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
+                                             &norm, &TopGridTimeStep);
  
     JBPERF_STOP("evolve-level-07"); // PrepareDensityField()
 
@@ -630,15 +543,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  /* Compute the potential. */
  
 	  if (level > 0)
-	    if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
-		== FAIL) {
-	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      return FAIL;
-	    }
-	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
-	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
-	    return FAIL;
-	  }
+	    Grids[grid1]->GridData->SolveForPotential(Dummy, level);
+	  Grids[grid1]->GridData->ComputeAccelerations(level);
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
 	     now done in PrepareDensity. */
@@ -651,23 +557,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Gravity: compute field due to preset sources. */
  
       JBPERF_START_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
-
-      if (UniformGravity || PointSourceGravity)
-	if (Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ==FAIL) {
-	  fprintf(stderr,"Error in grid->ComputeAccelerationFieldExternal.\n");
-	  return FAIL;
-	}
+	  Grids[grid1]->GridData->ComputeAccelerationFieldExternal();
  
       JBPERF_STOP_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
 
       /* Radiation Pressure: add to acceleration field */
 
 #ifdef TRANSFER
-      if (RadiativeTransfer && RadiationPressure)
-	if (Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL) {
-	  fprintf(stderr,"Error in grid->AddRadiationPressureAcceleration.\n");
-	  return FAIL;
-	}
+	  Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL);
 #endif /* TRANSFER */
 
       /* Check for energy conservation. */
@@ -676,7 +573,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (CheckEnergyConservation(Grids, grid, NumberOfGrids, level,
 				    dtThisLevel) == FAIL) {
 	  fprintf(stderr, "Error in CheckEnergyConservation.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 */
 #ifdef SAB
@@ -688,20 +585,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     if ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0) {
-#ifdef SIB2
+#ifdef FAST_SIB
       if( SetAccelerationBoundary(Grids, NumberOfGrids,
 				  SiblingList,
 				  level, MetaData,
 				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
 	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 #else
       if( SetAccelerationBoundary(Grids, NumberOfGrids,
 				  level, MetaData,
 				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
 	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 #endif
     }
@@ -713,12 +610,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  in preparation for the new step. */
  
       JBPERF_START("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
-
-	if (Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyBaryonFieldToOldBaryonField.\n");
-	  return FAIL;
-	}
- 
+	  Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
       JBPERF_STOP("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
 
       /* Add RandomForcing fields to velocities after the copying of current
@@ -726,29 +618,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          It makes no sense to force on the very first time step. */
  
       JBPERF_START_LOW("evolve-level-12"); // AddRandomForcing()
-
-      if (RandomForcing && MetaData->CycleNumber > 0) //AK
-        if(Grids[grid1]->GridData->AddRandomForcing(&norm,
-                                                   TopGridTimeStep) == FAIL)
-          fprintf(stderr, "Error in AddRandomForcing.\n");
- 
+      if (MetaData->CycleNumber > 0)
+        Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
       JBPERF_STOP_LOW("evolve-level-12"); // AddRandomForcing()
 
       /* Call hydro solver and save fluxes around subgrids. */
- 
       JBPERF_START("evolve-level-13"); // SolveHydroEquations()
-
-//      fprintf(stderr, "%"ISYM": Calling Hydro\n", MyProcessorNumber);
- 
-      if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
-	 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
-	fprintf(stderr, "Error in grid->SolveHydroEquations.\n");
-	return FAIL;
-      }
- 
+      Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
       JBPERF_STOP("evolve-level-13"); // SolveHydroEquations()
-
-//      fprintf(stderr, "%"ISYM": Called Hydro\n", MyProcessorNumber);
  
       /* Solve the radiative transfer */
 	
@@ -760,7 +638,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		 level, dtPhoton, PhotonTime);
 	if (EvolvePhotons(MetaData, LevelArray, AllStars) == FAIL) {
 	  fprintf(stderr, "Error in EvolvePhotons.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       } /* ENDWHILE evolve photon */
 #endif /* TRANSFER */
@@ -769,9 +647,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling) {
- 
 	JBPERF_START("evolve-level-14"); // change this?
+<<<<<<< local
 
 	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
 	  fprintf(stderr, "Error in grid->SolveRateEquations.\n");
@@ -815,22 +692,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //      fprintf(stderr, "%"ISYM": Called RadiativeCooling\n", MyProcessorNumber);
 
       }
+=======
+    Grids[grid1]->GridData->MultiSpeciesHandler();
+    JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
+>>>>>>> other
 
       /* Update particle positions (if present). */
  
-//      fprintf(stderr, "%"ISYM": Calling UpdatePP\n", MyProcessorNumber);
- 
       JBPERF_START("evolve-level-16"); // UpdateParticlePositions()
-
-      if (UpdateParticlePositions(Grids[grid1]->GridData) == FAIL) {
-	fprintf(stderr, "Error in UpdateParticlePositions.\n");
-	return FAIL;
-      }
- 
+      UpdateParticlePositions(Grids[grid1]->GridData);
       JBPERF_STOP("evolve-level-16"); // UpdateParticlePositions()
 
-//      fprintf(stderr, "%"ISYM": Called UpdatePP\n", MyProcessorNumber);
- 
       /* Include 'star' particle creation and feedback.
          (first, set the under_subgrid field). */
  
@@ -850,7 +722,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (StarParticleCreation || StarParticleFeedback) {
 	if (Grids[grid1]->GridData->StarParticleHandler(level) == FAIL) {
 	  fprintf(stderr, "Error in grid->StarParticleWrapper");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       }
  
@@ -894,14 +766,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     JBPERF_START("evolve-level-21"); // SetBoundaryConditions()
     TIME_MSG("EvolveLevel: after main loop");
 
-#ifdef SIB2
-    if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			      level, MetaData, Exterior, LevelArray[level]) == FAIL)
-      return FAIL;
+#ifdef FAST_SIB
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			      level, MetaData, Exterior, LevelArray[level]);
 #else
-    if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                              Exterior, LevelArray[level]) == FAIL)
-      return FAIL;
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                              Exterior, LevelArray[level]);
 #endif
 
     JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
@@ -910,55 +780,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
  
     JBPERF_START("evolve-level-22"); // StarParticleFinalize()
-
-    if (StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			     level, AllStars) == FAIL) {
-      fprintf(stderr, "Error in StarParticleFinalize.\n");
-      return FAIL;
-    }
-
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			     level, AllStars);
     JBPERF_STOP("evolve-level-22"); // StarParticleFinalize()
-
-    /* Check for movie output (only check if this is bottom of hierarchy). */
- 
-    JBPERF_START("evolve-level-23"); // WriteMovieData()
-
-    if (LevelArray[level+1] == NULL)
-      if (LevelArray[level]->GridData->ReturnTime() >=
-	  MetaData->TimeLastMovieDump + MetaData->dtMovieDump &&
-	  MetaData->dtMovieDump > 0.0) {
-	MetaData->TimeLastMovieDump += MetaData->dtMovieDump;
-	if (WriteMovieData(MetaData->MovieDumpName,
-			  MetaData->MovieDumpNumber++, LevelArray, MetaData,
-			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	  fprintf(stderr, "Error in WriteMovieData.\n");
-	  return FAIL;
-	}
-      }
- 
-    JBPERF_STOP("evolve-level-23"); // WriteMovieData()
-
-    /* Check for tracer particle output (only if this bottom of hierarchy). */
- 
-    JBPERF_START("evolve-level-24"); // WriteTracerParticleData()
-
-    if (LevelArray[level+1] == NULL)
-      if (LevelArray[level]->GridData->ReturnTime() >=
-	  MetaData->TimeLastTracerParticleDump +
-	  MetaData->dtTracerParticleDump &&
-	  MetaData->dtTracerParticleDump > 0.0) {
-	MetaData->TimeLastTracerParticleDump += MetaData->dtTracerParticleDump;
-	if (WriteTracerParticleData(MetaData->TracerParticleDumpName,
-				    MetaData->TracerParticleDumpNumber++,
-				    LevelArray, MetaData,
-			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	  fprintf(stderr, "Error in WriteTracerParticleData.\n");
-	  return FAIL;
-	}
-      }
- 
-    JBPERF_STOP("evolve-level-24"); // WriteTracerParticleData()
-
     /* If cosmology, then compute grav. potential for output if needed. */
  
     JBPERF_START("evolve-level-25"); // PrepareDensityField()
@@ -967,17 +791,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       CopyGravPotential = TRUE;
       When = 0.0;
  
-#ifdef SIB3
+#ifdef FAST_SIB
       if (PrepareDensityField(LevelArray, SiblingList, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
-#else   // !SIB3
+#else   // !FAST_SIB
       if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
         fprintf(stderr, "Error in PrepareDensityField.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
-#endif  // end SIB3
+#endif  // end FAST_SIB
  
       CopyGravPotential = FALSE;
  
@@ -991,7 +815,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
                 == FAIL) {
               fprintf(stderr, "Error in grid->SolveForPotential.\n");
-              return FAIL;
+              ENZO_FAIL("");
             }
           // fprintf(stderr, "Call CP from EvolveLevel\n");
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
@@ -1003,210 +827,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     JBPERF_STOP("evolve-level-25"); // PrepareDensityField()
 
-    /* Check for new level output (only if this is bottom of hierarchy). */
- 
-    JBPERF_START("evolve-level-26"); // WriteAllData()
 
-    if (MetaData->OutputFirstTimeAtLevel > 0 &&
-	level >= MetaData->OutputFirstTimeAtLevel &&
-	LevelArray[level+1] == NULL) {
-
-      MetaData->OutputFirstTimeAtLevel = level+1;
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-
-      while (Temp2->NextGridThisLevel != NULL)
-	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
-      }
-#endif
-
-    }
- 
-    /* Check for new output from new file in file system, but only
-       when at bottom of hierarchy */
-    
-#ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
-    if ( (access("outputNow", F_OK) != -1 ) &&
-    LevelArray[level+1] == NULL) {
-#ifdef USE_MPI
-      MPI_Barrier(MPI_COMM_WORLD);
-#endif
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-      while (Temp2->NextGridThisLevel != NULL)
-    Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-      printf("Detected outputNow.\n");
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
-      }
-#endif
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-      if (unlink("outputNow")) {
-    fprintf(stderr, "Error deleting 'outputNow'\n");
-    return FAIL;
-      }
-    } 
-      
-    /* Check to see if new subcycle information has been given to us */
-    
-#ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
-    if ( (access("subcycleCount", F_OK) != -1 ) &&
-        LevelArray[level+1] == NULL) {
-      printf("Detected subcycleCount\n");
-#ifdef USE_MPI
-      MPI_Barrier(MPI_COMM_WORLD);
-#endif
-      FILE *fptr; 
-      if ((fptr = fopen("subcycleCount", "r")) == NULL) {
-        fprintf(stderr, "Error opening subcycle file subcycleCount.  Continuing.\n");
-      }
-      else {
-        /* Grab the number of cycles to dump on */
-        char line[MAX_LINE_LENGTH];
-        if (fgets(line, MAX_LINE_LENGTH, fptr) == NULL) {
-          fprintf(stderr, "Error reading subcycle file subcycleCount.  Skipping.\n");
-        } else {
-          sscanf(line, "%"ISYM, &MetaData->SubcycleSkipDataDump);
-          MetaData->SubcycleLastDataDump = MetaData->SubcycleNumber;
-        }
-        fclose(fptr);
-#ifdef USE_MPI
-        MPI_Barrier(MPI_COMM_WORLD);
-#endif
-        if (MyProcessorNumber == ROOT_PROCESSOR)
-          if (unlink("subcycleCount")) {
-            fprintf(stderr, "Error deleting subcycleCount.\n");
-          }
-      }
-    }
-
-    /* Check to see if we should start outputting interpolated data based on
-       the cycles of the highest level */
-
-    if (MetaData->SubcycleNumber >= MetaData->SubcycleLastDataDump +
-        MetaData->SubcycleSkipDataDump   &&
-        MetaData->SubcycleSkipDataDump > 0) {
-      printf("Writing data based on SubcycleDumpSkipping (%"ISYM" %"ISYM" %"ISYM")\n",
-          MetaData->SubcycleNumber, MetaData->SubcycleLastDataDump,
-          MetaData->SubcycleSkipDataDump);
-      MetaData->SubcycleLastDataDump += MetaData->SubcycleSkipDataDump;
-#ifdef USE_MPI
-      MPI_Barrier(MPI_COMM_WORLD);
-#endif
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-      while (Temp2->NextGridThisLevel != NULL)
-        Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-            Temp2->GridHierarchyEntry, *MetaData, Exterior,
-            LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-        fprintf(stderr, "Error in Group_WriteAllData.\n");
-        return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-            Temp2->GridHierarchyEntry, *MetaData, Exterior,
-            LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-        fprintf(stderr, "Error in WriteAllData.\n");
-        return FAIL;
-      }
-#endif
-
-    } 
-
-    /* Check for stop by file-touching */
-
-#ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
-    if ( (access("stopNow", F_OK) != -1 ) &&
-    LevelArray[level+1] == NULL) {
-#ifdef USE_MPI
-      MPI_Barrier(MPI_COMM_WORLD);
-#endif
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-      while (Temp2->NextGridThisLevel != NULL)
-    Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-      printf("Detected stopNow\n");
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
-      }
-#endif
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-    if (unlink("stopNow")) {
-      fprintf(stderr, "Error deleting stopNow\n");
-      return FAIL;
-    } 
-      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
-      my_exit(EXIT_SUCCESS);
-    }
-
-
-    JBPERF_STOP("evolve-level-26"); // WriteAllData()
-
-    /* Check for stop (unpleasant to exit from here, but...). */
- 
-    if (MetaData->StopFirstTimeAtLevel > 0 &&
-	level >= MetaData->StopFirstTimeAtLevel &&
-	LevelArray[level+1] == NULL) {
-
-      // Write movie data in all grids if necessary
-
-      if (MovieSkipTimestep != INT_UNDEFINED)
-	for (int mlevel = 0; mlevel < MAX_DEPTH_OF_HIERARCHY; mlevel++) {
-	  if (LevelArray[mlevel] == NULL) break;
-	  delete [] Grids;
-	  NumberOfGrids = GenerateGridArray(LevelArray, mlevel, &Grids);
-	  if (WriteStreamData(Grids, NumberOfGrids, MetaData,
-			      LevelCycleCount[mlevel], TRUE) == FAIL) {
-	    fprintf(stderr, "Error in WriteStreamData.\n");
-	    return FAIL;
-	  }
-	}
-
-      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
-      my_exit(EXIT_SUCCESS);
-    }
- 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
     JBPERF_START("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
@@ -1216,12 +837,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     JBPERF_STOP("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
 
-    /* Update SubcycleNumber if this is the bottom of the hierarchy --
-       Note that this not unique based on which level is the highest,
-       it just keeps going */
-
-    if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
-
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  
@@ -1230,7 +845,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
 
@@ -1238,15 +853,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
-    // Streaming movie output (only run if everything is evolved)
 
-    if (MovieSkipTimestep != INT_UNDEFINED) {
-      if (WriteStreamData(Grids, NumberOfGrids, MetaData, 
-			  LevelCycleCount[level]) == FAIL) {
-	fprintf(stderr, "Error in WriteStreamData.\n");
-	return FAIL;
-      }
-    }
+    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    /* Update SubcycleNumber if this is the bottom of the hierarchy --
+       Note that this not unique based on which level is the highest,
+       it just keeps going */
+
+    if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
 
     if (dbx) fprintf(stderr, "EL Level %"ISYM" returns from Level %"ISYM"\n", level, level+1);
 
@@ -1275,7 +888,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (CreateSUBlingList(MetaData, Grids,
                               NumberOfGrids, &SUBlingList) == FAIL) {
         fprintf(stderr, "Error in CreateSUBlingList.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
       if (dbx) fprintf(stderr, "EL: CSL exit \n");
     }
@@ -1300,11 +913,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			     SubgridFluxesEstimate,
 			     SUBlingList,
 			     MetaData) == FAIL)
-      return FAIL;
+      ENZO_FAIL("");
 #else
     if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate) == FAIL)
-      return FAIL;
+      ENZO_FAIL("");
 #endif
 
     JBPERF_STOP("evolve-level-28"); // UpdateFromFinerGrids()
@@ -1316,7 +929,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Clean up SUBlings */
       if (DeleteSUBlingList( NumberOfGrids, SUBlingList ) == FAIL) {
         fprintf(stderr, "Error in DeleteSUBlingList.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
     }
 #endif
@@ -1343,7 +956,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])
 	    == FAIL) {
 	  fprintf(stderr, "Error in grid->AddToBoundaryFluxes.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
       /* Delete fluxes pointed to by SubgridFluxesEstimate[subgrid]. */
@@ -1369,7 +982,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	level <= RadiationFieldLevelRecompute)
       if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
 	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     JBPERF_STOP("evolve-level-30"); // RadiationFieldUpdate()
@@ -1382,7 +995,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (dtThisLevelSoFar < dtLevelAbove) {
       if (RebuildHierarchy(MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
 

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -125,7 +126,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry *GridHierarchyPointer[],
 
       if (vec2pix_nest(Nside, r_photon, &ipix) == FAIL) {
 	fprintf(stderr, "Error in vec2pix_nest.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Group pixels together according to processor number

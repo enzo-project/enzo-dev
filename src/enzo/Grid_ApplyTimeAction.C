@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -46,7 +47,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
 	       &TimeUnits, &VelocityUnits, &MassUnits, 
 	       InitialTimeInCodeUnits) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Determine the size of the grids. */
@@ -62,7 +63,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* ----------------------------------------------------------------
@@ -97,7 +98,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
     /* Type unknown. */
  
     fprintf(stderr, "TimeAction Type %"ISYM" unknown.\n", Type);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   return SUCCESS;

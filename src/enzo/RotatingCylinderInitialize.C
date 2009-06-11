@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -60,7 +61,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
  
   if (MetaData.TopGridRank != 3) {
     printf("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   for(i=0; i<MAX_DIMENSION; i++)
@@ -123,7 +124,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 					      RotatingCylinderTotalEnergy,
 					      RotatingCylinderVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Create as many subgrids as there are refinement levels
@@ -187,7 +188,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 						   RotatingCylinderTotalEnergy,
 					        RotatingCylinderVelocity) == FAIL) {
 	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* set up the initial explosion area on the finest resolution subgrid */
@@ -199,7 +200,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 								   RotatingCylinderOverdensity) 
 	    == FAIL) {
 	  fprintf(stderr, "Error in RotatingCylinderInitialize[Sub]Grid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
     }
@@ -216,7 +217,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 				       *(Subgrid[lev-1]->GridData))
 	== FAIL) {
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* set up the root grid */
@@ -225,7 +226,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else
@@ -234,7 +235,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 							 RotatingCylinderLambda,
 							 RotatingCylinderOverdensity) == FAIL) {
       fprintf(stderr, "Error in RotatingCylinderInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
  

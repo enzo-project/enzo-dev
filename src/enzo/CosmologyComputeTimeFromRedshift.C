@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "CosmologyParameters.h"
  
@@ -72,7 +73,7 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
  
   if (TimeHubble0 == FLOAT_UNDEFINED) {
     fprintf(stderr, "Cosmology selected is not implemented.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Now convert from Time * H0 to code units (see also CosmologyGetUnits). */

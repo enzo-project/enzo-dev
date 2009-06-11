@@ -18,6 +18,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -116,7 +117,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.GlobalDir           = NULL;
 
   LoadBalancing = 1; //On, memory equalization method
- 
+
+  FileDirectedOutput = 1;
+
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
     TimeActionRedshift[i]  = -1;

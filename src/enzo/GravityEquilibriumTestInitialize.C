@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -81,7 +82,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 				GravityEquilibriumTestScaleHeight
 						  ) == FAIL){
     fprintf(stderr, "Error in GravityEquilibriumTestInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* set up field names and units */

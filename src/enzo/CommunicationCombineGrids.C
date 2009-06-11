@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -99,7 +100,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      ((WriteTime < 0) ? NEW_ONLY : NEW_AND_OLD),
 			      StartIndex, TempDims, FALSE) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     /* Copy particles. */
@@ -108,7 +109,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       if (OldGrid->CommunicationSendParticles(NewGrid, NewProc, 0,
 			    OldGrid->ReturnNumberOfParticles(), -1) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationSendParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     /* Next Grid */

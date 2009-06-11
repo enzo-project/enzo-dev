@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -110,7 +111,7 @@ int NohInitialize(FILE *fptr,
 					  NohPressure,
 					  NohVelocity) == FAIL) {
     fprintf(stderr, "Error in NohInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* If requested, create a subgrid */
@@ -151,7 +152,7 @@ int NohInitialize(FILE *fptr,
 					  NohVelocity)
 	== FAIL) {
       fprintf(stderr, "Error in NohInitializeGrid (subgrid).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }			   
   }
 

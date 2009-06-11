@@ -32,6 +32,11 @@
                           1 = Equalize processor memory count */
 EXTERN int LoadBalancing;
 
+/* FileDirectedOutput checks for file existence: 
+   stopNow (writes, stops),   outputNow, subgridcycleCount */
+EXTERN int FileDirectedOutput;
+
+
 /* debugging, extraction flags */
 
 EXTERN int debug;

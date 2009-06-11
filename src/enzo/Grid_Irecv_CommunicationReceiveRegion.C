@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <math.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,7 +30,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "communication.h"
- 
+#include "CommunicationUtilities.h"
+
 // function prototypes
  
 extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
@@ -42,7 +44,6 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,
 			      int Tag, MPI_Comm CommWorld, int BufferSize);
 #endif /* USE_MPI */
-int CommunicationShouldExit(int FromProc, int ToProc);
  
  
 int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,

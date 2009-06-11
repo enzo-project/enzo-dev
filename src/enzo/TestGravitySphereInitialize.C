@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -123,7 +124,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereCenter
 						  ) == FAIL){
     fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Convert minimum initial overdensity for refinement to mass
@@ -153,7 +154,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
     for (level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -168,7 +169,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereCenter
 							        ) == FAIL) {
 	  fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -182,7 +183,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 	if (Temp->GridData->ProjectSolutionToParentGrid(
 		 *Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -205,7 +206,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
  
     if (TestGravitySphereRefineAtStart) {
       fprintf(stderr, "Cannot RefineAtStart AND create subgrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* create a new HierarchyEntry, attach to the top grid and fill it out */
@@ -239,7 +240,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereCenter)
 	== FAIL) {
       fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }			
   }
  

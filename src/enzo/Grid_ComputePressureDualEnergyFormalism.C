@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,7 +45,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
  
   if (time < OldTime || time > Time) {
     fprintf(stderr, "requested time is outside available range.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Compute interpolation coefficients. */
@@ -68,7 +69,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Loop over the grid, compute the thermal energy, then the pressure,
@@ -121,7 +122,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Find the temperature units. */
@@ -129,7 +130,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
       fprintf(stderr, "Error in GetUnits.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     for (i = 0; i < size; i++) {

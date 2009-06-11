@@ -81,7 +81,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
   /* Look for existing sink particles */
 
   nsinks = 0;
-  int *sink_index = (int*) calloc(10000, sizeof(int));
+  int *sink_index = new int[10000];
   for (n = 0; n < *npold; n++)
     if (typeold[n] == *ctype && tcpold[n] > 0 && tdpold[n] == 0)
       sink_index[nsinks++] = n;
@@ -357,7 +357,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
     return FAIL;
   }
 
-  free(sink_index);
+  delete [] sink_index;
 
   *np = ii;
   return SUCCESS;

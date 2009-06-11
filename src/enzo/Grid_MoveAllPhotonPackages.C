@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -33,7 +34,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
     fprintf(stderr, 
 	    "grid::MoveAllPhotonPackages: NumberOfGrids(%"ISYM") must be > 0.\n", 
 	    NumberOfGrids);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Determine total number of particles. */
@@ -145,7 +146,7 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
 	       ProcessorNumber, NumberOfPhotonPackages, 
                FromGrid[gridcount]->NumberOfPhotonPackages, &PP) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendPhotonPackages.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	count += FromGrid[gridcount]->ReturnNumberOfPhotonPackages();
 	if (DEBUG)

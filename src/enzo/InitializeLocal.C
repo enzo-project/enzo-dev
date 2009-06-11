@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -65,12 +66,12 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
       if (PartitionNestedGrids) {
 	if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	  fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       } else {
 	if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	  fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       }
     }
@@ -83,7 +84,7 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
     if (ParallelRootGridIO == TRUE && ProblemType == 60)
       if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
 	fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
   }
 

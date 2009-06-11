@@ -1,0 +1,15 @@
+{
+	# comments welcome
+	SomeParameter == 1
+	SomeOtherParameter == 3,4,5
+	Message = Write your error message here.
+}
+
+Everything between bracket sets is ignored.
+
+{
+	// comment this way too
+	AnotherParameter == 0
+	OneOtherParameter > 0
+	Message = I made this up.
+}

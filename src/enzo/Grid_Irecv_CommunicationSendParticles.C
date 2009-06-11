@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <math.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,7 +30,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "communication.h"
- 
+#include "CommunicationUtilities.h"
+
 /* function prototypes */
  
 #ifdef USE_MPI
@@ -39,7 +41,6 @@ static int FirstTimeCalled = TRUE;
 static MPI_Datatype ParticleDataType;
 #endif /* USE_MPI */
 
-int CommunicationShouldExit(int FromProc, int ToProc);
 void my_exit(int status);
  
 /* Send particle from this grid to ToGrid on processor ToProcessor, using
@@ -142,7 +143,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
       ToGrid->AllocateNewParticles(NewNumber);
       if (ToStart > 0) {
 	fprintf(stderr, "Unallocated Number, yet FromStart = %"ISYM"\n", FromStart);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
  

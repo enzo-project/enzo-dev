@@ -22,6 +22,7 @@
 #include <math.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -82,7 +83,7 @@ int grid::OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Compute coefficient factors for linear interpolation in time.
@@ -92,7 +93,7 @@ int grid::OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
     if (Time != WriteTime && OldBaryonField[DensNum] != NULL) {
       if (Time <= OldTime) {
 	fprintf(stderr, "OGMD: fields are at the same time or worse.\n");
-	//	return FAIL;
+	//	ENZO_FAIL("");
       } else {
 	coef1 = max((Time - WriteTime)/
 		    (Time - OldTime), 0.0);
@@ -105,7 +106,7 @@ int grid::OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
     float *temperature = new float[size];
     if (this->ComputeTemperatureField(temperature) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Find metallicity field and set flag. */
@@ -206,7 +207,7 @@ int grid::OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
     if (CosmologyComputeExpansionFactor(WriteTime, &a, &dadt)
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   FLOAT TempPos[MAX_DIMENSION];

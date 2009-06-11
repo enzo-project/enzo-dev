@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -34,7 +35,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
  
   if (GridRank < 2) {
     fprintf(stderr, "GridRank must be > 1\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* create fields */

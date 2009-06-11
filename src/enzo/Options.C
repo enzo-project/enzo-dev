@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <strings.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -94,23 +95,23 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Out-of-core Top Grid boundary conditions\n");
 #endif
 
-#ifdef SIB1
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 1\n");
 #endif
 
-#ifdef SIB2
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 2\n");
 #endif
 
-#ifdef SIB3
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 3\n");
 #endif
 
-#ifdef SIB4
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 4\n");
 #endif
 
-#ifdef SIB5
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 5\n");
 #endif
 

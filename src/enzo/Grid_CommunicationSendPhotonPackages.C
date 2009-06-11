@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,6 +28,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "communication.h"
+#include "CommunicationUtilities.h"
 
 #ifdef USE_MPI
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
@@ -41,7 +43,6 @@ int FindSuperSource(PhotonPackageEntry **PP, int &LeafID,
 		    int SearchNewTree = TRUE);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
-int CommunicationShouldExit(int FromProc, int ToProc);
 
 int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  int ToNumber, int FromNumber, 
@@ -121,7 +122,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, NumberOfPhotonPackages, 
 		PP->CurrentTime);
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // Next photon
@@ -150,7 +151,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       FromNumber = min(index, FromNumber);
       fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %"ISYM"\n", 
 	      FromNumber);
-      //return FAIL;
+      //ENZO_FAIL("");
     }
 
   } /* ENDIF PackPhotons */
@@ -221,7 +222,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	  Eint32 errlen;
 	  MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
 	  fprintf(stderr, "MPI Error: %s\n", errstr);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
     } /* ENDIF (MyProcessorNumber == ToProcessor) */
@@ -269,13 +270,13 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
 		NewPP->CurrentTime);
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       if (RadiativeTransferSourceClustering) {
 	if (FindSuperSource(&NewPP, buffer[index].SuperSourceID) == FAIL) {
 	  fprintf(stderr, "Error in FindSuperSource.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       } else
 	NewPP->CurrentSource = NULL;

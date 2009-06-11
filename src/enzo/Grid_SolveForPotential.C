@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -62,7 +63,7 @@ int grid::SolveForPotential(int &Done, int level, FLOAT PotentialTime)
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(PotentialTime, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Compute right hand side. */
@@ -122,7 +123,7 @@ int grid::SolveForPotential(int &Done, int level, FLOAT PotentialTime)
 		      GravitatingMassFieldDimension, norm, mean,
 		      GravitySmooth, tol_dim, MAX_ITERATION) == FAIL) {
     fprintf(stderr, "Error in MultigridDriver.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
 #ifdef UNUSED
@@ -131,12 +132,12 @@ int grid::SolveForPotential(int &Done, int level, FLOAT PotentialTime)
 			GravitatingMassFieldDimension, norm, mean,
 			GravitySmooth) == FAIL) {
       fprintf(stderr, "Error in MultigridDriver.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     printf("%"ISYM" %"GSYM"\n", iteration, norm/mean);
     if (iteration++ > MAX_ITERATION) {
       fprintf(stderr, "exceeding iteration count (%"ISYM")\n", iteration);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 #endif /* UNUSED */
