@@ -367,5 +367,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
 
+#ifdef CONFIG_PYTHON_ENABLED
+  NumberOfPythonCalls = 0;
+  grid_dictionary = PyDict_New();
+  old_grid_dictionary = PyDict_New();
+  hierarchy_information = PyDict_New();
+  yt_parameter_file = PyDict_New();
+  conversion_factors = PyDict_New();
+#endif
+
   return SUCCESS;
 }

@@ -96,6 +96,11 @@ help-config:
 	@echo "      gmake papi-yes"
 	@echo "      gmake papi-no"
 	@echo
+	@echo "   Set whether to use embedded Python interpreter"
+	@echo
+	@echo "      gmake python-yes"
+	@echo "      gmake python-no"
+	@echo
 	@echo "   Set whether to perform unigrid communication transpose"
 	@echo
 	@echo "      gmake unigrid-transpose-yes"
@@ -186,6 +191,7 @@ show-config:
 	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
 	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
+	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
 	@echo "   CONFIG_UNIGRID_TRANSPOSE:     $(CONFIG_UNIGRID_TRANSPOSE)"
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
@@ -479,6 +485,23 @@ CONFIG_PAPI-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PAPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PAPI:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_PYTHON = python-yes python-no
+.PHONY: $(VALID_PYTHON)
+
+python-yes: CONFIG_PYTHON-yes
+python-no: CONFIG_PYTHON-no
+python-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PYTHON)]\n\n"
+CONFIG_PYTHON-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PYTHON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PYTHON:
 	@echo
 
 #-----------------------------------------------------------------------

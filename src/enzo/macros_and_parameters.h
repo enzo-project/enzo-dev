@@ -5,6 +5,15 @@
 / MACRO DEFINITIONS AND PARAMETERS
 /
 ************************************************************************/
+#ifdef CONFIG_PYTHON_ENABLED
+#ifndef ENZO_PYTHON_IMPORTED
+#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
+#define NO_IMPORT_ARRAY 
+#include <Python.h>
+#include "numpy/arrayobject.h"
+#endif
+#endif
+
 
 #include "message.h"
 
@@ -172,6 +181,9 @@ typedef int            HDF5_hid_t;
 #define HDF5_REAL HDF5_R4
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
+#ifdef CONFIG_PYTHON_ENABLED
+#define ENPY_FLOAT NPY_FLOAT
+#endif
 #endif
 
 #ifdef CONFIG_BFLOAT_8
@@ -187,6 +199,9 @@ typedef int            HDF5_hid_t;
 #else
 #define HDF5_REAL HDF5_R8
 #define HDF5_FILE_REAL HDF5_FILE_R8
+#endif
+#ifdef CONFIG_PYTHON_ENABLED
+#define ENPY_FLOAT NPY_DOUBLE
 #endif
 #endif
 
@@ -210,6 +225,9 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_DOUBLE
 #define HDF5_PREC HDF5_R8
 #define HDF5_FILE_PREC HDF5_FILE_R8
+#ifdef CONFIG_PYTHON_ENABLED
+#define ENPY_FLOAT NPY_DOUBLE
+#endif
 #endif
 
 #ifdef CONFIG_PFLOAT_16
@@ -221,6 +239,9 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_LONG_DOUBLE
 #define HDF5_PREC HDF5_R16
 #define HDF5_FILE_PREC HDF5_FILE_R16
+#ifdef CONFIG_PYTHON_ENABLED
+#define ENPY_FLOAT NPY_LONGDOUBLE
+#endif
 #endif
 
 

@@ -459,6 +459,14 @@ EXTERN char LocalPath[MAX_LINE_LENGTH];
 EXTERN char GlobalPath[MAX_LINE_LENGTH];
 #endif
 
+#ifdef CONFIG_PYTHON_ENABLED
+EXTERN int NumberOfPythonCalls;
+EXTERN PyObject *grid_dictionary;
+EXTERN PyObject *old_grid_dictionary;
+EXTERN PyObject *hierarchy_information;
+EXTERN PyObject *yt_parameter_file;
+EXTERN PyObject *conversion_factors;
+#endif
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MetalCooling;

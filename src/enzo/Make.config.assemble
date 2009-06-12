@@ -380,6 +380,35 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE PYTHON SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PYTHON = 1
+
+    # Settings to turn Python ON
+
+    ifeq ($(CONFIG_PYTHON),yes)
+        ERROR_PYTHON = 0
+        ASSEMBLE_PYTHON_DEFINES = -DUSE_PYTHON
+        ASSEMBLE_PYTHON_INCLUDES = $(MACH_INCLUDES_PYTHON)
+        ASSEMBLE_PYTHON_LIBS     = $(MACH_LIBS_PYTHON)
+    endif
+
+    # Settings to turn PYTHON OFF
+
+    ifeq ($(CONFIG_PYTHON),no)
+        ERROR_PYTHON = 0
+    endif
+
+    # error if CONFIG_PYTHON is incorrect
+
+    ifeq ($(ERROR_PYTHON),1)
+       .PHONY: error_PYTHON
+       error_PYTHON:
+	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE PAPI SETTINGS
 #-----------------------------------------------------------------------
 

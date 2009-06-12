@@ -24,6 +24,7 @@
 #    CONFIG_PACKED_AMR
 #    CONFIG_PACKED_MEM
 #    CONFIG_JBPERF
+#    CONFIG_PYTHON
 #    CONFIG_PAPI
 #    CONFIG_UNIGRID_TRANSPOSE
 #    CONFIG_OOC_BOUNDARY
@@ -138,6 +139,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_JBPERF = no
+
+#=======================================================================
+# CONFIG_PYTHON
+#=======================================================================
+#    yes           use embedded Python interpreter
+#    no            don't use embedded Python interpreter
+#-----------------------------------------------------------------------
+
+     CONFIG_PYTHON = no
 
 #=======================================================================
 # CONFIG_PAPI
