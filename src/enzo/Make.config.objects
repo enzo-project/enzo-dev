@@ -84,6 +84,7 @@ OBJS_CONFIG_LIB = \
 	cray_x1_fft64.o \
 	cray_x1_st1_fft64.o \
 	CreateSUBlingList.o \
+	CreateSiblingList.o \
 	CreateFluxes.o\
 	DeleteFluxes.o \
 	DeleteSUBlingList.o \
