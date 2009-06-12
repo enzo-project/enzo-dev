@@ -72,6 +72,10 @@ class ExternalBoundary
 //
   int ReadExternalBoundary(FILE *fptr, int ReadText = TRUE, int ReadData = TRUE);
 //
+// Read an external boundary for hdf4
+//
+  int ReadExternalBoundaryHDF4(FILE *fptr);
+//
 // Write an external boundary
 //
   int WriteExternalBoundary(FILE *fptr, char *hdfname);
