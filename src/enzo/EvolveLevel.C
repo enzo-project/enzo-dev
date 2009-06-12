@@ -405,33 +405,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 */
 #ifdef SAB
     } // End of loop over grids
-
-  //dcc cut SAB start 
-    //This ensures that all subgrids agree in the boundary.
-    //Not a big deal for hydro, but essential for DivB = 0 in MHD runs.
-    //Only called on level > 0 because the root grid is dealt with differently than SG's.
-
-
-    if ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0) {
-#ifdef FAST_SIB
-      if( SetAccelerationBoundary(Grids, NumberOfGrids,
-				  SiblingList,
-				  level, MetaData,
-				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
-	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	ENZO_FAIL("");
-      }
-#else
-      if( SetAccelerationBoundary(Grids, NumberOfGrids,
-				  level, MetaData,
-				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
-	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	ENZO_FAIL("");
-      }
-#endif
-    }
-
-    //dcc cut SAB stop
+    
+    //Ensure the consistency of the AccelerationField
+    SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
+			    Exterior, LevelArray[level], LevelCycleCount[level]);
+    
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
