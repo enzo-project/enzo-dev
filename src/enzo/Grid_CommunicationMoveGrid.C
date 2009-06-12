@@ -54,7 +54,7 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
 	CommunicationReceiveGridOne[CommunicationReceiveIndex] = this;
 	CommunicationReceiveGridTwo[CommunicationReceiveIndex] = this;
 	CommunicationReceiveCallType[CommunicationReceiveIndex] = 16;
-	for (dim = 0; dim < GridRank; dim++)
+	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  CommunicationReceiveArgumentInt[dim][CommunicationReceiveIndex] =
 	    GridDimension[dim];
       }

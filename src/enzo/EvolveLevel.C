@@ -553,7 +553,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Gravity: compute field due to preset sources. */
  
       JBPERF_START_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
-	  Grids[grid1]->GridData->ComputeAccelerationFieldExternal();
+      Grids[grid1]->GridData->ComputeAccelerationFieldExternal();
  
       JBPERF_STOP_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
 
@@ -623,7 +623,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
       JBPERF_STOP("evolve-level-13"); // SolveHydroEquations()
- 
+
       /* Solve the radiative transfer */
 	
 #ifdef TRANSFER
@@ -891,7 +891,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (MyProcessorNumber ==
           Grids[grid1]->GridData->ReturnProcessorNumber()) {
- 
+
       if (FluxCorrection)
 	if (Grids[grid1]->GridData->AddToBoundaryFluxes
 	    (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])

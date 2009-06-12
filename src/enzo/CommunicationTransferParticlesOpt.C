@@ -71,8 +71,10 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     fprintf(stderr, "Error in Enzo_Dims_create.\n");
     ENZO_FAIL("");
   }
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Layout[MAX_DIMENSION-1-dim] = LayoutTemp[dim];
+  for (dim = 0; dim < Rank; dim++)
+    Layout[Rank-1-dim] = LayoutTemp[dim];
+  for (dim = Rank; dim < MAX_DIMENSION; dim++)
+    Layout[Rank-1-dim] = 0;
 
   for (grid = 0; grid < NumberOfGrids; grid++) {
     GridPointer[grid]->ReturnGridInfo(&Rank, Dims, Left, Right);
