@@ -121,9 +121,15 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 int WriteTracerParticleData(char *basename, int filenumber, 
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData, 
 		   FLOAT WriteTime);
-int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid, 
+#ifdef USE_HDF5_GROUPS
+int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
 		 FLOAT WriteTime = -1);
+#else
+int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
+		 TopGridData &MetaData, ExternalBoundary *Exterior,
+		 FLOAT WriteTime = -1);
+#endif
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
                                  int TopGridDims[]);
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
@@ -896,16 +902,26 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       LevelHierarchyEntry *Temp2 = LevelArray[0];
       while (Temp2->NextGridThisLevel != NULL)
 	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++, 
+      
+      fprintf(stderr, "Error in EvolveLevel.\n");
+      fprintf(stderr, "--> Dumping data (output number %d).\n",
+	      MetaData->DataDumpNumber);
+
+#ifdef USE_HDF5_GROUPS
+      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
+		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
+	fprintf(stderr, "Error in Group_WriteAllData.\n");
+	return FAIL;
+      }
+#else
+      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
+		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
 	return FAIL;
       }
-      fprintf(stderr, "Error in EvolveLevel.\n");
-      fprintf(stderr, "--> Dumping data (output number %d).\n",
-	      MetaData->DataDumpNumber);
-      return FAIL;
+#endif
     }
 
     /* Check for new level output (only if this is bottom of hierarchy). */
@@ -917,12 +933,21 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       LevelHierarchyEntry *Temp2 = LevelArray[0];
       while (Temp2->NextGridThisLevel != NULL)
 	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++, 
+#ifdef USE_HDF5_GROUPS
+      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
+		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
+	fprintf(stderr, "Error in Group_WriteAllData.\n");
+	return FAIL;
+      }
+#else
+      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
+		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in WriteAllData.\n");
 	return FAIL;
       }
+#endif
     }
 
     /* Check for stop (unpleasant to exit from here, but...). */

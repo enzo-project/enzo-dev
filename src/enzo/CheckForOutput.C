@@ -31,14 +31,16 @@
 #include "CosmologyParameters.h"
  
 /* function prototypes */
- 
+#ifdef USE_HDF5_GROUPS
+int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
+		 TopGridData &MetaData, ExternalBoundary *Exterior,
+		 FLOAT WriteTime = -1);
+#else
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
 		 FLOAT WriteTime = -1);
+#endif
 
-int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		       TopGridData &MetaData, ExternalBoundary *Exterior,
-		       FLOAT WriteTime = -1);
 double ReturnWallTime(void);
 
 
