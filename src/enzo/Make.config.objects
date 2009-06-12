@@ -84,6 +84,7 @@ OBJS_CONFIG_LIB = \
 	cray_x1_fft64.o \
 	cray_x1_st1_fft64.o \
 	CreateSUBlingList.o \
+	CreateFluxes.o\
 	DeleteFluxes.o \
 	DeleteSUBlingList.o \
 	DepositBaryons.o \
@@ -120,6 +121,7 @@ OBJS_CONFIG_LIB = \
 	FastSiblingLocatorFinalize.o \
 	FastSiblingLocatorInitialize.o \
 	FastSiblingLocatorInitializeStaticChainingMesh.o \
+	FinalizeFluxes.o \
 	PrepareGravitatingMassField.o \
 	RebuildHierarchy.o \
         feuler_sweep.o \
