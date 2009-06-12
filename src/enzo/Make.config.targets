@@ -133,11 +133,6 @@ help-config:
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
 	@echo 
-	@echo "   Set whether or not to use load balancing"
-	@echo
-	@echo "      gmake load-balance-yes"
-	@echo "      gmake load-balance-no"
-	@echo 
 
 #-----------------------------------------------------------------------
 
@@ -193,7 +188,6 @@ show-config:
 	@echo "   CONFIG_ISOBCS:                $(CONFIG_ISOBCS)"
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
-	@echo "   CONFIG_LOAD_BALANCE:          $(CONFIG_LOAD_BALANCE)" 
 	@echo
 
 #-----------------------------------------------------------------------
@@ -603,19 +597,3 @@ CONFIG_PHOTON-%:
 	$(MAKE) show-config | grep CONFIG_PHOTON:
 	@echo
 
-#-----------------------------------------------------------------------
-
-VALID_LOAD_BALANCE = load-balance-yes load-balance-no
-.PHONY: $(VALID_LOAD_BALANCE)
-
-load-balance-yes: CONFIG_LOAD_BALANCE-yes
-load-balance-no: CONFIG_LOAD_BALANCE-no
-load-balance-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LOAD_BALANCE)]\n\n"
-CONFIG_LOAD_BALANCE-%:
-	@tmp=.config.temp; \
-        grep -v CONFIG_LOAD_BALANCE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_LOAD_BALANCE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_LOAD_BALANCE:
-	@echo
