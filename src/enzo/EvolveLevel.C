@@ -590,35 +590,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef FLUX_FIX
 
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
-    for(int list=0; list < NumberOfGrids; list++)
-      SUBlingList[list] = NULL;
+    CreateSUBlingList(MetaData, Grids,NumberOfGrids, &SUBlingList);
 
- 
-    if (FluxCorrection) {
-
-      /* Fill in the SUBling list */
-
-      if (dbx) fprintf(stderr, "EL: CSL entry \n");
-      if (CreateSUBlingList(MetaData, Grids,
-                              NumberOfGrids, &SUBlingList) == FAIL) {
-        fprintf(stderr, "Error in CreateSUBlingList.\n");
-        ENZO_FAIL("");
-      }
-      if (dbx) fprintf(stderr, "EL: CSL exit \n");
-    }
-    //dcc cut stop flux fix
-/* 
-    LevelHierarchyEntry *NextMonkey;
- 
-    for(grid1 = 0; grid1 < NumberOfGrids; grid1++){
-      NextMonkey = SUBlingList[grid1];
-      while (NextMonkey != NULL) {
-        // fprintf(stderr, "SGcheckEL%"ISYM": SUBling[%"ISYM"]->Grid pointer %p\n",
-        //         MyProcessorNumber, grid1, NextMonkey->GridData);
-        NextMonkey=NextMonkey->NextGridThisLevel;
-      }
-    }
-*/
 
 #endif
 
@@ -637,13 +610,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (dbx) fprintf(stderr, "OK after UpdateFromFinerGrids \n");
 
 #ifdef FLUX_FIX
-    if ( FluxCorrection ) {
-      /* Clean up SUBlings */
-      if (DeleteSUBlingList( NumberOfGrids, SUBlingList ) == FAIL) {
-        fprintf(stderr, "Error in DeleteSUBlingList.\n");
-        ENZO_FAIL("");
-      }
-    }
+    DeleteSUBlingList( NumberOfGrids, SUBlingList );
 #endif
 
     if (dbx) fprintf(stderr, "OK after DeleteSUBlingList \n");
