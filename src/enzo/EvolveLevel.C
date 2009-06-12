@@ -238,8 +238,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
 
-  TIME_MSG("Entered EvolveLevel");
-
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
  
@@ -278,8 +276,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). */
  
-  TIME_MSG("after SetBoundaryConditions");
-
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
  
@@ -319,12 +315,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       NumberOfSubgrids[grid1] = counter + 1;
     }
  
-    TIME_MSG("Before subgrid fluxes");
-
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
-
-    TIME_MSG("After subgrid fluxes");
-
 
     /* ------------------------------------------------------- */
     /* Prepare the density field (including particle density). */
@@ -350,7 +341,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
-    TIME_MSG("EvolveLevel: before main loop");
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       // dcc problem analysis cut  start
@@ -527,8 +517,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
-    TIME_MSG("EvolveLevel: after main loop");
-
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			      level, MetaData, Exterior, LevelArray[level]);
@@ -536,8 +524,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                               Exterior, LevelArray[level]);
 #endif
-
-    TIME_MSG("after SetBoundaryConditions");
 
     /* Finalize (accretion, feedback, etc.) star particles */
  
@@ -624,7 +610,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      *     subgrid's fluxes. (step #19)
      */
  
-    TIME_MSG("Before update from finer grids");
     //dcc cut start flux fix
 #ifdef FLUX_FIX
 
@@ -696,8 +681,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
  
-    TIME_MSG("Done saving fluxes");
-
     if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
 	level <= RadiationFieldLevelRecompute)
       if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
