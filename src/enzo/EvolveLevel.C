@@ -88,7 +88,7 @@
  
 /* function prototypes */
  
-void DeleteFluxes(fluxes *Fluxes);
+
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level);
 int  ReportMemoryUsage(char *header = NULL);
@@ -146,7 +146,10 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[]);
 #endif
- 
+int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
+		 int NumberOfGrids,int NumberOfSubgrids[]);		 
+int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
+		 int NumberOfGrids,int NumberOfSubgrids[]);		 
 int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
 
@@ -157,13 +160,9 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
+		      int StaticLevelZero,TopGridData * MetaData,int level);
 
-int FastSiblingLocatorInitializeStaticChainingMesh(ChainingMeshStructure *Mesh, int Rank,
-						   int TopGridDims[]); 
-int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
-				 int TopGridDims[]);
-int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
- 
 #ifdef FLUX_FIX
 int CreateSUBlingList(TopGridData *MetaData,
 		      HierarchyEntry *Grids[],
@@ -204,16 +203,11 @@ double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
  
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
-
-static int StaticSiblingListInitialized = 0;
-
 #ifdef STATIC_SIBLING_LIST
-static SiblingGridList StaticSiblingList[MAX_NUMBER_OF_SUBGRIDS];
 static int StaticLevelZero = 1;
 #else
 static int StaticLevelZero = 0;
 #endif
-
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)
@@ -225,7 +219,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   FLOAT When;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   float dtThisLevelSoFar = 0.0, dtThisLevel;
-  int RefinementFactors[MAX_DIMENSION];
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
@@ -256,92 +249,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   LevelHierarchyEntry **SUBlingList;
 #endif
 
+
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
-
-  // If this is level 0 the SiblingList does not change and can be static
-
-#ifdef STATIC_SIBLING_LIST
-  if ( StaticLevelZero == 1 && level == 0 ) {
-
-    if (!StaticSiblingListInitialized) {
-
-      if (debug) fprintf(stderr, "INITIALIZE Level 0 StaticSiblingList\n");
-
-      ChainingMeshStructure StaticChainingMesh;
-
-      FastSiblingLocatorInitializeStaticChainingMesh
-	(&StaticChainingMesh, MetaData->TopGridRank, MetaData->TopGridDims);
-
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-        Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&StaticChainingMesh);
-
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-        if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
-                              &StaticChainingMesh, &StaticSiblingList[grid1],
-                              MetaData->LeftFaceBoundaryCondition,
-                              MetaData->RightFaceBoundaryCondition) == FAIL) {
-          fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-          ENZO_FAIL("");
-        }
-
-      /* Clean up the chaining mesh. */
-
-      FastSiblingLocatorFinalize(&StaticChainingMesh);
-
-      StaticSiblingListInitialized = 1;
-
-    }
-
-  } // if StaticLevelZero && level == 0
-#endif
-
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
-
-  ChainingMeshStructure ChainingMesh;
-
-#ifdef STATIC_SIBLING_LIST
-  if (StaticLevelZero == 1 && level == 0 ) {
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-      SiblingList[grid1].NumberOfSiblings = StaticSiblingList[grid1].NumberOfSiblings;
-      SiblingList[grid1].GridList = StaticSiblingList[grid1].GridList;
-    }
-
-  }
-#endif
-
-  if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
-
-  FastSiblingLocatorInitialize(&ChainingMesh, MetaData->TopGridRank,
-			       MetaData->TopGridDims);
- 
-  /* Add all the grids to the chaining mesh. */
-
-  if (dbx) fprintf(stderr, "EL: FSL AddGrid entry \n");
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
-
-  if (dbx) fprintf(stderr, "EL: FSL AddGrid exit \n");
- 
-  /* For each grid, get a list of possible siblings from the chaining mesh. */
- 
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
-                              &ChainingMesh, &SiblingList[grid1],
-			      MetaData->LeftFaceBoundaryCondition,
-			      MetaData->RightFaceBoundaryCondition) == FAIL) {
-      fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-      ENZO_FAIL("");
-    }
- 
-  /* Clean up the chaining mesh. */
- 
-  FastSiblingLocatorFinalize(&ChainingMesh);
-
-  }
-
+  CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
+  
   /* On the top grid, adjust the refine region so that only the finest
      particles are included.  We don't want the more massive particles
      to contaminate the high-resolution region. */
@@ -417,58 +331,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     JBPERF_STOP("evolve-level-05"); // compute number of subgrids
     TIME_MSG("Before subgrid fluxes");
 
+    CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
-    /* For each grid, create the subgrid list. */
- 
-    JBPERF_START("evolve-level-06"); // create subgrid list
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
- 
-      /* Allocate the subgrid fluxes for this grid. */
- 
-      SubgridFluxesEstimate[grid1] = new fluxes *[NumberOfSubgrids[grid1]];
- 
-      for (subgrid = 0; subgrid < NumberOfSubgrids[grid1]; subgrid++)
-	SubgridFluxesEstimate[grid1][subgrid] = NULL;
- 
-      /* Collect the flux data and store it in the newly minted fluxes.
-	 Or rather that's what we should do.  Instead, we create fluxes one
-	 by one in this awkward array of pointers to pointers.  This should be
-	 changed so that all the routines take arrays of flux rather than
-	 arrays of pointers to flux.  Dumb. */
- 
-      counter = 0;
-
-      // Only allocate fluxes for local grids: saves a *lot* of storage
-
-      if (MyProcessorNumber ==
-          Grids[grid1]->GridData->ReturnProcessorNumber()) {
- 
-	NextGrid = Grids[grid1]->NextGridNextLevel;
-	while (NextGrid != NULL) {
-	  SubgridFluxesEstimate[grid1][counter] = new fluxes;
-	  Grids[grid1]->GridData->ComputeRefinementFactors
-	                              (NextGrid->GridData, RefinementFactors);
-	  NextGrid->GridData->ReturnFluxDims
-             (*(SubgridFluxesEstimate[grid1][counter++]), RefinementFactors);
-	  NextGrid = NextGrid->NextGridThisLevel;
-	}
- 
-	/* Add the external boundary of this subgrid to the subgrid list. This
-	   makes it easy to keep adding up the fluxes of this grid, but we must
-	   keep in mind that the last subgrid should be ignored elsewhere. */
- 
-	SubgridFluxesEstimate[grid1][counter] = new fluxes;
-	Grids[grid1]->GridData->ComputeRefinementFactors
-                                   (Grids[grid1]->GridData, RefinementFactors);
-	Grids[grid1]->GridData->ReturnFluxDims
-               (*(SubgridFluxesEstimate[grid1][counter]), RefinementFactors);
-
-      }
- 
-    } // end loop over grids (create Subgrid list)
- 
-    JBPERF_STOP("evolve-level-06"); // create subgrid list
     TIME_MSG("After subgrid fluxes");
 
 
@@ -503,8 +367,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TIME_MSG("EvolveLevel: before main loop");
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
+      // dcc problem analysis cut  start
+
       /* Call analysis routines. */
- 
       JBPERF_START_LOW("evolve-level-08"); // Call analysis routines
 
 //      if (ProblemType == 24)
@@ -527,6 +392,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       JBPERF_STOP_LOW("evolve-level-08"); // Call analysis routines
 
+      // dcc problem analysis cut stop
+
+
+      // dcc gravity cut start
       /* Gravity: compute acceleration field for grid and particles. */
  
       JBPERF_START("evolve-level-09"); // Compute self-gravity acceleration
@@ -563,6 +432,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
 
+      // dcc gravity cut stop
+
+
       /* Check for energy conservation. */
 /*
       if (ComputePotential)
@@ -575,6 +447,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef SAB
     } // End of loop over grids
 
+  //dcc cut SAB start 
     //This ensures that all subgrids agree in the boundary.
     //Not a big deal for hydro, but essential for DivB = 0 in MHD runs.
     //Only called on level > 0 because the root grid is dealt with differently than SG's.
@@ -599,7 +472,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }
 
-
+    //dcc cut SAB stop
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
@@ -609,6 +482,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
       JBPERF_STOP("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
 
+      //dcc cut Forcing to problem specific analysis
+
       /* Add RandomForcing fields to velocities after the copying of current
          fields to old. I also update the total energy accordingly here.
          It makes no sense to force on the very first time step. */
@@ -617,6 +492,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (MetaData->CycleNumber > 0)
         Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
       JBPERF_STOP_LOW("evolve-level-12"); // AddRandomForcing()
+
+      //dcc cut stop Forcing
 
       /* Call hydro solver and save fluxes around subgrids. */
       JBPERF_START("evolve-level-13"); // SolveHydroEquations()
@@ -638,6 +515,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->MultiSpeciesHandler();
       JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
 
+
+    //dcc cut start particles
       /* Update particle positions (if present). */
  
       JBPERF_START("evolve-level-16"); // UpdateParticlePositions()
@@ -668,7 +547,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
  
       JBPERF_STOP_LOW("evolve-level-17"); // star particle creation/feedback
-
+      //dcc cut stop particles
       /* Gravity: clean up AccelerationField. */
 
       JBPERF_START_LOW("evolve-level-18"); // clean up AccelerationField
@@ -725,6 +604,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			     level, AllStars);
     JBPERF_STOP("evolve-level-22"); // StarParticleFinalize()
     /* If cosmology, then compute grav. potential for output if needed. */
+
+    //dcc cut second potential cut: Duplicate?
  
     JBPERF_START("evolve-level-25"); // PrepareDensityField()
 
@@ -768,7 +649,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     JBPERF_STOP("evolve-level-25"); // PrepareDensityField()
 
-
+    //dcc cut stop second potential
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
     JBPERF_START("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
@@ -813,7 +694,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     JBPERF_START("evolve-level-28"); // UpdateFromFinerGrids()
     TIME_MSG("Before update from finer grids");
-
+    //dcc cut start flux fix
 #ifdef FLUX_FIX
 
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
@@ -833,7 +714,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       if (dbx) fprintf(stderr, "EL: CSL exit \n");
     }
-
+    //dcc cut stop flux fix
 /* 
     LevelHierarchyEntry *NextMonkey;
  
@@ -876,43 +757,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
     if (dbx) fprintf(stderr, "OK after DeleteSUBlingList \n");
- 
-    /* ------------------------------------------------------- */
-    /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
-       fluxes for this subgrid .
-       (Note: this must be done after CorrectForRefinedFluxes). */
- 
-    JBPERF_START("evolve-level-29"); // AddToBoundaryFluxes()
-    TIME_MSG("Before saving fluxes");
 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+  /* ------------------------------------------------------- */
+  /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
+     fluxes for this subgrid .
+     (Note: this must be done after CorrectForRefinedFluxes). */
 
-      // Only deallocate fluxes for local grids
-
-      if (MyProcessorNumber ==
-          Grids[grid1]->GridData->ReturnProcessorNumber()) {
-
-      if (FluxCorrection)
-	if (Grids[grid1]->GridData->AddToBoundaryFluxes
-	    (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->AddToBoundaryFluxes.\n");
-	  ENZO_FAIL("");
-	}
- 
-      /* Delete fluxes pointed to by SubgridFluxesEstimate[subgrid]. */
- 
-      for (subgrid = 0; subgrid < NumberOfSubgrids[grid1]; subgrid++) {
-	DeleteFluxes(SubgridFluxesEstimate[grid1][subgrid]);
-	delete       SubgridFluxesEstimate[grid1][subgrid];
-      }
-      delete [] SubgridFluxesEstimate[grid1];
-
-      }
- 
-    } // end of loop over grids
- 
-    JBPERF_STOP("evolve-level-29"); // AddToBoundaryFluxes()
+    FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
     /* Recompute radiation field, if requested. */
  
@@ -941,7 +792,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     /* Count up number of grids on this level. */
- 
+    // ? dcc
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
