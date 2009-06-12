@@ -593,8 +593,10 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 		fprintf(stderr, "dim = %d field = %d i = %d\n", dim, field, i);
 		return FAIL;
 	      }
-	      for (j = 0; j < size; j++)
+	      for (j = 0; j < size; j++){
 		BoundaryValue[field][dim][i][j] = float(buffer[j]);
+	        if(i==0&&j==0) fprintf(stderr,"BoundaryValue[%d][%d][0][0]=%f\n", field, dim, BoundaryValue[field][dim][0][0]);
+	      }		
 	    }
 	  }  // end of loop over fields
 

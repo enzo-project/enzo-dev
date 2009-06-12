@@ -43,8 +43,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
 #ifdef USE_HDF4
-int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id, 
-	      int32 &sds_index, char *name);
+int ReadField(float *temp, int Dims[], int Rank, char *name,
+	      char *field_name);
 static int32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
  
@@ -153,18 +153,11 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       fprintf(stderr, "Error reading GridRightEdge.\n");
       ENZO_FAIL("");
     }
- 
+
     if (fscanf(fptr, "Time = %"PSYM"\n", &Time) != 1) {
       fprintf(stderr, "Error reading Time.\n");
       ENZO_FAIL("");
     }
-
-#ifdef USE_HDF4
-    if (fscanf(fptr, "Time = %"FSYM"\n", &Time) != 1) {
-      fprintf(stderr, "Error reading Time.\n");
-      return FAIL;
-    }
-#endif
  
     if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
       fprintf(stderr, "Error reading SubgridsAreStatic.\n");
@@ -285,8 +278,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     if (MyProcessorNumber == ProcessorNumber){
 
 #ifdef USE_HDF4
-      fprintf(stderr, "Here I am!\n");
-
       if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
 	fprintf(stderr, "Error opening file %s.\n", name);
 	return FAIL;
@@ -351,7 +342,11 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       /* allocate temporary space */
  
+#ifdef USE_HDF4
+      float *temp = new float[active_size];
+#else
       io_type *temp = new io_type[active_size];
+#endif
  
       /* loop over fields, reading each one */
  
@@ -360,9 +355,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	/* get data into temporary array */
 
 #ifdef USE_HDF4
-	fprintf(stderr, "Here I am!-2\n");
-	if (ReadField(temp, TempIntArray2, GridRank, active_size, sd_id, 
-		      sds_index, name) == FAIL) {
+	if (ReadField(temp, ActiveDim, GridRank, name, 
+		      DataLabel[field]) == FAIL) {
 	  fprintf(stderr, "Error reading field %d.\n", field);
 	  return FAIL;
 	}
@@ -387,6 +381,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	h5_status = H5Dclose(dset_id);
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+#endif 
  
 	/* copy active region into whole grid */
  
@@ -403,7 +398,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 		float(temp[(i-GridStartIndex[0])                         +
 			   (j-GridStartIndex[1])*ActiveDim[0]            +
 			   (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ]);
-#endif 
 
       } // end: loop over fields
  
@@ -418,6 +412,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     if (MyProcessorNumber == ProcessorNumber) {
 
+#ifdef USE_HDF4
+#else
       if(!ReadText){
 	// build filename from grid id
 	char id[MAX_GRID_TAG_SIZE];
@@ -426,6 +422,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	strcpy(name, ".grid");
 	strcat(name, id);
       }
+#endif
  
       /* Open file if not already done (note: particle name must = grid name). */
  
@@ -456,18 +453,163 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       /* Allocate room for particles. */
  
       this->AllocateNewParticles(NumberOfParticles);
- 
+
       TempIntArray[0] = NumberOfParticles;
- 
+      
+#ifdef USE_HDF4
+
+      float *temp = new float[active_size];
+
+      int32 HDFDataType = (sizeof(Eflt) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;
+      if (sizeof(Eflt) == 16) HDFDataType = DFNT_FLOAT128;
+
+      /* Read dims.
+	 If Rank != 1, we may have just read some other field SDS.  If so,
+	 then try again. */
+      
+      TempInt = 0;
+      while (TempInt != 1) {
+	sds_id = SDselect(sd_id, sds_index++);
+	while (SDiscoordvar(sds_id)) {
+	  SDendaccess(sds_id);
+	  sds_id = SDselect(sd_id, sds_index++);
+	}
+	if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
+		      &attributes) == HDF_FAIL) {
+	  fprintf(stderr, "Error reading dims1 from %s.\n", name);
+	  return FAIL;
+	}
+	SDendaccess(sds_id);
+      }
+      sds_index--; 
+
+      /* Check dims. */
+
+      if (TempInt != 1 || TempIntArray2[0] != NumberOfParticles) {
+	fprintf(stderr, "HDF particle dims do not match NumberOfParticles.\n");
+	fprintf(stderr, "  (HDF dim[0] = %d, NumberOfParticles = %d)\n",
+		int(TempIntArray2[0]), NumberOfParticles);
+	return FAIL;  
+      }
+
+      /* Read ParticlePosition (use temporary buffer). */ 
+      
+      for (dim = 0; dim < GridRank; dim++) {
+
+	if (num_type2 == HDFDataType) {
+
+	  /* same data type: just read. */
+
+	  if (ReadField((float *) ParticlePosition[dim], &NumberOfParticles, 1, name, 
+			ParticlePositionLabel[dim]) == FAIL) {
+	    fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
+	    return FAIL;
+	  }
+	
+	} else {
+
+	  /* convert data: Read into temporary buffer and copy. */
+
+	  if (ReadField(temp, &NumberOfParticles, 1, name, 
+			ParticlePositionLabel[dim]) == FAIL) {
+	    fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
+	    return FAIL;
+	  }
+
+	  float64 *temp64 = (float64 *) temp;
+	  long_double *temp128 = (long_double *) temp;
+	  
+	  if (num_type2 == DFNT_FLOAT32)
+	    for (i = 0; i < NumberOfParticles; i++)
+	      ParticlePosition[dim][i] = Eflt(temp[i]);
+	  if (num_type2 == DFNT_FLOAT64)
+	    for (i = 0; i < NumberOfParticles; i++)
+	      ParticlePosition[dim][i] = Eflt(temp64[i]);
+	  if (num_type2 == DFNT_FLOAT128)
+	    for (i = 0; i < NumberOfParticles; i++)
+	      ParticlePosition[dim][i] = Eflt(temp128[i]);
+	}
+      } // end: loop over dims
+
+      delete [] temp;
+
+      /* Read ParticleVelocity. */
+
+      for (dim = 0; dim < GridRank; dim++) {
+	if (ReadField(ParticleVelocity[dim], &NumberOfParticles, 1, name,
+		      ParticleVelocityLabel[dim]) == FAIL) {
+	  fprintf(stderr, "Error reading ParticleVelocity %d\n", dim);
+	  return FAIL;
+	}
+      }
+
+      /* Read ParticleMass. */
+
+      if (ReadField(ParticleMass, &NumberOfParticles, 1, name,
+		    "particle_mass") == FAIL)
+	return FAIL;
+
+      /* Read ParticleNumber */
+      
+      if (ReadField((float *) ParticleNumber, &NumberOfParticles, 1, name,
+		    "particle_index") == FAIL)
+	return FAIL;
+
+      /* Read particle type if present */
+      
+      if (ParticleTypeInFile == TRUE) {
+	
+	if (ReadField((float *) ParticleType, &NumberOfParticles, 1, name,
+		      "particle_type") == FAIL)
+	  return FAIL;
+
+#define NO_CHECK_PARTICLE_TYPE
+#ifdef CHECK_PARTICLE_TYPE
+	for (i = 0; i < NumberOfParticles; i++)
+	  if (ParticleType[i] < PARTICLE_TYPE_GAS ||
+	      ParticleType[i] > NUM_PARTICLE_TYPES-1) {
+	  fprintf(stderr, "file: %s: particle %d has unknown type %d\n",
+		  name, i, ParticleType[i]);
+	  return FAIL;
+	  }
+#endif
+
+    }
+
+      /* Read ParticleAttributes. */
+
+#define NO_RESTART_WITH_ATTRIBUTES
+      for (j = 0; j < NumberOfParticleAttributes; j++) {
+#ifdef RESTART_WITH_ATTRIBUTES
+	for (i=0; i < NumberOfParticles; i++)
+	  ParticleAttribute[j][i] = 0;
+#else
+	if (ReadField(ParticleAttribute[j], &NumberOfParticles, 1, name,
+		      ParticleAttributeLabel[j]) == FAIL) {
+	  fprintf(stderr, "Error reading ParticleAttribute %d\n", j);
+	  return FAIL;
+	}
+#endif
+      }
+      
+      /* If the particle type is not in the file, then set it according
+	 to the value of the attributes. */
+
+      if (ParticleTypeInFile != TRUE)
+	for (i = 0; i < NumberOfParticles; i++)
+	  ParticleType[i] = ReturnParticleType(i);
+
+#else /* USE_HDF4 */
+
       /* Create a temporary buffer (32 bit or twice the size for 64). */
- 
+      
       io_type *temp = NULL;
- 
+      
       jj = sizeof(FLOAT);
  
       switch(jj)
 	{
- 
+	  
 	case 4:
 	  temp = new io_type[NumberOfParticles];
 	  break;
@@ -487,7 +629,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       if (temp == NULL)
 	temp = new io_type[NumberOfParticles];
- 
+  
       /* Read ParticlePosition (use temporary buffer). */
  
       for (dim = 0; dim < GridRank; dim++) {
@@ -533,7 +675,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       }
  
- 
       /* Read ParticleVelocity. */
  
       for (dim = 0; dim < GridRank; dim++) {
@@ -563,8 +704,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleVelocity[dim][i] = float(temp[i]);
       }
- 
- 
+  
       /* Read ParticleMass into temporary buffer and Copy to ParticleMass. */
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
@@ -621,8 +761,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       for (i = 0; i < NumberOfParticles; i++)
 	ParticleNumber[i] = tempint[i];
  
- 
-      // Read ParticleType if present
+       // Read ParticleType if present
  
       if (ParticleTypeInFile == TRUE) {
  
@@ -668,8 +807,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleType[i] = ReturnParticleType(i);
  
-      }
- 
+      } 
  
       /* Read ParticleAttributes. */
       if (AddParticleAttributes) {
@@ -711,6 +849,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
       delete [] temp;
       delete [] tempint;
+
+#endif /* USE_HDF4 */
  
     } // end: if (MyProcessorNumber == ProcessorNumber)
   } // end: if (NumberOfParticles > 0 && ReadData)
@@ -720,9 +860,15 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   if ( (MyProcessorNumber == ProcessorNumber) &&
        (NumberOfParticles > 0 || NumberOfBaryonFields > 0) 
        && ReadData ){
+
+#ifdef USE_HDF4
+    SDend(sd_id);
+#else
     h5_status = H5Fclose(file_id);
     if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+#endif
+
   }
  
   if (MyProcessorNumber == ProcessorNumber)
@@ -734,31 +880,63 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
 }
 
+
+
+
+
+
+
+#ifdef USE_HDF4
 /* ----------------------------------------------------------------------                                          
    This routine reads one data field from the file using the appropriate                                           
    data model.  Note that it uses file pointers/handlers that are statically                                       
    declared above. */
 
-
-#ifdef USE_HDF4
-int ReadField(float32 *temp, int32 Size[], int Rank, int size, int sd_id, 
-	      int32 &sds_index, char *name)
+int ReadField(float *temp, int Dims[], int Rank, char *name,
+	      char *field_name)
 {
+  int dim;
+
   int32 sds_id, start[] = {0, 0, 0};
+  int32 TempInt, TempIntArray[MAX_DIMENSION], attributes, num_type;
+  char dummy[MAX_LINE_LENGTH];
+
+  /* Find the next SDS which is not a coordinate variable. */
 
   sds_id = SDselect(sd_id, sds_index++);
   while (SDiscoordvar(sds_id)) {
     SDendaccess(sds_id);
     sds_id = SDselect(sd_id, sds_index++);
   }
-  if (SDreaddata(sds_id, start, (int32 *) NULL, Size, (VOIDP) temp)
+
+  if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray, &num_type, &attributes) == HDF_FAIL) {
+    fprintf(stderr, "error getting info from file %s (filed %s)\n", name, field_name);
+    return FAIL;
+  }
+  
+  /* check rank against this grid */
+  
+  if (TempInt != Rank) {
+    fprintf(stderr, "HDF rank (%d) does not match GridRank.\n", TempInt);
+    return FAIL;
+  }
+
+  /* check dimensions of HDF file against this grid */
+  
+  for (dim = 0; dim < Rank; dim++)
+    if (TempIntArray[Rank-dim-1] != Dims[dim]) {
+      fprintf(stderr, "HDF file dimensions do not match GridDimensions.\n");
+      return FAIL;
+    }
+
+  if (SDreaddata(sds_id, start, (int32 *) NULL, TempIntArray, (void *) temp)
       == HDF_FAIL) {
-    fprintf(stderr, "Error reading data from %s.\n", name);
+    fprintf(stderr, "Error reading data from file %s (field %s).\n", name, field_name);
     return FAIL;
   }
   SDendaccess(sds_id);
 
   return SUCCESS;
 }
-#endif
+#endif /* USE_HDF4 */
 
