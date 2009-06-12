@@ -188,6 +188,11 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     float dtLevelAbove);
 #endif
 
+#ifdef USE_PYTHON
+int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+               int level);
+#endif
+
 int SetLevelTimeStep(HierarchyEntry *Grids[],
         int NumberOfGrids, int level,
         float *dtThisLevelSoFar, float *dtThisLevel,
@@ -557,6 +562,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Update SubcycleNumber if this is the bottom of the hierarchy --
        Note that this not unique based on which level is the highest,
        it just keeps going */
+
+#ifdef USE_PYTHON
+    CallPython(LevelArray, MetaData, level);
+#endif
 
     if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
 

@@ -89,7 +89,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				TopGridData* MetaData = NULL);
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-#ifdef CONFIG_PYTHON_ENABLED
+#ifdef USE_PYTHON
 int CallPython();
 #endif
 

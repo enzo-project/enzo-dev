@@ -1,4 +1,4 @@
-#ifdef CONFIG_PYTHON_ENABLED
+#ifdef USE_PYTHON
 /***********************************************************************
 /
 /  GRID CLASS (TURN ALL OF OUR FIELDS INTO NUMPY ARRAYS)

@@ -1,4 +1,4 @@
-#ifdef CONFIG_PYTHON_ENABLED
+#ifdef USE_PYTHON
 /***********************************************************************
 /
 /  INITIALIZE PYTHON INTERFACE AND START INTERPRETER
@@ -13,11 +13,13 @@
 /
 ************************************************************************/
 
-#ifdef CONFIG_PYTHON_ENABLED
+#ifdef USE_PYTHON
+#ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #define ENZO_PYTHON_IMPORTED
+#endif
 #endif
 
 #include <stdlib.h>
@@ -32,11 +34,14 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 
-int  CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
+int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *TemperatureUnits, float *TimeUnits,
-		       float *VelocityUnits, FLOAT Time);
+		       float *VelocityUnits, float *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
+int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
+		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
+void ExposeGridHierarchy(int NumberOfGrids);
 
 static PyMethodDef _EnzoModuleMethods[] = {
   {NULL, NULL, 0, NULL}
@@ -71,43 +76,35 @@ int InitializePythonInterface(int argc, char *argv[])
   return SUCCESS;
 }
 
-
 #define TEMP_PYINT(A) Py_XDECREF(temp_int); temp_int = PyLong_FromLong((long) A);
 #define TEMP_PYFLOAT(A) Py_XDECREF(temp_float); temp_float = PyFloat_FromDouble((double) A);
 #define TEMP_PYSTRING(A) Py_XDECREF(temp_string); temp_string = PyString_FromString(A);
 
-int ExportParameterFile(TopGridData &MetaData, FLOAT CurrentTime)
+void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
 {
   /* We need: */
 
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
-        VelocityUnits = 1;
+        VelocityUnits = 1, MassUnits;
 
-  if (ComovingCoordinates)
-    if (CosmologyGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-			  &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
-      fprintf(stderr, "Error in CosmologyGetUnits.\n");
-      return FAIL;
-    }
-
-  FLOAT a, dadt, FinalRedshift, CurrentRedshift;
-  if (CosmologyComputeExpansionFactor(MetaData.StopTime, &a, &dadt) == FAIL) {
-    fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-    return FAIL;
-  }
-  FinalRedshift = (1 + InitialRedshift)/a - 1;
-
-  /* Compute the current redshift (for information only). */
-
-  CosmologyComputeExpansionFactor(CurrentTime, &a, &dadt);
-  CurrentRedshift = (1 + InitialRedshift)/a - 1;
-
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, CurrentTime);
 
   PyObject *temp_int = NULL;
   PyObject *temp_float = NULL;
   PyObject *temp_string = NULL;
 
   if (ComovingCoordinates) {
+    FLOAT a, dadt, FinalRedshift, CurrentRedshift;
+    CosmologyComputeExpansionFactor(MetaData->StopTime, &a, &dadt);
+
+    FinalRedshift = (1 + InitialRedshift)/a - 1;
+
+    /* Compute the current redshift (for information only). */
+
+    CosmologyComputeExpansionFactor(CurrentTime, &a, &dadt);
+    CurrentRedshift = (1 + InitialRedshift)/a - 1;
+
     TEMP_PYFLOAT(CurrentRedshift);
     PyDict_SetItemString(yt_parameter_file, "CosmologyCurrentRedshift", temp_float);
 
@@ -136,7 +133,7 @@ int ExportParameterFile(TopGridData &MetaData, FLOAT CurrentTime)
   TEMP_PYFLOAT(TimeUnits);
   PyDict_SetItemString(yt_parameter_file, "TimeUnits", temp_float);
 
-  /*TEMP_PYSTRING(MetaData.MetaDataString);
+  /*TEMP_PYSTRING(MetaData->MetaDataString);
   PyDict_SetItemString(yt_parameter_file, "MetaDataString", temp_string);*/
 
   TEMP_PYINT(HydroMethod);
@@ -154,7 +151,7 @@ int ExportParameterFile(TopGridData &MetaData, FLOAT CurrentTime)
   TEMP_PYINT(MultiSpecies);
   PyDict_SetItemString(yt_parameter_file, "MultiSpecies", temp_int);
 
-  TEMP_PYINT(MetaData.TopGridRank);
+  TEMP_PYINT(MetaData->TopGridRank);
   PyDict_SetItemString(yt_parameter_file, "TopGridRank", temp_int);
 
   TEMP_PYINT(RefineBy);
@@ -180,9 +177,9 @@ int ExportParameterFile(TopGridData &MetaData, FLOAT CurrentTime)
   PyDict_SetItemString(yt_parameter_file, "DomainRightEdge", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);
 
-  tgd0 = PyLong_FromLong((long) MetaData.TopGridDims[0]);
-  tgd1 = PyLong_FromLong((long) MetaData.TopGridDims[1]);
-  tgd2 = PyLong_FromLong((long) MetaData.TopGridDims[2]);
+  tgd0 = PyLong_FromLong((long) MetaData->TopGridDims[0]);
+  tgd1 = PyLong_FromLong((long) MetaData->TopGridDims[1]);
+  tgd2 = PyLong_FromLong((long) MetaData->TopGridDims[2]);
   tgd_tuple = PyTuple_Pack(3, tgd0, tgd1, tgd2);
   PyDict_SetItemString(yt_parameter_file, "TopGridDimensions", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);
@@ -207,22 +204,8 @@ int ExportParameterFile(TopGridData &MetaData, FLOAT CurrentTime)
 
 
   Py_XDECREF(temp_int); Py_XDECREF(temp_float); Py_XDECREF(temp_string);
-  return SUCCESS;
+  return;
 }
 
-int CallPython(TopGridData &MetaData, FLOAT CurrentTime)
-{
-  ExportParameterFile(MetaData, CurrentTime);
-
-  PyRun_SimpleString("import user_script\nuser_script.main()\n");
-
-  NumberOfPythonCalls++;
-
-  PyDict_Clear(grid_dictionary);
-  PyDict_Clear(hierarchy_information);
-  PyDict_Clear(yt_parameter_file);
-  PyDict_Clear(conversion_factors);
-  return SUCCESS;
-}
 
 #endif

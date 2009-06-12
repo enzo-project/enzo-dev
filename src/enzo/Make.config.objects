@@ -27,6 +27,7 @@ OBJS_CONFIG_LIB = \
 	calc_photo_rates.o \
 	calc_rad.o \
 	calc_rates.o \
+	CallPython.o \
 	CheckEnergyConservation.o \
 	CheckForOutput.o \
 	CheckForResubmit.o \

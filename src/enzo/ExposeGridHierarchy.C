@@ -27,11 +27,12 @@
 
 void ExposeGridHierarchy(int NumberOfGrids)
 {
+
+
+#ifdef USE_PYTHON
 #undef int
 
   /* This function just fills the dictionaries */
-
-#ifdef CONFIG_PYTHON_ENABLED
 
   // We'll set up some common variables
   npy_intp flat_dimensions[2];

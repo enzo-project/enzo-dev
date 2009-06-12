@@ -28,12 +28,12 @@
 /* function prototypes */
 
 
+#ifdef USE_PYTHON
 
-int ExposeDataHierarchy(TopGridData &MetaData, HierarchyEntry *Grid, 
+int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level)
 {
 
-#ifdef CONFIG_PYTHON_ENABLED
   int OriginalID, NextGridThisLevelID, NextGridNextLevelID;
   int flagged, noParent = 0;
   static PyArrayObject *container[11];
@@ -101,6 +101,6 @@ int ExposeDataHierarchy(TopGridData &MetaData, HierarchyEntry *Grid,
     }
   }
 
-#endif
   return SUCCESS;
 }
+#endif
