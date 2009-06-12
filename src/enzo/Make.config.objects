@@ -496,6 +496,7 @@ OBJS_CONFIG_LIB = \
 	star_maker2.o \
 	star_maker3.o \
 	star_maker4.o \
+	star_maker7.o \
 	SupernovaRestartInitialize.o \
 	SysMkdir.o \
 	TestGravityCheckResults.o \

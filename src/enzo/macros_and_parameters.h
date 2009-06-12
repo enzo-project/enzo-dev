@@ -371,6 +371,7 @@ typedef int            HDF5_hid_t;
 #define POP3_STAR	3
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
+#define INSTANT_STAR    7
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 
