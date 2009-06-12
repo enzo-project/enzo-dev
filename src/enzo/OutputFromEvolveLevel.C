@@ -28,9 +28,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-int WriteMovieData(char *basename, int filenumber,
-		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-		   FLOAT WriteTime);
 int WriteStreamData(HierarchyEntry *Grids[], int NumberOfGrids, 
 		    TopGridData *MetaData, int CycleCount, int EndStep = FALSE);
 int WriteTracerParticleData(char *basename, int filenumber,
@@ -59,20 +56,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
-    
-    /* Check for movie output */
-    
-    if (LevelArray[level]->GridData->ReturnTime() >=
-	MetaData->TimeLastMovieDump + MetaData->dtMovieDump &&
-	MetaData->dtMovieDump > 0.0) {
-      MetaData->TimeLastMovieDump += MetaData->dtMovieDump;
-      if (WriteMovieData(MetaData->MovieDumpName,
-			 MetaData->MovieDumpNumber++, LevelArray, MetaData,
-			 LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteMovieData.\n");
-	return FAIL;
-      }
-    }
     
     /* Check for tracer particle output */
     

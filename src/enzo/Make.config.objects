@@ -276,7 +276,6 @@ OBJS_CONFIG_LIB = \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
-	Grid_OutputGridMovieData.o \
 	Grid_OutputStarParticleInformation.o \
 	Grid_PPMDirectEuler.o \
 	Grid_PrepareBoundaryFluxes.o \
@@ -527,7 +526,6 @@ OBJS_CONFIG_LIB = \
 	WriteDataHierarchy.o \
 	WriteHierarchyStuff.o \
 	WriteMemoryMap.o \
-	WriteMovieData.o \
 	WriteParameterFile.o \
 	WriteRadiationData.o \
 	WriteStarParticleData.o \
