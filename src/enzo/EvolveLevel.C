@@ -261,7 +261,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
- 
   LevelHierarchyEntry **SUBlingList;
 #endif
 

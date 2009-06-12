@@ -170,6 +170,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	/* Allocate space (if necessary). */
 
         for (field = 0; field < NumberOfBaryonFields; field++) {
+	  //
 	  if (SubgridFluxes[i]->LeftFluxes[field][dim] == NULL)
 	    SubgridFluxes[i]->LeftFluxes[field][dim]  = new float[size];
 	  if (SubgridFluxes[i]->RightFluxes[field][dim] == NULL)

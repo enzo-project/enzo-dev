@@ -347,6 +347,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
+
  
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {

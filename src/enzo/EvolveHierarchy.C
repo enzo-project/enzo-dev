@@ -56,6 +56,9 @@ int RebuildHierarchy(TopGridData *MetaData,
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior);
 
+int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+                    int level, float dtLevelAbove, ExternalBoundary *Exterior, FLOAT dt0);
+
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
 		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
@@ -400,22 +403,31 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     tlev0 = MPI_Wtime();
 #endif
  
-    if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
-      if (MyProcessorNumber == ROOT_PROCESSOR) {
-	fprintf(stderr, "Error in EvolveLevel.\n");
-	fprintf(stderr, "--> Dumping data (output number %"ISYM").\n",
-		MetaData.DataDumpNumber);
-      }
-      if (NumberOfProcessors == 1)
-#ifdef USE_HDF5_GROUPS
+    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || HydroMethod == PPM_LagrangeRemap) {
+      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
+        if (NumberOfProcessors == 1) {
+          fprintf(stderr, "Error in EvolveLevel.\n");
+          fprintf(stderr, "--> Dumping data (output number %d).\n",
+                  MetaData.DataDumpNumber);
 	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior);
-#else
-	WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+        }
+        return FAIL;
+      }
+    } else {
+      if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
+        if (NumberOfProcessors == 1) {
+          fprintf(stderr, "Error in EvolveLevel_RK2.\n");
+          fprintf(stderr, "--> Dumping data (output number %d).\n",
+                  MetaData.DataDumpNumber);
+	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior);
-#endif
-      return FAIL;
+        }
+        return FAIL;
+      }
     }
+
+
 
 #ifdef USE_MPI 
     MPI_Barrier(MPI_COMM_WORLD);

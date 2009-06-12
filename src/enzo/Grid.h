@@ -75,6 +75,10 @@ class grid
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
 
+  // MHD data
+  float *divB;
+  float *gradPhi[MAX_DIMENSION];
+
   float  CourantSafetyNumber;                       // Hydro parameter
   int    PPMFlatteningParameter;                    // PPM parameter
   int    PPMDiffusionParameter;                     // PPM parameter
@@ -263,6 +267,8 @@ class grid
     (for step #16) */
 
    int CopyBaryonFieldToOldBaryonField();
+   int CopyOldBaryonFieldToBaryonField();
+
 
 /* Copy potential field to baryon potential for output purposes. */
 
@@ -1115,6 +1121,7 @@ void SortParticlesByNumber();
   int CommunicationMethodShouldExit(grid *OtherGrid) {
 
     /* Return if neither grid lives on this processor. */
+    if (NumberOfProcessors == 1) return SUCCESS;
 
     if (MyProcessorNumber != ProcessorNumber && 
         MyProcessorNumber != OtherGrid->ProcessorNumber)
@@ -1150,6 +1157,23 @@ void SortParticlesByNumber();
 
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum);
+
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
+				 int &Vel2Num, int &Vel3Num, int &TENum,
+				 int &B1Num, int &B2Num, int &B3Num);
+
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
+				 int &Vel2Num, int &Vel3Num, int &TENum,
+				 int &B1Num, int &B2Num, int &B3Num, int &PhiNum);
+
+  /* Identify driving fields */
+
+  int IdentifyDrivingFields(int &Drive1Num, int &Drive2Num, int &Drive3Num);
+
+  /* Identify potential field */
+
+  int IdentifyPotentialField(int &PotenNum, int &Acce1Num, int &Acce2Num, int &Acce3Num);
+
 
 /* Identify Multi-species fields. */
 
@@ -1529,7 +1553,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
      return TRUE;
   }
 
-#if defined(r4) || defined(p16)
+#if !defined(r4) || defined(p16)
   // FLOAT version of above
   inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
@@ -1553,7 +1577,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     return TRUE;
   }
 
-#if defined(r4) || defined(p16)
+#if !defined(r4) || defined(p16)
   // Check to see if a FLOAT point is in the grid.
   inline int PointInGrid( FLOAT *point ){
     for( int i = 0; i < GridRank; i++ ){
@@ -1663,6 +1687,193 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int FindMassiveParticles(float min_mass, int level, FLOAT *pos[], int &npart,
 			   int CountOnly);
 
+  // 
+  // new hydro & MHD routines
+  int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
+                        float *Flux3D[], int flux, float fluxcoef, float dt);
+  void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
+  int Hydro1DTestInitializeGrid(float rhol, float rhor,
+				float vxl,  float vxr,
+				float vyl,  float vyr,
+				float pl,   float pr,
+				float Bxl,  float Bxr,
+				float Byl,  float Byr);
+  int RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
+                          int NumberOfSubgrids, int level,
+                          ExternalBoundary *Exterior);
+  int RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
+                          int NumberOfSubgrids, int level,
+                          ExternalBoundary *Exterior);
+  int UpdatePrim(float **dU, float c1, float c2);
+  int Hydro3D(float **Prim, float **dU, float dt,
+	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
+	      float fluxcoef, int fallback);
+  int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
+			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level);
+  int Collapse3DInitializeGrid(int n_sphere,
+			       FLOAT r_sphere[MAX_SPHERES],
+			       FLOAT rc_sphere[MAX_SPHERES],
+			       float rho_sphere[MAX_SPHERES],
+			       float p_sphere[MAX_SPHERES],
+			       float cs_sphere[MAX_SPHERES],
+			       FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+			       float omega_sphere[MAX_SPHERES],
+			       int   sphere_type[MAX_SPHERES],
+			       float rho_medium, float p_medium, int level);
+  int Collapse1DInitializeGrid(FLOAT r_sphere,
+			       FLOAT rc_sphere,
+			       float rho_sphere,
+			       float p_sphere,
+			       float cs_sphere,
+			       float omega_sphere,
+			       int   sphere_type,
+			       float rho_medium, float p_medium);
+  int AddSelfGravity(float coef);
+  int SourceTerms(float **dU);
+  int MHD1DTestInitializeGrid(float rhol, float rhor,
+			      float vxl,  float vxr,
+			      float vyl,  float vyr,
+			      float vzl,  float vzr,
+			      float pl,   float pr,
+			      float Bxl,  float Bxr,
+			      float Byl,  float Byr,
+			      float Bzl,  float Bzr);
+  int MHD2DTestInitializeGrid(int MHD2DProblemType,
+			      float rhol, float rhou,
+			      float vxl,  float vxu,
+			      float vyl,  float vyu,
+			      float pl,   float pu,
+			      float Bxl,  float Bxu,
+			      float Byl,  float Byu);
+  int MHD3DTestInitializeGrid(int MHD3DProblemType,
+			      float rhol, float rhou,
+			      float vxl,  float vxu,
+			      float vyl,  float vyu,
+			      float pl,   float pu,
+			      float Bxl,  float Bxu,
+			      float Byl,  float Byu);
+  int CollapseMHD3DInitializeGrid(int n_sphere,
+				  FLOAT r_sphere[MAX_SPHERES],
+				  FLOAT rc_sphere[MAX_SPHERES],
+				  float rho_sphere[MAX_SPHERES],
+				  float p_sphere[MAX_SPHERES],
+				  float cs_sphere[MAX_SPHERES],
+				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+				  float omega_sphere[MAX_SPHERES], float B0, float theta_B,
+				  int   sphere_type[MAX_SPHERES],
+				  float rho_medium, float p_medium, int level);
+  int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
+				  float B0, int seed, int level);
+  int GalaxyDiskInitializeGrid(int NumberOfHalos,
+			       FLOAT HaloRadius[MAX_SPHERES],
+			       FLOAT HaloCoreRadius[MAX_SPHERES],
+			       float HaloDensity[MAX_SPHERES],
+			       float HaloTemperature[MAX_SPHERES],
+			       FLOAT HaloPosition[MAX_SPHERES][MAX_DIMENSION],
+			       float HaloSpin[MAX_SPHERES],
+			       float HaloVelocity[MAX_SPHERES][MAX_DIMENSION],
+			       float HaloAngVel[MAX_SPHERES],
+			       float HaloMagneticField,
+			       FLOAT DiskRadius[MAX_SPHERES],
+			       FLOAT DiskHeight[MAX_SPHERES],
+			       float DiskDensity[MAX_SPHERES],
+			       float DiskTemperature[MAX_SPHERES],
+			       int   GalaxyType[MAX_SPHERES],
+			       int   UseParticles, int UseGas,
+			       float UniformVelocity[MAX_DIMENSION],
+			       float MediumTemperature, float MediumDensity, int level);
+  int AGNDiskInitializeGrid(float BlackHoleMass,
+			    int BlackHoleType,
+			    int DiskType,
+			    float DiskDensity,
+			    float DiskTemperature,
+			    FLOAT DiskRadius,
+			    FLOAT DiskHeight, 
+			    int UseGas, int level);
+  int MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+		     int NumberOfSubgrids, int level,
+		     ExternalBoundary *Exterior);
+  int MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
+		     int NumberOfSubgrids, int level,
+		     ExternalBoundary *Exterior);
+  int MHD3D(float **Prim, float **dU, float dt,
+	    fluxes *SubgridFluxes[], int NumberOfSubgrids,
+	    float fluxcoef, int fallback);
+  int MHDSourceTerms(float **dU);
+  int UpdateMHDPrim(float **dU, float c1, float c2);
+  int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
+			   float *Flux3D[], int flux, float fluxcoef, float dt);
+  int Get_NumberOfParticles() {
+    return NumberOfParticles;
+  }
+  int SetFloor();
+
+
+  /* Poisson clean routines */
+
+  int PoissonSolver(int type, int level);
+
+  int PoissonSolverSOR();
+  int PoissonSolverSOR2();
+  int PoissonSolverFFT();
+  int PoissonSolverMultigrid();
+  int PoissonSolverCGA(int difftype, double *divB_p);
+  template <typename T> int multA(T* input, T* output);
+  template <typename T> int multA2(T* input, T* output);
+  template <typename T> T dot(T *a, T *b);
+  int setNeumannBC(float* x);
+  int PoissonSolverDirichletBC(double *divB_p);
+
+  int PoissonCleanStep(int level);
+
+  int GetIndex(int i, int j, int k) { 
+    return i + j*(GridDimension[0])
+      + k*(GridDimension[0])*(GridDimension[1]);
+  }
+  
+  int PoissonSolverTestInitializeGrid(int TestType, float GeometryControl);
+
+  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
+			      int check, float diffvalue);  
+  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
+  int PrintToScreenBoundaries(float *field, char *display);
+
+  
+
+  int ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradient, 
+				float InitialBField, int ShearingBoxProblemType);
+
+  int SetShearingBoxExternalBoundaries();
+
+
+  int MRICollapseInitializeGrid(float AngularVelocity, float VelocityGradient, float InitialBField, 
+				float FluctuationAmplitudeFraction, float Radius);
+
+  int ReduceWindBoundary();
+
+  /* New particle routines */
+  int CheckParticle();
+
+  int ReturnMaximumParticleNumber();
+
+  int ReturnNumberOfNewParticles() {
+    int np = 0;
+    for (int n = 0; n < NumberOfParticles; n++)
+      if (ParticleNumber[n] < 0) np++;
+    return np;
+  }
+  
+  /* Non-ideal effects */
+
+  int AddViscosity();
+  int ComputeViscosity(float *viscosity);
+
+  int AddAmbipolarDiffusion();
+
+  int AddResistivity();
+  int ComputeResistivity(float *resistivity);
+  /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
 
 };
 

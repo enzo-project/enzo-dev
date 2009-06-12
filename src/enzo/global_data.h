@@ -421,6 +421,108 @@ EXTERN long *MovieEntriesPP;
 EXTERN int MaxMovieFilenum;
 EXTERN int NewMovieParticleOn;
 
+/* Stanford Hydro Solver variables */
+
+/* Hydro parameters */
+
+EXTERN int UseHydro;
+EXTERN int Coordinate;
+EXTERN int NSpecies;
+EXTERN int NColor;
+EXTERN float Theta_Limiter;
+EXTERN int RKOrder;
+EXTERN int UsePhysicalUnit;
+EXTERN int iden;
+EXTERN int ietot;
+EXTERN int ivx;
+EXTERN int ivy;
+EXTERN int ivz;
+EXTERN int iBx;
+EXTERN int iBy;
+EXTERN int iBz;
+EXTERN int iPhi;
+EXTERN int ieint;
+EXTERN int iD;
+EXTERN int iEtot;
+EXTERN int iS1;
+EXTERN int iS2;
+EXTERN int iS3;
+EXTERN int iEint;
+EXTERN float SmallRho;
+EXTERN float SmallP;
+EXTERN float SmallEint;
+EXTERN float SmallT;
+EXTERN int NEQ_HYDRO;
+EXTERN int NEQ_MHD;
+EXTERN int ReconstructionMethod;
+EXTERN int RiemannSolver;
+EXTERN int EOSType;
+EXTERN float EOSSoundSpeed;
+EXTERN float EOSCriticalDensity;
+EXTERN float EOSGamma;
+EXTERN float C_h;
+EXTERN float C_p;
+EXTERN float Pi;
+EXTERN int UseConstantAcceleration;
+EXTERN float ConstantAcceleration[3];
+EXTERN float Mu;
+EXTERN int ExternalGravity;
+EXTERN int StringKick;
+EXTERN int UseFloor;
+EXTERN int UseViscosity;
+EXTERN int UseAmbipolarDiffusion;
+EXTERN int UseResistivity;
+
+/* Chemistry & cooling parameters */
+
+EXTERN int UseH2OnDust;
+EXTERN double PhotoelectricHeating;
+EXTERN float CoolingCutOffDensity1;
+EXTERN float CoolingCutOffDensity2;
+EXTERN float CoolingPowerCutOffDensity1;
+EXTERN float CoolingPowerCutOffDensity2;
+EXTERN float CoolingCutOffTemperature;
+EXTERN int CoolingModel;
+
+/* Gravity parameters */
+
+EXTERN double HaloMass;
+EXTERN float HaloConcentration;
+EXTERN float HaloRedshift;
+EXTERN double HaloCentralDensity;
+EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityDensity;
+EXTERN double ExternalGravityRadius;
+
+/* Poisson Clean */
+
+EXTERN int UseDivergenceCleaning;
+EXTERN float DivergenceCleaningThreshold;
+EXTERN float PoissonApproximationThreshold;
+
+/* For Shearing Box */
+
+EXTERN float AngularVelocity;
+EXTERN float VelocityGradient;
+
+/* Star Particle paramters */
+
+EXTERN int ShiningParticleID;
+EXTERN double SinkMergeDistance;
+EXTERN float SinkMergeMass;
+EXTERN float TotalSinkMass;
+EXTERN int StellarWindFeedback;
+EXTERN float StellarWindTurnOnMass;
+EXTERN int NBodyDirectSummation;
+
+/* Turbulence simulation parameters */
+EXTERN int UseDrivingField;
+EXTERN float DrivingEfficiency;
+
+
+/* End of Stanford block */
+
+
 /* ran1 initialization flag for star_maker5 */
 
 EXTERN int ran1_init;

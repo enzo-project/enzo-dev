@@ -324,6 +324,79 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   ran1_init = 0;
 
+  SinkMergeDistance                = 1e16;
+  SinkMergeMass                    = 0.1;
+  TotalSinkMass                    = 0.0;
+  StellarWindFeedback              = 0;
+  StellarWindTurnOnMass            = 0.1;
+
+  Coordinate = Cartesian;
+  NSpecies = 0;
+  NColor   = 0;
+  Theta_Limiter = 1.5;
+  RKOrder = 2;
+  UsePhysicalUnit = 0;
+  NEQ_HYDRO = 5;
+  NEQ_MHD   = 9;
+  SmallRho = 1e-30;
+  SmallP   = 1e-35;
+  SmallEint = 1e-30;
+  SmallT   = 1e-10;
+  RiemannSolver = HLL;
+  ReconstructionMethod = PLM;
+  EOSType = 0;
+  EOSSoundSpeed = 2.65e4;
+  EOSCriticalDensity = 1e-13;
+  EOSGamma = 1.667;
+  Mu = 1.22;
+  CoolingCutOffDensity1 = 0;
+  CoolingCutOffDensity2 = 1e10;
+  CoolingCutOffTemperature = 0.0;
+  CoolingPowerCutOffDensity1 = 0;
+  CoolingPowerCutOffDensity2 = 1e10;
+  UseH2OnDust = 0;
+  PhotoelectricHeating = 0;
+  UseFloor = 0;
+  UseViscosity = 0;
+  UseAmbipolarDiffusion = 0;
+  UseResistivity = 0;
+  UseHydro = 1;
+
+  StringKick = 0;
+
+  iden = 0;
+  ivx = 1;
+  ivy = 2;
+  ivz = 3;
+  ietot = 4;
+  ieint = 0;
+  iBx = 5;
+  iBy = 6;
+  iBz = 7;
+  iPhi = 8;
+  iD = 0;
+  iS1 = 1;
+  iS2 = 2;
+  iS3 = 3;
+  iEtot = 4;
+  iEint = 0;
+
+  EOSType = 0;
+  UsePhysicalUnit = 0;
+
+  UseDivergenceCleaning = 0;
+  DivergenceCleaningThreshold = 0.001;
+  PoissonApproximationThreshold = 0.001;
+
+  UseDrivingField = 0;
+  DrivingEfficiency = 1.0;
+
+#ifdef ECUDA
+  UseCUDA = 0;
+#endif
+
+
+  /* End of Stanford Hydro additions */
 
   /* test problem values */
   TestProblemData.HydrogenFractionByMass = 0.76;
