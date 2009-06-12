@@ -28,6 +28,7 @@ OBJS_CONFIG_LIB = \
 	calc_rad.o \
 	calc_rates.o \
 	CallProblemSpecificRoutines.o \
+	CallPython.o \
 	CheckEnergyConservation.o \
 	CheckForOutput.o \
 	CheckForResubmit.o \
@@ -101,6 +102,8 @@ OBJS_CONFIG_LIB = \
 	EvolveHierarchy.o \
         expand_terms.o \
 	ExternalBoundary_AddField.o \
+	ExposeDataHierarchy.o \
+	ExposeGridHierarchy.o \
 	ExternalBoundary_AppendForcingToBaryonFields.o \
 	ExternalBoundary_constructor.o \
 	ExternalBoundary_DetachForcingFromBaryonFields.o \
@@ -202,6 +205,7 @@ OBJS_CONFIG_LIB = \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_CoolingTestInitializeGrid.o \
+	Grid_ConvertToNumpy.o \
 	Grid_CopyBaryonFieldToOldBaryonField.o \
 	Grid_CopyOverlappingMassField.o \
 	Grid_CopyParentToGravitatingFieldBoundary.o \
@@ -277,6 +281,7 @@ OBJS_CONFIG_LIB = \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
+	Grid_OutputGridMovieData.o \
 	Grid_OutputStarParticleInformation.o \
 	Grid_PPMDirectEuler.o \
 	Grid_PrepareBoundaryFluxes.o \
@@ -359,6 +364,7 @@ OBJS_CONFIG_LIB = \
 	InitializeEquilibriumCoolData.o \
 	InitializeLocal.o \
 	InitializeNew.o \
+	InitializePythonInterface.o \
 	InitializeRadiationFieldData.o \
 	InitializeRateData.o \
 	interp1d.o \
@@ -527,6 +533,7 @@ OBJS_CONFIG_LIB = \
 	WriteDataHierarchy.o \
 	WriteHierarchyStuff.o \
 	WriteMemoryMap.o \
+	WriteMovieData.o \
 	WriteParameterFile.o \
 	WriteRadiationData.o \
 	WriteStarParticleData.o \
