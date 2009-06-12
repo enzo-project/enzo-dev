@@ -19,6 +19,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -41,6 +42,8 @@ int grid::CopyBaryonFieldToOldBaryonField()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
+  JBPERF_START("grid_CopyBaryonFieldToOldBaryonField");
+
   /* compute the field size */
  
   int size = 1;
@@ -109,6 +112,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
 #endif /* SAB */
  
+  JBPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
   return SUCCESS;
  
 }

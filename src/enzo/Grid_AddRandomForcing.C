@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -37,6 +38,8 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
   int i, dim;
+
+  JBPERF_START("grid_AddRandomForcing");
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
@@ -86,6 +89,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
     for (i = 0; i < size; i++)
       BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
  
+  JBPERF_STOP("grid_AddRandomForcing");
   return SUCCESS;
  
 }

@@ -18,6 +18,7 @@
 #include <math.h>
  
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -73,6 +74,8 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   int level1, i;
  
+  JBPERF_START("RadiationFieldUpdate");
+
   /* Compute mean density signatures from this level (and all below
      if this is the level on which the radiation field is updated). */
  
@@ -123,8 +126,10 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   /* If this is not the level on which the field is updated, then return
      (if this is the bottom, then do the calc anyway) . */
  
-  if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL)
+  if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL) {
+    JBPERF_STOP("RadiationFieldUpdate");
     return SUCCESS;
+  }
  
   /* Compute the expansion factor at old and new times. */
  
@@ -328,5 +333,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   delete [] buffer;
  
+  JBPERF_STOP("RadiationFieldUpdate");
   return SUCCESS;
 }

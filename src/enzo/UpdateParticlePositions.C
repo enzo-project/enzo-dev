@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -23,8 +24,11 @@
  
 int UpdateParticlePositions(grid *Grid)
 {
+
   float dt = Grid->ReturnTimeStep();
- 
+
+  JBPERF_START("UpdateParticlePositions");
+
   /* 1) v(n) --> v(n+1/2) with a(n+1/2) */
  
   Grid->DebugCheck("UpdateParticlePosition step 1");
@@ -58,5 +62,6 @@ int UpdateParticlePositions(grid *Grid)
   }
  
  
+  JBPERF_STOP("UpdateParticlePositions");
   return SUCCESS;
 }

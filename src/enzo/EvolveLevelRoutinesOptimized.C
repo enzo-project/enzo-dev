@@ -22,6 +22,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,7 +92,9 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 {
   int grid1, grid2, StartGrid, EndGrid;
- 
+
+  JBPERF_START("SetBoundaryConditions");
+
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
 #endif
@@ -243,6 +246,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  
+  JBPERF_STOP("SetBoundaryConditions");
+
   return SUCCESS;
 }
  
@@ -265,6 +270,8 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /* Return if this does not concern us */
   if (!(SelfGravity)) return SUCCESS;
  
+  JBPERF_START("PrepareDensityField");
+
   int grid1, grid2, StartGrid, EndGrid;
  
   /* Set the time for evaluation of the fields, etc. */
@@ -771,6 +778,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
   // --------------------------------------------------
 
+  JBPERF_STOP("PrepareDensityField");
   return SUCCESS;
 
 }

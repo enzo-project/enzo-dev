@@ -23,6 +23,7 @@
 #include <time.h>
  
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -75,6 +76,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   int dbx = 0;
  
+  JBPERF_START("RebuildHierarchy");
+
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");
  
@@ -595,6 +598,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* Done for this level. */
  
   ReportMemoryUsage("Rebuild pos 4");
+  JBPERF_STOP("RebuildHierarchy");
   return SUCCESS;
  
 }

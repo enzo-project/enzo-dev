@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -54,6 +55,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow;
+
+  JBPERF_START("StarParticleFinalize");
 
   /* Update the star particle counters. */
 
@@ -129,6 +132,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   DeleteStarList(AllStars);
 
+  JBPERF_STOP("StarParticleFinalize");
   return SUCCESS;
 
 }

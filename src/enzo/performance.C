@@ -27,6 +27,7 @@
 //======================================================================
 
 #include "performance.h"
+#include "macros_and_parameters.h"
 
 #ifdef USE_JBPERF
 
@@ -38,9 +39,7 @@ void jbPerfInitialize (int max_level)
   // Define jbPerf attributes
 
   jbPerf.new_attribute ("timestep", JB_INT);
-#ifdef JB_PERF_LEVELS
   jbPerf.new_attribute ("level",    JB_INT);
-#endif
 
   // Define jbPerf counters
 

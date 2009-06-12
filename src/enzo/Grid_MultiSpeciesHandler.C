@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,6 +28,8 @@ int grid::MultiSpeciesHandler()
 {
   if ((!MultiSpecies) && (!RadiativeCooling)) return SUCCESS; 
 
+  JBPERF_START("grid_MultiSpeciesHandler");
+
   if (MultiSpecies && RadiativeCooling) {
 	  this->SolveRateAndCoolEquations();
   } else {
@@ -36,5 +39,6 @@ int grid::MultiSpeciesHandler()
       this->SolveRadiativeCooling();
   }
 
+  JBPERF_STOP("grid_MultiSpeciesHandler");
   return SUCCESS;
 }
