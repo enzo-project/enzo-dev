@@ -68,7 +68,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   while (GridTime >= PhotonTime) {
 
-    if (debug)
+    if (debug && LoopTime == TRUE)
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
