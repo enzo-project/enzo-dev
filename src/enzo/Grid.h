@@ -1521,7 +1521,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   // Flag cells that overlap a subgrid (used for analysis).
   int FlagRefinedCells(grid *Subgrid);
   
-  inline int IsInVolume( float *LeftEdge, float *RightEdge ){
+  inline int IsInVolume( Eflt32 *LeftEdge, Eflt32 *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
       if( (GridLeftEdge[i] >= RightEdge[i]) ||
 	  (GridRightEdge[i] <= LeftEdge[i]) ){
@@ -1530,10 +1530,16 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
      return TRUE;
   }
-#if defined(CONFIG_BFLOAT_4) || defined(CONFIG_PFLOAT_16) 
-  // Check to see if the grid overlaps a volume.
-  // Doesn't care about periodicity. */
-  inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
+  inline int IsInVolume( Eflt64 *LeftEdge, Eflt64 *RightEdge ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( (GridLeftEdge[i] >= RightEdge[i]) ||
+	  (GridRightEdge[i] <= LeftEdge[i]) ){
+	return FALSE;
+      }
+    }
+     return TRUE;
+  }
+  inline int IsInVolume( Eflt128 *LeftEdge, Eflt128 *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
       if( (GridLeftEdge[i] >= RightEdge[i]) ||
 	  (GridRightEdge[i] <= LeftEdge[i]) ){
@@ -1543,11 +1549,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
      return TRUE;
   }
 
-#endif
 
 
   // Check to see if a FLOAT point is in the grid.
-  inline int PointInGrid( float *point ){
+  inline int PointInGrid( Eflt32 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
 	  (point[i] <= GridRightEdge[i])) == FALSE )
@@ -1555,9 +1560,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
     return TRUE;
   }
-#if defined(CONFIG_BFLOAT_4) || defined(CONFIG_PFLOAT_16)
-  // Check to see if a point is in the grid.
-  inline int PointInGrid( FLOAT *point ){
+  inline int PointInGrid( Eflt64 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
 	  (point[i] <= GridRightEdge[i])) == FALSE )
@@ -1565,7 +1568,14 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
     return TRUE;
   }
-#endif
+  inline int PointInGrid( Eflt128 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= GridLeftEdge[i]) &&
+	  (point[i] <= GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
 
   // Flags a 3D array where the grid overlaps.
   // Very similar to the FastSib stuff. (I think.)
