@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -62,6 +63,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
+
+  JBPERF_START("grid_SolveHydroEquations");
 
   this->DebugCheck("SolveHydroEquations");
 
@@ -309,6 +312,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
   this->DebugCheck("SolveHydroEquations (after)");
 
+  JBPERF_STOP("grid_SolveHydroEquations");
   return SUCCESS;
 
 }

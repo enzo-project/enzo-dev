@@ -223,14 +223,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   HierarchyEntry *NextGrid;
   int dummy_int;
  
-#if defined(USE_JBPERF) && defined(JB_PERF_LEVELS)
+  // Update lcaperf "level" attribute
+
   Eint32 jb_level = level;
+#ifdef USE_JBPERF
   jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
   /* Create an array (Grids) of all the grids. */
-
-  JBPERF_START("evolve-level-01"); // GenerateGridArray ()
 
   typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
@@ -238,9 +238,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
 
-  JBPERF_STOP("evolve-level-01"); // GenerateGridArray ()
-
-  JBPERF_START("evolve-level-02"); // SetBoundaryConditions()
   TIME_MSG("Entered EvolveLevel");
 
 #ifdef FLUX_FIX
@@ -276,20 +273,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
  
-  JBPERF_STOP("evolve-level-02"); // SetBoundaryConditions()
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). */
  
   TIME_MSG("after SetBoundaryConditions");
-  JBPERF_START("evolve-level-03"); // ClearBoundaryFluxes()
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
  
-  JBPERF_STOP("evolve-level-03"); // ClearBoundaryFluxes()
-
   /* ================================================================== */
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
@@ -313,8 +306,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, compute the number of it's subgrids. */
  
-    JBPERF_START("evolve-level-05"); // compute number of subgrids
-
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       NextGrid = Grids[grid1]->NextGridNextLevel;
       counter = 0;
@@ -328,7 +319,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       NumberOfSubgrids[grid1] = counter + 1;
     }
  
-    JBPERF_STOP("evolve-level-05"); // compute number of subgrids
     TIME_MSG("Before subgrid fluxes");
 
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
@@ -341,8 +331,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //  fprintf(stderr, "%"ISYM": EvolveLevel: Enter PrepareDensityField\n", MyProcessorNumber);
  
-    JBPERF_START("evolve-level-07"); // PrepareDensityField()
-
     When = 0.5;
  
 #ifdef FAST_SIB
@@ -359,8 +347,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
                                              &norm, &TopGridTimeStep);
  
-    JBPERF_STOP("evolve-level-07"); // PrepareDensityField()
-
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
@@ -370,7 +356,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       // dcc problem analysis cut  start
 
       /* Call analysis routines. */
-      JBPERF_START_LOW("evolve-level-08"); // Call analysis routines
 
 //      if (ProblemType == 24)
 //	Grids[grid1]->GridData->SphericalInfallGetProfile(level, 1);
@@ -390,17 +375,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //		DMCofM[0], DMCofM[1], DMCofM[2]);
 //	}
  
-      JBPERF_STOP_LOW("evolve-level-08"); // Call analysis routines
-
-      // dcc problem analysis cut stop
-
-
-      // dcc gravity cut start
       /* Gravity: compute acceleration field for grid and particles. */
  
-      JBPERF_START("evolve-level-09"); // Compute self-gravity acceleration
-
-
       if (SelfGravity) {
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
@@ -416,16 +392,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       } // end: if (SelfGravity)
  
-      JBPERF_STOP("evolve-level-09"); // Compute self-gravity acceleration
-
-
       /* Gravity: compute field due to preset sources. */
  
-      JBPERF_START_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
       Grids[grid1]->GridData->ComputeAccelerationFieldExternal();
  
-      JBPERF_STOP_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
-
       /* Radiation Pressure: add to acceleration field */
 
 #ifdef TRANSFER
@@ -478,9 +448,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
  
-      JBPERF_START("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
-	  Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
-      JBPERF_STOP("evolve-level-11"); // CopyBaryonFieldToOldBaryonField()
+      Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       //dcc cut Forcing to problem specific analysis
 
@@ -488,19 +456,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          fields to old. I also update the total energy accordingly here.
          It makes no sense to force on the very first time step. */
  
-      JBPERF_START_LOW("evolve-level-12"); // AddRandomForcing()
       if (MetaData->CycleNumber > 0)
         Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
-      JBPERF_STOP_LOW("evolve-level-12"); // AddRandomForcing()
 
       //dcc cut stop Forcing
 
       /* Call hydro solver and save fluxes around subgrids. */
-      JBPERF_START("evolve-level-13"); // SolveHydroEquations()
+
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      JBPERF_STOP("evolve-level-13"); // SolveHydroEquations()
-
       /* Solve the radiative transfer */
 	
 #ifdef TRANSFER
@@ -511,23 +475,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      JBPERF_START("evolve-level-14"); // change this?
       Grids[grid1]->GridData->MultiSpeciesHandler();
-      JBPERF_STOP("evolve-level-14"); // UpdateParticlePositions()
 
 
     //dcc cut start particles
       /* Update particle positions (if present). */
  
-      JBPERF_START("evolve-level-16"); // UpdateParticlePositions()
       UpdateParticlePositions(Grids[grid1]->GridData);
-      JBPERF_STOP("evolve-level-16"); // UpdateParticlePositions()
 
       /* Include 'star' particle creation and feedback.
          (first, set the under_subgrid field). */
  
-      JBPERF_START_LOW("evolve-level-17"); // star particle creation/feedback
-
       if (StarParticleCreation || StarParticleFeedback) {
 	Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(NULL,
 						 ZERO_UNDER_SUBGRID_FIELD);
@@ -546,11 +504,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
  
-      JBPERF_STOP_LOW("evolve-level-17"); // star particle creation/feedback
-      //dcc cut stop particles
       /* Gravity: clean up AccelerationField. */
-
-      JBPERF_START_LOW("evolve-level-18"); // clean up AccelerationField
 
       if (SelfGravity || UniformGravity || PointSourceGravity) {
 	if (level != MaximumGravityRefinementLevel ||
@@ -559,31 +513,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->DeleteParticleAcceleration();
       }
  
-      JBPERF_STOP_LOW("evolve-level-18"); // clean up AccelerationField
-
       /* Update current problem time of this subgrid. */
  
-      JBPERF_START_LOW("evolve-level-19"); // SetTimeNextTimestep()
-
       Grids[grid1]->GridData->SetTimeNextTimestep();
  
-      JBPERF_STOP_LOW("evolve-level-19"); // SetTimeNextTimestep()
-
       /* If using comoving co-ordinates, do the expansion terms now. */
  
-      JBPERF_START("evolve-level-20"); // ComovingExpansionTerms()
-
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
  
-      JBPERF_STOP("evolve-level-20"); // ComovingExpansionTerms()
-
     }  // end loop over grids
  
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
-    JBPERF_START("evolve-level-21"); // SetBoundaryConditions()
     TIME_MSG("EvolveLevel: after main loop");
 
 #ifdef FAST_SIB
@@ -594,21 +537,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                               Exterior, LevelArray[level]);
 #endif
 
-    JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
     TIME_MSG("after SetBoundaryConditions");
 
     /* Finalize (accretion, feedback, etc.) star particles */
  
-    JBPERF_START("evolve-level-22"); // StarParticleFinalize()
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			     level, AllStars);
-    JBPERF_STOP("evolve-level-22"); // StarParticleFinalize()
     /* If cosmology, then compute grav. potential for output if needed. */
 
     //dcc cut second potential cut: Duplicate?
  
-    JBPERF_START("evolve-level-25"); // PrepareDensityField()
-
     if (ComovingCoordinates && SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
       When = 0.0;
@@ -647,18 +585,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       } //  end loop over grids
     } // if WritePotential
  
-    JBPERF_STOP("evolve-level-25"); // PrepareDensityField()
-
-    //dcc cut stop second potential
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
-    JBPERF_START("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
-
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
  
-    JBPERF_STOP("evolve-level-27"); // DeleteGravitatingMassFieldParticles()
-
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  
@@ -671,10 +602,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-#if defined(USE_JBPERF) && defined(JB_PERF_LEVELS)
+    // Update lcaperf "level" attribute
+
+#ifdef USE_JBPERF
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
-
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     /* Update SubcycleNumber if this is the bottom of the hierarchy --
@@ -692,7 +624,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      *     subgrid's fluxes. (step #19)
      */
  
-    JBPERF_START("evolve-level-28"); // UpdateFromFinerGrids()
     TIME_MSG("Before update from finer grids");
     //dcc cut start flux fix
 #ifdef FLUX_FIX
@@ -742,8 +673,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ENZO_FAIL("");
 #endif
 
-    JBPERF_STOP("evolve-level-28"); // UpdateFromFinerGrids()
-
     if (dbx) fprintf(stderr, "OK after UpdateFromFinerGrids \n");
 
 #ifdef FLUX_FIX
@@ -767,7 +696,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
  
-    JBPERF_START("evolve-level-30"); // RadiationFieldUpdate()
     TIME_MSG("Done saving fluxes");
 
     if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
@@ -777,13 +705,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	ENZO_FAIL("");
       }
  
-    JBPERF_STOP("evolve-level-30"); // RadiationFieldUpdate()
-
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    JBPERF_START("evolve-level-31"); // RebuildHierarchy()
-
     if (dtThisLevelSoFar < dtLevelAbove) {
       if (RebuildHierarchy(MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
@@ -803,8 +727,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
-    JBPERF_STOP("evolve-level-31"); // RebuildHierarchy()
-
     cycle++;
     LevelCycleCount[level]++;
  
@@ -819,7 +741,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   //  if (debug)
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
-#if defined(USE_JBPERF) && defined(JB_PERF_LEVELS)
+#ifdef USE_JBPERF
   jbPerf.attribute ("level",0,JB_NULL);
 #endif
 

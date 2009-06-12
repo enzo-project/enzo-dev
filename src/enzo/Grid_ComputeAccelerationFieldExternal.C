@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,6 +45,8 @@ int grid::ComputeAccelerationFieldExternal()
  
   int dim, i, j, k, size = 1;
  
+  JBPERF_START("grid_ComputeAccelerationFieldExternal");
+
   /* Compute field size (in floats). */
  
   for (dim = 0; dim < GridRank; dim++)
@@ -171,6 +174,7 @@ int grid::ComputeAccelerationFieldExternal()
  
   } // end: if (UniformGravity)
  
+  JBPERF_STOP("grid_ComputeAccelerationFieldExternal");
   return SUCCESS;
 }
  

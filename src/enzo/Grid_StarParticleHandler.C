@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -224,6 +225,8 @@ int grid::StarParticleHandler(int level)
       if (StarClusterRegionLeftEdge[dim] >= GridRightEdge[dim] ||
 	  StarClusterRegionRightEdge[dim] <= GridLeftEdge[dim])
 	return SUCCESS;
+
+  JBPERF_START("grid_StarParticleHandler");
 
   /* Compute size (in floats) of the current grid. */
  
@@ -760,5 +763,6 @@ int grid::StarParticleHandler(int level)
  
   //if (debug) printf("StarParticle: end\n");
 
+  JBPERF_STOP("grid_StarParticleHandler");
   return SUCCESS;
 }

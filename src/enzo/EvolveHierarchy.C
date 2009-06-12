@@ -112,6 +112,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
 
+  JBPERF_BEGIN("EL");
+  JBPERF_START("EvolveHierarchy");
+
 #ifdef USE_MPI
   tentry = MPI_Wtime();
 #endif
@@ -287,6 +290,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   Eint32 jb_iter;
 #endif
 
+  JBPERF_STOP("EvolveHierarchy");
+  JBPERF_END("EH");
+
   /* ====== MAIN LOOP ===== */
 
   while (!Stop) {
@@ -298,8 +304,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     isFirstCall = false;
     jbPerf.attribute ("timestep",&jb_iter, JB_INT);
     jbPerf.start("EL");
-    int time_sim = 1000000*MetaData.Time;
-    jbPerf.assign("time-sim",time_sim);
 #endif
 
 #ifdef USE_MPI

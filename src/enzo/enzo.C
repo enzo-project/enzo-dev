@@ -103,7 +103,6 @@ int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
-
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
 
@@ -115,6 +114,10 @@ int GetNodeFreeMemory(void);
 int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
 				LevelHierarchyEntry *LevelArray[]);
+#endif
+
+#ifdef USE_JBPERF
+void jbPerfInitialize (int max_level);
 #endif
 
 void my_exit(int status);
@@ -176,7 +179,7 @@ Eint32 main(Eint32 argc, char *argv[])
 
     // Initialize jbPerf performance collecting
 
-    jbPerfInitialize(MaximumRefinementLevel);
+  jbPerfInitialize(MaximumRefinementLevel);
 
 #endif
 

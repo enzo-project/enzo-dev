@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -46,10 +47,15 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
   /* Return if this does not concern us */
   if (!RandomForcing) return SUCCESS;
  
+  JBPERF_START("ComputeRandomForcingNormalization");
+
   /* If level is above 0 then complain: forcing will only work on level 0
      grid(s). */
 
-  if ((MetaData->CycleNumber <= 0) || (level != 0)) return SUCCESS;
+  if ((MetaData->CycleNumber <= 0) || (level != 0)) {
+      JBPERF_STOP("ComputeRandomForcingNormalization");
+      return SUCCESS;
+  }
  
   /* Create an array (Grids) of all the grids on level 0. */
  
@@ -122,5 +128,6 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
  
   delete [] GlobVal;
  
+  JBPERF_STOP("ComputeRandomForcingNormalization");
   return SUCCESS;
 }
