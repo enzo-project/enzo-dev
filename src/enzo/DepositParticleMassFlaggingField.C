@@ -9,7 +9,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#define TIMING
+#define NO_TIMING
  
 #ifdef USE_MPI
 #include "mpi.h"
