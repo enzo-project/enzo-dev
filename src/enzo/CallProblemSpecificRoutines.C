@@ -25,9 +25,8 @@
 //variables  for RandomForcing
 
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *Grids[],
-				float *norm, float TopGridTimeStep,int level,int LevelCycleCount[]){
+				float *norm, float TopGridTimeStep,int level,int LevelCycleCount[], int grid1){
 
-  int grid1;
       /* Add RandomForcing fields to velocities after the copying of current
          fields to old. I also update the total energy accordingly here.
          It makes no sense to force on the very first time step. */

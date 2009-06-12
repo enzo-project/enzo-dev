@@ -99,7 +99,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
 int CallProblemSpecificRoutines(TopGridData * MetaData,HierarchyEntry *Grids[],
-				float * norm, float TopGridTimeStep, int level,int LevelCycleCount[]);  //moo
+				float * norm, float TopGridTimeStep, int level,int LevelCycleCount[], int grid1);  //moo
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
@@ -331,7 +331,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
-      CallProblemSpecificRoutines(MetaData,Grids,&norm,TopGridTimeStep,level,LevelCycleCount);
+      CallProblemSpecificRoutines(MetaData,Grids,&norm,TopGridTimeStep,level,LevelCycleCount,grid1);
       /* Gravity: compute acceleration field for grid and particles. */
  
       if (SelfGravity) {
