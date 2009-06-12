@@ -149,8 +149,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
   if (cstar->FeedbackFlag == SUPERNOVA || cstar->FeedbackFlag == CONT_SUPERNOVA) {
 
-    //    printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+//    printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
