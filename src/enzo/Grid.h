@@ -804,7 +804,7 @@ class grid
 
 /* Gravity: Allocate and make initial guess for PotentialField. */
 
-   int SolveForPotential(int &Done, int level, FLOAT PotentialTime = -1);
+   int SolveForPotential(int level, FLOAT PotentialTime = -1);
 
 /* Gravity: Prepare the Greens Function. */
 

@@ -368,13 +368,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Gravity: compute acceleration field for grid and particles. */
  
       if (SelfGravity) {
-	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
  
 	  /* Compute the potential. */
  
 	  if (level > 0)
-	    Grids[grid1]->GridData->SolveForPotential(Dummy, level);
+	    Grids[grid1]->GridData->SolveForPotential(level);
 	  Grids[grid1]->GridData->ComputeAccelerations(level);
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
@@ -552,13 +551,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       CopyGravPotential = FALSE;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        int Dummy;
         if (level <= MaximumGravityRefinementLevel) {
  
           /* Compute the potential. */
  
           if (level > 0)
-            if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
+            if (Grids[grid1]->GridData->SolveForPotential(level)
                 == FAIL) {
               fprintf(stderr, "Error in grid->SolveForPotential.\n");
               ENZO_FAIL("");
