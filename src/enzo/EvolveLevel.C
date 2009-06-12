@@ -368,13 +368,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Gravity: compute acceleration field for grid and particles. */
  
       if (SelfGravity) {
-	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
  
 	  /* Compute the potential. */
  
 	  if (level > 0)
-	    Grids[grid1]->GridData->SolveForPotential(Dummy, level);
+	    Grids[grid1]->GridData->SolveForPotential(level);
 	  Grids[grid1]->GridData->ComputeAccelerations(level);
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
@@ -406,33 +405,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 */
 #ifdef SAB
     } // End of loop over grids
-
-  //dcc cut SAB start 
-    //This ensures that all subgrids agree in the boundary.
-    //Not a big deal for hydro, but essential for DivB = 0 in MHD runs.
-    //Only called on level > 0 because the root grid is dealt with differently than SG's.
-
-
-    if ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0) {
-#ifdef FAST_SIB
-      if( SetAccelerationBoundary(Grids, NumberOfGrids,
-				  SiblingList,
-				  level, MetaData,
-				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
-	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	ENZO_FAIL("");
-      }
-#else
-      if( SetAccelerationBoundary(Grids, NumberOfGrids,
-				  level, MetaData,
-				  Exterior, LevelArray[level], LevelCycleCount[level]) == FAIL ) {
-	fprintf(stderr,"Error with AccelerationBoundary.\n");
-	ENZO_FAIL("");
-      }
-#endif
-    }
-
-    //dcc cut SAB stop
+    
+    //Ensure the consistency of the AccelerationField
+    SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
+			    Exterior, LevelArray[level], LevelCycleCount[level]);
+    
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
@@ -480,12 +457,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       /* Gravity: clean up AccelerationField. */
 
-      if (SelfGravity || UniformGravity || PointSourceGravity) {
-	if (level != MaximumGravityRefinementLevel ||
-	    MaximumGravityRefinementLevel == MaximumRefinementLevel)
-	  Grids[grid1]->GridData->DeleteAccelerationField();
-	Grids[grid1]->GridData->DeleteParticleAcceleration();
-      }
+	 if (level != MaximumGravityRefinementLevel ||
+	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
+	     Grids[grid1]->GridData->DeleteAccelerationField();
+      Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       /* Update current problem time of this subgrid. */
  
@@ -536,13 +511,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       CopyGravPotential = FALSE;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        int Dummy;
         if (level <= MaximumGravityRefinementLevel) {
  
           /* Compute the potential. */
  
           if (level > 0)
-            if (Grids[grid1]->GridData->SolveForPotential(Dummy, level)
+            if (Grids[grid1]->GridData->SolveForPotential(level)
                 == FAIL) {
               fprintf(stderr, "Error in grid->SolveForPotential.\n");
               ENZO_FAIL("");

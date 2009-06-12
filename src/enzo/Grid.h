@@ -804,7 +804,7 @@ class grid
 
 /* Gravity: Allocate and make initial guess for PotentialField. */
 
-   int SolveForPotential(int &Done, int level, FLOAT PotentialTime = -1);
+   int SolveForPotential(int level, FLOAT PotentialTime = -1);
 
 /* Gravity: Prepare the Greens Function. */
 
@@ -855,6 +855,7 @@ class grid
 /* Gravity: Delete AccelerationField. */
 
    void DeleteAccelerationField() {
+     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
      for (int dim = 0; dim < GridRank; dim++) {
        delete [] AccelerationField[dim];
        AccelerationField[dim] = NULL;
@@ -930,6 +931,7 @@ class grid
 /* Particles: delete accleration fields. */
 
    void DeleteParticleAcceleration() {
+     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
      for (int dim = 0; dim < GridRank+ComputePotential; dim++) {
        delete [] ParticleAcceleration[dim];
        ParticleAcceleration[dim] = NULL;

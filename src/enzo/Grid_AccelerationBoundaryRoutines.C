@@ -108,19 +108,19 @@ int grid::DetachAcceleration(){
   return SUCCESS;
 }
 
-#ifdef FAST_SIB
+//SetAccelerationBoundary ensures that all subgrids agree in the boundary.
+//Not a big deal for hydro, but essential for DivB = 0 in MHD runs.
+//Only called on level > 0 because the root grid is dealt with differently than SG's.
+
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
 			    ExternalBoundary *Exterior, LevelHierarchyEntry * Level,
 			    int CycleNumber)
-#else
-int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
-			    int level, TopGridData *MetaData, 
-			    ExternalBoundary *Exterior, LevelHierarchyEntry * Level,
-			    int CycleNumber)
-#endif
 {
+
+  if ( ! (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 )
+    return SUCCESS;
 
   //Set the boundary on the Acceleration field.  Reuse SetBoundaryConditions.  
   //Juggle pointers around.
