@@ -77,7 +77,7 @@ int grid::ComputeAccelerations(int level)
  
     /* Clean up. */
  
-    this->DeleteAccelerationField(level);
+    this->DeleteAccelerationField();
  
   } // end: if (NumberOfParticles > 0)
  

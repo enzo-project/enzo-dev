@@ -854,10 +854,8 @@ class grid
 
 /* Gravity: Delete AccelerationField. */
 
-   void DeleteAccelerationField(int level) {
+   void DeleteAccelerationField() {
      if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
-	 if (!(level != MaximumGravityRefinementLevel ||
-	     MaximumGravityRefinementLevel == MaximumRefinementLevel)) return;
      for (int dim = 0; dim < GridRank; dim++) {
        delete [] AccelerationField[dim];
        AccelerationField[dim] = NULL;
@@ -932,7 +930,7 @@ class grid
 
 /* Particles: delete accleration fields. */
 
-   void DeleteParticleAcceleration(int level) {
+   void DeleteParticleAcceleration() {
      if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
      for (int dim = 0; dim < GridRank+ComputePotential; dim++) {
        delete [] ParticleAcceleration[dim];
