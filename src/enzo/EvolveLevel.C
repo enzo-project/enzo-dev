@@ -97,7 +97,9 @@ int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
 			     int NumberOfGrids, int level, float dt);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
- 
+
+int CallProblemSpecificRoutines(TopGridData * MetaData,HierarchyEntry *Grids[],
+				float * norm, float TopGridTimeStep, int level,int LevelCycleCount[]);  //moo
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
@@ -343,28 +345,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
-      // dcc problem analysis cut  start
 
-      /* Call analysis routines. */
-
-//      if (ProblemType == 24)
-//	Grids[grid1]->GridData->SphericalInfallGetProfile(level, 1);
-//      if (ProblemType == 30)
-//	Grids[grid1]->GridData->AnalyzeTrackPeaks(level, 0);
-//      if (ProblemType == 27)
-//	if (Grids[grid1]->GridData->ReturnProcessorNumber()==MyProcessorNumber){
-//	  float AM[3], MeanVelocity[3], DMVelocity[3];
-//	  FLOAT Center[] = {0,0,0}, CenterOfMass[3], DMCofM[3];
-//	  Grids[grid1]->GridData->CalculateAngularMomentum(Center, AM,
-//			   MeanVelocity, DMVelocity, CenterOfMass, DMCofM);
-//	  fprintf(stdout, "level = %"ISYM" %"ISYM" %"ISYM"  Vel %"FSYM" %"FSYM" %"FSYM"  DMVel %"FSYM" %"FSYM" %"FSYM"  CofM %"PSYM" %"PSYM" %"PSYM"  DMCofM %"FSYM" %"FSYM" %"FSYM"\n",
-//		level, LevelCycleCount[level], grid1, MeanVelocity[0],
-//		MeanVelocity[1], MeanVelocity[2],
-//		DMVelocity[0], DMVelocity[1], DMVelocity[2],
-//		-CenterOfMass[0], -CenterOfMass[1], -CenterOfMass[2],
-//		DMCofM[0], DMCofM[1], DMCofM[2]);
-//	}
- 
+      CallProblemSpecificRoutines(MetaData,Grids,&norm,TopGridTimeStep,level,LevelCycleCount);
       /* Gravity: compute acceleration field for grid and particles. */
  
       if (SelfGravity) {
@@ -416,17 +398,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  in preparation for the new step. */
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
-
-      //dcc cut Forcing to problem specific analysis
-
-      /* Add RandomForcing fields to velocities after the copying of current
-         fields to old. I also update the total energy accordingly here.
-         It makes no sense to force on the very first time step. */
- 
-      if (MetaData->CycleNumber > 0)
-        Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
-
-      //dcc cut stop Forcing
 
       /* Call hydro solver and save fluxes around subgrids. */
 
