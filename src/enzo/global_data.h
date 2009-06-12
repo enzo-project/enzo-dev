@@ -459,7 +459,7 @@ EXTERN char LocalPath[MAX_LINE_LENGTH];
 EXTERN char GlobalPath[MAX_LINE_LENGTH];
 #endif
 
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
 EXTERN int NumberOfPythonCalls;
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;

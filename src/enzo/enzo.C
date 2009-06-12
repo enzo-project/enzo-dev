@@ -48,7 +48,7 @@
 #include "PhotonCommunication.h"
 #endif
 #undef DEFINE_STORAGE
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
 int InitializePythonInterface(int argc, char **argv);
 #endif
  
@@ -486,7 +486,7 @@ Eint32 main(Eint32 argc, char *argv[])
   fprintf(memtracePtr, "Call evolve hierarchy %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
 #endif
 
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
   // We initialize our Python interface now
   if(debug)fprintf(stdout, "Initializing Python interface\n");
   InitializePythonInterface(argc, argv);

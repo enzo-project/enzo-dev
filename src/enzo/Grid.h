@@ -1590,7 +1590,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 #   include "Grid_AnalyzeClusters.h"
 #endif
 
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
     void ConvertToNumpy(int GridID, PyArrayObject *container[],
                         int ParentID, int level, FLOAT WriteTime);
 #endif

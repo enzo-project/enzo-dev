@@ -1,4 +1,4 @@
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
 /***********************************************************************
 /
 /  INITIALIZE PYTHON INTERFACE AND START INTERPRETER
@@ -13,7 +13,7 @@
 /
 ************************************************************************/
 
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
 #include <Python.h>
 #include "numpy/arrayobject.h"

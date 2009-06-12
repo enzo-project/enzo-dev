@@ -1,4 +1,4 @@
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
 /***********************************************************************
 /
 /  GRID CLASS (TURN ALL OF OUR FIELDS INTO NUMPY ARRAYS)

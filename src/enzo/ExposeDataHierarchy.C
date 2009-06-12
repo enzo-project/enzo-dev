@@ -33,7 +33,7 @@ int ExposeDataHierarchy(TopGridData &MetaData, HierarchyEntry *Grid,
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level)
 {
 
-#ifdef EMBEDDED_PYTHON
+#ifdef CONFIG_PYTHON_ENABLED
   int OriginalID, NextGridThisLevelID, NextGridNextLevelID;
   int flagged, noParent = 0;
   static PyArrayObject *container[11];
