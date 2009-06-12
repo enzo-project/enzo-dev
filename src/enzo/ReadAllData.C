@@ -116,6 +116,14 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 	    MetaData.BoundaryConditionName);
     ENZO_FAIL("");
   }
+
+#ifdef USE_HDF4
+  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
+    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+            MetaData.BoundaryConditionName);                  
+    return FAIL;                                                                 
+  }
+#else
   if(LoadGridDataAtStart){    
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
@@ -129,6 +137,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       ENZO_FAIL("");
     }
   }
+#endif
+
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
 
