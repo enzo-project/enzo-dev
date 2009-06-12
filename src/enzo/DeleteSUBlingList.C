@@ -40,6 +40,9 @@
 int DeleteSUBlingList( int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList)
 {
+
+  if( FluxCorrection != TRUE )
+    return SUCCESS;
   LevelHierarchyEntry *LastEntry, *NextEntry;
  
   /* Add all the SUBgrids to the list */

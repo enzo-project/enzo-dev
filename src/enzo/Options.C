@@ -167,12 +167,6 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Force message progress with MPI_Barrier calls\n");
 #endif
 
-#ifdef ENABLE_LOAD_BALANCE
-    fprintf(opf, "  Load balancing enabled\n");
-#else
-    fprintf(opf, "  Load balancing disabled\n");
-#endif
-
 #ifdef ISOLATED_GRAVITY
     fprintf(opf, "  Isolated gravity enabled\n");
 #else /* ISOLATED_GRAVITY */
