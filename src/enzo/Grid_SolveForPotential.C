@@ -40,7 +40,7 @@ extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
 #define TOLERANCE 5.0e-4
 #define MAX_ITERATION 10
  
-int grid::SolveForPotential(int &Done, int level, FLOAT PotentialTime)
+int grid::SolveForPotential(int level, FLOAT PotentialTime)
 {
  
   /* Return if this grid is not on this processor. */
@@ -145,7 +145,6 @@ int grid::SolveForPotential(int &Done, int level, FLOAT PotentialTime)
   /* Clean up. */
  
   delete [] rhs;
-  Done = TRUE;
  
   return SUCCESS;
 }
