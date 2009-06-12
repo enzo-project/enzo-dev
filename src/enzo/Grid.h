@@ -1499,7 +1499,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
 /* Star Particle handler routine. */
 
-  int StarParticleHandler(int level);
+  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level);
 
 /* Apply a time-action to a grid. */
 

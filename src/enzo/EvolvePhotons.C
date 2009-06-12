@@ -57,7 +57,7 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, int level)
+		  Star *AllStars, int level, int LoopTime)
 {
 
   if (!RadiativeTransfer)
@@ -384,6 +384,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    }
 
     debug = debug_store;
+
+    if (!LoopTime)
+      break;
 
   } // ENDWHILE GridTime >= PhotonTime
 

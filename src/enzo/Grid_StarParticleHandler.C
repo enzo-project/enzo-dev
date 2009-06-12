@@ -203,15 +203,25 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
  
  
  
-int grid::StarParticleHandler(int level)
+int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 {
- 
+
+  if (!StarParticleCreation && !StarParticleFeedback)
+    return SUCCESS;
+
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
  
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
+  /* First, set under_subgrid field */
+
+  HierarchyEntry *Subgrid;
+  this->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
+  for (Subgrid = SubgridPointer; Subgrid; Subgrid = Subgrid->NextGridThisLevel)
+    this->ZeroSolutionUnderSubgrid(Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD);
+
   /* initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;

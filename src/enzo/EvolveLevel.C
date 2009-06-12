@@ -181,8 +181,8 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 		       TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
-int EvolvePhotons(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, int level);
+int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+		  Star *AllStars, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -473,26 +473,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       UpdateParticlePositions(Grids[grid1]->GridData);
 
-      /* Include 'star' particle creation and feedback.
-         (first, set the under_subgrid field). */
- 
-      if (StarParticleCreation || StarParticleFeedback) {
-	Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(NULL,
-						 ZERO_UNDER_SUBGRID_FIELD);
-	LevelHierarchyEntry *Temp2 = LevelArray[level+1];
-	while (Temp2 != NULL) {
-	  Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData,
-					 ZERO_UNDER_SUBGRID_FIELD);
-	  Temp2 = Temp2->NextGridThisLevel;
-	}
-      }
+      /* Include 'star' particle creation and feedback. */
 
-      if (StarParticleCreation || StarParticleFeedback) {
-	if (Grids[grid1]->GridData->StarParticleHandler(level) == FAIL) {
-	  fprintf(stderr, "Error in grid->StarParticleWrapper");
-	  ENZO_FAIL("");
-	}
-      }
+      Grids[grid1]->GridData->StarParticleHandler
+	(Grids[grid1]->NextGridNextLevel, level);
  
       /* Gravity: clean up AccelerationField. */
 
