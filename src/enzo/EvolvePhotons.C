@@ -57,7 +57,7 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, int level, int LoopTime)
+		  Star *AllStars, FLOAT GridTime, int level, int LoopTime)
 {
 
   if (!RadiativeTransfer)
@@ -65,8 +65,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (dtPhoton <= 0)
     return SUCCESS;
-
-  FLOAT GridTime = LevelArray[level]->GridData->ReturnTime();
 
   while (GridTime >= PhotonTime) {
 
@@ -85,8 +83,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     HierarchyEntry **Grids;
     HierarchyEntry **Parents;
     LevelHierarchyEntry *Temp;
-    int level = 0, GridNum = 0, value, i, proc;
+    int GridNum = 0, value, i, proc;
     int NumberOfGrids = 0;  
+    level = 0;
 
     // delete source if we are passed (or before) their lifetime
     RadiationSourceEntry *RS;
@@ -114,7 +113,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
-    int Level, Rank, Dims[MAX_DIMENSION];
+    int Rank, Dims[MAX_DIMENSION];
     FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
   
     /* Initialize radiation fields */  

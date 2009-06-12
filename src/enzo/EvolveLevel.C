@@ -182,7 +182,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, int level, int LoopTime = TRUE);
+		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -216,7 +216,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   int dbx = 0;
  
-  FLOAT When;
+  FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
@@ -435,7 +435,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Solve the radiative transfer */
 	
 #ifdef TRANSFER
-      EvolvePhotons(MetaData, LevelArray, AllStars, level);
+      GridTime = Grids[grid1]->GridData->ReturnTime();
+      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
