@@ -215,6 +215,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
       GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
   }
 
+  CommunicationBarrier();
   if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
     tt1 = ReturnWallTime();
     printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
