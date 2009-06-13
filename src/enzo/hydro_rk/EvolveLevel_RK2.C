@@ -1090,7 +1090,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
   if (debug)
-    printf("EvolveLevel[%d]: NumberOfSubCycles = %d (%d total)\n", level, 
+    printf("EvolveLevelRK2[%d]: NumberOfSubCycles = %d (%d total)\n", level, 
            cycle, LevelCycleCount[level]);
 
   /* If possible & desired, report on memory usage. */
@@ -1111,9 +1111,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Clean up the sibling list. */
 
-  for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    delete [] SiblingList[grid1].GridList;
-  delete [] SiblingList;
+  if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+    for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      delete [] SiblingList[grid1].GridList;
+    delete [] SiblingList;
+  }
 
   return SUCCESS;
 
