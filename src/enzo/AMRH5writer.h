@@ -77,7 +77,7 @@ class AMRHDF5Writer
 			 
 			 const double *physicalOrigin,
 			 const double *gridCenter,
-			 const long long int    *integerOrigin,
+			 const Eint64    *integerOrigin,
 			 
 			 const int    *dims,
 			 const int    dim,
@@ -92,7 +92,7 @@ class AMRHDF5Writer
 		     const double *delta,
 		     
 		     const double *physicalOrigin,
-		     const long long int    *integerOrigin,
+		     const Eint64    *integerOrigin,
 		     const int    *bboxflags,
 		     const int    *nghostzones,
 		     

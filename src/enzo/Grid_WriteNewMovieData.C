@@ -218,7 +218,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   int ghostzoneFlags[6];
   int numGhostzones[3];
   int AmiraDims[3];
-  long long int integerOrigin[3];
+  Eint64 integerOrigin[3];
   double delta[3], doubleGridLeftEdge[3];
 
   //PART 1
@@ -242,7 +242,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
   for (dim = 0; dim < 3; dim++) {
     numGhostzones[dim] = 0;
-    integerOrigin[dim] = (long long int) (GridLeftEdge[dim] / *CellWidth[0]);
+    integerOrigin[dim] = (Eint64) (GridLeftEdge[dim] / *CellWidth[0]);
     delta[dim] = (double) *CellWidth[0];
     //AmiraDims[2-dim] = ActiveDim[dim];
     AmiraDims[dim] = ActiveDim[dim] + DimensionCorrection;

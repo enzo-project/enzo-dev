@@ -190,7 +190,7 @@ herr_t AMRHDF5Writer::WriteTextures(  const int    timeStep,
 				      
 				      const double *physicalOrigin,
 				      const double *gridCenter,
-				      const long long int    *integerOrigin,
+				      const Eint64    *integerOrigin,
 				      
 				      const int    *dims,
 				      const int    dim,
@@ -221,7 +221,7 @@ herr_t AMRHDF5Writer::WriteTextures(  const int    timeStep,
     fwrite(&gridId, sizeof(int), 1, index_file);
     fwrite(&physicalTime, sizeof(double), 1, index_file);
     fwrite(&level8bit, sizeof(char), 1, index_file);
-    fwrite(integerOrigin, sizeof(long long int), 3, index_file);
+    fwrite(integerOrigin, sizeof(Eint64), 3, index_file);
     fwrite(shortdims, sizeof(short), 3, index_file);
   } // ENDIF dim == 0
 
@@ -303,7 +303,7 @@ herr_t AMRHDF5Writer::WriteFlat(  const int    timeStep,
 				  const double *delta,
 				  
 				  const double *physicalOrigin,
-				  const long long int    *integerOrigin,
+				  const Eint64    *integerOrigin,
 				  const int    *bboxflags,
 				  const int    *nghostzones,
 				  
@@ -337,7 +337,7 @@ herr_t AMRHDF5Writer::WriteFlat(  const int    timeStep,
     fwrite(&timeStep, sizeof(int), 1, index_file);
     fwrite(&redshift, sizeof(double), 1, index_file);
     fwrite(&level8bit, sizeof(char), 1, index_file);
-    fwrite(integerOrigin, sizeof(long long int), 3, index_file);
+    fwrite(integerOrigin, sizeof(Eint64), 3, index_file);
     fwrite(shortdims, sizeof(short), 3, index_file);
     fwrite(&nParticles, sizeof(int), 1, index_file);
   }
