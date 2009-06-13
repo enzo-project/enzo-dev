@@ -116,7 +116,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   if (UsePhysicalUnit) 
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, MetaData.Time);
   PressureUnits = DensityUnits * pow(VelocityUnits,2);
-  MagneticUnits = sqrt(PressureUnits*4.0*Pi);
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
       
   CloudDensity /= DensityUnits;
   CloudSoundSpeed /= VelocityUnits;

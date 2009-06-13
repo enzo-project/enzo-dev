@@ -198,12 +198,12 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
   }
 
   /* Find the average density */
-  double rho_nfw = 3.0*NFWMass[i_vir]/(4.0*Pi*pow(NFWRadius[i_vir]*LengthUnits,3));
+  double rho_nfw = 3.0*NFWMass[i_vir]/(4.0*M_PI*pow(NFWRadius[i_vir]*LengthUnits,3));
 
   /* Renormalize velocity using virial relation */
   double Ek = 0.0;
   for (int i = 1; i < NFW_POINTS; i++) {
-    Ek += 2.0*Pi*NFWDensity[i]*pow(NFWSigma[i],2)*pow(NFWRadius[i],2)*
+    Ek += 2.0*M_PI*NFWDensity[i]*pow(NFWSigma[i],2)*pow(NFWRadius[i],2)*
       (NFWRadius[i-1]-NFWRadius[i])*pow(LengthUnits,3);
   }
   
@@ -388,7 +388,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 		temperature *= (1.0+0.01*gasdev());
 		for (m = 1; m < NFW_POINTS; m++) {
 		  if (R >= NFWRadius[m]) {
-		    m_disk = DiskDensity[sphere]*Pi*R*R*2.0*DiskHeight[sphere];
+		    m_disk = DiskDensity[sphere]*M_PI*R*R*2.0*DiskHeight[sphere];
 		    m_disk *= MassUnits;
 		    vphi = sqrt(GravConst*(NFWMass[m]+m_disk)/(R*LengthUnits));
 		    vphi /= VelocityUnits;

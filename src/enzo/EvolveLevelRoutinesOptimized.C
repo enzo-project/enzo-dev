@@ -884,6 +884,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	       SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
 	       FALSE, MetaData) == FAIL) {
 	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
+	    fprintf(stderr, "%i\n", FluxCorrection);
 	    return FAIL;
 	  }
 #else

@@ -100,7 +100,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
   MassUnits = DensityUnits*pow(LengthUnits,3);
-  MagneticUnits = sqrt(DensityUnits*4.0*Pi)*VelocityUnits;
+  MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
 
   /* Set up the baryon field. */
   
@@ -159,7 +159,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	    if (DiskType == 1) {
 	      density = DiskDensity*DiskRadius/(R+DiskHeight);
 	      temperature = DiskTemperature;
-	      double DiskMass = 2.0*Pi*DiskDensity*DiskHeight*DiskRadius*(R-DiskHeight*log(R/DiskHeight+1))*MassUnits;
+	      double DiskMass = 2.0*M_PI*DiskDensity*DiskHeight*DiskRadius*(R-DiskHeight*log(R/DiskHeight+1))*MassUnits;
 	      double Mass = BlackHoleMass*Msun + DiskMass;
 	      printf("BH=%g, Disk=%g, r=%g\n", BlackHoleMass, DiskMass/Msun, R);
 	      vrot = sqrt(G*Mass/(max(R,5*CellWidth[0][0])*LengthUnits))/VelocityUnits;
@@ -178,7 +178,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
 	      density = DiskDensity;
 	      temperature = DiskTemperature;
 	      FLOAT a = ExternalGravityRadius/LengthUnits;
-	      double Mdisk = DiskDensity*Pi*R*R*DiskHeight*MassUnits;
+	      double Mdisk = DiskDensity*M_PI*R*R*DiskHeight*MassUnits;
 	      if (R > 0.5*a) {
 		vrot = sqrt(G*(2.0*BlackHoleMass*Msun+Mdisk)/(R*LengthUnits))/VelocityUnits;
 	      } else {
@@ -274,7 +274,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
     double dxm = dx / pow(2.0, MaximumRefinementLevel);
@@ -305,7 +305,7 @@ int grid::AGNDiskInitializeGrid(float BlackHoleMass,
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
       
 

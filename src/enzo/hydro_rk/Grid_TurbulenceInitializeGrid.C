@@ -523,7 +523,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
     
     VelRMS /= Mass;
-    double t_ff = sqrt(32.0/(3.0*Pi*CloudDensity));
+    double t_ff = sqrt(32.0/(3.0*M_PI*CloudDensity));
     double NormFactor = CloudMachNumber * CloudSoundSpeed / VelRMS / t_ff;
     for (dim = 0; i < GridRank; dim++) {
       for (n = 0; n < activesize; n++) {
@@ -559,7 +559,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
     double dxm = dx / pow(2.0, MaximumRefinementLevel);
@@ -590,7 +590,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
     double dxm = dx / pow(2.0, MaximumRefinementLevel);

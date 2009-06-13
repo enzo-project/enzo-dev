@@ -194,7 +194,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, 1);
-  float MagneticUnits = sqrt(DensityUnits*4.0*Pi)*VelocityUnits;
+  float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
   float PressureUnits = DensityUnits*pow(VelocityUnits,2);
 
   printf("denu=%g, velu=%g, timeu=%g, tempu=%g, lenu=%g, bu=%g, presu=%g\n",

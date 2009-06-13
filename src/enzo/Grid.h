@@ -1121,7 +1121,7 @@ void SortParticlesByNumber();
   int CommunicationMethodShouldExit(grid *OtherGrid) {
 
     /* Return if neither grid lives on this processor. */
-    if (NumberOfProcessors == 1) return SUCCESS;
+    //    if (NumberOfProcessors == 1) return SUCCESS;
 
     if (MyProcessorNumber != ProcessorNumber && 
         MyProcessorNumber != OtherGrid->ProcessorNumber)

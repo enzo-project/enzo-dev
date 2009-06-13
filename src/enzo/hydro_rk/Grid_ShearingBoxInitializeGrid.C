@@ -81,7 +81,7 @@ int grid::ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradien
     TimeUnits = 1.0, VelocityUnits = 1.0;
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
-  float MagneticUnits = sqrt(4.0*Pi*DensityUnits)*VelocityUnits;
+  float MagneticUnits = sqrt(4.0*M_PI*DensityUnits)*VelocityUnits;
   
   /* Problem parameters */
   float rho = 1.0;
@@ -136,8 +136,8 @@ int grid::ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradien
   if (ShearingBoxProblemType == 1) {
     const FLOAT Lx = DomainRightEdge[0] - DomainLeftEdge[0];
     const FLOAT Ly = DomainRightEdge[1] - DomainLeftEdge[1];
-    const FLOAT kx0 = -8.0*2.0*Pi/Lx;
-    const FLOAT ky = 2.0*2.0*Pi/Ly;
+    const FLOAT kx0 = -8.0*2.0*M_PI/Lx;
+    const FLOAT ky = 2.0*2.0*M_PI/Ly;
     const float vx0 = 1e-4; // in unit of cs
     int n = 0;  
     for (int k = 0; k < GridDimension[2]; k++) {

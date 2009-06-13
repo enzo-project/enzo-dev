@@ -89,9 +89,6 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   B2 = Bxu * Bxu + Byu * Byu;
   etotu = pu / ((Gamma-1.0)*rhou) + 0.5*v2 + 0.5*B2/rhou;
 
-  
-
-
   if (MHD2DProblemType == 0 && !UseConstantAcceleration) {
     printf("Rayleigh-Taylor problem must have UseConstantAcceleration = 1\n");
     return FAIL;
@@ -120,7 +117,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  pres = pl+g*rhol*(y-0.75);
 	  EOS(pres, rhol, eintl, h, cs, dpdrho, dpde, 0, 1);
 	  // impose mode perturbation
-	  vyl = 0.01 * (1.0+cos(4.0*Pi*(x-0.25))) * (1.0+cos(3.0*Pi*(y-0.75))) * 0.25;
+	  vyl = 0.01 * (1.0+cos(4.0*M_PI*(x-0.25))) * (1.0+cos(3.0*M_PI*(y-0.75))) * 0.25;
 	  etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rhol;
 	}
 
@@ -144,7 +141,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  pres = pu+g*rhou*(y-0.75);
 	  EOS(pres, rhou, eintu, h, cs, dpdrho, dpde, 0, 1);
 	  /* impose mode perturbation */
-	  vyu = 0.01 * (1.0+cos(4.0*Pi*(x-0.25))) * (1.0+cos(3.0*Pi*(y-0.75))) * 0.25;
+	  vyu = 0.01 * (1.0+cos(4.0*M_PI*(x-0.25))) * (1.0+cos(3.0*M_PI*(y-0.75))) * 0.25;
 	  etotu = eintu + 0.5*(vxu*vxu + vyu*vyu) + 0.5*(Bxu*Bxu+Byu*Byu)/rhou;
 	}
 	BaryonField[iden ][igrid] = rhou;

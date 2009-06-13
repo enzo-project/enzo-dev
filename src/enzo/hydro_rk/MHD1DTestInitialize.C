@@ -127,7 +127,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
     return FAIL;
   }
   double PressureUnits = DensityUnits*pow(VelocityUnits,2);
-  double MagneticUnits = sqrt(4.0*Pi*PressureUnits);
+  double MagneticUnits = sqrt(4.0*M_PI*PressureUnits);
 
   printf("DensityUnits=%g,VelocityUnits=%g,LengthUnits=%g,TimeUnits=%g (%g yr),PressureUnits=%g\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);

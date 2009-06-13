@@ -98,7 +98,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	       RefinedFluxes->LeftFluxStartGlobalIndex[dim][j])  ||
 	      (InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 	       RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
-	    fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
+	    fprintf(stderr,"InitialFluxes & RefinedFluxes are different\n");
+    
 	    return FAIL;
 	  }
  

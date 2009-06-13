@@ -154,7 +154,6 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
   float rho, vel[3], eint, etot, h, cs, dpdrho, dpde, v2;
   FLOAT sinphi, cosphi;
   int n = 0;
-  double pi = 4.0*atan(1.0);
   for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++) {
       for (i = 0; i < GridDimension[0]; i++, n++) {
@@ -247,7 +246,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 	      FLOAT cos2phi = cosphi*cosphi - sinphi*sinphi;
 	      FLOAT cos3phi = 4.0*pow(cosphi,3) - 3.0*cosphi;
 	      FLOAT sin3phi = 3.0*sinphi - 4.0*pow(sinphi, 3);
-	      FLOAT phi0 = pi/4.0;
+	      FLOAT phi0 = M_PI/4.0;
 	      FLOAT cos3phi0 = cos3phi*cos(phi0) - sin3phi*sin(phi0);
 	      FLOAT omega2 = 0.0;//omega_sphere[sphere]; // velocity perturbation
 	      FLOAT omega = omega_sphere[sphere] + omega2*cos2phi;
@@ -370,7 +369,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
     mass_p /= massu;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*rhou));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*rhou));
     t_dyn /= tu;
       
 
@@ -403,14 +402,13 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 double Gaussian(double cs)
 {
 
-  double pi = 4.0*atan(1.0);
   double mean = 0;
   double stdev = cs;
   double u1 = rand();
   u1 = u1/RAND_MAX;
   double u2 = rand();
   u2 = u2/RAND_MAX;
-  double x = mean + stdev*sqrt(-2*log(u1))*cos(2*pi*u2);
+  double x = mean + stdev*sqrt(-2*log(u1))*cos(2*M_PI*u2);
   
   return x;
 }

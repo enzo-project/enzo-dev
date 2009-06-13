@@ -24,13 +24,11 @@ double ReturnWallTime();
 
 int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
-			      ExternalBoundary *Exterior)
+			      ExternalBoundary *Exterior)  {
   /*
     NumberOfSubgrids: the actual number of subgrids + 1
     SubgridFluxes[NumberOfSubgrids]
   */
-{
-
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
@@ -39,18 +37,14 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
+    return FAIL;  }
 
   double time1 = ReturnWallTime();
-
   int igrid;
-
   /* allocate space for fluxes */
   int fluxsize;
   for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {
@@ -110,7 +104,6 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int dim = 0; dim < GridRank; dim++) {
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
   }
-
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     dU[field] = new float[activesize];
     for (int i = 0; i < activesize; i++) {
@@ -123,8 +116,8 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   Prim[ivy  ] = BaryonField[Vel2Num];
   Prim[ivz  ] = BaryonField[Vel3Num];
   Prim[ietot] = BaryonField[TENum];
-  fprintf(stderr,"%i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
-  fprintf(stderr,"%i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
+  //  fprintf(stderr,"%i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
+  //  fprintf(stderr,"%i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
   if (DualEnergyFormalism) {
     Prim[ieint] = BaryonField[GENum];
   }
@@ -142,7 +135,6 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
     Prim[nc] = BaryonField[nc];
   }
-
 
   // RK2 first step
 
@@ -181,9 +173,7 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     delete [] dU[field];
   }
-
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
-
   return SUCCESS;
 
 }

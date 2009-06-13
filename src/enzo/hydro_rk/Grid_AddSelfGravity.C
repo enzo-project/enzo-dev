@@ -48,10 +48,10 @@ int grid::AddSelfGravity(float coef)
 	  vy_old = OldBaryonField[Vel2Num][igrid];
 	  vz_old = OldBaryonField[Vel3Num][igrid];
 
-	  /*BaryonField[ivx][igrid] += coef*gx*temp1*dtFixed;
-	  BaryonField[ivy][igrid] += coef*gy*temp1*dtFixed;
-	  BaryonField[ivz][igrid] += coef*gz*temp1*dtFixed;
-	  BaryonField[ietot][igrid] += ceof**/
+	  /*BaryonField[Vel1Num][igrid] += coef*gx*temp1*dtFixed;
+	  BaryonField[Vel2Num][igrid] += coef*gy*temp1*dtFixed;
+	  BaryonField[Vel3Num][igrid] += coef*gz*temp1*dtFixed;
+	  BaryonField[TENum][igrid] += ceof**/
 
 	  BaryonField[Vel1Num][igrid] += coef*gx*temp2;
 	  BaryonField[Vel2Num][igrid] += coef*gy*temp2;

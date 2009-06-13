@@ -85,7 +85,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
   double MassUnits = DensityUnits*pow(LengthUnits,3);
-  float MagneticUnits = sqrt(4.0*Pi*DensityUnits)*VelocityUnits;
+  float MagneticUnits = sqrt(4.0*M_PI*DensityUnits)*VelocityUnits;
   double G = 6.67e-8;
 
   size = 1;
@@ -191,7 +191,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
 	    /* Compute the azimuthal and polar angles */
 	    phi   = acos(xpos/sqrt(xpos*xpos+ypos*ypos));
-	    if (ypos < 0) phi = 2.0*Pi-phi;
+	    if (ypos < 0) phi = 2.0*M_PI-phi;
 	    FLOAT R1 = sqrt(xpos*xpos+ypos*ypos);
 	    theta = acos(zpos/r);
 	    /*if (fabs(zpos) < 1e-3) {
@@ -225,7 +225,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	    /* 2. Singular Isothermal Sphere */
 
 	    if (sphere_type[sphere] == 2) {
-	      rho = pow(cs_sphere[sphere]*VelocityUnits,2)/(2.0*Pi*G*pow(r*LengthUnits,2));
+	      rho = pow(cs_sphere[sphere]*VelocityUnits,2)/(2.0*M_PI*G*pow(r*LengthUnits,2));
 	      rho /= DensityUnits;
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	    }
@@ -266,7 +266,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      float Br, Btheta;
 	      FLOAT dis_theta_old = 1e10, dis_theta;
 	      int ii;
-	      float theta1 = (theta < Pi/2.0) ? theta : Pi - theta;
+	      float theta1 = (theta < M_PI/2.0) ? theta : M_PI - theta;
 	      for (ii = 0; ii < n_bin; ii++) {
 		dis_theta = fabs(theta_sit[ii] - theta1);
 		if (dis_theta > dis_theta_old) {
@@ -279,12 +279,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 		ii = n_bin -1;
 	      }
 	      rho = pow(cs_sphere[sphere]*VelocityUnits,2)*R_sit[ii] / 
-		(2.0*Pi*G*pow(r*LengthUnits,2)) / DensityUnits;
+		(2.0*M_PI*G*pow(r*LengthUnits,2)) / DensityUnits;
 	      Br = 2.0*pow(cs_sphere[sphere]*VelocityUnits,2)*dphi_sit[ii] /
 		(r*LengthUnits*sin(theta)*pow(G,0.5)) / MagneticUnits;
 	      Btheta = -2.0*pow(cs_sphere[sphere]*VelocityUnits,2)*phi_sit[ii] /
 		(r*LengthUnits*sin(theta)*pow(G,0.5)) / MagneticUnits;
-	      if (theta > Pi/2.0) Br *= -1.0;
+	      if (theta > M_PI/2.0) Br *= -1.0;
 	      Bx = Br*sin(theta)*cos(phi) + Btheta*cos(theta)*cos(phi);
 	      By = Br*sin(theta)*sin(phi) + Btheta*cos(theta)*sin(phi);
 	      Bz = Br*cos(theta) - Btheta*sin(theta);
@@ -297,8 +297,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
 	    if (sphere_type[sphere] == 6) {
 	      rho = rho_sphere[sphere] / (1.0 + pow(3.0*r/r_sphere[sphere],2));
-	      if (theta > Pi/2.0) theta = Pi-theta;
-	      rho *= (9.0/10.0*theta/(Pi/2.0) + 1.0/10.0);
+	      if (theta > M_PI/2.0) theta = M_PI-theta;
+	      rho *= (9.0/10.0*theta/(M_PI/2.0) + 1.0/10.0);
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      vel[0] = -omega_sphere[sphere]*ypos;
 	      vel[1] = omega_sphere[sphere]*xpos;
@@ -339,7 +339,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     double a = 0.2;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3 * Pi / den_p);
+    double t_dyn = sqrt(3 * M_PI / den_p);
 
 
     NumberOfParticles = 2;
@@ -378,7 +378,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
-    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
 

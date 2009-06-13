@@ -178,7 +178,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   if (UsePhysicalUnit) {
     GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
     presu = rhou*lenu*lenu/tu/tu;
-    bfieldu = sqrt(presu*4.0*Pi);
+    bfieldu = sqrt(presu*4.0*M_PI);
   }
   
   printf("rhou=%g,velu=%g,lenu=%g,tu=%g (%g yr),tempu=%g,presu=%g, bfieldu=%g, tempu=%g\n", 
@@ -187,13 +187,12 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   // Bonnor-Ebert sphere: only the sound velocity and sphere radius are free parameters
   if (SphereType[0] == 3) { 
     double G = 6.67e-8;
-    double pi = 4.0*atan(1.0);
 
     double f=1.5; // BE sphere overdensity parameter
     double re = SphereRadius[0] * lenu;
     double cs = SphereSoundVelocity[0];
     double ksi_e = 6.451; // critical radius of BE sphere
-    double rhoc = ksi_e*ksi_e*f*cs*cs/(re*re*4*pi*G);
+    double rhoc = ksi_e*ksi_e*f*cs*cs/(re*re*4*M_PI*G);
 
     SphereDensity[0] = rhoc;
     MediumDensity = rhoc/14.0;

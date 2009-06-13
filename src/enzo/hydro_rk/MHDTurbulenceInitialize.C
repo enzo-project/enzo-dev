@@ -76,7 +76,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     presu = 1.0, bfieldu = 1.0;
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
   presu = rhou*lenu*lenu/tu/tu;
-  bfieldu = sqrt(presu*4.0*Pi);
+  bfieldu = sqrt(presu*4.0*M_PI);
     
   rho_medium /= rhou;
   cs /= velu;

@@ -45,7 +45,7 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
 {
  
   /* Return if this doesn't involve us. */
- 
+  
   if (ParentGrid->CommunicationMethodShouldExit(this) ||
       NumberOfBaryonFields == 0)
     return SUCCESS;
