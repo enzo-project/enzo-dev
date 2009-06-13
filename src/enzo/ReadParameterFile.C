@@ -92,9 +92,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "TimeLastHistoryDump = %"PSYM,
 		  &MetaData.TimeLastHistoryDump);
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
-    ret += sscanf(line, "TimeLastMovieDump = %"PSYM,
-		  &MetaData.TimeLastMovieDump);
-    ret += sscanf(line, "dtMovieDump       = %"PSYM, &MetaData.dtMovieDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
@@ -103,16 +100,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
  
-    ret += sscanf(line, "MovieRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
-		  MetaData.MovieRegionLeftEdge,
-		  MetaData.MovieRegionLeftEdge+1,
-		  MetaData.MovieRegionLeftEdge+2);
-    ret += sscanf(line, "MovieRegionRightEdge = %"PSYM" %"PSYM" %"PSYM,
-		  MetaData.MovieRegionRightEdge,
-		  MetaData.MovieRegionRightEdge+1,
-		  MetaData.MovieRegionRightEdge+2);
- 
-
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,
 		  MetaData.NewMovieLeftEdge+1, 
@@ -155,7 +142,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
     ret += sscanf(line, "HistoryDumpNumber = %"ISYM, &MetaData.HistoryDumpNumber);
-    ret += sscanf(line, "MovieDumpNumber   = %"ISYM, &MetaData.MovieDumpNumber);
     ret += sscanf(line, "TracerParticleDumpNumber = %"ISYM, &MetaData.TracerParticleDumpNumber);
  
     if (sscanf(line, "RestartDumpName      = %s", dummy) == 1)
@@ -164,8 +150,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.DataDumpName = dummy;
     if (sscanf(line, "HistoryDumpName      = %s", dummy) == 1)
       MetaData.HistoryDumpName = dummy;
-    if (sscanf(line, "MovieDumpName        = %s", dummy) == 1)
-      MetaData.MovieDumpName = dummy;
     if (sscanf(line, "TracerParticleDumpName = %s", dummy) == 1)
       MetaData.TracerParticleDumpName = dummy;
     if (sscanf(line, "RedshiftDumpName     = %s", dummy) == 1)
@@ -177,8 +161,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.DataDumpDir = dummy;
     if (sscanf(line, "HistoryDumpDir      = %s", dummy) == 1)
       MetaData.HistoryDumpDir = dummy;
-    if (sscanf(line, "MovieDumpDir        = %s", dummy) == 1)
-      MetaData.MovieDumpDir = dummy;
     if (sscanf(line, "TracerParticleDumpDir = %s", dummy) == 1)
       MetaData.TracerParticleDumpDir = dummy;
     if (sscanf(line, "RedshiftDumpDir     = %s", dummy) == 1)
@@ -538,13 +520,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Read Movie Dump parameters */
 
-    ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
-    ret += sscanf(line, "NewMovieParticleOn = %"ISYM, &NewMovieParticleOn);
-    ret += sscanf(line, "MovieDataField = %"ISYM" %"ISYM" %"ISYM,
-                  MovieDataField+0, MovieDataField+1, MovieDataField+2);
-    ret += sscanf(line, "NewMovieDumpNumber = %"ISYM, &NewMovieDumpNumber);
+    ret += sscanf(line, "MovieSkipTimestep = %d", &MovieSkipTimestep);
+    ret += sscanf(line, "Movie3DVolumes = %d", &Movie3DVolumes);
+    ret += sscanf(line, "MovieVertexCentered = %d", &MovieVertexCentered);
+    ret += sscanf(line, "NewMovieParticleOn = %d", &NewMovieParticleOn);
+    ret += sscanf(line, "MovieDataField = %d %d %d %d %d %d",
+		  MovieDataField+0, MovieDataField+1, MovieDataField+2,
+		  MovieDataField+3, MovieDataField+4, MovieDataField+5);
+    ret += sscanf(line, "NewMovieDumpNumber = %d", &NewMovieDumpNumber);
     if (sscanf(line, "NewMovieName = %s", dummy) == 1)
       NewMovieName = dummy;
+    ret += sscanf(line, "MovieTimestepCounter = %d", &MetaData.TimestepCounter);
 
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
 

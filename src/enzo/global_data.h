@@ -433,11 +433,10 @@ EXTERN int traceMPI;
 
 EXTERN int MovieDataField[MAX_MOVIE_FIELDS];
 EXTERN int MovieSkipTimestep;
+EXTERN int Movie3DVolumes;
+EXTERN int MovieVertexCentered;
 EXTERN char *NewMovieName;
 EXTERN int NewMovieDumpNumber;
-EXTERN int NewMovieEntries;
-EXTERN long *MovieEntriesPP;
-EXTERN int MaxMovieFilenum;
 EXTERN int NewMovieParticleOn;
 
 /* ran1 initialization flag for star_maker5 */

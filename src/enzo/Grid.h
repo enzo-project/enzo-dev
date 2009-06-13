@@ -18,6 +18,7 @@
 #include "ListOfParticles.h"
 #include "region.h"
 #include "FastSiblingLocator.h"
+#include "AMRH5writer.h"
 #include "Star.h"
 
 #ifdef FLUX_FIX
@@ -483,7 +484,11 @@ class grid
 /* Output movie data (sequential format) */
 
    int WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-			 FLOAT StopTime, int lastMovieStep, int &cycle);
+			 int RootResolution, FLOAT StopTime, 
+			 AMRHDF5Writer &AmiraGrid,
+			 int lastMovieStep, int TopGridCycle, 
+			 int WriteMe, int TimestepCounter, int open, 
+			 FLOAT WriteTime);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 

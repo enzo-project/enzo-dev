@@ -12,6 +12,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#include "AMRH5writer.h"
 struct TopGridData
 {
 
@@ -127,7 +128,9 @@ struct TopGridData
   int    PPMDiffusionParameter;                     // PPM parameter
   int    PPMSteepeningParameter;                    // PPM parameter
 
+  AMRHDF5Writer AmiraGrid;
   int FirstTimestepAfterRestart;
+  int TimestepCounter;
 
 };
 

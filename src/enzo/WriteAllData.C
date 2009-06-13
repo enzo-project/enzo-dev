@@ -642,7 +642,7 @@ int WriteAllData(char *basename, int filenumber,
   fprintf(xptr, "TT %12.4e\n", (ttexit-ttenter));
   fclose(xptr);
 #endif /* USE_MPI */
- 
+
   //  fprintf(stderr,"Safe exit from WriteAllData\n");
  
   return SUCCESS;

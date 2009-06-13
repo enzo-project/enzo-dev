@@ -140,8 +140,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
   hsize_t     slab_stride[4], slab_count[4], slab_block[4];
   hsize_t     attr_count;
  
-  hssize_t    mem_offset;
-  hssize_t    slab_offset[4];
+  hsize_t    mem_offset;
+  hsize_t    slab_offset[4];
  
   int NSeg, LSeg, Part;
  

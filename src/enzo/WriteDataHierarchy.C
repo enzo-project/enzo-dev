@@ -61,15 +61,12 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
   // Write movie data if the last output of the run
 
   int Zero = 0;
-  if ((WriteTime == -666) && (MovieSkipTimestep != INT_UNDEFINED)) {
-    if (Grid->GridData->WriteNewMovieData(MetaData.NewMovieLeftEdge,
-					  MetaData.NewMovieRightEdge,
-					  MetaData.StopTime,
-					  1, Zero) == FAIL) {
-      fprintf(stderr, "Error in WriteNewMovieData.\n");
-      ENZO_FAIL("");
-    }
-  }
+  if ((WriteTime == -666) && (MovieSkipTimestep != INT_UNDEFINED))
+    Grid->GridData->WriteNewMovieData
+      (MetaData.NewMovieLeftEdge, MetaData.NewMovieRightEdge,
+       MetaData.TopGridDims[0], MetaData.StopTime, MetaData.AmiraGrid, 
+       1, MetaData.CycleNumber, TRUE, MetaData.TimestepCounter, Zero, 
+       WriteTime);
 
   /* Write out pointer information for the next grid this level */
  

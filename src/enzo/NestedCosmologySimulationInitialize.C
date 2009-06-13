@@ -304,32 +304,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     CosmologySimulationInitialTemperature = 550.0 *
       POW((1.0 + InitialRedshift)/(1.0 + 200), 2);
  
-  // If streaming movie output, write header file
-
-  FILE *header;
-  char *headerName = "movieHeader.dat";
-  int sizeOfRecord = (7+MAX_MOVIE_FIELDS)*sizeof(int) + sizeof(float) + 
-    6*sizeof(FLOAT);
-  char *movieVersion = "1.3";
-  int nMovieFields = 0;
-  while (MovieDataField[nMovieFields] != INT_UNDEFINED &&
-	 nMovieFields < MAX_MOVIE_FIELDS) nMovieFields++;
-    
-  if (MovieSkipTimestep != INT_UNDEFINED) {
-    if ((header = fopen(headerName, "w")) == NULL) {
-      fprintf(stderr, "Error in opening movie header.\n");
-      ENZO_FAIL("");
-    }
-    fprintf(header, "MovieVersion = %s\n", movieVersion);
-    fprintf(header, "RootReso = %"ISYM"\n",     MetaData.TopGridDims[0]);
-    fprintf(header, "FLOATSize = %"ISYM"\n",    sizeof(FLOAT));
-    fprintf(header, "RecordSize = %"ISYM"\n",   sizeOfRecord);
-    fprintf(header, "NumFields = %"ISYM"\n",    nMovieFields);
-    fprintf(header, "NumCPUs = %"ISYM"\n",      NumberOfProcessors);
-    fprintf(header, "FileStem = %s\n",     NewMovieName);
-    fclose(header);
-  }
-
   // Generate the grids and set-up the hierarchy
  
   HierarchyEntry *GridsList[MAX_INITIAL_GRIDS];

@@ -34,7 +34,6 @@ char DefaultRestartName[] = "restart";
 char DefaultDataName[] = "data";
 char DefaultHistoryName[] = "history";
 char DefaultRedshiftName[] = "RedshiftOutput";
-char DefaultMovieName[] = "MovieOutput";
 char DefaultNewMovieName[] = "MoviePack";
 char DefaultTracerParticleName[] = "TracerOutput";
  
@@ -42,7 +41,6 @@ char DefaultRestartDir[] = "RS";
 char DefaultDataDir[] = "DD";
 char DefaultHistoryDir[] = "HD";
 char DefaultRedshiftDir[] = "RD";
-char DefaultMovieDir[] = "MD";
 char DefaultTracerParticleDir[] = "TD";
  
  
@@ -76,8 +74,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtDataDump          = 0.0;
   MetaData.TimeLastHistoryDump = FLOAT_UNDEFINED;
   MetaData.dtHistoryDump       = 0.0;
-  MetaData.TimeLastMovieDump   = FLOAT_UNDEFINED;
-  MetaData.dtMovieDump         = 0.0;
   MetaData.TimeLastTracerParticleDump = FLOAT_UNDEFINED;
   MetaData.dtTracerParticleDump       = 0.0;
  
@@ -103,9 +99,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.HistoryDumpNumber   = 0;
   MetaData.HistoryDumpName     = DefaultHistoryName;
   MetaData.HistoryDumpDir      = DefaultHistoryDir;
-  MetaData.MovieDumpNumber     = 0;
-  MetaData.MovieDumpName       = DefaultMovieName;
-  MetaData.MovieDumpDir        = DefaultMovieDir;
   MetaData.TracerParticleDumpNumber = 0;
   MetaData.TracerParticleDumpName   = DefaultTracerParticleName;
   MetaData.TracerParticleDumpDir    = DefaultTracerParticleDir;
@@ -189,8 +182,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     RefineRegionLeftEdge[dim]       = FLOAT_UNDEFINED;
     RefineRegionRightEdge[dim]      = FLOAT_UNDEFINED;
     RefineRegionAutoAdjust          = FALSE;
-    MetaData.MovieRegionLeftEdge[dim]  = FLOAT_UNDEFINED;
-    MetaData.MovieRegionRightEdge[dim] = FLOAT_UNDEFINED;
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
@@ -323,12 +314,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MovieSkipTimestep = INT_UNDEFINED;
   NewMovieName = DefaultNewMovieName;
   NewMovieDumpNumber = 0;
-  NewMovieEntries = 0;
-  MovieEntriesPP = new long[NumberOfProcessors];
-  MaxMovieFilenum = 0;
-  for (i = 0; i<NumberOfProcessors; i++)
-    MovieEntriesPP[i] = 0;
   NewMovieParticleOn = FALSE;
+  Movie3DVolumes  = FALSE;
+  MovieVertexCentered = FALSE;
+  MetaData.TimestepCounter      = 0;
 
   ran1_init = 0;
 

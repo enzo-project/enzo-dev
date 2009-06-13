@@ -79,8 +79,8 @@ int OutputAsParticleData(TopGridData &MetaData,
   hsize_t     mem_stride, mem_count, mem_block;
   hsize_t     file_stride[2], file_count[2], file_block[2];
  
-  hssize_t    mem_offset;
-  hssize_t    file_offset[2];
+  hsize_t    mem_offset;
+  hsize_t    file_offset[2];
  
   char *dset_name;
  

@@ -37,6 +37,7 @@
  
 // Function prototypes
  
+int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
@@ -416,6 +417,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (debug)
     printf("InitializeNew: Finished problem initialization.\n");
+
+  /* If requested, initialize streaming data files. */
+
+  InitializeMovieFile(MetaData, TopGrid);
  
   // Do some error checking
  

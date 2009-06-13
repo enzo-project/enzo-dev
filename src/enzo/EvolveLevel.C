@@ -97,6 +97,8 @@ int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid,
 			     int NumberOfGrids, int level, float dt);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
+		    TopGridData *MetaData, int *CycleCount, int open=FALSE);
  
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -197,6 +199,7 @@ void my_exit(int status);
  
  
 int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
@@ -279,6 +282,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
  
+  /* After we calculate the ghost zones, we can initialize streaming
+     data files (only on level 0) */
+
+  if (MetaData->FirstTimestepAfterRestart == TRUE && level == 0)
+    WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
+
   /* ================================================================== */
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
@@ -287,6 +296,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
+
+    /* Streaming movie output (write after all parent grids are
+       updated) */
+
+    WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
 
     /* Initialize the star particles */
 
@@ -554,11 +568,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
-    /* Update SubcycleNumber if this is the bottom of the hierarchy --
-       Note that this not unique based on which level is the highest,
-       it just keeps going */
 
-    if (LevelArray[level+1] == NULL) MetaData->SubcycleNumber += 1;  
+    /* Update SubcycleNumber and the timestep counter for the
+       streaming data if this is the bottom of the hierarchy -- Note
+       that this not unique based on which level is the highest, it
+       just keeps going */
+
+    if (LevelArray[level+1] == NULL) {
+      MetaData->SubcycleNumber++;
+      MetaData->TimestepCounter++;
+    }
 
     if (dbx) fprintf(stderr, "EL Level %"ISYM" returns from Level %"ISYM"\n", level, level+1);
 

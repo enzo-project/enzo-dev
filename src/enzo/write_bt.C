@@ -37,8 +37,8 @@ int WRITE_BT(boundary_type *bt_buffer,
 
   hsize_t     bsize;
 
-  hssize_t    mem_offset;
-  hssize_t    file_offset[4];
+  hsize_t    mem_offset;
+  hsize_t    file_offset[4];
 
   herr_t      h5_status;
   herr_t      h5_error = -1;

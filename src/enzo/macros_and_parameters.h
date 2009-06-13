@@ -397,6 +397,12 @@ typedef int            HDF5_hid_t;
 #define JHW_METAL_COOLING 1
 #define CEN_METAL_COOLING 2
 
+/* Streaming format parameters */
+
+#define ALL_PARTICLES 1
+#define NON_DM_PARTICLES 2
+#define TEMPERATURE_FIELD 1000
+
 #define DEFAULT_MU 0.6
 
 /* Maximum number of leafs per parent in radiation source tree. */
@@ -410,9 +416,9 @@ typedef int            HDF5_hid_t;
 #undef MPI_TRACE
 #endif
 
-#ifndef OLD_HDF5 /* prior to HDF5-1.6.5 */
-#define hssize_t hsize_t
-#endif
+//#ifndef OLD_HDF5 /* prior to HDF5-1.6.5 */
+//#define hssize_t hsize_t
+//#endif
 
 #ifdef TIME_MESSAGING
 #define PROCS_PER_NODE 8

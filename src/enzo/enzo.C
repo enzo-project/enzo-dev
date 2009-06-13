@@ -54,6 +54,7 @@
  
 int InitializeNew(  char *filename, HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary &Exterior, float *Initialdt);
+int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 
 int InitializeLocal(int restart, HierarchyEntry &TopGrid, 
 		    TopGridData &MetaData);
@@ -378,6 +379,9 @@ Eint32 main(Eint32 argc, char *argv[])
     }
  
     AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
+
+    // Initialize streaming files if necessary
+    InitializeMovieFile(MetaData, TopGrid);
  
   }
 
@@ -493,6 +497,11 @@ Eint32 main(Eint32 argc, char *argv[])
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Error in EvolveHierarchy.\n");
+    }
+    // Close the streaming files
+    if (MovieSkipTimestep != INT_UNDEFINED) {
+      fprintf(stderr, "Closing movie file.\n");
+      MetaData.AmiraGrid.AMRHDF5Close();
     }
     my_exit(EXIT_FAILURE);
   }

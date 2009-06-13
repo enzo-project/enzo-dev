@@ -110,7 +110,7 @@ all: $(EXE).exe
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
 	@rm -f $@
 	@echo "Linking"
-	$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
+	-@$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
 	   echo "Success!"; \
 	else \
