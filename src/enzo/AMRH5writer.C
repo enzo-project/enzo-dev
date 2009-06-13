@@ -17,12 +17,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
 #include <math.h>
+#include "h5utilities.h"
 
 #include "macros_and_parameters.h"
-#include "h5utilities.h"
 #include "AMRH5writer.h"
+
 
 AMRHDF5Writer::AMRHDF5Writer() :
   h5DataType(H5T_NATIVE_FLOAT),

@@ -16,11 +16,17 @@
 #ifndef  __AMRHDF5WRITER__
 #define  __AMRHDF5WRITER__
 
-// min/max macros conflict with stl
-#undef min
-#undef max
+// int ifdef screws around with hdf5.  Undefine it.
+#ifdef LARGE_INTS
+#undef int
+#endif
 
 #include <hdf5.h>
+
+// Redefine them
+#ifdef LARGE_INTS
+#define int long_int
+#endif
 
 #define _CHECK_CONSISTENCY_
 
@@ -130,10 +136,6 @@ class AMRHDF5Writer
   double rootDelta[3];
   
 };
-
-// Redefine them
-#define max(A,B) ((A) > (B) ? (A) : (B))
-#define min(A,B) ((A) < (B) ? (A) : (B))
 
 #endif
 
