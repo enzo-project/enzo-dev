@@ -62,7 +62,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    float VelocityUnits, float LengthUnits,
 			    float TimeUnits) {
 
-  float mx, my, mz;
+  float mx, my, mz, slice_factor, slice_factor2;
   FLOAT rx, ry, rz, r, oldr, drx, dry, drz, prev_radius;
   FLOAT CellVolume=1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
@@ -562,98 +562,31 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     /* Get absorber density and its inverse */
 
-    /* If interpolating field, calculate density at midpoint for the
-       optical depth ONLY */
+    /* No interpolation */
 
-    float ray_weight = 0.5;
-    if (RadiativeTransferInterpolateField) {
-      mx = (sx + (oldr + ray_weight*ddr - ROUNDOFF) * ux -
-	    (GridLeftEdge[0] + gi*CellWidth[0][0])) / CellWidth[0][0];
-      my = (sy + (oldr + ray_weight*ddr - ROUNDOFF) * uy -
-	    (GridLeftEdge[1] + gj*CellWidth[1][0])) / CellWidth[1][0];
-      mz = (sz + (oldr + ray_weight*ddr - ROUNDOFF) * uz -
-	    (GridLeftEdge[2] + gk*CellWidth[2][0])) / CellWidth[2][0];
-      if (mx<0 || mx>1 || my<0 || my>1 || mz<0 || mz>1) {
-	fprintf(stderr, "WalkPhoton: interpolation wrong: "
-		"%"GSYM" %"GSYM" %"GSYM" (%"ISYM" %"ISYM" %"ISYM")\n", 
-		mx, my, mz, gi, gj, gk);
-	fprintf(stderr, "\t r = %"GSYM" -> %"GSYM", pos = %"GSYM" %"GSYM" %"GSYM"\n", 
-		oldr, r, rx, ry, rz);
-      }
-
-      // Vertex indicies
-//      vc_index = VCGRIDINDEX(gi, gj, gk);
-//      this->NeighborVertexIndices(vc_index, vi);
-
-      switch ((*PP)->Type) {
-      case 0:  // HI
-	thisDensity = ConvertToProperNumberDensity * 
-	  ComputeInterpolatedValue(HINum, gi, gj, gk, mx, my, mz);
-	break;
-      case 1:  // HeI
-	thisDensity = 0.25 * ConvertToProperNumberDensity * 
-	  ComputeInterpolatedValue(HeINum, gi, gj, gk, mx, my, mz);
-	break;
-      case 2:  // HeII
-	thisDensity = 0.25 * ConvertToProperNumberDensity * 
-	  ComputeInterpolatedValue(HeIINum, gi, gj, gk, mx, my, mz);
-	break;
-      case 3:  // Lyman-Werner
-	thisDensity = ComputeInterpolatedValue(H2INum, gi, gj, gk, mx, my, mz) *
-	  ConvertToProperNumberDensity;
-	break;
-      case 4:  // X-rays
-	nHI = ComputeInterpolatedValue(HINum, gi, gj, gk, mx, my, mz) *
-	  ConvertToProperNumberDensity;
-	nHeI = 0.25 * ConvertToProperNumberDensity * 
-	  ComputeInterpolatedValue(HeINum, gi, gj, gk, mx, my, mz);
-	nHeII = 0.25 * ConvertToProperNumberDensity * 
-	  ComputeInterpolatedValue(HeIINum, gi, gj, gk, mx, my, mz);
-	break;
-      } // ENDSWITCH type
-
-      // Interpolation factors for the vertices
-//      fd_sw = (1-mx)*(1-my)*(1-mz);
-//      fd_se = (mx)  *(1-my)*(1-mz);
-//      fd_nw = (1-mx)*(  my)*(1-mz);
-//      fd_ne = (  mx)*(  my)*(1-mz);
-//      fu_sw = (1-mx)*(1-my)*(  mz);
-//      fu_se = (mx)  *(1-my)*(  mz);
-//      fu_nw = (1-mx)*(  my)*(  mz);
-//      fu_ne = (  mx)*(  my)*(  mz);
-
-    } // ENDIF interpolate field
-    else {
-
-      /* No interpolation */
-
-      switch ((*PP)->Type) {
-      case 0:  // HI
-	thisDensity = HI[index]*ConvertToProperNumberDensity; 
-	break;
-      case 1:  // HeI
-	thisDensity = 0.25*HeI[index]*ConvertToProperNumberDensity; 
-	break;
-      case 2:  // HeII
-	thisDensity = 0.25*HeII[index]*ConvertToProperNumberDensity; 
-	break;
-      case 3:  // Lyman-Werner
-	if (MultiSpecies > 1)
-	  thisDensity = H2I[index]*ConvertToProperNumberDensity;
-	break;
-      case 4:  // X-rays
-	nHI   = HI[index]*ConvertToProperNumberDensity; 
-	nHeI  = 0.25*HeI[index]*ConvertToProperNumberDensity; 
-	nHeII = 0.25*HeII[index]*ConvertToProperNumberDensity; 
-	nHI_inv   = 1.0 / nHI;
-	nHeI_inv  = 1.0 / nHeI;
-	nHeII_inv = 1.0 / nHeII;
-	break;
-      } // ENDSWITCH type
-
-    } // ENDELSE interpolation
-
-    //inverse_rho = 1.0 / thisDensity;
+    switch ((*PP)->Type) {
+    case 0:  // HI
+      thisDensity = HI[index]*ConvertToProperNumberDensity; 
+      break;
+    case 1:  // HeI
+      thisDensity = 0.25*HeI[index]*ConvertToProperNumberDensity; 
+      break;
+    case 2:  // HeII
+      thisDensity = 0.25*HeII[index]*ConvertToProperNumberDensity; 
+      break;
+    case 3:  // Lyman-Werner
+      if (MultiSpecies > 1)
+	thisDensity = H2I[index]*ConvertToProperNumberDensity;
+      break;
+    case 4:  // X-rays
+      nHI   = HI[index]*ConvertToProperNumberDensity; 
+      nHeI  = 0.25*HeI[index]*ConvertToProperNumberDensity; 
+      nHeII = 0.25*HeII[index]*ConvertToProperNumberDensity; 
+      nHI_inv   = 1.0 / nHI;
+      nHeI_inv  = 1.0 / nHeI;
+      nHeII_inv = 1.0 / nHeII;
+      break;
+    } // ENDSWITCH type
 
     switch ((*PP)->Type) {
     case 0:  // HI
@@ -670,17 +603,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       break;
     } // ENDSWITCH
 
-//    //midpoint = oldr + 0.75*ddr;
 //    //filling_factor = 0.5*(oldr*oldr + r*r) * ddr * omega_package * Volume_inv;
 //    //filling_factor = r*r * ddr * omega_package * Volume_inv;
-//    mx = fabs(sx + (oldr + 0.5*ddr - ROUNDOFF) * ux -
-//	      (GridLeftEdge[0] + (gi+0.5)*CellWidth[0][0]));
-//    my = fabs(sy + (oldr + 0.5*ddr - ROUNDOFF) * uy -
-//	      (GridLeftEdge[1] + (gj+0.5)*CellWidth[1][0]));
-//    mz = fabs(sz + (oldr + 0.5*ddr - ROUNDOFF) * uz -
-//	      (GridLeftEdge[2] + (gk+0.5)*CellWidth[2][0]));
-//    float nearest_edge = max(max(mx, my), mz);
-//    float slice_factor = min(0.5 + (0.5*dx-nearest_edge) / (dtheta*r), 1);
+    mx = fabs(sx + (oldr + 0.5*ddr - ROUNDOFF) * ux -
+	      (GridLeftEdge[0] + (gi+0.5)*CellWidth[0][0]));
+    my = fabs(sy + (oldr + 0.5*ddr - ROUNDOFF) * uy -
+	      (GridLeftEdge[1] + (gj+0.5)*CellWidth[1][0]));
+    mz = fabs(sz + (oldr + 0.5*ddr - ROUNDOFF) * uz -
+	      (GridLeftEdge[2] + (gk+0.5)*CellWidth[2][0]));
+    float nearest_edge = max(max(mx, my), mz);
+    slice_factor = min(0.5 + (0.5*dx-nearest_edge) / (dtheta*r), 1);
+    slice_factor2 = slice_factor * slice_factor;
 //    printf("mx, my, mz = %g %g %g, dtheta = %g, dtheta*r = %g, slice_factor = %g\n",
 //	   mx, my, mz, dtheta, dtheta*r, slice_factor);
 //    filling_factor = 0.5*(oldr*oldr + r*r) * ddr * omega_package * Volume_inv *
@@ -746,11 +679,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dP = min((*PP)->Photons*tau, (*PP)->Photons);
 
       // contributions to the photoionization rate is over whole timestep
-      BaryonField[kphNum][index] += dP*factor1;
+      BaryonField[kphNum][index] += dP*factor1*slice_factor2;
 	
       // the heating rate is just the number of photo ionizations times
       // the excess energy units here are  eV/s/cm^3 *TimeUnits. 
-      BaryonField[gammaNum][index] += dP*factor2;
+      BaryonField[gammaNum][index] += dP*factor2*slice_factor2;
 
     }
     else if ((*PP)->Type == 4) {

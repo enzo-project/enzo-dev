@@ -77,7 +77,7 @@ public:
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(float dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
-  void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   void	ConvertAllMassesToSolar(void);

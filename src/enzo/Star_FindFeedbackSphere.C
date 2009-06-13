@@ -177,7 +177,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Don't allow the sphere to be too large (2x leeway) */
 
-  float epsMass = 2.0;
+  float epsMass = 9.0;
   float eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
   if (FeedbackFlag == FORMATION) {
     // single Pop III star

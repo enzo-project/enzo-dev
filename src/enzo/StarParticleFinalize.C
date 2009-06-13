@@ -39,7 +39,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars);
 int StarParticleAccretion(Star *&AllStars);
-int StarParticleDeath(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
+		      Star *&AllStars);
 void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -105,7 +106,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Check for any stellar deaths */
 
-  if (StarParticleDeath(LevelArray, AllStars) == FAIL) {
+  if (StarParticleDeath(LevelArray, level, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleDeath.\n");
     ENZO_FAIL("");
   }
@@ -120,7 +121,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   */
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
-    TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
+    //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
+    TimeNow = LevelArray[level]->GridData->ReturnTime();
     ThisStar->ActivateNewStar(TimeNow);
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();

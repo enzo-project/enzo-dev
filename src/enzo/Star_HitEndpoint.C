@@ -37,6 +37,8 @@ int Star::HitEndpoint(FLOAT Time)
   int result = NO_DEATH;
   if (Time > this->BirthTime + this->LifeTime)
     result = KILL_ALL;
+  else
+    return result;
 
   switch (this->type) {
 
