@@ -14,7 +14,6 @@
 #endif
 #endif
 
-
 #include "message.h"
 
 #define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));

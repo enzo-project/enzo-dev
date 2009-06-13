@@ -24,20 +24,12 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 
-#ifdef USE_PYTHON
-#ifndef ENZO_PYTHON_IMPORTED
-#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#include <Python.h>
-#include "numpy/arrayobject.h"
-#define ENZO_PYTHON_IMPORTED
-#endif
-#endif
 
 int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
-
 void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime);
+void CommunicationBarrier();
 
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level)
@@ -45,10 +37,11 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 #ifndef USE_PYTHON
     return SUCCESS;
 #else
+    if(access("user_script.py", F_OK) == -1) return SUCCESS;
     if (LevelArray[level+1] != NULL) return SUCCESS;
     FLOAT CurrentTime;
     int num_grids, start_index;
-    num_grids = start_index = 0;
+    num_grids = 0; start_index = 1;
 
     PyDict_Clear(grid_dictionary);
     PyDict_Clear(old_grid_dictionary);
@@ -76,6 +69,7 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
   ExportParameterFile(MetaData, CurrentTime);
 
+  CommunicationBarrier();
   PyRun_SimpleString("import user_script\nuser_script.main()\n");
 
   NumberOfPythonCalls++;

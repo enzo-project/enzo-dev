@@ -12,8 +12,7 @@
 /    SUCCESS or FAIL
 /
 ************************************************************************/
-
-#ifndef ENZO_PYTHON_IMPORTED
+#ifdef USE_PYTHON
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
 #include <Python.h>
 #include "numpy/arrayobject.h"
