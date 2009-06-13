@@ -92,7 +92,22 @@ const field_type
   gFlaggingField        = 47,
   gVelocity             = 48,
 
-  FieldUndefined  = 49;
+  Bfield1               = 49,
+  Bfield2               = 50,
+  Bfield3               = 51,
+  PhiField              = 52,
+  Phi_pField            = 53,
+  DebugField            = 54, 
+
+  DrivingField1         = 55, 
+  DrivingField2         = 56, 
+  DrivingField3         = 57,
+
+  AccelerationField1         = 58, 
+  AccelerationField2         = 59, 
+  AccelerationField3         = 60,
+
+  FieldUndefined  = 61;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -149,7 +164,16 @@ const hydro_method
   PPM_DirectEuler      = 0,
   PPM_LagrangeRemap    = 1,
   Zeus_Hydro           = 2,
-  HydroMethodUndefined = 3;
+  HD_RK                = 3,
+  MHD_RK               = 4,
+  HydroMethodUndefined = 5;
+
+/* Stanford RK MUSCL solvers support */ 
+enum {Cartesian, Spherical, Cylindrical};
+enum {PLM, PPM, CENO, WENO3, WENO5};
+enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
+
+
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 

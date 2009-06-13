@@ -118,10 +118,45 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
                            TopGridData &MetaData);
 
+
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 #endif /* TRANSFER */
+
+
+int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
+			  HierarchyEntry &TopGrid, TopGridData &MetaData);
+int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
+			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
+			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
+			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
+                        HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
+                        HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr, 
+			HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
+			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
+			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
+			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
+		      HierarchyEntry &TopGrid, TopGridData &MetaData);
+
+int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
+				HierarchyEntry &TopGrid, TopGridData &MetaData);
+
+int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, 
+				HierarchyEntry &TopGrid, TopGridData &MetaData);
+
+int MRICollapseInitialize(FILE *fptr, FILE *Outfptr, 
+				HierarchyEntry &TopGrid, TopGridData &MetaData);
+
 
 #ifdef MEM_TRACE
 Eint64 mused(void);
@@ -404,6 +439,77 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
   // Insert new problem intializer here...
+
+    if (ProblemType ==300) {
+    ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+    if (ProblemType ==400) {
+    ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+    if (ProblemType ==401) {
+    ret = MRICollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+
+
+
+  /* 100) 1D HD Test */
+  if (ProblemType == 100) {
+    ret = Hydro1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 101) 3D Collapse */
+  if (ProblemType == 101) {
+    ret = Collapse3DInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 102) 1D Spherical Collapse */
+  if (ProblemType == 102) {
+    ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+
+  if (ProblemType == 106) {
+    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 200) 1D MHD Test */
+  if (ProblemType == 200) {
+    ret = MHD1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 201) 2D MHD Test */
+  if (ProblemType == 201) {
+    ret = MHD2DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 202) 3D MHD Collapse */
+  if (ProblemType == 202) {
+    ret = CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 203) MHD Turbulence Collapse */
+  if (ProblemType == 203) {
+    ret = MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 204) 3D MHD Test */
+  if (ProblemType == 204) {
+    ret = MHD3DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 207) Galaxy Disk */
+  if (ProblemType == 207) {
+    ret = GalaxyDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 208) AGN Disk */
+  if (ProblemType == 208) {
+    ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+
  
   if (ret == INT_UNDEFINED) {
     fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
