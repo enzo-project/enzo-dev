@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -19,7 +20,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-extern "C" void FORTRAN_NAME(copy3dbool)(bool *source, bool *dest,
+extern "C" void FORTRAN_NAME(copy3dint)(int *source, int *dest,
                                    int *sdim1, int *sdim2, int *sdim3,
                                    int *ddim1, int *ddim2, int *ddim3,
                                    int *sstart1, int *sstart2, int *sstart3,
@@ -38,7 +39,7 @@ int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid)
  
   if (Grid->FlaggingField == NULL) {
     fprintf(stderr, "FlaggingField absent in grid!\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Set scalars. */
@@ -57,9 +58,9 @@ int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid)
  
   /* Allocate and copy GridFlaggingField. */
  
-  GridFlaggingField = new bool[size];
+  GridFlaggingField = new int[size];
  
-  FORTRAN_NAME(copy3dbool)(Grid->FlaggingField, GridFlaggingField,
+  FORTRAN_NAME(copy3dint)(Grid->FlaggingField, GridFlaggingField,
 			   Grid->GridDimension, Grid->GridDimension+1,
                              Grid->GridDimension+2,
 			   GridDimension, GridDimension+1, GridDimension+2,

@@ -27,6 +27,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -60,9 +61,9 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   hsize_t     slab_stride[4], slab_count[4], slab_block[4];
   hsize_t     attr_count;
  
-  hssize_t    mem_offset;
-  hssize_t    file_offset[4];
-  hssize_t    slab_offset[4];
+  hsize_t    mem_offset;
+  hsize_t    file_offset[4];
+  hsize_t    slab_offset[4];
  
   herr_t      h5_status;
   herr_t      h5_error = -1;
@@ -132,7 +133,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check name
  
   if (name == NULL) {
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Open the HDF5 file and dataset
@@ -276,17 +277,17 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   if (Rank < 1 || Rank > 3) {
     fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (Npart != component_rank_attr) {
     fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (TempInt != Rank) {
     fprintf(stderr, "Rank mismatch in %s.\n", name);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Check dimensions
@@ -295,7 +296,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
     for (dim = 0; dim < Rank; dim++)
       if (TempIntArray[dim] != (EndIndex[dim]-StartIndex[dim]+1)) {
 	fprintf(stderr, "Dimension mismatch in %s.\n", name);
-	return FAIL;
+	ENZO_FAIL("");
       }
  
   // Compute size of HDF5 field

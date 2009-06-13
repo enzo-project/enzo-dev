@@ -22,6 +22,8 @@
 #include <string.h>
 #include <time.h>
  
+#include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -60,8 +62,6 @@ int SetSubgridMarker(TopGridData &MetaData,
 #endif
 double ReturnWallTime(void);
 
-#define NO_TIME_MESSAGING
- 
 /* RebuildHierarchy function */
  
 int RebuildHierarchy(TopGridData *MetaData,
@@ -76,6 +76,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   int dbx = 0;
  
+  JBPERF_START("RebuildHierarchy");
+
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");
  
@@ -154,13 +156,13 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    MoveAllStars(grids2, ContigiousGridList, 
 			 MetaData->TopGridDims[0]) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllStars.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 	if (GridParent[j]->GridData->MoveAllParticles(grids2,
 					   ContigiousGridList) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllParticles.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 
 #ifdef TRANSFER   
@@ -168,7 +170,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (GridParent[j]->GridData->
 	    MoveAllPhotonPackages(grids2, ContigiousGridList) == FAIL) {
 	  fprintf(stderr, "Error in grid->MoveAllPhotonPackages(%"ISYM").\n", level);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 #endif // TRANSFER
 	
@@ -190,11 +192,9 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
-    TIME_MSG("Entering CommunicationTransferParticles.");
-
     if (CommunicationTransferParticles(GridPointer, grids) == FAIL) {
       fprintf(stderr, "Error in CommunicationTransferParticles.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   } // ENDIF level 0
@@ -205,15 +205,13 @@ int RebuildHierarchy(TopGridData *MetaData,
      this. */
 
   if (level > MaximumStaticSubgridLevel) {
-    TIME_MSG("Entering CommunicationCollectParticles.");
     ParticlesAreLocal = false;
     if (CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal, 
 				      SIBLINGS_ONLY) == FAIL) {
       fprintf(stderr, "Error in CommunicationCollectParticles(root).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     ParticlesAreLocal = true;
-    TIME_MSG("After CommunicationCollectParticles.");
   }
 
   /* --------------------------------------------------------------------- */
@@ -284,26 +282,20 @@ int RebuildHierarchy(TopGridData *MetaData,
       ParticlesAreLocal = (i > MaximumStaticSubgridLevel);
       MoveParticles = (ParticlesAreLocal) ? TRUE : FALSE;
 
-      TIME_MSG("Depositing particle mass flagging field");
-
       if (DepositParticleMassFlaggingField(LevelArray, i, 
 					   ParticlesAreLocal) == FAIL) {
 	fprintf(stderr, "Error in DepositParticleMassFlaggingField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       /* 3b.2) Loop over grids creating new (but empty!) subgrids
 	 (This also properly fills out the GridHierarchy tree). */
 
-      TIME_MSG("Finding new subgrids");
-
       for (j = 0; j < grids; j++)
 	if (FindSubgrids(GridHierarchyPointer[j], i) == FAIL) {
 	  fprintf(stderr, "Error in FindSubgrids.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
-
-      TIME_MSG("Found new subgrids");
 
       /* Create a temporary array of the new subgrids (which are on this
 	 processor) for the next step. */
@@ -321,9 +313,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
       /* Share the new grids amoung processors. */
 
-      TIME_MSG("Sharing grids");
       CommunicationShareGrids(GridHierarchyPointer, grids, MoveParticles);
-      TIME_MSG("Finished sharing grids");
 
       /* 3c) Combine the many linked-lists of subgrids into the LevelArray
 	 linked list. */
@@ -343,18 +333,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 the finest level with static subgrids and after load
 	 balancing to distribute memory usage.. */
 
-      tt0 = ReturnWallTime();
-      if (CommunicationCollectParticles(LevelArray, i, ParticlesAreLocal,
-					SUBGRIDS_LOCAL) == FAIL) {
-	fprintf(stderr, "Error in CommunicationCollectParticles(subgrids).\n");
-	return FAIL;
-      }
-      TIME_MSG("Moved subgrid particles");
-      if (MyProcessorNumber == ROOT_PROCESSOR) {
-	tt1 = ReturnWallTime();
-	printf("RebuildHierarchy[AA]: Took %lg seconds to move particles to"
-	       " subgrids.\n", tt1-tt0);
-      }
+      CommunicationCollectParticles(LevelArray, i, ParticlesAreLocal,
+				    SUBGRIDS_LOCAL);
 
       /* 3d) Create an array of the new subgrids. */
  
@@ -369,8 +349,6 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 copy from old subgrids.  For each old subgrid, decrement the
 	 Overlap counter, deleting the grid which it reaches zero. */
 
-      TIME_MSG("Copying zones");
- 
       for (j = 0; j < subgrids; j++) {
 	SubgridHierarchyPointer[j]->ParentGrid->GridData->
 	  DebugCheck("Rebuild parent");
@@ -426,7 +404,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 			      MetaData->LeftFaceBoundaryCondition,
 			      MetaData->RightFaceBoundaryCondition) == FAIL) {
 	  fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	/* For each of the sibling grids, copy data. */
@@ -435,7 +413,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (SiblingList.GridList[j]->CopyZonesFromGrid(
 		                        Temp->GridData, ZeroVector) == FAIL) {
 	    fprintf(stderr, "Error in grid->CopyZonesFromGridCountOnly.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	}
  
@@ -455,35 +433,26 @@ int RebuildHierarchy(TopGridData *MetaData,
       FastSiblingLocatorFinalize(&ChainingMesh);
  
       /* Redistribute grids over processors to Load balance. */
-#ifdef ENABLE_LOAD_BALANCE 
-      TIME_MSG("Load balancing");
-      CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
-				    MoveParticles);
-      TIME_MSG("Finished load balancing");
-#endif
+      switch( LoadBalancing ){
+      case 1:
+	CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
+				      MoveParticles);
+	break;
+      default:
+	
+	break;
+      }
+
 
       /* If this is the finest level with static subgrids, the grids
 	 should be distributed enough to collect the particles on each
 	 host processor. */
 
-      if (i == MaximumStaticSubgridLevel) {
-	tt0 = ReturnWallTime();
-	TIME_MSG("Collecting particles");
+      if (i == MaximumStaticSubgridLevel)
 	for (j = level; j <= MaximumStaticSubgridLevel+1; j++)
 	  if (LevelArray[j] != NULL)
-	    if (CommunicationCollectParticles(LevelArray, j, ParticlesAreLocal,
-					      SIBLINGS_ONLY) == FAIL) {
-	      fprintf(stderr, "Error in CommunicationCollectParticles(siblings).\n");
-	      return FAIL;
-	    }
-	//CommunicationSyncNumberOfParticles(SubgridHierarchyPointer, subgrids);
-	TIME_MSG("Finished collecting particles");
-	if (MyProcessorNumber == ROOT_PROCESSOR) {
-	  tt1 = ReturnWallTime();
-	  printf("RebuildHierarchy[AA]: Took %lg seconds to move particles "
-		 "to correct processor.\n", tt1-tt0);
-	}
-      }
+	    CommunicationCollectParticles(LevelArray, j, ParticlesAreLocal,
+					  SIBLINGS_ONLY);
 
       /* 3h) Clean up the LevelHierarchy entries for the old subgrids.
 	     Also, we can check to see if any old subgrids were missed. */
@@ -493,7 +462,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
 	if (TempLevelArray[i+1]->GridData != NULL) {
 	  fprintf(stderr, "An old subgrid was not deleted.  Why?\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	/* Remove the LevelHierarchy entry for that grid. */
@@ -554,7 +523,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		              SubgridHierarchyPointer[k]->GridData,
 		              ZERO_UNDER_SUBGRID_FIELD, float(k+1)) == FAIL) {
 	      fprintf(stderr, "Error in grid->ZeroSolutionUnderSubgrid.\n");
-	      return FAIL;
+	      ENZO_FAIL("");
 	    }
 	    ToGrids[k] = SubgridHierarchyPointer[k]->GridData;
 	  }
@@ -562,13 +531,13 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridStars(
 				 subgrids, ToGrids, FALSE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridStars.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 
 	  if (GridHierarchyPointer[j]->GridData->MoveSubgridParticlesFast(
 				 subgrids, ToGrids, FALSE) == FAIL) {
 	    fprintf(stderr, "Error in grid->MoveSubgridParticlesFast.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
  
 	}
@@ -581,7 +550,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	if (Temp->GridData->InterpolateBoundaryFromParent
 	    (Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
 	Temp = Temp->NextGridThisLevel;
@@ -596,7 +565,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 #ifdef TRANSFER
   if (SetSubgridMarker(*MetaData, LevelArray, 0) == FAIL) {
     fprintf(stderr, "Error in SetSubgridMarker from RebuildHierarchy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 #endif /* TRANSFER  */
  
@@ -609,6 +578,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* Done for this level. */
  
   ReportMemoryUsage("Rebuild pos 4");
+  JBPERF_STOP("RebuildHierarchy");
   return SUCCESS;
  
 }

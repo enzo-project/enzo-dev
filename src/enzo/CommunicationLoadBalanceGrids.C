@@ -9,13 +9,13 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#define TIMING
 
 #ifdef USE_MPI
 #include "mpi.h"
 #endif
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -27,6 +27,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "communication.h"
+#include "CommunicationUtilities.h"
  
 // Function prototypes
  
@@ -61,10 +62,8 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   out_count ++;
 #endif
 
-#ifdef TIMING
   double tt0, tt1;
   tt0 = ReturnWallTime();
-#endif
  
   GridsMoved = 0;
   for (i = 0; i < NumberOfProcessors; i++)
@@ -206,7 +205,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   /* Receive grids */
 
   if (CommunicationReceiveHandler() == FAIL)
-    return FAIL;
+    ENZO_FAIL("");
 
   /* Update processor numbers */
   
@@ -216,9 +215,12 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
       GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
   }
 
-  if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0)
-    printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM"\n", 
-	   GridsMoved, NumberOfGrids);
+  CommunicationBarrier();
+  if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
+    tt1 = ReturnWallTime();
+    printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
+	   "(%lg seconds elapsed)\n", GridsMoved, NumberOfGrids, tt1-tt0);
+  }
 #ifdef UNUSED 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
@@ -241,12 +243,6 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   timer[2] += endtime - starttime;
   counter[2] ++;
 #endif /* MPI_INSTRUMENTATION */
-
-#ifdef TIMING
-  tt1 = ReturnWallTime();
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    printf("Load balancing: %lg seconds elapsed.\n", tt1-tt0);
-#endif
  
   return SUCCESS;
 }

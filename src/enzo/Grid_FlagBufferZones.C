@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,9 +58,9 @@ int grid::FlagBufferZones()
  
   /* allocate a temporary Flagging field buffer */
  
-  bool *TempBuffer = new bool[size];
+  int *TempBuffer = new int[size];
   for (i = 0; i < size; i++)
-    TempBuffer[i] = false;
+    TempBuffer[i] = 0;
  
   /* Remove points in ghost zones. */
  
@@ -68,9 +69,9 @@ int grid::FlagBufferZones()
       for (j = 0; j < GridDimension[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
 	for (i = 0; i < GridStartIndex[0]; i++)
-          FlaggingField[Index+i] = false;
+          FlaggingField[Index+i] = 0;
 	for (i = GridEndIndex[0]+1; i < GridDimension[0]; i++)
-          FlaggingField[Index+i] = false;
+          FlaggingField[Index+i] = 0;
       }
  
   if (GridDimension[1] > 1)
@@ -79,13 +80,13 @@ int grid::FlagBufferZones()
       for (j = 0; j < GridStartIndex[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
         for (i = 0; i < GridDimension[0]; i++, Index++)
-          FlaggingField[Index] = false;
+          FlaggingField[Index] = 0;
       }
  
       for (j = GridEndIndex[1]+1; j < GridDimension[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
         for (i = 0; i < GridDimension[0]; i++, Index++)
-          FlaggingField[Index] = false;
+          FlaggingField[Index] = 0;
       }
     }
  
@@ -95,13 +96,13 @@ int grid::FlagBufferZones()
       for (k = 0; k < GridStartIndex[2]; k++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
         for (i = 0; i < GridDimension[0]; i++, Index++)
-          FlaggingField[Index] = false;
+          FlaggingField[Index] = 0;
       }
  
       for (k = GridEndIndex[2]+1; k < GridDimension[2]; k++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
         for (i = 0; i < GridDimension[0]; i++, Index++)
-          FlaggingField[Index] = false;
+          FlaggingField[Index] = 0;
       }
     }
  
@@ -120,9 +121,9 @@ int grid::FlagBufferZones()
  
 	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, Index++) {
  
-            TempBuffer[Index] = FlaggingField[Index         ] ||
-	                        FlaggingField[Index - Offset] ||
-	                        FlaggingField[Index + Offset];
+            TempBuffer[Index] += FlaggingField[Index         ] + 
+	                         FlaggingField[Index - Offset] +
+	                         FlaggingField[Index + Offset];
  
 	  }
         }
@@ -151,23 +152,23 @@ int grid::FlagBufferZones()
 	    RefineRegionLeftEdge[0]                  ||
 	    CellLeftEdge[0][i] + 0.5*CellWidth[0][i] >
 	    RefineRegionRightEdge[0])
-	  FlaggingField[Index] = false;
+	  FlaggingField[Index] = 0;
  
 	if (GridRank > 1)
 	  if (CellLeftEdge[1][j] + 0.5*CellWidth[1][j] <
 	      RefineRegionLeftEdge[1]                  ||
 	      CellLeftEdge[1][j] + 0.5*CellWidth[1][j] >
 	      RefineRegionRightEdge[1])
-	    FlaggingField[Index] = false;
+	    FlaggingField[Index] = 0;
  
 	if (GridRank > 2)
 	  if (CellLeftEdge[2][k] + 0.5*CellWidth[2][k] <
 	      RefineRegionLeftEdge[2]                  ||
 	      CellLeftEdge[2][k] + 0.5*CellWidth[2][k] >
 	      RefineRegionRightEdge[2])
-	    FlaggingField[Index] = false;
+	    FlaggingField[Index] = 0;
 	
-	//FlaggingField[Index] = min(FlaggingField[Index], 1);
+	FlaggingField[Index] = min(FlaggingField[Index], 1);
       }
     }
  
@@ -179,7 +180,7 @@ int grid::FlagBufferZones()
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
  
   size = 1;

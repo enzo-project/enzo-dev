@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -50,7 +51,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
     if (CosmologyComputeExpansionFactor(Time + TimeStep, &a, &dadt)
 	== FAIL) {
       fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Loop over dimensions. */
@@ -61,7 +62,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
  
     if (ParticleAcceleration[dim] == NULL) {
       fprintf(stderr, "No ParticleAccleration present.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Update velocities.  */

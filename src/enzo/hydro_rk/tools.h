@@ -3,17 +3,17 @@ inline int array3d_index(int i, int j, int k, int dimx, int dimy, int dimz)
   return i+dimx*(j+k*dimy);
 }
 
-inline float my_MIN(float a, float b, float c)
+inline Eflt32 my_MIN(Eflt32 a, Eflt32 b, Eflt32 c)
 {
-  float r;
+  Eflt32 r;
   r = (a < b) ? a : b;
   r = (r < c) ? r : c;
   return r;
 }
 
-inline double my_MIN(double a, double b, double c)
+inline Eflt64 my_MIN(Eflt64 a, Eflt64 b, Eflt64 c)
 {
-  double r;
+  Eflt64 r;
   r = (a < b) ? a : b;
   r = (r < c) ? r : c;
   return r;

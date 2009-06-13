@@ -14,6 +14,7 @@ OBJS_CONFIG_LIB = \
 	acml_st1.o \
 	AdiabaticExpansionInitialize.o \
 	AdjustRefineRegion.o \
+	AMRH5writer.o \
 	AnalysisBaseClass.o \
 	AnalysisBaseClass_HDF5Utils.o \
 	arccosh.o \
@@ -27,6 +28,8 @@ OBJS_CONFIG_LIB = \
 	calc_photo_rates.o \
 	calc_rad.o \
 	calc_rates.o \
+	CallProblemSpecificRoutines.o \
+	CallPython.o \
 	CheckEnergyConservation.o \
 	CheckForOutput.o \
 	CheckForResubmit.o \
@@ -84,6 +87,8 @@ OBJS_CONFIG_LIB = \
 	cray_x1_fft64.o \
 	cray_x1_st1_fft64.o \
 	CreateSUBlingList.o \
+	CreateSiblingList.o \
+	CreateFluxes.o\
 	DeleteFluxes.o \
 	DeleteSUBlingList.o \
 	DepositBaryons.o \
@@ -98,6 +103,8 @@ OBJS_CONFIG_LIB = \
 	EvolveHierarchy.o \
         expand_terms.o \
 	ExternalBoundary_AddField.o \
+	ExposeDataHierarchy.o \
+	ExposeGridHierarchy.o \
 	ExternalBoundary_AppendForcingToBaryonFields.o \
 	ExternalBoundary_constructor.o \
 	ExternalBoundary_DetachForcingFromBaryonFields.o \
@@ -120,6 +127,7 @@ OBJS_CONFIG_LIB = \
 	FastSiblingLocatorFinalize.o \
 	FastSiblingLocatorInitialize.o \
 	FastSiblingLocatorInitializeStaticChainingMesh.o \
+	FinalizeFluxes.o \
 	PrepareGravitatingMassField.o \
 	RebuildHierarchy.o \
         feuler_sweep.o \
@@ -198,6 +206,7 @@ OBJS_CONFIG_LIB = \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_CoolingTestInitializeGrid.o \
+	Grid_ConvertToNumpy.o \
 	Grid_CopyBaryonFieldToOldBaryonField.o \
 	Grid_CopyOverlappingMassField.o \
 	Grid_CopyParentToGravitatingFieldBoundary.o \
@@ -269,10 +278,10 @@ OBJS_CONFIG_LIB = \
 	Grid_MoveSubgridParticlesFast.o \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
+	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
-	Grid_OutputGridMovieData.o \
 	Grid_OutputStarParticleInformation.o \
 	Grid_PPMDirectEuler.o \
 	Grid_PrepareBoundaryFluxes.o \
@@ -354,7 +363,9 @@ OBJS_CONFIG_LIB = \
 	ImplosionInitialize.o \
 	InitializeEquilibriumCoolData.o \
 	InitializeLocal.o \
+	InitializeMovieFile.o \
 	InitializeNew.o \
+	InitializePythonInterface.o \
 	InitializeRadiationFieldData.o \
 	InitializeRateData.o \
 	interp1d.o \
@@ -395,6 +406,7 @@ OBJS_CONFIG_LIB = \
 	OptimizedUnigridCommunicationTranspose.o \
 	Options.o \
 	OutputAsParticleData.o \
+	OutputFromEvolveLevel.o\
 	OutputLevelInformation.o \
 	P_ColumnFormat.o \
 	performance.o \
@@ -453,6 +465,7 @@ OBJS_CONFIG_LIB = \
 	SedovBlastInitialize.o \
 	select_fft.o \
 	SetDefaultGlobalValues.o \
+	SetLevelTimeStep.o \
 	sgi_st1_fft64.o \
 	ShockInABoxInitialize.o \
 	ShockPoolInitialize.o \
@@ -490,6 +503,7 @@ OBJS_CONFIG_LIB = \
 	star_maker2.o \
 	star_maker3.o \
 	star_maker4.o \
+	star_maker7.o \
 	SupernovaRestartInitialize.o \
 	SysMkdir.o \
 	TestGravityCheckResults.o \
@@ -520,7 +534,6 @@ OBJS_CONFIG_LIB = \
 	WriteDataHierarchy.o \
 	WriteHierarchyStuff.o \
 	WriteMemoryMap.o \
-	WriteMovieData.o \
 	WriteParameterFile.o \
 	WriteRadiationData.o \
 	WriteStarParticleData.o \

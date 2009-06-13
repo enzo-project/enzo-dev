@@ -14,6 +14,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,28 +48,25 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
   if (WriteTime < 0) {
     if (Grid->GridData->WriteGrid(fptr, base_name, GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else
     if (Grid->GridData->WriteGridInterpolate(WriteTime, fptr, base_name,
 					     GridID) == FAIL) {
       fprintf(stderr, "Error in grid->WriteGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   // Write movie data if the last output of the run
 
   int Zero = 0;
-  if ((WriteTime == -666) && (MovieSkipTimestep != INT_UNDEFINED)) {
-    if (Grid->GridData->WriteNewMovieData(MetaData.NewMovieLeftEdge,
-					  MetaData.NewMovieRightEdge,
-					  MetaData.StopTime,
-					  1, Zero) == FAIL) {
-      fprintf(stderr, "Error in WriteNewMovieData.\n");
-      return FAIL;
-    }
-  }
+  if ((WriteTime == -666) && (MovieSkipTimestep != INT_UNDEFINED))
+    Grid->GridData->WriteNewMovieData
+      (MetaData.NewMovieLeftEdge, MetaData.NewMovieRightEdge,
+       MetaData.TopGridDims[0], MetaData.StopTime, MetaData.AmiraGrid, 
+       1, MetaData.CycleNumber, TRUE, MetaData.TimestepCounter, Zero, 
+       WriteTime);
 
   /* Write out pointer information for the next grid this level */
  
@@ -83,7 +81,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
     if (WriteDataHierarchy(fptr, MetaData, Grid->NextGridThisLevel, 
 			   base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataHierarchy(1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  
@@ -100,7 +98,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
     if (WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel, 
 			   base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataHierarchy(1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  

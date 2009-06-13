@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "units.h"
 #include "typedefs.h"
@@ -37,7 +38,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
     if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
                           TimeUnits, VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in CosmologyGetUnits.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else {

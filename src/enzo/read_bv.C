@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 
 #include "typedefs.h"
@@ -36,8 +37,8 @@ int READ_BV(float *bv_buffer,
 
   hsize_t     bsize;
 
-  hssize_t    mem_offset;
-  hssize_t    file_offset[4];
+  hsize_t    mem_offset;
+  hsize_t    file_offset[4];
 
   herr_t      h5_status;
   herr_t      h5_error = -1;

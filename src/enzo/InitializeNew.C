@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdio.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -36,6 +37,7 @@
  
 // Function prototypes
  
+int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
@@ -190,7 +192,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if ((fptr = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Error opening parameter file.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Open output file
@@ -198,7 +200,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((Outfptr = fopen(outfilename, "w")) == NULL) {
       fprintf(stderr, "Error opening parameter output file %s\n", outfilename);
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   // set the default MetaData values
@@ -209,7 +211,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
     fprintf(stderr, "Error in ReadParameterFile.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Set the number of particle attributes, if left unset
@@ -241,7 +243,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
     fprintf(stderr, "TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Error check the dimensions and at the same time add ghost zones
@@ -250,7 +252,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (MetaData.TopGridDims[dim] < 1 || MetaData.TopGridDims[dim] > 8192) {
       fprintf(stderr, "TopGridDims[%"ISYM"] = %"ISYM" ill defined.\n", dim,
 	      MetaData.TopGridDims[dim]);
-      return FAIL;
+      ENZO_FAIL("");
     }
     MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
                      MetaData.TopGridDims[dim] + 2*DEFAULT_GHOST_ZONES : 1;
@@ -293,7 +295,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType == 0) {
     fprintf(stderr, "No problem specified.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   int ret = INT_UNDEFINED;
@@ -511,22 +513,26 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ret == INT_UNDEFINED) {
     fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (ret == FAIL) {
     fprintf(stderr, "Error in problem initialization.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   if (debug)
     printf("InitializeNew: Finished problem initialization.\n");
+
+  /* If requested, initialize streaming data files. */
+
+  InitializeMovieFile(MetaData, TopGrid);
  
   // Do some error checking
  
   if (MetaData.StopTime == FLOAT_UNDEFINED) {
     fprintf(stderr, "StopTime never set.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 #ifdef MEM_TRACE
@@ -549,14 +555,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       if ((BCfptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
 	fprintf(stderr, "Error opening BC file: %s\n",
 		MetaData.BoundaryConditionName);
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       fprintf(stderr, "Opened BC file mode r\n");
 
       if (Exterior.ReadExternalBoundary(BCfptr) == FAIL) {
 	fprintf(stderr, "Error in ReadExternalBoundary.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       fclose(BCfptr);
     }
@@ -591,7 +597,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 				    Dummy, Dummy)
 	    == FAIL) {
 	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
  
       // Initialize particle boundary conditions
@@ -664,7 +670,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (TracerParticleCreation(fptr, TopGrid, MetaData) == FAIL) {
     fprintf(stderr, "Error in TracerParticleCreation\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Write the MetaData/global values to the Parameter file
@@ -672,7 +678,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (WriteParameterFile(Outfptr, MetaData) == FAIL) {
       fprintf(stderr, "Error in WriteParameterFile.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   if (debug)
@@ -723,12 +729,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (PartitionNestedGrids) {
       if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
         fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
     } else {
       if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
         fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-        return FAIL;
+        ENZO_FAIL("");
       }
     }
   }
@@ -744,7 +750,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ParallelRootGridIO == TRUE && ProblemType == 60)
     if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
       fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
  

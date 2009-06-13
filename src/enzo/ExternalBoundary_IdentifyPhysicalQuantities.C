@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,7 +40,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((DensNum = FindField(Density, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "EBIPQ: Cannot find density.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Find Total energy, if possible. */
@@ -47,7 +48,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((TENum = FindField(TotalEnergy, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "Cannot find total energy.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Find gas energy, if possible. */
@@ -56,7 +57,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((GENum = FindField(InternalEnergy, BoundaryFieldType,
 			   NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find gas energy.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Find Velocity1, if possible. */
@@ -64,7 +65,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
   if ((Vel1Num = FindField(Velocity1, BoundaryFieldType, NumberOfBaryonFields))
       < 0) {
     fprintf(stderr, "Cannot find Velocity1.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Find Velocity2, if possible. */
@@ -73,7 +74,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((Vel2Num = FindField(Velocity2, BoundaryFieldType,
 			     NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Cannot find Velocity2.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   /* Find Velocity3, if possible. */
@@ -82,7 +83,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum,
     if ((Vel3Num = FindField(Velocity3, BoundaryFieldType,
 			     NumberOfBaryonFields)) == 0) {
       fprintf(stderr, "Cannot find Velocity3.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   return SUCCESS;

@@ -1,3 +1,7 @@
+#ifdef __macros_and_parameters_h_
+ERROR: need performance.h to be included before macros_and_parameters.h
+#endif
+
 /*****************************************************************************
  *                                                                           *
  * Copyright 2006 James Bordner
@@ -33,77 +37,29 @@
 //----------------------------------------------------------------------
 // jbPerf
 //----------------------------------------------------------------------
-
 #ifdef USE_JBPERF
 
-#   include "jbPerf.h"
+#   include "jbPerf.h" // THIS MUST COME BEFORE int IS REDEFINED
 
-void jbPerfInitialize (int max_level);
-
-#define JB_ITER_PER_SEGMENT 1  /* How frequently to dump data to files. */
-#define JB_PERF_EL             /* Whether to include EL?? regions-- */
-                               /*   Undefine if jbPerf overhead is too much. */
-#define JB_PERF_LEVELS          /* Whether to accumulate jbPerf data for */
-                               /*   individual levels--undefine if jbPerf */
-                               /*   overhead or memory usage is too much. */
+#   define JB_ITER_PER_SEGMENT 1  /* How frequently to dump data to files. */
 
 #endif /* USE_JBPERF */
 
-//----------------------------------------------------------------------
-// jbPerf && HDF5
-//----------------------------------------------------------------------
+#ifdef USE_JBPERF
 
-// Whether to instrument HDF5 read/writes
+#  define JBPERF_BEGIN(segment)    jbPerf.begin (segment)
+#  define JBPERF_END(segment)      jbPerf.end (segment)
+#  define JBPERF_START(region)     jbPerf.start (region)
+#  define JBPERF_STOP(region)      jbPerf.stop (region)
 
-// NOT IMPLEMENTED YET
-
-#if defined (USE_JBPERF) && defined(USE_JBPERF_HDF5)
-#   define JBPERF_HDF5_READ(DATASET) \
-    jbPerf.increment ("hdf5-read-calls",1); \
-    jbPerf.increment ("hdf5-read-bytes",H5Dget_storage_size (DATASET));
-#   define JBPERF_HDF5_WRITE(DATASET) \
-    jbPerf.increment ("hdf5-write-calls",1); \
-    jbPerf.increment ("hdf5-write-bytes",H5Dget_storage_size (DATASET));
 #else
-#   define JBPERF_HDF5_READ(DATASET) ;
-#   define JBPERF_HDF5_WRITE(DATASET) ;
+
+#  define JBPERF_BEGIN(segment)    /* This space intentionally left blank */ ;
+#  define JBPERF_END(segment)      /* This space intentionally left blank */ ;
+#  define JBPERF_START(region)     /* This space intentionally left blank */ ;
+#  define JBPERF_STOP(region)      /* This space intentionally left blank */ ;
+
 #endif
-
-//----------------------------------------------------------------------
-// jbPerf levels: use lower levels if overhead is too big
-//----------------------------------------------------------------------
-
-#ifdef USE_JBPERF
-
-#   if defined (JBPERF_LEVEL_1)   /* Only instrument EvolveLevel as a whole */
-#      define JBPERF_START(region)     ;
-#      define JBPERF_STOP(region)      ;
-#      define JBPERF_START_LOW(region) ;
-#      define JBPERF_STOP_LOW(region)  ;
-#   endif
-
-#   if defined (JBPERF_LEVEL_2)   /* Instrument major EvolveLevel regions */
-#      define JBPERF_START(region)     jbPerf.start (region);
-#      define JBPERF_STOP(region)      jbPerf.stop (region);
-#      define JBPERF_START_LOW(region) 
-#      define JBPERF_STOP_LOW(region)  
-#   endif
-
-#   if defined (JBPERF_LEVEL_3)   /* Instrument all EvolveLevel regions */
-#      define JBPERF_START(region)     jbPerf.start (region);
-#      define JBPERF_STOP(region)      jbPerf.stop (region);
-#      define JBPERF_START_LOW(region) jbPerf.start (region);
-#      define JBPERF_STOP_LOW(region)  jbPerf.stop (region);
-#   endif
-
-#else
-
-#   define JBPERF_START(region)     ;
-#   define JBPERF_STOP(region)      ;
-#   define JBPERF_START_LOW(region) ;
-#   define JBPERF_STOP_LOW(region)  ;
-
-#endif /* USE_JBPERF */
 
 #endif /* PERFORMANCE_H */
 

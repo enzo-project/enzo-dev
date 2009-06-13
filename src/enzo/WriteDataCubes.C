@@ -12,6 +12,7 @@
  
 #include <string.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,13 +40,13 @@ int WriteDataCubes(HierarchyEntry *Grid, int TGdims[],
   if (WriteTime < 0) {
     if (Grid->GridData->WriteCube(base_name, GridID, TGdims) == FAIL) {
       fprintf(stderr, "Error in grid->WriteCube.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else
     if (Grid->GridData->WriteCubeInterpolate(WriteTime, base_name, GridID, TGdims) == FAIL) {
       fprintf(stderr, "Error in grid->WriteCubeInterpolate.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   NextGridThisLevelID = GridID + 1;
@@ -55,7 +56,7 @@ int WriteDataCubes(HierarchyEntry *Grid, int TGdims[],
     GridID++;
     if (WriteDataCubes(Grid->NextGridThisLevel, TGdims, base_name, GridID, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataCubes (1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  

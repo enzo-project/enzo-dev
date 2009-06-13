@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,7 +43,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   if (FlaggingField == NULL) {
     fprintf(stderr, "Flagging Field is undefined.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* compute size */
@@ -58,7 +59,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find radiative transfer fields. */
@@ -69,7 +70,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Get density units. */
@@ -79,7 +80,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Calculate conversion factor to optical depth */
@@ -114,7 +115,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 	      //	      max(tau0, MAX(tau1,tau2)) > MAX_TAU) {
 	      tau1 > MAX_TAU) {
 
-	    FlaggingField[index+i] = true;
+	    FlaggingField[index+i]++;
 	    NumberOfFlaggedCells_TAU++;
 
 	    avgTau  += tau1;//tau0 + tau1 + tau2;
@@ -151,7 +152,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
 
   if (NumberOfFlaggedCells_TAU) {

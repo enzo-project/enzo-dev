@@ -1,0 +1,9 @@
+&parameters
+nfiles = 1
+inputfiles = 'GridDensity'
+degramax = 4
+recurse = .true.
+shift = 0 0 0
+width_in = 0.3
+buffercells = 4
+/

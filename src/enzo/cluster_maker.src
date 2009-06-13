@@ -195,7 +195,7 @@ c               if (bmass .lt. starmass) goto 10
 c
 c              7) Check if metallicity is greater than critical value
 c
-               if (imetal .eq. 1 .and. metal(i,j,k) .gt. metalcrit)
+               if (imetal .eq. 1 .and. metal(i,j,k) .lt. metalcrit)
      $              goto 10
 c
 c              8) Check if molecular hydrogren fraction is greater than

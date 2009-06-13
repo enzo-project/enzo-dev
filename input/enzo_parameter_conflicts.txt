@@ -1,0 +1,29 @@
+{
+	# comments welcome
+	SomeParameter == 1
+	SomeOtherParameter == 3,4,5
+	Message = Write your error message here.
+}
+
+Everything between bracket sets is ignored.
+
+{
+	// comment this way too
+	AnotherParameter == 0
+	OneOtherParameter > 0
+	Message = I made this up.
+}
+
+# Actual conflicts
+
+{
+	HydroMethod == 3
+	ComovingCoordinates == 1
+	Message = HydroMethod 3 with ComovingCoordinates is not checked, proceed with caution.
+}
+
+{
+	HydroMethod == 4
+	ComovingCoordinates == 1
+	Message = MydroMethod 4 cannot be used with ComovingCoordinates until someone updates it.
+}

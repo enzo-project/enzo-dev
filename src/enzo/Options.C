@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <strings.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,23 +68,23 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, " 64 bit Integer initial conditions\n");
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
     fprintf(opf, " Float precision is 32 bits\n");
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
     fprintf(opf, " Float precision is 64 bits\n");
 #endif
 
-#ifdef p4
+#ifdef CONFIG_PFLOAT_4
     fprintf(opf, " Position and time precision is 32 bits - NOT SUPPORTED!\n");
 #endif
 
-#ifdef p8
+#ifdef CONFIG_PFLOAT_8
     fprintf(opf, " Position and time precision is 64 bits\n");
 #endif
 
-#ifdef p16
+#ifdef CONFIG_PFLOAT_16
     fprintf(opf, " Position and time precision is 128 bits\n");
 #endif
 
@@ -94,23 +95,23 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Out-of-core Top Grid boundary conditions\n");
 #endif
 
-#ifdef SIB1
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 1\n");
 #endif
 
-#ifdef SIB2
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 2\n");
 #endif
 
-#ifdef SIB3
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 3\n");
 #endif
 
-#ifdef SIB4
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 4\n");
 #endif
 
-#ifdef SIB5
+#ifdef FAST_SIB
     fprintf(opf, "  Fast Sibling Locator 5\n");
 #endif
 
@@ -164,12 +165,6 @@ int ENZO_OptionsinEffect(void)
 
 #ifdef FORCE_MSG_PROGRESS
     fprintf(opf, "  Force message progress with MPI_Barrier calls\n");
-#endif
-
-#ifdef ENABLE_LOAD_BALANCE
-    fprintf(opf, "  Load balancing enabled\n");
-#else
-    fprintf(opf, "  Load balancing disabled\n");
 #endif
 
 #ifdef ISOLATED_GRAVITY

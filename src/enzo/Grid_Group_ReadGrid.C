@@ -23,6 +23,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -114,55 +115,55 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if (fscanf(fptr, "GridRank = %"ISYM"\n", &GridRank) != 1) {
       fprintf(stderr, "Error reading GridRank.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (fscanf(fptr, "GridDimension = ") != 0) {
       fprintf(stderr, "Error reading GridDimension(0).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (ReadListOfInts(fptr, GridRank, GridDimension) == FAIL) {
       fprintf(stderr, "Error reading GridDimension(1).\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     fscanf(fptr, "GridStartIndex = ");
  
     if (ReadListOfInts(fptr, GridRank, GridStartIndex) == FAIL) {
       fprintf(stderr, "Error reading GridStartIndex.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     fscanf(fptr, "GridEndIndex = ");
  
     if (ReadListOfInts(fptr, GridRank, GridEndIndex) == FAIL) {
       fprintf(stderr, "Error reading GridEndIndex.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     fscanf(fptr, "GridLeftEdge = ");
  
     if (ReadListOfFloats(fptr, GridRank, GridLeftEdge) == FAIL) {
       fprintf(stderr, "Error reading GridLeftEdge.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     fscanf(fptr, "GridRightEdge = ");
  
     if (ReadListOfFloats(fptr, GridRank, GridRightEdge) == FAIL) {
       fprintf(stderr, "Error reading GridRightEdge.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (fscanf(fptr, "Time = %"PSYM"\n", &Time) != 1) {
       fprintf(stderr, "Error reading Time.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
       fprintf(stderr, "Error reading SubgridsAreStatic.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Read baryon field quantities. */
@@ -170,7 +171,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
 	       &NumberOfBaryonFields) != 1) {
       fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     if (NumberOfBaryonFields > 0) {
  
@@ -178,14 +179,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
       if (ReadListOfInts(fptr, NumberOfBaryonFields, FieldType) == FAIL) {
 	fprintf(stderr, "Error reading FieldType.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       fgetpos(fptr, &BaryonFileNamePosition); //AK
  
       if (fscanf(fptr, "BaryonFileName = %s\n", procfilename) != 1) {
 	fprintf(stderr, "Error reading BaryonFileName.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       fscanf(fptr, "CourantSafetyNumber    = %"FSYM"\n", &CourantSafetyNumber);
@@ -198,7 +199,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if (fscanf(fptr, "NumberOfParticles = %"ISYM"\n", &NumberOfParticles) != 1) {
       fprintf(stderr, "error reading NumberOfParticles.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     if (NumberOfParticles > 0) {
@@ -207,7 +208,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     
       if (fscanf(fptr, "ParticleFileName = %s\n", procfilename) != 1) {
 	fprintf(stderr, "Error reading ParticleFileName.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
  
@@ -216,7 +217,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (SelfGravity)
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
 	fprintf(stderr, "Error reading GravityBoundaryType.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
   }
 
@@ -612,7 +613,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             abs_type > NUM_PARTICLE_TYPES-1) {
           fprintf(stderr, "file: %s: particle %"ISYM" has unknown type %"ISYM"\n",
                   name, i, ParticleType[i]);
-          return FAIL;
+          ENZO_FAIL("");
         }
       }
  

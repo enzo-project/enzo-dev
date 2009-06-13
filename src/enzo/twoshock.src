@@ -88,12 +88,12 @@ c
 
 !     Tolerance can be relaxed to reduce the cost of this routine
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
       real tolerance
       parameter (tolerance = 1.0e-07)
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
       real tolerance
       parameter (tolerance = 1.0e-14)
 #endif

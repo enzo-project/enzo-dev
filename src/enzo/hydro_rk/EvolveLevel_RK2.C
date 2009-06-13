@@ -69,7 +69,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         SiblingGridList SiblingList[],
                         int level, TopGridData *MetaData);
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-                        int level, TopGridData *MetaData);
+                        int level, TopGridData *MetaData, double When);
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
@@ -473,9 +473,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     When = 0.5;
 
-#ifdef SIB3
+#ifdef FAST_SIB
     if (SelfGravity)
-      if ((LevelArray, SiblingList,
+      if (PrepareDensityField(LevelArray, SiblingList,
 			      level, MetaData, When) == FAIL) {
 	fprintf(stderr, "Error in PrepareDensityField.\n");
 	return FAIL;
@@ -714,10 +714,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	/* Do star particle creation and feedback */
 
-	if (Grids[grid]->GridData->StarParticleHandler(level) == FAIL) {
-	  fprintf(stderr, "Error in grid->StarParticleHandler.\n");
-	  return FAIL;
-	}
+
+      Grids[grid]->GridData->StarParticleHandler
+	(Grids[grid]->NextGridNextLevel, level);
       }
 
       if ((SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity) 

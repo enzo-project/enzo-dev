@@ -3,10 +3,10 @@
   By John Wise
   
   Created : 20 Jan 2004
-  Modified: 27 Feb 2005
+  Modified: 25 Oct 2006
 
   Purpose : To output grid data into a stacked datafile and to record
-  its exisitence in an index file.
+  its existence in an index file.
 
   Input   : instance = 0 : Created
                        1 : Update
@@ -33,10 +33,16 @@
 	                  grids' index files.
 	    (27 Feb 2005) Now writes every N-th level L timestep.  No
 	                  longer recursive.
+            (Feb-Mar 2006) Ji-hoon Kim and I modified this routine to 
+	                   write data in an Amira-readable format.
+	    (Oct 2006)    Cleaned up, and changed index file back to 
+	                  Feb 2005 version.
 ------------------------------------------------------------------------*/
 
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -46,27 +52,54 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
+#include "AMRH5writer.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 
-int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
-			    FLOAT StopTime, int lastMovieStep, int &cycle)
+//  --JHK notes--
+//  import RootResolution from TopGridDimension[0] to calculate levelIdx
+//  also had to change : WriteStreamData.C, WriteDataHierarchy.C, Grid.h
+//  import TimestepCounter to calculate the timeStep
+//  also had to look at : TopGridData.C, WriteStreamData.C,
+//  WriteDataHierarchy.C, EvolveLevel.C, SetDefaultGlobalValues.C,
+//  Grid.h
+
+int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
+			    int RootResolution, FLOAT StopTime, 
+			    AMRHDF5Writer &AmiraGrid,
+			    int lastMovieStep, int TopGridCycle, 
+			    int WriteMe, int TimestepCounter, int open, 
+			    FLOAT WriteTime)
 {
 
   static char suffix[] = ".mdat";
   static char partSuffix[] = ".part";
+
   static char indexSuffix[] = ".idx";
+
   static long maxEntriesAll = 40000;    // Maximum entries for all processors
-  long maxEntries = maxEntriesAll / NumberOfProcessors;
+  long maxEntries = maxEntriesAll;      // / NumberOfProcessors;
 
   /* Declarations */
-  int i, j, k, dim, field, size=1, ret, ActiveDim[MAX_DIMENSION], instance;
-  int dataWritten;
+  int i, j, k, dim, field, size=1, allsize=1, vcsize = 1;
+  int ret, gridindex, tempindex;
+  int ActiveDim[MAX_DIMENSION], instance;
+  int dataWritten, StartNewFile = FALSE;
   FLOAT CurrentRedshift, Left[MAX_DIMENSION], Right[MAX_DIMENSION], a = 1, dadt;
-  float *temp;
-  char fileID[3], fieldID[2];
-  FILE *index = NULL;
+  float *temp, *ThisField;
+  float *temperature;
+  char fileID[3], pid[6];
+  const double ln2 = 0.69314718;
+  int TemperatureField = NumberOfBaryonFields+1;
+  int thislevel;   
+  float root_dx = 1.0 / RootResolution;
+  
+  double doubleTime, doubleRedshift, *doubletemp;
+  char *referenceFileName = NULL, *referenceDataPath = NULL;
+
+  FILE *index = NULL; 
+  FILE *index2 = NULL;
   FILE *movie = NULL;
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -78,13 +111,14 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
   /* Determine whether to output, its instance, and if to increment
      the counter */
-  instance = (TimestepsSinceCreation++ != 0);
-  if (lastMovieStep) instance = 2;
+  instance = (lastMovieStep) ? 2 : 0;
 
   // Flag to write data if it's the last timestep or the n-th timestep
-  dataWritten = (lastMovieStep || cycle % MovieSkipTimestep == 0 || 
-		 instance == 0);
-  
+  dataWritten = (lastMovieStep || WriteMe);
+
+  // If not n-th timestep, exit
+  if (!dataWritten) return SUCCESS;
+
   /* If outside the region, skip the grid */
   
   for (dim = 0; dim < GridRank; dim++) {
@@ -94,225 +128,346 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       return SUCCESS;
   }
 
-  char pid[MAX_TASK_TAG_SIZE];
-  sprintf(pid, "_%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
-
-  /* Check if we need to start a new moviefiles. */
-  if (MovieEntriesPP[ProcessorNumber] > maxEntries) {
-    NewMovieDumpNumber++;
-    NewMovieEntries = 0;
-    for (i=0; i<NumberOfProcessors; i++)
-      MovieEntriesPP[i] = 0;
-    MaxMovieFilenum = max(MaxMovieFilenum, NewMovieDumpNumber);
+  int nFields = 0;
+  int NeedTemperature = FALSE;
+  while (MovieDataField[nFields] != INT_UNDEFINED) {
+    if (MovieDataField[nFields] == TEMPERATURE_FIELD) 
+      NeedTemperature = TRUE;
+    nFields++;
   }
+  if (NumberOfBaryonFields <= 0) nFields = 0;
+
+  /* Find the density field. */
+
+  int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
 
   /* Get expansion factor */
-  if (ComovingCoordinates)
+  if (ComovingCoordinates) {
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
       return FAIL;
     }
-  CurrentRedshift = (1 + InitialRedshift)/a - 1;
+    CurrentRedshift = (1 + InitialRedshift)/a - 1;
+  } else
+    CurrentRedshift = -1.0;
+
+  /* Check if we need to start a new moviefile (at top grid timesteps). */
+
+  if (NewMovieDumpNumber < TopGridCycle && !open) {
+    //printf("Inside: %d %d %d\n", NewMovieDumpNumber, TopGridCycle, open);
+    StartNewFile = TRUE;
+    NewMovieDumpNumber = TopGridCycle;
+
+    char **FieldNames = new char*[nFields];
+    for (field = 0; field < nFields; field++) {
+      FieldNames[field] = new char[64];
+      if (MovieDataField[field] != TEMPERATURE_FIELD)
+	strcpy(FieldNames[field], DataLabel[MovieDataField[field]]);
+      else
+	strcpy(FieldNames[field], "Temperature");
+    }
+
+    char *AmiraFileName = new char[80];
+    int *RefineByArray = new int[3];
+    bool error = FALSE;
+    hid_t DataType = H5T_NATIVE_FLOAT;
+    char Amira_fileID[5], Amira_pid[6];
+  
+    staggering stag = (MovieVertexCentered) ? VERTEX_CENTERED : CELL_CENTERED;
+    fieldtype field_type = SCALAR;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) RefineByArray[dim] = RefineBy;
+
+    sprintf(Amira_pid, "_P%3.3d", MyProcessorNumber);
+    sprintf(Amira_fileID, "%4.4d", NewMovieDumpNumber);
+
+    strcpy(AmiraFileName, "AmiraData");
+    strcat(AmiraFileName, Amira_fileID);
+    strcat(AmiraFileName, Amira_pid);
+    strcat(AmiraFileName, ".hdf5");
+    
+    if (Movie3DVolumes > 0) {
+      AmiraGrid.AMRHDF5Close();
+      AmiraGrid.AMRHDF5Create(AmiraFileName, RefineByArray, 
+			      DataType, stag, field_type, TopGridCycle,
+			      Time, CurrentRedshift, root_dx, 0, 
+			      (MyProcessorNumber == ROOT_PROCESSOR),
+			      nFields, (NewMovieParticleOn > 0),
+			      NumberOfParticleAttributes, FieldNames, 
+			      error);
+      //printf("NewMovie: Opened movie data file %s\n", AmiraFileName);
+    }
+
+    if (error) {
+      fprintf(stderr, "Error in AMRHDF5Writer %s.\n", AmiraFileName);
+      return FAIL;
+    }
+
+    for (field = 0; field < nFields; field++)
+      delete [] FieldNames[field];
+    delete [] FieldNames;
+    delete [] AmiraFileName;
+    delete [] RefineByArray;
+
+  } /* ENDIF start new movie file */
 
   /* Subtract ghost cells from dimensions */
 
-  sprintf(fileID, "%3.3d", NewMovieDumpNumber);
   for (dim = 0; dim < GridRank; dim++)
     ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
 
-  for (field = 0; field < MAX_MOVIE_FIELDS; field++) {
+  int ghostzoneFlags[6];
+  int numGhostzones[3];
+  int AmiraDims[3];
+  Eint64 integerOrigin[3];
+  double delta[3], doubleGridLeftEdge[3];
 
-    /* Break if undefined */
-    if (MovieDataField[field] == INT_UNDEFINED) break;
-    
-    /* Write index only on first field */
-    if (field == 0) {
+  //PART 1
 
-      /* Create index filename */
-      char *iname = new char[MAX_NAME_LENGTH];
-      strcpy(iname, NewMovieName);
-      strcat(iname, fileID);
-      strcat(iname, indexSuffix);
-      strcat(iname, pid);
+  for (dim=0; dim<GridRank; dim++) {
+    size *= ActiveDim[dim];
+    vcsize *= ActiveDim[dim]+1;
+    allsize *= GridDimension[dim];
+  }
 
-      /* Open index */
-      if (NewMovieEntries == 0) {
-	if ((index = fopen(iname, "w")) == NULL) {
-	  fprintf(stderr, "Error opening movie index file %s\n", iname);
-	  return FAIL;
-	} 
-      } else {
-	if ((index = fopen(iname, "a")) == NULL) {
-	  fprintf(stderr, "Error opening movie index file %s\n", iname);
-	  return FAIL;
-	} 
-      }
+  /* Create attributes for this grid's entry */
 
-      delete [] iname;
+  thislevel = (int) nint( -log( *CellWidth[0] * RootResolution) / ln2);
+  doubleTime = (double) WriteTime;
+  doubleRedshift = (double) CurrentRedshift;
 
-      fwrite(&NewMovieEntries, 	 	sizeof(int), 1, index);
-      fwrite(&Time, 		 	sizeof(FLOAT), 1, index);
-      fwrite(&dtFixed, 		 	sizeof(float), 1, index);
-      fwrite(&CurrentRedshift, 	 	sizeof(FLOAT), 1, index);
-      fwrite(&ActiveDim, 	 	sizeof(int), 3, index);
-      fwrite((void *) CellWidth[0], 	sizeof(FLOAT), 1, index);
-      fwrite(&GridLeftEdge, 	 	sizeof(FLOAT), 3, index);
-      fwrite(&MovieDataField, 	 	sizeof(int), MAX_MOVIE_FIELDS, index);
-      fwrite(&NumberOfParticles, 	sizeof(int), 1, index);
-      fwrite(&instance, 	 	sizeof(int), 1, index);
-      fwrite(&dataWritten, 		sizeof(int), 1, index);
+  for (i = 0; i < 6; i++)
+    ghostzoneFlags[i] = 0;
 
-      fclose(index);
+  int DimensionCorrection = (MovieVertexCentered) ? 1 : 0;
 
-      // If not n-th timestep, exit
-      if (!dataWritten) return SUCCESS;
+  for (dim = 0; dim < 3; dim++) {
+    numGhostzones[dim] = 0;
+    integerOrigin[dim] = (Eint64) (GridLeftEdge[dim] / *CellWidth[0]);
+    delta[dim] = (double) *CellWidth[0];
+    //AmiraDims[2-dim] = ActiveDim[dim];
+    AmiraDims[dim] = ActiveDim[dim] + DimensionCorrection;
+    doubleGridLeftEdge[dim] = (double) GridLeftEdge[dim];
+  }
 
-    } /* END: Create index (root_processor) */
+  if (NeedTemperature == TRUE) {
+    temperature = new float[allsize];
 
-    /* Now output the field to the movie file */
-
-    // Determine grid size
-    for (dim=0; dim<GridRank; dim++) size *= ActiveDim[dim];
-
-    temp = new float[size];
-
-    /* Prepare to write the field to file */
-
-    // Check if the field isn't temperature
-    if (MovieDataField[field] != NumberOfBaryonFields) {
-      // Copy non-ghost grid points into temp array
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	    temp[(i-GridStartIndex[0])                           + 
-		 (j-GridStartIndex[1])*ActiveDim[0]              + 
-		 (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-	      BaryonField[MovieDataField[field]]
-	      [i + j*GridDimension[0] + 
-	       k*GridDimension[0]*GridDimension[1]];
-    } else {
-
-    // Separate but very similar procedure for temperature
-      float *temperature = new float[size];
-      if (this->ComputeTemperatureField(temperature) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
-      }
-
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	    temp[(i-GridStartIndex[0])                           + 
-	         (j-GridStartIndex[1])*ActiveDim[0]              + 
-	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-	      temperature[(k*GridDimension[1] + j)*GridDimension[0] + i];
-
-      delete [] temperature;
-            
-    } /* END: temperature */
-
-    /* Now write the grid data */
-
-    // Create movie filename
-    char *fname = new char[MAX_NAME_LENGTH];
-    sprintf(fieldID, ".%1.1d", field);
-    strcpy(fname, NewMovieName);
-    strcat(fname, fileID);
-    strcat(fname, suffix);
-    strcat(fname, fieldID);
-    strcat(fname, pid);
-
-    // Open movie file
-    if (MovieEntriesPP[ProcessorNumber] == 0) {
-      if ((movie = fopen(fname, "wb")) == NULL) {
-	fprintf(stderr, "Error opening movie file %s\n", fname);
-	return FAIL;
-      }
-    } else {
-      if ((movie = fopen(fname, "ab")) == NULL) {
-	fprintf(stderr, "Error opening movie file %s\n", fname);
-	return FAIL;
-      }
+    if (this->ComputeTemperatureField(temperature) == FAIL) {
+      fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
+      return FAIL;
     }
 
-    // Write it and clean up
-    fwrite((void*) temp, sizeof(FLOAT), size, movie);
-    fclose(movie);
-    delete [] temp;
-    delete [] fname;
+    BaryonField[TemperatureField] = new float[allsize];
+    for (i = 0; i < allsize; i++)
+      BaryonField[TemperatureField][i] = temperature[i];
 
-} /* END: Field output */
+  }
+
+  int field_num;
+
+  if (Movie3DVolumes > 0) {
+    for (field = 0; field < nFields; field++) {
+
+      //PART 2
+
+      /* Now output the field to the movie file */
+
+      /* Prepare to write the field to file */
+
+      // Check if the field isn't temperature                
+      // Create temp[] : "number of baryon" or "temperature" (?)
+      // Copy non-ghost grid points into temp array
+
+      field_num = (MovieDataField[field] == TEMPERATURE_FIELD) ? TemperatureField :
+	MovieDataField[field];
+      
+      if (MovieVertexCentered) {
+
+	/* VERTEX-CENTERED DATA */
+
+	if (this->ComputeVertexCenteredField(field_num) == FAIL) {
+	  fprintf(stderr, "Error in grid->ComputeVertexCenteredField.\n");
+	  return FAIL;
+	}
+
+	temp = new float[vcsize];
+	for (i = 0; i < vcsize; i++)
+	  temp[i] = InterpolatedField[field_num][i];
+
+      } else {
+
+	/* CELL-CENTERED DATA */
+
+	temp = new float[size];
+	ThisField = BaryonField[field_num];
+      
+	for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	  for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	    gridindex = (j + k*GridDimension[1]) * GridDimension[0] + 
+	      GridStartIndex[0];
+	    tempindex = ((k-GridStartIndex[2])*ActiveDim[1] + (j-GridStartIndex[1])) *
+	      ActiveDim[0];
+	    for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, gridindex++, 
+		   tempindex++)
+	      temp[tempindex] = ThisField[gridindex];
+	  } /* ENDFOR: j */
+      } // ENDELSE vertex centered
+      
+      //PART 3
+
+      char FieldName[100];
+      if (MovieDataField[field] != TEMPERATURE_FIELD)
+	strcpy(FieldName, DataLabel[MovieDataField[field]]);
+      else
+	strcpy(FieldName, "Temperature");
+
+      int NumberOfWrittenParticles = 0;
+      if (NewMovieParticleOn == ALL_PARTICLES)
+	NumberOfWrittenParticles = NumberOfParticles;
+      else if (NewMovieParticleOn == NON_DM_PARTICLES)
+	for (i = 0; i < NumberOfParticles; i++)
+	  if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER)
+	    NumberOfWrittenParticles++;
+
+      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+			      thislevel, delta, doubleGridLeftEdge, 
+			      integerOrigin, ghostzoneFlags, numGhostzones, 
+			      AmiraDims, field, nFields, NumberOfWrittenParticles, 
+			      FieldName, (void*) temp) != 0) {
+	fprintf(stderr, "Error in WriteFlat.\n");fflush(stdout);
+	return FAIL;
+      }
+   
+      if (MovieVertexCentered) {
+	delete [] InterpolatedField[field_num];
+	InterpolatedField[field_num] = NULL;
+      }
+
+    } /* END: Field output */
+
+    // If no baryon data exists, just write the index file
+    if (nFields == 0)
+      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+			      thislevel, delta, doubleGridLeftEdge, 
+			      integerOrigin, ghostzoneFlags, numGhostzones, 
+			      AmiraDims, field, nFields, NumberOfParticles, 
+			      NULL, NULL) != 0) {
+	fprintf(stderr, "Error in WriteFlat.\n");
+	return FAIL;
+      }
+
+    delete [] temp;
+
+  } /* ENDIF: 3D Volumes */
+
+  //PART 4
 
   /*********** Output Particle Data ***********/
 
-  if (NumberOfParticles > 0 && NewMovieParticleOn > 0) {
-
-    // Create moviefile name
-    char *fname = new char[MAX_NAME_LENGTH];
-    strcpy(fname, NewMovieName);
-    strcat(fname, fileID);
-    strcat(fname, partSuffix);
-    strcat(fname, pid);
-
-    // Open movie file
-    if (MovieEntriesPP[ProcessorNumber] == 0) {
-
-      if ((movie = fopen(fname, "wb")) == NULL) {
-	fprintf(stderr, "Error opening movie file %s\n", fname);
-	return FAIL;
-      }
-
-    } else {
-      
-      if ((movie = fopen(fname, "ab")) == NULL) {
-	fprintf(stderr, "Error opening movie file %s\n", fname);
-	return FAIL;
-      }
-
+  if (NewMovieParticleOn == ALL_PARTICLES) {
+    if (AmiraGrid.writeParticles(NumberOfParticles, NumberOfParticleAttributes,
+				 NumberOfBaryonFields, GridRank, 
+				 (void **) ParticlePosition, 
+				 (void **) ParticleVelocity,
+				 (void *) ParticleType, (void *) ParticleNumber, 
+				 (void *) ParticleMass,
+				 (void **) ParticleAttribute) != 0) {
+      fprintf(stderr, "Error in AMRHDF5Writer->writeParticles\n");
+      return FAIL;
     }
-      
-    /*** Write the particle position, velocity, and attributes ***/
+  } /* ENDIF: output all particles */
 
-    // Position, Type, and Particle number
-    for (dim=0; dim < GridRank; dim++)
-      fwrite((float*) ParticlePosition[dim], sizeof(float), NumberOfParticles, 
-	     movie);
-    //fwrite((short*) ParticleType, sizeof(short), NumberOfParticles, movie);
-    fwrite((int*) ParticleNumber, sizeof(int), NumberOfParticles, movie);
-    fwrite((void*) ParticleMass, sizeof(float), NumberOfParticles, movie);
+  if (NewMovieParticleOn == NON_DM_PARTICLES) {
 
-    if (NewMovieParticleOn > 1) {
+    /* Search for non dark matter particles and record their array
+       element.  We don't store the data first because we need the
+       particle number first. */
 
-      // Velocity, ID, & Mass
-      for (dim=0; dim < GridRank; dim++)
-	fwrite((void*) ParticleVelocity[dim], sizeof(float), NumberOfParticles, 
-	       movie);
+    int *NonDMParticleIndices = new int[NumberOfParticles];
+    int NumberOfNonDMParticles = 0;
+    int ii, iattr;
 
-    }  /* END NewMovieParticleOn > 1 */
-
-    if (NewMovieParticleOn > 2) {
-
-      // Particle Attributes
-      for (i=0; i < NumberOfParticleAttributes; i++)
-	fwrite((void*) ParticleAttribute[i], sizeof(float), NumberOfParticles, 
-	       movie);
-
-    }  /* END NewMovieParticleOn > 2 */
-
-    /*** END Write Particle Data ***/
-
-    // Close the particle movie file
-    fclose(movie);
-    delete [] fname;
-
-  } /* END: output particles */
-
-  // Reset timestep if written
-  //  TimestepsSinceCreation = 1;
-
-  NewMovieEntries++;
-  MovieEntriesPP[ProcessorNumber]++;
+    FLOAT *TempPosition[3];
+    float *TempVelocity[3], *TempMass;
+    float *TempAttr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+    int *TempType, *TempNumber;
     
+    for (i = 0; i < NumberOfParticles; i++)
+      NonDMParticleIndices[i] = -1;
+    for (i = 0; i < NumberOfParticles; i++)
+      if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER)
+	NonDMParticleIndices[NumberOfNonDMParticles++] = i;
+
+    /* Allocate memory */
+
+    if (NumberOfNonDMParticles > 0) {
+      for (dim = 0; dim < GridRank; dim++) {
+	TempPosition[dim] = new FLOAT[NumberOfNonDMParticles];
+	TempVelocity[dim] = new float[NumberOfNonDMParticles];
+      }
+      TempMass = new float[NumberOfNonDMParticles];
+      for (i = 0; i < NumberOfParticleAttributes; i++)
+	TempAttr[i] = new float[NumberOfNonDMParticles];
+      TempType = new int[NumberOfNonDMParticles];
+      TempNumber = new int[NumberOfNonDMParticles];
+    } // ENDIF non-DM particles > 0
+
+    /* Move non-DM particles into temp arrays */
+
+    for (i = 0; i < NumberOfNonDMParticles; i++) {
+      j = NonDMParticleIndices[i];
+      for (dim = 0; dim < GridRank; dim++) {
+	TempPosition[dim][i] = ParticlePosition[dim][j];
+	TempVelocity[dim][i] = ParticleVelocity[dim][j];
+      }
+      TempMass[i] = ParticleMass[j];
+      for (iattr = 0; iattr < NumberOfParticleAttributes; iattr++)
+	TempAttr[iattr][i] = ParticleAttribute[iattr][j];
+      TempType[i] = ParticleType[j];
+      TempNumber[i] = ParticleNumber[j];
+    } // ENDFOR non-DM particles
+
+    if (AmiraGrid.writeParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
+				 NumberOfBaryonFields, GridRank, 
+				 (void **) TempPosition, 
+				 (void **) TempVelocity,
+				 (void *) TempType, (void *) TempNumber, 
+				 (void *) TempMass,
+				 (void **) TempAttr) != 0) {
+      fprintf(stderr, "Error in AMRHDF5Writer->writeParticles\n");
+      return FAIL;
+    }
+
+    /* Free memory */
+
+    if (NumberOfNonDMParticles > 0) {
+      for (dim = 0; dim < GridRank; dim++) {
+	delete [] TempPosition[dim];
+	delete [] TempVelocity[dim];
+      }
+      for (i = 0; i < NumberOfParticleAttributes; i++)
+	delete [] TempAttr[i];
+      delete [] TempMass;
+      delete [] TempType;
+      delete [] TempNumber;
+    } // ENDIF non-DM particles > 0
+
+    delete [] NonDMParticleIndices;
+
+  } // ENDIF Non-DM particles
+
+  AmiraGrid.IncreaseGridCount();
+
+  /* Clean up */
+
+  if (NeedTemperature == TRUE) {
+    delete [] temperature;
+    if (BaryonField[TemperatureField] != NULL) {
+      delete [] BaryonField[TemperatureField];
+      BaryonField[TemperatureField] = NULL;
+    }
+  }
+  
   return SUCCESS;
 
 }

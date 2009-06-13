@@ -20,6 +20,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -113,7 +114,7 @@ int grid::FlagCellsToBeRefinedBySlope()
 	/* flag field based on slope */
  
 	for (i = 0; i < size; i++)
-	  FlaggingField[i] = TempBuffer[i] > MinimumSlopeForRefinement;
+	  FlaggingField[i] += (TempBuffer[i] > MinimumSlopeForRefinement) ? 1 : 0;
  
       }  // end loop over field
  
@@ -129,7 +130,7 @@ int grid::FlagCellsToBeRefinedBySlope()
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
  
   return NumberOfFlaggedCells;

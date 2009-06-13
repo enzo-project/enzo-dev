@@ -17,6 +17,7 @@
 #endif /* USE_MPI */
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
 {
  
   if (ParentGrid == NULL)
-    return FAIL;
+    ENZO_FAIL("");
  
   /* Return if this doesn't involve us. */
  
@@ -74,8 +75,12 @@ int grid::PreparePotentialField(grid *ParentGrid)
   // Only done in COMMUNICATION_SEND because
   // CommunicationMethodShouldExit() will exit in other modes when the
   // grids are on the same processor.
-  if (ProcessorNumber == ParentGrid->ProcessorNumber)
+  if (ProcessorNumber == ProcessorNumber &&
+      CommunicationDirection != COMMUNICATION_POST_RECEIVE) {
+    if (PotentialField != NULL)
+      delete [] PotentialField;
     PotentialField = new float[size];
+  }
  
   /* Declarations. */
  
@@ -110,7 +115,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
 	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
       fprintf(stderr, "ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
 	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim]);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  

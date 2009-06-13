@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -116,7 +117,7 @@ int grid::CollectParticles(int GridNum, int* &NumberToMove,
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
 	fprintf(stderr, "malloc error (out of memory?)\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* Copy this grid's particles to the new space. */

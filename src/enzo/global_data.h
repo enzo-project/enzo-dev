@@ -27,6 +27,16 @@
 # define EXTERN extern
 #endif
 
+/* Load Balancing.  Currently only memory count method implemented
+                          0 = off
+                          1 = Equalize processor memory count */
+EXTERN int LoadBalancing;
+
+/* FileDirectedOutput checks for file existence: 
+   stopNow (writes, stops),   outputNow, subgridcycleCount */
+EXTERN int FileDirectedOutput;
+
+
 /* debugging, extraction flags */
 
 EXTERN int debug;
@@ -92,6 +102,7 @@ EXTERN int MaximumParticleRefinementLevel;
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
+
 
 /* Velocity to limit timesteps */
 
@@ -256,6 +267,14 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 
+/* Output cooling time with grid data. */
+
+EXTERN int OutputCoolingTime;
+
+/* Output temperature with grid data. */
+
+EXTERN int OutputTemperature;
+
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 
 EXTERN float ZEUSLinearArtificialViscosity;
@@ -414,11 +433,10 @@ EXTERN int traceMPI;
 
 EXTERN int MovieDataField[MAX_MOVIE_FIELDS];
 EXTERN int MovieSkipTimestep;
+EXTERN int Movie3DVolumes;
+EXTERN int MovieVertexCentered;
 EXTERN char *NewMovieName;
 EXTERN int NewMovieDumpNumber;
-EXTERN int NewMovieEntries;
-EXTERN long *MovieEntriesPP;
-EXTERN int MaxMovieFilenum;
 EXTERN int NewMovieParticleOn;
 
 /* Stanford Hydro Solver variables */
@@ -541,6 +559,14 @@ EXTERN char LocalPath[MAX_LINE_LENGTH];
 EXTERN char GlobalPath[MAX_LINE_LENGTH];
 #endif
 
+#ifdef USE_PYTHON
+EXTERN int NumberOfPythonCalls;
+EXTERN PyObject *grid_dictionary;
+EXTERN PyObject *old_grid_dictionary;
+EXTERN PyObject *hierarchy_information;
+EXTERN PyObject *yt_parameter_file;
+EXTERN PyObject *conversion_factors;
+#endif
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MetalCooling;

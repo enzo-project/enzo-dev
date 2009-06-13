@@ -96,6 +96,11 @@ help-config:
 	@echo "      gmake papi-yes"
 	@echo "      gmake papi-no"
 	@echo
+	@echo "   Set whether to use embedded Python interpreter"
+	@echo
+	@echo "      gmake python-yes"
+	@echo "      gmake python-no"
+	@echo
 	@echo "   Set whether to perform unigrid communication transpose"
 	@echo
 	@echo "      gmake unigrid-transpose-yes"
@@ -132,11 +137,6 @@ help-config:
 	@echo
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
-	@echo 
-	@echo "   Set whether or not to use load balancing"
-	@echo
-	@echo "      gmake load-balance-yes"
-	@echo "      gmake load-balance-no"
 	@echo 
 
 #-----------------------------------------------------------------------
@@ -186,6 +186,7 @@ show-config:
 	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
 	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
+	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
 	@echo "   CONFIG_UNIGRID_TRANSPOSE:     $(CONFIG_UNIGRID_TRANSPOSE)"
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
@@ -193,7 +194,6 @@ show-config:
 	@echo "   CONFIG_ISOBCS:                $(CONFIG_ISOBCS)"
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
-	@echo "   CONFIG_LOAD_BALANCE:          $(CONFIG_LOAD_BALANCE)" 
 	@echo
 
 #-----------------------------------------------------------------------
@@ -483,6 +483,23 @@ CONFIG_PAPI-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+VALID_PYTHON = python-yes python-no
+.PHONY: $(VALID_PYTHON)
+
+python-yes: CONFIG_PYTHON-yes
+python-no: CONFIG_PYTHON-no
+python-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PYTHON)]\n\n"
+CONFIG_PYTHON-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_PYTHON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PYTHON:
+	@echo
+
+#-----------------------------------------------------------------------
+
 VALID_UNIGRID-TRANSPOSE = unigrid-transpose-yes unigrid-transpose-no
 .PHONY: $(VALID_UNIGRID-TRANSPOSE)
 
@@ -603,19 +620,3 @@ CONFIG_PHOTON-%:
 	$(MAKE) show-config | grep CONFIG_PHOTON:
 	@echo
 
-#-----------------------------------------------------------------------
-
-VALID_LOAD_BALANCE = load-balance-yes load-balance-no
-.PHONY: $(VALID_LOAD_BALANCE)
-
-load-balance-yes: CONFIG_LOAD_BALANCE-yes
-load-balance-no: CONFIG_LOAD_BALANCE-no
-load-balance-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LOAD_BALANCE)]\n\n"
-CONFIG_LOAD_BALANCE-%:
-	@tmp=.config.temp; \
-        grep -v CONFIG_LOAD_BALANCE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_LOAD_BALANCE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_LOAD_BALANCE:
-	@echo

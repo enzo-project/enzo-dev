@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,9 +92,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "TimeLastHistoryDump = %"PSYM,
 		  &MetaData.TimeLastHistoryDump);
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
-    ret += sscanf(line, "TimeLastMovieDump = %"PSYM,
-		  &MetaData.TimeLastMovieDump);
-    ret += sscanf(line, "dtMovieDump       = %"PSYM, &MetaData.dtMovieDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
@@ -102,16 +100,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
  
-    ret += sscanf(line, "MovieRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
-		  MetaData.MovieRegionLeftEdge,
-		  MetaData.MovieRegionLeftEdge+1,
-		  MetaData.MovieRegionLeftEdge+2);
-    ret += sscanf(line, "MovieRegionRightEdge = %"PSYM" %"PSYM" %"PSYM,
-		  MetaData.MovieRegionRightEdge,
-		  MetaData.MovieRegionRightEdge+1,
-		  MetaData.MovieRegionRightEdge+2);
- 
-
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,
 		  MetaData.NewMovieLeftEdge+1, 
@@ -140,10 +128,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
  
+    /* Subcycle directed output */
+    ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
+                  &MetaData.SubcycleSkipDataDump);
+    ret += sscanf(line, "SubcycleLastDataDump = %"ISYM, 
+                  &MetaData.SubcycleLastDataDump);
+    ret += sscanf(line, "SubcycleNumber = %"ISYM, 
+                  &MetaData.SubcycleNumber);
+
+    ret += sscanf(line,"FileDirectedOutput = %"ISYM,
+		  &FileDirectedOutput);
+
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
     ret += sscanf(line, "HistoryDumpNumber = %"ISYM, &MetaData.HistoryDumpNumber);
-    ret += sscanf(line, "MovieDumpNumber   = %"ISYM, &MetaData.MovieDumpNumber);
     ret += sscanf(line, "TracerParticleDumpNumber = %"ISYM, &MetaData.TracerParticleDumpNumber);
  
     if (sscanf(line, "RestartDumpName      = %s", dummy) == 1)
@@ -152,8 +150,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.DataDumpName = dummy;
     if (sscanf(line, "HistoryDumpName      = %s", dummy) == 1)
       MetaData.HistoryDumpName = dummy;
-    if (sscanf(line, "MovieDumpName        = %s", dummy) == 1)
-      MetaData.MovieDumpName = dummy;
     if (sscanf(line, "TracerParticleDumpName = %s", dummy) == 1)
       MetaData.TracerParticleDumpName = dummy;
     if (sscanf(line, "RedshiftDumpName     = %s", dummy) == 1)
@@ -165,8 +161,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.DataDumpDir = dummy;
     if (sscanf(line, "HistoryDumpDir      = %s", dummy) == 1)
       MetaData.HistoryDumpDir = dummy;
-    if (sscanf(line, "MovieDumpDir        = %s", dummy) == 1)
-      MetaData.MovieDumpDir = dummy;
     if (sscanf(line, "TracerParticleDumpDir = %s", dummy) == 1)
       MetaData.TracerParticleDumpDir = dummy;
     if (sscanf(line, "RedshiftDumpDir     = %s", dummy) == 1)
@@ -181,15 +175,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++; CubeDumps[dim] = dummy;
       if (dim >= MAX_CUBE_DUMPS) {
         fprintf(stderr, "CubeDump %"ISYM" > maximum allowed.\n", dim);
-        return FAIL;
+        ENZO_FAIL("");
       }
     }
+
+    ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
  
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;
       if (dim >= MAX_TIME_ACTIONS-1) {
 	fprintf(stderr, "Time action %"ISYM" > maximum allowed.\n", dim);
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     if (sscanf(line, "TimeActionRedshift[%"ISYM"] = ", &dim) == 1)
@@ -332,6 +328,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "CoolDataParameterFile = %s", dummy) == 1)
       CoolData.ParameterFilename = dummy;
 
+    ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
+    ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
+
     ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
 		  &ZEUSQuadraticArtificialViscosity);
     ret += sscanf(line, "ZEUSLinearArtificialViscosity = %"FSYM,
@@ -352,7 +351,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
         fprintf(stderr, "StaticRegion number %"ISYM" > MAX allowed\n", dim);
-        return FAIL;
+        ENZO_FAIL("");
       }
       ret++;
       StaticRefineRegionLevel[dim] = int_dummy;
@@ -522,13 +521,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Read Movie Dump parameters */
 
-    ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
-    ret += sscanf(line, "NewMovieParticleOn = %"ISYM, &NewMovieParticleOn);
-    ret += sscanf(line, "MovieDataField = %"ISYM" %"ISYM" %"ISYM,
-                  MovieDataField+0, MovieDataField+1, MovieDataField+2);
-    ret += sscanf(line, "NewMovieDumpNumber = %"ISYM, &NewMovieDumpNumber);
+    ret += sscanf(line, "MovieSkipTimestep = %d", &MovieSkipTimestep);
+    ret += sscanf(line, "Movie3DVolumes = %d", &Movie3DVolumes);
+    ret += sscanf(line, "MovieVertexCentered = %d", &MovieVertexCentered);
+    ret += sscanf(line, "NewMovieParticleOn = %d", &NewMovieParticleOn);
+    ret += sscanf(line, "MovieDataField = %d %d %d %d %d %d",
+		  MovieDataField+0, MovieDataField+1, MovieDataField+2,
+		  MovieDataField+3, MovieDataField+4, MovieDataField+5);
+    ret += sscanf(line, "NewMovieDumpNumber = %d", &NewMovieDumpNumber);
     if (sscanf(line, "NewMovieName = %s", dummy) == 1)
       NewMovieName = dummy;
+    ret += sscanf(line, "MovieTimestepCounter = %d", &MetaData.TimestepCounter);
 
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
 
@@ -638,14 +641,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (CosmologyReadParameters(fptr, &MetaData.StopTime, &MetaData.Time)
 	== FAIL) {
       fprintf(stderr, "Error in ReadCosmologyParameters.\n");;
-      return FAIL;
+      ENZO_FAIL("");
     }
     rewind(fptr);
   }
   else {
     if (ReadUnits(fptr) == FAIL){
       fprintf(stderr, "Error in ReadUnits. \n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     rewind(fptr);
   }
@@ -655,14 +658,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (MultiSpecies > 0)
     if (InitializeRateData(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeRateData.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
   if (MultiSpecies             == 0 && 
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeEquilibriumCoolData.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  
@@ -671,7 +674,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11)
     if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
 	fprintf(stderr, "Error in InitializeRadiationFieldData.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */
@@ -785,7 +788,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if ( (MetaData.GlobalDir != NULL) && (MetaData.LocalDir != NULL) ) {
     fprintf(stderr, "Cannot select GlobalDir AND LocalDir!\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   char *cwd_buffer = new char[MAX_LINE_LENGTH];

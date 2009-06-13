@@ -5,9 +5,18 @@
 / MACRO DEFINITIONS AND PARAMETERS
 /
 ************************************************************************/
+#ifdef USE_PYTHON
+#ifndef ENZO_PYTHON_IMPORTED
+#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
+#define NO_IMPORT_ARRAY 
+#include <Python.h>
+#include "numpy/arrayobject.h"
+#endif
+#endif
 
 #include "message.h"
 
+#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
 
 /* Modifiable Parameters */
 
@@ -160,7 +169,7 @@ typedef int            HDF5_hid_t;
 #define ABS(A) labs((long_int) (A))
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define Eflt float
 #define FSYM "f"
 #define FloatDataType MPI_FLOAT
@@ -171,9 +180,12 @@ typedef int            HDF5_hid_t;
 #define HDF5_REAL HDF5_R4
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
+#ifdef USE_PYTHON
+#define ENPY_FLOAT NPY_FLOAT
+#endif
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define Eflt double
 #define FSYM "lf"
 #define FloatDataType MPI_DOUBLE
@@ -187,9 +199,12 @@ typedef int            HDF5_hid_t;
 #define HDF5_REAL HDF5_R8
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
+#ifdef USE_PYTHON
+#define ENPY_FLOAT NPY_DOUBLE
+#endif
 #endif
 
-#ifdef p4
+#ifdef CONFIG_PFLOAT_4
 #define FLOAT float
 #define PSYM "f"
 #define GSYM "g"
@@ -200,7 +215,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_FILE_R4
 #endif
 
-#ifdef p8
+#ifdef CONFIG_PFLOAT_8
 #define FLOAT double
 #define PSYM "lf"
 #define GSYM "g"
@@ -209,9 +224,12 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_DOUBLE
 #define HDF5_PREC HDF5_R8
 #define HDF5_FILE_PREC HDF5_FILE_R8
+#ifdef USE_PYTHON
+#define ENPY_FLOAT NPY_DOUBLE
+#endif
 #endif
 
-#ifdef p16
+#ifdef CONFIG_PFLOAT_16
 #define FLOAT long_double
 #define PSYM "Lf"
 #define GSYM "g"
@@ -220,6 +238,9 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_LONG_DOUBLE
 #define HDF5_PREC HDF5_R16
 #define HDF5_FILE_PREC HDF5_FILE_R16
+#ifdef USE_PYTHON
+#define ENPY_FLOAT NPY_LONGDOUBLE
+#endif
 #endif
 
 
@@ -370,6 +391,7 @@ typedef int            HDF5_hid_t;
 #define POP3_STAR	3
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
+#define INSTANT_STAR    7
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 
@@ -395,6 +417,12 @@ typedef int            HDF5_hid_t;
 #define JHW_METAL_COOLING 1
 #define CEN_METAL_COOLING 2
 
+/* Streaming format parameters */
+
+#define ALL_PARTICLES 1
+#define NON_DM_PARTICLES 2
+#define TEMPERATURE_FIELD 1000
+
 #define DEFAULT_MU 0.6
 
 /* Maximum number of leafs per parent in radiation source tree. */
@@ -408,9 +436,9 @@ typedef int            HDF5_hid_t;
 #undef MPI_TRACE
 #endif
 
-#ifndef OLD_HDF5 /* prior to HDF5-1.6.5 */
-#define hssize_t hsize_t
-#endif
+//#ifndef OLD_HDF5 /* prior to HDF5-1.6.5 */
+//#define hssize_t hsize_t
+//#endif
 
 #ifdef TIME_MESSAGING
 #define PROCS_PER_NODE 8

@@ -22,6 +22,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,6 +30,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "CommunicationUtilities.h"
+
 void my_exit(int status);
  
 // HDF5 function prototypes
@@ -262,9 +265,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
 //    fprintf(stderr, "total particle count: %"ISYM"\n", TCount);
  
     //  fprintf(stderr, "Call Barrier 1 on task %"ISYM", grid %"ISYM"\n", MyProcessorNumber, grid_id);
-#ifdef USE_MPI
-    MPI_Barrier(MPI_COMM_WORLD);
-#endif
+    CommunicationBarrier();
     //  fprintf(stderr, "Call Barrier 1 on task %"ISYM", grid %"ISYM" complete\n", MyProcessorNumber, grid_id);
   }
  
@@ -462,7 +463,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   if (MyProcessorNumber == ProcessorNumber)
   {
     //  fprintf(stderr, "Call Barrier 2 on task %"ISYM", grid %"ISYM"\n", MyProcessorNumber, grid_id);
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     //  fprintf(stderr, "Call Barrier 2 on task %"ISYM", grid %"ISYM" complete\n", MyProcessorNumber, grid_id);
   }
  
@@ -524,7 +525,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       // Copy active part of field into grid
@@ -788,7 +789,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   if (MyProcessorNumber == ProcessorNumber)
   {
     //  fprintf(stderr, "Call Barrier 3 on task %"ISYM", grid %"ISYM"\n", MyProcessorNumber, grid_id);
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     //  fprintf(stderr, "Call Barrier 3 on task %"ISYM", grid %"ISYM" complete\n", MyProcessorNumber, grid_id);
   }
  
@@ -1390,7 +1391,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   {
     if (io_log) fclose(log_fptr);
     //  fprintf(stderr, "Call Barrier 4 on task %"ISYM", grid %"ISYM"\n", MyProcessorNumber, grid_id);
-    MPI_Barrier(MPI_COMM_WORLD);
+    CommunicationBarrier();
     //  fprintf(stderr, "Call Barrier 4 on task %"ISYM", grid %"ISYM" complete\n", MyProcessorNumber, grid_id);
   }
  

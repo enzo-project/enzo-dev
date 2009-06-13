@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -54,7 +55,7 @@ int grid::FlagCellsToBeRefinedByShear()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* loop over active dimensions */
@@ -113,8 +114,8 @@ int grid::FlagCellsToBeRefinedByShear()
 	    DelVel2 *= DelVel2;
 	    DelVelocity[index] += DelVel1 + DelVel2;
 	    if (dim == GridRank-1)
-	      FlaggingField[index] =
-		DelVelocity[index] > MinimumShearForRefinement;
+	      FlaggingField[index] +=
+		(DelVelocity[index] > MinimumShearForRefinement) ? 1 : 0;
 	  }
  
       Offset *= GridDimension[dim];

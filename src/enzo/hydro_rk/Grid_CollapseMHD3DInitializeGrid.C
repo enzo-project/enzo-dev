@@ -35,7 +35,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 				      float p_sphere[MAX_SPHERES],
 				      float cs_sphere[MAX_SPHERES],
 				      FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-				      float omega_sphere[MAX_SPHERES], float B0, float theta_B,
+				      float omega_sphere[MAX_SPHERES], float Bnaught, float theta_B,
 				      int   sphere_type[MAX_SPHERES],
 				      float rho_medium, float p_medium, int level)
 {
@@ -165,7 +165,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	}
 	Bx = 0.0;
 	By = 0.0;
-	Bz = B0;
+	Bz = Bnaught;
 
 	/* Loop over spheres. */
 	for (sphere = 0; sphere < n_sphere; sphere++) {

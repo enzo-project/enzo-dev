@@ -87,7 +87,7 @@ int grid::ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradien
   float rho = 1.0;
   float cs = 1e-3;
   float pres = rho*cs*cs;
-  float B0 = 0.0;
+  float Bnaught = 0.0;
   const float q = VelocityGradient;
   const float Omega = AngularVelocity;
 
@@ -122,8 +122,8 @@ int grid::ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradien
 	}
 
 	if (HydroMethod == MHD_RK) {
-	  BaryonField[iBz][n] = B0;
-	  BaryonField[ietot][n] += 0.5 * pow(B0,2) / rho;
+	  BaryonField[iBz][n] = Bnaught;
+	  BaryonField[ietot][n] += 0.5 * pow(Bnaught,2) / rho;
 	}	
 
       } // end loop over grid

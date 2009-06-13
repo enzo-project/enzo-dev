@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,7 +29,7 @@ void Star::ActivateNewStar(FLOAT Time)
   int StarType;
   FILE *fptr;
   if (this->IsUnborn()) {  // unborn
-    StarType = abs(type);
+    StarType = ABS(type);
     switch (StarType) {
     case PopII:
       if (Mass > StarClusterMinimumMass) {

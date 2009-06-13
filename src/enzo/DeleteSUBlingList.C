@@ -23,6 +23,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -39,6 +40,9 @@
 int DeleteSUBlingList( int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList)
 {
+
+  if( FluxCorrection != TRUE )
+    return SUCCESS;
   LevelHierarchyEntry *LastEntry, *NextEntry;
  
   /* Add all the SUBgrids to the list */

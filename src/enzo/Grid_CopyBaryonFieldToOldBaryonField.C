@@ -18,6 +18,8 @@
 //   (allocate old baryon fields if they don't exist).
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -40,6 +42,8 @@ int grid::CopyBaryonFieldToOldBaryonField()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
+  JBPERF_START("grid_CopyBaryonFieldToOldBaryonField");
+
   /* compute the field size */
  
   int size = 1;
@@ -61,7 +65,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
  
     if (BaryonField[field] == NULL) {
       fprintf(stderr, "BaryonField missing.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
     /* Create OldBaryonField if necessary. */
@@ -98,7 +102,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       }else{
 
         fprintf(stderr,"Error-- in CopyBF to Old, no AccelerationField.\n");
-        return FAIL;
+        ENZO_FAIL("");
 
       }
 
@@ -108,6 +112,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
 #endif /* SAB */
  
+  JBPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
   return SUCCESS;
  
 }

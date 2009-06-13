@@ -23,6 +23,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -80,7 +81,7 @@ int grid::FlagRefinedCells(grid *Subgrid)
     for (j = SubgridStart[1]; j <= SubgridEnd[1]; j++) {
       index = (k*GridDimension[1] + j)*GridDimension[0];
       for (i = SubgridStart[0]; i <= SubgridEnd[0]; i++)
-	FlaggingField[index + i] = true;
+	FlaggingField[index + i] = 1;
     }
 
   return SUCCESS;

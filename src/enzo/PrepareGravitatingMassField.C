@@ -15,6 +15,7 @@
 #endif /* USE_MPI */
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,7 +30,7 @@
 
 /* function prototypes */
 
-#ifndef SIB3
+#ifndef FAST_SIB
 int CopyOverlappingParticleMassFields(grid* CurrentGrid,
 				      TopGridData *MetaData,
 				      LevelHierarchyEntry *LevelArray[],
@@ -54,7 +55,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
     if (CurrentGrid->InitializeGravitatingMassField(RefinementFactor) == FAIL){
       fprintf(stderr, "Error in grid->InitializeGravitatingMassField.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     CurrentGrid->ClearGravitatingMassField();
   }
@@ -68,7 +69,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
    if (CurrentGrid->CopyParentToGravitatingFieldBoundary(
 				         Grid->ParentGrid->GridData) == FAIL) {
      fprintf(stderr, "Error in grid->CopyParentToGravitatingFieldBoundary.\n");
-     return FAIL;
+     ENZO_FAIL("");
    }
   //  if (CommunicationReceiveIndex != CommunicationReceiveIndexLast)
   //    CommunicationReceiveCurrentDependsOn = CommunicationReceiveIndex-1;
@@ -78,7 +79,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
 
 /************************************************************************/
 
-#ifdef SIB3
+#ifdef FAST_SIB
 int PrepareGravitatingMassField2(HierarchyEntry *Grid, int grid1,
 				 SiblingGridList SiblingList[],
 				 TopGridData *MetaData, int level,
@@ -103,7 +104,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
  
   if (DepositBaryons(Grid, When) == FAIL) {
     fprintf(stderr, "Error in grid->AddBaryonsToGravitatingMassField\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Particles: go through all the other grids on this level and add all
@@ -112,7 +113,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
  
 //  fprintf(stderr, "  PGMF - CopyOverlappingParticleMassField\n");
  
-#ifdef SIB3
+#ifdef FAST_SIB
   for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
     if (CurrentGrid->CheckForOverlap(SiblingList[grid1].GridList[grid2],
                                      MetaData->LeftFaceBoundaryCondition,
@@ -125,7 +126,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
   if (CopyOverlappingParticleMassFields(CurrentGrid, MetaData,
                                         LevelArray, level) == FAIL) {
     fprintf(stderr, "Error in CopyOverlappingParticleMassFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 #endif
  
@@ -133,7 +134,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
   FLOAT Zero[] = {0,0,0};
   if (CurrentGrid->AddOverlappingParticleMassField(CurrentGrid,Zero) == FAIL) {
     fprintf(stderr, "Error in grid->AddOverlappingParticleMassField.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 #endif /* UNUSED */
  
@@ -152,7 +153,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
     if (Grid->ParentGrid->GridData->DepositParticlePositions(CurrentGrid,
 			       TimeMidStep, GRAVITATING_MASS_FIELD) == FAIL) {
       fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 #endif /* UNUSED */
@@ -165,7 +166,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
     if (ComovingCoordinates)
       if (CurrentGrid->ComovingGravitySourceTerm() == FAIL) {
 	fprintf(stderr, "Error in grid->ComovingGravitySourceTerm.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
@@ -177,7 +178,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
     if (CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData)
 	== FAIL) {
       fprintf(stderr, "Error in grid->PreparePotential.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
  
  

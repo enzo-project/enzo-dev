@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <math.h>
  
+#include "ErrorExceptions.h"
+#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -72,6 +74,8 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   int level1, i;
  
+  JBPERF_START("RadiationFieldUpdate");
+
   /* Compute mean density signatures from this level (and all below
      if this is the level on which the radiation field is updated). */
  
@@ -122,8 +126,10 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   /* If this is not the level on which the field is updated, then return
      (if this is the bottom, then do the calc anyway) . */
  
-  if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL)
+  if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL) {
+    JBPERF_STOP("RadiationFieldUpdate");
     return SUCCESS;
+  }
  
   /* Compute the expansion factor at old and new times. */
  
@@ -135,7 +141,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (ComovingCoordinates) {
@@ -144,13 +150,13 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     aaanew = float(a)*aUnits;
  
     if (CosmologyComputeExpansionFactor(Time-dt, &a, &dadt) == FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     aaa    = float(a)*aUnits;
     afloat = float(a);
@@ -327,5 +333,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   delete [] buffer;
  
+  JBPERF_STOP("RadiationFieldUpdate");
   return SUCCESS;
 }

@@ -24,10 +24,10 @@ MACH_FILE  = Make.mach.nics-kraken
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt/pkgs/hdf5/1.6.7/cnl2.0_pgi7.0.7
+LOCAL_HDF5_INSTALL   = /sw/xt5/hdf5/1.6.7/cnl2.1_pgi7.2.3
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
-LOCAL_SPRNG_INSTALL  = /sw/xt/pkgs/sprng/2.0b/cnl2.0_pgi7.0.7
+LOCAL_SPRNG_INSTALL  = /sw/xt5/sprng/2.0b/cnl2.1_pgi7.2.3
 LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = 
 LOCAL_JBPERF_INSTALL = 
@@ -60,7 +60,7 @@ MACH_LD_NOMPI  = CC
 
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
-MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
+MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING -DFAST_SIB -DFLUX_FIX
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -139,7 +139,7 @@ LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
 LOCAL_LIBS_PNG    = 
 
 LOCAL_LIBS_MACH   =  $(LOCAL_LIBS_SPRNG) \
-                    -L/sw/xt/pkgs/szip/2.1/sles9.2_pgi7.0.7/lib -lsz \
+                    -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
                     -L/usr/local/lib -lz \
                     -L/opt/acml/4.0.1a/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \

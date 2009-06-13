@@ -79,7 +79,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   FLOAT SphereRadius[MAX_SPHERES],
     SphereCoreRadius[MAX_SPHERES],
     SpherePosition[MAX_SPHERES][MAX_DIMENSION];
-  float B0 = 0.0;
+  float Bnaught = 0.0;
   float theta_B = 0.0;
 
   for (sphere = 0; sphere < MAX_SPHERES; sphere++) {
@@ -121,7 +121,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "UniformVelocity = %f %f %f", 
 		  UniformVelocity, UniformVelocity+1,
 		  UniformVelocity+2);
-    ret += sscanf(line, "InitialBField = %f", &B0);
+    ret += sscanf(line, "InitialBField = %f", &Bnaught);
     ret += sscanf(line, "theta_B = %f", &theta_B);
  
     if (sscanf(line, "SphereType[%d]", &sphere) > 0)
@@ -208,7 +208,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   MediumDensity /= rhou;
   MediumPressure /= presu;
 
-  B0 /= bfieldu;
+  Bnaught /= bfieldu;
 
   //printf("t=%g\n", MediumPressure/MediumDensity*tempu);
 
@@ -225,7 +225,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->CollapseMHD3DInitializeGrid(
 	     n_sphere, SphereRadius,
 	     SphereCoreRadius, SphereDensity,
-	     SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, B0, theta_B,
+	     SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, Bnaught, theta_B,
 	     SphereType,
              MediumDensity, MediumPressure, 0) == FAIL) {
     fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
@@ -270,7 +270,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 	if (Temp->GridData->CollapseMHD3DInitializeGrid(
 				n_sphere, SphereRadius,
 				SphereCoreRadius, SphereDensity,
-				SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, B0,theta_B,
+				SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, Bnaught,theta_B,
 				SphereType, MediumDensity, MediumPressure, level+1) == FAIL) {
 	  fprintf(stderr, "Error in Collapse3DInitializeGrid.\n");
 	  return FAIL;

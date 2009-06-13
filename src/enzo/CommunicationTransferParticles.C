@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -91,7 +92,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
              SendList[GridsToSend].Pointer,
 	     COPY_OUT) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticles.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       GridsToSend++;
     }
@@ -182,7 +183,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     }
     if (NumberOfSharedGrids != NumberOfGrids) {
       fprintf(stderr, "CTP error\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
 /*
@@ -337,31 +338,31 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	      NumberOfGrids, SharedList[grid].ToGrid, LocalNumberToMove,
 	      LocalPointer, COPY_IN) == FAIL) {
 	fprintf(stderr, "Error in grid->CommunicationTransferParticless\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
     } // end: if grid is on my processor
  
   /* Set number of particles so everybody agrees. */
  
-  if (NumberOfProcessors > 1) {
-    int *Changes = new int[NumberOfGrids];
-    for (j = 0; j < NumberOfGrids; j++)
-      Changes[j] = 0;
-    for (j = 0; j < NumberOfGrids; j++)
-      for (i = 0; i < 6; i++)
-	if (SharedList[j].ToGrid[i] != -1) {
-	  Changes[SharedList[j].FromGrid] -= SharedList[j].NumberToMove[i];
-	  Changes[SharedList[j].ToGrid[i]] += SharedList[j].NumberToMove[i];
-	}
-    for (j = 0; j < NumberOfGrids; j++) {
-      if (GridPointer[j]->ReturnProcessorNumber() != MyProcessorNumber)
-	GridPointer[j]->SetNumberOfParticles(
-		         GridPointer[j]->ReturnNumberOfParticles()+Changes[j]);
-      //      printf("Pb(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n", MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfParticles());
-    }
-    delete [] Changes;
-  }
+//  if (NumberOfProcessors > 1) {
+//    int *Changes = new int[NumberOfGrids];
+//    for (j = 0; j < NumberOfGrids; j++)
+//      Changes[j] = 0;
+//    for (j = 0; j < NumberOfGrids; j++)
+//      for (i = 0; i < 6; i++)
+//	if (SharedList[j].ToGrid[i] != -1) {
+//	  Changes[SharedList[j].FromGrid] -= SharedList[j].NumberToMove[i];
+//	  Changes[SharedList[j].ToGrid[i]] += SharedList[j].NumberToMove[i];
+//	}
+//    for (j = 0; j < NumberOfGrids; j++) {
+//      if (GridPointer[j]->ReturnProcessorNumber() != MyProcessorNumber)
+//	GridPointer[j]->SetNumberOfParticles(
+//		         GridPointer[j]->ReturnNumberOfParticles()+Changes[j]);
+//      //      printf("Pb(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n", MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfParticles());
+//    }
+//    delete [] Changes;
+//  }
  
   /* CleanUp. */
  

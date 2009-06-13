@@ -26,6 +26,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -147,7 +148,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     //If there's any space, fail
  
     if (Left[dim]-CellEpsilon[dim] >= Right[dim])
-      return FAIL;
+      ENZO_FAIL("");
   }//dim
  
   //here goes the rest of the check
@@ -158,7 +159,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
       for(dim2=0;dim2<GridRank;dim2++)
 	if(dim2 != dim){
 	  if( fabs(Left[dim2]-Right[dim2]) < CellEpsilon[dim2] )
-	    return FAIL;
+	    ENZO_FAIL("");
 	}//third dim loop
  
       return TRUE;
@@ -166,7 +167,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     }//if face matches
   }//dim again
  
-    return FAIL;
+    ENZO_FAIL("");
 }
  
 #endif

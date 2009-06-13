@@ -53,6 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -404,6 +405,19 @@ EnzoArray<int> *grid::CreateFieldArrayInt(field_type field){
       array->Array = this->ParticleType;      
     }
     break;
+
+  case gFlaggingField:
+    if(this->FlaggingField){
+      array = new EnzoArray<int>(this->GridRank,
+			   this->GridDimension,
+			   this->GridStartIndex,
+			   this->GridEndIndex,
+			   cell_width);
+
+      array->Array = this->FlaggingField;
+    }
+    break;
+
     
   }
   
@@ -421,20 +435,7 @@ EnzoArray<bool> *grid::CreateFieldArrayBool(field_type field){
     cell_width[i] = this->CellWidth[i][0];
   }
 
-  switch (field){
-    
-  case gFlaggingField:
-    if(this->FlaggingField){
-      array = new EnzoArray<bool>(this->GridRank,
-			   this->GridDimension,
-			   this->GridStartIndex,
-			   this->GridEndIndex,
-			   cell_width);
-
-      array->Array = this->FlaggingField;
-    }
-    break;
-  }
+  // No booleans yet.
   
   return array;
 }

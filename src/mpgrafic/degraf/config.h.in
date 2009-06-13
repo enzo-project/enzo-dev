@@ -1,0 +1,46 @@
+/* config.h.in.  Generated from configure.in by autoheader.  */
+
+/* Define to 1 if you have the `dfftw' library (-ldfftw). */
+#undef HAVE_LIBDFFTW
+
+/* Define to 1 if you have the `dfftw_mpi' library (-ldfftw_mpi). */
+#undef HAVE_LIBDFFTW_MPI
+
+/* Define to 1 if you have the `drfftw' library (-ldrfftw). */
+#undef HAVE_LIBDRFFTW
+
+/* Define to 1 if you have the `drfftw_mpi' library (-ldrfftw_mpi). */
+#undef HAVE_LIBDRFFTW_MPI
+
+/* Define to 1 if you have the `sfftw' library (-lsfftw). */
+#undef HAVE_LIBSFFTW
+
+/* Define to 1 if you have the `sfftw_mpi' library (-lsfftw_mpi). */
+#undef HAVE_LIBSFFTW_MPI
+
+/* Define to 1 if you have the `srfftw' library (-lsrfftw). */
+#undef HAVE_LIBSRFFTW
+
+/* Define to 1 if you have the `srfftw_mpi' library (-lsrfftw_mpi). */
+#undef HAVE_LIBSRFFTW_MPI
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Version number of package */
+#undef VERSION

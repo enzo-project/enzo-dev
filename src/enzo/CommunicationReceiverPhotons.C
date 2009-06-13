@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -196,7 +197,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	  if (FindSuperSource(&NewPack, RecvBuffer[i].buffer.SuperSourceID) 
 	      == FAIL) {
 	    fprintf(stderr, "Error in FindSuperSource.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	} else
 	  NewPack->CurrentSource = NULL;

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -69,7 +70,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 				     float SphereMetallicity[MAX_SPHERES],
 				     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
 				     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-				     float SphereFracKeplarianRot[MAX_SPHERES],
+				     float SphereFracKeplerianRot[MAX_SPHERES],
 				     float SphereTurbulence[MAX_SPHERES],
 				     float SphereDispersion[MAX_SPHERES],
 				     float SphereCutOff[MAX_SPHERES],
@@ -300,10 +301,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
       sin_deltaDisk[sphere] = sin(pi * SphereCutOff[sphere] / 180.0);
 
-      if (SphereFracKeplarianRot[sphere] <= 0.0 && 
+      if (SphereFracKeplerianRot[sphere] <= 0.0 && 
 	  (SphereType[sphere] == 7 || SphereType[sphere] == 9) &&
 	  PointSourceGravityConstant > 0)
-	SphereFracKeplarianRot[sphere] = 1;
+	SphereFracKeplerianRot[sphere] = 1;
 
       switch (SphereType[sphere]) {
 
@@ -416,15 +417,15 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
       printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
       VelocityKep = sqrt(GravConst*SphereMass/(SphereRadius[sphere]*(LengthUnits)));
 
-      if (SphereFracKeplarianRot[sphere] > 0) {
+      if (SphereFracKeplerianRot[sphere] > 0) {
 	SphereRotationalPeriod[sphere] = 2*pi*SphereRadius[sphere]*(LengthUnits)/
-	  (SphereFracKeplarianRot[sphere]*VelocityKep);
+	  (SphereFracKeplerianRot[sphere]*VelocityKep);
 	SphereRotationalPeriod[sphere] /= TimeUnits;
       } else
 	SphereRotationalPeriod[sphere] = 0.0;
 
       printf("\nKeplerian Rotation Period (s): %"GSYM"\n", SphereRotationalPeriod[sphere] 
-	     * SphereFracKeplarianRot[sphere]*TimeUnits);
+	     * SphereFracKeplerianRot[sphere]*TimeUnits);
       printf("\nSphere Rotation Period (s): %"GSYM"\n", SphereRotationalPeriod[sphere]
 	     * TimeUnits);
 

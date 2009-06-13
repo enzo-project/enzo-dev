@@ -83,19 +83,19 @@
 
     ERROR_PRECISION = 1
 
-    # Settings for 32-bit floating point precision
+    # Settings for 32-bit floating point baryon precision
 
     ifeq ($(CONFIG_PRECISION),32)
         ERROR_PRECISION = 0
-        ASSEMBLE_PRECISION_DEFINES = -Dr4
+        ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_4
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
     endif
 
-    # Settings for 64-bit floating point precision
+    # Settings for 64-bit floating point baryon precision
 
     ifeq ($(CONFIG_PRECISION),64)
         ERROR_PRECISION = 0
-        ASSEMBLE_PRECISION_DEFINES = -Dr8
+        ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_8
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
     endif
 
@@ -117,21 +117,21 @@
 
     ifeq ($(CONFIG_PARTICLES),32)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -Dp4
+        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_4
     endif
 
     # Settings for 64-bit particle position precision
 
     ifeq ($(CONFIG_PARTICLES),64)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -Dp8
+        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_8
     endif
 
     # Settings for 128-bit particle position precision
 
     ifeq ($(CONFIG_PARTICLES),128)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -Dp16
+        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_16
     endif
 
     # error if CONFIG_PARTICLES is incorrect
@@ -360,7 +360,7 @@
 
     ifeq ($(CONFIG_JBPERF),yes)
         ERROR_JBPERF = 0
-        ASSEMBLE_JBPERF_DEFINES = -DUSE_JBPERF -DJBPERF_LEVEL_2
+        ASSEMBLE_JBPERF_DEFINES = -DUSE_JBPERF
         ASSEMBLE_JBPERF_INCLUDES = $(MACH_INCLUDES_JBPERF)
         ASSEMBLE_JBPERF_LIBS     = $(MACH_LIBS_JBPERF)
     endif
@@ -377,6 +377,35 @@
        .PHONY: error_jbperf
        error_jbperf:
 	$(error Illegal value '$(CONFIG_JBPERF)' for $$(CONFIG_JBPERF))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PYTHON SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PYTHON = 1
+
+    # Settings to turn Python ON
+
+    ifeq ($(CONFIG_PYTHON),yes)
+        ERROR_PYTHON = 0
+        ASSEMBLE_PYTHON_DEFINES = -DUSE_PYTHON
+        ASSEMBLE_PYTHON_INCLUDES = $(MACH_INCLUDES_PYTHON)
+        ASSEMBLE_PYTHON_LIBS     = $(MACH_LIBS_PYTHON)
+    endif
+
+    # Settings to turn PYTHON OFF
+
+    ifeq ($(CONFIG_PYTHON),no)
+        ERROR_PYTHON = 0
+    endif
+
+    # error if CONFIG_PYTHON is incorrect
+
+    ifeq ($(ERROR_PYTHON),1)
+       .PHONY: error_PYTHON
+       error_PYTHON:
+	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
     endif
 
 #-----------------------------------------------------------------------
@@ -592,35 +621,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE LOAD BALANCING SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_LOAD_BALANCE = 1
-
-    # Settings to turn isolated gravity boundary conditions ON
-
-    ifeq ($(CONFIG_LOAD_BALANCE),yes)
-        ERROR_LOAD_BALANCE = 0
-        ASSEMBLE_LOAD_BALANCE_DEFINES = -DENABLE_LOAD_BALANCE
-    endif
-
-    # Settings to turn isolated gravity boundary conditions OFF
-
-    ifeq ($(CONFIG_LOAD_BALANCE),no)
-        ERROR_LOAD_BALANCE = 0
-        ASSEMBLE_LOAD_BALANCE_DEFINES =
-    endif
-
-    # error if CONFIG_LOAD_BALANCE is incorrect
-
-    ifeq ($(ERROR_LOAD_BALANCE),1)
-       .PHONY: error_load_balance
-       error_load_balance:
-	$(error Illegal value '$(CONFIG_LOAD_BALANCE)' for $$(CONFIG_LOAD_BALANCE))
-    endif
-
-
-#-----------------------------------------------------------------------
 # DETERMINE RADIATIVE TRANSFER SETTINGS
 #-----------------------------------------------------------------------
 
@@ -686,6 +686,7 @@
               $(ASSEMBLE_INTEGER_DEFINES) \
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_JBPERF_DEFINES) \
+              $(ASSEMBLE_PYTHON_DEFINES) \
               $(ASSEMBLE_MPI_DEFINES) \
               $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
               $(ASSEMBLE_PAPI_DEFINES) \
@@ -698,13 +699,13 @@
               $(ASSEMBLE_ISOBCS_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
-              $(ASSEMBLE_LOAD_BALANCE_DEFINES) \
               $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_JBPERF_INCLUDES) \
+               $(ASSEMBLE_PYTHON_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
 
@@ -716,6 +717,7 @@
            $(ASSEMBLE_MPI_LIBS) \
            $(ASSEMBLE_HYPRE_LIBS) \
            $(ASSEMBLE_JBPERF_LIBS) \
-           $(ASSEMBLE_PAPI_LIBS)
+           $(ASSEMBLE_PAPI_LIBS) \
+           $(ASSEMBLE_PYTHON_LIBS) \
 
 

@@ -17,6 +17,7 @@
 //
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -41,7 +42,7 @@ int grid::AddToBoundaryFluxes(fluxes *BoundaryFluxesToBeAdded)
  
   if (BoundaryFluxes == NULL) {
     fprintf(stderr, "grid->AddToBoundarFluxes BoundaryFluxes not defined.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* add the fluxes of the structure pointed to by the argument to

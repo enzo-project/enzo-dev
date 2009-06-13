@@ -16,6 +16,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -24,11 +25,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
+#include "CommunicationUtilities.h"
 
-#ifdef USE_MPI
-int CommunicationAllReduceValuesINT(int *Values, int Number, 
-				    MPI_Op ReduceOperation);
-#endif
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
@@ -56,7 +54,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
   if (BaryonField[NumberOfBaryonFields] == NULL &&
       MyProcessorNumber == ProcessorNumber) {
     fprintf(stderr, "Subgrid field not present.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Loop over particles and count the number in each subgrid. */
@@ -89,7 +87,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid < -1 || subgrid > NumberOfSubgrids-1) {
 	fprintf(stderr, "particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid,
 		NumberOfSubgrids);
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       MoveStar = PopStar(cstar);  // also advances to NextStar
@@ -117,7 +115,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
 
   if (AllLocal == FALSE)
 #ifdef USE_MPI
-    CommunicationAllReduceValuesINT(StarsToMove, NumberOfSubgrids, MPI_MAX);
+    CommunicationAllReduceValues(StarsToMove, NumberOfSubgrids, MPI_MAX);
 #endif
 
   /* Transfer stars to other processors (and clean up). */
@@ -130,7 +128,7 @@ int grid::MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
 	if (this->CommunicationSendStars(ToGrids[subgrid], 
 		  ToGrids[subgrid]->ProcessorNumber) == FAIL) {
 	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
       }
 

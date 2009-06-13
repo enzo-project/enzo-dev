@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,7 +58,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData.Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* write data to Parameter output file */
@@ -81,8 +82,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "dtDataDump          = %"GOUTSYM"\n", MetaData.dtDataDump);
   fprintf(fptr, "TimeLastHistoryDump = %"GOUTSYM"\n", MetaData.TimeLastHistoryDump);
   fprintf(fptr, "dtHistoryDump       = %"GOUTSYM"\n\n", MetaData.dtHistoryDump);
-  fprintf(fptr, "TimeLastMovieDump     = %"GOUTSYM"\n", MetaData.TimeLastMovieDump);
-  fprintf(fptr, "dtMovieDump           = %"GOUTSYM"\n", MetaData.dtMovieDump);
  
   fprintf(fptr, "TracerParticleOn           = %"ISYM"\n", TracerParticleOn);
   fprintf(fptr, "TimeLastTracerParticleDump = %"GOUTSYM"\n",
@@ -90,22 +89,19 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "dtTracerParticleDump       = %"GOUTSYM"\n",
           MetaData.dtTracerParticleDump);
  
-  fprintf(fptr, "MovieRegionLeftEdge   = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.MovieRegionLeftEdge);
-  fprintf(fptr, "MovieRegionRightEdge  = ");
-  WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.MovieRegionRightEdge);
-  fprintf(fptr, "\n");
- 
-  fprintf(fptr, "NewMovieLeftEdge   = ");
+  fprintf(fptr, "NewMovieLeftEdge     = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);
-  fprintf(fptr, "NewMovieRightEdge  = ");
+  fprintf(fptr, "NewMovieRightEdge    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieRightEdge);
-  fprintf(fptr, "MovieSkipTimestep = %"ISYM"\n", MovieSkipTimestep);
-  fprintf(fptr, "NewMovieParticleOn = %"ISYM"\n", NewMovieParticleOn);
-  fprintf(fptr, "MovieDataField = ");
+  fprintf(fptr, "MovieSkipTimestep    = %d\n", MovieSkipTimestep);
+  fprintf(fptr, "Movie3DVolumes       = %d\n", Movie3DVolumes);
+  fprintf(fptr, "MovieVertexCentered  = %d\n", MovieVertexCentered);
+  fprintf(fptr, "NewMovieParticleOn   = %d\n", NewMovieParticleOn);
+  fprintf(fptr, "MovieDataField       = ");
   WriteListOfInts(fptr, MAX_MOVIE_FIELDS, MovieDataField);
-  fprintf(fptr, "NewMovieDumpNumber = %"ISYM"\n", NewMovieDumpNumber);
-  fprintf(fptr, "NewMovieName = %s\n", NewMovieName);
+  fprintf(fptr, "NewMovieDumpNumber   = %d\n", NewMovieDumpNumber);
+  fprintf(fptr, "NewMovieName         = %s\n", NewMovieName);
+  fprintf(fptr, "MovieTimestepCounter = %d\n", MetaData.TimestepCounter);
   fprintf(fptr, "\n");
 
   fprintf(fptr, "CycleLastRestartDump = %"ISYM"\n", MetaData.CycleLastRestartDump);
@@ -117,6 +113,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
+
+  fprintf(fptr, "SubcycleNumber = %"ISYM"\n", MetaData.SubcycleNumber);
+  fprintf(fptr, "SubcycleSkipDataDump = %"ISYM"\n", MetaData.SubcycleSkipDataDump);
+  fprintf(fptr, "SubcycleLastDataDump = %"ISYM"\n", MetaData.SubcycleLastDataDump);
  
   fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
 	  MetaData.OutputFirstTimeAtLevel);
@@ -126,14 +126,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);
   fprintf(fptr, "HistoryDumpNumber   = %"ISYM"\n", MetaData.HistoryDumpNumber);
-  fprintf(fptr, "MovieDumpNumber     = %"ISYM"\n", MetaData.MovieDumpNumber);
   fprintf(fptr, "TracerParticleDumpNumber = %"ISYM"\n",
           MetaData.TracerParticleDumpNumber);
  
   fprintf(fptr, "RestartDumpName     = %s\n", MetaData.RestartDumpName);
   fprintf(fptr, "DataDumpName        = %s\n", MetaData.DataDumpName);
   fprintf(fptr, "HistoryDumpName     = %s\n", MetaData.HistoryDumpName);
-  fprintf(fptr, "MovieDumpName       = %s\n", MetaData.MovieDumpName);
   fprintf(fptr, "TracerParticleDumpName = %s\n",
           MetaData.TracerParticleDumpName);
   fprintf(fptr, "RedshiftDumpName    = %s\n\n", MetaData.RedshiftDumpName);
@@ -144,8 +142,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     fprintf(fptr, "DataDumpDir         = %s\n", MetaData.DataDumpDir);
   if (MetaData.HistoryDumpDir != NULL)
     fprintf(fptr, "HistoryDumpDir      = %s\n", MetaData.HistoryDumpDir);
-  if (MetaData.MovieDumpDir != NULL)
-    fprintf(fptr, "MovieDumpDir        = %s\n", MetaData.MovieDumpDir);
   if (MetaData.TracerParticleDumpDir != NULL)
     fprintf(fptr, "TracerParticleDumpDir = %s\n", MetaData.TracerParticleDumpDir);
   if (MetaData.RedshiftDumpDir != NULL)
@@ -159,6 +155,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   for (dim = 0; dim < MAX_CUBE_DUMPS; dim++)
     if (CubeDumps[dim] != NULL)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
+
+  fprintf(fptr,"LoadBalancing         = %"ISYM"\n",LoadBalancing);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)
     if (TimeActionType[dim] > 0) {
@@ -297,6 +295,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   if (CoolData.ParameterFilename != NULL)
     fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
+
+  fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
+  fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);
@@ -476,13 +477,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
       fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
       fprintf(stderr, "Error in WriteUnits.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
 
@@ -492,13 +493,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in WritePhotonSources.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 #endif
 

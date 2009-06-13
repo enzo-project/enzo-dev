@@ -68,6 +68,13 @@ struct CoolDataType
   float *GP99LowDensityLimit;
   float *GP99HighDensityLimit;
 
+  /* Revised H2 cooling rates from Glover & Abel 2008 */
+  float *GAHI;
+  float *GAH2;
+  float *GAHe;
+  float *GAHp;
+  float *GAel;
+
   /* 12 species rates (including HD) */
 
   float *HDlte;

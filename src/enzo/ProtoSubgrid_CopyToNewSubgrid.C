@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -19,7 +20,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-extern "C" void FORTRAN_NAME(copy3dbool)(bool *source, bool *dest,
+extern "C" void FORTRAN_NAME(copy3dint)(int *source, int *dest,
                                    int *sdim1, int *sdim2, int *sdim3,
                                    int *ddim1, int *ddim2, int *ddim3,
                                    int *sstart1, int *sstart2, int *sstart3,
@@ -57,13 +58,13 @@ int ProtoSubgrid::CopyToNewSubgrid(int GridDim, int GridStart, int GridEnd,
  
   /* Allocate new FlaggingField. */
  
-  NewSubgrid->GridFlaggingField = new bool[NewSubgrid->GridDimension[0]*
-					   NewSubgrid->GridDimension[1]*
-					   NewSubgrid->GridDimension[2]];
+  NewSubgrid->GridFlaggingField = new int[NewSubgrid->GridDimension[0]*
+					  NewSubgrid->GridDimension[1]*
+					  NewSubgrid->GridDimension[2]];
  
   /* Now copy the Portion of the FlaggingField. */
  
-  FORTRAN_NAME(copy3dbool)(GridFlaggingField, NewSubgrid->GridFlaggingField,
+  FORTRAN_NAME(copy3dint)(GridFlaggingField, NewSubgrid->GridFlaggingField,
                        GridDimension, GridDimension+1, GridDimension+2,
                        NewSubgrid->GridDimension, NewSubgrid->GridDimension+1,
                           NewSubgrid->GridDimension+2,

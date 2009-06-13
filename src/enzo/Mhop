@@ -745,6 +745,7 @@ XOBJ =	AdiabaticExpansionInitialize.o			\
 	star_maker3.o					\
 	star_maker4.o					\
 	star_maker5.o					\
+	star_maker7.o					\
         tscint1d.o					\
         tscint2d.o					\
         tscint3d.o					\

@@ -25,6 +25,7 @@
 #endif /* USE_MPI */
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -188,7 +189,7 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
     if (CommunicationReceiveFluxes(&ProjectedFluxes, ProcessorNumber,
 				   NumberOfBaryonFields, GridRank) == FAIL) {
       fprintf(stderr, "Error in CommunicationReceiveFluxes.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     return SUCCESS;
   }
@@ -200,7 +201,7 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
 				ParentGrid->ProcessorNumber,
 				NumberOfBaryonFields, GridRank) == FAIL) {
       fprintf(stderr, "Error in CommunicationSendFluxes.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
     DeleteFluxes(&ProjectedFluxes);
   }

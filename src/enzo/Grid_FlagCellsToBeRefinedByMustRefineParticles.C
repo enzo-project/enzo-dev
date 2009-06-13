@@ -17,6 +17,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -29,7 +30,7 @@
  
 extern "C" void FORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
-                        int *itype, bool *ffield, FLOAT *leftedge,
+                        int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
 			int *imatch);
  
@@ -70,7 +71,7 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
 
   return NumberOfFlaggedCells;

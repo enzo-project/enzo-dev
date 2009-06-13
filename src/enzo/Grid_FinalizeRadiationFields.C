@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -49,7 +50,7 @@ int grid::FinalizeRadiationFields(void)
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find radiative transfer fields. */
@@ -60,7 +61,7 @@ int grid::FinalizeRadiationFields(void)
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Get units. */
@@ -70,7 +71,7 @@ int grid::FinalizeRadiationFields(void)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   float DensityConversion = DensityUnits / 1.673e-24;

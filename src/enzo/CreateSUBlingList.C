@@ -1,7 +1,7 @@
- 
+  
 /*****************************************************************************
  *                                                                           *
- * Copyright 2005 Rick Wagner                                                *
+ * Copyright 2005 David Collins, Rick Wagner                                 *
  * Copyright 2005 Laboratory for Computational Astrophysics                  *
  * Copyright 2005 Regents of the University of California                    *
  *                                                                           *
@@ -13,7 +13,7 @@
 /
 /  CREATE SUBLINGLIST
 /
-/  written by: Rick Wagner
+/  written by: David Collins, Rick Wagner
 /  date:       May, 2005
 /
 /
@@ -31,6 +31,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -48,7 +49,10 @@ int CreateSUBlingList(TopGridData *MetaData,
 		      int NumberOfGrids,
 		      LevelHierarchyEntry ***SUBlingList)
 {
- 
+
+  if( FluxCorrection != TRUE ) 
+    return SUCCESS;
+
   int grid, othergrid;
   /* Create a SUBling list of the subgrids */
  

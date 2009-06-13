@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -26,7 +27,7 @@
  
 extern "C" void FORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
-                        int *itype, bool *ffield, FLOAT *leftedge,
+                        int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
 			int *imatch);
  
@@ -57,9 +58,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   /* Temporarily set the flagging field, then we will increase the
      particle mass flagging field above the refinement criteron. */
 
-  FlaggingField = new bool[size];
+  FlaggingField = new int[size];
   for (i = 0; i < size; i++)
-    FlaggingField[i] = false;
+    FlaggingField[i] = 0;
 
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */

@@ -1,0 +1,13 @@
+#!/bin/sh
+FFTW_DIR=/home/jwise/local
+./configure \
+    CFLAGS="-I ${FFTW_DIR}/include" \
+    FCFLAGS="-I ${FFTW_DIR}/include" \
+    LDFLAGS="-L ${FFTW_DIR}/lib -lgpfs" \
+    LD=/home/jwise/local/hdf5/1.8.2p/bin/h5pfc \
+    FC=mpif90 \
+    CC=mpicc \
+    --enable-enzo \
+    --enable-double \
+    --with-hdf=/home/jwise/local/hdf5/1.8.2p
+

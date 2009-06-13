@@ -13,6 +13,7 @@
 // Allocate and clear the flagging field.
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,11 +43,11 @@ void grid::ClearFlaggingField()
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  FlaggingField = new bool[size];
+  FlaggingField = new int[size];
  
   /* Clear it */
  
   for (int i = 0; i < size; i++)
-    FlaggingField[i] = false;
+    FlaggingField[i] = 0;
  
 }

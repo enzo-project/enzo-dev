@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -23,13 +24,13 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define ROUNDOFF 1e-5
 #endif
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define ROUNDOFF 1e-10
 #endif
-#ifdef r16
+#ifdef CONFIG_BFLOAT_16
 #define ROUNDOFF 1e-14
 #endif
 
@@ -79,6 +80,6 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
 	  "x y z = %"FSYM" %"FSYM" %"FSYM"\n", 
 	  BumpPos[0], BumpPos[1], BumpPos[2]);
   dummy = nGrids0-1;
-  return FAIL;
+  ENZO_FAIL("");
 
 }

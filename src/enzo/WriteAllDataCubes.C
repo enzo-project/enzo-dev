@@ -18,6 +18,7 @@
 #include <stdio.h>
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,6 +29,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
@@ -89,7 +91,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
       fprintf(stderr, "Error in WriteDataCubes\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
  
@@ -105,10 +107,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
-
-#ifdef USE_MPI 
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  CommunicationBarrier();
  
 //  Stop I/O timing
  

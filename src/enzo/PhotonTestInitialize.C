@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -96,7 +97,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     PhotonTestSphereTemperature[MAX_SPHERES],
     PhotonTestSphereVelocity[MAX_SPHERES][MAX_DIMENSION],
     PhotonTestUniformVelocity[MAX_DIMENSION],
-    PhotonTestFracKeplarianRot[MAX_SPHERES],
+    PhotonTestFracKeplerianRot[MAX_SPHERES],
     PhotonTestSphereTurbulence[MAX_SPHERES],
     PhotonTestSphereCutOff[MAX_SPHERES],
     PhotonTestSphereAng1[MAX_SPHERES],
@@ -116,7 +117,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     PhotonTestSphereCoreRadius[sphere] = 0.1;
     PhotonTestSphereDensity[sphere]    = 1.0;
     PhotonTestSphereTemperature[sphere] = 1.0;
-    PhotonTestFracKeplarianRot[sphere] = 0.0;
+    PhotonTestFracKeplerianRot[sphere] = 0.0;
     PhotonTestSphereTurbulence[sphere] = 0.0;
     PhotonTestSphereCutOff[sphere] = 6.5;
     PhotonTestSphereAng1[sphere] = 0;
@@ -177,9 +178,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    &sphere, &PhotonTestSphereVelocity[sphere][0],
 		    &PhotonTestSphereVelocity[sphere][1],
 		    &PhotonTestSphereVelocity[sphere][2]);
-    if (sscanf(line, "PhotonTestFracKeplarianRot[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "PhotonTestFracKeplarianRot[%"ISYM"] = %"FSYM, &sphere,
-                    &PhotonTestFracKeplarianRot[sphere]);
+    if (sscanf(line, "PhotonTestFracKeplerianRot[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestFracKeplerianRot[%"ISYM"] = %"FSYM, &sphere,
+                    &PhotonTestFracKeplerianRot[sphere]);
     if (sscanf(line, "PhotonTestSphereTurbulence[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "PhotonTestSphereTurbulence[%"ISYM"] = %"FSYM, &sphere,
                     &PhotonTestSphereTurbulence[sphere]);
@@ -233,7 +234,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   if (ProblemType == 50)
     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in ReadPhotonSources.\n");;
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   PhotonTime = InitialTimeInCodeUnits;
@@ -250,7 +251,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereCoreRadius, PhotonTestSphereDensity,
 	     PhotonTestSphereTemperature,
 	     PhotonTestSpherePosition, PhotonTestSphereVelocity,
-             PhotonTestFracKeplarianRot, PhotonTestSphereTurbulence,
+             PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
              PhotonTestSphereCutOff, PhotonTestSphereAng1,
              PhotonTestSphereAng2, PhotonTestSphereNumShells,
 	     PhotonTestSphereType, PhotonTestUseParticles,
@@ -261,7 +262,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
 	     RefineByOpticalDepth) == FAIL) {
     fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Convert minimum initial overdensity for refinement to mass
@@ -292,7 +293,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     for (level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -303,7 +304,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestSphereCoreRadius, PhotonTestSphereDensity,
 	     PhotonTestSphereTemperature,
 	     PhotonTestSpherePosition, PhotonTestSphereVelocity,
-             PhotonTestFracKeplarianRot, PhotonTestSphereTurbulence,
+             PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
              PhotonTestSphereCutOff, PhotonTestSphereAng1,
              PhotonTestSphereAng2, PhotonTestSphereNumShells,
 	     PhotonTestSphereType, PhotonTestUseParticles,
@@ -314,7 +315,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 	     RefineByOpticalDepth) == FAIL) {
 	  fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -336,7 +337,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       for (level2 = level-1; level2 < MaximumRefinementLevel; level2++) {
 	if (RebuildHierarchy(&MetaData, LevelArray, level2) == FAIL) {
 	  fprintf(stderr, "Error in RebuildHierarchy.\n");
-	  return FAIL;
+	  ENZO_FAIL("");
 	}	
 
 	if (LevelArray[level2+1] == NULL)
@@ -349,7 +350,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestSphereCoreRadius, PhotonTestSphereDensity,
 		    PhotonTestSphereTemperature,
 		    PhotonTestSpherePosition, PhotonTestSphereVelocity,
-		    PhotonTestFracKeplarianRot, PhotonTestSphereTurbulence,
+		    PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
 		    PhotonTestSphereCutOff, PhotonTestSphereAng1,
 		    PhotonTestSphereAng2, PhotonTestSphereNumShells,
 		    PhotonTestSphereType, PhotonTestUseParticles,
@@ -360,7 +361,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 		    RefineByOpticalDepth) == FAIL) {
 	    fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -374,7 +375,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	  if (Temp->GridData->ProjectSolutionToParentGrid(
 				  *LevelArray[level-1]->GridData) == FAIL) {
 	    fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -475,8 +476,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(Outfptr, "PhotonTestSphereVelocity[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "PhotonTestFracKeplarianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
-              PhotonTestFracKeplarianRot[sphere]);
+      fprintf(Outfptr, "PhotonTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
+              PhotonTestFracKeplerianRot[sphere]);
       fprintf(Outfptr, "PhotonTestSphereTurbulence[%"ISYM"] = %"GOUTSYM"\n", sphere,
               PhotonTestSphereTurbulence[sphere]);
       fprintf(Outfptr, "PhotonTestSphereCutOff[%"ISYM"] = %"GOUTSYM"\n", sphere,

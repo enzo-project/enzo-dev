@@ -14,6 +14,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,7 +39,7 @@ int grid::SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
  
   if (ColourField) {
     fprintf(stderr, "ColourField not implemented yet.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -47,7 +48,7 @@ int grid::SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* Loop over grid and set quantities. */

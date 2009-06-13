@@ -16,6 +16,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -70,6 +71,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
            float *metal,
 	float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
 	float *gpldl, float *gphdl, float *HDltea, float *HDlowa,
+	float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
 	float *metala, int *n_xe, float *xe_start, float *xe_end,
 	float *inutot, int *iradtype, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
@@ -102,7 +104,7 @@ int grid::SolveCoupledRateEquations()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find Multi-species fields. */
@@ -111,7 +113,7 @@ int grid::SolveCoupledRateEquations()
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
   /* Find photo-ionization fields */
@@ -122,7 +124,7 @@ int grid::SolveCoupledRateEquations()
 				      gammaHeINum, kphHeIINum, gammaHeIINum, 
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Get easy to handle pointers for each variable. */
@@ -144,7 +146,7 @@ int grid::SolveCoupledRateEquations()
     if (CosmologyComputeExpansionFactor(PhotonTime+0.5*dtFixed, &a, &dadt) 
 	== FAIL) {
       fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -154,7 +156,7 @@ int grid::SolveCoupledRateEquations()
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   float afloat = float(a);
@@ -185,7 +187,7 @@ int grid::SolveCoupledRateEquations()
 
   if (RadiationFieldCalculateRates(PhotonTime+0.5*dtFixed) == FAIL) {
     fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Set up information for rates which depend on the radiation field. */
@@ -241,6 +243,8 @@ int grid::SolveCoupledRateEquations()
     CoolData.hyd01k, CoolData.h2k01, CoolData.vibh, CoolData.roth,CoolData.rotl,
     CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit, 
        CoolData.HDlte, CoolData.HDlow,
+    CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp,
+    CoolData.GAel,
        CoolData.metals, &CoolData.NumberOfElectronFracBins, 
        &CoolData.ElectronFracStart, &CoolData.ElectronFracEnd,
     RadiationData.Spectrum[0], &RadiationFieldType, 
@@ -261,7 +265,7 @@ int grid::SolveCoupledRateEquations()
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
-      return FAIL;
+      ENZO_FAIL("");
   }
 
   return SUCCESS;

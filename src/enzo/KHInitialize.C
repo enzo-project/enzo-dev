@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -111,7 +112,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      KHOuterInternalEnergy,
 					      KHOuterVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* set up the inner flow and add noise to velocities */
@@ -124,7 +125,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					 KHOuterVelocity[0]) 
       == FAIL) {
     fprintf(stderr, "Error in KHInitializeGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
 

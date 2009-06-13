@@ -18,6 +18,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,7 +58,7 @@ int grid::TracerParticleSetVelocity()
   float *VelocityFields[MAX_DIMENSION];
   if ((Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields)) < 0) {
     fprintf(stderr, "Could not find baryon velocity.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
   for (dim = 0; dim < GridRank; dim++)
     VelocityFields[dim] = BaryonField[Vel1Num+dim];

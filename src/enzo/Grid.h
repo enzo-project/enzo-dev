@@ -18,6 +18,7 @@
 #include "ListOfParticles.h"
 #include "region.h"
 #include "FastSiblingLocator.h"
+#include "AMRH5writer.h"
 #include "Star.h"
 
 #ifdef FLUX_FIX
@@ -117,7 +118,7 @@ class grid
 //
 //  Rebuild Hierarchy Temporaries
 //
-  bool  *FlaggingField;             // Boolean flagging field (for refinement)
+  int   *FlaggingField;             // Boolean flagging field (for refinement)
   float *MassFlaggingField;         // Used by mass flagging criteria
   float *ParticleMassFlaggingField; // Used by particle mass flagging criteria
 //
@@ -489,7 +490,11 @@ class grid
 /* Output movie data (sequential format) */
 
    int WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-			 FLOAT StopTime, int lastMovieStep, int &cycle);
+			 int RootResolution, FLOAT StopTime, 
+			 AMRHDF5Writer &AmiraGrid,
+			 int lastMovieStep, int TopGridCycle, 
+			 int WriteMe, int TimestepCounter, int open, 
+			 FLOAT WriteTime);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 
@@ -500,6 +505,10 @@ class grid
 // -------------------------------------------------------------------------
 // Functions for radiative cooling and multi-species rate equations
 //
+
+/* Handle the selection of cooling and chemistry modules */
+
+   int MultiSpeciesHandler();
 
 /* Solve the radiative cooling/heating equations  */
 
@@ -806,7 +815,7 @@ class grid
 
 /* Gravity: Allocate and make initial guess for PotentialField. */
 
-   int SolveForPotential(int &Done, int level, FLOAT PotentialTime = -1);
+   int SolveForPotential(int level, FLOAT PotentialTime = -1);
 
 /* Gravity: Prepare the Greens Function. */
 
@@ -857,6 +866,7 @@ class grid
 /* Gravity: Delete AccelerationField. */
 
    void DeleteAccelerationField() {
+     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
      for (int dim = 0; dim < GridRank; dim++) {
        delete [] AccelerationField[dim];
        AccelerationField[dim] = NULL;
@@ -932,6 +942,7 @@ class grid
 /* Particles: delete accleration fields. */
 
    void DeleteParticleAcceleration() {
+     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
      for (int dim = 0; dim < GridRank+ComputePotential; dim++) {
        delete [] ParticleAcceleration[dim];
        ParticleAcceleration[dim] = NULL;
@@ -1519,7 +1530,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
 /* Star Particle handler routine. */
 
-  int StarParticleHandler(int level);
+  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level);
 
 /* Apply a time-action to a grid. */
 
@@ -1541,9 +1552,25 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   // Flag cells that overlap a subgrid (used for analysis).
   int FlagRefinedCells(grid *Subgrid);
   
-  // Check to see if the grid overlaps a volume.
-  // Doesn't care about periodicity. */
-  inline int IsInVolume( float *LeftEdge, float *RightEdge ){
+  inline int IsInVolume( Eflt32 *LeftEdge, Eflt32 *RightEdge ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( (GridLeftEdge[i] >= RightEdge[i]) ||
+	  (GridRightEdge[i] <= LeftEdge[i]) ){
+	return FALSE;
+      }
+    }
+     return TRUE;
+  }
+  inline int IsInVolume( Eflt64 *LeftEdge, Eflt64 *RightEdge ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( (GridLeftEdge[i] >= RightEdge[i]) ||
+	  (GridRightEdge[i] <= LeftEdge[i]) ){
+	return FALSE;
+      }
+    }
+     return TRUE;
+  }
+  inline int IsInVolume( Eflt128 *LeftEdge, Eflt128 *RightEdge ){
     for( int i = 0; i < GridRank; i++ ){
       if( (GridLeftEdge[i] >= RightEdge[i]) ||
 	  (GridRightEdge[i] <= LeftEdge[i]) ){
@@ -1553,33 +1580,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
      return TRUE;
   }
 
-#if !defined(r4) || defined(p16)
-  // FLOAT version of above
-  inline int IsInVolume( FLOAT *LeftEdge, FLOAT *RightEdge ){
-    for( int i = 0; i < GridRank; i++ ){
-      if( (GridLeftEdge[i] >= RightEdge[i]) ||
-	  (GridRightEdge[i] <= LeftEdge[i]) ){
-	return FALSE;
-      }
-    }
-     return TRUE;
-  }
-#endif
 
 
-  // Check to see if a point is in the grid.
-  inline int PointInGrid( float *point ){
-    for( int i = 0; i < GridRank; i++ ){
-      if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
-	return FALSE;
-    }
-    return TRUE;
-  }
-
-#if !defined(r4) || defined(p16)
   // Check to see if a FLOAT point is in the grid.
-  inline int PointInGrid( FLOAT *point ){
+  inline int PointInGrid( Eflt32 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
 	  (point[i] <= GridRightEdge[i])) == FALSE )
@@ -1587,7 +1591,22 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     }
     return TRUE;
   }
-#endif
+  inline int PointInGrid( Eflt64 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= GridLeftEdge[i]) &&
+	  (point[i] <= GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+  inline int PointInGrid( Eflt128 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= GridLeftEdge[i]) &&
+	  (point[i] <= GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
 
   // Flags a 3D array where the grid overlaps.
   // Very similar to the FastSib stuff. (I think.)
@@ -1600,6 +1619,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 #   include "Grid_AnalyzeClusters.h"
 #endif
 
+#ifdef USE_PYTHON
+    void ConvertToNumpy(int GridID, PyArrayObject *container[],
+                        int ParentID, int level, FLOAT WriteTime);
+#endif
 //------------------------------------------------------------------------
 // Methods for star formation
 //------------------------------------------------------------------------
@@ -1760,11 +1783,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				  float p_sphere[MAX_SPHERES],
 				  float cs_sphere[MAX_SPHERES],
 				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-				  float omega_sphere[MAX_SPHERES], float B0, float theta_B,
+				  float omega_sphere[MAX_SPHERES], float Bnaught, float theta_B,
 				  int   sphere_type[MAX_SPHERES],
 				  float rho_medium, float p_medium, int level);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				  float B0, int seed, int level);
+				  float Bnaught, int seed, int level);
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],
 			       FLOAT HaloCoreRadius[MAX_SPHERES],

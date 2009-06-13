@@ -23,6 +23,7 @@
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -69,7 +70,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
  
   hsize_t     mem_stride, mem_count, file_stride, file_count;
  
-  hssize_t    mem_offset, file_offset;
+  hsize_t    mem_offset, file_offset;
  
   herr_t      h5_status;
   herr_t      h5_error = -1;

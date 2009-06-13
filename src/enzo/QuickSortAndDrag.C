@@ -11,6 +11,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
  
 #define SWAP(A, n1, n2, tmp) {tmp = A[n1]; A[n1] = A[n2]; A[n2] = tmp;}

@@ -79,6 +79,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
+#include "communication.h"
 #ifdef RAD_HYDRO
 #include "gFLDProblem.h"
 #endif

@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -23,13 +24,13 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
 #define TOLERANCE 1e-06
 #endif
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
 #define TOLERANCE 1e-12
 #endif
-#ifdef r16
+#ifdef CONFIG_BFLOAT_16
 #define TOLERANCE 1e-15
 #endif
 
@@ -93,7 +94,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Find Multi-species fields. */
@@ -104,7 +105,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				  DIINum, HDINum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /***********************************************************************
@@ -127,15 +128,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   // Correct if the volume with 27 cells is larger than the energy bubble volume
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
   float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
-  printf("BoxVolume = %lg, BubbleVolume = %lg\n", BoxVolume, BubbleVolume);
+  //printf("BoxVolume = %lg, BubbleVolume = %lg\n", BoxVolume, BubbleVolume);
   if (BoxVolume > BubbleVolume) {
-    printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
+    //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
     EjectaDensity *= BubbleVolume / BoxVolume;
     EjectaThermalEnergy *= BubbleVolume / BoxVolume;
   }
   if (cstar->level > level) {
-    printf("Reducing ejecta density and energy by 10%% on "
-	   "level %"ISYM" to avoid crashing.\n", level);
+//    printf("Reducing ejecta density and energy by 10%% on "
+//	   "level %"ISYM" to avoid crashing.\n", level);
     EjectaDensity *= 0.1;
     EjectaThermalEnergy *= 0.1;
   }
@@ -148,8 +149,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
   if (cstar->FeedbackFlag == SUPERNOVA || cstar->FeedbackFlag == CONT_SUPERNOVA) {
 
-    printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+//    printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {

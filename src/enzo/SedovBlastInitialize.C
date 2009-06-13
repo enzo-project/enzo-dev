@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -67,7 +68,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   if (MetaData.TopGridRank < 2 || MetaData.TopGridRank > 3) {
     printf("Cannot model SedovBlast in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }    
 
   /* There are four parameters:
@@ -175,7 +176,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					      SedovBlastTotalEnergy,
 					      SedovBlastVelocity) == FAIL) {
     fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* Create as many subgrids as there are refinement levels 
@@ -239,7 +240,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						   SedovBlastTotalEnergy,
 					        SedovBlastVelocity) == FAIL) {
 	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       /* set up the initial explosion area on the finest resolution subgrid */
@@ -250,14 +251,14 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 							       SedovBlastInnerTotalEnergy) 
 	      == FAIL) {
 	    fprintf(stderr, "Error in SedovBlastInitialize[Sub]Grid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
 	}
 	else
 	  if (Subgrid[lev]->GridData->SedovBlastInitializeGrid3D("sedov.in") 
 	      == FAIL) {
 	    fprintf(stderr, "Error in SedovBlastInitialize3D[Sub]Grid.\n");
-	    return FAIL;
+	    ENZO_FAIL("");
 	  }
     }
     else
@@ -271,7 +272,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				       *(Subgrid[lev-1]->GridData))
 	== FAIL) {
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   
   /* set up the root grid */
@@ -284,7 +285,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
   }
   else
@@ -292,13 +293,13 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       if (TopGrid.GridData->SedovBlastInitializeGrid(dr,
 						     SedovBlastInnerTotalEnergy) == FAIL) {
 	fprintf(stderr, "Error in SedovBlastInitializeGrid.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
     }
     else
       if (TopGrid.GridData->SedovBlastInitializeGrid3D("sedov.in") == FAIL) {
 	fprintf(stderr, "Error in SedovBlastInitializeGrid3D.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
   
 

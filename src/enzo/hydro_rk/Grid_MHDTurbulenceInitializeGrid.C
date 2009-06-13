@@ -30,7 +30,7 @@ void Turbulence_Generator(float **vel, int size, int ind, float sigma, float kmi
 			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
 
 int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				      float B0, int seed, int level)
+				      float Bnaught, int seed, int level)
 {
 
   NumberOfBaryonFields = 0;
@@ -109,7 +109,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint + 0.5*B0*B0/rho_medium;
+          BaryonField[ietot][n] = eint + 0.5*Bnaught*Bnaught/rho_medium;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint;
           }
@@ -121,14 +121,14 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint_out + 0.5*B0*B0/rho_out;
+          BaryonField[ietot][n] = eint_out + 0.5*Bnaught*Bnaught/rho_out;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint_out;
           }
 	}
 	BaryonField[iBx ][n] = 0.0;
 	BaryonField[iBy ][n] = 0.0;
-	BaryonField[iBz ][n] = B0;
+	BaryonField[iBz ][n] = Bnaught;
 	BaryonField[iPhi][n] = 0.0;
       }
     }

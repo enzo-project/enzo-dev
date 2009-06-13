@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,7 +54,7 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
 	CommunicationReceiveGridOne[CommunicationReceiveIndex] = this;
 	CommunicationReceiveGridTwo[CommunicationReceiveIndex] = this;
 	CommunicationReceiveCallType[CommunicationReceiveIndex] = 16;
-	for (dim = 0; dim < GridRank; dim++)
+	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  CommunicationReceiveArgumentInt[dim][CommunicationReceiveIndex] =
 	    GridDimension[dim];
       }

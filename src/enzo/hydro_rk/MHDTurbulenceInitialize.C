@@ -53,7 +53,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = TRUE;
   int RandomSeed = 1;
-  float rho_medium=1.0, cs=1.0, mach=1.0, B0=0.0;
+  float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
 
   /* read input from file */
 
@@ -67,7 +67,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "Density = %f", &rho_medium);
     ret += sscanf(line, "SoundVelocity = %f", &cs);
     ret += sscanf(line, "MachNumber = %f", &mach);
-    ret += sscanf(line, "InitialBfield = %f", &B0);
+    ret += sscanf(line, "InitialBfield = %f", &Bnaught);
     ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
 
   } // end input from parameter file
@@ -80,14 +80,14 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     
   rho_medium /= rhou;
   cs /= velu;
-  B0 /= bfieldu;
+  Bnaught /= bfieldu;
 
   printf("rhou=%g,velu=%g,lenu=%g,tu=%g,presu=%g,bfieldu=%g, tempu=%g\n", 
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
-  printf("rho_medium=%g, cs=%g, B0=%g\n", rho_medium, cs, B0);
+  printf("rho_medium=%g, cs=%g, Bnaught=%g\n", rho_medium, cs, Bnaught);
 
   if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-						    B0, RandomSeed, 0) == FAIL) {
+						    Bnaught, RandomSeed, 0) == FAIL) {
     fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
     return FAIL;
   }
@@ -128,7 +128,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
 	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-							B0, RandomSeed, level) == FAIL) {
+							Bnaught, RandomSeed, level) == FAIL) {
 	  fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
 	  return FAIL;
 	}

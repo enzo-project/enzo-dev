@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -63,7 +64,7 @@ int grid::FlagCellsToBeRefinedByShocks()
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* loop over active dimensions */
@@ -107,10 +108,10 @@ int grid::FlagCellsToBeRefinedByShocks()
 //		            (BaryonField[DensNum][index]*(Gamma-1.0)*
 //			     BaryonField[TENum  ][index]);
  
-	      FlaggingField[index] =
+	      FlaggingField[index] +=
 		(DelPressure > MinimumPressureJumpForRefinement &&
 		 DelVelocity > 0                                &&
-		 EnergyRatio > MinimumEnergyRatioForRefinement     );
+		 EnergyRatio > MinimumEnergyRatioForRefinement     ) ? 1 : 0;
 	    }
  
 	Offset *= GridDimension[dim];
@@ -125,7 +126,7 @@ int grid::FlagCellsToBeRefinedByShocks()
  
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
-    if (FlaggingField[i])
+    if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
  
   return NumberOfFlaggedCells;

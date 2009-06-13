@@ -20,10 +20,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
+#include <math.h>
 
 
  
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -43,8 +44,11 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int WriteStringAttr(hid_t dset_id, char *Alabel, char *String, FILE *log_fptr);
 int FindField(int field, int farray[], int numfields);
- 
- 
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+
 int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id)
 {
  
@@ -349,7 +353,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* If this is cosmology, compute the temperature field as well since
        its such a pain to compute after the fact. */
  
-    if (ComovingCoordinates || ProblemType == 62) {
+    if (OutputTemperature) {
  
       /* Allocate field and compute temperature. */
  
@@ -357,7 +361,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
  
       /* Copy active part of field into grid */
@@ -407,7 +411,76 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
       delete temperature;
  
-    } // end: if (ComovingCoordinates)
+    } // end: if (OutputTemperature)
+
+    if (OutputCoolingTime) {
+ 
+      /* Allocate field and compute cooling time. */
+
+      float *cooling_time = new float[size];
+ 
+      float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+	VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, aUnits = 1;
+      GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, Time);
+
+      if (this->ComputeCoolingTime(cooling_time) == FAIL) {
+	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
+	ENZO_FAIL("");
+      }
+
+      // Make all cooling time values positive and convert to seconds.
+      for (i = 0;i < size;i++) {
+	cooling_time[i] = fabs(cooling_time[i]) * TimeUnits;
+      }
+ 
+      /* Copy active part of field into grid */
+ 
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+	    temp[(i-GridStartIndex[0])                           +
+	         (j-GridStartIndex[1])*ActiveDim[0]              +
+	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		     io_type(
+		   cooling_time[(k*GridDimension[1] + j)*GridDimension[0] + i]
+			     );
+ 
+       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = Cooling_Time\n");
+ 
+      dset_id = H5Dcreate(group_id, "Cooling_Time", file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      WriteStringAttr(dset_id, "Label", "Temperature", log_fptr);
+      WriteStringAttr(dset_id, "Units", "K", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      delete cooling_time;
+ 
+    } // if (OutputCoolingTime)
  
     /* Make sure that there is a copy of dark matter field to save
        (and at the right resolution). */
@@ -684,7 +757,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
  
     if (ParticleType == NULL)
-      return FAIL;
+      ENZO_FAIL("");
  
     for (i = 0; i < NumberOfParticles; i++)
       tempint[i] = ParticleType[i];
