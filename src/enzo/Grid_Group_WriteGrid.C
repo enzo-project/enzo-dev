@@ -78,13 +78,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+				    "metallicity_fraction", "alpha_fraction" };
 #ifdef IO_LOG
   int         io_log = 1;
 #else
   int         io_log = 0;
 #endif
- 
+				    
+				   io_log=1 ; 
   /* initialize */
  
   char id[MAX_GROUP_TAG_SIZE];

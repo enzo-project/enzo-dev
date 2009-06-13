@@ -93,7 +93,17 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
+
+
   // update conserved variables
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    return FAIL;
+  }
+
 
   float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
     rho, vx, vy, vz, e, etot, Tau, eint, p, v2,
@@ -105,23 +115,23 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	// first convert to conserved variables to do the update
 	igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-	rho_old  = OldBaryonField[iden ][igrid];
-	vx_old   = OldBaryonField[ivx  ][igrid];
-	vy_old   = OldBaryonField[ivy  ][igrid];
-	vz_old   = OldBaryonField[ivz  ][igrid];
-	etot_old = OldBaryonField[ietot][igrid];
+	rho_old  = OldBaryonField[DensNum ][igrid];
+	vx_old   = OldBaryonField[Vel1Num  ][igrid];
+	vy_old   = OldBaryonField[Vel2Num][igrid];
+	vz_old   = OldBaryonField[Vel3Num ][igrid];
+	etot_old = OldBaryonField[TENum][igrid];
 	if (DualEnergyFormalism) {
-	  eint_old = OldBaryonField[ieint][igrid];
+	  eint_old = OldBaryonField[GENum][igrid];
 	}
 	Tau_old = rho_old*etot_old;
 
-	rho  = BaryonField[iden ][igrid];
-	vx   = BaryonField[ivx  ][igrid];
-	vy   = BaryonField[ivy  ][igrid];
-	vz   = BaryonField[ivz  ][igrid];
-	etot = BaryonField[ietot][igrid];
+	rho  = BaryonField[DensNum ][igrid];
+	vx   = BaryonField[Vel1Num][igrid];
+	vy   = BaryonField[Vel2Num][igrid];
+	vz   = BaryonField[Vel3Num][igrid];
+	etot = BaryonField[TENum][igrid];
 	if (DualEnergyFormalism) {
-	  eint = BaryonField[ieint][igrid];
+	  eint = BaryonField[GENum][igrid];
 	}
 	Tau = rho*etot;
 
@@ -173,11 +183,11 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	  //return FAIL;
 	}
 	
-	BaryonField[iden ][igrid] = D_new;
-	BaryonField[ivx  ][igrid] = vx;
-	BaryonField[ivy  ][igrid] = vy;
-	BaryonField[ivz  ][igrid] = vz;
-	BaryonField[ietot][igrid] = etot;
+	BaryonField[DensNum ][igrid] = D_new;
+	BaryonField[Vel1Num ][igrid] = vx;
+	BaryonField[Vel2Num][igrid] = vy;
+	BaryonField[Vel3Num  ][igrid] = vz;
+	BaryonField[TENum][igrid] = etot;
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  eint = Eint_new/D_new;
@@ -196,8 +206,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	    eint = eint1;
 	  }
 	  eint = max(eint, emin);
-	  BaryonField[ieint][igrid] = eint;
-	  BaryonField[ietot][igrid] = eint + 0.5*v2;
+	  BaryonField[GENum][igrid] = eint;
+	  BaryonField[TENum][igrid] = eint + 0.5*v2;
 	  
 	  if (eint < 0.0) {
 	    printf("UpdatePrim:eint < 0, cs2=%g, eta*v2=%g, eint=%g, etot=%g, v2=%g, p=%g, rho=%g,eint1=%g\n", 
@@ -208,8 +218,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	    printf("dU=%g %g %g %g %g, Tau_old=%g\n", 
 		   dU[iD][n], dU[iS1][n], dU[iS2][n], dU[iS3][n], dU[iEtot][n], Tau_old);
 	    //return FAIL;
-	    BaryonField[ieint][igrid] = OldBaryonField[ieint][igrid];
-	    BaryonField[ietot][igrid] = OldBaryonField[ietot][igrid];
+	    BaryonField[GENum][igrid] = OldBaryonField[GENum][igrid];
+	    BaryonField[TENum][igrid] = OldBaryonField[TENum][igrid];
 	  }
 	}
       }
