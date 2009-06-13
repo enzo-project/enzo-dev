@@ -28,7 +28,6 @@
 void ExposeGridHierarchy(int NumberOfGrids)
 {
 
-
 #ifdef USE_PYTHON
 #undef int
 
