@@ -43,6 +43,24 @@ int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
     int grid1, counter,subgrid;
     HierarchyEntry *NextGrid;
     int RefinementFactors[MAX_DIMENSION];
+
+
+    /* For each grid, compute the number of it's subgrids. */
+ 
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      NextGrid = Grids[grid1]->NextGridNextLevel;
+      counter = 0;
+      while (NextGrid != NULL) {
+	NextGrid = NextGrid->NextGridThisLevel;
+	if (++counter > MAX_NUMBER_OF_SUBGRIDS) {
+	  fprintf(stderr, "More subgrids than MAX_NUMBER_OF_SUBGRIDS.\n");
+	  ENZO_FAIL("");
+	}
+      }
+      NumberOfSubgrids[grid1] = counter + 1;
+    }
+
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       /* Allocate the subgrid fluxes for this grid. */

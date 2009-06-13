@@ -49,6 +49,7 @@ int CreateSUBlingList(TopGridData *MetaData,
 		      int NumberOfGrids,
 		      LevelHierarchyEntry ***SUBlingList)
 {
+
   if( FluxCorrection != TRUE ) 
     return SUCCESS;
 

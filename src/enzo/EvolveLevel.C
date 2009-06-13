@@ -99,7 +99,10 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 		    TopGridData *MetaData, int *CycleCount, int open=FALSE);
- 
+int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
+				int GridNum, float *norm, float TopGridTimeStep, 
+				int level, int LevelCycleCount[]);  //moo
+
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
@@ -313,29 +316,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 				   dtLevelAbove);
 #endif /* TRANSFER */
-
-    /* For each grid, compute the number of it's subgrids. */
- 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-      NextGrid = Grids[grid1]->NextGridNextLevel;
-      counter = 0;
-      while (NextGrid != NULL) {
-	NextGrid = NextGrid->NextGridThisLevel;
-	if (++counter > MAX_NUMBER_OF_SUBGRIDS) {
-	  fprintf(stderr, "More subgrids than MAX_NUMBER_OF_SUBGRIDS.\n");
-	  ENZO_FAIL("");
-	}
-      }
-      NumberOfSubgrids[grid1] = counter + 1;
-    }
  
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
     /* ------------------------------------------------------- */
     /* Prepare the density field (including particle density). */
- 
-//  fprintf(stderr, "%"ISYM": EvolveLevel: Enter PrepareDensityField\n", MyProcessorNumber);
- 
+
     When = 0.5;
  
 #ifdef FAST_SIB
@@ -345,40 +331,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif  // end FAST_SIB
  
  
-//  fprintf(stderr, "%"ISYM": EvolveLevel: Exit PrepareDensityField\n", MyProcessorNumber);
- 
     /* Prepare normalization for random forcing. Involves top grid only. */
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
-                                             &norm, &TopGridTimeStep);
+				      &norm, &TopGridTimeStep);
  
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
-      // dcc problem analysis cut  start
+      CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
+				  TopGridTimeStep, level, LevelCycleCount);
 
-      /* Call analysis routines. */
-
-//      if (ProblemType == 24)
-//	Grids[grid1]->GridData->SphericalInfallGetProfile(level, 1);
-//      if (ProblemType == 30)
-//	Grids[grid1]->GridData->AnalyzeTrackPeaks(level, 0);
-//      if (ProblemType == 27)
-//	if (Grids[grid1]->GridData->ReturnProcessorNumber()==MyProcessorNumber){
-//	  float AM[3], MeanVelocity[3], DMVelocity[3];
-//	  FLOAT Center[] = {0,0,0}, CenterOfMass[3], DMCofM[3];
-//	  Grids[grid1]->GridData->CalculateAngularMomentum(Center, AM,
-//			   MeanVelocity, DMVelocity, CenterOfMass, DMCofM);
-//	  fprintf(stdout, "level = %"ISYM" %"ISYM" %"ISYM"  Vel %"FSYM" %"FSYM" %"FSYM"  DMVel %"FSYM" %"FSYM" %"FSYM"  CofM %"PSYM" %"PSYM" %"PSYM"  DMCofM %"FSYM" %"FSYM" %"FSYM"\n",
-//		level, LevelCycleCount[level], grid1, MeanVelocity[0],
-//		MeanVelocity[1], MeanVelocity[2],
-//		DMVelocity[0], DMVelocity[1], DMVelocity[2],
-//		-CenterOfMass[0], -CenterOfMass[1], -CenterOfMass[2],
-//		DMCofM[0], DMCofM[1], DMCofM[2]);
-//	}
- 
       /* Gravity: compute acceleration field for grid and particles. */
  
       if (SelfGravity) {
@@ -405,9 +370,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
 
-      // dcc gravity cut stop
-
-
       /* Check for energy conservation. */
 /*
       if (ComputePotential)
@@ -431,17 +393,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
-      //dcc cut Forcing to problem specific analysis
-
-      /* Add RandomForcing fields to velocities after the copying of current
-         fields to old. I also update the total energy accordingly here.
-         It makes no sense to force on the very first time step. */
- 
-      if (MetaData->CycleNumber > 0)
-        Grids[grid1]->GridData->AddRandomForcing(&norm, TopGridTimeStep);
-
-      //dcc cut stop Forcing
-
       /* Call hydro solver and save fluxes around subgrids. */
 
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
@@ -455,12 +406,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Solve the cooling and species rate equations. */
  
-//      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
-
       Grids[grid1]->GridData->MultiSpeciesHandler();
 
-
-    //dcc cut start particles
       /* Update particle positions (if present). */
  
       UpdateParticlePositions(Grids[grid1]->GridData);
@@ -475,6 +422,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	 if (level != MaximumGravityRefinementLevel ||
 	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	     Grids[grid1]->GridData->DeleteAccelerationField();
+
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       /* Update current problem time of this subgrid. */
@@ -512,15 +460,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       When = 0.0;
  
 #ifdef FAST_SIB
-      if (PrepareDensityField(LevelArray, SiblingList, level, MetaData, When) == FAIL) {
-        fprintf(stderr, "Error in PrepareDensityField.\n");
-        ENZO_FAIL("");
-      }
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
-      if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
-        fprintf(stderr, "Error in PrepareDensityField.\n");
-        ENZO_FAIL("");
-      }
+      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
  
       CopyGravPotential = FALSE;
@@ -531,16 +473,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           /* Compute the potential. */
  
           if (level > 0)
-            if (Grids[grid1]->GridData->SolveForPotential(level)
-                == FAIL) {
-              fprintf(stderr, "Error in grid->SolveForPotential.\n");
-              ENZO_FAIL("");
-            }
-          // fprintf(stderr, "Call CP from EvolveLevel\n");
+            Grids[grid1]->GridData->SolveForPotential(level);
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
         }
-        /* otherwise output empty potential field. */
- 
       } //  end loop over grids
     } // if WritePotential
  
@@ -553,7 +488,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Evolve the next level down (recursively). */
  
     MetaData->FirstTimestepAfterRestart = FALSE;
-    if (dbx) fprintf(stderr, "EL Level %"ISYM" going to Level %"ISYM"\n", level, level+1);
+
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
@@ -561,9 +496,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-    // Update lcaperf "level" attribute
 
 #ifdef USE_JBPERF
+    // Update lcaperf "level" attribute
+
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
@@ -579,8 +515,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       MetaData->TimestepCounter++;
     }
 
-    if (dbx) fprintf(stderr, "EL Level %"ISYM" returns from Level %"ISYM"\n", level, level+1);
-
     /* ------------------------------------------------------- */
     /* For each grid,
      * (a) project the subgrid's solution into this grid (step #18)
@@ -588,34 +522,22 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      *     subgrid's fluxes. (step #19)
      */
  
-    //dcc cut start flux fix
 #ifdef FLUX_FIX
-
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
     CreateSUBlingList(MetaData, Grids,NumberOfGrids, &SUBlingList);
-
-
 #endif
 
 #ifdef FLUX_FIX
-    if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
-			     SubgridFluxesEstimate,
-			     SUBlingList,
-			     MetaData) == FAIL)
-      ENZO_FAIL("");
+    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
+			     SubgridFluxesEstimate,SUBlingList,MetaData);
 #else
-    if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
-			     SubgridFluxesEstimate) == FAIL)
-      ENZO_FAIL("");
+    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
+			 SubgridFluxesEstimate);
 #endif
-
-    if (dbx) fprintf(stderr, "OK after UpdateFromFinerGrids \n");
 
 #ifdef FLUX_FIX
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 #endif
-
-    if (dbx) fprintf(stderr, "OK after DeleteSUBlingList \n");
 
   /* ------------------------------------------------------- */
   /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
@@ -637,14 +559,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
     if (dtThisLevelSoFar < dtLevelAbove) {
-      if (RebuildHierarchy(MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
-      }
+      RebuildHierarchy(MetaData, LevelArray, level);
     }
 
     /* Count up number of grids on this level. */
-    // ? dcc
+
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -666,7 +585,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* If possible & desired, report on memory usage. */
  
-  //  if (debug)
+
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
 #ifdef USE_JBPERF
@@ -693,7 +612,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] SiblingList;
   }
 
-  if (dbx) fprintf(stderr, "Return from EL Level %"ISYM"\n", level);
  
   return SUCCESS;
  

@@ -51,7 +51,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 			  int level, ExternalBoundary *Exterior){
 
   int Write = FALSE, ExitEnzo = FALSE, NumberOfGrids;
-  HierarchyEntry **Grids;    
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -170,7 +169,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
   }//Finest Level
 
-  delete []Grids;
   if( ExitEnzo == TRUE ){
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");
