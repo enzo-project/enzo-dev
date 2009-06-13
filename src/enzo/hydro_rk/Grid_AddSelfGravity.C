@@ -21,6 +21,13 @@ int grid::AddSelfGravity(float coef)
     return SUCCESS;
   }
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    return FAIL;
+  }
+
   if (Coordinate == Cartesian) {
     int igrid;
     float temp1, temp2, gx, gy, gz;
@@ -34,23 +41,23 @@ int grid::AddSelfGravity(float coef)
 	  gx = AccelerationField[0][igrid];
 	  gy = (GridRank > 1) ? AccelerationField[1][igrid] : 0.0;
 	  gz = (GridRank > 2) ? AccelerationField[2][igrid] : 0.0;
-	  vx = BaryonField[ivx][igrid];
-	  vy = BaryonField[ivy][igrid];
-	  vz = BaryonField[ivz][igrid];
-	  vx_old = OldBaryonField[ivx][igrid];
-	  vy_old = OldBaryonField[ivy][igrid];
-	  vz_old = OldBaryonField[ivz][igrid];
+	  vx = BaryonField[Vel1Num][igrid];
+	  vy = BaryonField[Vel2Num][igrid];
+	  vz = BaryonField[Vel3Num][igrid];
+	  vx_old = OldBaryonField[Vel1Num][igrid];
+	  vy_old = OldBaryonField[Vel2Num][igrid];
+	  vz_old = OldBaryonField[Vel3Num][igrid];
 
 	  /*BaryonField[ivx][igrid] += coef*gx*temp1*dtFixed;
 	  BaryonField[ivy][igrid] += coef*gy*temp1*dtFixed;
 	  BaryonField[ivz][igrid] += coef*gz*temp1*dtFixed;
 	  BaryonField[ietot][igrid] += ceof**/
 
-	  BaryonField[ivx][igrid] += coef*gx*temp2;
-	  BaryonField[ivy][igrid] += coef*gy*temp2;
-	  BaryonField[ivz][igrid] += coef*gz*temp2;
+	  BaryonField[Vel1Num][igrid] += coef*gx*temp2;
+	  BaryonField[Vel2Num][igrid] += coef*gy*temp2;
+	  BaryonField[Vel3Num][igrid] += coef*gz*temp2;
 
-	  BaryonField[ietot][igrid] += 
+	  BaryonField[TENum][igrid] += 
 	    coef*dtFixed*0.5*(gx*(vx+vx_old*temp1)+gy*(vy+vy_old*temp1)+gz*(vz+vz_old*temp1));
 	}
       }

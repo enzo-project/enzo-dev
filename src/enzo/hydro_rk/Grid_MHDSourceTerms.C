@@ -32,6 +32,15 @@ int grid::MHDSourceTerms(float **dU)
     return SUCCESS;
   }
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+    B1Num, B2Num, B3Num, PhiNum, HMNum, H2INum, H2IINum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    return FAIL;
+  }
+
+
 #ifdef USE
   /* Dedner MHD formulation source terms */
 
@@ -45,9 +54,9 @@ int grid::MHDSourceTerms(float **dU)
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	igrid = i+(j+k*GridDimension[1])*GridDimension[0];
 
-	Bx = BaryonField[iBx][igrid];
-	By = BaryonField[iBy][igrid];
-	Bz = BaryonField[iBz][igrid];
+	Bx = BaryonField[B1Num][igrid];
+	By = BaryonField[B2Num][igrid];
+	Bz = BaryonField[B3Num][igrid];
 	/*igridyp1 = i+(j+1+k*GridDimension[1])*GridDimension[0];
 	igridym1 = i+(j-1+k*GridDimension[1])*GridDimension[0];
 	igridzp1 = i+(j+(k+1)*GridDimension[1])*GridDimension[0];
@@ -89,11 +98,11 @@ int grid::MHDSourceTerms(float **dU)
 	  jm1 = (GridRank > 1) ? i + GridDimension[0]*(j - 1 + k*GridDimension[1]) : 0;
 	  kp1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k+1)*GridDimension[1]) : 0;
 	  km1 = (GridRank > 2) ? i + GridDimension[0]*(j + (k-1)*GridDimension[1]) : 0;
-	  divVdt = dtdx*(BaryonField[ivx][ip1] - BaryonField[ivx][im1]) +
-	    dtdy*(BaryonField[ivy][jp1] - BaryonField[ivy][jm1]) +
-	    dtdz*(BaryonField[ivz][kp1] - BaryonField[ivz][km1]);
-	  rho = BaryonField[iden][igrid];
-	  eint = BaryonField[ieint][igrid];
+	  divVdt = dtdx*(BaryonField[Vel1Num][ip1] - BaryonField[Vel1Num][im1]) +
+	    dtdy*(BaryonField[Vel2Num][jp1] - BaryonField[Vel2Num][jm1]) +
+	    dtdz*(BaryonField[Vel3Num][kp1] - BaryonField[Vel3Num][km1]);
+	  rho = BaryonField[DensNum][igrid];
+	  eint = BaryonField[GENum][igrid];
 	  eint = max(eint, min_coeff*rho);
 	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
 	  dU[iEint][n] -= p*divVdt;
@@ -113,18 +122,18 @@ int grid::MHDSourceTerms(float **dU)
           igrid = i+(j+k*GridDimension[1])*GridDimension[0];
           x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 
-          rho = BaryonField[iden ][igrid];
-          vx  = BaryonField[ivx  ][igrid];
-          vy  = BaryonField[ivy  ][igrid];
-          vz  = BaryonField[ivz  ][igrid];
-	  Bx  = BaryonField[iBx  ][igrid];
-	  By  = BaryonField[iBy  ][igrid];
-	  Bz  = BaryonField[iBz  ][igrid];
+          rho = BaryonField[DensNum][igrid];
+          vx  = BaryonField[Vel1Num][igrid];
+          vy  = BaryonField[Vel2Num][igrid];
+          vz  = BaryonField[Vel3Num][igrid];
+	  Bx  = BaryonField[B1Num  ][igrid];
+	  By  = BaryonField[B2Num  ][igrid];
+	  Bz  = BaryonField[B3Num  ][igrid];
 	  if (DualEnergyFormalism) {
 	    eint = BaryonField[ieint][igrid];
 	  }
 	  else {
-	    etot = BaryonField[ietot][igrid];
+	    etot = BaryonField[TENum][igrid];
 	    v2 = vx*vx + vy*vy + vz*vz;
 	    B2 = Bx*Bx + By*By + Bz*Bz;
 	    eint = etot - 0.5*v2 - 0.5*B2/rho;
@@ -150,14 +159,14 @@ int grid::MHDSourceTerms(float **dU)
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[iden][igrid];
+	  rho = BaryonField[DensNum][igrid];
 	  
 	  gx = ConstantAcceleration[0];
 	  gy = ConstantAcceleration[1];
 	  gz = ConstantAcceleration[2];
-	  vx = BaryonField[ivx][igrid];
-	  vy = BaryonField[ivy][igrid];
-	  vz = BaryonField[ivz][igrid];
+	  vx = BaryonField[Vel1Num][igrid];
+	  vy = BaryonField[Vel2Num][igrid];
+	  vz = BaryonField[Vel3Num][igrid];
 	  
 	  dU[iS1][n] += dtFixed*gx*rho;
 	  dU[iS2][n] += dtFixed*gy*rho;
@@ -178,14 +187,14 @@ int grid::MHDSourceTerms(float **dU)
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[iden][igrid];
+	  rho = BaryonField[DensNum][igrid];
 	  
 	  gx = AccelerationField[0][igrid];
 	  gy = AccelerationField[1][igrid];
 	  gz = AccelerationField[2][igrid];
-	  vx = BaryonField[ivx][igrid];
-	  vy = BaryonField[ivy][igrid];
-	  vz = BaryonField[ivz][igrid];
+	  vx = BaryonField[Vel1Num][igrid];
+	  vy = BaryonField[Vel2Num][igrid];
+	  vz = BaryonField[Vel3Num][igrid];
 	  
 	  dU[iS1  ][n] += dtFixed*gx*rho;
 	  dU[iS2  ][n] += dtFixed*gy*rho;
@@ -223,17 +232,17 @@ int grid::MHDSourceTerms(float **dU)
 	  r = sqrt(pow(x-0.5,2) + pow(y-0.5,2) + pow(z-0.5,2));
 	
 
-	  rho    = BaryonField[iden     ][igrid];
+	  rho    = BaryonField[DensNum     ][igrid];
 	  drivex = BaryonField[Drive1Num][igrid];
 	  drivey = BaryonField[Drive2Num][igrid];
 	  drivez = BaryonField[Drive3Num][igrid];
-	  vx     = BaryonField[ivx      ][igrid];
-	  vy     = BaryonField[ivy      ][igrid];
-	  vz     = BaryonField[ivz      ][igrid];
+	  vx     = BaryonField[Vel1Num      ][igrid];
+	  vy     = BaryonField[Vel2Num      ][igrid];
+	  vz     = BaryonField[Vel3Num      ][igrid];
 
-	  float eint = BaryonField[ietot][igrid] - 0.5*sqrt(vx*vx + vy*vy + vz*vz)
-	    -0.5*sqrt(pow(BaryonField[iBx][igrid],2)+pow(BaryonField[iBy][igrid],2)
-		      +pow(BaryonField[iBz][igrid],2))/rho;
+	  float eint = BaryonField[TENum][igrid] - 0.5*sqrt(vx*vx + vy*vy + vz*vz)
+	    -0.5*sqrt(pow(BaryonField[B1Num][igrid],2)+pow(BaryonField[B2Num][igrid],2)
+		      +pow(BaryonField[B3Num][igrid],2))/rho;
 
 	  float T = eint*Mu*(Gamma-1.0)*tempu;
 
@@ -266,13 +275,13 @@ int grid::MHDSourceTerms(float **dU)
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[iden][igrid];
+	  rho = BaryonField[DensNum][igrid];
 	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];//-0.5;
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];//-0.5;
 	 
-	  vx = BaryonField[ivx][igrid];
-	  vy = BaryonField[ivy][igrid];
-	  vz = BaryonField[ivz][igrid];
+	  vx = BaryonField[Vel1Num][igrid];
+	  vy = BaryonField[Vel2Num][igrid];
+	  vz = BaryonField[Vel3Num][igrid];
 
 	  //adding Omega cross v term; given Omega in z direction
 	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*(vy+VelocityGradient*AngularVelocity*x);

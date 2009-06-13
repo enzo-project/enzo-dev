@@ -37,6 +37,14 @@ int grid::SetFloor()
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, 1.0);
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    return FAIL;
+  }
+
 #ifdef NOUSE
   float vx, vy, vz, v2, eint, emin, rho;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -77,19 +85,19 @@ int grid::SetFloor()
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 
 	int igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-	float rho = BaryonField[iden][igrid];
-	float Bx = BaryonField[iBx][igrid];
-	float By = BaryonField[iBy][igrid];
-	float Bz = BaryonField[iBz][igrid];
+	float rho = BaryonField[DensNum][igrid];
+	float Bx = BaryonField[B1Num][igrid];
+	float By = BaryonField[B2Num][igrid];
+	float Bz = BaryonField[B3Num][igrid];
 
 	float B2 = Bx*Bx + By*By + Bz*Bz;
 	float ca = sqrt(B2)/sqrt(rho);
 
 	if (ca > ca_min) {
-	  BaryonField[ietot][igrid] -= 0.5*B2/rho;
+	  BaryonField[TENum][igrid] -= 0.5*B2/rho;
 	  float rho1 = B2/pow(ca_min,2);
-	  BaryonField[iden][igrid] = rho1;
-	  BaryonField[ietot][igrid] += 0.5*B2/rho1;
+	  BaryonField[DensNum][igrid] = rho1;
+	  BaryonField[TENum][igrid] += 0.5*B2/rho1;
 	  //printf("floor set: (%g %g %g), rho: %g->%g\n", CellLeftEdge[0][i],
 	  // CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
 	}
