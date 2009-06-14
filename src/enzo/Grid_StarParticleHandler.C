@@ -213,7 +213,7 @@ int grid::StarParticleHandler(int level)
   /* initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, H2INum, H2IINum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
  
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
@@ -234,11 +234,30 @@ int grid::StarParticleHandler(int level)
  
   this->DebugCheck("StarParticleHandler");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     return FAIL;
   }
  
+  /* If using MHD, subtract magnetic energy from total energy because 
+     density may be modified in star_maker3. */
+  
+  float *Bfieldx = NULL, *Bfieldy = NULL, *Bfieldz = NULL;
+  if (HydroMethod == MHD_RK) {
+    Bfieldx = BaryonField[B1Num];
+    Bfieldy = BaryonField[B2Num];
+    Bfieldz = BaryonField[B3Num];
+    for (int n = 0; n < size; n++) {
+      float den = BaryonField[DensNum][n];
+      float Bx  = BaryonField[B1Num  ][n];
+      float By  = BaryonField[B2Num  ][n];
+      float Bz  = BaryonField[B3Num  ][n];
+      float B2 = Bx*Bx + By*By + Bz*Bz;
+      BaryonField[TENum][n] -= 0.5*B2/den;
+    }
+  }
+
+
   if (MultiSpecies > 1) {
     H2INum   = FindField(H2IDensity, FieldType, NumberOfBaryonFields);
     H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
@@ -588,7 +607,19 @@ int grid::StarParticleHandler(int level)
 	tg->ParticleAttribute[2][i] = 0.0;
  
     delete [] cooling_time;
+
+      /* Add magnetic energy to total energy with the new density field */
+    if (HydroMethod == MHD_RK)
+      for (int n = 0; n < size; n++) {
+	float den = BaryonField[DensNum][n];
+	float Bx  = BaryonField[B1Num  ][n];
+	float By  = BaryonField[B2Num  ][n];
+	float Bz  = BaryonField[B3Num  ][n];
+	float B2 = Bx*Bx + By*By + Bz*Bz;
+	BaryonField[TENum][n] += 0.5*B2/den;
+      }
  
+
     /* Move any new particles into their new homes. */
  
     if (NumberOfNewParticles > 0) {

@@ -65,9 +65,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
     /* Find fields: density, total energy, velocity1-3. */
  
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
+					 Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
       fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
       return FAIL;
     }
@@ -368,6 +368,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  BaryonField[TENum][i2] +=
 		    0.5 * BaryonField[Vel3Num][i2] * BaryonField[Vel3Num][i2];
 		}
+		if (HydroMethod == MHD_RK) {
+		  B2 = pow(BaryonField[B1Num][i1],2) + pow(BaryonField[B2Num][i1],2) +
+		    pow(BaryonField[B3Num][i1],2);
+		  BaryonField[TENum][i1] += 0.5 * B2 / BaryonField[DensNum][i1];
+		  B2 = pow(BaryonField[B1Num][i2],2) + pow(BaryonField[B2Num][i2],2) +
+		    pow(BaryonField[B3Num][i2],2);
+		  BaryonField[TENum][i2] += 0.5 * B2 / BaryonField[DensNum][i2];
+		}
+
  
 	      }
 		

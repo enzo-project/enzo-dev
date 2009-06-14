@@ -30,6 +30,8 @@
 #include "Grid.h"
 #include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
+#include "hydro_rk/EOS.h"
+#include "hydro_rk/tools.h"
  
 /* function prototypes */
  
@@ -66,6 +68,7 @@ float grid::ComputeTimeStep()
   float dtParticles    = huge_number;
   float dtExpansion    = huge_number;
   float dtAcceleration = huge_number;
+  float dtMHD          = huge_number;
   int dim, i, result;
  
   /* Compute the field size. */
@@ -139,6 +142,93 @@ float grid::ComputeTimeStep()
     dtBaryons *= CourantSafetyNumber;
  
   }
+
+  // MHD
+  if (NumberOfBaryonFields > 0 && HydroMethod == MHD_RK) {
+
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+      B1Num, B2Num, B3Num, PhiNum;
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+      return FAIL;
+    }
+
+    FLOAT dxinv = 1.0 / CellWidth[0][0];
+    FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0] : 0.0;
+    FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
+    float vxm, vym, vzm, Bm, rhom;
+    float dt_temp = 1.e-20, dt_ltemp, dt_x, dt_y, dt_z;
+    float rho, p, vx, vy, vz, v2, eint, etot, h, cs, cs2, dpdrho, dpde,
+      v_signal_x, v_signal_y, v_signal_z, cf, cf2, temp1, Bx, By, Bz, B2, ca2;
+    int n = 0;
+    float rho_dt, B_dt, v_dt;
+    for (int k = 0; k < GridDimension[2]; k++) {
+      for (int j = 0; j < GridDimension[1]; j++) {
+	for (int i = 0; i < GridDimension[0]; i++, n++) {
+	  rho = BaryonField[DensNum][n];
+	  vx  = BaryonField[Vel1Num][n];
+	  vy  = BaryonField[Vel2Num][n];
+	  vz  = BaryonField[Vel3Num][n];
+	  Bx  = BaryonField[B1Num][n];
+	  By  = BaryonField[B2Num][n];
+	  Bz  = BaryonField[B3Num][n];
+
+	  if (DualEnergyFormalism) {
+	    eint = BaryonField[GENum][n];
+	  }
+	  else {
+	    etot = BaryonField[TENum][n];
+	    v2 = vx*vx + vy*vy + vz*vz;
+	    B2 = Bx*Bx + By*By + Bz*Bz;
+	    eint = etot - 0.5*v2 - 0.5*B2/rho;
+	  }
+
+	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
+	  cs2 = cs*cs;
+	  temp1 = cs2 + B2/rho;
+
+	  ca2 = Bx*Bx/rho;
+	  cf2 = 0.5 * (temp1 + sqrt(temp1*temp1 - 4.0*cs2*ca2));
+	  cf = sqrt(cf2);
+	  v_signal_x = (cf + fabs(vx));
+
+	  ca2 = By*By/rho;
+	  cf2 = 0.5 * (temp1 + sqrt(temp1*temp1 - 4.0*cs2*ca2));
+	  cf = sqrt(cf2);
+	  v_signal_y = (cf + fabs(vy));
+
+	  ca2 = Bz*Bz/rho;
+	  cf2 = 0.5 * (temp1 + sqrt(temp1*temp1 - 4.0*cs2*ca2));
+	  cf = sqrt(cf2);
+	  v_signal_z = (cf + fabs(vz));
+
+	  dt_x = v_signal_x * dxinv;
+	  dt_y = v_signal_y * dyinv;
+	  dt_z = v_signal_z * dzinv;
+
+	  dt_ltemp = my_MAX(dt_x, dt_y, dt_z);
+
+	  if (dt_ltemp > dt_temp) {
+	    dt_temp = dt_ltemp;
+	    rho_dt = rho;
+	    B_dt = sqrt(Bx*Bx+By*By+Bz*Bz);
+	    v_dt = max(fabs(vx), fabs(vy));
+	    v_dt = max(v_dt, fabs(vz));
+	  }
+
+        }
+      }
+    }
+    dtMHD = CourantSafetyNumber / dt_temp;
+    //    if (dtMHD*TimeUnits/yr < 5) {
+    //float ca = B_dt/sqrt(rho_dt)*VelocityUnits;
+    //printf("dt=%g, rho=%g, B=%g\n, v=%g, ca=%g, dt=%g", dtMHD*TimeUnits/yr, rho_dt*DensityUnits, B_dt*MagneticUnits, 
+    //    v_dt*VelocityUnits/1e5, ca/1e5, LengthUnits/(dxinv*ca)/yr*CourantSafetyNumber);
+    // }
+
+  }
+
  
   /* 2) Calculate dt from particles. */
  
@@ -160,6 +250,7 @@ float grid::ComputeTimeStep()
  
   }
  
+
   /* 3) Find dt from expansion. */
  
   if (ComovingCoordinates)
@@ -218,6 +309,8 @@ float grid::ComputeTimeStep()
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
 
   dt = min(dt, dtStar);
+
+
 
   /* 7) If using radiation pressure, calculate minimum dt */
 

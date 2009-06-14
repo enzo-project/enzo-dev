@@ -25,6 +25,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "hydro_rk/EOS.h"
  
 /* function prototypes */
  
@@ -65,9 +66,9 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     return FAIL;
   }
@@ -95,18 +96,30 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	velocity2   = BaryonField[Vel2Num][i];
       if (GridRank > 2)
 	velocity3   = BaryonField[Vel3Num][i];
- 
+
+      if (EOSType > 0){
+
+	/* If using polytropic EOS, calculate pressure directly from density */
+
+	float e, h, cs, dpdrho, dpde;
+	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
+
+      } else { 
       /* gas energy = E - 1/2 v^2. */
+	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						velocity2*velocity2 +
+						velocity3*velocity3);
+ 	if (HydroMethod == MHD_RK) {
+	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+	    pow(BaryonField[B3Num][i],2);
+	  gas_energy -= OneHalf*B2/density;
+	}
+
+	pressure[i] = (Gamma - 1.0)*density*gas_energy;
  
-      gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-					   velocity2*velocity2 +
-					   velocity3*velocity3);
- 
-      pressure[i] = (Gamma - 1.0)*density*gas_energy;
- 
-      if (pressure[i] < tiny_number)
-	pressure[i] = tiny_number;
- 
+	if (pressure[i] < tiny_number)
+	  pressure[i] = tiny_number;
+      }
     } // end of loop
  
   else
@@ -129,18 +142,30 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	velocity3   = coef   *   BaryonField[Vel3Num][i] +
 	              coefold*OldBaryonField[Vel3Num][i];
  
+      if (EOSType > 0) {
+	
+	/* If using polytropic EOS, calculate pressure directly from density */
+	float e, h, cs, dpdrho, dpde;
+	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
+
+      } else {
       /* gas energy = E - 1/2 v^2. */
- 
-      gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-					  velocity2*velocity2 +
-					  velocity3*velocity3);
- 
-      pressure[i] = (Gamma - 1.0)*density*gas_energy;
- 
-      if (pressure[i] < tiny_number)
-	pressure[i] = tiny_number;
- 
-    }
+	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						velocity2*velocity2 +
+						velocity3*velocity3);
+	
+	if (HydroMethod == MHD_RK) {
+	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+	    pow(BaryonField[B3Num][i],2);
+	  gas_energy -= OneHalf*B2/density;
+	}
+	
+	pressure[i] = (Gamma - 1.0)*density*gas_energy;
+	
+	if (pressure[i] < tiny_number)
+	  pressure[i] = tiny_number;
+      }
+    } /* end of loop over cells */
  
   /* Correct for Gamma from H2. */
  
