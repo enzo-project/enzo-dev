@@ -107,6 +107,11 @@ grid::grid()
   MassFlaggingField             = NULL;
   FlaggingField                 = NULL;
 
+  divB = NULL;
+  for (int dim=0; dim<3; dim++) {
+    gradPhi[dim] = NULL;
+  }
+
 #ifdef TRANSFER
   NumberOfPhotonPackages                = 0;
   PhotonPackages = new PhotonPackageEntry;

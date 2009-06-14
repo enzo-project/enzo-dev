@@ -296,7 +296,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (MHD2DProblemType == 3) { 
 
     float eint, h, cs, dpdrho, dpde, etot;
-    float rho0 = 2.0, pres = 2.5, rho1 = 1.0, vx0 = 0.5, vx1 = -0.5, Bx = 0.0;
+    float rho0 = 2.0, pres = 2.5, rho1 = 1.0, vx0 = 0.5, vx1 = -0.5, Bx = 0.5;
 
     srand(1564);
     

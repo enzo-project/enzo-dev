@@ -35,8 +35,8 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
   int i, j, k, m, iflux, igrid;
   int idual = (DualEnergyFormalism) ? 1 : 0;
   float *FluxLine[NEQ_MHD+NSpecies+NColor];
-  float *Prim1[NEQ_MHD+NSpecies+NColor-idual];
-  float *priml[NEQ_MHD-idual], *primr[NEQ_MHD-idual], *species[NSpecies], *colors[NColor];
+  float *Prim1[NEQ_MHD+NSpecies+NColor+idual]; // was -idual instead of +idual here and next line .. TA
+  float *priml[NEQ_MHD+idual], *primr[NEQ_MHD+idual], *species[NSpecies], *colors[NColor];
   
   int Xactivesize = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
   int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
