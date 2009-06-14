@@ -346,6 +346,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
+
  
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
@@ -542,6 +543,43 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     sscanf(line, "LocalPath = %s\n", LocalPath);
     sscanf(line, "GlobalPath = %s\n", GlobalPath);
 #endif
+
+    /* This Block for Stanford Hydro */
+
+    ret += sscanf(line, "StringKick = %d", &StringKick);
+    ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
+    ret += sscanf(line, "Theta_Limiter = %f", &Theta_Limiter);
+    ret += sscanf(line, "RKOrder = %d", &RKOrder);
+    ret += sscanf(line, "UseFloor = %d", &UseFloor);
+    ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
+    ret += sscanf(line, "UseAmbipolarDiffusion = %d", &UseAmbipolarDiffusion);
+    ret += sscanf(line, "UseResistivity = %d", &UseResistivity);
+    ret += sscanf(line, "SmallRho = %g", &SmallRho);
+    ret += sscanf(line, "SmallP = %g", &SmallP);
+    ret += sscanf(line, "SmallT = %g", &SmallT);
+    ret += sscanf(line, "Coordinate = %d", &Coordinate);
+    ret += sscanf(line, "RiemannSolver = %d", &RiemannSolver);
+    ret += sscanf(line, "ReconstructionMethod = %d", &ReconstructionMethod);
+    ret += sscanf(line, "EOSType = %d", &EOSType);
+    ret += sscanf(line, "EOSSoundSpeed = %f", &EOSSoundSpeed);
+    ret += sscanf(line, "EOSCriticalDensity = %f", &EOSCriticalDensity);
+    ret += sscanf(line, "EOSGamma = %f", &EOSGamma);
+    ret += sscanf(line, "UseConstantAcceleration = %d", &UseConstantAcceleration);
+    ret += sscanf(line, "ConstantAcceleration = %g %g %g", &ConstantAcceleration[0],
+		  &ConstantAcceleration[1], &ConstantAcceleration[2]);
+    ret += sscanf(line, "Mu = %g", &Mu);
+    ret += sscanf(line, "CoolingCutOffDensity1 = %g", &CoolingCutOffDensity1);
+    ret += sscanf(line, "CoolingCutOffDensity2 = %g", &CoolingCutOffDensity2);
+    ret += sscanf(line, "CoolingCutOffTemperature = %g", &CoolingCutOffTemperature);
+    ret += sscanf(line, "CoolingPowerCutOffDensity1 = %g", &CoolingPowerCutOffDensity1);
+    ret += sscanf(line, "CoolingPowerCutOffDensity2 = %g", &CoolingPowerCutOffDensity2);
+    ret += sscanf(line, "UseH2OnDust           = %d", &UseH2OnDust);
+    ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
+
+#ifdef ECUDA
+    ret += sscanf(line, "UseCUDA = %d",&UseCUDA);
+#endif
+
  
     /* If the dummy char space was used, then make another. */
  

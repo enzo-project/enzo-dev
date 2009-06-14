@@ -45,6 +45,8 @@ void my_exit(int status);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
+#define TIME_MESSAGING 
+
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
@@ -199,6 +201,8 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
 #endif
   }//Write == TRUE
+
+  
   
   return SUCCESS;
 }

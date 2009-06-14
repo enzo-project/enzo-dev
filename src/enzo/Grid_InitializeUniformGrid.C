@@ -46,9 +46,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   int vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
-  if (GridRank > 1)
+  if (GridRank > 1 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity2;
-  if (GridRank > 2)
+  if (GridRank > 2 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
 
   int colorfields = NumberOfBaryonFields;

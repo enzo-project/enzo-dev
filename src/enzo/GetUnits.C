@@ -23,8 +23,6 @@
 #include "phys_constants.h"
 
 /* function prototypes */
-
-
 int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, FLOAT Time);
@@ -34,10 +32,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
                       float *VelocityUnits, float *MassUnits, FLOAT Time)
 
 {
-
-  
   /* If using cosmology, get cosmology units */
-
   if (ComovingCoordinates) {
     //    fprintf(stderr, "Using CosmologyCoordinates.\n");
     if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
@@ -47,21 +42,39 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
     }
   }
   else {
-
       /* Determine the units. */
-
       *DensityUnits = GlobalDensityUnits;
-
       *MassUnits = GlobalMassUnits;
-
       *LengthUnits      = GlobalLengthUnits;
-
       *TemperatureUnits = mh*pow(GlobalLengthUnits/GlobalTimeUnits,2)/kboltz;   //K
-
       *TimeUnits        = GlobalTimeUnits;
-
       *VelocityUnits    = GlobalLengthUnits/GlobalTimeUnits; //cms-1
   
+    }
+  return SUCCESS;
+}
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time)
+
+{
+  /* If using cosmology, get cosmology units */
+  if (ComovingCoordinates) {
+    //    fprintf(stderr, "Using CosmologyCoordinates.\n");
+    if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
+                          TimeUnits, VelocityUnits, Time) == FAIL) {
+      fprintf(stderr, "Error in CosmologyGetUnits.\n");
+      return FAIL;
+    }
+  }
+  else {
+      /* Determine the units. */
+      *DensityUnits = GlobalDensityUnits;
+      *LengthUnits      = GlobalLengthUnits;
+      *TemperatureUnits = mh*pow(GlobalLengthUnits/GlobalTimeUnits,2)/kboltz;   //K
+      *TimeUnits        = GlobalTimeUnits;
+      *VelocityUnits    = GlobalLengthUnits/GlobalTimeUnits; //cms-1
     }
   return SUCCESS;
 }

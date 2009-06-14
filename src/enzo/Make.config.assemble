@@ -380,6 +380,35 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE PYTHON SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PYTHON = 1
+
+    # Settings to turn Python ON
+
+    ifeq ($(CONFIG_PYTHON),yes)
+        ERROR_PYTHON = 0
+        ASSEMBLE_PYTHON_DEFINES = -DUSE_PYTHON
+        ASSEMBLE_PYTHON_INCLUDES = $(MACH_INCLUDES_PYTHON)
+        ASSEMBLE_PYTHON_LIBS     = $(MACH_LIBS_PYTHON)
+    endif
+
+    # Settings to turn PYTHON OFF
+
+    ifeq ($(CONFIG_PYTHON),no)
+        ERROR_PYTHON = 0
+    endif
+
+    # error if CONFIG_PYTHON is incorrect
+
+    ifeq ($(ERROR_PYTHON),1)
+       .PHONY: error_PYTHON
+       error_PYTHON:
+	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE PAPI SETTINGS
 #-----------------------------------------------------------------------
 
@@ -657,6 +686,7 @@
               $(ASSEMBLE_INTEGER_DEFINES) \
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_JBPERF_DEFINES) \
+              $(ASSEMBLE_PYTHON_DEFINES) \
               $(ASSEMBLE_MPI_DEFINES) \
               $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
               $(ASSEMBLE_PAPI_DEFINES) \
@@ -675,16 +705,19 @@
     	       $(ASSEMBLE_MPI_INCLUDES) \
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_JBPERF_INCLUDES) \
+               $(ASSEMBLE_PYTHON_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
-               $(MAKEFILE_INCLUDES)
+               $(MAKEFILE_INCLUDES)   -I.
 
     OBJS_LIB = $(OBJS_CONFIG_LIB) \
-    	       $(OBJS_PHOTON_LIB)
+    	       $(OBJS_PHOTON_LIB) \
+	       $(OBJS_HYDRO_RK)
 
     LIBS = $(MACH_LIBS) \
            $(ASSEMBLE_MPI_LIBS) \
            $(ASSEMBLE_HYPRE_LIBS) \
            $(ASSEMBLE_JBPERF_LIBS) \
-           $(ASSEMBLE_PAPI_LIBS)
+           $(ASSEMBLE_PAPI_LIBS) \
+           $(ASSEMBLE_PYTHON_LIBS) \
 
 
