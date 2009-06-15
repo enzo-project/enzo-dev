@@ -169,7 +169,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     FLOAT r;
     FLOAT r0 = 0.1, r1 = 0.115;
     float eint, h, cs, dpdrho, dpde, etot;
-    float rho0 = 10.0, rho1 = 1.0, pres = 1.0, v0 = 2.0, Bx0 = 1.41;
+    float rho0 = 10.0, rho1 = 1.0, pres = 1.0, v0 = 2.0, Bx0 = 5.;
 
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {

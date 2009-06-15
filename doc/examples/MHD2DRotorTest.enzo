@@ -1,0 +1,57 @@
+#
+# AMR PROBLEM DEFINITION FILE: 2D MHD Rotor problem
+#   Reference: G. Toth, J. Comput. Phys. 161 (2000) 605
+#
+#
+#  define problem
+#
+ProblemType                =  201
+MHD2DProblemType = 1
+TopGridRank                = 2
+TopGridDimensions          = 100 100
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3 
+RightFaceBoundaryCondition = 3 3 3
+#
+#  set I/O and stop/start parameters
+#
+StopTime = .15
+#StopCycle = 5
+dtDataDump             = 0.015
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy             = 0
+FluxCorrection              = 1
+MaximumRefinementLevel      = 1
+RefineBy                    = 2
+CellFlaggingMethod          = 1
+MinimumOverDensityForRefinement = 5.
+MinimumSlopeForRefinement   = 3.
+MinimumEfficiency           = 0.8
+InterpolationMethod         = 1
+ConservativeInterpolation   = 1
+NumberOfBufferZones         = 1
+#
+#  set hydro parameters
+#
+Gamma                       = 1.4
+Mu                          = 1
+HydroMethod                 = 4
+CourantSafetyNumber         = 0.3
+Theta_Limiter               = 1.5
+RiemannSolver               = 3
+ReconstructionMethod        = 0
+DualEnergyFormalism         = 0
+RKOrder                     = 2
+SmallRho                    = 1e-4
+SmallP                      = 1e-10
+SmallT                      = 5
+EOSType                     = 0
+#
+# problem parameters
+#
+UsePhysicalUnit = 0
+RefineAtStart = 1
