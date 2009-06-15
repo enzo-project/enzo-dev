@@ -110,14 +110,14 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       
       x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
       y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-      if (y <= 0.75) {
+      if (y <= 0.) {
 	if (MHD2DProblemType == 0) { 
 	  // Rayleigh-Taylor problem, calculate pressure from hydro equilibrium
 	  float g = ConstantAcceleration[1];
-	  pres = pl+g*rhol*(y-0.75);
+	  pres = pl+g*rhol*(y);
 	  EOS(pres, rhol, eintl, h, cs, dpdrho, dpde, 0, 1);
 	  // impose mode perturbation
-	  vyl = 0.01 * (1.0+cos(4.0*M_PI*(x-0.25))) * (1.0+cos(3.0*M_PI*(y-0.75))) * 0.25;
+	  vyl = 0.01 * (1.0+cos(4.0*M_PI*(x))) * (1.0+cos(2.0/1.5*M_PI*(y))) * 0.25;
 	  etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rhol;
 	}
 
@@ -138,10 +138,10 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	if (MHD2DProblemType == 0) { 
 	  /* calculate pressure from hydro equilibrium */
 	  float g = ConstantAcceleration[1];
-	  pres = pu+g*rhou*(y-0.75);
+	  pres = pl+g*rhou*(y);
 	  EOS(pres, rhou, eintu, h, cs, dpdrho, dpde, 0, 1);
 	  /* impose mode perturbation */
-	  vyu = 0.01 * (1.0+cos(4.0*M_PI*(x-0.25))) * (1.0+cos(3.0*M_PI*(y-0.75))) * 0.25;
+	  vyu = 0.01 * (1.0+cos(4.0*M_PI*(x))) * (1.0+cos(2.0/1.5*M_PI*(y))) * 0.25;
 	  etotu = eintu + 0.5*(vxu*vxu + vyu*vyu) + 0.5*(Bxu*Bxu+Byu*Byu)/rhou;
 	}
 	BaryonField[iden ][igrid] = rhou;

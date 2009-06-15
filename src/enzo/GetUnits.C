@@ -27,8 +27,8 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 	      float *VelocityUnits, FLOAT Time);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
-                      float *TemperatureUnits, float *TimeUnits,
-                      float *VelocityUnits, float *MassUnits, FLOAT Time)
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, float *MassUnits, FLOAT Time)
 
 {
   /* If using cosmology, get cosmology units */

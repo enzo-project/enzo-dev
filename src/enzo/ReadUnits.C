@@ -64,6 +64,13 @@ int ReadUnits(FILE *fptr)
   else if (GlobalDensityUnits == 1.0)
     GlobalDensityUnits = (float) (double(GlobalMassUnits) / pow(GlobalLengthUnits,3));
 
+  /* When Gravity is used one does not have the freedom to set Length, Density and time units */
+  /* We blindly assume here  that if you specified the DensityUnits you want to set the time units
+     accordingly.  Tom Abel 2009  
+  I doubt this will cause a problem ... but when you read this it probably did ... */
+  if (GlobalTimeUnits == 1 && GlobalDensityUnits != 1) 
+    GlobalTimeUnits =  1/sqrt(6.67428e-8*GlobalDensityUnits);
+ 
 
   fprintf(stderr,"****** GetUnits:  %e %e %e %e *******\n",GlobalMassUnits,GlobalDensityUnits,GlobalLengthUnits, GlobalTimeUnits);
 
