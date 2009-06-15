@@ -621,33 +621,60 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE RADIATIVE TRANSFER SETTINGS
+# DETERMINE FAST SIBLING SETTINGS
 #-----------------------------------------------------------------------
 
-    ERROR_PHOTON = 1
+    ERROR_FAST_SIB = 1
 
     # Settings to turn radiative transfer ON
 
-    ifeq ($(CONFIG_PHOTON),yes)
-        ERROR_PHOTON = 0
-        ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
-	OBJS_PHOTON_LIB = $(POBJS_CONFIG_LIB)
+    ifeq ($(CONFIG_FAST_SIB),yes)
+        ERROR_FAST_SIB = 0
+        ASSEMBLE_FAST_SIB_DEFINES = -DFAST_SIB
     endif
 
     # Settings to turn radiative transfer OFF
 
-    ifeq ($(CONFIG_PHOTON),no)
-        ERROR_PHOTON = 0
-        ASSEMBLE_PHOTON_DEFINES =
-	OBJS_PHOTON_LIB = 
+    ifeq ($(CONFIG_FAST_SIB),no)
+        ERROR_FAST_SIB = 0
+        ASSEMBLE_FAST_SIB_DEFINES =
     endif
 
-    # error if CONFIG_PHOTON is incorrect
+    # error if CONFIG_FAST_SIBis incorrect
 
-    ifeq ($(ERROR_PHOTON),1)
+    ifeq ($(ERROR_FAST_SIB),1)
+       .PHONY: error_fast_sib
+       error_fast_sib:
+	$(error Illegal value '$(CONFIG_FAST_SIB)' for $$(CONFIG_FAST_SIB))
+    endif
+
+
+#-----------------------------------------------------------------------
+# DETERMINE FLUX FIX SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_FLUX_FIX = 1
+
+    # Settings to turn FLUX FIX on
+
+    ifeq ($(CONFIG_FLUX_FIX),yes)
+        ERROR_FLUX_FIX = 0
+        ASSEMBLE_FLUX_FIX_DEFINES = -DFLUX_FIX
+    endif
+
+    # Settings to turn FLUX FIX off
+
+    ifeq ($(CONFIG_FLUX_FIX),no)
+        ERROR_FLUX_FIX = 0
+        ASSEMBLE_FLUX_FIX_DEFINES =
+    endif
+
+    # error if CONFIG_FLUX_FIX is incorrect
+
+    ifeq ($(ERROR_FLUX_FIX),1)
        .PHONY: error_transfer
        error_tpvel:
-	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+	$(error Illegal value '$(CONFIG_FLUX_FIX)' for $$(CONFIG_FLUX_FIX))
     endif
 
 
@@ -699,6 +726,8 @@
               $(ASSEMBLE_ISOBCS_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_FAST_SIB_DEFINES) \
+              $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \

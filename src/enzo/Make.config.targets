@@ -620,3 +620,40 @@ CONFIG_PHOTON-%:
 	$(MAKE) show-config | grep CONFIG_PHOTON:
 	@echo
 
+
+
+#-----------------------------------------------------------------------
+
+VALID_FLUX_FIX = flux_fix-yes flux_fix_no
+.PHONY: $(VALID_PHOTON)
+
+photon-yes: CONFIG_PHOTON-yes
+photon-no: CONFIG_PHOTON-no
+photon-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
+CONFIG_PHOTON-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_PHOTON:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_PHOTON = photon-yes photon-no
+.PHONY: $(VALID_PHOTON)
+
+photon-yes: CONFIG_PHOTON-yes
+photon-no: CONFIG_PHOTON-no
+photon-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
+CONFIG_PHOTON-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_PHOTON:
+	@echo
+
