@@ -9,11 +9,14 @@
 /
 ************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <math.h>
+
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-#include <math.h>
 #include "../hydro_rk/ReconstructionRoutines.h"
 #include "EOS.h"  
 

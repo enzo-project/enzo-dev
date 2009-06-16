@@ -65,11 +65,14 @@ float CommunicationMaxValue(float Value);
 int CommunicationBarrier();
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+#ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-                        SiblingGridList SiblingList[],
-                        int level, TopGridData *MetaData);
+			SiblingGridList SiblingList[],
+			int level, TopGridData *MetaData, FLOAT When);
+#else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-                        int level, TopGridData *MetaData, double When);
+                        int level, TopGridData *MetaData, FLOAT When);
+#endif  // end FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
@@ -506,7 +509,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) {
-	    if (Grids[grid]->GridData->SolveForPotential(Dummy, level) 
+	    if (Grids[grid]->GridData->SolveForPotential(level) 
 		== FAIL) {
 	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
 	      return FAIL;

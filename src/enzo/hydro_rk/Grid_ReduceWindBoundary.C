@@ -9,7 +9,11 @@
 /
 ************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <math.h>
+
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -19,7 +23,6 @@
 #include "TopGridData.h"
 #include "Grid.h"
 #include "EOS.h"
-#include <math.h>
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,

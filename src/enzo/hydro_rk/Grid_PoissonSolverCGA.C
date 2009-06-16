@@ -10,6 +10,11 @@
 /
 ************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <math.h>
+
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -17,7 +22,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include <math.h>
 
 int FindField(int field, int farray[], int numfields);
 
