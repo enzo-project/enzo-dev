@@ -697,8 +697,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       if (Grids[grid1]->NextGridNextLevel != NULL) {
-	Grids[grid1]->GridData->SolveForPotential
-	  (level, MaximumGravityRefinementLevel);
+	Grids[grid1]->GridData->SolveForPotential(MaximumGravityRefinementLevel);
         if (CopyGravPotential)
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
         else
