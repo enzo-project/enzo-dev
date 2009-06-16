@@ -129,8 +129,8 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
 
     /* Compute position */
 
-    x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-    if (x <= 0.5) {
+    x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];  // put inerface in the middle of the Domain
+    if (x <= DomainLeftEdge[0]+0.5*(DomainRightEdge[0]-DomainLeftEdge[0])) { 
       BaryonField[iden ][i] = rhol;
       BaryonField[ivx  ][i] = vxl;
       BaryonField[ivy  ][i] = vyl;

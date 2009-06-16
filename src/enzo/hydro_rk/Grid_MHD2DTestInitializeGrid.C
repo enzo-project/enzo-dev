@@ -543,6 +543,169 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     }
   }
 
+  /* MHD2DProblemType 6: Sedov-Taylor Blast Wave 
+   * Reference: Fryxell et al, 2000, ApJS, 131, 273
+   */
+
+  if (MHD2DProblemType == 6) { 
+
+    float E0 = 1.0;
+    const FLOAT r0 = 0.06;
+    float P0 = 3.0*(Gamma-1.0)*E0/(4.0*M_PI*pow(r0,3));
+    float rho0 = 1.0;
+    float P1 = 1e-5;
+    float eint, h, cs, dpdrho, dpde;
+
+    for (int j = 0; j < GridDimension[1]; j++) {
+      FLOAT y = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] -0.5;	
+      for (int i = 0; i < GridDimension[0]; i++) {
+	
+	int igrid = i + j*GridDimension[0];
+	FLOAT x = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] -0.5;
+	FLOAT r = sqrt(x*x + y*y);
+
+	if (r <= r0) {
+	  BaryonField[iden][igrid] = rho0;
+	  BaryonField[ivx ][igrid] = 0.0;
+	  BaryonField[ivy ][igrid] = 0.0;
+	  BaryonField[ivz ][igrid] = 0.0;
+          EOS(P0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
+	  BaryonField[ietot][igrid] = eint;
+	  if (DualEnergyFormalism) 
+	    BaryonField[ieint][igrid] = eint;
+	} else {
+	  BaryonField[iden][igrid] = rho0;
+	  BaryonField[ivx ][igrid] = 0.0;
+	  BaryonField[ivy ][igrid] = 0.0;
+	  BaryonField[ivz ][igrid] = 0.0;
+          EOS(P1, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
+	  BaryonField[ietot][igrid] = eint;
+	  if (DualEnergyFormalism) 
+	    BaryonField[ieint][igrid] = eint;
+	}
+
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx ][igrid] = 0.0;
+	  BaryonField[iBy ][igrid] = 0.0;
+	  BaryonField[iBz ][igrid] = 0.0;
+	  BaryonField[iPhi][igrid] = 0.0;
+	}
+
+      }
+    }
+  }
+
+  /* MHD2DProblemType 7: Cylindrical Sedov-Taylor Blast Wave 
+   * Reference: Fryxell et al, 2000, ApJS, 131, 273
+   */
+
+  if (MHD2DProblemType == 7) { 
+
+    float E0 = 1.0;
+    //const FLOAT r0 = 0.06;
+    const FLOAT r0 = 0.1;
+    float P0 = 3.0*(Gamma-1.0)*E0/(3.0*M_PI*pow(r0,2));
+    float rho0 = 1.0;
+    float P1 = 1e-5;
+    float eint, h, cs, dpdrho, dpde;
+
+    for (int j = 0; j < GridDimension[1]; j++) {
+      FLOAT y = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j];	
+      for (int i = 0; i < GridDimension[0]; i++) {
+	
+	int igrid = i + j*GridDimension[0];
+	FLOAT x = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i];
+	FLOAT r = sqrt(pow(x-0.5,2) + pow(y-0.5,2));
+
+	if (r <= r0) {
+	  BaryonField[iden][igrid] = rho0;
+	  BaryonField[ivx ][igrid] = 0.0;
+	  BaryonField[ivy ][igrid] = 0.0;
+	  BaryonField[ivz ][igrid] = 0.0;
+          EOS(P0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
+	  BaryonField[ietot][igrid] = eint;
+	  if (DualEnergyFormalism) 
+	    BaryonField[ieint][igrid] = eint;
+	} else {
+	  BaryonField[iden][igrid] = rho0;
+	  BaryonField[ivx ][igrid] = 0.0;
+	  BaryonField[ivy ][igrid] = 0.0;
+	  BaryonField[ivz ][igrid] = 0.0;
+          EOS(P1, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
+	  BaryonField[ietot][igrid] = eint;
+	  if (DualEnergyFormalism) 
+	    BaryonField[ieint][igrid] = eint;
+	}
+
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx ][igrid] = 0.0;
+	  BaryonField[iBy ][igrid] = 0.0;
+	  BaryonField[iBz ][igrid] = 0.0;
+	  BaryonField[iPhi][igrid] = 0.0;
+	}
+
+      }
+    }
+  }
+
+
+  /* Standing shock like in MHD2SProblemtype 5 but with small density perturbation
+     downstream from the shock to look at odd-even coupling. */ 
+
+  if (MHD2DProblemType == 8) { 
+
+    float rho0 = 1.0, cs = 1.0, eint0,eint1, etot;
+    float p0 = rho0*cs*cs;
+    float Bx = Bxl;
+
+    /* parameters for the shock */
+    float Ms = 2;
+    float rho1 = rho0/(1-2/(Gamma+1)*(1-1/Ms/Ms));
+    float v1 = cs*sqrt((2.0+(Gamma-1.0)*Ms*Ms)/(2.0*Gamma*Ms*Ms-Gamma+1));
+    float v0 = Ms*cs;
+    eint0 = p0/((Gamma-1.0)*rho0);
+    eint1 = eint1; // isothermal so same specific energy
+
+    FLOAT x, y, r, xc = 0.2,  xs = 0.6, delx=0.001;
+    int igrid;
+    for (int j = 0; j < GridDimension[1]; j++) {
+      for (int i = 0; i < GridDimension[0]; i++) {
+	
+	igrid = i + j*GridDimension[0];
+	
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];	
+
+
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx ][igrid] = Bx;
+	  BaryonField[iBy ][igrid] = 0.0;
+	  BaryonField[iBz ][igrid] = 0.0;
+	  BaryonField[iPhi][igrid] = 0.0;
+	}
+
+ 	float ramp =  1./((1.+exp(-2/delx*(x-xs))));
+	BaryonField[iden][igrid] = rho0 + ramp*(rho1-rho0);
+	BaryonField[ivx ][igrid] = v0 + ramp*(v1-v0);
+	BaryonField[ivy ][igrid] = 0.0;
+	BaryonField[ivz ][igrid] = 0.0;
+	etot = eint0 +  0.5*pow(v0 + ramp*(v1-v0),2);
+	BaryonField[ietot][igrid] = etot;
+	if (DualEnergyFormalism) 
+	  BaryonField[ieint][igrid] = eint0+ramp*(eint1-eint0);
+	if (HydroMethod == MHD_RK) 
+	  BaryonField[ietot][igrid] += 0.5 * (Bx * Bx) / BaryonField[iden][igrid];
+
+
+	// perturb ahead of shock 
+	if ((y > .45 ) && (y < .55) && (x < 0.9*xs) && (x>0.8*xs)) 
+	  BaryonField[iden][igrid] += 1e-4*rho0;
+
+      }
+    }
+  }
+
+
 
   return SUCCESS;
 }

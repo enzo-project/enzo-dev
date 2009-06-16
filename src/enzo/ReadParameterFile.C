@@ -546,6 +546,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* This Block for Stanford Hydro */
 
+    ret += sscanf(line, "UseHydro               = %d", &UseHydro);
+
     /* Sink particles (for present day star formation) & winds */
     ret += sscanf(line, "SinkMergeDistance = %lf", &SinkMergeDistance);
     ret += sscanf(line, "SinkMergeMass        = %f", &SinkMergeMass);

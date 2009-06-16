@@ -1,0 +1,57 @@
+#
+# AMR PROBLEM DEFINITION FILE: Sedov shock test                           (Tom Abel 09)
+# 
+# Reference: Fryxell et al, 2000, ApJS, 131, 273 Section 7.4, Figure 30 
+#  
+#
+# 
+ProblemType                =  201
+MHD2DProblemType = 6
+VelAnyl = 1
+TopGridRank                = 2
+TopGridDimensions          = 50 50
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3 
+RightFaceBoundaryCondition = 3 3 3
+#
+#  set I/O and stop/start parameters
+#
+StopTime = .05
+#StopCycle = 5
+dtDataDump             = 0.0025
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy             = 0
+MaximumRefinementLevel      = 1
+RefineBy                    = 2
+CellFlaggingMethod          = 1 
+MinimumSlopeForRefinement = 0.1
+MinimumEfficiency         = 0.9     // good value for 2D
+#
+#  set hydro parameters
+#
+Gamma                       = 1.4
+Mu                          = 1
+HydroMethod                 = 3
+CourantSafetyNumber         = 0.1
+Theta_Limiter               = 1.5
+RiemannSolver               = 3
+ReconstructionMethod        = 0
+DualEnergyFormalism         = 0           // Should stay 0 for isothermal problems
+RKOrder                     = 2
+SmallRho                    = 1e-4
+SmallP                      = 1e-10
+SmallT                      = 5
+EOSType                     = 0
+Initialdt = 1e-9
+#
+# problem parameters
+#
+UsePhysicalUnit = 0
+RefineAtStart = 1
+#
+LowerBx = 1e-9
+#Debug1 = 1

@@ -48,6 +48,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 {
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
+  char *GEName   = "GasEnergy";
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
@@ -303,18 +304,17 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   
 
   /* set up field names and units */
+  int i = 0;
+  DataLabel[i++] = DensName;
+  DataLabel[i++] = TEName;
+  if (DualEnergyFormalism)
+    DataLabel[i++] = GEName;
+  DataLabel[i++] = Vel1Name;
+  DataLabel[i++] = Vel2Name;
+  DataLabel[i++] = Vel3Name;
 
-  DataLabel[0] = DensName;
-  DataLabel[1] = TEName;
-  DataLabel[2] = Vel1Name;
-  DataLabel[3] = Vel2Name;
-  DataLabel[4] = Vel3Name;
-
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
+  for (int j=0; j< i; j++) 
+    DataUnits[j] = NULL;
 
   /* Write parameters to parameter output file */
 
