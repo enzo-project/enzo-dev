@@ -243,6 +243,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "ProblemType            = %"ISYM, &ProblemType);
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
+    if (HydroMethod==MHD_RK) useMHD = 1;
+
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
@@ -552,6 +554,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, 
 		  &RadiationXRaySecondaryIon);
 
+
+    /* Shearing Box Boundary parameters */
+
+    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
+    ret += sscanf(line, "ShearingVelocityDirection = %"ISYM, &ShearingVelocityDirection);
+
+    CheckShearingBoundaryConsistency(MetaData);
+
 #ifdef STAGE_INPUT
     sscanf(line, "LocalPath = %s\n", LocalPath);
     sscanf(line, "GlobalPath = %s\n", GlobalPath);
@@ -575,7 +586,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Units")               ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
-    if (strstr(line, "TestProblem")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
     if (strstr(line, "Noh")                 ) ret++;
@@ -781,5 +791,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }
  
+   for (int i=0; i<MetaData.TopGridRank;i++)
+    TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
+
   return SUCCESS;
 }

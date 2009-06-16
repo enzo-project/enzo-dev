@@ -468,6 +468,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
 
+  /* Shearing Box Boundary parameters */
+  fprintf(fptr, "AngularVelocity              = %"FSYM"\n",
+	  AngularVelocity);
+  fprintf(fptr, "VelocityGradient             = %"FSYM"\n",
+	  VelocityGradient);
+  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",
+	  ShearingVelocityDirection);
+  
   /* write data which defines the boundary conditions */
  
   fprintf(fptr, "LeftFaceBoundaryCondition  = ");

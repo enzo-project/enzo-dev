@@ -1514,6 +1514,12 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
                                     FLOAT Spacing, int &TotalParticleCount);
 
+
+/* ShearingBox: initialize grid. */
+
+  int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, int ShearingBoxProblemType, 
+				int InitialMagneticFieldConfiguration);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //
@@ -1656,6 +1662,18 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
 
+
+//------------------------------------------------------------------------
+//  Shearing Boundary Conditions
+//------------------------------------------------------------------------
+
+  bool isTopGrid(){
+    for(int i=0; i<GridRank; i++){
+      if (CellWidth[i][0]<TopGridDx[i]*0.95) return FALSE;
+      if (CellWidth[i][0]>TopGridDx[i]*1.05) return FALSE;
+    }
+    return TRUE;};
+  
 //------------------------------------------------------------------------
 //  Misc.
 //------------------------------------------------------------------------

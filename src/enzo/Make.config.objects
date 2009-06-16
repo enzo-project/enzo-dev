@@ -31,6 +31,7 @@ OBJS_CONFIG_LIB = \
 	CheckForOutput.o \
 	CheckForResubmit.o \
 	CheckForTimeAction.o \
+	CheckShearingBoundaryConsistency.o \
 	chtable.o \
 	cic_deposit.o \
 	cic_flag.o \
@@ -305,6 +306,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SetIsolatedPotentialBoundary.o \
 	Grid_SetMinimumSupport.o \
 	Grid_SetParticleMassFlaggingField.o \
+	Grid_ShearingBoxInitializeGrid.o \
 	Grid_ShockTubeInitializeGrid.o \
 	Grid_SolveForPotential.o \
 	Grid_SolveHydroEquations.o \

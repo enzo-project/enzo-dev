@@ -114,7 +114,8 @@ const boundary_type
   outflow           = 1,
   inflow            = 2,
   periodic          = 3,
-  BoundaryUndefined = 4;
+  shearing          = 4,
+  BoundaryUndefined = 5;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 
@@ -149,7 +150,8 @@ const hydro_method
   PPM_DirectEuler      = 0,
   PPM_LagrangeRemap    = 1,
   Zeus_Hydro           = 2,
-  HydroMethodUndefined = 3;
+  MHD_RK               = 3,
+  HydroMethodUndefined = 4;
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 

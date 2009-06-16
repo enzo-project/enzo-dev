@@ -367,5 +367,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
 
+
+  /* Shearing Boundary Conditions variables */
+
+  
+  AngularVelocity=0.001;
+  VelocityGradient=1.0;
+  ShearingBoundaryDirection=-1;
+  ShearingVelocityDirection=-1;
+  
+  useMHD=0;
   return SUCCESS;
 }
