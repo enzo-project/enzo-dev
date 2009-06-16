@@ -34,6 +34,7 @@
 //   also need to be taken into account.
  
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -659,13 +660,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  }
 
 		  if (HydroMethod == MHD_RK) {
-		    B2 = pow(BaryonField[B1Num][i1],2) + 
-		      pow(BaryonField[B2Num][i1],2) +
-		      pow(BaryonField[B3Num][i1],2);
+		    B2 = POW(BaryonField[B1Num][i1],2) + 
+		      POW(BaryonField[B2Num][i1],2) +
+		      POW(BaryonField[B3Num][i1],2);
 		    BaryonField[TENum][i1] += 0.5 * B2 / BaryonField[DensNum][i1];
-		    B2 = pow(BaryonField[B1Num][i2],2) + 
-		      pow(BaryonField[B2Num][i2],2) +
-		      pow(BaryonField[B3Num][i2],2);
+		    B2 = POW(BaryonField[B1Num][i2],2) + 
+		      POW(BaryonField[B2Num][i2],2) +
+		      POW(BaryonField[B3Num][i2],2);
 		    BaryonField[TENum][i2] += 0.5 * B2 / BaryonField[DensNum][i2];
 		}
 
