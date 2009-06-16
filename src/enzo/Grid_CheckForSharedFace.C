@@ -148,7 +148,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     //If there's any space, fail
  
     if (Left[dim]-CellEpsilon[dim] >= Right[dim])
-      ENZO_FAIL("");
+      return FALSE;
   }//dim
  
   //here goes the rest of the check
@@ -159,7 +159,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
       for(dim2=0;dim2<GridRank;dim2++)
 	if(dim2 != dim){
 	  if( fabs(Left[dim2]-Right[dim2]) < CellEpsilon[dim2] )
-	    ENZO_FAIL("");
+	    return FALSE;
 	}//third dim loop
  
       return TRUE;
@@ -167,7 +167,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     }//if face matches
   }//dim again
  
-    ENZO_FAIL("");
+    return FALSE;
 }
  
 #endif
