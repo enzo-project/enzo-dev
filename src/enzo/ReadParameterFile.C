@@ -743,6 +743,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     //    FluxCorrection            = FALSE;
   }
  
+  if (DualEnergyFormalism) {
+    NEQ_HYDRO = 6;
+    NEQ_MHD   = 10;
+    ieint = 5;
+    iBx = 6;
+    iBy = 7;
+    iBz = 8;
+    iPhi = 9;
+    iEint = 5;
+  }
+
   /* Set the number of particle attributes, if left unset. */
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)

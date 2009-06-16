@@ -45,6 +45,9 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   char *ByName = "By";
   char *BzName = "Bz";
   char *PhiName = "Phi";
+  char *Drive1Name = "DrivingField1";
+  char *Drive2Name = "DrivingField2";
+  char *Drive3Name = "DrivingField3";
 
   char  line[MAX_LINE_LENGTH];
   int   dim, ret, level, sphere, i;
@@ -163,10 +166,19 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  DataLabel[count++] = BxName;
-  DataLabel[count++] = ByName;
-  DataLabel[count++] = BzName;
-  DataLabel[count++] = PhiName;
+  if (HydroMethod == MHD_RK) {
+    DataLabel[count++] = BxName;
+    DataLabel[count++] = ByName;
+    DataLabel[count++] = BzName;
+    DataLabel[count++] = PhiName;
+  }
+  if (UseDrivingField) {
+    DataLabel[count++] = Drive1Name;
+    DataLabel[count++] = Drive2Name;
+    DataLabel[count++] = Drive3Name;
+  }
+
+
 
   for (i = 0; i < count; i++) {
     DataUnits[i] = NULL;

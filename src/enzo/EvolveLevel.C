@@ -584,7 +584,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         fprintf(stderr, "Error in ComputeRandomForcingNormalization.\n");
         return FAIL;
       }
- 
+
     JBPERF_STOP("evolve-level-07"); // PrepareDensityField()
 
     /* ------------------------------------------------------- */
@@ -728,7 +728,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (RandomForcing && MetaData->CycleNumber > 0) //AK
         if(Grids[grid1]->GridData->AddRandomForcing(&norm,
-                                                   TopGridTimeStep) == FAIL)
+						    TopGridTimeStep) == FAIL)
           fprintf(stderr, "Error in AddRandomForcing.\n");
  
       JBPERF_STOP_LOW("evolve-level-12"); // AddRandomForcing()

@@ -42,10 +42,22 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  FieldType[NumberOfBaryonFields++] = Bfield1;
-  FieldType[NumberOfBaryonFields++] = Bfield2;
-  FieldType[NumberOfBaryonFields++] = Bfield3;
-  FieldType[NumberOfBaryonFields++] = PhiField;
+  if (HydroMethod == MHD_RK) {
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield2;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
+
+  int idrivex, idrivey, idrivez;
+  if (UseDrivingField && (HydroMethod == HD_RK || HydroMethod == MHD_RK)) {
+    idrivex = NumberOfBaryonFields;
+    idrivey = idrivex + 1;
+    idrivez = idrivex + 2;
+    FieldType[NumberOfBaryonFields++] = DrivingField1;
+    FieldType[NumberOfBaryonFields++] = DrivingField2;
+    FieldType[NumberOfBaryonFields++] = DrivingField3;
+  }
 
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -62,23 +74,40 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   for (int field = 0; field < NumberOfBaryonFields; field++) {
+
     if (BaryonField[field] == NULL) {
       BaryonField[field] = new float[size];
     }
   }
   
-  int activesize = 1;
+  for (int dim=0; dim < GridRank; dim++) 
+    if (UseDrivingField && (HydroMethod < 3) && RandomForcingField[dim] == NULL) {
+      fprintf(stderr,"Driving turbulence only implemented for Hydromethod > 2 !\n");
+      fprintf(stderr,"Or turn UseDrivingField off to study decaying turbulence \n");
+      fprintf(stderr,"with this hydro solver. \n");
+      ERROR_MESSAGE;
+      //      RandomForcingField[dim] = new float[size];
+    }
+
+
+  int activesize = 1,n=0;
   for (int dim = 0; dim < GridRank; dim++) {
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
   }
 
-  float *vel[3];
-  for (int i = 0; i < 3; i++) {
-    vel[i] = new float[activesize];
+  float *TurbulenceVelocity[3],*DrivingField[3];
+  for (int dim = 0; dim < 3; dim++) {
+    TurbulenceVelocity[dim] = new float[activesize];
+    DrivingField[dim] = new float[activesize];
+    for (n = 0; n < activesize; n++) {
+      TurbulenceVelocity[dim][n] = 0.0;
+      DrivingField[dim][n] = 0.0;
+    }
   }
 
+
   printf("Begin generating turbulent velocity spectrum...\n");
-  Turbulence_Generator(vel, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, cs_medium*mach, 1, 5, 1,
+  Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, cs_medium*mach, 1, 5, 1,
 		       CellLeftEdge, CellWidth, seed, level);
   printf("Turbulent spectrum generated\n");
 
@@ -91,9 +120,9 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   // Initialize field without turbulent velocity field
   float eint, h, dpdrho, dpde, cs;
   eint = cs_medium*cs_medium/(Gamma-1.0);
-  int n = 0;
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
   FLOAT rs = 2.0;
+  n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++, n++) {
@@ -109,7 +138,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint + 0.5*B0*B0/rho_medium;
+          BaryonField[ietot][n] = eint;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint;
           }
@@ -121,15 +150,29 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint_out + 0.5*B0*B0/rho_out;
+          BaryonField[ietot][n] = eint_out;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint_out;
           }
 	}
-	BaryonField[iBx ][n] = 0.0;
-	BaryonField[iBy ][n] = 0.0;
-	BaryonField[iBz ][n] = B0;
-	BaryonField[iPhi][n] = 0.0;
+
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx ][n] = 0.0;
+	  BaryonField[iBy ][n] = 0.0;
+	  BaryonField[iBz ][n] = B0;
+	  BaryonField[iPhi][n] = 0.0;
+	  BaryonField[ietot][n] += 0.5 * B0*B0 / BaryonField[iden ][n] ;
+	}
+	if (UseDrivingField && (HydroMethod == HD_RK || HydroMethod == MHD_RK)) {
+	  BaryonField[idrivex][n] = 0.0;
+	  BaryonField[idrivey][n] = 0.0;
+	  BaryonField[idrivez][n] = 0.0;
+	}
+	if (UseDrivingField && (HydroMethod < 3)) {
+	  RandomForcingField[0][n] = 0.;
+	  RandomForcingField[1][n] = 0.;
+	  RandomForcingField[2][n] = 0.;
+	}
       }
     }
   }
@@ -150,11 +193,13 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
         r = max(r, 0.1*CellWidth[0][0]);
 
         if (r < rs) {
-          BaryonField[ivx][igrid] = vel[0][n];
-          BaryonField[ivy][igrid] = vel[1][n];
-          BaryonField[ivz][igrid] = vel[2][n];
+          BaryonField[ivx][igrid] = TurbulenceVelocity[0][n];
+          BaryonField[ivy][igrid] = TurbulenceVelocity[1][n];
+          BaryonField[ivz][igrid] = TurbulenceVelocity[2][n];
           BaryonField[ietot][igrid] += 
-	    0.5*(vel[0][n]*vel[0][n] + vel[1][n]*vel[1][n] + vel[2][n]*vel[2][n]);
+	    0.5*(TurbulenceVelocity[0][n]*TurbulenceVelocity[0][n] + 
+		 TurbulenceVelocity[1][n]*TurbulenceVelocity[1][n] + 
+		 TurbulenceVelocity[2][n]*TurbulenceVelocity[2][n]);
         }
 
       } 
@@ -162,8 +207,69 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   for (int i = 0; i < 3; i++) {
-    delete vel[i];
+    delete TurbulenceVelocity[i];
   }
+
+
+  /* Initialize driving force field = efficiency * density * velocity / t_ff*/
+
+  if (UseDrivingField) {
+    float k1, k2, dk;
+    k1 = 3.0;
+    k2 = 4.0;
+    dk = 1.0;
+    printf("Begin generating driving force field ...\n");
+    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
+			 cs_medium*mach, k1, k2, dk,
+			 CellLeftEdge, CellWidth, seed, level);
+    printf("Driving force field generated\n");
+
+
+    /* Renormalize to ensure <F>=0 */
+
+    double Fx = 0.0, Fy = 0.0, Fz = 0.0;
+    for (n = 0; n < activesize; n++) {
+      Fx += DrivingField[0][n];
+      Fy += DrivingField[1][n];
+      Fz += DrivingField[2][n];
+    }
+
+    Fx /= activesize;
+    Fy /= activesize;
+    Fz /= activesize;
+    
+    for (n = 0; n < activesize; n++) {
+      DrivingField[0][n] -= Fx;
+      DrivingField[1][n] -= Fy;
+      DrivingField[2][n] -= Fz;
+    }
+
+
+    n = 0;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+	  igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
+	  if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
+	    BaryonField[idrivex][igrid] = DrivingField[0][n];
+	    BaryonField[idrivey][igrid] = DrivingField[1][n];
+	    BaryonField[idrivez][igrid] = DrivingField[2][n];
+	  } else {
+	     RandomForcingField[0][igrid] = DrivingField[0][n]*DrivingEfficiency;
+	     RandomForcingField[1][igrid] = DrivingField[1][n]*DrivingEfficiency;
+	     RandomForcingField[2][igrid] = DrivingField[2][n]*DrivingEfficiency;
+	     //	     fprintf(stderr, "%g\t",RandomForcingField[0][igrid]);
+	  }
+	}
+      }
+    }
+
+
+    for (int dim = 0; dim < GridRank; dim++) {
+      delete [] DrivingField[dim];
+    }
+  }    
+
 
   return SUCCESS;
 }
