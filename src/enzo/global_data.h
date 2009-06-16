@@ -607,4 +607,16 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 EXTERN int RadiativeTransferCoupledRateSolver;
 
 
+
+/* Shearing Boundary Conditions */
+
+EXTERN float AngularVelocity;
+EXTERN float VelocityGradient;
+EXTERN int ShearingBoundaryDirection;
+EXTERN int ShearingVelocityDirection;
+EXTERN int ShearingOtherDirection;
+EXTERN int useMHD;
+EXTERN FLOAT TopGridDx[MAX_DIMENSION];
+
+
 #endif

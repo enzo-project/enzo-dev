@@ -118,6 +118,8 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
                            TopGridData &MetaData);
 
+int ShearingBoxInitialize(FILE *fptr, HierarchyEntry &TopGrid,
+                           TopGridData &MetaData);
 
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
@@ -411,6 +413,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ret = CosmologySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
     }
   }
+
+  // 31) Shearing Box Simulation
+ 
+  if (ProblemType == 31) 
+    ret = ShearingBoxInitializeGrid(fptr, Outfptr, TopGrid, MetaData);
+  
  
   // 40) Supernova Explosion from restart
  

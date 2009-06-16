@@ -439,5 +439,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   conversion_factors = PyDict_New();
 #endif
 
+  /* Shearing Boundary Conditions variables */
+
+  
+  AngularVelocity=0.001;
+  VelocityGradient=1.0;
+  ShearingBoundaryDirection=-1;
+  ShearingVelocityDirection=-1;
+  
+  useMHD=0;
   return SUCCESS;
 }
