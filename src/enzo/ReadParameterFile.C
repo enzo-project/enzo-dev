@@ -787,8 +787,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
  
   if ( (MetaData.GlobalDir != NULL) && (MetaData.LocalDir != NULL) ) {
-    fprintf(stderr, "Cannot select GlobalDir AND LocalDir!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Cannot select GlobalDir AND LocalDir!\n");
   }
  
   char *cwd_buffer = new char[MAX_LINE_LENGTH];
