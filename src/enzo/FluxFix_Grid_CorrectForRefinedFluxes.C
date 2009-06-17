@@ -93,8 +93,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.");
     }
 
     //dcc kludge:  Just remove a(t)? 09/06/05 

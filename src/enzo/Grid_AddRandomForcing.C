@@ -52,9 +52,10 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   if (RandomForcingField[0] == NULL)
     ERROR_MESSAGE;
  
+  int corneri=  GridStartIndex[0] + GridDimension[0]*(GridStartIndex[1]+GridStartIndex[2]*GridDimension[1]);
   if (RandomForcingField[0][0] == 0.0)
     ERROR_MESSAGE;
- 
+  fprintf(stderr, "TopGridTimeStep: %g\n", dtTopGrid);
   if (dtTopGrid == 0.0)
     ERROR_MESSAGE;
  
@@ -78,16 +79,14 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
     for (i = 0; i < size; i++)
       for (dim = 0; dim < GridRank; dim++)
 	BaryonField[TENum][i] +=
-	  BaryonField[Vel1Num+dim][i]*
-	  RandomForcingField[dim][i]*levelNorm +
-	  0.5*RandomForcingField[dim][i]*levelNorm*
-	  RandomForcingField[dim][i]*levelNorm;
+	  BaryonField[Vel1Num+dim][i]*RandomForcingField[dim][i]*levelNorm +
+	  0.5*RandomForcingField[dim][i]*levelNorm*RandomForcingField[dim][i]*levelNorm;
  
   /* add velocity perturbation to velocity fields. */
  
   for (dim = 0; dim < GridRank; dim++)
     for (i = 0; i < size; i++)
-      BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
+	BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
  
   JBPERF_STOP("grid_AddRandomForcing");
   return SUCCESS;

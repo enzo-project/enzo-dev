@@ -14,6 +14,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -93,7 +94,7 @@ int grid::SolveRadiativeCooling()
  
   /* Declarations */
  
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
   FLOAT a = 1.0, dadt;
@@ -107,7 +108,7 @@ int grid::SolveRadiativeCooling()
   /* Find fields: density, total energy, velocity1-3. */
  
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num ) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     ENZO_FAIL("");
   }
@@ -141,6 +142,19 @@ int grid::SolveRadiativeCooling()
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
  
+  /* Compute total gas energy if using MHD */
+  if (HydroMethod == MHD_RK) {
+    totalenergy = new float[size];
+    float B2;
+    for (int n=0; n<size; n++) {
+      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
+      totalenergy[n] = BaryonField[TENum][n] - 0.5*B2/BaryonField[DensNum][n];
+    }
+  }
+  else {
+    totalenergy = BaryonField[TENum];
+  }
+
   /* If using cosmology, compute the expansion factor and get units. */
  
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
@@ -270,6 +284,27 @@ int grid::SolveRadiativeCooling()
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
           CoolData.EquilibriumRate);
+  }
+
+  if (HydroMethod == MHD_RK) {
+    float B2, v2;//, rho, eint, p, h, cs, dpdrho, dpde;
+    for (int n=0; n<size; n++) {
+      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
+
+      /* Always trust gas energy in cooling routine */
+
+      if (DualEnergyFormalism) {
+	v2 = pow(BaryonField[Vel1Num][n],2) + 
+	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
+	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];
+      }
+      else {
+	BaryonField[TENum][n] = totalenergy[n] + 0.5*B2/BaryonField[DensNum][n];
+      }
+      
+    }
+    
+    delete totalenergy;
   }
  
   return SUCCESS;

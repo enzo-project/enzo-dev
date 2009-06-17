@@ -35,7 +35,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "StarParticleData.h"
- 
+#include "hydro_rk/EOS.h" 
  
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -50,6 +50,9 @@ int ReadUnits(FILE *fptr);
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
  
  
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
@@ -444,7 +447,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
     ret += sscanf(line, "AddParticleAttributes = %"ISYM, &AddParticleAttributes);
- 
+
     /* read data which defines the boundary conditions */
  
     ret += sscanf(line, "LeftFaceBoundaryCondition  = %"ISYM" %"ISYM" %"ISYM,
@@ -545,6 +548,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
 
     /* This Block for Stanford Hydro */
+
+    ret += sscanf(line, "UseHydro               = %d", &UseHydro);
+
+    /* Sink particles (for present day star formation) & winds */
+    ret += sscanf(line, "SinkMergeDistance = %lf", &SinkMergeDistance);
+    ret += sscanf(line, "SinkMergeMass        = %f", &SinkMergeMass);
+    ret += sscanf(line, "StellarWindFeedback  = %d", &StellarWindFeedback);
+    ret += sscanf(line, "StellarWindTurnOnMass = %f", &StellarWindTurnOnMass);
+
+    //    ret += sscanf(line, "VelAnyl = %d", &VelAnyl);
+
+
+    /* Read MHD Paramters */
+    ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %f", &DivergenceCleaningThreshold);
+    ret += sscanf(line, "PoissonApproximationThreshold = %f", &PoissonApproximationThreshold);
+    ret += sscanf(line, "AngularVelocity = %f", &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %f", &VelocityGradient);
+    ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
+    ret += sscanf(line, "DrivingEfficiency = %f", &DrivingEfficiency);
 
     ret += sscanf(line, "StringKick = %d", &StringKick);
     ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
@@ -653,8 +676,48 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     rewind(fptr);
   }
 
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
+    TimeUnits = 1.0, VelocityUnits = 1.0, PressureUnits = 1.0;
+  double MassUnits = 1.0;
+  if (UsePhysicalUnit) {
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, 
+	     MetaData.Time);
+    PressureUnits = DensityUnits*pow(VelocityUnits,2);
+    MassUnits = DensityUnits*pow(LengthUnits,3);
+  }
+
+  /* Change input physical parameters into code units */
+
+  double mh = 1.6726e-24;
+  double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
+  PhotoelectricHeating /= uheat;
+  StarMakerOverDensityThreshold /= DensityUnits;
+  //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
+
+  SinkMergeDistance /= LengthUnits;
+  SmallRho /= DensityUnits;
+  SmallP /= PressureUnits;
+  SmallT /= TemperatureUnits;
+  float h, cs, dpdrho, dpde;
+  EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
+  printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g\n",
+         SmallRho, SmallP, SmallEint, PressureUnits);
+  for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+      MinimumMassForRefinement[i] /= MassUnits;
+    }
+  }
+
+  if (!ComovingCoordinates && UsePhysicalUnit) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumOverDensityForRefinement[i] /= DensityUnits;
+      }
+    }
+  }
+
   /* If set, initialize the RadiativeCooling and RateEquations data. */
- 
+
   if (MultiSpecies > 0)
     if (InitializeRateData(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeRateData.\n");
@@ -685,6 +748,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     //    FluxCorrection            = FALSE;
   }
  
+  if (DualEnergyFormalism) {
+    NEQ_HYDRO = 6;
+    NEQ_MHD   = 10;
+    ieint = 5;
+    iBx = 6;
+    iBy = 7;
+    iBz = 8;
+    iPhi = 9;
+    iEint = 5;
+  }
+
   /* Set the number of particle attributes, if left unset. */
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)
@@ -787,8 +861,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
  
   if ( (MetaData.GlobalDir != NULL) && (MetaData.LocalDir != NULL) ) {
-    fprintf(stderr, "Cannot select GlobalDir AND LocalDir!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Cannot select GlobalDir AND LocalDir!\n");
   }
  
   char *cwd_buffer = new char[MAX_LINE_LENGTH];
