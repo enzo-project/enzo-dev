@@ -225,8 +225,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	     CollapseTestUseMetals,
              CollapseTestInitialTemperature, CollapseTestInitialDensity,
 	     0) == FAIL) {
-    fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in CollapseTestInitializeGrid.");
   }
 
   /* Convert minimum initial overdensity for refinement to mass
@@ -329,8 +328,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		  CollapseTestUseMetals,
 		  CollapseTestInitialTemperature, CollapseTestInitialDensity,
 		  lev-1) == FAIL) {
-		fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-		ENZO_FAIL("");
+		ENZO_FAIL("Error in CollapseTestInitializeGrid.");
 	      }
 	      
 	    } // ENDIF zones exist
@@ -352,8 +350,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     if (MaxInitialLevel == 0) {
       for (level = 0; level < MaximumRefinementLevel; level++) {
 	if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	  fprintf(stderr, "Error in RebuildHierarchy.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in RebuildHierarchy.");
 	}
 	if (LevelArray[level+1] == NULL)
 	  break;
@@ -374,8 +371,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 		 CollapseTestUseMetals,
 		 CollapseTestInitialTemperature, CollapseTestInitialDensity,
 		 level+1) == FAIL) {
-	    fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in CollapseTestInitializeGrid.");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -389,8 +385,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       while (Temp != NULL) {
 	if (Temp->GridData->ProjectSolutionToParentGrid(
 			      *LevelArray[level-1]->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->ProjectSolutionToParentGrid.");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
