@@ -201,7 +201,7 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid->GridData->InitializeUniformGrid(ShockPoolDensity,
 						 ShockPoolTotalEnergy,
 						 ShockPoolTotalEnergy,
-						 ShockPoolVelocity) == FAIL) {
+						 ShockPoolVelocity, ZeroBField) == FAIL) {
             ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
     }			
   }
