@@ -64,8 +64,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
   /* Set the flagging field. */
 
   if (CurrentGrid->SetFlaggingField(NumberOfFlaggedCells, level) == FAIL) {
-    fprintf(stderr, "Error in grid->SetFlaggingField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->SetFlaggingField.");
   }
  
   /* Add a buffer region around each flagged cell. */
@@ -78,8 +77,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
  
   if (CurrentGrid->SetFlaggingFieldStaticRegions(level, NumberOfFlaggedCells)
       == FAIL) {
-    fprintf(stderr, "Error in grid->SetFlaggingFieldStaticRegions.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->SetFlaggingFieldStaticRegions.");
   }
  
   if (debug1)
@@ -103,16 +101,14 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
     /* Copy the flagged zones into the ProtoSubgrid. */
  
     if (SubgridList[0]->CopyFlaggedZonesFromGrid(CurrentGrid) == FAIL) {
-      fprintf(stderr, "Error in ProtoSubgrid->CopyFlaggedZonesFromGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ProtoSubgrid->CopyFlaggedZonesFromGrid.");
     }
  
     /* Recursively break up this ProtoSubgrid and add new ones based on the
        flagged cells. */
  
     if (IdentifyNewSubgridsBySignature(SubgridList, NumberOfSubgrids) == FAIL){
-      fprintf(stderr, "Error in IdentifyNewSubgridsBySignature.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
     }
  
     /* For each subgrid, create a new grid based on the current grid (i.e.
