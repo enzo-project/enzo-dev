@@ -1,0 +1,179 @@
+/***********************************************************************
+/
+/  GRID CLASS (FIRST STEP OF RUNGE-KUTTA INTEGRATION)
+/
+/  written by: Peng Wang
+/  date:       May, 2007
+/  modified1:
+/
+/
+************************************************************************/
+
+#include <stdio.h>
+#include <math.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "TopGridData.h"
+#include "Grid.h"
+
+double ReturnWallTime();
+
+int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+			      int NumberOfSubgrids, int level,
+			      ExternalBoundary *Exterior)  {
+  /*
+    NumberOfSubgrids: the actual number of subgrids + 1
+    SubgridFluxes[NumberOfSubgrids]
+  */
+  if (ProcessorNumber != MyProcessorNumber) {
+    return SUCCESS;
+  }
+
+  if (NumberOfBaryonFields == 0) {
+    return SUCCESS;
+  }
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    return FAIL;  }
+
+  double time1 = ReturnWallTime();
+  int igrid;
+  /* allocate space for fluxes */
+  int fluxsize;
+  for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {
+    for (int flux = 0; flux < GridRank; flux++)  {
+      
+      fluxsize = 1;
+      for (int j = 0; j < GridRank; j++) {
+	fluxsize *= SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] -
+	  SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] + 1;
+      }
+      
+      for (int j = GridRank; j < 3; j++) {
+	SubgridFluxes[subgrid]->LeftFluxStartGlobalIndex[flux][j] = 0;
+	SubgridFluxes[subgrid]->LeftFluxEndGlobalIndex[flux][j] = 0;
+	SubgridFluxes[subgrid]->RightFluxStartGlobalIndex[flux][j] = 0;
+	SubgridFluxes[subgrid]->RightFluxEndGlobalIndex[flux][j] = 0;
+      }
+       
+      for (int field = 0; field < NumberOfBaryonFields; field++) {
+	if (SubgridFluxes[subgrid]->LeftFluxes[field][flux] == NULL) {
+	  SubgridFluxes[subgrid]->LeftFluxes[field][flux]  = new float[fluxsize];
+	}
+	if (SubgridFluxes[subgrid]->RightFluxes[field][flux] == NULL)
+	  SubgridFluxes[subgrid]->RightFluxes[field][flux] = new float[fluxsize];
+	for (int n = 0; n < fluxsize; n++) {
+	  SubgridFluxes[subgrid]->LeftFluxes[field][flux][n] = 0.0;
+	  SubgridFluxes[subgrid]->RightFluxes[field][flux][n] = 0.0;
+	}
+      }
+      
+      for (int field = NumberOfBaryonFields; field < MAX_NUMBER_OF_BARYON_FIELDS; field++) {
+	SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
+	SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
+      }
+      
+    }  // next flux
+    
+    for (int flux = GridRank; flux < 3; flux++) {
+      for (int field = 0; field < MAX_NUMBER_OF_BARYON_FIELDS; field++) {
+	SubgridFluxes[subgrid]->LeftFluxes[field][flux] = NULL;
+	SubgridFluxes[subgrid]->RightFluxes[field][flux] = NULL;
+      }
+    }
+    
+  } // end of loop over subgrids
+
+
+  float *dU[NEQ_HYDRO+NSpecies+NColor];
+  float *Prim[NEQ_HYDRO+NSpecies+NColor];
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    size *= GridDimension[dim];
+  }
+  
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+  }
+  for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    dU[field] = new float[activesize];
+    for (int i = 0; i < activesize; i++) {
+      dU[field][i] = 0.0;
+    }
+  }
+
+  Prim[iden ] = BaryonField[DensNum];
+  Prim[ivx  ] = BaryonField[Vel1Num];
+  Prim[ivy  ] = BaryonField[Vel2Num];
+  Prim[ivz  ] = BaryonField[Vel3Num];
+  Prim[ietot] = BaryonField[TENum];
+  //  fprintf(stderr,"%i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
+  //  fprintf(stderr,"%i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
+  if (DualEnergyFormalism) {
+    Prim[ieint] = BaryonField[GENum];
+  }
+
+  // copy species field
+  for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+    // change species from density to mass fraction
+    for (int n = 0; n < size; n++) {
+      BaryonField[ns][n] /= BaryonField[iden][n];
+    }
+    Prim[ns] = BaryonField[ns];
+  }
+
+  // copy color field
+  for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
+    Prim[nc] = BaryonField[nc];
+  }
+
+  // RK2 first step
+
+  // compute dU
+  int fallback = 0;
+  if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
+		    0.5, fallback) == FAIL) {
+      return FAIL;
+  }
+
+  this->SourceTerms(dU);
+
+  if (this->UpdatePrim(dU, 1.0, 1.0) == FAIL) {
+    printf("Falling back to zero order at RK 1st step\n");
+    // fall back to zero order scheme
+    this->CopyOldBaryonFieldToBaryonField();
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+      // change species from density to mass fraction
+      for (int n = 0; n < size; n++) {
+	BaryonField[ns][n] /= BaryonField[iden][n];
+      }
+    }
+    this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);
+    fallback = 1;
+    if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids,
+		      0.5, fallback) == FAIL) {
+      return FAIL;
+    }
+    this->SourceTerms(dU);
+    if (this->UpdatePrim(dU, 1.0, 1.0) == FAIL) {
+      printf("Fallback failed, give up...\n");
+      return FAIL;
+    }
+  }
+
+  for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    delete [] dU[field];
+  }
+  //  PerformanceTimers[1] += ReturnWallTime() - time1;
+  return SUCCESS;
+
+}

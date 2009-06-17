@@ -24,6 +24,7 @@
 #    CONFIG_PACKED_AMR
 #    CONFIG_PACKED_MEM
 #    CONFIG_JBPERF
+#    CONFIG_PYTHON
 #    CONFIG_PAPI
 #    CONFIG_UNIGRID_TRANSPOSE
 #    CONFIG_OOC_BOUNDARY
@@ -149,6 +150,15 @@
      CONFIG_PAPI = no
 
 #=======================================================================
+# CONFIG_PYTHON
+#=======================================================================
+#    yes           use embedded Python interpreter
+#    no            don't use embedded Python interpreter
+#-----------------------------------------------------------------------
+
+     CONFIG_PYTHON = no
+
+#=======================================================================
 # CONFIG_UNIGRID_TRANSPOSE
 #=======================================================================
 #    yes           use unigrid transpose optimizations
@@ -212,3 +222,22 @@
 #-----------------------------------------------------------------------
 
      CONFIG_PHOTON = no
+
+
+#=======================================================================
+# CONFIG_FAST_SIB
+#=======================================================================
+#    yes           Include the Fast Sibling Locator
+#    no            Original (slow) n^2 neighbor search
+#-----------------------------------------------------------------------
+
+     CONFIG_FAST_SIB = yes
+
+#=======================================================================
+# CONFIG_FLUX_FIX
+#=======================================================================
+#    yes           Include the SUBling (Subgrid of Sibling) Flux Correction Fix
+#    no            Skip this step
+#-----------------------------------------------------------------------
+
+     CONFIG_FLUX_FIX = yes

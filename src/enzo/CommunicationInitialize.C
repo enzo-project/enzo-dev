@@ -32,7 +32,8 @@
 #include "communication.h"
  
 /* function prototypes */
- 
+void my_exit(int exit_status);
+
 int CommunicationInitialize(Eint32 *argc, char **argv[])
 {
  
@@ -86,7 +87,7 @@ void CommunicationAbort(int status)
 #ifdef USE_MPI
   MPI_Abort(MPI_COMM_WORLD,status);
 #else
-  abort(status);
+  //  my_exit(status);
 #endif
 
   return;
