@@ -91,8 +91,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
       if ((ColourNum =
            FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) < 0) {
-        fprintf(stderr, "Could not find ElectronDensity.\n");
-        ENZO_FAIL("");
+        ENZO_FAIL("Could not find ElectronDensity.");
       }
 
       /* Generate an array of field numbers corresponding to the colour fields
@@ -130,8 +129,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       UseGammaField = TRUE;
       GammaField = new float[size];
       if (this->ComputeGammaField(GammaField) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeGammaField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeGammaField.");
       }
     } else {
       GammaField = new float[1];
@@ -147,8 +145,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     float MinimumSupportEnergyCoefficient = 0;
     if (UseMinimumPressureSupport == TRUE && level > MaximumRefinementLevel-1)
       if (this->SetMinimumSupport(MinimumSupportEnergyCoefficient) == FAIL) {
-	fprintf(stderr, "Error in grid->SetMinimumSupport,\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->SetMinimumSupport,");
       }
 
     /* allocate space for fluxes */
@@ -229,8 +226,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
 	  == FAIL) {
-	fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
       }
 
     /* Create a cell width array to pass (and convert to absolute coords). */
@@ -287,8 +283,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 			  geindex, temp,
                         &NumberOfColours, colourpt, coloff, colindex);
 #else /* PPM_LR */
-      fprintf(stderr, "PPM LR is not supported.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("PPM LR is not supported.");
 #endif /* PPM_LR */
     }
 

@@ -670,8 +670,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
   else {
     if (ReadUnits(fptr) == FAIL){
-      fprintf(stderr, "Error in ReadUnits. \n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ReadUnits. ");
     }
     rewind(fptr);
   }
@@ -720,15 +719,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (MultiSpecies > 0)
     if (InitializeRateData(MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in InitializeRateData.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in InitializeRateData.");
     }
  
   if (MultiSpecies             == 0 && 
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in InitializeEquilibriumCoolData.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
     }
   }
  
@@ -736,8 +733,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11)
     if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
-	fprintf(stderr, "Error in InitializeRadiationFieldData.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */

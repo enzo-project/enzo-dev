@@ -123,8 +123,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereUseBaryons,
 					  TestGravitySphereCenter
 						  ) == FAIL){
-    fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in TestGravitySphereInitializeGrid.");
   }
  
   /* Convert minimum initial overdensity for refinement to mass
@@ -153,8 +152,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
  
     for (level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in RebuildHierarchy.");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -168,8 +166,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereUseBaryons,
 					  TestGravitySphereCenter
 							        ) == FAIL) {
-	  fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in TestGravitySphereInitializeGrid.");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -182,8 +179,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
       while (Temp != NULL) {
 	if (Temp->GridData->ProjectSolutionToParentGrid(
 		 *Temp->GridHierarchyEntry->ParentGrid->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->ProjectSolutionToParentGrid.");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -205,8 +201,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
     /* Error check */
  
     if (TestGravitySphereRefineAtStart) {
-      fprintf(stderr, "Cannot RefineAtStart AND create subgrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Cannot RefineAtStart AND create subgrid.");
     }
  
     /* create a new HierarchyEntry, attach to the top grid and fill it out */
@@ -239,8 +234,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 					  TestGravitySphereUseBaryons,
 					  TestGravitySphereCenter)
 	== FAIL) {
-      fprintf(stderr, "Error in TestGravitySphereInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in TestGravitySphereInitializeGrid.");
     }			
   }
  
