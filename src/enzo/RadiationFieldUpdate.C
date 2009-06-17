@@ -73,6 +73,11 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 {
  
   int level1, i;
+
+  /* Return if this does not concern us */
+  if (!(RadiationFieldType >= 10 && RadiationFieldType <= 11 && 
+	level <= RadiationFieldLevelRecompute)) return SUCCESS;
+ 
  
   JBPERF_START("RadiationFieldUpdate");
 
