@@ -51,8 +51,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
     /* Shrink this subgrid (if necessary) to produce the smallest box. */
  
     if (Subgrid->ShrinkToMinimumSize() == FAIL) {
-      fprintf(stderr, "Error in ProtoSubgrid->ShrinkToMinimumSize.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ProtoSubgrid->ShrinkToMinimumSize.");
     }
  
     /* Iterate on this grid until it is acceptable. */
@@ -74,15 +73,13 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	Subgrid->ComputeSignature(dim);
 
 	if (Subgrid->FindGridsByZeroSignature(dim, NumberOfNewGrids, GridEnds) == FAIL) {
-	 fprintf(stderr, "Error in ProtoSubgrid->FindGridsByZeroSignature.\n");
-	 ENZO_FAIL("");
+	 ENZO_FAIL("Error in ProtoSubgrid->FindGridsByZeroSignature.");
 	}
  
 	/* Error check. */
  
 	if (NumberOfNewGrids > MAX_NUMBER_OF_SUBGRIDS) {
-	  fprintf(stderr, "Increase MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Increase MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature.");
 	}
  
 	/* If there are any new grids created this way, then make them and
@@ -140,8 +137,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	/* Error check. */
 	
 	if (StrongestDim < 0) {
-	  fprintf(stderr, "Error in IdentifyNewSubgridsBySignature.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
 	}
 	
 	/* Create new subgrids (two). */
@@ -172,8 +168,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
       /* Shrink this subgrid (if necessary) to produce the smallest box. */
  
       if (Subgrid->ShrinkToMinimumSize() == FAIL) {
-	fprintf(stderr, "Error in ProtoSubgrid->ShrinkToMinimumSize.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in ProtoSubgrid->ShrinkToMinimumSize.");
       }
  
     } // end: while (Subgrid->AcceptableSubgrid() == FALSE)

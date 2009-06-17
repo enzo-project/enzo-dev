@@ -60,8 +60,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedBySlope();
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedBySlope.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedBySlope.");
     }
     break;
  
@@ -77,8 +76,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
        flagging field contains the mass in the cell (not the density) */
  
     if (this->AddFieldMassToMassFlaggingField() == FAIL) {
-      fprintf(stderr, "Error in grid->AddFieldMassToMassFlaggingField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->AddFieldMassToMassFlaggingField.");
     }
  
     /* flag all points that need extra resolution (FlagCellsToBeRefinedByMass
@@ -86,8 +84,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, method);
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMass.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass.");
     }
     break;
  
@@ -97,8 +94,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShocks();
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByShocks.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByShocks.");
     }
     break;
  
@@ -115,8 +111,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, method);
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMass.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass.");
     }
     break;
  
@@ -126,8 +121,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByJeansLength();
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByJeansLength.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByJeansLength.");
     }
     break;
  
@@ -137,8 +131,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByCoolingTime();
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByCoolingTime.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByCoolingTime.");
     }
     break;
  
@@ -159,8 +152,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShear();
     if (NumberOfFlaggedCells < 0) {
-      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByShear.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByShear.");
     }
     break;
 
@@ -171,8 +163,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     if (RadiativeTransfer) {
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByOpticalDepth();
       if (NumberOfFlaggedCells < 0) {
-	fprintf(stderr, "Error in grid->FlagCellsByOpticalDepth.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->FlagCellsByOpticalDepth.");
       }
     }
 #endif /* TRANSFER */
@@ -196,8 +187,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   /***********************************************************************/
  
   if (NumberOfFlaggedCells == INT_UNDEFINED) {
-    fprintf(stderr, "No valid CellFlaggingMethod specified.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("No valid CellFlaggingMethod specified.");
   }
  
 #ifdef MPI_INSTRUMENTATION
