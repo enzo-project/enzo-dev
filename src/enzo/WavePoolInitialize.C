@@ -51,6 +51,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float WavePoolTotalEnergy;
   FLOAT WavePoolSubgridLeft, WavePoolSubgridRight;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+  float ZeroBField[3] = {0.0, 0.0, 0.0};
  
   /* set default parameters */
  
@@ -113,9 +114,9 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->InitializeUniformGrid(WavePoolDensity,
 					      WavePoolTotalEnergy,
 					      WavePoolTotalEnergy,
-					      WavePoolVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      WavePoolVelocity,
+                          ZeroBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* If requested, create a subgrid */
@@ -154,9 +155,9 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid->GridData->InitializeUniformGrid(WavePoolDensity,
 						 WavePoolTotalEnergy,
 						 WavePoolTotalEnergy,
-						 WavePoolVelocity) == FAIL) {
-      fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-      ENZO_FAIL("");
+						 WavePoolVelocity,
+                         ZeroBField) == FAIL) {
+            ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
     }			
   }
  

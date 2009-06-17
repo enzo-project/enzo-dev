@@ -22,6 +22,8 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+
 int grid::SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 			       float *Flux3D[], int flux, float fluxcoef, float dt)
 {
@@ -36,6 +38,21 @@ int grid::SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
   Activesize[0] = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
   Activesize[1] = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
   Activesize[2] = GridDimension[2] > 1 ? GridDimension[2]-2*DEFAULT_GHOST_ZONES : 1;
+
+    FLOAT a = 1, dadt;
+
+  /* If using comoving coordinates, multiply dx by a(n+1/2).
+     In one fell swoop, this recasts the equations solved by solver
+     in comoving form (except for the expansion terms which are taken
+     care of elsewhere). */
+  
+  if (ComovingCoordinates) {
+    if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+	== FAIL) {
+      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
+      return FAIL;
+    }
+  }
 
   
   /* Start: subgrid left flux start index relative to this grid
@@ -73,7 +90,7 @@ int grid::SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
       Offset *= (Activesize[dim]+1);
     }
     
-    FLOAT dtdx = dtFixed/CellWidth[flux][0];
+    FLOAT dtdx = dtFixed/(a*CellWidth[flux][0]);
     for (int field = 0; field < NEQ_MHD; field++) {
       for (int k = Start[2]; k <= End[2]; k++) {
 	for (int j = Start[1]; j <= End[1]; j++) {

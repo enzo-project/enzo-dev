@@ -52,8 +52,7 @@ int grid::ComovingExpansionTerms()
     FLOAT a, dadt;
     if (CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt) 
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
     }
     float Coefficient = dtFixed*dadt/a;
 
@@ -66,11 +65,10 @@ int grid::ComovingExpansionTerms()
     /* Find the density, gas energy, velocities & total energy
        (where appropriate). */
 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+            ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
     float *PressureDual, *Pressure = new float[size];
@@ -89,14 +87,12 @@ int grid::ComovingExpansionTerms()
       PressureDual = new float[size];
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   PressureDual) == FAIL) {
-	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ComputePressureDualEnergyFormalism.");
       }
     }
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
-      fprintf(stderr, "Error in ComputePressure.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ComputePressure.");
     }
 
     /* Call fortran routine to do the real work. */
@@ -120,8 +116,7 @@ int grid::ComovingExpansionTerms()
     /* Compute the time-centered pressure for this grid. */
 
     if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
-      fprintf(stderr, "Error in ComputePressure.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ComputePressure.");
     }
 
     for (i = 0; i < size; i++)
@@ -187,8 +182,7 @@ int grid::ComovingExpansionTerms()
 
       if (this->ComputePressureDualEnergyFormalism(PressureTime,
 						   Pressure) == FAIL) {
-	fprintf(stderr, "Error in ComputePressureDualEnergyFormalism.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ComputePressureDualEnergyFormalism.");
       }
 
       /* Replace pressure with the time-centered combination 3*p/d. */
@@ -263,6 +257,25 @@ int grid::ComovingExpansionTerms()
     }
 
 #endif /* VELOCITY_METHOD3 */
+
+    if (HydroMethod == MHD_RK) {
+
+      /*************** NOT TESTED ******************************/
+    /*    iii) semi-implicit way: */
+
+      float Bcoeff = 0.25*Coefficient;
+      for (i = 0; i < size; i++) {
+	BaryonField[B1Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+	if (B2Num != 0)
+	  BaryonField[B2Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+	if (B3Num != 0)
+	  BaryonField[B3Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+      }
+    }
+
+    // ADD PHI field expansion terms here! 
+
+
 
 #endif /* USE_FORTRAN */
 

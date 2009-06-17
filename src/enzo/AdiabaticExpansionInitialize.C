@@ -36,6 +36,8 @@
  
 /* function prototypes */
  
+void WriteListOfFloats(FILE *fptr, int N, float floats[]);
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
@@ -49,6 +51,12 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
+  char *DebugName = "Debug";
+  char *Phi_pName = "Phip";
  
   /* declarations */
  
@@ -58,8 +66,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Error check. */
  
   if (!ComovingCoordinates) {
-    fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("ComovingCoordinates must be TRUE!");
   }
  
   /* set default parameters */
@@ -67,8 +74,15 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   float AdiabaticExpansionOmegaBaryonNow     = 1.0;  // standard
   float AdiabaticExpansionOmegaCDMNow        = 0.0;  // no dark matter
   float AdiabaticExpansionInitialTemperature = 200;  // degrees K
+  float AdiabaticExpansionInitialUniformBField[MAX_DIMENSION];  // in Gauss
   float AdiabaticExpansionInitialVelocity    = 100;  // km/s
  
+  float InitialVels[MAX_DIMENSION];  // Initialize arrays
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    AdiabaticExpansionInitialUniformBField[dim] = 0.0;
+    InitialVels[dim] = 0.0;
+  }
+
   /* read input from file */
  
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -83,6 +97,10 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 		  &AdiabaticExpansionOmegaCDMNow);
     ret += sscanf(line, "AdiabaticExpansionInitialTemperature = %"FSYM,
 		  &AdiabaticExpansionInitialTemperature);
+    ret += sscanf(line, "AdiabaticExpansionInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
+		  AdiabaticExpansionInitialUniformBField,
+		  AdiabaticExpansionInitialUniformBField+1,
+		  AdiabaticExpansionInitialUniformBField+2);
     ret += sscanf(line, "AdiabaticExpansionInitialVelocity = %"FSYM,
 		  &AdiabaticExpansionInitialVelocity);
  
@@ -96,16 +114,21 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Get the units so we can convert temperature later. */
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1, MassUnits=1,PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in GetUnits.");
   }
- 
+  PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) 
+    AdiabaticExpansionInitialUniformBField[dim] /= MagneticUnits;
+  
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
  
   float InitialVels[MAX_DIMENSION], InitialTotalEnergy, InitialGasEnergy;
+  float InitialTotalEnergy, InitialGasEnergy;
   InitialGasEnergy = AdiabaticExpansionInitialTemperature/TemperatureUnits /
     (Gamma - 1.0);
   if (MultiSpecies == FALSE) InitialGasEnergy /=  DEFAULT_MU;
@@ -121,9 +144,9 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 					      AdiabaticExpansionOmegaBaryonNow,
 					      InitialTotalEnergy,
 					      InitialGasEnergy, InitialVels
+					      AdiabaticExpansionInitialUniformBField
 					      ) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* set up field names and units */
@@ -136,6 +159,16 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = BxName;
+    DataLabel[i++] = ByName;
+    DataLabel[i++] = BzName;
+    DataLabel[i++] = PhiName;
+  }
+  if(UseDivergenceCleaning){
+    DataLabel[i++] = Phi_pName;
+    DataLabel[i++] = DebugName;
+  }
  
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
@@ -152,6 +185,9 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 	    AdiabaticExpansionOmegaCDMNow);
     fprintf(Outfptr, "AdiabaticExpansionInitialTemperature = %"FSYM"\n",
 	    AdiabaticExpansionInitialTemperature);
+    fprintf(Outfptr, "AdiabaticExpansionInitialUniformBField = ");
+    WriteListOfFloats(Outfptr, 3, AdiabaticExpansionInitialUniformBField);
+
     fprintf(Outfptr, "AdiabaticExpansionInitialVelocity    = %"FSYM"\n\n",
 	    AdiabaticExpansionInitialVelocity);
   }

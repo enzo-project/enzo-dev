@@ -86,6 +86,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* set default parameters */
  
   float ImplosionVelocity[3]     = {0.0, 0.0, 0.0};   // gas initally at rest
+  float ImplosionBField[3]      = {0.0, 0.0, 0.0};   // no magnetic field
   float ImplosionPressure        = 1.0;
   float ImplosionDiamondPressure = 0.14;
   ImplosionDensity               = 1.0;
@@ -141,9 +142,8 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->InitializeUniformGrid(ImplosionDensity,
 					      ImplosionTotalEnergy,
 					      ImplosionTotalEnergy,
-					      ImplosionVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      ImplosionVelocity, ImplosionBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* set up the diamond */
@@ -151,8 +151,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->ImplosionInitializeGrid(ImplosionDiamondDensity,
 					      ImplosionDiamondTotalEnergy)
       == FAIL) {
-    fprintf(stderr, "Error in ImplosionInitializeGrid.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ImplosionInitializeGrid.");
   }
  
  
@@ -215,9 +214,8 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       if (Subgrid[lev]->GridData->InitializeUniformGrid(ImplosionDensity,
 						   ImplosionTotalEnergy,
 						   ImplosionTotalEnergy,
-					        ImplosionVelocity) == FAIL) {
-	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	ENZO_FAIL("");
+					        ImplosionVelocity, ImplosionBField) == FAIL) {
+		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
       }
  
       /* set up the diamond */
@@ -226,8 +224,7 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				  ImplosionDiamondDensity,
 				  ImplosionDiamondTotalEnergy)
 	  == FAIL) {
-	fprintf(stderr, "Error in ImplosionInitialize[Sub]Grid.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ImplosionInitialize[Sub]Grid.");
       }
     }
     else

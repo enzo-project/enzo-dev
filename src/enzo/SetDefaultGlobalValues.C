@@ -345,7 +345,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EOSSoundSpeed = 2.65e4;
   EOSCriticalDensity = 1e-13;
   EOSGamma = 1.667;
-  Mu = 1.22;
+  Mu = 0.6;
   CoolingCutOffDensity1 = 0;
   CoolingCutOffDensity2 = 1e10;
   CoolingCutOffTemperature = 0.0;

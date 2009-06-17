@@ -28,6 +28,7 @@ int MHDSweepY(float **Prim,  float **Flux3D, int GridDimension[],
 		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
 int MHDSweepZ(float **Prim,  float **Flux3D, int GridDimension[], 
 		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD3D(float **Prim, float **dU, float dt,
 		fluxes *SubgridFluxes[], int NumberOfSubgrids, 
@@ -80,6 +81,21 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
     divB[i] = 0.0;
     for (int dim = 0; dim < 3; dim++) {
       gradPhi[dim][i] = 0.0;
+    }
+  }
+
+  FLOAT a = 1, dadt;
+
+  /* If using comoving coordinates, multiply dx by a(n+1/2).
+     In one fell swoop, this recasts the equations solved by solver
+     in comoving form (except for the expansion terms which are taken
+     care of elsewhere). */
+  
+  if (ComovingCoordinates) {
+    if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+	== FAIL) {
+      fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
+      return FAIL;
     }
   }
 
