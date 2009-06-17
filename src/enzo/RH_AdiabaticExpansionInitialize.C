@@ -54,8 +54,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Error check. */
  
   if (!ComovingCoordinates) {
-    fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("ComovingCoordinates must be TRUE!");
   }
  
   /* set default parameters */
@@ -96,13 +95,17 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in GetUnits.");
   }
  
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
  
-  float InitialVels[MAX_DIMENSION], InitialTotalEnergy, InitialGasEnergy;
+  float InitialVels[MAX_DIMENSION],InitialBField[MAX_DIMENSION], InitialTotalEnergy, InitialGasEnergy;
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    InitialVels[dim] = 0.0;
+    InitialBField[dim] = 0.0;
+  }
+
   InitialGasEnergy = AdiabaticExpansionInitialTemperature/TemperatureUnits /
     (Gamma - 1.0);
   InitialTotalEnergy = InitialGasEnergy;
@@ -116,10 +119,9 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->InitializeUniformGrid(
 					      AdiabaticExpansionOmegaBaryonNow,
 					      InitialTotalEnergy,
-					      InitialGasEnergy, InitialVels
+					      InitialGasEnergy, InitialVels, InitialBField
 					      ) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* set up field names and units */

@@ -68,6 +68,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     RotatingCylinderCenterPosition[i] = 0.5;  // right in the middle of the box
 
   float RotatingCylinderVelocity[3]   = {0.0, 0.0, 0.0};   // gas initally at rest
+  float RotatingCylinderBField[3]   = {0.0, 0.0, 0.0};   // gas initally at rest
   FLOAT RotatingCylinderRadius = 0.3;
   float RotatingCylinderLambda = 0.05;
   float RotatingCylinderOverdensity = 20.0;
@@ -122,9 +123,9 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   if (TopGrid.GridData->InitializeUniformGrid(RotatingCylinderDensity,
 					      RotatingCylinderTotalEnergy,
 					      RotatingCylinderTotalEnergy,
-					      RotatingCylinderVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      RotatingCylinderVelocity,
+					      RotatingCylinderBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* Create as many subgrids as there are refinement levels
@@ -186,9 +187,9 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
       if (Subgrid[lev]->GridData->InitializeUniformGrid(RotatingCylinderDensity,
 						   RotatingCylinderTotalEnergy,
 						   RotatingCylinderTotalEnergy,
-					        RotatingCylinderVelocity) == FAIL) {
-	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	ENZO_FAIL("");
+							RotatingCylinderVelocity,
+							RotatingCylinderBField) == FAIL) {
+		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
       }
  
       /* set up the initial explosion area on the finest resolution subgrid */
@@ -199,8 +200,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 								   RotatingCylinderLambda,
 								   RotatingCylinderOverdensity) 
 	    == FAIL) {
-	  fprintf(stderr, "Error in RotatingCylinderInitialize[Sub]Grid.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in RotatingCylinderInitialize[Sub]Grid.");
 	}
 
     }
@@ -216,8 +216,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
 				       *(Subgrid[lev-1]->GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
  
   /* set up the root grid */
@@ -225,8 +224,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   if (MaximumRefinementLevel > 0) {
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
   }
   else
@@ -234,8 +232,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 							 RotatingCylinderCenterPosition,
 							 RotatingCylinderLambda,
 							 RotatingCylinderOverdensity) == FAIL) {
-      fprintf(stderr, "Error in RotatingCylinderInitializeGrid.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in RotatingCylinderInitializeGrid.");
     }
 
  

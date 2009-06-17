@@ -77,7 +77,8 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float MachSquared, SoundSpeed1;
   float ShockPoolShockVel, ShockPoolPressure, ShockPoolShockPressure;
   const float TwoPi = 6.283185;
- 
+  float ZeroBField[3] = {0.0, 0.0, 0.0} ;
+
   /* set default parameters */
  
   ShockPoolAngle         = 0.0;    // x direction
@@ -160,9 +161,8 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->InitializeUniformGrid(ShockPoolDensity,
 					      ShockPoolTotalEnergy,
 					      ShockPoolTotalEnergy,
-					      ShockPoolVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      ShockPoolVelocity, ZeroBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* If requested, create a subgrid */
@@ -201,9 +201,8 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid->GridData->InitializeUniformGrid(ShockPoolDensity,
 						 ShockPoolTotalEnergy,
 						 ShockPoolTotalEnergy,
-						 ShockPoolVelocity) == FAIL) {
-      fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-      ENZO_FAIL("");
+						 ShockPoolVelocity, ZeroBField) == FAIL) {
+            ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
     }			
   }
  
