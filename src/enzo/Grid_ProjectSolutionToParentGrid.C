@@ -103,9 +103,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
     ENZO_FAIL("");
   }
@@ -277,6 +277,19 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	    ParentGrid.BaryonField[TENum][i1] += 0.5*
 	      ParentGrid.BaryonField[Vel3Num][i1] *
 	      ParentGrid.BaryonField[Vel3Num][i1];
+
+	if (HydroMethod == MHD_RK) {
+	  float B2;
+	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
+	  for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]; i++, i1++) {
+	    B2 = pow(ParentGrid.BaryonField[B1Num][i1],2) + 
+	      pow(ParentGrid.BaryonField[B2Num][i1],2) +
+	      pow(ParentGrid.BaryonField[B3Num][i1],2);
+	    ParentGrid.BaryonField[TENum][i1] += 
+	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1];  
+	  }
+	}
+
 		
       } // end: loop over faces
  

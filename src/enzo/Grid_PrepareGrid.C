@@ -76,6 +76,36 @@ void grid::PrepareGrid(int Rank, int GridDim[],
  
   this->PrepareGridDerivedQuantities();
 
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    activesize *= (GridDimension[dim] - 2 * DEFAULT_GHOST_ZONES);
+  }
+  
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    size *= GridDimension[dim];
+  }
+  
+  if (HydroMethod == MHD_RK) {
+
+    if (divB == NULL) {
+      divB = new float[activesize];
+    }
+
+    for (int dim = 0; dim < 3; dim++) {
+      if (gradPhi[dim] == NULL) {
+	gradPhi[dim] = new float[activesize];
+      }
+    }
+
+    for (int dim = GridRank; dim < 3; dim++) {
+      for (int n = 0; n < activesize; n++) {
+	gradPhi[dim][n] = 0.0;
+      }
+    }
+  }
+
+
 #ifdef TRANSFER
   SubgridMarker = NULL;
   if (PhotonPackages == NULL) {

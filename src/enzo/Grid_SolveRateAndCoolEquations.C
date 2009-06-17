@@ -14,6 +14,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -94,7 +95,7 @@ int grid::SolveRateAndCoolEquations()
 
   /* Declarations */
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
   FLOAT a = 1.0, dadt;
@@ -102,7 +103,7 @@ int grid::SolveRateAndCoolEquations()
   /* Find fields: density, total energy, velocity1-3. */
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum) == FAIL) {
+				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     ENZO_FAIL("");
   }
@@ -125,6 +126,13 @@ int grid::SolveRateAndCoolEquations()
 				      kdissH2INum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
     ENZO_FAIL("");
+}
+
+  /* Compute size of the current grid. */
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++) {
+    size *= GridDimension[dim];
   }
 
   /* Get easy to handle pointers for each variable. */
@@ -135,6 +143,20 @@ int grid::SolveRateAndCoolEquations()
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
+
+  /* Compute total gas energy if using MHD */
+  if (HydroMethod == MHD_RK) {
+    totalenergy = new float[size];
+    float B2;
+    for (int n=0; n<size; n++) {
+      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
+      totalenergy[n] = BaryonField[TENum][n] - 0.5*B2/BaryonField[DensNum][n];
+    }
+  }
+  else {
+    totalenergy = BaryonField[TENum];
+  }
+
 
   /* If using cosmology, compute the expansion factor and get units. */
 
@@ -266,6 +288,26 @@ int grid::SolveRateAndCoolEquations()
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("");
+  }
+
+  if (HydroMethod == MHD_RK) {
+    float B2, v2;
+    for (int n = 0; n < size; n++) {
+      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
+
+      /* Always trust gas energy in cooling routine */
+      if (DualEnergyFormalism) {
+	v2 = pow(BaryonField[Vel1Num][n],2) + 
+	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
+	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];
+      }
+      else {
+	BaryonField[TENum][n] = totalenergy[n] + 0.5*B2/BaryonField[DensNum][n];
+      }
+      
+    }
+    
+    delete totalenergy;
   }
 
   return SUCCESS;

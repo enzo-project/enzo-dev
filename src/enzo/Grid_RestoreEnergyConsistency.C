@@ -20,6 +20,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -53,11 +54,11 @@ int grid::RestoreEnergyConsistency(int Region)
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num,B2Num,B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+				       Vel3Num, TENum, B1Num,B2Num,B3Num) == FAIL) {
+    fprintf(stderr, "\n");
+    ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.");
   }
  
   /* a) Correct the entire field. */
@@ -85,6 +86,15 @@ int grid::RestoreEnergyConsistency(int Region)
       for (i = 0; i < size; i++)
 	BaryonField[TENum][i] +=
 	         0.5*(BaryonField[Vel3Num][i])*(BaryonField[Vel3Num][i]);
+
+    if (HydroMethod == MHD_RK) {
+      float B2 = 0;
+      for (i = 0; i < size; i++) {
+	B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+	  pow(BaryonField[B3Num][i],2);
+	BaryonField[TENum][i] += 0.5 * B2 / BaryonField[DensNum][i];
+      }
+    }
  
   } // end: Region == ENTIRE_FIELD
  
@@ -114,6 +124,14 @@ int grid::RestoreEnergyConsistency(int Region)
 	      BaryonField[TENum][n] +=
 	         0.5*(BaryonField[Vel3Num][n])*(BaryonField[Vel3Num][n]);
  
+	    if (HydroMethod == MHD_RK) {
+	      float B2; 
+	      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) +
+		pow(BaryonField[B3Num][n],2);
+	      BaryonField[TENum][n] += 0.5 * B2 / BaryonField[DensNum][n];
+	    }
+
+
 	  }
  
   } // end: Region == BOUNDARY_ONLY

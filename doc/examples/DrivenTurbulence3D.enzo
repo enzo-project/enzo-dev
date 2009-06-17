@@ -1,0 +1,81 @@
+#
+# AMR PROBLEM DEFINITION FILE: MHD/HD turbulence problem. 
+# Unless hydromethod == 4  this will do hydrodynamic turbulence. 
+# Tom Abel 2009
+#
+# This can do fixed force pattern driving as well as decaying turbulence set ups.
+# Set UseDrivingField = 1 to use the driving with HydroMethod 3 or 4 (hydro/MHD)
+# Only decaying is implemeted for HydroMethod < 3 (Zeus & standard PPM)
+#
+# 
+#
+#  define problem
+#
+
+ProblemType                = 203
+TopGridRank                = 3	
+TopGridDimensions          = 32 32 32
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3
+RightFaceBoundaryCondition = 3 3 3
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime = 10.0
+#CycleSkipDataDump = 10
+dtDataDump             = 0.1
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1
+FluxCorrection            = 1
+MaximumRefinementLevel    = 0
+RefineBy                  = 2
+CellFlaggingMethod        = 6 
+MinimumEfficiency         = 0.3
+InterpolationMethod         = 1
+ConservativeInterpolation   = 1
+NumberOfBufferZones         = 1
+RefineAtStart   = 0
+
+#
+#  set hydro parameters
+#
+
+Gamma                       = 1.001
+Mu                          = 1.0
+CourantSafetyNumber         = 0.3
+HydroMethod                 = 3
+DualEnergyFormalism         = 0
+RiemannSolver               = 1
+Theta_Limiter               = 1.5
+RKOrder                     = 2
+SmallRho                    = 1e-27
+SmallP                      = 1e-20
+SmallT                      = 5
+EOSType                     = 0  
+
+#
+# problem parameters
+#
+
+LengthUnits = 3.086e19           // 10 parsec box
+DensityUnits = 1.67e-22          // 100/cm^3 particles
+TimeUnits = 1.543e14             // 1 = crossing time at mach 10
+UseDrivingField           = 1    // Temporaly and spatially fixed force pattern on/off
+DrivingEfficiency = 1
+SetTurbulence = 1
+Density = 1.67e-22
+SoundVelocity = 2.e4
+MachNumber = 10
+RandomSeed = 842091
+InitialBfield = 1e-6
+Debug1 = 1
+
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10   // # of greens function at any one time

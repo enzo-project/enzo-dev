@@ -106,7 +106,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "MHD2DProblemType = %d",
 		  &MHD2DProblemType);
 
-        fprintf(stderr, "%i MHD2DTestInitialize !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", RefineAtStart);
+    //        fprintf(stderr, "%i MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "CollapseTest") 
@@ -132,7 +132,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 						LowerPressure,   UpperPressure,
 						LowerBx,  UpperBx,
 						LowerBy,  UpperBy)  == FAIL) {
-    fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+    fprintf(stderr, "Error in MHD2DTestInitializeGrid.\n");
     return FAIL;
   }
 

@@ -91,6 +91,12 @@ grid::~grid()
   for (i = 0; i < MAX_NUMBER_OF_PARTICLE_ATTRIBUTES; i++)
     delete [] ParticleAttribute[i];
 
+  delete divB;
+  for (int i=0; i<3; i++) {
+    delete gradPhi[i];
+  }
+
+
   DeleteStarList(Stars);
 
 #ifdef TRANSFER

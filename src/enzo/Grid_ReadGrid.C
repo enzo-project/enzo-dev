@@ -208,7 +208,28 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   /* Compute Flux quantities */
 
   this->PrepareGridDerivedQuantities();
+
+  if (HydroMethod == MHD_RK) {
+
+    int activesize = 1;
+    for (int dim = 0; dim < GridRank; dim++)
+      activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+    
+    if (divB == NULL) 
+      divB = new float[activesize];
+
+    for (int dim = 0; dim < 3; dim++)
+      if (gradPhi[dim] == NULL)
+	gradPhi[dim] = new float[activesize];
+
+    for (int dim = GridRank; dim < 3; dim++)
+      for (int n = 0; n < activesize; n++)
+	gradPhi[dim][n] = 0.0;
+
+  } /* if HydroMethod == MHD */
+
  
+
   int ii = sizeof(io_type);
  
   switch(ii)
