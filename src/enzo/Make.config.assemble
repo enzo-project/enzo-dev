@@ -360,7 +360,7 @@
 
     ifeq ($(CONFIG_JBPERF),yes)
         ERROR_JBPERF = 0
-        ASSEMBLE_JBPERF_DEFINES = -DUSE_JBPERF
+        ASSEMBLE_JBPERF_DEFINES = -DUSE_JBPERF -DJBPERF_LEVEL_2
         ASSEMBLE_JBPERF_INCLUDES = $(MACH_INCLUDES_JBPERF)
         ASSEMBLE_JBPERF_LIBS     = $(MACH_LIBS_JBPERF)
     endif
@@ -677,6 +677,33 @@
 	$(error Illegal value '$(CONFIG_FLUX_FIX)' for $$(CONFIG_FLUX_FIX))
     endif
 
+#=======================================================================
+# DETERMINE HDF4 USAGE
+#=======================================================================
+
+    ERROR_USE_HDF4 = 1
+
+    # compilers and settings if USE_HDF4 is yes
+
+    ifeq ($(CONFIG_USE_HDF4),yes)
+        ERROR_USE_HDF4 = 0
+        ASSEMBLE_HDF4_DEFINES  = -DUSE_HDF4
+    endif
+
+    # compilers and settings if USE_HDF4 is no
+
+    ifeq ($(CONFIG_USE_HDF4),no)
+        ERROR_USE_HDF4 = 0
+        ASSEMBLE_HDF4_DEFINES  =
+    endif
+
+    # error if CONFIG_USE_HDF4 is incorrect
+
+    ifeq ($(ERROR_USE_HDF4),1)
+       .PHONY: error_compilers
+       error_compilers:
+	$(error Illegal value '$(CONFIG_USE_HDF4)' for $$(CONFIG_USE_HDF4))
+    endif
 
 
 #=======================================================================
@@ -728,7 +755,8 @@
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
-              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
+              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES) \
+              $(ASSEMBLE_HDF4_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
