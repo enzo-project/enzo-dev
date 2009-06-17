@@ -25,6 +25,7 @@ MACH_FILE  = Make.mach.red
 
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-ia64/
+LOCAL_HDF4_INSTALL   = /usr/work/mturk/local/
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-ia64/
 LOCAL_INT_INSTALL     = /afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys/
 
@@ -54,9 +55,7 @@ MACH_LD_NOMPI  = $(LOCAL_INT_INSTALL)/icc
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES = -DLINUX -DH5_USE_16_API -DOPTIMIZED_CTP -DENABLE_LOAD_BALANCE \
-	-DFAST_SIB
-	#-DEMBEDDED_PYTHON
+MACH_DEFINES = -DLINUX -DH5_USE_16_API #-DEMBEDDED_PYTHON
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -105,10 +104,11 @@ MACH_OPT_AGGRESSIVE  = -O3
 
 LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HDF4   = -I$(LOCAL_HDF4_INSTALL)/include
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) #$(LOCAL_INCLUDES_PYTHON)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) #$(LOCAL_INCLUDES_PYTHON)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -124,6 +124,7 @@ MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg     
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
 LOCAL_LIBS_MACH   =  -L$(LOCAL_INT_INSTALL)/fc/lib/ \
@@ -132,5 +133,5 @@ LOCAL_LIBS_MACH   =  -L$(LOCAL_INT_INSTALL)/fc/lib/ \
                      -lifcore -lifport -limf -lcprts \
                      -lstdc++ -lg2c
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_PYTHON)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
