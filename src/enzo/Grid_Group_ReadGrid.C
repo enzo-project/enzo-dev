@@ -46,8 +46,6 @@ void my_exit(int status);
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
-// extern int ParticleTypeInFile; // declared and set in ReadParameterFile
-
 static int GridReadDataGridCounter = 0;
  
  

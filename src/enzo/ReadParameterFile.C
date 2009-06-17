@@ -39,8 +39,6 @@
  
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
-// int ParticleTypeInFile = 0;
- 
 /* function prototypes */
  
 int ReadListOfFloats(FILE *fptr, int N, float floats[]);
