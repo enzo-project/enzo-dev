@@ -53,9 +53,8 @@ Eflt32 CommunicationMinValue(Eflt32 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eflt32 ReturnValue = Value;
+#ifdef USE_MPI
   START_TIMING;
   MPI_Datatype DataType = MPI_FLOAT;
   MPI_Arg Count = 1;
@@ -73,10 +72,9 @@ Eflt64 CommunicationMinValue(Eflt64 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eflt64 ReturnValue = Value;
-  MPI_Datatype DataType = MPI_DOUBLE;
+#ifdef USE_MPI
+   MPI_Datatype DataType = MPI_DOUBLE;
   MPI_Arg Count = 1;
 
   START_TIMING;
@@ -94,9 +92,8 @@ Eflt128 CommunicationMinValue(Eflt128 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eflt128 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_LONG_DOUBLE;
   MPI_Arg Count = 1;
   
@@ -115,11 +112,10 @@ Eint32 CommunicationMinValue(Eint32 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
+  Eint32 ReturnValue = Value;
 #ifdef USE_MPI
- 
   MPI_Datatype DataType = MPI_INT;
   MPI_Arg Count = 1;
-  Eint32 ReturnValue = Value;
 
   START_TIMING;
   MPI_Allreduce(&Value, &ReturnValue, Count, DataType, MPI_MIN, MPI_COMM_WORLD);
@@ -136,9 +132,8 @@ Eint64 CommunicationMinValue(Eint64 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eint64 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_LONG_LONG_INT;
   MPI_Arg Count = 1;
 
@@ -161,9 +156,9 @@ Eflt32 CommunicationMaxValue(Eflt32 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
  
   Eflt32 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_FLOAT;
   MPI_Arg Count = 1;
 
@@ -182,9 +177,8 @@ Eflt64 CommunicationMaxValue(Eflt64 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eflt64 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_DOUBLE;
   MPI_Arg Count = 1;
 
@@ -203,9 +197,8 @@ Eflt128 CommunicationMaxValue(Eflt128 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eflt128 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_LONG_DOUBLE;
   MPI_Arg Count = 1;
 
@@ -223,9 +216,8 @@ Eint32 CommunicationMaxValue(Eint32 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
- 
   Eint32 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_INT;
   MPI_Arg Count = 1;
 
@@ -244,9 +236,9 @@ Eint64 CommunicationMaxValue(Eint64 Value)
   if (NumberOfProcessors == 1)
     return Value;
  
-#ifdef USE_MPI
  
   Eint64 ReturnValue = Value;
+#ifdef USE_MPI
   MPI_Datatype DataType = MPI_LONG_LONG_INT;
   MPI_Arg Count = 1;
 

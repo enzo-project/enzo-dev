@@ -114,6 +114,8 @@ int DeleteSUBlingList(int NumberOfGrids,
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
 					 int NumberOfGrids);
+int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
+		 int NumberOfGrids,int NumberOfSubgrids[]);		 
 int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
 //int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
@@ -173,7 +175,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid;
   int RefinementFactors[MAX_DIMENSION];
-  int cycle = 0, counter = 0, grid, subgrid, iLevel, ErrorSignal = 0;
+  int cycle = 0, counter = 0, grid1, subgrid, iLevel, ErrorSignal = 0;
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
   Star *AllStars = NULL;
@@ -219,12 +221,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       FastSiblingLocatorInitializeStaticChainingMesh
 	(&StaticChainingMesh, MetaData->TopGridRank, MetaData->TopGridDims);
 
-      for (grid = 0; grid < NumberOfGrids; grid++)
-        Grids[grid]->GridData->FastSiblingLocatorAddGrid(&StaticChainingMesh);
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+        Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&StaticChainingMesh);
 
-      for (grid = 0; grid < NumberOfGrids; grid++)
-        if (Grids[grid]->GridData->FastSiblingLocatorFindSiblings(
-                              &StaticChainingMesh, &StaticSiblingList[grid],
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+        if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
+                              &StaticChainingMesh, &StaticSiblingList[grid1],
                               MetaData->LeftFaceBoundaryCondition,
                               MetaData->RightFaceBoundaryCondition) == FAIL) {
           fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
@@ -249,9 +251,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef STATIC_SIBLING_LIST
   if (StaticLevelZero == 1 && level == 0 ) {
 
-    for (grid = 0; grid < NumberOfGrids; grid++) {
-      SiblingList[grid].NumberOfSiblings = StaticSiblingList[grid].NumberOfSiblings;
-      SiblingList[grid].GridList = StaticSiblingList[grid].GridList;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      SiblingList[grid1].NumberOfSiblings = StaticSiblingList[grid1].NumberOfSiblings;
+      SiblingList[grid1].GridList = StaticSiblingList[grid1].GridList;
     }
 
   }
@@ -264,15 +266,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* Add all the grids to the chaining mesh. */
 
-  for (grid = 0; grid < NumberOfGrids; grid++)
-    Grids[grid]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
 
  
   /* For each grid, get a list of possible siblings from the chaining mesh. */
  
-  for (grid = 0; grid < NumberOfGrids; grid++)
-    if (Grids[grid]->GridData->FastSiblingLocatorFindSiblings(
-                              &ChainingMesh, &SiblingList[grid],
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
+                              &ChainingMesh, &SiblingList[grid1],
 			      MetaData->LeftFaceBoundaryCondition,
 			      MetaData->RightFaceBoundaryCondition) == FAIL) {
       fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
@@ -304,8 +306,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
 
-  for (grid = 0; grid < NumberOfGrids; grid++)
-    Grids[grid]->GridData->ClearBoundaryFluxes();
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    Grids[grid1]->GridData->ClearBoundaryFluxes();
 
   /* Create a list of shining (no radiative transfer, only a 1/r^2
      radiation profile) particles from all grids in all levels.  For
@@ -337,8 +339,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     } else {
 
       dtThisLevel = huge_number;
-      for (grid = 0; grid < NumberOfGrids; grid++) {
-	dtGrid      = Grids[grid]->GridData->ComputeTimeStep();
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+	dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
 	dtThisLevel = min(dtThisLevel, dtGrid);
       }
       dtThisLevel = CommunicationMinValue(dtThisLevel);
@@ -363,8 +365,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     dtThisLevelSoFar*utime, dtLevelAbove*utime);
     }
 
-    for (grid = 0; grid < NumberOfGrids; grid++)
-      Grids[grid]->GridData->SetTimeStep(dtThisLevel);
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->SetTimeStep(dtThisLevel);
 
 //     /* Streaming movie output (write before everything is evolved) */
 
@@ -382,8 +384,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, compute the number of it's subgrids. */
 
-    for (grid = 0; grid < NumberOfGrids; grid++) {
-      NextGrid = Grids[grid]->NextGridNextLevel;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      NextGrid = Grids[grid1]->NextGridNextLevel;
       counter = 0;
       while (NextGrid != NULL) {
 	NextGrid = NextGrid->NextGridThisLevel;
@@ -392,20 +394,20 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  return FAIL;
 	}
       }
-      NumberOfSubgrids[grid] = counter + 1;
+      NumberOfSubgrids[grid1] = counter + 1;
     }
 
 
 
     /* For each grid, create the subgrid list. */
 
-    for (grid = 0; grid < NumberOfGrids; grid++) {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       /* Allocate the subgrid fluxes for this grid. */
 
-      SubgridFluxesEstimate[grid] = new fluxes *[NumberOfSubgrids[grid]];
-      for (subgrid = 0; subgrid < NumberOfSubgrids[grid]; subgrid++)
-	SubgridFluxesEstimate[grid][subgrid] = NULL;
+      SubgridFluxesEstimate[grid1] = new fluxes *[NumberOfSubgrids[grid1]];
+      for (subgrid = 0; subgrid < NumberOfSubgrids[grid1]; subgrid++)
+	SubgridFluxesEstimate[grid1][subgrid] = NULL;
 
       /* Collect the flux data and store it in the newly minted fluxes.
 	 Or rather that's what we should do.  Instead, we create fluxes one
@@ -415,15 +417,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       counter = 0;
       if (MyProcessorNumber == 
-	  Grids[grid]->GridData->ReturnProcessorNumber()) {
-	NextGrid = Grids[grid]->NextGridNextLevel;
+	  Grids[grid1]->GridData->ReturnProcessorNumber()) {
+	NextGrid = Grids[grid1]->NextGridNextLevel;
 	while (NextGrid != NULL) {
 
-	  SubgridFluxesEstimate[grid][counter] = new fluxes;
-	  Grids[grid]->GridData->ComputeRefinementFactors
+	  SubgridFluxesEstimate[grid1][counter] = new fluxes;
+	  Grids[grid1]->GridData->ComputeRefinementFactors
 	                              (NextGrid->GridData, RefinementFactors);
 	  NextGrid->GridData->ReturnFluxDims
-             (*(SubgridFluxesEstimate[grid][counter++]), RefinementFactors);
+             (*(SubgridFluxesEstimate[grid1][counter++]), RefinementFactors);
 	  NextGrid = NextGrid->NextGridThisLevel;
 	}
 
@@ -431,18 +433,18 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	   makes it easy to keep adding up the fluxes of this grid, but we must
 	   keep in mind that the last subgrid should be ignored elsewhere. */
 
-	SubgridFluxesEstimate[grid][counter] = new fluxes;
-	Grids[grid]->GridData->ComputeRefinementFactors
-                                   (Grids[grid]->GridData, RefinementFactors);
-	Grids[grid]->GridData->ReturnFluxDims
-               (*(SubgridFluxesEstimate[grid][counter]), RefinementFactors);
+	SubgridFluxesEstimate[grid1][counter] = new fluxes;
+	Grids[grid1]->GridData->ComputeRefinementFactors
+                                   (Grids[grid1]->GridData, RefinementFactors);
+	Grids[grid1]->GridData->ReturnFluxDims
+               (*(SubgridFluxesEstimate[grid1][counter]), RefinementFactors);
 
       } // end: (is this grid on this processor)
 
     } // end loop over grids (create Subgrid list)
 
     /* compute wave speed
-       Reference: Matsumoto, PASJ, 2006 */
+       Reference: Matsumoto, PASJ, 2007, 59, 905 */
 
     if (HydroMethod == MHD_RK) {
       int lmax;
@@ -496,12 +498,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     //if (NBodyDirectSummation == TRUE) 
     //for (grid = 0; grid < NumberOfGrids; grid++)
-    //Grids[grid]->GridData->ComputeParticleParticleAcceleration(level);
+    //Grids[grid1]->GridData->ComputeParticleParticleAcceleration(level);
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
-    for (grid = 0; grid < NumberOfGrids; grid++) {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       /* Gravity: compute acceleration field for grid and particles. */
 
@@ -509,13 +511,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) {
-	    if (Grids[grid]->GridData->SolveForPotential(level) 
+	    if (Grids[grid1]->GridData->SolveForPotential(level) 
 		== FAIL) {
 	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
 	      return FAIL;
 	    }
 	  }
-	  if (Grids[grid]->GridData->ComputeAccelerations(level) == FAIL) {
+	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
 	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
 	    return FAIL;
 	  }
@@ -524,19 +526,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	//   now done in PrepareDensity.
       } // end: if (SelfGravity)
 
-      if (UniformGravity || PointSourceGravity || ExternalGravity) {
-	if (Grids[grid]->GridData->ComputeAccelerationFieldExternal() ==FAIL) {
-	  fprintf(stderr,"Error in grid->ComputeAccelerationFieldExternal.\n");
-	  return FAIL;
-	}
-      }
+      Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
+
 
 #ifdef TRANSFER
 
       /* Radiation Pressure: add to acceleration field */
 
       if (RadiativeTransfer && RadiationPressure)
-	if (Grids[grid]->GridData->AddRadiationPressureAcceleration() == FAIL) {
+	if (Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL) {
 	  fprintf(stderr,"Error in grid->AddRadiationPressureAcceleration.\n");
 	  return FAIL;
 	}
@@ -544,25 +542,25 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif /* TRANSFER */
 
 
-      if (Grids[grid]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
+      if (Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
 	fprintf(stderr, "Error in grid->CopyBaryonFieldToOldBaryonField.\n");
 	return FAIL;
       }
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK) {
-	  if (Grids[grid]->GridData->RungeKutta2_1stStep(LevelCycleCount[level], 
-							 SubgridFluxesEstimate[grid],
-							 NumberOfSubgrids[grid], level,
+	  if (Grids[grid1]->GridData->RungeKutta2_1stStep(LevelCycleCount[level], 
+							 SubgridFluxesEstimate[grid1],
+							 NumberOfSubgrids[grid1], level,
 							 Exterior) == FAIL) {
 	    fprintf(stderr, "Error in grid->RungeKutta2_1stStep.\n");
 	    return FAIL;
 	  }
 	} 
 	else if (HydroMethod == MHD_RK) {
-	  if (Grids[grid]->GridData->MHDRK2_1stStep(LevelCycleCount[level], 
-						    SubgridFluxesEstimate[grid],
-						    NumberOfSubgrids[grid], level,
+	  if (Grids[grid1]->GridData->MHDRK2_1stStep(LevelCycleCount[level], 
+						    SubgridFluxesEstimate[grid1],
+						    NumberOfSubgrids[grid1], level,
 						    Exterior) == FAIL) {
 	    fprintf(stderr, "Error in grid->MHDRK2_1stStep.\n");
 	    return FAIL;
@@ -572,7 +570,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	
       /* Do this here so that we can get the correct
 	 time interpolated boundary condition */
-      Grids[grid]->GridData->SetTimeNextTimestep();
+      Grids[grid1]->GridData->SetTimeNextTimestep();
       
     }  // end loop over grids
       
@@ -590,13 +588,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     return FAIL;
 #endif
     
-    for (grid = 0; grid < NumberOfGrids; grid++) {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK) {
-	  if (Grids[grid]->GridData->RungeKutta2_2ndStep(LevelCycleCount[level], 
-							 SubgridFluxesEstimate[grid],
-							 NumberOfSubgrids[grid], level,
+	  if (Grids[grid1]->GridData->RungeKutta2_2ndStep(LevelCycleCount[level], 
+							 SubgridFluxesEstimate[grid1],
+							 NumberOfSubgrids[grid1], level,
 							 Exterior) == FAIL) {
 	    fprintf(stderr, "Error in grid->RungeKutta2_2ndStep.\n");
 	    ErrorSignal = 1;
@@ -604,32 +602,32 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  }
 	}
 	else if (HydroMethod == MHD_RK) {
-	  if (Grids[grid]->GridData->MHDRK2_2ndStep(LevelCycleCount[level], 
-						    SubgridFluxesEstimate[grid],
-						    NumberOfSubgrids[grid], level,
+	  if (Grids[grid1]->GridData->MHDRK2_2ndStep(LevelCycleCount[level], 
+						    SubgridFluxesEstimate[grid1],
+						    NumberOfSubgrids[grid1], level,
 						    Exterior) == FAIL) {
 	    fprintf(stderr, "Error in grid->MHDRK2_2ndStep.\n");
 	    return FAIL;
 	  }
 
 	  if (UseAmbipolarDiffusion) {
-	    Grids[grid]->GridData->AddAmbipolarDiffusion();
+	    Grids[grid1]->GridData->AddAmbipolarDiffusion();
 	  }
 
 	  if (UseResistivity) {
-	    Grids[grid]->GridData->AddResistivity();
+	    Grids[grid1]->GridData->AddResistivity();
 	  }
 	
 	  if(UseDivergenceCleaning){
 	    
 	    time1 = ReturnWallTime();
 
-	    if (Grids[grid]->GridData->PoissonSolver(UseDivergenceCleaning, level)==FAIL){
+	    if (Grids[grid1]->GridData->PoissonSolver(UseDivergenceCleaning, level)==FAIL){
 	      fprintf(stderr, "Error in grid->PoissonSolver.\n");
 	      return FAIL;
 	    }
 
-	    if (Grids[grid]->GridData->PoissonCleanStep(level)==FAIL){
+	    if (Grids[grid1]->GridData->PoissonCleanStep(level)==FAIL){
 	      fprintf(stderr, "Error in grid->PoissonCleaning.\n");
 	      return FAIL;
 	    }
@@ -644,14 +642,14 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Add viscosity */
 
       if (UseViscosity) {
-	Grids[grid]->GridData->AddViscosity();
+	Grids[grid1]->GridData->AddViscosity();
       }
 
       /* Solve the chemical and species rate equations. */
       
       if (MultiSpecies && RadiativeCooling) {
 	
-	if (Grids[grid]->GridData->SolveRateAndCoolEquations() == FAIL) {
+	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
 	  fprintf(stderr, "Error in grid->SolveRateAndCoolEquations\n");
 	  ErrorSignal = 1;
 	  continue;
@@ -661,7 +659,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	   4: Cooling function modulated by atomic hydrogen density */
 	
 	if (RadiativeCooling == 3 || RadiativeCooling == 4) {
-	  if (Grids[grid]->GridData->SolveRadiativeCooling() == FAIL) {
+	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
 	    ErrorSignal = 1;
 	    continue;
@@ -672,7 +670,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       else {
 	
 	if (MultiSpecies) {
-	  if (Grids[grid]->GridData->SolveRateEquations() == FAIL) {
+	  if (Grids[grid1]->GridData->SolveRateEquations() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveRateEquations.\n");
 	    ErrorSignal = 1;
 	    continue;
@@ -682,7 +680,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	/* Equilibrium radiative cooling/heating. */
 	
 	if (RadiativeCooling) {
-	  if (Grids[grid]->GridData->SolveRadiativeCooling() == FAIL) {
+	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
 	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
 	    ErrorSignal = 1;
 	    continue;
@@ -694,7 +692,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Update particle positions (if present). */
 
-      if (UpdateParticlePositions(Grids[grid]->GridData) == FAIL) {
+      if (UpdateParticlePositions(Grids[grid1]->GridData) == FAIL) {
 	fprintf(stderr, "Error in UpdateParticlePositions.\n");
 	ErrorSignal = 1;
 	continue;
@@ -706,11 +704,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	/* First, set the under_subgrid field. */
 
-	Grids[grid]->GridData->ZeroSolutionUnderSubgrid(NULL, 
+	Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(NULL, 
 						 ZERO_UNDER_SUBGRID_FIELD);
 	LevelHierarchyEntry *Temp2 = LevelArray[level+1];
 	while (Temp2 != NULL) {
-	  Grids[grid]->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
+	  Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
 					 ZERO_UNDER_SUBGRID_FIELD);
 	  Temp2 = Temp2->NextGridThisLevel;
 	}
@@ -718,27 +716,27 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	/* Do star particle creation and feedback */
 
 
-      Grids[grid]->GridData->StarParticleHandler
-	(Grids[grid]->NextGridNextLevel, level);
+      Grids[grid1]->GridData->StarParticleHandler
+	(Grids[grid1]->NextGridNextLevel, level);
       }
 
       if ((SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity) 
 	  && MetaData->TopGridRank == 3) {
 	if (level != MaximumGravityRefinementLevel ||
 	    MaximumGravityRefinementLevel == MaximumRefinementLevel) {
-	  Grids[grid]->GridData->DeleteAccelerationField();
+	  Grids[grid1]->GridData->DeleteAccelerationField();
 	}
-	Grids[grid]->GridData->DeleteParticleAcceleration();
+	Grids[grid1]->GridData->DeleteParticleAcceleration();
       }
 
       if (UseFloor) {
-	Grids[grid]->GridData->SetFloor();
+	Grids[grid1]->GridData->SetFloor();
       }
 
       /* If using comoving co-ordinates, do the expansion terms now. */
 
       if (ComovingCoordinates)
-	Grids[grid]->GridData->ComovingExpansionTerms();
+	Grids[grid1]->GridData->ComovingExpansionTerms();
 
     }  // end loop over grids
 
@@ -748,7 +746,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
     Grids[0]->GridData->SetTimePreviousTimestep();
       while ((dtPhoton > 0.) && RadiativeTransfer &&
-	     (Grids[grid]->GridData->ReturnTime() >= PhotonTime))  {
+	     (Grids[grid1]->GridData->ReturnTime() >= PhotonTime))  {
 	if (debug) 
 	  printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 		 level, dtPhoton, PhotonTime);
@@ -964,8 +962,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
 
-    for (grid = 0; grid < NumberOfGrids; grid++)
-      Grids[grid]->GridData->DeleteGravitatingMassFieldParticles();
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -990,40 +988,20 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef FLUX_FIX
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
-    for(int list=0; list < NumberOfGrids; list++)
-      SUBlingList[list] = NULL;
-
-    if (FluxCorrection) {
-      /* Fill in the SUBling list */
-      if (CreateSUBlingList(MetaData, Grids,
-                              NumberOfGrids, &SUBlingList) == FAIL) {
-        fprintf(stderr, "Error in CreateSUBlingList.\n");
-        return FAIL;
-      }
-    }
-
+    CreateSUBlingList(MetaData, Grids,NumberOfGrids, &SUBlingList);
 #endif
 
 #ifdef FLUX_FIX
-    if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
-			     SubgridFluxesEstimate,
-			     SUBlingList,
-			     MetaData) == FAIL)
-      return FAIL;
+    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
+			 SubgridFluxesEstimate,
+			 SUBlingList,
+			 MetaData);
 #else
-    if (UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
-			     SubgridFluxesEstimate) == FAIL)
-      return FAIL;
+    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids, SubgridFluxesEstimate);
 #endif
-
-#ifdef FLUX_FIX
-    if ( FluxCorrection ) {
-      /* Clean up SUBlings */
-      if (DeleteSUBlingList( NumberOfGrids, SUBlingList ) == FAIL) {
-        fprintf(stderr, "Error in DeleteSUBlingList.\n");
-        return FAIL;
-      }
-    }
+    
+#ifdef FLUX_FIX        /* Clean up SUBlings */
+    DeleteSUBlingList( NumberOfGrids, SUBlingList );
 #endif
 
      
@@ -1032,33 +1010,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        fluxes for this subgrid .
        (Note: this must be done after CorrectForRefinedFluxes). */
 
-    for (grid = 0; grid < NumberOfGrids; grid++) {
-
-      if (FluxCorrection)
-	if (Grids[grid]->GridData->AddToBoundaryFluxes(SubgridFluxesEstimate[grid][NumberOfSubgrids[grid] - 1])
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->AddToBoundaryFluxes.\n");
-	  return FAIL;
-	}
-      /* Delete fluxes pointed to by SubgridFluxesEstimate[subgrid]. */
-
-      for (subgrid = 0; subgrid < NumberOfSubgrids[grid]; subgrid++) {
-	DeleteFluxes(SubgridFluxesEstimate[grid][subgrid]);
-	delete SubgridFluxesEstimate[grid][subgrid];
-      }
-
-      delete [] SubgridFluxesEstimate[grid];
-
-    } // end of loop over grids
-
+    FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
+    
     /* Recompute radiation field, if requested. */
 
-    if (RadiationFieldType >= 10 && RadiationFieldType <= 11 && 
-	level <= RadiationFieldLevelRecompute)
-      if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	return FAIL;
-      }
+    RadiationFieldUpdate(LevelArray, level, MetaData);
 
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
@@ -1076,11 +1032,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
-    for (grid = 0; grid < NumberOfGrids; grid++) {
-      Grids[grid]->GridData->CollectGridInformation
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
       //      LevelZoneCycleCount[level] += NumberOfCells;
-      //      if (MyProcessorNumber == Grids[grid]->GridData->ReturnProcessorNumber())
+      //      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
       //	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
 
