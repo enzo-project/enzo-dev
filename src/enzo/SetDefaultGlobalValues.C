@@ -283,6 +283,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarEnergyToQuasarUV             = 5.0e-6;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
+  ParticleTypeInFile               = TRUE;
 
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
