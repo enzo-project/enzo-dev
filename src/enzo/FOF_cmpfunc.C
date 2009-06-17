@@ -17,7 +17,7 @@
 #include "FOF_proto.h"
 
 
-int comp_func_partminid(void const *a, void const *b)
+Eint32 comp_func_partminid(void const *a, void const *b)
 {
   FOF_particle_data *pa, *pb;
   
@@ -35,7 +35,7 @@ int comp_func_partminid(void const *a, void const *b)
 
 
 
-int comp_func_partcoord(void const *a, void const *b)
+Eint32 comp_func_partcoord(void const *a, void const *b)
 {
   FOF_particle_data *pa, *pb;
   
@@ -64,7 +64,7 @@ int comp_func_partcoord(void const *a, void const *b)
 }
 
 
-int comp_func(void const *a, void const *b)
+Eint32 comp_func(void const *a, void const *b)
 {
   id_data *pa, *pb;
   pa = (id_data*) a;
@@ -81,7 +81,7 @@ int comp_func(void const *a, void const *b)
 
 
 
-int comp_func2(void const *a, void const *b)
+Eint32 comp_func2(void const *a, void const *b)
 {
   idmin_data *pa, *pb;
   pa = (idmin_data*) a;
@@ -98,7 +98,7 @@ int comp_func2(void const *a, void const *b)
 
 
 
-int comp_func_gr(void const *a, void const *b)
+Eint32 comp_func_gr(void const *a, void const *b)
 {
   gr_data *pa, *pb;
   pa = (gr_data*) a;

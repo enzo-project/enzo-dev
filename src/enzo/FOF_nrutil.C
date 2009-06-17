@@ -8,6 +8,12 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+
 #define NR_END 1
 #define FREE_ARG char*
 

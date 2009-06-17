@@ -413,7 +413,7 @@ void subfind(FOFData &D)
 	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
 	}
       fwrite(&NSubGroupsAll, sizeof(int), 1, fd);
-      printf("NSubGroupsAll= %d\n", NSubGroupsAll);
+      printf("NSubGroupsAll= %"ISYM"\n", NSubGroupsAll);
       fclose(fd);
       
       system(command);
@@ -537,7 +537,7 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   } // ENDFOR
 
   if(debug)
-    printf("---  %d subgroups found. ----\n", D.NSubGroups);
+    printf("---  %"ISYM" subgroups found. ----\n", D.NSubGroups);
   
   if (D.NSubGroups > 0) {
 
@@ -606,9 +606,9 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   free_ivector(D.NewHead, 1, D.NumInGroup);
   free_ivector(D.Head, 1, D.NumInGroup);
   free_ivector(D.Next, 1, D.NumInGroup);
-  free_vector(D.Potential, 1,  D.NumInGroup);
-  free_vector(D.Density, 1,  D.NumInGroup);
-  free_vector(D.Energy, 1,  D.NumInGroup);
+  free_vector(D.Potential, 1,D.NumInGroup);
+  free_vector(D.Density, 1, D.NumInGroup);
+  free_vector(D.Energy, 1, D.NumInGroup);
   
   D.Len	 = Len_bak;
   D.Head = Head_bak;

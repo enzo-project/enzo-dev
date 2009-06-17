@@ -168,7 +168,7 @@ void ngb_treeallocate(FOFData &D, int npart, int maxnodes)
   _TopData.nodes = new NODE[D.MaxNodes];
   bytes = D.MaxNodes * sizeof(NODE);
   if (_TopData.nodes == NULL) {
-    fprintf(stderr, "Failed to allocate %d nodes (%d bytes).\n",
+    fprintf(stderr, "Failed to allocate %"ISYM" nodes (%"ISYM" bytes).\n",
 	    D.MaxNodes, bytes);
     ENZO_FAIL("");
   }
@@ -177,7 +177,7 @@ void ngb_treeallocate(FOFData &D, int npart, int maxnodes)
   _TopData.next = new int[_TopData.N+1];
   bytes = (_TopData.N + 1) * sizeof(int);
   if (_TopData.next == NULL) {
-    fprintf(stderr, "Failed to allocate %d spaces for next array\n", 
+    fprintf(stderr, "Failed to allocate %"ISYM" spaces for next array\n", 
 	    _TopData.N);
     ENZO_FAIL("");
   }
@@ -186,7 +186,7 @@ void ngb_treeallocate(FOFData &D, int npart, int maxnodes)
   _TopData.ngblist = new int[_TopData.N+1];
   bytes = (_TopData.N + 1) * sizeof(int);
   if (_TopData.ngblist == NULL) {
-    fprintf(stderr, "Failed to allocate %d spaces for ngblist array\n",
+    fprintf(stderr, "Failed to allocate %"ISYM" spaces for ngblist array\n",
 	    _TopData.N);
     ENZO_FAIL("");
   }
@@ -195,7 +195,7 @@ void ngb_treeallocate(FOFData &D, int npart, int maxnodes)
   _TopData.r2list = new float[_TopData.N+1];
   bytes = (_TopData.N + 1) * sizeof(float);
   if (_TopData.r2list == NULL) {
-    fprintf(stderr, "Failed to allocate %d spaces for r2list array\n",
+    fprintf(stderr, "Failed to allocate %"ISYM" spaces for r2list array\n",
 	    _TopData.N);
     ENZO_FAIL("");
   }
@@ -323,7 +323,7 @@ void ngb_treebuild(FOFData &D, int Npart)
 	nfree++;
 
 	if (_TopData.numnodes >= D.MaxNodes) {
-	  fprintf(stderr,"maximum node number %d in neighbour tree reached.\n",
+	  fprintf(stderr,"maximum node number %"ISYM" in neighbour tree reached.\n",
 		  _TopData.numnodes);
 	  ENZO_FAIL("");
 	}
@@ -379,7 +379,7 @@ void ngb_treebuild(FOFData &D, int Npart)
     nfree++;
 
     if (_TopData.numnodes >= D.MaxNodes) {
-      fprintf(stderr,"maximum node number %d in neighbour tree reached.\n",
+      fprintf(stderr,"maximum node number %"ISYM" in neighbour tree reached.\n",
 	      _TopData.numnodes);
       ENZO_FAIL("");
     }
@@ -392,7 +392,7 @@ void ngb_treebuild(FOFData &D, int Npart)
     }
  
   /*
-  printf("Ngb-Tree contruction finished (%d nodes).\n",numnodes);
+  printf("Ngb-Tree contruction finished (%"ISYM" nodes).\n",numnodes);
   */
 }
 

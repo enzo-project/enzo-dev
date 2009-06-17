@@ -4,11 +4,11 @@
 void   allocate_memory(FOFData &AllVars);
 void   check_cell(FOFData &AllVars, int p, int i, int j, int k);
 void   compile_group_catalogue(FOFData &AllVars);
-int    comp_func(void const *a, void const *b);
-int    comp_func2(void const *a, void const *b);
-int    comp_func_partcoord(void const *a, void const *b);
-int    comp_func_gr(void const *a, void const *b);
-int    comp_func_partminid(void const *a, void const *b);
+Eint32 comp_func(void const *a, void const *b);
+Eint32 comp_func2(void const *a, void const *b);
+Eint32 comp_func_partcoord(void const *a, void const *b);
+Eint32 comp_func_gr(void const *a, void const *b);
+Eint32 comp_func_partminid(void const *a, void const *b);
 int    coarse_binning(FOFData &AllVars);
 void   density(FOFData &A);
 int    do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen, 
@@ -34,6 +34,7 @@ double FOF_periodic_wrap(double x, FOFData AllVars);
 double FOF_periodic(double x, FOFData AllVars);
 void   save_groups(FOFData &AllVars);
 float  selectb(unsigned long k, unsigned long n, float arr[], int ind[]);
+void   sort_int(unsigned long n, int arr[]);
 void   sort2_flt_int(unsigned long n, float arr[], int brr[]);
 void   sort2_int(unsigned long n, int arr[], int brr[]);
 void   set_sph_kernel(FOFData &A);

@@ -1,8 +1,6 @@
 #ifndef __FOF_ALLVARS_H
 #define __FOF_ALLVARS_H
 
-#include "FOF_nrutil.h"
-
 /************************************************************************
   CONSTANTS
 ************************************************************************/
@@ -168,6 +166,7 @@ struct FOFData {
 
 };
 
+#include "FOF_nrutil.h"
 #include "FOF_ngbtree.h"
 
 #endif

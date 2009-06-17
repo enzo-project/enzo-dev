@@ -1,3 +1,10 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+
 #define NRANSI
 #include "FOF_nrutil.h"
 #define SWAP(a,b) temp=(a);(a)=(b);(b)=temp;

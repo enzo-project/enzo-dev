@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
 
 #define SWAP(a,b)  temp =(a);(a)=(b);(b)=temp;
 #define SWAPI(a,b) tempi=(a);(a)=(b);(b)=tempi;

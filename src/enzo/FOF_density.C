@@ -29,7 +29,7 @@ void density(FOFData &A)
     if (debug) {
       if (i > (signal/100.0)*A.NumInGroup) {
 	if ((signal%10) == 0)
-	  printf("%d",signal);
+	  printf("%"ISYM,signal);
 	else
 	  printf(".",signal);
 	fflush(stdout);
