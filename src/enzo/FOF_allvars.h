@@ -1,6 +1,11 @@
-#include "nrsrc/nrutil.h"
-#include "ngbtree.h"
+#ifndef __FOF_ALLVARS_H
+#define __FOF_ALLVARS_H
 
+#include "FOF_nrutil.h"
+
+/************************************************************************
+  CONSTANTS
+************************************************************************/
 
 #define  KERNEL_TABLE 10000
 #define  PI               3.1415927
@@ -26,53 +31,16 @@
 #define  GAMMA         (5.0/3)
 #define  GAMMA_MINUS1  (GAMMA-1)
 
-#define GADGET 0
-#define ENZO 1
+/************************************************************************
+   STRUCTURES
+************************************************************************/
 
-#define max(A,B) ((A) > (B) ? (A) : (B))
-#define min(A,B) ((A) < (B) ? (A) : (B))
-#define sign(A)  ((A) >  0  ?  1  : -1 )
-#define nint(A) (int) ((A) + 0.5*sign(A))
-
-extern int     ThisTask, NTask;
-
-extern double  Time;
-extern double  BoxSize;
-extern double  leftEdge[3], rightEdge[3];
-
-extern double  SearchRadius;
-
-extern int     NumPart;   /* total particle number */
-extern int     *NpartInGrids;
-
-extern int     *Nslab, *Nshadow;
-extern int     Nlocal, *Noffset;
-extern int     Nlocal_in_file;
-extern int     *NtoLeft, *NtoRight;
-extern int     *Nslab_local, *NtoLeft_local, *NtoRight_local;
-
-extern int     Ncontrib, *ContribID, *ContribHead;
-
-extern int     NLinkAccross;
-
-extern double  GridExtension, GridCorner[3];
-extern int     ***GridFirst, ***GridLast, ***GridFlag;
-extern int     *GridNext;
-extern int     *Head,*Next;   /* for link-lists of groups */
-extern int     *Tail,*Len;
-extern int     Ngroups, NgroupsAll, *NgroupsList;
-
-
-extern struct  gr_data
+struct gr_data
 {
   int Len, Tag;
-} *GroupDat, *GroupDatAll;
+};
 
-extern int    Nx,Ny,Nz;
-
-/* Quantities for all particles */
-
-extern struct particle_data 
+struct FOF_particle_data 
 {
   double  	Pos[3];
   float  	Vel[3];
@@ -86,7 +54,7 @@ extern struct particle_data
   float  	Rho;
   int    	PartID;
   int           slab;
-} *P, *Pbuf_local;
+};
 
 struct id_data 
 {
@@ -101,70 +69,105 @@ struct idmin_data
   int    index;
   int    len;
 };
- 
 
-extern double  UnitLength_in_cm,
-               UnitMass_in_g,
-               UnitVelocity_in_cm_per_s,
-               UnitTime_in_s,
-               UnitTime_in_Megayears,
-               UnitDensity_in_cgs,
-               UnitPressure_in_cgs,
-               UnitCoolingRate_in_cgs,
-               UnitEnergy_in_cgs,
-               G,
-               Hubble,
-               EnzoMassUnit,
-               EnzoVelocityUnit,
-               EnzoTimeUnit;
-
-/* ----------------------------------------------------------
- *
- *  Variables for subfind
- *
- */
-
-extern int    DesDensityNgb;
-extern int    DesLinkNgb;
-extern float  Theta;
- 
-extern double Time;
-extern double Omega;
-extern double OmegaLambda;
-extern double G;
-extern double H0;
-extern float  Epsilon;
-
-
-extern struct grouptree_data
+struct grouptree_data
 {
   int lefthead, leftlen;
   int righthead, rightlen;
   int left, right;
-} *GroupTree;
+};
+ 
+/************************************************************************
+  HALO FINDER VARIABLES
+  -- Previously everything was global in the standalone version.  Put 
+     most variables inside this structure.
+*************************************************************************/
+
+struct FOFData {
+
+  double  LinkLength;
+  int     GroupMinLen;
+  int     MaxPlacement;
+  int     Grid;
+
+  double  Time;
+  double  BoxSize;
+  double  leftEdge[3], rightEdge[3];
+
+  double  SearchRadius;
+
+  int     NumPart;   /* total particle number */
+  int     *NpartInGrids;
+
+  int     *Nslab, *Nshadow;
+  int     Nlocal, *Noffset;
+  int     Nlocal_in_file;
+  int     *NtoLeft, *NtoRight;
+  int     *Nslab_local, *NtoLeft_local, *NtoRight_local;
+
+  int     Ncontrib, *ContribID, *ContribHead;
+
+  int     NLinkAcross;
+
+  double  GridExtension, GridCorner[3];
+  int     ***GridFirst, ***GridLast, ***GridFlag;
+  int     *GridNext;
+  int     *Head,*Next;   /* for link-lists of groups */
+  int     *Tail,*Len;
+  int     Ngroups, NgroupsAll, *NgroupsList;
+
+  int Nx, Ny, Nz;
+
+  gr_data *GroupDat, *GroupDatAll;
+
+  FOF_particle_data *P, *Pbuf_local;
+
+  /************************* UNITS *************************/
+
+  double UnitLength_in_cm, UnitMass_in_g, UnitVelocity_in_cm_per_s, 
+    UnitTime_in_s, UnitTime_in_Megayears, UnitDensity_in_cgs, 
+    UnitPressure_in_cgs, UnitCoolingRate_in_cgs, UnitEnergy_in_cgs, 
+    G, Hubble, EnzoMassUnit, EnzoVelocityUnit, EnzoTimeUnit;
+
+  /************************* SUBFIND VARIABLES *************************/
+
+  int    DesDensityNgb;
+  int    DesLinkNgb;
+  float  Theta;
+
+  double Omega;
+  double OmegaLambda;
+  double H0;
+  float  Epsilon;
+
+  grouptree_data *GroupTree;
+
+  int   NumInGroup;
+  int   NSubGroups, NSubGroupsAll;
+
+  int    AnzNodes;
+  int    MaxNodes;
 
 
-extern int   NumInGroup;
-extern int   NSubGroups, NSubGroupsAll;
+  int   *Id;
+  int   *SubGroupLen, *SubGroupTag;
+  int   *GroupTag, *NextFinal;
+  int   *Index;
+  int   *NewHead;
+  int   *Node;
+  int   *SortId;
+  float *Density;
+  float *Potential;
+  float *Energy;
 
-extern int    AnzNodes;
-extern int    MaxNodes;
+  /* tabulated smoothing kernel */
 
+  double  Kernel[KERNEL_TABLE+1],
+    KernelDer[KERNEL_TABLE+1],
+    KernelRad[KERNEL_TABLE+1];
 
-extern int   *Id;
-extern int   *SubGroupLen, *SubGroupTag;
-extern int   *GroupTag, *NextFinal;
-extern int   *Index;
-extern int   *NewHead;
-extern int   *Node;
-extern int   *SortId;
-extern float *Density;
-extern float *Potential;
-extern float *Energy;
+};
 
+#include "FOF_ngbtree.h"
 
-/* tabulated smoothing kernel */
-
-extern double  Kernel[KERNEL_TABLE+1],
-               KernelDer[KERNEL_TABLE+1],
-               KernelRad[KERNEL_TABLE+1];
+#endif

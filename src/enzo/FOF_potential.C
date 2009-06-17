@@ -3,14 +3,17 @@
 #include <string.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
 
-#include "allvars.h"
-#include "forcetree.h"
+#include "FOF_allvars.h"
+#include "FOF_forcetree.h"
 
+/************************************************************************/
 
-
-
-void order_subgroups_by_potential(void)
+void order_subgroups_by_potential(FOFData &D)
 {
   int    i,j,k,ind,p;
   int    ii,pp;
@@ -30,104 +33,91 @@ void order_subgroups_by_potential(void)
   int    subgr;
 
 
-  force_treeallocate(2.0 * NumInGroup + 200);
+  force_treeallocate(D, 2 * D.NumInGroup + 200);
 
 
-  sqa=sqrt(Time);
-  H_of_a = H0 * sqrt( Omega/(Time*Time*Time) + (1-Omega-OmegaLambda)/(Time*Time) +OmegaLambda);
+  sqa = sqrt(D.Time);
+  H_of_a = D.H0 * sqrt( D.Omega/(D.Time*D.Time*D.Time) + 
+			(1 - D.Omega - D.OmegaLambda) / (D.Time*D.Time) +
+			D.OmegaLambda);
 
   /* here: use index as 'next' array */
   
-  for(subgr= NSubGroups; subgr>=1; subgr--) 
-    {
-      if(SubGroupLen[subgr] >= DesLinkNgb)
-	{
-	  first=0; last=0; num=0;
+  for (subgr = D.NSubGroups; subgr >= 1; subgr--) {
+    if (D.SubGroupLen[subgr] >= D.DesLinkNgb) {
+      first = 0; 
+      last  = 0; 
+      num   = 0;
 
-	  for(j=0;j<SubGroupLen[subgr];j++)
-	    {
-	      p= Head[SubGroupTag[subgr] + j];
+      for (j = 0; j < D.SubGroupLen[subgr]; j++) {
+	p = D.Head[D.SubGroupTag[subgr] + j];
 
-	      if(first==0)
-		first=p;
-	      else
-		Index[last]= p;
+	if (first == 0)
+	  first = p;
+	else
+	  D.Index[last] = p;
 	  
-	      last=p;
-	      num++;
-	    }
+	last = p;
+	num++;
+      } // ENDFOR j
 
 	  
-	  for(i=0,p=first,s[0]=s[1]=s[2]=v[0]=v[1]=v[2]=0; i<num; i++,p=Index[p])
-	    {
-	      for(j=0;j<3;j++)
-		{
-		  v[j]+= P[p].Vel[j];
-		}
-	    }
+      for (i=0 , p = first, s[0]=s[1]=s[2]=v[0]=v[1]=v[2]=0; i < num; 
+	   i++, p = D.Index[p])
+	for (j = 0; j < 3; j++)
+	  v[j] += D.P[p].Vel[j];
 	  
-	  for(j=0;j<3;j++)
-	    {
-	      v[j]/= num;
-	    }
+      for (j = 0; j < 3; j++)
+	v[j] /= num;
       
 
-	  /* let's store the energy in the density array */
+      /* let's store the energy in the density array */
 	  
-	  force_treebuild(first, num, Theta);
+      force_treebuild(D, first, num, D.Theta);
 	  
-	  for(i=0,p=first; i<num; i++, p=Index[p])
-	    {
-	      force_treeevaluate_potential(&P[p].Pos[0], &Potential[p], Epsilon);
+      for (i = 0, p = first; i < num; i++, p = D.Index[p]) {
+	force_treeevaluate_potential(&D.P[p].Pos[0], &D.Potential[p], D.Epsilon);
 	      
-	      Potential[p]+= P[p].Mass/Epsilon;  /* add self-energy */
+	D.Potential[p] += D.P[p].Mass / D.Epsilon;  /* add self-energy */
 
-	      Potential[p] *= G/Time;
-	    }
+	D.Potential[p] *= D.G / D.Time;
+      } // ENDFOR
 
-	  for(i=0, p=minindex=first, minpot=Potential[minindex] ; i<num; i++, p=Index[p])
-	    {
-	      if(Potential[p]< minpot)
-		{
-		  minpot= Potential[p];
-		  minindex= p;
-		}
-	    }
-      
-	  for(j=0;j<3;j++)
-	    {
-	      s[j]= P[minindex].Pos[j];  /* position of minimum potential */
-	    }
-      
-	  for(i=0,p=first; i<num; i++, p=Index[p])
-	    {
-	      for(j=0;j<3;j++)
-		{
-		  dv[j]= sqa*(P[p].Vel[j]  - v[j]);
-		  dx[j]= Time*(P[p].Pos[j] - s[j]);
-		  dv[j]+= H_of_a * dx[j];
-		}
-	      
-	      Potential[p]+= 0.5*(dv[0]*dv[0] + dv[1]*dv[1] + dv[2]*dv[2]);
-	    }
-
-
-	  for(i=1,p=first; i<=num; i++, p=Index[p])
-	    {
-	      Energy[i]= Potential[p];
-	      SortId[i]= p;
-	    }
-
-	  sort2_flt_int(num, Energy, SortId);
-
-     	  for(i=1; i<=num; i++)
-	    {
-	      p=SortId[i];
-	      
-	      Head[SubGroupTag[subgr] + i - 1]= p;
-	    }
+      for (i = 0, p = minindex = first, minpot = D.Potential[minindex]; 
+	   i < num; i++, p = D.Index[p])
+	if (D.Potential[p] < minpot) {
+	  minpot = D.Potential[p];
+	  minindex = p;
 	}
-    }
+      
+      /* position of minimum potential */
+      for (j = 0; j < 3; j++)
+	s[j] = D.P[minindex].Pos[j];
+      
+      for (i = 0, p = first; i < num; i++, p = D.Index[p]) {
+	for (j = 0; j < 3; j++) {
+	  dv[j] = sqa * (D.P[p].Vel[j]  - v[j]);
+	  dx[j] = D.Time * (D.P[p].Pos[j] - s[j]);
+	  dv[j] += H_of_a * dx[j];
+	}
+	
+	D.Potential[p] += 0.5*(dv[0]*dv[0] + dv[1]*dv[1] + dv[2]*dv[2]);
+      }
+
+
+      for (i = 1, p = first; i <= num; i++, p = D.Index[p]) {
+	D.Energy[i] = D.Potential[p];
+	D.SortId[i] = p;
+      }
+
+      sort2_flt_int(num, D.Energy, D.SortId);
+
+      for (i = 1; i <= num; i++) {
+	p = D.SortId[i];
+	D.Head[D.SubGroupTag[subgr] + i - 1] = p;
+      }
+    } // ENDIF subgroup big enough
+  } // ENDFOR subgroups
   
   force_treefree();
 }

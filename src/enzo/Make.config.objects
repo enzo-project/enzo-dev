@@ -140,11 +140,9 @@ OBJS_CONFIG_LIB = \
 	FOF_allocate.o \
 	FOF_cmpfunc.o \
 	FOF_density.o \
-	FOF_enzo.o \
 	FOF_forcetree.o \
 	FOF_iindexx.o \
 	FOF_indexx.o \
-	FOF_input.o \
 	FOF_ngbtree.o \
 	FOF_nrutil.o \
 	FOF_potential.o \

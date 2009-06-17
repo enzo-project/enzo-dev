@@ -1,12 +1,17 @@
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+
+
 #define NRANSI
-#include "nrutil.h"
+#include "FOF_nrutil.h"
 #define SWAP(a,b) itemp=(a);(a)=(b);(b)=itemp;
 #define M 7
 #define NSTACK 50
 
-void iindexx(unsigned int n, int arr[], unsigned int indx[])
+void iindexx(int n, int arr[], int indx[])
 {
-	unsigned int i,indxt,ir=n,itemp,j,k,l=1;
+	int i,indxt,ir=n,itemp,j,k,l=1;
 	int jstack=0,*istack;
 	int a;
 

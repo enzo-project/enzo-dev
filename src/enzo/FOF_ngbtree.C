@@ -1,242 +1,205 @@
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <mpi.h>
 
-#include "ngbtree.h"
-#include "allvars.h"
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
 
+#include "FOF_allvars.h"
+#include "FOF_ngbtree.h"
 
-static struct NODE 
-{ 
-  float center[3],len;   /* center and sidelength of treecubes */
-  float xmin[3],xmax[3];
-  int    count;           /* total # of particles in cell      */
-  struct NODE *father,*suns[8];
-  int    first;           /* index of first particle           */
-} *nodes;
+/************************************************************************/
 
-static int    numnodes;//, MaxNodes;
-
-
-
-static int    N;
-
-static int    *next;   /* Link-List for particle groups */
-
-
-static int   *ngblist,numngb;
-static float *r2list;
-
-static float searchmin[3],searchmax[3];
-
-
-
-
-
-
-
-float ngb_treefind(double xyz[3], int desngb, float hguess, int **ngblistback, float **r2listback)
-{
 #define  SECFACTOR  1.2
-#ifndef  PI
-#define  PI               3.1415927
-#endif
-  void   ngb_treesearch(struct NODE *this);
+static ngb_t _TopData;
+
+float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess, 
+		   int **ngblistback, float **r2listback)
+{
+
+  void   ngb_treesearch(NODE *THIS, FOFData D);
   float  selectb(unsigned long k, unsigned long n, float arr[],int ind[]);
   float  sr,sr2,h2max;  /* search radius */
   int    i,ind,ni,j,subnode,fak,k,rep=0;
   float  dx,dy,dz,r2;
-  struct NODE *th,*nn;
+  NODE  *th,*nn;
 
+  if (hguess > 0) {
+    sr=hguess;
+  }
 
+  else {
 
-  if(hguess>0)
-    {
-      sr=hguess;
-    }
-  else
-    {
-      /* determine estimate of local density */
-      th=nodes;
-      while(th->count>200)
-	{
-	  for(j=0,subnode=0,fak=1;j<3;j++,fak<<=1)
-	    if(xyz[j]>th->center[j])
-	      subnode+=fak;
-	  
-	  if(nn=th->suns[subnode])
-	    if(nn->count>200)
-	      th=nn;
-	    else
-	      break;
-	  else
-	    break;
-	}
+    /* determine estimate of local density */
+    th = _TopData.nodes;
+    while (th->count > 200) {
+      for (j = 0, subnode = 0, fak = 1; j < 3; j++, fak<<=1)
+	if (xyz[j] > th->center[j])
+	  subnode+=fak;
 
-      sr=th->len * pow((3.0/(4*PI)*SECFACTOR)*desngb/((float)(th->count)),1.0/3);
-    }
-
-
-  do
-    {
-      for(k=0;k<3;k++)
-	{
-	  searchmin[k]=xyz[k]-sr;
-	  searchmax[k]=xyz[k]+sr;
-	}
-      
-      sr2=sr*sr;
-      numngb=0;
-      ngb_treesearch(nodes);  rep++;
-
-      if(numngb<desngb)
-	{
-	  if(numngb>5)
-	    {
-	      sr*=pow((2.1*(float)desngb)/numngb,1.0/3);
-	    }
-	  else
-	    {
-	      sr*=2.0;
-	    }
-	  continue;
-	}
-
-      for(i=0;i<numngb;i++)
-	{
-	  ind=ngblist[i];
-	  dx=P[ind].Pos[0]-xyz[0];
-	  dy=P[ind].Pos[1]-xyz[1];
-	  dz=P[ind].Pos[2]-xyz[2];
-	  r2=dx*dx+dy*dy+dz*dz;
-
-	  r2list[i]=r2;
-	}
-      
-      h2max=selectb(desngb,numngb,r2list-1,ngblist-1);
-      
-      if(h2max<=sr2) 
+      if (nn = th->suns[subnode])
+	if (nn->count > 200)
+	  th = nn;
+	else
+	  break;
+      else
 	break;
-
-      sr*=1.26;       /* 3th root of 2.0 */
-
-      continue;
     }
-  while(1);
 
-  *ngblistback=ngblist;
-  *r2listback=r2list;
+    sr = th->len * pow((3.0/(4*M_PI)*SECFACTOR) * desngb / 
+		       ((float)(th->count)), 1.0/3);
+
+  } // ENDELSE
+
+  do {
+    for (k = 0; k < 3; k++) {
+      _TopData.searchmin[k] = xyz[k] - sr;
+      _TopData.searchmax[k] = xyz[k] + sr;
+    }
+      
+    sr2 = sr*sr;
+    _TopData.numngb = 0;
+    ngb_treesearch(_TopData.nodes, D);  
+    rep++;
+
+    if (_TopData.numngb < desngb) {
+      if (_TopData.numngb > 5)
+	sr *= pow((2.1*(float) desngb)/_TopData.numngb, 1.0/3);
+      else
+	sr *= 2.0;
+      continue;
+    } // ENDIF
+
+    for (i = 0; i < _TopData.numngb; i++) {
+      ind = _TopData.ngblist[i];
+      dx = D.P[ind].Pos[0] - xyz[0];
+      dy = D.P[ind].Pos[1] - xyz[1];
+      dz = D.P[ind].Pos[2] - xyz[2];
+      r2 = dx*dx + dy*dy + dz*dz;
+
+      _TopData.r2list[i] = r2;
+    } // ENDFOR
+      
+    h2max = selectb(desngb, _TopData.numngb, _TopData.r2list-1, 
+		    _TopData.ngblist-1);
+      
+    if (h2max <= sr2) 
+      break;
+
+    sr *= 1.26;       /* 3th root of 2.0 */
+
+    continue;
+  } while(1);
+
+  *ngblistback = _TopData.ngblist;
+  *r2listback = _TopData.r2list;
 
   return h2max;
 }
 
+/************************************************************************/
 
-
-
-
-
-void ngb_treesearch(struct NODE *this)
+void ngb_treesearch(NODE *THIS, FOFData D)
 {
   int k,p;
-  struct NODE *nn;
+  NODE *nn;
 
-  if(this->count==1)
-    {
-      for(k=0,p=this->first;k<3;k++)
-	{
-	  if(P[p].Pos[k]<searchmin[k])
-	    return;
-	  if(P[p].Pos[k]>searchmax[k])
-	    return;
-	}
-      ngblist[numngb++]=p;
-    }
-  else
-    {
-      for(k=0;k<3;k++)
-	{
-	  if((this->xmax[k])<searchmin[k])
-	    return;
-	  if((this->xmin[k])>searchmax[k])
-	    return;
-	}
+  if (THIS->count == 1) {
+    for (k = 0, p = THIS->first; k < 3; k++) {
+      if (D.P[p].Pos[k] < _TopData.searchmin[k])
+	return;
+      if (D.P[p].Pos[k] > _TopData.searchmax[k])
+	return;
+    } // ENDFOR
+    _TopData.ngblist[_TopData.numngb++] = p;
+  } // ENDIF
+  else {
+    for (k = 0; k < 3; k++) {
+      if (THIS->xmax[k] < _TopData.searchmin[k])
+	return;
+      if (THIS->xmin[k] > _TopData.searchmax[k])
+	return;
+    } // ENDFOR
 
-      for(k=0;k<3;k++)
-	{
-	  if((this->xmax[k])>searchmax[k])
-	    break;
-	  if((this->xmin[k])<searchmin[k])
-	    break;
-	}
+    for (k = 0; k < 3; k++) {
+      if (THIS->xmax[k] > _TopData.searchmax[k])
+	break;
+      if (THIS->xmin[k] < _TopData.searchmin[k])
+	break;
+    } // ENDFOR
 
-      if(k>=3) 	  /* cell lies completely inside */
-	{
-	  p=this->first;
+    /* cell lies completely inside */
+    if (k >= 3) {
+      p = THIS->first;
 	  
-	  for(k=0;k<this->count;k++)
-	    {
-	      ngblist[numngb++]=p;
-	      p=next[p];
-	    }
-	}
-      else
-	{
-	  for(k=0;k<8;k++) 
-	    if(nn=this->suns[k])
-	      {
-		ngb_treesearch(nn);
-	      }
-	}
+      for (k = 0; k < THIS->count; k++) {
+	_TopData.ngblist[_TopData.numngb++] = p;
+	p = _TopData.next[p];
+      }
     }
+    else {
+      for (k = 0; k < 8; k++) 
+	if (nn = THIS->suns[k])
+	  ngb_treesearch(nn, D);
+    } // ENDELSE
+
+  } // ENDELSE count != 1
 }
 
+/************************************************************************/
 
-
-
-void ngb_treeallocate(int npart,int maxnodes)  /* usually maxnodes=2*npart is suffiecient */
+/* usually maxnodes=2*npart is suffiecient */
+void ngb_treeallocate(FOFData &D, int npart, int maxnodes)
 {
+
   int totbytes=0,bytes;
 
-  MaxNodes=maxnodes;
-  N=npart;
+  D.MaxNodes = maxnodes;
+  _TopData.N = npart;
   
+  _TopData.nodes = new NODE[D.MaxNodes];
+  bytes = D.MaxNodes * sizeof(NODE);
+  if (_TopData.nodes == NULL) {
+    fprintf(stderr, "Failed to allocate %d nodes (%d bytes).\n",
+	    D.MaxNodes, bytes);
+    ENZO_FAIL("");
+  }
+  totbytes += bytes;
 
-  if(!(nodes=malloc(bytes=MaxNodes*sizeof(struct NODE))))
-    {
-      fprintf(stdout,"Failed to allocate %d nodes (%d bytes).\n",MaxNodes,bytes);
-      exit(0);
-    }
+  _TopData.next = new int[_TopData.N+1];
+  bytes = (_TopData.N + 1) * sizeof(int);
+  if (_TopData.next == NULL) {
+    fprintf(stderr, "Failed to allocate %d spaces for next array\n", 
+	    _TopData.N);
+    ENZO_FAIL("");
+  }
+  totbytes += bytes;
+
+  _TopData.ngblist = new int[_TopData.N+1];
+  bytes = (_TopData.N + 1) * sizeof(int);
+  if (_TopData.ngblist == NULL) {
+    fprintf(stderr, "Failed to allocate %d spaces for ngblist array\n",
+	    _TopData.N);
+    ENZO_FAIL("");
+  }
   totbytes+= bytes;
 
-
-  if(!(next=malloc(bytes=(N+1)*sizeof(int))))
-    {
-      fprintf(stdout,"Failed to allocate %d spaces for next array\n",N);
-      exit(0);
-    }
+  _TopData.r2list = new float[_TopData.N+1];
+  bytes = (_TopData.N + 1) * sizeof(float);
+  if (_TopData.r2list == NULL) {
+    fprintf(stderr, "Failed to allocate %d spaces for r2list array\n",
+	    _TopData.N);
+    ENZO_FAIL("");
+  }
   totbytes+= bytes;
-
-  if(!(ngblist=malloc(bytes=(N+1)*sizeof(int))))
-    {
-      fprintf(stdout,"Failed to allocate %d spaces for ngblist array\n",N);
-      exit(0);
-    }
-  totbytes+= bytes;
-
-
-  if(!(r2list=malloc(bytes=(N+1)*sizeof(float))))
-    {
-      fprintf(stdout,"Failed to allocate %d spaces for r2list array\n",N);
-      exit(0);
-    }
-  totbytes+= bytes;
-
-  /*
-    printf("allocated %f Mbyte for ngbtree.\n", ((float)totbytes)/(1024.0*1024.0));
-  */
 }
 
 
@@ -244,217 +207,188 @@ void ngb_treeallocate(int npart,int maxnodes)  /* usually maxnodes=2*npart is su
 
 void ngb_treefree(void)
 {
-  free(r2list);
-  free(ngblist);
-  free(next);
-  free(nodes);
+  delete [] _TopData.r2list;
+  delete [] _TopData.ngblist;
+  delete [] _TopData.next;
+  delete [] _TopData.nodes;
 }
 
-
-
-
-
-
-
-
-
-
-void ngb_treebuild(int Npart) 
 /* packs the particles 0...Npart-1 in tree */
+
+void ngb_treebuild(FOFData &D, int Npart) 
 {
   int    i,j,k,subp,subi,p,ni,subnode,fak;
   float xmin[3],xmax[3],len,x;
-  struct NODE *nfree,*th,*nn; 
+  NODE *nfree,*th,*nn; 
 
   /*
   printf("Begin Ngb-tree construction.\n");
   */
   
-  if(Npart<2)
-    {
-      fprintf(stdout,"must be at least two particles in tree.\n");
-      MPI_Abort(MPI_COMM_WORLD, 123);
-      exit(0);
-    }
+  if (Npart < 2)
+    ENZO_FAIL("FOF: must be at least two particles in tree.\n");
 
+  _TopData.N = Npart;
 
-  N=Npart;
-
-
-  for(j=0;j<3;j++)
-    xmin[j]=xmax[j]=P[1].Pos[j];
+  for (j = 0; j < 3; j++)
+    xmin[j] = xmax[j] = D.P[1].Pos[j];
   
-  
-  for(i=1;i<=Npart;i++)
-    for(j=0;j<3;j++)
-      {
-	if(P[i].Pos[j]>xmax[j]) 
-	  xmax[j]=P[i].Pos[j];
-	if(P[i].Pos[j]<xmin[j]) 
-	  xmin[j]=P[i].Pos[j];
-      }
-  for(j=1,len=xmax[0]-xmin[0];j<3;j++)
-    if((xmax[j]-xmin[j])>len)
-      len=xmax[j]-xmin[j];
+  for (i = 1; i <= Npart; i++)
+    for (j = 0; j < 3; j++) {
+      if (D.P[i].Pos[j] > xmax[j]) 
+	xmax[j] = D.P[i].Pos[j];
+      if (D.P[i].Pos[j] < xmin[j]) 
+	xmin[j] = D.P[i].Pos[j];
+    } // ENDFOR
 
-  len*=1.0001;
+  for (j = 1, len = xmax[0] - xmin[0]; j < 3; j++)
+    if (xmax[j]-xmin[j] > len)
+      len = xmax[j] - xmin[j];
+
+  len *= 1.0001;
 
 
   /* insert particle 1 in root node */
 
-  nfree=nodes;
+  nfree = _TopData.nodes;
 
-  for(j=0;j<3;j++)
-    nfree->center[j]=(xmax[j]+xmin[j])/2;
-  nfree->len=len;
+  for (j = 0; j < 3; j++)
+    nfree->center[j] = 0.5 * (xmax[j] + xmin[j]);
+  nfree->len = len;
+  
+  nfree->father = 0;
+  for (i = 0; i < 8; i++)
+    nfree->suns[i] = 0;
+  nfree->first = 1;
 
-  nfree->father=0;
-  for(i=0;i<8;i++)
-    nfree->suns[i]=0;
-  nfree->first=1;
+  nfree->count = 1;
 
-  nfree->count=1;
-
-  numnodes=1;
+  _TopData.numnodes = 1;
   nfree++;
 
+  _TopData.next[1] = -1;
 
-  next[1]=-1;
+  /* insert all other particles */
 
+  for (i = 2; i <= Npart; i++) {
+    th = _TopData.nodes;
+    while (1) {
+      th->count++;
 
-  for(i=2;i<=Npart;i++)  /* insert all other particles */
-    {
-      th=nodes;
-
-      while(1)
-	{
-	  th->count++;
-
-	  if(th->count==2)       /* cell was occupied with only one particle */
-	    break;
+      /* cell was occupied with only one particle */
+      if(th->count == 2)
+	break;
 	  
-	  for(j=0,subnode=0,fak=1;j<3;j++,fak<<=1)
-	    if(P[i].Pos[j] > th->center[j])
-	      subnode+=fak;
+      for (j = 0, subnode = 0, fak = 1; j < 3; j++, fak<<=1)
+	if(D.P[i].Pos[j] > th->center[j])
+	  subnode += fak;
 
-	  if(nn=th->suns[subnode])
-	    th=nn;
-	  else
-	    break;
-	}
+      if (nn = th->suns[subnode])
+	th = nn;
+      else
+	break;
+    } // ENDWHILE
 
+    /* cell was occcupied with one particle */
 
-      if(th->count==2)  /* cell was occcupied with one particle */
-	{
-	  while(1)
-	    {
-	      p=th->first;
+    if (th->count == 2) {
+      while (1) {
+	p = th->first;
 
-	      for(j=0,subp=0,fak=1;j<3;j++,fak<<=1)
-		if(P[p].Pos[j]>th->center[j])
-		  subp+=fak;
+	for (j = 0, subp = 0, fak = 1; j < 3; j++, fak<<=1)
+	  if (D.P[p].Pos[j] > th->center[j])
+	    subp += fak;
 
-	      nfree->father=th;
-	      for(j=0;j<8;j++)
-		nfree->suns[j]=0;
+	nfree->father = th;
+	for (j = 0; j < 8; j++)
+	  nfree->suns[j] = 0;
 	      
-	      nfree->len=th->len/2;
+	nfree->len = th->len/2;
     
-	      for(j=0;j<3;j++)
-		nfree->center[j]=th->center[j];
+	for (j = 0; j < 3; j++)
+	  nfree->center[j] = th->center[j];
 
-	      for(j=0;j<3;j++)
-		if(P[p].Pos[j]>nfree->center[j])
-		  nfree->center[j]+=nfree->len/2;
-		else
-		  nfree->center[j]-=nfree->len/2;
+	for (j = 0; j < 3; j++)
+	  if (D.P[p].Pos[j] > nfree->center[j])
+	    nfree->center[j] += nfree->len/2;
+	  else
+	    nfree->center[j] -= nfree->len/2;
 
-	      nfree->first=p;
-	      nfree->count=1;
+	nfree->first = p;
+	nfree->count = 1;
 
-	      th->suns[subp]=nfree;
+	th->suns[subp] = nfree;
 
-	      numnodes++;
-	      nfree++;
+	_TopData.numnodes++;
+	nfree++;
 
-	      if(numnodes>=MaxNodes)
-		{
-		  fprintf(stdout,"maximum node number %d in neighbour tree reached.\n",numnodes);
-		  MPI_Abort(MPI_COMM_WORLD, 798798);
-		  exit(0);
-		}
+	if (_TopData.numnodes >= D.MaxNodes) {
+	  fprintf(stderr,"maximum node number %d in neighbour tree reached.\n",
+		  _TopData.numnodes);
+	  ENZO_FAIL("");
+	}
 
-	      for(j=0,subi=0,fak=1;j<3;j++,fak<<=1)
-		if(P[i].Pos[j]>th->center[j])
-		  subi+=fak;
+	for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
+	  if (D.P[i].Pos[j] > th->center[j])
+	    subi += fak;
 	      
-	      if(subi==subp)
-		{
-		  th=nfree-1;
-
-		  th->count++;
-		}
-	      else
-		break;
-	    }
-
+	if (subi == subp) {
+	  th = nfree-1;
+	  th->count++;
 	}
+	else
+	  break;
+      } // ENDWHILE
 
+    } // ENDIF count==2
 
       
-      for(j=0,subi=0,fak=1;j<3;j++,fak<<=1)
-	if(P[i].Pos[j]>th->center[j])
-	  subi+=fak;
+    for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
+      if (D.P[i].Pos[j] > th->center[j])
+	subi += fak;
       
-      nfree->father=th;
+    nfree->father = th;
 
+    p = th->first;
+    for (j = 0; j < (th->count-2); j++)
+      p = _TopData.next[p];
 
-      p=th->first;
-      for(j=0;j<(th->count-2);j++)
-	{
-	  p=next[p];
-	}
-
-      next[i]=next[p];
-      next[p]=i;
+    _TopData.next[i] = _TopData.next[p];
+    _TopData.next[p]=i;
 
   
-      for(j=0;j<8;j++)
-	nfree->suns[j]=0;
+    for (j = 0; j < 8; j++)
+      nfree->suns[j] = 0;
 
-      nfree->len=th->len/2;
-      for(j=0;j<3;j++)
-	nfree->center[j]=th->center[j];
+    nfree->len = th->len/2;
+    for (j = 0; j < 3; j++)
+      nfree->center[j] = th->center[j];
 
-      for(j=0;j<3;j++)
-	if(P[i].Pos[j]>nfree->center[j])
-	  nfree->center[j]+=nfree->len/2;
-	else
-	  nfree->center[j]-=nfree->len/2;
+    for (j = 0; j < 3; j++)
+      if (D.P[i].Pos[j] > nfree->center[j])
+	nfree->center[j] += nfree->len/2;
+      else
+	nfree->center[j] -= nfree->len/2;
 
-      nfree->count=1;
+    nfree->count = 1;
 
-      nfree->first=i;
-      th->suns[subi]=nfree;
+    nfree->first = i;
+    th->suns[subi] = nfree;
       
-      numnodes++;
-      nfree++;
+    _TopData.numnodes++;
+    nfree++;
 
-      if(numnodes>=MaxNodes)
-	{
-	  fprintf(stdout,"maximum node number %d in neighbour tree reached.\n",numnodes);
-	  MPI_Abort(MPI_COMM_WORLD, 137);
-	  exit(0);
-	}
+    if (_TopData.numnodes >= D.MaxNodes) {
+      fprintf(stderr,"maximum node number %d in neighbour tree reached.\n",
+	      _TopData.numnodes);
+      ENZO_FAIL("");
     }
+  } // ENDFOR (i = 2->Npart)
 
-  for(ni=0,th=nodes;ni<numnodes;ni++,th++)
-    {
-      for(k=0;k<3;k++)
-	{
-	  th->xmin[k]=th->center[k]-th->len/2;
-	  th->xmax[k]=th->center[k]+th->len/2;
-	}
+  for (ni = 0, th = _TopData.nodes; ni < _TopData.numnodes; ni++, th++)
+    for (k = 0; k < 3; k++) {
+      th->xmin[k] = th->center[k] - th->len/2;
+      th->xmax[k] = th->center[k] + th->len/2;
     }
  
   /*

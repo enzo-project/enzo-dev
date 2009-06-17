@@ -1,10 +1,35 @@
+#ifndef __FOF_NGBTREE_H
+#define __FOF_NGBTREE_H
 
-void ngb_treebuild(int Npart);
+#include "FOF_allvars.h"
 
+void ngb_treebuild(FOFData &D, int Npart);
 void ngb_treefree(void);
-void ngb_treeallocate(int npart,int maxnodes);  /* usually maxnodes=2*npart is suffiecient */
 
-float ngb_treefind(double xyz[3], int desngb, float hguess,int **ngblistback, float **r2listback);
+/* usually maxnodes=2*npart is suffiecient */
+void ngb_treeallocate(FOFData &D, int npart, int maxnodes);
 
+float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess, 
+		   int **ngblistback, float **r2listback);
 
-float ngb_treetest(float xyz[3], int desngb, float hguess,int **ngblistback, float **r2listback);
+struct NODE 
+{ 
+  float	 center[3], len;	/* center and sidelength of treecubes */
+  float	 xmin[3], xmax[3];
+  int    count;			/* total # of particles in cell      */
+  NODE	*father, *suns[8];
+  int    first;			/* index of first particle           */
+};
+
+struct ngb_t
+{
+  NODE	*nodes;
+  int    numnodes;
+  int    N;
+  int   *next;			/* Link-List for particle groups */
+  int   *ngblist, numngb;
+  float *r2list;
+  float	 searchmin[3], searchmax[3];
+};
+
+#endif
