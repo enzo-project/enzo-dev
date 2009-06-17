@@ -342,14 +342,15 @@ grid *Linear3DGrid(){
     left[i] = 0.0;
     right[i] = 1.0;
     vel[i] = (i+1) * 0.125;
-    BField[i] = 0.;
+    BField[i] = 0.1;
   }
     
   NumberOfParticleAttributes = 0;
   lineargrid->PrepareGrid(3, dims, 
 			  left, right, 2);
 
-  int result = lineargrid->InitializeUniformGrid(dens, total_energy, internal_energy, vel);
+  int result = lineargrid->InitializeUniformGrid
+    (dens, total_energy, internal_energy, vel, BField);
   assert(result != FAIL);
   //  float *dens_field = lineargrid->AccessDensity();
 
@@ -400,10 +401,12 @@ grid *Linear3DSubGrid(){
   grid *lineargrid = new grid;
   int i, j, k, rank = 3;
   int index;
+  float BField[3];
    
   for (i = 0; i < rank; i++) {
     dims[i] = 134;
     vel[i] = (i+1) * 0.125;
+    BField[i] = 0.1;
   }
 
   // 6 cells over
@@ -422,7 +425,8 @@ grid *Linear3DSubGrid(){
   lineargrid->PrepareGrid(3, dims, 
 			  left, right, 2);
 
-  int result = lineargrid->InitializeUniformGrid(dens, total_energy, internal_energy, vel);
+  int result = lineargrid->InitializeUniformGrid
+    (dens, total_energy, internal_energy, vel, BField);
   assert(result != FAIL);
   
   return lineargrid;

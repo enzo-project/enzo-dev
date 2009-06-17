@@ -27,7 +27,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 				float UniformTotalEnergy,
 				float UniformInternalEnergy,
 				float UniformVelocity[], 
-                float UniformBField[])
+				float UniformBField[])
 {
   /* declarations */
  
