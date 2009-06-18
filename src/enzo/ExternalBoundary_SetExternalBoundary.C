@@ -71,6 +71,22 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
       }
     }
  
+  if (ProblemType==400) { // For shearing box we have another offset in the y direction
+    Lx = (DomainRightEdge[0]-DomainLeftEdge[0]);
+    Ly = (DomainRightEdge[1]-DomainLeftEdge[1]);
+    ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
+    //ShearingOffset = 0.0;
+    while (ShearingOffset > Ly) {
+      ShearingOffset -= Ly;
+    }  // clip Offset to multiples of my cell width (actually done in grid::CopyZonesFromGrid anway)
+    //    ShearingOffset = (float) ( (int) ShearingOffset/CellWidth[1]) * CellWidth[1];
+    /*    fprintf(stderr, "grid::CheckForOverlap: ShearingOffset %g %g\n %g %g \n %g %g \n", 
+	    Time, ShearingOffset, GridLeftEdge[0], GridLeftEdge[1], 
+	    GridRightEdge[0], GridRightEdge[1]);
+    */
+  }
+
+
   /* set Boundary conditions */
  
   Sign = 1;
@@ -99,6 +115,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #ifdef USE_PERIODIC
 	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
 #endif /* USE_PERIODIC */
+	    break;
+	  case shearing:
+	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
 	    break;
 	  case BoundaryUndefined:
 	  default:
@@ -133,6 +152,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
 #endif /* USE_PERIODIC */
 	    break;
+	  case shearing:
+	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (x-right).\n");
@@ -168,6 +189,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
 #endif /* USE_PERIODIC */
 	     break;
+	  case shearing:
+	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
+	     break;
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (y-left).\n");
@@ -200,6 +224,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #ifdef USE_PERIODIC
 	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
 #endif /* USE_PERIODIC */
+	    break;
+	  case shearing:
+	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
 	    break;
 	  case BoundaryUndefined:
 	  default:
@@ -236,6 +263,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
 #endif /* USE_PERIODIC */
 	    break;
+	  case shearing:
+	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
+	    break;
 	  case BoundaryUndefined:
 	  default:
 	    fprintf(stderr, "BoundaryType not recognized (z-left).\n");
@@ -268,6 +298,9 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #ifdef USE_PERIODIC
 	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
 #endif /* USE_PERIODIC */
+	    break;
+	  case shearing:
+	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
 	    break;
 	  case BoundaryUndefined:
 	  default:

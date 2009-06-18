@@ -73,6 +73,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
 #endif  // end FAST_SIB
+
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 

@@ -518,10 +518,7 @@ EXTERN int UseDivergenceCleaning;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 
-/* For Shearing Box */
 
-EXTERN float AngularVelocity;
-EXTERN float VelocityGradient;
 
 /* Star Particle paramters */
 
@@ -606,6 +603,18 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 /* Coupled radiative transfer, cooling, and rate solver */
 
 EXTERN int RadiativeTransferCoupledRateSolver;
+
+
+
+/* Shearing Boundary Conditions */
+
+EXTERN float AngularVelocity;
+EXTERN float VelocityGradient;
+EXTERN int ShearingBoundaryDirection;
+EXTERN int ShearingVelocityDirection;
+EXTERN int ShearingOtherDirection;
+EXTERN int useMHD;
+EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 
 
 #endif

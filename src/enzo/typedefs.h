@@ -129,7 +129,8 @@ const boundary_type
   outflow           = 1,
   inflow            = 2,
   periodic          = 3,
-  BoundaryUndefined = 4;
+  shearing          = 4,
+  BoundaryUndefined = 5;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 
