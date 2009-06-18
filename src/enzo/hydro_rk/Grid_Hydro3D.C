@@ -9,7 +9,10 @@
 /
 ************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -17,6 +20,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int HydroSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
