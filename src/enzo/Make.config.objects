@@ -403,7 +403,6 @@ OBJS_CONFIG_LIB = \
 	nr_2d.o \
 	nr_3d.o \
 	nr_st1.o \
-	OptimizedUnigridCommunicationTranspose.o \
 	Options.o \
 	OutputAsParticleData.o \
 	OutputFromEvolveLevel.o\

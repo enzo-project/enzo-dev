@@ -438,34 +438,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE UNIGRID_TRANSPOSE SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_UNIGRID_TRANSPOSE = 1
-
-    # Settings to turn unigrid transpose ON
-
-    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),yes)
-        ERROR_UNIGRID_TRANSPOSE = 0
-        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES = -DUNIGRID_TRANSPOSE
-    endif
-
-    # Settings to turn unigrid transpose OFF
-
-    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),no)
-        ERROR_UNIGRID_TRANSPOSE = 0
-        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES =
-    endif
-
-    # error if CONFIG_UNIGRID_TRANSPOSE is incorrect
-
-    ifeq ($(ERROR_UNIGRID_TRANSPOSE),1)
-       .PHONY: error_unigrid_transpose
-       error_unigrid_transpose:
-	$(error Illegal value '$(CONFIG_UNIGRID_TRANSPOSE)' for $$(CONFIG_UNIGRID_TRANSPOSE))
-    endif
-
-#-----------------------------------------------------------------------
 # DETERMINE OOC_BOUNDARY SETTINGS
 #-----------------------------------------------------------------------
 
@@ -697,8 +669,7 @@
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
-              $(ASSEMBLE_FLUX_FIX_DEFINES) \
-              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
+              $(ASSEMBLE_FLUX_FIX_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \

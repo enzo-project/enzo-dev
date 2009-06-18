@@ -135,10 +135,6 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Minimum memory start-up => non-apative mesh only\n");
 #endif
 
-#ifdef UNIGRID_TRANSPOSE
-    fprintf(opf, "  Fast book-keeping for FFT TopGrid neighbours\n");
-#endif
-
 #ifdef HDF5_USE_HDF5_GROUPS
     fprintf(opf, "  HDF5 groups for packed AMR\n");
 #endif
@@ -166,12 +162,6 @@ int ENZO_OptionsinEffect(void)
 #ifdef FORCE_MSG_PROGRESS
     fprintf(opf, "  Force message progress with MPI_Barrier calls\n");
 #endif
-
-#ifdef ISOLATED_GRAVITY
-    fprintf(opf, "  Isolated gravity enabled\n");
-#else /* ISOLATED_GRAVITY */
-    fprintf(opf, "  Isolated gravity disabled\n");
-#endif /* ISOLATED_GRAVITY */
 
 #ifdef TRANSFER
     fprintf(opf, "  Adaptive ray tracing enabled\n");

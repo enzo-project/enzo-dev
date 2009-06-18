@@ -187,7 +187,6 @@ show-config:
 	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
-	@echo "   CONFIG_UNIGRID_TRANSPOSE:     $(CONFIG_UNIGRID_TRANSPOSE)"
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
@@ -495,23 +494,6 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON:
-	@echo
-
-#-----------------------------------------------------------------------
-
-VALID_UNIGRID-TRANSPOSE = unigrid-transpose-yes unigrid-transpose-no
-.PHONY: $(VALID_UNIGRID-TRANSPOSE)
-
-unigrid-transpose-yes: CONFIG_UNIGRID-TRANSPOSE-yes
-unigrid-transpose-no: CONFIG_UNIGRID-TRANSPOSE-no
-unigrid-transpose-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_UNIGRID-TRANSPOSE)]\n\n"
-CONFIG_UNIGRID-TRANSPOSE-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_UNIGRID_TRANSPOSE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_UNIGRID_TRANSPOSE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_UNIGRID_TRANSPOSE:
 	@echo
 
 #-----------------------------------------------------------------------

@@ -26,7 +26,6 @@
 #    CONFIG_JBPERF
 #    CONFIG_PYTHON
 #    CONFIG_PAPI
-#    CONFIG_UNIGRID_TRANSPOSE
 #    CONFIG_OOC_BOUNDARY
 #    CONFIG_OPT
 #    CONFIG_TESTING
@@ -156,15 +155,6 @@
 #-----------------------------------------------------------------------
 
      CONFIG_PYTHON = no
-
-#=======================================================================
-# CONFIG_UNIGRID_TRANSPOSE
-#=======================================================================
-#    yes           use unigrid transpose optimizations
-#    no            don't use unigrid transpose optimizations
-#-----------------------------------------------------------------------
-
-     CONFIG_UNIGRID_TRANSPOSE = yes
 
 #=======================================================================
 # CONFIG_OOC_BOUNDARY

@@ -307,6 +307,7 @@ EXTERN int CubeDumpEnabled;
 EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
+EXTERN int UnigridTranspose;
 
 /************************************************/
 /* Global data for specific problems or methods */

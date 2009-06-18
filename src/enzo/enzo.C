@@ -217,31 +217,6 @@ Eint32 main(Eint32 argc, char *argv[])
   ENZO_OptionsinEffect();
 
 
-#ifdef ISOLATED_GRAVITY
-#ifdef UNIGRID_TRANSPOSE
-    /* it turns out that Robert Harkness' unigrid transpose stuff is incompatible with the top
-       grid isolated gravity boundary conditions.  I'm not 100 percent sure why this is - in the 
-       meantime, just double-check to make sure that if one tries to use the isolated boundary
-       conditions when the unigrid transpose stuff is on, the code crashes loudly.
-       -- BWO, 26 June 2008 */
-      if (MyProcessorNumber == ROOT_PROCESSOR){
-	fprintf(stderr, "\n\n");
-	fprintf(stderr, "  ************************************************************************\n");
-	fprintf(stderr, "  ****  D'oh!  At present, you cannot use isolated top grid boundary  ****\n");
-	fprintf(stderr, "  ****  conditions with the top grid unigrid bookkeeping scheme.      ****\n");
-	fprintf(stderr, "  ****  Consult Brian O'Shea for the details of this wackiness,       ****\n");
-	fprintf(stderr, "  ****  and in the meantime recompile enzo with                       ****\n");
-	fprintf(stderr, "  ****  'gmake unigrid-transpose-no' instead of                       ****\n");
-	fprintf(stderr, "  ****  'gmake unigrid-transpose-yes'.                                ****\n");
-	fprintf(stderr, "  ************************************************************************\n");      
-	fprintf(stderr, "\n\n");
-      }
-      my_exit(EXIT_FAILURE);
-#endif /* UNIGRID_TRANSPOSE */
-#endif /* ISOLATED_GRAVITY */
-
-
- 
   // Main declarations
  
   TopGridData MetaData;
