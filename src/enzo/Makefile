@@ -317,7 +317,7 @@ help:
 
 clean:
 	-@rm -f *.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def
+          auto_show*.C svn_version.def hydro_rk/*.o
 
 #-----------------------------------------------------------------------
 # Include configuration targets

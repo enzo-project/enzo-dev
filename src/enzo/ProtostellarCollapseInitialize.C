@@ -80,6 +80,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   */
 
   float ProtostellarCollapseVelocity[3]     = {0.0, 0.0, 0.0}; // ambient gas initally at rest
+  float ProtostellarCollapseBField[3]     = {0.0, 0.0, 0.0}; // ambient gas initally at rest
   float ProtostellarCollapseCoreDensity     = 2000.0; // 10^6/500
   float ProtostellarCollapseCoreEnergy      = 1e3;  // thermal energy, assumes Gamma = 1.001, p=1, d=1
   float ProtostellarCollapseOuterDensity    = 1.0;
@@ -136,9 +137,9 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->InitializeUniformGrid(ProtostellarCollapseOuterDensity, 
 					      ProtostellarCollapseOuterEnergy,
 					      ProtostellarCollapseOuterEnergy,
-					      ProtostellarCollapseVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      ProtostellarCollapseVelocity,
+                          ProtostellarCollapseBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
 
   /* Create as many subgrids as there are refinement levels 
@@ -225,9 +226,9 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
       if (Subgrid[lev]->GridData->InitializeUniformGrid(ProtostellarCollapseOuterDensity,
 							ProtostellarCollapseOuterEnergy,
 							ProtostellarCollapseOuterEnergy,
-							ProtostellarCollapseVelocity) == FAIL) {
-	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	ENZO_FAIL("");
+							ProtostellarCollapseVelocity,
+                            ProtostellarCollapseBField) == FAIL) {
+		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
       }
 
       /* set up the dense core on the finest resolution subgrid */
@@ -239,8 +240,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				    ProtostellarCollapseCoreRadius,
 				    ProtostellarCollapseAngularVelocity) 
 	    == FAIL) {
-	  fprintf(stderr, "Error in ProtostellarCollapseInitialize[Sub]Grid.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in ProtostellarCollapseInitialize[Sub]Grid.");
 	}
     }
     else
@@ -254,8 +254,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
       if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
 			     *(Subgrid[lev-1]->GridData))
 	  == FAIL) {
-	fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
       }
   
   /* set up the root grid */
@@ -263,8 +262,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   if (MaximumRefinementLevel > 0 && startWithSubgrids)
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
 
   else
@@ -273,8 +271,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			  ProtostellarCollapseCoreEnergy,
 			  ProtostellarCollapseCoreRadius,
 			  ProtostellarCollapseAngularVelocity) == FAIL) {
-      fprintf(stderr, "Error in ProtostellarCollapseInitializeGrid.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ProtostellarCollapseInitializeGrid.");
     }
 
   /* set up field names and units */

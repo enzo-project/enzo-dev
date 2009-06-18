@@ -38,8 +38,7 @@ int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid)
   /* Error check */
  
   if (Grid->FlaggingField == NULL) {
-    fprintf(stderr, "FlaggingField absent in grid!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("FlaggingField absent in grid!");
   }
  
   /* Set scalars. */

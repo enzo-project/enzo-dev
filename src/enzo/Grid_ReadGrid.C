@@ -37,9 +37,6 @@ void my_exit(int status);
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
-// extern int ParticleTypeInFile; // declared and set in ReadParameterFile
- 
- 
 int grid::ReadGrid(FILE *fptr, int GridID, 
 		   int ReadText, int ReadData)
 {
@@ -98,79 +95,67 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     }
 
     if (fscanf(fptr, "GridRank = %"ISYM"\n", &GridRank) != 1) {
-      fprintf(stderr, "Error reading GridRank.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridRank.");
     }
  
     if (fscanf(fptr, "GridDimension = ") != 0) {
-      fprintf(stderr, "Error reading GridDimension(0).\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridDimension(0).");
     }
  
     if (ReadListOfInts(fptr, GridRank, GridDimension) == FAIL) {
-      fprintf(stderr, "Error reading GridDimension(1).\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridDimension(1).");
     }
  
     fscanf(fptr, "GridStartIndex = ");
  
     if (ReadListOfInts(fptr, GridRank, GridStartIndex) == FAIL) {
-      fprintf(stderr, "Error reading GridStartIndex.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridStartIndex.");
     }
  
     fscanf(fptr, "GridEndIndex = ");
  
     if (ReadListOfInts(fptr, GridRank, GridEndIndex) == FAIL) {
-      fprintf(stderr, "Error reading GridEndIndex.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridEndIndex.");
     }
  
     fscanf(fptr, "GridLeftEdge = ");
  
     if (ReadListOfFloats(fptr, GridRank, GridLeftEdge) == FAIL) {
-      fprintf(stderr, "Error reading GridLeftEdge.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridLeftEdge.");
     }
  
     fscanf(fptr, "GridRightEdge = ");
  
     if (ReadListOfFloats(fptr, GridRank, GridRightEdge) == FAIL) {
-      fprintf(stderr, "Error reading GridRightEdge.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading GridRightEdge.");
     }
  
     if (fscanf(fptr, "Time = %"PSYM"\n", &Time) != 1) {
-      fprintf(stderr, "Error reading Time.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading Time.");
     }
  
     if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
-      fprintf(stderr, "Error reading SubgridsAreStatic.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading SubgridsAreStatic.");
     }
 
     /* Read baryon field quantities. */
  
     if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
 	       &NumberOfBaryonFields) != 1) {
-      fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
     if (NumberOfBaryonFields > 0) {
  
       fscanf(fptr, "FieldType = ");
  
       if (ReadListOfInts(fptr, NumberOfBaryonFields, FieldType) == FAIL) {
-	fprintf(stderr, "Error reading FieldType.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error reading FieldType.");
       }
  
       fgetpos(fptr, &BaryonFileNamePosition); //AK
  
       if (fscanf(fptr, "BaryonFileName = %s\n", name) != 1) {
-	fprintf(stderr, "Error reading BaryonFileName.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error reading BaryonFileName.");
       }
  
       fscanf(fptr, "CourantSafetyNumber    = %"FSYM"\n", &CourantSafetyNumber);
@@ -182,8 +167,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     /* 3) Read particle info */
  
     if (fscanf(fptr, "NumberOfParticles = %"ISYM"\n", &NumberOfParticles) != 1) {
-      fprintf(stderr, "error reading NumberOfParticles.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("error reading NumberOfParticles.");
     }
   
     if (NumberOfParticles > 0) {
@@ -191,8 +175,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       /* Read particle file name. */
 
       if (fscanf(fptr, "ParticleFileName = %s\n", name) != 1) {
-	fprintf(stderr, "Error reading ParticleFileName.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error reading ParticleFileName.");
       }
     }
 
@@ -200,8 +183,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     if (SelfGravity)
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
-	fprintf(stderr, "Error reading GravityBoundaryType.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error reading GravityBoundaryType.");
       }
   }
 
@@ -217,6 +199,15 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     
     if (divB == NULL) 
       divB = new float[activesize];
+
+    /* if we restart from a a different solvers output without a Phi Field create here and set to zero */
+    int PhiNum; 
+    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+      PhiNum=NumberOfBaryonFields++;
+      FieldType[PhiNum] = PhiField;
+      BaryonField[PhiNum] = new float[activesize];
+      for (int n = 0; n < activesize; n++) BaryonField[PhiNum][n] = 0.0;
+    }
 
     for (int dim = 0; dim < 3; dim++)
       if (gradPhi[dim] == NULL)

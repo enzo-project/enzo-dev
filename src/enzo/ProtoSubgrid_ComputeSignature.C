@@ -44,6 +44,7 @@ int ProtoSubgrid::ComputeSignature(int dim)
   /* Allocate space. */
  
   Signature[dim] = new int[GridDimension[dim]];
+  for(int i = 0; i < GridDimension[dim]; i++) Signature[dim][i] = 0;
  
   /* Perform projection (and clear line)
      For 1D grids, no projection necessary, just copy. */

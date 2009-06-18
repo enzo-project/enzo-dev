@@ -95,6 +95,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   KHOuterInternalEnergy    = KHOuterPressure/((Gamma - 1.0)*KHOuterDensity);
   float KHInnerVelocity[3] = {0.0, 0.0, 0.0};
   float KHOuterVelocity[3] = {0.0, 0.0, 0.0};
+  float KHBField[3] = {0.0, 0.0, 0.0};
   KHInnerVelocity[0]      += 0.5*KHVelocityJump; // gas initally moving right
   KHOuterVelocity[0]      -= 0.5*KHVelocityJump; // gas initally moving left
 
@@ -110,9 +111,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
 					      KHOuterInternalEnergy,
 					      KHOuterInternalEnergy,
-					      KHOuterVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    ENZO_FAIL("");
+					      KHOuterVelocity, KHBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
 
   /* set up the inner flow and add noise to velocities */
@@ -124,8 +124,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					 KHInnerVelocity[0], 
 					 KHOuterVelocity[0]) 
       == FAIL) {
-    fprintf(stderr, "Error in KHInitializeGrid.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in KHInitializeGrid.");
   }
 
 

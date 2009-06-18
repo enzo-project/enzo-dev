@@ -1250,7 +1250,8 @@ void SortParticlesByNumber();
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
-			    float UniformGasEnergy, float UniformVelocity[]);
+			    float UniformGasEnergy, float UniformVelocity[], 
+			    float UniformBField[]);
 
 
 /* Initialize a grid for the Double Mach reflection problem. */

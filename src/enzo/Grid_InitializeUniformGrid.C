@@ -26,14 +26,15 @@
 int grid::InitializeUniformGrid(float UniformDensity,
 				float UniformTotalEnergy,
 				float UniformInternalEnergy,
-				float UniformVelocity[])
+				float UniformVelocity[], 
+				float UniformBField[])
 {
   /* declarations */
  
   int dim, i, size, field;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, MetalNum;
+    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum;
 
   int ExtraField[2];
 
@@ -50,6 +51,16 @@ int grid::InitializeUniformGrid(float UniformDensity,
     FieldType[NumberOfBaryonFields++] = Velocity2;
   if (GridRank > 2 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
+  if (HydroMethod == MHD_RK) {
+    FieldType[B1Num = NumberOfBaryonFields++] = Bfield1;
+    FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
+    FieldType[B3Num = NumberOfBaryonFields++] = Bfield3;
+    FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
+    if (UseDivergenceCleaning) {
+      FieldType[NumberOfBaryonFields++] = Phi_pField;
+    }
+  }
+
 
   int colorfields = NumberOfBaryonFields;
 
@@ -119,6 +130,12 @@ int grid::InitializeUniformGrid(float UniformDensity,
   if (DualEnergyFormalism)
     for (i = 0; i < size; i++)
       BaryonField[2][i] = UniformInternalEnergy;
+
+  if (HydroMethod == MHD_RK) {
+    for (dim = 0; dim < 3; dim++) 
+      for (i = 0; i < size; i++)
+	BaryonField[B1Num+dim][i] = UniformBField[dim];
+  }
 
    /* set density of color fields to user-specified values (if user doesn't specify, 
      the defaults are set in SetDefaultGlobalValues.  Do some minimal amount of error
