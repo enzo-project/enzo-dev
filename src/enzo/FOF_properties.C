@@ -16,17 +16,15 @@
 /************************************************************************/
 
 void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm, 
-		    float *pmtot, float *pmgas, float *pmstars, float *pmsfr, 
-		    float *pmcold)
+		    float *pmtot, float *pmstars)
 {
   int i,k;
   double s[3];
-  double mtot, mgas, mstars, sfr, mcold;
+  double mtot, mstars;
   
   
   s[0] = s[1] = s[2] = 0;
-  mtot = mgas = mstars = mcold = 0;
-  sfr = 0;
+  mtot = 0;
 
   for (i = 0; i < len; i++) {
     for (k = 0; k < 3; k++)
@@ -34,14 +32,11 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm,
 
     mtot += p[i].Mass;
     switch (p[i].Type) {
-    case 0:
-      mgas +=    (p[i].Mass-p[i].Mfs-p[i].Mclouds);
-      mcold +=   p[i].Mclouds;
-      mstars +=  p[i].Mfs;
-      sfr +=  p[i].Sfr;
+    case PARTICLE_TYPE_STAR:
+    case PARTICLE_TYPE_SINGLE_STAR:
+    case PARTICLE_TYPE_CLUSTER:
+      mstars += p[i].Mass; 
       break;
-    case 4:
-      mstars += p[i].Mass; break;
     } // ENDSWITCH
   } // ENDFOR
 
@@ -54,9 +49,6 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm,
     pcm[k] = s[k];
   
   *pmtot   = mtot;
-  *pmgas   = mgas;
   *pmstars = mstars;
-  *pmsfr   = sfr;
-  *pmcold  = mcold;
 
 }

@@ -30,10 +30,25 @@ void allocate_memory(FOFData &AllVars)
 }
 
 
+void deallocate_all_memory(FOFData &D)
+{
 
+  delete [] D.Nslab;
+  delete [] D.Nshadow;
+  delete [] D.Noffset;
+  delete [] D.NtoLeft;
+  delete [] D.NtoRight;
+  delete [] D.ContribID;
+  delete [] D.ContribHead;
+  delete [] D.GridNext;
+  delete [] D.Head;
+  delete [] D.Tail;
+  delete [] D.Next;
+  delete [] D.Len;
+  delete [] D.GroupDat;
+  delete [] D.GroupDatAll;
+  delete [] D.P;
 
+  return;
 
-
-
-
-
+}

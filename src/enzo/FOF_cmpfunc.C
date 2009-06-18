@@ -119,9 +119,13 @@ Eint32 comp_func_gr(void const *a, void const *b)
   return 0;
 }
 
-
-
-
-
-
-
+Eint32 compare_slab(const void *a, const void *b)
+{
+  struct FOF_particle_data *ia = (struct FOF_particle_data*) a;
+  struct FOF_particle_data *ib = (struct FOF_particle_data*) b;
+  if (ia->slab - ib->slab < 0)
+    return -1;
+  else if (ia->slab - ib->slab > 0)
+    return 1;
+  return 0;
+}

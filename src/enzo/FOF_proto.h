@@ -4,11 +4,14 @@
 void   allocate_memory(FOFData &AllVars);
 void   check_cell(FOFData &AllVars, int p, int i, int j, int k);
 void   compile_group_catalogue(FOFData &AllVars);
+
 Eint32 comp_func(void const *a, void const *b);
 Eint32 comp_func2(void const *a, void const *b);
 Eint32 comp_func_partcoord(void const *a, void const *b);
 Eint32 comp_func_gr(void const *a, void const *b);
 Eint32 comp_func_partminid(void const *a, void const *b);
+Eint32 compare_slab(const void *a, const void *b);
+
 int    coarse_binning(FOFData &AllVars);
 void   density(FOFData &A);
 int    do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen, 
@@ -20,7 +23,7 @@ void   find_subgroups(FOFData &D);
 int    get_particles(int dest, int minid, int len, FOF_particle_data *buf, 
 		     FOFData &AllVars);
 void   get_properties(FOF_particle_data *p, int len, float *pcm, float *pmtot, 
-		      float *pmgas, float *pmstars, float *sfr, float *mcloud);
+		      float *pmstars);
 void   iindexx(int n, int arr[], int indx[]);
 void   indexx(int n, float arr[], int indx[]);
 void   init_coarse_grid(FOFData &AllVars);
@@ -38,12 +41,11 @@ void   sort_int(unsigned long n, int arr[]);
 void   sort2_flt_int(unsigned long n, float arr[], int brr[]);
 void   sort2_int(unsigned long n, int arr[], int brr[]);
 void   set_sph_kernel(FOFData &A);
+void   set_units(FOFData &AllVars);
 void   stitch_together(FOFData &AllVars);
 void   subfind(FOFData &D);
 int    unbind(FOFData &D, int head, int len);
 void   unbind_node(FOFData &D, int k);
 void   walk_tree_and_unbind(FOFData &D);
-
-int compare_slab(const void *a, const void *b);
 
 #endif

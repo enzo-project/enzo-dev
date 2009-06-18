@@ -24,9 +24,95 @@
 #include "typedefs.h"
 #include "global_data.h"
 
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "TopGridData.h"
+#include "Hierarchy.h"
+#include "LevelHierarchy.h"
+
 #include "FOF_allvars.h"
 #include "FOF_nrutil.h"
 #include "FOF_proto.h"
+
+/************************************************************************/
+void FOF_Initialize(TopGridData *MetaData, 
+		    LevelHierarchyEntry *LevelArray[], 
+		    FOFData &D);
+void FOF_Finalize(TopGridData *MetaData, 
+		  LevelHierarchyEntry *LevelArray[], 
+		  FOFData &D);
+/************************************************************************/
+
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int SubFind)
+{
+
+  FOFData AllVars;
+
+  /* Initialization :: move particle data from enzo's grids to the
+     halo finder's data structure. */
+
+  FOF_Initialize(MetaData, LevelArray, AllVars);
+
+  // in terms of mean interparticle seperation
+  AllVars.LinkLength = 0.1;
+
+  // store only groups in the catalogue with at least this number of particles
+  AllVars.GroupMinLen = 50;
+
+  /* dimension of coarse grid. Note: the actual size of a mesh cell
+     will usually be set to its optimal size, i.e. equal to the
+     linking distance. The coarse grid will then be shifted around to
+     cover the full volume */
+
+  AllVars.Grid = 256;
+  AllVars.MaxPlacement = 4;
+  
+  set_units(AllVars);
+
+  AllVars.SearchRadius = AllVars.LinkLength * AllVars.BoxSize / 
+    pow(AllVars.NumPart,1.0/3);
+
+  // softening length for potential computation
+  AllVars.Epsilon = 0.05 * AllVars.BoxSize / pow(AllVars.NumPart,1.0/3);
+  
+  if (debug)
+    printf("Comoving linking length: %g kpc/h\n", AllVars.SearchRadius);
+
+  marking(AllVars);
+ 
+  exchange_shadow(AllVars);
+
+  init_coarse_grid(AllVars);
+  
+  link_local_slab(AllVars);
+    
+  do {
+    find_minids(AllVars);
+  } while (link_across(AllVars) > 0);
+  
+  find_minids(AllVars);
+  
+  stitch_together(AllVars);
+
+  compile_group_catalogue(AllVars);
+
+  save_groups(AllVars);
+  if (SubFind == TRUE)
+    subfind(AllVars);
+
+  /* Finalize :: move particles back into enzo's memory and then move
+     the particles back to their correct grid. */
+
+  FOF_Finalize(MetaData, LevelArray, AllVars);
+
+}
+
+/************************************************************************
+   FOF and I/O SUBROUTINES
+ ************************************************************************/
 
 void set_units(FOFData &AllVars) {
 
@@ -69,77 +155,7 @@ void set_units(FOFData &AllVars) {
   AllVars.H0 = HUBBLE * AllVars.UnitTime_in_s;
 }
 
-
-int FOF(int NumPart, float BoxSize, int SubFind)
-{
-
-  FOFData AllVars;
-
-  // in terms of mean interparticle seperation
-  AllVars.LinkLength = 0.1;
-
-  // store only groups in the catalogue with at least this number of particles
-  AllVars.GroupMinLen = 50;
-
-  /* dimension of coarse grid. Note: the actual size of a mesh cell
-     will usually be set to its optimal size, i.e. equal to the
-     linking distance. The coarse grid will then be shifted around to
-     cover the full volume */
-
-  AllVars.Grid = 256;
-  AllVars.MaxPlacement = 4;
-  
-  set_units(AllVars);
-
-  /* Put enzo particles into P-GroupFinder structures */
-
-  //
-
-  AllVars.SearchRadius = AllVars.LinkLength * AllVars.BoxSize / 
-    pow(AllVars.NumPart,1.0/3);
-
-  // softening length for potential computation
-  AllVars.Epsilon = 0.05 * AllVars.BoxSize / pow(AllVars.NumPart,1.0/3);
-  
-  if (debug)
-    printf("Comoving linking length: %g kpc/h\n", AllVars.SearchRadius);
-
-  /* Count particles in each slab and in the padding.  Sort the
-     particle list by slab number. */
-
-  //
-
-  /* Put all of the particles on the right processor (=slab number). */
-
-  //
-
-  marking(AllVars);
- 
-  exchange_shadow(AllVars);
-
-  init_coarse_grid(AllVars);
-  
-  link_local_slab(AllVars);
-    
-  do {
-    find_minids(AllVars);
-  } while (link_across(AllVars) > 0);
-  
-  find_minids(AllVars);
-  
-  stitch_together(AllVars);
-
-  compile_group_catalogue(AllVars);
-
-  save_groups(AllVars);
-  if (SubFind == TRUE)
-    subfind(AllVars);
-
-}
-
-/************************************************************************
-   FOF and I/O SUBROUTINES
- ************************************************************************/
+/************************************************************************/
 
 void save_groups(FOFData &AllVars)
 {

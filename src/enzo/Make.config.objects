@@ -143,9 +143,11 @@ OBJS_CONFIG_LIB = \
 	FOF_allocate.o \
 	FOF_cmpfunc.o \
 	FOF_density.o \
+	FOF_Finalize.o \
 	FOF_forcetree.o \
 	FOF_iindexx.o \
 	FOF_indexx.o \
+	FOF_Initialize.o \
 	FOF_ngbtree.o \
 	FOF_nrutil.o \
 	FOF_potential.o \
@@ -291,6 +293,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \
+	Grid_MoveParticlesFOF.o \
 	Grid_MoveSubgridParticlesFast.o \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \

@@ -47,11 +47,13 @@ struct FOF_particle_data
   int    	MinID;
   int    	GrLen;
   float  	Mass;
-  float  	Mfs, Mclouds, Sfr;
+  float  	Attr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   float  	Energy;
   float  	Rho;
   int    	PartID;
   int           slab;
+  int           level;
+  int           GridID;
 };
 
 struct id_data 
@@ -95,13 +97,11 @@ struct FOFData {
   double  SearchRadius;
 
   int     NumPart;   /* total particle number */
-  int     *NpartInGrids;
 
   int     *Nslab, *Nshadow;
   int     Nlocal, *Noffset;
   int     Nlocal_in_file;
   int     *NtoLeft, *NtoRight;
-  int     *Nslab_local, *NtoLeft_local, *NtoRight_local;
 
   int     Ncontrib, *ContribID, *ContribHead;
 
@@ -118,7 +118,7 @@ struct FOFData {
 
   gr_data *GroupDat, *GroupDatAll;
 
-  FOF_particle_data *P, *Pbuf_local;
+  FOF_particle_data *P;
 
   /************************* UNITS *************************/
 
@@ -149,7 +149,6 @@ struct FOFData {
 
   int   *Id;
   int   *SubGroupLen, *SubGroupTag;
-  int   *GroupTag, *NextFinal;
   int   *Index;
   int   *NewHead;
   int   *Node;
