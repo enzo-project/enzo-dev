@@ -191,7 +191,6 @@ show-config:
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
-	@echo "   CONFIG_ISOBCS:                $(CONFIG_ISOBCS)"
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo
@@ -566,24 +565,6 @@ CONFIG_TESTING-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_TESTING = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_TESTING:
-	@echo
-
-#-----------------------------------------------------------------------
-
-VALID_ISOBCS = isolated-bcs-yes isolated-bcs-no
-.PHONY: $(VALID_ISOBCS)
-
-isolated-bcs-yes: CONFIG_ISOBCS-yes
-isolated-bcs-no: CONFIG_ISOBCS-no
-
-isolated-bcs-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ISOBCS)]\n\n"
-CONFIG_ISOBCS-%:
-	@tmp=.config.temp; \
-        grep -v CONFIG_ISOBCS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_ISOBCS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_ISOBCS:
 	@echo
 
 #-----------------------------------------------------------------------

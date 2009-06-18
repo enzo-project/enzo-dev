@@ -564,35 +564,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE ISOLATED GRAVITY BOUNDARY CONDITION (ISOBCS) SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_ISOBCS = 1
-
-    # Settings to turn isolated gravity boundary conditions ON
-
-    ifeq ($(CONFIG_ISOBCS),yes)
-        ERROR_ISOBCS = 0
-        ASSEMBLE_ISOBCS_DEFINES = -DISOLATED_GRAVITY
-    endif
-
-    # Settings to turn isolated gravity boundary conditions OFF
-
-    ifeq ($(CONFIG_ISOBCS),no)
-        ERROR_ISOBCS = 0
-        ASSEMBLE_ISOBCS_DEFINES =
-    endif
-
-    # error if CONFIG_ISOBCS is incorrect
-
-    ifeq ($(ERROR_ISOBCS),1)
-       .PHONY: error_isobcs
-       error_isobcs:
-	$(error Illegal value '$(CONFIG_ISOBCS)' for $$(CONFIG_ISOBCS))
-    endif
-
-
-#-----------------------------------------------------------------------
 # DETERMINE TRACER PARTICLE VELOCITY OUTPUT SETTINGS
 #-----------------------------------------------------------------------
 
@@ -723,7 +694,6 @@
               $(ASSEMBLE_PACKED_AMR_DEFINES) \
               $(ASSEMBLE_PACKED_MEM_DEFINES) \
               $(ASSEMBLE_TESTING_DEFINES) \
-              $(ASSEMBLE_ISOBCS_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \

@@ -829,9 +829,7 @@ class grid
 
 /* Gravity: set the potential boundary for isolated BC's */
 
-#ifdef ISOLATED_GRAVITY
    int SetIsolatedPotentialBoundary();
-#endif /* ISOLATED_GRAVITY */
 
 /* Gravity: Set the external acceleration fields. */
 

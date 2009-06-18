@@ -233,18 +233,12 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 
       j = Receives[i].Processor;
 
-#ifdef ISOLATED_GRAVITY
       if (ToRegion[j].Data == NULL) {
 	int ijk, rsize = ToRegion[j].RegionDim[0]*ToRegion[j].RegionDim[1]*ToRegion[j].RegionDim[2];
 	ToRegion[j].Data = new float[rsize];
 	for (ijk = 0; ijk < rsize; ijk++)
 	  ToRegion[j].Data[ijk] = 0;
       }
-#else /* ISOLATED_GRAVITY */
-      if (ToRegion[j].Data == NULL)
-	ToRegion[j].Data = new float[ToRegion[j].RegionDim[0]*
-	      ToRegion[j].RegionDim[1]*ToRegion[j].RegionDim[2]];
-#endif /* ISOLATED_GRAVITY */
 
       if (TransposeOrder == TRANSPOSE_FORWARD)
 	FORTRAN_NAME(copy3dft)(ReceiveBuffer+index, ToRegion[j].Data,

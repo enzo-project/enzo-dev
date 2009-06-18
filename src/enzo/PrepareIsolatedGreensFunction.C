@@ -26,8 +26,6 @@
 #include "TopGridData.h"
 
 
-#ifdef ISOLATED_GRAVITY
-
 int PrepareIsolatedGreensFunction(region *GreensFunction, int proc, 
 				  int DomainDim[], TopGridData *MetaData)
 {
@@ -137,5 +135,3 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 
   return SUCCESS;
 }
-
-#endif /* ISOLATED_GRAVITY */
