@@ -106,10 +106,12 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   }
  
   /* Close main file. */
+  fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   fclose(fptr);
  
   /* Read Boundary condition info. */
+  fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",

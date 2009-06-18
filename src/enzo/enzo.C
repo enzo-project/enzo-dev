@@ -356,7 +356,8 @@ Eint32 main(Eint32 argc, char *argv[])
  
     if (debug) printf("Reading parameter file %s\n", ParameterFile);
 
-#ifdef USE_HDF5_GROUPS
+
+#if USE_HDF5_GROUPS && !(USE_HDF4)
     if (debug) fprintf(stderr, "Input with Group_ReadAllData\n");
     if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
