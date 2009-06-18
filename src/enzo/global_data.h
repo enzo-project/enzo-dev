@@ -517,10 +517,7 @@ EXTERN int UseDivergenceCleaning;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 
-/* For Shearing Box */
 
-EXTERN float AngularVelocity;
-EXTERN float VelocityGradient;
 
 /* Star Particle paramters */
 

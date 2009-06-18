@@ -50,7 +50,8 @@ int ReadUnits(FILE *fptr);
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
- 
+int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
+
  
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {

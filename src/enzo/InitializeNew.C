@@ -153,11 +153,7 @@ int AGNDiskInitialize(FILE *fptr, FILE *Outfptr,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
-int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, 
-				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
-int MRICollapseInitialize(FILE *fptr, FILE *Outfptr, 
-				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
 
 #ifdef MEM_TRACE
@@ -417,7 +413,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 31) Shearing Box Simulation
  
   if (ProblemType == 31) 
-    ret = ShearingBoxInitializeGrid(fptr, Outfptr, TopGrid, MetaData);
+    ret = ShearingBoxInitialize(fptr, TopGrid, MetaData);
   
  
   // 40) Supernova Explosion from restart
@@ -450,13 +446,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
     if (ProblemType ==300) {
     ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-
-    if (ProblemType ==400) {
-    ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-    if (ProblemType ==401) {
-    ret = MRICollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
 

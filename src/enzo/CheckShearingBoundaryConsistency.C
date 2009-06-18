@@ -1,3 +1,17 @@
+/***********************************************************************
+/
+/  CHECK INPUT SHEARING BOUNDARIES ARE CONSISTENT
+/
+/  written by: Fen Zhao
+/  date:       June, 2009
+/  modified1:
+/
+/  PURPOSE:
+/         Check that input parameters for Shearing Boundaries are sensical 
+/         and sets helper variables properlyk 
+/
+************************************************************************/
+
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"

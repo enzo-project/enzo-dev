@@ -65,11 +65,20 @@ float CommunicationMaxValue(float Value);
 int CommunicationBarrier();
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+#ifdef FAST_SIB
+int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
+			SiblingGridList SiblingList[],
+			int level, TopGridData *MetaData, FLOAT When);
+#endif
+
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         SiblingGridList SiblingList[],
                         int level, TopGridData *MetaData);
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, double When);
+
+
+
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 

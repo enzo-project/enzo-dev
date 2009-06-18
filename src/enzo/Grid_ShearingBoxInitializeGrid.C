@@ -1,3 +1,18 @@
+/***********************************************************************
+/
+/  INITIALIZE A SHEARING BOX TEST ON A GRID
+/
+/  written by: Fen Zhao
+/  date:       June, 2009
+/  modified1:
+/
+/  PURPOSE:
+/    Set up exither an advecting sphere or the standard shearing box simluation
+/
+/  RETURNS: SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -9,11 +24,11 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "EOS.h"
+#include "hydro_rk/EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, EFLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 double Gaussian(double cs);
 
 int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int ShearingBoxProblemType, int InitialMagneticFieldConfiguration)
@@ -42,7 +57,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   /* Return if this doesn't concern us. */
   
   if (ProcessorNumber != MyProcessorNumber) {
-    return ENZO_SUCCESS;
+    return SUCCESS;
   }
   
 
@@ -99,16 +114,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   float h, cs, dpdrho, dpde, H, pressure;  	
   float bunit=sqrt(4.0*3.14159*rhou*velu*velu);
 
-  int finalDirection=2;
-  if (ShearingBoundaryDirection==0){
-    if (ShearingVelocityDirection==1) finalDirection=2;
-    else if (ShearingVelocityDirection==2) finalDirection=1;}
-  else if (ShearingBoundaryDirection==1){
-    if (ShearingVelocityDirection==0) finalDirection=2;
-    else if (ShearingVelocityDirection==2) finalDirection=0;}
-  else if (ShearingBoundaryDirection==2){
-    if (ShearingVelocityDirection==0) finalDirection=1;
-    else if (ShearingVelocityDirection==1) finalDirection=0;} 
+  FLOAT x,y,z;
 
   for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++) {
@@ -120,7 +126,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	
 	x=xPos[0]; y=xPos[1]; z=xPos[2];
 
-	float xVel[3] ={0,0,0}
+	float xVel[3] ={0,0,0};
 
 	if (ShearingBoxProblemType == 0){
 	  if (x*x+y*y+z*z<ShearingGeometry)  BaryonField[iden ][n]=50.0*rho;
@@ -139,8 +145,10 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	float InitialBField=sqrt((8*3.14159*realpressure/(ThermalMagneticRatio)))/bunit;
 
 	eint=0.0;
-	EOS(pressure, BaryonField[iden ][n], eint, h, cs, dpdrho, dpde, EOSType, 1);
-
+	
+	if (HydroMethod == MHD_RK || HydroMethod == HD_RK) 
+	  EOS(pressure, BaryonField[iden ][n], eint, h, cs, dpdrho, dpde, EOSType, 1);
+	else eint=pressure/(rhoActual*(Gamma-1.0));
 
 	xVel[ShearingVelocityDirection]+=(-(xPos[ShearingBoundaryDirection])*AngularVelocity*VelocityGradient);
         
@@ -170,7 +178,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
     }
   }
 
-  return ENZO_SUCCESS;
+  return SUCCESS;
 
  
 }

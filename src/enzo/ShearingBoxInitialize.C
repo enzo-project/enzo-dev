@@ -1,3 +1,20 @@
+/***********************************************************************
+/
+/  INITIALIZE A SHEARING BOX TEST
+/
+/  written by: Fen Zhao
+/  date:       June, 2009
+/  modified1:
+/
+/  PURPOSE:
+/    Set up exither an advecting sphere or the standard shearing box simluation
+/
+/  RETURNS: SUCCESS or FAIL
+/
+************************************************************************/
+
+
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -28,8 +45,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, EFLOAT Time);
 
-int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData)
+int ShearingBoxInitialize(FILE *fptr,  
+			  HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
   const char *DensName = "Density";
   const char *TEName   = "TotalEnergy";
