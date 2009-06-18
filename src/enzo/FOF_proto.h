@@ -22,8 +22,8 @@ void   find_minids(FOFData &AllVars);
 void   find_subgroups(FOFData &D);
 int    get_particles(int dest, int minid, int len, FOF_particle_data *buf, 
 		     FOFData &AllVars);
-void   get_properties(FOF_particle_data *p, int len, float *pcm, float *pmtot, 
-		      float *pmstars);
+void   get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm, 
+		      float *pcmv, float *pmtot, float *pmstars);
 void   iindexx(int n, int arr[], int indx[]);
 void   indexx(int n, float arr[], int indx[]);
 void   init_coarse_grid(FOFData &AllVars);

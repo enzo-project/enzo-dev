@@ -18,431 +18,245 @@
 
 /************************************************************************/
 
-void subfind(FOFData &D)
+void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 {
-#ifdef UNUSED
-  MPI_Status status;
-  FILE   *fd, *fdpart, *fdlen, *fdoffset, *fdparent, *fdtypes, *fdids;
-  FILE   *fdsubcenter, *fdsubmtot, *fdsubmgas, *fdsubmstars, *fdsubsfr, *fdsubmcloud;
-  FILE   *fdcenter, *fdmtot, *fdmgas, *fdmstars, *fdsfr, *fdmcloud;
-  char   buflen[500], bufoffset[500], bufparent[500], bufcount[500], command[2000];
-  char   bufsubcenter[500], bufsubmtot[500], bufsubmgas[500], bufsubmstars[500], bufsubsfr[500], bufsubmcloud[500], commandsubprop[2000];
-  char   bufcenter[500], bufmtot[500], bufmgas[500], bufmstars[500], bufsfr[500], bufmcloud[500], commandprop[2000];
+
   int    i, k, gr, task, head, len, nsubs, offset, start=0, NSubGroupsAll=0;
   int    parent, ntot;
   char   ctype;
-  float  cm[3], mtot, mgas, mstars, sfr, mcloud;
+  float  cm[3], cmv[3], mtot, mstars;
   float  corner[3];
   FOF_particle_data *Pbuf, *partbuf;
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
 
-  sprintf(buflen,    "%s.len",    subhalo_fname);
-  sprintf(bufoffset, "%s.offset", subhalo_fname);
-  sprintf(bufparent, "%s.parent", subhalo_fname);
-  sprintf(bufcount,  "%s.count",  subhalo_fname);
-  sprintf(command, "cat %s %s %s %s > %s",
-	  bufcount, buflen, bufoffset, bufparent, subhalo_fname);
+  char   *FOF_dirname = "FOF";
+  char   catalogue_fname[200];
+  char   particle_fname[200];
+  char   halo_name[200];
 
+  int    *TempInt;
+  double *temp;
 
-  sprintf(bufsubcenter,"%s.subcenter", subhalo_fname);
-  sprintf(bufsubmtot,  "%s.submtot",   subhalo_fname);
-  sprintf(bufsubmgas,  "%s.submgas",   subhalo_fname);
-  sprintf(bufsubmstars,"%s.submstars", subhalo_fname);
-  sprintf(bufsubsfr,   "%s.subsfr",    subhalo_fname);
-  sprintf(bufsubmcloud,"%s.submcloud", subhalo_fname);
-  sprintf(commandsubprop, "cat %s %s %s %s %s %s %s > %s",
-	  bufcount, bufsubcenter, bufsubmtot, bufsubmgas, bufsubmstars, bufsubsfr, bufsubmcloud, subprop_fname);
+#ifdef USE_MPI
+  MPI_Status status;
+  MPI_Datatype IntType = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
+#endif
 
+  sprintf(catalogue_fname, "%s/subgroups_%5.5d.dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/subparticles_%5.5d.dat", FOF_dirname, CycleNumber);
 
-  sprintf(bufcenter,"%s.center", catalogue_fname);
-  sprintf(bufmtot,  "%s.mtot",   catalogue_fname);
-  sprintf(bufmgas,  "%s.mgas",   catalogue_fname);
-  sprintf(bufmstars,"%s.mstars", catalogue_fname);
-  sprintf(bufsfr,   "%s.sfr",    catalogue_fname);
-  sprintf(bufmcloud,"%s.mcloud",    catalogue_fname);
-  sprintf(commandprop, "cat %s %s %s %s %s %s > %s",
-	  bufcenter, bufmtot, bufmgas, bufmstars, bufsfr, bufmcloud, prop_fname);
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    
-  if(ThisTask==0)
-    {
-      printf("writing group catalogue...\n");
-      
-      if(!(fd=fopen(catalogue_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", catalogue_fname);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+    if ((fd = fopen(catalogue_fname, "w")) == NULL)
+      ENZO_FAIL("Unable to open FOF group file.");
 
-      fwrite(&NgroupsAll, sizeof(int), 1, fd);
-      
-      for(gr=NgroupsAll-1; gr>=0; gr--)
-	fwrite(&GroupDatAll[gr].Len, sizeof(int), 1, fd);
-      
-      for(gr=NgroupsAll-1, offset=0; gr>=0; gr--)
-	{
-	  fwrite(&offset, sizeof(int), 1, fd);
-	  offset+= GroupDatAll[gr].Len;
-	}
+    // Write header
 
-      if(!(fdcenter=fopen(bufcenter, "w")))
-	{
-	  printf("can't open file `%s`\n", bufcenter);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+    redshift = 1.0 / AllVars.Time - 1.0;
+    fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
+    fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
+    //fprintf(fd, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
+    fprintf(fd, "#\n");
+    fprintf(fd, "# Column 1.  Subhalo number\n");
+    fprintf(fd, "# Column 2.  Parent halo number\n");
+    fprintf(fd, "# Column 3.  First particle in halo particle list\n");
+    fprintf(fd, "#            --> All subgroup particles are consecutively listed in\n");
+    fprintf(fd, "#                particle list (if written)\n");
+    fprintf(fd, "# Column 4.  Number of particles\n");
+    fprintf(fd, "# Column 5.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 6.  Stellar mass [solar masses]\n");
+    fprintf(fd, "# Column 7.  Center of mass (x)\n");
+    fprintf(fd, "# Column 8.  Center of mass (y)\n");
+    fprintf(fd, "# Column 9.  Center of mass (z)\n");
+    fprintf(fd, "# Column 10. Mean x-velocity [km/s]\n");
+    fprintf(fd, "# Column 11. Mean y-velocity [km/s]\n");
+    fprintf(fd, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fd, "#\n");
 
-      if(!(fdmtot=fopen(bufmtot, "w")))
-	{
-	  printf("can't open file `%s`\n", bufmtot);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+    if (HaloFinderOutputParticleList) {
 
-      if(!(fdmgas=fopen(bufmgas, "w")))
-	{
-	  printf("can't open file `%s`\n", bufmgas);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT);
+      group_id = H5Gcreate(file_id, "/Parameters", 0);
+      writeScalarAttribute(group_id, HDF5_REAL, "Redshift", &redshift);
+      writeScalarAttribute(group_id, HDF5_PREC, "Time", &EnzoTime);
+      H5Gclose(group_id);
 
-      if(!(fdmstars=fopen(bufmstars, "w")))
-	{
-	  printf("can't open file `%s`\n", bufmstars);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+    } // ENDIF output particle list
 
-      if(!(fdsfr=fopen(bufsfr, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsfr);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdmcloud=fopen(bufmcloud, "w")))
-	{
-	  printf("can't open file `%s`\n", bufmcloud);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      fwrite(&NgroupsAll, sizeof(int), 1, fdcenter);
-    }
-
-
-  if(ThisTask==0)
-    {
-      printf("finding subhaloes...\n");
-  
-      if(!(fdpart=fopen(particles_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", particles_fname);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdtypes=fopen(parttypes_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", parttypes_fname);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdids=fopen(partids_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", partids_fname);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      for(gr= NgroupsAll-1, ntot=0; gr>=0; gr--)
-	ntot+= GroupDatAll[gr].Len;
-
-      fwrite(&ntot, sizeof(int), 1, fdpart);
-      fwrite(&ntot, sizeof(int), 1, fdtypes);
-      fwrite(&ntot, sizeof(int), 1, fdids);
-
-
-      if(!(fdlen=fopen(buflen, "w")))
-	{
-	  printf("can't open file `%s`\n", buflen);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdoffset=fopen(bufoffset, "w")))
-	{
-	  printf("can't open file `%s`\n", bufoffset);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdparent=fopen(bufparent, "w")))
-	{
-	  printf("can't open file `%s`\n", bufparent);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubcenter=fopen(bufsubcenter, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubcenter);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubmtot=fopen(bufsubmtot, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubmtot);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubmgas=fopen(bufsubmgas, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubmgas);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubmstars=fopen(bufsubmstars, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubmstars);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubsfr=fopen(bufsubsfr, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubsfr);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if(!(fdsubmcloud=fopen(bufsubmcloud, "w")))
-	{
-	  printf("can't open file `%s`\n", bufsubmcloud);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-    }
+  } // ENDIF ROOT_PROCESSOR
 
 
 
-  for(gr=NgroupsAll-1; gr>=0; )
-   {
-      for(task=0; task<NTask && (gr-task)>=0; task++)
-	{
-	  if(ThisTask==task)
-	    {
-	      head= GroupDatAll[gr-task].Tag;
-	      len=  GroupDatAll[gr-task].Len;
-	      sublen=    mymalloc(len/DesLinkNgb*sizeof(int));
-	      suboffset= mymalloc(len/DesLinkNgb*sizeof(int));
-	      Pbuf=      mymalloc(sizeof(FOF_particle_data)*len);
-	    }
-	  get_particles(task, head, len, Pbuf);
-	}
+  for (gr = D.NgroupsAll-1; gr >= 0; ) {
 
-      if((gr-ThisTask)>=0) /* ok, this process got a group */
-	{
-	  len=   GroupDatAll[gr-ThisTask].Len;
+    for (task = 0; task < NumberOfProcessors && (gr-task) >= 0; task++) {
 
-	  for(k=0; k<3; k++)
-	    corner[k]= Pbuf[0].Pos[k];
+      if (MyProcessorNumber == task) {
+	head = D.GroupDatAll[gr-task].Tag;
+	len  = D.GroupDatAll[gr-task].Len;
+
+	sublen	  = new int[len/D.DesLinkNgb];
+	suboffset = new int[len/D.DesLinkNgb];
+	Pbuf	  = new FOF_particle_data[len];
+      } // ENDIF this task
+
+      get_particles(task, head, len, Pbuf);
+
+    } // ENDFOR task
+
+    /* ok, this process got a group */
+
+    if (gr - MyProcessorNumber >= 0) {
+
+      len = D.GroupDatAll[gr-MyProcessorNumber].Len;
+
+      for (k = 0; k < 3; k++)
+	corner[k] = Pbuf[0].Pos[k];
 	  
-	  for(i=0; i<len; i++)
-	    for(k=0; k<3; k++)
-	      Pbuf[i].Pos[k]= periodic(Pbuf[i].Pos[k]-corner[k]);
+      for (i = 0; i < len; i++)
+	for (k = 0; k < 3; k++)
+	  Pbuf[i].Pos[k] = FOF_periodic(Pbuf[i].Pos[k]-corner[k], D);
 
-	  nsubs= do_subfind_in_group(Pbuf, len, sublen, suboffset);
+      nsubs = do_subfind_in_group(D, Pbuf, len, sublen, suboffset);
 
-	  for(i=0; i<len; i++)
-	    for(k=0; k<3; k++)
-	      Pbuf[i].Pos[k]= periodic_wrap(Pbuf[i].Pos[k]+corner[k]);
-	}
+      for (i = 0; i < len; i++)
+	for (k = 0; k < 3; k++)
+	  Pbuf[i].Pos[k] = FOF_periodic_wrap(Pbuf[i].Pos[k]+corner[k], D);
 
-      for(task=0; task<NTask && (gr-task)>=0; task++)
-	{
-	  if(ThisTask==0)
-	    {
-	      if(task==0)
-		{
-		  for(i=0; i<nsubs; i++)
-		    {
-		      get_properties(Pbuf+suboffset[i], sublen[i], cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
-		      fwrite(cm,      sizeof(float), 3, fdsubcenter);
-		      fwrite(&mtot,   sizeof(float), 1, fdsubmtot);
-		      fwrite(&mgas,   sizeof(float), 1, fdsubmgas);
-		      fwrite(&mstars, sizeof(float), 1, fdsubmstars);
-		      fwrite(&sfr,    sizeof(float), 1, fdsubsfr);
-		      fwrite(&mcloud,    sizeof(float), 1, fdsubmcloud);
-		    }
+    } // ENDIF got a group
 
-		  get_properties(Pbuf, GroupDatAll[gr-task].Len, cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
-		  fwrite(cm,      sizeof(float), 3, fdcenter);
-		  fwrite(&mtot,   sizeof(float), 1, fdmtot);
-		  fwrite(&mgas,   sizeof(float), 1, fdmgas);
-		  fwrite(&mstars, sizeof(float), 1, fdmstars);
-		  fwrite(&sfr,    sizeof(float), 1, fdsfr);
-		  fwrite(&mcloud,    sizeof(float), 1, fdmcloud);
+    for (task = 0; task < NumberOfProcessors && gr - task >= 0; task++) {
 
-		  for(i=0; i<nsubs; i++)
-		    suboffset[i]+= start;
-		  start+= GroupDatAll[gr-task].Len;
+      parent = D.NgroupsAll-(gr-task);
 
-		  fwrite(sublen, sizeof(int), nsubs, fdlen);
-		  fwrite(suboffset, sizeof(int), nsubs, fdoffset);
-		  for(i=0, parent=NgroupsAll-(gr-task); i<nsubs; i++)
-		    fwrite(&parent, sizeof(int), 1, fdparent);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&Pbuf[i].Pos[0], sizeof(double), 3, fdpart);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&Pbuf[i].PartID, sizeof(int), 1, fdids);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    {
-		      ctype= Pbuf[i].Type;
-		      fwrite(&ctype, sizeof(char), 1, fdtypes);
-		    }
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	if (task == 0) {
+	  for (i = 0; i < nsubs; i++) {
+	    get_properties(D, Pbuf+suboffset[i], sublen[i], cm, cmv, &mtot, &mstars);
 
-		  fwrite(&nsubs, sizeof(int), 1, fd);
+	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    D.NSubGroupsAll+i, PARENT, len, 
+		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
 
-		  NSubGroupsAll+= nsubs;
-		}
-	      else
-		{
-		  MPI_Recv(&nsubs, 1, MPI_INT, task, task, MPI_COMM_WORLD, &status);
-		  if(nsubs)
-		    {
-		      bufsublen=    mymalloc(nsubs*sizeof(int));
-		      bufsuboffset= mymalloc(nsubs*sizeof(int));
-		      MPI_Recv(bufsublen,    nsubs, MPI_INT, task, task, MPI_COMM_WORLD, &status);
-		      MPI_Recv(bufsuboffset, nsubs, MPI_INT, task, task, MPI_COMM_WORLD, &status);
-		      for(i=0; i<nsubs; i++)
-			bufsuboffset[i]+= start;
-		      fwrite(bufsublen,    sizeof(int), nsubs, fdlen);
-		      fwrite(bufsuboffset, sizeof(int), nsubs, fdoffset);
-		    }
+	  } // ENDFOR subgroups
 
-		  for(i=0, parent=NgroupsAll-(gr-task); i<nsubs; i++)
-		    fwrite(&parent, sizeof(int), 1, fdparent);
+	  D.NSubGroupsAll += nsubs;
+	} // ENDIF task == 0
+
+	// task != 0
+	else {
+#ifdef USE_MPI
+	  MPI_Recv(&nsubs, 1, MPI_INT, task, task, MPI_COMM_WORLD, &status);
+	  if (nsubs > 0) {
+
+	    bufsublen	 = new int[nsubs];
+	    bufsuboffset = new int[nsubs];
+
+	    MPI_Recv(bufsublen,    nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
+	    MPI_Recv(bufsuboffset, nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
+
+	    for (i = 0; i < nsubs; i++)
+	      bufsuboffset[i] += start;
+
+	  } // ENDIF subgroups
+
+	  parent = D.NgroupsAll-(gr-task);
 		  
-		  partbuf= mymalloc(sizeof(FOF_particle_data)*GroupDatAll[gr-task].Len);
-		  MPI_Recv(partbuf, GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
-			   MPI_BYTE, task, task, MPI_COMM_WORLD, &status);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&partbuf[i].Pos[0], sizeof(double), 3, fdpart);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&partbuf[i].PartID, sizeof(int), 1, fdids);
-		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    {
-		      ctype= partbuf[i].Type;
-		      fwrite(&ctype, sizeof(char), 1, fdtypes);
-		    }
+	  partbuf = new FOF_particle_data[D.GroupDataAll[gr-task].Len];
 
-		  fwrite(&nsubs, sizeof(int), 1, fd);
-		  
-		  for(i=0; i<nsubs; i++)
-		    {
-		      get_properties(partbuf+bufsuboffset[i]-start, bufsublen[i], cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
-		      fwrite(cm,      sizeof(float), 3, fdsubcenter);
-		      fwrite(&mtot,   sizeof(float), 1, fdsubmtot);
-		      fwrite(&mgas,   sizeof(float), 1, fdsubmgas);
-		      fwrite(&mstars, sizeof(float), 1, fdsubmstars);
-		      fwrite(&sfr,    sizeof(float), 1, fdsubsfr);
-		      fwrite(&mcloud,    sizeof(float), 1, fdsubmcloud);
-		    }
+	  MPI_Recv(partbuf, D.GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
+		   MPI_BYTE, task, task, MPI_COMM_WORLD, &status);
 
-		  get_properties(partbuf, GroupDatAll[gr-task].Len, cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
-		  fwrite(cm,      sizeof(float), 3, fdcenter);
-		  fwrite(&mtot,   sizeof(float), 1, fdmtot);
-		  fwrite(&mgas,   sizeof(float), 1, fdmgas);
-		  fwrite(&mstars, sizeof(float), 1, fdmstars);
-		  fwrite(&sfr,    sizeof(float), 1, fdsfr);
-		  fwrite(&mcloud,    sizeof(float), 1, fdmcloud);
+	  for (i = 0; i < nsubs; i++) {
+	    get_properties(partbuf+bufsuboffset[i]-start, bufsublen[i], cm, 
+			   cmv, &mtot, &mstars);
+	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    D.NSubGroupsAll+i, PARENT, len, 
+		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+	  } // ENDFOR subgroups
 
-		  start+= GroupDatAll[gr-task].Len;
 
-		  if(nsubs)
-		    {
-		      free(bufsuboffset);
-		      free(bufsublen);
-		    }
-		  free(partbuf);
+	  for(i=0; i<GroupDatAll[gr-task].Len; i++)
+	    fwrite(&partbuf[i].Pos[0], sizeof(double), 3, fdpart);
+	  for(i=0; i<GroupDatAll[gr-task].Len; i++)
+	    fwrite(&partbuf[i].PartID, sizeof(int), 1, fdids);
+	  for(i=0; i<GroupDatAll[gr-task].Len; i++) {
+	    ctype= partbuf[i].Type;
+	    fwrite(&ctype, sizeof(char), 1, fdtypes);
+	  }
 
-		  NSubGroupsAll+= nsubs; 
-		}
-	    }
-	  else
-	    {
-	      if(task==ThisTask) 
-		{
-		  MPI_Ssend(&nsubs, 1, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
-		  if(nsubs)
-		    {
-		      MPI_Ssend(sublen,    nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
-		      MPI_Ssend(suboffset, nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
-		    }
-		  MPI_Ssend(Pbuf, GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
-			    MPI_BYTE, 0, ThisTask, MPI_COMM_WORLD);
-		}
-	    }
-	}
+	  fwrite(&nsubs, sizeof(int), 1, fd);
 
-      for(task=0; task<NTask && (gr-task)>=0; task++)
-	{
-	  if(ThisTask==task)
-	    {
-	      free(Pbuf);
-	      free(suboffset);
-	      free(sublen);
-	    }
-	}
+	  start += D.GroupDatAll[gr-task].Len;
+	  
+	  if (nsubs > 0) {
+	    delete [] bufsuboffset;
+	    delete [] bufsublen;
+	  }
 
-      gr-=task;
-    }
+	  delete [] partbuf;
 
-  if(ThisTask==0)
-    {
-      fclose(fdpart);
-      fclose(fdids);
-      fclose(fdlen);
-      fclose(fdoffset);
-      fclose(fdparent);
-      fclose(fdtypes);
-      fclose(fdsubcenter);
-      fclose(fdsubmtot);
-      fclose(fdsubmgas);
-      fclose(fdsubmstars);
-      fclose(fdsubsfr);
-      fclose(fdsubmcloud);
-      fclose(fdcenter);
-      fclose(fdmtot);
-      fclose(fdmgas);
-      fclose(fdmstars);
-      fclose(fdsfr);
-      fclose(fdmcloud);
-      fclose(fd);
+	  D.NSubGroupsAll += nsubs; 
 
-      if(!(fd=fopen(bufcount,"w")))
-	{
-	  printf("can't open file `%s`\n", bufcount);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-      fwrite(&NSubGroupsAll, sizeof(int), 1, fd);
-      printf("NSubGroupsAll= %"ISYM"\n", NSubGroupsAll);
-      fclose(fd);
+#endif /* USE_MPI */
+
+	} // ENDELSE (task == 0)
+      } // ENDIF ROOT_PROCESSOR
+
+      // other processors
+      else {
+
+#ifdef USE_MPI
+	if (MyProcessorNumber == task) {
+	  MPI_Ssend(&nsubs, 1, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
+	  if(nsubs) {
+	    MPI_Ssend(sublen,    nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
+	    MPI_Ssend(suboffset, nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
+	  }
+	  MPI_Ssend(Pbuf, GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
+		    MPI_BYTE, 0, ThisTask, MPI_COMM_WORLD);
+	} // ENDIF proc == task
+
+#endif /* USE_MPI */
+
+      } // ENDIF other processors
+    } // ENDFOR tasks
+
+    for (task = 0; task < NumberOfProcessors && (gr-task) >= 0; task++)
+      if (MyProcessorNumber == task) {
+	free(Pbuf);
+	free(suboffset);
+	free(sublen);
+      }
+
+    gr -= task;
+
+  } // ENDFOR groups
+
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    fclose(fdpart);
+    fclose(fdids);
+    fclose(fdlen);
+    fclose(fdoffset);
+    fclose(fdparent);
+    fclose(fdtypes);
+    fclose(fdsubcenter);
+    fclose(fdsubmtot);
+    fclose(fdsubmgas);
+    fclose(fdsubmstars);
+    fclose(fdsubsfr);
+    fclose(fdsubmcloud);
+    fclose(fdcenter);
+    fclose(fdmtot);
+    fclose(fdmgas);
+    fclose(fdmstars);
+    fclose(fdsfr);
+    fclose(fdmcloud);
+    fclose(fd);
+
+    printf("NSubGroupsAll= %"ISYM"\n", NSubGroupsAll);
       
-      system(command);
-      system(commandsubprop);
-      system(commandprop);
-
-      printf("%s \n", commandsubprop);
-    
-      unlink(bufcount);
-      unlink(buflen);
-      unlink(bufoffset);
-      unlink(bufparent);
-      unlink(bufsubcenter);
-      unlink(bufsubmtot);
-      unlink(bufsubmgas);
-      unlink(bufsubmstars);
-      unlink(bufsubsfr);
-      unlink(bufsubmcloud);
-      unlink(bufcenter);
-      unlink(bufmtot);
-      unlink(bufmgas);
-      unlink(bufmstars);
-      unlink(bufsfr);
-      unlink(bufmcloud);
-
-      printf("done.\n");
-    }
-
-#endif /* UNUSED */
+  } // ENDIF ROOT_PROCESSOR
 
 }
 

@@ -18,6 +18,8 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <hdf5.h>
+#include "h5utilities.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -111,7 +113,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
 
   compile_group_catalogue(AllVars);
 
-  save_groups(AllVars);
+  save_groups(AllVars, MetaData->CycleNumber, MetaData->Time);
   if (HaloFinderSubfind)
     subfind(AllVars);
 
@@ -169,114 +171,141 @@ void set_units(FOFData &AllVars) {
 
 /************************************************************************/
 
-void save_groups(FOFData &AllVars)
+void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 {
-#ifdef UNUSED
-  FILE   *fd, *fdtypes, *fdids;
-  int    i, gr, offset;
+
+  FILE   *fd;
+  hid_t  file_id, dset_id, dspace_id, group_id;
+  herr_t status;
+
+  int    i, gr, offset, dim, index;
   int    ntot;
   int    head, len;
   char   ctype;
-  float cm[3], mtot, mgas, mstars, sfr, mcloud;	  
+  float cm[3], cmv[3], mtot, mstars;
+  double *temp;
+  int   *TempInt;
+  float redshift;
+
   FOF_particle_data *Pbuf;
+  char   *FOF_dirname = "FOF";
+  char   catalogue_fname[200];
+  char   particle_fname[200];
+  char   halo_name[200];
 
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    {
-      printf("writing group catalogue...\n");
-      
-      if (!(fd=fopen(catalogue_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", catalogue_fname);
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+  sprintf(catalogue_fname, "%s/groups_%5.5d.dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/particles_%5.5d.dat", FOF_dirname, CycleNumber);
 
-      fwrite(&NgroupsAll, sizeof(int), 1, fd);
-      
-      for (gr=NgroupsAll-1; gr>=0; gr--)
-	fwrite(&GroupDatAll[gr].Len, sizeof(int), 1, fd);
-      
-      for (gr=NgroupsAll-1, offset=0; gr>=0; gr--)
-	{
-	  fwrite(&offset, sizeof(int), 1, fd);
-	  offset+= GroupDatAll[gr].Len;
-	}
-      fclose(fd);
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+    if ((fd = fopen(catalogue_fname, "w")) == NULL)
+      ENZO_FAIL("Unable to open FOF group file.");
+
+    // Write header
+
+    redshift = 1.0 / AllVars.Time - 1.0;
+    fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
+    fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
+    fprintf(fd, "# Number of halos = %"ISYM"\n", AllVars.NgroupsAll);
+    fprintf(fd, "#\n");
+    fprintf(fd, "# Column 1.  Halo number\n");
+    fprintf(fd, "# Column 2.  Number of particles\n");
+    fprintf(fd, "# Column 3.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 4.  Stellar mass [solar masses]\n");
+    fprintf(fd, "# Column 5.  Center of mass (x)\n");
+    fprintf(fd, "# Column 6.  Center of mass (y)\n");
+    fprintf(fd, "# Column 7.  Center of mass (z)\n");
+    fprintf(fd, "# Column 8.  Mean x-velocity [km/s]\n");
+    fprintf(fd, "# Column 9.  Mean y-velocity [km/s]\n");
+    fprintf(fd, "# Column 10. Mean z-velocity [km/s]\n");
+    fprintf(fd, "#\n");
+
+    if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
+
+      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT);
+      group_id = H5Gcreate(file_id, "/Parameters", 0);
+      writeScalarAttribute(group_id, HDF5_REAL, "Redshift", &redshift);
+      writeScalarAttribute(group_id, HDF5_PREC, "Time", &EnzoTime);
+      writeScalarAttribute(group_id, HDF5_INT, "Number of groups", &AllVars.NgroupsAll);
+      H5Gclose(group_id);
+
+    } // ENDIF output particle list
+
+  } // ENDIF ROOT_PROCESSOR
+
+  for (gr = NgroupsAll-1; gr >= 0; gr--) {
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      head = AllVars.GroupDatAll[gr].Tag;
+      len = AllVars.GroupDatAll[gr].Len;
+      Pbuf = new FOF_particle_data[len];
     }
 
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    {
-      printf("writing group particles...\n");
+    get_particles(0, head, len, Pbuf, AllVars);
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+      get_properties(AllVars, Pbuf, len, &cm[0], &cmv[0], &mtot, &mstars);
+
+      fprintf(fd, "%12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+	      AllVars.NgroupsAll-1-gr, len, 
+	      mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+
+      if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
+
+	temp = new double[3*len];
+	TempInt = new int[len];
+	index = 0;
+	for (dim = 0; dim < 3; dim++)
+	  for (i = 0; i < len; i++, index++)
+	    temp[index] = Pbuf[i].Pos[dim];
+	for (i = 0; i < len; i++)
+	  TempInt[i] = Pbuf[i].PartID;
+
+	sprintf(halo_name, "Halo%8.8d", AllVars.NgroupsAll-1-gr);
+	group_id = H5Gcreate(file_id, halo_name, 0);
+	writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
+	writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+
+	dspace_id = H5Screate_simple(3, len, NULL);
+	dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE, dspace_id,
+			    H5P_DEFAULT);
+	H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	H5Sclose(dspace_id);
+	H5Dclose(dset_id);
+	
+	dspace_id = H5Screate_simple(1, len, NULL);
+	dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
+			    H5P_DEFAULT);
+	H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) TempInt);
+	H5Sclose(dspace_id);
+	H5Dclose(dset_id);
+
+	H5Gclose(group_id);
+
+	delete [] temp;
+	delete [] TempInt;
+	
+      } // ENDIF output particle list
+
+      delete [] Pbuf;
+      
+    } // ENDIF ROOT_PROCESSOR
+
+  } // ENDFOR groups
+
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    fclose(fd);
+    
+    if (HaloFinderOutputParticleList && !HaloFinderSubfind)
+      H5Fclose(file_id);
+
+  }
   
-      if (!(fd=fopen(particles_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", particles_fname );
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
+  return;
 
-      if (!(fdtypes=fopen(parttypes_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", parttypes_fname );
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      if (!(fdids=fopen(partids_fname,"w")))
-	{
-	  printf("can't open file `%s`\n", partids_fname );
-	  MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
-	}
-
-      for (gr=NgroupsAll-1, ntot=0; gr>=0; gr--)
-	ntot+= GroupDatAll[gr].Len;
-
-      fwrite(&ntot, sizeof(int), 1, fd);
-      fwrite(&ntot, sizeof(int), 1, fdtypes);
-      fwrite(&ntot, sizeof(int), 1, fdids);
-    }
-
-
-  for (gr=NgroupsAll-1; gr>=0; gr--)
-    {
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	{
-	  head= GroupDatAll[gr].Tag;
-	  len=  GroupDatAll[gr].Len;
-	  Pbuf= mymalloc(sizeof(FOF_particle_data)*len);
-	}
-
-      get_particles(0, head, len, Pbuf, AllVars);
-
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	{
-	  /* sort the particles 
-	     qsort(Pbuf, len, sizeof(struct FOF_particle_data), comp_func_partcoord);
-	  */
-
-	  for (i=0; i<len; i++)
-	    fwrite(&Pbuf[i].Pos[0], sizeof(double), 3, fd);
-
-	  for (i=0; i<len; i++)
-	    fwrite(&Pbuf[i].PartID, sizeof(int), 1, fdids);
-
-	  for (i=0; i<len; i++)
-	    {
-	      ctype= Pbuf[i].Type;
-	      fwrite(&ctype, sizeof(char), 1, fdtypes);
-	    }
-
-	  get_properties(Pbuf, len, &cm[0], &mtot, &mgas, &mstars, &sfr, &mcloud, D);
-
-	  free(Pbuf);
-	}
-    }
-
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    {
-      fclose(fd);
-      fclose(fdids);
-      fclose(fdtypes);
-      printf("done.\n");
-    }
-#endif /* UNUSED */
 }
 
 /************************************************************************/

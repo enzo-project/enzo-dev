@@ -59,8 +59,8 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time);
   
-  // Mpc/h -> kpc/h
-  D.BoxSize = 1e3 * ComovingBoxSize;
+  // Mpc/h -> kpc
+  D.BoxSize = 1e3 * ComovingBoxSize / HubbleConstantNow;
   
   // Time = a = 1/(1+z)
   FLOAT CurrentRedshift, a = 1, dadt;
