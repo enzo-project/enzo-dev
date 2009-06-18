@@ -45,9 +45,21 @@ void FOF_Finalize(TopGridData *MetaData,
 		  FOFData &D);
 /************************************************************************/
 
-int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
-	int SubFind)
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
 {
+
+  if (!InlineHaloFinder)
+    return SUCCESS;
+
+  if (NumberOfProcessors & 1) {
+    fprintf(stdout, "FOF: Number of processors must be EVEN to run "
+	    "inline halo finder.\n");
+    return SUCCESS;
+  }
+
+  if (!ComovingCoordinates)
+    fprintf(stdout, "FOF: Warning -- you're running the halo finder on a"
+	    "non-cosmology run!\n");
 
   FOFData AllVars;
 
@@ -57,10 +69,10 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   FOF_Initialize(MetaData, LevelArray, AllVars);
 
   // in terms of mean interparticle seperation
-  AllVars.LinkLength = 0.1;
+  AllVars.LinkLength = HaloFinderLinkingLength;
 
   // store only groups in the catalogue with at least this number of particles
-  AllVars.GroupMinLen = 50;
+  AllVars.GroupMinLen = HaloFinderMinimumSize;
 
   /* dimension of coarse grid. Note: the actual size of a mesh cell
      will usually be set to its optimal size, i.e. equal to the
@@ -100,7 +112,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   compile_group_catalogue(AllVars);
 
   save_groups(AllVars);
-  if (SubFind == TRUE)
+  if (HaloFinderSubfind)
     subfind(AllVars);
 
   /* Finalize :: move particles back into enzo's memory and then move

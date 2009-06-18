@@ -308,6 +308,14 @@ EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 
+/* Parameters to control inline halo finding */
+
+EXTERN int InlineHaloFinder;
+EXTERN int HaloFinderSubfind;
+EXTERN int HaloFinderOutputParticleList;
+EXTERN int HaloFinderMinimumSize;
+EXTERN float HaloFinderLinkingLength;
+
 /************************************************/
 /* Global data for specific problems or methods */
 /************************************************/
