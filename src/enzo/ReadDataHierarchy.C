@@ -45,7 +45,7 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 {
  
   int TestGridID, NextGridThisLevelID, NextGridNextLevelID;
-  int Task;
+  int Task = 0;
  
   /* Read header info for this grid */
  

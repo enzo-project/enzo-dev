@@ -331,21 +331,39 @@ Eint32 main(Eint32 argc, char *argv[])
  
     if (debug) printf("Reading parameter file %s\n", ParameterFile);
 
-#ifdef USE_HDF5_GROUPS
-    if (debug) fprintf(stderr, "Input with Group_ReadAllData\n");
+
+  // First expect to read in packed-HDF5
+
+    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
+	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
+      }
+      // If not packed-HDF5, then try usual HDF5 or HDF4
+      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+	if (MyProcessorNumber == ROOT_PROCESSOR)
+	  fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
+	my_exit(EXIT_FAILURE);
+      }
+    }
+
+
+    /*
+#if defined(USE_HDF5_GROUPS) && !defined(USE_HDF4)
     if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "Error in ParameterFile %s.\n", ParameterFile);
+	fprintf(stderr, "Error in Group_ReadAllData %s.\n", ParameterFile);
       my_exit(EXIT_FAILURE);
     }
 #else 
-    if (debug) fprintf(stderr, "Input with ReadAllData\n");
     if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "Error in ParameterFile %s.\n", ParameterFile);
+	fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
       my_exit(EXIT_FAILURE);
     }
 #endif
+    */
+
  
     if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
