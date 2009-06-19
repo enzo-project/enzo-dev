@@ -460,6 +460,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
 
+  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
+          PopIIIColorDensityThreshold);
+
   /* write data which defines the boundary conditions */
  
   fprintf(fptr, "LeftFaceBoundaryCondition  = ");

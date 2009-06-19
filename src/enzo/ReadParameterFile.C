@@ -521,6 +521,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIISupernovaUseColour = %"ISYM, 
 		  &PopIIISupernovaUseColour);
 
+    ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
+		  &PopIIIColorDensityThreshold);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %d", &MovieSkipTimestep);

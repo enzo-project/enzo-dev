@@ -45,22 +45,19 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->FindAllStarParticles(level) == FAIL) {
-	  fprintf(stderr, "Error in grid::FindAllStarParticles.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in grid::FindAllStarParticles.");
 	}
 
   /* Create a master list of all star particles */
 
   if (StarParticleFindAll(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleFindAll.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleFindAll.");
   }
 
   /* Merge any newly created, clustered particles */
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeNew.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleMergeNew.");
   }
 
   /* 

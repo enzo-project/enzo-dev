@@ -107,8 +107,8 @@ const field_type
   AccelerationField2         = 59, 
   AccelerationField3         = 60,
 
-  ForbiddenRefinement = 61;
-  FieldUndefined  = 62,
+  ForbiddenRefinement = 61,
+  FieldUndefined  = 62;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

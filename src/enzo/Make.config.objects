@@ -411,6 +411,7 @@ OBJS_CONFIG_LIB = \
 	performance.o \
         pgas2d_dual.o \
         pgas2d.o \
+	pop3_color_maker.o \
 	pop3_maker.o \
 	pop3_properties.o \
 	power_of_2.o \

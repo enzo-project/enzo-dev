@@ -191,6 +191,16 @@ extern "C" void FORTRAN_NAME(pop3_maker)
    float *mp, float *tdp, float *tcp, float *metalf, 
    int *type, int *ctype, float *justburn, int *iradtrans);
 
+extern "C" void FORTRAN_NAME(pop3_color_maker)
+  (int *nx, int *ny, int *nz, 
+   float *d, float *dm, float *u, float *v, float *w, 
+   float *dt, float *r, float *dx, FLOAT *t, float *z, int *procnum, 
+   float *d1, float *x1, float *v1, float *t1, 
+   int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
+   hydro_method *imethod, float *odthresh, int *level, int *np, 
+   FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp, 
+   float *mp, float *tcp, int *type, int *ctype);
+
 extern "C" void FORTRAN_NAME(cluster_maker)
   (int *nx, int *ny, int *nz, 
    float *formleft, float *formright,
@@ -564,6 +574,24 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 tg->ParticleAttribute[2], tg->ParticleType, &SingleStarType, 
 	 &RadiationData.IntegratedStarFormation, &RadiativeTransfer);
 
+    }
+
+    if (STARMAKE_METHOD(COLORED_POP3_STAR)) {
+      FORTRAN_NAME(pop3_color_maker)
+        (GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
+         dmfield, BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
+         &dtFixed, BaryonField[NumberOfBaryonFields], 
+         &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+         &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+         &MaximumNumberOfNewParticles, 
+           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+         &HydroMethod, &PopIIIColorDensityThreshold, 
+           &level, &NumberOfNewParticles, 
+         tg->ParticlePosition[0], tg->ParticlePosition[1],
+         tg->ParticlePosition[2], tg->ParticleVelocity[0], 
+         tg->ParticleVelocity[1], tg->ParticleVelocity[2], tg->ParticleMass, 
+           tg->ParticleAttribute[2], tg->ParticleType, &SingleStarType);
+         
     }
 
     if (STARMAKE_METHOD(STAR_CLUSTER)) {
