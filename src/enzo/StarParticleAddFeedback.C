@@ -96,8 +96,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	       EjectaDensity, SphereContained, SkipMassRemoval,	DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
 	       VelocityUnits) == FAIL) {
-      fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in star::FindFeedbackSphere");
     }
 
     if (SphereContained == FALSE)
@@ -117,8 +116,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 				TemperatureUnits, EjectaDensity, 
 				EjectaMetalDensity, EjectaThermalEnergy, 
 				CellsModified) == FAIL) {
-	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
-	    ENZO_FAIL("");
+	    	    ENZO_FAIL("Error in AddFeedbackSphere.");
 	  }
 
     /* Only kill a Pop III star after it has gone SN */

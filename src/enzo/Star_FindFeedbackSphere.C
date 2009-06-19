@@ -113,8 +113,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity) == FAIL) {
-	  fprintf(stderr, "Error in GetEnclosedMass.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in GetEnclosedMass.");
 	}
 
 	Temp = Temp->NextGridThisLevel;

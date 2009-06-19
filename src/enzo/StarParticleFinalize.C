@@ -63,8 +63,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (CommunicationUpdateStarParticleCount(Grids, MetaData,
 					   NumberOfGrids) == FAIL) {
-    fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
   }
 
   /* Update position and velocity of star particles from the actual
@@ -78,15 +77,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleAddFeedback.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleAddFeedback.");
   }
 
   /* Update star particles for any accretion */
 
   if (StarParticleAccretion(AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleAccretion.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleAccretion.");
   }
 
   /* Collect all sink particles and report the total mass to STDOUT */
@@ -107,8 +104,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Check for any stellar deaths */
 
   if (StarParticleDeath(LevelArray, level, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleDeath.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleDeath.");
   }
 
   /* 
