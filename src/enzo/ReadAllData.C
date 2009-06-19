@@ -120,7 +120,6 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   }
 
 #ifdef USE_HDF4
-  fprintf(stderr, "I'm here in ReadAllData.C!\n");
   if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
     fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
             MetaData.BoundaryConditionName);                  

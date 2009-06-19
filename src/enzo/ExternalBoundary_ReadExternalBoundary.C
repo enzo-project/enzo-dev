@@ -199,7 +199,8 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
     file_id = H5Fopen(hdfname, H5F_ACC_RDONLY, H5P_DEFAULT);
     if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    //    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( file_id == h5_error ){return FAIL;}
  
     /* loop over faces, reading each */
  

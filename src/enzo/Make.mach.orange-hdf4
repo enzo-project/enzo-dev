@@ -24,8 +24,9 @@ MACH_FILE  = Make.mach.orange
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI/
-LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
-LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64/
+LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26/
+LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.6.6/amd64_linux26/
+LOCAL_HDF4_INSTALL   = /afs/slac/g/ki/software/hdf4/amd64_linux26
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-x86_64/
 
 #-----------------------------------------------------------------------
@@ -106,11 +107,12 @@ MACH_OPT_AGGRESSIVE  = -O3
 
 LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HDF4   = -I$(LOCAL_HDF4_INSTALL)/include
 LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG) $(LOCAL_INCLUDES_PYTHON)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG) $(LOCAL_INCLUDES_PYTHON)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -126,13 +128,13 @@ MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 LOCAL_LIBS_MPI    = 
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
-LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
+LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
                      -limf -lifcore -lifport \
-                     -L$(INT_DIR)/cc/10.1.018/@sys/lib/ \
-                     -lstdc++ -lg2c \-lmfhdf -ldf -ljpeg \
-                     -L$(ARCH_PATH)/lib/ -lmfhdf -ldf -ljpeg
+                     -L$(INT_DIR)/cc/lib/ \
+                     -lstdc++ -lg2c 
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_PYTHON)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
