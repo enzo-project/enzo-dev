@@ -119,6 +119,7 @@ int grid::CosmologySimulationInitializeGrid(
       DINum, DIINum, HDINum, MetalNum;
  
   int ExtraField[2];
+  int ForbidNum;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -166,8 +167,7 @@ int grid::CosmologySimulationInitializeGrid(
      if ( (ParallelRootGridIO != TRUE) || 
 	  (ParallelParticleIO != TRUE && !CosmologySimulationCalculatePositions) )
      {
-       fprintf(stderr, "ParallelRootGridIO and ParallelParticleIO MUST be set for > 64 cpus!\n");
-       ENZO_FAIL("");
+              ENZO_FAIL("ParallelRootGridIO and ParallelParticleIO MUST be set for > 64 cpus!");
      }
   }
  
@@ -248,6 +248,10 @@ int grid::CosmologySimulationInitializeGrid(
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
       }
     }
+    if(STARMAKE_METHOD(COLORED_POP3_STAR)){
+      fprintf(stderr, "Initializing Forbidden Refinement color field\n");
+      FieldType[ForbidNum = NumberOfBaryonFields++] = ForbiddenRefinement;
+    }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
   }
@@ -272,8 +276,7 @@ int grid::CosmologySimulationInitializeGrid(
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 
 	       InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in GetUnits.");
   }
  
   // Determine the size of the fields
@@ -309,8 +312,7 @@ int grid::CosmologySimulationInitializeGrid(
     if (READFILE(CosmologySimulationDensityName, GridRank, GridDimension,
               GridStartIndex, GridEndIndex, Offset, BaryonField[0],
               &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading density field.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading density field.");
     }
     for (i = 0; i < size; i++)
       BaryonField[0][i] = max(BaryonField[0][i], DENSITY_FLOOR);
@@ -323,8 +325,7 @@ int grid::CosmologySimulationInitializeGrid(
     if (READFILE(CosmologySimulationTotalEnergyName, GridRank,
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
 		    BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading total energy field.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading total energy field.");
     }
  
   // Read the gas energy field
@@ -333,8 +334,7 @@ int grid::CosmologySimulationInitializeGrid(
     if (READFILE(CosmologySimulationGasEnergyName, GridRank, GridDimension,
 		 GridStartIndex, GridEndIndex, Offset, BaryonField[2],
 		 &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading gas energy field.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error reading gas energy field.");
     }
  
   // Read the velocity fields
@@ -432,6 +432,10 @@ int grid::CosmologySimulationInitializeGrid(
 	BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
 	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];
       }
+    }
+    if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
+      for (i = 0; i < size; i++)
+        BaryonField[ForbidNum][i] = 0.0;
     }
  
   // If they were not read in above, set the total & gas energy fields now
@@ -2374,8 +2378,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
 					 CosmologySimulationParticleVelocityNames,
 					 CosmologySimulationOmegaBaryonNow,
 					 Offset, level) == FAIL) {
-	  fprintf(stderr, "Error in grid::CosmologyInitializePositions.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.");
 	}
       } else {
  
@@ -2429,8 +2432,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
       if (CosmologySimulationParticleMassName != NULL) {
 	if (READFILE(CosmologySimulationParticleMassName, 1, Dim, Start, End,
 		     Zero, ParticleMass, &tempbuffer, 0, 1) == FAIL) {
-	  fprintf(stderr, "Error reading particle masses.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error reading particle masses.");
 	}
 //      fcol(ParticleMass, NumberOfParticles, 10, log_fptr);
       }
@@ -2440,8 +2442,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
       if (CosmologySimulationParticleTypeName != NULL) {
 	if (ReadIntFile(CosmologySimulationParticleTypeName, 1, Dim, Start, End,
 		     Zero, ParticleType, &int_tempbuffer, 0, 1) == FAIL) {
-	  fprintf(stderr, "Error reading particle types.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error reading particle types.");
 	}
 //      icol(ParticleType, NumberOfParticles, 10, log_fptr);
       }
@@ -2459,8 +2460,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
     if (NumberOfParticles > 0 && 
 	(CosmologySimulationParticleVelocityName == NULL &&
 	 CosmologySimulationParticleVelocityNames[0] == NULL)) {
-      fprintf(stderr, "Error -- no velocity field specified.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error -- no velocity field specified.");
       //  printf("CosmologySimulation warning: setting velocities to zero.\n");
       //      for (dim = 0; dim < GridRank; dim++)
       //	for (i = 0; i < NumberOfParticles; i++)

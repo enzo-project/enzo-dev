@@ -111,6 +111,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName   = "HDI_Density";
   char *MetalName = "Metal_Density";
   char *GPotName  = "Grav_Potential";
+  char *ForbidName  = "ForbiddenRefinement";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
  
@@ -592,6 +593,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
     }
+  }
+  if(STARMAKE_METHOD(COLORED_POP3_STAR)){
+    DataLabel[i++] = ForbidName;
   }
  
   if (WritePotential)
