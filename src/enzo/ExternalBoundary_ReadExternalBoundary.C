@@ -16,7 +16,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
+#ifdef USE_HDF4
+#include <df.h>
+#endif 
 
 
  
@@ -197,7 +199,8 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
     file_id = H5Fopen(hdfname, H5F_ACC_RDONLY, H5P_DEFAULT);
     if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    //    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( file_id == h5_error ){return FAIL;}
  
     /* loop over faces, reading each */
  
@@ -445,3 +448,167 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
   return SUCCESS;
  
 }
+
+
+
+#ifdef USE_HDF4
+int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
+{
+
+  /* declarations */
+
+  int Dims[MAX_DIMENSION], index, size, i;
+  int BoundaryValuePresent[2*MAX_DIMENSION];
+  int field, j;
+  intn TempInt2;
+  int32 TempIntArray[MAX_DIMENSION];
+  float32 *buffer;
+  char hdfname[MAX_LINE_LENGTH];
+
+  /* read general class data */
+
+  if (fscanf(fptr, "BoundaryRank = %d\n", &BoundaryRank) != 1) {
+    fprintf(stderr, "Error reading BoundaryRank.\n");
+    return FAIL;
+  }
+
+  fscanf(fptr, "BoundaryDimension =");
+  if (ReadListOfInts(fptr, BoundaryRank, BoundaryDimension) == FAIL) {
+    fprintf(stderr, "Error reading BoundaryDimension.\n");
+    return FAIL;
+  }
+
+  /* read baryon field quantities */
+
+  if (fscanf(fptr, "NumberOfBaryonFields = %d\n", 
+	     &NumberOfBaryonFields) != 1) {
+    fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
+    return FAIL;
+  }
+
+  /* Read particle boundary type. */
+
+  if (fscanf(fptr, "ParticleBoundaryType = %d\n",&ParticleBoundaryType) != 1) {
+    fprintf(stderr, "Error reading ParticleBoundaryType.\n");
+    return FAIL;
+  }
+
+  if (NumberOfBaryonFields > 0) {
+
+    /* read field types */
+
+    fscanf(fptr, "BoundaryFieldType = ");
+    if (ReadListOfInts(fptr, NumberOfBaryonFields, BoundaryFieldType) 
+        == FAIL) {
+      fprintf(stderr, "Error reading BoundaryFieldType.\n");
+      return FAIL;
+    }
+
+    /* read hdf file name */
+
+    if (fscanf(fptr, "BaryonFileName = %s\n", hdfname) != 1) {
+      fprintf(stderr, "Error reading BaryonFileName.\n");
+      return FAIL;
+    }    
+
+    /* read BoundaryValue present line */
+
+    fscanf(fptr, "BoundaryValuePresent = ");
+    if (ReadListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent) == FAIL) {
+      fprintf(stderr, "Error reading BoundaryValuePresent.\n");
+      return FAIL;
+    }
+
+    /* loop over faces, reading each */
+
+    for (int dim = 0; dim < BoundaryRank; dim++)
+      if (BoundaryDimension[dim] > 1) {
+
+	/* calculate size and dims of flux plane */
+	
+	index = 0;
+	size  = 1;
+	Dims[0] = 1;
+	for (i = 0; i < BoundaryRank; i++)
+	  if (i != dim) {
+	    Dims[index++] = BoundaryDimension[i];
+	    size *= BoundaryDimension[i];
+	  }
+	index = max(BoundaryRank-1, 1);   // make index at least 1
+
+	/* Read HDF dims */
+
+	if (DFSDgetdims(hdfname, &TempInt2, TempIntArray, BoundaryRank) 
+	    == HDF_FAIL) {
+	  fprintf(stderr, "Error in DFSDgetdims.\n");
+	  return FAIL;
+	}
+
+	/* Check rank and dimensions (dims are stored backwards for us). */
+
+	if (TempInt2 != index) {
+	  fprintf(stderr, "HDF file rank does not match BoundaryRank.\n");
+	  return FAIL;
+	}
+
+	for (i = 0; i < index; i++)
+	  if (TempIntArray[index-i-1] != Dims[i]) {
+	    fprintf(stderr, "HDF file dims do not match BoundaryDims.\n");
+	    fprintf(stderr, " Dims[%d] = %d   HDF Dims[%d] = %d\n", i, Dims[i],
+		    index-i-1, TempIntArray[index-i-1]);
+	    return FAIL;
+	  }
+
+	/* Allocate temporary space. */
+	
+	buffer = new float32[size];
+
+	/* loop over fields, reading each */
+
+	for (field = 0; field < NumberOfBaryonFields; field++)
+	  for (i = 0; i < 2; i++) {
+
+	    /* allocate room for BoundaryType */
+
+	    BoundaryType[field][dim][i] = new boundary_type[size];
+
+	    /* read BoundaryType (then convert to int) */
+
+	    if (DFSDgetdata(hdfname, TempInt2, TempIntArray, (VOIDP) buffer)
+		== HDF_FAIL) {
+	      fprintf(stderr, "Error in DFSDgetdata(0).\n");
+	      return FAIL;
+	    }
+
+	    for (j = 0; j < size; j++)
+	      BoundaryType[field][dim][i][j] = 
+		                      (boundary_type) nint(buffer[j]);
+
+	    /* read BoundaryValue */
+
+	    if (BoundaryValuePresent[2*dim+i]) {
+	      BoundaryValue[field][dim][i] = new float[size];
+	      if (DFSDgetdata(hdfname, TempInt2, TempIntArray, (VOIDP)
+			      buffer) == HDF_FAIL) {
+		fprintf(stderr, "Error in DFSDgetdata(1).\n");
+		fprintf(stderr, "dim = %d field = %d i = %d\n", dim, field, i);
+		return FAIL;
+	      }
+	      for (j = 0; j < size; j++){
+		BoundaryValue[field][dim][i][j] = float(buffer[j]);
+	        if(i==0&&j==0) fprintf(stderr,"BoundaryValue[%d][%d][0][0]=%f\n", field, dim, BoundaryValue[field][dim][0][0]);
+	      }		
+	    }
+	  }  // end of loop over fields
+
+	delete buffer;
+	
+      }   // end of loop over dims
+
+  }
+
+  return SUCCESS;
+
+}
+#endif
+

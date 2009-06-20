@@ -101,21 +101,30 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     ENZO_FAIL("");
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
  
   /* Close main file. */
+  fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   fclose(fptr);
  
   /* Read Boundary condition info. */
+  fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
     ENZO_FAIL("");
   }
+
+#ifdef USE_HDF4
+  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
+    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+            MetaData.BoundaryConditionName);                  
+    return FAIL;                                                                 
+  }
+#else
   if(LoadGridDataAtStart){    
     if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
       fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
@@ -129,6 +138,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       ENZO_FAIL("");
     }
   }
+#endif
+
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
 
@@ -168,8 +179,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   ntask = i;
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
-    fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in AssignGridToTaskMap.");
   }
 
   fclose(mptr);
@@ -224,8 +234,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr) == FAIL) {
-    fprintf(stderr, "Error in ReadStarParticleData.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
@@ -239,8 +248,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       ENZO_FAIL("");
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
-      fprintf(stderr, "Error in ReadRadiationData.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ReadRadiationData.");
     }
     fclose(Radfptr);
   }
