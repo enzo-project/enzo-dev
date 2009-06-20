@@ -431,6 +431,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     /* Allocate space for new particles. */
  
     int MaximumNumberOfNewParticles = int(0.25*float(size)) + 5;
+    if(debug)fprintf(stderr, "StarParticle: At most forming %"ISYM"\n",
+                     MaximumNumberOfNewParticles);
     tg->AllocateNewParticles(MaximumNumberOfNewParticles);
  
     /* Compute the cooling time. */
@@ -578,19 +580,19 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR)) {
       FORTRAN_NAME(pop3_color_maker)
-        (GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
-         dmfield, BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
+        (GridDimension, GridDimension+1, GridDimension+2, 
+         BaryonField[DensNum], dmfield, 
+           BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
          &dtFixed, BaryonField[NumberOfBaryonFields], 
-         &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
          &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
          &MaximumNumberOfNewParticles, 
            CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
          &HydroMethod, &PopIIIColorDensityThreshold, 
            &level, &NumberOfNewParticles, 
-         tg->ParticlePosition[0], tg->ParticlePosition[1],
-         tg->ParticlePosition[2], tg->ParticleVelocity[0], 
-         tg->ParticleVelocity[1], tg->ParticleVelocity[2], tg->ParticleMass, 
-           tg->ParticleAttribute[2], tg->ParticleType, &SingleStarType);
+         tg->ParticlePosition[0], tg->ParticlePosition[1], tg->ParticlePosition[2],
+          tg->ParticleVelocity[0], tg->ParticleVelocity[1], tg->ParticleVelocity[2],
+         tg->ParticleMass, tg->ParticleAttribute[2], tg->ParticleType, &SingleStarType);
          
     }
 

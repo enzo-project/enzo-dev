@@ -122,6 +122,7 @@ c
 c
 c              1) finest level of refinement?
 c
+c               write(0,*) d(i,j,k)
                if (r(i,j,k) .ne. 0.0) goto 10
 c
 c              2) density greater than threshold
@@ -132,6 +133,16 @@ c              3) divergence negative
 c                 (the first calculation is face centered for ZEUS, 
 c                  the second is cell-centered for PPM)
 c
+c
+c              Create a star particle
+c
+               ii = ii + 1
+
+               type(ii) = -ctype
+               tcp(ii) = t
+               xp(ii) = xstart + (float(i)-0.5)*dx
+               yp(ii) = ystart + (float(j)-0.5)*dx
+               zp(ii) = zstart + (float(k)-0.5)*dx
 c
 c              Star velocities averaged over multiple cells to
 c              avoid "runaway star particle" phenomenon
@@ -219,7 +230,7 @@ c              Remove mass from grid
 
                d(i,j,k) = 0.5 * d(i,j,k)
 
-C                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
+c                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii), ii, nmax
 C                write(6,7777) i, j, k
 C                write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
 C                write(6,779) type(ii), tcp(ii), tdp(ii)
@@ -237,7 +248,7 @@ c     &                           tdp(ii)*t1,d(i,j,k)*d1,z,metalf(ii)
 c
 c              Do not generate more star particles than available
 c
-               if (ii .eq. nmax) goto 20
+               if (ii .ge. nmax) goto 20
 c
 10          continue
 c
