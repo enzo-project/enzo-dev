@@ -127,25 +127,43 @@ OBJS_CONFIG_LIB = \
 	FastSiblingLocatorFinalize.o \
 	FastSiblingLocatorInitialize.o \
 	FastSiblingLocatorInitializeStaticChainingMesh.o \
-	FinalizeFluxes.o \
-	PrepareGravitatingMassField.o \
-	RebuildHierarchy.o \
         feuler_sweep.o \
-	F_ColumnFormat.o \
 	fft66.o \
 	fft90.o \
 	ffte4X.o \
 	ffte_st1.o \
 	fft_utils.o \
+	FinalizeFluxes.o \
 	FindCube.o \
 	FindField.o \
 	FindSubgrids.o \
 	flow.o \
 	FluxFix_Grid_CorrectForRefinedFluxes.o \
-	f_message.o \
+	FOF.o \
+	FOF_allocate.o \
+	FOF_cmpfunc.o \
+	FOF_density.o \
+	FOF_Finalize.o \
+	FOF_forcetree.o \
+	FOF_iindexx.o \
+	FOF_indexx.o \
+	FOF_Initialize.o \
+	FOF_ngbtree.o \
+	FOF_nrutil.o \
+	FOF_potential.o \
+	FOF_properties.o \
+	FOF_selectb.o \
+	FOF_sort2_flt_int.o \
+	FOF_sort2_int.o \
+	FOF_sort_int.o \
+	FOF_subfind.o \
+	FOF_subgroups.o \
+	FOF_unbind.o \
 	fortio.o \
 	fourn.o \
 	FreeRealMem.o \
+	F_ColumnFormat.o \
+	f_message.o \
 	GetNodeFreeMemory.o \
 	GetUnits.o \
 	GravityBdryExchange.o \
@@ -275,6 +293,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
 	Grid_MoveAllStars.o \
+	Grid_MoveParticlesFOF.o \
 	Grid_MoveSubgridParticlesFast.o \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
@@ -415,6 +434,7 @@ OBJS_CONFIG_LIB = \
 	pop3_properties.o \
 	power_of_2.o \
 	prefort2.o \
+	PrepareGravitatingMassField.o \
 	PrepareIsolatedGreensFunction.o \
 	PressurelessCollapseInitialize.o \
 	ProcMap.o \
@@ -452,6 +472,7 @@ OBJS_CONFIG_LIB = \
 	ReadRadiationData.o \
 	ReadStarParticleData.o \
 	ReadUnits.o \
+	RebuildHierarchy.o \
 	ReduceFragmentation.o \
         remap.o \
 	ReportMemoryUsage.o \

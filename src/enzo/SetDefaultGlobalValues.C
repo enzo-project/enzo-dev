@@ -286,6 +286,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
 
+  InlineHaloFinder                 = FALSE;
+  HaloFinderSubfind                = FALSE;
+  HaloFinderOutputParticleList     = FALSE;
+  HaloFinderMinimumSize            = 50;
+  HaloFinderLinkingLength          = 0.1;
+  HaloFinderCycleSkip              = 3;
+  HaloFinderTimestep               = FLOAT_UNDEFINED;
+  HaloFinderLastTime               = 0.0;
+
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun

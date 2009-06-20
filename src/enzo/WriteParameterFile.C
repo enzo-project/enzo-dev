@@ -93,15 +93,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);
   fprintf(fptr, "NewMovieRightEdge    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieRightEdge);
-  fprintf(fptr, "MovieSkipTimestep    = %d\n", MovieSkipTimestep);
-  fprintf(fptr, "Movie3DVolumes       = %d\n", Movie3DVolumes);
-  fprintf(fptr, "MovieVertexCentered  = %d\n", MovieVertexCentered);
-  fprintf(fptr, "NewMovieParticleOn   = %d\n", NewMovieParticleOn);
+  fprintf(fptr, "MovieSkipTimestep    = %"ISYM"\n", MovieSkipTimestep);
+  fprintf(fptr, "Movie3DVolumes       = %"ISYM"\n", Movie3DVolumes);
+  fprintf(fptr, "MovieVertexCentered  = %"ISYM"\n", MovieVertexCentered);
+  fprintf(fptr, "NewMovieParticleOn   = %"ISYM"\n", NewMovieParticleOn);
   fprintf(fptr, "MovieDataField       = ");
   WriteListOfInts(fptr, MAX_MOVIE_FIELDS, MovieDataField);
-  fprintf(fptr, "NewMovieDumpNumber   = %d\n", NewMovieDumpNumber);
+  fprintf(fptr, "NewMovieDumpNumber   = %"ISYM"\n", NewMovieDumpNumber);
   fprintf(fptr, "NewMovieName         = %s\n", NewMovieName);
-  fprintf(fptr, "MovieTimestepCounter = %d\n", MetaData.TimestepCounter);
+  fprintf(fptr, "MovieTimestepCounter = %"ISYM"\n", MetaData.TimestepCounter);
   fprintf(fptr, "\n");
 
   fprintf(fptr, "CycleLastRestartDump = %"ISYM"\n", MetaData.CycleLastRestartDump);
@@ -268,6 +268,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "WritePotential                 = %"ISYM"\n", WritePotential);
   fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n\n",
 	  BaryonSelfGravityApproximation);
+
+  fprintf(fptr, "InlineHaloFinder               = %"ISYM"\n", InlineHaloFinder);
+  fprintf(fptr, "HaloFinderSubfind              = %"ISYM"\n", HaloFinderSubfind);
+  fprintf(fptr, "HaloFinderCycleSkip            = %"ISYM"\n", 
+	  HaloFinderCycleSkip);
+  fprintf(fptr, "HaloFinderOutputParticleList   = %"ISYM"\n", 
+	  HaloFinderOutputParticleList);
+  fprintf(fptr, "HaloFinderMinimumSize          = %"ISYM"\n", 
+	  HaloFinderMinimumSize);
+  fprintf(fptr, "HaloFinderLinkingLength        = %"FSYM"\n\n", 
+	  HaloFinderLinkingLength);
+  fprintf(fptr, "HaloFinderTimestep             = %"FSYM"\n\n", 
+	  HaloFinderTimestep);
+  fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
+	  HaloFinderLastTime);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);
