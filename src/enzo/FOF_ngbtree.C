@@ -25,7 +25,7 @@ float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess,
 		   int **ngblistback, float **r2listback)
 {
 
-  void   ngb_treesearch(NODE *THIS, FOFData D);
+  void   ngb_treesearch(NODE *THIS, FOF_particle_data *P);
   float  selectb(unsigned long k, unsigned long n, float arr[],int ind[]);
   float  sr,sr2,h2max;  /* search radius */
   int    i,ind,ni,j,subnode,fak,k,rep=0;
@@ -67,7 +67,7 @@ float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess,
       
     sr2 = sr*sr;
     _TopData.numngb = 0;
-    ngb_treesearch(_TopData.nodes, D);  
+    ngb_treesearch(_TopData.nodes, D.P);  
     rep++;
 
     if (_TopData.numngb < desngb) {
@@ -107,16 +107,16 @@ float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess,
 
 /************************************************************************/
 
-void ngb_treesearch(NODE *THIS, FOFData D)
+void ngb_treesearch(NODE *THIS, FOF_particle_data *P)
 {
   int k,p;
   NODE *nn;
 
   if (THIS->count == 1) {
     for (k = 0, p = THIS->first; k < 3; k++) {
-      if (D.P[p].Pos[k] < _TopData.searchmin[k])
+      if (P[p].Pos[k] < _TopData.searchmin[k])
 	return;
-      if (D.P[p].Pos[k] > _TopData.searchmax[k])
+      if (P[p].Pos[k] > _TopData.searchmax[k])
 	return;
     } // ENDFOR
     _TopData.ngblist[_TopData.numngb++] = p;
@@ -148,7 +148,7 @@ void ngb_treesearch(NODE *THIS, FOFData D)
     else {
       for (k = 0; k < 8; k++) 
 	if (nn = THIS->suns[k])
-	  ngb_treesearch(nn, D);
+	  ngb_treesearch(nn, P);
     } // ENDELSE
 
   } // ENDELSE count != 1

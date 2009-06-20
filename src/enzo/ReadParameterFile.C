@@ -554,6 +554,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "HaloFinderLinkingLength = %"FSYM, 
 		  &HaloFinderLinkingLength);
     ret += sscanf(line, "HaloFinderMinimumSize = %"ISYM, &HaloFinderMinimumSize);
+    ret += sscanf(line, "HaloFinderCycleSkip = %"ISYM, &HaloFinderCycleSkip);
+    ret += sscanf(line, "HaloFinderTimestep = %"FSYM, &HaloFinderTimestep);
+    ret += sscanf(line, "HaloFinderLastTime = %"PSYM, &HaloFinderLastTime);
 
     /* This Block for Stanford Hydro */
 

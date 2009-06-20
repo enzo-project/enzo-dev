@@ -51,14 +51,14 @@ int grid::MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P,
       }
     }
 
-    for (j = 0; j < NumberOfParticleAttributes; j++) {
-      Index = Index0;
-      for (i = 0; i < NumberOfParticles; i++, Index++)
-	P[Index].Attr[j] = ParticleAttribute[j][i];
-    }
+    //for (j = 0; j < NumberOfParticleAttributes; j++) {
+    //  Index = Index0;
+    //  for (i = 0; i < NumberOfParticles; i++, Index++)
+    //	P[Index].Attr[j] = ParticleAttribute[j][i];
+    //}
 
     Index = Index0;
-    for (i = 0; i < NumberOfParticles; i++) {
+    for (i = 0; i < NumberOfParticles; i++, Index++) {
 
       P[Index].slab = (int) (ParticlePosition[0][i] * NumberOfProcessors);
 
@@ -66,16 +66,15 @@ int grid::MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P,
 
       P[Index].PartID = ParticleNumber[i];
       P[Index].Type = ParticleType[i];
-      P[Index].level = level;
-      P[Index].GridID = GridNum;
+      //P[Index].level = level;
+      //P[Index].GridID = GridNum;
 
       P[Index].Energy = 0.0;
       P[Index].Rho = 0.0;
 
     }
 
-    this->NumberOfParticles = 0;
-    this->DeleteParticles();
+    //this->DeleteParticles();
 
   } // ENDIF (COPY_OUT)
 
@@ -87,8 +86,8 @@ int grid::MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P,
       ParticleVelocity[dim][i] = P[Index].Vel[dim] / VelocityConv;
     }
 
-    for (j = 0; j < NumberOfParticleAttributes; j++)
-      ParticleAttribute[j][i] = P[Index].Attr[j];
+//    for (j = 0; j < NumberOfParticleAttributes; j++)
+//      ParticleAttribute[j][i] = P[Index].Attr[j];
 
     ParticleMass[i] = P[Index].Mass / MassConv;
     ParticleType[i] = P[Index].Type;

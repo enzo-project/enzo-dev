@@ -314,7 +314,10 @@ EXTERN int InlineHaloFinder;
 EXTERN int HaloFinderSubfind;
 EXTERN int HaloFinderOutputParticleList;
 EXTERN int HaloFinderMinimumSize;
+EXTERN int HaloFinderCycleSkip;
 EXTERN float HaloFinderLinkingLength;
+EXTERN float HaloFinderTimestep;
+EXTERN FLOAT HaloFinderLastTime;
 
 /************************************************/
 /* Global data for specific problems or methods */

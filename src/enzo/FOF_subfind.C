@@ -7,6 +7,8 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include <hdf5.h>
+#include "h5utilities.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -21,13 +23,19 @@
 void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 {
 
-  int    i, k, gr, task, head, len, nsubs, offset, start=0, NSubGroupsAll=0;
+  FILE *fd;
+  hid_t  file_id, dset_id, dspace_id, group_id;
+  hsize_t hdims[2];
+
+  int    i, k, Index, dim, gr, task, head, len, nsubs, offset;
+  int    start=0;
   int    parent, ntot;
   char   ctype;
-  float  cm[3], cmv[3], mtot, mstars;
+  float  cm[3], cmv[3], mtot, mstars, redshift;
   float  corner[3];
   FOF_particle_data *Pbuf, *partbuf;
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
+  int    *fsuboffset, *fbufsuboffset;
 
   char   *FOF_dirname = "FOF";
   char   catalogue_fname[200];
@@ -36,6 +44,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
   int    *TempInt;
   double *temp;
+  float  *msub, *bufmsub;
 
 #ifdef USE_MPI
   MPI_Status status;
@@ -43,16 +52,19 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 #endif
 
   sprintf(catalogue_fname, "%s/subgroups_%5.5d.dat", FOF_dirname, CycleNumber);
-  sprintf(particle_fname, "%s/subparticles_%5.5d.dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/subparticles_%5.5d.h5", FOF_dirname, CycleNumber);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+    if (debug)
+      fprintf(stdout, "FOF: Saving subhalo list to %s\n", catalogue_fname);
 
     if ((fd = fopen(catalogue_fname, "w")) == NULL)
       ENZO_FAIL("Unable to open FOF group file.");
 
     // Write header
 
-    redshift = 1.0 / AllVars.Time - 1.0;
+    redshift = 1.0 / D.Time - 1.0;
     fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
     fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
     //fprintf(fd, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
@@ -75,10 +87,16 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
     if (HaloFinderOutputParticleList) {
 
-      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT);
+      if (debug)
+	fprintf(stdout, "FOF: Saving (sub)halo particle list to %s\n", 
+		particle_fname);
+
+      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT, 
+			  H5P_DEFAULT);
       group_id = H5Gcreate(file_id, "/Parameters", 0);
       writeScalarAttribute(group_id, HDF5_REAL, "Redshift", &redshift);
       writeScalarAttribute(group_id, HDF5_PREC, "Time", &EnzoTime);
+      writeScalarAttribute(group_id, HDF5_INT, "Number of groups", &D.NgroupsAll);
       H5Gclose(group_id);
 
     } // ENDIF output particle list
@@ -95,12 +113,14 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	head = D.GroupDatAll[gr-task].Tag;
 	len  = D.GroupDatAll[gr-task].Len;
 
-	sublen	  = new int[len/D.DesLinkNgb];
-	suboffset = new int[len/D.DesLinkNgb];
-	Pbuf	  = new FOF_particle_data[len];
+	sublen	   = new int[len/D.DesLinkNgb];
+	suboffset  = new int[len/D.DesLinkNgb];
+	fsuboffset = new int[len/D.DesLinkNgb];
+	msub	   = new float[len/D.DesLinkNgb];
+	Pbuf	   = new FOF_particle_data[len];
       } // ENDIF this task
 
-      get_particles(task, head, len, Pbuf);
+      get_particles(task, head, len, Pbuf, D);
 
     } // ENDFOR task
 
@@ -115,13 +135,13 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	  
       for (i = 0; i < len; i++)
 	for (k = 0; k < 3; k++)
-	  Pbuf[i].Pos[k] = FOF_periodic(Pbuf[i].Pos[k]-corner[k], D);
+	  Pbuf[i].Pos[k] = FOF_periodic(Pbuf[i].Pos[k]-corner[k], D.BoxSize);
 
       nsubs = do_subfind_in_group(D, Pbuf, len, sublen, suboffset);
 
       for (i = 0; i < len; i++)
 	for (k = 0; k < 3; k++)
-	  Pbuf[i].Pos[k] = FOF_periodic_wrap(Pbuf[i].Pos[k]+corner[k], D);
+	  Pbuf[i].Pos[k] = FOF_periodic_wrap(Pbuf[i].Pos[k]+corner[k], D.BoxSize);
 
     } // ENDIF got a group
 
@@ -133,12 +153,95 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	if (task == 0) {
 	  for (i = 0; i < nsubs; i++) {
 	    get_properties(D, Pbuf+suboffset[i], sublen[i], cm, cmv, &mtot, &mstars);
+	    msub[i] = mtot;
 
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    D.NSubGroupsAll+i, PARENT, len, 
+	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    i, parent, suboffset[i], sublen[i], 
 		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
 
 	  } // ENDFOR subgroups
+
+	  for (i = 0; i < nsubs; i++) {
+	    fsuboffset[i] = suboffset[i];
+	    suboffset[i] += start;
+	  }
+	  start += D.GroupDatAll[gr-task].Len;
+
+	  if (HaloFinderOutputParticleList) {
+	    
+	    len = D.GroupDatAll[gr-task].Len;;
+
+	    temp = new double[3*len];
+	    TempInt = new int[len];
+	    Index = 0;
+	    for (dim = 0; dim < 3; dim++)
+	      for (i = 0; i < len; i++, Index++)
+		temp[Index] = Pbuf[i].Pos[dim] / D.BoxSize;
+	    for (i = 0; i < len; i++)
+	      TempInt[i] = Pbuf[i].PartID;
+
+	    get_properties(D, Pbuf, len, cm, cmv, &mtot, &mstars);
+	    
+	    sprintf(halo_name, "Halo%8.8d", parent);
+	    group_id = H5Gcreate(file_id, halo_name, 0);
+	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+
+	    hdims[0] = (hsize_t) nsubs;
+	    hdims[1] = 1;
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) msub);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) sublen);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) fsuboffset);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+	    
+	    hdims[0] = 3;
+	    hdims[1] = (hsize_t) len;
+	    dspace_id = H5Screate_simple(2, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE,
+				dspace_id, H5P_DEFAULT);
+	    H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, 
+		     H5P_DEFAULT, (VOIDP) temp);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+	
+	    hdims[0] = (hsize_t) len;
+	    hdims[1] = 1;
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) TempInt);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    H5Gclose(group_id);
+
+	    delete [] temp;
+	    delete [] TempInt;
+
+	  } // ENDIF output particle list
 
 	  D.NSubGroupsAll += nsubs;
 	} // ENDIF task == 0
@@ -149,49 +252,122 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	  MPI_Recv(&nsubs, 1, MPI_INT, task, task, MPI_COMM_WORLD, &status);
 	  if (nsubs > 0) {
 
+	    bufmsub      = new float[nsubs];
 	    bufsublen	 = new int[nsubs];
 	    bufsuboffset = new int[nsubs];
+	    fbufsuboffset = new int[nsubs];
 
 	    MPI_Recv(bufsublen,    nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
 	    MPI_Recv(bufsuboffset, nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
 
-	    for (i = 0; i < nsubs; i++)
+	    for (i = 0; i < nsubs; i++) {
+	      fbufsuboffset[i] = bufsuboffset[i];
 	      bufsuboffset[i] += start;
+	    }
 
 	  } // ENDIF subgroups
 
 	  parent = D.NgroupsAll-(gr-task);
 		  
-	  partbuf = new FOF_particle_data[D.GroupDataAll[gr-task].Len];
+	  len = D.GroupDatAll[gr-task].Len;
+	  partbuf = new FOF_particle_data[len];
 
-	  MPI_Recv(partbuf, D.GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
+	  MPI_Recv(partbuf, len*sizeof(FOF_particle_data),
 		   MPI_BYTE, task, task, MPI_COMM_WORLD, &status);
 
 	  for (i = 0; i < nsubs; i++) {
-	    get_properties(partbuf+bufsuboffset[i]-start, bufsublen[i], cm, 
+	    get_properties(D, partbuf+bufsuboffset[i]-start, bufsublen[i], cm, 
 			   cmv, &mtot, &mstars);
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    D.NSubGroupsAll+i, PARENT, len, 
+	    bufmsub[i] = mtot;
+
+	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    i, parent, fbufsuboffset[i], bufsublen[i],
 		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
 	  } // ENDFOR subgroups
 
+	  if (HaloFinderOutputParticleList) {
 
-	  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-	    fwrite(&partbuf[i].Pos[0], sizeof(double), 3, fdpart);
-	  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-	    fwrite(&partbuf[i].PartID, sizeof(int), 1, fdids);
-	  for(i=0; i<GroupDatAll[gr-task].Len; i++) {
-	    ctype= partbuf[i].Type;
-	    fwrite(&ctype, sizeof(char), 1, fdtypes);
-	  }
+	    temp = new double[3*len];
+	    TempInt = new int[len];
+	    Index = 0;
+	    for (dim = 0; dim < 3; dim++)
+	      for (i = 0; i < len; i++, Index++)
+		temp[Index] = Pbuf[i].Pos[dim] / D.BoxSize;
+	    for (i = 0; i < len; i++)
+	      TempInt[i] = Pbuf[i].PartID;
 
-	  fwrite(&nsubs, sizeof(int), 1, fd);
+	    get_properties(D, partbuf, len, cm, cmv, &mtot, &mstars);
+	    
+	    sprintf(halo_name, "Halo%8.8d", parent);
+	    group_id = H5Gcreate(file_id, halo_name, 0);
+	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+
+	    hdims[0] = (hsize_t) nsubs;
+	    hdims[1] = 1;
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) bufmsub);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) bufsublen);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    hdims[0] = (hsize_t) nsubs;
+	    hdims[1] = 1;
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) fbufsuboffset);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+	    
+	    hdims[0] = 3;
+	    hdims[1] = (hsize_t) len;
+	    dspace_id = H5Screate_simple(2, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE,
+				dspace_id, H5P_DEFAULT);
+	    H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, 
+		     H5P_DEFAULT, (VOIDP) temp);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+	
+	    hdims[0] = (hsize_t) len;
+	    hdims[1] = 1;
+	    dspace_id = H5Screate_simple(1, hdims, NULL);
+	    dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
+				H5P_DEFAULT);
+	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) TempInt);
+	    H5Sclose(dspace_id);
+	    H5Dclose(dset_id);
+
+	    H5Gclose(group_id);
+
+	    delete [] temp;
+	    delete [] TempInt;
+
+	  } // ENDIF output particle list
 
 	  start += D.GroupDatAll[gr-task].Len;
 	  
 	  if (nsubs > 0) {
+	    delete [] fbufsuboffset;
 	    delete [] bufsuboffset;
 	    delete [] bufsublen;
+	    delete [] bufmsub;
 	  }
 
 	  delete [] partbuf;
@@ -208,13 +384,15 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
 #ifdef USE_MPI
 	if (MyProcessorNumber == task) {
-	  MPI_Ssend(&nsubs, 1, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
+	  MPI_Ssend(&nsubs, 1, MPI_INT, 0, MyProcessorNumber, MPI_COMM_WORLD);
 	  if(nsubs) {
-	    MPI_Ssend(sublen,    nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
-	    MPI_Ssend(suboffset, nsubs, MPI_INT, 0, ThisTask, MPI_COMM_WORLD);
+	    MPI_Ssend(sublen,    nsubs, MPI_INT, 0, MyProcessorNumber, 
+		      MPI_COMM_WORLD);
+	    MPI_Ssend(suboffset, nsubs, MPI_INT, 0, MyProcessorNumber, 
+		      MPI_COMM_WORLD);
 	  }
-	  MPI_Ssend(Pbuf, GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
-		    MPI_BYTE, 0, ThisTask, MPI_COMM_WORLD);
+	  MPI_Ssend(Pbuf, D.GroupDatAll[gr-task].Len*sizeof(FOF_particle_data), 
+		    MPI_BYTE, 0, MyProcessorNumber, MPI_COMM_WORLD);
 	} // ENDIF proc == task
 
 #endif /* USE_MPI */
@@ -224,9 +402,11 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
     for (task = 0; task < NumberOfProcessors && (gr-task) >= 0; task++)
       if (MyProcessorNumber == task) {
-	free(Pbuf);
-	free(suboffset);
-	free(sublen);
+	delete [] Pbuf;
+	delete [] fsuboffset;
+	delete [] suboffset;
+	delete [] sublen;
+	delete [] msub;
       }
 
     gr -= task;
@@ -234,29 +414,15 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   } // ENDFOR groups
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fclose(fdpart);
-    fclose(fdids);
-    fclose(fdlen);
-    fclose(fdoffset);
-    fclose(fdparent);
-    fclose(fdtypes);
-    fclose(fdsubcenter);
-    fclose(fdsubmtot);
-    fclose(fdsubmgas);
-    fclose(fdsubmstars);
-    fclose(fdsubsfr);
-    fclose(fdsubmcloud);
-    fclose(fdcenter);
-    fclose(fdmtot);
-    fclose(fdmgas);
-    fclose(fdmstars);
-    fclose(fdsfr);
-    fclose(fdmcloud);
     fclose(fd);
+    if (HaloFinderOutputParticleList)
+      H5Fclose(file_id);
 
-    printf("NSubGroupsAll= %"ISYM"\n", NSubGroupsAll);
-      
   } // ENDIF ROOT_PROCESSOR
+
+  if (debug)
+    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n",
+	    D.NSubGroupsAll - D.NgroupsAll);
 
 }
 
@@ -292,7 +458,7 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
   Len_bak  = D.Len;
   Head_bak = D.Head;
-  Tail_bak = D.Len;
+  Tail_bak = D.Tail;
   Next_bak = D.Next;
   P_bak	   = D.P;
 
@@ -350,8 +516,8 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
     } // ENDIF not oldhead
   } // ENDFOR
 
-  if(debug)
-    printf("---  %"ISYM" subgroups found. ----\n", D.NSubGroups);
+//  if(debug)
+//    printf("---  %"ISYM" subgroups found. ----\n", D.NSubGroups);
   
   if (D.NSubGroups > 0) {
 
@@ -433,16 +599,3 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
   return D.NSubGroups;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

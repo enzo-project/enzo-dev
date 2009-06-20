@@ -51,7 +51,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
 		  FOFData &D)
 {
-
+#ifdef UNUSED
   /* Get enzo units */
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
@@ -63,7 +63,9 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   // Sometimes MassUnits is infinite (in cgs) when using single
   // precision, so calculate it in double precision.
 
-  double EnzoMassUnits = (double) DensityUnits * pow(LengthUnits, 3.0);
+  double EnzoMassUnits = (double) DensityUnits * pow(LengthUnits, 3.0) /
+    (MetaData->TopGridDims[0] * MetaData->TopGridDims[1] * 
+     MetaData->TopGridDims[2]);
 
   /******************** MOVE PARTICLES BACK TO ENZO ********************/
 
@@ -80,7 +82,7 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Count particles and then allocate memory for particles in grids */
 
-  for (i = 0; i < D.Nlocal; i++) {
+  for (i = 1; i <= D.Nlocal; i++) {
     lvl = D.P[i].level;
     gi = D.P[i].GridID;
     npart = Grids[lvl][gi]->GridData->ReturnNumberOfParticles();
@@ -101,7 +103,7 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Move particles back */
 
-  for (i = 0; i < D.Nlocal; i++) {
+  for (i = 1; i <= D.Nlocal; i++) {
     lvl = D.P[i].level;
     gi = D.P[i].GridID;
     Grids[lvl][gi]->GridData->MoveParticlesFOF
@@ -119,8 +121,10 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Clean up */
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    delete [] Grids[level];
+    if (LevelArray[level] != NULL)
+      delete [] Grids[level];
 
+#endif /* UNUSED */
   return;
 
 }

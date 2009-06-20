@@ -29,7 +29,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm,
 
   for (i = 0; i < len; i++) {
     for (k = 0; k < 3; k++) {
-      s[k] += p[i].Mass * FOF_periodic(p[i].Pos[k] - p[0].Pos[k], D);
+      s[k] += p[i].Mass * FOF_periodic(p[i].Pos[k] - p[0].Pos[k], D.BoxSize);
       sv[k] += p[i].Mass * p[i].Vel[k];
     }
 
@@ -45,7 +45,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm,
 
   for(k=0; k<3; k++) {
     s[k] = s[k] / mtot;
-    s[k] = FOF_periodic_wrap(s[k] + p[0].Pos[k], D);
+    s[k] = FOF_periodic_wrap(s[k] + p[0].Pos[k], D.BoxSize);
     sv[k] = sv[k] / mtot;
   }
 
@@ -55,11 +55,12 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm,
   }
 
   // Convert to solar masses, 0->1 domain, and km/s
+  int dim;
   mtot *= 1e10;
   mstars *= 1e10;
   for (dim = 0; dim < 3; dim++) {
-    pcm[dim] /= D.Boxsize;
-    pcmv[dim] /= D.UnitVelocity_in_cm_per_s;
+    pcm[dim] /= D.BoxSize;
+    //pcmv[dim] /= D.UnitVelocity_in_cm_per_s;
   }
   
   *pmtot   = mtot;

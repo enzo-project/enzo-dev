@@ -47,13 +47,13 @@ struct FOF_particle_data
   int    	MinID;
   int    	GrLen;
   float  	Mass;
-  float  	Attr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+  //float  	Attr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   float  	Energy;
   float  	Rho;
   int    	PartID;
   int           slab;
-  int           level;
-  int           GridID;
+  //int           level;
+  //int           GridID;
 };
 
 struct id_data 

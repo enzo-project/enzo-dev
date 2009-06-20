@@ -271,12 +271,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "InlineHaloFinder               = %"ISYM"\n", InlineHaloFinder);
   fprintf(fptr, "HaloFinderSubfind              = %"ISYM"\n", HaloFinderSubfind);
+  fprintf(fptr, "HaloFinderCycleSkip            = %"ISYM"\n", 
+	  HaloFinderCycleSkip);
   fprintf(fptr, "HaloFinderOutputParticleList   = %"ISYM"\n", 
 	  HaloFinderOutputParticleList);
   fprintf(fptr, "HaloFinderMinimumSize          = %"ISYM"\n", 
 	  HaloFinderMinimumSize);
   fprintf(fptr, "HaloFinderLinkingLength        = %"FSYM"\n\n", 
 	  HaloFinderLinkingLength);
+  fprintf(fptr, "HaloFinderTimestep             = %"FSYM"\n\n", 
+	  HaloFinderTimestep);
+  fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
+	  HaloFinderLastTime);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);

@@ -38,15 +38,24 @@ void deallocate_all_memory(FOFData &D)
   delete [] D.Noffset;
   delete [] D.NtoLeft;
   delete [] D.NtoRight;
-  delete [] D.ContribID;
-  delete [] D.ContribHead;
-  delete [] D.GridNext;
-  delete [] D.Head;
-  delete [] D.Tail;
-  delete [] D.Next;
-  delete [] D.Len;
   delete [] D.GroupDat;
   delete [] D.GroupDatAll;
+
+  free_ivector(D.ContribID, 0, D.Ncontrib-1);
+  free_ivector(D.ContribHead, 0, D.Ncontrib-1);
+  if (D.Nlocal > 0) {
+    free_ivector(D.Head, 1, D.Nlocal);
+    free_ivector(D.Tail, 1, D.Nlocal);
+    free_ivector(D.Next, 1, D.Nlocal);
+    free_ivector(D.Len, 1, D.Nlocal);
+    free_ivector(D.GridNext, 1, D.Nlocal);
+  }
+
+  free_i3tensor(D.GridFirst, 0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
+  free_i3tensor(D.GridLast,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
+  free_i3tensor(D.GridFlag,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
+
+  D.P++;
   delete [] D.P;
 
   return;

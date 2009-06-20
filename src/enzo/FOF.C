@@ -53,6 +53,17 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   if (!InlineHaloFinder)
     return SUCCESS;
 
+  if (HaloFinderCycleSkip == 0 && HaloFinderTimestep < 0)
+    return SUCCESS;
+
+  if (HaloFinderCycleSkip > 0)
+    if (MetaData->CycleNumber % HaloFinderCycleSkip != 0)
+      return SUCCESS;
+
+  if (HaloFinderTimestep > 0 &&
+      MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
+    return SUCCESS;
+
   if (NumberOfProcessors & 1) {
     fprintf(stdout, "FOF: Number of processors must be EVEN to run "
 	    "inline halo finder.\n");
@@ -65,16 +76,13 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
 
   FOFData AllVars;
 
-  /* Initialization :: move particle data from enzo's grids to the
-     halo finder's data structure. */
-
-  FOF_Initialize(MetaData, LevelArray, AllVars);
-
   // in terms of mean interparticle seperation
   AllVars.LinkLength = HaloFinderLinkingLength;
 
   // store only groups in the catalogue with at least this number of particles
   AllVars.GroupMinLen = HaloFinderMinimumSize;
+
+  set_units(AllVars);
 
   /* dimension of coarse grid. Note: the actual size of a mesh cell
      will usually be set to its optimal size, i.e. equal to the
@@ -84,16 +92,10 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   AllVars.Grid = 256;
   AllVars.MaxPlacement = 4;
   
-  set_units(AllVars);
+  /* Initialization :: copy particle data from enzo's grids to the
+     halo finder's data structure. */
 
-  AllVars.SearchRadius = AllVars.LinkLength * AllVars.BoxSize / 
-    pow(AllVars.NumPart,1.0/3);
-
-  // softening length for potential computation
-  AllVars.Epsilon = 0.05 * AllVars.BoxSize / pow(AllVars.NumPart,1.0/3);
-  
-  if (debug)
-    printf("Comoving linking length: %g kpc/h\n", AllVars.SearchRadius);
+  FOF_Initialize(MetaData, LevelArray, AllVars);
 
   marking(AllVars);
  
@@ -115,12 +117,17 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
 
   save_groups(AllVars, MetaData->CycleNumber, MetaData->Time);
   if (HaloFinderSubfind)
-    subfind(AllVars);
+    subfind(AllVars, MetaData->CycleNumber, MetaData->Time);
 
   /* Finalize :: move particles back into enzo's memory and then move
-     the particles back to their correct grid. */
+     the particles back to their correct grid.  No longer needed
+     because we only copy the particles. */
 
-  FOF_Finalize(MetaData, LevelArray, AllVars);
+  //FOF_Finalize(MetaData, LevelArray, AllVars);
+
+  deallocate_all_memory(AllVars);
+
+  HaloFinderLastTime = MetaData->Time;
 
 }
 
@@ -176,16 +183,16 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
   FILE   *fd;
   hid_t  file_id, dset_id, dspace_id, group_id;
+  hsize_t hdims[2];
   herr_t status;
 
   int    i, gr, offset, dim, index;
   int    ntot;
   int    head, len;
   char   ctype;
-  float cm[3], cmv[3], mtot, mstars;
+  float cm[3], cmv[3], mtot, mstars, redshift;
   double *temp;
   int   *TempInt;
-  float redshift;
 
   FOF_particle_data *Pbuf;
   char   *FOF_dirname = "FOF";
@@ -194,9 +201,12 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
   char   halo_name[200];
 
   sprintf(catalogue_fname, "%s/groups_%5.5d.dat", FOF_dirname, CycleNumber);
-  sprintf(particle_fname, "%s/particles_%5.5d.dat", FOF_dirname, CycleNumber);
+  sprintf(particle_fname, "%s/particles_%5.5d.h5", FOF_dirname, CycleNumber);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+    if (debug)
+      fprintf(stdout, "FOF: Saving halo list to %s\n", catalogue_fname);
 
     if ((fd = fopen(catalogue_fname, "w")) == NULL)
       ENZO_FAIL("Unable to open FOF group file.");
@@ -205,7 +215,7 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
     redshift = 1.0 / AllVars.Time - 1.0;
     fprintf(fd, "# Time     = %"PSYM"\n", EnzoTime);
-    fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
+    fprintf(fd, "# Redshift = %"FSYM"\n", redshift);
     fprintf(fd, "# Number of halos = %"ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
     fprintf(fd, "# Column 1.  Halo number\n");
@@ -222,7 +232,11 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
     if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
-      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT);
+      if (debug)
+	fprintf(stdout, "FOF: Saving halo particle list to %s\n", particle_fname);
+
+      file_id = H5Fcreate(particle_fname, H5F_ACC_TRUNC, H5P_DEFAULT, 
+			  H5P_DEFAULT);
       group_id = H5Gcreate(file_id, "/Parameters", 0);
       writeScalarAttribute(group_id, HDF5_REAL, "Redshift", &redshift);
       writeScalarAttribute(group_id, HDF5_PREC, "Time", &EnzoTime);
@@ -233,7 +247,7 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
   } // ENDIF ROOT_PROCESSOR
 
-  for (gr = NgroupsAll-1; gr >= 0; gr--) {
+  for (gr = AllVars.NgroupsAll-1; gr >= 0; gr--) {
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       head = AllVars.GroupDatAll[gr].Tag;
@@ -247,6 +261,11 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
       get_properties(AllVars, Pbuf, len, &cm[0], &cmv[0], &mtot, &mstars);
 
+      if (debug && gr == AllVars.NgroupsAll-1)
+	fprintf(stdout, "FOF: Largest group has %"ISYM" particles"
+		" (%"GSYM" M_sun)\n", len, mtot);
+
+
       fprintf(fd, "%12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
 	      AllVars.NgroupsAll-1-gr, len, 
 	      mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
@@ -258,7 +277,7 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	index = 0;
 	for (dim = 0; dim < 3; dim++)
 	  for (i = 0; i < len; i++, index++)
-	    temp[index] = Pbuf[i].Pos[dim];
+	    temp[index] = Pbuf[i].Pos[dim] / AllVars.BoxSize;
 	for (i = 0; i < len; i++)
 	  TempInt[i] = Pbuf[i].PartID;
 
@@ -269,14 +288,18 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
 	writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
 
-	dspace_id = H5Screate_simple(3, len, NULL);
+	hdims[0] = 3;
+	hdims[1] = (hsize_t) len;
+	dspace_id = H5Screate_simple(2, hdims, NULL);
 	dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE, dspace_id,
 			    H5P_DEFAULT);
 	H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	H5Sclose(dspace_id);
 	H5Dclose(dset_id);
 	
-	dspace_id = H5Screate_simple(1, len, NULL);
+	hdims[0] = (hsize_t) len;
+	hdims[1] = 1;
+	dspace_id = H5Screate_simple(1, hdims, NULL);
 	dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
 			    H5P_DEFAULT);
 	H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) TempInt);
@@ -518,9 +541,6 @@ int link_across(FOFData &AllVars)
 		MPI_COMM_WORLD);
 #endif
 
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    printf("nlinktot = %"ISYM"\n", nlinktot);
-
   return nlinktot;
 }
 
@@ -556,9 +576,6 @@ void compile_group_catalogue(FOFData &AllVars)
   MPI_Allreduce(&nbound, &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 #endif
 
-  if (debug)
-    fprintf(stdout, "Number of groups: %"ISYM"  bound: %"ISYM"\n", AllVars.NgroupsAll, Nbound);
-  
   AllVars.GroupDat = new gr_data[AllVars.Ngroups];
   
   AllVars.ContribID =   ivector(0, AllVars.Ncontrib-1); 
@@ -618,10 +635,8 @@ void compile_group_catalogue(FOFData &AllVars)
     qsort(AllVars.GroupDatAll, AllVars.NgroupsAll, sizeof(gr_data), 
 	  comp_func_gr);
     if (AllVars.NgroupsAll > 0)
-      fprintf(stderr, "FOF: Found %"ISYM" groups, "
-	      "Largest group has %"ISYM" particles.\n",
-	      AllVars.NgroupsAll, 
-	      AllVars.GroupDatAll[AllVars.NgroupsAll-1].Len);
+      fprintf(stderr, "FOF: Found %"ISYM" groups, %"ISYM" bound particles\n",
+	      AllVars.NgroupsAll, Nbound);
   } // ENDIF debug
 
 #ifdef USE_MPI
@@ -793,8 +808,8 @@ void exchange_shadow(FOFData &AllVars)
   int    i, slab, nl, nr;
   int    leftTask, rightTask;
 
-  if (debug)
-    fprintf(stdout, "FOF: exchanging shadows ...\n");
+//  if (debug)
+//    fprintf(stdout, "FOF: exchanging shadows ...\n");
 
   buftoleft =  new FOF_particle_data[AllVars.NtoLeft[MyProcessorNumber]];
   buftoright = new FOF_particle_data[AllVars.NtoRight[MyProcessorNumber]];
@@ -903,9 +918,9 @@ void link_local_slab(FOFData &AllVars)
       for (AllVars.GridCorner[2] = 0, nz = 0; nz < AllVars.Nz; 
 	   AllVars.GridCorner[2] += (AllVars.Grid - 2.0) / AllVars.Grid * 
 	     AllVars.GridExtension, nz++) {
-	if (debug)
-	  printf("Grid placement number: %"ISYM" out of %"ISYM"\n", iter++, 
-		 AllVars.Nx * AllVars.Ny * AllVars.Nz);
+//	if (debug)
+//	  printf("Grid placement number: %"ISYM" out of %"ISYM"\n", iter++, 
+//		 AllVars.Nx * AllVars.Ny * AllVars.Nz);
 	  
 	count = coarse_binning(AllVars);
 	  
@@ -913,8 +928,8 @@ void link_local_slab(FOFData &AllVars)
 	  find_groups(AllVars);
       }
   
-  if (debug)
-    printf("main linking done.\n"); 
+//  if (debug)
+//    printf("main linking done.\n"); 
 
 }
 
@@ -943,9 +958,9 @@ void init_coarse_grid(FOFData &AllVars)
   AllVars.Nz = (int) (AllVars.BoxSize/( (AllVars.Grid-2.0) / AllVars.Grid * 
 					AllVars.GridExtension) + 1);
 
-  if (debug)
-    printf("\nGrid has to be placed (%"ISYM"|%"ISYM"|%"ISYM") times in each dimension.\n", 
-	   AllVars.Nx, AllVars.Ny, AllVars.Nz);
+//  if (debug)
+//    printf("\nGrid has to be placed (%"ISYM"|%"ISYM"|%"ISYM") times in each dimension.\n", 
+//	   AllVars.Nx, AllVars.Ny, AllVars.Nz);
 
   AllVars.GridFirst = i3tensor(0, AllVars.Grid-1, 0, AllVars.Grid-1, 0, 
 			       AllVars.Grid-1);
@@ -961,8 +976,8 @@ void init_coarse_grid(FOFData &AllVars)
   AllVars.Head = ivector(1, AllVars.Nlocal);
   AllVars.Next = ivector(1, AllVars.Nlocal);
 
-  if (debug)
-    printf("Nlocal = %"ISYM" Task = %"ISYM"\n", AllVars.Nlocal, MyProcessorNumber);
+//  if (debug)
+//    printf("Nlocal = %"ISYM" Task = %"ISYM"\n", AllVars.Nlocal, MyProcessorNumber);
 
   for (i = 1; i <= AllVars.Nlocal; i++) {
     AllVars.Head[i] = i;
@@ -981,8 +996,8 @@ void marking(FOFData &AllVars)
   float posold[3];
   int   i,k,iter,idone;
 
-  if (debug)
-    fprintf(stdout, "marking ...\n");
+//  if (debug)
+//    fprintf(stdout, "marking ...\n");
 
   iter = 0;
   do {
@@ -1012,24 +1027,24 @@ void marking(FOFData &AllVars)
 
 /************************************************************************/
 
-double FOF_periodic(double x, FOFData AllVars)
+double FOF_periodic(double x, double boxsize)
 {
-  if (x > 0.5*AllVars.BoxSize)
-    x -= AllVars.BoxSize;
+  if (x > 0.5*boxsize)
+    x -= boxsize;
 
-  if (x < -0.5*AllVars.BoxSize)
-    x += AllVars.BoxSize;
+  if (x < -0.5*boxsize)
+    x += boxsize;
   
   return x;
 }
 
-double FOF_periodic_wrap(double x, FOFData AllVars)
+double FOF_periodic_wrap(double x, double boxsize)
 {
-  while (x > AllVars.BoxSize)
-    x -= AllVars.BoxSize;
+  while (x > boxsize)
+    x -= boxsize;
 
   while (x < 0)
-    x += AllVars.BoxSize;
+    x += boxsize;
   
   return x;
 }
@@ -1042,8 +1057,8 @@ int coarse_binning(FOFData &AllVars)
   double fac;
   double pos[3];
 
-  if (debug)
-    fprintf(stdout, "coarse binning...");
+//  if (debug)
+//    fprintf(stdout, "coarse binning...");
 
   for (i = 0; i < AllVars.Grid; i++)
     for (j = 0; j < AllVars.Grid; j++)
@@ -1100,8 +1115,8 @@ void find_groups(FOFData &AllVars)
   int i,j,k;
   int p;
 
-  if (debug)
-    printf("linking..."); fflush(stdout);
+//  if (debug)
+//    printf("linking..."); fflush(stdout);
 
   for (i = AllVars.Grid-2; i >= 1; i--)
     for (j = AllVars.Grid-2; j >= 1; j--)
@@ -1135,8 +1150,6 @@ void find_groups(FOFData &AllVars)
 	} // ENDIF
       } // ENDFOR k
 
-  if (debug)
-    printf("done.\n");
 }
 
 /************************************************************************/
@@ -1167,9 +1180,9 @@ void check_cell(FOFData &AllVars, int p, int i, int j, int k)
       dx = AllVars.P[p].Pos[0] - AllVars.P[s].Pos[0];
       dy = AllVars.P[p].Pos[1] - AllVars.P[s].Pos[1];
       dz = AllVars.P[p].Pos[2] - AllVars.P[s].Pos[2];
-      dx = FOF_periodic(dx, AllVars);
-      dy = FOF_periodic(dy, AllVars);
-      dz = FOF_periodic(dz, AllVars);
+      dx = FOF_periodic(dx, AllVars.BoxSize);
+      dy = FOF_periodic(dy, AllVars.BoxSize);
+      dz = FOF_periodic(dz, AllVars.BoxSize);
 
       r2 = dx*dx + dy*dy + dz*dz;
 

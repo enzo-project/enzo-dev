@@ -290,6 +290,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderOutputParticleList     = FALSE;
   HaloFinderMinimumSize            = 50;
   HaloFinderLinkingLength          = 0.1;
+  HaloFinderCycleSkip              = 3;
+  HaloFinderTimestep               = FLOAT_UNDEFINED;
+  HaloFinderLastTime               = 0.0;
 
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years

@@ -22,20 +22,20 @@ void density(FOFData &A)
   
   set_sph_kernel(A);
   
-  if (debug)
-    printf("Computing densities...\n");
+//  if (debug)
+//    printf("Computing densities...\n");
 
   for (i = 1, signal = 0; i <= A.NumInGroup; i++) {
-    if (debug) {
-      if (i > (signal/100.0)*A.NumInGroup) {
-	if ((signal%10) == 0)
-	  printf("%"ISYM,signal);
-	else
-	  printf(".",signal);
-	fflush(stdout);
-	signal++;
-      }
-    } // ENDIF debug
+//    if (debug) {
+//      if (i > (signal/100.0)*A.NumInGroup) {
+//	if ((signal%10) == 0)
+//	  printf("%"ISYM,signal);
+//	else
+//	  printf(".",signal);
+//	fflush(stdout);
+//	signal++;
+//      }
+//    } // ENDIF debug
 
     h2 = ngb_treefind(A, A.P[i].Pos, A.DesDensityNgb, 0, &ngblist, &r2list); 
     
@@ -61,8 +61,8 @@ void density(FOFData &A)
 	}
     }
   
-  if (debug)
-    printf("\ndone.\n");
+//  if (debug)
+//    printf("\ndone.\n");
 }
 
 
