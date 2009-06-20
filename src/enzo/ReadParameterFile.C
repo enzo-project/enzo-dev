@@ -375,6 +375,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ParallelParticleIO = %"ISYM, &ParallelParticleIO);
  
     ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
+    ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
  
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
  
@@ -829,6 +830,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ParallelRootGridIO = 1;
     ParallelParticleIO = 1;
   }
+
+  if ((MetaData.GravityBoundary != TopGridPeriodic) &&
+      (UnigridTranspose)) {
+    /* it turns out that Robert Harkness' unigrid transpose stuff is incompatible with the top
+       grid isolated gravity boundary conditions.  I'm not 100 percent sure why this is - in the 
+       meantime, just double-check to make sure that if one tries to use the isolated boundary
+       conditions when the unigrid transpose stuff is on, the code crashes loudly.
+       -- BWO, 26 June 2008 */
+      if (MyProcessorNumber == ROOT_PROCESSOR){
+	fprintf(stderr, "\n\n");
+	fprintf(stderr, "  ************************************************************************\n");
+	fprintf(stderr, "  ****  D'oh!  At present, you cannot use isolated top grid boundary  ****\n");
+	fprintf(stderr, "  ****  conditions with the top grid unigrid bookkeeping scheme.      ****\n");
+	fprintf(stderr, "  ****  Consult Brian O'Shea for the details of this wackiness,       ****\n");
+	fprintf(stderr, "  ****  and in the meantime enzo DISABLED unigrid tranposition!       ****\n");
+	fprintf(stderr, "  ************************************************************************\n");      
+	fprintf(stderr, "\n\n");
+      }
+      UnigridTranspose = FALSE;
+    }
 
   /* If refining by must-refine particles, particle mass refinement
      must be turned on. */

@@ -23,8 +23,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-#ifdef ISOLATED_GRAVITY
-
 #define GINDEX(i1,i2,i3) (((i3)*GravitatingMassFieldDimension[1]+(i2))*GravitatingMassFieldDimension[0]+(i1))
 
 int grid::SetIsolatedPotentialBoundary()
@@ -81,6 +79,4 @@ int grid::SetIsolatedPotentialBoundary()
 
   return SUCCESS;
 }
-
-#endif /* ISOLATED_GRAVITY */
 

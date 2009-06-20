@@ -438,34 +438,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE UNIGRID_TRANSPOSE SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_UNIGRID_TRANSPOSE = 1
-
-    # Settings to turn unigrid transpose ON
-
-    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),yes)
-        ERROR_UNIGRID_TRANSPOSE = 0
-        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES = -DUNIGRID_TRANSPOSE
-    endif
-
-    # Settings to turn unigrid transpose OFF
-
-    ifeq ($(CONFIG_UNIGRID_TRANSPOSE),no)
-        ERROR_UNIGRID_TRANSPOSE = 0
-        ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES =
-    endif
-
-    # error if CONFIG_UNIGRID_TRANSPOSE is incorrect
-
-    ifeq ($(ERROR_UNIGRID_TRANSPOSE),1)
-       .PHONY: error_unigrid_transpose
-       error_unigrid_transpose:
-	$(error Illegal value '$(CONFIG_UNIGRID_TRANSPOSE)' for $$(CONFIG_UNIGRID_TRANSPOSE))
-    endif
-
-#-----------------------------------------------------------------------
 # DETERMINE OOC_BOUNDARY SETTINGS
 #-----------------------------------------------------------------------
 
@@ -562,35 +534,6 @@
        error_testing:
 	$(error Illegal value '$(CONFIG_TESTING)' for $$(CONFIG_TESTING))
     endif
-
-#-----------------------------------------------------------------------
-# DETERMINE ISOLATED GRAVITY BOUNDARY CONDITION (ISOBCS) SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_ISOBCS = 1
-
-    # Settings to turn isolated gravity boundary conditions ON
-
-    ifeq ($(CONFIG_ISOBCS),yes)
-        ERROR_ISOBCS = 0
-        ASSEMBLE_ISOBCS_DEFINES = -DISOLATED_GRAVITY
-    endif
-
-    # Settings to turn isolated gravity boundary conditions OFF
-
-    ifeq ($(CONFIG_ISOBCS),no)
-        ERROR_ISOBCS = 0
-        ASSEMBLE_ISOBCS_DEFINES =
-    endif
-
-    # error if CONFIG_ISOBCS is incorrect
-
-    ifeq ($(ERROR_ISOBCS),1)
-       .PHONY: error_isobcs
-       error_isobcs:
-	$(error Illegal value '$(CONFIG_ISOBCS)' for $$(CONFIG_ISOBCS))
-    endif
-
 
 #-----------------------------------------------------------------------
 # DETERMINE TRACER PARTICLE VELOCITY OUTPUT SETTINGS
@@ -723,12 +666,10 @@
               $(ASSEMBLE_PACKED_AMR_DEFINES) \
               $(ASSEMBLE_PACKED_MEM_DEFINES) \
               $(ASSEMBLE_TESTING_DEFINES) \
-              $(ASSEMBLE_ISOBCS_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
-              $(ASSEMBLE_FLUX_FIX_DEFINES) \
-              $(ASSEMBLE_UNIGRID_TRANSPOSE_DEFINES)
+              $(ASSEMBLE_FLUX_FIX_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \

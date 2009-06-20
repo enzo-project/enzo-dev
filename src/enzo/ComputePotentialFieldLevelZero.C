@@ -76,10 +76,8 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int FluxFlag = FALSE,
 				TopGridData* MetaData = NULL);
 
-#ifdef ISOLATED_GRAVITY
 int PrepareIsolatedGreensFunction(region *GreensFunction, int proc, 
 				  int DomainDim[], TopGridData *MetaData);
-#endif /* ISOLATED_GRAVITY */
 
 #ifdef FAST_SIB
 int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
@@ -111,13 +109,11 @@ int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 
 #ifdef FAST_SIB
   if (ComputePotentialFieldLevelZeroPer(MetaData, SiblingList, Grids, NumberOfGrids) == FAIL) {
-    fprintf(stderr, "Error in ComputePotentialFieldLevelZeroPer.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ComputePotentialFieldLevelZeroPer.");
   }   
 #else
   if (ComputePotentialFieldLevelZeroPer(MetaData, Grids, NumberOfGrids) == FAIL) {
-    fprintf(stderr, "Error in ComputePotentialFieldLevelZeroPer.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ComputePotentialFieldLevelZeroPer.");
   }
 #endif
     
@@ -168,8 +164,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
                            0.5*Grids[0]->GridData->ReturnTimeStep();
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(MidTime, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
     }
  
   /* If we are doing an isolated case then we do not have to tranpose the field
@@ -196,13 +191,10 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
 	if (Grids[grid1]->GridData->PreparePeriodicGreensFunction(
 					     &(GreensRegion[grid1])) == FAIL) {
-	  fprintf(stderr, "Error in grid->PreparePeriodicGreensFunction.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in grid->PreparePeriodicGreensFunction.");
 	}
  
     } else {
- 
-#ifdef ISOLATED_GRAVITY
  
       region *TempRegion = new region[NumberOfProcessors];
 
@@ -213,8 +205,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 	if (PrepareIsolatedGreensFunction(&TempRegion[proc], proc, DomainDim,
 					  MetaData) 
 	    == FAIL) {
-	  fprintf(stderr, "Error in PrepareIsolatedGreensFunction.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in PrepareIsolatedGreensFunction.");
 	}
 
       /* Forward FFT Greens function. */
@@ -224,8 +215,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				   &GreensRegion, &NumberOfGreensRegions,
 				   DomainDim, MetaData->TopGridRank,
 				   FFT_FORWARD, TransposeOnCompletion) == FAIL) {
-	fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in CommunicationParallelFFT.");
       }
 
       /* Clean up. */
@@ -233,13 +223,6 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       if (GreensRegion != TempRegion)
 	delete [] TempRegion;
 
-#else  /* ISOLATED_GRAVITY */
-
-      fprintf(stderr, "You do not have isolated BC's turned on.  Recompile.\n");
-      ENZO_FAIL("");
-
-#endif /* ISOLATED_GRAVITY */
- 
     } // end: if (Periodic)
  
     FirstCall = FALSE;
@@ -253,11 +236,9 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
     if (Grids[grid1]->GridData->PrepareFFT(&InitialRegion[grid1],
 					  GRAVITATING_MASS_FIELD, DomainDim)
 	== FAIL) {
-      fprintf(stderr, "Error in grid->PrepareFFT.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in grid->PrepareFFT.");
     }
  
-#ifdef ISOLATED_GRAVITY
   /* If doing isolated BC's then double the domain size. */
 
   if (MetaData->GravityBoundary == TopGridIsolated) {
@@ -265,20 +246,14 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       DomainDim[dim] *= 2;
     DomainDim[0] -= 2; /* correct for real-to-complex extra 2 */
   }
-#endif /* ISOLATED_GRAVITY */
 
   /* Forward FFT density field. */
  
   if (CommunicationParallelFFT(InitialRegion, NumberOfRegions,
 			       &OutRegion, &NumberOfOutRegions,
 			       DomainDim, MetaData->TopGridRank,
-#ifdef ISOLATED_GRAVITY
 			       FFT_FORWARD, TransposeOnCompletion) == FAIL) {
-#else  /* ISOLATED_GRAVITY */
-			       FFT_FORWARD, TRUE) == FAIL) {
-#endif /* ISOLATED_GRAVITY */
-    fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in CommunicationParallelFFT.");
   }
  
   /* Quick error check. */
@@ -303,7 +278,6 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       int size = OutRegion[i].RegionDim[0]*OutRegion[i].RegionDim[1]*
 	         OutRegion[i].RegionDim[2];
 
-#ifdef ISOLATED_GRAVITY 
       /* In periodic case, the Greens function is purely real. */
 
       if (MetaData->GravityBoundary == TopGridPeriodic) {
@@ -328,13 +302,6 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 	  OutRegion[i].Data[j+1] = imag_part;
 	}
       }
-
-#else /* ISOLATED_GRAVITY */
-      for (n = 0, j = 0; j < size; j += 2, n++) {
-	OutRegion[i].Data[j  ] *= coef*GreensRegion[i].Data[n];
-	OutRegion[i].Data[j+1] *= coef*GreensRegion[i].Data[n];
-      }
-#endif /* ISOLATED_GRAVITY */
     }
  
   /* Inverse FFT potential field. */
@@ -342,13 +309,8 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   if (CommunicationParallelFFT(InitialRegion, NumberOfRegions,
 			       &OutRegion, &NumberOfOutRegions,
 			       DomainDim, MetaData->TopGridRank,
-#ifdef ISOLATED_GRAVITY
 			       FFT_INVERSE, TransposeOnCompletion) == FAIL) {
-#else  /* ISOLATED_GRAVITY */
-			       FFT_INVERSE, TRUE) == FAIL) {
-#endif /* ISOLATED_GRAVITY */
-    fprintf(stderr, "Error in CommunicationParallelFFT.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in CommunicationParallelFFT.");
   }
  
   /* Copy Potential in active region into while grid. */
@@ -356,8 +318,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     if (Grids[grid1]->GridData->FinishFFT(&InitialRegion[grid1], POTENTIAL_FIELD,
 			       DomainDim) == FAIL) {
-      fprintf(stderr, "Error in grid->FinishFFT.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in grid->FinishFFT.");
     }
  
   /* Update boundary regions of potential
@@ -371,15 +332,10 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       BCTempLeft[dim] = BCTempRight[dim] = periodic;
   } else {
 
-#ifdef ISOLATED_GRAVITY
     for (int dim = 0; dim < MAX_DIMENSION; dim++)
       BCTempLeft[dim] = BCTempRight[dim] = reflecting; // doesn't matter as long as not periodic
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->SetIsolatedPotentialBoundary();
-#else  /* ISOLATED_GRAVITY */
-    fprintf(stderr, "recompile with isolated boundary conditions turned on!\n");
-    ENZO_FAIL("");
-#endif /* ISOLATED_GRAVITY */
   }
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -400,8 +356,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempLeft,
 				      BCTempRight,
 				      &grid::CopyPotentialField) == FAIL) {
-	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid->CopyPotentialField.");
       }
 #else
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
@@ -409,8 +364,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
 				      BCTempLeft, BCTempRight,
      	                              &grid::CopyPotentialField) == FAIL) {
-	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid->CopyPotentialField.");
       }
 #endif
 
@@ -430,8 +384,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 				      BCTempLeft,
 				      BCTempRight,
 				      &grid::CopyPotentialField) == FAIL) {
-	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid->CopyPotentialField.");
      }
 #else
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
@@ -439,8 +392,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
       if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
 				      BCTempLeft, BCTempRight,
      	                              &grid::CopyPotentialField) == FAIL) {
-	fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid->CopyPotentialField.");
       }
 #endif 
 
