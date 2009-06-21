@@ -563,6 +563,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "UseHydro               = %"ISYM, &UseHydro);
 
+
     /* Sink particles (for present day star formation) & winds */
     ret += sscanf(line, "SinkMergeDistance = %lf", &SinkMergeDistance);
     ret += sscanf(line, "SinkMergeMass        = %"FSYM, &SinkMergeMass);

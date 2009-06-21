@@ -88,6 +88,8 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
 							
   region *Sends = new region[NumberOfFromRegions];
   region *Receives = new region[NumberOfToRegions];
+
+  //  if (NumberOfProcessors == 1) return SUCCESS;
  
   /* Loop over processor jumps (number of processors ahead to send). */
  
@@ -310,7 +312,10 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
   delete [] Receives;
  
   return SUCCESS;
-}
+};
+
+// #endif 
+
 
 int OptimizedUnigridCommunicationTranspose(
                region *FromRegion, int NumberOfFromRegions,
@@ -916,3 +921,4 @@ int OptimizedUnigridCommunicationTranspose(
 
 }
  
+

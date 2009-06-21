@@ -176,8 +176,46 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       //ENZO_FAIL("");
     }
   }
+
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
+
+//   /* Tom Abel : testing this block : ******************************************** */
+//       if (debug) {
+//         fprintf(stderr, "InitializeExternalBoundaryFace\n");
+//       }
+
+//       SimpleConstantBoundary = TRUE;
+
+//       for (int dim = 0; dim < MetaData.TopGridRank; dim++) {
+//         if (MetaData.LeftFaceBoundaryCondition[dim] != periodic ||
+//             MetaData.RightFaceBoundaryCondition[dim] != periodic) {
+//           SimpleConstantBoundary = FALSE;
+//         }
+//       }
+
+//       if (debug) {
+//         if (SimpleConstantBoundary) {
+//           fprintf(stderr, "SimpleConstantBoundary TRUE\n");
+//         } else {
+//           fprintf(stderr, "SimpleConstantBoundary FALSE\n");
+//         }
+//       }
+//       float Dummy[MAX_DIMENSION];
+//       for (int dim = 0; dim < MAX_DIMENSION; dim++)
+// 	Dummy[dim] = 0.0;
+
+//       for (int dim = 0; dim < MetaData.TopGridRank; dim++)
+// 	if (Exterior->InitializeExternalBoundaryFace(dim,
+// 				    MetaData.LeftFaceBoundaryCondition[dim],
+// 				    MetaData.RightFaceBoundaryCondition[dim],
+// 				    Dummy, Dummy)
+// 	    == FAIL) {
+// 	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+// 	  ENZO_FAIL("");
+// 	}
+
+//       /* ******************************************************************* */
 
   /* Create the memory map name */
 

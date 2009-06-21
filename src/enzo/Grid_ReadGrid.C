@@ -202,7 +202,22 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
 		ENZO_FAIL("Error reading GravityBoundaryType.");
       }
+    // If HierarchyFile has different Ghostzones 
+    // (useful in a restart with different hydro/mhd solvers) 
+    int ghosts =DEFAULT_GHOST_ZONES;
+    if (GridStartIndex[0] != ghosts)  {
+	if (GridID < 2)      fprintf(stderr,"Grid_Group_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
+      
+      for (dim=0; dim < GridRank; dim++) {
+	GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
+	GridStartIndex[dim] = ghosts;
+	GridEndIndex[dim]   = GridStartIndex[dim]+GridDimension[dim]-1-2*ghosts;
+	if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %i: %i %i %i\n",
+				 dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
+      }
+    } // end Adjusting Grid Size with different Ghostzones
   }
+
 
   /* Compute Flux quantities */
 
@@ -220,10 +235,12 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     /* if we restart from a a different solvers output without a Phi Field create here and set to zero */
     int PhiNum; 
     if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+      char *PhiName = "Phi";
       PhiNum=NumberOfBaryonFields++;
       FieldType[PhiNum] = PhiField;
-      BaryonField[PhiNum] = new float[activesize];
-      for (int n = 0; n < activesize; n++) BaryonField[PhiNum][n] = 0.0;
+      DataLabel[PhiNum] = PhiName;
+      BaryonField[PhiNum] = new float[size];
+      for (int n = 0; n < size; n++) BaryonField[PhiNum][n] = 0.0;
     }
 
     for (int dim = 0; dim < 3; dim++)

@@ -338,6 +338,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindFeedback              = 0;
   StellarWindTurnOnMass            = 0.1;
 
+  UseHydro = 1;
   Coordinate = Cartesian;
   NSpecies = 0;
   NColor   = 0;
@@ -368,7 +369,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseViscosity = 0;
   UseAmbipolarDiffusion = 0;
   UseResistivity = 0;
-  UseHydro = 1;
 
   StringKick = 0;
 

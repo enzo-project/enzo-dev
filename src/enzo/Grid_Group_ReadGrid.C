@@ -53,7 +53,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 			 int ReadText, int ReadData)
 {
  
-  int i, j, k, dim, field, size, active_size;
+  int i, j, k, field, size, active_size;
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
   char logname[MAX_LINE_LENGTH];
   char procfilename[MAX_LINE_LENGTH];
@@ -105,12 +105,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     /* make sure quantities defined at least for 3d */
  
-    for (dim = GridRank; dim < 3; dim++) {
+    for (int dim = GridRank; dim < 3; dim++) {
       GridDimension[dim] = 1;
       GridStartIndex[dim] = 0;
       GridEndIndex[dim] = 0;
     }
- 
     if (fscanf(fptr, "GridRank = %"ISYM"\n", &GridRank) != 1) {
             ENZO_FAIL("Error reading GridRank.");
     }
@@ -202,14 +201,28 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
 		ENZO_FAIL("Error reading GravityBoundaryType.");
       }
-  }
 
-  /* Compute Flux quantities */
+    // If HierarchyFile has different Ghostzones (which should be a parameter not a macro ...)
+    // (useful in a restart with different hydro/mhd solvers) 
+    int ghosts =DEFAULT_GHOST_ZONES;
+    if (GridStartIndex[0] != ghosts)  {
+	if (GridID < 2)
+     fprintf(stderr,"Grid_Group_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
+      for (int dim=0; dim < GridRank; dim++) {
+	GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
+	GridStartIndex[dim] = ghosts;
+	GridEndIndex[dim]   = GridStartIndex[dim]+GridDimension[dim]-1-2*ghosts;
+	 if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %i: %i %i %i\n",
+				  dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
+      }
+    }
 
-  this->PrepareGridDerivedQuantities();
+
+  } // (if (ReadText) )
  
+
   int ii = sizeof(io_type);
- 
+
   switch(ii)
     {
  
@@ -283,7 +296,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* fill in ActiveDim for dims up to 3d */
  
-    for (dim = 0; dim < 3; dim++)
+    for (int dim = 0; dim < 3; dim++)
       ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
  
     /* check dimensions of HDF file against this grid
@@ -292,14 +305,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     size = 1;
     active_size = 1;
  
-    for (dim = 0; dim < GridRank; dim++) {
+    for (int dim = 0; dim < GridRank; dim++) {
       size *= GridDimension[dim];
       active_size *= ActiveDim[dim];
     }
  
     //  CAUTION - are the coordinates reversed?
  
-    for (dim = 0; dim < GridRank; dim++) {
+    for (int dim = 0; dim < GridRank; dim++) {
       OutDims[GridRank-dim-1] = ActiveDim[dim];
       if (io_log) fprintf(log_fptr, "Outdims %"ISYM"\n", (int) OutDims[GridRank-dim-1]);
     }
@@ -354,10 +367,48 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     } // end: loop over fields
  
+
+    if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
+      // 
+
+   
+      int activesize = 1;
+      for (int dim = 0; dim < GridRank; dim++)
+	activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+      
+      if (divB == NULL) 
+	divB = new float[activesize];
+      
+      /* if we restart from a different solvers output without a Phi Field create here and set to zero */
+      int PhiNum; 
+      if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+	char *PhiName = "Phi";
+	PhiNum=NumberOfBaryonFields++;
+	FieldType[PhiNum] = PhiField;
+	DataLabel[PhiNum] = PhiName;
+	BaryonField[PhiNum] = new float[size];
+      for (int n = 0; n < size; n++) BaryonField[PhiNum][n] = 0.0;
+      }
+      
+      for (int dim = 0; dim < 3; dim++)
+	if (gradPhi[dim] == NULL)
+	  gradPhi[dim] = new float[activesize];
+      
+      for (int dim = GridRank; dim < 3; dim++)
+	for (int n = 0; n < activesize; n++)
+	  gradPhi[dim][n] = 0.0;
+      
+    } /* if HydroMethod == MHD */
+
+
     delete [] temp;
  
   }  // end:   if (NumberOfBaryonFields > 0 && ReadData &&
   //      (MyProcessorNumber == ProcessorNumber)) {
+
+  /* Compute Flux quantities */
+
+  this->PrepareGridDerivedQuantities();
  
  
   if (NumberOfParticles > 0 && ReadData &&
@@ -426,7 +477,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* Read ParticlePosition (use temporary buffer). */
  
-    for (dim = 0; dim < GridRank; dim++) {
+    for (int dim = 0; dim < GridRank; dim++) {
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -472,7 +523,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* Read ParticleVelocity. */
  
-    for (dim = 0; dim < GridRank; dim++) {
+    for (int dim = 0; dim < GridRank; dim++) {
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
