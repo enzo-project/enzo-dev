@@ -11,13 +11,14 @@
 /
 ************************************************************************/
 
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
-#ifdef USE_MPI
-#include "mpi.h"
-#endif /* USE_MPI */
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"

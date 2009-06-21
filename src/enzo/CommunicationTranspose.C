@@ -10,12 +10,11 @@
 /
 ************************************************************************/
  
-#include <stdio.h>
- 
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
  
+#include <stdio.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
