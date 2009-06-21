@@ -712,8 +712,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   SmallT /= TemperatureUnits;
   float h, cs, dpdrho, dpde;
   EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
-  printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g\n",
-         SmallRho, SmallP, SmallEint, PressureUnits);
+  if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
+    printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g\n",
+	   SmallRho, SmallP, SmallEint, PressureUnits);
   for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
     if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
       MinimumMassForRefinement[i] /= MassUnits;
