@@ -344,15 +344,15 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
   FOF_particle_data *localbuf;
 
 #ifdef USE_MPI
-  MPI_Bcast(&minid,  1, MPI_INT, dest, MPI_COMM_WORLD);
-  MPI_Bcast(&len,    1, MPI_INT, dest, MPI_COMM_WORLD);
+  MPI_Bcast(&minid,  1, IntDataType, dest, MPI_COMM_WORLD);
+  MPI_Bcast(&len,    1, IntDataType, dest, MPI_COMM_WORLD);
 #endif
 
   localbuf = new FOF_particle_data[len];
   nlocal = 0;
 
-  if (minid >= (1 + AllVars.Noffset[MyProcessorNumber]) && 
-      minid < (1 + AllVars.Noffset[MyProcessorNumber] + 
+  if (minid >= (AllVars.Noffset[MyProcessorNumber]) && 
+      minid < (AllVars.Noffset[MyProcessorNumber] + 
 	       AllVars.Nslab[MyProcessorNumber])) {
     pp = AllVars.Head[minid - AllVars.Noffset[MyProcessorNumber]];
     do {
@@ -403,7 +403,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
       buf[i] = localbuf[i];
     for (i = 0; i < NumberOfProcessors; i++) {
       if (i != MyProcessorNumber) {
-	MPI_Recv(&nrecv, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
+	MPI_Recv(&nrecv, 1, IntDataType, i, i, MPI_COMM_WORLD, &status);
 	if (nrecv) {
 	  MPI_Recv(&buf[nlocal], nrecv*sizeof(FOF_particle_data), 
 		   MPI_BYTE, i, i, MPI_COMM_WORLD, &status);
@@ -413,7 +413,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
     } // ENDFOR processors
   }
   else {
-    MPI_Ssend(&nlocal, 1, MPI_INT, dest, MyProcessorNumber, MPI_COMM_WORLD);
+    MPI_Ssend(&nlocal, 1, IntDataType, dest, MyProcessorNumber, MPI_COMM_WORLD);
     if (nlocal)
       MPI_Ssend(localbuf, nlocal*sizeof(FOF_particle_data), 
 		MPI_BYTE, dest, MyProcessorNumber, MPI_COMM_WORLD);
@@ -514,7 +514,7 @@ int link_across(FOFData &AllVars)
 
   for (i = 0; i < nbuf; i++) {
     iddat[i].ID = buffer[i].MinID;
-    iddat[i].index = 1 + AllVars.Nslab[MyProcessorNumber] + i;
+    iddat[i].index = AllVars.Nslab[MyProcessorNumber] + i;
   }
 
   qsort(iddat, nbuf, sizeof(id_data), comp_func);
@@ -538,7 +538,7 @@ int link_across(FOFData &AllVars)
   delete [] buftoleft;
 
 #ifdef USE_MPI
-  MPI_Allreduce(&AllVars.NLinkAcross, &nlinktot, 1, MPI_INT, MPI_SUM, 
+  MPI_Allreduce(&AllVars.NLinkAcross, &nlinktot, 1, IntDataType, MPI_SUM, 
 		MPI_COMM_WORLD);
 #endif
 
@@ -572,9 +572,9 @@ void compile_group_catalogue(FOFData &AllVars)
   } // ENDFOR
 
 #ifdef USE_MPI
-  MPI_Allreduce(&AllVars.Ngroups, &AllVars.NgroupsAll, 1, MPI_INT, MPI_SUM, 
+  MPI_Allreduce(&AllVars.Ngroups, &AllVars.NgroupsAll, 1, IntDataType, MPI_SUM, 
 		MPI_COMM_WORLD);
-  MPI_Allreduce(&nbound, &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&nbound, &Nbound, 1, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 #endif
 
   AllVars.GroupDat = new gr_data[AllVars.Ngroups];
@@ -607,7 +607,7 @@ void compile_group_catalogue(FOFData &AllVars)
   AllVars.NgroupsList = new int[NumberOfProcessors];
 
 #ifdef USE_MPI
-  MPI_Allgather(&AllVars.Ngroups, 1, MPI_INT, AllVars.NgroupsList, 1, MPI_INT, 
+  MPI_Allgather(&AllVars.Ngroups, 1, IntDataType, AllVars.NgroupsList, 1, IntDataType, 
 		MPI_COMM_WORLD);
 #endif
 
