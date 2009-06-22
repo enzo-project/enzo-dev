@@ -367,6 +367,7 @@ class grid
     (step #21) */
 
    void SetTimeNextTimestep() {Time += dtFixed;};
+   void SetTimePreviousTimestep() {Time -= dtFixed;};
 
 /* set time of this grid (used in setup) */
 

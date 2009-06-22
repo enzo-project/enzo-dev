@@ -202,7 +202,7 @@
 #    no            Do not include adaptive ray tracing
 #-----------------------------------------------------------------------
 
-     CONFIG_PHOTON = no
+     CONFIG_PHOTON = yes
 
 #=======================================================================
 # CONFIG_FAST_SIB

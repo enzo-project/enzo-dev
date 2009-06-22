@@ -429,14 +429,15 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         return FAIL;
       }
     } else {
-      if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
-        if (NumberOfProcessors == 1) {
-          fprintf(stderr, "Error in EvolveLevel_RK2.\n");
-          fprintf(stderr, "--> Dumping data (output number %d).\n",
-                  MetaData.DataDumpNumber);
-	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior);
-        }
+      if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
+	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
+	  if (NumberOfProcessors == 1) {
+	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
+	    fprintf(stderr, "--> Dumping data (output number %d).\n",
+		    MetaData.DataDumpNumber);
+	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+			       &TopGrid, MetaData, Exterior);
+	  }
         return FAIL;
       }
     }

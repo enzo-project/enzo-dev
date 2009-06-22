@@ -674,6 +674,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
   if (ComovingCoordinates) {
+
+    // Always output temperature in cosmology runs
+    OutputTemperature = TRUE;
+
     if (CosmologyReadParameters(fptr, &MetaData.StopTime, &MetaData.Time)
 	== FAIL) {
       fprintf(stderr, "Error in ReadCosmologyParameters.\n");;
