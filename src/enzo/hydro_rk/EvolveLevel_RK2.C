@@ -42,8 +42,8 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 		       TopGridData *MetaData);
 
 #ifdef TRANSFER
-int EvolvePhotons(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars);
+int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -193,7 +193,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       return FAIL;
     }
 
-  FLOAT When;
+  FLOAT When, GridTime;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;
@@ -745,18 +745,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Solve the radiative transfer */
 
 #ifdef TRANSFER
-    Grids[0]->GridData->SetTimePreviousTimestep();
-      while ((dtPhoton > 0.) && RadiativeTransfer &&
-	     (Grids[grid1]->GridData->ReturnTime() >= PhotonTime))  {
-	if (debug) 
-	  printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
-		 level, dtPhoton, PhotonTime);
-	if (EvolvePhotons(MetaData, LevelArray, AllStars) == FAIL) {
-	  fprintf(stderr, "Error in EvolvePhotons.\n");
-	  return FAIL;
-	}
-      } /* ENDWHILE evolve photon */
-    Grids[0]->GridData->SetTimeNextTimestep();
+    Grids[grid1]->GridData->SetTimePreviousTimestep();
+    GridTime = Grids[grid1]->GridData->ReturnTime();
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
+    Grids[grid1]->GridData->SetTimeNextTimestep();
 #endif /* TRANSFER */
 
     /*if (SetBoundaryConditions(Grids, NumberOfGrids,SiblingList,level, MetaData,
