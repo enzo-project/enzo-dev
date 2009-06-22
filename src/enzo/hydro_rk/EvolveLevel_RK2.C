@@ -42,7 +42,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 		       TopGridData *MetaData);
 
 #ifdef TRANSFER
-int EvolvePhotons(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[],
+int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
@@ -199,7 +199,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       return FAIL;
     }
 
-  FLOAT When;
+  FLOAT When, GridTime;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;

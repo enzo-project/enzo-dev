@@ -68,8 +68,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DFAST_SIB \
-	        -DSTATIC_SIBLING_LIST -DNO_FLUX_FIX -DNO_IO_LOG
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DOPTIMIZED_CTP
 
 #-----------------------------------------------------------------------
 # Compiler flag settings

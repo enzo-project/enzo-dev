@@ -28,6 +28,7 @@
 //     for the current time step (BoundaryFluxesThisTimeStep).
  
 #include <stdio.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -59,6 +60,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
   int CorrectLeftBoundaryFlux, CorrectRightBoundaryFlux, Offset;
   int Dim[MAX_DIMENSION], End[MAX_DIMENSION], Start[MAX_DIMENSION];
   int GridFluxDim[MAX_DIMENSION], GridFluxStartIndex[MAX_DIMENSION];
+  float B2;
  
   /* If there are no fields, don't do anything. */
  
@@ -369,10 +371,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    0.5 * BaryonField[Vel3Num][i2] * BaryonField[Vel3Num][i2];
 		}
 		if (HydroMethod == MHD_RK) {
-		  B2 = pow(BaryonField[B1Num][i1],2) + pow(BaryonField[B2Num][i1],2) +
-		    pow(BaryonField[B3Num][i1],2);
+		  B2 = POW(BaryonField[B1Num][i1],2) + POW(BaryonField[B2Num][i1],2) +
+		    POW(BaryonField[B3Num][i1],2);
 		  BaryonField[TENum][i1] += 0.5 * B2 / BaryonField[DensNum][i1];
-		  B2 = pow(BaryonField[B1Num][i2],2) + pow(BaryonField[B2Num][i2],2) +
+		  B2 = POW(BaryonField[B1Num][i2],2) + POW(BaryonField[B2Num][i2],2) +
 		    pow(BaryonField[B3Num][i2],2);
 		  BaryonField[TENum][i2] += 0.5 * B2 / BaryonField[DensNum][i2];
 		}
