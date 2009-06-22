@@ -45,6 +45,7 @@ int ReadListOfFloats(FILE *fptr, int N, float floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
+int InitializeCloudyCooling(FLOAT Time);
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
@@ -312,6 +313,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
+    if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
+      CloudyCoolingData.CloudyCoolingGridFile = dummy;
+      ret++;
+    }
+    ret += sscanf(line, "IncludeCloudyHeating = %"ISYM, &CloudyCoolingData.IncludeCloudyHeating);
+    ret += sscanf(line, "IncludeCloudyMMW = %"ISYM, &CloudyCoolingData.IncludeCloudyMMW);
+    ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
+    ret += sscanf(line, "ConstantTemperatureFloor = %"FSYM, &CloudyCoolingData.ConstantTemperatureFloor);
+    ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
+    ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
     if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) 
       MetalCoolingTable = dummy;
@@ -741,12 +752,23 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
  
   if (MultiSpecies             == 0 && 
+      MetalCooling             == 0 &&
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
     }
   }
- 
+
+  /* If set, initialize CloudyCooling. */
+
+  if (MetalCooling == CLOUDY_METAL_COOLING) {
+    RadiativeCooling = 1;
+    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
+      fprintf(stderr, "Error in InitializeCloudyCooling.\n");
+      return FAIL;
+    }
+  }
+
   /* If using the internal radiation field, initialize it. */
  
   if (RadiationFieldType >= 10 && RadiationFieldType <= 11)

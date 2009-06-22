@@ -238,6 +238,10 @@ EXTERN float ParticleCourantSafetyNumber;
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
 
+/* Cloudy cooling parameters and data. */
+
+EXTERN CloudyCoolingDataType CloudyCoolingData;
+
 /* Random Forcing on/off flag and associated data. */ //AK
 
 EXTERN int     RandomForcing;

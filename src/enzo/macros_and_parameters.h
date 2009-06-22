@@ -416,6 +416,7 @@ typedef int            HDF5_hid_t;
 
 #define JHW_METAL_COOLING 1
 #define CEN_METAL_COOLING 2
+#define CLOUDY_METAL_COOLING 3
 
 /* Streaming format parameters */
 
