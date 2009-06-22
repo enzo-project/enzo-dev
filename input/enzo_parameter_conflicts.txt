@@ -14,6 +14,17 @@ Everything between bracket sets is ignored.
 	Message = I made this up.
 }
 
+{
+	# a single array value
+	SomeArray[0] >= 64
+	# all array values must match
+	AnotherArray[all] == 3
+	# any array value matches
+	OneMoreArray[any] == 3
+	Message = Hey hey array.
+}
+
+
 # Actual conflicts
 
 {
