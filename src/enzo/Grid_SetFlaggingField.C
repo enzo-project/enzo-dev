@@ -168,6 +168,17 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     }
 #endif /* TRANSFER */
     break;
+
+    /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
+ 
+    /* Must be done last ... */
+  case 100:
+      NumberOfFlaggedCells -= this->FlagCellsToAvoidRefinement();
+      if (NumberOfFlaggedCells < 0) {
+	ENZO_FAIL("Error in grid->FlagCellsByOpticalDepth.");
+      }
+
+    break;
  
     /* ==== undefined ==== */
  

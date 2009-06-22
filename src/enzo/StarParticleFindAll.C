@@ -68,14 +68,12 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
       // First update any existing star particles (e.g. position,
       // velocity)
       if (Grids[GridNum]->GridData->UpdateStarParticles(level) == FAIL) {
-	fprintf(stderr, "Error in grid::UpdateStarParticles.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid::UpdateStarParticles.");
       }
 
       // Then find any newly created star particles
       if (Grids[GridNum]->GridData->FindNewStarParticles(level) == FAIL) {
-	fprintf(stderr, "Error in grid::FindNewStarParticles.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in grid::FindNewStarParticles.");
       }
 
       // Now copy any stars into the local linked list

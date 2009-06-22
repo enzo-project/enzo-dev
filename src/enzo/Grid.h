@@ -586,6 +586,10 @@ class grid
 
    int AddFieldMassToMassFlaggingField();
 
+/* Flag all points where we are forbidding refinement from a color field */
+
+   int FlagCellsToAvoidRefinement();
+
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
