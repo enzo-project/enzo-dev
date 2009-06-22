@@ -184,7 +184,7 @@ const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
-  PopIII_CF = PARTICLE_TYPE_SINGLE_STAR; // Non-radiating PopIII
+  PopIII_CF = PARTICLE_TYPE_COLOR_STAR; // Non-radiating PopIII
 
 /* Define a float/int union. */
 

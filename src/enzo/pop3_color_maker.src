@@ -127,7 +127,7 @@ c               write(0,*) d(i,j,k)
 c
 c              2) density greater than threshold
 c
-               if (d(i,j,k) .lt. odthresh) goto 10
+               if (d(i,j,k)*d1 .lt. odthresh) goto 10
 c
 c              3) divergence negative
 c                 (the first calculation is face centered for ZEUS, 
@@ -225,10 +225,6 @@ c                  wp(ii) = w(i,j,k)
      &                      d(i,j,k+1) )
 
                endif
-c
-c              Remove mass from grid
-
-               d(i,j,k) = 0.5 * d(i,j,k)
 
 c                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii), ii, nmax
 C                write(6,7777) i, j, k

@@ -338,6 +338,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   int SingleStarType = PARTICLE_TYPE_SINGLE_STAR;
   int StarClusterType = PARTICLE_TYPE_CLUSTER;
   int SinkParticleType = PARTICLE_TYPE_MUST_REFINE;
+  int ColorStar = PARTICLE_TYPE_COLOR_STAR;
 
   /* Compute the redshift. */
  
@@ -592,7 +593,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
            &level, &NumberOfNewParticles, 
          tg->ParticlePosition[0], tg->ParticlePosition[1], tg->ParticlePosition[2],
           tg->ParticleVelocity[0], tg->ParticleVelocity[1], tg->ParticleVelocity[2],
-         tg->ParticleMass, tg->ParticleAttribute[2], tg->ParticleType, &SingleStarType);
+         tg->ParticleMass, tg->ParticleAttribute[2], tg->ParticleType, &ColorStar);
          
     }
 

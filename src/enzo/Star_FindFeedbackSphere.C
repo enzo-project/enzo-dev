@@ -160,6 +160,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	StarClusterMinDynamicalTime/(TimeUnits/yr);
       break;
 
+    case PopIII_CF:
+      SphereTooSmall = MassEnclosed < PopIIIColorMass;
+      break;
+
     }  // ENDSWITCH FeedbackFlag
 
     // Remove the stellar mass from the sphere and distribute the

@@ -307,7 +307,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
-  PopIIIColorDensityThreshold  = 1e6;         // times mean total density
+  PopIIIColorDensityThreshold      = 1e6;         // times mean total density
+  PopIIIColorMass                  = 1e6;         // total mass to color
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;

@@ -372,7 +372,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 8
+#define NUM_PARTICLE_TYPES 9
 
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1
@@ -382,6 +382,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_SINGLE_STAR  5
 #define PARTICLE_TYPE_BLACK_HOLE   6
 #define PARTICLE_TYPE_CLUSTER      7
+#define PARTICLE_TYPE_COLOR_STAR   8
 
 /* Star particle handling */
 
@@ -406,6 +407,7 @@ typedef int            HDF5_hid_t;
 #define FORMATION 4
 #define STROEMGREN 5
 #define DEATH 6
+#define COLOR_FIELD 7
 
 /* Sink particle accretion modes */
 

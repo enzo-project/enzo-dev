@@ -462,6 +462,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
           PopIIIColorDensityThreshold);
+  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n",
+          PopIIIColorMass);
 
   /* write data which defines the boundary conditions */
  

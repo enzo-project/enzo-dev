@@ -43,6 +43,7 @@ SPEXTERN float PopIIIMetalCriticalFraction;
 SPEXTERN float PopIIISupernovaRadius;
 SPEXTERN int   PopIIISupernovaUseColour;
 SPEXTERN float PopIIIColorDensityThreshold;
+SPEXTERN float PopIIIColorMass;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN float  StarClusterMinDynamicalTime;
