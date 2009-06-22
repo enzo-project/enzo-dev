@@ -32,14 +32,61 @@ sub findConflicts {
     for (my $w = 0;$w < @{$conflicts[$q]{situations}};$w++) {
 
     MATCH: for (my $e = 0;$e < @{$conflicts[$q]{situations}[$w]{value}};$e++) {
-	my $compare = sprintf "\$check = int(%s %s %s)",
-	  $parameters{$conflicts[$q]{situations}[$w]{parameter}},
-	    $conflicts[$q]{situations}[$w]{comparison},
-	      $conflicts[$q]{situations}[$w]{value}[$e];
-	eval $compare;
-	if ($check) {
-	  $matches++;
-	  last MATCH;
+	if (defined($parameters{$conflicts[$q]{situations}[$w]{parameter}})) {
+
+	  # multi-value parameter
+	  if (defined($conflicts[$q]{situations}[$w]{array})) {
+
+	    # any of the array values match.
+	    if ($conflicts[$q]{situations}[$w]{array} =~ /^any$/i) {
+	      for (my $r = 0;$r < @{$parameters{$conflicts[$q]{situations}[$w]{parameter}}};$r++) {
+		if (&checkValues($parameters{$conflicts[$q]{situations}[$w]{parameter}}[$r],
+				 $conflicts[$q]{situations}[$w]{comparison},
+				 $conflicts[$q]{situations}[$w]{value}[$e])) {
+		  $matches++;
+		  last MATCH;
+		}
+	      }
+	    }
+	    # all of the array values match.
+	    if ($conflicts[$q]{situations}[$w]{array} =~ /^all$/i) {
+	      my $arrayMatches = 0;
+	      for (my $r = 0;$r < @{$parameters{$conflicts[$q]{situations}[$w]{parameter}}};$r++) {
+		if (&checkValues($parameters{$conflicts[$q]{situations}[$w]{parameter}}[$r],
+				 $conflicts[$q]{situations}[$w]{comparison},
+				 $conflicts[$q]{situations}[$w]{value}[$e])) {
+		  $arrayMatches++;
+		}
+	      }
+	      if ($arrayMatches == scalar @{$parameters{$conflicts[$q]{situations}[$w]{parameter}}}) {
+		$matches++;
+		last MATCH;
+	      }
+	    }
+
+	    # match a certain value in the array.
+	    else {
+	      if (&checkValues($parameters{$conflicts[$q]{situations}[$w]{parameter}}
+			       [$conflicts[$q]{situations}[$w]{array}],
+			       $conflicts[$q]{situations}[$w]{comparison},
+			       $conflicts[$q]{situations}[$w]{value}[$e])) {
+		$matches++;
+		last MATCH;
+	      }
+	    }
+
+	  }
+
+	  # single value parameter
+	  else {
+	    if (&checkValues($parameters{$conflicts[$q]{situations}[$w]{parameter}},
+			     $conflicts[$q]{situations}[$w]{comparison},
+			     $conflicts[$q]{situations}[$w]{value}[$e])) {
+	      $matches++;
+	      last MATCH;
+	    }
+	  }
+
 	}
       }
 
@@ -54,12 +101,28 @@ sub findConflicts {
 
 }
 
+sub checkValues {
+  my ($par,$comp,$val) = @_;
+
+  my $compare = sprintf "\$check = int(%s %s %s)", $par, $comp, $val;
+  eval $compare;
+  return $check;
+}
+
 sub printConflict {
   my ($cNumber) = @_;
 
   print "Conflict found:\n";
   for (my $w = 0;$w < @{$conflicts[$cNumber]{situations}};$w++) {
-    print "\t$conflicts[$cNumber]{situations}[$w]{parameter} = $parameters{$conflicts[$cNumber]{situations}[$w]{parameter}}\n";
+    my $parValue;
+    if (ref($parameters{$conflicts[$cNumber]{situations}[$w]{parameter}}) == 'ARRAY') {
+      $parValue = join " ", @{$parameters{$conflicts[$cNumber]{situations}[$w]{parameter}}};
+    }
+    else {
+      $parValue = $parameters{$conflicts[$cNumber]{situations}[$w]{parameter}};
+    }
+
+    print "\t$conflicts[$cNumber]{situations}[$w]{parameter} = $parValue\n";
   }
   print "Message: $conflicts[$cNumber]{message}\n";
   print "\n";
@@ -77,10 +140,17 @@ sub readParameterFile {
     foreach $comment (@comments) {
       $line =~ s/$comment.*//;
     }
-    if ($line =~ /^\s*([^\s]+)\s*=\s*([^\s]+)\s*$/) {
+    if ($line =~ /^\s*([^\s]+)\s*=\s*(.+)\s*$/) {
       my $parameter = $1;
       my $value = $2;
-      $parameters{$parameter} = $value;
+
+      # if parameter has more than one value, store it as an array.
+      if ($value =~ /\S+\s+\S+/) {
+	@{$parameters{$parameter}} = split /\s+/, $value;
+      }
+      else {
+	$parameters{$parameter} = $value;
+      }
     }
   }
   close (IN);
@@ -129,7 +199,18 @@ sub loadConflicts {
 	$values =~ s/\s+//g;
  	@values = split ",",$values;
       }
-      $conflicts[$nConflicts]{situations}[$situations]{parameter} = $parameter;
+
+      # catch array indices
+      if ($parameter =~ /(.+)\[(.+)\]/) {
+	my $arrayParameter = $1;
+	my $arrayIndex = $2;
+	$conflicts[$nConflicts]{situations}[$situations]{parameter} = $arrayParameter;
+	$conflicts[$nConflicts]{situations}[$situations]{array} = $arrayIndex;
+      }
+      else {
+	$conflicts[$nConflicts]{situations}[$situations]{parameter} = $parameter;
+      }
+
       $conflicts[$nConflicts]{situations}[$situations]{comparison} = $comparison;
       @{$conflicts[$nConflicts]{situations}[$situations]{value}} = @values;
       $situations++;
