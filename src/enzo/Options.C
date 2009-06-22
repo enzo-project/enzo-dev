@@ -169,6 +169,30 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Adaptive ray tracing disabled\n");
 #endif
 
+#ifdef USE_PYTHON
+    fprintf(opf, "  Inline python enabled\n");
+#else
+    fprintf(opf, "  Inline python disabled\n");
+#endif
+
+#ifdef FAST_SIB
+    fprintf(opf, "  Fast sibiling search enabled\n");
+#else
+    fprintf(opf, "  Fast sibiling search disabled\n");
+#endif
+
+#ifdef USE_HDF4
+    fprintf(opf, "  HDF4 reading enabled\n");
+#else
+    fprintf(opf, "  HDF4 reading disabled\n");
+#endif
+
+#ifdef FLUX_FIX
+    fprintf(opf, "  Flux fix for subgrid siblings enabled\n");
+#else
+    fprintf(opf, "  Flux fix for subgrid siblings disabled\n");
+#endif
+
 
     fprintf(opf, "\n");
     fprintf(opf, "Macro and Parameter Definitions\n");
