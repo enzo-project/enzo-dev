@@ -28,16 +28,16 @@ void walk_tree_and_unbind(FOFData &D)
 
   force_treeallocate(D, 2 * D.NumInGroup + 200);
 
-  for (i = 1; i <= D.NumInGroup; i++)
+  for (i = 0; i < D.NumInGroup; i++)
     D.NewHead[i] = 1; /* default group is the background one */
 
   iindexx(D.NumInGroup, D.Head, D.Index);
 
   
-  for (i = 1, groupid = 2; i <= D.NumInGroup; ) {
+  for (i = 0, groupid = 2; i < D.NumInGroup; ) {
     start = i; 
     len = 0;
-    while (i <= D.NumInGroup) {
+    while (i < D.NumInGroup) {
       if (D.Head[D.Index[i]] == D.Head[D.Index[start]]) {
 	i++;
 	len++;
@@ -52,7 +52,7 @@ void walk_tree_and_unbind(FOFData &D)
     groupid++;
   } // ENDFOR groups
 
-  for (i = 1; i <= D.NumInGroup; i++)
+  for (i = 0; i < D.NumInGroup; i++)
     if (D.NewHead[i] == 1) {
       fprintf(stderr, "FOF: can't be!\n");
       ENZO_FAIL("");
@@ -80,16 +80,16 @@ void walk_tree_and_unbind(FOFData &D)
 
   iindexx(D.NumInGroup, D.Head, D.Node);
 	  
-  for (i = 2; i <= D.NumInGroup; i++)
+  for (i = 1; i < D.NumInGroup; i++)
     D.Next[D.Node[i-1]] = D.Node[i];
   
-  for (i = 1; i <= D.NumInGroup; i++)
+  for (i = 0; i < D.NumInGroup; i++)
     D.NewHead[i] = 1; /* default group is the background one */
     
-  for (i = 1; i <= D.NumInGroup; ) {
+  for (i = 0; i < D.NumInGroup; ) {
     start = D.Node[i]; 
     len = 0;
-    while (i <= D.NumInGroup) {
+    while (i < D.NumInGroup) {
       if (D.Head[D.Node[i]] == D.Head[start]) {
 	i++;
 	len++;
@@ -187,7 +187,7 @@ int unbind(FOFData &D, int head, int len)
   num = 0;
 
   if (len == -1) {
-    for (p = 1; p <= D.NumInGroup; p++) {
+    for (p = 0; p < D.NumInGroup; p++) {
       if (D.NewHead[p] == 1) {
 	if (first == 0)
 	  first = p;

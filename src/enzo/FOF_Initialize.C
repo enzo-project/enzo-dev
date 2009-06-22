@@ -272,7 +272,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   // Now we can do the big collective call
 #ifdef USE_MPI
   MPI_Alltoallv(Plocal, Nslab_local, disp_local, MPI_BYTE,
-		D.P+1, Nslab_recv, disp_recv, MPI_BYTE,
+		D.P, Nslab_recv, disp_recv, MPI_BYTE,
 		MPI_COMM_WORLD);
 #endif
 

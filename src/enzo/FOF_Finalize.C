@@ -82,7 +82,7 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Count particles and then allocate memory for particles in grids */
 
-  for (i = 1; i <= D.Nlocal; i++) {
+  for (i = 0; i < D.Nlocal; i++) {
     lvl = D.P[i].level;
     gi = D.P[i].GridID;
     npart = Grids[lvl][gi]->GridData->ReturnNumberOfParticles();
@@ -103,7 +103,7 @@ void FOF_Finalize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Move particles back */
 
-  for (i = 1; i <= D.Nlocal; i++) {
+  for (i = 0; i < D.Nlocal; i++) {
     lvl = D.P[i].level;
     gi = D.P[i].GridID;
     Grids[lvl][gi]->GridData->MoveParticlesFOF
