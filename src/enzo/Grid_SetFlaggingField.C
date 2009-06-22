@@ -173,9 +173,9 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     /* Must be done last ... */
   case 100:
-      NumberOfFlaggedCells -= this->FlagCellsToAvoidRefinement();
+      this->FlagCellsToAvoidRefinement();
       if (NumberOfFlaggedCells < 0) {
-	ENZO_FAIL("Error in grid->FlagCellsByOpticalDepth.");
+	ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
       }
 
     break;

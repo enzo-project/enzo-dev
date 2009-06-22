@@ -93,6 +93,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
   case PopIII_CF:
     this->FeedbackFlag = COLOR_FIELD;
+    break;
 
   } // ENDSWITCH
 

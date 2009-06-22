@@ -37,8 +37,7 @@ int grid::FlagCellsToAvoidRefinement()
   /* error check */
 
   if (FlaggingField == NULL) {
-    fprintf(stderr, "Flagging Field is undefined.\n");
-    return -1;
+    ENZO_FAIL("Flagging field is undefined.");
   }
 
   /* compute size */
@@ -57,8 +56,10 @@ int grid::FlagCellsToAvoidRefinement()
  
   for (i = 0; i < size; i++)
     if(BaryonField[ColorField][i] > 0.125 * BaryonField[DensNum][i]) {
-      FlaggingField[i] = 0.0;
-      NumberOfFlaggedCells++;
+      //fprintf(stderr, "CF: %"GSYM", RHO: %"GSYM"\n",
+                //BaryonField[ColorField][i], BaryonField[DensNum][i]);
+      //FlaggingField[i] = 0.0;
+      //NumberOfFlaggedCells++;
     }
  
   return NumberOfFlaggedCells;

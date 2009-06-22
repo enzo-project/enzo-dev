@@ -83,7 +83,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   ***********************************************************************/
 
-  SphereTooSmall = (FeedbackFlag == FORMATION);
+  SphereTooSmall = (FeedbackFlag == FORMATION || FeedbackFlag == COLOR_FIELD);
   while (SphereTooSmall) {
     Radius += CellWidth;
     MassEnclosed = 0;

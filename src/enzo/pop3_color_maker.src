@@ -138,7 +138,7 @@ c              Create a star particle
 c
                ii = ii + 1
 
-               type(ii) = -ctype
+               type(ii) = ctype
                tcp(ii) = t
                xp(ii) = xstart + (float(i)-0.5)*dx
                yp(ii) = ystart + (float(j)-0.5)*dx
@@ -225,8 +225,9 @@ c                  wp(ii) = w(i,j,k)
      &                      d(i,j,k+1) )
 
                endif
+               mp(ii) = tiny
 
-c                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii), ii, nmax
+c                write(6,777) d(i,j,k)*d1, xp(ii), yp(ii), zp(ii)
 C                write(6,7777) i, j, k
 C                write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
 C                write(6,779) type(ii), tcp(ii), tdp(ii)

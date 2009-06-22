@@ -30,14 +30,13 @@ bool Star::ApplyFeedbackTrue(float dt)
   bool *rules;
   int i;
 
-  const int NumberOfRules = 4;
+  const int NumberOfRules = 3;
 
   rules = new bool[NumberOfRules];
 
   rules[0] = !(FeedbackFlag == NO_FEEDBACK);
   rules[1] = !(FeedbackFlag == STROEMGREN && RadiativeTransfer);
   rules[2] = !(FeedbackFlag == CONT_SUPERNOVA && dt <= 0);
-  rules[3] = !(FeedbackFlag == COLOR_FIELD);
 
   for (i = 0; i < NumberOfRules; i++)
     result &= rules[i];

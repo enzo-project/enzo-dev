@@ -124,6 +124,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
       cstar->SetFeedbackFlag(DEATH);
 
+    /* We only color the fields once */
+
+    if (cstar->ReturnFeedbackFlag() == COLOR_FIELD)
+      cstar->SetFeedbackFlag(NO_FEEDBACK);
+
 #ifdef UNUSED
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,

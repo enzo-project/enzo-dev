@@ -432,8 +432,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     /* Allocate space for new particles. */
  
     int MaximumNumberOfNewParticles = int(0.25*float(size)) + 5;
-    if(debug)fprintf(stderr, "StarParticle: At most forming %"ISYM"\n",
-                     MaximumNumberOfNewParticles);
     tg->AllocateNewParticles(MaximumNumberOfNewParticles);
  
     /* Compute the cooling time. */
