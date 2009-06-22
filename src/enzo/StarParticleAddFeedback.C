@@ -121,13 +121,12 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     /* Only kill a Pop III star after it has gone SN */
 
-    if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
+    if ((cstar->ReturnFeedbackFlag() == SUPERNOVA) ||
+        (cstar->ReturnFeedbackFlag() == COLOR_FIELD))
       cstar->SetFeedbackFlag(DEATH);
 
     /* We only color the fields once */
 
-    if (cstar->ReturnFeedbackFlag() == COLOR_FIELD)
-      cstar->SetFeedbackFlag(NO_FEEDBACK);
 
 #ifdef UNUSED
     temp_int = CellsModified;

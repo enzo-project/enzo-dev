@@ -70,6 +70,9 @@ int Star::HitEndpoint(FLOAT Time)
   case BlackHole:
     break;
 
+  case PopIII_CF:
+    if(this->FeedbackFlag == DEATH) result = KILL_STAR;
+
   } // ENDSWITCH
 
   return result;

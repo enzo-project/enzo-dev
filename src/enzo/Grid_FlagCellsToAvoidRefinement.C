@@ -56,9 +56,7 @@ int grid::FlagCellsToAvoidRefinement()
  
   for (i = 0; i < size; i++)
     if(BaryonField[ColorField][i] > 0.125 * BaryonField[DensNum][i]) {
-      //fprintf(stderr, "CF: %"GSYM", RHO: %"GSYM"\n",
-                //BaryonField[ColorField][i], BaryonField[DensNum][i]);
-      //FlaggingField[i] = 0.0;
+      FlaggingField[i] = 0.0;
       //NumberOfFlaggedCells++;
     }
  
