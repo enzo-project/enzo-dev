@@ -277,9 +277,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  HaloFinderOutputParticleList);
   fprintf(fptr, "HaloFinderMinimumSize          = %"ISYM"\n", 
 	  HaloFinderMinimumSize);
-  fprintf(fptr, "HaloFinderLinkingLength        = %"FSYM"\n\n", 
+  fprintf(fptr, "HaloFinderLinkingLength        = %"FSYM"\n",
 	  HaloFinderLinkingLength);
-  fprintf(fptr, "HaloFinderTimestep             = %"FSYM"\n\n", 
+  fprintf(fptr, "HaloFinderTimestep             = %"FSYM"\n",
 	  HaloFinderTimestep);
   fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
 	  HaloFinderLastTime);
