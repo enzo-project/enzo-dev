@@ -95,9 +95,9 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
     }
 
   if (RadiationPressure && RadiativeTransfer) {
-    FieldType[RPresNum1 = NumberOfBaryonFields++] = RadAccel1;
-    FieldType[RPresNum2 = NumberOfBaryonFields++] = RadAccel2;
-    FieldType[RPresNum3 = NumberOfBaryonFields++] = RadAccel3;
+    FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
+    FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
+    FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
   }
   NumberOfPhotonPackages = 0;
   PhotonPackages-> NextPackage= NULL;

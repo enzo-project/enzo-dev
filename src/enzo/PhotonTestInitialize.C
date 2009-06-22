@@ -111,7 +111,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   int   PhotonTestRefineAtStart = 0;
 
   // Set default values
-
+  if (debug) fprintf(stderr, "PhotonTestInitialize: Set up test problem.\n");
   for (sphere = 0; sphere < MAX_SPHERES; sphere++) {
     PhotonTestSphereRadius[sphere]     = 0.5;
     PhotonTestSphereCoreRadius[sphere] = 0.1;
