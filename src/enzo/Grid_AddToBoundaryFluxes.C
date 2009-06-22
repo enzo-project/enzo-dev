@@ -33,7 +33,7 @@ int grid::AddToBoundaryFluxes(fluxes *BoundaryFluxesToBeAdded)
  
   /* Return if this doesn't concern us. */
  
-  if (ProcessorNumber != MyProcessorNumber)
+  if (ProcessorNumber != MyProcessorNumber || !UseHydro)
     return SUCCESS;
  
   int i, j, dim, field;

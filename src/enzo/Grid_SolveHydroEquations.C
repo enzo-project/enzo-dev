@@ -61,7 +61,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
   /* Return if this doesn't concern us. */
  
-  if (ProcessorNumber != MyProcessorNumber)
+  if (ProcessorNumber != MyProcessorNumber || !UseHydro)
     return SUCCESS;
 
   JBPERF_START("grid_SolveHydroEquations");

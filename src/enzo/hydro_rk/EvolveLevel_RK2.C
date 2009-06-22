@@ -88,6 +88,9 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           int level, TopGridData *MetaData,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
+int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
+		      int level, ExternalBoundary *Exterior);
+
 #ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
@@ -146,6 +149,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 double ReturnWallTime();
+int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+               int level);
+
 void my_exit(int status);
 
 /* Counters for performance and cycle counting. */
@@ -310,21 +316,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
 
-  /* Create a list of shining (no radiative transfer, only a 1/r^2
-     radiation profile) particles from all grids in all levels.  For
-     now, this only applies to Pop III star particles. Then check if
-     the stellar feedback is contained in grids on this level and
-     finer grids.  If so, apply changes to the grid(s). */
-
-#ifdef TRANSFER
-    if (RadiativeTransfer)
-      if (RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
-				   dtLevelAbove) == FAIL) {
-	fprintf(stderr, "Error in RadiativeTransferPrepare.\n");
-	return FAIL;
-      }
-#endif /* TRANSFER */
-
 
   /* ================================================================== */
   /* Loop over grid timesteps until the elapsed time equals the timestep 
@@ -381,6 +372,23 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //           MovieCycleCount[iLevel] = 0;
 //       MovieCycleCount[level]++;
 //     }
+
+
+  /* Create a list of shining (no radiative transfer, only a 1/r^2
+     radiation profile) particles from all grids in all levels.  For
+     now, this only applies to Pop III star particles. Then check if
+     the stellar feedback is contained in grids on this level and
+     finer grids.  If so, apply changes to the grid(s). */
+
+   /* Initialize the star particles */
+
+    Star *AllStars = NULL;
+    StarParticleInitialize(LevelArray, level, MetaData, AllStars);
+
+ 
+#ifdef TRANSFER
+    RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, dtLevelAbove);
+#endif /* TRANSFER */
 
 
     /* For each grid, compute the number of it's subgrids. */
@@ -632,8 +640,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	      fprintf(stderr, "Error in grid->PoissonCleaning.\n");
 	      return FAIL;
 	    }
-	    
-	    //	    PerformanceTimers[32] += ReturnWallTime() - time1;
 
 	  }
 
@@ -646,93 +652,37 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->AddViscosity();
       }
 
-      /* Solve the chemical and species rate equations. */
-      
-      if (MultiSpecies && RadiativeCooling) {
-	
-	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
-	  fprintf(stderr, "Error in grid->SolveRateAndCoolEquations\n");
-	  ErrorSignal = 1;
-	  continue;
-	}
-	
-	/* 3: Cooling power modulated by atomic hydrogen density
-	   4: Cooling function modulated by atomic hydrogen density */
-	
-	if (RadiativeCooling == 3 || RadiativeCooling == 4) {
-	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
-	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
-	    ErrorSignal = 1;
-	    continue;
-	  }
-	}
-	
-      } 
-      else {
-	
-	if (MultiSpecies) {
-	  if (Grids[grid1]->GridData->SolveRateEquations() == FAIL) {
-	    fprintf(stderr, "Error in grid->SolveRateEquations.\n");
-	    ErrorSignal = 1;
-	    continue;
-	  }
-	}
-	
-	/* Equilibrium radiative cooling/heating. */
-	
-	if (RadiativeCooling) {
-	  if (Grids[grid1]->GridData->SolveRadiativeCooling() == FAIL) {
-	    fprintf(stderr, "Error in grid->SolveRadiativeCooling.\n");
-	    ErrorSignal = 1;
-	    continue;
-	  }
-	}
-	
-      } /* ENDELSE MultiSpecies && RadiativeCooling */
+    /* Solve the radiative transfer */
 
+#ifdef TRANSFER
+    FLOAT GridTime = Grids[grid1]->GridData->ReturnTime();
+      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
+#endif /* TRANSFER */
+
+      /* Solve the cooling and species rate equations. */
+ 
+      Grids[grid1]->GridData->MultiSpeciesHandler();
 
       /* Update particle positions (if present). */
 
-      if (UpdateParticlePositions(Grids[grid1]->GridData) == FAIL) {
-	fprintf(stderr, "Error in UpdateParticlePositions.\n");
-	ErrorSignal = 1;
-	continue;
-      }
+      UpdateParticlePositions(Grids[grid1]->GridData);
 
       /* Include 'star' particle creation and feedback. */
 
-      if (StarParticleCreation || StarParticleFeedback) {
-
-	/* First, set the under_subgrid field. */
-
-	Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(NULL, 
-						 ZERO_UNDER_SUBGRID_FIELD);
-	LevelHierarchyEntry *Temp2 = LevelArray[level+1];
-	while (Temp2 != NULL) {
-	  Grids[grid1]->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
-					 ZERO_UNDER_SUBGRID_FIELD);
-	  Temp2 = Temp2->NextGridThisLevel;
-	}
-
-	/* Do star particle creation and feedback */
-
-
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level);
-      }
+ 
+      /* Gravity: clean up AccelerationField. */
 
-      if ((SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity) 
-	  && MetaData->TopGridRank == 3) {
-	if (level != MaximumGravityRefinementLevel ||
-	    MaximumGravityRefinementLevel == MaximumRefinementLevel) {
-	  Grids[grid1]->GridData->DeleteAccelerationField();
-	}
-	Grids[grid1]->GridData->DeleteParticleAcceleration();
-      }
+	 if (level != MaximumGravityRefinementLevel ||
+	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
+	     Grids[grid1]->GridData->DeleteAccelerationField();
 
-      if (UseFloor) {
+      Grids[grid1]->GridData->DeleteParticleAcceleration();
+ 
+      if (UseFloor) 
 	Grids[grid1]->GridData->SetFloor();
-      }
+      
 
       /* If using comoving co-ordinates, do the expansion terms now. */
 
@@ -742,25 +692,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }  // end loop over grids
 
 
-    /* Solve the radiative transfer */
-
-#ifdef TRANSFER
-    FLOAT GridTime = Grids[grid1]->GridData->ReturnTime();
-      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
-#endif /* TRANSFER */
-
-    /*if (SetBoundaryConditions(Grids, NumberOfGrids,SiblingList,level, MetaData,
-				Exterior) == FAIL) {
-      return FAIL;
-      }*/
 #ifdef FAST_SIB
-  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
+			  MetaData, Exterior, LevelArray[level]);
 #else
-  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                            Exterior, LevelArray[level]) == FAIL)
-    return FAIL;
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			  Exterior, LevelArray[level]);
 #endif
 
     
@@ -846,100 +783,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		ThisTime, totalMass*MassUnits/1.989e33);
       }
     }
+    
 
-    /* Check for movie output (only check if this is bottom of hierarchy). */
-
-//     if (LevelArray[level+1] == NULL)
-//       if (LevelArray[level]->GridData->ReturnTime() >=
-// 	  MetaData->TimeLastMovieDump + MetaData->dtMovieDump &&
-// 	  MetaData->dtMovieDump > 0.0) {
-// 	MetaData->TimeLastMovieDump += MetaData->dtMovieDump;
-// 	if (WriteMovieData(MetaData->MovieDumpName, 
-// 			  MetaData->MovieDumpNumber++, LevelArray, MetaData, 
-// 			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-// 	  fprintf(stderr, "Error in WriteMovieData.\n");
-// 	  return FAIL;
-// 	}
-//       }
-
-    /* Check for tracer particle output (only if this bottom of hierarchy). */
-
-    if (LevelArray[level+1] == NULL)
-      if (LevelArray[level]->GridData->ReturnTime() >=
-	  MetaData->TimeLastTracerParticleDump + 
-	  MetaData->dtTracerParticleDump &&
-	  MetaData->dtTracerParticleDump > 0.0) {
-	MetaData->TimeLastTracerParticleDump += MetaData->dtTracerParticleDump;
-	if (WriteTracerParticleData(MetaData->TracerParticleDumpName, 
-				    MetaData->TracerParticleDumpNumber++, 
-				    LevelArray, MetaData, 
-			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	  fprintf(stderr, "Error in WriteTracerParticleData.\n");
-	  return FAIL;
-	}
-      }
-
-    /* Communicate ErrorSignal to stop all processes and output data */
-
-#ifdef USE_MPI
-    int value = ErrorSignal;
-    MPI_Allreduce(&value, &ErrorSignal, 1, MPI_INT, MPI_MAX, 
-		  MPI_COMM_WORLD);
-#endif /* USE_MPI */    
-
-    /* Check for error signal and output if there is an error */
-    CommunicationBarrier();
-    if (ErrorSignal) {
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-      while (Temp2->NextGridThisLevel != NULL)
-	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-      
-      fprintf(stderr, "Error in EvolveLevel.\n");
-      fprintf(stderr, "--> Dumping data (output number %d).\n",
-	      MetaData->DataDumpNumber);
-
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
-      }
-#endif
-    }
-
-    /* Check for new level output (only if this is bottom of hierarchy). */
-
-    if (MetaData->OutputFirstTimeAtLevel > 0 && 
-	level >= MetaData->OutputFirstTimeAtLevel &&
-	LevelArray[level+1] == NULL) {
-      MetaData->OutputFirstTimeAtLevel = level+1;
-      LevelHierarchyEntry *Temp2 = LevelArray[0];
-      while (Temp2->NextGridThisLevel != NULL)
-	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-#ifdef USE_HDF5_GROUPS
-      if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	return FAIL;
-      }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	return FAIL;
-      }
-#endif
-    }
+    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    CallPython(LevelArray, MetaData, level);
 
     /* Check for stop (unpleasant to exit from here, but...). */
 
@@ -963,7 +810,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel_RK2(MetaData, LevelArray, level+1, dtThisLevel, Exterior, dt0) 
 	  == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel (%d).\n", level);
+	fprintf(stderr, "Error in EvolveLevel_RK2 (%d).\n", level);
 	return FAIL;
       }
     }
