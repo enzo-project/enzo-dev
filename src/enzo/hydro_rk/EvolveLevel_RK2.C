@@ -199,7 +199,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       return FAIL;
     }
 
-  FLOAT When, GridTime;
+  FLOAT When;
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;
@@ -655,8 +655,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Solve the radiative transfer */
 
 #ifdef TRANSFER
-    FLOAT GridTime = Grids[grid1]->GridData->ReturnTime();
+      Grids[grid1]->GridData->SetTimePreviousTimestep();
+      FLOAT GridTime = Grids[grid1]->GridData->ReturnTime();
       EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
+      Grids[grid1]->GridData->SetTimeNextTimestep();
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
