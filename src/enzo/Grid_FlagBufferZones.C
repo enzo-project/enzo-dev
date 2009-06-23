@@ -174,7 +174,7 @@ int grid::FlagBufferZones()
  
   /* clean up */
  
-  delete TempBuffer;
+  delete [] TempBuffer;
  
   /* If debuging, count up the number of flagged cells & report. */
  

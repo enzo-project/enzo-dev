@@ -256,6 +256,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
 
+  CloudyCoolingData.CloudyCoolingGridRank          = 0;
+  CloudyCoolingData.CloudyCoolingGridFile          = "";
+  CloudyCoolingData.IncludeCloudyHeating           = 0;
+  CloudyCoolingData.IncludeCloudyMMW               = 0;
+  CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
+  CloudyCoolingData.ConstantTemperatureFloor       = 1.0;       // use if higher than T_CMB
+  CloudyCoolingData.CloudyMetallicityNormalization = 0.018477;  // calculated using Cloudy 07.02 abundances
+  CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
+
   OutputCoolingTime = 0;
   OutputTemperature = 0;
 
@@ -285,6 +294,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+
+  InlineHaloFinder                 = FALSE;
+  HaloFinderSubfind                = FALSE;
+  HaloFinderOutputParticleList     = FALSE;
+  HaloFinderMinimumSize            = 50;
+  HaloFinderLinkingLength          = 0.1;
+  HaloFinderCycleSkip              = 3;
+  HaloFinderTimestep               = FLOAT_UNDEFINED;
+  HaloFinderLastTime               = 0.0;
 
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
@@ -331,6 +349,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StellarWindFeedback              = 0;
   StellarWindTurnOnMass            = 0.1;
 
+  UseHydro = 1;
   Coordinate = Cartesian;
   NSpecies = 0;
   NColor   = 0;
@@ -361,7 +380,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseViscosity = 0;
   UseAmbipolarDiffusion = 0;
   UseResistivity = 0;
-  UseHydro = 1;
 
   StringKick = 0;
 

@@ -10,12 +10,11 @@
 /
 ************************************************************************/
  
-#include <stdio.h>
- 
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
  
+#include <stdio.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -88,6 +87,8 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
 							
   region *Sends = new region[NumberOfFromRegions];
   region *Receives = new region[NumberOfToRegions];
+
+  //  if (NumberOfProcessors == 1) return SUCCESS;
  
   /* Loop over processor jumps (number of processors ahead to send). */
  
@@ -310,7 +311,10 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
   delete [] Receives;
  
   return SUCCESS;
-}
+};
+
+// #endif 
+
 
 int OptimizedUnigridCommunicationTranspose(
                region *FromRegion, int NumberOfFromRegions,
@@ -916,3 +920,4 @@ int OptimizedUnigridCommunicationTranspose(
 
 }
  
+

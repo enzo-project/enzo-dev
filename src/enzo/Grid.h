@@ -20,6 +20,7 @@
 #include "FastSiblingLocator.h"
 #include "AMRH5writer.h"
 #include "Star.h"
+#include "FOF_allvars.h"
 
 #ifdef FLUX_FIX
 #include "TopGridData.h"
@@ -366,6 +367,7 @@ class grid
     (step #21) */
 
    void SetTimeNextTimestep() {Time += dtFixed;};
+   void SetTimePreviousTimestep() {Time -= dtFixed;};
 
 /* set time of this grid (used in setup) */
 
@@ -1713,8 +1715,18 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int FindMassiveParticles(float min_mass, int level, FLOAT *pos[], int &npart,
 			   int CountOnly);
 
-  // 
-  // new hydro & MHD routines
+//------------------------------------------------------------------------
+//  Inline FOF halo finder
+//------------------------------------------------------------------------
+
+  int MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P, 
+		       int &Index, FOFData &AllVars, float VelocityUnits, 
+		       double MassUnits, int CopyDirection);
+
+//------------------------------------------------------------------------
+// new hydro & MHD routines
+//------------------------------------------------------------------------
+
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);

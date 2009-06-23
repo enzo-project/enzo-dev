@@ -159,7 +159,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
   float SubCellWidth[3];
  
   int enzo_layout[3];
-  int A,B,C,I,J,K,M;
+  int A,B,CC,I,J,K,M;
 
 //  MPI_Arg NOP,RNK;
 //  MPI_Arg mpi_layout[3];
@@ -853,14 +853,14 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
       A = enzo_layout[0];
       B = enzo_layout[1];
-      C = enzo_layout[2];
+      CC = enzo_layout[2];
       I = nint( (GridLeftEdge[0]-SubDomainLeftEdge[0])/((SubDomainRightEdge[0]-SubDomainLeftEdge[0])/((float) A)));
       J = nint( (GridLeftEdge[1]-SubDomainLeftEdge[1])/((SubDomainRightEdge[1]-SubDomainLeftEdge[1])/((float) B)));
-      K = nint( (GridLeftEdge[2]-SubDomainLeftEdge[2])/((SubDomainRightEdge[2]-SubDomainLeftEdge[2])/((float) C)));
-//    M = ((I*B*C) + J*C) + K;
+      K = nint( (GridLeftEdge[2]-SubDomainLeftEdge[2])/((SubDomainRightEdge[2]-SubDomainLeftEdge[2])/((float) CC)));
+//    M = ((I*B*CC) + J*CC) + K;
       M = ((K*B*A) + J*A) + I;
  
-      if (io_log) fprintf(log_fptr, "ABC %"ISYM" %"ISYM" %"ISYM";  IJK %"ISYM" %"ISYM" %"ISYM";  M = %"ISYM"\n", A,B,C,I,J,K,M);
+      if (io_log) fprintf(log_fptr, "ABC %"ISYM" %"ISYM" %"ISYM";  IJK %"ISYM" %"ISYM" %"ISYM";  M = %"ISYM"\n", A,B,CC,I,J,K,M);
  
       sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, M);
  

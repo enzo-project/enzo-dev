@@ -12,6 +12,7 @@
 /
 ************************************************************************/
 
+#include "CloudyCoolingData.h"
 #include "CoolData.h"
 #include "RateData.h"
 #include "RadiationFieldData.h"

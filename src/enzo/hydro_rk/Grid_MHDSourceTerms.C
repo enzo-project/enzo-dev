@@ -28,6 +28,7 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHDSourceTerms(float **dU)
 {
@@ -204,6 +205,33 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iS2  ][n] += dtFixed*gy*rho;
 	  dU[iS3  ][n] += dtFixed*gz*rho;
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+	}
+      }
+    }
+  }
+
+  if ((ComovingCoordinates == 1)) { // add cosmological expansion terms here
+
+    int igrid;
+    float rho, coef=0.;
+    double a, dadt;
+    int n = 0;
+    CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt);
+    coef = -0.5*dadt/a;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+	  rho = BaryonField[DensNum][igrid];
+	  
+	  
+	  dU[iBx  ][n] += dtFixed*coef*BaryonField[iBx][n];
+	  dU[iBy  ][n] += dtFixed*coef*BaryonField[iBy][n];
+	  dU[iBz  ][n] += dtFixed*coef*BaryonField[iBz][n];
+	  dU[iEtot][n] -= dtFixed*coef* (BaryonField[iBx][n]*BaryonField[iBx][n]+
+					 BaryonField[iBy][n]*BaryonField[iBy][n]+
+					 BaryonField[iBz][n]*BaryonField[iBz][n]);
+	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
 	}
       }
     }

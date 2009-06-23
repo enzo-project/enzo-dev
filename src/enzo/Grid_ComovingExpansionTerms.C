@@ -258,22 +258,22 @@ int grid::ComovingExpansionTerms()
 
 #endif /* VELOCITY_METHOD3 */
 
-    if (HydroMethod == MHD_RK) {
+//     if (HydroMethod == MHD_RK) {  THIS IS NOW DONE IN GRID_MHDSourceTerms
 
-      /*************** NOT TESTED ******************************/
-    /*    iii) semi-implicit way: */
+//       /*************** NOT TESTED ******************************/
+//     /*    iii) semi-implicit way: */
 
-      float Bcoeff = 0.25*Coefficient;
-      for (i = 0; i < size; i++) {
-	BaryonField[B1Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
-	if (B2Num != 0)
-	  BaryonField[B2Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
-	if (B3Num != 0)
-	  BaryonField[B3Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
-      }
-    }
+//       float Bcoeff = 0.25*Coefficient;
+//       for (i = 0; i < size; i++) {
+// 	BaryonField[B1Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+// 	if (B2Num != 0)
+// 	  BaryonField[B2Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+// 	if (B3Num != 0)
+// 	  BaryonField[B3Num][i] *= (1.0 - Bcoeff)/(1.0 + Bcoeff);
+//       }
+//     }
 
-    // ADD PHI field expansion terms here! 
+//     // ADD PHI field expansion terms here! 
 
 
 

@@ -119,8 +119,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     ENZO_FAIL("");
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
  
   /* Close main file. */
@@ -177,8 +176,46 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       //ENZO_FAIL("");
     }
   }
+
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
+
+//   /* Tom Abel : testing this block : ******************************************** */
+//       if (debug) {
+//         fprintf(stderr, "InitializeExternalBoundaryFace\n");
+//       }
+
+//       SimpleConstantBoundary = TRUE;
+
+//       for (int dim = 0; dim < MetaData.TopGridRank; dim++) {
+//         if (MetaData.LeftFaceBoundaryCondition[dim] != periodic ||
+//             MetaData.RightFaceBoundaryCondition[dim] != periodic) {
+//           SimpleConstantBoundary = FALSE;
+//         }
+//       }
+
+//       if (debug) {
+//         if (SimpleConstantBoundary) {
+//           fprintf(stderr, "SimpleConstantBoundary TRUE\n");
+//         } else {
+//           fprintf(stderr, "SimpleConstantBoundary FALSE\n");
+//         }
+//       }
+//       float Dummy[MAX_DIMENSION];
+//       for (int dim = 0; dim < MAX_DIMENSION; dim++)
+// 	Dummy[dim] = 0.0;
+
+//       for (int dim = 0; dim < MetaData.TopGridRank; dim++)
+// 	if (Exterior->InitializeExternalBoundaryFace(dim,
+// 				    MetaData.LeftFaceBoundaryCondition[dim],
+// 				    MetaData.RightFaceBoundaryCondition[dim],
+// 				    Dummy, Dummy)
+// 	    == FAIL) {
+// 	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+// 	  ENZO_FAIL("");
+// 	}
+
+//       /* ******************************************************************* */
 
   /* Create the memory map name */
 
@@ -215,8 +252,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   ntask = i;
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
-    fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in AssignGridToTaskMap.");
   }
 
   fclose(mptr);
@@ -327,8 +363,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr) == FAIL) {
-    fprintf(stderr, "Error in ReadStarParticleData.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
@@ -342,8 +377,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       ENZO_FAIL("");
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
-      fprintf(stderr, "Error in ReadRadiationData.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ReadRadiationData.");
     }
     fclose(Radfptr);
   }

@@ -101,8 +101,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     ENZO_FAIL("");
   }
   if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
  
   /* Close main file. */
@@ -180,8 +179,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   ntask = i;
 
   if (AssignGridToTaskMap(GridIndex, Mem, ntask) == FAIL) {
-    fprintf(stderr, "Error in AssignGridToTaskMap.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in AssignGridToTaskMap.");
   }
 
   fclose(mptr);
@@ -236,8 +234,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Read StarParticle data. */
  
   if (ReadStarParticleData(fptr) == FAIL) {
-    fprintf(stderr, "Error in ReadStarParticleData.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
@@ -251,8 +248,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
       ENZO_FAIL("");
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
-      fprintf(stderr, "Error in ReadRadiationData.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in ReadRadiationData.");
     }
     fclose(Radfptr);
   }

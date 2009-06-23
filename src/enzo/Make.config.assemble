@@ -564,19 +564,50 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE RADIATIVE TRANSFER SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_PHOTON = 1
+
+    # Settings to turn radiative transfer ON
+
+    ifeq ($(CONFIG_PHOTON),yes)
+        ERROR_PHOTON = 0
+        ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
+	OBJS_PHOTON_LIB = $(POBJS_CONFIG_LIB)
+    endif
+
+    # Settings to turn radiative transfer OFF
+
+    ifeq ($(CONFIG_PHOTON),no)
+        ERROR_PHOTON = 0
+        ASSEMBLE_PHOTON_DEFINES =
+	OBJS_PHOTON_LIB = 
+    endif
+
+    # error if CONFIG_PHOTON is incorrect
+
+    ifeq ($(ERROR_PHOTON),1)
+       .PHONY: error_transfer
+       error_tpvel:
+	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+    endif
+
+
+#-----------------------------------------------------------------------
 # DETERMINE FAST SIBLING SETTINGS
 #-----------------------------------------------------------------------
 
     ERROR_FAST_SIB = 1
 
-    # Settings to turn radiative transfer ON
+    # Settings to turn fast sibling search ON
 
     ifeq ($(CONFIG_FAST_SIB),yes)
         ERROR_FAST_SIB = 0
         ASSEMBLE_FAST_SIB_DEFINES = -DFAST_SIB
     endif
 
-    # Settings to turn radiative transfer OFF
+    # Settings to turn fast sibling search OFF
 
     ifeq ($(CONFIG_FAST_SIB),no)
         ERROR_FAST_SIB = 0
@@ -589,6 +620,34 @@
        .PHONY: error_fast_sib
        error_fast_sib:
 	$(error Illegal value '$(CONFIG_FAST_SIB)' for $$(CONFIG_FAST_SIB))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE PHOTON (Adaptive Ray Tracing Transfer) Settings
+#-----------------------------------------------------------------------
+
+    ERROR_PHOTON = 1
+
+    # Settings to turn radiative transfer ON
+
+    ifeq ($(CONFIG_PHOTON),yes)
+        ERROR_PHOTON = 0
+	ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
+    endif
+
+    # Settings to turn radiative transfer OFF
+
+    ifeq ($(CONFIG_PHOTON),no)
+        ERROR_PHOTON = 0
+        ASSEMBLE_PHOTON_DEFINES =
+    endif
+
+    # error if CONFIG_FAST_SIBis incorrect
+
+    ifeq ($(ERROR_PHOTON),1)
+       .PHONY: error_photon
+       error_photon:
+	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
     endif
 
 
@@ -708,7 +767,7 @@
                $(MAKEFILE_INCLUDES)   -I.
 
     OBJS_LIB = $(OBJS_CONFIG_LIB) \
-    	       $(OBJS_PHOTON_LIB) \
+    	       $(POBJS_CONFIG_LIB) \
 	       $(OBJS_HYDRO_RK)
 
     LIBS = $(MACH_LIBS) \

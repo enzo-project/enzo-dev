@@ -238,6 +238,10 @@ EXTERN float ParticleCourantSafetyNumber;
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
 
+/* Cloudy cooling parameters and data. */
+
+EXTERN CloudyCoolingDataType CloudyCoolingData;
+
 /* Random Forcing on/off flag and associated data. */ //AK
 
 EXTERN int     RandomForcing;
@@ -308,6 +312,17 @@ EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
+
+/* Parameters to control inline halo finding */
+
+EXTERN int InlineHaloFinder;
+EXTERN int HaloFinderSubfind;
+EXTERN int HaloFinderOutputParticleList;
+EXTERN int HaloFinderMinimumSize;
+EXTERN int HaloFinderCycleSkip;
+EXTERN float HaloFinderLinkingLength;
+EXTERN float HaloFinderTimestep;
+EXTERN FLOAT HaloFinderLastTime;
 
 /************************************************/
 /* Global data for specific problems or methods */

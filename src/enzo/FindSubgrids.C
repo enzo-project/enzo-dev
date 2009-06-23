@@ -80,7 +80,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
     ENZO_FAIL("Error in grid->SetFlaggingFieldStaticRegions.");
   }
  
-  if (debug1)
+  if (debug)
     printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
 	   level, NumberOfFlaggedCells);
  

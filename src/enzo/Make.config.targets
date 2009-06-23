@@ -138,10 +138,25 @@ help-config:
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
 	@echo 
+	@echo "   Include fast sibling search"
+	@echo
+	@echo "      gmake fastsib-yes"
+	@echo "      gmake fastsib-no"
+	@echo 
+	@echo "   Include sibling subgrid boundary fix"
+	@echo
+	@echo "      gmake fluxfix-yes"
+	@echo "      gmake fluxfix-no"
+	@echo 
 	@echo "   Set whether to use HDF4"
 	@echo
 	@echo "      gmake use-hdf4-yes"
 	@echo "      gmake use-hdf4-no"
+	@echo
+	@echo "   Set whether to use inline python"
+	@echo
+	@echo "      gmake python-yes"
+	@echo "      gmake python-no"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -198,6 +213,8 @@ show-config:
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
+	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
+	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -589,6 +606,43 @@ CONFIG_PHOTON-%:
 	$(MAKE) show-config | grep CONFIG_PHOTON:
 	@echo
 
+#-----------------------------------------------------------------------
+
+VALID_FAST_SIB = fastsib-yes fastsib-no
+.PHONY: $(VALID_FAST_SIB)
+
+fastsib-yes: CONFIG_FAST_SIB-yes
+fastsib-no: CONFIG_FAST_SIB-no
+fastsib-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_FAST_SIB)]\n\n"
+CONFIG_FAST_SIB-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_FAST_SIB $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_FAST_SIB = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_FAST_SIB:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_FLUX_FIX = fluxfix-yes fluxfix-no
+.PHONY: $(VALID_FLUX_FIX)
+
+fluxfix-yes: CONFIG_FLUX_FIX-yes
+fluxfix-no: CONFIG_FLUX_FIX-no
+fluxfix-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_FLUX_FIX)]\n\n"
+CONFIG_FLUX_FIX-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_FLUX_FIX $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_FLUX_FIX = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_FLUX_FIX:
+	@echo
+
+
+#-----------------------------------------------------------------------
 
 VALID_USE-HDF4 = use-hdf4-yes use-hdf4-no
 .PHONY: $(VALID_USE-HDF4)
@@ -607,19 +661,4 @@ CONFIG_USE-HDF4-%: suggest-clean
 
 
 #-----------------------------------------------------------------------
-
-VALID_PHOTON = photon-yes photon-no
-.PHONY: $(VALID_PHOTON)
-
-photon-yes: CONFIG_PHOTON-yes
-photon-no: CONFIG_PHOTON-no
-photon-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
-CONFIG_PHOTON-%:
-	@tmp=.config.temp; \
-        grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_PHOTON:
-	@echo
 

@@ -93,15 +93,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);
   fprintf(fptr, "NewMovieRightEdge    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieRightEdge);
-  fprintf(fptr, "MovieSkipTimestep    = %d\n", MovieSkipTimestep);
-  fprintf(fptr, "Movie3DVolumes       = %d\n", Movie3DVolumes);
-  fprintf(fptr, "MovieVertexCentered  = %d\n", MovieVertexCentered);
-  fprintf(fptr, "NewMovieParticleOn   = %d\n", NewMovieParticleOn);
+  fprintf(fptr, "MovieSkipTimestep    = %"ISYM"\n", MovieSkipTimestep);
+  fprintf(fptr, "Movie3DVolumes       = %"ISYM"\n", Movie3DVolumes);
+  fprintf(fptr, "MovieVertexCentered  = %"ISYM"\n", MovieVertexCentered);
+  fprintf(fptr, "NewMovieParticleOn   = %"ISYM"\n", NewMovieParticleOn);
   fprintf(fptr, "MovieDataField       = ");
   WriteListOfInts(fptr, MAX_MOVIE_FIELDS, MovieDataField);
-  fprintf(fptr, "NewMovieDumpNumber   = %d\n", NewMovieDumpNumber);
+  fprintf(fptr, "NewMovieDumpNumber   = %"ISYM"\n", NewMovieDumpNumber);
   fprintf(fptr, "NewMovieName         = %s\n", NewMovieName);
-  fprintf(fptr, "MovieTimestepCounter = %d\n", MetaData.TimestepCounter);
+  fprintf(fptr, "MovieTimestepCounter = %"ISYM"\n", MetaData.TimestepCounter);
   fprintf(fptr, "\n");
 
   fprintf(fptr, "CycleLastRestartDump = %"ISYM"\n", MetaData.CycleLastRestartDump);
@@ -268,6 +268,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "WritePotential                 = %"ISYM"\n", WritePotential);
   fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n\n",
 	  BaryonSelfGravityApproximation);
+
+  fprintf(fptr, "InlineHaloFinder               = %"ISYM"\n", InlineHaloFinder);
+  fprintf(fptr, "HaloFinderSubfind              = %"ISYM"\n", HaloFinderSubfind);
+  fprintf(fptr, "HaloFinderCycleSkip            = %"ISYM"\n", 
+	  HaloFinderCycleSkip);
+  fprintf(fptr, "HaloFinderOutputParticleList   = %"ISYM"\n", 
+	  HaloFinderOutputParticleList);
+  fprintf(fptr, "HaloFinderMinimumSize          = %"ISYM"\n", 
+	  HaloFinderMinimumSize);
+  fprintf(fptr, "HaloFinderLinkingLength        = %"FSYM"\n",
+	  HaloFinderLinkingLength);
+  fprintf(fptr, "HaloFinderTimestep             = %"FSYM"\n",
+	  HaloFinderTimestep);
+  fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
+	  HaloFinderLastTime);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);
@@ -280,6 +295,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RandomForcingEdot           = %"GSYM"\n", RandomForcingEdot); //AK
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
+  fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
+  fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
+  fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
+  fprintf(fptr, "CMBTemperatureFloor            = %"ISYM"\n", CloudyCoolingData.CMBTemperatureFloor);
+  fprintf(fptr, "ConstantTemperatureFloor       = %"FSYM"\n", CloudyCoolingData.ConstantTemperatureFloor);
+  fprintf(fptr, "CloudyMetallicityNormalization = %"FSYM"\n", CloudyCoolingData.CloudyMetallicityNormalization);
+  fprintf(fptr, "CloudyElectronFractionFactor   = %"FSYM"\n", CloudyCoolingData.CloudyElectronFractionFactor);
   fprintf(fptr, "MetalCooling                   = %"ISYM"\n", MetalCooling);
   fprintf(fptr, "MetalCoolingTable              = %s\n", MetalCoolingTable);
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);

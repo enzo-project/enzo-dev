@@ -93,6 +93,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				TopGridData* MetaData = NULL);
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[]);
 #ifdef USE_PYTHON
 int CallPython();
 #endif
@@ -405,6 +406,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
     //}
  
+    /* Inline halo finder */
+
+    FOF(&MetaData, LevelArray);
+
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
@@ -424,14 +429,15 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
         return FAIL;
       }
     } else {
-      if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
-        if (NumberOfProcessors == 1) {
-          fprintf(stderr, "Error in EvolveLevel_RK2.\n");
-          fprintf(stderr, "--> Dumping data (output number %d).\n",
-                  MetaData.DataDumpNumber);
-	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior);
-        }
+      if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
+	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
+	  if (NumberOfProcessors == 1) {
+	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
+	    fprintf(stderr, "--> Dumping data (output number %d).\n",
+		    MetaData.DataDumpNumber);
+	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+			       &TopGrid, MetaData, Exterior);
+	  }
         return FAIL;
       }
     }
@@ -493,6 +499,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	printf("Stopping on CPU time limit.\n");
       Stop = TRUE;
     }
+
  
     /* Check for time-actions. */
  
@@ -514,6 +521,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       fprintf(stderr, "Error in CheckForResubmit.\n");
       ENZO_FAIL("");
     }
+
+    /* If stopping, inline halo finder one more time */
+
+    if (Stop)
+      FOF(&MetaData, LevelArray);
+
 
     /* Try to cut down on memory fragmentation. */
  

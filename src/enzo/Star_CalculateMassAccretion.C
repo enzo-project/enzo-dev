@@ -33,7 +33,7 @@ int Star::CalculateMassAccretion(void)
   if (this->type != BlackHole || this->CurrentGrid == NULL)
     return SUCCESS;
 
-  const double PI = 3.14159, G = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
+  const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
   const double Msun = 1.989e33, yr = 3.1557e7;
   const int AccretionType = LOCAL_ACCRETION;
   FLOAT time = CurrentGrid->OldTime;
@@ -127,7 +127,7 @@ int Star::CalculateMassAccretion(void)
     v_rel = sqrt(v_rel) * VelocityUnits;
 
     // Calculate accretion rate in Msun/s
-    mdot = 4.0 * PI * G*G * (old_mass * old_mass * Msun) * 
+    mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
   
     // No accretion if the BH is in some low-density and cold cell.
