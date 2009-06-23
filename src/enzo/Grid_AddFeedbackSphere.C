@@ -93,8 +93,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
   /* Find Multi-species fields. */
@@ -104,8 +103,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				  DIINum, HDINum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
   }
 
   /***********************************************************************
@@ -350,8 +348,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
   float MinimumTemperature = 1.0, AdditionalEnergy, GasEnergy;
 
-  if ((cstar->FeedbackFlag == FORMATION)
-   && (ABS(cstar->type) != PopIII_CF)) {
+  if (cstar->FeedbackFlag == FORMATION) {
 
     index = 0;
     if (cstar->type == PopII)

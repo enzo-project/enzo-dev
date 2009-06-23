@@ -53,8 +53,7 @@ int grid::UpdateParticlePosition(float TimeStep)
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(Time + 0.5*fabs(TimeStep), &a, &dadt)
 	== FAIL) {
-      fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
     }
  
   /* Loop over dimensions. */
@@ -64,8 +63,7 @@ int grid::UpdateParticlePosition(float TimeStep)
     /* Error check. */
  
     if (ParticleVelocity[dim] == NULL) {
-      fprintf(stderr, "No ParticleVelocity present.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("No ParticleVelocity present.");
     }
  
     /* update velocities. */
