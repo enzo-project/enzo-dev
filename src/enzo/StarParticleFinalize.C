@@ -37,7 +37,7 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 int NumberOfGrids);
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars);
+			    Star *&AllStars, bool* &AddedFeedback);
 int StarParticleAccretion(Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
@@ -56,6 +56,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow;
+  bool *AddedFeedback = NULL;
 
   JBPERF_START("StarParticleFinalize");
 
@@ -76,7 +77,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
      accretion rates of the star particles */
 
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
-			      AllStars) == FAIL) {
+			      AllStars, AddedFeedback) == FAIL) {
         ENZO_FAIL("Error in StarParticleAddFeedback.");
   }
 
@@ -116,10 +117,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
      there. 
   */
 
-  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
+  int count = 0;
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
-    ThisStar->ActivateNewStar(TimeNow);
+    if (AddedFeedback[count])
+      ThisStar->ActivateNewStar(TimeNow);
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
@@ -129,6 +132,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Delete the global star particle list, AllStars */
 
   DeleteStarList(AllStars);
+  delete [] AddedFeedback;
 
   JBPERF_STOP("StarParticleFinalize");
   return SUCCESS;
