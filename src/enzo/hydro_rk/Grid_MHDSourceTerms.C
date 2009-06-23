@@ -213,7 +213,8 @@ int grid::MHDSourceTerms(float **dU)
   if ((ComovingCoordinates == 1)) { // add cosmological expansion terms here
 
     int igrid;
-    float rho, a, dadt, coef=0.;
+    float rho, coef=0.;
+    double a, dadt;
     int n = 0;
     CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt);
     coef = -0.5*dadt/a;

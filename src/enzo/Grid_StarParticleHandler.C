@@ -595,6 +595,30 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     }
 
+    if (STARMAKE_METHOD(INSTANT_STAR)) {
+
+      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE)
+
+      FORTRAN_NAME(star_maker7)(
+       GridDimension, GridDimension+1, GridDimension+2,
+       BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
+       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
+          CellLeftEdge[2], &GhostZones,
+       &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
+       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
+          &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       tg->ParticlePosition[0], tg->ParticlePosition[1],
+          tg->ParticlePosition[2],
+       tg->ParticleVelocity[0], tg->ParticleVelocity[1],
+          tg->ParticleVelocity[2],
+       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
+          tg->ParticleAttribute[2]);
+    } 
+
     /* This creates sink particles which suck up mass off the grid. */
 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
@@ -635,30 +659,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 		      &JeansLengthRefinement, temperature) == FAIL) {
 	    ENZO_FAIL("Error in star_maker3");
       }
-
-    if (STARMAKE_METHOD(INSTANT_STAR)) {
-
-      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE)
-
-      FORTRAN_NAME(star_maker7)(
-       GridDimension, GridDimension+1, GridDimension+2,
-       BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
-          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
-       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
-          CellLeftEdge[2], &GhostZones,
-       &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
-       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-          &StarMakerMinimumMass, &level, &NumberOfNewParticles,
-       tg->ParticlePosition[0], tg->ParticlePosition[1],
-          tg->ParticlePosition[2],
-       tg->ParticleVelocity[0], tg->ParticleVelocity[1],
-          tg->ParticleVelocity[2],
-       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2]);
-    } 
 
       /* Delete any merged particles (Mass == FLOAT_UNDEFINED) */
       
