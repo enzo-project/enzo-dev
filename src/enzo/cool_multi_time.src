@@ -60,13 +60,13 @@
      &        cooltime(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec)
       real    metal(in,jn,kn)
       real    gammaHI(in,jn,kn), gammaHeI(in,jn,kn), gammaHeII(in,jn,kn)
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
+      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+     &        gaHpa(nratec), gaela(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
