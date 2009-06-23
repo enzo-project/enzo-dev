@@ -118,8 +118,8 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
                            TopGridData &MetaData);
 
-int ShearingBoxInitialize(FILE *fptr, HierarchyEntry &TopGrid,
-                           TopGridData &MetaData);
+int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
 
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
@@ -171,6 +171,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		  TopGridData &MetaData, ExternalBoundary &Exterior,
 		  float *Initialdt)
 {
+
+  
  
   // Declarations
  
@@ -211,6 +213,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     fprintf(stderr, "Error in ReadParameterFile.\n");
     ENZO_FAIL("");
   }
+
+ 
  
   // Set the number of particle attributes, if left unset
  
@@ -412,8 +416,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // 31) Shearing Box Simulation
  
-  if (ProblemType == 31) 
-    ret = ShearingBoxInitialize(fptr, TopGrid, MetaData);
+    if (ProblemType == 31) 
+      ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
   
  
   // 40) Supernova Explosion from restart

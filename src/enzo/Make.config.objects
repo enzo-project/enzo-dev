@@ -468,6 +468,7 @@ OBJS_CONFIG_LIB = \
 	SetDefaultGlobalValues.o \
 	SetLevelTimeStep.o \
 	sgi_st1_fft64.o \
+	ShearingBoxInitialize.o \
 	ShockInABoxInitialize.o \
 	ShockPoolInitialize.o \
 	ShockTubeInitialize.o \
@@ -663,8 +664,6 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o		                        \
 		hydro_rk/Grid_PoissonSolverCGA.o                 \
 		hydro_rk/Grid_PoissonSolverTestInitializeGrid.o  \
 		hydro_rk/Grid_ReduceWindBoundary.o		\
-		hydro_rk/Grid_SetShearingBoxExternalBoundaries.o \
-		hydro_rk/Grid_ShearingBoxInitializeGrid.o	\
 		hydro_rk/Grid_SaveMHDSubgridFluxes.o		\
 		hydro_rk/Grid_UpdateMHDPrim.o			\
 		hydro_rk/HLL_PLM_MHD.o				\
@@ -680,6 +679,6 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o		                        \
 		hydro_rk/MRICollapseInitialize.o			\
 		hydro_rk/PoissonSolverTestInitialize.o           \
 		hydro_rk/Riemann_HLL_MHD.o			\
-		hydro_rk/Riemann_LLF_MHD.o			\
-		hydro_rk/ShearingBoxInitialize.o	
+		hydro_rk/Riemann_LLF_MHD.o			
+	
 # hydro_rk/CommunicationMergeStarParticle.o                       \

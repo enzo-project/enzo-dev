@@ -39,17 +39,19 @@ int CheckShearingBoundaryConsistency(TopGridData &MetaData){
  
 
   //Check that we have one direction at least where there are periodic BC on both sides, fail otherwise
-  int numberOfPeriodicBoundariesBoth;
+  int numberOfPeriodicBoundariesBoth = 0;
   int tempShearingVelocityDirection;
   for (int i=0; i<MetaData.TopGridRank; i++)
-    if (MetaData.LeftFaceBoundaryCondition[i] == periodic && MetaData.RightFaceBoundaryCondition[i] == periodic){ 
+      if (MetaData.LeftFaceBoundaryCondition[i] == periodic && MetaData.RightFaceBoundaryCondition[i] == periodic){ 
       numberOfPeriodicBoundariesBoth++;
       tempShearingVelocityDirection=i;
     }
+  
 
-   if (numberOfPeriodicBoundariesBoth == 0) 
+  if (numberOfPeriodicBoundariesBoth == 0) {
+   
      ENZO_FAIL("Need a Periodic Boundary (on both faces) for a Shearing Boundary");
- 
+  }
    //if only one direction is periodic, then we autoset ShearingVelocityDirection to the right value
    if (numberOfPeriodicBoundariesBoth == 1){
      ShearingVelocityDirection=tempShearingVelocityDirection;
@@ -58,13 +60,17 @@ int CheckShearingBoundaryConsistency(TopGridData &MetaData){
    
    //if both directions periodic, then either we use the user specific ShearingVelocityDirection
    //or use the high index of the two directions
-   if (numberOfPeriodicBoundariesBoth == 2){
-     if (ShearingVelocityDirection==-1) ShearingVelocityDirection==tempShearingVelocityDirection;
+  
+  if (numberOfPeriodicBoundariesBoth == 2){
+     
+     if (ShearingVelocityDirection==-1) ShearingVelocityDirection=tempShearingVelocityDirection;
      else if (MetaData.LeftFaceBoundaryCondition[ShearingVelocityDirection]!=periodic 
 	      || MetaData.RightFaceBoundaryCondition[ShearingVelocityDirection]!=periodic)
        ENZO_FAIL("ShearingVelocityDirection is not Periodic on Both Faces");
    }
   
+ 
+
   if (ShearingBoundaryDirection==0){
     if (ShearingVelocityDirection==1) ShearingOtherDirection=2;
     else if (ShearingVelocityDirection==2) ShearingOtherDirection=1;}

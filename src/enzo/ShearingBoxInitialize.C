@@ -31,22 +31,30 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 
+// void WriteListOfFloats(FILE *fptr, int N, float floats[]);
+// void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
+// void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+// int RebuildHierarchy(TopGridData *MetaData,
+// 		     LevelHierarchyEntry *LevelArray[], int level);
+// void WriteListOfFloats(FILE *fptr, int N, float floats[]);
+// void WriteListOfFloats(FILE *fptr, int N, EFLOAT floats[]);
+// void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+// int RebuildHierarchy(TopGridData *MetaData,
+// 		     LevelHierarchyEntry *LevelArray[], int level);
+// int GetUnits(float *DensityUnits, float *LengthUnits,
+// 		      float *TemperatureUnits, float *TimeUnits,
+// 		      float *VelocityUnits, EFLOAT Time);
+
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
-void WriteListOfFloats(FILE *fptr, int N, float floats[]);
-void WriteListOfFloats(FILE *fptr, int N, EFLOAT floats[]);
-void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
-int RebuildHierarchy(TopGridData *MetaData,
-		     LevelHierarchyEntry *LevelArray[], int level);
-int GetUnits(float *DensityUnits, float *LengthUnits,
-		      float *TemperatureUnits, float *TimeUnits,
-		      float *VelocityUnits, EFLOAT Time);
 
-int ShearingBoxInitialize(FILE *fptr,  
-			  HierarchyEntry &TopGrid, TopGridData &MetaData)
+
+int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr, 
+			       HierarchyEntry &TopGrid, TopGridData &MetaData)
+
 {
   const char *DensName = "Density";
   const char *TEName   = "TotalEnergy";
@@ -77,18 +85,25 @@ int ShearingBoxInitialize(FILE *fptr,
   int ShearingBoxRefineAtStart   = FALSE;
   float ShearingGeometry=0.5;
   int InitialMagneticFieldConfiguration=0;
+  int RefineAtStart=1;
+
+  int ret;
+
+  
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
     ret = 0;
 
-    /* read parameters */
-    ret += sscanf(line, "ShearingBoxRefineAtStart = %d", &RefineAtStart); 
-    ret += sscanf(line, "ThermalMagneticRatio= %f", &ThermalMagneticRatio);
-    ret += sscanf(line, "FluctuationAmplitudeFraction = %f", &FluctuationAmplitudeFraction);
-    ret += sscanf(line, "ShearingBoxProblemType = %d", &ShearingBoxProblemType);  
-
+/* read parameters */
+    ret += sscanf(line, "ShearingBoxRefineAtStart = %"ISYM, &RefineAtStart); 
+    ret += sscanf(line, "ThermalMagneticRatio= %"FSYM, &ThermalMagneticRatio);
+    ret += sscanf(line, "FluctuationAmplitudeFraction = %"FSYM, &FluctuationAmplitudeFraction);
+    ret += sscanf(line, "ShearingBoxProblemType = %"ISYM, &ShearingBoxProblemType);  
+    ret += sscanf(line, "ShearingBoxGeometry = %"FSYM, &ShearingGeometry);  
+ 
   } 
+  printf("Geo %"FSYM, ShearingGeometry);
 
 
   if (TopGrid.GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, ShearingBoxProblemType, InitialMagneticFieldConfiguration)
@@ -97,18 +112,18 @@ int ShearingBoxInitialize(FILE *fptr,
   
 
 
-  if (ShearingBoxRefineAtStart) {
+  if (RefineAtStart) {
      /* Declare, initialize and fill out the LevelArray. */
 
     LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       LevelArray[level] = NULL;
     AddLevel(LevelArray, &TopGrid, 0);
 
     /* Add levels to the maximum depth or until no new levels are created,
        and re-initialize the level after it is created. */
 
-    for (level = 0; level < MaximumRefinementLevel; level++) {
+    for (int level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	ENZO_FAIL("");
@@ -131,24 +146,24 @@ int ShearingBoxInitialize(FILE *fptr,
   /* set up field names and units */
 
   int count = 0;
-  DataLabel[count++] = DensName;
-  DataLabel[count++] = Vel1Name;
-  DataLabel[count++] = Vel2Name;
-  DataLabel[count++] = Vel3Name;
-  DataLabel[count++] = TEName;
+  DataLabel[count++] =  (char*) DensName;
+  DataLabel[count++] =  (char*) Vel1Name;
+  DataLabel[count++] =  (char*) Vel2Name;
+  DataLabel[count++] =  (char*) Vel3Name;
+  DataLabel[count++] =  (char*) TEName;
   if (DualEnergyFormalism) {
-    DataLabel[count++] = GEName;
+    DataLabel[count++] =  (char*) GEName;
   }
   if(useMHD){
-  DataLabel[count++] = BxName;
-  DataLabel[count++] = ByName;
-  DataLabel[count++] = BzName;
+  DataLabel[count++] =  (char*) BxName;
+  DataLabel[count++] =  (char*) ByName;
+  DataLabel[count++] =  (char*) BzName;
   }
 
-  for (i = 0; i < count; i++) {
+  for (int i = 0; i < count; i++) {
     DataUnits[i] = NULL;
   }
 
-  return ENZO_SUCCESS;
+  return SUCCESS;
 
 }

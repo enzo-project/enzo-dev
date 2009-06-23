@@ -181,7 +181,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     else x=otherX;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      if (dim==ShearingBoundaryDirection)
+      if (dim==ShearingVelocityDirection)
 	ShearingCommunicationDims[dim]=x;
       else
 	ShearingCommunicationDims[dim] = Dim[dim];
@@ -223,7 +223,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	CommunicationDirection == COMMUNICATION_SEND)
       return SUCCESS;    
     for (dim = 0; dim < GridRank; dim++) {
-      OtherDim[dim] = Dim[dim];
+      if (isShearing) OtherDim[dim]=ShearingCommunicationDims[dim];
+      else OtherDim[dim] = Dim[dim];
       StartOther[dim] = 0;
     }
   }
@@ -247,9 +248,10 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     b=1.0-a;
   }
 
-  int addDim[3] = {0, OtherDim[0], OtherDim[0]*OtherDim[1]};
+  int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
 
+  //fprintf(stderr, "addDim %d %d %d\n", addDim[0], addDim[1], addDim[2]);
  
   for (int field = 0; field < NumberOfBaryonFields; field++)
     for (int k = 0; k < Dim[2]; k++)
@@ -265,6 +267,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	if (isShearing){
 	  val1=OtherGrid->BaryonField[field][otherindex];
 	  val2=OtherGrid->BaryonField[field][otherindex+ addDim[ShearingVelocityDirection]];
+	 
+
 	  BaryonField[field][thisindex] = (float) (b*val1+a*val2);
 	  
 	  if (FieldType[field]==velocityTypes[ShearingVelocityDirection]){ 

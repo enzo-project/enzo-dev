@@ -33,9 +33,12 @@ double Gaussian(double cs);
 
 int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int ShearingBoxProblemType, int InitialMagneticFieldConfiguration)
 {
+
+  
   /* declarations */
 
 
+  
  
   int phip_num;
   NumberOfBaryonFields = 0;
@@ -59,6 +62,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
+  
+
   
 
   int iden=FindField(Density, FieldType, NumberOfBaryonFields);
@@ -116,22 +121,39 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 
   FLOAT x,y,z;
 
+  printf("\n\nGridLeft %"FSYM" %"FSYM" %"FSYM"   GridRight %"FSYM" %"FSYM" %"FSYM" \n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2], 
+	 GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
+
+
   for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++) {
       for (i = 0; i < GridDimension[0]; i++, n++) {
 
-	FLOAT xPos[3] = {CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2,
-		       CellLeftEdge[1][j] + 0.5*CellWidth[1][j]-lengthy/2,
-		       CellLeftEdge[2][k] + 0.5*CellWidth[2][k]-lengthz/2};
+	FLOAT xPos[3] = {CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0,
+		       CellLeftEdge[1][j] + 0.5*CellWidth[1][j]-lengthy/2.0,
+		       0};
+
 	
-	x=xPos[0]; y=xPos[1]; z=xPos[2];
+	x=xPos[0]; y=xPos[1]; z=0.0;
+
+	if (GridRank==3) {
+	  xPos[2]=CellLeftEdge[2][k] + 0.5*CellWidth[2][k]-lengthz/2.0;
+	  z=xPos[2];
+	}
+	
 
 	float xVel[3] ={0,0,0};
 
 	if (ShearingBoxProblemType == 0){
-	  if (x*x+y*y+z*z<ShearingGeometry)  BaryonField[iden ][n]=50.0*rho;
-	  else if (x*x+y*y+z*z<ShearingGeometry) BaryonField[iden ][n]=5.0*rho;
+	  if (x*x+y*y+z*z<0.25*ShearingGeometry*ShearingGeometry){
+	    BaryonField[iden ][n]=50.0*rho;
+	    if (x<-0.4) printf("50: %"FSYM" %"FSYM" %"FSYM"\n", x, y, z);}
+	  else if (x*x+y*y+z*z<ShearingGeometry*ShearingGeometry){ 
+	    BaryonField[iden ][n]=5.0*rho;
+	    if (x<-0.4) printf("5: %"FSYM" %"FSYM" %"FSYM"\n", x, y, z); }
 	  else BaryonField[iden ][n]=rho;
+
+	  xVel[ShearingBoundaryDirection]=5*AngularVelocity;
 	}
 	else if (ShearingBoxProblemType == 1){ 
 	  xVel[ShearingBoundaryDirection]=magnitude*sin(z*4.*3.14156);
@@ -171,9 +193,14 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	}
 
 	v2=xVel[0]*xVel[0]+xVel[1]*xVel[1]+xVel[2]*xVel[2];
-	BaryonField[ietot][n] = eint + 0.5*v2
-	  + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*BaryonField[iB[ShearingOtherDirection]][n])/rhoActual;
 	
+	if (useMHD){BaryonField[ietot][n] = eint + 0.5*v2
+		      + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*
+			     BaryonField[iB[ShearingOtherDirection]][n])/rhoActual;
+	}
+	else BaryonField[ietot][n] = eint + 0.5*v2;
+	 
+	  
       } // end loop over grid
     }
   }

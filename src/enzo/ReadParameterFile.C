@@ -39,6 +39,8 @@
  
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
+
+
 /* function prototypes */
  
 int ReadListOfFloats(FILE *fptr, int N, float floats[]);
@@ -57,7 +59,8 @@ int CheckShearingBoundaryConsistency(TopGridData &MetaData);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
   /* declarations */
- 
+
+  
   char line[MAX_LINE_LENGTH];
   int dim, ret, int_dummy;
   float TempFloat;
@@ -456,10 +459,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MetaData.LeftFaceBoundaryCondition,
 		  MetaData.LeftFaceBoundaryCondition+1,
 		  MetaData.LeftFaceBoundaryCondition+2);
-    ret += sscanf(line, "RightFaceBoundaryCondition = %"ISYM" %"ISYM" %"ISYM,
-		  MetaData.RightFaceBoundaryCondition,
-		  MetaData.RightFaceBoundaryCondition+1,
-		  MetaData.RightFaceBoundaryCondition+2);
+    
+     ret += sscanf(line, "RightFaceBoundaryCondition = %"ISYM" %"ISYM" %"ISYM,
+ 		  MetaData.RightFaceBoundaryCondition,
+ 		  MetaData.RightFaceBoundaryCondition+1,
+ 		  MetaData.RightFaceBoundaryCondition+2);
+
+  
     if (sscanf(line, "BoundaryConditionName         = %s", dummy) == 1)
       MetaData.BoundaryConditionName = dummy;
  
@@ -551,7 +557,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
     ret += sscanf(line, "ShearingVelocityDirection = %"ISYM, &ShearingVelocityDirection);
 
-    CheckShearingBoundaryConsistency(MetaData);
+    
 
 #ifdef STAGE_INPUT
     sscanf(line, "LocalPath = %s\n", LocalPath);
@@ -650,6 +656,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
+    if (strstr(line, "ShearingBox")) ret++;
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
@@ -907,5 +914,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
+ //  for (int i=0; i<MetaData.TopGridRank; i++)
+//      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
+// 	      MetaData.LeftFaceBoundaryCondition[i], 
+// 	      MetaData.RightFaceBoundaryCondition[i]);
+
+
+   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }
