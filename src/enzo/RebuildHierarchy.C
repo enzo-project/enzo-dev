@@ -290,7 +290,6 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       /* 3b.2) Loop over grids creating new (but empty!) subgrids
 	 (This also properly fills out the GridHierarchy tree). */
-      fprintf(stderr,"I'm here in RebuildHierarchy, grids = %d\n", grids);//#####
 
       for (j = 0; j < grids; j++)
 	if (FindSubgrids(GridHierarchyPointer[j], i) == FAIL) {
