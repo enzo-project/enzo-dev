@@ -83,7 +83,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   ***********************************************************************/
 
-  SphereTooSmall = (FeedbackFlag == FORMATION || FeedbackFlag == COLOR_FIELD);
+  SphereTooSmall = ((FeedbackFlag == FORMATION) 
+                 || (FeedbackFlag == COLOR_FIELD));
   while (SphereTooSmall) {
     Radius += CellWidth;
     MassEnclosed = 0;
@@ -161,7 +162,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       break;
 
     case PopIII_CF:
-      SphereTooSmall = MassEnclosed < PopIIIColorMass;
+      SphereTooSmall = (MassEnclosed < PopIIIColorMass);
       break;
 
     }  // ENDSWITCH FeedbackFlag

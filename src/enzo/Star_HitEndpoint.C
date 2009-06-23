@@ -71,7 +71,9 @@ int Star::HitEndpoint(FLOAT Time)
     break;
 
   case PopIII_CF:
-    if(this->FeedbackFlag == DEATH) result = KILL_STAR;
+    /* Let them live but turn off feedback */
+    this->FeedbackFlag = NO_FEEDBACK;
+    break;
 
   } // ENDSWITCH
 

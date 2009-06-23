@@ -350,7 +350,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
   float MinimumTemperature = 1.0, AdditionalEnergy, GasEnergy;
 
-  if (cstar->FeedbackFlag == FORMATION) {
+  if ((cstar->FeedbackFlag == FORMATION)
+   && (ABS(cstar->type) != PopIII_CF)) {
 
     index = 0;
     if (cstar->type == PopII)
@@ -432,8 +433,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   }  // END star birth
 
   if (cstar->FeedbackFlag == COLOR_FIELD) {
+    int CellsModified2 = 0;
 
     int ColorField = FindField(ForbiddenRefinement, FieldType, NumberOfBaryonFields); 
+    if (ColorField < 0) ENZO_FAIL("Couldn't Find Color Field!");
     index = 0;
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -464,12 +467,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
             BaryonField[DensNum][index];
 
 	    CellsModified++;
+	    CellsModified2++;
 
 	  }  // END if inside radius
 
 	}  // END i-direction
       }  // END j-direction
     }  // END k-direction
+    fprintf(stderr, "CellsModified: %"ISYM"\n", CellsModified2);
   }
 
   /* Now it's done, unmark. */
