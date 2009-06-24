@@ -162,8 +162,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
+  int comment_count = 0;
  
-  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+  while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
+      && (comment_count < 2)) {
  
     ret = 0;
  
@@ -258,6 +260,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
  
     // If the line is suspicious, issue a warning
+
+    if (strstr(line, "\"\"\"")) comment_count++;
  
     if (ret == 0 && strstr(line, "=") && strstr(line, "CosmologySimulation") &&
 	line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR)

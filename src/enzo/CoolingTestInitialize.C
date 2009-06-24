@@ -89,8 +89,11 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   TestProblemData.MultiSpecies = MultiSpecies;  // set this from global data (kind of a hack, but necessary)
 
   /* read input from file */
+
+  int comment_count = 0;
  
-  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+  while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
+      && (comment_count < 2)) {
  
     ret = 0;
  
@@ -119,6 +122,8 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "TestProblemInitialH2IIFraction  = %"FSYM, &TestProblemData.H2II_Fraction);
 
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
+
+    if (strstr(line, "\"\"\"")              ) comment_count++;
 
     /* if the line is suspicious, issue a warning */
  
