@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -24,6 +25,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
+  if (!useMHD) 
+    ENZO_FAIL("DivergenceCleaning only useful with MHD simulations");
+
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
   char *GEName   = "GasEnergy";

@@ -33,7 +33,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
 		    float &norm, float &mean, int start_depth, 
 		    float tolerance, int max_iter);
 
-int grid::PoissonSolver(int type, int level) 
+int grid::PoissonSolver(int level) 
  /* 
      Input: type: 
      1= SOR (Successive OverRelaxation)
@@ -42,12 +42,17 @@ int grid::PoissonSolver(int type, int level)
      4= CGA2 (with 4dx differencing)
      5= FFT
      6= Multigrid     
+
+     Methods 2 is sort of a failed experiment.  
+     3 and 4 work very well.  
+     1, 5, and 6 are placeholders for further work.
   */
 {
 
-  if (ProcessorNumber != MyProcessorNumber) {
+  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning!=0 || !useMHD ) {
     return SUCCESS;
   }
+  
 
   /* Calculating divB_p */
   
@@ -87,20 +92,22 @@ int grid::PoissonSolver(int type, int level)
 
   this->PoissonSolverDirichletBC(divB_p);
 
-#ifdef DEBUG
-  float divSum = 0;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
-	divSum += fabs(divB_p[igrid]/dx[0]);
+  if (debug){
+    float divSum = 0;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
+	  divSum += fabs(divB_p[igrid]/dx[0]);
+	}
       }
     }
+    
+    fprintf(stdout, "Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
   }
-
-  fprintf(stdout, "Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
-#endif
   
+  int type=UseDivergenceCleaning;
+
   if (type == 1) PoissonSolverSOR();
   else if (type == 2) PoissonSolverSOR2();
   else if (type == 3) PoissonSolverCGA(1, divB_p);
@@ -118,7 +125,7 @@ int grid::PoissonSolver(int type, int level)
 int grid::PoissonCleanStep(int level)
 {
 
-  if (ProcessorNumber != MyProcessorNumber) {
+  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning !=0 || !useMHD) {
     return SUCCESS;
   }
 
@@ -463,8 +470,10 @@ int grid::PoissonSolverSOR2()
 }
 
 
+//Never Implemented FFT or Multigrid properly; Placeholders here for future work
+
 int grid::PoissonSolverFFT(){
-  return 0;
+  return SUCCESS;
 }
 
 

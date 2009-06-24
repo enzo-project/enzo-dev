@@ -480,10 +480,20 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       } //  end loop over grids
     } // if WritePotential
  
+
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
+
+
+    /* Run the Divergence Cleaing                */
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+      Grids[grid1]->GridData->PoissonSolver(level);
+      Grids[grid1]->GridData->PoissonCleanStep(level);
+    }
+
  
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -497,6 +507,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
+  
 
 #ifdef USE_JBPERF
     // Update lcaperf "level" attribute
@@ -576,6 +587,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
+    
+
     cycle++;
     LevelCycleCount[level]++;
  

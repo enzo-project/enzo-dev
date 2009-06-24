@@ -619,24 +619,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Grids[grid1]->GridData->AddResistivity();
 	  }
 	
-	  if(UseDivergenceCleaning){
-	    
-	    time1 = ReturnWallTime();
+	 
+	  time1 = ReturnWallTime();
 
-	    if (Grids[grid1]->GridData->PoissonSolver(UseDivergenceCleaning, level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonSolver.\n");
-	      return FAIL;
-	    }
-
-	    if (Grids[grid1]->GridData->PoissonCleanStep(level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonCleaning.\n");
-	      return FAIL;
-	    }
-	    
-	    //	    PerformanceTimers[32] += ReturnWallTime() - time1;
-
-	  }
-
+	  Grids[grid1]->GridData->PoissonSolver(level);
+	  Grids[grid1]->GridData->PoissonCleanStep(level);
+	
 	}
       }
 

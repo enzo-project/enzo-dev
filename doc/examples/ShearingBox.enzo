@@ -1,0 +1,74 @@
+#
+# AMR PROBLEM DEFINITION FILE: Shearing Box
+#
+
+#  define problem
+#
+
+ProblemType                = 31
+TopGridRank                = 3
+TopGridDimensions          = 32 64 32
+SelfGravity                = 0
+TopGridGravityBoundary     = 0 
+LeftFaceBoundaryCondition  = 4 3 3
+RightFaceBoundaryCondition = 4 3 3
+PointSourceGravity         = 0
+DomainLeftEdge=0 0 0
+DomainRightEdge= 1 2 1
+
+
+
+
+#
+#  set I/O and stop/start parameters
+# 
+
+StopTime = 62800
+dtDataDump             = 6.28
+#CycleSkipDataDump= 1
+DataDumpName           = data
+
+
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0
+FluxCorrection            = 1
+MaximumRefinementLevel    = 2
+RefineBy                  = 2
+CellFlaggingMethod        = 2 
+#RefineByResistiveLengthSafetyFactor = 16
+MinimumEfficiency         = 0.4
+InterpolationMethod         = 4
+ConservativeInterpolation   = 0
+NumberOfBufferZones         = 3
+
+#
+#  set hydro parameters
+#
+#Gamma                       = 0.999991
+Gamma  = 1.00001
+Mu                          = 2
+CourantSafetyNumber         = 0.2
+HydroMethod                 = 0
+DualEnergyFormalism         = 1
+Theta_Limiter               = 1.5
+RKOrder                     = 2
+EOSType                     = 0
+RiemannSolver = 0
+
+#
+# problem parameters
+#
+
+
+AngularVelocity = 0.001
+VelocityGradient = 1.5
+ShearingBoxGeometry = 0.15
+ShearingBoxRefineAtStart = 1
+
+#ThermalMagneticRatio=20.05
+#FluctuationAmplitudeFraction=0.005 
+
+

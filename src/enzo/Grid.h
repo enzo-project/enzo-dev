@@ -1852,12 +1852,13 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Poisson clean routines */
 
-  int PoissonSolver(int type, int level);
+  int PoissonSolver(int level);
 
   int PoissonSolverSOR();
   int PoissonSolverSOR2();
   int PoissonSolverFFT();
   int PoissonSolverMultigrid();
+
   int PoissonSolverCGA(int difftype, double *divB_p);
   template <typename T> int multA(T* input, T* output);
   template <typename T> int multA2(T* input, T* output);
@@ -1874,22 +1875,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   
   int PoissonSolverTestInitializeGrid(int TestType, float GeometryControl);
 
-  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
-			      int check, float diffvalue);  
-  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
-  int PrintToScreenBoundaries(float *field, char *display);
-
   
 
-  int ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradient, 
-				float InitialBField, int ShearingBoxProblemType);
-
-  int SetShearingBoxExternalBoundaries();
-
-
-  int MRICollapseInitializeGrid(float AngularVelocity, float VelocityGradient, float InitialBField, 
-				float FluctuationAmplitudeFraction, float Radius);
-
+  
   int ReduceWindBoundary();
 
   /* New particle routines */
