@@ -762,7 +762,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If set, initialize CloudyCooling. */
 
   if (MetalCooling == CLOUDY_METAL_COOLING) {
-    RadiativeCooling = 1;
     if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeCloudyCooling.\n");
       return FAIL;

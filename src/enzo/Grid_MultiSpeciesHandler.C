@@ -40,6 +40,9 @@ int grid::MultiSpeciesHandler()
       this->SolveRadiativeCooling();
   }
 
+  if (ProblemType == 62)
+    this->CoolingTestResetEnergies();
+
   JBPERF_STOP("grid_MultiSpeciesHandler");
   return SUCCESS;
 }

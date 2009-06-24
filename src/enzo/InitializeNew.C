@@ -96,6 +96,8 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   TopGridData &MetaData);
 int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CoolingTestInitialize_BDS(FILE *fptr, FILE *Outfptr, 
+			  HierarchyEntry &TopGrid, TopGridData &MetaData);
  
 int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                   HierarchyEntry &TopGrid,
@@ -434,7 +436,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 61)
     ret = ProtostellarCollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
 
-  // 62) Cooling rates test problem
+  // 62) Cooling test problem
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
