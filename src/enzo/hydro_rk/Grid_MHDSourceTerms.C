@@ -214,7 +214,7 @@ int grid::MHDSourceTerms(float **dU)
 
     int igrid;
     float rho, coef=0.;
-    double a, dadt;
+    FLOAT a, dadt;
     int n = 0;
     CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt);
     coef = -0.5*dadt/a;

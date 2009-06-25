@@ -374,12 +374,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       /* allocate temporary space */
  
-#ifdef USE_HDF4
-      float *temp = new float[active_size];
-#else
       io_type *temp = new io_type[active_size];
-#endif
- 
+
       /* loop over fields, reading each one */
  
       for (field = 0; field < NumberOfBaryonFields; field++) {
@@ -492,7 +488,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
       float *temp = new float[active_size];
 
-      int32 HDFDataType = (sizeof(Eflt) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;
+      int32 HDFDataType = (sizeof(Eflt) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;  // DFNT_* are defined by HDF4
       if (sizeof(Eflt) == 16) HDFDataType = DFNT_FLOAT128;
 
       /* Read dims.
@@ -610,7 +606,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
       /* Read ParticleAttributes. */
 
-#define NO_RESTART_WITH_ATTRIBUTES
+#define RESTART_WITH_ATTRIBUTES
       for (j = 0; j < NumberOfParticleAttributes; j++) {
 #ifdef RESTART_WITH_ATTRIBUTES
 	for (i=0; i < NumberOfParticles; i++)
