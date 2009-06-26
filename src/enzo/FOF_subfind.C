@@ -103,7 +103,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
   } // ENDIF ROOT_PROCESSOR
 
-  D.NSubGroups = 0;
+
 
   for (gr = D.NgroupsAll-1; gr >= 0; ) {
 
@@ -420,10 +420,9 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
   } // ENDIF ROOT_PROCESSOR
 
-  int SubhaloCount = D.NSubGroupsAll - D.NgroupsAll;
-
   if (debug)
-    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n", SubhaloCount);
+    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n",
+	    D.NSubGroupsAll - D.NgroupsAll);
 
 }
 
@@ -464,27 +463,27 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   P_bak	   = D.P;
 
 
-  D.P	       = pbuf;
+  D.P	       = pbuf-1;
   D.NumInGroup = grlen;
 
-  D.Energy    = vector(0,  D.NumInGroup-1);
-  D.Density   = vector(0,  D.NumInGroup-1);
-  D.Potential = vector(0,  D.NumInGroup-1);
-  D.Next      = ivector(0, D.NumInGroup-1);
-  D.Head      = ivector(0, D.NumInGroup-1);
-  D.NewHead   = ivector(0, D.NumInGroup-1);
-  D.Tail      = ivector(0, D.NumInGroup-1);
-  D.Len	      = ivector(0, D.NumInGroup-1);
-  D.Index     = ivector(0, D.NumInGroup-1);
-  D.Node      = ivector(0, D.NumInGroup-1);      
-  D.SortId    = ivector(0, D.NumInGroup-1);      
+  D.Energy    = vector(1,  D.NumInGroup);
+  D.Density   = vector(1,  D.NumInGroup);
+  D.Potential = vector(1,  D.NumInGroup);
+  D.Next      = ivector(1, D.NumInGroup);
+  D.Head      = ivector(1, D.NumInGroup);
+  D.NewHead   = ivector(1, D.NumInGroup);
+  D.Tail      = ivector(1, D.NumInGroup);
+  D.Len	      = ivector(1, D.NumInGroup);
+  D.Index     = ivector(1, D.NumInGroup);
+  D.Node      = ivector(1, D.NumInGroup);      
+  D.SortId    = ivector(1, D.NumInGroup);      
   
   D.MaxNodes = D.NumInGroup / 10;
   D.GroupTree = new grouptree_data[D.MaxNodes];
 
   /* initially, there are no subgroups */
   
-  for (i = 0; i < D.NumInGroup; i++) {
+  for (i = 1; i <= D.NumInGroup; i++) {
     D.Head[i] =	0;
     D.Tail[i] =	0;
     D.Next[i] =	0;
@@ -509,7 +508,7 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   
   iindexx(D.NumInGroup, D.Head, D.Index);
   
-  for (i = 0, D.NSubGroups = 0, oldhead = 0; i < D.NumInGroup; i++) {
+  for (i = 1, D.NSubGroups = 0, oldhead = 0; i <= D.NumInGroup; i++) {
     if (D.Head[D.Index[i]] != oldhead) {
       oldhead = D.Head[D.Index[i]];
       if (oldhead != 1) /* exclude background group */
@@ -524,10 +523,10 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
       /* determine sizes and tags of subgroups */
 	  
-      D.SubGroupLen = ivector(0, D.NSubGroups-1); 
-      D.SubGroupTag = ivector(0, D.NSubGroups-1);
+      D.SubGroupLen = ivector(1, D.NSubGroups); 
+      D.SubGroupTag = ivector(1, D.NSubGroups);
       
-      for (i = 0, gr = 0, oldhead = 0; i < D.NumInGroup; i++) {
+      for (i = 1, gr = 0, oldhead = 0; i <= D.NumInGroup; i++) {
 	if (D.Head[D.Index[i]] != oldhead) {
 	  oldhead = D.Head[D.Index[i]];
 
@@ -547,12 +546,12 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
       sort2_int(D.NSubGroups, D.SubGroupLen, D.SubGroupTag);
 
       /* index will be needed in order_subgroups_potential */      
-      for (i = 0; i < D.NumInGroup; i++)
+      for (i = 1; i <= D.NumInGroup; i++)
 	D.Head[i] = D.Index[i];
       
       order_subgroups_by_potential(D); 
 
-      for (i = D.NSubGroups, saved = 0, offset = 0, count = 0; i >= 0; i--) {
+      for (i = D.NSubGroups, saved = 0, offset = 0, count = 0; i >= 1; i--) {
 	for (j = 0; j < D.SubGroupLen[i]; j++) {
 	  id = D.Head[D.SubGroupTag[i] + j];
 	      
@@ -570,26 +569,26 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
       /* sort the particles */
       
-      qsort(D.P, D.NumInGroup, sizeof(FOF_particle_data), comp_func_partminid);
+      qsort(D.P+1, D.NumInGroup, sizeof(FOF_particle_data), comp_func_partminid);
       
-      free_ivector(D.SubGroupTag, 0, D.NSubGroups-1);	  
-      free_ivector(D.SubGroupLen, 0, D.NSubGroups-1); 
+      free_ivector(D.SubGroupTag, 1, D.NSubGroups);	  
+      free_ivector(D.SubGroupLen, 1, D.NSubGroups); 
 
       D.NSubGroups = saved;
     }
   
   delete [] D.GroupTree;
-  free_ivector(D.SortId, 0, D.NumInGroup-1);      
-  free_ivector(D.Node, 0, D.NumInGroup-1);      
-  free_ivector(D.Index, 0, D.NumInGroup-1);
-  free_ivector(D.Len, 0, D.NumInGroup-1);
-  free_ivector(D.Tail, 0, D.NumInGroup-1);
-  free_ivector(D.NewHead, 0, D.NumInGroup-1);
-  free_ivector(D.Head, 0, D.NumInGroup-1);
-  free_ivector(D.Next, 0, D.NumInGroup-1);
-  free_vector(D.Potential, 0,D.NumInGroup-1);
-  free_vector(D.Density, 0, D.NumInGroup-1);
-  free_vector(D.Energy, 0, D.NumInGroup-1);
+  free_ivector(D.SortId, 1, D.NumInGroup);      
+  free_ivector(D.Node, 1, D.NumInGroup);      
+  free_ivector(D.Index, 1, D.NumInGroup);
+  free_ivector(D.Len, 1, D.NumInGroup);
+  free_ivector(D.Tail, 1, D.NumInGroup);
+  free_ivector(D.NewHead, 1, D.NumInGroup);
+  free_ivector(D.Head, 1, D.NumInGroup);
+  free_ivector(D.Next, 1, D.NumInGroup);
+  free_vector(D.Potential, 1,D.NumInGroup);
+  free_vector(D.Density, 1, D.NumInGroup);
+  free_vector(D.Energy, 1, D.NumInGroup);
   
   D.Len	 = Len_bak;
   D.Head = Head_bak;
