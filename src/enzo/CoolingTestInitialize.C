@@ -100,14 +100,14 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     /* read parameters specifically for constant density problem */
 
     /* read in more general test parameters to set species, turn on color fields, etc. */
-    ret += sscanf(line, "TestProblemMinimumHNumberDensity = %"FSYM, &TestProblemData.MinimumHNumberDensity);
-    ret += sscanf(line, "TestProblemMaximumHNumberDensity = %"FSYM, &TestProblemData.MaximumHNumberDensity);
-    ret += sscanf(line, "TestProblemMinimumMetallicity = %"FSYM, &TestProblemData.MinimumMetallicity);
-    ret += sscanf(line, "TestProblemMaximumMetallicity = %"FSYM, &TestProblemData.MaximumMetallicity);
-    ret += sscanf(line, "TestProblemMinimumTemperature = %"FSYM, &TestProblemData.MinimumTemperature);
-    ret += sscanf(line, "TestProblemMaximumTemperature = %"FSYM, &TestProblemData.MaximumTemperature);
+    ret += sscanf(line, "CoolingTestMinimumHNumberDensity = %"FSYM, &TestProblemData.MinimumHNumberDensity);
+    ret += sscanf(line, "CoolingTestMaximumHNumberDensity = %"FSYM, &TestProblemData.MaximumHNumberDensity);
+    ret += sscanf(line, "CoolingTestMinimumMetallicity = %"FSYM, &TestProblemData.MinimumMetallicity);
+    ret += sscanf(line, "CoolingTestMaximumMetallicity = %"FSYM, &TestProblemData.MaximumMetallicity);
+    ret += sscanf(line, "CoolingTestMinimumTemperature = %"FSYM, &TestProblemData.MinimumTemperature);
+    ret += sscanf(line, "CoolingTestMaximumTemperature = %"FSYM, &TestProblemData.MaximumTemperature);
 
-    ret += sscanf(line, "TestProblemResetEnergies = %"ISYM, &TestProblemData.ResetEnergies);
+    ret += sscanf(line, "CoolingTestResetEnergies = %"ISYM, &TestProblemData.ResetEnergies);
 
     ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
     ret += sscanf(line, "TestProblemDeuteriumToHydrogenRatio = %"FSYM, &TestProblemData.DeuteriumToHydrogenRatio);
@@ -213,14 +213,14 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "TestProblemMinimumHNumberDensity = %"FSYM, TestProblemData.MinimumHNumberDensity);
-    fprintf(Outfptr, "TestProblemMaximumHNumberDensity = %"FSYM, TestProblemData.MaximumHNumberDensity);
-    fprintf(Outfptr, "TestProblemMinimumMetallicity = %"FSYM, TestProblemData.MinimumMetallicity);
-    fprintf(Outfptr, "TestProblemMaximumMetallicity = %"FSYM, TestProblemData.MaximumMetallicity);
-    fprintf(Outfptr, "TestProblemMinimumTemperature = %"FSYM, TestProblemData.MinimumTemperature);
-    fprintf(Outfptr, "TestProblemMaximumTemperature = %"FSYM, TestProblemData.MaximumTemperature);
+    fprintf(Outfptr, "CoolingTestMinimumHNumberDensity = %"FSYM, TestProblemData.MinimumHNumberDensity);
+    fprintf(Outfptr, "CoolingTestMaximumHNumberDensity = %"FSYM, TestProblemData.MaximumHNumberDensity);
+    fprintf(Outfptr, "CoolingTestMinimumMetallicity = %"FSYM, TestProblemData.MinimumMetallicity);
+    fprintf(Outfptr, "CoolingTestMaximumMetallicity = %"FSYM, TestProblemData.MaximumMetallicity);
+    fprintf(Outfptr, "CoolingTestMinimumTemperature = %"FSYM, TestProblemData.MinimumTemperature);
+    fprintf(Outfptr, "CoolingTestMaximumTemperature = %"FSYM, TestProblemData.MaximumTemperature);
 
-    fprintf(Outfptr, "TestProblemResetEnergies = %"ISYM, TestProblemData.ResetEnergies);
+    fprintf(Outfptr, "CoolingTestResetEnergies = %"ISYM, TestProblemData.ResetEnergies);
 
     fprintf(Outfptr, "TestProblemHydrogenFractionByMass = %"FSYM"\n",   TestProblemData.HydrogenFractionByMass);
     fprintf(Outfptr, "TestProblemDeuteriumToHydrogenRatio = %"FSYM"\n", TestProblemData.DeuteriumToHydrogenRatio);
