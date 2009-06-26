@@ -219,10 +219,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   }
 
 
-  /* Compute Flux quantities */
-
-  this->PrepareGridDerivedQuantities();
-
   if (HydroMethod == MHD_RK) {
 
     int activesize = 1;
@@ -253,50 +249,25 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
   } /* if HydroMethod == MHD */
 
+  this->PrepareGridDerivedQuantities();
  
-
-  int ii = sizeof(io_type);
- 
-  switch(ii)
+  switch(sizeof(io_type))
     {
- 
-    case 4:
-      float_type_id = HDF5_R4;
-      break;
- 
-    case 8:
-      float_type_id = HDF5_R8;
-      break;
- 
-    default:
-      float_type_id = HDF5_R4;
- 
+    case 4: float_type_id = HDF5_R4; break;
+    case 8: float_type_id = HDF5_R8; break;
+    default: float_type_id = HDF5_R4;
     }
- 
-  int jj = sizeof(FLOAT);
- 
-  switch(jj)
+
+  switch(sizeof(FLOAT))
     {
- 
-    case 4:
-      FLOAT_type_id = HDF5_R4;
-      FILE_type_id = HDF5_FILE_R4;
-      break;
- 
-    case 8:
-      FLOAT_type_id = HDF5_R8;
-      FILE_type_id = HDF5_FILE_R8;
-      break;
- 
-    case 16:
-      FLOAT_type_id = HDF5_R16;
+    case 4: FLOAT_type_id = HDF5_R4;
+      FILE_type_id = HDF5_FILE_R4; break;
+    case 8: FLOAT_type_id = HDF5_R8;
+      FILE_type_id = HDF5_FILE_R8; break;
+    case 16: FLOAT_type_id = HDF5_R16;
       FILE_type_id = H5Tcopy(HDF5_FILE_B8);
-      H5Tset_size(FILE_type_id,16);
-      break;
- 
-    default:
-      printf("INCORRECT FLOAT DEFINITION\n");
- 
+      H5Tset_size(FILE_type_id,16); break;
+     default: printf("INCORRECT FLOAT DEFINITION\n");
     }
 
   if (NumberOfBaryonFields > 0 && ReadData ) {
@@ -636,28 +607,14 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       /* Create a temporary buffer (32 bit or twice the size for 64). */
       
       io_type *temp = NULL;
-      
-      jj = sizeof(FLOAT);
- 
-      switch(jj)
+
+      switch(sizeof(FLOAT))
 	{
-	  
-	case 4:
-	  temp = new io_type[NumberOfParticles];
-	  break;
- 
-	case 8:
-	  temp = new io_type[NumberOfParticles*2];
-	  break;
- 
-	case 16:
-	  temp = new io_type[NumberOfParticles*4];
-	  break;
- 
-	default:
-	  printf("INCORRECT FLOAT DEFINITION\n");
- 
-	}
+	case 4: temp = new io_type[NumberOfParticles];	  break;
+ 	case 8: temp = new io_type[NumberOfParticles*2];  break;
+ 	case 16:temp = new io_type[NumberOfParticles*4];  break;
+ 	default: printf("INCORRECT FLOAT DEFINITION\n");
+ 	}
  
       if (temp == NULL)
 	temp = new io_type[NumberOfParticles];
@@ -682,19 +639,17 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	if (sizeof(FLOAT) == 16)
 	  {
  
-	    //                                 NOTE: for 128bits this must be FILE_type_id and NOT FLOAT_type_id!
+	    //NOTE: for 128bits this must be FILE_type_id and NOT FLOAT_type_id!
 	    h5_status = H5Dread(dset_id, FILE_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
 	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
 	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-	  }
-	else
+	  } else 
 	  {
- 
 	    h5_status = H5Dread(dset_id, FLOAT_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
 	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
 	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
+	    
 	  }
  
 	h5_status = H5Sclose(file_dsp_id);
@@ -913,15 +868,10 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 }
 
 
-
-
-
-
-
 #ifdef USE_HDF4
 /* ----------------------------------------------------------------------                                          
-   This routine reads one data field from the file using the appropriate                                           
-   data model.  Note that it uses file pointers/handlers that are statically                                       
+   This routine reads one data field from the file using the appropriate
+   data model.  Note that it uses file pointers/handlers that are statically
    declared above. */
 
 int ReadField(float *temp, int Dims[], int Rank, char *name,

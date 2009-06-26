@@ -444,6 +444,7 @@ Eint32 main(Eint32 argc, char *argv[])
     else {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Successfully read in parameter file %s.\n", ParameterFile);
+      //      Exterior.Prepare(TopGrid.GridData);
       AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
     }
  

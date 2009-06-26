@@ -567,13 +567,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 	ENZO_FAIL("");
       }
       fclose(BCfptr);
-    }
- 
-    else {
-
-      if (debug) {
+    } else 
+      {
+      if (debug) 
         fprintf(stderr, "InitializeExternalBoundaryFace\n");
-      }
 
       SimpleConstantBoundary = TRUE;
 

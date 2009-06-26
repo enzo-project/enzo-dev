@@ -94,7 +94,6 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 #else
   int         io_log = 0;
 #endif
-  io_log = 1;
  
   int ii = sizeof(float32);
  
@@ -122,14 +121,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
     if (fscanf(fptr, "BoundaryRank = %"ISYM"\n", &BoundaryRank) != 1) {
       fprintf(stderr, "Error reading BoundaryRank.\n");
-      ENZO_FAIL("");
+      return FAIL;
     }
  
     fscanf(fptr, "BoundaryDimension =");
  
     if (ReadListOfInts(fptr, BoundaryRank, BoundaryDimension) == FAIL) {
       fprintf(stderr, "Error reading BoundaryDimension.\n");
-      ENZO_FAIL("");
+      return FAIL;
     }
  
     /* read baryon field quantities */
@@ -137,14 +136,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
     if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
 	       &NumberOfBaryonFields) != 1) {
       fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
-      ENZO_FAIL("");
+      return FAIL;
     }
  
     /* Read particle boundary type. */
  
     if (fscanf(fptr, "ParticleBoundaryType = %"ISYM"\n",&ParticleBoundaryType) != 1) {
       fprintf(stderr, "Error reading ParticleBoundaryType.\n");
-      ENZO_FAIL("");
+      return FAIL;
     }
  
     if (NumberOfBaryonFields > 0) {
@@ -156,14 +155,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
       if (ReadListOfInts(fptr, NumberOfBaryonFields, BoundaryFieldType)
 	  == FAIL) {
 	fprintf(stderr, "Error reading BoundaryFieldType.\n");
-	ENZO_FAIL("");
+	return FAIL;
       }
  
       /* read hdf file name */
  
       if (fscanf(fptr, "BaryonFileName = %s\n", hdfname) != 1) {
 	fprintf(stderr, "Error reading BaryonFileName.\n");
-	ENZO_FAIL("");
+	return FAIL;
       }
  
       /* read BoundaryValue present line */
@@ -172,7 +171,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
       if (ReadListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent) == FAIL) {
 	fprintf(stderr, "Error reading BoundaryValuePresent.\n");
-	ENZO_FAIL("");
+	return FAIL;
       }
     }
   }
@@ -199,7 +198,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
     file_id = H5Fopen(hdfname, H5F_ACC_RDONLY, H5P_DEFAULT);
     if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-    //    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    //    if( file_id == h5_error ){return FAIL;}
     if( file_id == h5_error ){return FAIL;}
  
     /* loop over faces, reading each */
@@ -239,29 +238,29 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
         file_dsp_id = H5Screate_simple((Eint32) 1, &file_size, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( file_dsp_id == h5_error ){return FAIL;}
  
         if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", dname1);
  
         dset_id1 =  H5Dopen(file_id, dname1);
 	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id1);
-	if( dset_id1 == h5_error ){my_exit(EXIT_FAILURE);}
+	if( dset_id1 == h5_error ){return FAIL;}
  
         if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", dname2);
  
         dset_id2 =  H5Dopen(file_id, dname2);
 	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id2);
-	if( dset_id2 == h5_error ){my_exit(EXIT_FAILURE);}
+	if( dset_id2 == h5_error ){return FAIL;}
  
         file_offset = 0;
  
         mem_dsp_id = H5Screate_simple((Eint32) 1, &mem_size, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate mem_dsp_id: %"ISYM"\n", mem_dsp_id);
-	if( mem_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( mem_dsp_id == h5_error ){return FAIL;}
  
         file_dsp_id = H5Screate_simple((Eint32) 1, &file_size, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( file_dsp_id == h5_error ){return FAIL;}
  
 	/* Read HDF dims */
  
@@ -289,7 +288,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	/*
 	  if (TempInt != index) {
 	  fprintf(stderr, "HDF file rank does not match BoundaryRank.\n");
-	  ENZO_FAIL("");
+	  return FAIL;
 	  }
  
 	  for (i = 0; i < index; i++)
@@ -297,7 +296,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	  fprintf(stderr, "HDF file dims do not match BoundaryDims.\n");
 	  fprintf(stderr, " Dims[%"ISYM"] = %"ISYM"   HDF Dims[%"ISYM"] = %"ISYM"\n", i, Dims[i],
 	  index-i-1, TempIntArray[index-i-1]);
-	  ENZO_FAIL("");
+	  return FAIL;
 	  }
 	*/
 	/* Allocate temporary space. */
@@ -334,14 +333,14 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 
             h5_status =  H5Sselect_hyperslab(mem_dsp_id,  H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, NULL);
 	    if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( h5_status == h5_error ){return FAIL;}
  
             file_stride = 1;
             file_count = size;
  
             h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, &file_offset, &file_stride, &file_count, NULL);
 	    if (io_log) fprintf(log_fptr, "H5Sselect file slab: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( h5_status == h5_error ){return FAIL;}
  
             file_offset = file_offset + size;
  
@@ -383,7 +382,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 
               h5_status = H5Dread(dset_id2, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
 	      if (io_log) fprintf(log_fptr, "H5Dread boundary value: %"ISYM"\n", h5_status);
-	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      if( h5_status == h5_error ){return FAIL;}
 
               for (j = 0; j < size; j++)
                 bv_buffer[j] = float(buffer[j]);
@@ -403,7 +402,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 
               h5_status = H5Dread(dset_id2, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
 	      if (io_log) fprintf(log_fptr, "H5Dread boundary value: %"ISYM"\n", h5_status);
-	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      if( h5_status == h5_error ){return FAIL;}
  
 	      for (j = 0; j < size; j++)
 		BoundaryValue[field][dim][i][j] = float(buffer[j]);
@@ -426,25 +425,25 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
         h5_status = H5Dclose(dset_id1);
 	if (io_log) fprintf(log_fptr,"H5Dclose 1: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){return FAIL;}
  
         h5_status = H5Dclose(dset_id2);
 	if (io_log) fprintf(log_fptr,"H5Dclose 2: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){return FAIL;}
  
         h5_status = H5Sclose(mem_dsp_id);
 	if (io_log) fprintf(log_fptr, "H5Sclose mem_dsp: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){return FAIL;}
  
         h5_status = H5Sclose(file_dsp_id);
 	if (io_log) fprintf(log_fptr, "H5Sclose file_dsp: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){return FAIL;}
  
       }   // end of loop over dims
  
     h5_status = H5Fclose(file_id);
     if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){return FAIL;}
  
     if (io_log) fclose(log_fptr);
  
