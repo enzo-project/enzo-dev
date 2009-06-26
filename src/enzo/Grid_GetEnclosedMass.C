@@ -75,6 +75,9 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
   int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
   int Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields);
   int GENum = FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
+  int ColorField = FindField(ForbiddenRefinement, FieldType, NumberOfBaryonFields); 
+  if ((ColorField < 0) && (star->ReturnFeedbackFlag() == COLOR_FIELD))
+      ENZO_FAIL("Couldn't Find Color Field!");
 
   /* Find metallicity field and set flag. */
 
@@ -137,6 +140,8 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 	if (dr2 < radius2) {
 	  gasmass = BaryonField[DensNum][index] * MassConversion;
 	  mass += gasmass;
+      if (star->ReturnFeedbackFlag() == COLOR_FIELD)
+        BaryonField[ColorField][index] = BaryonField[DensNum][index];
 	  for (dim = 0; dim < GridRank; dim++)
 	    AvgVelocity[dim] += BaryonField[Vel1Num+dim][index] * gasmass;
 	  if (ThresholdField[index] < ColdThreshold)
