@@ -63,14 +63,14 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
   /* For groups, find the virial radius (r200) and calculate virial mass */
 
   // Sort by radius and search for an enclosed density of 200 times
-  // the critical density.  Since we're using the NR utilities, use
-  // one-based arrays.
+  // the critical density.  Search outside-in.
 
   pindex = new int[len];
 
   if (!subgroup) {
     radius = new float[len];
     for (i = 0; i < len; i++) {
+      radius[i] = 0;
       for (dim = 0; dim < 3; dim++) {
 	del = p[i].Pos[dim] - pcm[dim];
 	radius[i] += del*del;
@@ -90,23 +90,18 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     rho200 = 200 * D.RhoCritical0;
     len4 = len/4;
 
-    menc = 0.0;
-    for (i = 0; i < len; i++) {
-      menc += p[pindex[i]-1].Mass;
-
-      // Only check if we've evaluated more than the # of nearest
-      // neighbors and more than a quarter of the particles
-      if (i >= D.DesDensityNgb && i > len4) {
-	r3 = radius[pindex[i]] * radius[pindex[i]] * radius[pindex[i]];
-	rho = factor * menc / max(r3, tiny_number);
-	if (rho <= rho200) 
-	  break;
-      }
+    menc = mtot;
+    for (i = len-1; i >= 0; i--) {
+      menc -= p[pindex[i]].Mass;
+      r3 = radius[pindex[i]] * radius[pindex[i]] * radius[pindex[i]];
+      rho = factor * menc / max(r3, tiny_number);
+      if (rho > rho200) 
+	break;
     }
 
-    irvir = min(i, len-1);
+    irvir = max(i, 0);
     rvir = radius[pindex[irvir]] * D.Time;  // comoving -> proper
-    mvir = menc;
+    mvir = menc + p[pindex[irvir]].Mass;  // Add the last particle removed
 
   } // ENDIF !subgroup
 
