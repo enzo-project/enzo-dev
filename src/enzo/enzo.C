@@ -334,19 +334,22 @@ Eint32 main(Eint32 argc, char *argv[])
 
   // First expect to read in packed-HDF5
 
+#ifdef USE_HDF5_GROUPS
     if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
       }
+#endif
       // If not packed-HDF5, then try usual HDF5 or HDF4
       if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
 	if (MyProcessorNumber == ROOT_PROCESSOR)
 	  fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
 	my_exit(EXIT_FAILURE);
       }
+#ifdef USE_HDF5_GROUPS
     }
-
+#endif
 
     /*
 #if defined(USE_HDF5_GROUPS) && !defined(USE_HDF4)

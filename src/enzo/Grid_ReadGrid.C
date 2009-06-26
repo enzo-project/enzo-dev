@@ -206,7 +206,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     // (useful in a restart with different hydro/mhd solvers) 
     int ghosts =DEFAULT_GHOST_ZONES;
     if (GridStartIndex[0] != ghosts)  {
-	if (GridID < 2)      fprintf(stderr,"Grid_Group_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
+	if (GridID < 2)      fprintf(stderr,"Grid_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
       
       for (dim=0; dim < GridRank; dim++) {
 	GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
