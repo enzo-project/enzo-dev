@@ -14,7 +14,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 
-#define NR_END 0
+#define NR_END 1
 #define FREE_ARG char*
 
 void nrerror(char error_text[])

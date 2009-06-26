@@ -163,7 +163,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     strcpy(logname, groupfilename);
     strcat(logname, ".log");
     if (io_log) log_fptr = fopen(logname, "a");
-    delete [] logname;
+    delete logname;
  
     if (io_log) fprintf(log_fptr, "Grid_WriteGrid\n");
     if (io_log) fprintf(log_fptr, "  ID %"ISYM"  %s\n", grid_id, id);
@@ -177,7 +177,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     procmap_fptr = fopen(procmap, "a");
     fprintf(procmap_fptr, "%8"ISYM"  %s  Grid%8.8"ISYM"\n", grid_id, procfilename, grid_id);
     fclose(procmap_fptr);
-    delete [] procmap;
+    delete procmap;
 */
  
   }
@@ -408,7 +408,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      delete [] temperature;
+      delete temperature;
  
     } // end: if (OutputTemperature)
 
@@ -477,7 +477,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      delete [] cooling_time;
+      delete cooling_time;
  
     } // if (OutputCoolingTime)
  
@@ -566,10 +566,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     } // end of (if GravitatingMassFieldParticles != NULL)
  
-    delete [] temp;
+    delete temp;
  
     for (dim = 0; dim < GridRank; dim++)
-      delete [] tempdim[dim];
+      delete tempdim[dim];
  
     /* Write BoundaryFluxes info (why? it's just recreated when the grid
                                   is read in) */
@@ -820,8 +820,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     /* clean up */
  
-    delete [] temp;
-    delete [] tempint;
+    delete temp;
+    delete tempint;
  
   } // end: if (MyProcessorNumber...)
   } // end: if (NumberOfParticles > 0)
@@ -851,9 +851,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   /* Clean up. */
  
-  delete [] name;
-  delete [] procfilename;
-  delete [] groupfilename;
+  delete name;
+  delete procfilename;
+  delete groupfilename;
  
   return SUCCESS;
  

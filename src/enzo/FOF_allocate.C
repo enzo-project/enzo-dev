@@ -25,7 +25,7 @@ void allocate_memory(FOFData &AllVars)
     AllVars.P = new FOF_particle_data[n];
     if (AllVars.P == NULL)
       ENZO_FAIL("failed to allocate memory. (A)");
-    //AllVars.P -= 1;
+    AllVars.P -= 1;
   }
 }
 
@@ -44,18 +44,18 @@ void deallocate_all_memory(FOFData &D)
   free_ivector(D.ContribID, 0, D.Ncontrib-1);
   free_ivector(D.ContribHead, 0, D.Ncontrib-1);
   if (D.Nlocal > 0) {
-    free_ivector(D.Head, 0, D.Nlocal);
-    free_ivector(D.Tail, 0, D.Nlocal);
-    free_ivector(D.Next, 0, D.Nlocal);
-    free_ivector(D.Len, 0, D.Nlocal);
-    free_ivector(D.GridNext, 0, D.Nlocal);
+    free_ivector(D.Head, 1, D.Nlocal);
+    free_ivector(D.Tail, 1, D.Nlocal);
+    free_ivector(D.Next, 1, D.Nlocal);
+    free_ivector(D.Len, 1, D.Nlocal);
+    free_ivector(D.GridNext, 1, D.Nlocal);
   }
 
   free_i3tensor(D.GridFirst, 0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
   free_i3tensor(D.GridLast,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
   free_i3tensor(D.GridFlag,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
 
-  //D.P++;
+  D.P++;
   delete [] D.P;
 
   return;

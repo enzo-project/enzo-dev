@@ -449,9 +449,8 @@ int link_across(FOFData &AllVars)
 
   nl = nr = nbuf= 0;
   
-  for (i = 0; i < AllVars.Nslab[MyProcessorNumber]; i++) {
-    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
-    slab = AllVars.P[i].slab;
+  for (i = 1; i <= AllVars.Nslab[MyProcessorNumber]; i++) {
+    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
 
     if (AllVars.P[i].Pos[0] < 
 	slab * (AllVars.BoxSize / NumberOfProcessors) + AllVars.SearchRadius)
@@ -556,8 +555,8 @@ void compile_group_catalogue(FOFData &AllVars)
   int i, n, gr, tot, count;
   int nbound, Nbound;
   
-  for (n = 0, AllVars.Ngroups = AllVars.Ncontrib = nbound = 0; 
-       n < AllVars.Nlocal; n++) {
+  for (n = 1, AllVars.Ngroups = AllVars.Ncontrib = nbound = 0; 
+       n <= AllVars.Nlocal; n++) {
     if (AllVars.Head[n] == n)
       if (AllVars.P[n].GrLen >= AllVars.GroupMinLen) {
 	if (AllVars.P[n].MinID >= (1 + AllVars.Noffset[MyProcessorNumber]) && 
@@ -582,8 +581,8 @@ void compile_group_catalogue(FOFData &AllVars)
   AllVars.ContribID =   ivector(0, AllVars.Ncontrib-1); 
   AllVars.ContribHead = ivector(0, AllVars.Ncontrib-1);
 
-  for (n = 0, AllVars.Ngroups = AllVars.Ncontrib = 0; 
-       n < AllVars.Nlocal; n++) {
+  for (n = 1, AllVars.Ngroups = AllVars.Ncontrib = 0; 
+       n <= AllVars.Nlocal; n++) {
     if (AllVars.Head[n] == n)
       if (AllVars.P[n].GrLen >= AllVars.GroupMinLen) {
 	if (AllVars.P[n].MinID >= (1 + AllVars.Noffset[MyProcessorNumber]) && 
@@ -644,9 +643,6 @@ void compile_group_catalogue(FOFData &AllVars)
   MPI_Bcast(AllVars.GroupDatAll, AllVars.NgroupsAll*sizeof(gr_data), 
 	    MPI_BYTE, 0, MPI_COMM_WORLD); 
 #endif
-
-  delete [] AllVars.NgroupsList;
-
 }
 
 /************************************************************************/
@@ -655,7 +651,7 @@ void find_minids(FOFData &AllVars)
 {
   int n, pp, len, sum = 0;
 
-  for (n = 0; n < AllVars.Nlocal; n++)
+  for (n = 1; n <= AllVars.Nlocal; n++)
     if (AllVars.Head[n] == n) {
       pp = n; 
       len = 0;
@@ -705,9 +701,8 @@ void stitch_together(FOFData &AllVars)
 
   nl = nr = nbuf = 0;
   
-  for (i = 0; i < AllVars.Nslab[MyProcessorNumber]; i++) {
-    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
-    slab = AllVars.P[i].slab;
+  for (i = 1; i <= AllVars.Nslab[MyProcessorNumber]; i++) {
+    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
     if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + 
 	AllVars.SearchRadius)
       buftoleft[nl++] = AllVars.P[i];
@@ -769,7 +764,7 @@ void stitch_together(FOFData &AllVars)
 
   for (i = 0; i < nbuf; i++) {
     iddat[i].minID = buffer[i].MinID;
-    iddat[i].index = AllVars.Nslab[MyProcessorNumber] + i;
+    iddat[i].index = 1 + AllVars.Nslab[MyProcessorNumber] + i;
     iddat[i].len   = buffer[i].GrLen;
   }
 
@@ -821,17 +816,11 @@ void exchange_shadow(FOFData &AllVars)
 
   nl = nr = 0;
   
-  for (i = 0; i < AllVars.Nlocal; i++) {
-    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
-    slab = AllVars.P[i].slab;
+  for (i = 1; i <= AllVars.Nlocal; i++) {
+    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
 
-    if (slab != MyProcessorNumber) {
-      fprintf(stderr, "FOF: Particle on the wrong processor?!\n");
-      fprintf(stderr, "FOF: slab = %"ISYM", x-pos = %lf, "
-	      "box = %"FSYM", proc = %"ISYM"\n",
-	      slab, AllVars.P[i].Pos[0], AllVars.BoxSize, MyProcessorNumber);
+    if (slab != MyProcessorNumber)
       ENZO_FAIL("");
-    }
 		  
     if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + 
 	AllVars.SearchRadius)
@@ -868,7 +857,7 @@ void exchange_shadow(FOFData &AllVars)
 
 #ifdef USE_MPI
   if (MyProcessorNumber & 1) {
-    MPI_Recv(&AllVars.P[AllVars.Nlocal], 
+    MPI_Recv(&AllVars.P[1+AllVars.Nlocal], 
 	     AllVars.NtoLeft[rightTask] * sizeof(FOF_particle_data), 
 	     MPI_BYTE, rightTask, rightTask, MPI_COMM_WORLD, &status);
     AllVars.Nlocal += AllVars.NtoLeft[rightTask];
@@ -880,14 +869,14 @@ void exchange_shadow(FOFData &AllVars)
     MPI_Ssend(buftoleft, 
 	      AllVars.NtoLeft[MyProcessorNumber] * sizeof(FOF_particle_data), 
 	      MPI_BYTE, leftTask, MyProcessorNumber, MPI_COMM_WORLD);
-    MPI_Recv(&AllVars.P[AllVars.Nlocal], 
+    MPI_Recv(&AllVars.P[1+AllVars.Nlocal], 
 	     AllVars.NtoRight[leftTask] * sizeof(FOF_particle_data), 
 	     MPI_BYTE, leftTask, leftTask, MPI_COMM_WORLD, &status);
     AllVars.Nlocal += AllVars.NtoRight[leftTask];
   } // ENDELSE
 
   if (MyProcessorNumber & 1) {
-    MPI_Recv(&AllVars.P[AllVars.Nlocal], 
+    MPI_Recv(&AllVars.P[1+AllVars.Nlocal], 
 	     AllVars.NtoRight[leftTask] * sizeof(FOF_particle_data), 
 	     MPI_BYTE, leftTask, leftTask, MPI_COMM_WORLD, &status);
     AllVars.Nlocal += AllVars.NtoRight[leftTask];
@@ -899,7 +888,7 @@ void exchange_shadow(FOFData &AllVars)
     MPI_Ssend(buftoright, 
 	      AllVars.NtoRight[MyProcessorNumber] * sizeof(FOF_particle_data), 
 	      MPI_BYTE, rightTask, MyProcessorNumber, MPI_COMM_WORLD);
-    MPI_Recv(&AllVars.P[AllVars.Nlocal], 
+    MPI_Recv(&AllVars.P[1+AllVars.Nlocal], 
 	     AllVars.NtoLeft[rightTask]*sizeof(FOF_particle_data), 
 	     MPI_BYTE, rightTask, rightTask, MPI_COMM_WORLD, &status);
     AllVars.Nlocal += AllVars.NtoLeft[rightTask];
@@ -980,17 +969,17 @@ void init_coarse_grid(FOFData &AllVars)
   AllVars.GridFlag  = i3tensor(0, AllVars.Grid-1, 0, AllVars.Grid-1, 0, 
 			       AllVars.Grid-1);
 
-  AllVars.GridNext = ivector(0, AllVars.Nlocal);
+  AllVars.GridNext = ivector(1, AllVars.Nlocal);
 
-  AllVars.Tail = ivector(0, AllVars.Nlocal);
-  AllVars.Len  = ivector(0, AllVars.Nlocal);
-  AllVars.Head = ivector(0, AllVars.Nlocal);
-  AllVars.Next = ivector(0, AllVars.Nlocal);
+  AllVars.Tail = ivector(1, AllVars.Nlocal);
+  AllVars.Len  = ivector(1, AllVars.Nlocal);
+  AllVars.Head = ivector(1, AllVars.Nlocal);
+  AllVars.Next = ivector(1, AllVars.Nlocal);
 
 //  if (debug)
 //    printf("Nlocal = %"ISYM" Task = %"ISYM"\n", AllVars.Nlocal, MyProcessorNumber);
 
-  for (i = 0; i < AllVars.Nlocal; i++) {
+  for (i = 1; i <= AllVars.Nlocal; i++) {
     AllVars.Head[i] = i;
     AllVars.Tail[i] = i;
     AllVars.Next[i] = 0;
@@ -1012,10 +1001,10 @@ void marking(FOFData &AllVars)
 
   iter = 0;
   do {
-    qsort(&AllVars.P[0], AllVars.Nlocal, sizeof(FOF_particle_data), 
+    qsort(&AllVars.P[1], AllVars.Nlocal, sizeof(FOF_particle_data), 
 	  comp_func_partcoord);
 
-    for (i = 1, idone = 0; i < AllVars.Nlocal; i++)
+    for (i = 2, idone = 0; i <= AllVars.Nlocal; i++)
       if (fabs(AllVars.P[i-1].Pos[0] - AllVars.P[i].Pos[0]) < 1e-3*AllVars.Epsilon &&
 	  fabs(AllVars.P[i-1].Pos[1] - AllVars.P[i].Pos[1]) < 1e-3*AllVars.Epsilon &&
 	  fabs(AllVars.P[i-1].Pos[2] - AllVars.P[i].Pos[2]) < 1e-3*AllVars.Epsilon) {
@@ -1029,10 +1018,10 @@ void marking(FOFData &AllVars)
       iter++;
   } while (idone > 0 && iter < 10);
 
-  qsort(&AllVars.P[0], AllVars.Nlocal, sizeof(FOF_particle_data), 
+  qsort(&AllVars.P[1], AllVars.Nlocal, sizeof(FOF_particle_data), 
 	comp_func_partcoord);
 
-  for (i = 0; i < AllVars.Nlocal; i++)
+  for (i = 1; i <= AllVars.Nlocal; i++)
     AllVars.P[i].ID = AllVars.Noffset[MyProcessorNumber] + i; 
 } // END marking()
 
@@ -1078,12 +1067,12 @@ int coarse_binning(FOFData &AllVars)
 	AllVars.GridFlag[i][j][k] = 0;
       }
   
-  for (n = 0; n < AllVars.Nlocal; n++)
+  for (n = 1; n <= AllVars.Nlocal; n++)
     AllVars.GridNext[n] = 0;
  
   fac = AllVars.Grid / AllVars.GridExtension;
 
-  for (n = 0, count = 0; n < AllVars.Nlocal; n++) {
+  for (n = 1, count = 0; n <= AllVars.Nlocal; n++) {
     for (k = 0; k < 3; k++) {
       pos[k] = AllVars.P[n].Pos[k];
       if (pos[k] < AllVars.GridCorner[k])
