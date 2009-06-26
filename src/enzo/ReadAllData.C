@@ -116,7 +116,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
     ENZO_FAIL("");
-  }
+  } 
 
 #ifdef USE_HDF4
   if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
@@ -143,6 +143,10 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   fclose(fptr);
 
+  
+
+
+  
   /* Create the memory map name */
 
   strcpy(memorymapname, name);
