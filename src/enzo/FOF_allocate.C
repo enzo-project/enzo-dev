@@ -19,7 +19,7 @@ void allocate_memory(FOFData &AllVars)
 {
   int n;
 
-  n = AllVars.Nslab[MyProcessorNumber] + AllVars.Nshadow[MyProcessorNumber];
+  n = AllVars.Nslab[MyProcessorNumber] + AllVars.Nshadow[MyProcessorNumber] + 1;
 
   if (n > 0) {
     AllVars.P = new FOF_particle_data[n];

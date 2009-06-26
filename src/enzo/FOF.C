@@ -450,7 +450,8 @@ int link_across(FOFData &AllVars)
   nl = nr = nbuf= 0;
   
   for (i = 1; i <= AllVars.Nslab[MyProcessorNumber]; i++) {
-    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    slab = AllVars.P[i].slab;
 
     if (AllVars.P[i].Pos[0] < 
 	slab * (AllVars.BoxSize / NumberOfProcessors) + AllVars.SearchRadius)
@@ -702,7 +703,8 @@ void stitch_together(FOFData &AllVars)
   nl = nr = nbuf = 0;
   
   for (i = 1; i <= AllVars.Nslab[MyProcessorNumber]; i++) {
-    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    slab = AllVars.P[i].slab;
     if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + 
 	AllVars.SearchRadius)
       buftoleft[nl++] = AllVars.P[i];
@@ -817,7 +819,8 @@ void exchange_shadow(FOFData &AllVars)
   nl = nr = 0;
   
   for (i = 1; i <= AllVars.Nlocal; i++) {
-    slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    //slab = (AllVars.P[i].Pos[0] / AllVars.BoxSize) * NumberOfProcessors;
+    slab = AllVars.P[i].slab;
 
     if (slab != MyProcessorNumber)
       ENZO_FAIL("");

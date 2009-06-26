@@ -132,9 +132,6 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   FOF_particle_data *Plocal;
   MPI_Arg *Nslab_local, *NtoLeft_local, *NtoRight_local;
 
-#ifdef USE_MPI
-  MPI_Datatype IntType = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
-#endif
   ptype_size = sizeof(FOF_particle_data);
 
   // Count local particles
@@ -197,11 +194,11 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_MPI
   // Get counts over all processors
-  MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, IntType,
+  MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, IntDataType,
 		MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, IntType,
+  MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, IntDataType,
 		MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, IntType,
+  MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, IntDataType,
 		MPI_SUM, MPI_COMM_WORLD);
 #endif
 
@@ -250,7 +247,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   // First gather the number of local particles on each processor
 #ifdef USE_MPI
-  MPI_Alltoall(Nslab_local, 1, IntType, Nslab_recv, 1, IntType, MPI_COMM_WORLD);
+  MPI_Alltoall(Nslab_local, 1, IntDataType, Nslab_recv, 1, IntDataType, MPI_COMM_WORLD);
 #endif
 
   TotalRecv = 0;
