@@ -147,7 +147,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
     for (task = 0; task < NumberOfProcessors && gr - task >= 0; task++) {
 
-      parent = D.NgroupsAll-(gr-task);
+      parent = D.NgroupsAll-(gr-task)-1;
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	if (task == 0) {
@@ -187,34 +187,38 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
-	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) msub);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	    if (nsubs > 0) {
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) sublen);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) msub);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) fsuboffset);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) sublen);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) fsuboffset);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	    } // ENDIF nsubs>0
 	    
 	    hdims[0] = 3;
 	    hdims[1] = (hsize_t) len;
@@ -267,7 +271,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
 	  } // ENDIF subgroups
 
-	  parent = D.NgroupsAll-(gr-task);
+	  parent = D.NgroupsAll-(gr-task)-1;
 		  
 	  len = D.GroupDatAll[gr-task].Len;
 	  partbuf = new FOF_particle_data[len];
@@ -303,36 +307,40 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
-	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) bufmsub);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	    if (nsubs > 0) {
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) bufsublen);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) bufmsub);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) fbufsuboffset);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) bufsublen);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) fbufsuboffset);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	    } // ENDIF nsubs>0
 	    
 	    hdims[0] = 3;
 	    hdims[1] = (hsize_t) len;

@@ -64,8 +64,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
       MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
     return SUCCESS;
 
-  if (NumberOfProcessors & 1) {
-    fprintf(stdout, "FOF: Number of processors must be EVEN to run "
+  if (NumberOfProcessors & 1 && NumberOfProcessors > 1) {
+    fprintf(stdout, "FOF: Number of processors (in parallel) must be EVEN to run "
 	    "inline halo finder.\n");
     return SUCCESS;
   }
@@ -98,20 +98,23 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   FOF_Initialize(MetaData, LevelArray, AllVars);
 
   marking(AllVars);
- 
-  exchange_shadow(AllVars);
+
+  if (NumberOfProcessors > 1)
+    exchange_shadow(AllVars);
 
   init_coarse_grid(AllVars);
   
   link_local_slab(AllVars);
     
-  do {
-    find_minids(AllVars);
-  } while (link_across(AllVars) > 0);
+  if (NumberOfProcessors > 1)
+    do {
+      find_minids(AllVars);
+    } while (link_across(AllVars) > 0);
   
   find_minids(AllVars);
   
-  stitch_together(AllVars);
+  if (NumberOfProcessors > 1)
+    stitch_together(AllVars);
 
   compile_group_catalogue(AllVars);
 
@@ -342,6 +345,22 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
 #endif
   int i, imin, imax, pp, nlocal, nrecv;
   FOF_particle_data *localbuf;
+
+  if (NumberOfProcessors == 1) {
+
+    // No communication required.  Just created an array of particles
+    // from the linked list.
+
+    i = 0;
+    pp = AllVars.Head[minid - AllVars.Noffset[MyProcessorNumber]];
+    do {
+      buf[i++] = AllVars.P[pp];
+    } while (pp = AllVars.Next[pp]);
+
+    return len;
+
+  } // ENDIF serial
+
 
 #ifdef USE_MPI
   MPI_Bcast(&minid,  1, IntDataType, dest, MPI_COMM_WORLD);
