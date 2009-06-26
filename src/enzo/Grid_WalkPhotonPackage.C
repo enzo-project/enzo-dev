@@ -311,8 +311,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT uy = dir_vec[1];
   FLOAT uz = dir_vec[2];
   //if (ux == 0) ux = ROUNDOFF;
-  if (fabs(uy) < ROUNDOFF) uy = ROUNDOFF; // zeros in y direction possible
-  if (fabs(uz) < ROUNDOFF) uz = ROUNDOFF; // zeros in z direction possible
+  if (fabs(uy) < ROUNDOFF) uy = sign(uy)*ROUNDOFF; // zeros in y direction possible
+  if (fabs(uz) < ROUNDOFF) uz = sign(uz)*ROUNDOFF; // zeros in z direction possible
 
   FLOAT ux_inv, uy_inv, uz_inv, dr_temp[MAX_DIMENSION], min_dr;
   int ux_dir, uy_dir, uz_dir;

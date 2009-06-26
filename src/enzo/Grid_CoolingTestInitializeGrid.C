@@ -1,21 +1,20 @@
 /***********************************************************************
 /
-/  GRID CLASS (INITIALIZE THE GRID FOR A COOLING TEST)
+/  GRID CLASS (INITIALIZE THE GRID TO A UNIFORM POOL OF GAS)
 /
-/  written by: John Wise
-/  date:       April, 2009
-/  modified1:  
+/  written by: Britton Smith
+/  date:       February, 2008
+/  modified1:
 /
-/  PURPOSE:
+/  PURPOSE: Only different from InitializeUniformGrid in how 
+/           species fractions are initialized.
 /
 /  RETURNS: FAIL or SUCCESS
 /
 ************************************************************************/
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -24,193 +23,240 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-/********************* PROTOTYPES *********************/
+#define MH 1.67e-24
+#define DEFAULT_MU 0.6
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
 
-/*******************************************************/
-
-int grid::CoolingTestInitializeGrid(float MinimumDensity,
-				float MaximumDensity,
-				float MinimumTemperature,
-				float MaximumTemperature,
-				float MinimumColour,
-				float MaximumColour,
-				int UseMetals,
-				int UseElectronFraction)
+int grid::CoolingTestInitializeGrid()
 {
-
   /* declarations */
 
-  const float Z_SOLAR = 0.0204;
-  int dim, i, j, k, field, size, index;
-  int DensNum, TENum, GENum, Vel1Num;
+  int dim, i, j, k, size, field, GCM, index;
+
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, ColourNum;
+      DINum, DIINum, HDINum, MetalNum;
+
+  int ExtraField[2];
+
+  float HNumberDensity, HNumberDensitySlope, metallicitySlope, temperatureSlope;
+  float mu;
 
   /* create fields */
+ 
   NumberOfBaryonFields = 0;
-  FieldType[DensNum = NumberOfBaryonFields++] = Density;
-  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[NumberOfBaryonFields++] = Density;
+  FieldType[NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism)
-    FieldType[GENum = NumberOfBaryonFields++] = InternalEnergy;
-  FieldType[Vel1Num = NumberOfBaryonFields++] = Velocity1;
-  if (GridRank > 1) 
+    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+  int vel = NumberOfBaryonFields;
+  FieldType[NumberOfBaryonFields++] = Velocity1;
+  if (GridRank > 1)
     FieldType[NumberOfBaryonFields++] = Velocity2;
   if (GridRank > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
-  if (MultiSpecies) {
-    FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
-    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
-    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
-    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
-    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
-    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
-    if (MultiSpecies > 1) {
-      FieldType[HMNum    = NumberOfBaryonFields++] = HMDensity;
-      FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
-      FieldType[H2IINum  = NumberOfBaryonFields++] = H2IIDensity;
+
+  int colorfields = NumberOfBaryonFields;
+
+  // Enzo's standard multispecies (primordial chemistry - H, D, He)
+  if (TestProblemData.MultiSpecies) {
+    FieldType[DeNum     = NumberOfBaryonFields++] = ElectronDensity;
+    FieldType[HINum     = NumberOfBaryonFields++] = HIDensity;
+    FieldType[HIINum    = NumberOfBaryonFields++] = HIIDensity;
+    FieldType[HeINum    = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum   = NumberOfBaryonFields++] = HeIIDensity;
+    FieldType[HeIIINum  = NumberOfBaryonFields++] = HeIIIDensity;
+    if (TestProblemData.MultiSpecies > 1) {
+      FieldType[HMNum   = NumberOfBaryonFields++] = HMDensity;
+      FieldType[H2INum  = NumberOfBaryonFields++] = H2IDensity;
+      FieldType[H2IINum = NumberOfBaryonFields++] = H2IIDensity;
     }
-    if (MultiSpecies > 2) {
+    if (TestProblemData.MultiSpecies > 2) {
       FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
-  if (UseMetals)
+
+  //  Metal fields, including the standard 'metallicity' as well 
+  // as two extra fields
+  if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+
+    if(TestProblemData.MultiMetals){
+      FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+      FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+    }
+  }
 
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
+ 
+  /* compute size of fields */
 
-  /* Set various units. */
+  if (GridRank < 3) {
+    fprintf(stderr, "GridRank must be 3 for Cooling Test.\n");
+    return FAIL;
+  }
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    MassUnits, VelocityUnits, mu = 0.6;
-
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, Time);
-
-  /* Set up the baryon field. */
+  // Get the units so we can convert temperature later
+ 
+  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
+    VelocityUnits=1, MassUnits=1;
+ 
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, 
+	       Time) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
 
   size = 1;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-
+ 
   /* allocate fields */
 
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (BaryonField[field] == NULL)
       BaryonField[field] = new float[size];
 
-  /* Loop over the mesh. */
+  // Set up a 3d grid that varies over density, metallicity, and temperature.
+  // Do density and metallicity first, and temperature later when species fractions are set.
 
-  float density, temperature, colour;
-  float delta_density, delta_temp, delta_colour;
-  float log_density0, log_temp0, log_colour0;
-  
-  log_density0 = log10(MinimumDensity);
-  log_temp0 = log10(MinimumTemperature);
-  log_colour0 = log10(MinimumColour);
-  delta_density = log10(MaximumDensity / MinimumDensity) / 
-    (float) (GridDimension[0]-1);
-  delta_temp = log10(MaximumTemperature / MinimumTemperature) / 
-    (float) (GridDimension[1]-1);
-  delta_colour = log10(MaximumColour / MinimumColour) / 
-    (float) (GridDimension[2]-1);
+  HNumberDensitySlope = log10(TestProblemData.MaximumHNumberDensity / TestProblemData.MinimumHNumberDensity) /
+    (GridEndIndex[0] - GridStartIndex[0]);
+  metallicitySlope = log10(TestProblemData.MaximumMetallicity / TestProblemData.MinimumMetallicity) /
+    (GridEndIndex[1] - GridStartIndex[1]);
+  temperatureSlope = log10(TestProblemData.MaximumTemperature / TestProblemData.MinimumTemperature) /
+    (GridEndIndex[2] - GridStartIndex[2]);
 
-  index = 0;
-  for (k = 0; k < GridDimension[2]; k++) {
-    colour = pow(10.0, log_colour0 + k * delta_colour);
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) { // Temperature
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) { // Metallicity
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) { // H NumberDensity
 
-    if (UseElectronFraction) {
-      TestProblemData.HI_Fraction = CoolData.HydrogenFractionByMass * (1.0 - colour);
-      TestProblemData.HII_Fraction = CoolData.HydrogenFractionByMass * colour;
-      TestProblemData.HeI_Fraction = 4*(1.0 - CoolData.HydrogenFractionByMass) * 0.5*(1.0 - colour);
-      TestProblemData.HeII_Fraction = 4*(1.0 - CoolData.HydrogenFractionByMass) * 0.5*(1.0 - colour);
-      TestProblemData.HeIII_Fraction = 4*(1.0 - CoolData.HydrogenFractionByMass) * colour;
+	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+
+	BaryonField[0][index] = MH * pow(10,((HNumberDensitySlope * (i-GridStartIndex[0])) + log10(TestProblemData.MinimumHNumberDensity))) /
+	  TestProblemData.HydrogenFractionByMass / DensityUnits;
+
+	BaryonField[MetalNum][index] = pow(10,((metallicitySlope * (j-GridStartIndex[1])) + log10(TestProblemData.MinimumMetallicity))) *
+	  TestProblemData.HydrogenFractionByMass * CloudyCoolingData.CloudyMetallicityNormalization * BaryonField[0][index];
+
+      }
     }
+  }
+ 
+  /* set velocities */
+ 
+  for (dim = 0; dim < GridRank; dim++)
+    for (i = 0; i < size; i++)
+      BaryonField[vel+dim][i] = 0.0;
+ 
+  /* set density of color fields to user-specified values (if user doesn't specify, 
+     the defaults are set in SetDefaultGlobalValues.  Do some minimal amount of error
+     checking to try to ensure charge conservation when appropriate */
+  for (i = 0; i < size; i++){
 
-    for (j = 0; j < GridDimension[1]; j++) {
-      temperature = pow(10.0, log_temp0 + j * delta_temp);
-      for (i = 0; i < GridDimension[0]; i++, index++) {
+    // Set multispecies fields!
+    // this attempts to set them such that species conservation is maintained,
+    // using the method in CosmologySimulationInitializeGrid.C
+    if(TestProblemData.MultiSpecies){
 
-	density = pow(10.0, log_density0 + i * delta_density);
+      BaryonField[HINum][i] = TestProblemData.HI_Fraction * 
+	TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
+ 
+      BaryonField[HeINum][i] =  TestProblemData.HeII_Fraction *
+	BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
 
-	/* Set density. */
+      BaryonField[HeIINum][i] = TestProblemData.HeIII_Fraction *
+	BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
 
-	BaryonField[DensNum][index] = density;
+      BaryonField[HeIIINum][i] =
+	(1.0 - TestProblemData.HydrogenFractionByMass) * BaryonField[0][i] -
+	BaryonField[HeINum][i] - BaryonField[HeIINum][i];
 
-	/* If doing multi-species (HI, etc.), set these. */
+      if(TestProblemData.MultiSpecies > 1){
+	BaryonField[HMNum][i] = TestProblemData.HM_Fraction *
+	  TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
 
-	if (MultiSpecies > 0) {
-	  BaryonField[HINum][index] = density * TestProblemData.HI_Fraction;
-	  BaryonField[HIINum][index] = density * TestProblemData.HII_Fraction;
-	  BaryonField[HeINum][index] = density * TestProblemData.HeI_Fraction;
-	  BaryonField[HeIINum][index] = density * TestProblemData.HeII_Fraction;
-	  BaryonField[HeIIINum][index] = density * TestProblemData.HeIII_Fraction;
+	BaryonField[H2INum][i] = 2 * TestProblemData.H2I_Fraction *
+	  TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
+
+	BaryonField[H2IINum][i] = 2 * TestProblemData.H2II_Fraction * 
+	  TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
+      }
+
+      // HII density is calculated by subtracting off the various ionized fractions
+      // from the total
+      BaryonField[HIINum][i] = TestProblemData.HydrogenFractionByMass * BaryonField[0][i]
+	- BaryonField[HINum][i];
+      if (MultiSpecies > 1)
+	BaryonField[HIINum][i] -= (BaryonField[HMNum][i] + BaryonField[H2IINum][i]
+				  + BaryonField[H2INum][i]);
+
+      // Electron "density" (remember, this is a factor of m_p/m_e scaled from the 'normal'
+      // density for convenience) is calculated by summing up all of the ionized species.
+      // The factors of 0.25 and 0.5 in front of HeII and HeIII are to fix the fact that we're
+      // calculating mass density, not number density (because the BaryonField values are 4x as
+      // heavy for helium for a single electron)
+      BaryonField[DeNum][i] = BaryonField[HIINum][i] +
+	0.25*BaryonField[HeIINum][i] + 0.5*BaryonField[HeIIINum][i];
+      if (MultiSpecies > 1)
+	BaryonField[DeNum][i] += 0.5*BaryonField[H2IINum][i] -
+	  BaryonField[HMNum][i];
+
+      // Set deuterium species (assumed to be a negligible fraction of the total, so not
+      // counted in the conservation)
+      if(TestProblemData.MultiSpecies > 2){
+	BaryonField[DINum ][i]  = TestProblemData.DeuteriumToHydrogenRatio * BaryonField[HINum][i];
+	BaryonField[DIINum][i] = TestProblemData.DeuteriumToHydrogenRatio * BaryonField[HIINum][i];
+	BaryonField[HDINum][i] = 0.75 * TestProblemData.DeuteriumToHydrogenRatio * BaryonField[H2INum][i];
+      }
+
+    } // if(TestProblemData.MultiSpecies)
+
+  } // for (i = 0; i < size; i++)
+
+  // Now set internal energy from temperature.
+
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) { // Temperature
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) { // Metallicity
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) { // H NumberDensity
+
+	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+
+	// calculate mu
+
+	if (TestProblemData.MultiSpecies == 0) {
+	  mu = DEFAULT_MU;
 	}
-	if (MultiSpecies > 1) {
-	  BaryonField[HMNum][index] = TestProblemData.HM_Fraction * 
-	    BaryonField[HIINum][index] * pow(temperature, float(0.88));
-	  BaryonField[H2IINum][index] = TestProblemData.H2II_Fraction *
-	    2.0*BaryonField[HIINum][index] * pow(temperature,float(1.8));
-	  BaryonField[H2INum][index] = density * TestProblemData.H2I_Fraction;
-	  BaryonField[HINum][index] -= BaryonField[HMNum][index]
-	    + BaryonField[H2IINum][index]
-	    + BaryonField[H2INum][index];
+
+	else {
+	  mu = BaryonField[DeNum][index] + BaryonField[HINum][index] + BaryonField[HIINum][index] + 
+	    (BaryonField[HeINum][index] + BaryonField[HeIINum][index] + BaryonField[HeIIINum][index])/4.0;
+	  if (MultiSpecies > 1) {
+	    mu += BaryonField[HMNum][index] + (BaryonField[H2INum][index] + BaryonField[H2IINum][index])/2.0;
+	  }
+	  if (MultiSpecies > 2) {
+	    mu += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
+	  }
+	  mu = BaryonField[0][index] / mu;
 	}
-	
-	BaryonField[DeNum][index] = BaryonField[HIINum][index] + 
-	  0.25*BaryonField[HeIINum][index] + 0.5*BaryonField[HeIIINum][index];
-	if (MultiSpecies > 1)
-	  BaryonField[DeNum][index] += 0.5*BaryonField[H2IINum][index] - 
-	    BaryonField[HMNum][index];
-	
-	/* Set Deuterium species (assumed to be negligible). */
-	
-	if (MultiSpecies > 2) {
-	  BaryonField[DINum][index] = CoolData.DeuteriumToHydrogenRatio*
-	    BaryonField[HINum][index];
-	  BaryonField[DIINum][index] = CoolData.DeuteriumToHydrogenRatio*
-	    BaryonField[HIINum][index];
-	  BaryonField[HDINum][index] = CoolData.DeuteriumToHydrogenRatio*
-	    BaryonField[H2INum][index];
-	}
-	
-	
-	/* If there is a colour field, set it. */
-	
-	if (UseMetals)
-	  BaryonField[MetalNum][index] = density * Z_SOLAR * colour;
-	
-	/* Set Velocities. */
-	
-	for (dim = 0; dim < GridRank; dim++)
-	  BaryonField[Vel1Num+dim][index] = 0.0;
-	
-	/* Set energy (thermal and then total if necessary). */
-	
-	BaryonField[TENum][index] = temperature/TemperatureUnits/
-	  ((Gamma-1.0)*mu);
-	
+
+	BaryonField[1][index] = pow(10,((temperatureSlope * (k-GridStartIndex[2])) + log10(TestProblemData.MinimumTemperature))) /
+	  TemperatureUnits / mu / (Gamma-1.0);
+
 	if (DualEnergyFormalism)
-	  BaryonField[GENum][index] = BaryonField[TENum][index];
-	
-	for (dim = 0; dim < GridRank; dim++)
-	  BaryonField[TENum][index] += 0.5*pow(BaryonField[Vel1Num+dim][index], 2);
+	  BaryonField[2][index] = BaryonField[1][index];
 
-      } // ENDFOR i
-    } // ENDFOR j
-  } // ENDFOR k
-	
+      }
+    }
+  }
+
   return SUCCESS;
-
 }
-

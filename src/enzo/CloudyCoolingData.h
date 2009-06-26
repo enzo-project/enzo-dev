@@ -33,8 +33,7 @@ struct CloudyCoolingDataType
 
   // Factor to account for extra electrons from metals.
   /* 
-     f = SUM { i * Z_i }, for i = 3 to N.
-     Z_i = Atomic number.
+     f = SUM { A_i * i }, for i = 3 to N.
      N = Atomic number of heaviest element in cooling model.
      For solar abundance patters and N = 30 (Zn), f = 9.153959e-3.
    */

@@ -80,6 +80,9 @@
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
 #include "communication.h"
+#ifdef TRANSFER
+#include "PhotonCommunication.h"
+#endif
 #ifdef RAD_HYDRO
 #include "gFLDProblem.h"
 #endif

@@ -1,52 +1,116 @@
-<# -*-C++-*-
-ProblemType             = 62
-TopGridRank             = 3
-StopTime                = 50.0
+#
+# PROBLEM DEFINITION FILE: Cooling Test
+#
+#  Iterate rate solver without hydro and output cooling time.
+#
+#
+#
+# Cooling Test
+ProblemType               =  62
 
-#StopCycle = 50
-#CycleSkipDataDump = 1
-dtDataDump = 0.5
+#
+#  grid setup
+#
+TopGridRank               = 3
 
-TopGridDimensions       = 16 16 16
+# Dim 0 - H number density
+# Dim 1 - metallicity
+# Dim 2 - temperature
+TopGridDimensions         = 7 7 61
 
-MultiSpecies            = 2
-RadiativeCooling        = 1
-MetalCooling            = 1
-RadiationFieldType      = 0
+#
+# set H number density, metallicity, and temperature
+#
+CoolingTestMinimumHNumberDensity = 1
+CoolingTestMaximumHNumberDensity = 1e6
+CoolingTestMinimumMetallicity = 1e-6
+CoolingTestMaximumMetallicity = 1
+CoolingTestMinimumTemperature = 10
+CoolingTestMaximumTemperature = 1e7
 
-ComovingCoordinates     = 0
+##### 2 WAYS TO RUN THE COOLING TEST #####
+## 1. Keep temperature constant, but iterate chemistry to allow species to converge.
+##    This will allow you to make plots of Cooling rate vs. T.
+## Reset energies to keep temperature constant as mean molecular weight changes 
+## through iteration of the chemistry solver.
+CoolingTestResetEnergies = 1
+## Turn off actual cooling to keep temperature constant.
+RadiativeCooling = 0
 
-HydroMethod             = -1
-DualEnergyFormalism     = 1 
-#InterpolationMethod     = 1
+## 2. Allow gas to cool, allowing one to plot Temperature vs. time.
+## Do not reset the energies, and turn RadiativeCooling on.
+# CoolingTestResetEnergies = 0
+# RadiativeCooling = 1
 
-TopGridGravityBoundary     = 0
-LeftFaceBoundaryCondition  = 3 3 3       // same for fluid
-RightFaceBoundaryCondition = 3 3 3
+#
+#  set I/O and stop/start parameters
+#
+StopTime                  = 0.05
+StopCycle                 = 100000
+dtDataDump                = 1.0
+DataDumpName              = DD
 
-StaticHierarchy            = 1
-MaximumRefinementLevel     = 0        // use up to __ levels
-RefineBy                   = 2        // refinement factor
-CellFlaggingMethod         = 2        // use baryon mass for refinement 
-MinimumOverDensityForRefinement = 1.1 // times the initial density
+#
+#  set hydro parameters
+#
+HydroMethod               = 0       // PPM - 0; ZEUS - 2
+UseHydro                  = 0
+DualEnergyFormalism       = 1
+PPMDiffusionParameter     = 1
+PPMFlatteningParameter    = 3
+PPMSteepeningParameter    = 1
+CourantSafetyNumber       = 0.8     // ppm - 0.8; zeus - 0.5
+SelfGravity = 0
+FluxCorrection = 0
 
-GravitationalConstant      = 1
-SelfGravity                = 1
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1       // dynamic hierarchy
+MaximumRefinementLevel    = 0       // use 0 AMR levels
 
-CoolingTestMinimumDensity      = 0.01
-CoolingTestMaximumDensity      = 1e6
-CoolingTestMinimumTemperature  = 100.0
-CoolingTestMaximumTemperature  = 1e6
-CoolingTestMinimumColour       = 1e-6
-CoolingTestMaximumColour       = 1.0
-CoolingTestUseMetals	       = 1
-CoolingTestUseElectronFraction = 0
-CoolingTestH2Fraction	       = 1e-6
-CoolingTestElectronFraction    = 1e-3
-
-DensityUnits = 1.673e-24
-LengthUnits  = 3.086e24
-TimeUnits    = 3.1557e+13
-
-OutputTemperature = 1
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-20
 OutputCoolingTime = 1
+OutputTemperature = 1
+
+#
+# Units
+#
+DensityUnits = 1.67e-24   # box density in g/cm^3 (1 ptcles per cc mean)
+LengthUnits = 3.0857e+18   # box size in cm (1 parsecs)
+TimeUnits = 3.1557e+13    # 1 megayear in seconds 
+
+# Chemistry and cooling modules.
+MultiSpecies = 2
+
+## John Wise's metal cooling ##
+MetalCooling = 1 
+
+## Cloudy cooling ##
+# MetalCooling = 3
+# CloudyCoolingGridFile = /Users/britton/EnzoRuns/cooling_test/solar_2008_3D_metals.h5 # 3D Metals-only data.
+# CloudyMetallicityNormalization = 0.018477 # Solar pattern, all metals through Zn
+# CloudyElectronFractionFactor   = 9.153959e-3 # Solar pattern, all metals through Zn
+# ConstantTemperatureFloor = 0
+# CMBTemperatureFloor = 0
+# IncludeCloudyHeating = 0
+# IncludeCloudyMMW = 0
+
+# Metal field must be on.
+TestProblemUseMetallicityField = 1
+
+## Set Initial MultiSpeciesSpecies Fractions ##
+# For MultiSpecies = 3, the D species are initialized off of their H counterparts.
+# TestProblemInitialHIFraction  = 0.998
+# TestProblemInitialHIIFraction  = 1e-10
+# TestProblemInitialHeIFraction  = 1.0
+# TestProblemInitialHeIIFraction  = 1.0e-20
+# TestProblemInitialHeIIIIFraction  = 1.0e-20
+# TestProblemInitialHMFraction  = 1.e-20
+# TestProblemInitialH2IFraction  = 1.e-3
+# TestProblemInitialH2IIFraction  = 1.e-20
+# TestProblemDeuteriumToHydrogenRatio = 6.8e-5
+# TestProblemHydrogenFractionByMass = 0.76

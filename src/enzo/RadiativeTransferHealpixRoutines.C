@@ -7,7 +7,7 @@
 void quickSort(int a[], int b[], int l, int r);
 int partition(int a[], int b[], int l, int r);
 
-// initializatiion function realted to HEALPix
+// initialization function realted to HEALPix
 int mkPix2xy(long *ipix2x, long *ipix2y) 
 {
   long  kpix,jpix,ix,iy,ip,id;

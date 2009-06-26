@@ -94,7 +94,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 #else
   int         io_log = 0;
 #endif
- 
+  io_log = 1;
  
   int ii = sizeof(float32);
  
@@ -323,7 +323,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  for (i = 0; i < 2; i++) {
- 
+	    
             if (io_log) fprintf(log_fptr, "        dim %"ISYM" : field %"ISYM" : i %"ISYM"\n", dim, field, i);
  
 	    /* read BoundaryType (then convert to int) */
@@ -331,7 +331,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
             mem_offset = 0;
             mem_stride = 1;
             mem_count = size;
- 
+
             h5_status =  H5Sselect_hyperslab(mem_dsp_id,  H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, NULL);
 	    if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %"ISYM"\n", h5_status);
 	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
@@ -347,8 +347,13 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
             h5_status = H5Dread(dset_id1, float_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) buffer);
 	    if (io_log) fprintf(log_fptr, "H5Dread boundary type: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
+
+	    if( h5_status == h5_error ){	      
+	      for (int k=0;k<size;k++) buffer[size] = 0;
+	      fprintf(stderr,"ExternaBoundary::ReadExternalBoundary Had trouble reading ExternalBoudnary values: field: %i\n", field);
+	      fprintf(stderr,"Continue and hope for th best.\n");
+	    }
+
 #ifdef OOC_BOUNDARY
 
             for (j = 0; j < size; j++)

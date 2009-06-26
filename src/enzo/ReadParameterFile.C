@@ -63,10 +63,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   float TempFloat;
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
+  int comment_count = 0;
  
   /* read until out of lines */
  
-  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+  while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
+      && (comment_count < 2)) {
 
     ret = 0;
  
@@ -632,7 +634,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 #endif
 
- 
     /* If the dummy char space was used, then make another. */
  
     if (*dummy != 0) {
@@ -673,7 +674,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
 #endif
- 
+
+    if (strstr(line, "\"\"\"")              ) comment_count++;
+
     /* if the line is suspicious, issue a warning */
  
     if (ret == 0 && strstr(line, "=") != NULL && line[0] != '#')
@@ -767,7 +770,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If set, initialize CloudyCooling. */
 
   if (MetalCooling == CLOUDY_METAL_COOLING) {
-    RadiativeCooling = 1;
     if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
       fprintf(stderr, "Error in InitializeCloudyCooling.\n");
       return FAIL;

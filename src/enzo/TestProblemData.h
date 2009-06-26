@@ -33,4 +33,13 @@ struct TestProblemDataType
   float MultiMetalsField1_Fraction;
   float MultiMetalsField2_Fraction;
 
+  /* Cooling Test parameters */
+  float MinimumHNumberDensity;
+  float MaximumHNumberDensity;
+  float MinimumMetallicity;
+  float MaximumMetallicity;
+  float MinimumTemperature;
+  float MaximumTemperature;
+  int ResetEnergies;
+
 };

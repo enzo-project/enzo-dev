@@ -224,6 +224,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeXrayEmissivity.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
+	Grid_CoolingTestResetEnergies.o \
 	Grid_CoolingTestInitializeGrid.o \
 	Grid_ConvertToNumpy.o \
 	Grid_CopyBaryonFieldToOldBaryonField.o \

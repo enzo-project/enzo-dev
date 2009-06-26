@@ -464,7 +464,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  break;
 	} 
       }
-      lmax = 6;
+      lmax = 6; // <- Pengs version had lmax = 6
+      //      lmax = 1;
       FLOAT dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
       FLOAT dy0 = (MetaData->TopGridRank > 1) ? 
 	(DomainRightEdge[1] - DomainLeftEdge[1]) / MetaData->TopGridDims[1] : 1e8;
@@ -472,9 +473,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
       FLOAT h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
+      FLOAT DivBDampingLength=.3;
       C_h = MetaData->CourantSafetyNumber*h_min/dt0;
-      C_p = sqrt(0.18*C_h);
-
+      C_p = sqrt(0.18*DivBDampingLength*C_h);
+      fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
     }
 
 //     if (SelfGravity && MetaData->TopGridRank == 3) {
