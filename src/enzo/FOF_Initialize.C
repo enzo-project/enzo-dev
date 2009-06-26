@@ -81,6 +81,11 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     CosmologyComputeExpansionFactor(MetaData->Time, &a, &dadt);
   D.Time = a / (1 + InitialRedshift);
 
+  // Critical density in units of Msun / kpc^3
+  D.RhoCritical0 = 1.4775867e31 * 
+    ((3 * pow(100 * HubbleConstantNow / 3.086e19, 2)) / (8 * M_PI * GRAVITY));
+  //D.RhoCritical /= pow(D.Time, 3);
+
   // Sometimes MassUnits is infinite (in cgs) when using single
   // precision, so calculate it in double precision.
 

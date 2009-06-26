@@ -193,7 +193,8 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
   int    ntot;
   int    head, len;
   char   ctype;
-  float cm[3], cmv[3], mtot, mstars, redshift;
+  float cm[3], cmv[3], AM[3], vrms, spin, mtot, mstars, redshift;
+  float mvir, rvir;
   double *temp;
   int   *TempInt;
 
@@ -221,17 +222,41 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
     fprintf(fd, "# Redshift = %"FSYM"\n", redshift);
     fprintf(fd, "# Number of halos = %"ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
-    fprintf(fd, "# Column 1.  Halo number\n");
-    fprintf(fd, "# Column 2.  Number of particles\n");
-    fprintf(fd, "# Column 3.  Halo mass [solar masses]\n");
-    fprintf(fd, "# Column 4.  Stellar mass [solar masses]\n");
-    fprintf(fd, "# Column 5.  Center of mass (x)\n");
-    fprintf(fd, "# Column 6.  Center of mass (y)\n");
-    fprintf(fd, "# Column 7.  Center of mass (z)\n");
-    fprintf(fd, "# Column 8.  Mean x-velocity [km/s]\n");
-    fprintf(fd, "# Column 9.  Mean y-velocity [km/s]\n");
-    fprintf(fd, "# Column 10. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 1.  Center of mass (x)\n");
+    fprintf(fd, "# Column 2.  Center of mass (y)\n");
+    fprintf(fd, "# Column 3.  Center of mass (z)\n");
+    fprintf(fd, "# Column 4.  Halo number\n");
+    fprintf(fd, "# Column 5.  Number of particles\n");
+    fprintf(fd, "# Column 6.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 7.  Virial mass [solar masses]\n");
+    fprintf(fd, "# Column 8.  Stellar mass [solar masses]\n");
+    fprintf(fd, "# Column 9.  Virial radius (r200) [kpc]\n");
+    fprintf(fd, "# Column 10. Mean x-velocity [km/s]\n");
+    fprintf(fd, "# Column 11. Mean y-velocity [km/s]\n");
+    fprintf(fd, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 13. Velocity dispersion [km/s]\n");
+    fprintf(fd, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 17. Spin parameter\n");
     fprintf(fd, "#\n");
+    fprintf(fd, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+    fprintf(fd, "#\n");
+    fprintf(fd, "datavar 1 halo_number\n");
+    fprintf(fd, "datavar 2 number_of_particles\n");
+    fprintf(fd, "datavar 3 halo_mass\n");
+    fprintf(fd, "datavar 4 virial_mass\n");
+    fprintf(fd, "datavar 5 stellar_mass\n");
+    fprintf(fd, "datavar 6 virial_radius\n");
+    fprintf(fd, "datavar 7 x_velocity\n");
+    fprintf(fd, "datavar 8 y_velocity\n");
+    fprintf(fd, "datavar 9 z_velocity\n");
+    fprintf(fd, "datavar 10 velocity_dispersion\n");
+    fprintf(fd, "datavar 11 x_angular_momentum\n");
+    fprintf(fd, "datavar 12 y_angular_momentum\n");
+    fprintf(fd, "datavar 13 z_angular_momentum\n");
+    fprintf(fd, "datavar 14 spin\n");
+    fprintf(fd, "\n");
 
     if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
@@ -262,16 +287,17 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-      get_properties(AllVars, Pbuf, len, &cm[0], &cmv[0], &mtot, &mstars);
+      get_properties(AllVars, Pbuf, len, false, &cm[0], &cmv[0], &mtot, &mstars, &mvir, &rvir, 
+		     AM, &vrms, &spin);
 
       if (debug && gr == AllVars.NgroupsAll-1)
 	fprintf(stdout, "FOF: Largest group has %"ISYM" particles"
 		" (%"GSYM" M_sun)\n", len, mtot);
 
 
-      fprintf(fd, "%12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-	      AllVars.NgroupsAll-1-gr, len, 
-	      mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+      fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+	      cm[0], cm[1], cm[2], AllVars.NgroupsAll-1-gr, len, 
+	      mtot, mvir, mstars, rvir, cmv[0], cmv[1], cmv[2], vrms, AM[0], AM[1], AM[2], spin);
 
       if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
@@ -288,8 +314,11 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	group_id = H5Gcreate(file_id, halo_name, 0);
 	writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
 	writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
 	writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
 	hdims[0] = 3;
 	hdims[1] = (hsize_t) len;
