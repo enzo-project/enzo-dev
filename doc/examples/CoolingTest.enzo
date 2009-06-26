@@ -21,25 +21,25 @@ TopGridDimensions         = 7 7 61
 #
 # set H number density, metallicity, and temperature
 #
-TestProblemMinimumHNumberDensity = 1
-TestProblemMaximumHNumberDensity = 1e6
-TestProblemMinimumMetallicity = 1e-6
-TestProblemMaximumMetallicity = 1
-TestProblemMinimumTemperature = 10
-TestProblemMaximumTemperature = 1e7
+CoolingTestMinimumHNumberDensity = 1
+CoolingTestMaximumHNumberDensity = 1e6
+CoolingTestMinimumMetallicity = 1e-6
+CoolingTestMaximumMetallicity = 1
+CoolingTestMinimumTemperature = 10
+CoolingTestMaximumTemperature = 1e7
 
 ##### 2 WAYS TO RUN THE COOLING TEST #####
 ## 1. Keep temperature constant, but iterate chemistry to allow species to converge.
 ##    This will allow you to make plots of Cooling rate vs. T.
 ## Reset energies to keep temperature constant as mean molecular weight changes 
 ## through iteration of the chemistry solver.
-TestProblemResetEnergies = 1
+CoolingTestResetEnergies = 1
 ## Turn off actual cooling to keep temperature constant.
 RadiativeCooling = 0
 
 ## 2. Allow gas to cool, allowing one to plot Temperature vs. time.
 ## Do not reset the energies, and turn RadiativeCooling on.
-# TestProblemResetEnergies = 0
+# CoolingTestResetEnergies = 0
 # RadiativeCooling = 1
 
 #
