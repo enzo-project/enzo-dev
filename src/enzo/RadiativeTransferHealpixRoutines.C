@@ -454,8 +454,8 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
     ypolygon = new int[npts];
     for (i = 0; i < 4; i++) {
       dir = (i >> 1 & 1) ? +1 : -1;
-      xpolygon[i] = (int) roundf( PixelCenter[0] - dir*((i+1)%2)*dphi2 );
-      ypolygon[i] = (int) roundf( PixelCenter[1] + dir*(i%2)*dz2 );
+      xpolygon[i] = (int) ( PixelCenter[0] - dir*((i+1)%2)*dphi2 + 0.5);
+      ypolygon[i] = (int) ( PixelCenter[1] + dir*(i%2)*dz2 + 0.5);
     } // ENDFOR vertices
     draw_poly = TRUE;
   } // ENDIF equatorial
@@ -475,21 +475,21 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       straight[i] = FALSE;
       ksum = k[vert1[i]] + kprime[vert2[i]];
       if (ksum > 0) {
-	vert_x[i] = xoffset + (int) roundf(xfactor * (piover2 * k[vert1[i]] / ksum));
+	vert_x[i] = xoffset + (int) (xfactor * (piover2 * k[vert1[i]] / ksum) + 0.5);
 	if (pole > 0)
-	  vert_y[i] = ysize - (int) roundf(yfactor * (ksum*ksum*fact1));
+	  vert_y[i] = ysize - (int) (yfactor * (ksum*ksum*fact1) + 0.5);
 	else
-	  vert_y[i] = (int) roundf(yfactor * (ksum*ksum*fact1));
+	  vert_y[i] = (int) (yfactor * (ksum*ksum*fact1) + 0.5);
 
 	// Accounting for equatorial vertices in transition pixels
 	if (pole > 0 && vert_y[i] < pole_circle[0]) {
-	  vert_x[i] = (int) roundf(PixelCenter[0]);
-	  vert_y[i] = (int) roundf(PixelCenter[1] - dz2);
+	  vert_x[i] = (int) (PixelCenter[0] + 0.5);
+	  vert_y[i] = (int) (PixelCenter[1] - dz2 + 0.5);
 	  straight[i] = TRUE;
 	}
 	if (pole < 0 && vert_y[i] > pole_circle[1]) {
-	  vert_x[i] = (int) roundf(PixelCenter[0]);
-	  vert_y[i] = (int) roundf(PixelCenter[1] + dz2);
+	  vert_x[i] = (int) (PixelCenter[0] + 0.5);
+	  vert_y[i] = (int) (PixelCenter[1] + dz2 + 0.5);
 	  straight[i] = TRUE;
 	}
 
@@ -521,8 +521,8 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
     /* Compute the pixel boundaries (scan down in y and compute
        boundaries for x) */
 
-    int xcenter = (int) roundf(PixelCenter[0]);
-    int ycenter = (int) roundf(PixelCenter[1]);
+    int xcenter = (int) (PixelCenter[0] + 0.5);
+    int ycenter = (int) (PixelCenter[1] + 0.5);
     int transition;
     float dxdy = pole*3.0/8.0 * (float)xsize/(float)ysize;
     float ycoord;
@@ -539,16 +539,16 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       if (k[0] == 0 && pole < 0) // base pixel edge
 	tempx[npts] = xoffset;
       else if (transition == TRUE) // transition to equator
-	tempx[npts] = (int) roundf(xcenter - dxdy*(i-yrange[0]));
+	tempx[npts] = (int) (xcenter - dxdy*(i-yrange[0]) + 0.5);
       else { // 1/phi^2 curve
 	if (pole > 0) {
 	  sqr_fact = kprime[0]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)) + 0.5);
 	} else {
 	  sqr_fact = k[0]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (sqr_fact / sqrt(1-ycoord)) + 0.5);
 	}
       }
       npts++;
@@ -557,16 +557,16 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       if (k[0] == nr && pole < 0) // base pixel edge
 	tempx[npts] = xoffset1;
       else if (transition == TRUE) // transition to equator
-	tempx[npts] = (int) roundf(xcenter + dxdy*(i-yrange[0]));
+	tempx[npts] = (int) (xcenter + dxdy*(i-yrange[0]) + 0.5);
       else { // polar 1/phi^2 curve
 	if (pole > 0) {
 	  sqr_fact = k[1]*cc;
 	  tempx[npts] = xoffset +
-	    (int) roundf(xfactor * (sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (sqr_fact / sqrt(1-ycoord)) + 0.5);
 	} else {
 	  sqr_fact = kprime[1]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)) + 0.5);
 	}
       }
       npts++;
@@ -585,16 +585,16 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       if (k[0] == 0 && pole > 0) // base pixel edge
 	tempx[npts] = xoffset;
       else if (transition == TRUE) // transition to equator
-	tempx[npts] = (int) roundf(xcenter + dxdy*(yrange[1]-i));
+	tempx[npts] = (int) (xcenter + dxdy*(yrange[1]-i) + 0.5);
       else { // 1/phi^2 curve
 	if (pole > 0) {
 	  sqr_fact = k[0]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (sqr_fact / sqrt(1-ycoord)) + 0.5);
 	} else {
 	  sqr_fact = kprime[0]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)) + 0.5);
 	}
       }
       npts++;
@@ -603,16 +603,16 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       if (k[0] == nr && pole > 0) // base pixel edge
 	tempx[npts] = xoffset1;
       else if (transition == TRUE) // transition to equator
-	tempx[npts] = (int) roundf(xcenter - dxdy*(yrange[1]-i));
+	tempx[npts] = (int) (xcenter - dxdy*(yrange[1]-i) + 0.5);
       else { // polar 1/phi^2 curve
 	if (pole > 0) {
 	  sqr_fact = kprime[1]*cc;
 	  tempx[npts] = xoffset + 
-	    (int) roundf(xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)) + 0.5);
 	} else {
 	  sqr_fact = k[1]*cc;
 	  tempx[npts] = xoffset +
-	    (int) roundf(xfactor * (sqr_fact / sqrt(1-ycoord)));
+	    (int) (xfactor * (sqr_fact / sqrt(1-ycoord)) + 0.5);
 	}
       }
       npts++;
