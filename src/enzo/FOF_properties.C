@@ -111,7 +111,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
 
     irvir = len-1;
     rvir = 0;
-    mvir = 0;
+    mvir = mtot;
     for (i = 0; i < len; i++)
       pindex[i] = i;
 
@@ -134,10 +134,11 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
 
   } // ENDFOR particles
 
-  // Normalize
+  /* Divide out weight (m_vir) */
+  // 1e3 to convert from kpc to Mpc, comoving -> proper
   for (dim = 0; dim < 3; dim++)
-    L[dim] /= mtot * 1e3 / D.Time; // 1e3 to convert from kpc to Mpc, comoving -> proper
-  vrms /= mtot;
+    L[dim] /= mvir * 1e3 / D.Time;
+  vrms /= mvir;
   vrms = sqrt(vrms);
 
   // Convert to solar masses, 0->1 domain
@@ -153,7 +154,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
   for (dim = 0; dim < 3; dim++)
     ang_mom += L[dim] * L[dim];
   ang_mom = sqrt(ang_mom);
-  spin = SpinUnits * ang_mom * vrms / mtot;
+  spin = SpinUnits * ang_mom * vrms / mvir;
 
   if (!subgroup)
     delete [] radius;
