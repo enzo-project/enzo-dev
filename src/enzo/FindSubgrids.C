@@ -32,7 +32,8 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
  
  
-int FindSubgrids(HierarchyEntry *Grid, int level)
+int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
+		 int &FlaggedGrids)
 {
  
   /* declarations */
@@ -79,10 +80,13 @@ int FindSubgrids(HierarchyEntry *Grid, int level)
       == FAIL) {
     ENZO_FAIL("Error in grid->SetFlaggingFieldStaticRegions.");
   }
- 
-  if (debug)
-    printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
-	   level, NumberOfFlaggedCells);
+
+  TotalFlaggedCells += NumberOfFlaggedCells;
+  if (NumberOfFlaggedCells > 0)
+    FlaggedGrids++;
+//  if (debug)
+//    printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+//	   level, NumberOfFlaggedCells);
  
 #ifdef MPI_INSTRUMENTATION
   Grid->GridData->CollectGridInformation

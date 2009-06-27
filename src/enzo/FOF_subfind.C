@@ -31,7 +31,8 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   int    start=0;
   int    parent, ntot;
   char   ctype;
-  float  cm[3], cmv[3], mtot, mstars, redshift;
+  float  cm[3], cmv[3], AM[3], mtot, mstars, redshift, spin, vrms;
+  float  mvir, rvir;
   float  corner[3];
   FOF_particle_data *Pbuf, *partbuf;
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
@@ -69,21 +70,43 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
     fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
     //fprintf(fd, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
-    fprintf(fd, "# Column 1.  Subhalo number\n");
-    fprintf(fd, "# Column 2.  Parent halo number\n");
-    fprintf(fd, "# Column 3.  First particle in halo particle list\n");
+    fprintf(fd, "# Column 1.  Center of mass (x)\n");
+    fprintf(fd, "# Column 2.  Center of mass (y)\n");
+    fprintf(fd, "# Column 3.  Center of mass (z)\n");
+    fprintf(fd, "# Column 4.  Subhalo number\n");
+    fprintf(fd, "# Column 5.  Parent halo number\n");
+    fprintf(fd, "# Column 6.  First particle in halo particle list\n");
     fprintf(fd, "#            --> All subgroup particles are consecutively listed in\n");
     fprintf(fd, "#                particle list (if written)\n");
-    fprintf(fd, "# Column 4.  Number of particles\n");
-    fprintf(fd, "# Column 5.  Halo mass [solar masses]\n");
-    fprintf(fd, "# Column 6.  Stellar mass [solar masses]\n");
-    fprintf(fd, "# Column 7.  Center of mass (x)\n");
-    fprintf(fd, "# Column 8.  Center of mass (y)\n");
-    fprintf(fd, "# Column 9.  Center of mass (z)\n");
+    fprintf(fd, "# Column 7.  Number of particles\n");
+    fprintf(fd, "# Column 8.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 9.  Stellar mass [solar masses]\n");
     fprintf(fd, "# Column 10. Mean x-velocity [km/s]\n");
     fprintf(fd, "# Column 11. Mean y-velocity [km/s]\n");
     fprintf(fd, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 13. Velocity dispersion [km/s]\n");
+    fprintf(fd, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 17. Spin parameter\n");
     fprintf(fd, "#\n");
+    fprintf(fd, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+    fprintf(fd, "#\n");
+    fprintf(fd, "datavar 1 subhalo_number\n");
+    fprintf(fd, "datavar 2 parent_number\n");
+    fprintf(fd, "datavar 3 particle_offset\n");
+    fprintf(fd, "datavar 4 number_of_particles\n");
+    fprintf(fd, "datavar 5 halo_mass\n");
+    fprintf(fd, "datavar 6 stellar_mass\n");
+    fprintf(fd, "datavar 7 x_velocity\n");
+    fprintf(fd, "datavar 8 y_velocity\n");
+    fprintf(fd, "datavar 9 z_velocity\n");
+    fprintf(fd, "datavar 10 velocity_dispersion\n");
+    fprintf(fd, "datavar 11 x_angular_momentum\n");
+    fprintf(fd, "datavar 12 y_angular_momentum\n");
+    fprintf(fd, "datavar 13 z_angular_momentum\n");
+    fprintf(fd, "datavar 14 spin\n");
+    fprintf(fd, "\n");
 
     if (HaloFinderOutputParticleList) {
 
@@ -103,7 +126,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
   } // ENDIF ROOT_PROCESSOR
 
-  D.NSubGroups = 0;
+
 
   for (gr = D.NgroupsAll-1; gr >= 0; ) {
 
@@ -147,17 +170,19 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
     for (task = 0; task < NumberOfProcessors && gr - task >= 0; task++) {
 
-      parent = D.NgroupsAll-(gr-task);
+      parent = D.NgroupsAll-(gr-task)-1;
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	if (task == 0) {
 	  for (i = 0; i < nsubs; i++) {
-	    get_properties(D, Pbuf+suboffset[i], sublen[i], cm, cmv, &mtot, &mstars);
+	    get_properties(D, Pbuf+suboffset[i], sublen[i], true, cm, cmv, &mtot, &mstars, 
+			   &mvir, &rvir, AM, &vrms, &spin);
 	    msub[i] = mtot;
 
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    i, parent, suboffset[i], sublen[i], 
-		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+		    AM[1], AM[2], spin);
 
 	  } // ENDFOR subgroups
 
@@ -180,41 +205,49 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    for (i = 0; i < len; i++)
 	      TempInt[i] = Pbuf[i].PartID;
 
-	    get_properties(D, Pbuf, len, cm, cmv, &mtot, &mstars);
+	    get_properties(D, Pbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
+			   &vrms, &spin);
 	    
 	    sprintf(halo_name, "Halo%8.8d", parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
-	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) msub);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	    if (nsubs > 0) {
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) sublen);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) msub);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) fsuboffset);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) sublen);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) fsuboffset);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	    } // ENDIF nsubs>0
 	    
 	    hdims[0] = 3;
 	    hdims[1] = (hsize_t) len;
@@ -267,7 +300,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
 	  } // ENDIF subgroups
 
-	  parent = D.NgroupsAll-(gr-task);
+	  parent = D.NgroupsAll-(gr-task)-1;
 		  
 	  len = D.GroupDatAll[gr-task].Len;
 	  partbuf = new FOF_particle_data[len];
@@ -276,13 +309,14 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 		   MPI_BYTE, task, task, MPI_COMM_WORLD, &status);
 
 	  for (i = 0; i < nsubs; i++) {
-	    get_properties(D, partbuf+bufsuboffset[i]-start, bufsublen[i], cm, 
-			   cmv, &mtot, &mstars);
+	    get_properties(D, partbuf+bufsuboffset[i]-start, bufsublen[i], true, cm, 
+			   cmv, &mtot, &mstars, &mvir, &rvir, AM, &vrms, &spin);
 	    bufmsub[i] = mtot;
 
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    i, parent, fbufsuboffset[i], bufsublen[i],
-		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+		    AM[1], AM[2], spin);
 	  } // ENDFOR subgroups
 
 	  if (HaloFinderOutputParticleList) {
@@ -296,43 +330,51 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    for (i = 0; i < len; i++)
 	      TempInt[i] = Pbuf[i].PartID;
 
-	    get_properties(D, partbuf, len, cm, cmv, &mtot, &mstars);
+	    get_properties(D, partbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
+			   &vrms, &spin);
 	    
 	    sprintf(halo_name, "Halo%8.8d", parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
-	    writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) bufmsub);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	    if (nsubs > 0) {
 
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) bufsublen);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Mass", HDF5_REAL, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) bufmsub);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
 
-	    hdims[0] = (hsize_t) nsubs;
-	    hdims[1] = 1;
-	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
-				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) fbufsuboffset);
-	    H5Sclose(dspace_id);
-	    H5Dclose(dset_id);
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Size", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) bufsublen);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	      hdims[0] = (hsize_t) nsubs;
+	      hdims[1] = 1;
+	      dspace_id = H5Screate_simple(1, hdims, NULL);
+	      dset_id = H5Dcreate(group_id, "Subhalo Offset", HDF5_INT, dspace_id,
+				  H5P_DEFAULT);
+	      H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		       (VOIDP) fbufsuboffset);
+	      H5Sclose(dspace_id);
+	      H5Dclose(dset_id);
+
+	    } // ENDIF nsubs>0
 	    
 	    hdims[0] = 3;
 	    hdims[1] = (hsize_t) len;
@@ -420,10 +462,9 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
   } // ENDIF ROOT_PROCESSOR
 
-  int SubhaloCount = D.NSubGroupsAll - D.NgroupsAll;
-
   if (debug)
-    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n", SubhaloCount);
+    fprintf(stdout, "FOF: Found %"ISYM" subgroups.\n",
+	    D.NSubGroupsAll - D.NgroupsAll);
 
 }
 
@@ -464,27 +505,27 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   P_bak	   = D.P;
 
 
-  D.P	       = pbuf;
+  D.P	       = pbuf-1;
   D.NumInGroup = grlen;
 
-  D.Energy    = vector(0,  D.NumInGroup-1);
-  D.Density   = vector(0,  D.NumInGroup-1);
-  D.Potential = vector(0,  D.NumInGroup-1);
-  D.Next      = ivector(0, D.NumInGroup-1);
-  D.Head      = ivector(0, D.NumInGroup-1);
-  D.NewHead   = ivector(0, D.NumInGroup-1);
-  D.Tail      = ivector(0, D.NumInGroup-1);
-  D.Len	      = ivector(0, D.NumInGroup-1);
-  D.Index     = ivector(0, D.NumInGroup-1);
-  D.Node      = ivector(0, D.NumInGroup-1);      
-  D.SortId    = ivector(0, D.NumInGroup-1);      
+  D.Energy    = vector(1,  D.NumInGroup);
+  D.Density   = vector(1,  D.NumInGroup);
+  D.Potential = vector(1,  D.NumInGroup);
+  D.Next      = ivector(1, D.NumInGroup);
+  D.Head      = ivector(1, D.NumInGroup);
+  D.NewHead   = ivector(1, D.NumInGroup);
+  D.Tail      = ivector(1, D.NumInGroup);
+  D.Len	      = ivector(1, D.NumInGroup);
+  D.Index     = ivector(1, D.NumInGroup);
+  D.Node      = ivector(1, D.NumInGroup);      
+  D.SortId    = ivector(1, D.NumInGroup);      
   
   D.MaxNodes = D.NumInGroup / 10;
   D.GroupTree = new grouptree_data[D.MaxNodes];
 
   /* initially, there are no subgroups */
   
-  for (i = 0; i < D.NumInGroup; i++) {
+  for (i = 1; i <= D.NumInGroup; i++) {
     D.Head[i] =	0;
     D.Tail[i] =	0;
     D.Next[i] =	0;
@@ -509,7 +550,7 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   
   iindexx(D.NumInGroup, D.Head, D.Index);
   
-  for (i = 0, D.NSubGroups = 0, oldhead = 0; i < D.NumInGroup; i++) {
+  for (i = 1, D.NSubGroups = 0, oldhead = 0; i <= D.NumInGroup; i++) {
     if (D.Head[D.Index[i]] != oldhead) {
       oldhead = D.Head[D.Index[i]];
       if (oldhead != 1) /* exclude background group */
@@ -524,10 +565,10 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
       /* determine sizes and tags of subgroups */
 	  
-      D.SubGroupLen = ivector(0, D.NSubGroups-1); 
-      D.SubGroupTag = ivector(0, D.NSubGroups-1);
+      D.SubGroupLen = ivector(1, D.NSubGroups); 
+      D.SubGroupTag = ivector(1, D.NSubGroups);
       
-      for (i = 0, gr = 0, oldhead = 0; i < D.NumInGroup; i++) {
+      for (i = 1, gr = 0, oldhead = 0; i <= D.NumInGroup; i++) {
 	if (D.Head[D.Index[i]] != oldhead) {
 	  oldhead = D.Head[D.Index[i]];
 
@@ -547,12 +588,12 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
       sort2_int(D.NSubGroups, D.SubGroupLen, D.SubGroupTag);
 
       /* index will be needed in order_subgroups_potential */      
-      for (i = 0; i < D.NumInGroup; i++)
+      for (i = 1; i <= D.NumInGroup; i++)
 	D.Head[i] = D.Index[i];
       
       order_subgroups_by_potential(D); 
 
-      for (i = D.NSubGroups, saved = 0, offset = 0, count = 0; i >= 0; i--) {
+      for (i = D.NSubGroups, saved = 0, offset = 0, count = 0; i >= 1; i--) {
 	for (j = 0; j < D.SubGroupLen[i]; j++) {
 	  id = D.Head[D.SubGroupTag[i] + j];
 	      
@@ -570,26 +611,26 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
 
       /* sort the particles */
       
-      qsort(D.P, D.NumInGroup, sizeof(FOF_particle_data), comp_func_partminid);
+      qsort(D.P+1, D.NumInGroup, sizeof(FOF_particle_data), comp_func_partminid);
       
-      free_ivector(D.SubGroupTag, 0, D.NSubGroups-1);	  
-      free_ivector(D.SubGroupLen, 0, D.NSubGroups-1); 
+      free_ivector(D.SubGroupTag, 1, D.NSubGroups);	  
+      free_ivector(D.SubGroupLen, 1, D.NSubGroups); 
 
       D.NSubGroups = saved;
     }
   
   delete [] D.GroupTree;
-  free_ivector(D.SortId, 0, D.NumInGroup-1);      
-  free_ivector(D.Node, 0, D.NumInGroup-1);      
-  free_ivector(D.Index, 0, D.NumInGroup-1);
-  free_ivector(D.Len, 0, D.NumInGroup-1);
-  free_ivector(D.Tail, 0, D.NumInGroup-1);
-  free_ivector(D.NewHead, 0, D.NumInGroup-1);
-  free_ivector(D.Head, 0, D.NumInGroup-1);
-  free_ivector(D.Next, 0, D.NumInGroup-1);
-  free_vector(D.Potential, 0,D.NumInGroup-1);
-  free_vector(D.Density, 0, D.NumInGroup-1);
-  free_vector(D.Energy, 0, D.NumInGroup-1);
+  free_ivector(D.SortId, 1, D.NumInGroup);      
+  free_ivector(D.Node, 1, D.NumInGroup);      
+  free_ivector(D.Index, 1, D.NumInGroup);
+  free_ivector(D.Len, 1, D.NumInGroup);
+  free_ivector(D.Tail, 1, D.NumInGroup);
+  free_ivector(D.NewHead, 1, D.NumInGroup);
+  free_ivector(D.Head, 1, D.NumInGroup);
+  free_ivector(D.Next, 1, D.NumInGroup);
+  free_vector(D.Potential, 1,D.NumInGroup);
+  free_vector(D.Density, 1, D.NumInGroup);
+  free_vector(D.Energy, 1, D.NumInGroup);
   
   D.Len	 = Len_bak;
   D.Head = Head_bak;

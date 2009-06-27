@@ -25,7 +25,7 @@ void density(FOFData &A)
 //  if (debug)
 //    printf("Computing densities...\n");
 
-  for (i = 0, signal = 0; i < A.NumInGroup; i++) {
+  for (i = 1, signal = 0; i <= A.NumInGroup; i++) {
 //    if (debug) {
 //      if (i > (signal/100.0)*A.NumInGroup) {
 //	if ((signal%10) == 0)
