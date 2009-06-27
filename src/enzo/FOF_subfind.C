@@ -49,7 +49,6 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
 #ifdef USE_MPI
   MPI_Status status;
-  MPI_Datatype IntType = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
 #endif
 
   sprintf(catalogue_fname, "%s/subgroups_%5.5d.dat", FOF_dirname, CycleNumber);
@@ -290,8 +289,10 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    bufsuboffset = new int[nsubs];
 	    fbufsuboffset = new int[nsubs];
 
-	    MPI_Recv(bufsublen,    nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
-	    MPI_Recv(bufsuboffset, nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
+	    MPI_Recv(bufsublen, nsubs, IntDataType, task, task, MPI_COMM_WORLD,
+		     &status);
+	    MPI_Recv(bufsuboffset, nsubs, IntDataType, task, task, MPI_COMM_WORLD,
+		     &status);
 
 	    for (i = 0; i < nsubs; i++) {
 	      fbufsuboffset[i] = bufsuboffset[i];

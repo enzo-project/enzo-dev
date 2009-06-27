@@ -161,130 +161,150 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /************* Count particles in each slab and shadow ****************/
 
-  Nslab_local = new MPI_Arg[NumberOfProcessors];
-  NtoLeft_local = new MPI_Arg[NumberOfProcessors];
-  NtoRight_local = new MPI_Arg[NumberOfProcessors];
   D.Nslab = new int[NumberOfProcessors];
   D.NtoLeft = new int[NumberOfProcessors];
   D.NtoRight = new int[NumberOfProcessors];
   D.Nshadow = new int[NumberOfProcessors];
   D.Noffset = new int[NumberOfProcessors];
 
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
-    Nslab_local[proc] = 0;
-    NtoLeft_local[proc] = 0;
-    NtoRight_local[proc] = 0;
-    D.Nslab[proc] = 0;
-    D.NtoLeft[proc] = 0;
-    D.NtoRight[proc] = 0;
-    D.Nshadow[proc] = 0;
-    D.Noffset[proc] = 0;
-  } 
+  if (NumberOfProcessors == 1) {
 
-  for (i = 0; i < NumberOfLocalParticles; i++) {
+    D.Nlocal = NumberOfLocalParticles;
+    D.Nslab[0] = NumberOfLocalParticles;
+    D.NtoLeft[0] = 0;
+    D.NtoRight[0] = 0;
+    D.Nshadow[0] = 0;
+    D.Noffset[0] = 0;
 
-    slab = Plocal[i].slab;
-    Nslab_local[slab]++;
+    allocate_memory(D);
+    memcpy(D.P+1, Plocal, sizeof(FOF_particle_data)*NumberOfLocalParticles);
+    delete [] Plocal;
 
-    // Left and right "shadows"
-    if (Plocal[i].Pos[0] < (slab * D.BoxSize / NumberOfProcessors + 
-			    D.SearchRadius))
-      NtoLeft_local[slab]++;
+  } // ENDIF serial
 
-    if (Plocal[i].Pos[0] > ((slab+1) * D.BoxSize / NumberOfProcessors -
-			    D.SearchRadius))
-      NtoRight_local[slab]++;
+  else {
 
-  } // ENDFOR particles
+    Nslab_local = new MPI_Arg[NumberOfProcessors];
+    NtoLeft_local = new MPI_Arg[NumberOfProcessors];
+    NtoRight_local = new MPI_Arg[NumberOfProcessors];
+
+    for (proc = 0; proc < NumberOfProcessors; proc++) {
+      Nslab_local[proc] = 0;
+      NtoLeft_local[proc] = 0;
+      NtoRight_local[proc] = 0;
+      D.Nslab[proc] = 0;
+      D.NtoLeft[proc] = 0;
+      D.NtoRight[proc] = 0;
+      D.Nshadow[proc] = 0;
+      D.Noffset[proc] = 0;
+    } 
+
+    for (i = 0; i < NumberOfLocalParticles; i++) {
+
+      slab = Plocal[i].slab;
+      Nslab_local[slab]++;
+
+      // Left and right "shadows"
+      if (Plocal[i].Pos[0] < (slab * D.BoxSize / NumberOfProcessors + 
+			      D.SearchRadius))
+	NtoLeft_local[slab]++;
+
+      if (Plocal[i].Pos[0] > ((slab+1) * D.BoxSize / NumberOfProcessors -
+			      D.SearchRadius))
+	NtoRight_local[slab]++;
+
+    } // ENDFOR particles
 
 #ifdef USE_MPI
-  // Get counts over all processors
-  MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, IntDataType,
-		MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, IntDataType,
-		MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, IntDataType,
-		MPI_SUM, MPI_COMM_WORLD);
+    // Get counts over all processors
+    MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, IntDataType,
+		  MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, IntDataType,
+		  MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, IntDataType,
+		  MPI_SUM, MPI_COMM_WORLD);
 #endif
 
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
+    for (proc = 0; proc < NumberOfProcessors; proc++) {
 
-    if (proc < NumberOfProcessors-1)
-      D.Nshadow[proc] += D.NtoLeft[proc+1];
-    else
-      D.Nshadow[proc] += D.NtoLeft[0];
+      if (proc < NumberOfProcessors-1)
+	D.Nshadow[proc] += D.NtoLeft[proc+1];
+      else
+	D.Nshadow[proc] += D.NtoLeft[0];
 
-    if (proc > 0)
-      D.Nshadow[proc] += D.NtoRight[proc-1];
-    else
-      D.Nshadow[proc] += D.NtoRight[NumberOfProcessors-1];
+      if (proc > 0)
+	D.Nshadow[proc] += D.NtoRight[proc-1];
+      else
+	D.Nshadow[proc] += D.NtoRight[NumberOfProcessors-1];
 
-  } // ENDFOR processors
+    } // ENDFOR processors
 
-  for (proc = 0; proc < NumberOfProcessors; proc++)
-    for (j = 0, D.Noffset[proc] = 0; j < proc; j++)
-      D.Noffset[proc] += D.Nslab[j];
+    for (proc = 0; proc < NumberOfProcessors; proc++)
+      for (j = 0, D.Noffset[proc] = 0; j < proc; j++)
+	D.Noffset[proc] += D.Nslab[j];
 
-  /* Now we need to sort the local particles by slab, so we can send
-     them to their correct processor (==slab) */
+    /* Now we need to sort the local particles by slab, so we can send
+       them to their correct processor (==slab) */
 
-  qsort(Plocal, NumberOfLocalParticles, ptype_size, compare_slab);
+    qsort(Plocal, NumberOfLocalParticles, ptype_size, compare_slab);
 
-  /************************ COMMUNICATION ***************************
+    /************************ COMMUNICATION ***************************
     We now send particles to the processor which hosts their slab.
     Only after each processor has their slab, we can construct the 
     tree and find the halos
-  *******************************************************************/
+    *******************************************************************/
 
-  int TotalLocal, TotalRecv;
-  MPI_Arg *disp_local, *disp_recv, *Nslab_recv;
+    int TotalLocal, TotalRecv;
+    MPI_Arg *disp_local, *disp_recv, *Nslab_recv;
 
-  disp_local = new MPI_Arg[NumberOfProcessors];
-  disp_recv  = new MPI_Arg[NumberOfProcessors];
-  Nslab_recv = new MPI_Arg[NumberOfProcessors];
+    disp_local = new MPI_Arg[NumberOfProcessors];
+    disp_recv  = new MPI_Arg[NumberOfProcessors];
+    Nslab_recv = new MPI_Arg[NumberOfProcessors];
 
-  allocate_memory(D);
-  TotalLocal = 0;
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
-    disp_local[proc] = TotalLocal;
-    TotalLocal += Nslab_local[proc];
-  }
+    allocate_memory(D);
+    TotalLocal = 0;
+    for (proc = 0; proc < NumberOfProcessors; proc++) {
+      disp_local[proc] = TotalLocal;
+      TotalLocal += Nslab_local[proc];
+    }
 
-  // First gather the number of local particles on each processor
+    // First gather the number of local particles on each processor
 #ifdef USE_MPI
-  MPI_Alltoall(Nslab_local, 1, IntDataType, Nslab_recv, 1, IntDataType, MPI_COMM_WORLD);
+    MPI_Alltoall(Nslab_local, 1, IntDataType, Nslab_recv, 1, IntDataType, MPI_COMM_WORLD);
 #endif
 
-  TotalRecv = 0;
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
-    disp_recv[proc] = TotalRecv;
-    TotalRecv += Nslab_recv[proc];
-  }
-  D.Nlocal = TotalRecv;
+    TotalRecv = 0;
+    for (proc = 0; proc < NumberOfProcessors; proc++) {
+      disp_recv[proc] = TotalRecv;
+      TotalRecv += Nslab_recv[proc];
+    }
+    D.Nlocal = TotalRecv;
 
-  // Because we're sending the structures as bytes, multiply
-  // everything by the size of the particle structure
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
-    Nslab_local[proc] *= ptype_size;
-    Nslab_recv[proc]  *= ptype_size;
-    disp_local[proc]  *= ptype_size;
-    disp_recv[proc]   *= ptype_size;
-  }
+    // Because we're sending the structures as bytes, multiply
+    // everything by the size of the particle structure
+    for (proc = 0; proc < NumberOfProcessors; proc++) {
+      Nslab_local[proc] *= ptype_size;
+      Nslab_recv[proc]  *= ptype_size;
+      disp_local[proc]  *= ptype_size;
+      disp_recv[proc]   *= ptype_size;
+    }
 
-  // Now we can do the big collective call
+    // Now we can do the big collective call
 #ifdef USE_MPI
-  MPI_Alltoallv(Plocal, Nslab_local, disp_local, MPI_BYTE,
-		D.P+1, Nslab_recv, disp_recv, MPI_BYTE,
-		MPI_COMM_WORLD);
+    MPI_Alltoallv(Plocal, Nslab_local, disp_local, MPI_BYTE,
+		  D.P+1, Nslab_recv, disp_recv, MPI_BYTE,
+		  MPI_COMM_WORLD);
 #endif
 
-  delete [] Plocal;
-  delete [] Nslab_local;
-  delete [] NtoLeft_local;
-  delete [] NtoRight_local;
-  delete [] Nslab_recv;
-  delete [] disp_local;
-  delete [] disp_recv;
+    delete [] Plocal;
+    delete [] Nslab_local;
+    delete [] NtoLeft_local;
+    delete [] NtoRight_local;
+    delete [] Nslab_recv;
+    delete [] disp_local;
+    delete [] disp_recv;
+
+  } // ENDELSE serial
 
   return;
 

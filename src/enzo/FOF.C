@@ -619,11 +619,17 @@ void compile_group_catalogue(FOFData &AllVars)
       } // ENDIF enough particles
   } // ENDFOR
 
+  if (NumberOfProcessors == 1) {
+    AllVars.NgroupsAll = AllVars.Ngroups;
+    Nbound = nbound;
+  }
+  else {
 #ifdef USE_MPI
   MPI_Allreduce(&AllVars.Ngroups, &AllVars.NgroupsAll, 1, IntDataType, MPI_SUM, 
 		MPI_COMM_WORLD);
   MPI_Allreduce(&nbound, &Nbound, 1, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 #endif
+  } // ENDELSE serial
 
   AllVars.GroupDat = new gr_data[AllVars.Ngroups];
   
@@ -654,27 +660,31 @@ void compile_group_catalogue(FOFData &AllVars)
 
   AllVars.NgroupsList = new int[NumberOfProcessors];
 
+  if (NumberOfProcessors == 1)
+    AllVars.NgroupsList[0] = AllVars.Ngroups;
 #ifdef USE_MPI
-  MPI_Allgather(&AllVars.Ngroups, 1, IntDataType, AllVars.NgroupsList, 1, IntDataType, 
-		MPI_COMM_WORLD);
-#endif
+  else
+    MPI_Allgather(&AllVars.Ngroups, 1, IntDataType, AllVars.NgroupsList, 1, 
+		  IntDataType, MPI_COMM_WORLD);
+#endif /* USE_MPI */
 
   AllVars.GroupDatAll = new gr_data[AllVars.NgroupsAll];
 
-#ifdef USE_MPI
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-      for (i = 0; i < AllVars.Ngroups; i++)
-	AllVars.GroupDatAll[i] = AllVars.GroupDat[i];
+    for (i = 0; i < AllVars.Ngroups; i++)
+      AllVars.GroupDatAll[i] = AllVars.GroupDat[i];
       
-      count = AllVars.Ngroups;
-
-      for (i = 1; i < NumberOfProcessors; i++) {
-	MPI_Recv(&AllVars.GroupDatAll[count], 
-		 AllVars.NgroupsList[i]*sizeof(gr_data), MPI_BYTE, 
-		 i, 0, MPI_COMM_WORLD, &status);
-	count += AllVars.NgroupsList[i];
-      }
+#ifdef USE_MPI
+    count = AllVars.Ngroups;
+    for (i = 1; i < NumberOfProcessors; i++) {
+      MPI_Recv(&AllVars.GroupDatAll[count], 
+	       AllVars.NgroupsList[i]*sizeof(gr_data), MPI_BYTE, 
+	       i, 0, MPI_COMM_WORLD, &status);
+      count += AllVars.NgroupsList[i];
+    }
+#endif /* USE_MPI */
   } // ENDIF root
+#ifdef USE_MPI
   else
     MPI_Ssend(&AllVars.GroupDat[0], AllVars.Ngroups*sizeof(gr_data), 
 	      MPI_BYTE, 0, 0, MPI_COMM_WORLD);
