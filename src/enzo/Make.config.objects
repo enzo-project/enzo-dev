@@ -87,8 +87,9 @@ OBJS_CONFIG_LIB = \
 	CosmologyWriteParameters.o \
 	cray_x1_fft64.o \
 	cray_x1_st1_fft64.o \
-	CreateSUBlingList.o \
 	CreateSiblingList.o \
+	CreateSmoothedDarkMatterFields.o \
+	CreateSUBlingList.o \
 	CreateFluxes.o\
 	DeleteFluxes.o \
 	DeleteSUBlingList.o \
@@ -286,6 +287,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolateBoundaryFromParent.o \
 	Grid_InterpolateFieldValues.o \
 	Grid_InterpolateParticlePositions.o \
+	Grid_InterpolateParticlesToGrid.o \
 	Grid_InterpolatePositions.o \
 	Grid_Irecv_CommunicationReceiveRegion.o \
 	Grid_Irecv_CommunicationSendParticles.o \

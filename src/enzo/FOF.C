@@ -145,7 +145,7 @@ void set_units(FOFData &AllVars) {
   AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
 
   AllVars.Theta = 0.8;  /* opening angle for potential computation */
-  AllVars.DesDensityNgb =  32;
+  AllVars.DesDensityNgb = 32;
 
   /* DesLinkNgb is also the minimum size of a subgroup */
   AllVars.DesLinkNgb = AllVars.DesDensityNgb;

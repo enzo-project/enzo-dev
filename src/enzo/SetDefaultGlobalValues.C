@@ -265,8 +265,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyMetallicityNormalization = 0.018477;  // calculated using Cloudy 07.02 abundances
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
-  OutputCoolingTime = 0;
-  OutputTemperature = 0;
+  OutputCoolingTime = FALSE;
+  OutputTemperature = FALSE;
+
+  OutputSmoothedDarkMatter = FALSE;
+  SmoothedDarkMatterNeighbors = 32;
 
   ZEUSLinearArtificialViscosity    = 0.0;
   ZEUSQuadraticArtificialViscosity = 2.0;

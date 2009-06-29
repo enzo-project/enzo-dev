@@ -57,7 +57,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int unixresult;
   char FOF_dir[MAX_LINE_LENGTH];
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (MyProcessorNumber == ROOT_PROCESSOR && InlineHaloFinder) {
     strcpy(FOF_dir, MetaData->GlobalDir);
     strcat(FOF_dir, "/FOF");
     if (access(FOF_dir, F_OK) == -1)
@@ -72,14 +72,19 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time);
   
-  // Mpc/h -> kpc
-  D.BoxSize = 1e3 * ComovingBoxSize / HubbleConstantNow;
-  
   // Time = a = 1/(1+z).  In enzo, the scale factor is in units of (1+z0).
-  FLOAT CurrentRedshift, a = 1, dadt;
-  if (ComovingCoordinates)
+  FLOAT CurrentRedshift = 0.0, a = 1, dadt;
+  if (ComovingCoordinates) {
+    // Mpc/h -> kpc
+    D.BoxSize = 1e3 * ComovingBoxSize / HubbleConstantNow;
+  
     CosmologyComputeExpansionFactor(MetaData->Time, &a, &dadt);
-  D.Time = a / (1 + InitialRedshift);
+    D.Time = a / (1 + InitialRedshift);
+  }
+  else {
+    D.BoxSize = LengthUnits / 3.086e21;
+    D.Time = 1.0;
+  }
 
   // Critical density in units of Msun / kpc^3
   D.RhoCritical0 = 1.4775867e31 * 
