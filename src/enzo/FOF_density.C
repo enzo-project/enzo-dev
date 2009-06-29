@@ -37,7 +37,7 @@ void density(FOFData &A)
 //      }
 //    } // ENDIF debug
 
-    h2 = ngb_treefind(A, A.P[i].Pos, A.DesDensityNgb, 0, &ngblist, &r2list); 
+    h2 = ngb_treefind(A.P, A.P[i].Pos, A.DesDensityNgb, 0, &ngblist, &r2list); 
     
     h = sqrt(h2);
 

@@ -49,7 +49,7 @@ int SysMkdir (char *startDir, char *directory);
 /************************************************************************/
 
 void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
-		    FOFData &D)
+		    FOFData &D, bool SmoothData)
 {
 
   /* Check if the FOF directory exists */
@@ -57,7 +57,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int unixresult;
   char FOF_dir[MAX_LINE_LENGTH];
 
-  if (MyProcessorNumber == ROOT_PROCESSOR && InlineHaloFinder) {
+  if (MyProcessorNumber == ROOT_PROCESSOR && !SmoothData) {
     strcpy(FOF_dir, MetaData->GlobalDir);
     strcat(FOF_dir, "/FOF");
     if (access(FOF_dir, F_OK) == -1)
@@ -108,6 +108,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   // length for potential computation.  Be careful about nested grid
   // simulations.
 
+  float StaticRegionCellWidth[MAX_STATIC_REGIONS+1];
   int i, level, FinestStaticLevel = 0;
   LevelHierarchyEntry *Temp;
   
@@ -120,16 +121,24 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
     FinestStaticLevel = max(StaticRefineRegionLevel[i]+1, FinestStaticLevel);
 
-  // TODO: corrections to SearchRadius and Epsilon for nested grid sims.
-
   D.SearchRadius = D.LinkLength * D.BoxSize / pow(TopGridDims3, 1.0/3) / 
     pow(RefineBy, FinestStaticLevel);
 
   // softening length for potential computation
   D.Epsilon = 0.05 * D.BoxSize / pow(TopGridDims3, 1.0/3) / 
     pow(RefineBy, FinestStaticLevel);
-  
-  if (debug) {
+
+  // Pre-compute cell widths for each static region (for adaptive smoothing)
+  StaticRegionCellWidth[0] = 1.0 / MetaData->TopGridDims[0];
+  for (i = 0; i < MAX_STATIC_REGIONS; i++) {
+    if (StaticRefineRegionRightEdge[i][0] > 0)
+      StaticRegionCellWidth[i+1] = D.BoxSize / MetaData->TopGridDims[0] /
+	pow(RefineBy, StaticRefineRegionLevel[i]+1);
+    else
+      StaticRegionCellWidth[i+1] = 0;
+  }
+
+  if (debug && !SmoothData) {
     fprintf(stdout, "Inline halo finder starting...\n");
     fprintf(stdout, "FOF: Comoving linking length: %g kpc\n", D.SearchRadius);
   }
@@ -137,8 +146,10 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /****************** MOVE PARTICLES TO P-GROUPFINDER ******************/
 
-  int j, proc, slab;
+  bool inside;
+  int dim, j, proc, slab, region;
   int GridNum, Index, NumberOfLocalParticles, ptype_size;
+  double sr;
   FOF_particle_data *Plocal;
   MPI_Arg *Nslab_local, *NtoLeft_local, *NtoRight_local;
 
@@ -209,13 +220,40 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       slab = Plocal[i].slab;
       Nslab_local[slab]++;
 
+      /* If we're smoothing the data, have a varying search radius,
+	 depending on which static grid the particle is in. */
+
+      if (SmoothData) {
+
+	sr = D.LinkLength * StaticRegionCellWidth[0];
+	for (region = MAX_STATIC_REGIONS-1; region >= 0; region++) {
+	  if (StaticRefineRegionRightEdge[region][0] < 0)
+	    continue;
+	  inside = true;
+	  for (dim = 0; dim < 3; dim++) {
+	    inside &= 
+	      Plocal[i].Pos[dim] >= StaticRefineRegionLeftEdge[region][dim] &&
+	      Plocal[i].Pos[dim] <= StaticRefineRegionRightEdge[region][dim];
+	    if (!inside)
+	      break;
+	  } // ENDFOR dim
+
+	  if (inside) {
+	    sr = D.LinkLength * StaticRegionCellWidth[region+1];
+	    break;
+	  }
+
+	} // ENDFOR region
+
+      } // ENDIF SmoothData
+      else
+	sr = D.SearchRadius;
+
       // Left and right "shadows"
-      if (Plocal[i].Pos[0] < (slab * D.BoxSize / NumberOfProcessors + 
-			      D.SearchRadius))
+      if (Plocal[i].Pos[0] < (slab * D.BoxSize / NumberOfProcessors + sr))
 	NtoLeft_local[slab]++;
 
-      if (Plocal[i].Pos[0] > ((slab+1) * D.BoxSize / NumberOfProcessors -
-			      D.SearchRadius))
+      if (Plocal[i].Pos[0] > ((slab+1) * D.BoxSize / NumberOfProcessors - sr))
 	NtoRight_local[slab]++;
 
     } // ENDFOR particles
@@ -231,7 +269,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
     for (proc = 0; proc < NumberOfProcessors; proc++) {
-
+      
       if (proc < NumberOfProcessors-1)
 	D.Nshadow[proc] += D.NtoLeft[proc+1];
       else

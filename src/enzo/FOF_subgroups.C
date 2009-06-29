@@ -38,7 +38,7 @@ void find_subgroups(FOFData &D)
 
   for (i = D.NumInGroup, D.AnzNodes = 0, signal = 0; i >= 1; i--) {
 
-    ngb_treefind(D, D.P[D.Index[i]].Pos, D.DesLinkNgb, 0, &ngblist, &r2list); 
+    ngb_treefind(D.P, D.P[D.Index[i]].Pos, D.DesLinkNgb, 0, &ngblist, &r2list); 
       
     sort2_flt_int(D.DesLinkNgb, r2list-1, ngblist-1);
 

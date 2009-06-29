@@ -39,7 +39,8 @@
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 void FOF_Initialize(TopGridData *MetaData, 
 		    LevelHierarchyEntry *LevelArray[], 
-		    FOFData &D);
+		    FOFData &D, bool SmoothData);
+int CopyParticlesAcrossPeriodicBoundaries(FOFData &D, int TopGridResolution);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
 				int FluxFlag = FALSE,
@@ -69,10 +70,23 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   // DesDensityNgb
   AllVars.GroupMinLen = 50;
 
-  AllVars.LinkLength = 0.1;
+  // Set to be 2 cell widths for the interpolation.  This is used in
+  // the copying of particles across slabs.
+  AllVars.LinkLength = 2;
+
   set_units(AllVars);
-  FOF_Initialize(&MetaData, LevelArray, AllVars);
+  FOF_Initialize(&MetaData, LevelArray, AllVars, true);
   AllVars.DesDensityNgb = SmoothedDarkMatterNeighbors;
+
+  /* Before we create the tree, we need to (1) copy the particles near
+     the slab edges "shadows" to the adjacent slabs and (2) replicate
+     particles on the domain boundaries to the other side for
+     periodicity. */
+
+  if (NumberOfProcessors > 1)
+    exchange_shadow(AllVars, MetaData.TopGridDims[0], true);
+
+  CopyParticlesAcrossPeriodicBoundaries(AllVars, MetaData.TopGridDims[0]);
 
   /* Create the tree */
 

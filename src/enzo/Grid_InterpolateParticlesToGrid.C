@@ -163,6 +163,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   FLOAT a, dadt, CurrentRedshift = 0.0;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     MassUnits, DensityUnits, LengthConversion;
+  float *UnitConversion;
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
 
@@ -173,6 +174,17 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
       CosmologyComputeExpansionFactor(Time, &a, &dadt);
       CurrentRedshift = (1 + InitialRedshift)/a - 1;
     }
+    
+    UnitConversion = new float[NumberOfFields];
+
+    // 1e10 Msun / (comoving kpc)^3 -> DensityUnits
+    // 6.77e-22 = 1e10 Msun / kpc^3 in amu
+    UnitConversion[DensNum] = 6.76779e-22 * pow(1+CurrentRedshift, 3) /
+      DensityUnits;
+
+    // proper km/s -> VelocityUnits
+    for (field = Vel1Num; field <= VrmsNum; field++)
+      UnitConversion[field] = 1e5 / VelocityUnits;
 
     // Determine where the slab starts / ends in the grid.
     slab = MyProcessorNumber;
@@ -185,7 +197,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     SlabStartIndex = max(SlabStartIndex, 0);
 
     SlabEndIndex = (int) ((SlabRightEdge - GridLeftEdge[0]) / CellWidth[0][0]);
-    SlabEndIndex = min(SlabEndIndex, ActiveDim[dim]-1);
+    SlabEndIndex = min(SlabEndIndex, ActiveDim[0]-1);
 
     // Allocate and zero memory
     for (field = 0; field < NumberOfFields; field++) {
@@ -210,7 +222,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 
 	  CellPos[0] = LengthConversion * 
 	    (GridLeftEdge[0] + (i+0.5) * CellWidth[0][0]);
-	  h2 = ngb_treefind(*D, CellPos, D->DesDensityNgb, 0, &ngblist, &r2list);
+	  h2 = ngb_treefind(D->P, CellPos, D->DesDensityNgb, 0, &ngblist, &r2list);
 	  h = sqrt(h2);
 	  hinv = 1.0 / h;
 	  hinv3 = hinv*hinv*hinv;
@@ -221,12 +233,12 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 	    if (r < h) {
 	      u = r*hinv;
 	      ik = (int) (u * KERNEL_TABLE);
-	      wk[n] = D->P[ind].Mass * hinv3 * 
+	      wk[n] = D->P[ind].Mass * 
 		( D->Kernel[ik] + (D->Kernel[ik+1] - D->Kernel[ik]) *
 		  (u - D->KernelRad[ik]) * KERNEL_TABLE);
 
 	      // Density
-	      InterpolatedField[0][index] += wk[n];
+	      InterpolatedField[DensNum][index] += wk[n];
 
 	      // Particle velocities and velocity dispersions (later)
 	      if (OutputSmoothedDarkMatter > 1)
@@ -239,7 +251,6 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 
 	  } // ENDFOR n
 
-
 	  // After we've calculated the bulk velocity, we can compute
 	  // the rms velocity.
 	  if (OutputSmoothedDarkMatter > 1)
@@ -251,12 +262,16 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 	      } // ENDFOR dim
 	    } // ENDFOR n
 
+	  // Normalize and convert to enzo units
+	  for (field = 0; field < NumberOfFields; field++)
+	    InterpolatedField[field][index] *= hinv3 * UnitConversion[field];
 
 	} // ENDFOR i
       } // ENDFOR j
     } // ENDFOR k
 
     delete [] wk;
+    delete [] UnitConversion;
 
 #ifdef USE_MPI
     if (MyProcessorNumber != ProcessorNumber) {

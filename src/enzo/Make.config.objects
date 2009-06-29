@@ -76,6 +76,7 @@ OBJS_CONFIG_LIB = \
 	cool_multi_time.o \
 	cool_time.o \
 	CoolingTestInitialize.o \
+	CopyParticlesAcrossPeriodicBoundaries.o \
 	CopyOverlappingParticleMassFields.o \
 	CopyOverlappingZones.o \
 	CosmologyComputeExpansionFactor.o \
@@ -145,7 +146,6 @@ OBJS_CONFIG_LIB = \
 	FOF_allocate.o \
 	FOF_cmpfunc.o \
 	FOF_density.o \
-	FOF_Finalize.o \
 	FOF_forcetree.o \
 	FOF_iindexx.o \
 	FOF_indexx.o \
