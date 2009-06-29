@@ -260,7 +260,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  break;
 
 	case 17:
-	  errcode = grid_one->InterpolatedParticlesToGrid(NULL);
+	  errcode = grid_one->InterpolateParticlesToGrid(NULL);
 	  break;
 
 	default:

@@ -122,7 +122,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
 
     Count = size;
-    for (proc = min_proc, proc <= max_proc; proc++)
+    for (proc = min_slab; proc <= max_slab; proc++)
       if (proc != MyProcessorNumber) {
 	
 	Source = proc;
@@ -281,8 +281,8 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 #ifdef USE_MPI
   if (CommunicationDirection == COMMUNICATION_RECEIVE) {
 
-    buffer = CommunicationReceiveBuffer[CommunicationReceiveBuffer];
-    field = CommunicationReceiveArgumentInt[0][CommunicationReceiveBuffer];
+    buffer = CommunicationReceiveBuffer[CommunicationReceiveIndex];
+    field = CommunicationReceiveArgumentInt[0][CommunicationReceiveIndex];
     for (i = 0; i < size; i++)
       InterpolatedField[field][i] += buffer[i];
     delete [] buffer;
