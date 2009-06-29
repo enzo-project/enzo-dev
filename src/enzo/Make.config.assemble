@@ -767,7 +767,7 @@
                $(MAKEFILE_INCLUDES)   -I.
 
     OBJS_LIB = $(OBJS_CONFIG_LIB) \
-    	       $(POBJS_CONFIG_LIB) \
+    	       $(OBJS_PHOTON_LIB) \
 	       $(OBJS_HYDRO_RK)
 
     LIBS = $(MACH_LIBS) \
