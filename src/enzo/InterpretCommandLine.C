@@ -116,7 +116,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
       case 'h':
 	if (MyProcessorNumber == ROOT_PROCESSOR)
 	  PrintUsage(myname);
-	my_exit(SUCCESS);
+	my_exit(EXIT_SUCCESS);
 	break;
  
 	/* Information output */
