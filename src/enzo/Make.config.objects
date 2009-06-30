@@ -441,6 +441,10 @@ OBJS_CONFIG_LIB = \
 	pop3_properties.o \
 	power_of_2.o \
 	prefort2.o \
+	primordial_calc_derivs.o \
+	primordial_cool.o \
+	primordial_lookup_rates.o \
+	primordial_solver.o \
 	PrepareGravitatingMassField.o \
 	PrepareIsolatedGreensFunction.o \
 	PressurelessCollapseInitialize.o \
