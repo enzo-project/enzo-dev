@@ -148,19 +148,19 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   /************************* SEND MODE *************************/
   // Interpolate from particles to grid here.  Then send if needed.
 
-  float *r2list;
-  int *ngblist;
+  float *r2list = NULL;
+  int *ngblist = NULL;
 
   int slab, ind, ik, SlabStartIndex, SlabEndIndex, index;
   FLOAT SlabLeftEdge, SlabRightEdge;
   double CellPos[MAX_DIMENSION];
   double r, h, h2, hinv, hinv3, u, delv, weight;
-  double *wk;
+  double *wk = NULL;
 
   FLOAT a, dadt, CurrentRedshift = 0.0;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     MassUnits, DensityUnits, LengthConversion;
-  float *UnitConversion;
+  float *UnitConversion = NULL;
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
 
