@@ -3,7 +3,8 @@ c=======================================================================
 c/////////////////////  SUBROUTINE COLL_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
       SUBROUTINE coll_rates(T, k1, k2, k3, k4, k5, k6, k7, k8, k9,
-     $     k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, kunit)
+     $     k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k23,
+     $     kunit )
 c
 c  COMPUTE MULTISPECIES COLLISIONAL RATES
 c
@@ -55,7 +56,7 @@ c
 c  Arguments
 c
       REAL  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13,
-     $     k14, k15, k16, k17, k18, k19
+     $     k14, k15, k16, k17, k18, k19, k23
       double precision kunit, T
 c
 c  Parameters
@@ -217,6 +218,10 @@ C     k18 = 5.56396e-8/T_eV**0.6035 / kunit
       If (T .GT. 617.)
      $     k18 = 1.32e-6 * T**(-0.76) / kunit
       k19 = 5.e-7*sqrt(100./T) / kunit
+      k23 = ((8.125e-8 / sqrt(T))
+     $     * exp(-52000/T)
+     $     * (1.0d0 - exp(-6000/T))) / kunit
+      k23 = max(k23, tiny)
       
       RETURN
       END

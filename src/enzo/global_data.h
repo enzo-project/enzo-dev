@@ -253,6 +253,7 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN int PrimordialChemistrySolver;
+EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
 
 /* Multi-element metallicity field flag and count. */

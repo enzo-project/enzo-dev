@@ -202,9 +202,9 @@ int grid::SolveHighDensityPrimordialChemistry()
 
   /* Call the fortran routine to solve cooling equations. */
 
-  int ierr = 0;
   int RTCoupledSolverIntermediateStep = FALSE;
   int mask = 1;
+  int ErrCode = 0, OutputFlag = 0;
 
   FORTRAN_NAME(primordial_solver)(
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
@@ -245,7 +245,7 @@ int grid::SolveHighDensityPrimordialChemistry()
           &RadiationData.NumberOfFrequencyBins, 
     &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
     &CIECooling, &H2OpticalDepthApproximation, &ErrCode, &OutputFlag,
-           &ThreeBodyRate, mask
+           &ThreeBodyRate, &mask
 #ifdef UNUSED_TABULATED_EQ
         ,RateData.HighDensityEquilibriumRate[0], 
         RateData.HighDensityEquilibriumRate[1], 
@@ -256,7 +256,7 @@ int grid::SolveHighDensityPrimordialChemistry()
 #endif
     );
 
-  if (ierr) {
+  if (ErrCode) {
       fprintf(stdout, "Error in FORTRAN rate/cool solver\n");
       fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
