@@ -107,6 +107,8 @@ int CopyParticlesAcrossPeriodicBoundaries(FOFData &D, int TopGridResolution)
 
   } // ENDFOR dim
 
+  delete [] flag;
+
   return SUCCESS;
 
 }
