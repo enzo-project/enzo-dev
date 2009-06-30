@@ -43,7 +43,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
   HierarchyEntry *NewHierarchy = new HierarchyEntry;
   *NewHierarchyPointer = NewHierarchy;
 
-  int NumberOfInterpolatedFields;
+  int NumberOfInterpolatedFields = 0;
   int Rank, dim, Dims[MAX_DIMENSION], NewDims[MAX_DIMENSION],
       SendOffset[MAX_DIMENSION], TempDims[MAX_DIMENSION],
       StartIndex[MAX_DIMENSION];
@@ -111,7 +111,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 
     /* Copy interpolated (particle) regions */
 
-    if (MyProcessorNumber == NewProc || MyProcessorNumber == OldProc &&
+    if ((MyProcessorNumber == NewProc || MyProcessorNumber == OldProc) &&
 	NumberOfInterpolatedFields > 0) {
       OldGrid->ReturnGridInfo(&Rank, TempDims, Left, Right);
       for (dim = 0; dim < MAX_DIMENSION; dim++) {

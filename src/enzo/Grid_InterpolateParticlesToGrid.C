@@ -59,7 +59,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     ENZO_FAIL("D (FOFData) cannot be null in send-mode!");
 
   int ActiveDim[MAX_DIMENSION];
-  int min_slab, max_slab, NumberOfFields;
+  int min_slab, max_slab, NumberOfFields = 0;
   int i, j, k, n, field, dim, proc, size;
   int DensNum, VrmsNum, Vel1Num, Vel2Num, Vel3Num;
 
@@ -148,21 +148,22 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   /************************* SEND MODE *************************/
   // Interpolate from particles to grid here.  Then send if needed.
 
-  float *r2list;
-  int *ngblist;
-
-  int slab, ind, ik, SlabStartIndex, SlabEndIndex, index;
-  FLOAT SlabLeftEdge, SlabRightEdge;
-  double CellPos[MAX_DIMENSION];
-  double r, h, h2, hinv, hinv3, u, delv, weight;
-  double *wk;
-
-  FLOAT a, dadt, CurrentRedshift = 0.0;
-  float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
-    MassUnits, DensityUnits, LengthConversion;
-  float *UnitConversion;
-
   if (CommunicationDirection == COMMUNICATION_SEND) {
+
+    float *r2list = NULL;
+    int *ngblist = NULL;
+
+    int slab, ind, ik, SlabStartIndex, SlabEndIndex, index;
+    FLOAT SlabLeftEdge, SlabRightEdge;
+    double CellPos[MAX_DIMENSION];
+    double r, h, h2, hinv, hinv3, u, delv, weight;
+    double *wk = NULL;
+
+    FLOAT a, dadt, CurrentRedshift = 0.0;
+    float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
+      MassUnits, DensityUnits, LengthConversion;
+    float UnitConversion[MAX_NUMBER_OF_BARYON_FIELDS];
+
 
     // Exit if not overlapping.  But we still need to allocate memory if
     // this is the host processor.
@@ -186,8 +187,6 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
       CurrentRedshift = (1 + InitialRedshift)/a - 1;
     }
     
-    UnitConversion = new float[NumberOfFields];
-
     // 1e10 Msun / (comoving kpc)^3 -> DensityUnits
     // 6.77e-22 = 1e10 Msun / kpc^3 in amu
     UnitConversion[DensNum] = 6.76779e-22 * pow(1+CurrentRedshift, 3) /
@@ -293,7 +292,6 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     } // ENDFOR k
 
     delete [] wk;
-    delete [] UnitConversion;
 
 #ifdef USE_MPI
     if (MyProcessorNumber != ProcessorNumber) {

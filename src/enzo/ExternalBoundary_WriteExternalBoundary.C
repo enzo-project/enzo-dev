@@ -162,7 +162,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
     strcpy(logname, hdfname);
     strcat(logname, ".log");
     if (io_log) log_fptr = fopen(logname, "a");
-    delete logname;
+    delete [] logname;
  
     if (io_log) fprintf(log_fptr, "WriteEB start\n");
     if (io_log) fprintf(log_fptr, "  NumberOfBaryonFields %"ISYM"\n", NumberOfBaryonFields);
@@ -449,10 +449,10 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
         delete [] bv_buffer;
 #endif
  
-	delete buffer;
-        delete nfile;
-        delete dname1;
-        delete dname2;
+	delete [] buffer;
+        delete [] nfile;
+        delete [] dname1;
+        delete [] dname2;
  
         h5_status = H5Dclose(dset_id1);
           if (io_log) fprintf(log_fptr, "H5Dclose 1: %"ISYM"\n", h5_status);
