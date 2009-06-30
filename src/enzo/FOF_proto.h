@@ -17,7 +17,7 @@ void   deallocate_all_memory(FOFData &D);
 void   density(FOFData &A);
 int    do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen, 
 			   int *sublen, int *suboffset);
-void   exchange_shadow(FOFData &AllVars);
+void   exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData);
 void   find_groups(FOFData &AllVars);
 void   find_minids(FOFData &AllVars);
 void   find_subgroups(FOFData &D);

@@ -73,6 +73,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      FLOAT WriteTime);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
+int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
  
 extern char BCSuffix[];
@@ -153,6 +154,10 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   FLOAT SavedTime = MetaData.Time;
   MetaData.Time = (WriteTime < 0) ? MetaData.Time : WriteTime;
+
+  /* If we're writing interpolated dark matter fields, create them now. */
+
+  CreateSmoothedDarkMatterFields(MetaData, TopGrid);
 
   // Global or local filesystem?
  

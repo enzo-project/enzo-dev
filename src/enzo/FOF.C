@@ -41,10 +41,7 @@
 /************************************************************************/
 void FOF_Initialize(TopGridData *MetaData, 
 		    LevelHierarchyEntry *LevelArray[], 
-		    FOFData &D);
-void FOF_Finalize(TopGridData *MetaData, 
-		  LevelHierarchyEntry *LevelArray[], 
-		  FOFData &D);
+		    FOFData &D, bool SmoothData);
 /************************************************************************/
 
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
@@ -95,12 +92,12 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   /* Initialization :: copy particle data from enzo's grids to the
      halo finder's data structure. */
 
-  FOF_Initialize(MetaData, LevelArray, AllVars);
+  FOF_Initialize(MetaData, LevelArray, AllVars, false);
 
   marking(AllVars);
 
   if (NumberOfProcessors > 1)
-    exchange_shadow(AllVars);
+    exchange_shadow(AllVars, MetaData->TopGridDims[0], false);
 
   init_coarse_grid(AllVars);
   
@@ -122,12 +119,6 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   if (HaloFinderSubfind)
     subfind(AllVars, MetaData->CycleNumber, MetaData->Time);
 
-  /* Finalize :: move particles back into enzo's memory and then move
-     the particles back to their correct grid.  No longer needed
-     because we only copy the particles. */
-
-  //FOF_Finalize(MetaData, LevelArray, AllVars);
-
   deallocate_all_memory(AllVars);
 
   HaloFinderLastTime = MetaData->Time;
@@ -145,7 +136,7 @@ void set_units(FOFData &AllVars) {
   AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
 
   AllVars.Theta = 0.8;  /* opening angle for potential computation */
-  AllVars.DesDensityNgb =  32;
+  AllVars.DesDensityNgb = 32;
 
   /* DesLinkNgb is also the minimum size of a subgroup */
   AllVars.DesLinkNgb = AllVars.DesDensityNgb;
@@ -859,14 +850,17 @@ void stitch_together(FOFData &AllVars)
 
 /************************************************************************/
 
-void exchange_shadow(FOFData &AllVars)
+void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
 {
 #ifdef USE_MPI
   MPI_Status status;
 #endif
   FOF_particle_data *buftoleft, *buftoright;
-  int    i, slab, nl, nr;
+  int    i, slab, nl, nr, region, dim;
   int    leftTask, rightTask;
+  bool inside;
+  double sr;
+  float StaticRegionCellWidth[MAX_STATIC_REGIONS+1];
 
 //  if (debug)
 //    fprintf(stdout, "FOF: exchanging shadows ...\n");
@@ -874,6 +868,18 @@ void exchange_shadow(FOFData &AllVars)
   buftoleft =  new FOF_particle_data[AllVars.NtoLeft[MyProcessorNumber]];
   buftoright = new FOF_particle_data[AllVars.NtoRight[MyProcessorNumber]];
 
+  // Pre-compute cell widths for each static region
+  if (SmoothData) {
+    StaticRegionCellWidth[0] = AllVars.BoxSize / TopGridResolution;
+    for (i = 0; i < MAX_STATIC_REGIONS; i++) {
+      if (StaticRefineRegionRightEdge[i][0] > 0)
+	StaticRegionCellWidth[i+1] = AllVars.BoxSize / TopGridResolution /
+	  pow(RefineBy, StaticRefineRegionLevel[i]+1);
+      else
+	StaticRegionCellWidth[i+1] = 0;
+    }
+  } // ENDIF SmoothData
+    
   nl = nr = 0;
   
   for (i = 1; i <= AllVars.Nlocal; i++) {
@@ -881,16 +887,41 @@ void exchange_shadow(FOFData &AllVars)
     slab = AllVars.P[i].slab;
 
     if (slab != MyProcessorNumber)
-      ENZO_FAIL("");
+      ENZO_FAIL("FOF: particle not on the right processor (slab)!");
+
+    if (SmoothData) {
+
+      sr = AllVars.LinkLength * StaticRegionCellWidth[0];
+      for (region = MAX_STATIC_REGIONS-1; region >= 0; region--) {
+	if (StaticRefineRegionLevel[region] < 0)
+	  continue;
+	inside = true;
+	for (dim = 0; dim < 3; dim++) {
+	  inside &= 
+	    AllVars.P[i].Pos[dim] >= StaticRefineRegionLeftEdge[region][dim] &&
+	    AllVars.P[i].Pos[dim] <= StaticRefineRegionRightEdge[region][dim];
+	  if (!inside)
+	    break;
+	} // ENDFOR dim
+
+	if (inside) {
+	  sr = AllVars.LinkLength * StaticRegionCellWidth[region];
+	  break;
+	}
+
+      } // ENDFOR region
+
+    } // ENDIF SmoothData
+    else
+      sr = AllVars.SearchRadius;
 		  
-    if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + 
-	AllVars.SearchRadius)
+    if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + sr)
       buftoleft[nl++] = AllVars.P[i];
       
-    if (AllVars.P[i].Pos[0] > (slab+1)*(AllVars.BoxSize/NumberOfProcessors) - 
-	AllVars.SearchRadius)
+    if (AllVars.P[i].Pos[0] > (slab+1)*(AllVars.BoxSize/NumberOfProcessors) - sr)
       buftoright[nr++] = AllVars.P[i];
-  } // ENDFOR
+
+  } // ENDFOR particles
 
   if (nl != AllVars.NtoLeft[MyProcessorNumber]) {
     fprintf(stderr, "[proc %"ISYM"] error: shadows don't match! "

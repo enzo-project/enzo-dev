@@ -279,6 +279,11 @@ EXTERN int OutputCoolingTime;
 
 EXTERN int OutputTemperature;
 
+/* Output smoothed dark matter fields. */
+
+EXTERN int OutputSmoothedDarkMatter;
+EXTERN int SmoothedDarkMatterNeighbors;
+
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 
 EXTERN float ZEUSLinearArtificialViscosity;

@@ -93,7 +93,6 @@ struct FOFData {
   double  RhoCritical0;
   double  Time;
   double  BoxSize;
-  double  leftEdge[3], rightEdge[3];
 
   double  SearchRadius;
 

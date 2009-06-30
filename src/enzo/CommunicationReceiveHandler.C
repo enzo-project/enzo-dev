@@ -259,6 +259,10 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	     GridDimension);
 	  break;
 
+	case 17:
+	  errcode = grid_one->InterpolateParticlesToGrid(NULL);
+	  break;
+
 	default:
 	  fprintf(stderr, "Unrecognized call type %"ISYM"\n", 
 		  CommunicationReceiveCallType[index]);

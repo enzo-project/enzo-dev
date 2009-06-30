@@ -1707,12 +1707,14 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			   int CountOnly);
 
 //------------------------------------------------------------------------
-//  Inline FOF halo finder
+//  Inline FOF halo finder and particle interpolation using a tree
 //------------------------------------------------------------------------
 
   int MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P, 
 		       int &Index, FOFData &AllVars, float VelocityUnits, 
 		       double MassUnits, int CopyDirection);
+
+  int InterpolateParticlesToGrid(FOFData *D);
 
 //------------------------------------------------------------------------
 // new hydro & MHD routines

@@ -303,6 +303,7 @@ typedef int            HDF5_hid_t;
 /* Definitions for grid::CommunicationSend/ReceiveRegion and 
    grid::DepositPositions */
 
+#define INTERPOLATED_FIELDS              -8
 #define PARTICLE_MASS_FLAGGING_FIELD     -7
 #define MASS_FLAGGING_FIELD              -6
 #define ACCELERATION_FIELDS              -5
@@ -365,6 +366,9 @@ typedef int            HDF5_hid_t;
 #define MPI_SENDSTAR_TAG 21
 #define MPI_SENDPMFLAG_TAG 22
 #define MPI_SENDPART_TAG 23
+
+// There are 5 tags related to this (1000-1004)
+#define MPI_SENDPARTFIELD_TAG 1000
 
 /* Definitions for CommunicationBufferedSend. */
 

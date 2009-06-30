@@ -345,6 +345,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
     ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
 
+    ret += sscanf(line, "OutputSmoothedDarkMatter = %"ISYM, 
+		  &OutputSmoothedDarkMatter);
+    ret += sscanf(line, "SmoothedDarkMatterNeighbors = %"ISYM, 
+		  &SmoothedDarkMatterNeighbors);
+
     ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
 		  &ZEUSQuadraticArtificialViscosity);
     ret += sscanf(line, "ZEUSLinearArtificialViscosity = %"FSYM,
