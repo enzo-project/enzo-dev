@@ -129,7 +129,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     pow(RefineBy, FinestStaticLevel);
 
   // Pre-compute cell widths for each static region (for adaptive smoothing)
-  StaticRegionCellWidth[0] = 1.0 / MetaData->TopGridDims[0];
+  StaticRegionCellWidth[0] = D.BoxSize / MetaData->TopGridDims[0];
   for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     if (StaticRefineRegionRightEdge[i][0] > 0)
       StaticRegionCellWidth[i+1] = D.BoxSize / MetaData->TopGridDims[0] /
@@ -226,8 +226,8 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (SmoothData) {
 
 	sr = D.LinkLength * StaticRegionCellWidth[0];
-	for (region = MAX_STATIC_REGIONS-1; region >= 0; region++) {
-	  if (StaticRefineRegionRightEdge[region][0] < 0)
+	for (region = MAX_STATIC_REGIONS-1; region >= 0; region--) {
+	  if (StaticRefineRegionLevel[region] < 0)
 	    continue;
 	  inside = true;
 	  for (dim = 0; dim < 3; dim++) {

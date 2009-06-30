@@ -83,6 +83,8 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
      particles on the domain boundaries to the other side for
      periodicity. */
 
+  marking(AllVars);
+
   if (NumberOfProcessors > 1)
     exchange_shadow(AllVars, MetaData.TopGridDims[0], true);
 

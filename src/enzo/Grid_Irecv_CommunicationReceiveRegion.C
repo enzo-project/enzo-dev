@@ -69,11 +69,20 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
 //    return SUCCESS;
 
   // Compute size of region to transfer
+  int NumberOfFields, RegionSize, TransferSize;
  
-  int NumberOfFields = ((SendField == ALL_FIELDS)? NumberOfBaryonFields : 1) *
-                       ((NewOrOld == NEW_AND_OLD)? 2 : 1);
-  int RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
-  int TransferSize = RegionSize*NumberOfFields;
+  NumberOfFields = ((SendField == ALL_FIELDS)? NumberOfBaryonFields : 1) *
+    ((NewOrOld == NEW_AND_OLD)? 2 : 1);
+
+  if (SendField == INTERPOLATED_FIELDS) {
+    switch (OutputSmoothedDarkMatter) {
+    case 1: NumberOfFields = 1; break;  // density
+    case 2: NumberOfFields = 5; break;  // + rms velocity + 3-velocity
+    }
+  }
+
+  RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
+  TransferSize = RegionSize*NumberOfFields;
  
   // Allocate buffer
  
@@ -88,7 +97,8 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
   int FromDim[MAX_DIMENSION], FromOffset[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE)?
+    FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE &&
+		       SendField != INTERPOLATED_FIELDS) ?
       DEFAULT_GHOST_ZONES : 0;
     FromDim[dim] = RegionDim[dim] + 2*FromOffset[dim];
   }
@@ -118,6 +128,17 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
 			       FromOffset, FromOffset+1, FromOffset+2);
 	  index += RegionSize;
       }
+
+    if (SendField == INTERPOLATED_FIELDS) {
+      for (field = 0; field < NumberOfFields; field++) {
+	FORTRAN_NAME(copy3d)(FromGrid->InterpolatedField[field], &buffer[index],
+			     FromDim, FromDim+1, FromDim+2,
+			     RegionDim, RegionDim+1, RegionDim+2,
+			     Zero, Zero+1, Zero+2,
+			     FromOffset, FromOffset+1, FromOffset+2);
+	index += RegionSize;
+      }
+    }
  
   } // ENDIF FromProcessor
  
@@ -179,6 +200,11 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
   /* If this is the to processor, unpack fields */
  
   int GridSize = GridDimension[0]*GridDimension[1]*GridDimension[2];
+  int ActiveDims[MAX_DIMENSION], ActiveSize = 1;
+  for (dim = 0; dim < GridRank; dim++) {
+    ActiveDims[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+    ActiveSize *= ActiveDims[dim];
+  }
  
   if (MyProcessorNumber == ProcessorNumber &&
       (CommunicationDirection == COMMUNICATION_SEND_RECEIVE ||
@@ -219,6 +245,23 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
  
 	  index += RegionSize;
 	}
+
+    if (SendField == INTERPOLATED_FIELDS)
+      for (field = 0; field < NumberOfFields; field++) {
+	if (InterpolatedField[field] == NULL) {
+	  InterpolatedField[field] = new float[ActiveSize];
+	  for (i = 0; i < ActiveSize; i++)
+	    InterpolatedField[field][i] = 0;
+	}
+	FORTRAN_NAME(copy3d)(&buffer[index], InterpolatedField[field],
+			     RegionDim, RegionDim+1, RegionDim+2,
+			     ActiveDims, ActiveDims+1, ActiveDims+2,
+			     RegionStart, RegionStart+1, RegionStart+2,
+			     Zero, Zero+1, Zero+2);
+ 
+	index += RegionSize;
+      }
+
  
     /* Clean up */
  

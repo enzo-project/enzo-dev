@@ -303,6 +303,7 @@ typedef int            HDF5_hid_t;
 /* Definitions for grid::CommunicationSend/ReceiveRegion and 
    grid::DepositPositions */
 
+#define INTERPOLATED_FIELDS              -8
 #define PARTICLE_MASS_FLAGGING_FIELD     -7
 #define MASS_FLAGGING_FIELD              -6
 #define ACCELERATION_FIELDS              -5

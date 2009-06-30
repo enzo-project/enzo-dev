@@ -77,16 +77,13 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     min_slab = 0;
     max_slab = 0;
   } else {
-    min_slab = (int) ((GridLeftEdge[0] - DomainLeftEdge[0]) /
+    min_slab = (int) (NumberOfProcessors * (GridLeftEdge[0] - DomainLeftEdge[0]) /
 		      (DomainRightEdge[0] - DomainLeftEdge[0]));
-    max_slab = (int) ((GridRightEdge[0] - DomainLeftEdge[0]) /
+    max_slab = (int) (NumberOfProcessors * (GridRightEdge[0] - DomainLeftEdge[0]) /
 		      (DomainRightEdge[0] - DomainLeftEdge[0]));
+    min_slab = max(min_slab, 0);
+    max_slab = min(max_slab, NumberOfProcessors-1);
   }
-
-  // Exit if not overlapping
-  if (CommunicationDirection == COMMUNICATION_SEND)
-    if (MyProcessorNumber < min_slab || MyProcessorNumber > max_slab)
-      return SUCCESS;
 
   /* Post receive mode :: allocate memory and post receives */
 
@@ -157,7 +154,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   int slab, ind, ik, SlabStartIndex, SlabEndIndex, index;
   FLOAT SlabLeftEdge, SlabRightEdge;
   double CellPos[MAX_DIMENSION];
-  double r, h, h2, hinv, hinv3, u, delv;
+  double r, h, h2, hinv, hinv3, u, delv, weight;
   double *wk;
 
   FLOAT a, dadt, CurrentRedshift = 0.0;
@@ -166,6 +163,20 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
   float *UnitConversion;
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
+
+    // Exit if not overlapping.  But we still need to allocate memory if
+    // this is the host processor.
+
+    if (MyProcessorNumber < min_slab || MyProcessorNumber > max_slab) {
+      if (MyProcessorNumber == ProcessorNumber)
+	for (field = 0; field < NumberOfFields; field++) {
+	  InterpolatedField[field] = new float[size];
+	  for (i = 0; i < size; i++)
+	    InterpolatedField[field][i] = 0.0;
+	}
+      return SUCCESS;
+    }
+
 
     // Get units
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -183,7 +194,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
       DensityUnits;
 
     // proper km/s -> VelocityUnits
-    for (field = Vel1Num; field <= VrmsNum; field++)
+    for (field = VrmsNum; field <= Vel3Num; field++)
       UnitConversion[field] = 1e5 / VelocityUnits;
 
     // Determine where the slab starts / ends in the grid.
@@ -196,7 +207,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
     SlabStartIndex = (int) ((SlabLeftEdge - GridLeftEdge[0]) / CellWidth[0][0]);
     SlabStartIndex = max(SlabStartIndex, 0);
 
-    SlabEndIndex = (int) ((SlabRightEdge - GridLeftEdge[0]) / CellWidth[0][0]);
+    SlabEndIndex = (int) ((SlabRightEdge - GridLeftEdge[0]) / CellWidth[0][0]) - 1;
     SlabEndIndex = min(SlabEndIndex, ActiveDim[0]-1);
 
     // Allocate and zero memory
@@ -226,7 +237,8 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 	  h = sqrt(h2);
 	  hinv = 1.0 / h;
 	  hinv3 = hinv*hinv*hinv;
-	  
+	  weight = 0;
+
 	  for (n = 0; n < D->DesDensityNgb; n++) {
 	    r = sqrt(r2list[n]);
 	    ind = ngblist[n];
@@ -236,6 +248,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 	      wk[n] = D->P[ind].Mass * 
 		( D->Kernel[ik] + (D->Kernel[ik+1] - D->Kernel[ik]) *
 		  (u - D->KernelRad[ik]) * KERNEL_TABLE);
+	      weight += D->P[ind].Mass;
 
 	      // Density
 	      InterpolatedField[DensNum][index] += wk[n];
@@ -263,8 +276,17 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 	    } // ENDFOR n
 
 	  // Normalize and convert to enzo units
+	  InterpolatedField[DensNum][index] *= hinv3;
+
+	  for (field = VrmsNum; field <= Vel3Num && field < NumberOfFields; field++)
+	    InterpolatedField[field][index] /= weight;
+
+	  if (OutputSmoothedDarkMatter > 1)
+	    InterpolatedField[VrmsNum][index] =
+	      sqrt(InterpolatedField[VrmsNum][index]);
+
 	  for (field = 0; field < NumberOfFields; field++)
-	    InterpolatedField[field][index] *= hinv3 * UnitConversion[field];
+	    InterpolatedField[field][index] *= UnitConversion[field];
 
 	} // ENDFOR i
       } // ENDFOR j

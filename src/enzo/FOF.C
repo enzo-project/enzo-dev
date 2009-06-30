@@ -870,7 +870,7 @@ void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
 
   // Pre-compute cell widths for each static region
   if (SmoothData) {
-    StaticRegionCellWidth[0] = 1.0 / TopGridResolution;
+    StaticRegionCellWidth[0] = AllVars.BoxSize / TopGridResolution;
     for (i = 0; i < MAX_STATIC_REGIONS; i++) {
       if (StaticRefineRegionRightEdge[i][0] > 0)
 	StaticRegionCellWidth[i+1] = AllVars.BoxSize / TopGridResolution /
@@ -892,8 +892,8 @@ void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
     if (SmoothData) {
 
       sr = AllVars.LinkLength * StaticRegionCellWidth[0];
-      for (region = MAX_STATIC_REGIONS-1; region >= 0; region++) {
-	if (StaticRefineRegionRightEdge[region][0] < 0)
+      for (region = MAX_STATIC_REGIONS-1; region >= 0; region--) {
+	if (StaticRefineRegionLevel[region] < 0)
 	  continue;
 	inside = true;
 	for (dim = 0; dim < 3; dim++) {

@@ -270,6 +270,8 @@ void ngb_treebuild(FOFData &D, int Npart)
 
   /* insert all other particles */
 
+  // Breaks at i=544979 for 26Apr09_EvoTest
+  int idebug = 544979;
   for (i = 2; i <= Npart; i++) {
     th = _TopData.nodes;
     while (1) {
@@ -331,7 +333,7 @@ void ngb_treebuild(FOFData &D, int Npart)
 	for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
 	  if (D.P[i].Pos[j] > th->center[j])
 	    subi += fak;
-	      
+
 	if (subi == subp) {
 	  th = nfree-1;
 	  th->count++;
@@ -342,7 +344,6 @@ void ngb_treebuild(FOFData &D, int Npart)
 
     } // ENDIF count==2
 
-      
     for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
       if (D.P[i].Pos[j] > th->center[j])
 	subi += fak;
