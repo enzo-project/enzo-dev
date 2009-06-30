@@ -14,7 +14,7 @@ c
       subroutine primordial_solver(d, e, ge, u, v, w, de,
      &                HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod,
-     &                idual, ispecies, imetal, idim,
+     &                idual, ispecies, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim, uvel,
@@ -28,16 +28,18 @@ c
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
      &                reHeII2a, reHeIIIa, brema, compa,
      &                comp_xraya, comp_temp, piHI, piHeI, piHeII,
-     &                HM, H2I, H2II, DI, DII, HDI, metal,
+     &                HM, H2I, H2II, DI, DII, HDI, 
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa, hdcoola, ciecoa, 
-     &                inutot, iradtype, nfreq, imetalregen,
+     &                inutot, iradtype, nfreq, 
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iciecool, ih2optical, errcode, omaskflag,
-     &                threebody, subgridmask, 
-     &                HIeqtable, HIIeqtable, H2Ieqtable,
+     &                threebody, subgridmask
+#ifdef UNUSED_TABULATED_EQ
+     &                ,HIeqtable, HIIeqtable, H2Ieqtable,
      &                nrhobins, nebins,
      &                rhostart, rhoend, estart, eend
+#endif
 #ifdef PYFORT
      &                ,tgasouti, tgasoutf, geout
 #endif
@@ -72,7 +74,6 @@ c    idim     - dimensionality (rank) of problem
 c    ispecies - chemistry module (1 - H/He only, 2 - molecular H, 3 - D) 
 c    iradshield - flag for crude radiative shielding correction (rad type 12)
 c    iradtype - type of radiative field (only used if = 8)
-c    imetal   - flag if metal field is active (0 = no, 1 = yes)
 c    imethod  - Hydro method (0 = PPMDE, 2 = ZEUS-type)
 c    ih2co    - flag to include H2 cooling (1 = on, 0 = off)
 c    ipiht    - flag to include photoionization heating (1 = on, 0 = off)
@@ -107,8 +108,8 @@ c
 c  General Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
-     &        iradtype, nfreq, imetalregen, iradshield, iciecool, 
+     &        idual, iexpand, ih2co, ipiht, ispecies, idim,
+     &        iradtype, nfreq, iradshield, iciecool, 
      &        ih2optical, errcode, omaskflag, threebody
       real    aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, uvel
@@ -126,12 +127,12 @@ CF2PY INTENT(INOUT) ::  HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
 CF2PY INTENT(INOUT) ::  DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
 CF2PY INTENT(INOUT) ::  d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn)
 CF2PY INTENT(INOUT) ::  u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
-CF2PY INTENT(INOUT) ::  metal(in,jn,kn)
 CF2PY INTENT(INOUT) ::  subgridmask(in,jn,kn)
-CF2PY INTENT(INOUT) ::  subgridtempmask(in,jn,kn)
+#ifdef UNUSED_TABULATED_EQ
 CF2PY INTENT(INOUT) ::  HIeqtable(nebins,nrhobins)
 CF2PY INTENT(INOUT) ::  HIIeqtable(nebins,nrhobins)
 CF2PY INTENT(INOUT) ::  H2Ieqtable(nebins,nrhobins)
+#endif
 CF2PY INTENT(INOUT) ::  tgasouti(in,jn,kn)
 CF2PY INTENT(INOUT) ::  tgasoutf(in,jn,kn)
 CF2PY INTENT(INOUT) ::  geout(in,jn,kn)
@@ -141,16 +142,22 @@ CF2PY INTENT(INOUT) ::  geout(in,jn,kn)
       real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
-     &        metal(in,jn,kn), tgasouti(in,jn,kn)
+     &        tgasouti(in,jn,kn)
 #ifdef PYFORT
      &        ,tgasoutf(in,jn,kn),geout(in,jn,kn)
 #endif
+#ifdef UNUSED_TABULATED_EQ
       integer nebins,nrhobins
       real    HIeqtable(nrhobins,nebins), HIIeqtable(nrhobins,nebins),
      &        H2Ieqtable(nrhobins,nebins),
      &        rhostart, rhoend,
      &        estart, eend
+#endif
+#ifdef PYFORT
       integer subgridmask(in,jn,kn)
+#else
+      integer subgridmask
+#endif
       integer subgridtempmask(in,jn,kn)
 c
 c  Cooling tables (coolings rates as a function of temperature)
@@ -251,7 +258,9 @@ c
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), 
      &     hdcool(ijk, 5), cieco(ijk)
 
+#ifdef UNUSED_TABULATED_EQ
       real estartcode, eendcode, rhostartcode, rhoendcode
+#endif
 
 c
 c     Iteration mask, output mask, and output flag
@@ -269,7 +278,6 @@ c
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,
      &          ide=11,iHM=12,iH2II=13 ) ! eq species
-#ifdef MJT_CHEM_SOLVER
       totaliter = 0
 c      iciecool = 0(
 c      ih2optical = 0
@@ -324,12 +332,14 @@ c     4.48 eV = 7.17775e-12 ergs
       ciHeIunit   = (3.94e-11)/(4.0*uvel*uvel*mh)
       ciHeIIunit  = (8.72e-11)/(4.0*uvel*uvel*mh)
 
+#ifdef UNUSED_TABULATED_EQ
 c      rhostartcode = log10((10**rhostart)/(urho*aye**3.0))
 c      rhoendcode = log10((10**rhoend)/(urho*aye**3.0))
       estartcode = log10((10**estart)/(uvel**2.0))
       eendcode = log10((10**eend)/(uvel**2.0))
       rhostartcode = log10(10**rhostart/(fh*dom))
       rhoendcode = log10(10**rhoend/(fh*dom))
+#endif
 
 #ifdef PYFORT_OFF
       write(0,*) 'kunit',kunit
@@ -354,9 +364,9 @@ c
      &                     in, jn, kn, ispecies, fh, dtoh, iter,
      &                     correctH, correctHe )
       call scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
-     &                  HM, H2I, H2II, DI, DII, HDI, metal,
+     &                  HM, H2I, H2II, DI, DII, HDI, 
      &                  is, ie, js, je, ks, ke,
-     &                  in, jn, kn, ispecies, imetal, aye**(-3))
+     &                  in, jn, kn, ispecies, aye**(-3))
 c
 c  Loop over zones, and do an entire i-column in one go
 c
@@ -386,7 +396,7 @@ c
             dtit(i) = dt(i,j,k)/5.0
 #else
             dtit(i) = dt
-            subgridmask(i,j,k) = 1
+            subgridmask = 1
             itmask(i) = .true.
 #endif
             eqmask(i) = .false.
@@ -395,6 +405,7 @@ c
             geprime(i) = log10((ge(i,j,k) +
      &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.0))
             dprime(i) = log10(d(i,j,k)*dom*fh)
+#ifdef UNUSED_TABULATED_EQ
 c            write(0,*) rhostartcode, rhostart, estartcode, estart
             if ((dprime(i).gt.rhostart+3.5).and.(geprime(i).gt.estart))then
                 totaleq = totaleq + 1
@@ -404,6 +415,7 @@ c                write(0,*) geprime(i), estartcode, dprime(i), rhostartcode
 c                write(0,*) (geprime(i).gt.estartcode)
 c                stop
             endif
+#endif
             s(i,iHI) = max(HI(i,j,k),tiny)
             s(i,iHII) = max(HII(i,j,k),tiny)
             s(i,ide) = max(de(i,j,k),tiny)
@@ -681,9 +693,9 @@ c
 c     Convert densities back to comoving from proper
 c
       call scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
-     &                  HM, H2I, H2II, DI, DII, HDI, metal,
+     &                  HM, H2I, H2II, DI, DII, HDI, 
      &                  is, ie, js, je, ks, ke,
-     &                  in, jn, kn, ispecies, imetal, aye**3)
+     &                  in, jn, kn, ispecies, aye**3)
 c
 c     Correct the species to ensure consistency (i.e. type conservation)
 c
@@ -734,22 +746,23 @@ c -----------------------------------------------------------
 c   This routine scales the density fields from comoving to
 c     proper densities (and back again).
 c
-      subroutine scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
-     &                        HM, H2I, H2II, DI, DII, HDI, metal,
+      subroutine primordial_scale_fields(
+     &                         d, de, HI, HII, HeI, HeII, HeIII,
+     &                        HM, H2I, H2II, DI, DII, HDI, 
      &                        is, ie, js, je, ks, ke,
-     &                        in, jn, kn, ispecies, imetal, factor)
+     &                        in, jn, kn, ispecies, factor)
 c -------------------------------------------------------------------
 c
       implicit NONE
 c
 c     Arguments
 c
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
       real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real     d(in,jn,kn),metal(in,jn,kn)
+      real     d(in,jn,kn)
       real    factor
 c
 c     locals
@@ -783,11 +796,6 @@ c
                   HDI(i,j,k) = HDI(i,j,k)*factor
                enddo
             endif
-            if (imetal .eq. 1) then
-               do i = is+1, ie+1
-                  metal(i,j,k) = metal(i,j,k)*factor
-               enddo
-            endif
          enddo
       enddo
 c
@@ -799,7 +807,8 @@ c ------------------------------------------------------------------
 c   This routine correct the highest abundence species to
 c     ensure conservation of particle number and charge.
 c
-      subroutine make_consistent(de, HI, HII, HeI, HeII, HeIII,
+      subroutine primordial_make_consistent(
+     &                        de, HI, HII, HeI, HeII, HeIII,
      &                        HM, H2I, H2II, DI, DII, HDI, d,
      &                        is, ie, js, je, ks, ke,
      &                        in, jn, kn, ispecies, fh, dtoh, iter,
@@ -930,7 +939,6 @@ c
       enddo  ! end loop over j
       enddo  ! end loop over k
 c
-#endif  ! MJT_CHEM_SOLVER
       return
       end
 

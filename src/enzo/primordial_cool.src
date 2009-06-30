@@ -5,7 +5,7 @@ c
       subroutine primordial_cool(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, idim,
+     &                iexpand, ispecies, idim,
      &                is, ie, j, k, ih2co, ipiht, iter,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
@@ -15,7 +15,7 @@ c
      &                reHeII2a, reHeIIIa, brema, compa, 
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
-     &                HM, H2I, H2II, DI, DII, HDI, metal,
+     &                HM, H2I, H2II, DI, DII, HDI, 
      &                hyd01ka, h2k01a, vibha, rotha, rotla,
      &                hyd01k, h2k01, vibh, roth, rotl,
      &                gpldla, gphdla, gpldl, gphdl,
@@ -25,7 +25,7 @@ c
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edotplus,
      &                edotminus, tgas, tgasold, p2d,
-     &                inutot, iradtype, nfreq, imetalregen,
+     &                inutot, iradtype, nfreq, 
      &                iradshield, avgsighp, avgsighep, 
      &                avgsighe2p, itmask, iciecool,ih2optical,ifedtgas,
      &                gamma2, omask)!, 
@@ -54,8 +54,8 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imetal, 
-     &        nfreq, iradshield, iradtype, imetalregen, iciecool,
+     &        idual, iexpand, ih2co, ipiht, ispecies,
+     &        nfreq, iradshield, iradtype, iciecool,
      &        ih2optical, ifedtgas, ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 
@@ -71,8 +71,6 @@ c
      &        HM(ijk),  H2I(ijk), H2II(ijk),
      &        DI(ijk),  DII(ijk), HDI(ijk)
       logical omask(ijk)
-      real
-     &        metal(in,jn,kn)
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),

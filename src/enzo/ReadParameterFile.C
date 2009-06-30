@@ -315,6 +315,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
+    ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
     if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
       CloudyCoolingData.CloudyCoolingGridFile = dummy;
       ret++;

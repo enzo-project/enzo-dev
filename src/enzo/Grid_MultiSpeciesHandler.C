@@ -32,7 +32,11 @@ int grid::MultiSpeciesHandler()
 
   if (MultiSpecies && RadiativeCooling && 
       (MetalCooling != CLOUDY_METAL_COOLING)) {
-	  this->SolveRateAndCoolEquations();
+      if((MultiSpecies == 3) && (PrimordialChemistrySolver == 1))
+        this->SolveHighDensityPrimordialChemistry();
+      else
+	    this->SolveRateAndCoolEquations();
+      
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();
