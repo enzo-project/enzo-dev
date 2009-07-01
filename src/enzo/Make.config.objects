@@ -175,6 +175,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddExternalAcceleration.o \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
+	Grid_AddFields.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddRandomForcing.o \
 	Grid_AddToBoundaryFluxes.o \
@@ -594,7 +595,6 @@ POBJS_CONFIG_LIB = \
 	FindRootGrid.o \
 	FindSuperSource.o \
 	FindSuperSourceByPosition.o \
-	Grid_AddFields.o \
 	Grid_AddH2Dissociation.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
