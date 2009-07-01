@@ -28,7 +28,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 #define MAX_RADIUS 5
 
@@ -60,10 +60,10 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   /* Get units. */
 
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
-    MassUnits, DensityUnits; 
+    DensityUnits; 
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

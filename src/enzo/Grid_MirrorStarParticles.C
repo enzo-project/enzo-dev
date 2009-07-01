@@ -22,7 +22,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::MirrorStarParticles(void)
 {
@@ -36,9 +36,9 @@ int grid::MirrorStarParticles(void)
   Star *cstar;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassUnits;
+    VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	   &TimeUnits, &VelocityUnits, Time);
 
   MassConversion = (float) (double(LengthUnits*CellWidth[0][0]) *
 			    double(LengthUnits*CellWidth[0][0]) *

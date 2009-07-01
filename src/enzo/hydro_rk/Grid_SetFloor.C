@@ -83,7 +83,7 @@ int grid::SetFloor()
   }
 #endif
 
-  const float ca_min = 2e7/VelocityUnits;
+  const float ca_min = MaximumAlvenSpeed;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -102,8 +102,8 @@ int grid::SetFloor()
 	  float rho1 = B2/pow(ca_min,2);
 	  BaryonField[DensNum][igrid] = rho1;
 	  BaryonField[TENum][igrid] += 0.5*B2/rho1;
-	  //printf("floor set: (%g %g %g), rho: %g->%g\n", CellLeftEdge[0][i],
-	  // CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
+	  printf("floor set based on MaximumAlvenSpeed: (%g %g %g), rho: %g->%g\n", CellLeftEdge[0][i],
+	   CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
 	}
       }
     }

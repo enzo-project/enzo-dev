@@ -32,15 +32,17 @@
 #include "CosmologyParameters.h"
  
 /* function prototypes */
-#ifdef USE_HDF5_GROUPS
+//#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
 		 FLOAT WriteTime = -1);
-#else
+//#else
+/* 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
 		 FLOAT WriteTime = -1);
-#endif
+*/
+//#endif
 
 double ReturnWallTime(void);
 
@@ -61,19 +63,19 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       && MetaData.dtDataDump > 0.0) {
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
-#ifdef USE_HDF5_GROUPS
+    //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
 	ENZO_FAIL("");
     }
-#else
-    if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("");
-    }
-#endif
+// #else
+//     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 	fprintf(stderr, "Error in WriteAllData.\n");
+// 	ENZO_FAIL("");
+//     }
+// #endif
 
     WroteData = TRUE;
   }
@@ -85,19 +87,19 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       MetaData.CycleSkipDataDump > 0) {
     MetaData.CycleLastDataDump += MetaData.CycleSkipDataDump;
 
-#ifdef USE_HDF5_GROUPS
+    //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
 	ENZO_FAIL("");
     }
-#else
-    if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("");
-    }
-#endif
+// #else
+//     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 	fprintf(stderr, "Error in WriteAllData.\n");
+// 	ENZO_FAIL("");
+//     }
+// #endif
 
     WroteData = TRUE;
   }
@@ -120,19 +122,19 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0) {
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     if (debug) printf("CPUtime-based output!\n");
-#ifdef USE_HDF5_GROUPS
+//#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 		     TopGrid, MetaData, Exterior) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
 	ENZO_FAIL("");
     }
-#else
-    if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("");
-    }
-#endif
+// #else
+//     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 	fprintf(stderr, "Error in WriteAllData.\n");
+// 	ENZO_FAIL("");
+//     }
+// #endif
     WroteData = TRUE;
   } // ENDIF
 
@@ -152,17 +154,17 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	    Number = -1;  // Don't append number (####) to end of name
 	  }
 
-#ifdef USE_HDF5_GROUPS
+	  //#ifdef USE_HDF5_GROUPS
 	  if (Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
 	    fprintf(stderr, "Error in Group_WriteAllData.\n");
 	    ENZO_FAIL("");
 	  }
-#else
-	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
-	    fprintf(stderr, "Error in WriteAllData.\n");
-	    ENZO_FAIL("");
-	  }
-#endif
+// #else
+// 	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
+// 	    fprintf(stderr, "Error in WriteAllData.\n");
+// 	    ENZO_FAIL("");
+// 	  }
+// #endif
 
 	  WroteData = TRUE;
 	}

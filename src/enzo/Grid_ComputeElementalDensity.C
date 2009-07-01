@@ -44,7 +44,7 @@
 int FindField(int f, int farray[], int n);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 static int TableRead = FALSE;
 static float *LookupTable, *TableDensity, *TableTemperature;
@@ -250,9 +250,10 @@ int grid::ComputeElementalDensity(float *temperature,
   /* Find the temperature units if we are using comoving coordinates. */
  
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
-    TemperatureUnits=1, MassUnits=1;
+    TemperatureUnits=1;
+
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

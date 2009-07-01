@@ -202,52 +202,24 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
 		ENZO_FAIL("Error reading GravityBoundaryType.");
       }
+
     // If HierarchyFile has different Ghostzones 
     // (useful in a restart with different hydro/mhd solvers) 
     int ghosts =DEFAULT_GHOST_ZONES;
     if (GridStartIndex[0] != ghosts)  {
-	if (GridID < 2)      fprintf(stderr,"Grid_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
+      if (GridID < 2) fprintf(stderr,"Grid_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
       
       for (dim=0; dim < GridRank; dim++) {
 	GridDimension[dim]  = GridEndIndex[dim]-GridStartIndex[dim]+1+2*ghosts;
 	GridStartIndex[dim] = ghosts;
 	GridEndIndex[dim]   = GridStartIndex[dim]+GridDimension[dim]-1-2*ghosts;
 	if (GridID < 2) fprintf(stderr, "dim: GridStart,GridEnd,GridDim:  %i: %i %i %i\n",
-				 dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
+				dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
       }
     } // end Adjusting Grid Size with different Ghostzones
-  }
+  } /* end if (ReadText) */
 
 
-  if (HydroMethod == MHD_RK) {
-
-    int activesize = 1;
-    for (int dim = 0; dim < GridRank; dim++)
-      activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
-    
-    if (divB == NULL) 
-      divB = new float[activesize];
-
-    /* if we restart from a a different solvers output without a Phi Field create here and set to zero */
-    int PhiNum; 
-    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
-      char *PhiName = "Phi";
-      PhiNum=NumberOfBaryonFields++;
-      FieldType[PhiNum] = PhiField;
-      DataLabel[PhiNum] = PhiName;
-      BaryonField[PhiNum] = new float[size];
-      for (int n = 0; n < size; n++) BaryonField[PhiNum][n] = 0.0;
-    }
-
-    for (int dim = 0; dim < 3; dim++)
-      if (gradPhi[dim] == NULL)
-	gradPhi[dim] = new float[activesize];
-
-    for (int dim = GridRank; dim < 3; dim++)
-      for (int n = 0; n < activesize; n++)
-	gradPhi[dim][n] = 0.0;
-
-  } /* if HydroMethod == MHD */
 
   this->PrepareGridDerivedQuantities();
  
@@ -407,6 +379,38 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       delete [] temp;
  
     }  // end: if (MyProcessorNumber == ProcessorNumber)
+
+  if (HydroMethod == MHD_RK) {
+
+    int activesize = 1;
+    for (int dim = 0; dim < GridRank; dim++)
+      activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+    
+    if (divB == NULL) 
+      divB = new float[activesize];
+
+    /* if we restart from a a different solvers output without a Phi Field create here and set to zero */
+    int PhiNum; 
+    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+      fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
+      fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+      char *PhiName = "Phi";
+      PhiNum = NumberOfBaryonFields;
+      int PhiToAdd = PhiField;
+      this->AddFields(&PhiToAdd, 1);
+      DataLabel[PhiNum] = PhiName;
+    }
+
+    for (int dim = 0; dim < 3; dim++)
+      if (gradPhi[dim] == NULL)
+	gradPhi[dim] = new float[activesize];
+
+    for (int dim = GridRank; dim < 3; dim++)
+      for (int n = 0; n < activesize; n++)
+	gradPhi[dim][n] = 0.0;
+
+  } /* if HydroMethod == MHD */
+
   }  // end read baryon fields
  
   /* 3) Read particle info */

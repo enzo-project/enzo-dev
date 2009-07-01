@@ -37,7 +37,7 @@ extern int RadiationFieldRecomputeMetalRates;
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int RadiationFieldCalculateRates(FLOAT Time);
 int FindField(int field, int farray[], int numfields);
 double ReturnWallTime();
@@ -139,7 +139,7 @@ int grid::SolveCoupledRateEquations()
   /* If using cosmology, compute the expansion factor and get units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-    VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
 
   if (ComovingCoordinates) {
 
@@ -154,7 +154,7 @@ int grid::SolveCoupledRateEquations()
   }
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

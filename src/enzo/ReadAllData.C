@@ -112,7 +112,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Read Boundary condition info. */
   fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
-  int BRerr=0 ;
+  int BRerr = 0 ;
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
@@ -121,29 +121,33 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
 #ifdef USE_HDF4
-  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
-            MetaData.BoundaryConditionName);                  
-    BRerr = 1;
-  }
+  if (BRerr == 0)
+    if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
+      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+	      MetaData.BoundaryConditionName);                  
+      BRerr = 1;
+    }
 #else
-  if(LoadGridDataAtStart){    
-    if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
-    }
-  }else{
-    if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
+  if (BRerr == 0) {
+    if(LoadGridDataAtStart){    
+      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
+      }
+    }else{
+      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
+      }
     }
   }
+
 #endif
 
-  strcat(MetaData.BoundaryConditionName, hdfsuffix);
-  if (fptr != NULL) fclose(fptr);
+  if (BRerr ==0) strcat(MetaData.BoundaryConditionName, hdfsuffix);
+  if ((fptr != NULL) && (BRerr == 0)) fclose(fptr);
 
   /* Create the memory map name */
 
@@ -204,19 +208,47 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   */
   if (BRerr) {
     fprintf(stderr,"Setting External Boundaries.\n");
-  float Dummy[MAX_DIMENSION];
-  int dim;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Dummy[dim] = 0.0;
-  fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
-  Exterior->Prepare(TopGrid->GridData);
-  for (dim = 0; dim < MetaData.TopGridRank; dim++)
-    Exterior->InitializeExternalBoundaryFace(dim,
-					     MetaData.LeftFaceBoundaryCondition[dim],
-					     MetaData.RightFaceBoundaryCondition[dim],
-					     Dummy, Dummy);
-  TopGrid->GridData->SetExternalBoundaryValues(Exterior);
-  }
+    float Dummy[MAX_DIMENSION];
+    int dim;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      Dummy[dim] = 0.0;
+    fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
+    
+    SimpleConstantBoundary = TRUE;
+    
+    for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      if (MetaData.LeftFaceBoundaryCondition[dim] != periodic ||
+	  MetaData.RightFaceBoundaryCondition[dim] != periodic) {
+	SimpleConstantBoundary = FALSE;
+      }
+    }
+    
+    Exterior->Prepare(TopGrid->GridData);
+    
+    for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      Exterior->InitializeExternalBoundaryFace(dim,
+					       MetaData.LeftFaceBoundaryCondition[dim],
+					       MetaData.RightFaceBoundaryCondition[dim],
+					       Dummy, Dummy);
+      fprintf(stderr, " %i  %i \n", MetaData.LeftFaceBoundaryCondition[dim],
+	      MetaData.RightFaceBoundaryCondition[dim]);
+    }
+    
+    Exterior->InitializeExternalBoundaryParticles(
+						  MetaData.ParticleBoundaryType);
+    
+    
+    /*
+    HierarchyEntry *NextGrid;
+    NextGrid = TopGrid->NextGridThisLevel;
+    while (NextGrid != NULL) {
+      Exterior->Prepare(NextGrid->GridData);
+      NextGrid->GridData->SetExternalBoundaryValues(Exterior);
+      NextGrid = NextGrid->NextGridThisLevel;
+    }
+    */
+    
+  } /* Setting External Boundary */
 
   /* Read StarParticle data. */
  

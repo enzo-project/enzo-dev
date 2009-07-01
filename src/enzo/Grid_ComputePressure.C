@@ -32,7 +32,7 @@
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 int grid::ComputePressure(FLOAT time, float *pressure)
 {
@@ -174,8 +174,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
     float TemperatureUnits=1, number_density, nH2, GammaH2Inverse,
       GammaInverse = 1.0/(Gamma-1.0), x, Gamma1, temp;
-    float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1, 
-      MassUnits=1;
+    float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1; 
  
     /* Find Multi-species fields. */
  
@@ -190,7 +189,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
     /* Find the temperature units. */
  
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-		 &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+		 &TimeUnits, &VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in GetUnits.\n");
       ENZO_FAIL("");
     }

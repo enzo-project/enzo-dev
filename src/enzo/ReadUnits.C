@@ -55,7 +55,7 @@ int ReadUnits(FILE *fptr)
 
   /* if only one of density/mass units specifed, calculate the other one */
   if (GlobalMassUnits == 1.0)
-    GlobalMassUnits = (float) (double(GlobalDensityUnits) * pow(GlobalLengthUnits,3));
+    GlobalMassUnits = (double) (double(GlobalDensityUnits) * pow(GlobalLengthUnits,3));
   else if (GlobalDensityUnits == 1.0)
     GlobalDensityUnits = (float) (double(GlobalMassUnits) / pow(GlobalLengthUnits,3));
 
@@ -63,12 +63,12 @@ int ReadUnits(FILE *fptr)
   /* We blindly assume here  that if you specified the DensityUnits you want to set the time units
      accordingly.  Tom Abel 2009  
   I doubt this will cause a problem ... but when you read this it probably did ... */
-  if (GlobalTimeUnits == 1 && GlobalDensityUnits != 1) {
+  if (GlobalTimeUnits == 1 && GlobalDensityUnits != 1 && SelfGravity) {
     GlobalTimeUnits =  1/sqrt(6.67428e-8*GlobalDensityUnits);
-    fprintf(stderr, "****** GetUnits: Set Time Units based on Density Units u_t = 1./sqrt(G u_rho)\n");
+    fprintf(stderr, "****** ReadUnits: Set Time Units based on Density Units u_t = 1./sqrt(G u_rho)\n");
   }
 
-  fprintf(stderr,"****** GetUnits:  %e %e %e %e *******\n",GlobalMassUnits,GlobalDensityUnits,GlobalLengthUnits, GlobalTimeUnits);
+  fprintf(stderr,"****** ReadUnits:  %e %e %e %e *******\n",GlobalMassUnits,GlobalDensityUnits,GlobalLengthUnits, GlobalTimeUnits);
 
   return SUCCESS;
 }

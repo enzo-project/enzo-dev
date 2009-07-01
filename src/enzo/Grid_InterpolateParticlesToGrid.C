@@ -39,7 +39,7 @@
 int FindField(int field, int farray[], int numfields);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 #ifdef USE_MPI
@@ -159,7 +159,8 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 
   FLOAT a, dadt, CurrentRedshift = 0.0;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
-    MassUnits, DensityUnits, LengthConversion;
+    DensityUnits, LengthConversion;
+
   float *UnitConversion = NULL;
 
   if (CommunicationDirection == COMMUNICATION_SEND) {
@@ -180,7 +181,7 @@ int grid::InterpolateParticlesToGrid(FOFData *D)
 
     // Get units
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	     &TimeUnits, &VelocityUnits, Time);
     if (ComovingCoordinates) {
       CosmologyComputeExpansionFactor(Time, &a, &dadt);
       CurrentRedshift = (1 + InitialRedshift)/a - 1;

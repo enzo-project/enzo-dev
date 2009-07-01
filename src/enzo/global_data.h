@@ -491,6 +491,7 @@ EXTERN float SmallRho;
 EXTERN float SmallP;
 EXTERN float SmallEint;
 EXTERN float SmallT;
+EXTERN float MaximumAlvenSpeed;
 EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;

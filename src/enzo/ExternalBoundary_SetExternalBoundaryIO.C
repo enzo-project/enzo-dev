@@ -37,8 +37,6 @@ void my_exit(int status);
 int READ_BT(boundary_type *bt_buffer, int field, int dim, int face, int slabsize, int BoundaryDimension[], int BoundaryRank, int Nfields);
 int READ_BV(float         *bv_buffer, int field, int dim, int face, int slabsize, int BoundaryDimension[], int BoundaryRank, int Nfields);
 
-
-
  
 // This is used to set the corners (which are not really used) of the
 //   grid to something reasonable in the case of periodic B.C.'s
@@ -110,7 +108,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
   for (dim = 0; dim < BoundaryRank; dim++)
     if (BoundaryDimension[dim] != 1) {
       if (BoundaryType[field][dim][0] == NULL) {
-	fprintf(stderr, "BoundaryType not yet declared.\n");
+	fprintf(stderr, "BoundaryType not yet declared for field: %i.\n", field);
 	ENZO_FAIL("");
       }
     }
@@ -750,6 +748,8 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 	  default:
 	    fprintf(stderr, "BoundaryType %"ISYM" not recognized (z-right).\n",
 		    BoundaryType[field][2][1][bindex]);
+            fprintf(stderr, "field %"ISYM" dim %"ISYM"\n",field, dim);
+
 	    ENZO_FAIL("");
 	  }
 

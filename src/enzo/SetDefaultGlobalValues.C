@@ -363,6 +363,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallP   = 1e-35;
   SmallEint = 1e-30;
   SmallT   = 1e-10;
+  MaximumAlvenSpeed = 1e30;
   RiemannSolver = HLL;
   ReconstructionMethod = PLM;
   EOSType = 0;
