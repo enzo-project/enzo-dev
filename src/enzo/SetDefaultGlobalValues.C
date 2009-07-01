@@ -298,6 +298,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
 
+  PythonSubcycleSkip               = 1;
+
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
   HaloFinderOutputParticleList     = FALSE;
@@ -462,7 +464,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetalCoolingTable = (char*) "metal_cool.dat";
 
 #ifdef USE_PYTHON
-  fprintf(stderr, "Setting up the python stuff\n");
   NumberOfPythonCalls = 0;
   grid_dictionary = PyDict_New();
   old_grid_dictionary = PyDict_New();

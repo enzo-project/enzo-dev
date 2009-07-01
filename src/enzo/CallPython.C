@@ -39,6 +39,8 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 #else
     if(access("user_script.py", F_OK) == -1) return SUCCESS;
     if (LevelArray[level+1] != NULL) return SUCCESS;
+    NumberOfPythonCalls++;
+    if((NumberOfPythonCalls % PythonSubcycleSkip) != 0) return SUCCESS;
     FLOAT CurrentTime;
     int num_grids, start_index;
     num_grids = 0; start_index = 1;
@@ -70,11 +72,10 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
   ExportParameterFile(MetaData, CurrentTime);
 
   CommunicationBarrier();
-  PyRun_SimpleString("import user_script\nuser_script.main()\n");
-
-  NumberOfPythonCalls++;
+  PyRun_SimpleString("user_script.main()\n");
 
   PyDict_Clear(grid_dictionary);
+  PyDict_Clear(old_grid_dictionary);
   PyDict_Clear(hierarchy_information);
   PyDict_Clear(yt_parameter_file);
   PyDict_Clear(conversion_factors);

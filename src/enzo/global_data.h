@@ -318,6 +318,9 @@ EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
 
+/* Parameter(s) for embedded python execution */
+EXTERN int PythonSubcycleSkip;
+
 /* Parameters to control inline halo finding */
 
 EXTERN int InlineHaloFinder;

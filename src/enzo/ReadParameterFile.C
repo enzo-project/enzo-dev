@@ -564,6 +564,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     sscanf(line, "GlobalPath = %s\n", GlobalPath);
 #endif
 
+    /* Embedded Python */
+    ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
+
     /* Inline halo finder */
 
     ret += sscanf(line, "InlineHaloFinder = %"ISYM, &InlineHaloFinder);
