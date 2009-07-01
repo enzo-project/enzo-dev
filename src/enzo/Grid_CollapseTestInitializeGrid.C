@@ -32,7 +32,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 float gasdev();
 
@@ -145,10 +145,11 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
     pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits, MassUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+
   FLOAT a, dadt, ExpansionFactor = 1;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
-	   &VelocityUnits, &MassUnits, Time);
+	   &VelocityUnits, Time);
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
     ExpansionFactor = a/(1.0+InitialRedshift);

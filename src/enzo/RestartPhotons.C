@@ -36,7 +36,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 
@@ -58,10 +58,10 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Get units. */
 
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
-    MassUnits, DensityUnits; 
+    DensityUnits; 
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, MetaData->Time) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

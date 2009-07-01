@@ -26,7 +26,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
 				  FLOAT TestRadius,
@@ -53,7 +53,8 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   /* Get Units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-        VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, pi = 3.1415926;
+    VelocityUnits = 1, TimeUnits = 1;
+  double MassUnits = 1;
   
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
@@ -83,7 +84,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   /* Compute the circular velocity, first in cgs units, and then divide
      by code units to get the correct velocity. */
 
-  double BigGee = GravitationalConstant/(4.0*pi);  // big G is the constant/4pi
+  double BigGee = GravitationalConstant/(4.0*M_PI);  // big G is the constant/4pi
   double MassCGS = CentralMass*MassUnits;
 
 /* JRT 09/13/06  replace following line by */

@@ -36,7 +36,7 @@
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
@@ -59,9 +59,9 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   /* Set the units. */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    MassUnits, VelocityUnits;
+    VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
-	   &VelocityUnits, &MassUnits, TimeNow);
+	   &VelocityUnits, TimeNow);
 
   /* Merge all yet-to-be born stars within r_merge */
 

@@ -40,7 +40,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid)
@@ -114,9 +114,10 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Get the units so we can convert temperature later. */
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1,PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, InitialTimeInCodeUnits) == FAIL) {
+	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
   PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);

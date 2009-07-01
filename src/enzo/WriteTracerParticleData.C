@@ -39,7 +39,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
  
@@ -64,9 +64,9 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
  
   FLOAT a = 1, dadt, Redshift = 0;
   float DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1,
-    TemperatureUnits = 1, MassUnits = 1;
+    TemperatureUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, WriteTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, WriteTime) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
     ENZO_FAIL("");
   }

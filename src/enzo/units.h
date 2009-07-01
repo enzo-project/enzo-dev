@@ -16,7 +16,7 @@ EXTERN float GlobalLengthUnits;
 
 /* Units of mass in grams */
 
-EXTERN float GlobalMassUnits;
+EXTERN double GlobalMassUnits;
 
 /* Units of density in g/cm^3 */
 

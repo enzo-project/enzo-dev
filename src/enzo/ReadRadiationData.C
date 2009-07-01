@@ -27,7 +27,7 @@
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 extern "C" void FORTRAN_NAME(calc_photo_rates)(
                       int *NFREQ, float *FREQDEL, int *iradshield, float *aye,
@@ -67,10 +67,10 @@ int ReadRadiationData(FILE *fptr)
  
   FLOAT a = 1, dadt;
   float DensityUnits = 1, LengthUnits = 1, aUnits = 1,
-    TemperatureUnits = 1, TimeUnits = 1, VelocityUnits = 1, MassUnits = 1;
+    TemperatureUnits = 1, TimeUnits = 1, VelocityUnits = 1;
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits,
+	       &TimeUnits, &VelocityUnits, 
 	       RadiationData.TimeFieldLastUpdated) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
