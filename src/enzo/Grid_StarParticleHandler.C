@@ -440,7 +440,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
     /* Generate a fake grid to keep the particles in. */
  
-    //    if (debug) printf("StarParticle: start\n");
     grid *tg = new grid;
     tg->GridRank = GridRank;
     tg->ProcessorNumber = ProcessorNumber;
