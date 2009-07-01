@@ -72,9 +72,10 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
   ExportParameterFile(MetaData, CurrentTime);
 
   CommunicationBarrier();
-  PyRun_SimpleString("import user_script\nuser_script.main()\n");
+  PyRun_SimpleString("user_script.main()\n");
 
   PyDict_Clear(grid_dictionary);
+  PyDict_Clear(old_grid_dictionary);
   PyDict_Clear(hierarchy_information);
   PyDict_Clear(yt_parameter_file);
   PyDict_Clear(conversion_factors);

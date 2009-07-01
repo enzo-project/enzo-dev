@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -66,10 +67,8 @@ int InitializePythonInterface(int argc, char *argv[])
   PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
   PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
   import_array1(FAIL);
-  npy_intp flat_dimensions[1];
-  flat_dimensions[0] = (npy_intp) 5;
-  PyObject *temp = PyArray_ZEROS(1, flat_dimensions, NPY_INT, 0);
-  fprintf(stderr, "Completed initialization\n");
+  if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
+  if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
   return SUCCESS;
 }
 
