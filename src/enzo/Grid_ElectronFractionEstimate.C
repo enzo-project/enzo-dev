@@ -30,7 +30,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::ElectronFractionEstimate(float dt)
 {
@@ -72,11 +72,11 @@ int grid::ElectronFractionEstimate(float dt)
   /* If using cosmology, get units. */
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
-        MassUnits, VelocityUnits, TimeUnits, aUnits = 1;
+        VelocityUnits, TimeUnits, aUnits = 1;
   FLOAT a = 1.0, dadt;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

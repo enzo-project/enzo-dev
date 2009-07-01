@@ -617,21 +617,21 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
       while (Temp2->NextGridThisLevel != NULL)
 	Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
 
-#ifdef USE_HDF5_GROUPS
+      //#ifdef USE_HDF5_GROUPS
       if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
 	ENZO_FAIL("");
       }
-#else
-      if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteAllData.\n");
-	ENZO_FAIL("");
-      }
-#endif
+// #else
+//       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
+// 		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
+// 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
+// 	fprintf(stderr, "Error in WriteAllData.\n");
+// 	ENZO_FAIL("");
+//       }
+// #endif
     }
  
 #ifdef USE_JBPERF

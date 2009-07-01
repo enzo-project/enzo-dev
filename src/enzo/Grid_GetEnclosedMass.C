@@ -29,7 +29,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 			  float &metallicity, float &coldgas_mass, 
@@ -61,9 +61,10 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 
   const double Msun = 1.989e33;
   float DensityUnits, LengthUnits, TemperatureUnits, 
-    TimeUnits, MassUnits, VelocityUnits;
+    TimeUnits, VelocityUnits;
+
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
-	   &VelocityUnits, &MassUnits, Time);
+	   &VelocityUnits, Time);
 
   float CellWidthTemp = float(CellWidth[0][0]);
 

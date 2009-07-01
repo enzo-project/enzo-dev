@@ -300,6 +300,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
 
+  PythonSubcycleSkip               = 1;
+
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
   HaloFinderOutputParticleList     = FALSE;
@@ -365,6 +367,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallP   = 1e-35;
   SmallEint = 1e-30;
   SmallT   = 1e-10;
+  MaximumAlvenSpeed = 1e30;
   RiemannSolver = HLL;
   ReconstructionMethod = PLM;
   EOSType = 0;
@@ -463,13 +466,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetalCoolingTable = (char*) "metal_cool.dat";
 
 #ifdef USE_PYTHON
-  fprintf(stderr, "Setting up the python stuff\n");
   NumberOfPythonCalls = 0;
   grid_dictionary = PyDict_New();
   old_grid_dictionary = PyDict_New();
   hierarchy_information = PyDict_New();
   yt_parameter_file = PyDict_New();
   conversion_factors = PyDict_New();
+  my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
   return SUCCESS;

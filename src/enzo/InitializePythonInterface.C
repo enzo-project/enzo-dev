@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -33,7 +34,7 @@
 
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 		       float *TemperatureUnits, float *TimeUnits,
-		       float *VelocityUnits, float *MassUnits, FLOAT Time);
+		       float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
@@ -48,7 +49,6 @@ int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
 
-  //Py_SetProgramName(argv[0]);
   Py_SetProgramName("embed_enzo");
 
   Py_Initialize();
@@ -58,18 +58,17 @@ int InitializePythonInterface(int argc, char *argv[])
   PyObject *enzo_module, *enzo_module_dict; 
   enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
   enzo_module_dict = PyModule_GetDict(enzo_module);
-  if(enzo_module == NULL){fprintf(stderr, "Failed on Enzo Module!\n");return FAIL;}
-  if(enzo_module_dict == NULL){fprintf(stderr, "Failed on Dict!\n");return FAIL;}
+  if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
+  if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
   PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
   PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
   PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
   PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
   PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
+  PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
   import_array1(FAIL);
-  npy_intp flat_dimensions[1];
-  flat_dimensions[0] = (npy_intp) 5;
-  PyObject *temp = PyArray_ZEROS(1, flat_dimensions, NPY_INT, 0);
-  fprintf(stderr, "Completed initialization\n");
+  if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
+  if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
   return SUCCESS;
 }
 
@@ -82,10 +81,10 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   /* We need: */
 
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
-        VelocityUnits = 1, MassUnits;
+    VelocityUnits = 1;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, CurrentTime);
+	       &TimeUnits, &VelocityUnits, CurrentTime);
 
   PyObject *temp_int = NULL;
   PyObject *temp_float = NULL;

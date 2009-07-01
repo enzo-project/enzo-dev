@@ -47,7 +47,7 @@ int FindField(int field, int farray[], int numfields);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
@@ -390,9 +390,10 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       float *cooling_time = new float[size];
  
       float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-	VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, aUnits = 1;
+	VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+
       GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	       &TimeUnits, &VelocityUnits, Time);
 
       if (this->ComputeCoolingTime(cooling_time) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");

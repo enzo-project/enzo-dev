@@ -24,7 +24,7 @@
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
  
 int InitializeEquilibriumCoolData(FLOAT Time)
@@ -82,10 +82,10 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   /* If using cosmology, compute the expansion factor and get units. */
  
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, aUnits = 1;
- 
+    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

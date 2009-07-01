@@ -36,7 +36,7 @@
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 /************************************************************************/
 
@@ -178,10 +178,10 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
   /* Get units. */
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
-    VelocityUnits, TimeUnits, MassUnits;
+    VelocityUnits, TimeUnits;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time);
+	   &TimeUnits, &VelocityUnits, MetaData->Time);
 
   /* Write all grids at (1) l<level with radiation (their temperatures
      can change quickly!) or (2) l=level and finer */

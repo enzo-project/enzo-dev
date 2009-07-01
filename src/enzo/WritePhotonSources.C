@@ -14,16 +14,16 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime)
 {
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    MassUnits, VelocityUnits;
+    VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, CurrentTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

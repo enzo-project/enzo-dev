@@ -39,7 +39,7 @@ int  CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime);
 int  WriteUnits(FILE *fptr);
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, float *MassUnits, FLOAT Time);
+	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
 #ifdef TRANSFER
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
@@ -53,14 +53,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   /* Compute Units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
-    VelocityUnits = 1, MassUnits = 1;
- 
+    VelocityUnits = 1;
+  double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData.Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }
  
+  float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
+  double massu = 1.0;
+  if (UsePhysicalUnit) {
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, &massu, MetaData.Time);
+    presu = rhou*lenu*lenu/tu/tu;
+  }
+  double mh = 1.6726e-24;
+  double uheat = VelocityUnits*VelocityUnits*2.0*mh/TimeUnits;
+
   /* write data to Parameter output file */
  
   /* write MetaData parameters */
@@ -486,6 +495,48 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
 
+  /* Most Stanford additions: */
+
+  fprintf(fptr, "Theta_Limiter = %f\n", Theta_Limiter);
+  fprintf(fptr, "RiemannSolver = %d\n", RiemannSolver);
+  fprintf(fptr, "ReconstructionMethod = %d\n", ReconstructionMethod);
+  fprintf(fptr, "RKOrder = %d\n", RKOrder);
+  fprintf(fptr, "UsePhysicalUnit = %d\n", UsePhysicalUnit);
+  fprintf(fptr, "UseFloor = %d\n", UseFloor);
+  fprintf(fptr, "UseViscosity = %d\n", UseViscosity);
+  fprintf(fptr, "UseAmbipolarDiffusion = %d\n", UseAmbipolarDiffusion);
+  fprintf(fptr, "UseResistivity = %d\n", UseResistivity);
+  fprintf(fptr, "SmallRho = %g\n", SmallRho*rhou);
+  fprintf(fptr, "SmallP = %g\n", SmallP*presu);
+  fprintf(fptr, "SmallT = %g\n", SmallT*tempu);
+  fprintf(fptr, "MaximumAlvenSpeed = %g\n", MaximumAlvenSpeed*velu);
+  fprintf(fptr, "Coordinate = %d\n", Coordinate);
+  fprintf(fptr, "EOSType = %d\n", EOSType);
+  fprintf(fptr, "EOSSoundSpeed = %g\n", EOSSoundSpeed);
+  fprintf(fptr, "EOSCriticalDensity = %g\n", EOSCriticalDensity);
+  fprintf(fptr, "EOSGamma = %g\n", EOSGamma); 
+  fprintf(fptr, "Mu = %g\n", Mu);
+  fprintf(fptr, "CoolingCutOffDensity1 = %g\n", CoolingCutOffDensity1);
+  fprintf(fptr, "CoolingCutOffDensity2 = %g\n", CoolingCutOffDensity2);
+  fprintf(fptr, "CoolingCutOffTemperature = %g\n", CoolingCutOffTemperature);
+  fprintf(fptr, "CoolingPowerCutOffDensity1 = %g\n", CoolingPowerCutOffDensity1);
+  fprintf(fptr, "CoolingPowerCutOffDensity2 = %g\n", CoolingPowerCutOffDensity2);
+  fprintf(fptr, "UseConstantAcceleration = %d\n", UseConstantAcceleration);
+  fprintf(fptr, "ConstantAcceleration = %g %g %g\n", ConstantAcceleration[0],
+	  ConstantAcceleration[1], ConstantAcceleration[2]);
+
+
+  fprintf(fptr, "UseDivergenceCleaning = %d\n", UseDivergenceCleaning);
+  fprintf(fptr, "DivergenceCleaningThreshold = %g\n", DivergenceCleaningThreshold);
+  fprintf(fptr, "PoissonApproximationThreshold = %g\n", PoissonApproximationThreshold);
+  fprintf(fptr, "AngularVelocity = %g\n", AngularVelocity);
+  fprintf(fptr, "VelocityGradient = %g\n", VelocityGradient);
+  fprintf(fptr, "UseDrivingField = %d\n", UseDrivingField);
+  fprintf(fptr, "DrivingEfficiency = %f\n", DrivingEfficiency);
+#ifdef ECUDA
+  fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
+#endif
+
   /* write data which defines the boundary conditions */
  
   fprintf(fptr, "LeftFaceBoundaryCondition  = ");
@@ -498,6 +549,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     fprintf(fptr, "BoundaryConditionName      = %s\n\n",
 	    MetaData.BoundaryConditionName);
  
+
   /* If appropriate, write Cosmology data. */
  
   if (ComovingCoordinates) {

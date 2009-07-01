@@ -27,7 +27,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::FinalizeRadiationFields(void)
 {
@@ -67,9 +67,9 @@ int grid::FinalizeRadiationFields(void)
   /* Get units. */
 
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
-    MassUnits, DensityUnits; 
+    DensityUnits; 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
     fprintf(stdout, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

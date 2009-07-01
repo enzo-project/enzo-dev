@@ -632,19 +632,19 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if ((MetaData.dtDataDump != 0.0 || MetaData.CycleSkipDataDump != 0) &&
       !WroteData)
-#ifdef USE_HDF5_GROUPS
+    //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
       fprintf(stderr, "Error in Group_WriteAllData.\n");
       ENZO_FAIL("");
     }
-#else
-    if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
-      fprintf(stderr, "Error in WriteAllData.\n");
-      ENZO_FAIL("");
-    }
-#endif
+// #else
+//     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+// 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
+//       fprintf(stderr, "Error in WriteAllData.\n");
+//       ENZO_FAIL("");
+//     }
+// #endif
  
   if (NumberOfProcessors > 1)
     printf("Communication: processor %"ISYM" CommunicationTime = %"FSYM"\n",

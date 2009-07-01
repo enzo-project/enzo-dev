@@ -195,7 +195,7 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
  
   if (NextGridNextLevelID != 0) {
     Grid->NextGridNextLevel = new HierarchyEntry;
-    if (ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID, Grid)
+    if (ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID,Grid)
 	== FAIL) {
       fprintf(stderr, "Error in ReadDataHierarchy(2).\n");
       ENZO_FAIL("");

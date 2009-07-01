@@ -42,7 +42,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int SysMkdir (char *startDir, char *directory);
 
@@ -67,7 +67,8 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Get enzo units */
 
   float TemperatureUnits, DensityUnits, LengthUnits, 
-    VelocityUnits, TimeUnits, MassUnits;
+    VelocityUnits, TimeUnits;
+  double MassUnits=1;
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time);
@@ -97,8 +98,8 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int TopGridDims3 = MetaData->TopGridDims[0] * MetaData->TopGridDims[1] * 
     MetaData->TopGridDims[2];
 
-  double EnzoMassUnits = (double) DensityUnits * pow(LengthUnits, 3.0) /
-    TopGridDims3;
+  //  double EnzoMassUnits = (double) DensityUnits * pow(LengthUnits, 3.0) /
+  //  TopGridDims3;
 
   // Copy other cosmology parameters
   D.Omega = OmegaMatterNow;
@@ -171,7 +172,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (Temp = LevelArray[level], GridNum = 0; Temp; 
 	 Temp = Temp->NextGridThisLevel, GridNum++) {
       Temp->GridData->MoveParticlesFOF(level, GridNum, Plocal, Index, D,
-				       VelocityUnits, EnzoMassUnits, COPY_OUT);
+				       VelocityUnits, MassUnits, COPY_OUT);
       //Temp->GridData->SetNumberOfParticles(0);
     }
 

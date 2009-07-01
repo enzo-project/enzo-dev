@@ -42,7 +42,7 @@ int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
  
  
@@ -149,11 +149,11 @@ int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   double MassConversion = 1, LengthConversion = 1, EnergyConversion = 1;
   float DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1,
-    TemperatureUnits = 1, MassUnits = 1;
+    TemperatureUnits = 1;
  
   FLOAT Time = TopGrid.GridData->ReturnTime();
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

@@ -320,6 +320,9 @@ EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
 
+/* Parameter(s) for embedded python execution */
+EXTERN int PythonSubcycleSkip;
+
 /* Parameters to control inline halo finding */
 
 EXTERN int InlineHaloFinder;
@@ -493,6 +496,7 @@ EXTERN float SmallRho;
 EXTERN float SmallP;
 EXTERN float SmallEint;
 EXTERN float SmallT;
+EXTERN float MaximumAlvenSpeed;
 EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
@@ -589,6 +593,7 @@ EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
 EXTERN PyObject *yt_parameter_file;
 EXTERN PyObject *conversion_factors;
+EXTERN PyObject *my_processor;
 #endif
 /* Multi-species rate equation flag and associated data. */
 

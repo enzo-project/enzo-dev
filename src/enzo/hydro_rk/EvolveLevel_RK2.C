@@ -473,7 +473,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
       FLOAT h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
-      FLOAT DivBDampingLength=.3;
+      FLOAT DivBDampingLength=1.;
       C_h = MetaData->CourantSafetyNumber*h_min/dt0;
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
