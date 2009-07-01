@@ -590,6 +590,7 @@ EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
 EXTERN PyObject *yt_parameter_file;
 EXTERN PyObject *conversion_factors;
+EXTERN PyObject *my_processor;
 #endif
 /* Multi-species rate equation flag and associated data. */
 

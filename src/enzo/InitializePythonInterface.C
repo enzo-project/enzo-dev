@@ -49,7 +49,6 @@ int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
 
-  //Py_SetProgramName(argv[0]);
   Py_SetProgramName("embed_enzo");
 
   Py_Initialize();
@@ -59,13 +58,14 @@ int InitializePythonInterface(int argc, char *argv[])
   PyObject *enzo_module, *enzo_module_dict; 
   enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
   enzo_module_dict = PyModule_GetDict(enzo_module);
-  if(enzo_module == NULL){fprintf(stderr, "Failed on Enzo Module!\n");return FAIL;}
-  if(enzo_module_dict == NULL){fprintf(stderr, "Failed on Dict!\n");return FAIL;}
+  if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
+  if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
   PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
   PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
   PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
   PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
   PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
+  PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
   import_array1(FAIL);
   if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
   if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
