@@ -4,10 +4,8 @@
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 
-void quickSort(int a[], int b[], int l, int r);
-int partition(int a[], int b[], int l, int r);
 
-// initialization function realted to HEALPix
+// initializatiion function related to HEALPix
 int mkPix2xy(long *ipix2x, long *ipix2y) 
 {
   long  kpix,jpix,ix,iy,ip,id;
@@ -18,10 +16,10 @@ int mkPix2xy(long *ipix2x, long *ipix2y)
     iy = 0;
     ip = 1 ;            
     while (jpix != 0) { 
-      id = (int)fmod(jpix,2);   
+      id = jpix&1;
       jpix = jpix/2 ;
       ix = id*ip+ix ;
-      id = (int)fmod(jpix,2);
+      id = jpix&2;
       jpix = jpix/2;
       iy = id*ip+iy;
       ip = 2*ip;  
@@ -52,24 +50,19 @@ int mk_xy2pix(int *x2pix, int *y2pix) {
   
   for(i = 0; i < 127; i++) x2pix[i] = 0;
   for( I=1;I<=128;I++ ) {
-    J  = I-1;//            !pixel numbers
-    K  = 0;//
-    IP = 1;//
-    truc : if( J==0 ) {
-      x2pix[I-1] = K;
-      y2pix[I-1] = 2*K;
-    }
-    else {
-      ID = (int)fmod(J,2);
+    J  = I-1; // pixel numbers
+    K  = 0;
+    IP = 1;
+    while(J!=0) {
+      ID = J&1;
       J  = J/2;
       K  = IP*ID+K;
       IP = IP*4;
-      goto truc;
     }
-  }     
-
+    x2pix[I-1] = K;
+    y2pix[I-1] = 2*K;
+  }
   return SUCCESS;
-  
 }
 
 #include "typedefs.h"
@@ -77,10 +70,37 @@ int mk_xy2pix(int *x2pix, int *y2pix) {
 
 /***********************************************************************/
 
+void sub_compute_vertices(double z, double z_nv, double z_sv, double phi, double phi_nv, double phi_sv, double hdelta_phi, double (*vertex)[3]) {
+    double sth = sqrt((1.0-z)*(1.0+z));
+
+    double sth_nv = sqrt((1.0-z_nv)*(1.0+z_nv));
+    vertex[0][0] = sth_nv*cos(phi_nv);
+    vertex[0][1] = sth_nv*sin(phi_nv);
+    vertex[0][2] = z_nv; // north vertex
+
+    double phi_wv = phi - hdelta_phi;
+    vertex[1][0] = sth*cos(phi_wv);
+    vertex[1][1] = sth*sin(phi_wv);
+    vertex[1][2] = z; // west vertex
+
+    double sth_sv = sqrt((1.0-z_sv)*(1.0+z_sv));
+    vertex[2][0] = sth_sv*cos(phi_sv); // south vertex
+    vertex[2][1] = sth_sv*sin(phi_sv); // south vertex
+    vertex[2][2] = z_sv; // south vertex
+
+    double phi_ev = phi + hdelta_phi;
+    vertex[3][0] = sth*cos(phi_ev); // east vertex
+    vertex[3][1] = sth*sin(phi_ev); // east vertex
+    vertex[3][2] = z; // east vertex
+
+    return;
+}
+
+
 // HEALPix fuction that updates directional vector given a pixel number
 #define nsMax   8192L  
 #define halfpi  1.5707963
-int pix2vec_nest(long nside, long ipix, FLOAT *v)
+int pix2vec_nest(long nside, long ipix, FLOAT *v, double (*vertex)[3]=0)
 { 
 
   int npix, npface, face_num;
@@ -90,39 +110,13 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v)
   double piover2=0.5*M_PI;
   double phi, sz, vx, vy, vz;
   int ns_max=8192;
-      
+
   //static int pix2x[1024], pix2y[1024];
   //      common /pix2xy/ pix2x, pix2y
-      
-  int jrll[12], jpll[12];// ! coordinate of the lowest corner of each face
-  //      data jrll/2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4/ ! in unit of nside
-  //      data jpll/1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7/ ! in unit of nside/2
-  jrll[0]=2;
-  jrll[1]=2;
-  jrll[2]=2;
-  jrll[3]=2;
-  jrll[4]=3;
-  jrll[5]=3;
-  jrll[6]=3;
-  jrll[7]=3;
-  jrll[8]=4;
-  jrll[9]=4;
-  jrll[10]=4;
-  jrll[11]=4;
-  jpll[0]=1;
-  jpll[1]=3;
-  jpll[2]=5;
-  jpll[3]=7;
-  jpll[4]=0;
-  jpll[5]=2;
-  jpll[6]=4;
-  jpll[7]=6;
-  jpll[8]=1;
-  jpll[9]=3;
-  jpll[10]=5;
-  jpll[11]=7;
-      
-      
+
+  int jrll[12]={2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4}; // in unit of nside
+  int jpll[12]={1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7}; // coordinate of the lowest corner of each face in unit of nside/2
+
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
     exit(0);
@@ -145,14 +139,14 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v)
   npface = nside*nside;
 
   face_num = ipix/npface;//  ! face number in {0,11}
-  ipf = (int)fmod(ipix,npface);//  ! pixel number in the face {0,npface-1}
+  ipf = ipix % npface;//  ! pixel number in the face {0,npface-1}
 
   //c     finds the x,y on the face (starting from the lowest corner)
   //c     from the pixel number
-  ip_low = (int)fmod(ipf,1024);//       ! content of the last 10 bits
-  ip_trunc =   ipf/1024 ;//       ! truncation of the last 10 bits
-  ip_med = (int)fmod(ip_trunc,1024);//  ! content of the next 10 bits
-  ip_hi  =     ip_trunc/1024   ;//! content of the high weight 10 bits
+  ip_low = ipf & 0x3FF; //       ! content of the last 10 bits
+  ip_trunc =   ipf>>10; //       ! truncation of the last 10 bits
+  ip_med = ip_trunc & 0x3FF; //  ! content of the next 10 bits
+  ip_hi  =     ip_trunc>>10;   //! content of the high weight 10 bits
 
   ix = 1024*pix2x[ip_hi] + 32*pix2x[ip_med] + pix2x[ip_low];
   iy = 1024*pix2y[ip_hi] + 32*pix2y[ip_med] + pix2y[ip_low];
@@ -170,7 +164,7 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v)
   //      cout << "----------------------------------------------------" << endl;
   nr = nside;//                  ! equatorial region (the most frequent)
   z  = (2*nside-jr)*fact2;
-  kshift = (int)fmod(jr - nside, 2);
+  kshift = (jr - nside)&1;
   if( jr<nside ) { //then     ! north pole region
     nr = jr;
     z = 1. - nr*nr*fact1;
@@ -183,14 +177,47 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v)
       kshift = 0;
     }
   }
-      
+
   //c     computes the phi coordinate on the sphere, in [0,2Pi]
   //      jp = (jpll[face_num+1]*nr + jpt + 1 + kshift)/2;//  ! 'phi' number in the ring in {1,4*nr}
   jp = (jpll[face_num]*nr + jpt + 1 + kshift)/2;
   if( jp>nl4 ) jp = jp - nl4;
   if( jp<1 )   jp = jp + nl4;
 
-  phi = (jp - (kshift+1)*0.5) * (piover2 / nr);
+  double delta_phi = piover2 / nr;
+  phi = (jp - (kshift+1)*0.5) * delta_phi;
+
+  if (vertex != 0) {
+      double iphi_mod = (jp-1) % nr; // in {0,1,... nr-1}
+      double iphi_rat = (jp-1) / nr;      // in {0,1,2,3}
+      double phi_up = piover2 * (iphi_rat +  iphi_mod   /double(max(nr-1,1)));
+      double phi_dn = piover2 * (iphi_rat + (iphi_mod+1)/double(nr+1));
+      double z_nv, z_sv;
+      iphi_rat = 0;
+      iphi_mod = 0;
+
+      if( jr<nside ) { //then     ! north pole region
+          z_nv = 1.0 - (nr-1.)*(nr-1.)*fact1;
+          z_sv = 1.0 - (nr+1.)*(nr+1.)*fact1;
+          sub_compute_vertices(z, z_nv, z_sv, phi, phi_up, phi_dn, delta_phi/2, vertex);
+      } else if( jr>3*nside ) { // then ! south pole region
+          z_nv = -1.0 + (nr+1.)*(nr+1.)*fact1;
+          z_sv = -1.0 + (nr-1.)*(nr-1.)*fact1;
+          sub_compute_vertices(z, z_nv, z_sv, phi, phi_dn, phi_up, delta_phi/2, vertex);
+      } else {
+          // equatorial region
+          z_nv = (2*nside-jr+1)*fact2;
+          z_sv = (2*nside-jr-1)*fact2;
+          if (jr == nside) { // northern transition
+              z_nv =  1.0 - (nside-1.)*(nside-1.) * fact1;
+              sub_compute_vertices(z, z_nv, z_sv, phi, phi_up, phi, delta_phi/2, vertex);
+          } else if (jr == 3*nside) {
+              z_sv = -1.0 + (nside-1.)*(nside-1.) * fact1;
+              sub_compute_vertices(z, z_nv, z_sv, phi, phi, phi_up, delta_phi/2, vertex);
+          } else
+              sub_compute_vertices(z, z_nv, z_sv, phi, phi, phi, delta_phi/2, vertex);
+      }
+  }
 
   sz = sqrt(1.0-z*z);
   vx = sz * cos(phi);
@@ -238,20 +265,20 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
   int    face_num,jp,jm;
   long   ifp, ifm;
   int    ix, iy, ix_low, ix_hi, iy_low, iy_hi, ipf, ntt;
-  double piover2 = 0.5*M_PI, pi = M_PI, twopi = 2.0*M_PI;
+  double piover2 = 0.5*M_PI, twopi = 2.0*M_PI;
   int    ns_max = 8192;
-//  static int x2pix[128], y2pix[128];
-//  static char setup_done = 0;
-  
+  //  static int x2pix[128], y2pix[128];
+  //  static char setup_done = 0;
+
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
     exit(0);
   }
-//  if( !setup_done ) {
-//    mk_xy2pix(x2pix,y2pix);
-//    setup_done = 1;
-//  }
-  
+  //  if( !setup_done ) {
+  //    mk_xy2pix(x2pix,y2pix);
+  //    setup_done = 1;
+  //  }
+
   z   = vec[2]/sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
   phi = 0.0;
   if (vec[0] != 0.0 || vec[1] != 0.0) {
@@ -262,31 +289,31 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
   za = fabs(z);
   z0 = 2./3.;
   tt = phi / piover2; /* in [0,4[ */
-  
+
   if( za<=z0 ) { /* equatorial region */
-    
+
     /* (the index of edge lines increase when the longitude=phi goes up) */
     jp = (int)floor(ns_max*(0.5 + tt - z*0.75)); /* ascending edge line index */
     jm = (int)floor(ns_max*(0.5 + tt + z*0.75)); /* descending edge line index */
-    
+
     /* finds the face */
     ifp = jp / ns_max; /* in {0,4} */
     ifm = jm / ns_max;
-    
-    if( ifp==ifm ) face_num = (int)fmod(ifp,4) + 4; /* faces 4 to 7 */
-    else if( ifp<ifm ) face_num = (int)fmod(ifp,4); /* (half-)faces 0 to 3 */
-    else face_num = (int)fmod(ifm,4) + 8;           /* (half-)faces 8 to 11 */
-    
-    ix = (int)fmod(jm, ns_max);
-    iy = ns_max - (int)fmod(jp, ns_max) - 1;
+
+    if( ifp==ifm ) face_num = (ifp&3) + 4; /* faces 4 to 7 */
+    else if( ifp<ifm ) face_num = (ifp&3); /* (half-)faces 0 to 3 */
+    else face_num = (ifm&3) + 8;           /* (half-)faces 8 to 11 */
+
+    ix = jm % ns_max;
+    iy = ns_max - jp % ns_max - 1;
   }
   else { /* polar region, za > 2/3 */
-    
+
     ntt = (int)floor(tt);
     if( ntt>=4 ) ntt = 3;
     tp = tt - ntt;
     tmp = sqrt( 3.*(1. - za) ); /* in ]0,1] */
-    
+
     /* (the index of edge lines increase when distance from the closest pole
      * goes up)
      */
@@ -297,7 +324,7 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
     jm = (int)floor( ns_max * (1. - tp) * tmp );
     jp = (int)(jp < ns_max-1 ? jp : ns_max-1);
     jm = (int)(jm < ns_max-1 ? jm : ns_max-1);
-    
+
     /* finds the face and pixel's (x,y) */
     if( z>=0 ) {
       face_num = ntt; /* in {0,3} */
@@ -310,11 +337,11 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
       iy =  jm;
     }
   }
-  
-  ix_low = (int)fmod(ix,128);
-  ix_hi  =     ix/128;
-  iy_low = (int)fmod(iy,128);
-  iy_hi  =     iy/128;
+
+  ix_low = ix&0x7F;
+  ix_hi  =     ix>>7;
+  iy_low = iy&0x7F;
+  iy_hi  =     iy>>7;
 
   ipf = (x2pix[ix_hi]+y2pix[iy_hi]) * (128 * 128)+ (x2pix[ix_low]+y2pix[iy_low]);
   ipf = (long)(ipf / pow(ns_max/nside,2));     /* in {0, nside**2 - 1} */
@@ -345,10 +372,10 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   double phi, z, fn, fact1, fact2;
   double piover2=0.5*M_PI;
   int ns_max=8192;
-      
+
   // ! coordinate of the lowest corner of each face
   int jrll[12]={2,2,2,2,3,3,3,3,4,4,4,4}, jpll[12]={1,3,5,7,0,2,4,6,1,3,5,7};
-      
+
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
     ENZO_FAIL("");
@@ -371,14 +398,14 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   npface = nside*nside;
 
   face_num = ipix/npface;//  ! face number in {0,11}
-  ipf = (int)fmod(ipix,npface);//  ! pixel number in the face {0,npface-1}
+  ipf = ipix % npface;//  ! pixel number in the face {0,npface-1}
 
   //c     finds the x,y on the face (starting from the lowest corner)
   //c     from the pixel number
-  ip_low = (int)fmod(ipf,1024);//       ! content of the last 10 bits
-  ip_trunc =   ipf/1024 ;//       ! truncation of the last 10 bits
-  ip_med = (int)fmod(ip_trunc,1024);//  ! content of the next 10 bits
-  ip_hi  =     ip_trunc/1024   ;//! content of the high weight 10 bits
+  ip_low = ipf&0x3FF;//       ! content of the last 10 bits
+  ip_trunc =   ipf>>10;//       ! truncation of the last 10 bits
+  ip_med = ip_trunc&0x3FF;//  ! content of the next 10 bits
+  ip_hi  =     ip_trunc>>10;//! content of the high weight 10 bits
 
   ix = 1024*pix2x[ip_hi] + 32*pix2x[ip_med] + pix2x[ip_low];
   iy = 1024*pix2y[ip_hi] + 32*pix2y[ip_med] + pix2y[ip_low];
@@ -396,7 +423,7 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   //      cout << "----------------------------------------------------" << endl;
   nr = nside;//                  ! equatorial region (the most frequent)
   z  = (2*nside-jr)*fact2;
-  kshift = (int)fmod(jr - nside, 2);
+  kshift = (jr - nside)&1;
   if( jr<nside ) { //then     ! north pole region
     nr = jr;
     z = 1. - nr*nr*fact1;
@@ -409,7 +436,7 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       kshift = 0;
     }
   }
-      
+
   //c     computes the phi coordinate on the sphere, in [0,2Pi]
   //      jp = (jpll[face_num+1]*nr + jpt + 1 + kshift)/2;//  ! 'phi' number in the ring in {1,4*nr}
   jp = (jpll[face_num]*nr + jpt + 1 + kshift)/2;
@@ -417,7 +444,7 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   if( jp<1 )   jp = jp + nl4;
   phi = (jp - (kshift+1)*0.5) * (piover2 / nr);
 
-  int i, ip, v, ksum, dir, nx, ny, thisx, pole, vp1, for_check;
+  int i, ksum, dir, nx, ny, pole;
   int xoffset, xoffset1;
   int straight[4];
   int pole_circle[2] = {5*ysize/6, ysize/6};
@@ -426,20 +453,18 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   int vert_x[4], vert_y[4];
   int *tempx = NULL, *tempy = NULL;
   int xrange[2] = {+10000000, -100000000}, 
-    yrange[2] = {+10000000, -100000000};
+      yrange[2] = {+10000000, -100000000};
   float PixelCenter[2];
   float xfactor = xsize/(2*M_PI), yfactor = 0.5*ysize;
-  float xf_inv = 1.0/xfactor, yf_inv = 1.0/yfactor;
+  float yf_inv = 1.0/yfactor;
   float dphi2 = 0.5*xsize/nl4, dz2 = 0.5*ysize*fact2;
-  float dphip = 0.125*xsize/nr;
   float cc = M_PI / (nside*sqrt(12.0));
-  double *zz, sqr_fact;
-  float (*RFN) (float);
+  double sqr_fact;
 
-//  if (xpolygon != NULL)
-//    delete xpolygon;
-//  if (ypolygon != NULL)
-//    delete ypolygon;
+  //  if (xpolygon != NULL)
+  //    delete xpolygon;
+  //  if (ypolygon != NULL)
+  //    delete ypolygon;
 
   /* Compute the vertices of the pixel */
 
@@ -475,28 +500,28 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
       straight[i] = FALSE;
       ksum = k[vert1[i]] + kprime[vert2[i]];
       if (ksum > 0) {
-	vert_x[i] = xoffset + (int) (xfactor * (piover2 * k[vert1[i]] / ksum) + 0.5);
-	if (pole > 0)
-	  vert_y[i] = ysize - (int) (yfactor * (ksum*ksum*fact1) + 0.5);
-	else
-	  vert_y[i] = (int) (yfactor * (ksum*ksum*fact1) + 0.5);
+        vert_x[i] = xoffset + (int) (xfactor * (piover2 * k[vert1[i]] / ksum) + 0.5);
+        if (pole > 0)
+          vert_y[i] = ysize - (int) (yfactor * (ksum*ksum*fact1) + 0.5);
+        else
+          vert_y[i] = (int) (yfactor * (ksum*ksum*fact1) + 0.5);
 
-	// Accounting for equatorial vertices in transition pixels
-	if (pole > 0 && vert_y[i] < pole_circle[0]) {
-	  vert_x[i] = (int) (PixelCenter[0] + 0.5);
-	  vert_y[i] = (int) (PixelCenter[1] - dz2 + 0.5);
-	  straight[i] = TRUE;
-	}
-	if (pole < 0 && vert_y[i] > pole_circle[1]) {
-	  vert_x[i] = (int) (PixelCenter[0] + 0.5);
-	  vert_y[i] = (int) (PixelCenter[1] + dz2 + 0.5);
-	  straight[i] = TRUE;
-	}
+        // Accounting for equatorial vertices in transition pixels
+        if (pole > 0 && vert_y[i] < pole_circle[0]) {
+          vert_x[i] = (int) (PixelCenter[0] + 0.5);
+          vert_y[i] = (int) (PixelCenter[1] - dz2 + 0.5);
+          straight[i] = TRUE;
+        }
+        if (pole < 0 && vert_y[i] > pole_circle[1]) {
+          vert_x[i] = (int) (PixelCenter[0] + 0.5);
+          vert_y[i] = (int) (PixelCenter[1] + dz2 + 0.5);
+          straight[i] = TRUE;
+        }
 
-	xrange[0] = min(xrange[0], vert_x[i]);
-	yrange[0] = min(yrange[0], vert_y[i]);
-	xrange[1] = max(xrange[1], vert_x[i]);
-	yrange[1] = max(yrange[1], vert_y[i]);
+        xrange[0] = min(xrange[0], vert_x[i]);
+        yrange[0] = min(yrange[0], vert_y[i]);
+        xrange[1] = max(xrange[1], vert_x[i]);
+        yrange[1] = max(yrange[1], vert_y[i]);
 
       } // ENDIF ksum>0
       else
