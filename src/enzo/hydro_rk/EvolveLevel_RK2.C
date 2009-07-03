@@ -407,7 +407,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
 
-
     /* For each grid, create the subgrid list. */
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -464,7 +463,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  break;
 	} 
       }
-      lmax = 6; // <- Pengs version had lmax = 6
+      lmax = 0; // <- Pengs version had lmax = 6
       //      lmax = 1;
       FLOAT dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
       FLOAT dy0 = (MetaData->TopGridRank > 1) ? 
@@ -474,8 +473,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       FLOAT h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
       FLOAT DivBDampingLength=1.;
-      C_h = MetaData->CourantSafetyNumber*h_min/dt0;
+      C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
       C_p = sqrt(0.18*DivBDampingLength*C_h);
+      //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
       fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
     }
 

@@ -389,8 +389,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       int PhiToAdd = PhiField;
       this->AddFields(&PhiToAdd, 1);
       DataLabel[PhiNum] = PhiName;
+    } else { 
+      if (1) 
+	for (int n = 0; n < size; n++)
+	  BaryonField[PhiNum][n] = 0.;
     }
-      
+
       for (int dim = 0; dim < 3; dim++)
 	if (gradPhi[dim] == NULL)
 	  gradPhi[dim] = new float[activesize];

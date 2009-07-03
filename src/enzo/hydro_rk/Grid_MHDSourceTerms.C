@@ -54,7 +54,7 @@ int grid::MHDSourceTerms(float **dU)
     dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0] : 0.0;  
   float Bx, By, Bz;
   float coeff = 1.;
-  if (Gamma < 1.01)  coeff = 0.; // turn of adding dissipatted B-fiel to Etot if isothermal
+  //  if (Gamma < 1.01)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal
   int n = 0, igrid, igridyp1, igridym1, igridzp1, igridzm1;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
