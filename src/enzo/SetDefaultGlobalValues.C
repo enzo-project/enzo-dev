@@ -470,6 +470,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   hierarchy_information = PyDict_New();
   yt_parameter_file = PyDict_New();
   conversion_factors = PyDict_New();
+  my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
   return SUCCESS;

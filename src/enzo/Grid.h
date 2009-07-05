@@ -1474,6 +1474,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int PrepareRandomForcingNormalization(float * GlobVal, int GlobNum);
   int ReadRandomForcingFields(FILE *main_file_pointer);
 
+  int AddFields(int TypesToAdd[], int NumberOfFields);
+ 
   inline bool isLocal () {return MyProcessorNumber == ProcessorNumber; };
 
  private:
