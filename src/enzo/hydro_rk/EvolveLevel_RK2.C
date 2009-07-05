@@ -353,8 +353,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UsePhysicalUnit) {
 	utime = TimeUnits/3.1558e7;
       }
-      printf("Level[%d]: dt = %g(%g/%g)\n", level, dtThisLevel*utime,
-	     dtThisLevelSoFar*utime, dtLevelAbove*utime);
+      fprintf(stderr,"Level[%"ISYM"]: dt = %"FSYM"(%"FSYM"/%"FSYM")\n", 
+	      level, dtThisLevel*utime, dtThisLevelSoFar*utime, dtLevelAbove*utime);
     }
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
