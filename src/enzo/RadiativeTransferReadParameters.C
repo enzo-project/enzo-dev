@@ -58,6 +58,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
+  RadiativeTransferFLD                        = FALSE;
 
   /* read input from file */
 
@@ -97,6 +98,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferSourceClustering);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
+    ret += sscanf(line, "RadiativeTransferFLD = %"ISYM, 
+		  &RadiativeTransferFLD);
 
     /* if the line is suspicious, issue a warning */
 
@@ -111,10 +114,19 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   /* Check if H2 cooling is turned on for Lyman-Werner radiation. */
 
-  if (RadiativeTransferOpticallyThinH2 && MultiSpecies < 2 &&
-      MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(stderr, "Warning: optically thin Lyman-Werner radiation turned on "
-	    "without H2 cooling.  Setting LW radiation OFF.\n");
+  if (RadiativeTransferOpticallyThinH2 && MultiSpecies < 2) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: optically thin Lyman-Werner radiation turned on "
+	      "without H2 cooling.  Setting LW radiation OFF.\n");
+    RadiativeTransferOpticallyThinH2 = FALSE;
+  }
+
+  /* Check if we're not using FLD and 1/r^2 Lyman-Werner radiation */
+
+  if (RadiativeTransferOpticallyThinH2 && RadiativeTransferFLD) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: optically thin Lyman-Werner radiation and FLD "
+	      "turned on.  Turning the optically thin radiation OFF.\n");
     RadiativeTransferOpticallyThinH2 = FALSE;
   }
 
