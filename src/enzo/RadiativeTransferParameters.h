@@ -58,3 +58,5 @@ EXTERN int RadiationPressure;
 EXTERN int RadiativeTransferOpticallyThinH2;
 
 EXTERN int RadiativeTransferPeriodicBoundary;
+
+EXTERN int RadiativeTransferFLD;
