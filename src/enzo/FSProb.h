@@ -180,4 +180,3 @@ class FSProb : public virtual ImplicitProblemABC {
 
 #endif
 #endif
-#endif
