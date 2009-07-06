@@ -135,6 +135,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.BoundaryConditionName = NULL;
  
   MetaData.GravityBoundary        = TopGridPeriodic;
+
+#ifdef TRANSFER
+  MetaData.RadHydroParameterFname = NULL;
+#endif
  
   MetaData.ParticleBoundaryType   = periodic;  // only one implemented!
   MetaData.NumberOfParticles      = 0;         // no particles

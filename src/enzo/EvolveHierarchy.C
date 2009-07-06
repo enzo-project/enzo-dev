@@ -71,11 +71,19 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		 FLOAT WriteTime = -1);
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		 FLOAT WriteTime = -1);
 
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
@@ -441,7 +449,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
           fprintf(stderr, "--> Dumping data (output number %d).\n",
                   MetaData.DataDumpNumber);
 	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior);
+		     &TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		     , ImplicitSolver
+#endif		 
+		     );
         }
         return FAIL;
       }
@@ -453,7 +465,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
 		    MetaData.DataDumpNumber);
 	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-			       &TopGrid, MetaData, Exterior);
+			       &TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+			       , ImplicitSolver
+#endif		 
+			       );
 	  }
         return FAIL;
       }
@@ -649,13 +665,21 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       !WroteData)
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
+			   &TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+			   ImplicitSolver, 
+#endif		 
+			   -666) == FAIL) {
       fprintf(stderr, "Error in Group_WriteAllData.\n");
       ENZO_FAIL("");
     }
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-// 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
+// 		     &TopGrid, MetaData, Exterior, 
+//#ifdef TRANSFER
+//		     ImplicitSolver, 
+//#endif		 
+//                   -666) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       ENZO_FAIL("");
 //     }

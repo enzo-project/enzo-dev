@@ -189,6 +189,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
  
   fprintf(fptr, "TopGridGravityBoundary = %"ISYM"\n", MetaData.GravityBoundary);
 
+#ifdef TRANSFER
+  if (MetaData.RadHydroParameterFname != NULL) 
+    fprintf(fptr, "RadHydroParamfile = %s\n", MetaData.RadHydroParameterFname);
+#endif
+
   fprintf(fptr, "ParticleBoundaryType   = %"ISYM"\n",MetaData.ParticleBoundaryType);
   fprintf(fptr, "NumberOfParticles      = %"ISYM" (do not modify)\n",
 	  MetaData.NumberOfParticles);

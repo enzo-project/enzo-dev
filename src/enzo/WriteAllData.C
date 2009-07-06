@@ -18,7 +18,8 @@
  
 // This function writes out the data hierarchy (TopGrid), the External
 //   Boundary (Exterior), the TopGridData, and the global_data.
- 
+#include "preincludes.h"
+
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -40,6 +41,9 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
 void my_exit(int status);
  
 // function prototypes
@@ -83,7 +87,11 @@ extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1)
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
+		 FLOAT WriteTime = -1)
 {
  
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
@@ -424,7 +432,32 @@ int WriteAllData(char *basename, int filenumber,
   MetaData.BoundaryConditionName = new char[MAX_LINE_LENGTH];
   strcpy(MetaData.BoundaryConditionName, name);
   strcat(MetaData.BoundaryConditionName, BCSuffix);
- 
+
+#ifdef TRANSFER
+  // Output ImplicitSolver module parameter file
+
+  //    Reset MetaData.RadHydroParameterFname
+  if (MetaData.RadHydroParameterFname != NULL)
+    delete MetaData.RadHydroParameterFname;
+  MetaData.RadHydroParameterFname = new char[MAX_LINE_LENGTH];
+  strcpy(MetaData.RadHydroParameterFname, name);
+  strcat(MetaData.RadHydroParameterFname, RTSuffix);
+  
+  // Open RT module parameter file
+  if ((fptr = fopen(MetaData.RadHydroParameterFname, "w")) == NULL) {
+    fprintf(stderr, "Error opening RT module parameter file: %s\n",
+	    MetaData.RadHydroParameterFname);
+    return FAIL;
+  }
+  
+  // Write RT module parameters to file
+  if (ImplicitSolver->WriteParameters(fptr) == FAIL) {
+    fprintf(stderr, "Error in ImplicitSolver::WriteParameters\n");
+    return FAIL;
+  }
+  fclose(fptr);
+#endif		 
+
   // Output TopGrid data
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
