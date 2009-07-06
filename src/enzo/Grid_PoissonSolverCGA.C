@@ -26,7 +26,7 @@
 int FindField(int field, int farray[], int numfields);
 
 template <typename T>
-int grid::multA(T *input, T *output)
+int grid::multA(T *input, T *output, int *MatrixStartIndex, int *MatrixEndIndex )
 {
 
   int diff[3];
@@ -40,9 +40,9 @@ int grid::multA(T *input, T *output)
   dx_inv[2] = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
 
   int igrid;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 
@@ -66,7 +66,7 @@ int grid::multA(T *input, T *output)
 }
 
 template <typename T>
-int grid::multA2(T* input,T* output)
+int grid::multA2(T* input,T* output,  int *MatrixStartIndex, int *MatrixEndIndex)
 {
   
   int diff[3];
@@ -80,9 +80,9 @@ int grid::multA2(T* input,T* output)
   dx_inv[2] = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
 
   int igrid;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	
@@ -106,15 +106,15 @@ int grid::multA2(T* input,T* output)
 }
 
 template <typename T>
-T grid::dot(T *a, T *b)
+T grid::dot(T *a, T *b,  int *MatrixStartIndex, int *MatrixEndIndex)
 {
  
   T output = 0.0;
 
   int igrid;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 
@@ -127,7 +127,7 @@ T grid::dot(T *a, T *b)
   return output;
 }
 
-int grid::setNeumannBC(float* x)
+int grid::setNeumannBC(float* x,  int* MatrixStartIndex, int *MatrixEndIndex)
 {
   int ijk[3]={0,0,0}; int index;
 
@@ -137,33 +137,33 @@ int grid::setNeumannBC(float* x)
   diff[2] = (GridRank > 2) ? GridDimension[0]*GridDimension[1] : 0;
   
 
-  for (ijk[2] = GridStartIndex[2]; ijk[2] <= GridEndIndex[2]; ijk[2]=ijk[2]+1) {
-    for (ijk[1] = GridStartIndex[1]; ijk[1] <= GridEndIndex[1]; ijk[1]=ijk[1]+1) {
-      for (ijk[0] = GridStartIndex[0]; ijk[0] <= GridEndIndex[0]; ijk[0]=ijk[0]+1) {
+  for (ijk[2] = MatrixStartIndex[2]; ijk[2] <= MatrixEndIndex[2]; ijk[2]=ijk[2]+1) {
+    for (ijk[1] = MatrixStartIndex[1]; ijk[1] <= MatrixEndIndex[1]; ijk[1]=ijk[1]+1) {
+      for (ijk[0] = MatrixStartIndex[0]; ijk[0] <= MatrixEndIndex[0]; ijk[0]=ijk[0]+1) {
        
 	index = GetIndex(ijk[0], ijk[1], ijk[2]);
        
        
-       if (ijk[0] == GridStartIndex[0]) {
+       if (ijk[0] == MatrixStartIndex[0]) {
 	 x[index-3*diff[0]] = x[index-diff[0]]; 
 	 x[index-2*diff[0]] = x[index-1*diff[0]];
-       } else if (ijk[0] == GridEndIndex[0]) {
+       } else if (ijk[0] == MatrixEndIndex[0]) {
 	 x[index+3*diff[0]] = x[index+0*diff[0]]; 
 	 x[index+2*diff[0]] = x[index+1*diff[0]];
        }
        
-       if (ijk[1] == GridStartIndex[1]) {
+       if (ijk[1] == MatrixStartIndex[1]) {
 	 x[index-3*diff[1]] = x[index-diff[1]]; 
 	 x[index-2*diff[1]] = x[index-1*diff[1]];
-       } else if (ijk[1] == GridEndIndex[1]) {
+       } else if (ijk[1] == MatrixEndIndex[1]) {
 	 x[index+3*diff[1]] = x[index+0*diff[1]]; 
 	 x[index+2*diff[1]] = x[index+1*diff[1]];
        }
        
-       if (ijk[2] == GridStartIndex[2]) {
+       if (ijk[2] == MatrixStartIndex[2]) {
 	 x[index-3*diff[2]] = x[index-diff[2]]; 
 	 x[index-2*diff[2]] = x[index-1*diff[2]];
-       } else if (ijk[2] == GridEndIndex[2]) {
+       } else if (ijk[2] == MatrixEndIndex[2]) {
 	 x[index+3*diff[2]] = x[index+diff[2]]; 
 	 x[index+2*diff[2]] = x[index+1*diff[2]];
        }
@@ -222,26 +222,34 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
      matrix multiplication significantly. */
 
   int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
-  /*for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  /*for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++)
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++)
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	x[igrid] = BaryonField[Phi_pNum][igrid];
 
 	}*/
 
-  /* setNeumannBC(x); */
+  //Solve on the complete grid, only change the cleaning step so different boundaries
+
+   int MatrixStartIndex[3]={ GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
+   int MatrixEndIndex[3]={ GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
+  //int MatrixStartIndex[3]={0,0,0};
+  //int MatrixEndIndex[3]={GridDimension[0]-1, GridDimension[1]-1, GridDimension[2]-1};
 
   if (difftype == 1) 
-    multA(x, Ax);
+    multA(x, Ax, MatrixStartIndex, MatrixEndIndex);
   else if (difftype == 2) 
-    multA2(x, Ax);
+    multA2(x, Ax, MatrixStartIndex, MatrixEndIndex);
 
+ 
+
+ 
   /* r = divB_p - Ax */
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) 
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++)
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	r_old[igrid] = divB_p[igrid] - Ax[igrid];	 
@@ -250,9 +258,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
   if (difftype == 1) {
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++)
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++)
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
     
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  diag[igrid] = -2.0 * (dx_inv[0] + dx_inv[1] + dx_inv[2]);
@@ -261,9 +269,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
   } else if (difftype == 2) {
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) 
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) 
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) 
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
     
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  diag[igrid] = -0.5 * (dx_inv[0] + dx_inv[1] + dx_inv[2]);
@@ -272,9 +280,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
   }
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) 
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) 
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) 
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	z_old[igrid] = r_old[igrid] / diag[igrid];
@@ -292,7 +300,8 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
   bool converge = false;
 
-  double r_norm = sqrt(dot(r_old, r_old)); 
+  double r_norm = sqrt(dot(r_old, r_old,  MatrixStartIndex, MatrixEndIndex)); 
+  
   printf("r_norm1 = %g\n", r_norm);
   if (r_norm < threshold){
     delete [] x;
@@ -313,21 +322,21 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
     counter++;
     
     if (difftype == 1) {
-      multA(p, Ap);
+      multA(p, Ap, MatrixStartIndex, MatrixEndIndex);
     } else if (difftype == 2) {
-      multA2(p, Ap);
+      multA2(p, Ap, MatrixStartIndex, MatrixEndIndex);
     }
 
     /* PrintToScreenBoundaries(v, "v Initial"); */
         
     //a = dot(r_old, r_old) / dot(p, Ap); 
-    a = dot(r_old, z_old) / dot(p, Ap);
+    a = dot(r_old, z_old,  MatrixStartIndex, MatrixEndIndex) / dot(p, Ap,  MatrixStartIndex, MatrixEndIndex);
     
     /* x = x + a * p */
     
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  x[igrid] += a * p[igrid];
@@ -340,9 +349,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
     /* r_new = r - a * Ap */
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  r_new[igrid] = r_old[igrid] - a * Ap[igrid];
@@ -353,9 +362,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
     /* z_new = r_new / diag */
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  z_new[igrid] = r_new[igrid] / diag[igrid];
@@ -365,15 +374,15 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
     }
 
     
-    dotnr = dot(r_new, r_new);
+    dotnr = dot(r_new, r_new, MatrixStartIndex, MatrixEndIndex);
     //g = dotnr / dot(r_old, r_old); 
-    g = dot(r_new, z_new) / dot(r_old, z_old);
+    g = dot(r_new, z_new,  MatrixStartIndex, MatrixEndIndex) / dot(r_old, z_old, MatrixStartIndex, MatrixEndIndex);
     
     /* p = r_new + g*p */
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
  	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  //p[igrid] = r_new[igrid] + g * p[igrid]; 
 	  p[igrid] = z_new[igrid] + g * p[igrid];
@@ -382,9 +391,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
     }
     
     /* r = r_new */
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
  	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  r_old[igrid] = r_new[igrid];
 	  z_old[igrid] = z_new[igrid];
@@ -393,9 +402,9 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
     } 
 
     /* maxnr = 0.0;
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+    for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+      for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+	for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
  	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	  if (maxnr < abs(r_new[igrid])) 
 	    maxnr = abs(r_new[igrid]);
@@ -418,11 +427,11 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
     printf("Iterations reached limit, maxnr = %g\n", dotnr);
   }
 
-  /* setNeumannBC(x); */
+ 
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	BaryonField[Phi_pNum][igrid] = x[igrid];
       }

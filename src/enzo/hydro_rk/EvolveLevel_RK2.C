@@ -623,7 +623,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  time1 = ReturnWallTime();
 
 	  Grids[grid1]->GridData->PoissonSolver(level);
-	  Grids[grid1]->GridData->PoissonCleanStep(level);
 	
 	}
       }

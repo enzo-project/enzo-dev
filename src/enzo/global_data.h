@@ -316,7 +316,8 @@ EXTERN int UnigridTranspose;
 /* For CellFlaggingMethod = 1,
    The minimum relative slope (da/dx over a) required for refinement. */
 
-EXTERN float MinimumSlopeForRefinement;
+EXTERN float MinimumSlopeForRefinement[MAX_FLAGGING_METHODS];
+EXTERN int SlopeFlaggingFields[MAX_FLAGGING_METHODS];
 
 /* For CellFlaggingMethod = 2,
    The minimum refined mass for the ByMass refining scheme
@@ -515,6 +516,7 @@ EXTERN double ExternalGravityRadius;
 /* Poisson Clean */
 
 EXTERN int UseDivergenceCleaning;
+EXTERN int DivergenceCleaningBoundaryBuffer;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 

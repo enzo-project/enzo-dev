@@ -352,6 +352,26 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 #endif
  
+
+  fprintf(fptr, "SlopeFlaggingFields = "
+	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	  SlopeFlaggingFields[0], 
+	  SlopeFlaggingFields[1],
+	  SlopeFlaggingFields[2], 
+	  SlopeFlaggingFields[3],
+	  SlopeFlaggingFields[4]);
+
+  fprintf(fptr, "MinimumSlopeForRefinement = "
+	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	  MinimumSlopeForRefinement[0],
+	  MinimumSlopeForRefinement[1],
+	  MinimumSlopeForRefinement[2],
+	  MinimumSlopeForRefinement[3],
+	  MinimumSlopeForRefinement[4],
+	  MinimumSlopeForRefinement[5],
+	  MinimumSlopeForRefinement[6]);
+
+
   fprintf(fptr, "MinimumOverDensityForRefinement = "
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumOverDensityForRefinement[0],
@@ -459,6 +479,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIISupernovaRadius);
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
+
+
+  /* Poisson Solver */
+
+  fprintf(fptr, "PoissonApproximationThreshold             = %"FSYM"\n",
+	  PoissonApproximationThreshold);
+  fprintf(fptr, "DivergenceCleaingThreshold           = %"FSYM"\n",
+	  DivergenceCleaningThreshold);
+  fprintf(fptr, "UseDivergenceCleaning        = %"ISYM"\n",
+	  UseDivergenceCleaning);
+  fprintf(fptr, "DivergenceCleaningBoundaryBuffer        = %"ISYM"\n\n",
+	  DivergenceCleaningBoundaryBuffer);
 
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",

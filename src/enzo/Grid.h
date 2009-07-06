@@ -1860,10 +1860,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int PoissonSolverMultigrid();
 
   int PoissonSolverCGA(int difftype, double *divB_p);
-  template <typename T> int multA(T* input, T* output);
-  template <typename T> int multA2(T* input, T* output);
-  template <typename T> T dot(T *a, T *b);
-  int setNeumannBC(float* x);
+  template <typename T> int multA(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
+  template <typename T> int multA2(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
+  template <typename T> T dot(T *a, T *b,  int *MatrixStartIndex, int *MatrixEndIndex);
+  int setNeumannBC(float* x, int *MatrixStartIndex, int *MatrixEndIndex);
   int PoissonSolverDirichletBC(double *divB_p);
 
   int PoissonCleanStep(int level);
@@ -1877,6 +1877,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   
 
+  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
+			      int check, float diffvalue);  
+  int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
+  int PrintToScreenBoundaries(float *field, char *display);
   
   int ReduceWindBoundary();
 

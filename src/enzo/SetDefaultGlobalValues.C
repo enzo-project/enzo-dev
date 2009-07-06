@@ -167,6 +167,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    MinimumSlopeForRefinement[i]= 0.3;
+    SlopeFlaggingFields[i] = INT_UNDEFINED;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -264,7 +266,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseMinimumPressureSupport        = FALSE;
   MinimumPressureSupportParameter  = 100.0;
  
-  MinimumSlopeForRefinement        = 0.3;          // 30% change in value
+  //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
@@ -384,6 +386,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UsePhysicalUnit = 0;
 
   UseDivergenceCleaning = 0;
+  DivergenceCleaningBoundaryBuffer=0;
   DivergenceCleaningThreshold = 0.001;
   PoissonApproximationThreshold = 0.001;
 

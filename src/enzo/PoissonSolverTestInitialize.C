@@ -65,7 +65,7 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
     ret += sscanf(line, "PoissonSolverTestType = %d", &TestType);
     ret += sscanf(line, "PoissonSolverTestGeometryControl = %f", &TestGeometryControl);
-    ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
+    ret += sscanf(line, "PoissonSolverTestRefineAtStart = %d", &RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
   } // end input from parameter file
@@ -77,64 +77,37 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
     return FAIL;
   }
 
-  /* Convert minimum initial overdensity for refinement to mass
-     (unless MinimumMass itself was actually set). */
-
-  if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
-    MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
-    for (int dim = 0; dim < MetaData.TopGridRank; dim++)
-      MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
-	float(MetaData.TopGridDims[dim]);
-  }
-
   /* If requested, refine the grid to the desired level. */
 
-  if (RefineAtStart) {
 
-    /* Declare, initialize and fill out the LevelArray. */
+  if (RefineAtStart) {
+     /* Declare, initialize and fill out the LevelArray. */
 
     LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       LevelArray[level] = NULL;
     AddLevel(LevelArray, &TopGrid, 0);
 
     /* Add levels to the maximum depth or until no new levels are created,
        and re-initialize the level after it is created. */
 
-    for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+    for (int level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
       if (LevelArray[level+1] == NULL)
 	break;
-
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->PoissonSolverTestInitializeGrid(TestType, TestGeometryControl)== FAIL) {
-	  fprintf(stderr, "Error in PoissonSolverTestInitializeGrid.\n");
-	  return FAIL;
-	}
+	if (Temp->GridData->PoissonSolverTestInitializeGrid(TestType, TestGeometryControl)
+	    == FAIL) 
+	  ENZO_FAIL("Error in ShearingBoxInitializeGrid.\n");
 	Temp = Temp->NextGridThisLevel;
       }
     } // end: loop over levels
-
-    /* Loop back from the bottom, restoring the consistency among levels. */
-
-    for (level = MaximumRefinementLevel; level > 0; level--) {
-      LevelHierarchyEntry *Temp = LevelArray[level];
-      while (Temp != NULL) {
-	if (Temp->GridData->ProjectSolutionToParentGrid(
-				   *LevelArray[level-1]->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  return FAIL;
-	}
-	Temp = Temp->NextGridThisLevel;
-      }
-    }
-
   } // end: if (RefineAtStart)
+
 
   /* set up field names and units */
 
@@ -153,7 +126,6 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = PhiName;
   if(UseDivergenceCleaning){
     DataLabel[count++] = Phi_pName;
-    DataLabel[count++] = DebugName;
   }
 
 

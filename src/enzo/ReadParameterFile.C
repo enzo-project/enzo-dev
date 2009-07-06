@@ -410,6 +410,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SimpleConstantBoundary = %"ISYM, &SimpleConstantBoundary);
 
 #endif
+
+
+    ret += sscanf(line, "SlopeFlaggingFields = "
+		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+		  SlopeFlaggingFields+0, 
+		  SlopeFlaggingFields+1,
+		  SlopeFlaggingFields+2, 
+		  SlopeFlaggingFields+3,
+		  SlopeFlaggingFields+4,
+		  SlopeFlaggingFields+5,
+		  SlopeFlaggingFields+6);
+    
+    ret += sscanf(line, "MinimumSlopeForRefinement = " 	  
+		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+	
+		  MinimumSlopeForRefinement+0,
+		  MinimumSlopeForRefinement+1,
+		  MinimumSlopeForRefinement+2,
+		  MinimumSlopeForRefinement+3,
+		  MinimumSlopeForRefinement+4,  
+		  MinimumSlopeForRefinement+5,
+		  MinimumSlopeForRefinement+6);
+
  
     ret += sscanf(line, "MinimumOverDensityForRefinement  = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
@@ -579,6 +602,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Read MHD Paramters */
     ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %d", &DivergenceCleaningBoundaryBuffer);
     ret += sscanf(line, "DivergenceCleaningThreshold = %f", &DivergenceCleaningThreshold);
     ret += sscanf(line, "PoissonApproximationThreshold = %f", &PoissonApproximationThreshold);
     ret += sscanf(line, "AngularVelocity = %f", &AngularVelocity);
@@ -657,6 +681,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
+    if (strstr(line, "PoissonSolverTest")) ret++;
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;

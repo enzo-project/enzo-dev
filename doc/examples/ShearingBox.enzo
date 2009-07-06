@@ -7,7 +7,7 @@
 
 ProblemType                = 31
 TopGridRank                = 3
-TopGridDimensions          = 32 64 32
+TopGridDimensions          = 16 32 16
 SelfGravity                = 0
 TopGridGravityBoundary     = 0 
 LeftFaceBoundaryCondition  = 4 3 3

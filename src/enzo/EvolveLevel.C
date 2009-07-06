@@ -489,10 +489,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Run the Divergence Cleaing                */
 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->PoissonSolver(level);
-      Grids[grid1]->GridData->PoissonCleanStep(level);
-    }
+    
 
  
     /* ----------------------------------------- */
