@@ -478,20 +478,20 @@ Eint32 main(Eint32 argc, char *argv[])
   }
 
 
-  // if using an implicit RT solver, declare the appropriate object here
 #ifdef TRANSFER
-  ImplicitProblemABC *ImplicitSolver;
-  if (RadiativeTransferFLD == 1) {
-
     // First, determine Top-Grid Parallelism information (store in grids)
+  if (RadiativeTransferFLD == 1) 
     if (DetermineParallelism(&TopGrid, MetaData) == FAIL) {
       fprintf(stderr,"Error in DetermineParallelism.\n");
       my_exit(EXIT_FAILURE);
     }
+#endif
 
-    // Declare the implicit solver
-    ImplicitSolver = new FSProb; 
-  }
+  // if using an implicit RT solver, declare the appropriate object here
+#ifdef TRANSFER
+  ImplicitProblemABC *ImplicitSolver;
+  if (RadiativeTransferFLD == 1) {
+    ImplicitSolver = new FSProb; }
   else {
     ImplicitSolver = new NullProblem; }
 #endif
