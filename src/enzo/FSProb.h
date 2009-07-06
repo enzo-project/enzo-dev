@@ -176,5 +176,10 @@ class FSProb : public virtual ImplicitProblemABC {
 
 
 #endif
+#else
+
+#include "NullProblem.h"
+typedef NullProblem FSProb;
+
 #endif
 #endif
