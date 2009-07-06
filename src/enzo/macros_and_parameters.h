@@ -16,7 +16,11 @@
 
 #include "message.h"
 
+#ifdef CONFIG_THROW_ABORT
+#define ENZO_FAIL(A) raise(SIGABRT);
+#else
 #define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
+#endif
 
 /* Modifiable Parameters */
 
