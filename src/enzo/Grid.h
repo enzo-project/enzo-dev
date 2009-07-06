@@ -117,6 +117,12 @@ class grid
   gravity_boundary_type GravityBoundaryType;
   float  PotentialSum;
 //
+//  Top grid parallelism (for implicit solvers)
+//
+  int ProcLayout[MAX_DIMENSION];
+  int ProcLocation[MAX_DIMENSION];
+  int ProcNeighbors[MAX_DIMENSION][2];
+//
 //  Rebuild Hierarchy Temporaries
 //
   int   *FlaggingField;             // Boolean flagging field (for refinement)
@@ -880,6 +886,83 @@ class grid
 /* Gravity: deposit baryons into target GravitatingMassField. */
 
    int DepositBaryons(grid *TargetGrid, FLOAT DepositTime);
+
+// -------------------------------------------------------------------------
+// Functions for accessing various grid-based information
+//
+   int GetGridRank() {return GridRank;}
+   int GetGridDimension(int Dimension) {return GridDimension[Dimension];}
+   int GetGridStartIndex(int Dimension) {return GridStartIndex[Dimension];}
+   int GetGridEndIndex(int Dimension) {return GridEndIndex[Dimension];}
+   FLOAT GetGridLeftEdge(int Dimension) {return GridLeftEdge[Dimension];}
+   FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
+
+
+// -------------------------------------------------------------------------
+// Functions for accessing specific baryon fields (all sources combined 
+// in Grid_AccessBaryonFields.C)
+//
+   float* AccessDensity();
+   float* AccessTotalEnergy();
+   float* AccessGasEnergy();
+   float* AccessVelocity1();
+   float* AccessVelocity2();
+   float* AccessVelocity3();
+   float* AccessElectronDensity();
+   float* AccessHIDensity();
+   float* AccessHIIDensity();
+   float* AccessHeIDensity();
+   float* AccessHeIIDensity();
+   float* AccessHeIIIDensity();
+   float* AccessEmissivityField();
+
+
+// -------------------------------------------------------------------------
+// Functions for accessing top-grid parallelism information
+// (note: information only available/valid for this level)
+//
+
+/* Processor layout: get and set the number of procs in each 
+   dim within the cartesian processor grid
+   (1-based, i.e. {1 1 1} defines a single-processor layout) */ 
+   int GetProcessorLayout(int Dimension) {return ProcLayout[Dimension];}
+   void SetProcessorLayout(int Dimension, int procs) {
+     if (Dimension < 0 || Dimension > MAX_DIMENSION)
+       fprintf(stderr,"SetProcessorLayout: invalid Dimension.\n");
+     else
+       if (procs > 0)  ProcLayout[Dimension] = procs; 
+       else fprintf(stderr,"SetProcessorLayout: invalid procs value.\n");
+   }
+
+/* Processor location: get and set the location of this grid's proc
+   within the cartesian processor grid defined in ProcLayout
+   (0-based, i.e. {0 0 0} defines the 1st proc in each dimension) */
+   int GetProcessorLocation(int Dimension) {return ProcLocation[Dimension];}
+   void SetProcessorLocation(int Dimension, int location) {
+     if (Dimension < 0 || Dimension > MAX_DIMENSION)
+       fprintf(stderr,"SetProcessorLocation: invalid Dimension.\n");
+     else
+       if (location >= 0)  ProcLocation[Dimension] = location; 
+       else fprintf(stderr,"SetProcessorLocation: invalid location.\n");     
+   }
+
+/* Processor neighbors: get and set the grid IDs (not MPI process IDs) of this
+   grid's neighbors within the cartesian processor grid defined in ProcLayout. 
+     Get... returns the {left=0,right=1} neighbor grid ID in a given dim
+     Set... provides access to set neighbor information into the grid */
+   int GetProcessorNeighbors(int Dimension, int LR) {
+     return ProcNeighbors[Dimension][LR];}
+   void SetProcessorNeighbors(int Dimension, int LR, int NBid) { 
+     if (Dimension < 0 || Dimension > MAX_DIMENSION)
+       fprintf(stderr,"SetProcessorNeighbors: invalid Dimension.\n");
+     else
+       if (LR < 0 || LR > 1) 
+	 fprintf(stderr,"SetProcessorNeighbors: invalid neighbor.\n");    
+       else
+	 if (NBid >= 0)  ProcNeighbors[Dimension][LR] = NBid; 
+	 else fprintf(stderr,"SetProcessorNeighbors: invalid grid ID.\n");    
+   }
+
 
 // -------------------------------------------------------------------------
 // Functions for use with particles.
