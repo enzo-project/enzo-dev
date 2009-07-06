@@ -491,7 +491,8 @@ Eint32 main(Eint32 argc, char *argv[])
 #ifdef TRANSFER
   ImplicitProblemABC *ImplicitSolver;
   if (RadiativeTransferFLD == 1) {
-    ImplicitSolver = new FSProb; }
+    ImplicitSolver = new FSProb; 
+}
   else {
     ImplicitSolver = new NullProblem; }
 #endif

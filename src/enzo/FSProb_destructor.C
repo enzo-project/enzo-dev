@@ -19,7 +19,6 @@
 /
 ************************************************************************/
 #ifdef TRANSFER
-#ifdef USE_HYPRE
 #include "FSProb.h"
 
 
@@ -30,8 +29,10 @@ FSProb::~FSProb()
 //   if (debug)  printf("Entering FSProb::destructor routine\n");
 
   // delete HYPRE objects
+#ifdef USE_HYPRE
   HYPRE_StructStencilDestroy(stencil);
   HYPRE_StructGridDestroy(grid);
+#endif
 
   // delete EnzoVectors and other internal arrays
   int i, j;
@@ -41,9 +42,11 @@ FSProb::~FSProb()
   delete sol;
 
   //   arrays require deleting the array
+#ifdef USE_HYPRE
   HYPRE_StructVectorDestroy(rhsvec);
   HYPRE_StructVectorDestroy(solvec);
   HYPRE_StructMatrixDestroy(J);
+#endif
   delete[] matentries;
   delete[] rhsentries;
   delete[] HYPREbuff;

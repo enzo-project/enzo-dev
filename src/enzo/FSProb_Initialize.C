@@ -28,7 +28,6 @@
 /
 ************************************************************************/
 #ifdef TRANSFER
-#ifdef USE_HYPRE
 #include "FSProb.h"
 #include "CosmologyParameters.h"
 
@@ -333,6 +332,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 
   // initialize HYPRE stuff
+#ifdef USE_HYPRE
   //    initialize the diagnostic information
   totIters = 0;
 
@@ -411,6 +411,10 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   HYPRE_StructVectorInitialize(rhsvec);
   HYPRE_StructVectorCreate(MPI_COMM_WORLD, grid, &solvec);
   HYPRE_StructVectorInitialize(solvec);
+#else  // ifdef USE_HYPRE
+  fprintf(stderr,"ERROR: FSProb must be used with HYPRE enabled!!!\n");
+  return FAIL;
+#endif
 
   //   check MG solver parameters
   if (sol_maxit < 0) {

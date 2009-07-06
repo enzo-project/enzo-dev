@@ -20,7 +20,6 @@
 ************************************************************************/
 
 #ifdef TRANSFER
-#ifdef USE_HYPRE
 #ifndef FS_IMPLICIT_PROBLEM_DEFINED__
 #define FS_IMPLICIT_PROBLEM_DEFINED__
 
@@ -48,8 +47,10 @@ class FSProb : public virtual ImplicitProblemABC {
   // HYPRE Struct-specific data
   Eint32 mattype;                // HYPRE matrix type for solve
   Eint32 stSize;                 // stencil size
+#ifdef USE_HYPRE
   HYPRE_StructGrid grid;         // HYPRE grid object for setup
   HYPRE_StructStencil stencil;   // stencil object
+#endif
 
   // HYPRE Solver-specific data
   Eflt32 sol_tolerance;          // desired solver tolerance
@@ -70,9 +71,11 @@ class FSProb : public virtual ImplicitProblemABC {
                                  //   of Dirichlet zones in HYPRE grid.
 
   // HYPRE interface temporary data
+#ifdef USE_HYPRE
   HYPRE_StructMatrix J;          // holds free-streaming matrix
   HYPRE_StructVector rhsvec;     // holds free-streaming rhs vector
   HYPRE_StructVector solvec;     // holds free-streaming solution vector
+#endif
   Eflt64 *matentries;            // holds matrix entries
   Eflt64 *rhsentries;            // linear system right-hand side
   Eflt64 *HYPREbuff;             // holds contiguous sections of solution
@@ -176,10 +179,5 @@ class FSProb : public virtual ImplicitProblemABC {
 
 
 #endif
-#else
-
-#include "NullProblem.h"
-typedef NullProblem FSProb;
-
 #endif
 #endif

@@ -29,7 +29,6 @@
 /
 ************************************************************************/
 #ifdef TRANSFER
-#ifdef USE_HYPRE
 #include "FSProb.h"
 #include "CosmologyParameters.h"
 
@@ -214,6 +213,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   
   // solve the free-streaming radiation problem to obtain the 
   // background propagation.
+#ifdef USE_HYPRE
   Eint32 zed=0;
   Eint32 one=1;
   Eint32 entries[7] = {0, 1, 2, 3, 4, 5, 6};
@@ -327,6 +327,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   //       destroy HYPRE solver structures
   HYPRE_StructPCGDestroy(solver);
   HYPRE_StructPFMGDestroy(preconditioner);
+#endif
 
   // estimate the next time step size (in case it is asked)
   float diff, w, tmp;

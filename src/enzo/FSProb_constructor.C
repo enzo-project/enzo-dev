@@ -21,7 +21,6 @@
 /
 ************************************************************************/
 #ifdef TRANSFER
-#ifdef USE_HYPRE
 #include "FSProb.h"
 
 
@@ -113,5 +112,4 @@ FSProb::FSProb()
   HYPREbuff = NULL;
 
 }
-#endif
 #endif
