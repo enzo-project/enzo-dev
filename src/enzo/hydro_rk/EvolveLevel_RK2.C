@@ -463,7 +463,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  break;
 	} 
       }
-      lmax = 0; // <- Pengs version had lmax = 6
+      //      lmax = 0; // <- Pengs version had lmax = 6
       //      lmax = 1;
       FLOAT dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
       FLOAT dy0 = (MetaData->TopGridRank > 1) ? 

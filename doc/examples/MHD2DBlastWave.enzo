@@ -9,15 +9,17 @@ ProblemType                =  201
 MHD2DProblemType = 2
 VelAnyl = 1
 TopGridRank                = 2
-TopGridDimensions          = 100 100
+TopGridDimensions          = 100 150
 SelfGravity                = 0
 TopGridGravityBoundary     = 0
 LeftFaceBoundaryCondition  = 3 3 3 
 RightFaceBoundaryCondition = 3 3 3
+DomainLeftEdge = -0.5 -0.75 0 
+DomainRightEdge = 0.5 0.75 0 
 #
 #  set I/O and stop/start parameters
 #
-StopTime = .25
+StopTime = 3.75
 #StopCycle = 5
 dtDataDump             = 0.025
 DataDumpName           = data

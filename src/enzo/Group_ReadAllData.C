@@ -270,7 +270,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   GridID = 1;
   if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
-    ENZO_FAIL("");
+    return FAIL;
   }
 
   if(LoadGridDataAtStart){

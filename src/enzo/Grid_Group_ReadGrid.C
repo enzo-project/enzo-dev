@@ -292,7 +292,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (io_log) fprintf(log_fptr, "H5Gopen with Name %s\n", name);
 
     group_id = H5Gopen(file_id, name);
-    if( group_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( group_id == h5_error ){return FAIL;}
  
     /* fill in ActiveDim for dims up to 3d */
  
@@ -390,7 +390,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       this->AddFields(&PhiToAdd, 1);
       DataLabel[PhiNum] = PhiName;
     } else { 
-      if (1) 
+      if (0) 
 	for (int n = 0; n < size; n++)
 	  BaryonField[PhiNum][n] = 0.;
     }

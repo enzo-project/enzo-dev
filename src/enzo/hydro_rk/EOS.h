@@ -76,4 +76,16 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     h = e + p/rho;
 
   }
+
+  if (eostype == 3) { // straight isothermal
+    double c_s = EOSSoundSpeed;
+    p = rho*c_s*c_s;
+    e = p / ((Gamma-1.0)*rho);
+    dpdrho = 1;
+    dpde = 1;
+    h = e + p/rho;
+  }
+
+
+
 }

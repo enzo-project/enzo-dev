@@ -154,7 +154,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   if(LoadGridDataAtStart){ 
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id) == FAIL) {
       fprintf(stderr, "Error in grid->Group_ReadGrid (grid %"ISYM").\n", GridID);
-      ENZO_FAIL("");
+      return FAIL;
     }
   }else{
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, FALSE) == FAIL) {

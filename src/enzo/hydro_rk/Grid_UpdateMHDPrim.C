@@ -173,10 +173,11 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	}
 
 	if (D_new < 0 || isnan(D_new)) {
-	  printf("UpdateMHDPrim: rho <0 at %d %d %d: rho_old=%g, rho=%g, rho_new=%g, dU[iD]=%g\n", 
+	  printf("UpdateMHDPrim: rho <0 at %"ISYM" %"ISYM" %"ISYM": rho_old=%"FSYM", rho=%"FSYM", rho_new=%"FSYM", dU[iD]=%"FSYM"\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
-	  //D_new = max(D_new, SmallRho);
-	  D_new = rho;
+	  D_new = max(rho, SmallRho);
+	  printf("UpdateMHDPrim: use rho: %"FSYM"\n", D_new);
+	  //	  D_new = rho;
 	  //D_new = rho;
 	  return FAIL;
 	}
