@@ -1,0 +1,105 @@
+!=======================================================================
+!
+! Copyright 2006 Daniel R. Reynolds
+! Copyright 2006 Laboratory for Computational Astrophysics
+! Copyright 2006 Regents of the University of California
+!
+! This software is released under the terms of the "Enzo Public License"
+! in the accompanying LICENSE file.
+!
+!=======================================================================
+subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa, a,   &
+     adot, aUn, lUn, tUn, EUn, dx, dy, dz, Nx, Ny, Nz, NGxl, NGxr,   &
+     NGyl, NGyr, NGzl, NGzr, ier)
+!=======================================================================
+!  written by: Daniel R. Reynolds
+!  date:       June, 2009
+!
+!  PURPOSE: Computes an initial guess at the time evolved solution 
+!           for the free-streaming radiation equation.
+!
+!  INPUTS:
+!     Ef0        - radiation energy density (old step)
+!     eta        - emissivity sources over domain
+!     iguess     - method to use in constructing initial guess
+!     dt         - time step size
+!     kappa      - background opacity
+!     a          - cosmological expansion parameter
+!     adot       - d(a)/dt
+!     *Un        - variable scaling constants
+!     dx,dy,dz   - mesh spacing in each direction
+!     Nx,Ny,Nz   - active mesh size in each direction
+!     NG*l/NG*r  - left/right ghost cells in each direction
+!
+!     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
+!     the x-direction, others are similar.
+!
+!  OUTPUT ARGUMENTS: 
+!     Ef         - guess at time-evolved solution
+!     ier        - success/failure flag (1->success, 0->failure)
+!
+!  EXTERNALS: 
+!
+!  LOCALS:
+!
+!=======================================================================
+  implicit none
+#include "fortran.def"
+
+!--------------
+! argument declarations
+  integer, intent(in) :: iguess
+  integer, intent(in) :: Nx, NGxl, NGxr
+  integer, intent(in) :: Ny, NGyl, NGyr
+  integer, intent(in) :: Nz, NGzl, NGzr
+  integer, intent(out) :: ier
+  REALSUB,  intent(in) :: a, adot
+  REALSUBR, intent(in) :: dt, kappa, dx, dy, dz
+  REALSUBR, intent(in) :: aUn, lUn, tUn, EUn
+  REALSUBR, intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  REALSUBR, intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  REALSUBR, intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  
+!--------------
+! locals
+  integer :: i, j, k
+  REALSUBR :: P, c, pi
+
+!=======================================================================
+
+  ! initialize output flag to success
+  ier = 1
+
+  ! set some constants
+  c  = 2.99792458d10           ! speed of light [cm/s]
+  pi = 4.D0*datan(1.D0)
+
+
+  ! compute initial guess based on input parameter
+  !     use analytical solution locally in space
+  if (iguess == 1) then
+
+     P = a/adot + c*kappa
+
+     if (P < 1.0d-14) then
+        Ef = Ef0 + dt*eta*4.d0*pi
+
+     elseif (P*dt > 7.0d2) then
+        Ef = eta*4.d0*pi/P
+
+     else
+        Ef = (Ef0 - eta*4.d0*pi/P)*exp(-P*dt) + eta*4.d0*pi/P
+
+     end if
+
+  !     default to using old-time solution as initial guess
+  else 
+
+     Ef = Ef0
+
+  endif
+     
+
+  return
+end subroutine FSProb_InitialGuess
+!=======================================================================
