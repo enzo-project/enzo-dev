@@ -97,11 +97,17 @@ OBJS_CONFIG_LIB = \
 	DepositBaryons.o \
 	DepositParticleMassField.o \
 	DepositParticleMassFlaggingField.o \
+	DetermineParallelism.o \
 	DoubleMachInitialize.o \
 	E_ColumnFormat.o \
 	ealFloat.o \
 	ealInt.o \
 	Enzo_Dims_create.o \
+	EnzoVector.o \
+	EnzoVector_Exchange.o \
+	EnzoVector_ExchangeStart.o \
+	EnzoVector_ExchangeEnd.o \
+	EnzoVector_test.o \
         euler.o \
 	EvolveHierarchy.o \
         expand_terms.o \
@@ -164,6 +170,17 @@ OBJS_CONFIG_LIB = \
 	fortio.o \
 	fourn.o \
 	FreeRealMem.o \
+	FSProb_constructor.o \
+	FSProb_destructor.o \
+	FSProb_FInterface.o \
+	FSProb_Evolve.o \
+	FSProb_Initialize.o \
+	FSProb_Dump.o \
+	FSProb_InitialGuess.o \
+	FSProb_SetupSystem.o \
+	FSProb_WriteParameters.o \
+	FSProb_RadiationSource.o \
+	FSProb_SetupBoundary.o \
 	F_ColumnFormat.o \
 	f_message.o \
 	GetNodeFreeMemory.o \

@@ -14,6 +14,8 @@
 /    doing a new run, a restart, an extraction, or a projection.
 /
 ************************************************************************/
+
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include "mpi.h"
@@ -46,6 +48,9 @@
 #include "CommunicationUtilities.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
+#include "ImplicitProblemABC.h"
+#include "FSProb.h"
+#include "NullProblem.h"
 #endif
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
@@ -68,6 +73,9 @@ int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
 		    LevelHierarchyEntry *Array[], float Initialdt);
 
 void ExtractSection(HierarchyEntry &TopGrid, TopGridData &tgd,
@@ -121,6 +129,7 @@ int GetNodeFreeMemory(void);
 #ifdef TRANSFER
 int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
+				ImplicitProblemABC *ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
@@ -130,6 +139,9 @@ void jbPerfInitialize (int max_level);
 
 void my_exit(int status);
 
+#ifdef TRANSFER
+int DetermineParallelism(HierarchyEntry *TopGrid, TopGridData &MetaData);
+#endif
  
 #ifdef MEM_TRACE
 Eint64 mused(void);
@@ -462,6 +474,26 @@ Eint32 main(Eint32 argc, char *argv[])
 #endif /* USE_MPI */
 
   }
+
+
+  // if using an implicit RT solver, declare the appropriate object here
+#ifdef TRANSFER
+  ImplicitProblemABC *ImplicitSolver;
+  if (RadiativeTransferFLD == 1) {
+
+    // First, determine Top-Grid Parallelism information (store in grids)
+    if (DetermineParallelism(&TopGrid, MetaData) == FAIL) {
+      fprintf(stderr,"Error in DetermineParallelism.\n");
+      my_exit(EXIT_FAILURE);
+    }
+
+    // Declare the implicit solver
+    ImplicitSolver = new FSProb; 
+  }
+  else {
+    ImplicitSolver = new NullProblem; }
+#endif
+
 
 
 /*
