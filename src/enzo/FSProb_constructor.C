@@ -37,8 +37,10 @@ FSProb::FSProb()
   initial_guess = -1;
   mattype = -1;
   stSize = -1;
+#ifdef USE_HYPRE
   grid = NULL;
   stencil = NULL;
+#endif
   sol_tolerance = -1;
   sol_maxit = -1;
   sol_rlxtype = -1;
