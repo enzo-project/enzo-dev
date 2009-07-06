@@ -524,7 +524,11 @@ Eint32 main(Eint32 argc, char *argv[])
   // Call the main evolution routine
  
   try {
-  if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
+  if (EvolveHierarchy(TopGrid, MetaData, &Exterior, 
+#ifdef TRANSFER
+		      ImplicitSolver,
+#endif
+		      LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Error in EvolveHierarchy.\n");
     }
