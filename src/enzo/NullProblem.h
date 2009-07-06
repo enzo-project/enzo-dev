@@ -22,7 +22,7 @@
 #ifndef NULL_IMPLICIT_PROBLEM_DEFINED__
 #define NULL_IMPLICIT_PROBLEM_DEFINED__
 
-#include "ImplicitProblemABC_preincludes.h"
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
