@@ -27,6 +27,7 @@
 /    yet been implemented).
 /
 ************************************************************************/
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include <mpi.h>
@@ -49,6 +50,9 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
  
 // function prototypes
  
@@ -110,6 +114,9 @@ Eint64 mused(void);
  
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
                     ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
 		    LevelHierarchyEntry *LevelArray[], float Initialdt)
 {
  
