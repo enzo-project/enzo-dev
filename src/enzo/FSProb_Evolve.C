@@ -81,7 +81,8 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   tnew = told+dt;
 
   // attach radiation array to U0 vector
-  float *Efold = ThisGrid->GridData->AccessRadiationFrequency0();
+  float *Efold;
+//  float *Efold = ThisGrid->GridData->AccessRadiationFrequency0();
   U0->SetData(0, Efold);
 
   // have U0 begin communication of neighbor information
