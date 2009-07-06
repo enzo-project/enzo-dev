@@ -32,8 +32,11 @@ int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 
 
-int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
+int RadiativeTransferInitialize(char *ParameterFile, 
+				HierarchyEntry &TopGrid, 
+				TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
+				ImplicitProblemABC *ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[])
 {
 
@@ -210,6 +213,21 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     y2pix = new int[128];
     mk_xy2pix(&x2pix[0], &y2pix[0]);
   }
+
+
+  // if using the FLD solver, initialize it here
+  if (RadiativeTransferFLD > 0) {
+#ifdef USE_HYPRE  
+    if (ImplicitSolver->Initialize(TopGrid, MetaData) == FAIL) {
+      fprintf(stderr,"Error Initializing ImplicitSolver solver\n");
+      return FAIL;
+    }
+#else
+    fprintf(stderr,"Error: cannot use RadiativeTransferFLD without HYPRE\n");
+    return FAIL;
+#endif
+  }
+  
 
   return SUCCESS;
 

@@ -127,7 +127,9 @@ int GetNodeFreeMemory(void);
 #endif
 
 #ifdef TRANSFER
-int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
+int RadiativeTransferInitialize(char *ParameterFile, 
+				HierarchyEntry &TopGrid, 
+				TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
 				ImplicitProblemABC *ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[]);
@@ -495,24 +497,11 @@ Eint32 main(Eint32 argc, char *argv[])
 #endif
 
 
-
-/*
-
-  // Perform local initialization (even for restart, may just return, depends on problem)
-
-  if (InitializeLocal(restart, TopGrid, MetaData) == FAIL) {
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Error in Local Initialization.\n");
-    my_exit(EXIT_FAILURE); 
-  }
-
-*/ 
-
   /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
-  if (RadiativeTransferInitialize(ParameterFile, MetaData, Exterior, 
-				  LevelArray) == FAIL) {
+  if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
+				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
