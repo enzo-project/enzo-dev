@@ -60,7 +60,11 @@ int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		int level, float dtLevelAbove, ExternalBoundary *Exterior);
+		int level, float dtLevelAbove, ExternalBoundary *Exterior
+#ifdef TRANSFER
+		, ImplicitProblemABC *ImplicitSolver
+#endif
+);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                     int level, float dtLevelAbove, ExternalBoundary *Exterior, FLOAT dt0);
@@ -427,7 +431,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || HydroMethod == PPM_LagrangeRemap) {
-      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
+      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
+#ifdef TRANSFER
+		      , ImplicitSolver
+#endif
+		      ) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
           fprintf(stderr, "--> Dumping data (output number %d).\n",

@@ -218,7 +218,11 @@ static int StaticLevelZero = 0;
 #endif
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		int level, float dtLevelAbove, ExternalBoundary *Exterior)
+		int level, float dtLevelAbove, ExternalBoundary *Exterior
+#ifdef TRANSFER
+		, ImplicitProblemABC *ImplicitSolver
+#endif
+)
 {
   /* Declarations */
 
@@ -491,7 +495,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     MetaData->FirstTimestepAfterRestart = FALSE;
 
     if (LevelArray[level+1] != NULL) {
-      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
+      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior
+#ifdef TRANSFER
+		      , ImplicitSolver
+#endif
+		      ) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
 	ENZO_FAIL("");
       }
