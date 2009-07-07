@@ -36,8 +36,7 @@ EXTERN char outfilename[];
 
 
 // Problem initializer prototypes
-int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
-			    HierarchyEntry &TopGrid,
+int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			    TopGridData &MetaData, int local);
 
 
@@ -411,10 +410,14 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   HYPRE_StructVectorInitialize(rhsvec);
   HYPRE_StructVectorCreate(MPI_COMM_WORLD, grid, &solvec);
   HYPRE_StructVectorInitialize(solvec);
+
 #else  // ifdef USE_HYPRE
-  fprintf(stderr,"ERROR: FSProb must be used with HYPRE enabled!!!\n");
+
+  fprintf(stderr,"ERROR: FSProb usage requires HYPRE to be enabled!\n");
   return FAIL;
+
 #endif
+
 
   //   check MG solver parameters
   if (sol_maxit < 0) {
@@ -444,14 +447,13 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
 
+
+
   ////////////////////////////////
-  // set up the boundary conditions on the radiation field, 
+  // set up any problem-specific local data initializers here, 
   // depending on the ProblemType
-  float ZERO = 0.0;
   fptr = NULL;
 
-  // set boundary conditions based on problem type
-  // (default to homogeneous Dirichlet)
   switch (ProblemType) {
     
   // ODE test problem, set BCs based on input.
@@ -463,6 +465,35 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(stderr,"Error in FSMultiSourceInitialize.\n");
       return FAIL;
     }
+    break;
+
+  default:
+
+    // by default do not call any local problem initializer -- 
+    // assumes that the problem has been set up elsewhere
+
+  }
+
+
+
+
+  ////////////////////////////////
+  // set up the boundary conditions on the radiation field:
+  // these default to periodic unless BdryType specifies otherwise (nonzero); 
+  // If non-zero Dirichlet/Neumann boundary condition values are desired, 
+  // they should be specified by ProblemType
+  float ZERO = 0.0;
+
+  // set boundary conditions based on problem type
+  // (default to periodic)
+  switch (ProblemType) {
+    
+
+  // Insert problem-specific BC initializers here...
+
+
+  // Default to homogeneous Dirichlet or Neumann values (if not periodic)
+  default:
 
     if (BdryType[0][0] != 0) {
       if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
@@ -496,14 +527,6 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     }
     break;
 
-  // Insert new problem intializers here...
-
-  default:
-
-    fprintf(stderr,"FSProb_Initialize: unknown ProblemType = %i, returning!\n",
-	    ProblemType);
-    return FAIL;
-    
   }
   ////////////////////////////////
     
