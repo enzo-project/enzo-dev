@@ -36,7 +36,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 
 
@@ -88,17 +88,17 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
     ENZO_FAIL("FSProb Solve: vector exchange_start error");
 
   // get internal Enzo units (old and new time steps)
-  float DenUnits, TempUnits, VelUnits, MassUnits, RadUnits;
+  float DenUnits, TempUnits, VelUnits, RadUnits;
   LenUnits0 = TimeUnits0 = LenUnits = TimeUnits = 1.0;
-  DenUnits = TempUnits = VelUnits = MassUnits = RadUnits = 1.0;
+  DenUnits = TempUnits = VelUnits = RadUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits0, &TempUnits, 
-	       &TimeUnits0, &VelUnits, &MassUnits, told) == FAIL) 
+	       &TimeUnits0, &VelUnits, told) == FAIL) 
     ENZO_FAIL("FSProb Solve: Error in GetUnits.");
   RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits0 = RadUnits*EScale;
-  DenUnits = TempUnits = VelUnits = MassUnits = 1.0;
+  DenUnits = TempUnits = VelUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
+	       &TimeUnits, &VelUnits, tnew) == FAIL) 
     ENZO_FAIL("FSProb Solve: Error in GetUnits.");
   RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits = RadUnits*EScale;
