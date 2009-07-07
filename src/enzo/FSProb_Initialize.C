@@ -471,6 +471,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
     // by default do not call any local problem initializer -- 
     // assumes that the problem has been set up elsewhere
+    break;
 
   }
 

@@ -913,8 +913,8 @@ class grid
 
 
 // -------------------------------------------------------------------------
-// Functions for accessing specific baryon fields (all sources combined 
-// in Grid_AccessBaryonFields.C)
+// Functions for accessing specific baryon fields 
+// (all sources combined in the file Grid_AccessBaryonFields.C)
 //
    float* AccessDensity();
    float* AccessTotalEnergy();
@@ -928,6 +928,31 @@ class grid
    float* AccessHeIDensity();
    float* AccessHeIIDensity();
    float* AccessHeIIIDensity();
+   float* AccessHMDensity();
+   float* AccessH2IDensity();
+   float* AccessH2IIDensity();
+   float* AccessDIDensity();
+   float* AccessDIIDensity();
+   float* AccessHDIDensity();
+   float* AccessSNColour();
+   float* AccessMetallicity();
+   float* AccessExtraType0();
+   float* AccessExtraType1();
+   float* AccessKPhHI();
+   float* AccessGammaHI();
+   float* AccessKPhHeI();
+   float* AccessGammaHeI();
+   float* AccessKPhHeII();
+   float* AccessGammaHeII();
+   float* AccessKDissH2I();
+   float* AccessGravPotential();
+   float* AccessAcceleration0();
+   float* AccessAcceleration1();
+   float* AccessAcceleration2();
+   float* AccessRadPressure0();
+   float* AccessRadPressure1();
+   float* AccessRadPressure2();
+   float* AccessEmissivity0();
 
 
 // -------------------------------------------------------------------------

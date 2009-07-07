@@ -123,3 +123,209 @@ float* grid::AccessHeIIIDensity() {
   return BaryonField[HeIIINum];
 }
 
+// Molecular Hydrogen Density field 
+float* grid::AccessHMDensity() {
+  int HMNum = -1;
+  if ((HMNum = FindField(HMDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[HMNum];
+}
+
+// H2I Density field 
+float* grid::AccessH2IDensity() {
+  int H2INum = -1;
+  if ((H2INum = FindField(H2IDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[H2INum];
+}
+
+// H2II Density field 
+float* grid::AccessH2IIDensity() {
+  int H2IINum = -1;
+  if ((H2IINum = FindField(H2IIDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[H2IINum];
+}
+
+// DI Density field 
+float* grid::AccessDIDensity() {
+  int DINum = -1;
+  if ((DINum = FindField(DIDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[DINum];
+}
+
+// DII Density field 
+float* grid::AccessDIIDensity() {
+  int DIINum = -1;
+  if ((DIINum = FindField(DIIDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[DIINum];
+}
+
+// HDI Density field 
+float* grid::AccessHDIDensity() {
+  int HDINum = -1;
+  if ((HDINum = FindField(HDIDensity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[HDINum];
+}
+
+// SN Colour field 
+float* grid::AccessSNColour() {
+  int SNColourNum = -1;
+  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[SNColourNum];
+}
+
+// Metallicity field 
+float* grid::AccessMetallicity() {
+  int MetallicityNum = -1;
+  if ((MetallicityNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[MetallicityNum];
+}
+
+// ExtraType0 field 
+float* grid::AccessExtraType0() {
+  int ExtraNum = -1;
+  if ((ExtraNum = FindField(ExtraType0, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[ExtraNum];
+}
+
+// ExtraType1 field 
+float* grid::AccessExtraType1() {
+  int ExtraNum = -1;
+  if ((ExtraNum = FindField(ExtraType1, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[ExtraNum];
+}
+
+// kphHI field 
+float* grid::AccessKPhHI() {
+  int kphHINum = -1;
+  if ((kphHINum = FindField(kphHI, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[kphHINum];
+}
+
+// Gamma HI field 
+float* grid::AccessGammaHI() {
+  int GammaHINum = -1;
+  if ((GammaHINum = FindField(gammaHI, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[GammaHINum];
+}
+
+// kphHeI field 
+float* grid::AccessKPhHeI() {
+  int kphHeINum = -1;
+  if ((kphHeINum = FindField(kphHeI, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[kphHeINum];
+}
+
+// Gamma HeI field 
+float* grid::AccessGammaHeI() {
+  int GammaHeINum = -1;
+  if ((GammaHeINum = FindField(gammaHeI, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[GammaHeINum];
+}
+
+// kphHeII field 
+float* grid::AccessKPhHeII() {
+  int kphHeIINum = -1;
+  if ((kphHeIINum = FindField(kphHeII, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[kphHeIINum];
+}
+
+// Gamma HeII field 
+float* grid::AccessGammaHeII() {
+  int GammaHeIINum = -1;
+  if ((GammaHeIINum = FindField(gammaHeII, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[GammaHeIINum];
+}
+
+// kdissH2I field 
+float* grid::AccessKDissH2I() {
+  int kdissH2Inum = -1;
+  if ((kdissH2Inum = FindField(kdissH2I, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[kdissH2Inum];
+}
+
+// Gravitational Potential field 
+float* grid::AccessGravPotential() {
+  int GravPotNum = -1;
+  if ((GravPotNum = FindField(GravPotential, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[GravPotNum];
+}
+
+// Acceleration0 field 
+float* grid::AccessAcceleration0() {
+  int Acceleration0Num = -1;
+  if ((Acceleration0Num = FindField(Acceleration0, FieldType, 
+				    NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[Acceleration0];
+}
+
+// Acceleration1 field 
+float* grid::AccessAcceleration1() {
+  int Acceleration1Num = -1;
+  if ((Acceleration1Num = FindField(Acceleration1, FieldType, 
+				    NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[Acceleration1Num];
+}
+
+// Acceleration2 Density field 
+float* grid::AccessAcceleration2() {
+  int Acceleration2Num = -1;
+  if ((Acceleration2Num = FindField(Acceleration2, FieldType, 
+				    NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[Acceleration2Num];
+}
+
+// Radiation Pressure0 field 
+float* grid::AccessRadPressure0() {
+  int RadPressure0Num = -1;
+  if ((RadPressure0Num = FindField(RadPressure0, FieldType, 
+				   NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadPressure0Num];
+}
+
+// Radiation Pressure1 field 
+float* grid::AccessRadPressure1() {
+  int RadPressure1Num = -1;
+  if ((RadPressure1Num = FindField(RadPressure1, FieldType, 
+				   NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadPressure1Num];
+}
+
+// Radiation Pressure2 field 
+float* grid::AccessRadPressure2() {
+  int RadPressure2Num = -1;
+  if ((RadPressure2Num = FindField(RadPressure2, FieldType, 
+				   NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadPressure2Num];
+}
+
+// Emissivity0 field 
+float* grid::AccessEmissivity0() {
+  int EtaNum = -1;
+  if ((EtaNum = FindField(Emissivity0, FieldType, NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[EtaNum];
+}
+

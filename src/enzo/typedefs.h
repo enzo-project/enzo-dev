@@ -76,6 +76,7 @@ const field_type
   RadPressure0    = 34,
   RadPressure1    = 35,
   RadPressure2    = 36,
+  Emissivity0     = 37,
 
 /* these pseudo-fields are used to access grid data 
    the "g" prefix is to avoid namespace conflict */

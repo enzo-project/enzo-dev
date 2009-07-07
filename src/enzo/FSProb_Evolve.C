@@ -80,8 +80,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   tnew = told+dt;
 
   // attach radiation array to U0 vector
-  float *Efold;
-//  float *Efold = ThisGrid->GridData->AccessRadiationFrequency0();
+  float *Efold = ThisGrid->GridData->AccessKDissH2I();
   U0->SetData(0, Efold);
 
   // have U0 begin communication of neighbor information
@@ -131,11 +130,10 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   float *RadSrc = extsrc->GetData(0);
   if (RadSrc == NULL)
     ENZO_FAIL("FSProb Solve: could not access Radiation source.");
-#ifdef EMISSIVITY
-  // if using external Emissivity field source, copy into extsrc
-  if (StarMakerEmissivityField > 0) {
+  //   access emissivity field provided by RadiativeTransfer module (John Wise)
+  if (RadiativeTransfer > 0) {
     // access external emissivity field 
-    float *EmissivitySource = ThisGrid->GridData->AccessEmissivityField();
+    float *EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
     if (EmissivitySource == NULL) 
       ENZO_FAIL("FSProb Solve: could not access emissivity field");
     // copy data
@@ -143,7 +141,8 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
       RadSrc[i] = EmissivitySource[i];
     src_set = 1;
   }
-#endif
+  //   if left unset, call the local routine to set up the emissivity field 
+  //   (based on ProblemType)
   if (src_set == 0) {
     if (this->RadiationSource(RadSrc) != SUCCESS)
       ENZO_FAIL("FSProb Solve: Error in RadiationSource routine");
