@@ -83,19 +83,19 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   LimType = 4;          // Zeus limiter
   EScale = 1.0;         // no radiation equation scaling
   kappa   = 1.0e-4;     // background opacity
-  for (dim=0; dim<rank; dim++)     // set default radiation boundaries to 
-    for (face=0; face<2; face++)   //   periodic in each direction
+  for (dim=0; dim<rank; dim++)       // set default radiation boundaries to 
+    for (face=0; face<2; face++)     // periodic in each direction
       BdryType[dim][face] = 0;
 
   // set default solver parameters
   initial_guess      = 0;         // previous time step
-  sol_tolerance      = 1e-10;     // solver tolerance
-  sol_printl         = 1;         // HYPRE print level
-  sol_log            = 1;         // HYPRE logging level
+  sol_tolerance      = 1e-7;      // solver tolerance
+  sol_printl         = 0;         // HYPRE print level
+  sol_log            = 0;         // HYPRE logging level
   sol_maxit          = 50;        // HYPRE max multigrid iters
   sol_rlxtype        = 1;         // HYPRE relaxation type
-  sol_npre           = 1;         // HYPRE num pre-smoothing steps
-  sol_npost          = 1;         // HYPRE num post-smoothing steps
+  sol_npre           = 2;         // HYPRE num pre-smoothing steps
+  sol_npost          = 2;         // HYPRE num post-smoothing steps
 
   // set default ionization parameters
   NGammaDot          = 0.0;       // ionization strength
