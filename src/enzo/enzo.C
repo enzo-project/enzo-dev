@@ -50,6 +50,7 @@
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);
+int FinalizePythonInterface();
 #endif
  
 // Function prototypes
@@ -606,6 +607,9 @@ Eint32 main(Eint32 argc, char *argv[])
 void my_exit(int status)
 {
   // Exit gracefully if successful; abort on error
+#ifdef USE_PYTHON
+  FinalizePythonInterface();
+#endif
 
   if (status == EXIT_SUCCESS) {
 
