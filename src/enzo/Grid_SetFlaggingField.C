@@ -168,6 +168,14 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     }
 #endif /* TRANSFER */
     break;
+
+  case 11:
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
+      if (NumberOfFlaggedCells < 0) {
+	fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByResistiveLength.\n");
+	return FAIL;
+      }
+      break;
  
     /* ==== undefined ==== */
  

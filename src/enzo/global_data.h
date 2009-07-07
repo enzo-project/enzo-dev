@@ -339,7 +339,8 @@ EXTERN FLOAT HaloFinderLastTime;
 /* For CellFlaggingMethod = 1,
    The minimum relative slope (da/dx over a) required for refinement. */
 
-EXTERN float MinimumSlopeForRefinement;
+EXTERN float MinimumSlopeForRefinement[MAX_FLAGGING_METHODS];
+EXTERN int SlopeFlaggingFields[MAX_FLAGGING_METHODS];
 
 /* For CellFlaggingMethod = 2,
    The minimum refined mass for the ByMass refining scheme
@@ -373,7 +374,16 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
 
+
+
 EXTERN float MinimumShearForRefinement;
+
+/* For CellFlaggingMethod = 11,
+   The number of cells by which the Resistive length abs(B)/abs(curl(B)) 
+   should be resolved. */
+
+EXTERN float RefineByResistiveLengthSafetyFactor;
+
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -539,13 +549,11 @@ EXTERN double ExternalGravityRadius;
 /* Poisson Clean */
 
 EXTERN int UseDivergenceCleaning;
+EXTERN int DivergenceCleaningBoundaryBuffer;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 
-/* For Shearing Box */
 
-EXTERN float AngularVelocity;
-EXTERN float VelocityGradient;
 
 /* Star Particle paramters */
 
@@ -631,6 +639,18 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 /* Coupled radiative transfer, cooling, and rate solver */
 
 EXTERN int RadiativeTransferCoupledRateSolver;
+
+
+
+/* Shearing Boundary Conditions */
+
+EXTERN float AngularVelocity;
+EXTERN float VelocityGradient;
+EXTERN int ShearingBoundaryDirection;
+EXTERN int ShearingVelocityDirection;
+EXTERN int ShearingOtherDirection;
+EXTERN int useMHD;
+EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 
 
 #endif

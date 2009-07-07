@@ -74,6 +74,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
 #endif  // end FAST_SIB
+
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
@@ -629,22 +630,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Grids[grid1]->GridData->AddResistivity();
 	  }
 	
-	  if(UseDivergenceCleaning){
-	    
-	    time1 = ReturnWallTime();
+	 
+	  time1 = ReturnWallTime();
 
-	    if (Grids[grid1]->GridData->PoissonSolver(UseDivergenceCleaning, level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonSolver.\n");
-	      return FAIL;
-	    }
-
-	    if (Grids[grid1]->GridData->PoissonCleanStep(level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonCleaning.\n");
-	      return FAIL;
-	    }
-
-	  }
-
+	  Grids[grid1]->GridData->PoissonSolver(level);
+	
 	}
       }
 

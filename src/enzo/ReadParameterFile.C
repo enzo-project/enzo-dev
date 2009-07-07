@@ -39,6 +39,8 @@
  
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
+
+
 /* function prototypes */
  
 int ReadListOfFloats(FILE *fptr, int N, float floats[]);
@@ -54,10 +56,13 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
  
  
+int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
+
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
   /* declarations */
- 
+
+  
   char line[MAX_LINE_LENGTH];
   int dim, ret, int_dummy;
   float TempFloat;
@@ -229,6 +234,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "ProblemType            = %"ISYM, &ProblemType);
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
+    if (HydroMethod==MHD_RK) useMHD = 1;
+
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
     ret += sscanf(line, "Gamma                  = %"FSYM, &Gamma);
@@ -361,6 +368,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumPressureSupportParameter);
     ret += sscanf(line, "RefineByJeansLengthSafetyFactor = %"FSYM,
 		  &RefineByJeansLengthSafetyFactor);
+    ret += sscanf(line, "RefineByResistiveLengthSafetyFactor = %" FSYM,
+		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
@@ -422,6 +431,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SimpleConstantBoundary = %"ISYM, &SimpleConstantBoundary);
 
 #endif
+
+
+    ret += sscanf(line, "SlopeFlaggingFields = "
+		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+		  SlopeFlaggingFields+0, 
+		  SlopeFlaggingFields+1,
+		  SlopeFlaggingFields+2, 
+		  SlopeFlaggingFields+3,
+		  SlopeFlaggingFields+4,
+		  SlopeFlaggingFields+5,
+		  SlopeFlaggingFields+6);
+    
+    ret += sscanf(line, "MinimumSlopeForRefinement = " 	  
+		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+	
+		  MinimumSlopeForRefinement+0,
+		  MinimumSlopeForRefinement+1,
+		  MinimumSlopeForRefinement+2,
+		  MinimumSlopeForRefinement+3,
+		  MinimumSlopeForRefinement+4,  
+		  MinimumSlopeForRefinement+5,
+		  MinimumSlopeForRefinement+6);
+
  
     ret += sscanf(line, "MinimumOverDensityForRefinement  = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
@@ -471,10 +503,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MetaData.LeftFaceBoundaryCondition,
 		  MetaData.LeftFaceBoundaryCondition+1,
 		  MetaData.LeftFaceBoundaryCondition+2);
-    ret += sscanf(line, "RightFaceBoundaryCondition = %"ISYM" %"ISYM" %"ISYM,
-		  MetaData.RightFaceBoundaryCondition,
-		  MetaData.RightFaceBoundaryCondition+1,
-		  MetaData.RightFaceBoundaryCondition+2);
+    
+     ret += sscanf(line, "RightFaceBoundaryCondition = %"ISYM" %"ISYM" %"ISYM,
+ 		  MetaData.RightFaceBoundaryCondition,
+ 		  MetaData.RightFaceBoundaryCondition+1,
+ 		  MetaData.RightFaceBoundaryCondition+2);
+
+  
     if (sscanf(line, "BoundaryConditionName         = %s", dummy) == 1)
       MetaData.BoundaryConditionName = dummy;
  
@@ -559,6 +594,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, 
 		  &RadiationXRaySecondaryIon);
 
+
+    /* Shearing Box Boundary parameters */
+
+    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
+    ret += sscanf(line, "ShearingVelocityDirection = %"ISYM, &ShearingVelocityDirection);
+
+    
+
 #ifdef STAGE_INPUT
     sscanf(line, "LocalPath = %s\n", LocalPath);
     sscanf(line, "GlobalPath = %s\n", GlobalPath);
@@ -595,22 +639,23 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Read MHD Paramters */
-    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM, &UseDivergenceCleaning);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
-    ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
-    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
-    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
-    ret += sscanf(line, "UseDrivingField = %"ISYM, &UseDrivingField);
-    ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
+    ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %d", &DivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %f", &DivergenceCleaningThreshold);
+    ret += sscanf(line, "PoissonApproximationThreshold = %f", &PoissonApproximationThreshold);
+    ret += sscanf(line, "AngularVelocity = %f", &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %f", &VelocityGradient);
+    ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
+    ret += sscanf(line, "DrivingEfficiency = %f", &DrivingEfficiency);
 
-    ret += sscanf(line, "StringKick = %"ISYM, &StringKick);
-    ret += sscanf(line, "UsePhysicalUnit = %"ISYM, &UsePhysicalUnit);
-    ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
-    ret += sscanf(line, "RKOrder = %"ISYM, &RKOrder);
-    ret += sscanf(line, "UseFloor = %"ISYM, &UseFloor);
-    ret += sscanf(line, "UseViscosity = %"ISYM, &UseViscosity);
-    ret += sscanf(line, "UseAmbipolarDiffusion = %"ISYM, &UseAmbipolarDiffusion);
-    ret += sscanf(line, "UseResistivity = %"ISYM, &UseResistivity);
+    ret += sscanf(line, "StringKick = %d", &StringKick);
+    ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
+    ret += sscanf(line, "Theta_Limiter = %f", &Theta_Limiter);
+    ret += sscanf(line, "RKOrder = %d", &RKOrder);
+    ret += sscanf(line, "UseFloor = %d", &UseFloor);
+    ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
+    ret += sscanf(line, "UseAmbipolarDiffusion = %d", &UseAmbipolarDiffusion);
+    ret += sscanf(line, "UseResistivity = %d", &UseResistivity);
     ret += sscanf(line, "SmallRho = %g", &SmallRho);
     ret += sscanf(line, "SmallP = %g", &SmallP);
     ret += sscanf(line, "SmallT = %g", &SmallT);
@@ -656,7 +701,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Units")               ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
-    if (strstr(line, "TestProblem")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
     if (strstr(line, "Noh")                 ) ret++;
@@ -674,6 +718,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
+    if (strstr(line, "ShearingBox")) ret++;
+    if (strstr(line, "PoissonSolverTest")) ret++;
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
@@ -945,5 +991,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }
  
+   for (int i=0; i<MetaData.TopGridRank;i++)
+    TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
+
+ //  for (int i=0; i<MetaData.TopGridRank; i++)
+//      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
+// 	      MetaData.LeftFaceBoundaryCondition[i], 
+// 	      MetaData.RightFaceBoundaryCondition[i]);
+
+
+   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

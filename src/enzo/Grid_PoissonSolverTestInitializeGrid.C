@@ -9,7 +9,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "EOS.h"
+#include "hydro_rk/EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -36,10 +36,9 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
   FieldType[B2=NumberOfBaryonFields++] = Bfield2;
   FieldType[B3=NumberOfBaryonFields++] = Bfield3;
   FieldType[NumberOfBaryonFields++] = PhiField;
-  FieldType[NumberOfBaryonFields++] = DebugField;
+
   if(UseDivergenceCleaning){
     FieldType[phip_num=NumberOfBaryonFields++] = Phi_pField;
-    FieldType[NumberOfBaryonFields++] = DebugField;  
   }
 
   /* Return if this doesn't concern us. */

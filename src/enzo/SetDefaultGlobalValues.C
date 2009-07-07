@@ -167,6 +167,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    MinimumSlopeForRefinement[i]= 0.3;
+    SlopeFlaggingFields[i] = INT_UNDEFINED;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -276,11 +278,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseMinimumPressureSupport        = FALSE;
   MinimumPressureSupportParameter  = 100.0;
  
-  MinimumSlopeForRefinement        = 0.3;          // 30% change in value
+  //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  RefineByResistiveLengthSafetyFactor  = 2.0;
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
@@ -408,6 +411,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UsePhysicalUnit = 0;
 
   UseDivergenceCleaning = 0;
+  DivergenceCleaningBoundaryBuffer=0;
   DivergenceCleaningThreshold = 0.001;
   PoissonApproximationThreshold = 0.001;
 
@@ -473,5 +477,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Shearing Boundary Conditions variables */
+
+  
+  AngularVelocity=0.001;
+  VelocityGradient=1.0;
+  ShearingBoundaryDirection=-1;
+  ShearingVelocityDirection=-1;
+  
+  useMHD=0;
   return SUCCESS;
 }

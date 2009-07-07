@@ -300,36 +300,41 @@ int grid::MHDSourceTerms(float **dU)
   
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 400) {
+  if (ProblemType == 31) {
     
     int igrid;
     float rho, gx, gy, gz;
-    float vx, vy, vz, vx_old, v2, vy_old, vz_old;  FLOAT x,z;
+    FLOAT xPos[3];
+    float vels[3]; 
     int n = 0;
+
+    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
+    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+    int ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
+    int ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
+    
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];//-0.5;
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];//-0.5;
+	  rho = BaryonField[iden][igrid];
+	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i];
+	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i];
 	 
-	  vx = BaryonField[Vel1Num][igrid];
-	  vy = BaryonField[Vel2Num][igrid];
-	  vz = BaryonField[Vel3Num][igrid];
+	  vels[0] = BaryonField[ivx][igrid];
+	  vels[1] = BaryonField[ivy][igrid];
+	  vels[2] = BaryonField[ivz][igrid];
 
 	  //adding Omega cross v term; given Omega in z direction
-	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*(vy+VelocityGradient*AngularVelocity*x);
-	  dU[iS2][n] += -dtFixed*2.0*rho*AngularVelocity*vx;
-
-	  //adding tidal expansion terms
-	  //dU[iS1][n] += dtFixed*3*VelocityGradient*AngularVelocity*AngularVelocity*x;
+	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*
+	    (vels[ShearingVelocityDirection]+VelocityGradient*AngularVelocity*xPos[ShearingBoundaryDirection])*rho;
+	  dU[iS2][n] += -dtFixed*2.0*rho*AngularVelocity*vels[ShearingVelocityDirection]*rho;
 	  
-	  //Adding vertical gravitational forces of the central object in the thin disk approximation
-	  //dU[iS1][n] += -dtFixed*AngularVelocity*AngularVelocity*z;
-	  
-	  dU[iEtot][n] += dtFixed*2*AngularVelocity*AngularVelocity*VelocityGradient*x*vx;
+	  dU[iEtot][n] += dtFixed*2*AngularVelocity*AngularVelocity*VelocityGradient*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection]*rho;
 	  
  	}
       }
