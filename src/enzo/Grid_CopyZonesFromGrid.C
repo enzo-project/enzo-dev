@@ -72,11 +72,11 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   
     //printf("L: %"GSYM" Delta: %"GSYM" %"GSYM" (%"GSYM" %"GSYM")\n", L, delta, delta, AngularVelocity, VelocityGradient);
 
-    if (abs(EdgeOffset[ShearingBoundaryDirection]-FLOAT(1.0)*L)<=
+    if (fabs(EdgeOffset[ShearingBoundaryDirection]-FLOAT(1.0)*L)<=
 	CellWidth[ShearingBoundaryDirection][0]*0.1) 
       shiftPos=true;
     else shiftPos=false;
-    if (abs(EdgeOffset[ShearingBoundaryDirection]+FLOAT(1.0)*L)<=
+    if (fabs(EdgeOffset[ShearingBoundaryDirection]+FLOAT(1.0)*L)<=
 	CellWidth[ShearingBoundaryDirection][0]*0.1) 
       shiftNeg=true;
     else shiftNeg=false;
