@@ -608,6 +608,11 @@ class grid
 
    int FlagCellsToBeRefinedByJeansLength();
 
+/* Flag all points that require refining by the Resistive Scale length criterion. 
+   abs(B)/abs(curl(B)) should be larger than cell size*/
+
+   int FlagCellsToBeRefinedByResistiveLength();
+
 /* Flag all points that require refining by Shear. */
 
    int FlagCellsToBeRefinedByShear();

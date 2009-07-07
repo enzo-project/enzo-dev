@@ -351,7 +351,16 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
 
+
+
 EXTERN float MinimumShearForRefinement;
+
+/* For CellFlaggingMethod = 11,
+   The number of cells by which the Resistive length abs(B)/abs(curl(B)) 
+   should be resolved. */
+
+EXTERN float RefineByResistiveLengthSafetyFactor;
+
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
