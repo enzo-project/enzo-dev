@@ -62,6 +62,7 @@
 /          the list of subgrids.
 /
 ************************************************************************/
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include "mpi.h"
@@ -85,6 +86,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
  
 /* function prototypes */
  
@@ -407,6 +411,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
       GridTime = Grids[grid1]->GridData->ReturnTime();
       EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
+
+      if ((RadiativeTransferFLD == 1) && (level == 0))
+	ImplicitSolver->Evolve(Grids[grid1]);
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */

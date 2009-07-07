@@ -37,7 +37,6 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
-int RadiationGetUnits(float *RadiationUnits, FLOAT Time);
 
 
 
@@ -64,7 +63,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   if (MyProcessorNumber != MPI_id) {
     fprintf(stderr, "ERROR: Enzo PID %"ISYM" doesn't match MPI ID %"ISYM"\n", 
 	    MyProcessorNumber, int(MPI_id));
-    return FAIL;
+    ENZO_FAIL(" ");
   }
 #endif
 
@@ -86,47 +85,31 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   U0->SetData(0, Efold);
 
   // have U0 begin communication of neighbor information
-  if (U0->exchange_start() == FAIL) {
-    fprintf(stderr,"FSProb Solve: vector exchange_start error\n");
-    return FAIL;
-  }
+  if (U0->exchange_start() == FAIL)
+    ENZO_FAIL("FSProb Solve: vector exchange_start error");
 
   // get internal Enzo units (old and new time steps)
   float DenUnits, TempUnits, VelUnits, MassUnits, RadUnits;
   LenUnits0 = TimeUnits0 = LenUnits = TimeUnits = 1.0;
   DenUnits = TempUnits = VelUnits = MassUnits = RadUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits0, &TempUnits, 
-	       &TimeUnits0, &VelUnits, &MassUnits, told) == FAIL) {
-    fprintf(stderr,"FSProb Solve: Error in GetUnits.\n");
-    return FAIL;
-  }
-  if (RadiationGetUnits(&RadUnits, told) == FAIL) {
-    fprintf(stderr,"FSProb Solve: Error in RadiationGetUnits.\n");
-    return FAIL;
-  }
+	       &TimeUnits0, &VelUnits, &MassUnits, told) == FAIL) 
+    ENZO_FAIL("FSProb Solve: Error in GetUnits.");
+  RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits0 = RadUnits*EScale;
   DenUnits = TempUnits = VelUnits = MassUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) {
-    fprintf(stderr,"FSProb Solve: Error in GetUnits.\n");
-    return FAIL;
-  }
-  if (RadiationGetUnits(&RadUnits, tnew) == FAIL) {
-    fprintf(stderr,"FSProb Solve: Error in RadiationGetUnits.\n");
-    return FAIL;
-  }
+	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
+    ENZO_FAIL("FSProb Solve: Error in GetUnits.");
+  RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits = RadUnits*EScale;
 
   // set a, adot, unit scalings to correct time-level values
   if (ComovingCoordinates) {
-    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) {
-      fprintf(stderr, "FSProb Solve: CosmologyComputeExpansionFactor error.\n");
-      return FAIL;
-    }
-    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) {
-      fprintf(stderr, "FSProb Solve: CosmologyComputeExpansionFactor error.\n");
-      return FAIL;
-    }
+    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) 
+      ENZO_FAIL("FSProb Solve: CosmologyComputeExpansionFactor error.");
+    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) 
+      ENZO_FAIL("FSProb Solve: CosmologyComputeExpansionFactor error.");
     aUnits = 1.0/(1.0 + InitialRedshift);
   }
 
@@ -146,19 +129,15 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   // fill in the emissivity source array
   int src_set = 0;
   float *RadSrc = extsrc->GetData(0);
-  if (RadSrc == NULL) {
-    fprintf(stderr,"FSProb Solve: could not access Radiation source\n");
-    return FAIL;
-  }
+  if (RadSrc == NULL)
+    ENZO_FAIL("FSProb Solve: could not access Radiation source.");
 #ifdef EMISSIVITY
   // if using external Emissivity field source, copy into extsrc
   if (StarMakerEmissivityField > 0) {
     // access external emissivity field 
     float *EmissivitySource = ThisGrid->GridData->AccessEmissivityField();
-    if (EmissivitySource == NULL) {
-      fprintf(stderr,"FSProb Solve: could not access emissivity field\n");
-      return FAIL;
-    }
+    if (EmissivitySource == NULL) 
+      ENZO_FAIL("FSProb Solve: could not access emissivity field");
     // copy data
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
       RadSrc[i] = EmissivitySource[i];
@@ -166,18 +145,14 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   }
 #endif
   if (src_set == 0) {
-    if (this->RadiationSource(RadSrc) != SUCCESS) {
-      fprintf(stderr,"FSProb Solve: Error in RadiationSource routine\n");
-      return FAIL;
-    }
+    if (this->RadiationSource(RadSrc) != SUCCESS)
+      ENZO_FAIL("FSProb Solve: Error in RadiationSource routine");
     src_set = 1;
   }
 
   // have U0 finish communication of neighbor information
-  if (U0->exchange_end() == FAIL) {
-    fprintf(stderr,"FSProb Solve: vector exchange_end error\n");
-    return FAIL;
-  }
+  if (U0->exchange_end() == FAIL) 
+    ENZO_FAIL("FSProb Solve: vector exchange_end error");
 
   // output norm of radiation sources
   float srcNorm = extsrc->rmsnorm();
@@ -198,19 +173,15 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
   }
 
   // calculate initial guess at time-evolved solution
-  if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) {
-    fprintf(stderr,"FSProb Solve: Error in InitialGuess routine\n");
-    return FAIL;
-  }
+  if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) 
+    ENZO_FAIL("FSProb Solve: Error in InitialGuess routine");
 
   // set up the linear system matrix & rhs
   float *Efnew = sol->GetData(0);
   float rhsnorm;
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, 
-			Efold, RadSrc) != SUCCESS) {
-    fprintf(stderr,"FSProb Solve: Error in SetupSystem routine\n");
-    return FAIL;
-  }
+			Efold, RadSrc) != SUCCESS)
+    ENZO_FAIL("FSProb Solve: Error in SetupSystem routine");
   
   // solve the free-streaming radiation problem to obtain the 
   // background propagation.
@@ -309,7 +280,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
     fprintf(stderr," ----------------------------------------------------------------------\n");
     fprintf(stderr,"   Error: could not achieve prescribed tolerance!\n");
     fprintf(stderr," ======================================================================\n\n");
-    return FAIL;
+    ENZO_FAIL(" ");
   }
 
   //       extract values from solution vector 
