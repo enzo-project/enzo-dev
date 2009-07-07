@@ -158,6 +158,11 @@ help-config:
 	@echo "      gmake python-yes"
 	@echo "      gmake python-no"
 	@echo
+	@echo "   Include HYPRE libraries (implicit RT solvers)"
+	@echo
+	@echo "      gmake hypre-yes"
+	@echo "      gmake hypre-no"
+	@echo 
 
 #-----------------------------------------------------------------------
 
@@ -212,6 +217,7 @@ show-config:
 	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
+	@echo "   CONFIG_HYPRE:                 $(CONFIG_HYPRE)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
@@ -604,6 +610,23 @@ CONFIG_PHOTON-%:
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE) show-config | grep CONFIG_PHOTON:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_HYPRE = hypre-yes hypre-no
+.PHONY: $(VALID_HYPRE)
+
+hypre-yes: CONFIG_HYPRE-yes
+hypre-no: CONFIG_HYPRE-no
+hypre-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_HYPRE)]\n\n"
+CONFIG_HYPRE-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_HYPRE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_HYPRE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_HYPRE:
 	@echo
 
 #-----------------------------------------------------------------------

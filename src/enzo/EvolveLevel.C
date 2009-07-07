@@ -164,7 +164,11 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-		      int level, ExternalBoundary *Exterior);
+			  int level, ExternalBoundary *Exterior
+#ifdef TRANSFER
+			  , ImplicitProblemABC *ImplicitSolver
+#endif
+			  );
  
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
@@ -226,7 +230,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-)
+		)
 {
   /* Declarations */
 
@@ -518,7 +522,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
-    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
+#ifdef TRANSFER
+			  , ImplicitSolver
+#endif
+			  );
     CallPython(LevelArray, MetaData, level);
 
     /* Update SubcycleNumber and the timestep counter for the

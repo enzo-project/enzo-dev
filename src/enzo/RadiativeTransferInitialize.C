@@ -10,6 +10,7 @@
 /          ray tracer that is not included in the normal routines.
 /
 ************************************************************************/
+#include "preincludes.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,6 +28,8 @@
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
 #include "RadiativeTransferHealpixRoutines.h"
+#include "ImplicitProblemABC.h"
+
 
 int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);

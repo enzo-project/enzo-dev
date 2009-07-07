@@ -80,6 +80,9 @@ void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
  
+#ifdef TRANSFER
+extern char RTSuffix[];
+#endif
 extern char BCSuffix[];
 extern char GridSuffix[];
 extern char HierarchySuffix[];

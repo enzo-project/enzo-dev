@@ -64,10 +64,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-);
+		);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                    int level, float dtLevelAbove, ExternalBoundary *Exterior, FLOAT dt0);
+                    int level, float dtLevelAbove, ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver, 
+#endif
+		    FLOAT dt0);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -90,7 +94,11 @@ int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 int TestGravityCheckResults(LevelHierarchyEntry *LevelArray[]);
 int TestGravitySphereCheckResults(LevelHierarchyEntry *LevelArray[]);
 int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
-		   ExternalBoundary *Exterior, int &WroteData);
+		   ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		   ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		   int &WroteData);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
@@ -272,7 +280,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Check for output. */
  
-  if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
+  if (CheckForOutput(&TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+		     ImplicitSolver,
+#endif		 
+		     WroteData) == FAIL) {
     fprintf(stderr, "Error in CheckForOutput.\n");
     ENZO_FAIL("");
   }
@@ -459,7 +471,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       }
     } else {
       if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
-	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
+	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, 
+#ifdef TRANSFER
+			    ImplicitSolver, 
+#endif
+			    dt) == FAIL) {
 	  if (NumberOfProcessors == 1) {
 	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
@@ -543,7 +559,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Check for output. */
  
-    if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
+    if (CheckForOutput(&TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+		       ImplicitSolver,
+#endif		 
+		       WroteData) == FAIL) {
       fprintf(stderr, "Error in CheckForOutput.\n");
       ENZO_FAIL("");
     }

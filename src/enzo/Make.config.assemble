@@ -589,8 +589,37 @@
 
     ifeq ($(ERROR_PHOTON),1)
        .PHONY: error_transfer
-       error_tpvel:
+       error_transfer:
 	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+    endif
+
+
+#-----------------------------------------------------------------------
+# DETERMINE HYPRE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_HYPRE = 1
+
+    # Settings to turn HYPRE bindings on
+
+    ifeq ($(CONFIG_HYPRE),yes)
+        ERROR_HYPRE = 0
+        ASSEMBLE_HYPRE_DEFINES = -DUSE_HYPRE
+    endif
+
+    # Settings to turn HYPRE bindings OFF
+
+    ifeq ($(CONFIG_HYPRE),no)
+        ERROR_HYPRE = 0
+        ASSEMBLE_HYPRE_DEFINES =
+    endif
+
+    # error if CONFIG_HYPRE is incorrect
+
+    ifeq ($(ERROR_HYPRE),1)
+       .PHONY: error_hypre
+       error_hypre:
+	$(error Illegal value '$(CONFIG_HYPRE)' for $$(CONFIG_HYPRE))
     endif
 
 

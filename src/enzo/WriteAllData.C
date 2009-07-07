@@ -71,6 +71,9 @@ void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
  
+#ifdef TRANSFER
+char RTSuffix[]        = ".rtmodule";
+#endif
 char BCSuffix[]        = ".boundary";
 char GridSuffix[]      = ".grid";
 char HierarchySuffix[] = ".hierarchy";
