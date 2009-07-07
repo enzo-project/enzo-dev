@@ -33,5 +33,6 @@
 #include "HYPRE_sstruct_ls.h"
 #endif
 #include "performance.h"
+#include "ErrorExceptions.h"
 
 #endif

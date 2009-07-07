@@ -123,12 +123,3 @@ float* grid::AccessHeIIIDensity() {
   return BaryonField[HeIIINum];
 }
 
-// Emissivity Field
-float* grid::AccessEmissivityField()
- {
-  int EtaNum = -1;
-  if ((EtaNum = FindField(EmissivityField, FieldType, NumberOfBaryonFields))<0) 
-    return NULL;
-  return BaryonField[EtaNum];
-}
-

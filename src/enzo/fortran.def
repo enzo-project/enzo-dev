@@ -18,6 +18,14 @@
 #define REALSUB real*16
 #endif
 
+#ifdef CONFIG_BFLOAT_4
+#define REALSUBR real
+#endif
+
+#ifdef CONFIG_BFLOAT_8
+#define REALSUBR real*8
+#endif
+
 #define MAX_COLOR 30
 #define RADIATION
 #define NO_CEN_METALS

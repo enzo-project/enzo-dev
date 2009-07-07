@@ -553,4 +553,3 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   return SUCCESS;
 }
 #endif
-#endif

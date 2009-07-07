@@ -123,6 +123,12 @@ class grid
   int ProcLocation[MAX_DIMENSION];
   int ProcNeighbors[MAX_DIMENSION][2];
 //
+//  Radiation data
+//
+#ifdef TRANSFER
+  float MaxRadiationDt;
+#endif
+//
 //  Rebuild Hierarchy Temporaries
 //
   int   *FlaggingField;             // Boolean flagging field (for refinement)
@@ -898,6 +904,14 @@ class grid
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
 
 
+#ifdef TRANSFER
+// -------------------------------------------------------------------------
+// Functions for use with coupled radiation-hydrodynamics solver.
+//
+   void SetMaxRadiationDt(float MaxRadDt) {MaxRadiationDt = MaxRadDt;}
+#endif
+
+
 // -------------------------------------------------------------------------
 // Functions for accessing specific baryon fields (all sources combined 
 // in Grid_AccessBaryonFields.C)
@@ -914,7 +928,6 @@ class grid
    float* AccessHeIDensity();
    float* AccessHeIIDensity();
    float* AccessHeIIIDensity();
-   float* AccessEmissivityField();
 
 
 // -------------------------------------------------------------------------
