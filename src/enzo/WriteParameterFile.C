@@ -537,6 +537,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  VelocityGradient);
   fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",
 	  ShearingVelocityDirection);
+  fprintf(fptr, "ShearingBoxProblemType    = %"ISYM"\n\n",
+	  ShearingBoxProblemType);
+
   
   /* write data which defines the boundary conditions */
  

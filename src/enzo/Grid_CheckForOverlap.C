@@ -146,16 +146,17 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	    }
 
 
-	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-	      fprintf(stderr, "Error in grid->*CopyFunction (2)\n");
-	      ENZO_FAIL("");
-	    }
  
 	  // Full periodic case (26 checks)
  
 	  if ((GridRank > 2 || k == 0) && (GridRank > 1 || j == 0) &&
 	      (i != 0 || j != 0 || k != 0) && (FullPeriod == TRUE || ShearingBoundaryDirection!=-1)) {
-
+	    
+	    
+	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
+	      fprintf(stderr, "Error in grid->*CopyFunction (2)\n");
+	      ENZO_FAIL("");
+	    }
 
 	  }
  

@@ -1552,7 +1552,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 /* ShearingBox: initialize grid. */
 
   int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
-				float ShearingGeometry, int ShearingBoxProblemType, 
+				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
