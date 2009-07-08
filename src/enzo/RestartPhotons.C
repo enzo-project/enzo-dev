@@ -60,11 +60,8 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     DensityUnits; 
 
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, MetaData->Time) == FAIL) {
-    fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("");
-  }
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, MetaData->Time);
   
   /* Light crossing time */
 
@@ -127,10 +124,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RadiativeTransferOpticallyThinH2)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-	if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
-	  fprintf(stderr, "Error in AddH2Dissociation.\n");
-	  ENZO_FAIL("");
-	}
+	Temp->GridData->AddH2Dissociation(AllStars);
 
   return SUCCESS;
 

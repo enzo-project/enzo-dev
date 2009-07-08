@@ -199,6 +199,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
+int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
+			     Star *AllStars, ImplicitProblemABC *ImplicitSolver);
 #endif
 
 int SetLevelTimeStep(HierarchyEntry *Grids[],
@@ -327,7 +329,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef TRANSFER
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
-				   dtLevelAbove);
+			     dtLevelAbove);
+    RadiativeTransferCallFLD(LevelArray, level, AllStars, ImplicitSolver);
 #endif /* TRANSFER */
  
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
@@ -415,9 +418,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
       GridTime = Grids[grid1]->GridData->ReturnTime();
       EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
-
-      if ((RadiativeTransferFLD == 1) && (level == 0))
-	ImplicitSolver->Evolve(Grids[grid1]);
+//      if ((RadiativeTransferFLD == 1) && (level == 0))
+//	ImplicitSolver->Evolve(Grids[grid1]);
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
