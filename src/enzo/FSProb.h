@@ -43,7 +43,7 @@ class FSProb : public virtual ImplicitProblemABC {
 
   // overall time spent in solver
   float FStime;
-  
+
   // HYPRE Struct-specific data
   Eint32 mattype;                // HYPRE matrix type for solve
   Eint32 stSize;                 // stencil size

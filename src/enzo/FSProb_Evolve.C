@@ -171,6 +171,10 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 	   Efs_rms, Efs_rms*EUnits0, Efs_max, Efs_max*EUnits0);
   }
 
+  // check whether solver even needs to be called
+  if ((srcMax == 0.0) && (Efs_rms == Efs_max))
+    return SUCCESS;        // no sources, nothing interesting
+
   // calculate initial guess at time-evolved solution
   if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) 
     ENZO_FAIL("FSProb Solve: Error in InitialGuess routine");
