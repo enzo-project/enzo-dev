@@ -39,7 +39,7 @@ int  CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime);
 int  WriteUnits(FILE *fptr);
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, float *MassUnits, FLOAT Time);
+	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
 #ifdef TRANSFER
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
@@ -53,14 +53,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   /* Compute Units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
-    VelocityUnits = 1, MassUnits = 1;
- 
+    VelocityUnits = 1;
+  double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, MetaData.Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }
  
+  float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
+  double massu = 1.0;
+  if (UsePhysicalUnit) {
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, &massu, MetaData.Time);
+    presu = rhou*lenu*lenu/tu/tu;
+  }
+  double mh = 1.6726e-24;
+  double uheat = VelocityUnits*VelocityUnits*2.0*mh/TimeUnits;
+
   /* write data to Parameter output file */
  
   /* write MetaData parameters */
@@ -320,6 +329,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
+  fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
+	  OutputSmoothedDarkMatter);
+  fprintf(fptr, "SmoothedDarkMatterNeighbors    = %"ISYM"\n", 
+	  SmoothedDarkMatterNeighbors);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);
@@ -331,6 +344,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureSupportParameter);
   fprintf(fptr, "RefineByJeansLengthSafetyFactor  = %"FSYM"\n",
 	  RefineByJeansLengthSafetyFactor);
+  fprintf(fptr, "RefineByResistiveLengthSafetyFactor  = %"FSYM"\n", 
+	  RefineByResistiveLengthSafetyFactor);
   fprintf(fptr, "MustRefineParticlesRefineToLevel = %"ISYM"\n",
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
@@ -374,6 +389,26 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 #endif
  
+
+  fprintf(fptr, "SlopeFlaggingFields = "
+	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	  SlopeFlaggingFields[0], 
+	  SlopeFlaggingFields[1],
+	  SlopeFlaggingFields[2], 
+	  SlopeFlaggingFields[3],
+	  SlopeFlaggingFields[4]);
+
+  fprintf(fptr, "MinimumSlopeForRefinement = "
+	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	  MinimumSlopeForRefinement[0],
+	  MinimumSlopeForRefinement[1],
+	  MinimumSlopeForRefinement[2],
+	  MinimumSlopeForRefinement[3],
+	  MinimumSlopeForRefinement[4],
+	  MinimumSlopeForRefinement[5],
+	  MinimumSlopeForRefinement[6]);
+
+
   fprintf(fptr, "MinimumOverDensityForRefinement = "
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumOverDensityForRefinement[0],
@@ -487,6 +522,29 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n",
           PopIIIColorMass);
 
+  /* Most Stanford additions: */
+  /* Poisson Solver */
+
+  fprintf(fptr, "PoissonApproximationThreshold             = %"FSYM"\n",
+	  PoissonApproximationThreshold);
+  fprintf(fptr, "DivergenceCleaingThreshold           = %"FSYM"\n",
+	  DivergenceCleaningThreshold);
+  fprintf(fptr, "UseDivergenceCleaning        = %"ISYM"\n",
+	  UseDivergenceCleaning);
+  fprintf(fptr, "DivergenceCleaningBoundaryBuffer        = %"ISYM"\n\n",
+	  DivergenceCleaningBoundaryBuffer);
+
+  /* Shearing Box Boundary parameters */
+  fprintf(fptr, "AngularVelocity              = %"FSYM"\n",
+	  AngularVelocity);
+  fprintf(fptr, "VelocityGradient             = %"FSYM"\n",
+	  VelocityGradient);
+  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",
+	  ShearingVelocityDirection);
+  fprintf(fptr, "ShearingBoxProblemType    = %"ISYM"\n\n",
+	  ShearingBoxProblemType);
+
+  
   /* write data which defines the boundary conditions */
  
   fprintf(fptr, "LeftFaceBoundaryCondition  = ");
@@ -499,6 +557,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     fprintf(fptr, "BoundaryConditionName      = %s\n\n",
 	    MetaData.BoundaryConditionName);
  
+
   /* If appropriate, write Cosmology data. */
  
   if (ComovingCoordinates) {

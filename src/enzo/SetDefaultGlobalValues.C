@@ -167,6 +167,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    MinimumSlopeForRefinement[i]= 0.3;
+    SlopeFlaggingFields[i] = INT_UNDEFINED;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -265,19 +267,23 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyMetallicityNormalization = 0.018477;  // calculated using Cloudy 07.02 abundances
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
-  OutputCoolingTime = 0;
-  OutputTemperature = 0;
+  OutputCoolingTime = FALSE;
+  OutputTemperature = FALSE;
+
+  OutputSmoothedDarkMatter = FALSE;
+  SmoothedDarkMatterNeighbors = 32;
 
   ZEUSLinearArtificialViscosity    = 0.0;
   ZEUSQuadraticArtificialViscosity = 2.0;
   UseMinimumPressureSupport        = FALSE;
   MinimumPressureSupportParameter  = 100.0;
  
-  MinimumSlopeForRefinement        = 0.3;          // 30% change in value
+  //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  RefineByResistiveLengthSafetyFactor  = 2.0;
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
@@ -294,6 +300,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+
+  PythonSubcycleSkip               = 1;
 
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
@@ -362,6 +370,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallP   = 1e-35;
   SmallEint = 1e-30;
   SmallT   = 1e-10;
+  MaximumAlvenSpeed = 1e30;
   RiemannSolver = HLL;
   ReconstructionMethod = PLM;
   EOSType = 0;
@@ -404,6 +413,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UsePhysicalUnit = 0;
 
   UseDivergenceCleaning = 0;
+  DivergenceCleaningBoundaryBuffer=0;
   DivergenceCleaningThreshold = 0.001;
   PoissonApproximationThreshold = 0.001;
 
@@ -460,14 +470,23 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetalCoolingTable = (char*) "metal_cool.dat";
 
 #ifdef USE_PYTHON
-  fprintf(stderr, "Setting up the python stuff\n");
   NumberOfPythonCalls = 0;
   grid_dictionary = PyDict_New();
   old_grid_dictionary = PyDict_New();
   hierarchy_information = PyDict_New();
   yt_parameter_file = PyDict_New();
   conversion_factors = PyDict_New();
+  my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Shearing Boundary Conditions variables */
+
+  
+  AngularVelocity=0.001;
+  VelocityGradient=1.0;
+  ShearingBoundaryDirection=-1;
+  ShearingVelocityDirection=-1;
+  ShearingBoxProblemType = 0; 
+  useMHD=0;
   return SUCCESS;
 }

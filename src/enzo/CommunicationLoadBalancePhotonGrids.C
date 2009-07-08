@@ -28,12 +28,12 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "RadiativeTransferHealpixRoutines.h"
 
 /* function prototypes */
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-int vec2pix_nest( const long nside, FLOAT *vec, long *ipix);
 
 #define PHOTON_WEIGHT 5.1
 

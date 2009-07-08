@@ -9,7 +9,7 @@ void ngb_treefree(void);
 /* usually maxnodes=2*npart is suffiecient */
 void ngb_treeallocate(FOFData &D, int npart, int maxnodes);
 
-float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess, 
+float ngb_treefind(FOF_particle_data *P, double xyz[3], int desngb, float hguess, 
 		   int **ngblistback, float **r2listback);
 
 struct NODE 

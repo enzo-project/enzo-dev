@@ -257,7 +257,5 @@ int ConvertToCellCenteredRadiation(void);
 
 int ReassignSuperSources(void);
 
-int AddFields(int TypesToAdd[], int NumberOfFields);
-
 int CorrectRadiationIncompleteness(void);
 int FinalizeRadiationFields(void);

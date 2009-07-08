@@ -28,7 +28,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 void Star::SetFeedbackFlag(int flag)
 {
@@ -57,9 +57,9 @@ int Star::SetFeedbackFlag(FLOAT Time)
   float AgeInMyr;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassUnits;
+    VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	   &TimeUnits, &VelocityUnits, Time);
 
   abs_type = abs(this->type);
   switch (abs_type) {

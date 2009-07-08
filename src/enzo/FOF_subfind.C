@@ -31,7 +31,8 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   int    start=0;
   int    parent, ntot;
   char   ctype;
-  float  cm[3], cmv[3], mtot, mstars, redshift;
+  float  cm[3], cmv[3], AM[3], mtot, mstars, redshift, spin, vrms;
+  float  mvir, rvir;
   float  corner[3];
   FOF_particle_data *Pbuf, *partbuf;
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
@@ -48,7 +49,6 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 
 #ifdef USE_MPI
   MPI_Status status;
-  MPI_Datatype IntType = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
 #endif
 
   sprintf(catalogue_fname, "%s/subgroups_%5.5d.dat", FOF_dirname, CycleNumber);
@@ -69,21 +69,43 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
     fprintf(fd, "# Redshift = %"PSYM"\n", redshift);
     //fprintf(fd, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
-    fprintf(fd, "# Column 1.  Subhalo number\n");
-    fprintf(fd, "# Column 2.  Parent halo number\n");
-    fprintf(fd, "# Column 3.  First particle in halo particle list\n");
+    fprintf(fd, "# Column 1.  Center of mass (x)\n");
+    fprintf(fd, "# Column 2.  Center of mass (y)\n");
+    fprintf(fd, "# Column 3.  Center of mass (z)\n");
+    fprintf(fd, "# Column 4.  Subhalo number\n");
+    fprintf(fd, "# Column 5.  Parent halo number\n");
+    fprintf(fd, "# Column 6.  First particle in halo particle list\n");
     fprintf(fd, "#            --> All subgroup particles are consecutively listed in\n");
     fprintf(fd, "#                particle list (if written)\n");
-    fprintf(fd, "# Column 4.  Number of particles\n");
-    fprintf(fd, "# Column 5.  Halo mass [solar masses]\n");
-    fprintf(fd, "# Column 6.  Stellar mass [solar masses]\n");
-    fprintf(fd, "# Column 7.  Center of mass (x)\n");
-    fprintf(fd, "# Column 8.  Center of mass (y)\n");
-    fprintf(fd, "# Column 9.  Center of mass (z)\n");
+    fprintf(fd, "# Column 7.  Number of particles\n");
+    fprintf(fd, "# Column 8.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 9.  Stellar mass [solar masses]\n");
     fprintf(fd, "# Column 10. Mean x-velocity [km/s]\n");
     fprintf(fd, "# Column 11. Mean y-velocity [km/s]\n");
     fprintf(fd, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 13. Velocity dispersion [km/s]\n");
+    fprintf(fd, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 17. Spin parameter\n");
     fprintf(fd, "#\n");
+    fprintf(fd, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+    fprintf(fd, "#\n");
+    fprintf(fd, "datavar 1 subhalo_number\n");
+    fprintf(fd, "datavar 2 parent_number\n");
+    fprintf(fd, "datavar 3 particle_offset\n");
+    fprintf(fd, "datavar 4 number_of_particles\n");
+    fprintf(fd, "datavar 5 halo_mass\n");
+    fprintf(fd, "datavar 6 stellar_mass\n");
+    fprintf(fd, "datavar 7 x_velocity\n");
+    fprintf(fd, "datavar 8 y_velocity\n");
+    fprintf(fd, "datavar 9 z_velocity\n");
+    fprintf(fd, "datavar 10 velocity_dispersion\n");
+    fprintf(fd, "datavar 11 x_angular_momentum\n");
+    fprintf(fd, "datavar 12 y_angular_momentum\n");
+    fprintf(fd, "datavar 13 z_angular_momentum\n");
+    fprintf(fd, "datavar 14 spin\n");
+    fprintf(fd, "\n");
 
     if (HaloFinderOutputParticleList) {
 
@@ -152,12 +174,14 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	if (task == 0) {
 	  for (i = 0; i < nsubs; i++) {
-	    get_properties(D, Pbuf+suboffset[i], sublen[i], cm, cmv, &mtot, &mstars);
+	    get_properties(D, Pbuf+suboffset[i], sublen[i], true, cm, cmv, &mtot, &mstars, 
+			   &mvir, &rvir, AM, &vrms, &spin);
 	    msub[i] = mtot;
 
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    i, parent, suboffset[i], sublen[i], 
-		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+		    AM[1], AM[2], spin);
 
 	  } // ENDFOR subgroups
 
@@ -180,15 +204,19 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    for (i = 0; i < len; i++)
 	      TempInt[i] = Pbuf[i].PartID;
 
-	    get_properties(D, Pbuf, len, cm, cmv, &mtot, &mstars);
+	    get_properties(D, Pbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
+			   &vrms, &spin);
 	    
 	    sprintf(halo_name, "Halo%8.8d", parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
 	    if (nsubs > 0) {
 
@@ -261,8 +289,10 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    bufsuboffset = new int[nsubs];
 	    fbufsuboffset = new int[nsubs];
 
-	    MPI_Recv(bufsublen,    nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
-	    MPI_Recv(bufsuboffset, nsubs, IntType, task, task, MPI_COMM_WORLD, &status);
+	    MPI_Recv(bufsublen, nsubs, IntDataType, task, task, MPI_COMM_WORLD,
+		     &status);
+	    MPI_Recv(bufsuboffset, nsubs, IntDataType, task, task, MPI_COMM_WORLD,
+		     &status);
 
 	    for (i = 0; i < nsubs; i++) {
 	      fbufsuboffset[i] = bufsuboffset[i];
@@ -280,13 +310,14 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 		   MPI_BYTE, task, task, MPI_COMM_WORLD, &status);
 
 	  for (i = 0; i < nsubs; i++) {
-	    get_properties(D, partbuf+bufsuboffset[i]-start, bufsublen[i], cm, 
-			   cmv, &mtot, &mstars);
+	    get_properties(D, partbuf+bufsuboffset[i]-start, bufsublen[i], true, cm, 
+			   cmv, &mtot, &mstars, &mvir, &rvir, AM, &vrms, &spin);
 	    bufmsub[i] = mtot;
 
-	    fprintf(fd, "%12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-		    i, parent, fbufsuboffset[i], bufsublen[i],
-		    mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+	    fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+		    cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+		    mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+		    AM[1], AM[2], spin);
 	  } // ENDFOR subgroups
 
 	  if (HaloFinderOutputParticleList) {
@@ -300,15 +331,19 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    for (i = 0; i < len; i++)
 	      TempInt[i] = Pbuf[i].PartID;
 
-	    get_properties(D, partbuf, len, cm, cmv, &mtot, &mstars);
+	    get_properties(D, partbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
+			   &vrms, &spin);
 	    
 	    sprintf(halo_name, "Halo%8.8d", parent);
 	    group_id = H5Gcreate(file_id, halo_name, 0);
 	    writeScalarAttribute(group_id, HDF5_INT, "NumberOfSubhalos", &nsubs);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	    writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	    writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Center of mass", cm);
 	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	    writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
 	    if (nsubs > 0) {
 

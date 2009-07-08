@@ -28,7 +28,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::CoolingTestInitializeGrid()
 {
@@ -106,10 +106,10 @@ int grid::CoolingTestInitializeGrid()
   // Get the units so we can convert temperature later
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1;
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, 
+	       &TimeUnits, &VelocityUnits,
 	       Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;

@@ -17,14 +17,15 @@ void   deallocate_all_memory(FOFData &D);
 void   density(FOFData &A);
 int    do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen, 
 			   int *sublen, int *suboffset);
-void   exchange_shadow(FOFData &AllVars);
+void   exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData);
 void   find_groups(FOFData &AllVars);
 void   find_minids(FOFData &AllVars);
 void   find_subgroups(FOFData &D);
 int    get_particles(int dest, int minid, int len, FOF_particle_data *buf, 
 		     FOFData &AllVars);
-void   get_properties(FOFData D, FOF_particle_data *p, int len, float *pcm, 
-		      float *pcmv, float *pmtot, float *pmstars);
+void   get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup, float *pcm, 
+		      float *pcmv, float *pmtot, float *pmstars, float *pmvir,
+		      float *prvir, float *pL, float *pvrms, float *pspin);
 void   iindexx(int n, int arr[], int indx[]);
 void   indexx(int n, float arr[], int indx[]);
 void   init_coarse_grid(FOFData &AllVars);

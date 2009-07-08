@@ -33,7 +33,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
 		    float &norm, float &mean, int start_depth, 
 		    float tolerance, int max_iter);
 
-int grid::PoissonSolver(int type, int level) 
+int grid::PoissonSolver(int level) 
  /* 
      Input: type: 
      1= SOR (Successive OverRelaxation)
@@ -42,12 +42,18 @@ int grid::PoissonSolver(int type, int level)
      4= CGA2 (with 4dx differencing)
      5= FFT
      6= Multigrid     
+
+     Methods 2 is sort of a failed experiment.  
+     3 and 4 work very well.  
+     1, 5, and 6 are placeholders for further work.
   */
 {
 
-  if (ProcessorNumber != MyProcessorNumber) {
+  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning==0 || useMHD==0 ) {
+   
     return SUCCESS;
   }
+  
 
   /* Calculating divB_p */
   
@@ -69,9 +75,16 @@ int grid::PoissonSolver(int type, int level)
   double *divB_p = new double[size];
 
   int igrid;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+  //int MatrixStartIndex[3]={GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
+  //int MatrixEndIndex[3]={GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
+  
+  int MatrixStartIndex[3]={0,  0,  0};
+  int MatrixEndIndex[3]={GridDimension[0]-1,  GridDimension[1]-1,  GridDimension[2]-1};
+
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 	igrid = GetIndex(i, j, k);
 	
 	divB_p[igrid] =
@@ -83,24 +96,26 @@ int grid::PoissonSolver(int type, int level)
     }
   }
 
-  /* Apply Dirichlet Boundary Condition to rhs */
+ //  /* Apply Dirichlet Boundary Condition to rhs */
 
-  this->PoissonSolverDirichletBC(divB_p);
+ //  this->PoissonSolverDirichletBC(divB_p);
 
-#ifdef DEBUG
-  float divSum = 0;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
-	divSum += fabs(divB_p[igrid]/dx[0]);
+  if (debug){
+    float divSum = 0;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
+	  divSum += fabs(divB_p[igrid]/dx[0]);
+	}
       }
     }
+    
+    printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
   }
-
-  fprintf(stdout, "Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
-#endif
   
+  int type=UseDivergenceCleaning;
+
   if (type == 1) PoissonSolverSOR();
   else if (type == 2) PoissonSolverSOR2();
   else if (type == 3) PoissonSolverCGA(1, divB_p);
@@ -108,6 +123,9 @@ int grid::PoissonSolver(int type, int level)
   else if (type == 5) PoissonSolverFFT();
   else if (type == 6) PoissonSolverMultigrid();   
  
+
+  PoissonCleanStep(level);
+
   delete [] divB_p;
   
   return SUCCESS;
@@ -118,11 +136,7 @@ int grid::PoissonSolver(int type, int level)
 int grid::PoissonCleanStep(int level)
 {
 
-  if (ProcessorNumber != MyProcessorNumber) {
-    return SUCCESS;
-  }
-
-  //  PrintToScreenBoundaries(Phi_p, "Phi Final");
+  
 
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -140,12 +154,21 @@ int grid::PoissonCleanStep(int level)
   dx[2] = (GridRank > 2) ? CellWidth[2][0] : 1.0;
 
   float Bx, By, Bz, B2, rho;
+  
+  int x=DivergenceCleaningBoundaryBuffer;
+
+  int MatrixStartIndex[3]={GridStartIndex[0]+x,  GridStartIndex[1]+x,  GridStartIndex[2]+x};
+  int MatrixEndIndex[3]={GridEndIndex[0]-x,  GridEndIndex[1]-x,  GridEndIndex[2]-x};
+
+  //int MatrixStartIndex[3]={GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
+  //int MatrixEndIndex[3]={GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
 
   /* Subtract the old B energy from total energy */
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+ 
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 	
 	igrid = GetIndex(i, j, k);
 
@@ -164,9 +187,9 @@ int grid::PoissonCleanStep(int level)
   int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
   float *Phi_p = BaryonField[Phi_pNum];
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = GetIndex(i, j, k);
 
@@ -183,9 +206,9 @@ int grid::PoissonCleanStep(int level)
   
   /* Add the cleaned B to total energy */
 
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
+    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
+      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
 
 	igrid = GetIndex(i, j, k);
 
@@ -201,9 +224,10 @@ int grid::PoissonCleanStep(int level)
   }
   
 
-#ifdef DEBUG
+  if (debug){
 
   double *divB_p = new double[size];
+  float divSum = 0;
 
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -216,27 +240,18 @@ int grid::PoissonCleanStep(int level)
 	  ( BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]] ) / 2.0 +
 	  ( BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]] ) / 2.0;
 
-      }
-    }
-  }  
-
-  float divSum = 0;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-
-	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
-
 	divSum += fabs(divB_p[igrid]/dx[0]);
 
       }
     }
-  }
- 
-  fprintf(stdout, "End divB_p: %g (%g/%d) \n\n", divSum/size, divSum, size);
+  }  
+
+  
+  printf("End divB_p: %g (%g/%d) \n\n", divSum/size, divSum, size);
+  
   delete [] divB_p;
-#endif  
- 
+  }
+
   return SUCCESS;
   
 }
@@ -446,7 +461,7 @@ int grid::PoissonSolverSOR2()
       if (sumerror>0.00001) notconverge=true;
 	  
       if (debug&& counter%maxdim== maxdim-1) 
-	fprintf(stderr, "Div Cleaning %d Iterations, Error %f\n", 
+	 if (debug) printf("Div Cleaning %d Iterations, Error %f\n", 
 		counter, sumerror);
       //  if (counter%2== 1) fprintf(stderr, "Div Cleaning %d Iterations, Error %f\n", counter, sumerror);
 
@@ -454,7 +469,7 @@ int grid::PoissonSolverSOR2()
 
   }
   
-  fprintf(stderr, "Div Cleaning Takes %d Steps\n", counter);
+  if (debug) printf(stderr, "Div Cleaning Takes %d Steps\n", counter);
 
 #endif  
     
@@ -463,8 +478,10 @@ int grid::PoissonSolverSOR2()
 }
 
 
+//Never Implemented FFT or Multigrid properly; Placeholders here for future work
+
 int grid::PoissonSolverFFT(){
-  return 0;
+  return SUCCESS;
 }
 
 
@@ -588,3 +605,98 @@ int grid::PoissonSolverMultigrid()
 // int grid::PrintToScreenBoundaries(float *field, char *display){
 //   PrintToScreenBoundaries(field, display, 2, (int) floor(GridDimension[0]/2), 0, 0.0); return true;
 // }
+
+
+
+
+
+
+
+
+
+int grid::PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
+				   int check, float diffvalue){
+  
+  if (!debug) return SUCCESS;
+
+  
+  if (ProcessorNumber != MyProcessorNumber) {
+    fprintf(stdout, "PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
+    return SUCCESS;
+  }
+
+
+  char* c= (char *)malloc(100 * sizeof(char));
+  sprintf(c, "BO_%"GOUTSYM".TNT",Time);
+
+  FILE *fptr=fopen(c, "w");
+  fprintf(fptr, "x\ty\tvalue\twidth\theight\n");
+  int xD[3]={GridDimension[0],GridDimension[1], GridDimension[2]};
+   int diffs[3]={1, xD[0], xD[1]*xD[0]}; 
+ 
+
+  bool fail=false;
+  int index;    int ijk[3];
+
+  if (check==0){fail=true;}
+
+  else if (check ==1){
+    //  fprintf(stdout, "Checking Grid for Badness Level %d\n", Level);
+    //int direction=0;
+
+    
+    for (ijk[2] = GridStartIndex[2]; ijk[2] <= GridEndIndex[2]; ijk[2]=ijk[2]+1){
+      for (ijk[1] = GridStartIndex[1]; ijk[1] <= GridEndIndex[2]; ijk[1]=ijk[1]+1){
+	for (ijk[0] = GridStartIndex[0]; ijk[0] <= GridEndIndex[2]; ijk[0]=ijk[0]+1){
+	  index=ijk[0]+ijk[1]*xD[0]+ijk[2]*xD[1]*xD[0];	
+	  if (abs((float) field[index]-field[index-diffs[0]])>diffvalue ||
+	      abs((float) field[index]-field[index+diffs[0]])>diffvalue) fail=true;
+	}}}}
+
+  if (fail){
+    fprintf(stdout, "\n\n*******Processor # %d ********\n", ProcessorNumber);
+    fprintf(stdout, "\n\n*******Displaying Data********\n");
+    fprintf(stdout, display); 	  fprintf(stdout, "\n");
+    
+    
+    bool intertemp;
+    
+    int ind1, ind2;
+    if (direction==0){ ind1=1; ind2=2;}
+    else if (direction==1){ ind1=0; ind2=2;}
+    else if (direction==2){ ind1=1; ind2=0;}
+    
+     ijk[direction]=slice;
+    
+
+
+  
+
+
+     ijk[direction]=slice;
+     
+     for (ijk[ind2] = 0; ijk[ind2] < GridDimension[ind2]; ijk[ind2]=ijk[ind2]+1){
+       for (ijk[ind1] = 0; ijk[ind1] < GridDimension[ind1]; ijk[ind1]=ijk[ind1]+1){
+
+	 index=ijk[0]+ijk[1]*(GridDimension[0])+ ijk[2]*(GridDimension[0])*(GridDimension[1]);
+	 fprintf(stdout, "%2.4E \t", field[index]);
+	 fprintf(fptr, "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
+       }
+      fprintf(stdout, "\n");
+    }
+    
+   
+  }
+  fclose(fptr);
+ return true;
+}
+
+int grid::PrintToScreenBoundaries(float *field, char *display, int direction, int slice){
+  PrintToScreenBoundaries(field, display, direction, slice, 0, 0.0); 
+  return true;
+}
+
+
+int grid::PrintToScreenBoundaries(float *field, char *display){
+  PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[0]/2), 0, 0.0); return true;
+}

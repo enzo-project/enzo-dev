@@ -42,7 +42,8 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
  
   HierarchyEntry *NewHierarchy = new HierarchyEntry;
   *NewHierarchyPointer = NewHierarchy;
- 
+
+  int NumberOfInterpolatedFields = 0;
   int Rank, dim, Dims[MAX_DIMENSION], NewDims[MAX_DIMENSION],
       SendOffset[MAX_DIMENSION], TempDims[MAX_DIMENSION],
       StartIndex[MAX_DIMENSION];
@@ -62,7 +63,12 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
   if (debug)
     printf("CombineGrids: NewDims = %"ISYM" %"ISYM" %"ISYM"\n",
 	   NewDims[0], NewDims[1], NewDims[2]);
- 
+
+  switch (OutputSmoothedDarkMatter) {
+  case 1: NumberOfInterpolatedFields = 1; break;  // density
+  case 2: NumberOfInterpolatedFields = 5; break;  // + rms velocity + 3-velocity
+  }
+
   /* Generate a new grid. */
  
   NewHierarchy->GridData = new grid;
@@ -102,6 +108,24 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
 	ENZO_FAIL("");
       }
+
+    /* Copy interpolated (particle) regions */
+
+    if ((MyProcessorNumber == NewProc || MyProcessorNumber == OldProc) &&
+	NumberOfInterpolatedFields > 0) {
+      OldGrid->ReturnGridInfo(&Rank, TempDims, Left, Right);
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	SendOffset[dim] = 0;
+	TempDims[dim] -= 2*DEFAULT_GHOST_ZONES;
+	StartIndex[dim] = nint((Left[dim] - DomainLeftEdge[dim])/CellSize[dim])
+	  + SendOffset[dim];
+      }
+      if (NewGrid->CommunicationReceiveRegion(OldGrid, OldProc, INTERPOLATED_FIELDS,
+			      NEW_ONLY, StartIndex, TempDims, FALSE) == FAIL) {
+	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
+	ENZO_FAIL("");
+      }
+    }
  
     /* Copy particles. */
  

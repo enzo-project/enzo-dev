@@ -27,6 +27,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "RadiativeTransferHealpixRoutines.h"
 
 #ifdef CONFIG_BFLOAT_4
 #define ROUNDOFF 1e-6
@@ -41,7 +42,6 @@
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
 
-int pix2vec_nest(long nside, long ipix, FLOAT *v);
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, 
 		 FLOAT rx, FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
 int SplitPhotonPackage(PhotonPackageEntry *PP);

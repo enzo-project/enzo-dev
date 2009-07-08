@@ -26,7 +26,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::AddH2Dissociation(Star *AllStars)
 {
@@ -85,10 +85,10 @@ int grid::AddH2Dissociation(Star *AllStars)
   /* If using cosmology, get units. */
 
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, 
-    TimeUnits, MassUnits, aUnits = 1;
+    TimeUnits, aUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

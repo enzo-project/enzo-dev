@@ -41,10 +41,7 @@
 /************************************************************************/
 void FOF_Initialize(TopGridData *MetaData, 
 		    LevelHierarchyEntry *LevelArray[], 
-		    FOFData &D);
-void FOF_Finalize(TopGridData *MetaData, 
-		  LevelHierarchyEntry *LevelArray[], 
-		  FOFData &D);
+		    FOFData &D, bool SmoothData);
 /************************************************************************/
 
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
@@ -95,12 +92,12 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   /* Initialization :: copy particle data from enzo's grids to the
      halo finder's data structure. */
 
-  FOF_Initialize(MetaData, LevelArray, AllVars);
+  FOF_Initialize(MetaData, LevelArray, AllVars, false);
 
   marking(AllVars);
 
   if (NumberOfProcessors > 1)
-    exchange_shadow(AllVars);
+    exchange_shadow(AllVars, MetaData->TopGridDims[0], false);
 
   init_coarse_grid(AllVars);
   
@@ -122,12 +119,6 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   if (HaloFinderSubfind)
     subfind(AllVars, MetaData->CycleNumber, MetaData->Time);
 
-  /* Finalize :: move particles back into enzo's memory and then move
-     the particles back to their correct grid.  No longer needed
-     because we only copy the particles. */
-
-  //FOF_Finalize(MetaData, LevelArray, AllVars);
-
   deallocate_all_memory(AllVars);
 
   HaloFinderLastTime = MetaData->Time;
@@ -145,7 +136,7 @@ void set_units(FOFData &AllVars) {
   AllVars.UnitVelocity_in_cm_per_s = 1.0e5;
 
   AllVars.Theta = 0.8;  /* opening angle for potential computation */
-  AllVars.DesDensityNgb =  32;
+  AllVars.DesDensityNgb = 32;
 
   /* DesLinkNgb is also the minimum size of a subgroup */
   AllVars.DesLinkNgb = AllVars.DesDensityNgb;
@@ -193,7 +184,8 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
   int    ntot;
   int    head, len;
   char   ctype;
-  float cm[3], cmv[3], mtot, mstars, redshift;
+  float cm[3], cmv[3], AM[3], vrms, spin, mtot, mstars, redshift;
+  float mvir, rvir;
   double *temp;
   int   *TempInt;
 
@@ -221,17 +213,41 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
     fprintf(fd, "# Redshift = %"FSYM"\n", redshift);
     fprintf(fd, "# Number of halos = %"ISYM"\n", AllVars.NgroupsAll);
     fprintf(fd, "#\n");
-    fprintf(fd, "# Column 1.  Halo number\n");
-    fprintf(fd, "# Column 2.  Number of particles\n");
-    fprintf(fd, "# Column 3.  Halo mass [solar masses]\n");
-    fprintf(fd, "# Column 4.  Stellar mass [solar masses]\n");
-    fprintf(fd, "# Column 5.  Center of mass (x)\n");
-    fprintf(fd, "# Column 6.  Center of mass (y)\n");
-    fprintf(fd, "# Column 7.  Center of mass (z)\n");
-    fprintf(fd, "# Column 8.  Mean x-velocity [km/s]\n");
-    fprintf(fd, "# Column 9.  Mean y-velocity [km/s]\n");
-    fprintf(fd, "# Column 10. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 1.  Center of mass (x)\n");
+    fprintf(fd, "# Column 2.  Center of mass (y)\n");
+    fprintf(fd, "# Column 3.  Center of mass (z)\n");
+    fprintf(fd, "# Column 4.  Halo number\n");
+    fprintf(fd, "# Column 5.  Number of particles\n");
+    fprintf(fd, "# Column 6.  Halo mass [solar masses]\n");
+    fprintf(fd, "# Column 7.  Virial mass [solar masses]\n");
+    fprintf(fd, "# Column 8.  Stellar mass [solar masses]\n");
+    fprintf(fd, "# Column 9.  Virial radius (r200) [kpc]\n");
+    fprintf(fd, "# Column 10. Mean x-velocity [km/s]\n");
+    fprintf(fd, "# Column 11. Mean y-velocity [km/s]\n");
+    fprintf(fd, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fd, "# Column 13. Velocity dispersion [km/s]\n");
+    fprintf(fd, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+    fprintf(fd, "# Column 17. Spin parameter\n");
     fprintf(fd, "#\n");
+    fprintf(fd, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+    fprintf(fd, "#\n");
+    fprintf(fd, "datavar 1 halo_number\n");
+    fprintf(fd, "datavar 2 number_of_particles\n");
+    fprintf(fd, "datavar 3 halo_mass\n");
+    fprintf(fd, "datavar 4 virial_mass\n");
+    fprintf(fd, "datavar 5 stellar_mass\n");
+    fprintf(fd, "datavar 6 virial_radius\n");
+    fprintf(fd, "datavar 7 x_velocity\n");
+    fprintf(fd, "datavar 8 y_velocity\n");
+    fprintf(fd, "datavar 9 z_velocity\n");
+    fprintf(fd, "datavar 10 velocity_dispersion\n");
+    fprintf(fd, "datavar 11 x_angular_momentum\n");
+    fprintf(fd, "datavar 12 y_angular_momentum\n");
+    fprintf(fd, "datavar 13 z_angular_momentum\n");
+    fprintf(fd, "datavar 14 spin\n");
+    fprintf(fd, "\n");
 
     if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
@@ -262,16 +278,17 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-      get_properties(AllVars, Pbuf, len, &cm[0], &cmv[0], &mtot, &mstars);
+      get_properties(AllVars, Pbuf, len, false, &cm[0], &cmv[0], &mtot, &mstars, &mvir, &rvir, 
+		     AM, &vrms, &spin);
 
       if (debug && gr == AllVars.NgroupsAll-1)
 	fprintf(stdout, "FOF: Largest group has %"ISYM" particles"
 		" (%"GSYM" M_sun)\n", len, mtot);
 
 
-      fprintf(fd, "%12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
-	      AllVars.NgroupsAll-1-gr, len, 
-	      mtot, mstars, cm[0], cm[1], cm[2], cmv[0], cmv[1], cmv[2]);
+      fprintf(fd, "%12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"ISYM" %12"ISYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM" %12"GOUTSYM"\n",
+	      cm[0], cm[1], cm[2], AllVars.NgroupsAll-1-gr, len, 
+	      mtot, mvir, mstars, rvir, cmv[0], cmv[1], cmv[2], vrms, AM[0], AM[1], AM[2], spin);
 
       if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
@@ -288,8 +305,11 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	group_id = H5Gcreate(file_id, halo_name, 0);
 	writeScalarAttribute(group_id, HDF5_REAL, "Total Mass", &mtot);
 	writeScalarAttribute(group_id, HDF5_REAL, "Stellar Mass", &mstars);
+	writeScalarAttribute(group_id, HDF5_REAL, "Spin parameter", &spin);
+	writeScalarAttribute(group_id, HDF5_REAL, "Velocity dispersion", &vrms);
 	writeArrayAttribute(group_id, HDF5_PREC, 3, "Center of mass", cm);
 	writeArrayAttribute(group_id, HDF5_REAL, 3, "Mean velocity [km/s]", cmv);
+	writeArrayAttribute(group_id, HDF5_REAL, 3, "Angular momentum [Mpc * km/s]", AM);
 
 	hdims[0] = 3;
 	hdims[1] = (hsize_t) len;
@@ -590,11 +610,17 @@ void compile_group_catalogue(FOFData &AllVars)
       } // ENDIF enough particles
   } // ENDFOR
 
+  if (NumberOfProcessors == 1) {
+    AllVars.NgroupsAll = AllVars.Ngroups;
+    Nbound = nbound;
+  }
+  else {
 #ifdef USE_MPI
   MPI_Allreduce(&AllVars.Ngroups, &AllVars.NgroupsAll, 1, IntDataType, MPI_SUM, 
 		MPI_COMM_WORLD);
   MPI_Allreduce(&nbound, &Nbound, 1, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 #endif
+  } // ENDELSE serial
 
   AllVars.GroupDat = new gr_data[AllVars.Ngroups];
   
@@ -625,27 +651,31 @@ void compile_group_catalogue(FOFData &AllVars)
 
   AllVars.NgroupsList = new int[NumberOfProcessors];
 
+  if (NumberOfProcessors == 1)
+    AllVars.NgroupsList[0] = AllVars.Ngroups;
 #ifdef USE_MPI
-  MPI_Allgather(&AllVars.Ngroups, 1, IntDataType, AllVars.NgroupsList, 1, IntDataType, 
-		MPI_COMM_WORLD);
-#endif
+  else
+    MPI_Allgather(&AllVars.Ngroups, 1, IntDataType, AllVars.NgroupsList, 1, 
+		  IntDataType, MPI_COMM_WORLD);
+#endif /* USE_MPI */
 
   AllVars.GroupDatAll = new gr_data[AllVars.NgroupsAll];
 
-#ifdef USE_MPI
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-      for (i = 0; i < AllVars.Ngroups; i++)
-	AllVars.GroupDatAll[i] = AllVars.GroupDat[i];
+    for (i = 0; i < AllVars.Ngroups; i++)
+      AllVars.GroupDatAll[i] = AllVars.GroupDat[i];
       
-      count = AllVars.Ngroups;
-
-      for (i = 1; i < NumberOfProcessors; i++) {
-	MPI_Recv(&AllVars.GroupDatAll[count], 
-		 AllVars.NgroupsList[i]*sizeof(gr_data), MPI_BYTE, 
-		 i, 0, MPI_COMM_WORLD, &status);
-	count += AllVars.NgroupsList[i];
-      }
+#ifdef USE_MPI
+    count = AllVars.Ngroups;
+    for (i = 1; i < NumberOfProcessors; i++) {
+      MPI_Recv(&AllVars.GroupDatAll[count], 
+	       AllVars.NgroupsList[i]*sizeof(gr_data), MPI_BYTE, 
+	       i, 0, MPI_COMM_WORLD, &status);
+      count += AllVars.NgroupsList[i];
+    }
+#endif /* USE_MPI */
   } // ENDIF root
+#ifdef USE_MPI
   else
     MPI_Ssend(&AllVars.GroupDat[0], AllVars.Ngroups*sizeof(gr_data), 
 	      MPI_BYTE, 0, 0, MPI_COMM_WORLD);
@@ -820,14 +850,17 @@ void stitch_together(FOFData &AllVars)
 
 /************************************************************************/
 
-void exchange_shadow(FOFData &AllVars)
+void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
 {
 #ifdef USE_MPI
   MPI_Status status;
 #endif
   FOF_particle_data *buftoleft, *buftoright;
-  int    i, slab, nl, nr;
+  int    i, slab, nl, nr, region, dim;
   int    leftTask, rightTask;
+  bool inside;
+  double sr;
+  float StaticRegionCellWidth[MAX_STATIC_REGIONS+1];
 
 //  if (debug)
 //    fprintf(stdout, "FOF: exchanging shadows ...\n");
@@ -835,6 +868,18 @@ void exchange_shadow(FOFData &AllVars)
   buftoleft =  new FOF_particle_data[AllVars.NtoLeft[MyProcessorNumber]];
   buftoright = new FOF_particle_data[AllVars.NtoRight[MyProcessorNumber]];
 
+  // Pre-compute cell widths for each static region
+  if (SmoothData) {
+    StaticRegionCellWidth[0] = AllVars.BoxSize / TopGridResolution;
+    for (i = 0; i < MAX_STATIC_REGIONS; i++) {
+      if (StaticRefineRegionRightEdge[i][0] > 0)
+	StaticRegionCellWidth[i+1] = AllVars.BoxSize / TopGridResolution /
+	  pow(RefineBy, StaticRefineRegionLevel[i]+1);
+      else
+	StaticRegionCellWidth[i+1] = 0;
+    }
+  } // ENDIF SmoothData
+    
   nl = nr = 0;
   
   for (i = 1; i <= AllVars.Nlocal; i++) {
@@ -842,16 +887,41 @@ void exchange_shadow(FOFData &AllVars)
     slab = AllVars.P[i].slab;
 
     if (slab != MyProcessorNumber)
-      ENZO_FAIL("");
+      ENZO_FAIL("FOF: particle not on the right processor (slab)!");
+
+    if (SmoothData) {
+
+      sr = AllVars.LinkLength * StaticRegionCellWidth[0];
+      for (region = MAX_STATIC_REGIONS-1; region >= 0; region--) {
+	if (StaticRefineRegionLevel[region] < 0)
+	  continue;
+	inside = true;
+	for (dim = 0; dim < 3; dim++) {
+	  inside &= 
+	    AllVars.P[i].Pos[dim] >= StaticRefineRegionLeftEdge[region][dim] &&
+	    AllVars.P[i].Pos[dim] <= StaticRefineRegionRightEdge[region][dim];
+	  if (!inside)
+	    break;
+	} // ENDFOR dim
+
+	if (inside) {
+	  sr = AllVars.LinkLength * StaticRegionCellWidth[region];
+	  break;
+	}
+
+      } // ENDFOR region
+
+    } // ENDIF SmoothData
+    else
+      sr = AllVars.SearchRadius;
 		  
-    if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + 
-	AllVars.SearchRadius)
+    if (AllVars.P[i].Pos[0] < slab*(AllVars.BoxSize/NumberOfProcessors) + sr)
       buftoleft[nl++] = AllVars.P[i];
       
-    if (AllVars.P[i].Pos[0] > (slab+1)*(AllVars.BoxSize/NumberOfProcessors) - 
-	AllVars.SearchRadius)
+    if (AllVars.P[i].Pos[0] > (slab+1)*(AllVars.BoxSize/NumberOfProcessors) - sr)
       buftoright[nr++] = AllVars.P[i];
-  } // ENDFOR
+
+  } // ENDFOR particles
 
   if (nl != AllVars.NtoLeft[MyProcessorNumber]) {
     fprintf(stderr, "[proc %"ISYM"] error: shadows don't match! "

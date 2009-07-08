@@ -47,12 +47,12 @@ int FindField(int field, int farray[], int numfields);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
  
-  int i, j, k, dim, field, size, ActiveDim[MAX_DIMENSION];
+  int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
 
 #ifdef IO_64
@@ -82,6 +82,9 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
 				    "metallicity_fraction", "alpha_fraction"};
+  char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
+			     "Particle_x-velocity", "Particle_y-velocity",
+			     "Particle_z-velocity"};
 #ifdef IO_LOG
   int         io_log = 1;
 #else
@@ -147,7 +150,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     strcat(logname, id);
     strcat(logname, ".log");
     if (io_log) log_fptr = fopen(logname, "a");
-    delete logname;
+    delete [] logname;
  
     if (io_log) fprintf(log_fptr, "Grid_WriteGrid\n");
     if (io_log) fprintf(log_fptr, "  ID %"ISYM"  %s\n", grid_id, id);
@@ -376,7 +379,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      delete temperature;
+      delete [] temperature;
  
     } // end: if (OutputTemperature)
 
@@ -387,9 +390,10 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       float *cooling_time = new float[size];
  
       float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-	VelocityUnits = 1, TimeUnits = 1, MassUnits = 1, aUnits = 1;
+	VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+
       GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	       &TimeUnits, &VelocityUnits, Time);
 
       if (this->ComputeCoolingTime(cooling_time) == FAIL) {
 	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
@@ -446,105 +450,169 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      delete cooling_time;
+      delete [] cooling_time;
  
     } // if (OutputCoolingTime)
  
     /* Make sure that there is a copy of dark matter field to save
        (and at the right resolution). */
- 
-    if (SelfGravity && NumberOfParticles > 0) {
-      float SaveGravityResolution = GravityResolution;
-      GravityResolution = 1;
-      this->InitializeGravitatingMassFieldParticles(RefineBy);
-      this->ClearGravitatingMassFieldParticles();
-      this->DepositParticlePositions(this, Time,
-				     GRAVITATING_MASS_FIELD_PARTICLES);
-      GravityResolution = SaveGravityResolution;
-    }
- 
-    /* If present, write out the GravitatingMassFieldParticles. */
- 
-    if (GravitatingMassFieldParticles != NULL) {
- 
-      /* Set dimensions. */
- 
-      int StartIndex[] = {0,0,0}, EndIndex[] = {0,0,0};
-      for (dim = 0; dim < GridRank; dim++) {
-	StartIndex[dim] = nint((GridLeftEdge[dim] -
-				GravitatingMassFieldParticlesLeftEdge[dim])/
-			       GravitatingMassFieldParticlesCellSize);
-	EndIndex[dim] = nint((GridRightEdge[dim] -
-			      GravitatingMassFieldParticlesLeftEdge[dim])/
-			     GravitatingMassFieldParticlesCellSize) - 1;
-//      fprintf(stderr, "%"ISYM" %"ISYM" %10.4"FSYM" %10.4"FSYM" %10.4"FSYM" %10.4"FSYM"\n", StartIndex[dim], EndIndex[dim], GridLeftEdge[dim], GridRightEdge[dim], GravitatingMassFieldParticlesLeftEdge[dim], GravitatingMassFieldParticlesCellSize);
+
+    if (OutputSmoothedDarkMatter == FALSE) {
+    
+      if (SelfGravity && NumberOfParticles > 0) {
+	float SaveGravityResolution = GravityResolution;
+	GravityResolution = 1;
+	this->InitializeGravitatingMassFieldParticles(RefineBy);
+	this->ClearGravitatingMassFieldParticles();
+	this->DepositParticlePositions(this, Time,
+				       GRAVITATING_MASS_FIELD_PARTICLES);
+	GravityResolution = SaveGravityResolution;
       }
  
-      /* Copy active part of field into grid */
+      /* If present, write out the GravitatingMassFieldParticles. */
  
-      for (k = StartIndex[2]; k <= EndIndex[2]; k++)
-	for (j = StartIndex[1]; j <= EndIndex[1]; j++)
-	  for (i = StartIndex[0]; i <= EndIndex[0]; i++)
-	    temp[(i-StartIndex[0])                           +
-	         (j-StartIndex[1])*ActiveDim[0]              +
-	         (k-StartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-		     io_type(
-			     GravitatingMassFieldParticles[ i +
-			       j*GravitatingMassFieldParticlesDimension[0] +
-			       k*GravitatingMassFieldParticlesDimension[0]*
-			         GravitatingMassFieldParticlesDimension[1]]
-			     );
+      if (GravitatingMassFieldParticles != NULL) {
  
+	/* Set dimensions. */
  
-      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+	int StartIndex[] = {0,0,0}, EndIndex[] = {0,0,0};
+	for (dim = 0; dim < GridRank; dim++) {
+	  StartIndex[dim] = nint((GridLeftEdge[dim] -
+				  GravitatingMassFieldParticlesLeftEdge[dim])/
+				 GravitatingMassFieldParticlesCellSize);
+	  EndIndex[dim] = nint((GridRightEdge[dim] -
+				GravitatingMassFieldParticlesLeftEdge[dim])/
+			       GravitatingMassFieldParticlesCellSize) - 1;
+//      fprintf(stderr, "%"ISYM" %"ISYM" %10.4"FSYM" %10.4"FSYM" %10.4"FSYM" %10.4"FSYM"\n", StartIndex[dim], EndIndex[dim], GridLeftEdge[dim], GridRightEdge[dim], GravitatingMassFieldParticlesLeftEdge[dim], GravitatingMassFieldParticlesCellSize);
+	}
+ 
+	/* Copy active part of field into grid */
+ 
+	for (k = StartIndex[2]; k <= EndIndex[2]; k++)
+	  for (j = StartIndex[1]; j <= EndIndex[1]; j++)
+	    for (i = StartIndex[0]; i <= EndIndex[0]; i++)
+	      temp[(i-StartIndex[0])                           +
+		   (j-StartIndex[1])*ActiveDim[0]              +
+		   (k-StartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		io_type(
+			GravitatingMassFieldParticles[ i +
+			j*GravitatingMassFieldParticlesDimension[0] +
+			k*GravitatingMassFieldParticlesDimension[0]*
+			GravitatingMassFieldParticlesDimension[1]]
+			);
+ 
+	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = Dark_Matter_Density\n");
+	if (io_log) fprintf(log_fptr,"H5Dcreate with Name = Cooling_Time\n");
  
-      dset_id =  H5Dcreate(file_id, "Dark_Matter_Density", file_type_id, file_dsp_id, H5P_DEFAULT);
+	dset_id = H5Dcreate(file_id, "Dark_Matter_Density", file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
+	if ( DataUnits[field] == NULL )
+	  DataUnits[field] = "none";
  
-      WriteStringAttr(dset_id, "Label", "Dark_Matter_Density", log_fptr);
-      WriteStringAttr(dset_id, "Units", "", log_fptr);
-      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
-      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
- 
-      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	WriteStringAttr(dset_id, "Label", "Cooling_Time", log_fptr);
+	WriteStringAttr(dset_id, "Units", "s", log_fptr);
+	WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+	WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+	
+	h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
         if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Sclose(file_dsp_id);
+	
+	h5_status = H5Sclose(file_dsp_id);
         if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      h5_status = H5Dclose(dset_id);
+	h5_status = H5Dclose(dset_id);
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+	/* Clean up if we modified the resolution. */
  
-      /* Clean up if we modified the resolution. */
+	if (SelfGravity && GravityResolution != 1)
+	  this->DeleteGravitatingMassFieldParticles();
  
-      if (SelfGravity && GravityResolution != 1)
-	this->DeleteGravitatingMassFieldParticles();
+      } // end of (if GravitatingMassFieldParticles != NULL)
+
+    } // ENDIF !OutputSmoothedDarkMatter
+
  
-    } // end of (if GravitatingMassFieldParticles != NULL)
- 
-    delete temp;
+    delete [] temp;
  
     for (dim = 0; dim < GridRank; dim++)
-      delete tempdim[dim];
+      delete [] tempdim[dim];
  
     /* Write BoundaryFluxes info (why? it's just recreated when the grid
                                   is read in) */
  
    }  // end: if (ProcessorNumber == MyProcessorNumber)
   } // end: if (NumberOfBaryonFields > 0)
+
+  /* ------------------------------------------------------------------- */
+  /* 2b) Save particle quantities smoothed to the grid. */
+ 
+  if (OutputSmoothedDarkMatter > 0 && MyProcessorNumber == ProcessorNumber) {
+
+    size = active_size = 1;
+    for (dim = 0; dim < GridRank; dim++) {
+      OutDims[GridRank-dim-1] = ActiveDim[dim];
+      size *= GridDimension[dim];
+      active_size *= ActiveDim[dim];
+    }
+ 
+    temp = new io_type[size];
+
+    int NumberOfDMFields;
+    switch (OutputSmoothedDarkMatter) {
+    case 1: NumberOfDMFields = 1; break;  // density
+    case 2: NumberOfDMFields = 5; break;  // + rms velocity + 3-velocity
+    } // ENDSWITCH
+      
+    for (field = 0; field < NumberOfDMFields; field++) {
+
+      // Only the active part was calculated, so just copy over.
+      for (i = 0; i < active_size; i++)
+	temp[i] = io_type(InterpolatedField[field][i]);
+	
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n", SmoothedDMLabel[field]);
+ 
+      dset_id = H5Dcreate(file_id, SmoothedDMLabel[field], file_type_id, file_dsp_id, H5P_DEFAULT);
+      if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      WriteStringAttr(dset_id, "Label", SmoothedDMLabel[field], log_fptr);
+      WriteStringAttr(dset_id, "Units", "", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+	
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+      if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+      h5_status = H5Sclose(file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      delete [] InterpolatedField[field];
+      InterpolatedField[field] = NULL;
+
+    } // ENDFOR field
+
+    delete [] temp;
+      
+  } // ENDIF OutputSmoothedDarkMatter
  
   /* ------------------------------------------------------------------- */
   /* 3) Save particle quantities. */
@@ -786,8 +854,8 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     /* clean up */
  
-    delete temp;
-    delete tempint;
+    delete [] temp;
+    delete [] tempint;
  
   } // end: if (MyProcessorNumber...)
   } // end: if (NumberOfParticles > 0)
@@ -814,7 +882,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   /* Clean up. */
  
-  delete name;
+  delete [] name;
  
   return SUCCESS;
  

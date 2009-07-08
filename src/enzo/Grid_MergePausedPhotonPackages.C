@@ -23,11 +23,10 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
+#include "RadiativeTransferHealpixRoutines.h"
 
 #define MAX_HEALPIX_LEVEL 13
 
-int pix2vec_nest(long nside, long ipix, FLOAT *v);
-int vec2pix_nest(const long nside, FLOAT *vec, long *ipix);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *LinkedListToArray(PhotonPackageEntry *Node, int n);

@@ -261,7 +261,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	
 	x = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i];
 	y = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j];	
-	r = sqrt(pow(x - 0.5, 2) + pow(y - 0.5, 2));
+	r = sqrt(pow(x , 2) + pow(y , 2));
 
 	BaryonField[iden][igrid] = rho0;
 	BaryonField[ivx ][igrid] = 0.0;

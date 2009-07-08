@@ -34,6 +34,7 @@ OBJS_CONFIG_LIB = \
 	CheckForOutput.o \
 	CheckForResubmit.o \
 	CheckForTimeAction.o \
+	CheckShearingBoundaryConsistency.o \
 	chtable.o \
 	cic_deposit.o \
 	cic_flag.o \
@@ -76,6 +77,7 @@ OBJS_CONFIG_LIB = \
 	cool_multi_time.o \
 	cool_time.o \
 	CoolingTestInitialize.o \
+	CopyParticlesAcrossPeriodicBoundaries.o \
 	CopyOverlappingParticleMassFields.o \
 	CopyOverlappingZones.o \
 	CosmologyComputeExpansionFactor.o \
@@ -87,8 +89,9 @@ OBJS_CONFIG_LIB = \
 	CosmologyWriteParameters.o \
 	cray_x1_fft64.o \
 	cray_x1_st1_fft64.o \
-	CreateSUBlingList.o \
 	CreateSiblingList.o \
+	CreateSmoothedDarkMatterFields.o \
+	CreateSUBlingList.o \
 	CreateFluxes.o\
 	DeleteFluxes.o \
 	DeleteSUBlingList.o \
@@ -144,7 +147,6 @@ OBJS_CONFIG_LIB = \
 	FOF_allocate.o \
 	FOF_cmpfunc.o \
 	FOF_density.o \
-	FOF_Finalize.o \
 	FOF_forcetree.o \
 	FOF_iindexx.o \
 	FOF_indexx.o \
@@ -174,6 +176,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddExternalAcceleration.o \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
+	Grid_AddFields.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddRandomForcing.o \
 	Grid_AddToBoundaryFluxes.o \
@@ -262,6 +265,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
+	Grid_FlagCellsToBeRefinedByResistiveLength.o \
 	Grid_FlagCellsToBeRefinedByShear.o \
 	Grid_FlagCellsToBeRefinedByShocks.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
@@ -287,6 +291,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolateBoundaryFromParent.o \
 	Grid_InterpolateFieldValues.o \
 	Grid_InterpolateParticlePositions.o \
+	Grid_InterpolateParticlesToGrid.o \
 	Grid_InterpolatePositions.o \
 	Grid_Irecv_CommunicationReceiveRegion.o \
 	Grid_Irecv_CommunicationSendParticles.o \
@@ -305,6 +310,9 @@ OBJS_CONFIG_LIB = \
 	Grid_NohInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
+	Grid_PoissonSolver.o                    \
+	Grid_PoissonSolverCGA.o                 \
+	Grid_PoissonSolverTestInitializeGrid.o  \
 	Grid_PPMDirectEuler.o \
 	Grid_PrepareBoundaryFluxes.o \
 	Grid_PrepareFFT.o \
@@ -335,6 +343,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SetIsolatedPotentialBoundary.o \
 	Grid_SetMinimumSupport.o \
 	Grid_SetParticleMassFlaggingField.o \
+	Grid_ShearingBoxInitializeGrid.o \
 	Grid_ShockTubeInitializeGrid.o \
 	Grid_SolveForPotential.o \
 	Grid_SolveHydroEquations.o \
@@ -436,6 +445,7 @@ OBJS_CONFIG_LIB = \
 	performance.o \
         pgas2d_dual.o \
         pgas2d.o \
+	PoissonSolverTestInitialize.o \
 	pop3_color_maker.o \
 	pop3_maker.o \
 	pop3_properties.o \
@@ -494,6 +504,7 @@ OBJS_CONFIG_LIB = \
 	SetDefaultGlobalValues.o \
 	SetLevelTimeStep.o \
 	sgi_st1_fft64.o \
+	ShearingBoxInitialize.o \
 	ShockInABoxInitialize.o \
 	ShockPoolInitialize.o \
 	ShockTubeInitialize.o \
@@ -594,7 +605,6 @@ POBJS_CONFIG_LIB = \
 	FindRootGrid.o \
 	FindSuperSource.o \
 	FindSuperSourceByPosition.o \
-	Grid_AddFields.o \
 	Grid_AddH2Dissociation.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
@@ -685,13 +695,7 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o		                        \
 		hydro_rk/Grid_MHDRK2_2ndStep.o			\
 		hydro_rk/Grid_MHDSourceTerms.o			\
 		hydro_rk/Grid_MHDTurbulenceInitializeGrid.o	\
-		hydro_rk/Grid_MRICollapseInitializeGrid.o	\
-		hydro_rk/Grid_PoissonSolver.o                    \
-		hydro_rk/Grid_PoissonSolverCGA.o                 \
-		hydro_rk/Grid_PoissonSolverTestInitializeGrid.o  \
 		hydro_rk/Grid_ReduceWindBoundary.o		\
-		hydro_rk/Grid_SetShearingBoxExternalBoundaries.o \
-		hydro_rk/Grid_ShearingBoxInitializeGrid.o	\
 		hydro_rk/Grid_SaveMHDSubgridFluxes.o		\
 		hydro_rk/Grid_UpdateMHDPrim.o			\
 		hydro_rk/HLL_PLM_MHD.o				\
@@ -704,9 +708,7 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o		                        \
 		hydro_rk/MHDSweepY.o				\
 		hydro_rk/MHDSweepZ.o				\
 		hydro_rk/MHDTurbulenceInitialize.o		\
-		hydro_rk/MRICollapseInitialize.o			\
-		hydro_rk/PoissonSolverTestInitialize.o           \
 		hydro_rk/Riemann_HLL_MHD.o			\
-		hydro_rk/Riemann_LLF_MHD.o			\
-		hydro_rk/ShearingBoxInitialize.o	
+		hydro_rk/Riemann_LLF_MHD.o			
+	
 # hydro_rk/CommunicationMergeStarParticle.o                       \

@@ -50,6 +50,7 @@
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);
+int FinalizePythonInterface();
 #endif
  
 // Function prototypes
@@ -106,6 +107,11 @@ int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
+int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
+			      HierarchyEntry **NewHierarchyPointer,
+			      FLOAT WriteTime);
+void DeleteGridHierarchy(HierarchyEntry *GridEntry);
+
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
 
@@ -367,7 +373,7 @@ Eint32 main(Eint32 argc, char *argv[])
 #endif
     */
 
- 
+
     if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
@@ -444,6 +450,7 @@ Eint32 main(Eint32 argc, char *argv[])
     else {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Successfully read in parameter file %s.\n", ParameterFile);
+      //      Exterior.Prepare(TopGrid.GridData);
       AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
     }
  
@@ -600,6 +607,9 @@ Eint32 main(Eint32 argc, char *argv[])
 void my_exit(int status)
 {
   // Exit gracefully if successful; abort on error
+#ifdef USE_PYTHON
+  FinalizePythonInterface();
+#endif
 
   if (status == EXIT_SUCCESS) {
 

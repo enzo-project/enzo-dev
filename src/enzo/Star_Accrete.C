@@ -24,7 +24,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int Star::Accrete(void)
 {
@@ -38,9 +38,9 @@ int Star::Accrete(void)
   float this_dt, ratio1, ratio2, new_vel;
   
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassUnits;
+    VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, time);
+	   &TimeUnits, &VelocityUnits, time);
 
   /* Sum up prescribed mass accretion, then add to mass */
 

@@ -26,9 +26,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
+#include "RadiativeTransferHealpixRoutines.h"
 
-int mkPix2xy(long *ipix2x, long *ipix2y);
-int mk_xy2pix(int *x2pix, int *y2pix);
 int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 

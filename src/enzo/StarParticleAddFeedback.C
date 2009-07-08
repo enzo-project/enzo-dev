@@ -36,7 +36,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
 #ifdef USE_MPI
 #endif /* USE_MPI */
@@ -73,9 +73,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   /* Set the units. */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    MassUnits, VelocityUnits;
+    VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, Time);
+	   &TimeUnits, &VelocityUnits, Time);
 
   /* Initialize the AddedFeedback flag array */
   

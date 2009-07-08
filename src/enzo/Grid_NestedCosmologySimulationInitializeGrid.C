@@ -76,7 +76,7 @@ void icol(int *x, int n, int m, FILE *log_fptr);
  
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
  
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
  
@@ -476,7 +476,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
   // Get the units so we can convert temperature later
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1;
+  double MassUnits=1;
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 

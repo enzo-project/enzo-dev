@@ -37,7 +37,7 @@ int FindField(int f, int farray[], int n);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
  
 /* The following variables are used only in computing the emissivity,
    and are read in from the specified file which is created with a
@@ -77,13 +77,13 @@ int grid::ComputeXrayEmissivity(float *temperature,
   }
  
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
-    TemperatureUnits=1, MassUnits=1, CurrentRedshift = 1.0;
+    TemperatureUnits=1, CurrentRedshift = 1.0;
   FLOAT a, dadt;
  
   /* Find the temperature units. */
   
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

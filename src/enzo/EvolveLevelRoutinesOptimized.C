@@ -91,6 +91,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
 #endif
 {
+  //printf("Here in SetBoundaryConditions\n");
+
   int grid1, grid2, StartGrid, EndGrid;
 
   JBPERF_START("SetBoundaryConditions");

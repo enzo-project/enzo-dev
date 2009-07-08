@@ -169,19 +169,23 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 #endif /* TRANSFER */
     break;
 
-    /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
- 
-    /* Must be done last ... */
-  case 100:
-      this->FlagCellsToAvoidRefinement();
-      if (NumberOfFlaggedCells < 0) {
-	ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
-      }
-
+  case 11:
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
+    if (NumberOfFlaggedCells < 0) 
+	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
     break;
  
     /* ==== undefined ==== */
  
+    /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
+ 
+    /* Must be done last ... */
+  case 100:
+    this->FlagCellsToAvoidRefinement();
+    if (NumberOfFlaggedCells < 0)
+      ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
+    break;
+
   case INT_UNDEFINED:
     break;
  

@@ -38,7 +38,7 @@ int CosmologyComputeExpansionTimestep(FLOAT time, float *dtExpansion);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 extern "C" void FORTRAN_NAME(calc_dt)(
                   int *rank, int *idim, int *jdim, int *kdim,
                   int *i1, int *i2, int *j1, int *j2, int *k1, int *k2,
@@ -71,11 +71,10 @@ float grid::ComputeRT_TimeStep()
 
   /* If using cosmology, get units. */
 
-  float TemperatureUnits, DensityUnits, LengthUnits, 
-    MassUnits, VelocityUnits, TimeUnits, aUnits = 1;
+  float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, TimeUnits, aUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     ENZO_FAIL("");
   }

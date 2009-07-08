@@ -614,6 +614,11 @@ class grid
 
    int FlagCellsToBeRefinedByJeansLength();
 
+/* Flag all points that require refining by the Resistive Scale length criterion. 
+   abs(B)/abs(curl(B)) should be larger than cell size*/
+
+   int FlagCellsToBeRefinedByResistiveLength();
+
 /* Flag all points that require refining by Shear. */
 
    int FlagCellsToBeRefinedByShear();
@@ -1478,6 +1483,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int PrepareRandomForcingNormalization(float * GlobVal, int GlobNum);
   int ReadRandomForcingFields(FILE *main_file_pointer);
 
+  int AddFields(int TypesToAdd[], int NumberOfFields);
+ 
   inline bool isLocal () {return MyProcessorNumber == ProcessorNumber; };
 
  private:
@@ -1545,6 +1552,12 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
                                     FLOAT Spacing, int &TotalParticleCount);
 
+
+/* ShearingBox: initialize grid. */
+
+  int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, 
+				int InitialMagneticFieldConfiguration);
 // -------------------------------------------------------------------------
 // Analysis functions for AnalysisBaseClass and it's derivatives.
 //
@@ -1701,6 +1714,18 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
 
+
+//------------------------------------------------------------------------
+//  Shearing Boundary Conditions
+//------------------------------------------------------------------------
+
+  bool isTopGrid(){
+    for(int i=0; i<GridRank; i++){
+      if (CellWidth[i][0]<TopGridDx[i]*0.95) return FALSE;
+      if (CellWidth[i][0]>TopGridDx[i]*1.05) return FALSE;
+    }
+    return TRUE;};
+  
 //------------------------------------------------------------------------
 //  Misc.
 //------------------------------------------------------------------------
@@ -1711,12 +1736,14 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			   int CountOnly);
 
 //------------------------------------------------------------------------
-//  Inline FOF halo finder
+//  Inline FOF halo finder and particle interpolation using a tree
 //------------------------------------------------------------------------
 
   int MoveParticlesFOF(int level, int GridNum, FOF_particle_data* &P, 
 		       int &Index, FOFData &AllVars, float VelocityUnits, 
 		       double MassUnits, int CopyDirection);
+
+  int InterpolateParticlesToGrid(FOFData *D);
 
 //------------------------------------------------------------------------
 // new hydro & MHD routines
@@ -1845,17 +1872,18 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Poisson clean routines */
 
-  int PoissonSolver(int type, int level);
+  int PoissonSolver(int level);
 
   int PoissonSolverSOR();
   int PoissonSolverSOR2();
   int PoissonSolverFFT();
   int PoissonSolverMultigrid();
+
   int PoissonSolverCGA(int difftype, double *divB_p);
-  template <typename T> int multA(T* input, T* output);
-  template <typename T> int multA2(T* input, T* output);
-  template <typename T> T dot(T *a, T *b);
-  int setNeumannBC(float* x);
+  template <typename T> int multA(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
+  template <typename T> int multA2(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
+  template <typename T> T dot(T *a, T *b,  int *MatrixStartIndex, int *MatrixEndIndex);
+  int setNeumannBC(float* x, int *MatrixStartIndex, int *MatrixEndIndex);
   int PoissonSolverDirichletBC(double *divB_p);
 
   int PoissonCleanStep(int level);
@@ -1867,22 +1895,13 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   
   int PoissonSolverTestInitializeGrid(int TestType, float GeometryControl);
 
+  
+
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
 			      int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
-
   
-
-  int ShearingBoxInitializeGrid(float AngularVelocity, float VelocityGradient, 
-				float InitialBField, int ShearingBoxProblemType);
-
-  int SetShearingBoxExternalBoundaries();
-
-
-  int MRICollapseInitializeGrid(float AngularVelocity, float VelocityGradient, float InitialBField, 
-				float FluctuationAmplitudeFraction, float Radius);
-
   int ReduceWindBoundary();
 
   /* New particle routines */

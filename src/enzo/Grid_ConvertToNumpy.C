@@ -74,24 +74,24 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     3, dims, ENPY_FLOAT, BaryonField[field]);
             dataset->flags &= ~NPY_OWNDATA;
-            field_name = PyString_FromString(DataLabel[field]);
-            PyDict_SetItem(grid_data, field_name, (PyObject*) dataset);
+            PyDict_SetItemString(grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
 
+			/* Now the old grid data */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     3, dims, ENPY_FLOAT, OldBaryonField[field]);
-            field_name = PyString_FromString(DataLabel[field]);
-            PyDict_SetItem(grid_data, field_name, (PyObject*) dataset);
+            dataset->flags &= ~NPY_OWNDATA;
+            PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
-            PyDict_SetItem(old_grid_data, field_name, (PyObject*) dataset);
         }
 
         grid_id = PyLong_FromLong((long) GridID);
         PyDict_SetItem(grid_dictionary, grid_id, grid_data);
-        PyDict_SetItem(old_grid_dictionary, grid_id, grid_data);
+        PyDict_SetItem(old_grid_dictionary, grid_id, old_grid_data);
         /* New reference from setting, so we decref */
         Py_DECREF(grid_data);
         Py_DECREF(old_grid_data);
+        Py_DECREF(grid_id); /* Decref our grid_id */
 
     }
     int j = 0;

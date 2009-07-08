@@ -74,6 +74,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
 #endif  // end FAST_SIB
+
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
@@ -353,8 +354,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UsePhysicalUnit) {
 	utime = TimeUnits/3.1558e7;
       }
-      printf("Level[%d]: dt = %g(%g/%g)\n", level, dtThisLevel*utime,
-	     dtThisLevelSoFar*utime, dtLevelAbove*utime);
+      fprintf(stderr,"Level[%"ISYM"]: dt = %"FSYM"(%"FSYM"/%"FSYM")\n", 
+	      level, dtThisLevel*utime, dtThisLevelSoFar*utime, dtLevelAbove*utime);
     }
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
@@ -405,7 +406,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       NumberOfSubgrids[grid1] = counter + 1;
     }
-
 
 
     /* For each grid, create the subgrid list. */
@@ -464,7 +464,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  break;
 	} 
       }
-      lmax = 6; // <- Pengs version had lmax = 6
+      //      lmax = 0; // <- Pengs version had lmax = 6
       //      lmax = 1;
       FLOAT dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
       FLOAT dy0 = (MetaData->TopGridRank > 1) ? 
@@ -473,9 +473,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
       FLOAT h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
-      FLOAT DivBDampingLength=.3;
-      C_h = MetaData->CourantSafetyNumber*h_min/dt0;
+      FLOAT DivBDampingLength=1.;
+      C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
       C_p = sqrt(0.18*DivBDampingLength*C_h);
+      //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
       fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
     }
 
@@ -629,22 +630,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Grids[grid1]->GridData->AddResistivity();
 	  }
 	
-	  if(UseDivergenceCleaning){
-	    
-	    time1 = ReturnWallTime();
+	 
+	  time1 = ReturnWallTime();
 
-	    if (Grids[grid1]->GridData->PoissonSolver(UseDivergenceCleaning, level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonSolver.\n");
-	      return FAIL;
-	    }
-
-	    if (Grids[grid1]->GridData->PoissonCleanStep(level)==FAIL){
-	      fprintf(stderr, "Error in grid->PoissonCleaning.\n");
-	      return FAIL;
-	    }
-
-	  }
-
+	  Grids[grid1]->GridData->PoissonSolver(level);
+	
 	}
       }
 

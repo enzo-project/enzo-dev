@@ -112,41 +112,43 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Read Boundary condition info. */
   fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
+  int BRerr = 0 ;
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    ENZO_FAIL("");
+    BRerr = 1;
   } 
 
+  // Try to read external boundaries. If they don't fit grid data we'll set them later below
 #ifdef USE_HDF4
-  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
-            MetaData.BoundaryConditionName);                  
-    return FAIL;                                                                 
-  }
+  if (BRerr == 0)
+    if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
+      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+	      MetaData.BoundaryConditionName);                  
+      BRerr = 1;
+    }
 #else
-  if(LoadGridDataAtStart){    
-    if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
-    }
-  }else{
-    if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
+  if (BRerr == 0) {
+    if(LoadGridDataAtStart){    
+      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
+      }
+    }else{
+      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
+      }
     }
   }
+
 #endif
 
-  strcat(MetaData.BoundaryConditionName, hdfsuffix);
-  fclose(fptr);
+  if (BRerr ==0) strcat(MetaData.BoundaryConditionName, hdfsuffix);
+  if ((fptr != NULL) && (BRerr == 0)) fclose(fptr);
 
-  
-
-
-  
   /* Create the memory map name */
 
   strcpy(memorymapname, name);
@@ -156,12 +158,6 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
 #endif
  
-  // Code shrapnel. taskmapname is used in the commented block below.
-  // --Rick
-  //   strcpy(taskmapname, name);
-  //   strcat(taskmapname, TaskMapSuffix);
-  //   strcat(taskmapname, pid);
-
   /* Read the memory map */
 
   CommunicationBarrier();
@@ -177,7 +173,6 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   i = 0;
 
   while( fscanf(mptr, "Grid %8lld  PN %8lld  Memory %16lld\n", &GridIndex[i], &OldPN, &Mem[i]) != EOF) {
-    // fprintf(stderr, "Grid %8lld  PN %8lld  Memory %16lld\n", GridIndex[i], OldPN, Mem[i]);
     i++;
   }
   ntask = i;
@@ -188,35 +183,6 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   fclose(mptr);
 #endif
-
-
-  // This is code shrapnel. It's only purpose is to print out the number of grids
-  // that are expected to be opened. It also crashes if the taskmap file isn't found.
-  // The variable ngrids isn't used any where below.
-  // --Rick
-  
-  //   /* Count the number of grids to read */
-
-  // #ifdef SINGLE_HDF5_OPEN_ON_INPUT
-  //   if ((tptr = fopen(taskmapname, "r")) == NULL) {
-  //     fprintf(stderr, "Error opening TaskMap file %s.\n", taskmapname);
-  //     ENZO_FAIL("");
-  //   }
-  
-  //   Eint64 OldPN;
-  //   int OldGR, ngrids;
-  //   int i = 0;
-  
-  //   while( fscanf(tptr, "Grid %8lld  PN %8lld\n", &OldGR, &OldPN) != EOF) {
-  //     // fprintf(stderr, "Grid %8lld  PN %8lld\n", OldGR, OldPN);
-  //     i++;
-  //   }
-  //   ngrids = i;
-  
-  //   fprintf(stderr, "CPU %"ISYM" owns %"ISYM" grids\n", MyProcessorNumber, ngrids);
-  
-  //   fclose(tptr);
-  // #endif
 
   /* Create hierarchy name and grid base name. */
 
@@ -234,6 +200,55 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     ENZO_FAIL("");
   }
+
+  /* If there was trouble reading the boundary file attempt to sanely set them now. */
+  /* We do this after all the grids have been read in case the number of baryon fields 
+     etc. was modified in that stage. 
+     This allows you to add extra fields etc. and then restart. Proceed with caution.
+  */
+  if (BRerr) {
+    fprintf(stderr,"Setting External Boundaries.\n");
+    float Dummy[MAX_DIMENSION];
+    int dim;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      Dummy[dim] = 0.0;
+    fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
+    
+    SimpleConstantBoundary = TRUE;
+    
+    for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      if (MetaData.LeftFaceBoundaryCondition[dim] != periodic ||
+	  MetaData.RightFaceBoundaryCondition[dim] != periodic) {
+	SimpleConstantBoundary = FALSE;
+      }
+    }
+    
+    Exterior->Prepare(TopGrid->GridData);
+    
+    for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      Exterior->InitializeExternalBoundaryFace(dim,
+					       MetaData.LeftFaceBoundaryCondition[dim],
+					       MetaData.RightFaceBoundaryCondition[dim],
+					       Dummy, Dummy);
+      fprintf(stderr, " %i  %i \n", MetaData.LeftFaceBoundaryCondition[dim],
+	      MetaData.RightFaceBoundaryCondition[dim]);
+    }
+    
+    Exterior->InitializeExternalBoundaryParticles(
+						  MetaData.ParticleBoundaryType);
+    
+    
+    /*
+    HierarchyEntry *NextGrid;
+    NextGrid = TopGrid->NextGridThisLevel;
+    while (NextGrid != NULL) {
+      Exterior->Prepare(NextGrid->GridData);
+      NextGrid->GridData->SetExternalBoundaryValues(Exterior);
+      NextGrid = NextGrid->NextGridThisLevel;
+    }
+    */
+    
+  } /* Setting External Boundary */
 
   /* Read StarParticle data. */
  

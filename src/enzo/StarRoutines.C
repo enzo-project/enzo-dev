@@ -34,7 +34,7 @@ void InsertStarAfter(Star * &Node, Star * &NewNode);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 /*******************************
 
@@ -235,9 +235,9 @@ void Star::ConvertAllMassesToSolar(void)
   const double Msun = 1.989e33;
   double dx;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassConversion, MassUnits;
+    VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, CurrentGrid->Time);
+	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
   dx = LengthUnits * CurrentGrid->CellWidth[0][0];
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
   this->Mass *= MassConversion;
@@ -250,9 +250,9 @@ void Star::ConvertMassToSolar(void)
   const double Msun = 1.989e33;
   double dx;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits, MassConversion, MassUnits;
+    VelocityUnits, MassConversion;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, &MassUnits, CurrentGrid->Time);
+	   &TimeUnits, &VelocityUnits, CurrentGrid->Time);
   dx = LengthUnits * CurrentGrid->CellWidth[0][0];
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
   this->Mass *= MassConversion;

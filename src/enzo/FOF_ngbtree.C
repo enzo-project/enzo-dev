@@ -21,7 +21,7 @@
 #define  SECFACTOR  1.2
 static ngb_t _TopData;
 
-float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess, 
+float ngb_treefind(FOF_particle_data *P, double xyz[3], int desngb, float hguess, 
 		   int **ngblistback, float **r2listback)
 {
 
@@ -67,7 +67,7 @@ float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess,
       
     sr2 = sr*sr;
     _TopData.numngb = 0;
-    ngb_treesearch(_TopData.nodes, D.P);  
+    ngb_treesearch(_TopData.nodes, P);
     rep++;
 
     if (_TopData.numngb < desngb) {
@@ -80,9 +80,9 @@ float ngb_treefind(FOFData D, double xyz[3], int desngb, float hguess,
 
     for (i = 0; i < _TopData.numngb; i++) {
       ind = _TopData.ngblist[i];
-      dx = D.P[ind].Pos[0] - xyz[0];
-      dy = D.P[ind].Pos[1] - xyz[1];
-      dz = D.P[ind].Pos[2] - xyz[2];
+      dx = P[ind].Pos[0] - xyz[0];
+      dy = P[ind].Pos[1] - xyz[1];
+      dz = P[ind].Pos[2] - xyz[2];
       r2 = dx*dx + dy*dy + dz*dz;
 
       _TopData.r2list[i] = r2;
@@ -270,6 +270,8 @@ void ngb_treebuild(FOFData &D, int Npart)
 
   /* insert all other particles */
 
+  // Breaks at i=544979 for 26Apr09_EvoTest
+  int idebug = 544979;
   for (i = 2; i <= Npart; i++) {
     th = _TopData.nodes;
     while (1) {
@@ -331,7 +333,7 @@ void ngb_treebuild(FOFData &D, int Npart)
 	for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
 	  if (D.P[i].Pos[j] > th->center[j])
 	    subi += fak;
-	      
+
 	if (subi == subp) {
 	  th = nfree-1;
 	  th->count++;
@@ -342,7 +344,6 @@ void ngb_treebuild(FOFData &D, int Npart)
 
     } // ENDIF count==2
 
-      
     for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
       if (D.P[i].Pos[j] > th->center[j])
 	subi += fak;
