@@ -32,7 +32,7 @@ int NullProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData) {
   return SUCCESS; }
   
 // Problem setup/solver
-int NullProblem::Evolve(HierarchyEntry *ThisGrid) { 
+int NullProblem::Evolve(HierarchyEntry *ThisGrid, float deltat) { 
   return SUCCESS; }
 
 // Write module parameters to file

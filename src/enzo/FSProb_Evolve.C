@@ -41,7 +41,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 
 
-int FSProb::Evolve(HierarchyEntry *ThisGrid) 
+int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat) 
 {
 #ifdef USE_JBPERF
   JBPERF_START("fsprob_solve");
@@ -75,7 +75,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid)
 #endif
 
   // get information from Grid
-  dt = ThisGrid->GridData->ReturnTimeStep();
+  dt = deltat;
   told = ThisGrid->GridData->ReturnTime();
   tnew = told+dt;
 

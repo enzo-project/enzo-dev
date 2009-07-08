@@ -417,7 +417,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
 
       if ((RadiativeTransferFLD == 1) && (level == 0))
-	ImplicitSolver->Evolve(Grids[grid1]);
+	ImplicitSolver->Evolve(Grids[grid1],
+			       Grids[grid1]->GridData->ReturnTimeStep());
 #endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */

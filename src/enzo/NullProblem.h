@@ -50,7 +50,7 @@ class NullProblem : public virtual ImplicitProblemABC {
   int Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData);
   
   // Problem setup/solver
-  int Evolve(HierarchyEntry *ThisGrid);
+  int Evolve(HierarchyEntry *ThisGrid, float deltat);
 
   // Write module parameters to file
   int WriteParameters(FILE *fptr);
