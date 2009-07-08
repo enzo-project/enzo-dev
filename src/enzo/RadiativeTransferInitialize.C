@@ -67,16 +67,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ENZO_FAIL("");
   }
 
-  if (RadiativeTransferReadParameters(fptr) == FAIL) {
-    fprintf(stderr, "Error in RadiativeTransferReadParameters.\n");;
-    ENZO_FAIL("");
-  }
+  RadiativeTransferReadParameters(fptr);
   rewind(fptr);
   if (ProblemType == 50)
-    if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in ReadPhotonSources.\n");;
-      ENZO_FAIL("");
-    }
+    ReadPhotonSources(fptr, MetaData.Time);
   PhotonTime = MetaData.Time;
 
   fclose(fptr);
@@ -148,10 +142,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-      if (Temp->GridData->AddFields(TypesToAdd, FieldsToAdd) == FAIL) {
-	fprintf(stderr, "Error in grid::AddFields\n");
-	ENZO_FAIL("");
-      }
+      Temp->GridData->AddFields(TypesToAdd, FieldsToAdd);
 
   /* Add external boundaries */
 
@@ -221,17 +212,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
   // if using the FLD solver, initialize it here
   if (RadiativeTransferFLD > 0) {
 #ifdef USE_HYPRE  
-    if (ImplicitSolver->Initialize(TopGrid, MetaData) == FAIL) {
-      fprintf(stderr,"Error Initializing ImplicitSolver solver\n");
-      return FAIL;
-    }
+    ImplicitSolver->Initialize(TopGrid, MetaData);
 #else
-    fprintf(stderr,"Error: cannot use RadiativeTransferFLD without HYPRE\n");
-    return FAIL;
+    ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
 #endif
   }
-  
 
   return SUCCESS;
 
-    }
+}

@@ -621,6 +621,8 @@ POBJS_CONFIG_LIB = \
 	Grid_ComputeRT_TimeStep.o \
 	Grid_ConvertToCellCenteredRadiation.o \
 	Grid_CorrectRadiationIncompleteness.o \
+	Grid_CreateEmissivityLW.o \
+	Grid_DeleteEmissivity.o \
 	Grid_DeletePhotonPackages.o \
 	Grid_DetectIonizationFrontApprox.o \
 	Grid_ElectronFractionEstimate.o \
@@ -641,6 +643,7 @@ POBJS_CONFIG_LIB = \
 	Grid_WalkPhotonPackage.o \
 	LinkedListRoutines.o \
 	PhotonTestInitialize.o \
+	RadiativeTransferCallFLD.o \
 	RadiativeTransferComputeTimestep.o \
 	RadiativeTransferHealpixRoutines.o \
 	RadiativeTransferInitialize.o \
