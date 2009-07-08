@@ -300,7 +300,7 @@ int grid::MHDSourceTerms(float **dU)
   
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 31) {
+  if (ProblemType == 31 && ShearingBoxProblemType !=0) {
     
     int igrid;
     float rho, gx, gy, gz;

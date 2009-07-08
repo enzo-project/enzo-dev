@@ -78,7 +78,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
 
  
   /* read input from file */
-  int ShearingBoxProblemType = 0; // 0 = advecting sphere; 1 = shearing box
+ 
 
   float ThermalMagneticRatio=400; 
   float FluctuationAmplitudeFraction=0.1;
@@ -99,14 +99,13 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "ShearingBoxRefineAtStart = %"ISYM, &RefineAtStart); 
     ret += sscanf(line, "ThermalMagneticRatio= %"FSYM, &ThermalMagneticRatio);
     ret += sscanf(line, "FluctuationAmplitudeFraction = %"FSYM, &FluctuationAmplitudeFraction);
-    ret += sscanf(line, "ShearingBoxProblemType = %"ISYM, &ShearingBoxProblemType);  
     ret += sscanf(line, "ShearingBoxGeometry = %"FSYM, &ShearingGeometry);  
  
   } 
   printf("Geo %"FSYM, ShearingGeometry);
 
 
-  if (TopGrid.GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, ShearingBoxProblemType, InitialMagneticFieldConfiguration)
+  if (TopGrid.GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, InitialMagneticFieldConfiguration)
       == FAIL) 
     ENZO_FAIL("Error in ShearingBoxInitializeGrid.\n");
   
@@ -132,7 +131,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, ShearingBoxProblemType, InitialMagneticFieldConfiguration)
+	if (Temp->GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, InitialMagneticFieldConfiguration)
 	    == FAIL) 
 	  ENZO_FAIL("Error in ShearingBoxInitializeGrid.\n");
 	Temp = Temp->NextGridThisLevel;

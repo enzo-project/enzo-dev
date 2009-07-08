@@ -72,11 +72,11 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   
     //printf("L: %"GSYM" Delta: %"GSYM" %"GSYM" (%"GSYM" %"GSYM")\n", L, delta, delta, AngularVelocity, VelocityGradient);
 
-    if (abs(EdgeOffset[ShearingBoundaryDirection]-FLOAT(1.0)*L)<=
+    if (ABS(EdgeOffset[ShearingBoundaryDirection]-FLOAT(1.0)*L)<=
 	CellWidth[ShearingBoundaryDirection][0]*0.1) 
       shiftPos=true;
     else shiftPos=false;
-    if (abs(EdgeOffset[ShearingBoundaryDirection]+FLOAT(1.0)*L)<=
+    if (ABS(EdgeOffset[ShearingBoundaryDirection]+FLOAT(1.0)*L)<=
 	CellWidth[ShearingBoundaryDirection][0]*0.1) 
       shiftNeg=true;
     else shiftNeg=false;
@@ -120,7 +120,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     OtherDim[dim]   = 1;
   }
 
-  PrintToScreenBoundaries(BaryonField[3], "Vz Before\n");
+  //PrintToScreenBoundaries(BaryonField[3], "Vz Before\n");
  
   for (dim = 0; dim < GridRank; dim++)
     if (GridDimension[dim] > 1) {
@@ -297,7 +297,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   //Update the energys due to sheared boundaries
 
-  PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
+  //PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
 
   if (isShearing){
 

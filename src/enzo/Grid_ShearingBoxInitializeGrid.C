@@ -31,7 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 double Gaussian(double cs);
 
-int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int ShearingBoxProblemType, int InitialMagneticFieldConfiguration)
+int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int InitialMagneticFieldConfiguration)
 {
 
   
@@ -121,8 +121,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 
   FLOAT x,y,z;
 
-  printf("\n\nGridLeft %"FSYM" %"FSYM" %"FSYM"   GridRight %"FSYM" %"FSYM" %"FSYM" \n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2], 
-	 GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
+  //  printf("\n\nGridLeft %"FSYM" %"FSYM" %"FSYM"   GridRight %"FSYM" %"FSYM" %"FSYM" \n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2], 
+  //	 GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
 
 
   for (k = 0; k < GridDimension[2]; k++) {
