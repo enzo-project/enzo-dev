@@ -79,6 +79,7 @@ struct CoolDataType
 
   float *HDlte;
   float *HDlow;
+  float *HDcool;
 
   /* CIE cooling */
   float *cieco;

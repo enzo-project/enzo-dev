@@ -524,6 +524,10 @@ class grid
 
    int SolveRateAndCoolEquations();
 
+/* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
+
+   int SolveHighDensityPrimordialChemistry();
+
 /* Compute densities of various species for RadiationFieldUpdate. */
 
    int RadiationComputeDensities(int level);

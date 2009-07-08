@@ -249,6 +249,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  PrimordialChemistrySolver   = 0;
+  ThreeBodyRate               = 0;                 // ABN02
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   AdjustUVBackground          = 1;
