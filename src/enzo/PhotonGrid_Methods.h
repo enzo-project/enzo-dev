@@ -264,4 +264,4 @@ int FinalizeRadiationFields(void);
 // Routines for coupling to FLD solver
 
 int DeleteEmissivity(void);
-int CreateEmissivityLW(Star *AllStars);
+int CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD);

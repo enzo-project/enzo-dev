@@ -23,8 +23,11 @@
 #include "Grid.h"
 
 int FindField(int f, int farray[], int n);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
-int grid::CreateEmissivityLW(Star *AllStars)
+int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 {
 
   if (RadiativeTransfer == FALSE || RadiativeTransferFLD == FALSE) 
@@ -32,8 +35,8 @@ int grid::CreateEmissivityLW(Star *AllStars)
 
   Star *cstar;
   int i, j, k, index, dim, size, EtaNum;
-  float energies[4], E_LW;
-  double Luminosity[4], L_LW;
+  float energies[4], E_LW, TimeFraction;
+  double Luminosity[4], L_LW, CellVolume;
   const float ev_erg = 1.602176e-12;
 
   /* Allocate and compute emissivity field */
@@ -44,8 +47,20 @@ int grid::CreateEmissivityLW(Star *AllStars)
   if (MyProcessorNumber == ProcessorNumber) {
 
     size = 1;
-    for (dim = 0; dim < GridRank; dim++)
+    CellVolume = 1.0;
+    for (dim = 0; dim < GridRank; dim++) {
       size *= GridDimension[dim];
+      CellVolume *= CellWidth[dim][0];
+    }
+
+    /* Get units */
+
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
+      VelocityUnits;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
+	     &VelocityUnits, Time);
+
+    CellVolume *= POW(LengthUnits, 3.0);
 
     BaryonField[EtaNum] = new float[size];
     for (i = 0; i < size; i++)
@@ -56,8 +71,17 @@ int grid::CreateEmissivityLW(Star *AllStars)
 
     for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-      if (this->PointInGrid(cstar->pos) == FALSE)
+      if (this->PointInGrid(cstar->pos) == FALSE || 
+	  cstar->IsActive() == FALSE)
 	continue;
+
+      /* Get if the star will die in the next timestep and calculate
+	 factor to reduce the emissivity */
+
+      if (cstar->BirthTime + cstar->LifeTime < TimeFLD + dtFLD)
+	TimeFraction = (cstar->BirthTime + cstar->LifeTime - TimeFLD) / dtFLD;
+      else
+	TimeFraction = 1.0;
 
       cstar->ComputePhotonRates(energies, Luminosity);
       E_LW = energies[3];
@@ -68,7 +92,8 @@ int grid::CreateEmissivityLW(Star *AllStars)
       k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
       index = GRIDINDEX(i,j,k);
 
-      BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg;
+      BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
+	TimeFraction;
 
     } // ENDFOR stars
 

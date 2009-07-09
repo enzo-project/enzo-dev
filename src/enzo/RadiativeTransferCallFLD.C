@@ -44,21 +44,24 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
   int FieldToCalculate = kdissH2I;
 
   LevelHierarchyEntry *Temp;
-  float dtTopLevel;
+  FLOAT FLDTime;
+  float dt;
 
   if (level == RadiativeTransferFLDCallOnLevel) {
+
+    FLDTime = LevelArray[level]->GridData->ReturnTime();
+    dt = LevelArray[level]->GridData->ReturnTimeStep();
 
     /* Construct emissivity field on each root grid from the star
        particles (objects) */
 
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
-      Temp->GridData->CreateEmissivityLW(AllStars);
+      Temp->GridData->CreateEmissivityLW(AllStars, FLDTime, dt);
 
     /* Call FLD solver */
 
-    dtTopLevel = LevelArray[0]->GridData->ReturnTimeStep();
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
-      ImplicitSolver->Evolve(Temp->GridHierarchyEntry, dtTopLevel);
+      ImplicitSolver->Evolve(Temp->GridHierarchyEntry, dt);
 
     /* Delete emissivity fields */
 
