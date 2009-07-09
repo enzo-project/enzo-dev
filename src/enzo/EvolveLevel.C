@@ -466,7 +466,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			     level, AllStars);
+			 level, AllStars);
+
     /* If cosmology, then compute grav. potential for output if needed. */
 
     //dcc cut second potential cut: Duplicate?
@@ -574,18 +575,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
 	level <= RadiationFieldLevelRecompute)
-      if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	ENZO_FAIL("");
-      }
+      RadiationFieldUpdate(LevelArray, level, MetaData);
  
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    if (dtThisLevelSoFar < dtLevelAbove) {   
-      
+    if (dtThisLevelSoFar < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level);
-    }
 
     /* Count up number of grids on this level. */
 

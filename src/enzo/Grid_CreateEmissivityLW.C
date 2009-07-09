@@ -69,33 +69,71 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
     /* Loop over all stars (because these may be contained in child
        subgrids) and fill in emissivity field */
 
-    for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+    if (ProblemType != 50) { // Photon test
 
-      if (this->PointInGrid(cstar->pos) == FALSE || 
-	  cstar->IsActive() == FALSE)
-	continue;
+      for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-      /* Get if the star will die in the next timestep and calculate
-	 factor to reduce the emissivity */
+	if (this->PointInGrid(cstar->pos) == FALSE || 
+	    cstar->IsActive() == FALSE)
+	  continue;
 
-      if (cstar->BirthTime + cstar->LifeTime < TimeFLD + dtFLD)
-	TimeFraction = (cstar->BirthTime + cstar->LifeTime - TimeFLD) / dtFLD;
-      else
-	TimeFraction = 1.0;
+	/* Get if the star will die in the next timestep and calculate
+	   factor to reduce the emissivity */
 
-      cstar->ComputePhotonRates(energies, Luminosity);
-      E_LW = energies[3];
-      L_LW = Luminosity[3];
+	if (cstar->BirthTime + cstar->LifeTime < TimeFLD + dtFLD)
+	  TimeFraction = (cstar->BirthTime + cstar->LifeTime - TimeFLD) / 
+	    dtFLD;
+	else
+	  TimeFraction = 1.0;
 
-      i = int((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidth[0][0]);
-      j = int((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidth[1][0]);
-      k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
-      index = GRIDINDEX(i,j,k);
+	cstar->ComputePhotonRates(energies, Luminosity);
+	E_LW = energies[3];
+	L_LW = Luminosity[3];
 
-      BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
-	TimeFraction;
+	i = int((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidth[0][0]);
+	j = int((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidth[1][0]);
+	k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
+	index = GRIDINDEX(i,j,k);
 
-    } // ENDFOR stars
+	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
+	  TimeFraction;
+
+      } // ENDFOR stars
+
+    } // ENDIF ProblemType != 50
+
+    // Photon test problem
+    else {
+
+      RadiationSourceEntry *RS;
+
+      for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
+
+	if (this->PointInGrid(RS->Position) == FALSE)
+	  continue;
+
+	/* Get if the star will die in the next timestep and calculate
+	   factor to reduce the emissivity */
+
+	if (RS->CreationTime + RS->LifeTime < TimeFLD + dtFLD)
+	  TimeFraction = (RS->CreationTime + RS->LifeTime - TimeFLD) / dtFLD;
+	else
+	  TimeFraction = 1.0;
+
+	E_LW = RS->Energy[3];
+	L_LW = RS->Luminosity * RS->SED[3];
+
+	i = int((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidth[0][0]);
+	j = int((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidth[1][0]);
+	k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
+	index = GRIDINDEX(i,j,k);
+
+	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
+	  TimeFraction;
+
+      } // ENDFOR stars
+
+    }
 
   } // ENDIF MyProcessor == ProcessorNumber
   

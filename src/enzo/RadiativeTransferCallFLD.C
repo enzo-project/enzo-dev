@@ -35,6 +35,10 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 
 {
 
+  LevelHierarchyEntry *Temp;
+  FLOAT FLDTime;
+  float dt;
+
   if (RadiativeTransferFLD == FALSE)
     return SUCCESS;
 
@@ -43,13 +47,32 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 
   int FieldToCalculate = kdissH2I;
 
-  LevelHierarchyEntry *Temp;
-  FLOAT FLDTime;
-  float dt;
+  /* 
+     Determine whether we're the coarsest level that is
+     >=FLDCallOnLevel (L*) on the same time as level L*.  If so, we
+     call the solver.  Below the Xs indicate where we call the solver
+     if L* = 2.
 
-  if (level == RadiativeTransferFLDCallOnLevel) {
+     Level 0: X-----------------------X
+     Level 1: |-----------X-----------|
+     Level 2: |-----X-----|-----X-----|
 
-    FLDTime = LevelArray[level]->GridData->ReturnTime();
+  */
+
+  int l, CallLevel;
+  FLOAT LevelTime;
+  FLDTime = LevelArray[RadiativeTransferFLDCallOnLevel]->GridData->
+    ReturnTime();
+  for (l = 0; l <= RadiativeTransferFLDCallOnLevel; l++) {
+    LevelTime = LevelArray[l]->GridData->ReturnTime();
+    if (LevelTime == FLDTime) {
+      CallLevel = l;
+      break;
+    }
+  }
+
+  if (level == CallLevel) {
+
     dt = LevelArray[level]->GridData->ReturnTimeStep();
 
     /* Construct emissivity field on each root grid from the star
