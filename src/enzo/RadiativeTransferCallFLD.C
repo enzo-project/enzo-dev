@@ -35,18 +35,21 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 
 {
 
-  /* Return if not root level or not needed */
-
   if (RadiativeTransferFLD == FALSE)
     return SUCCESS;
+
+  /* Define which field we're calculating.  We should really have some
+     logic to determine which one we're calculating. */
+
+  int FieldToCalculate = kdissH2I;
 
   LevelHierarchyEntry *Temp;
   float dtTopLevel;
 
-  /* Construct emissivity field on each root grid from the star
-     particles (objects) */
-  
-  if (level == 0) {
+  if (level == RadiativeTransferFLDCallOnLevel) {
+
+    /* Construct emissivity field on each root grid from the star
+       particles (objects) */
 
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
       Temp->GridData->CreateEmissivityLW(AllStars);
@@ -62,17 +65,18 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
       Temp->GridData->DeleteEmissivity();
 
-  } // ENDIF level == 0
+    /* For subgrids, we need to interpolate the radiation field from
+       its parent */
 
-  /* For subgrids, we need to interpolate the radiation field from its
-     parent */
+    HierarchyEntry *Parent;
+    for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
+	Parent = Temp->GridHierarchyEntry->ParentGrid;
+	Temp->GridData->InterpolateRadiation(Parent->GridData, FieldToCalculate);
+      }
 
-  else {
+  } // ENDIF level == CallOnLevel
 
-    
-
-  } // ENDELSE level == 0
-  
   return SUCCESS;
 
 }

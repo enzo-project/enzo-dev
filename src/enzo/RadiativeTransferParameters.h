@@ -51,12 +51,28 @@ EXTERN float RadiativeTransferTimestepVelocityLimit;
 
 EXTERN int RadiativeTransferSourceClustering;
 
+/* Radius to merge rays in units of separation of the two sources
+   associated with a super source. */
+
 EXTERN float RadiativeTransferPhotonMergeRadius;
+
+/* Radiative pressure flag */
 
 EXTERN int RadiationPressure;
 
+/* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
+
 EXTERN int RadiativeTransferOpticallyThinH2;
+
+/* Periodic boundary conditions for the photon packages */
 
 EXTERN int RadiativeTransferPeriodicBoundary;
 
+/* Flag to activate the FLD solver for optically thin fields */
+
 EXTERN int RadiativeTransferFLD;
+
+/* Which level, i.e. the frequency it's called, we call the FLD
+   solver */
+
+EXTERN int RadiativeTransferFLDCallOnLevel;

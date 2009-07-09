@@ -308,6 +308,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolateParticlePositions.o \
 	Grid_InterpolateParticlesToGrid.o \
 	Grid_InterpolatePositions.o \
+	Grid_InterpolateRadiation.o \
 	Grid_Irecv_CommunicationReceiveRegion.o \
 	Grid_Irecv_CommunicationSendParticles.o \
 	Grid_Irecv_CommunicationSendRegion.o \

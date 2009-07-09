@@ -35,12 +35,10 @@ int grid::InitializeRadiativeTransferFields()
 
   int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
     kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+
+  IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
+				  gammaHeINum, kphHeIINum, gammaHeIINum, 
+				  kdissH2INum);
 
   int i,j,k, index;
 
@@ -64,11 +62,7 @@ int grid::InitializeRadiativeTransferFields()
   if (RadiationPressure) {
 
     int RPresNum1, RPresNum2, RPresNum3;
-    if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
-	== FAIL) {
-      fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("");
-    }
+    IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
 
     /* Initialize acceleration fields from radiation pressure */
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)

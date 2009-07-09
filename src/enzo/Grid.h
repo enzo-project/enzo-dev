@@ -677,6 +677,11 @@ class grid
 
    int InterpolateFieldValues(grid *ParentGrid);
 
+/* Interpolate one radiation field.  Based on InterpolateFieldValues
+   but removed all of the conservative stuff. */   
+
+   int InterpolateRadiation(grid *ParentGrid, int Field);
+
 /* baryons: check for coincident zones between grids & copy if found.
             (correctly includes periodic boundary conditions). */
 

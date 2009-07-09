@@ -59,6 +59,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferFLD                        = FALSE;
+  RadiativeTransferFLDCallOnLevel             = 0;
 
   /* read input from file */
 
@@ -100,6 +101,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferFLD = %"ISYM, 
 		  &RadiativeTransferFLD);
+    ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
+		  &RadiativeTransferFLDCallOnLevel);
 
     /* if the line is suspicious, issue a warning */
 
@@ -128,6 +131,13 @@ int RadiativeTransferReadParameters(FILE *fptr)
       fprintf(stderr, "Warning: optically thin Lyman-Werner radiation and FLD "
 	      "turned on.  Turning the optically thin radiation OFF.\n");
     RadiativeTransferOpticallyThinH2 = FALSE;
+  }
+
+  if (RadiativeTransferFLDCallOnLevel < 0) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: RadiativeTransferFLDCallOnLevel = %"ISYM
+	      " cannot be negative!  Setting to 0.\n");
+    RadiativeTransferFLDCallOnLevel = 0;
   }
 
   delete [] dummy;
