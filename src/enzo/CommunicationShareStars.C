@@ -1,12 +1,12 @@
 /***********************************************************************
 /
-/  COMMUNICATION ROUTINE: DISTRIBUTE PARTICLES IN LIST TO PROCESSORS
+/  COMMUNICATION ROUTINE: DISTRIBUTE STARS IN LIST TO PROCESSORS
 /
 /  written by: John Wise
 /  date:       May, 2009
-/  modified:   
+/  modified:   July, 2009 by John Wise -- adapted for stars
 /
-/  PURPOSE: Takes a list of particle moves and sends/receives particles
+/  PURPOSE: Takes a list of star moves and sends/receives stars
 /           to all processors
 /
 ************************************************************************/
@@ -27,15 +27,14 @@ void my_exit(int status);
 
 #ifdef USE_MPI
 static int FirstTimeCalled = TRUE;
-static MPI_Datatype MPI_ParticleMoveList;
+static MPI_Datatype MPI_StarMoveList;
 #endif
 
-Eint32 compare_proc(const void *a, const void *b);
-Eint32 compare_grid(const void *a, const void *b);
+Eint32 compare_star_proc(const void *a, const void *b);
+Eint32 compare_star_grid(const void *a, const void *b);
 
-int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
-				int &NumberOfReceives,
-				particle_data* &SharedList)
+int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
+			    int &NumberOfReceives, star_data* &SharedList)
 {
 
   int i, proc;
@@ -45,10 +44,10 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   // destination processor
 
   int TotalNumberToMove = 0;
-  int particle_data_size = sizeof(particle_data);
+  int star_data_size = sizeof(star_data);
   for (proc = 0; proc < NumberOfProcessors; proc++)
     TotalNumberToMove += NumberToMove[proc];
-  qsort(SendList, TotalNumberToMove, particle_data_size, compare_proc);
+  qsort(SendList, TotalNumberToMove, star_data_size, compare_star_proc);
 
   SharedList = NULL;
 
@@ -66,13 +65,13 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 
 #ifdef USE_MPI
 
-    /* Generate a new MPI type corresponding to the ParticleMoveList data. */
+    /* Generate a new MPI type corresponding to the StarMoveList data. */
  
     if (FirstTimeCalled) {
-      Count = sizeof(particle_data);
-      //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
-      stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_ParticleMoveList);
-      stat |= MPI_Type_commit(&MPI_ParticleMoveList);
+      Count = sizeof(star_data);
+      //  fprintf(stderr, "Size of StarMoveList %"ISYM"\n", Count);
+      stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_StarMoveList);
+      stat |= MPI_Type_commit(&MPI_StarMoveList);
       if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
       FirstTimeCalled = FALSE;
     }
@@ -108,9 +107,9 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
     starttime = MPI_Wtime();
 #endif /* MPI_INSTRUMENTATION */
 
-    /******************************
-       Share the particle counts
-    ******************************/
+    /**************************
+       Share the star counts
+    ***************************/
     
     stat = MPI_Alltoall(NumberToMove, SendCount, DataTypeInt,
 			RecvListCount, RecvCount, DataTypeInt, MPI_COMM_WORLD);
@@ -125,16 +124,16 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
       MPI_RecvListCount[i] = RecvListCount[i];
     }
 
-    SharedList = new particle_data[NumberOfReceives];
+    SharedList = new star_data[NumberOfReceives];
  
     /******************************
-          Share the particles
+          Share the stars
     ******************************/
 
     stat = MPI_Alltoallv(SendList, MPI_SendListCount, MPI_SendListDisplacements,
-			   MPI_ParticleMoveList,
+			   MPI_StarMoveList,
 			 SharedList, MPI_RecvListCount, MPI_RecvListDisplacements,
-			   MPI_ParticleMoveList,
+			   MPI_StarMoveList,
 			 MPI_COMM_WORLD);
     if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
 
@@ -164,7 +163,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   
   // First sort the list by destination grid, so the searching for
   // grids is more efficient.
-  qsort(SharedList, NumberOfReceives, particle_data_size, compare_grid);
+  qsort(SharedList, NumberOfReceives, star_data_size, compare_star_grid);
 
   return SUCCESS;
 

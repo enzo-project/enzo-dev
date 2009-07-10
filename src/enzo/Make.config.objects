@@ -58,9 +58,12 @@ OBJS_CONFIG_LIB = \
 	CommunicationSendFluxes.o \
 	CommunicationShareGrids.o \
 	CommunicationShareParticles.o \
+	CommunicationShareStars.o \
 	CommunicationSyncNumberOfParticles.o \
 	CommunicationTransferParticles.o \
 	CommunicationTransferParticlesOpt.o \
+	CommunicationTransferStars.o \
+	CommunicationTransferStarsOpt.o \
 	CommunicationTranspose.o \
 	CommunicationUpdateStarParticleCount.o \
 	CommunicationUtilities.o \
@@ -202,9 +205,12 @@ OBJS_CONFIG_LIB = \
 	Grid_CollectGridInformation.o \
 	Grid_CollectParticles.o \
 	Grid_CollectParticleMassFlaggingField.o \
+	Grid_CollectStars.o \
 	Grid_CommunicationMoveGrid.o \
 	Grid_CommunicationTransferParticles.o \
 	Grid_CommunicationTransferParticlesOpt.o \
+	Grid_CommunicationTransferStars.o \
+	Grid_CommunicationTransferStarsOpt.o \
 	Grid_CommunicationSendStars.o \
 	Grid_ComovingExpansionTerms.o \
 	Grid_ComovingGravitySourceTerm.o \
@@ -358,6 +364,7 @@ OBJS_CONFIG_LIB = \
 	Grid_TracerParticleOutputData.o \
 	Grid_TracerParticleSetVelocity.o \
 	Grid_TransferSubgridParticles.o \
+	Grid_TransferSubgridStars.o \
 	Grid_TurbulenceSimulationInitialize.o \
 	Grid_UpdateParticlePosition.o \
 	Grid_UpdateParticleVelocity.o \
@@ -505,6 +512,7 @@ OBJS_CONFIG_LIB = \
 	solve_cool.o \
 	solve_rate.o \
 	solve_rate_cool.o \
+	SortCompareFunctions.o \
 	SphericalInfallInitialize.o \
 	StarListRoutines.o \
 	StarParticleAccretion.o \

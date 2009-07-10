@@ -31,15 +31,12 @@ int SetSubgridMarker(TopGridData &MetaData,
   int i, grid;
   LevelHierarchyEntry *Temp;
   HierarchyEntry *Subgrid;
-  int NumberOfGrids, counter;
+  int NumberOfGrids;
 
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)  {
 
     Temp = LevelArray[i];
-    counter = 0;
     while (Temp != NULL) {
-
-      Temp->GridData->SetGridID(counter++);
 
       // first the grid marks itself
       Temp->GridData->

@@ -24,6 +24,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "communication.h"
+#include "CommunicationUtilities.h"
 
 /* function prototypes */
 
@@ -49,6 +51,9 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
   StarBuffer *buffer = NULL;
   Star *RecvStars = NULL;
 
+  if (CommunicationShouldExit(ProcessorNumber, ToProcessor))
+    return SUCCESS;
+
   if (NumberOfStars == 0)
     return SUCCESS;
 
@@ -56,7 +61,9 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
      StarListToBuffer in the local processor. */
 
   TransferSize = this->NumberOfStars;
-  if (MyProcessorNumber == ToProcessor)
+  if (CommunicationDirection == COMMUNICATION_RECEIVE)
+    buffer = (StarBuffer*) CommunicationReceiveBuffer[CommunicationReceiveIndex];
+  else
     buffer = new StarBuffer[TransferSize];
 
   /* If this is the from processor, pack fields and delete stars. */
@@ -70,41 +77,53 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
 
 #ifdef USE_MPI
 
-  if (FirstTimeCalled) {
-    MPI_Type_contiguous(sizeof(StarBuffer), MPI_BYTE, &MPI_STAR);
-    MPI_Type_commit(&MPI_STAR);
-    FirstTimeCalled = FALSE;
-  }
-
   /* only send if processor numbers are not identical */
 
   if (ProcessorNumber != ToProcessor) {
 
+    if (FirstTimeCalled) {
+      MPI_Type_contiguous(sizeof(StarBuffer), MPI_BYTE, &MPI_STAR);
+      MPI_Type_commit(&MPI_STAR);
+      FirstTimeCalled = FALSE;
+    }
+
     MPI_Status status;
+    MPI_Arg PCount, Count = TransferSize;
+    MPI_Arg Source = ProcessorNumber;
+    MPI_Arg Dest = ToProcessor;
+    MPI_Arg stat;
 
 #ifdef MPI_INSTRUMENTATION
     starttime = MPI_Wtime();
 #endif
-    if (MyProcessorNumber == ProcessorNumber) {
-      CommunicationBufferedSend(buffer, TransferSize, MPI_STAR, 
-				ToProcessor, MPI_SENDSTAR_TAG, MPI_COMM_WORLD, 
+    if (MyProcessorNumber == ProcessorNumber)
+      CommunicationBufferedSend(buffer, Count, MPI_STAR, 
+				Dest, MPI_SENDSTAR_TAG, MPI_COMM_WORLD, 
 				BUFFER_IN_PLACE);
-    }
 
     if (MyProcessorNumber == ToProcessor) {
-      if (MPI_Recv(buffer, TransferSize, MPI_STAR, ProcessorNumber,
-		   MPI_SENDSTAR_TAG, MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
-	fprintf(stderr, "Proc %"ISYM" MPI_Recv error %"ISYM"\n", MyProcessorNumber,
-		status.MPI_ERROR);
-	fprintf(stderr, "P(%"ISYM"): TransferSize = %"ISYM" ProcessorNumber = %"ISYM"\n", 
-		MyProcessorNumber, TransferSize, ProcessorNumber);
-	char errstr[MPI_MAX_ERROR_STRING];
-	Eint32 errlen;
-	MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
-	fprintf(stderr, "MPI Error: %s\n", errstr);
-	ENZO_FAIL("");
+
+      if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
+	MPI_Irecv(buffer, Count, MPI_STAR, Source,
+		  MPI_SENDSTAR_TAG, MPI_COMM_WORLD,
+		  CommunicationReceiveMPI_Request+CommunicationReceiveIndex);
+
+	CommunicationReceiveGridOne[CommunicationReceiveIndex] = this;
+	CommunicationReceiveGridTwo[CommunicationReceiveIndex] = ToGrid;
+	CommunicationReceiveCallType[CommunicationReceiveIndex] = 18;
+	CommunicationReceiveArgumentInt[0][CommunicationReceiveIndex] = NumberOfStars;
+
+	CommunicationReceiveBuffer[CommunicationReceiveIndex] = (float *) buffer;
+	CommunicationReceiveDependsOn[CommunicationReceiveIndex] = 
+	  CommunicationReceiveCurrentDependsOn;
+	CommunicationReceiveIndex++;
       }
-    }
+
+      if (CommunicationDirection == COMMUNICATION_SEND_RECEIVE)
+	MPI_Recv(buffer, Count, MPI_STAR, Source,
+		 MPI_SENDSTAR_TAG, MPI_COMM_WORLD, &status);
+
+    } // ENDIF MyProcessorNumber == ToProcessor
 
 #ifdef MPI_INSTRUMENTATION
     /* Zhiling Lan's instrumented part */
@@ -122,15 +141,15 @@ int grid::CommunicationSendStars(grid *ToGrid, int ToProcessor)
 
   /* If this is the to processor, unpack fields. */
 
-  if (MyProcessorNumber == ToProcessor) {
+  if (MyProcessorNumber == ToProcessor &&
+      (CommunicationDirection == COMMUNICATION_SEND_RECEIVE ||
+       CommunicationDirection == COMMUNICATION_RECEIVE)) {
 
     RecvStars = StarBufferToList(buffer, TransferSize);
     InsertStarAfter(ToGrid->Stars, RecvStars);
+    delete [] buffer;
 			  
   } // end: if (MyProcessorNumber...)
-
-  if (MyProcessorNumber == ToProcessor)
-    delete [] buffer;
 
   return SUCCESS;
 }
