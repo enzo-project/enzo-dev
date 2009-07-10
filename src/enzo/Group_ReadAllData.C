@@ -153,7 +153,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    BRerr = 1;
+    return FAIL;
   }
 
   // Below, ENZO_FAIL is changed to "return FAIL" to deal with various data formats including HDF4, HDF5, packed-HDF5
@@ -161,27 +161,19 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   // This will allow a graceful exit when the dataformat is not packed-HDF5.
   // - Ji-hoon Kim
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
-#ifdef USE_HDF4
-  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
-            MetaData.BoundaryConditionName);                  
-    BRerr = 1;
-  }
-#else
-  if(LoadGridDataAtStart){    
-    if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
+    if(LoadGridDataAtStart){    
+      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	return FAIL;
+      }
+    }else{
+      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	return FAIL;
+      }
     }
-  }else{
-    if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
-    }
-  }
-#endif
 
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   if (fptr != NULL) fclose(fptr);
