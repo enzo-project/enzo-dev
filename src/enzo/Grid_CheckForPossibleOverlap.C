@@ -59,6 +59,19 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
      (Here we use EdgeOffset to tell Grid_CopyZonesFromGrid that we have
      moved the base location of the grid). */
  
+
+  FLOAT Lx, Ly, ShearingOffset;
+
+  if (ShearingBoundaryDirection) { // For shearing box we have another offset in the y direction
+    Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
+    Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
+    ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
+    while (ShearingOffset > Ly) {
+      ShearingOffset -= Ly;
+    }  
+  }
+
+
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
   for (k = -kdim; k <= +kdim; k++) {
@@ -87,6 +100,21 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 			 CellLeftEdge[2][GridDimension[2]-1] >
 			 DomainRightEdge[2])                        )   ) {
  
+
+	  if (ShearingBoundaryDirection!=-1){
+	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
+		  (j== +1 && LeftFaceBoundaryCondition[2] == shearing) ||
+		  (k== +1 && LeftFaceBoundaryCondition[3] == shearing)){
+		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+	      }
+	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
+		  (j== -1 && RightFaceBoundaryCondition[2] == shearing) ||
+		  (k== -1 && RightFaceBoundaryCondition[3] == shearing)){
+		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+	      }
+	    }
+
+
 	  /* Full periodic case (26 checks). */
  
 	  if ((GridRank > 2 || k == 0) &&
@@ -96,6 +124,10 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 		== TRUE)
 	      return TRUE;
 	  }
+
+	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
+	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
+	  EdgeOffset[0] = FLOAT(i)*(DomainRightEdge[0] - DomainLeftEdge[0]);
  
 	} // end: if (periodic bc's)
  

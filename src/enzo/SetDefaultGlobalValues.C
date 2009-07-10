@@ -484,7 +484,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   VelocityGradient=1.0;
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
-  
+  ShearingBoxProblemType = 0; 
   useMHD=0;
   return SUCCESS;
 }
