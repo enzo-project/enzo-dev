@@ -212,4 +212,11 @@ struct particle_data {
   int   proc;
 };
 
+#include "StarBuffer.h"
+struct star_data {
+  StarBuffer data;
+  int grid;
+  int proc;
+};
+
 #endif

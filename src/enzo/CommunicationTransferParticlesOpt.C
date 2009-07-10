@@ -35,11 +35,6 @@ void my_exit(int status);
  
 // function prototypes
  
-#ifdef USE_MPI
-static int FirstTimeCalled = TRUE;
-static MPI_Datatype MPI_ParticleMoveList;
-#endif
- 
 Eint32 compare_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int CommunicationAllSumIntegerValues(int *Values, int Number);
