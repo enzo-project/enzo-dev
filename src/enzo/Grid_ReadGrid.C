@@ -44,10 +44,6 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
 #ifdef USE_HDF4
 int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
-int ReadField(float32 *temp, Eint32 Size[], int Rank, int size, Eint32 sd_id, 
-	      int32 &sds_index, char *name);
-int ReadIntField(Eint32 *tempint, Eint32 Size[], int Rank, int size, Eint32 sd_id, 
-	      Eint32 &sds_index, char *name);
 static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
  
