@@ -333,7 +333,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	  fprintf(stderr, "grav_y=%"GSYM",%"GSYM",%"GSYM"\n", gr_yacc[IDX(i,j-1,k)],gr_yacc[IDX(i,j,k)], gr_yacc[IDX(i,j+1,k)]);
 	  fprintf(stderr, "grav_z=%"GSYM",%"GSYM",%"GSYM"\n", gr_zacc[IDX(i,j,k-1)],gr_zacc[IDX(i,j,k)], gr_zacc[IDX(i,j,k+1)]);
 	  for (n=is; n <= ie; n++)
-	    fprintf(stderr, "d,e,y,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
+	    fprintf(stderr, "d,e,u,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
 	  ENZO_FAIL("");
 	}
 

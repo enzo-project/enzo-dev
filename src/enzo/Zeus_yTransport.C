@@ -90,7 +90,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
       for (j = js-2; j <= je+3; j++) {
 	f1[IDX(i,j,k)] = dstar[j]*ueff[j];
 	if (fabs(v[IDX(i,j,k)]) > 0.5*dy[j]/dt) {
-	  printf("yt problem 1: u=%"GSYM",%"GSYM",%"GSYM"  dstar=%"GSYM",%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
+	  printf("yt problem 1: v=%"GSYM",%"GSYM",%"GSYM"  dstar=%"GSYM",%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
                  v[IDX(i,j-1,k)],v[IDX(i,j,k)],v[IDX(i,j+1,k)], 
 		 dstar[j-1], dstar[j],dstar[j+1],i,j,k);
 	  printf("  d=%"GSYM",%"GSYM",%"GSYM"  dy=%"GSYM",%"GSYM"   dt=%"GSYM"\n",
