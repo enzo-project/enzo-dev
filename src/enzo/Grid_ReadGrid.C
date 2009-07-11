@@ -42,7 +42,7 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
-#ifdef USE_HDF4
+#ifdef USE_HDF4 //Ji-hoon Kim
 int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
 static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
