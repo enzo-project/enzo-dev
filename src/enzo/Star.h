@@ -5,7 +5,8 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1:
+/  modified1:  John Wise
+/  date:       March, 2009 (converted into a class)
 /
 /  PURPOSE:
 /
@@ -52,6 +53,7 @@ public:
   Star();
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
+  Star(StarBuffer buffer) ;
   ~Star();
 
   // Operators
@@ -80,6 +82,7 @@ public:
   void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
+  FLOAT *ReturnPosition(void) { return pos; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);

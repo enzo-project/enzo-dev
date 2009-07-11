@@ -54,11 +54,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
     mpi_layout[i] = 0;
   }
 
-  // MPI_SUCCESS == 0
-  if (XXMPI_Dims_create(mcpu, rank, mpi_layout) != 0) {
-    fprintf(stderr, "Error in MPI_Dims_create.\n");
-    ENZO_FAIL("");
-  }
+  XXMPI_Dims_create(mcpu, rank, mpi_layout);
 
   for ( i = 0; i < ndims; i++ ) {
     dims[i] = mpi_layout[i];

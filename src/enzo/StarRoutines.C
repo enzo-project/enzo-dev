@@ -121,6 +121,41 @@ Star::Star(StarBuffer *buffer, int n)
   PrevStar = NULL;
 }
 
+Star::Star(StarBuffer buffer) 
+{
+  int i;
+  CurrentGrid = NULL;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    pos[i] = buffer.pos[i];
+    vel[i] = buffer.vel[i];
+    delta_vel[i] = buffer.delta_vel[i];
+  }
+  naccretions = min(buffer.naccretions, MAX_ACCR);
+  if (naccretions > 0) {
+    accretion_time = new FLOAT[naccretions];
+    accretion_rate = new float[naccretions];
+    for (i = 0; i < naccretions; i++) {
+      accretion_time[i] = buffer.accretion_time[i];
+      accretion_rate[i] = buffer.accretion_rate[i];
+    }
+  } else {
+    accretion_time = NULL;
+    accretion_rate = NULL;
+  }
+  Mass = buffer.Mass;
+  FinalMass = buffer.FinalMass;
+  DeltaMass = buffer.DeltaMass;
+  BirthTime = buffer.BirthTime;
+  LifeTime = buffer.LifeTime;
+  FeedbackFlag = buffer.FeedbackFlag;
+  Identifier = buffer.Identifier;
+  level = buffer.level;
+  GridID = buffer.GridID;
+  type = buffer.type;
+  NextStar = NULL;
+  PrevStar = NULL;
+}
+
 Star::~Star(void)
 {
   if (accretion_rate != NULL)
