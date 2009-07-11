@@ -339,7 +339,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  fprintf(stderr, "Error reading field %d.\n", field);
 	  return FAIL;
 	}
-#else
+#endif
 	if(TryHDF5) {
 	  file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -362,7 +362,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
 	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 	}
-#endif 
+
  
 	/* copy active region into whole grid */
  
@@ -445,22 +445,22 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    fprintf(stderr, "Error opening file %s.\n", name);
 	    return FAIL;
 	  }
-#else
+#endif
 	if (MyProcessorNumber == ProcessorNumber)
 	  {
 	    strcpy(logname, name);
 	    strcat(logname, ".hdf.log");
 	    if (io_log) log_fptr = fopen(logname, "a");
 	  }
- 
+	
 	if (io_log) fprintf(log_fptr, "H5Fopen with Name %s\n", name);
- 
+	
 	if(TryHDF5) {
 	  file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
 	  if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
 	  if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
 	}
-#endif
+	
  
       } // end: if (NumberOfBaryonFields == 0)
  
@@ -613,7 +613,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  for (i = 0; i < NumberOfParticles; i++)
 	    ParticleType[i] = ReturnParticleType(i);
       } // (!TryHDF5)
-#else /* USE_HDF4 */
+
+#endif
 
       if (TryHDF5) {
 	/* Create a temporary buffer (32 bit or twice the size for 64). */
@@ -849,7 +850,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	delete [] temp;
 	delete [] tempint;
       } // (TryHDF5)
-#endif /* USE_HDF4 */
+
  
     } // end: if (MyProcessorNumber == ProcessorNumber)
   } // end: if (NumberOfParticles > 0 && ReadData)
@@ -862,13 +863,14 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 
 #ifdef USE_HDF4
     if (!TryHDF5) SDend(sd_id);
-#else
+#endif
+
     if (TryHDF5) {
       h5_status = H5Fclose(file_id);
       if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
     }
-#endif
+
     
   }
   
