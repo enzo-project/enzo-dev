@@ -43,9 +43,12 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
 #ifdef USE_HDF4
-int ReadField(float *temp, int Dims[], int Rank, char *name,
-	      char *field_name);
-static int32 sd_id, sds_index; // HDF4 (SD) handlers                                               
+int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
+int ReadField(float32 *temp, Eint32 Size[], int Rank, int size, Eint32 sd_id, 
+	      int32 &sds_index, char *name);
+int ReadIntField(Eint32 *tempint, Eint32 Size[], int Rank, int size, Eint32 sd_id, 
+	      Eint32 &sds_index, char *name);
+static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
  
 int grid::ReadGrid(FILE *fptr, int GridID, 
@@ -82,9 +85,9 @@ int grid::ReadGrid(FILE *fptr, int GridID,
                                     "metallicity_fraction", "alpha_fraction"};
 
 #ifdef USE_HDF4
-    int32 TempIntArray2[MAX_DIMENSION];
-    int32 sds_id, num_type2, attributes, TempInt;  
-    sds_index = 0;  // start at first SDS                                                                            
+  Eint32 TempIntArray2[MAX_DIMENSION];
+  Eint32 sds_id, num_type2, attributes, TempInt;  
+  sds_index = 0;  // start at first SDS                                                                            
 #endif 
  
 #ifdef IO_LOG
@@ -472,10 +475,10 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       
 #ifdef USE_HDF4
       if (!TryHDF5) {
-	float *temp = new float[active_size];
+      TempIntArray2[0] = Eint32(NumberOfParticles);
 	
-	int32 HDFDataType = (sizeof(Eflt) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;
-	if (sizeof(Eflt) == 16) HDFDataType = DFNT_FLOAT128;
+      Eint32 HDFDataType = (sizeof(FLOAT) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;  // DFNT_* are defined by HDF4
+      if (sizeof(FLOAT) == 16) HDFDataType = DFNT_FLOAT128;
 	
 	/* Read dims.
 	   If Rank != 1, we may have just read some other field SDS.  If so,
@@ -506,6 +509,18 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  return FAIL;  
 	}
 	
+      /* Create a temporary buffer (32 bit or twice the size for 64). */
+      
+      float32 *temp = NULL;
+      if (num_type2 != HDFDataType) {
+	if (num_type2 == DFNT_FLOAT64)
+	  temp = new float32[NumberOfParticles*2];
+	if (num_type2 == DFNT_FLOAT128)
+	  temp = new float32[NumberOfParticles*4];
+      }
+      if (temp == NULL)
+	temp = new float32[NumberOfParticles];
+
 	/* Read ParticlePosition (use temporary buffer). */ 
 	
 	for (dim = 0; dim < GridRank; dim++) {
@@ -535,13 +550,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    
 	    if (num_type2 == DFNT_FLOAT32)
 	      for (i = 0; i < NumberOfParticles; i++)
-		ParticlePosition[dim][i] = Eflt(temp[i]);
+		ParticlePosition[dim][i] = FLOAT(temp[i]);
 	    if (num_type2 == DFNT_FLOAT64)
 	      for (i = 0; i < NumberOfParticles; i++)
-		ParticlePosition[dim][i] = Eflt(temp64[i]);
+		ParticlePosition[dim][i] = FLOAT(temp64[i]);
 	    if (num_type2 == DFNT_FLOAT128)
 	      for (i = 0; i < NumberOfParticles; i++)
-		ParticlePosition[dim][i] = Eflt(temp128[i]);
+		ParticlePosition[dim][i] = FLOAT(temp128[i]);
 	  }
 	} // end: loop over dims
 	
