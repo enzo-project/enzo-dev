@@ -62,7 +62,7 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 
   FLOAT Lx, Ly, ShearingOffset;
 
-  if (ShearingBoundaryDirection) { // For shearing box we have another offset in the y direction
+  if (ShearingBoundaryDirection > -1) { // For shearing box we have another offset in the y direction
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
