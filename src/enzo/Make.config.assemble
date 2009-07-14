@@ -605,6 +605,8 @@
     ifeq ($(CONFIG_HYPRE),yes)
         ERROR_HYPRE = 0
         ASSEMBLE_HYPRE_DEFINES = -DUSE_HYPRE
+	ASSEMBLE_HYPRE_INCLUDES = $(MACH_INCLUDES_HYPRE)
+	ASSEMBLE_HYPRE_LIBS = $(MACH_LIBS_HYPRE)
     endif
 
     # Settings to turn HYPRE bindings OFF
@@ -612,6 +614,8 @@
     ifeq ($(CONFIG_HYPRE),no)
         ERROR_HYPRE = 0
         ASSEMBLE_HYPRE_DEFINES =
+        ASSEMBLE_HYPRE_INCLUDES =
+        ASSEMBLE_HYPRE_LIBS =
     endif
 
     # error if CONFIG_HYPRE is incorrect
@@ -783,6 +787,7 @@
               $(ASSEMBLE_TESTING_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_HYPRE_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES)
