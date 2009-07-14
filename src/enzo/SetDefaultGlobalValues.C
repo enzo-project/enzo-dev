@@ -383,6 +383,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolingPowerCutOffDensity2 = 1e10;
   UseH2OnDust = 0;
   PhotoelectricHeating = 0;
+  UseCUDA = 0;
   UseFloor = 0;
   UseViscosity = 0;
   UseAmbipolarDiffusion = 0;

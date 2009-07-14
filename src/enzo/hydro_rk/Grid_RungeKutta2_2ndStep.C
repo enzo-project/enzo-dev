@@ -22,6 +22,8 @@
 
 
 double ReturnWallTime();
+int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
+		          float dtdx, float dt);
 
 
 int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
@@ -93,6 +95,59 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
     Prim[nc] = BaryonField[nc];
   }
+
+#ifdef ECUDA
+  if (UseCUDA == 1) {
+
+    FLOAT dtdx = dtFixed/CellWidth[0][0];
+    double time3 = ReturnWallTime();
+    if (HydroTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
+		      	      dtdx, dtFixed) == FAIL) {
+      printf("RK2: MHDTimeUpdate_CUDA failed.\n");
+      return FAIL;
+    }
+    
+    double time2 = ReturnWallTime();
+
+    for (int field = ivx; field <= ietot; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
+	    BaryonField[field][igrid] *= BaryonField[iden][igrid];
+	    OldBaryonField[field][igrid] *= OldBaryonField[iden][igrid];
+	  }
+	}
+      }
+    }
+
+    for (int field = 0; field < NEQ_HYDRO; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
+	    BaryonField[field][igrid] = 0.5*(OldBaryonField[field][igrid] + BaryonField[field][igrid]);
+	  }
+	}
+      }
+    }
+
+    for (int field = ivx; field <= ietot; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid = i + (j + k*GridDimension[1])*GridDimension[0];
+	    BaryonField[field][igrid] /= BaryonField[iden][igrid];
+	    OldBaryonField[field][igrid] /= OldBaryonField[iden][igrid];
+	  }
+	}
+      }
+    }
+
+    return SUCCESS;
+  } // if UseCUDA == 1
+#endif /* ECUDA */
+
 
   int fallback = 0;
 

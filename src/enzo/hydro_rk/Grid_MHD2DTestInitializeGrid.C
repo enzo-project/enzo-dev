@@ -585,8 +585,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	}
 
 	if (HydroMethod == MHD_RK) {
-	  BaryonField[iBx ][igrid] = 0.0;
-	  BaryonField[iBy ][igrid] = 0.0;
+	  BaryonField[iBx ][igrid] = Bxl;
+	  BaryonField[iBy ][igrid] = Byl;
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}

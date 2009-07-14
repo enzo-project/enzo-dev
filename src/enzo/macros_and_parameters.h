@@ -161,7 +161,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef LARGE_INTS
-#define int long_int
+//#define int long_int   // commented this out to get CUDA to work
 #define Eint long_int
 #define Eunsigned_int unsigned_long_int
 #define ISYM "lld"

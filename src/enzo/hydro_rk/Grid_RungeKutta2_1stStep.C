@@ -21,6 +21,8 @@
 #include "Grid.h"
 
 double ReturnWallTime();
+int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
+		          float dtdx, float dt);
 
 int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
@@ -137,6 +139,20 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 
   // RK2 first step
+#ifdef ECUDA 
+  if (UseCUDA == 1) {
+
+    FLOAT dtdx = dtFixed/CellWidth[0][0];
+    double time2 = ReturnWallTime();
+    if (HydroTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
+		  	      dtdx, dtFixed) == FAIL) {
+      printf("RK1: HydroTimeUpdate_CUDA3 failed.\n");
+      return FAIL;
+    }
+    return SUCCESS;
+  }
+#endif
+
 
   // compute dU
   int fallback = 0;

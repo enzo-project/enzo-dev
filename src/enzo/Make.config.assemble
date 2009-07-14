@@ -239,6 +239,12 @@
     endif
 
 #-----------------------------------------------------------------------
+# Determine CUDA compiler
+#-----------------------------------------------------------------------
+	
+    ASSEMBLE_CUDACOMPILER = $(MACH_CUDACOMPILER)
+
+#-----------------------------------------------------------------------
 # DETERMINE OBJECT MODE SETTINGS
 #-----------------------------------------------------------------------
 
@@ -622,32 +628,37 @@
 	$(error Illegal value '$(CONFIG_FAST_SIB)' for $$(CONFIG_FAST_SIB))
     endif
 
+
 #-----------------------------------------------------------------------
-# DETERMINE PHOTON (Adaptive Ray Tracing Transfer) Settings
+# DETERMINE CUDA (GPU computing) Settings
+# When compiling with CUDA support it just compiles the necessary routines. 
+# but only uses it if you set UseCUDA = 1 in your parameter files.
 #-----------------------------------------------------------------------
 
-    ERROR_PHOTON = 1
+    ERROR_ECUDA = 1
 
-    # Settings to turn radiative transfer ON
+    # Settings to compile CUDA kernels 
 
-    ifeq ($(CONFIG_PHOTON),yes)
-        ERROR_PHOTON = 0
-	ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
+    ifeq ($(CONFIG_ECUDA),yes)
+        ERROR_ECUDA = 0
+	ASSEMBLE_ECUDA_DEFINES = -DECUDA
+	OBJS_ECUDA_LIB = $(OBJS_ECUDA_ALL)
     endif
 
-    # Settings to turn radiative transfer OFF
+    # Settings to tell the make system not to compile CUDA routines
 
-    ifeq ($(CONFIG_PHOTON),no)
-        ERROR_PHOTON = 0
-        ASSEMBLE_PHOTON_DEFINES =
+    ifeq ($(CONFIG_ECUDA),no)
+        ERROR_ECUDA = 0
+        ASSEMBLE_ECUDA_DEFINES = 
+	OBJS_ECUDA_LIB = 
     endif
 
-    # error if CONFIG_FAST_SIBis incorrect
+    # error if 
 
-    ifeq ($(ERROR_PHOTON),1)
-       .PHONY: error_photon
-       error_photon:
-	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+    ifeq ($(ERROR_ECUDA),1)
+       .PHONY: error_ecuda
+       error_ecuda:
+	$(error Illegal value '$(CONFIG_ECUDA)' for $$(CONFIG_ECUDA))
     endif
 
 
@@ -718,6 +729,7 @@
     FC       = $(ASSEMBLE_FC)
     F90      = $(ASSEMBLE_F90)
     LD       = $(ASSEMBLE_LD)
+    CUDACOMPILER = $(ASSEMBLE_CUDACOMPILER)
 
     CPPFLAGS = $(MACH_CPPFLAGS)
     CFLAGS   = $(MACH_CFLAGS) \
@@ -756,6 +768,7 @@
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
+              $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
@@ -768,7 +781,8 @@
 
     OBJS_LIB = $(OBJS_CONFIG_LIB) \
     	       $(OBJS_PHOTON_LIB) \
-	       $(OBJS_HYDRO_RK)
+	       $(OBJS_HYDRO_RK) \
+	       $(OBJS_ECUDA_LIB) 
 
     LIBS = $(MACH_LIBS) \
            $(ASSEMBLE_MPI_LIBS) \
