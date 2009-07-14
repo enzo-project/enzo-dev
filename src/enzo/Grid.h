@@ -1582,6 +1582,13 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
 
+
+/* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
+  int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
+				  float V1Const, float V2Const, float TEConst, 
+				  float RadConst, int local);
+
+
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();
 
