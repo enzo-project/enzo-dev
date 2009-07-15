@@ -69,7 +69,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
   float dx,dy,dz;
   FNODE *nfree,*th,*nn,*ff;
   void force_setupnonrecursive(FNODE *no);
-  double drand48();
+  double drand48(void) __THROW;
 
   _TopData.First = first;
   _TopData.N = len;
