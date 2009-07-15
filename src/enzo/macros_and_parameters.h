@@ -14,10 +14,14 @@
 #endif
 #endif
 
-#if defined(ECUDA) && defined(LARGE_INTS)
+#ifdef ECUDA
+#ifdef LARGE_INTS
 // CUDA hates LARGE_INTS, and who can blame it?
-#undef LARGE_INTS
-#define SMALL_INTS
+#error "Sorry, you need to be using 32 bit integers with CUDA because of #define int!"
+#endif // LARGE_INTS
+#ifdef CONFIG_BFLOAT_8
+#error "Sorry, you need to be using 32 bit precision with CUDA because of #define float!"
+#endif
 #endif
 
 #include "message.h"
