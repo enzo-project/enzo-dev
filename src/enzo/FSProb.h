@@ -131,7 +131,7 @@ class FSProb : public virtual ImplicitProblemABC {
   float TimeUnits0;    // time scaling factor (old)
 
   // ionization parameters
-  float NGammaDot;     // ionization strength (photons/sec)
+  Eflt64 NGammaDot;     // ionization strength (photons/sec)
   float EtaRadius;     // ionization source radius
   float EtaCenter[3];  // ionization source location
 

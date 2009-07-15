@@ -129,7 +129,7 @@ all: $(EXE).exe
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f
+.PRECIOUS: %.o %.f %.f90
 
 .src.f:
 	@echo "Compiling $<"
@@ -157,7 +157,7 @@ all: $(EXE).exe
 	@rm -f $@
 	-@($(F90) -c -o $@ $(F90FLAGS) $*.f90) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-             rm -f $*.f90; \
+             touch $*.f90; \
           else \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \

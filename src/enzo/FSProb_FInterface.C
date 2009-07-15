@@ -37,7 +37,7 @@ extern "C" void FORTRAN_NAME(fsprob_setupsystem)(
    int *zlface, int *zrface, int *ier);
 
 extern "C" void FORTRAN_NAME(fsprob_radiationsource)(
-   float *Efsrc, float *time, FLOAT *a, int *ProblemType, float *NGammaDot, 
+   float *Efsrc, float *time, FLOAT *a, int *ProblemType, Eflt64 *NGammaDot, 
    float *EtaRadius, float *EtaCenter, float *aUnits, float *LenUnits, 
    float *TimeUnits, float *EUnits, int *Nx, int *Ny, int *Nz, int *NGxl, 
    int *NGxr, int *NGyl, int *NGyr, int *NGzl, int *NGzr, float *x0L, 

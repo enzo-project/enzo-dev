@@ -125,7 +125,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "FSRadiationScaling = %"FSYM, &EScale);
 	ret += sscanf(line, "FSRadiationTheta = %"FSYM, &theta);
 	ret += sscanf(line, "FSRadiationOpacity = %"FSYM, &kappa);
-	ret += sscanf(line, "FSRadiationNGammaDot = %"FSYM, &NGammaDot);
+	ret += sscanf(line, "FSRadiationNGammaDot = %lf", &NGammaDot);
 	ret += sscanf(line, "FSRadiationEtaRadius = %"FSYM, &EtaRadius);
 	ret += sscanf(line, "FSRadiationEtaCenter = %"FSYM" %"FSYM" %"FSYM, 
 		      &(EtaCenter[0]), &(EtaCenter[1]), &(EtaCenter[2]));
