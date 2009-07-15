@@ -14,6 +14,12 @@
 #endif
 #endif
 
+#if defined(ECUDA) && defined(LARGE_INTS)
+// CUDA hates LARGE_INTS, and who can blame it?
+#undef LARGE_INTS
+#define SMALL_INTS
+#endif
+
 #include "message.h"
 
 #ifdef CONFIG_THROW_ABORT
@@ -161,7 +167,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef LARGE_INTS
-//#define int long_int   // commented this out to get CUDA to work
+#define int long_int // CUDA doesn't like this, and who can blame it?
 #define Eint long_int
 #define Eunsigned_int unsigned_long_int
 #define ISYM "lld"
