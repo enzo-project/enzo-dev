@@ -936,6 +936,24 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       UnigridTranspose = FALSE;
     }
 
+  /* If the restart dump parameters were set to the previous defaults
+     (dtRestartDump = 5 hours), then set back to current default,
+     which is no restart dumps. */
+
+  float tol = 1e-6;
+  if (ABS(MetaData.dtRestartDump - 3600.0*5) / (3600.0*5) < tol &&
+      ABS(MetaData.TimeLastRestartDump) < tol) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, 
+	      "==================================================\n"
+	      "-> Turning off restart dumps because the previous\n"
+	      "default was set to 5 hours but not used.  To avoid this warning,\n"
+	      "set dtRestartDump to a negative value.  If you wanted to use\n"
+	      "restart dumps, please set it != 18000.\n"
+	      "==================================================\n");
+    MetaData.dtRestartDump = FLOAT_UNDEFINED;
+  }
+
   /* If refining by must-refine particles, particle mass refinement
      must be turned on. */
 

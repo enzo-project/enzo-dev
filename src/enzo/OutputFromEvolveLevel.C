@@ -171,12 +171,18 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
   }//Finest Level
 
+  FILE *Exit_fptr;
+
   if( ExitEnzo == TRUE ){
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");
       MetaData->AmiraGrid.AMRHDF5Close();
     }
-    fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
+      Exit_fptr = fopen("RunFinished", "w");
+      fclose(Exit_fptr);
+    }
     my_exit(EXIT_SUCCESS);
   }
   
