@@ -57,7 +57,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   int  i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
     SubgridDims[MAX_DIMENSION];
  
-  /* make sure it is 2D or 3D */
+  /* make sure it is 3D */
  
   if (MetaData.TopGridRank != 3) {
     printf("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank);

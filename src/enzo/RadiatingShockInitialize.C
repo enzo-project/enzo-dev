@@ -128,6 +128,8 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int RadiatingShockRandomSeed = 123456789;
   float RadiatingShockDensityFluctuationLevel = 0.1;
   int RadiatingShockInitializeWithKE = 0;
+  int RadiatingShockUseSedovProfile = 0;
+  FLOAT RadiatingShockSedovBlastRadius = 0.05;
   float RadiatingShockKineticEnergyFraction = 0.0;
 
   FLOAT RadiatingShockSpreadOverNumZones = 3.5;
@@ -155,14 +157,18 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "RadiatingShockOuterDensity  = %"FSYM, &RadiatingShockOuterDensity); // ambient density
     ret += sscanf(line, "RadiatingShockPressure = %"FSYM, &RadiatingShockPressure);  // ambient pressure
     ret += sscanf(line, "RadiatingShockEnergy   = %"FSYM, &RadiatingShockEnergy);  // supernova explosion energy
-    ret += sscanf(line, "RadiatingShockSubgridLeft = %"FSYM,
+    ret += sscanf(line, "RadiatingShockSubgridLeft = %"PSYM,
 		        &RadiatingShockSubgridLeft);
-    ret += sscanf(line, "RadiatingShockSubgridRight = %"FSYM,
+    ret += sscanf(line, "RadiatingShockSubgridRight = %"PSYM,
 		        &RadiatingShockSubgridRight);
     ret += sscanf(line, "RadiatingShockUseDensityFluctuations   = %"ISYM, &RadiatingShockUseDensityFluctuations);
     ret += sscanf(line, "RadiatingShockRandomSeed   = %"ISYM, &RadiatingShockRandomSeed);
     ret += sscanf(line, "RadiatingShockDensityFluctuationLevel   = %"FSYM, &RadiatingShockDensityFluctuationLevel);
     ret += sscanf(line, "RadiatingShockInitializeWithKE = %"ISYM, &RadiatingShockInitializeWithKE);
+    ret += sscanf(line, "RadiatingShockUseSedovProfile = %"ISYM, &RadiatingShockUseSedovProfile);
+    ret += sscanf(line, "RadiatingShockSedovBlastRadius = %"PSYM, &RadiatingShockSedovBlastRadius);
+    ret += sscanf(line, "RadiatingShockUseSedovProfile = %"ISYM, &RadiatingShockUseSedovProfile);
+
     ret += sscanf(line, "RadiatingShockKineticEnergyFraction = %"FSYM, &RadiatingShockKineticEnergyFraction);
 
     ret += sscanf(line, "RadiatingShockCenterPosition = %"PSYM" %"PSYM" %"PSYM,
@@ -283,22 +289,37 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     return FAIL;
   }
 
-  RadiatingShockEnergy *= 1.0e+51;  // input is in units of 1 FOE, this converts to CGS
+  double RadiatingShockEnergyDouble;
 
-  // converts this to ergs per gram in code units
-  RadiatingShockEnergy /= (DensityUnits * POW(LengthUnits,5.0) * POW(TimeUnits,-2.0) );
+
+  // calculate some values if we aren't using the Sedov profile.  If we are, this is all
+  // calculated inside Grid::RadiatingShockInitialize
+  if(!RadiatingShockUseSedovProfile){
+    // input is in units of 1 FOE, this converts to CGS
+    RadiatingShockEnergyDouble = double(RadiatingShockEnergy) * 1.0e+51;
+
+    // converts this to ergs per gram in code units
+    RadiatingShockEnergyDouble /= (double(DensityUnits) * POW(double(LengthUnits),5.0) * POW(double(TimeUnits),-2.0) );
   
-  fprintf(stderr,"RadiatingShockInitialize:  RadiatingShockEnergy is %e in code units\n",RadiatingShockEnergy);
+    RadiatingShockEnergy = float(RadiatingShockEnergyDouble);
+
+  } else {
+    printf("using sedov profile: using RadiatingShockEnergy alone!\n");
+ 
+  }
+
+  if(debug)
+    printf("RadiatingShockInitialize:  RadiatingShockEnergy is %e in code units\n",RadiatingShockEnergy);
 
   float numberInjectionCells = 0;
-  float InjectionMass2Density_scaleFactor;
+  double InjectionMass2Density_scaleFactor;
 
   // If injecting a mass of gas into the center, 
   // effective number of cells is simply area/volume of circle/sphere
   // with r = RadiatingShockSpreadOverNumZones.
   if (TestProblemData.UseMassInjection) {
     // Make sure total mass is not zero.
-    if ((TestProblemData.InitialHydrogenMass <= 0) && (TestProblemData.InitialHeliumMass <= 0)) {
+    if ((TestProblemData.InitialHydrogenMass <= 0.0) && (TestProblemData.InitialHeliumMass <= 0.0)) {
       fprintf(stderr,"Hydrogen and helium mass cannot both be zero.  That would be zero mass in the center.\n");
       return FAIL;
     }
@@ -313,12 +334,12 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     }
 
     InjectionMass2Density_scaleFactor = 1.989e33 / 
-      (MassUnits * numberInjectionCells * pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
+      (double(MassUnits) * numberInjectionCells * pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
 
     // ignore D mass
     RadiatingShockInnerDensity = (TestProblemData.InitialHydrogenMass + 
 				  TestProblemData.InitialHeliumMass) * 
-      InjectionMass2Density_scaleFactor;
+      float(InjectionMass2Density_scaleFactor);
     fprintf(stderr,"Setting inner density to %e.\n",RadiatingShockInnerDensity);
 
     // Adjust H mass fraction
@@ -357,6 +378,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   // ambient gas internal energy
   RadiatingShockTotalEnergy = RadiatingShockPressure/((Gamma - 1.0)*RadiatingShockOuterDensity);
 
+  if(debug)
+    printf("ambient gas energy should be %e\n",RadiatingShockTotalEnergy);
+
   // heated gas internal energy
   RadiatingShockInnerTotalEnergy= RadiatingShockInnerPressure/((Gamma - 1.0)*
 						   RadiatingShockInnerDensity);
@@ -367,7 +391,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   RadiatingShockRhoZero = RadiatingShockVelocityZero =  MassZero = 0.0;
 
-  if(RadiatingShockInitializeWithKE){
+  /* we calculate all of this stuff when not using a Sedov blast profile.  If we ARE using
+     Sedov values, ignore it because it doesn't matter. */
+  if(RadiatingShockInitializeWithKE && !RadiatingShockUseSedovProfile){
 
     if(MetaData.TopGridRank==2){  // cylindrical supernova (2D)
 
@@ -421,9 +447,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int lev;
   for (lev = 0; lev < MaximumRefinementLevel; lev++)
     Subgrid[lev] = new HierarchyEntry;
- 
+
   for (lev = 0; lev < MaximumRefinementLevel; lev++) {
- 
+
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       NumberOfSubgridZones[dim] =
 	nint((RadiatingShockSubgridRight - RadiatingShockSubgridLeft)/
@@ -483,6 +509,10 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				    RadiatingShockRandomSeed,
 				    RadiatingShockDensityFluctuationLevel,
 				    RadiatingShockInitializeWithKE,
+				    RadiatingShockUseSedovProfile,
+				    RadiatingShockSedovBlastRadius,
+				    RadiatingShockEnergy,
+				    RadiatingShockPressure,
 				    RadiatingShockKineticEnergyFraction,
 				    RadiatingShockRhoZero,
 				    RadiatingShockVelocityZero,
@@ -500,7 +530,6 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     }
   }
 
- 
   /* set up subgrids from level 1 to max refinement level -1 */
  
   for (lev = MaximumRefinementLevel - 1; lev > 0; lev--)
@@ -510,7 +539,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
       return FAIL;
     }
- 
+
   /* set up the root grid */
  
   if (MaximumRefinementLevel > 0) {
@@ -528,6 +557,10 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				    RadiatingShockRandomSeed,
 				    RadiatingShockDensityFluctuationLevel,
 				    RadiatingShockInitializeWithKE,
+				    RadiatingShockUseSedovProfile,
+				    RadiatingShockSedovBlastRadius,
+				    RadiatingShockEnergy,
+				    RadiatingShockPressure,
 				    RadiatingShockKineticEnergyFraction,
 				    RadiatingShockRhoZero,
 				    RadiatingShockVelocityZero,
@@ -537,7 +570,6 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       return FAIL;
     }
 
- 
   /* set up field names and units -- NOTE: these absolutely MUST be in 
      the same order that they are in Grid_InitializeUniformGrids.C, or 
      else you'll find out that data gets written into incorrectly-named
@@ -650,6 +682,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     fprintf(Outfptr, "RadiatingShockRandomSeed   = %"ISYM"\n", RadiatingShockRandomSeed);
     fprintf(Outfptr, "RadiatingShockDensityFluctuationLevel   = %"FSYM"\n", RadiatingShockDensityFluctuationLevel);
     fprintf(Outfptr, "RadiatingShockInitializeWithKE = %"ISYM"\n", RadiatingShockInitializeWithKE);
+    fprintf(Outfptr, "RadiatingShockUseSedovProfile = %"ISYM"\n", RadiatingShockUseSedovProfile);
+
+    fprintf(Outfptr, "RadiatingShockSedovBlastRadius = %"PSYM"\n", RadiatingShockSedovBlastRadius);
 
     fprintf(Outfptr,  "RadiatingShockKineticEnergyFraction = %"FSYM"\n", RadiatingShockKineticEnergyFraction);
 

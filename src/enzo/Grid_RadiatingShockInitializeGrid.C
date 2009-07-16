@@ -32,6 +32,19 @@ unsigned_long_int mt_random();
 
 float cell_fraction(FLOAT cellx, FLOAT celly, FLOAT cellz, FLOAT shockx, FLOAT shocky, FLOAT shockz, FLOAT dx, FLOAT radius, int GridRank);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+
+void set_analytic_sedov(int Nbins, double *radius, double *density,
+			double *pressure, double *velocity,
+			double timesolve, double gamma, double beta,
+			double explosion_energy, double p_ambient, 
+			double rho_ambient);
+
+double compute_sedov_v(double xi, double gamma, double alpha1, double alpha2);
+
+double sedov_vfunc(double V, double gamma, double alpha1, double alpha2);
 
 int grid::RadiatingShockInitializeGrid(FLOAT dr,
 				       float RadiatingShockInnerDensity,
@@ -40,6 +53,10 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 				       int RadiatingShockRandomSeed,
 				       float RadiatingShockDensityFluctuationLevel,
 				       int RadiatingShockInitializeWithKE,
+				       int RadiatingShockUseSedovProfile,
+				       FLOAT RadiatingShockSedovBlastRadius,
+				       float RadiatingShockEnergy,
+				       float RadiatingShockPressure,
 				       float RadiatingShockKineticEnergyFraction,
 				       float RadiatingShockRhoZero,
 				       float RadiatingShockVelocityZero,
@@ -61,11 +78,8 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
   float cell_HydrogenFractionByMass, cell_DeuteriumToHydrogenRatio;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-
-
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, MetalNum;
- 
+    DINum, DIINum, HDINum, MetalNum;
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
@@ -99,11 +113,101 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
     MetallicityField = TRUE;
   else
     MetalNum = 0;
+
+
+  FILE *fptr;
+  double *sedovradius=NULL,*sedovdensity=NULL,*sedovpressure=NULL,*sedovvelocity=NULL;
+  int numbins=1000;
+
+
+  if(RadiatingShockUseSedovProfile){
+
+    if(debug)
+      printf("input pressure is %e\n",RadiatingShockPressure);
+
+    float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,
+      VelocityUnits=1.0, MassUnits=1.0;
+
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+		 &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
+      fprintf(stderr, "Error in GetUnits.\n");
+      return FAIL;
+    }
  
-  /* set fields in the initial explosion region: x^2+y^2 < dr^2. */
+    sedovradius = new double[numbins];
+    sedovdensity = new double[numbins];
+    sedovpressure = new double[numbins];
+    sedovvelocity = new double[numbins];
+
+    double logminrad, logmaxrad, logdeltar;
+
+    logmaxrad = log10( double(RadiatingShockSedovBlastRadius) * LengthUnits * 1.1);
+    logminrad = log10( double(RadiatingShockSedovBlastRadius) * LengthUnits * 1.1 * 0.001);
+
+    logdeltar = (logmaxrad - logminrad) / double(numbins);
+
+    double rho_ambient, p_ambient, explosion_energy, shocktime;
+
+    explosion_energy = double(RadiatingShockEnergy)*1.0e+51;
+    rho_ambient = double(BaryonField[DensNum][0])*double(DensityUnits);
+    p_ambient =  double(RadiatingShockPressure) * double(DensityUnits) * double(VelocityUnits) * double(VelocityUnits);
+
+    printf("explosion_energy is %e\n",explosion_energy);
+    printf("rho_ambient is %e\n",rho_ambient);
+    printf("p_ambient is %e\n",p_ambient);
+
+    shocktime = POW( explosion_energy / rho_ambient, -0.5)
+      * POW( double(RadiatingShockSedovBlastRadius) * LengthUnits, 2.5) / POW( 1.15, 2.5);
+
+    if(debug)
+      printf("shock time is %e for radius %e\n",
+	     shocktime, double(RadiatingShockSedovBlastRadius) * LengthUnits);
+    
+    for(int i=0; i<numbins; i++){
+      sedovradius[i] = POW(10.0, logminrad + (double(i)+1.0)*logdeltar);
+    }
+
+    // here's where all of the magic happens
+    set_analytic_sedov(numbins,sedovradius,sedovdensity,sedovpressure,sedovvelocity,
+		       shocktime,double(Gamma),1.15,explosion_energy,
+		       p_ambient,rho_ambient);
+
+    // convert sedov values (CGS) to Enzo internal energy units!
+    for(int i=0; i<numbins; i++){
+      if(debug)
+	printf("Pre-conversion (CGS) values: %e %e %e %e  (%d)\n",
+	       sedovradius[i],sedovdensity[i],sedovpressure[i],sedovvelocity[i], i);
+
+      sedovradius[i] /= double(LengthUnits);
+      sedovvelocity[i] /= double(VelocityUnits);
+
+      // convert sedovpressure to internal energy (ergs/g)
+      if(sedovdensity[i] > 1.0e-30){
+	sedovpressure[i] /= ( (Gamma-1.0)*sedovdensity[i]);
+      } else {
+	sedovpressure[i] = 1.0e-20;
+      }
+
+      sedovdensity[i] /= double(DensityUnits);
+      sedovpressure[i] /= (double(VelocityUnits)*double(VelocityUnits));
+
+      if(sedovdensity[i] < 1.0e-10) sedovdensity[i] = 1.0e-10;
+      if(sedovpressure[i] < 1.0e-10) sedovpressure[i] = 1.0e-10;
+
+      if(debug){
+	printf("Post-conversion (enzo units):  %e %e %e %e (%d)\n",
+	       sedovradius[i],sedovdensity[i],sedovpressure[i],sedovvelocity[i], i);
+	fflush(stdout);
+      }
+
+    } // for(int i=0; i<numbins; i++)
+
+  } // if(RadiatingShockUseSedovProfile)
+
+
+  /* set fields in the initial explosion region: x^2+y^2+z^2 < dr^2. */
  
-  int index, jndex, i, j, k;
-  float zonex, zoney;
+  int i, j, k;
 
   float therandomfraction;
 
@@ -146,7 +250,8 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 	if ((i+j+k) == 0) {
 	  if (MultiSpecies) {
 	    fprintf(stderr,"External medium: Density: %.2"ESYM, BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", HeI: %.2"ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
+	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", HeI: %.2"ESYM,BaryonField[HINum][cellindex],
+		    BaryonField[HIINum][cellindex],
 		    BaryonField[HeINum][cellindex]);
 	    fprintf(stderr,", HeII: %.2"ESYM", HeIII: %.2"ESYM", De: %.2"ESYM,BaryonField[HeIINum][cellindex],
 		    BaryonField[HeIIINum][cellindex],BaryonField[DeNum][cellindex]);
@@ -166,7 +271,8 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 	  else if (GloverChemistryModel) {
 	    int GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
 	    fprintf(stderr,"      External medium: Density: %.2"ESYM, BaryonField[DensNum][cellindex]);
-	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", H2I: %.2"ESYM,BaryonField[HINum][cellindex],BaryonField[HIINum][cellindex],
+	    fprintf(stderr,", HI: %.2"ESYM", HII: %.2"ESYM", H2I: %.2"ESYM,BaryonField[HINum][cellindex],
+		    BaryonField[HIINum][cellindex],
 		    BaryonField[H2INum][cellindex]);
 	    if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
 	      fprintf(stderr,", HeI: %.2"ESYM", HeII: %.2"ESYM", HeIII: %.2"ESYM,BaryonField[HeINum][cellindex],
@@ -208,7 +314,8 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
 	  // calculate H mass fraction and D/H ratio for this cell.
 	  // It is a combination of the inner and outer values.
-	  cell_HydrogenFractionByMass = ((cellfraction * TestProblemData.InnerHydrogenFractionByMass * RadiatingShockInnerDensity) +
+	  cell_HydrogenFractionByMass = ((cellfraction * TestProblemData.InnerHydrogenFractionByMass 
+					  * RadiatingShockInnerDensity) +
 					 ((1-cellfraction) * TestProblemData.HydrogenFractionByMass * outside_rho)) /
 	    ((cellfraction * RadiatingShockInnerDensity) + ((1-cellfraction) * outside_rho));
 
@@ -221,8 +328,65 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 	  
 	  if(RadiatingShockInitializeWithKE){
 
-	    // density
-	    BaryonField[DensNum][cellindex] = RadiatingShockRhoZero * r / dr;
+	    if(RadiatingShockUseSedovProfile){
+
+	      int sedovindex=-1;
+
+	      for(int nnn=0; nnn < numbins-1; nnn++)
+		if(sedovradius[nnn] < r && r <= sedovradius[nnn+1]) sedovindex=nnn;
+
+	      // if we're outside the radius of the shock, set to the outside value (last value in array)
+	      // this is set above to be consistent with the desired outer density value
+	      if(r >= sedovradius[numbins-1]) sedovindex = numbins-1;
+
+	      if(sedovindex < 0 || sedovindex >= numbins){
+		fprintf(stderr,"Grid:RadiatingShockInitializeGrid: Argh!  %d  %e  %e  %e\n",
+			sedovindex, r, sedovradius[0], sedovradius[numbins-1]);
+		return FAIL;
+	      }
+
+	      // density
+	      BaryonField[DensNum][cellindex] = sedovdensity[sedovindex];
+
+	      // x,y, and maybe z velocity.  Note that we're ADDING the supernova
+	      // velocities because Grid_InitializeUniformGrid may have set the
+	      // gas to have some ambient velocity 
+	      BaryonField[Vel1Num][cellindex] += sedovvelocity[sedovindex]
+		* (x-RadiatingShockCenterPosition[0]) / dr;
+
+	      BaryonField[Vel2Num][cellindex] += sedovvelocity[sedovindex]
+		* (y-RadiatingShockCenterPosition[1]) / dr;
+	      
+	      if(GridRank > 2)
+		BaryonField[Vel3Num][cellindex] += sedovvelocity[sedovindex]
+		  * (z-RadiatingShockCenterPosition[2]) / dr;
+	      
+	      if(HydroMethod == 2){
+		
+		// ZEUS
+		BaryonField[TENum][cellindex] = sedovpressure[sedovindex];  // sedovpressure is really internal energy
+		
+	      } else {
+		
+		// PPM
+		BaryonField[TENum][cellindex] = sedovpressure[sedovindex]  // sedovpressure is really internal energy  
+		  + 0.5 * BaryonField[Vel1Num][cellindex] * BaryonField[Vel1Num][cellindex]
+		  + 0.5 * BaryonField[Vel2Num][cellindex] * BaryonField[Vel2Num][cellindex];
+		
+		if(GridRank > 2)
+		  BaryonField[TENum][cellindex]+= 
+		    + 0.5 * BaryonField[Vel3Num][cellindex] * BaryonField[Vel3Num][cellindex];
+		
+	      } // if(HydroMethod == 2)
+	      
+	      // gas energy (PPM dual energy formalims)
+	      if(DualEnergyFormalism)
+		BaryonField[GENum][cellindex] = sedovpressure[sedovindex];  // sedovpressure is really internal energy
+
+	    } else {  // if(RadiatingShockUseSedovProfile)
+
+	      // density
+	      BaryonField[DensNum][cellindex] = RadiatingShockRhoZero * r / dr;
 
 	      // x,y, and maybe z velocity.  Note that we're ADDING the supernova
 	      // velocities because Grid_InitializeUniformGrid may have set the
@@ -232,34 +396,36 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
 	      BaryonField[Vel2Num][cellindex] += RadiatingShockVelocityZero
 		* (y-RadiatingShockCenterPosition[1]) / dr;
-
+	      
 	      if(GridRank > 2)
 		BaryonField[Vel3Num][cellindex] += RadiatingShockVelocityZero
 		  * (z-RadiatingShockCenterPosition[2]) / dr;
 	      
 	      if(HydroMethod == 2){
-
+		
 		// ZEUS
 		BaryonField[TENum][cellindex] = RadiatingShockInnerTotalEnergy*(1.0-RadiatingShockKineticEnergyFraction);
-
+		
 	      } else {
-
+		
 		// PPM
 		BaryonField[TENum][cellindex] = RadiatingShockInnerTotalEnergy*(1.0-RadiatingShockKineticEnergyFraction)
 		  + 0.5 * BaryonField[Vel1Num][cellindex] * BaryonField[Vel1Num][cellindex]
 		  + 0.5 * BaryonField[Vel2Num][cellindex] * BaryonField[Vel2Num][cellindex];
-
+		
 		if(GridRank > 2)
 		  BaryonField[TENum][cellindex]+= 
 		    + 0.5 * BaryonField[Vel3Num][cellindex] * BaryonField[Vel3Num][cellindex];
-
+		
 	      } // if(HydroMethod == 2)
-
+	      
 	      // gas energy (PPM dual energy formalims)
 	      if(DualEnergyFormalism)
 		BaryonField[GENum][cellindex] = RadiatingShockInnerTotalEnergy*(1.0-RadiatingShockKineticEnergyFraction);
+	      
+	    }  // if(RadiatingShockUseSedovProfile)
 
-	  } 
+	  } // if(RadiatingShockInitializeWithKE)
 	  else {  // if not, initialize just thermal energy (no kinetic energy)
 
 	    BaryonField[DensNum][cellindex] = cellfraction*RadiatingShockInnerDensity + (1.0-cellfraction)*outside_rho;
@@ -539,6 +705,15 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
       } // for(i=0...)
 
+
+  // clean up!
+  if(RadiatingShockUseSedovProfile){
+    delete [] sedovradius;
+    delete [] sedovdensity;
+    delete [] sedovpressure;
+    delete [] sedovvelocity;
+  }
+
   return SUCCESS;
 }
 
@@ -596,5 +771,152 @@ float cell_fraction(FLOAT cellx, FLOAT celly, FLOAT cellz, FLOAT shockx, FLOAT s
   //  fprintf(stderr,"fraction is %e\n",fraction);
 
   return fraction;
+
+}
+
+
+/* solution given by L.I. Sedov, 1956.  Originally implemented by
+   Colin McNally, McMaster University.  Translated by BWO, July 2009.
+
+  Nbins = # of solution points;
+  radius = array of radii to solve at (cm)
+  density = output array of densities (grams/cc)
+  pressure = output array of pressures (ergs/vol)
+  velocity = output array of velocities (cm/s)
+  timesolve = time after explosion that we want the solution
+  gamma = gamma value of gas
+  beta = normalization for radius, velocity (depends on gamma)
+  explosion_energy = energy in explosion (ergs)
+  p_ambient, rho_ambient = ambient pressure, density of medium        */
+void set_analytic_sedov(int Nbins, double *radius, double *density,
+			  double *pressure, double *velocity,
+			  double timesolve, double gamma, double beta,
+			  double explosion_energy, double p_ambient, double rho_ambient)
+{
+
+  int i;
+  double gamp1,gamm1,gam7,k, R2, u1, v2, p2;
+  double alpha1, alpha2, alpha3, alpha4, alpha5;
+
+  gamp1 = gamma + 1.0;
+  gamm1 = gamma - 1.0;
+  gam7 = 7.0 - gamma;
+  k = gamp1 / gamm1;
+
+  // shock radii, velocity, pressure
+  R2 = beta * POW(explosion_energy / rho_ambient, 0.2) * POW(timesolve, 0.4);
+  u1 = 0.4 * beta * POW( explosion_energy/rho_ambient, 0.2) / POW(timesolve, 0.6);
+  v2 = 2.0 / gamp1 * u1;
+  p2 = 2.0 * rho_ambient * u1 * u1  / gamp1;
+
+  // exponents for self-similar solution
+  alpha2 = (1.0 - gamma) / ( 2.0*(gamma - 1.0) + 3.0);
+  alpha1 = 5.0 * gamma / ( 2.0 + 3.0*gamm1)*(6.0*(2.0-gamma)/(gamma*5.0*5.0)-alpha2);
+  alpha3 = 3.0 / (2.0*gamm1 + 3.0);
+  alpha4 = alpha1*5.0 / (2.0 - gamma);
+  alpha5 = 2.0 / (gamma - 2.0);
+
+  double xi, VV;
+
+  for(i=1; i<Nbins;i++){
+    xi = radius[i] / R2;  // dimensionless
+
+    if(xi <= 1.0){
+      
+      VV = compute_sedov_v(xi,gamma,alpha1,alpha2);
+
+      density[i] = rho_ambient * k * POW(k*(5.0*gamma/2.0*VV-1.0), alpha3)  
+	* POW(k*(1.0 - 5.0*VV/2.0), alpha5)
+	* POW(5.0 * gamp1 / (5.0*gamp1 - 2.0*(2.0+3.0*gamm1))*(1.0-(2.0+3.0*gamm1)/2.0*VV),  alpha4);
+
+      pressure[i] = p2* POW( (5.0*gamp1*VV/4.0), 6.0/5.0) * POW( k*(1.0-5.0*VV/2.0), alpha5 + 1.0)
+	* POW( 5.0*gamp1 / (5.0*gamp1 - 2.0*(2.0+3.0*gamm1))*1 - (2.0+3.0*gamm1)*VV/2.0, alpha4 - 2.0*alpha1);
+
+      velocity[i] = 5.0 * gamp1 * VV * xi * v2/4.0;
+
+    } else {
+      density[i] = rho_ambient;
+      pressure[i] = p_ambient;
+      velocity[i] = 0.0;
+    }
+
+  } // for(i=1...)
+
+  return;
+
+}
+
+double compute_sedov_v(double xi, double gamma, double alpha1, double alpha2){
+
+  double V, tolerance = 1.0e-2, VL, VR, Vmid, xiL, xiR, ximid;
+  int n_iter, n_iter_max = 100000, done;
+
+  if(xi <= 1.0e-6){
+
+    V = 2.0 / (5.0*gamma);
+
+  } else {
+
+    VL = 2.0 / (5.0*gamma);
+    VR = 4.0 / (5.0*(gamma+1.0));
+
+    xiL = sedov_vfunc(VL, gamma, alpha1, alpha2);
+    xiR = sedov_vfunc(VR, gamma, alpha1, alpha2);
+
+    n_iter = 1;
+
+    done=0;
+
+    while(!done){
+
+      Vmid = 0.5 * (VL + VR);
+      ximid = sedov_vfunc(Vmid, gamma, alpha1, alpha2);
+
+      if( (fabs(ximid-xi) <= tolerance) || (n_iter >= n_iter_max) ) done = 1;
+
+      if(!done){
+
+	n_iter++;
+
+	if( (xi >= xiL) && (xi <= ximid ) ){
+	  VR = Vmid;
+	} else if ( (xi >= ximid) && (xi <= xiR) ){
+	  VL = Vmid;
+	} else {
+	  done = 1;
+	}
+
+	xiL = sedov_vfunc(VL, gamma, alpha1, alpha2);
+	xiR = sedov_vfunc(VR, gamma, alpha1, alpha2);
+
+      }  // if(!done)
+
+    } // while(!done)
+
+    if(n_iter > n_iter_max){
+      printf("compute_sedov_v: exceeded max iters for xi = %e\n",xi);
+      printf("xiL = %e   xiR = %e\n", xiL, xiR);
+      return FAIL;
+    }
+
+    V = Vmid;
+    
+  } // big if/else statement
+
+  return V;
+}
+
+
+double sedov_vfunc(double V, double gamma, double alpha1, double alpha2){
+
+  double tmp, gamp1, gamm1, gam7;
+  gamp1 = gamma + 1.0;
+  gamm1 = gamma - 1.0;
+  gam7 = 7.0 - gamma;
+
+  tmp = POW( (5.0*gamp1*V/4.0) , -2.0/5.0 ) * POW( gamp1/gamm1*(5.0*gamma*V/2.0-1.0), -1.0*alpha2);
+  tmp = tmp * POW( (5.0*gamp1 / (5.0*gamp1 - 2.0*(2.0+3.0*gamm1)) *( 1.0 - (2.0+3.0*gamm1)*V/2.0)), -1.0*alpha1);
+
+  return tmp;
 
 }

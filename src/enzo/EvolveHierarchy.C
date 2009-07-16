@@ -378,7 +378,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf("TopGrid dt = %"FSYM"     time = %"GOUTSYM"    cycle = %"ISYM,
+      printf("TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
 	     dt, MetaData.Time, MetaData.CycleNumber);
 
       if (ComovingCoordinates) {
