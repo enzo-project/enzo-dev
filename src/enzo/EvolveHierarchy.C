@@ -400,7 +400,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     tlev0 = MPI_Wtime();
 #endif
  
-    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || HydroMethod == PPM_LagrangeRemap) {
+    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
+	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
+	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
