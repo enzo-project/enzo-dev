@@ -24,8 +24,12 @@ struct TopGridData
   double CPUTime;            // Current CPU time used
   double StartCPUTime;
   double LastCycleCPUTime;    // CPU time used in the last cycle
-  char *ResubmitCommand;      // Script name for job resubmission
   int ResubmitOn;             // Resubmit job after StopCPUTime
+
+  /* Script names for resubmission to queues and restarting to reduce
+     memory fragmentation. */
+
+  char *ResubmitCommand;      // Script name for job resubmission
 
   /* Stopping criteria for TopGrid. */
 
@@ -36,8 +40,8 @@ struct TopGridData
 
   /* Parameters governing when output is done. */
 
-  FLOAT TimeLastRestartDump;  // CPU time of the last restart dump (seconds)
-  FLOAT dtRestartDump;        // CPU time between restart dumps (0 = never)
+  float TimeLastRestartDump;  // CPU time of the last restart dump (seconds)
+  float dtRestartDump;        // CPU time between restart dumps (0 = never)
 
   FLOAT TimeLastDataDump;     // Problem time of the last data dump
   FLOAT dtDataDump;           // Problem time between data dumps (0 = never)

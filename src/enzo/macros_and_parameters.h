@@ -14,6 +14,16 @@
 #endif
 #endif
 
+#ifdef ECUDA
+#ifdef LARGE_INTS
+// CUDA hates LARGE_INTS, and who can blame it?
+#error "Sorry, you need to be using 32 bit integers with CUDA because of #define int!"
+#endif // LARGE_INTS
+#ifdef CONFIG_BFLOAT_8
+#error "Sorry, you need to be using 32 bit precision with CUDA because of #define float!"
+#endif
+#endif
+
 #include "message.h"
 
 #ifdef CONFIG_THROW_ABORT
@@ -161,7 +171,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef LARGE_INTS
-//#define int long_int   // commented this out to get CUDA to work
+#define int long_int // CUDA doesn't like this, and who can blame it?
 #define Eint long_int
 #define Eunsigned_int unsigned_long_int
 #define ISYM "lld"
