@@ -487,7 +487,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleAttribute[2]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
+          tg->ParticleType[i] = NormalStarType;
     } 
 
     if (STARMAKE_METHOD(UNIGRID_STAR)) {
@@ -517,7 +517,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleAttribute[2]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
+          tg->ParticleType[i] = NormalStarType;
     }
 
     if (STARMAKE_METHOD(KRAVTSOV_STAR)) {
@@ -546,7 +546,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleAttribute[2]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
+          tg->ParticleType[i] = NormalStarType;
     }
 
     if (STARMAKE_METHOD(POP3_STAR)) {
@@ -632,7 +632,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleAttribute[2]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
+          tg->ParticleType[i] = NormalStarType;
     } 
 
     /* This creates sink particles which suck up mass off the grid. */
