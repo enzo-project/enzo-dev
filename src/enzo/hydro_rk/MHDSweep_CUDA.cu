@@ -38,7 +38,8 @@
 #define CUDA_BLOCK_SIZE 64
 #define CUDA_GRID_SIZE 640
 #define GHOST_SIZE 4
-#define Gamma 2.0
+#define PRINT_CUDA_TIMING 1
+//#define Gamma 2.0
 #define Theta_Limiter 1.5
 #define EOSType 0
 #define NEQ_MHD 9
@@ -65,17 +66,19 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size);
+				       float *FluxPhi, float C_h, float Gamma, int size);
 __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *Vz, float *Etot,
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size, int dim0, int dim1, int dim2);
+				       float *FluxPhi, float C_h, float Gamma, 
+				       int size, int dim0, int dim1, int dim2);
 __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *Vz, float *Etot,
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size, int dim0, int dim1, int dim2);
+				       float *FluxPhi, float C_h, float Gamma,
+				       int size, int dim0, int dim1, int dim2);
 __global__ void MHDComputedUx_CUDA3_kernel(float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				           float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz, float *FluxPhi, 
 					   float *dUD, float *dUS1, float *dUS2, float *dUS3,
@@ -97,9 +100,10 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
 				           float *dUTau, float *dUBx, float *dUBy, float *dUBz, float *dUPhi, 
 					   float dt, float C_h, float C_p, int size);
 
-__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const float &C_h);
+__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const float &C_h, const float &cGamma);
 __device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm);
-__device__ void EOS(float &p, float &rho, float &e, float &cs, const int &eostype, const int &mode);
+__device__ void EOS(float &p, float &rho, float &e, float &cs, 
+		    const float &cGamma, const int &eostype, const int &mode);
 __device__ float minmod(const float &a, const float &b, const float &c);
 __device__ float Max(const float &a, const float &b, const float &c);
 __device__ float Min(const float &a, const float &b, const float &c);
@@ -141,7 +145,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   //  PerformanceTimers[40] += elapsedTime/1e3;
-
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "minimal measurable time:     %g \n" , elapsedTime/1e3);
   cudaEventRecord(start, 0);
 
   float *PrimDevice = 0;
@@ -176,6 +180,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   //  PerformanceTimers[34] += elapsedTime/1e3;
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "copying data to GPU took:    %g \n" , elapsedTime/1e3);
 
   cudaEventRecord(start, 0);
 
@@ -219,6 +224,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventSynchronize(stop);
 
   cudaEventElapsedTime(&elapsedTime, start, stop);
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 
   //  PerformanceTimers[35] += elapsedTime/1e3;
 
@@ -244,7 +250,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					       Eint_Device, Bx_Device, By_Device, Bz_Device, Phi_Device,
 					       FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					       FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
-					       FluxPhi_Device, C_h, size);
+					       FluxPhi_Device, C_h, Gamma, size);
 
   /*
   float *flux = (float*)malloc(sizeof(float)*size);
@@ -299,7 +305,8 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 	  				         Eint_Device, Bx_Device, By_Device, Bz_Device, Phi_Device,
 		 			         FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					         FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
-					         FluxPhi_Device, C_h, size, GridDimension[0], GridDimension[1], GridDimension[2]);
+					         FluxPhi_Device, C_h, Gamma,
+						 size, GridDimension[0], GridDimension[1], GridDimension[2]);
 
     MHDComputedUy_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
   						     FluxBx_Device, FluxBy_Device, FluxBz_Device, FluxPhi_Device, 
@@ -313,7 +320,8 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					         Eint_Device, Bx_Device, By_Device, Bz_Device, Phi_Device,
 		 			         FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					         FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
-					         FluxPhi_Device, C_h, size, GridDimension[0], GridDimension[1], GridDimension[2]);
+					         FluxPhi_Device, C_h, Gamma, 
+						 size, GridDimension[0], GridDimension[1], GridDimension[2]);
 
   /*
   float *flux = (float*)malloc(sizeof(float)*size);
@@ -349,6 +357,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "running kernel on GPU took:  %g \n" , elapsedTime/1e3);
   //  PerformanceTimers[36] += elapsedTime/1e3;
 
   // copy prim back to cpu
@@ -369,6 +378,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   //  PerformanceTimers[37] += elapsedTime/1e3;    
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "copy data back to CPU took:  %g \n" , elapsedTime/1e3);
 
   cudaEventRecord(start, 0);
 
@@ -379,6 +389,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
+  if (PRINT_CUDA_TIMING) fprintf(stderr, "freeing memory on GPU took:  %g \n" , elapsedTime/1e3);
   //  PerformanceTimers[38] += elapsedTime/1e3;
 
   return SUCCESS;
@@ -410,7 +421,7 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size)
+				       float *FluxPhi, float C_h, float Gamma, int size)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -477,7 +488,7 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igrid >= 2 && igrid <= size - 2) {
   // the main computation: calculating the flux at tx
-  LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -498,7 +509,8 @@ __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size, int dim0, int dim1, int dim2)
+				       float *FluxPhi, float C_h, float Gamma, 
+				       int size, int dim0, int dim1, int dim2)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -580,7 +592,7 @@ __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igridy >= 2 && igridy <= size - 2) {
   // the main computation: calculating the flux at tx
-  LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -602,7 +614,8 @@ __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, int size, int dim0, int dim1, int dim2)
+				       float *FluxPhi, float C_h, float Gamma, 
+				       int size, int dim0, int dim1, int dim2)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -685,7 +698,7 @@ __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igridz >= 2 && igridz <= size - 2) {
   // the main computation: calculating the flux at tx
-  LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -854,7 +867,8 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
 }
 
 // the main computation routine: compute Flux at the left cell interface given Prim at the center
-__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const float &C_h)
+__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, 
+				  const int &tx, const float &C_h, const float &cGamma)
 {
   // those crazily many fields are defined in stead of using arrays
   // to avoid letting the compiler putting arrays in local memory
@@ -901,7 +915,7 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const
   B2 = pow(Priml_Bx,2) + pow(Priml_By,2) + pow(Priml_Bz,2);
   v2 = pow(Priml_vx,2) + pow(Priml_vy,2) + pow(Priml_vz,2);
 
-  EOS(p, Priml_rho, Priml_eint, cs, EOSType, 2);    
+  EOS(p, Priml_rho, Priml_eint, cs, cGamma, EOSType, 2);    
 
   Ul_D    = Priml_rho;
   Ul_S1   = Priml_rho * Priml_vx;
@@ -935,7 +949,7 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const
   B2 = pow(Primr_Bx,2) + pow(Primr_By,2) + pow(Primr_Bz,2);
   v2 = pow(Primr_vx,2) + pow(Primr_vy,2) + pow(Primr_vz,2);
 
-  EOS(p, Primr_rho, Primr_eint, cs, EOSType, 2);
+  EOS(p, Primr_rho, Primr_eint, cs, cGamma, EOSType, 2);
 
   Ur_D    = Primr_rho;
   Ur_S1   = Primr_rho * Primr_vx;
@@ -1050,18 +1064,18 @@ __device__ float Min(const float &a, const float &b, const float &c)
 /
 ************************************************************/
 
-__device__ void EOS(float &p, float &rho, float &e, float &cs, const int &eostype, const int &mode)
+__device__ void EOS(float &p, float &rho, float &e, float &cs, const float &cGamma, const int &eostype, const int &mode)
 {
 
   if (eostype == 0) {
     
     if (mode == 1) {
-      e = p / rho / (Gamma - 1);      
+      e = p / rho / (cGamma - 1);      
     } else if (mode == 2) {
-      p = (Gamma - 1) * rho * e;
+      p = (cGamma - 1) * rho * e;
     }
 
-    cs = sqrt(Gamma*p/rho);
+    cs = sqrt(cGamma*p/rho);
 
   }
 

@@ -198,7 +198,7 @@ all: $(EXE).exe
 .cu.o: 
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CUDACOMPILER) -c $@ $(DEFINES)  $(INCLUDES) $*.cu) >& $(OUTPUT)
+	-@($(CUDACOMPILER) -c -o $@ $(DEFINES)  $(INCLUDES) $*.cu) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
 	     echo; \
              echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu"; \

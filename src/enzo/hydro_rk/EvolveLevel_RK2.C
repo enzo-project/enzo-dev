@@ -477,7 +477,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
-      fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
+      if (debug) fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
     }
 
 //     if (SelfGravity && MetaData->TopGridRank == 3) {

@@ -199,7 +199,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
       }
     }
 
-    //WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+    //WriteAllData(MetaData.DataDumpName, MetaDaGrita.DataDumpNumber,
     //       &TopGrid, MetaData, Exterior, -1);
 
   } // end: if (RefineAtStart)
