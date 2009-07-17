@@ -641,8 +641,10 @@
 
     ifeq ($(CONFIG_ECUDA),yes)
         ERROR_ECUDA = 0
-	ASSEMBLE_ECUDA_DEFINES = -DECUDA
-	OBJS_ECUDA_LIB = $(OBJS_ECUDA_ALL)
+	    ASSEMBLE_ECUDA_DEFINES = -DECUDA
+	    ASSEMBLE_CUDA_LIBS = $(MACH_LIBS_CUDA)
+	    ASSEMBLE_CUDA_INCLUDES = $(MACH_LIBS_INCLUDES)
+	    OBJS_ECUDA_LIB = $(OBJS_ECUDA_ALL)
     endif
 
     # Settings to tell the make system not to compile CUDA routines
@@ -790,5 +792,6 @@
            $(ASSEMBLE_JBPERF_LIBS) \
            $(ASSEMBLE_PAPI_LIBS) \
            $(ASSEMBLE_PYTHON_LIBS) \
+           $(ASSEMBLE_CUDA_LIBS)
 
 
