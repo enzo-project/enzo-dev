@@ -19,7 +19,7 @@ int mkPix2xy(long *ipix2x, long *ipix2y)
       id = jpix&1;
       jpix = jpix/2 ;
       ix = id*ip+ix ;
-      id = jpix&2;
+      id = jpix&1;
       jpix = jpix/2;
       iy = id*ip+iy;
       ip = 2*ip;  
