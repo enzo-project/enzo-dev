@@ -93,9 +93,9 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     /* Synchronize number of stars across processors */
 
 #ifdef USE_MPI
-    CommunicationAllReduceValues(NumberOfStarsInGrids, NumberOfGrids, MPI_MAX);
-    for (GridNum = 0; GridNum < NumberOfGrids; GridNum++)
-      Grids[GridNum]->GridData->SetNumberOfStars(NumberOfStarsInGrids[GridNum]);
+//    CommunicationAllReduceValues(NumberOfStarsInGrids, NumberOfGrids, MPI_MAX);
+//    for (GridNum = 0; GridNum < NumberOfGrids; GridNum++)
+//      Grids[GridNum]->GridData->SetNumberOfStars(NumberOfStarsInGrids[GridNum]);
 #endif
 
     delete [] Grids;

@@ -197,6 +197,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	if (HydroMethod != Zeus_Hydro)
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
+		FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 		 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -216,7 +217,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
-	      FieldType[field] < FieldUndefined)
+	      FieldType[field] < FieldUndefined &&
+	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
 		index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -329,6 +331,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	if (HydroMethod != Zeus_Hydro)
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
+		FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 		 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -391,7 +394,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
-	      FieldType[field] < FieldUndefined)
+	      FieldType[field] < FieldUndefined &&
+	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
 		index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];

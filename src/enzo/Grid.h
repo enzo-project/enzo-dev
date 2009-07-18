@@ -1116,15 +1116,32 @@ void SortParticlesByNumber();
 				     particle_data *&List,
 				     int *Layout, int *GridMap, 
 				     int CopyDirection);
+  int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
+				 int ThisGridNum, int *&NumberToMove, 
+				 int StartIndex, int EndIndex, 
+				 star_data *&List,
+				 int *Layout, int *GridMap, 
+				 int CopyDirection);
 #else
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-				     int ToGrid[6], int NumberToMove[6],
-				     float_int *ParticleData[6], int CopyDirection);
+			     int ToGrid[6], int NumberToMove[6],
+			     float_int *ParticleData[6], int CopyDirection);
+  int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
+			 int ToGrid[6], int NumberToMove[6],
+			 StarBuffer *StarData[6], int CopyDirection);
 #endif
 
   int CollectParticles(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
 		       particle_data* &List, int CopyDirection);
+
+  int CollectStars(int GridNum, int* &NumberToMove, 
+		   int &StartIndex, int &EndIndex, 
+		   star_data* &List, int CopyDirection);
+
+  // Only used for static hierarchies
+  int MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[],
+		       int AllLocal);
 
   int TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
 			       int* &NumberToMove, int StartIndex, 
@@ -1132,6 +1149,11 @@ void SortParticlesByNumber();
 			       bool KeepLocal, bool ParticlesAreLocal,
 			       int CopyDirection);
 
+  int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
+			   int* &NumberToMove, int StartIndex, 
+			   int EndIndex, star_data* &List, 
+			   bool KeepLocal, bool ParticlesAreLocal,
+			   int CopyDirection);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1665,7 +1687,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int CommunicationSendStars(grid *ToGrid, int ToProcessor);
 
-  int MoveSubgridStars(int NumberOfSubgrids, grid* ToGrids[], int AllLocal);
+  int TransferSubgridStars(int NumberOfSubgrids, grid* ToGrids[], int AllLocal);
   
   int FindNewStarParticles(int level);
 

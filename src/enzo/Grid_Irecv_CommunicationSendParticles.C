@@ -187,7 +187,6 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
   if (ProcessorNumber != ToProcessor) {
  
     MPI_Status status;
-    MPI_Datatype DataTypeByte = MPI_BYTE;
     MPI_Arg PCount, Count = TransferSize;
     MPI_Arg Source = ProcessorNumber;
     MPI_Arg Dest = ToProcessor;
@@ -196,7 +195,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
     if (FirstTimeCalled) {
       PCount = sizeof(particle_data);
       //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
-      stat = MPI_Type_contiguous(PCount, DataTypeByte, &ParticleDataType);
+      stat = MPI_Type_contiguous(PCount, MPI_BYTE, &ParticleDataType);
       stat |= MPI_Type_commit(&ParticleDataType);
       if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
       FirstTimeCalled = FALSE;

@@ -122,7 +122,8 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) (((A) >= TotalEnergy && (A) <= Velocity3) ? FALSE : TRUE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) (((A) >= kphHI && (A) <= kdissH2I) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -212,6 +213,13 @@ struct particle_data {
   int   type;
   int   grid;
   int   proc;
+};
+
+#include "StarBuffer.h"
+struct star_data {
+  StarBuffer data;
+  int grid;
+  int proc;
 };
 
 #endif

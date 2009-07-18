@@ -64,11 +64,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
     //#ifdef USE_HDF5_GROUPS
-    if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("");
-    }
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior);
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 // 		     TopGrid, MetaData, Exterior) == FAIL) {
@@ -88,11 +85,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.CycleLastDataDump += MetaData.CycleSkipDataDump;
 
     //#ifdef USE_HDF5_GROUPS
-    if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("");
-    }
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior);
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 // 		     TopGrid, MetaData, Exterior) == FAIL) {
@@ -123,11 +117,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     if (debug) printf("CPUtime-based output!\n");
 //#ifdef USE_HDF5_GROUPS
-    if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		     TopGrid, MetaData, Exterior) == FAIL) {
-	fprintf(stderr, "Error in Group_WriteAllData.\n");
-	ENZO_FAIL("");
-    }
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior);
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
 // 		     TopGrid, MetaData, Exterior) == FAIL) {
@@ -138,6 +129,48 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     WroteData = TRUE;
   } // ENDIF
 
+  /* Check for output: restart-based. */
+
+  char *param;
+  FILE *pfptr;
+
+  if ((CurrentCPUTime >= MetaData.dtRestartDump && 
+       MetaData.dtRestartDump > 0 ) ||
+      (MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
+       MetaData.CycleSkipRestartDump &&
+       MetaData.CycleSkipRestartDump > 0)) {
+
+    MetaData.CycleLastRestartDump = MetaData.CycleNumber;
+
+    if (debug) printf("Writing restart dump.\n");
+    Group_WriteAllData(MetaData.RestartDumpName, MetaData.RestartDumpNumber++,
+		       TopGrid, MetaData, Exterior);
+
+    /* On the root processor, write the restart parameter filename to
+       a file that will be read by a (batch) script to restart enzo.
+       We cannot call another MPI application from here. */
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      param = new char[512];
+      if (MetaData.RestartDumpDir != NULL)
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpDir, MetaData.RestartDumpNumber-1,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+      else
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+
+      if ((pfptr = fopen("RestartParamFile", "w")) == NULL)
+	ENZO_FAIL("Error opening RestartParamFile");
+      fprintf(pfptr, "%s", param);
+      fclose(pfptr);
+      
+      delete [] param;
+    } // ENDIF ROOT_PROCESSOR
+
+    WroteData = TRUE;
+  }
+    
   /* Check for output: redshift-based. */
  
   if (ComovingCoordinates)
@@ -155,10 +188,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	  }
 
 	  //#ifdef USE_HDF5_GROUPS
-	  if (Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
-	    fprintf(stderr, "Error in Group_WriteAllData.\n");
-	    ENZO_FAIL("");
-	  }
+	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior);
 // #else
 // 	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
 // 	    fprintf(stderr, "Error in WriteAllData.\n");

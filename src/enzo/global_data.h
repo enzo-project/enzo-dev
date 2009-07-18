@@ -570,7 +570,8 @@ EXTERN int NBodyDirectSummation;
 /* Turbulence simulation parameters */
 EXTERN int UseDrivingField;
 EXTERN float DrivingEfficiency;
-
+/* Parameters to use CUDA extensions */ 
+EXTERN int UseCUDA;
 
 /* End of Stanford block */
 

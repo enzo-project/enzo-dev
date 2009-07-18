@@ -116,6 +116,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   float dt;
  
   int i, dim, Stop = FALSE, WroteData;
+  int Restart = FALSE;
   double tlev0, tlev1, treb0, treb1, tloop0, tloop1, tentry, texit;
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
@@ -146,10 +147,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     NumberOfGrids++;
     Temp = Temp->NextGridThisLevel;
   }
-  if (Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout) == FAIL) {
-    fprintf(stderr, "Error in Enzo_Dims_create.\n");
-    ENZO_FAIL("");
-  }
+  Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout);
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
       if (debug)
@@ -199,10 +197,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
-	== FAIL) {
-      fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      ENZO_FAIL("");
-    }
+	== FAIL)
+      ENZO_FAIL("Error in CopyOverlappingZones.");
     Temp = Temp->NextGridThisLevel;
   }
   
@@ -210,15 +206,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   Temp = LevelArray[0];
   while (Temp != NULL) {
-//    if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
-//      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-//      ENZO_FAIL("");
-//    }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
-	== FAIL) {
-      fprintf(stderr, "Error in CopyOverlappingZones.\n");
-      ENZO_FAIL("");
-    }
+	== FAIL)
+      ENZO_FAIL("Error in CopyOverlappingZones.");
     Temp = Temp->NextGridThisLevel;
   }
 
@@ -226,10 +216,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   CommunicationBarrier();
 #endif
 
-  if (CommunicationReceiveHandler() == FAIL) {
-    fprintf(stderr, "Error in CommunicationReceiveHandle.\n");
-    ENZO_FAIL("");
-  }
+  CommunicationReceiveHandler();
 
 #ifdef FORCE_MSG_PROGRESS
   CommunicationBarrier();
@@ -253,14 +240,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Check for output. */
  
-  if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
-    fprintf(stderr, "Error in CheckForOutput.\n");
-    ENZO_FAIL("");
-  }
+  CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Output %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+  MemInUse = mused();
+  fprintf(memtracePtr, "Output %8"ISYM"  %16"ISYM" \n", 
+	  MetaData.CycleNumber, MemInUse);
 #endif
  
   /* Compute the acceleration field so ComputeTimeStep can find dtAccel.
@@ -277,14 +262,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Do the first grid regeneration. */
  
-  if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
-    fprintf(stderr, "Error in RebuildHierarchy.\n");
-    ENZO_FAIL("");
-  }
+  RebuildHierarchy(&MetaData, LevelArray, 0);
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "1st rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+  MemInUse = mused();
+  fprintf(memtracePtr, "1st rebuild %8"ISYM"  %16"ISYM" \n", 
+	  MetaData.CycleNumber, MemInUse);
 #endif
  
   /* Open the OutputLevelInformation file. */
@@ -327,18 +310,16 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Output level information to log file. */
  
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
-    }
 
     // OutputLevelInformation() only needs to be called by all processors
     // when jbPerf is enabled.
 
     OutputLevelInformation(LevelInfofptr, MetaData, LevelArray);
 
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fclose(LevelInfofptr);
-    }
  
     /* Compute minimum timestep on the top level. */
  
@@ -419,7 +400,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     tlev0 = MPI_Wtime();
 #endif
  
-    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || HydroMethod == PPM_LagrangeRemap) {
+    if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
+	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
+	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
@@ -501,32 +484,33 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	printf("Stopping on CPU time limit.\n");
       Stop = TRUE;
     }
-
+    if ((ReturnWallTime() - MetaData.StartCPUTime >= MetaData.dtRestartDump &&
+	 MetaData.dtRestartDump > 0) ||
+	(MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
+	 MetaData.CycleSkipRestartDump &&
+	 MetaData.CycleSkipRestartDump > 0)) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("Stopping to restart.\n");
+      Stop = TRUE;
+      Restart = TRUE;
+    }
  
     /* Check for time-actions. */
  
-    if (CheckForTimeAction(LevelArray, MetaData) == FAIL) {
-      fprintf(stderr, "Error in CheckForTimeActions.\n");
-      ENZO_FAIL("");
-    }
+    CheckForTimeAction(LevelArray, MetaData);
  
     /* Check for output. */
  
-    if (CheckForOutput(&TopGrid, MetaData, Exterior, WroteData) == FAIL) {
-      fprintf(stderr, "Error in CheckForOutput.\n");
-      ENZO_FAIL("");
-    }
+    CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
 
     /* Check for resubmission */
     
-    if (CheckForResubmit(MetaData, Stop) == FAIL) {
-      fprintf(stderr, "Error in CheckForResubmit.\n");
-      ENZO_FAIL("");
-    }
+    if (!Restart)
+      CheckForResubmit(MetaData, Stop);
 
     /* If stopping, inline halo finder one more time */
 
-    if (Stop)
+    if (Stop && !Restart)
       FOF(&MetaData, LevelArray);
 
 
@@ -535,11 +519,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef REDUCE_FRAGMENTATION
  
     if (WroteData && !Stop)
-      if (ReduceFragmentation(TopGrid, MetaData, Exterior, LevelArray)
-	  == FAIL) {
-	fprintf(stderr, "Error in ReduceFragmentation.\n");
-	ENZO_FAIL("");
-      }
+      ReduceFragmentation(TopGrid, MetaData, Exterior, LevelArray);
  
 #endif /* REDUCE_FRAGMENTATION */
 
@@ -634,10 +614,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       !WroteData)
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
-      fprintf(stderr, "Error in Group_WriteAllData.\n");
-      ENZO_FAIL("");
-    }
+			   &TopGrid, MetaData, Exterior, -666) == FAIL)
+      ENZO_FAIL("Error in Group_WriteAllData.");
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 // 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
@@ -646,6 +624,16 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 //     }
 // #endif
  
+  /* Write a file to indicate that we're finished. */
+
+  FILE *Exit_fptr;
+  if (!Restart && MyProcessorNumber == ROOT_PROCESSOR) {
+    if ((Exit_fptr = fopen("RunFinished", "w")) == NULL)
+      ENZO_FAIL("Error opening RunFinished.");
+    fprintf(Exit_fptr, "Finished on cycle %"ISYM"\n", MetaData.CycleNumber);
+    fclose(Exit_fptr);
+  }
+
   if (NumberOfProcessors > 1)
     printf("Communication: processor %"ISYM" CommunicationTime = %"FSYM"\n",
 	   MyProcessorNumber, CommunicationTime);

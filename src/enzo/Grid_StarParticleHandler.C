@@ -50,7 +50,7 @@ extern "C" void FORTRAN_NAME(star_maker1)(int *nx, int *ny, int *nz,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
      		 int *ibuff, hydro_method *imethod,
              float *odthresh, float *massff, float *smthrest, int *level,
-                 int *np,
+		 int *np,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp);
 #endif /* STAR1 */
@@ -65,7 +65,7 @@ extern "C" void FORTRAN_NAME(star_maker2)(int *nx, int *ny, int *nz,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
              float *odthresh, float *massff, float *smthrest, int *level,
-                 int *np,
+		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
  
@@ -80,7 +80,7 @@ extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
              float *odthresh, float *massff, float *smthrest, int *level,
-                 int *np,
+		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
  
@@ -94,7 +94,7 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
      		 int *ibuff, 
              int *imetal, hydro_method *imethod, float *mintdyn,
              float *odthresh, float *massff, float *smthrest, int *level,
-                 int *np,
+	         int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
 
@@ -108,7 +108,7 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
              float *odthresh, float *massff, float *smthrest, int *level,
-                 int *np,
+		 int *np,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
 
@@ -223,7 +223,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size,
              float *d1, float *x1, float *v1, float *t1,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
      		 int *ibuff, 
-	     int *imethod, float *massthresh, int *level, int *np,
+	       int *imethod, float *massthresh, int *level, int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, 
 	     float *up, float *vp, float *wp, float *mp, 
 		 float *tcp, float *tdp, int *type,
@@ -441,6 +441,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
     /* Call FORTRAN routine to do the actual work. */
  
+    int NumberOfNewParticlesSoFar = 0;
     int NumberOfNewParticles = 0;
  
     if (debug && NumberOfNewParticles > 0) {
@@ -475,6 +476,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
       //---- MODIFIED SF ALGORITHM ("STANDARD VERSION")
 
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
       FORTRAN_NAME(star_maker2)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
@@ -486,7 +489,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-          &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
@@ -494,13 +497,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
           tg->ParticleAttribute[2]);
 
-      for (i = 0; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
     } 
 
     if (STARMAKE_METHOD(UNIGRID_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
+      
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker3)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -514,7 +519,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-          &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
@@ -522,13 +527,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
           tg->ParticleAttribute[2]);
 
-      for (i = 0; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
     }
 
     if (STARMAKE_METHOD(KRAVTSOV_STAR)) {
 
       //---- KRAVTSOV SF ALGORITHM
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker4)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -541,7 +548,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           CellLeftEdge[2], &GhostZones, 
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime, 
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-          &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles,
        tg->ParticlePosition[0], tg->ParticlePosition[1], 
           tg->ParticlePosition[2], 
        tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
@@ -549,13 +556,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
           tg->ParticleAttribute[2]);
 
-      for (i = 0; i < NumberOfNewParticles; i++)
-          tg->ParticleType[i] = NormalStarType;
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
     }
 
     if (STARMAKE_METHOD(POP3_STAR)) {
 
       //---- POPULATION III (SINGLE STAR)
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(pop3_maker)
 	(GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
@@ -602,6 +611,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       // Convert into a parameter!
       float StarClusterLifeTime = 10e6;  // yr
 
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
       FORTRAN_NAME(cluster_maker)
 	(GridDimension, GridDimension+1, GridDimension+2, 
 	 StarClusterRegionLeftEdge, StarClusterRegionRightEdge,
@@ -626,7 +637,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     if (STARMAKE_METHOD(INSTANT_STAR)) {
 
-      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE)
+      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO stochastic SF)
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -639,13 +652,16 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-          &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
           tg->ParticleAttribute[2]);
+
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = PARTICLE_TYPE_STAR;
     } 
 
     /* This creates sink particles which suck up mass off the grid. */

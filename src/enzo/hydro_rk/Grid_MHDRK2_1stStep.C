@@ -23,6 +23,10 @@
 
 double ReturnWallTime();
 
+int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], 
+			int GridStartIndex[], int GridEndIndex[], int GridRank,
+		        float dtdx, float dt, float C_h, float C_p);
+
 int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			 int NumberOfSubgrids, int level,
 			 ExternalBoundary *Exterior)
@@ -156,6 +160,22 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   /* RK2 first step */
 
   /* Compute dU */
+
+#ifdef ECUDA
+  if (UseCUDA == 1) {
+    FLOAT dtdx = dtFixed/CellWidth[0][0];
+    double time2 = ReturnWallTime();
+    if (MHDTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
+			    dtdx, dtFixed, C_h, C_p) == FAIL) {
+      printf("RK1: MHDTimeUpdate_CUDA failed.\n");
+      return FAIL;
+    }
+    //return FAIL;
+    //    PerformanceTimers[1] += ReturnWallTime() - time1;
+    return SUCCESS;
+  }
+#endif
+
 
   int fallback = 0;
   if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 

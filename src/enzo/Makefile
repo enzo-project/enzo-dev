@@ -125,7 +125,7 @@ all: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o
+.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
 
 # Inhibit removing any *.o files after compiling
 
@@ -191,6 +191,19 @@ all: $(EXE).exe
              echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C"; \
              echo; \
              $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C;\
+             echo; \
+             exit 1; \
+          fi)
+
+.cu.o: 
+	@rm -f $@
+	@echo "Compiling $<"
+	-@($(CUDACOMPILER) -c -o $@ $(DEFINES)  $(INCLUDES) $*.cu) >& $(OUTPUT)
+	@(if [ ! -e $@ ]; then \
+	     echo; \
+             echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu"; \
+             echo; \
+             $(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu;\
              echo; \
              exit 1; \
           fi)

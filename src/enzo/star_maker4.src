@@ -95,7 +95,7 @@ c
       parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
      &           msolar=1.989e33,mproton=1.67e-24)
 c
-      ii = 0
+      ii = np
 c
 c  calculate density threshold.  odthresh is in proper particles per cc
 c  and (d1/mproton) gives the mean density of the universe in 

@@ -69,7 +69,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.ResubmitCommand = NULL;
  
   MetaData.TimeLastRestartDump = 0.0;
-  MetaData.dtRestartDump       = 5.0*3600.0;   // every 5 hours
+  MetaData.dtRestartDump       = FLOAT_UNDEFINED;
   MetaData.TimeLastDataDump    = FLOAT_UNDEFINED;
   MetaData.dtDataDump          = 0.0;
   MetaData.TimeLastHistoryDump = FLOAT_UNDEFINED;
@@ -387,6 +387,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolingPowerCutOffDensity2 = 1e10;
   UseH2OnDust = 0;
   PhotoelectricHeating = 0;
+  UseCUDA = 0;
   UseFloor = 0;
   UseViscosity = 0;
   UseAmbipolarDiffusion = 0;

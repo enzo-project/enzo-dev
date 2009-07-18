@@ -617,8 +617,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     MetaData.TimeLastDataDump = MetaData.Time - MetaData.dtDataDump*1.00001;
   if (MetaData.TimeLastHistoryDump == FLOAT_UNDEFINED)
     MetaData.TimeLastHistoryDump = MetaData.Time - MetaData.dtHistoryDump;
-  if (MetaData.TimeLastMovieDump == FLOAT_UNDEFINED)
-    MetaData.TimeLastMovieDump = MetaData.Time - MetaData.dtMovieDump;
  
   if (MetaData.TimeLastTracerParticleDump == FLOAT_UNDEFINED)
     MetaData.TimeLastTracerParticleDump =

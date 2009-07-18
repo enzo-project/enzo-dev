@@ -120,7 +120,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     OtherDim[dim]   = 1;
   }
 
-  //PrintToScreenBoundaries(BaryonField[3], "Vz Before\n");
+  //  PrintToScreenBoundaries(BaryonField[3], "Vz Before\n");
+
  
   for (dim = 0; dim < GridRank; dim++)
     if (GridDimension[dim] > 1) {
@@ -297,8 +298,9 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   //Update the energys due to sheared boundaries
 
-  //PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
 
+  //  PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
+  
   if (isShearing){
 
     int iden=FindField(Density, FieldType, NumberOfBaryonFields);

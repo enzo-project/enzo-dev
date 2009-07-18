@@ -158,6 +158,11 @@ help-config:
 	@echo "      gmake python-yes"
 	@echo "      gmake python-no"
 	@echo
+	@echo "   Set whether to use CUDA (GPU-computing)"
+	@echo
+	@echo "      gmake cuda-yes"
+	@echo "      gmake cuda-no"
+	@echo
 
 #-----------------------------------------------------------------------
 
@@ -207,6 +212,7 @@ show-config:
 	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
+	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
@@ -517,6 +523,24 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_ECUDA = cuda-yes cuda-no
+.PHONY: $(VALID_ECUDA)
+
+cuda-yes: CONFIG_ECUDA-yes
+cuda-no: CONFIG_ECUDA-no
+cuda-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ECUDA)]\n\n"
+CONFIG_ECUDA-%: 
+	@tmp=.config.temp; \
+        echo ""; \
+        grep -v CONFIG_ECUDA $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ECUDA = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_ECUDA:
 	@echo
 
 #-----------------------------------------------------------------------
