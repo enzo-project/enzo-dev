@@ -104,11 +104,14 @@ const field_type
   DrivingField2         = 56, 
   DrivingField3         = 57,
 
-  AccelerationField1         = 58, 
-  AccelerationField2         = 59, 
-  AccelerationField3         = 60,
+  AccelerationField1    = 58, 
+  AccelerationField2    = 59, 
+  AccelerationField3    = 60,
 
-  FieldUndefined  = 61;
+  Galaxy1Color          = 61,
+  Galaxy2Color          = 62,
+
+  FieldUndefined  = 63;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
