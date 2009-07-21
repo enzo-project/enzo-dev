@@ -656,7 +656,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((optr = fopen(configurename, "w")) == NULL) {
       fprintf(stderr, "Error opening configure file %s\n", configurename);
-      ENZO_FAIL("");
+      fprintf(stderr, "Not crucial but worrysome. Will continue.\n" );
+      //      ENZO_FAIL("");
     }
 
     WriteConfigure(optr);

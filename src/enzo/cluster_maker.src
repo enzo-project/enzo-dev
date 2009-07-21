@@ -325,10 +325,12 @@ C                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 C                write(6,7777) i, j, k
 C                write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
 C                write(6,779) type(ii), tcp(ii), tdp(ii)
+
  777           format('pop3_maker: ', e10.3, 3(f12.6))
  7777          format('            ', 3(i5))
  778           format('            ', 4(e15.3))
  779           format('            ', i5, 2(f15.6))
+
 c
 c               write(7+procnum,1000) bmass*starfraction,tdp(ii),tcp(ii),
 c     &                       metalf(ii)
