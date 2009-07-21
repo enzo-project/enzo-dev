@@ -31,6 +31,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);
+int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData)
@@ -89,11 +90,37 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
   printf("rho_medium=%g, cs=%g, Bnaught=%g\n", rho_medium, cs, Bnaught);
 
-  if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-						    Bnaught, RandomSeed, 0) == FAIL) {
-    fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
-    return FAIL;
-  }
+
+//   if (ParallelRootGridIO == TRUE && NumberOfProcessors > 1) {
+//     HierarchyEntry *CurrentGrid;
+//     CurrentGrid = &TopGrid;
+//     int gridcounter=0;
+//     while (CurrentGrid != NULL) {
+//       if (debug)
+// 	printf("MHDTurbulenceInitialize: Partition Initial Grid %"ISYM"\n", gridcounter);
+//       CommunicationPartitionGrid(CurrentGrid, gridcounter);
+//       gridcounter++;
+//       CurrentGrid = CurrentGrid->NextGridNextLevel;
+//     }
+    
+//     CurrentGrid = &TopGrid;
+    
+//     while (CurrentGrid != NULL) {
+//       if (CurrentGrid->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+// 						      Bnaught, RandomSeed, level) == FAIL) {
+// 	fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
+// 	return FAIL;
+//       }
+//       CurrentGrid = CurrentGrid->NextGridThisLevel;
+//     }
+//   } else { // only one grid:
+    if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+						      Bnaught, RandomSeed, 0) == FAIL) {
+      fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
+      return FAIL;
+    }
+    //  }
+
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */

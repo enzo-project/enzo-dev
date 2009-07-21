@@ -519,28 +519,58 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   /* Most Stanford additions: */
 
+
+  fprintf(fptr, "Theta_Limiter = %f\n", Theta_Limiter);
+  fprintf(fptr, "RiemannSolver = %d\n", RiemannSolver);
+  fprintf(fptr, "ReconstructionMethod = %d\n", ReconstructionMethod);
+  fprintf(fptr, "RKOrder = %d\n", RKOrder);
+  fprintf(fptr, "UsePhysicalUnit = %d\n", UsePhysicalUnit);
+  fprintf(fptr, "UseFloor = %d\n", UseFloor);
+  fprintf(fptr, "UseViscosity = %d\n", UseViscosity);
+  fprintf(fptr, "UseAmbipolarDiffusion = %d\n", UseAmbipolarDiffusion);
+  fprintf(fptr, "UseResistivity = %d\n", UseResistivity);
+  fprintf(fptr, "SmallRho = %g\n", SmallRho*rhou);
+  fprintf(fptr, "SmallP = %g\n", SmallP*presu);
+  fprintf(fptr, "SmallT = %g\n", SmallT*tempu);
+  fprintf(fptr, "MaximumAlvenSpeed = %g\n", MaximumAlvenSpeed*velu);
+  fprintf(fptr, "Coordinate = %d\n", Coordinate);
+  fprintf(fptr, "EOSType = %d\n", EOSType);
+  fprintf(fptr, "EOSSoundSpeed = %g\n", EOSSoundSpeed);
+  fprintf(fptr, "EOSCriticalDensity = %g\n", EOSCriticalDensity);
+  fprintf(fptr, "EOSGamma = %g\n", EOSGamma); 
+  fprintf(fptr, "Mu = %g\n", Mu);
+  fprintf(fptr, "CoolingCutOffDensity1 = %g\n", CoolingCutOffDensity1);
+  fprintf(fptr, "CoolingCutOffDensity2 = %g\n", CoolingCutOffDensity2);
+  fprintf(fptr, "CoolingCutOffTemperature = %g\n", CoolingCutOffTemperature);
+  fprintf(fptr, "CoolingPowerCutOffDensity1 = %g\n", CoolingPowerCutOffDensity1);
+  fprintf(fptr, "CoolingPowerCutOffDensity2 = %g\n", CoolingPowerCutOffDensity2);
+  fprintf(fptr, "UseConstantAcceleration = %d\n", UseConstantAcceleration);
+  fprintf(fptr, "ConstantAcceleration = %g %g %g\n", ConstantAcceleration[0],
+	  ConstantAcceleration[1], ConstantAcceleration[2]);
+
+
+  fprintf(fptr, "AngularVelocity = %g\n", AngularVelocity);
+  fprintf(fptr, "VelocityGradient = %g\n", VelocityGradient);
+  fprintf(fptr, "UseDrivingField = %d\n", UseDrivingField);
+  fprintf(fptr, "DrivingEfficiency = %f\n", DrivingEfficiency);
+#ifdef ECUDA
+  fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
+#endif
+
   /* Poisson Solver */
 
-  fprintf(fptr, "PoissonApproximationThreshold             = %"FSYM"\n",
-	  PoissonApproximationThreshold);
-  fprintf(fptr, "DivergenceCleaingThreshold           = %"FSYM"\n",
-	  DivergenceCleaningThreshold);
-  fprintf(fptr, "UseDivergenceCleaning        = %"ISYM"\n",
-	  UseDivergenceCleaning);
   fprintf(fptr, "DivergenceCleaningBoundaryBuffer        = %"ISYM"\n\n",
 	  DivergenceCleaningBoundaryBuffer);
+  fprintf(fptr, "UseDivergenceCleaning = %d\n", UseDivergenceCleaning);
+  fprintf(fptr, "DivergenceCleaningThreshold = %g\n", DivergenceCleaningThreshold);
+  fprintf(fptr, "PoissonApproximationThreshold = %g\n", PoissonApproximationThreshold);
 
   /* Shearing Box Boundary parameters */
-  fprintf(fptr, "AngularVelocity              = %"FSYM"\n",
-	  AngularVelocity);
-  fprintf(fptr, "VelocityGradient             = %"FSYM"\n",
-	  VelocityGradient);
-  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",
-	  ShearingVelocityDirection);
-  fprintf(fptr, "ShearingBoxProblemType    = %"ISYM"\n\n",
-	  ShearingBoxProblemType);
+  fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);
+  fprintf(fptr, "VelocityGradient             = %"FSYM"\n",VelocityGradient);
+  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",ShearingVelocityDirection);
+  fprintf(fptr, "ShearingBoxProblemType    = %"ISYM"\n\n", ShearingBoxProblemType);
 
-  
   /* write data which defines the boundary conditions */
  
   fprintf(fptr, "LeftFaceBoundaryCondition  = ");

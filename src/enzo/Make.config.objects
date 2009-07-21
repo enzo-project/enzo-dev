@@ -35,7 +35,6 @@ OBJS_CONFIG_LIB = \
         CheckForResubmit.o \
         CheckForTimeAction.o \
         CheckShearingBoundaryConsistency.o \
-        chtable.o \
         cic_deposit.o \
         cic_flag.o \
         cic_interp.o \

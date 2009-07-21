@@ -131,15 +131,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 int WriteTracerParticleData(char *basename, int filenumber, 
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData, 
 		   FLOAT WriteTime);
-#ifdef USE_HDF5_GROUPS
-int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1);
-#else
-int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1);
-#endif
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
                                  int TopGridDims[]);
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);

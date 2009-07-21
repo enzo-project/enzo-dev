@@ -339,7 +339,7 @@ C        HYDROGEN II RECOMBINATION COOLING TERM
      .               -0.0316*TEMP4LOG*TEMP4LOG*TEMP4LOG)
      .               /(1.0+0.01685*TEMP4LOG*TEMP4LOG*TEMP4LOG
      .               -0.00186*TEMP4LOG*TEMP4LOG*TEMP4LOG*TEMP4LOG))
-CCCC .                     *ELTR*HRNII
+CCCC                *ELTR*HRNII
 C
 C        HELIUM II RECOMBINATION COOLING TERM
 C        JORDI, I AM NOT CERTAIN THAT THIS EXPRESSION IS RIGHT??
@@ -473,7 +473,7 @@ c
         P=SIG*Y2(I-1)+2.
         Y2(I)=(SIG-1.)/P
         U(I)=(6.*((Y(I+1)-Y(I))/(X(I+1)-X(I))-(Y(I)-Y(I-1))
-     *      /(X(I)-X(I-1)))/(X(I+1)-X(I-1))-SIG*U(I-1))/P
+     &      /(X(I)-X(I-1)))/(X(I+1)-X(I-1))-SIG*U(I-1))/P
 11    CONTINUE
       IF (YPN.GT..99E30) THEN
         QN=0.
