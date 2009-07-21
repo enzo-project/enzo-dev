@@ -22,7 +22,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include <math.h>
 
 
 int FastFourierTransform(float *buffer, int Rank, int DimensionReal[], 
