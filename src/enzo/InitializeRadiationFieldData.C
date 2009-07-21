@@ -89,15 +89,15 @@ int InitializeRadiationFieldData(FLOAT Time)
   RadiationData.ComptonXrayEnergyDensity = 0;
  
   /* Call fortran routine to generate tables. */
-  // TOTAL HACK TO ALLOW COMPILE ... 
+
  
-//   FORTRAN_NAME(chtable)(&RadiationData.NumberOfFrequencyBins,
-// 			&RadiationData.FrequencyBinWidth,
-// 			RadiationData.HICrossSection,
-// 			RadiationData.HeICrossSection,
-// 			RadiationData.HeIICrossSection,
-// 			RadiationData.StellarSpectrum,
-// 			RadiationData.QuasarSpectrum);
+   FORTRAN_NAME(chtable)(&RadiationData.NumberOfFrequencyBins,
+ 			&RadiationData.FrequencyBinWidth,
+ 			RadiationData.HICrossSection,
+ 			RadiationData.HeICrossSection,
+ 			RadiationData.HeIICrossSection,
+ 			RadiationData.StellarSpectrum,
+ 			RadiationData.QuasarSpectrum);
  
   return SUCCESS;
 }
