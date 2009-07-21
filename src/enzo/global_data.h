@@ -258,6 +258,24 @@ EXTERN RateDataType RateData;
 
 EXTERN int MultiMetals;
 
+/* Cosmic Ray Model 
+ * 0: Off - default
+ * 1: On, Let CRs accululate on Grid
+ * 2: On, Zero out CRs each step to only look at instantaneous acceleration
+ * 3: Highly experimental, takes energy out of gas.  Unstable.
+ */
+EXTERN int CRModel; 
+/* Shock Finding Method: Always on when CRModel nonzero
+ * 0: temperature unsplit - default
+ * 1: temperature split 
+ * 2: velocity unsplit
+ * 3: velocity split
+ */
+EXTERN int ShockMethod; 
+EXTERN CosmicRayDataType CosmicRayData;
+EXTERN float ShockTemperatureFloor;
+EXTERN int StorePreShockFields;
+
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5
    2 - H&M alpha = -1.8       

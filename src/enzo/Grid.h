@@ -512,6 +512,10 @@ class grid
 
    int MultiSpeciesHandler();
 
+/* Handle the selection of shock finding algorithm */
+
+   int ShocksHandler();
+
 /* Solve the radiative cooling/heating equations  */
 
    int SolveRadiativeCooling();
@@ -527,6 +531,14 @@ class grid
 /* Compute densities of various species for RadiationFieldUpdate. */
 
    int RadiationComputeDensities(int level);
+
+// -------------------------------------------------------------------------
+// Functions for shock finding and cosmic ray acceleration
+//
+   int FindShocks();
+   int FindTempSplitShocks();
+   int FindVelShocks();
+   int FindVelSplitShocks();
 
 // -------------------------------------------------------------------------
 // Functions for grid (re)generation.
@@ -1220,6 +1232,10 @@ void SortParticlesByNumber();
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
+/* Identify shock/cosmic ray fields. */
+  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
+			      int &PSTempNum, int &PSDenNum);
+
 /* Zeus Solver. */
 
   int ZeusSolver(float *gamma, int igamfield, int nhy, 
@@ -1261,6 +1277,9 @@ void SortParticlesByNumber();
 // -------------------------------------------------------------------------
 // Functions for Specific problems (usually problem generator functions).
 //
+
+/* Generalized Extra Field Grid Initializer (returns NumberOfBaryonFields) */
+  int InitializeTestProblemGrid(int field_counter);
 
 /* Protostellar Collapse problem: initialize grid (returns SUCCESS or FAIL) */
   int ProtostellarCollapseInitializeGrid(float CoreDensity,

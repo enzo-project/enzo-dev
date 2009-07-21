@@ -120,9 +120,10 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   if (ProcessorNumber == MyProcessorNumber)
     for (field = 0; field < NumberOfBaryonFields; field++)
-      if (FieldTypeIsDensity(FieldType[field]) == FALSE && (
-	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro      )       )
+      if ((FieldTypeIsDensity(FieldType[field]) == FALSE &&  
+	   ((FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
+	    || HydroMethod != Zeus_Hydro      )       ) &&
+	  (FieldTypeNoInterpolate(FieldType[field]) == FALSE))
       FORTRAN_NAME(mult3d)(BaryonField[DensNum], BaryonField[field],
 			   &Size, &One, &One, &Size, &One, &One,
 			   &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
@@ -184,8 +185,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
 	  for (i = 0; i < Dim[0]; i += skipi) {
 	    i1 = i/Refinement[0];
-	    ParentGrid.BaryonField[field][pindex+i1] +=
-	      BaryonField[field][gindex+i]*weight;
+	    if (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
+	      ParentGrid.BaryonField[field][pindex+i1] +=
+		BaryonField[field][gindex+i]*weight;
 	  }
 	}
       }
@@ -222,9 +224,10 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   /* Divide all fields by mass to return to original quantity. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)
-    if (FieldTypeIsDensity(FieldType[field]) == FALSE && (
+    if ((FieldTypeIsDensity(FieldType[field]) == FALSE && (
 	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro      )       ) {
+          || HydroMethod != Zeus_Hydro      )       ) &&
+	(FieldTypeNoInterpolate(FieldType[field]) == FALSE)){
       if (ProcessorNumber == MyProcessorNumber)
 	FORTRAN_NAME(div3d)(BaryonField[DensNum], BaryonField[field],
 			    &Size, &One, &One, &Size, &One, &One,

@@ -117,6 +117,8 @@ int grid::CosmologySimulationInitializeGrid(
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
+
+  int CRNum, MachNum, PSTempNum, PSDenNum;
  
   int ExtraField[2];
  
@@ -250,6 +252,21 @@ int grid::CosmologySimulationInitializeGrid(
     }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
+    if(CRModel){
+      FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
+      if(StorePreShockFields){
+	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
+	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
+      }
+      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
+    }
+    if (UseMetallicityField) {
+      FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+      if(MultiMetals){
+	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
+	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
+      }
+    }
   }
  
   // Set the subgrid static flag
@@ -421,8 +438,20 @@ int grid::CosmologySimulationInitializeGrid(
 	                             BaryonField[H2INum][i];
       }
  
+      //Shock/Cosmic Ray Model
+      if(CRModel && ReadData)
+	for (i = 0; i < size; i++){
+	  BaryonField[MachNum][i] = tiny_number;
+	  BaryonField[CRNum][i] = tiny_number;
+	  if(StorePreShockFields){
+	    BaryonField[PSTempNum][i] = tiny_number;
+	    BaryonField[PSDenNum][i] = tiny_number;
+	  }
+	  
+	}
+      
     }
- 
+  
   // If using metallicity, set the field
  
   if (UseMetallicityField && ReadData)

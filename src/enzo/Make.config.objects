@@ -258,6 +258,7 @@ OBJS_CONFIG_LIB = \
         Grid_destructor.o \
         Grid_DetachForcingFromBaryonFields.o \
         Grid_DoubleMachInitializeGrid.o \
+	Grid_FindShocks.o \
         Grid_FastSiblingLocatorAddGrid.o \
         Grid_FastSiblingLocatorFindSiblings.o \
         Grid_FindAllStarParticles.o \
@@ -282,6 +283,7 @@ OBJS_CONFIG_LIB = \
         Grid_Group_ReadGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
+	Grid_IdentifyCRSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
@@ -350,6 +352,7 @@ OBJS_CONFIG_LIB = \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
+	Grid_ShocksHandler.o \
         Grid_SolveForPotential.o \
         Grid_SolveHydroEquations.o \
         Grid_SolveRadiativeCooling.o \
@@ -369,6 +372,7 @@ OBJS_CONFIG_LIB = \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
+	Grid_TestProblemInitializeGrid.o \
         Grid_TransferSubgridParticles.o \
         Grid_TransferSubgridStars.o \
         Grid_TurbulenceSimulationInitialize.o \
@@ -399,6 +403,7 @@ OBJS_CONFIG_LIB = \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
+	InitializeCosmicRayData.o \
         InitializeEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeMovieFile.o \
@@ -558,6 +563,7 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
         TracerParticleCreation.o \
+	TestProblemDataInitialize.o \		
         tscint1d.o \
         tscint2d.o \
         tscint3d.o \

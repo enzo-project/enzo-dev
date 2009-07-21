@@ -17,6 +17,7 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+#include "CosmicRayData.h"
 
 /* These are the different types of baryon fields. */
 
@@ -108,7 +109,13 @@ const field_type
   AccelerationField2         = 59, 
   AccelerationField3         = 60,
 
-  FieldUndefined  = 61;
+/* these are required for Sam Skillman's Shock/Cosmic ray models. */
+  Mach            = 61,
+  PreShockTemperature = 62,
+  PreShockDensity = 63,  
+  CRDensity       = 64,
+
+  FieldUndefined  = 65;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -122,7 +129,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 */
 
 #define FieldTypeIsDensity(A) (((A) >= TotalEnergy && (A) <= Velocity3) ? FALSE : TRUE)
-
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE) 
 /* These are the different types of fluid boundary conditions. */
 
 const boundary_type

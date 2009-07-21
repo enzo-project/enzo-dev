@@ -235,8 +235,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    total number density summed over ionization, etc.) */
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
-	  if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-		 			 FieldType[field] != InternalEnergy))
+ 	  if (FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
+ 	      (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+					 FieldType[field] != InternalEnergy))
 	      && (FieldType[field] < ElectronDensity)) {
 	  for (k = Start[2]; k <= End[2]; k++)
 	    for (j = Start[1]; j <= End[1]; j++)

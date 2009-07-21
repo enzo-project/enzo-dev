@@ -249,6 +249,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  CRModel                     = 0;                 // off
+  ShockMethod                 = 0;                 // temperature unsplit
+  ShockTemperatureFloor       = 1.0;               // Set to 1K
+  StorePreShockFields         = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   AdjustUVBackground          = 1;
