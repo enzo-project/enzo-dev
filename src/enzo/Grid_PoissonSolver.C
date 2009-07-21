@@ -394,8 +394,8 @@ int grid::PoissonSolverSOR2()
 
     int maxdim=max(GridDimension[0]+1, max(GridDimension[1]+1, GridDimension[2]+1));
     
-    float srad=(cos(Pi/GridDimension[0])+cos(Pi/GridDimension[1])+cos(Pi/GridDimension[2]))/3;
-  float w=2/(1+pow(1-pow(srad,2),0.5));
+    float srad=(COS(Pi/GridDimension[0])+COS(Pi/GridDimension[1])+COS(Pi/GridDimension[2]))/3;
+  float w=2/(1+POW(1-POW(srad,2),0.5));
   // fprintf(stderr, "w= %f\n", w); 
   //  w=1;
 
@@ -450,13 +450,13 @@ int grid::PoissonSolverSOR2()
 	  
 
 	
-	    sumerror+=pow(old-Phi_p[index],2); 
+	    sumerror+=POW(old-Phi_p[index],2); 
 
 	  }}}
 
       counter++;
 
-      sumerror=pow(sumerror,0.5);
+      sumerror=POW(sumerror,0.5);
       if (sumerror>0.00001) notconverge=true;
 	  
       if (debug&& counter%maxdim== maxdim-1) 
@@ -518,7 +518,7 @@ int grid::PoissonSolverMultigrid()
 
 
 
-  float tol_dim = (5.0e-4) * pow(0.1, 3-GridRank);
+  float tol_dim = (5.0e-4) * POW(0.1, 3-GridRank);
   tol_dim = max(sqrt(float(size))*1e-6, tol_dim);
 
   float norm = huge_number, mean = norm;
