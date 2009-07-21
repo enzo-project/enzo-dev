@@ -4,7 +4,8 @@
 /
 /  written by: Greg Bryan
 /  date:       June, 1996
-/  modified1:
+/  modified1:  Brian O'Shea  (fixed NFW profile stuff)
+/  date:       July  2009
 /
 /  PURPOSE: Certain problems required external acceleration fields.
 /    This routine adds them to the existing self-gravitating fields, or
@@ -66,6 +67,30 @@ int grid::ComputeAccelerationFieldExternal()
 	AccelerationField[dim][i] = 0;
     }
  
+
+  /* BWO:  if we're using the NFW halo with ProblemType = 31 ("GalaxySimulation"),
+     the PointSourceGravitationalConstant is assumed to be the mass in 
+     actually a mass in code units (that needs to be converted to CGS).  If this
+     problem type is used, make this conversion.  Otherwise, don't worry about it. */
+  double MassUnitsDouble;
+  float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
+    VelocityUnits = 1;
+  double MassUnits = 1;
+  if(PointSourceGravity == 2 && ProblemType == 31){
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+  }
+    if(ComovingCoordinates){
+      MassUnitsDouble = double(DensityUnits)*POW(double(LengthUnits),3.0);
+    } else {
+      MassUnitsDouble = double(MassUnits);
+    }
+  } else {
+    MassUnitsDouble = 1.0;
+  }
+
+
   /* -----------------------------------------------------------------
      Point Source gravity
      ----------------------------------------------------------------- */
@@ -128,19 +153,30 @@ int grid::ComputeAccelerationFieldExternal()
 		
 	      } else if (PointSourceGravity == 2) {
 		  
-		  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
-		     is mass within rs in g. */
-		  
+		/* (2) NFW Profile: CoreRadius and Constant are both in code units 
+		   if ProblemType == 31 (Galaxy simulation), otherwise they're in CGS.
+		   Need to convert the core radius to code units and the gravity constant to
+		   CGS.  (BWO, July 2009)  */
+
 		radius = sqrt(rsquared);
-		rcore = PointSourceGravityCoreRadius/LengthUnits;
+		if(ProblemType == 31){
+		  rcore = PointSourceGravityCoreRadius;  // already in code units
+		} else {
+		  rcore = PointSourceGravityCoreRadius/LengthUnits;  // convert from CGS to code
+		}
+
 		FLOAT x = radius/rcore;
-		accel = GravConst*PointSourceGravityConstant*
+
+		// BWO, July 2009: MassUnitsDouble is CGS mass units if ProblemType == 31,
+		// and 1.0 otherwise.
+		accel = GravConst*PointSourceGravityConstant*MassUnitsDouble*
 		  ((log(1.0+x  )-x  /(1.0+x  )) /
 		   (log(1.0+1.0)-1.0/(1.0+1.0))) / 
-		  POW(radius*LengthUnits, 2) / AccelUnits;
+		  POW(radius*LengthUnits, 2.0) / AccelUnits;
 
 		accel = accel/radius;  // this radius normalizes the multiplication by 
 		                         // xpos,ypos,zpos done below
+
 	      } else {
 		/* this is only reached if there are two types of point sources - 
 		   when you add a new one, this changes */
@@ -204,6 +240,7 @@ int grid::ComputeAccelerationFieldExternal()
 
 	  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
 	     is mass within rs in g. */
+
 	  
 	  radius = sqrt(rsquared);
 	  rcore = PointSourceGravityCoreRadius/LengthUnits;
@@ -213,6 +250,7 @@ int grid::ComputeAccelerationFieldExternal()
 	     (log(1.0+1.0)-1.0/(1.0+1.0))) / 
 	    POW(radius*LengthUnits, 2) / AccelUnits;
 	  accel = accel/radius;  // this radius normalizes the multiplication by xpos,ypos,zpos done below
+
 
 	} // if (PointSourceGravity == 2)
 	

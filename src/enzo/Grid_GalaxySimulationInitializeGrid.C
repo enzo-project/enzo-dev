@@ -33,6 +33,10 @@
 #define kboltz (1.381e-16)      //Boltzmann's Constant [ergK-1]
 
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+            float *TemperatureUnits, float *TimeUnits,
+            float *VelocityUnits, float *MassUnits, FLOAT Time);
+
 int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);
@@ -44,7 +48,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 float gasdev();
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, 
 	     float GalaxyMass, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
-	     float DMConcentration);
+	     float DMConcentration, FLOAT Time);
 float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
 	     FLOAT cellwidth, FLOAT z,FLOAT xpos, FLOAT ypos, FLOAT zpos);
 
@@ -67,26 +71,23 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxySimulationInflowDensity,
 					 int level)
 {
+
+ /* Return if this doesn't concern us. */
+
+ if (ProcessorNumber != MyProcessorNumber) 
+   return SUCCESS;
+
  /* declarations */
 
- int dim, i, j, k, m, field, disk, size, MetalNum;
+ int dim, i, j, k, m, field, disk, size, MetalNum, vel;
  float DiskDensity, DiskVelocityMag,dens2;
 
- /* create fields */
-
- NumberOfBaryonFields = 0;
- FieldType[NumberOfBaryonFields++] = Density;
- FieldType[NumberOfBaryonFields++] = TotalEnergy;
- if (DualEnergyFormalism)
-   FieldType[NumberOfBaryonFields++] = InternalEnergy;
- int vel = NumberOfBaryonFields;
- FieldType[NumberOfBaryonFields++] = Velocity1;
- if (GridRank > 1) 
-   FieldType[NumberOfBaryonFields++] = Velocity2;
- if (GridRank > 2)
-   FieldType[NumberOfBaryonFields++] = Velocity3;
- if (UseMetallicityField)
-   FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+ // BWO: little indexing hack used near the end of this routine 
+ if(DualEnergyFormalism){
+   vel = 3;
+ } else {
+   vel = 2;
+ }
 
 
  /* Set various units. */
@@ -102,21 +103,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
  }
 
- if(sizeof(float) < 8){
-   fprintf(stderr,"\n\n\n");
-   fprintf(stderr,"  ******************************* WARNING **************************************\n"); 
-   fprintf(stderr,"  *   Grid::GalaxySimulationInitializeGrid -- PointSourceGravityConstant is    *\n");
-   fprintf(stderr,"  *   set in this routine to a CGS value that is probably near the max of      *\n");
-   fprintf(stderr,"  *   your floating-point precision, which is %"ISYM" bytes.                         *\n",
-	   sizeof(float));
-   fprintf(stderr,"  *   I suggest that you recompile with precision-64 instead of precision-32,  *\n");
-   fprintf(stderr,"  *   because otherwise this code is VERY likely to crash in the hydro solver  *\n");
-   fprintf(stderr,"  *                 --Brian O'Shea                                             *\n");
-   fprintf(stderr,"  ******************************************************************************\n");
-   fprintf(stderr,"\n\n\n");
- }
-
-
  /* Set up inflow */
  if (GalaxySimulationInflowTime > 0.0){
    TimeActionType[0] = 2;
@@ -124,10 +110,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    TimeActionTime[0] = GalaxySimulationInflowTime*1e9/TimeUnits;
  }
 
- /* Return if this doesn't concern us. */
 
- if (ProcessorNumber != MyProcessorNumber) 
-   return SUCCESS;
 
  /* Set densities */
 
@@ -222,9 +205,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    
 	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0)
 
-	    DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration);
+	    DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 
-	    // printf("DiskVelocityMag = %e\n",DiskVelocityMag);
 
 	    if (dim == 0)
 
@@ -312,7 +294,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 }
 
 
-float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float GalaxyMass, FLOAT ScaleHeightR, FLOAT ScaleHeightz, float DMConcentration)
+float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float GalaxyMass, FLOAT ScaleHeightR, FLOAT ScaleHeightz, float DMConcentration, FLOAT Time)
 {
 
  double OMEGA=OmegaLambdaNow+OmegaMatterNow;                 //Flat Universe
@@ -342,11 +324,37 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
      else{
 	M_Tot=M_DM;
      }
- // Set the point source gravity parameters.  This is the DM mass (in g)
- //   within rs.  Also set the core radius to rs in cm.
 
-     PointSourceGravityConstant = (M_200/f_C)*(log(1.0+1.0)-1.0/(1.0+1.0))*1000.0;
-     PointSourceGravityCoreRadius = r_s*100.0;
+  float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
+    TemperatureUnits=1, MassUnits=1;
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
+
+  double MassUnitsDouble=1.0;
+
+  if(ComovingCoordinates)
+    MassUnitsDouble = double(DensityUnits)*POW(double(LengthUnits), 3.0);
+
+  // Set the point source gravity parameters.  This is the DM mass (in g)
+  //   within rs.  The core radius to rs in cm.
+  //
+  // BWO 10 July 2009: Both of these values are now converted to code units, because 
+  // otherwise the values go over 32-bit precision.  This is used in
+  // Grid::ComputeAccelerationFieldExternal, and converted back to CGS where needed.
+  //
+
+  PointSourceGravityConstant = (M_200/f_C)*(log(1.0+1.0)-1.0/(1.0+1.0))*1000.0 / MassUnitsDouble;
+  PointSourceGravityCoreRadius = r_s*100.0 / LengthUnits;
+
+  /*
+  fprintf(stderr,"Grid::GalaxySimulationInitializeGrid:  %d  %e  %e\n",MyProcessorNumber,MassUnitsDouble, LengthUnits);
+  fprintf(stderr,"  PointSourceGravityConstant = %e  %d\n",PointSourceGravityConstant,MyProcessorNumber);
+  fprintf(stderr,"  PointSourceGravityCoreRadius = %e  %d\n",PointSourceGravityCoreRadius,MyProcessorNumber);
+  */
 
  // Force per unit mass on disk (i.e. acceleration) [ms-2]
 
