@@ -96,17 +96,19 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     ENZO_FAIL("");
   }
+  
 
   /* Find Multi-species fields. */
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
-				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
-				  DIINum, HDINum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
-  }
+  if (MultiSpecies) 
+    if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
+				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
+				    DIINum, HDINum) == FAIL) {
+      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
+      ENZO_FAIL("");
+    }
 
   /***********************************************************************
                                  SUPERNOVAE
