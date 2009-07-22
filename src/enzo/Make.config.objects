@@ -563,7 +563,6 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
         TracerParticleCreation.o \
-	TestProblemDataInitialize.o \		
         tscint1d.o \
         tscint2d.o \
         tscint3d.o \
