@@ -57,7 +57,7 @@ int ReadUnits(FILE *fptr)
   if (GlobalMassUnits == 1.0)
     GlobalMassUnits = (double) (double(GlobalDensityUnits) * pow(GlobalLengthUnits,3));
   else if (GlobalDensityUnits == 1.0)
-    GlobalDensityUnits = (float) (double(GlobalMassUnits) / pow(GlobalLengthUnits,3));
+    GlobalDensityUnits = (double) (double(GlobalMassUnits) / pow(GlobalLengthUnits,3));
 
   /* When Gravity is used one does not have the freedom to set Length, Density and time units */
   /* We blindly assume here  that if you specified the DensityUnits you want to set the time units

@@ -188,7 +188,9 @@ enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
 const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
-  BlackHole = PARTICLE_TYPE_BLACK_HOLE;
+  BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  tMBH = PARTICLE_TYPE_MBH_THERMAL,
+  rMBH = PARTICLE_TYPE_MBH_RADIATIVE;
 
 /* Define a float/int union. */
 

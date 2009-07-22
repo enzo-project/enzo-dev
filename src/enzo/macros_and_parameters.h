@@ -392,16 +392,18 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 8
+#define NUM_PARTICLE_TYPES 10
 
-#define PARTICLE_TYPE_GAS          0
-#define PARTICLE_TYPE_DARK_MATTER  1
-#define PARTICLE_TYPE_STAR         2
-#define PARTICLE_TYPE_TRACER       3
-#define PARTICLE_TYPE_MUST_REFINE  4
-#define PARTICLE_TYPE_SINGLE_STAR  5
-#define PARTICLE_TYPE_BLACK_HOLE   6
-#define PARTICLE_TYPE_CLUSTER      7
+#define PARTICLE_TYPE_GAS           0
+#define PARTICLE_TYPE_DARK_MATTER   1
+#define PARTICLE_TYPE_STAR          2
+#define PARTICLE_TYPE_TRACER        3
+#define PARTICLE_TYPE_MUST_REFINE   4
+#define PARTICLE_TYPE_SINGLE_STAR   5
+#define PARTICLE_TYPE_BLACK_HOLE    6
+#define PARTICLE_TYPE_CLUSTER       7
+#define PARTICLE_TYPE_MBH_THERMAL   8
+#define PARTICLE_TYPE_MBH_RADIATIVE 9
 
 /* Star particle handling */
 

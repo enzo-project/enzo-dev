@@ -40,7 +40,9 @@ int grid::FindNewStarParticles(int level)
   for (i = 0; i < NumberOfParticles; i++)
     if (ParticleType[i] == -PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == -PARTICLE_TYPE_BLACK_HOLE ||
-	ParticleType[i] == -PARTICLE_TYPE_CLUSTER) {
+	ParticleType[i] == -PARTICLE_TYPE_CLUSTER) ||
+	ParticleType[i] == -PARTICLE_TYPE_MBH_THERMAL ||
+	ParticleType[i] == -PARTICLE_TYPE_MBH_RADIATIVE) {
 
       // Check if it already exists (wasn't activated on the last
       // timestep, usually because of insufficient mass)
