@@ -117,9 +117,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   // be at 3/4 the radius of the shock front (see Ostriker & McKee
   // 1988 or Tenorio-Tagle 1996).
 
-  const float MetalRadius = 0.75;
+  //const float MetalRadius = 0.75;
+  const float MetalRadius = 1.0;
   float ionizedFraction = 0.999;  // Assume supernova is ionized
   float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
+  float outerRadius2;
 
   // Correct for exaggerated influence radius for pair-instability supernovae
   if (cstar->FeedbackFlag == SUPERNOVA)
@@ -132,25 +134,28 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   if (BoxVolume > BubbleVolume) {
     //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
     EjectaDensity *= BubbleVolume / BoxVolume;
+    EjectaMetalDensity *= BubbleVolume / BoxVolume;
     EjectaThermalEnergy *= BubbleVolume / BoxVolume;
   }
-  if (cstar->level > level) {
+//  if (cstar->level > level) {
 //    printf("Reducing ejecta density and energy by 10%% on "
 //	   "level %"ISYM" to avoid crashing.\n", level);
-    EjectaDensity *= 0.1;
-    EjectaThermalEnergy *= 0.1;
-  }
+//    EjectaDensity *= 0.1;
+//    EjectaMetalDensity *= 0.1;
+//    EjectaThermalEnergy *= 0.1;
+//  }
 
   // Correct for smaller enrichment radius
   EjectaMetalDensity *= pow(MetalRadius, -3.0);
   PrimordialDensity = EjectaDensity - EjectaMetalDensity;
   fh = CoolData.HydrogenFractionByMass;
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
+  outerRadius2 = 1.2 * 1.2 * radius * radius;
 
   if (cstar->FeedbackFlag == SUPERNOVA || cstar->FeedbackFlag == CONT_SUPERNOVA) {
 
-//    printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+    //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+    //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -176,7 +181,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	  delx = min(delx, DomainWidth[0]-delx);
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
-	  if (radius2 <= 1.2*1.2*radius*radius) {
+	  if (radius2 <= outerRadius2) {
 
 	    r1 = sqrt(radius2) / radius;
 	    norm = 0.98;
@@ -219,7 +224,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    //increase = BaryonField[DensNum][index] / OldDensity;
 	    if (ZField == TRUE) {
 	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[ZNum][index] + EjectaMetalDensity) /
+		metallicity = (BaryonField[ZNum][index] + 
+			       factor*EjectaMetalDensity) /
 		  BaryonField[DensNum][index];
 	      } else {
 		metallicity = BaryonField[ZNum][index] / BaryonField[DensNum][index];
@@ -231,7 +237,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    fhez = (1-fh) * (1-metallicity);
 
 	    if (MultiSpecies) {
-	      BaryonField[DeNum][index] = 
+	      BaryonField[DeNum][index] = (1-metallicity) *
 		BaryonField[DensNum][index] * ionizedFraction;
 	      BaryonField[HINum][index] = 
 		BaryonField[DensNum][index] * fhz * (1-ionizedFraction);
