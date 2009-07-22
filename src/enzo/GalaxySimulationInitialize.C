@@ -25,6 +25,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -63,7 +64,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   
   if (MetaData.TopGridRank != 3) {
     printf("Cannot do GalaxySimulation in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   /* set default parameters */
@@ -92,6 +93,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   
   FLOAT GalaxySimulationSubgridLeft, GalaxySimulationSubgridRight;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+  float ZeroBField[3] = {0.0, 0.0, 0.0};
 
   int NumberOfSubgridZones[MAX_DIMENSION],
     SubgridDims[MAX_DIMENSION];
@@ -191,7 +193,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr,"    GalaxySimulationInitialRefinementLevel = %"ISYM"\n",GalaxySimulationInitialRefinementLevel);
     fprintf(stderr,"    MaximumRefinementLevel = %"ISYM"\n", MaximumRefinementLevel);
     fprintf(stderr,"\nexiting...\n");
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   if(GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight){
@@ -199,16 +201,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr,"  GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight\n");
     fprintf(stderr,"  GalaxySimulationSubgridLeft = %"GOUTSYM"\n",GalaxySimulationSubgridLeft);
     fprintf(stderr,"  GalaxySimulationSubgridRight = %"GOUTSYM"\n",GalaxySimulationSubgridRight);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   // Initialize the top grid
   if (TopGrid.GridData->InitializeUniformGrid(GalaxySimulationUniformDensity,
 					      GalaxySimulationUniformEnergy,
 					      GalaxySimulationUniformEnergy,
-					      GalaxySimulationUniformVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+					      GalaxySimulationUniformVelocity,
+                          ZeroBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
 
   /* Create as many subgrids as there are refinement levels
@@ -270,11 +272,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       Subgrid[lev]->GridData->PrepareGrid(MetaData.TopGridRank, SubgridDims,
 				     LeftEdge, RightEdge, 0);
       if (Subgrid[lev]->GridData->InitializeUniformGrid(GalaxySimulationUniformDensity,
-						   GalaxySimulationUniformEnergy,
-						   GalaxySimulationUniformEnergy,
-					        GalaxySimulationUniformVelocity) == FAIL) {
-	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+                           GalaxySimulationUniformEnergy,
+                           GalaxySimulationUniformEnergy,
+                           GalaxySimulationUniformVelocity,
+                           ZeroBField) == FAIL) {
+		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
       }
 
       /* set up the initial galaxy area on the finest resolution subgrid */
@@ -295,8 +297,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,0)
 	    == FAIL) {
-	  fprintf(stderr, "Error in GalaxySimulationInitialize[Sub]Grid.\n");
-	  return FAIL;
+	  	  ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}
     }
     else{
@@ -310,8 +311,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
 				       *(Subgrid[lev-1]->GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
 
   /* set up the root grid */
@@ -319,8 +319,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (GalaxySimulationInitialRefinementLevel > 0) {
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
   }
   else
@@ -338,8 +337,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 							 GalaxySimulationUseMetallicityField,
 							 GalaxySimulationInflowTime,
 							 GalaxySimulationInflowDensity,0) == FAIL) {
-      fprintf(stderr, "Error in RotatingCylinderInitializeGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in RotatingCylinderInitializeGrid.");
     }
 
   /* Convert minimum initial overdensity for refinement to mass

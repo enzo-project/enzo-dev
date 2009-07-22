@@ -99,8 +99,8 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
-                         10 = FlagCellsToBeRefinedByMustRefineRegion
-			 11 = FlagCellsToBeRefinedByMetallicity
+                         12 = FlagCellsToBeRefinedByMustRefineRegion
+			 13 = FlagCellsToBeRefinedByMetallicity
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];

@@ -177,9 +177,9 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       }
       break;
 
-      /* ==== METHOD 10: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
+      /* ==== METHOD 12: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
  
-    case 10:
+    case 12:
  
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
       if (NumberOfFlaggedCells < 0) {
@@ -189,9 +189,9 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       break;
  
 
-      /* ==== METHOD 11: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
+      /* ==== METHOD 13: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
  
-    case 11:
+    case 13:
  
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
       if (NumberOfFlaggedCells < 0) {

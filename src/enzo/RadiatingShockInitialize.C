@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -93,6 +94,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   FLOAT RadiatingShockSubgridLeft, RadiatingShockSubgridRight;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT RadiatingShockCenterPosition[MAX_DIMENSION];
+  float ZeroBField[3] = {0.0, 0.0, 0.0};
 
   /* local declarations */
  
@@ -104,7 +106,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (MetaData.TopGridRank < 2 || MetaData.TopGridRank > 3) {
     printf("Cannot do RadiatingShock in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    return FAIL;
+    ENZO_FAIL("");
   }
  
   /* There are many parameters:  geometry (cylindrical or spherical symmetry),
@@ -285,8 +287,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+        ENZO_FAIL("Error in GetUnits.");
   }
 
   double RadiatingShockEnergyDouble;
@@ -321,7 +322,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     // Make sure total mass is not zero.
     if ((TestProblemData.InitialHydrogenMass <= 0.0) && (TestProblemData.InitialHeliumMass <= 0.0)) {
       fprintf(stderr,"Hydrogen and helium mass cannot both be zero.  That would be zero mass in the center.\n");
-      return FAIL;
+      ENZO_FAIL("");
     }
 
     // 2D
@@ -430,9 +431,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TopGrid.GridData->InitializeUniformGrid(RadiatingShockOuterDensity,
 					      RadiatingShockTotalEnergy,
 					      RadiatingShockTotalEnergy,
-					      RadiatingShockVelocity) == FAIL) {
-    fprintf(stderr, "Error in InitializeUniformGrid.\n");
-    return FAIL;
+					      RadiatingShockVelocity,
+                          ZeroBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
   }
  
   /* Create as many subgrids as there are refinement levels
@@ -494,9 +495,9 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       if (Subgrid[lev]->GridData->InitializeUniformGrid(RadiatingShockOuterDensity,
 						   RadiatingShockTotalEnergy,
 						   RadiatingShockTotalEnergy,
-						   RadiatingShockVelocity) == FAIL) {
-	fprintf(stderr, "Error in InitializeUniformGrid (subgrid).\n");
-	return FAIL;
+						   RadiatingShockVelocity,
+                           ZeroBField) == FAIL) {
+		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
       }
  
       /* set up the initial explosion area on the finest resolution subgrid */
@@ -519,8 +520,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				    RadiatingShockRandomSeedInitialize,
  				    RadiatingShockCenterPosition) 
 	    == FAIL) {
-	  fprintf(stderr, "Error in RadiatingShockInitialize[Sub]Grid.\n");
-	  return FAIL;
+	  	  ENZO_FAIL("Error in RadiatingShockInitialize[Sub]Grid.");
 	}
 
       RadiatingShockRandomSeedInitialize = 1;  // random number generator is now seeded - don't do it for topgrid
@@ -536,8 +536,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
 				       *(Subgrid[lev-1]->GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
 
   /* set up the root grid */
@@ -545,8 +544,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (MaximumRefinementLevel > 0) {
     if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
 	== FAIL) {
-      fprintf(stderr, "Error in ProjectSolutionToParentGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
   }
   else
@@ -566,8 +564,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				    RadiatingShockVelocityZero,
 				    RadiatingShockRandomSeedInitialize,
  				    RadiatingShockCenterPosition ) == FAIL) {
-      fprintf(stderr, "Error in RadiatingShockInitializeGrid.\n");
-      return FAIL;
+            ENZO_FAIL("Error in RadiatingShockInitializeGrid.");
     }
 
   /* set up field names and units -- NOTE: these absolutely MUST be in 

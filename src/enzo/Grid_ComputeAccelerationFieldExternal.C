@@ -74,13 +74,14 @@ int grid::ComputeAccelerationFieldExternal()
      problem type is used, make this conversion.  Otherwise, don't worry about it. */
   double MassUnitsDouble;
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
-    VelocityUnits = 1;
+    VelocityUnits = 1, AccelUnits = 1;
   double MassUnits = 1;
-  if(PointSourceGravity == 2 && ProblemType == 31){
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, &MassUnits,  Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
+  AccelUnits = LengthUnits/TimeUnits/TimeUnits;
+  if(PointSourceGravity == 2 && ProblemType == 31){
     if(ComovingCoordinates){
       MassUnitsDouble = double(DensityUnits)*POW(double(LengthUnits),3.0);
     } else {
@@ -105,8 +106,7 @@ int grid::ComputeAccelerationFieldExternal()
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	  == FAIL) {
-	fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
       }
  
 
