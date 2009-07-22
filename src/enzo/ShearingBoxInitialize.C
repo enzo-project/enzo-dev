@@ -102,7 +102,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "ShearingBoxGeometry = %"FSYM, &ShearingGeometry);  
  
   } 
-  printf("Geo %"FSYM, ShearingGeometry);
+ 
 
 
   if (TopGrid.GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, InitialMagneticFieldConfiguration)

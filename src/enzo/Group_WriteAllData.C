@@ -96,6 +96,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
 		 ExternalBoundary *Exterior, FLOAT WriteTime = -1)
 {
+
+
  
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
   char dumpdirname[MAX_LINE_LENGTH];
@@ -164,6 +166,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   local = 0;
   global = 0;
  
+
   if (MetaData.LocalDir != NULL)
   {
      local = 1;
@@ -320,25 +323,31 @@ int Group_WriteAllData(char *basename, int filenumber,
   strcpy(groupfilename, name);
   strcat(groupfilename, CPUSuffix);
   strcat(groupfilename, pid);
+  
  
+
   if (debug)
     fprintf(stderr, "WriteAllData: writing group file %s\n", groupfilename);
  
+
+
 //  Synchronization point for directory creation
  
 #ifdef USE_MPI
-  iot1a = MPI_Wtime();
+  iot1a = MPI_Wtime(); 
   CommunicationBarrier();
   dc_start = MPI_Wtime();
-  iot1b = MPI_Wtime();
+  iot1b = MPI_Wtime();  
 #endif /* USE_MPI */
+
+
  
 //  Get cwd
 //  Generate command
 //  Execute system call
  
     if ( local )
-    {
+    { 
 
       MPI_Arg mpi_size;
       MPI_Arg mpi_rank;
@@ -394,7 +403,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     if ( global )
     {
       if ( MyProcessorNumber == ROOT_PROCESSOR )
-      {
+      { 
  
         if ( (cptr = strstr(basename, MetaData.DataDumpName)) ) {
           if (MetaData.DataDumpDir != NULL) {
@@ -424,6 +433,8 @@ int Group_WriteAllData(char *basename, int filenumber,
  
       }
     }
+
+
   
 //  fprintf(stderr, "Sync point ok\n");
  
@@ -487,6 +498,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     fclose(fptr);
   
   }
+
  
   // Output Boundary condition info
  
@@ -555,6 +567,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 
 #endif
+
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((mptr = fopen(memorymapname, "w")) == NULL) {
@@ -719,6 +732,8 @@ void DeleteGridHierarchy(HierarchyEntry *GridEntry)
  
   delete GridEntry;
  
+
+  printf("Exit WriteAllData \n");
   return;
 }
 */

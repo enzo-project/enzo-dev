@@ -62,7 +62,7 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 
   FLOAT Lx, Ly, ShearingOffset;
 
-  if (ShearingBoundaryDirection) { // For shearing box we have another offset in the y direction
+  if (ShearingBoundaryDirection>-1) { // For shearing box we have another offset in the y direction
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
@@ -84,32 +84,34 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 	/* This unfortunate bit of logic is to make sure we should be
 	   applying periodic bc's in this direction. */
  
-	if ((i != +1 || (LeftFaceBoundaryCondition[0] == periodic &&
+
+
+	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
 			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
-	    (i != -1 || (RightFaceBoundaryCondition[0] == periodic &&
+	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
 			 CellLeftEdge[0][GridDimension[0]-1] >
 			 DomainRightEdge[0])                        ) &&
-	    (j != +1 || (LeftFaceBoundaryCondition[1] == periodic &&
+	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
 			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
-	    (j != -1 || (RightFaceBoundaryCondition[1] == periodic &&
+	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
 			 CellLeftEdge[1][GridDimension[1]-1] >
 			 DomainRightEdge[1])                        ) &&
-	    (k != +1 || (LeftFaceBoundaryCondition[2] == periodic &&
+	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
 			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
-	    (k != -1 || (RightFaceBoundaryCondition[2] == periodic &&
+	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
 			 CellLeftEdge[2][GridDimension[2]-1] >
 			 DomainRightEdge[2])                        )   ) {
  
 
 	  if (ShearingBoundaryDirection!=-1){
 	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
-		  (j== +1 && LeftFaceBoundaryCondition[2] == shearing) ||
-		  (k== +1 && LeftFaceBoundaryCondition[3] == shearing)){
+		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
+		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
 		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
 	      }
 	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
-		  (j== -1 && RightFaceBoundaryCondition[2] == shearing) ||
-		  (k== -1 && RightFaceBoundaryCondition[3] == shearing)){
+		  (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
+		  (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
 		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
 	      }
 	    }
@@ -128,8 +130,11 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
 	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
 	  EdgeOffset[0] = FLOAT(i)*(DomainRightEdge[0] - DomainLeftEdge[0]);
- 
+	 
 	} // end: if (periodic bc's)
+
+
+ 
  
       } // end: loop of i
     } // end: loop of j

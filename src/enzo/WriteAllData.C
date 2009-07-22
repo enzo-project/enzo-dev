@@ -86,6 +86,7 @@ int WriteAllData(char *basename, int filenumber,
 		 ExternalBoundary *Exterior, FLOAT WriteTime = -1)
 {
  
+ 
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
   char dumpdirname[MAX_LINE_LENGTH];
   char dumpdirroot[MAX_LINE_LENGTH];
@@ -659,6 +660,8 @@ void DeleteGridHierarchy(HierarchyEntry *GridEntry)
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;
+ 
+
  
   return;
 }
