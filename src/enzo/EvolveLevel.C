@@ -442,16 +442,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			      level, MetaData, Exterior, LevelArray[level]);
+			  level, MetaData, Exterior, LevelArray[level]);
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                              Exterior, LevelArray[level]);
+			  Exterior, LevelArray[level]);
 #endif
 
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			     level, AllStars);
+			 level, AllStars);
+
     /* If cosmology, then compute grav. potential for output if needed. */
 
     //dcc cut second potential cut: Duplicate?
@@ -570,10 +571,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    if (dtThisLevelSoFar < dtLevelAbove) {   
-      
+    if (dtThisLevelSoFar < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level);
-    }
 
     /* Count up number of grids on this level. */
 

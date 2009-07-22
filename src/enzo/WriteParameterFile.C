@@ -120,16 +120,20 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "CycleLastHistoryDump = %"ISYM"\n", MetaData.CycleLastHistoryDump);
   fprintf(fptr, "CycleSkipHistoryDump = %"ISYM"\n\n",
 	  MetaData.CycleSkipHistoryDump);
+
+
+  fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
 
-  fprintf(fptr, "SubcycleNumber = %"ISYM"\n", MetaData.SubcycleNumber);
-  fprintf(fptr, "SubcycleSkipDataDump = %"ISYM"\n", MetaData.SubcycleSkipDataDump);
-  fprintf(fptr, "SubcycleLastDataDump = %"ISYM"\n", MetaData.SubcycleLastDataDump);
- 
-  fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
+  fprintf(fptr, "SubcycleNumber          = %"ISYM"\n", MetaData.SubcycleNumber);
+  fprintf(fptr, "SubcycleSkipDataDump    = %"ISYM"\n", 
+	  MetaData.SubcycleSkipDataDump);
+  fprintf(fptr, "SubcycleLastDataDump    = %"ISYM"\n", 
+	  MetaData.SubcycleLastDataDump);
+   fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
 	  MetaData.OutputFirstTimeAtLevel);
-  fprintf(fptr, "StopFirstTimeAtLevel = %"ISYM"\n\n",
+  fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
@@ -146,15 +150,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RedshiftDumpName    = %s\n\n", MetaData.RedshiftDumpName);
  
   if (MetaData.RestartDumpDir != NULL)
-    fprintf(fptr, "RestartDumpDir      = %s\n", MetaData.RestartDumpDir);
+    fprintf(fptr, "RestartDumpDir        = %s\n", MetaData.RestartDumpDir);
   if (MetaData.DataDumpDir != NULL)
-    fprintf(fptr, "DataDumpDir         = %s\n", MetaData.DataDumpDir);
+    fprintf(fptr, "DataDumpDir           = %s\n", MetaData.DataDumpDir);
   if (MetaData.HistoryDumpDir != NULL)
-    fprintf(fptr, "HistoryDumpDir      = %s\n", MetaData.HistoryDumpDir);
+    fprintf(fptr, "HistoryDumpDir        = %s\n", MetaData.HistoryDumpDir);
   if (MetaData.TracerParticleDumpDir != NULL)
     fprintf(fptr, "TracerParticleDumpDir = %s\n", MetaData.TracerParticleDumpDir);
   if (MetaData.RedshiftDumpDir != NULL)
-    fprintf(fptr, "RedshiftDumpDir     = %s\n\n", MetaData.RedshiftDumpDir);
+    fprintf(fptr, "RedshiftDumpDir       = %s\n\n", MetaData.RedshiftDumpDir);
  
   if (MetaData.LocalDir != NULL)
     fprintf(fptr, "LocalDir            = %s\n", MetaData.LocalDir);
@@ -165,7 +169,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (CubeDumps[dim] != NULL)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
 
-  fprintf(fptr,"LoadBalancing         = %"ISYM"\n",LoadBalancing);
+  fprintf(fptr,"LoadBalancing       = %"ISYM"\n",LoadBalancing);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)
     if (TimeActionType[dim] > 0) {
@@ -300,8 +304,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "DualEnergyFormalismEta1     = %e\n", DualEnergyFormalismEta1);
   fprintf(fptr, "DualEnergyFormalismEta2     = %e\n", DualEnergyFormalismEta2);
   fprintf(fptr, "ParticleCourantSafetyNumber = %"FSYM"\n\n", ParticleCourantSafetyNumber);
-  fprintf(fptr, "RandomForcing               = %"ISYM"\n", RandomForcing);     //AK
-  fprintf(fptr, "RandomForcingEdot           = %"GSYM"\n", RandomForcingEdot); //AK
+  fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
+  fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
@@ -390,7 +394,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 #endif
  
 
-  fprintf(fptr, "SlopeFlaggingFields = "
+  fprintf(fptr, "SlopeFlaggingFields ="
 	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
 	  SlopeFlaggingFields[0], 
 	  SlopeFlaggingFields[1],
@@ -398,7 +402,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  SlopeFlaggingFields[3],
 	  SlopeFlaggingFields[4]);
 
-  fprintf(fptr, "MinimumSlopeForRefinement = "
+  fprintf(fptr, "MinimumSlopeForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumSlopeForRefinement[0],
 	  MinimumSlopeForRefinement[1],
@@ -409,7 +413,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumSlopeForRefinement[6]);
 
 
-  fprintf(fptr, "MinimumOverDensityForRefinement = "
+  fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumOverDensityForRefinement[0],
 	  MinimumOverDensityForRefinement[1],
@@ -419,7 +423,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumOverDensityForRefinement[5],
 	  MinimumOverDensityForRefinement[6]);
 
-  fprintf(fptr, "MinimumMassForRefinement = "
+  fprintf(fptr, "MinimumMassForRefinement ="
 	  " %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM"\n",
 	  MinimumMassForRefinement[0],
 	  MinimumMassForRefinement[1],
@@ -429,7 +433,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumMassForRefinement[5],
 	  MinimumMassForRefinement[6]);
 
-  fprintf(fptr, "MinimumMassForRefinementLevelExponent = "
+  fprintf(fptr, "MinimumMassForRefinementLevelExponent ="
 	  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
 	  MinimumMassForRefinementLevelExponent[0],
 	  MinimumMassForRefinementLevelExponent[1],
@@ -559,11 +563,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   /* Poisson Solver */
 
-  fprintf(fptr, "DivergenceCleaningBoundaryBuffer        = %"ISYM"\n\n",
+  fprintf(fptr, "DivergenceCleaningBoundaryBuffer = %"ISYM"\n",
 	  DivergenceCleaningBoundaryBuffer);
-  fprintf(fptr, "UseDivergenceCleaning = %d\n", UseDivergenceCleaning);
-  fprintf(fptr, "DivergenceCleaningThreshold = %g\n", DivergenceCleaningThreshold);
-  fprintf(fptr, "PoissonApproximationThreshold = %g\n", PoissonApproximationThreshold);
+  fprintf(fptr, "UseDivergenceCleaning            = %d\n", UseDivergenceCleaning);
+  fprintf(fptr, "DivergenceCleaningThreshold      = %g\n", 
+	  DivergenceCleaningThreshold);
+  fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
+	  PoissonApproximationThreshold);
 
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);
