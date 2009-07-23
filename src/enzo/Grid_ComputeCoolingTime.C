@@ -301,8 +301,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &TemperatureUnits,&LengthUnits,
        &aUnits,&DensityUnits,&TimeUnits,&Gamma);
     if (result == FAIL )  {
-      fprintf(stderr,"Error in GadgetCoolingTime.  Exiting.\n");
-      return FAIL;
+      ENZO_FAIL("Error in GadgetCoolingTime.  Exiting.");
     }
   } else { // if not multispecies or Gadget cooling, must be generic cooling.
     FORTRAN_NAME(cool_time)(

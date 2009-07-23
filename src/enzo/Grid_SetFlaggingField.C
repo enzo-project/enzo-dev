@@ -172,8 +172,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   case 11:
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
       if (NumberOfFlaggedCells < 0) {
-	fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByResistiveLength.\n");
-	return FAIL;
+		ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
       }
       break;
 
@@ -183,8 +182,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
       if (NumberOfFlaggedCells < 0) {
-        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMustRefineRegion.\n");
-        return FAIL;
+        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
       }
       break;
  
@@ -195,8 +193,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
       NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
       if (NumberOfFlaggedCells < 0) {
-        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMetallicity.\n");
-        return FAIL;
+        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
       }
       break;
  

@@ -841,8 +841,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     // initialize Gadget equilibrium cooling
     if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in InitializeGadgetEquilibriumCoolData.\n");
-      return FAIL;
+            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
     } 
   }
 
@@ -866,8 +865,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (MetalCooling == CLOUDY_METAL_COOLING) {
     if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in InitializeCloudyCooling.\n");
-      return FAIL;
+      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
 

@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,10 +48,8 @@ int InitializeGadgetEquilibriumCoolData(FLOAT Time)
 
   FLOAT a = 1.0, dadt, redshift;
   
-  if (CosmologyComputeExpansionFactor(Time, &a, &dadt) 
-      == FAIL) {
-    fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-    return FAIL;
+  if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
+    ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
   }
 
   redshift = 1.0 / a - 1.0;

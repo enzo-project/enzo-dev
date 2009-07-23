@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -52,8 +53,7 @@ int grid::GadgetComputeTemperatureDEF(FLOAT time, float *temperature)
   /* Error Check */
 
   if (time < OldTime || time > Time) {
-    fprintf(stderr, "requested time is outside available range.\n");
-    return FAIL;
+    ENZO_FAIL("requested time is outside available range.");
   }
 
   /* Compute interpolation coefficients. */
@@ -76,8 +76,7 @@ int grid::GadgetComputeTemperatureDEF(FLOAT time, float *temperature)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
   // get physical units
@@ -86,8 +85,7 @@ int grid::GadgetComputeTemperatureDEF(FLOAT time, float *temperature)
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    return FAIL;
+    ENZO_FAIL("Error in GetUnits.");
   }
 
   /* Loop over the grid, compute the thermal energy, then the temperature,

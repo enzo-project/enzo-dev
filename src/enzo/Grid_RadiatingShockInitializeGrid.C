@@ -16,6 +16,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -85,15 +86,13 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      return FAIL;
+            ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
   // If using Simon Glover's non-equilibrium cooling, set up fields.
@@ -130,8 +129,7 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
 
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
-      fprintf(stderr, "Error in GetUnits.\n");
-      return FAIL;
+            ENZO_FAIL("Error in GetUnits.");
     }
  
     sedovradius = new double[numbins];

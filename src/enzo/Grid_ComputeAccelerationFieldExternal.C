@@ -180,8 +180,7 @@ int grid::ComputeAccelerationFieldExternal()
 	      } else {
 		/* this is only reached if there are two types of point sources - 
 		   when you add a new one, this changes */
-		printf("should never get here! in Grid::ComputeAccelFieldExternal\n");
-		return FAIL;
+		ENZO_FAIL("should never get here! in Grid::ComputeAccelFieldExternal");
 	      }
 
 	      /* Apply force. */
@@ -201,8 +200,7 @@ int grid::ComputeAccelerationFieldExternal()
     /* DO PARTICLES HERE! */
 
     if (NumberOfParticles > 0 && GridRank != 3) {
-      fprintf(stderr, "PointSourceGravity assumes 3D\n");
-      return FAIL;
+        ENZO_FAIL("PointSourceGravity assumes 3D");
     }
       
     if (PointSourceGravity == 1 || PointSourceGravity == 2)

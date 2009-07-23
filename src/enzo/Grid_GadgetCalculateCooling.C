@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -213,7 +214,7 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 	
 	if(u_new < 0.0){
 	  printf("GadgetCalculateCooling:  incorrect internal energy calculated:  %e  Exiting.\n",u_new);
-	  return FAIL;
+	  ENZO_FAIL("");
 	}	
 	
 	/* store the new energy value - basically reverse the process above.

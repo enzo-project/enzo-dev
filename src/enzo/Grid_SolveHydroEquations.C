@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
-#include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -140,8 +139,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 				      OIINum,SiINum,SiIINum,SiIIINum,CHINum,CH2INum,
 				      CH3IINum,C2INum,COINum,HCOIINum,OHINum,H2OINum,
 				      O2INum) == FAIL) {
-	fprintf(stderr,"Error in IdentifyGloverSpeciesFields.\n");
-	return FAIL;
+	ENZO_FAIL("Error in IdentifyGloverSpeciesFields.");
       }
 
       colnum[NumberOfColours++] = HIINum;

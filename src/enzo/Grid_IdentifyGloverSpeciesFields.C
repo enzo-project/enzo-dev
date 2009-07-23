@@ -13,6 +13,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -154,7 +155,7 @@ int grid::IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
     fprintf(stderr,"Error identifying species for GloverChemistryModel = %"ISYM".\n",
 	    GloverChemistryModel);
 
-    return FAIL;
+    ENZO_FAIL("");
   }
 
   return SUCCESS;
