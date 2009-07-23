@@ -46,6 +46,9 @@ void Star::ActivateNewStar(FLOAT Time)
     case BlackHole:
       // nothing to do
       break;
+    case MBH:
+      // nothing to do; because it usually is already created when the simulations starts
+      break;      
     } // ENDSWITCH type
   } // ENDIF FORMATION
 

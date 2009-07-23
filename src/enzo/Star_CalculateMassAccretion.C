@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -30,7 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::CalculateMassAccretion(void)
 {
 
-  if (this->type != BlackHole || this->CurrentGrid == NULL)
+  if ((this->type != BlackHole && this->type != MBH) || this->CurrentGrid == NULL)
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;

@@ -44,8 +44,7 @@ int grid::FindAllStarParticles(int level)
     if (ParticleType[i] == PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
-	ParticleType[i] == PARTICLE_TYPE_MBH_THERMAL ||
-	ParticleType[i] == PARTICLE_TYPE_MBH_RADIATIVE) {
+	ParticleType[i] == PARTICLE_TYPE_MBH) {
 
       NewStar = new Star(this, i, level);
       InsertStarAfter(Stars, NewStar);

@@ -126,6 +126,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 //	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
 //	       PhotonTime-RS->CreationTime+dtPhoton);
       break;
+    case MBH:
+      break;
     } // ENDSWITCH type
 
     int ebin;

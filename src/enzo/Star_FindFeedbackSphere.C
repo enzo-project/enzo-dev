@@ -4,7 +4,7 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: 
 /
 /  PURPOSE: When we remove baryons from the grid to add to the star
 /           particle, look for a sphere that contains twice its mass.

@@ -333,6 +333,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
+
+  MBHUseMetalField         = FALSE;
+  MBHMinDynamicalTime      = 10e6;         // in years
+  MBHFeedbackEnergy        = 6.8e48; // erg / Msun (Woosley&Weaver86)
+  MBHFeedbackRadius        = 10;           // pc
+  MBHMinimumMass           = 1000;         // Msun
+  MBHCombineRadius         = 10;           // pc
+  MBHIonizingLuminosity    = 1e47;         // ph/s / Msun
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;

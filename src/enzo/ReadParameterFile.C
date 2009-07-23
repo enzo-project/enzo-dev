@@ -574,6 +574,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIISupernovaUseColour = %"ISYM, 
 		  &PopIIISupernovaUseColour);
 
+    ret += sscanf(line, "MBHUseMetalField = %"ISYM, 
+		  &MBHUseMetalField);
+    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
+		  &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHFeedbackEnergy = %lf", &MBHFeedbackEnergy);
+    ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
+    ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
+		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHCombineRadius = %"FSYM,
+		  &MBHCombineRadius);
+    ret += sscanf(line, "MBHIonizingLuminosity = %lf", 
+		  &MBHIonizingLuminosity);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);

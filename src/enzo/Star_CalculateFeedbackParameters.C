@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -87,13 +88,30 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = StarClusterSNRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
-    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr).
+    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr). These numbers are defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
     EjectaThermalEnergy = StarClusterSNEnergy / Msun /
       (VelocityUnits * VelocityUnits);
+    break;
+
+  case MBH_THERMAL:
+    // inject energy into a sphere
+    Radius = MBHFeedbackRadius * pc / LengthUnits;
+    Radius = max(Radius, 2*StarLevelCellWidth);
+
+    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr). These numbers are defined in Star_SetFeedbackFlag.C.
+    Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
+    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
+    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
+    EjectaMetalDensity = EjectaDensity * StarMetalYield;
+    EjectaThermalEnergy = MBHFeedbackEnergy / Msun /
+      (VelocityUnits * VelocityUnits);    
+    break;
+
+  case MBH_RADIATIVE:
     break;
 
   } // ENDSWITCH FeedbackFlag

@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 /  PURPOSE:
 /
@@ -154,7 +155,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   outerRadius2 = 1.2 * 1.2 * radius * radius;
 
-  if (cstar->FeedbackFlag == SUPERNOVA || cstar->FeedbackFlag == CONT_SUPERNOVA) {
+  if (cstar->FeedbackFlag == SUPERNOVA || 
+      cstar->FeedbackFlag == CONT_SUPERNOVA || 
+      cstar->FeedbackFlag == MBH_THERMAL) {
 
     //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
     //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
