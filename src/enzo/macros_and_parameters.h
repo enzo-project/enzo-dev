@@ -186,6 +186,7 @@ typedef int            HDF5_hid_t;
 #ifdef CONFIG_BFLOAT_4
 #define Eflt float
 #define FSYM "f"
+#define ESYM "e"
 #define FloatDataType MPI_FLOAT
 #ifdef COMPACT_IO
 #define HDF5_REAL HDF5_R4
@@ -202,6 +203,7 @@ typedef int            HDF5_hid_t;
 #ifdef CONFIG_BFLOAT_8
 #define Eflt double
 #define FSYM "lf"
+#define ESYM "le"
 #define FloatDataType MPI_DOUBLE
 #define float32 TEMP_HOLD_NAME
 #define float double
@@ -412,6 +414,7 @@ typedef int            HDF5_hid_t;
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
 #define INSTANT_STAR    7
+#define SPRINGEL_HERNQUIST_STAR 8
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 

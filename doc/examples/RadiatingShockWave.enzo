@@ -1,0 +1,139 @@
+#
+# PROBLEM DEFINITION FILE: Radiating Sedov Blast (unigrid version)
+#
+#  A 2D explosion test problem which includes radiative cooling.
+#
+#
+#  problem setup
+#
+ProblemType               =  11       // Sedov blast wave
+Gamma                     =  1.4 
+
+#
+#  grid setup
+#
+TopGridRank               = 2
+TopGridDimensions         = 200 200
+RadiatingShockEnergy          = 1.0    # energy (in units of 10^51 ergs)
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime                  = 0.0005
+StopCycle                 = 100000
+dtDataDump                = 0.000005
+DataDumpName              = DD
+
+#
+#  set hydro parameters
+#
+HydroMethod               = 0       // PPM - 0; ZEUS - 2
+DualEnergyFormalism       = 1
+PPMDiffusionParameter     = 1
+PPMFlatteningParameter    = 3
+PPMSteepeningParameter    = 1
+CourantSafetyNumber       = 0.8     // ppm - 0.8; zeus - 0.5
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0       // dynamic hierarchy
+MaximumRefinementLevel    = 0       // use 0 AMR levels
+
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-10
+
+#
+# Units
+#
+
+DensityUnits = 1.67e-22   # box density in g/cm^3 (100 ptcles per cc mean)
+LengthUnits = 3.0857e+19   # box size in cm (10 pc)
+TimeUnits = 3.1557e+13    # one megayear in seconds 
+
+# other stuff (controlling chemistry, etc.)
+
+RadiativeCooling = 1
+MultiSpecies = 3
+
+# THIS IS ALL COMMENTED OUT UNTIL CLOUDY COOLING INSTALLED
+#
+#CloudyCooling = 2 
+#CloudyCoolingGridRank = 2 
+#CloudyCoolingGridRunFile = /Volumes/BigBangDataStorage/bwoshea/nopert_1FOE/cooling_2D_p12_large_metals_fix/cooling_2D_p12_large_metals_fix.run
+#CloudyMetallicityNormalization = 0.018477 # Solar pattern, all metals 
+ 
+
+TestProblemUseMetallicityField = 1
+TestProblemInitialMetallicityFraction = 1.0e-4
+TestProblemMultiMetals = 1
+TestProblemInitialMultiMetalsField1Fraction = 5.0e-5
+TestProblemInitialMultiMetalsField2Fraction = 5.0e-5
+
+RadiatingShockUseDensityFluctuations = 0
+#RadiatingShockRandomSeed = 12334928
+#RadiatingShockDensityFluctuationLevel = 0.9
+
+RadiatingShockSpreadOverNumZones = 5.5
+
+RadiatingShockInitializeWithKE = 0
+#RadiatingShockKineticEnergyFraction = 0.9
+
+#### This assumes a 15 solar mass, 1 FOE field (from Nomoto calculation)
+TestProblemUseMassInjection = 1
+TestProblemInitialHydrogenMass = 7.58
+TestProblemInitialHeliumMass = 4.40
+TestProblemInitialDeuteriumMass = 1.69e-16,
+TestProblemInitialMetalMass = 1.54e+00
+
+# Species fractions for the surrounding medium
+TestProblemInitialHIFraction = 0.999
+TestProblemInitialHIIFraction = 1e-3
+TestProblemInitialHeIFraction = 0.999
+TestProblemInitialHeIIFraction = 5e-4
+TestProblemInitialHeIIIFraction = 5e-4
+
+#TestProblemInitialCOIFraction  = 0.0
+#TestProblemInitialCIFraction  = 1e-4
+#TestProblemInitialCIIFraction  = 1e-4
+#TestProblemInitialOIFraction  = 1e-4
+#TestProblemInitialOIIFraction  = 1e-4
+#TestProblemInitialSiIFraction  = 1e-4
+#TestProblemInitialSiIIFraction  = 1e-4
+#TestProblemInitialSiIIIFraction  = 1e-4
+#TestProblemInitialCHIFraction  = 0.0
+#TestProblemInitialCH2IFraction  = 0.0
+#TestProblemInitialCH3IIFraction  = 0.0
+#TestProblemInitialC2IFraction  = 0.0
+#TestProblemInitialHCOIIFraction  = 0.0
+#TestProblemInitialOHIFraction  = 0.0
+#TestProblemInitialH2OIFraction  = 0.0
+#TestProblemInitialO2IFraction = 0.0
+
+# Species fractions for the interior of the blast wave
+TestProblemInitialHIFractionInner = 1e-8
+TestProblemInitialHIIFractionInner = 0.9999999
+TestProblemInitialHeIFractionInner = 0.0000005
+TestProblemInitialHeIIFractionInner = 0.0000005
+TestProblemInitialHeIIIFractionInner = 0.999999
+
+#TestProblemInitialCOIFractionInner  = 0.0
+#TestProblemInitialCIFractionInner  = 1e-4
+#TestProblemInitialCIIFractionInner  = 1e-4
+#TestProblemInitialOIFractionInner  = 1e-4
+#TestProblemInitialOIIFractionInner  = 1e-4
+#TestProblemInitialSiIFractionInner  = 1e-4
+#TestProblemInitialSiIIFractionInner  = 1e-4
+#TestProblemInitialSiIIIFractionInner  = 1e-4
+#TestProblemInitialCHIFractionInner  = 0.0
+#TestProblemInitialCH2IFractionInner  = 0.0
+#TestProblemInitialCH3IIFractionInner  = 0.0
+#TestProblemInitialC2IFractionInner  = 0.0
+#TestProblemInitialHCOIIFractionInner  = 0.0
+#TestProblemInitialOHIFractionInner  = 0.0
+#TestProblemInitialH2OIFractionInner  = 0.0
+#TestProblemInitialO2IFractionInner = 0.0
+
+# the end

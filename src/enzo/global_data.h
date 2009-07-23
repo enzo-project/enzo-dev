@@ -99,9 +99,30 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+                         12 = FlagCellsToBeRefinedByMustRefineRegion
+			 13 = FlagCellsToBeRefinedByMetallicity
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
+
+/* left and right boundaries of the 'must refine region'
+   for CellFlaggingMethod = 10 */
+
+EXTERN FLOAT MustRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
+
+EXTERN FLOAT MustRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+
+/* specifies the level to which FlagCellsToBeRefinedByMustRefineRegion
+   will refine up to (does not prevent refinement to higher levels) */
+
+EXTERN int MustRefineRegionMinRefinementLevel;
+
+/* specifies the level to which FlagGridCellsToBeRefinedByMetallicity
+   will refine up to (does not prevent refinement to higher levels) */
+EXTERN int MetallicityRefinementMinLevel;
+
+/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+EXTERN float MetallicityRefinementMinMetallicity;
 
 
 /* Velocity to limit timesteps */
@@ -233,6 +254,11 @@ EXTERN float DualEnergyFormalismEta2;
 
 EXTERN float ParticleCourantSafetyNumber;
 
+/* This is a parameter to control root grid time steps, and is basically
+   a hack to ensure that star particles don't get ejected out of grids. */
+
+EXTERN float RootGridCourantSafetyNumber;
+
 /* Radiative cooling on/off flag and associated data. */
 
 EXTERN int RadiativeCooling;
@@ -241,6 +267,10 @@ EXTERN CoolDataType CoolData;
 /* Cloudy cooling parameters and data. */
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
+
+/* Gadget Equilibrium cooling on/off flag */
+
+EXTERN int GadgetEquilibriumCooling;
 
 /* Random Forcing on/off flag and associated data. */ //AK
 
@@ -253,6 +283,11 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN RateDataType RateData;
+
+/* Glover chemistry/cooling network flags */
+EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
+EXTERN int GloverRadiationBackground; // 1: low Z, 2: ISM
+EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 /* Multi-element metallicity field flag and count. */
 

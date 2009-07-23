@@ -86,6 +86,7 @@ int grid::FlagCellsToBeRefinedBySlope()
 
   if (ProblemType ==  6) NumberOfFields = 1; // Implosion (AK)
   if (ProblemType ==  7) NumberOfFields = 2; // SedovBlast (AK)
+  if (ProblemType == 11) NumberOfFields = 2; // RadiatingShock (BWO)
   if (ProblemType == 30) NumberOfFields = 2; // Cosmology (BWO 23 May 2006)
 
   for (dim = 0; dim < GridRank; dim++)

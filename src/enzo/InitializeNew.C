@@ -68,6 +68,8 @@ int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
+int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
 int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid);
 int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
@@ -77,6 +79,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			  TopGridData &MetaData);
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
+int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -356,6 +360,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType == 10)
     ret = RotatingCylinderInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 11) RadiatingShock
+ 
+  if (ProblemType == 11)
+    ret = RadiatingShockInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 20) Zeldovich Pancake
  
@@ -422,6 +431,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
   
  
+  // 31) GalaxySimulation
+  if (ProblemType == 31)
+    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+
   // 40) Supernova Explosion from restart
  
   if (ProblemType == 40)
@@ -640,16 +653,20 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // variable (should be renamed just Energy) into GasEnergy
  
   if (HydroMethod == Zeus_Hydro &&
+      ProblemType != 10 &&  // BWO (Rotating cylinder)
+      ProblemType != 11 &&  // BWO (radiating shock)
       ProblemType != 20 &&
       ProblemType != 27 &&
       ProblemType != 30 &&
+      ProblemType != 31 &&  // BWO (isolated galaxies)
       ProblemType != 60) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
  
-  // If using StarParticles, set the number to zero
- 
-  if (StarParticleCreation || StarParticleFeedback)
-    NumberOfStarParticles = 0;
+  // If using StarParticles, set the number to zero 
+  // (assuming it hasn't already been set)
+  if (NumberOfStarParticles == NULL)
+    if (StarParticleCreation || StarParticleFeedback)
+      NumberOfStarParticles = 0;
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)

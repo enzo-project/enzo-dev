@@ -41,6 +41,16 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int RadiationFieldCalculateRates(FLOAT Time);
 int FindField(int field, int farray[], int numfields);
+int GadgetCoolingTime(float *d, float *e, float *ge, 
+		      float *u, float *v, float *w,
+		      float *cooltime,
+		      int *in, int *jn, int *kn, int *iexpand, 
+		      hydro_method *imethod, int *idual, int *idim,
+		      int *is, int *js, int *ks, int *ie, int *je, 
+		      int *ke, float *dt, float *aye,
+		      float *fh, float *utem, float *uxyz, 
+		      float *uaye, float *urho, float *utim,
+		      float *gamma);
 
 int multi_CloudyCooling_time(float *density,float *totalenergy,float *gasenergy,
 			     float *velocity1,float *velocity2,float *velocity3,
@@ -276,7 +286,24 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiativeTransfer, BaryonField[gammaHINum], 
        BaryonField[gammaHeINum], BaryonField[gammaHeIINum]);
-  } else { // if not multispecies, must be generic cooling.
+  } else if (GadgetEquilibriumCooling==1) {      
+    int result = GadgetCoolingTime
+      (
+       density,totalenergy,gasenergy,velocity1,
+       velocity2,velocity3,
+       cooling_time,
+       GridDimension,GridDimension+1,
+       GridDimension+2, &ComovingCoordinates, &HydroMethod,
+       &DualEnergyFormalism, &GridRank,
+       GridStartIndex,GridStartIndex+1,GridStartIndex+2,
+       GridEndIndex,GridEndIndex+1,GridEndIndex+2,&dtFixed,
+       &afloat,&CoolData.HydrogenFractionByMass,
+       &TemperatureUnits,&LengthUnits,
+       &aUnits,&DensityUnits,&TimeUnits,&Gamma);
+    if (result == FAIL )  {
+      ENZO_FAIL("Error in GadgetCoolingTime.  Exiting.");
+    }
+  } else { // if not multispecies or Gadget cooling, must be generic cooling.
     FORTRAN_NAME(cool_time)(
        BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
           BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],

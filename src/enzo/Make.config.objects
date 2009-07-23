@@ -168,6 +168,12 @@ OBJS_CONFIG_LIB = \
         fortio.o \
         fourn.o \
         FreeRealMem.o \
+		GadgetInitCoolMemory.o \
+		GadgetIonizeParamsTable.o \
+		GadgetMakeCoolingTable.o \
+		Gadget.o \
+		GadgetReadIonizeParams.o \
+		GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
         GetNodeFreeMemory.o \
@@ -251,7 +257,9 @@ OBJS_CONFIG_LIB = \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
         Grid_DeleteFlaggingField.o \
+		Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
+		Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
         Grid_DepositPositions.o \
@@ -276,6 +284,16 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
+		Grid_GadgetCalculateCooling.o \
+		Grid_GadgetComputeTemperature.o \
+		Grid_GadgetComputeTemperatureDEF.o \
+		Grid_GadgetCoolingRate.o \
+		Grid_GadgetCoolingRateFromU.o \
+		Grid_GadgetCoolingTime.o \
+		Grid_GadgetEquilibriumCooling.o \
+		Grid_Gadgetconvertutotemp.o \
+		Grid_Gadgetfindabundancesandrates.o \
+		Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
@@ -287,6 +305,7 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyPhysicalQuantities.o \
         Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
+		Grid_IdentifyGloverSpeciesFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \
@@ -332,6 +351,7 @@ OBJS_CONFIG_LIB = \
         Grid_ProjectToPlane.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
         Grid_RadiationComputeDensities.o \
+		Grid_RadiatingShockInitializeGrid.o \
         Grid_ReadGrid.o \
         Grid_ReadRandomForcingFields.o \
         Grid_RemoveForcingFromBaryonFields.o \
@@ -400,6 +420,7 @@ OBJS_CONFIG_LIB = \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
         InitializeEquilibriumCoolData.o \
+		InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeMovieFile.o \
         InitializeNew.o \
@@ -424,6 +445,7 @@ OBJS_CONFIG_LIB = \
         ListIO.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
+		MersenneTwister.o \
         mg_calc_defect.o \
         mg_prolong2.o \
         mg_prolong.o \
@@ -478,6 +500,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
         QuickSortAndDrag.o \
+		RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
@@ -548,6 +571,7 @@ OBJS_CONFIG_LIB = \
         star_maker2.o \
         star_maker3.o \
         star_maker4.o \
+		star_maker5.o \
         star_maker7.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \

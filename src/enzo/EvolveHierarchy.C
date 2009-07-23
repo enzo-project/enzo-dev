@@ -330,7 +330,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
       Temp = Temp->NextGridThisLevel;
     }
-    dt = CommunicationMinValue(dtProc);
+
+    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
  
     if (Initialdt != 0) {
       dt = min(dt, Initialdt);
@@ -377,7 +378,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf("TopGrid dt = %"FSYM"     time = %"GOUTSYM"    cycle = %"ISYM,
+      printf("TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
 	     dt, MetaData.Time, MetaData.CycleNumber);
 
       if (ComovingCoordinates) {
