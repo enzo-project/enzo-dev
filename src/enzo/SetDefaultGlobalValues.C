@@ -158,6 +158,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
+  MustRefineRegionMinRefinementLevel = -1;        // unused if negative
+  MetallicityRefinementMinLevel = -1;
+  MetallicityRefinementMinMetallicity = 1.0e-5;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
@@ -187,6 +190,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+    MustRefineRegionLeftEdge[dim] = 0.0;
+    MustRefineRegionRightEdge[dim] = 1.0;
   }
  
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
@@ -244,11 +249,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
   ParticleCourantSafetyNumber = 0.5;
+  RootGridCourantSafetyNumber = 1.0;
   RandomForcing               = FALSE;             // off //AK
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
+  GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  GloverChemistryModel        = 0;                 // 0ff
+  GloverRadiationBackground   = 0;
+  GloverOpticalDepth          = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   AdjustUVBackground          = 1;
@@ -455,8 +465,27 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.DII_Fraction = tiny_number;
   TestProblemData.HDI_Fraction = tiny_number;
 
+  // This is for ionized gas (within a supernova blast, for example)
+  TestProblemData.HI_Fraction_Inner = 1.0;
+  TestProblemData.HII_Fraction_Inner = tiny_number;
+  TestProblemData.HeI_Fraction_Inner = 1.0;
+  TestProblemData.HeII_Fraction_Inner = tiny_number;
+  TestProblemData.HeIII_Fraction_Inner = tiny_number;
+  TestProblemData.HM_Fraction_Inner = tiny_number;
+  TestProblemData.H2I_Fraction_Inner = tiny_number;
+  TestProblemData.H2II_Fraction_Inner = tiny_number;
+  TestProblemData.DI_Fraction_Inner = 2.0*3.4e-5;
+  TestProblemData.DII_Fraction_Inner = tiny_number;
+  TestProblemData.HDI_Fraction_Inner = tiny_number;
+
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
+
+  TestProblemData.UseMassInjection = 0;
+  TestProblemData.InitialHydrogenMass = tiny_number;
+  TestProblemData.InitialDeuteriumMass = tiny_number;
+  TestProblemData.InitialHeliumMass = tiny_number;
+  TestProblemData.InitialMetalMass = tiny_number;
 
   TestProblemData.MultiMetals = 0;
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
@@ -469,6 +498,43 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MinimumTemperature    = 10;
   TestProblemData.MaximumTemperature    = 1e7;
   TestProblemData.ResetEnergies         = 1;
+
+  TestProblemData.GloverChemistryModel = 0;
+  // This is for the gas in the surrounding medium, for the blast wave problem.
+  TestProblemData.CI_Fraction = tiny_number;
+  TestProblemData.CII_Fraction = tiny_number;
+  TestProblemData.OI_Fraction = tiny_number;
+  TestProblemData.OII_Fraction = tiny_number;
+  TestProblemData.SiI_Fraction = tiny_number;
+  TestProblemData.SiII_Fraction = tiny_number;
+  TestProblemData.SiIII_Fraction = tiny_number;
+  TestProblemData.CHI_Fraction = tiny_number;
+  TestProblemData.CH2I_Fraction = tiny_number;
+  TestProblemData.CH3II_Fraction = tiny_number;
+  TestProblemData.C2I_Fraction = tiny_number;
+  TestProblemData.COI_Fraction = tiny_number;
+  TestProblemData.HCOII_Fraction = tiny_number;
+  TestProblemData.OHI_Fraction = tiny_number;
+  TestProblemData.H2OI_Fraction = tiny_number;
+  TestProblemData.O2I_Fraction = tiny_number;
+
+  // This is for the gas in the region where the blast wave energy is injected
+  TestProblemData.CI_Fraction_Inner = tiny_number;
+  TestProblemData.CII_Fraction_Inner = tiny_number;
+  TestProblemData.OI_Fraction_Inner = tiny_number;
+  TestProblemData.OII_Fraction_Inner = tiny_number;
+  TestProblemData.SiI_Fraction_Inner = tiny_number;
+  TestProblemData.SiII_Fraction_Inner = tiny_number;
+  TestProblemData.SiIII_Fraction_Inner = tiny_number;
+  TestProblemData.CHI_Fraction_Inner = tiny_number;
+  TestProblemData.CH2I_Fraction_Inner = tiny_number;
+  TestProblemData.CH3II_Fraction_Inner = tiny_number;
+  TestProblemData.C2I_Fraction_Inner = tiny_number;
+  TestProblemData.COI_Fraction_Inner = tiny_number;
+  TestProblemData.HCOII_Fraction_Inner = tiny_number;
+  TestProblemData.OHI_Fraction_Inner = tiny_number;
+  TestProblemData.H2OI_Fraction_Inner = tiny_number;
+  TestProblemData.O2I_Fraction_Inner = tiny_number;
 
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.

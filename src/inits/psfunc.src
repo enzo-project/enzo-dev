@@ -218,6 +218,12 @@
       elseif (ispectrum .eq. 6) then
 
 !  6) CDM-like power spectrum with a fixed shape parameter.
+!
+!  BWO: This is included for historical interest.  The spectrum is
+!  the same as the bardeen power spectrum (type #1) but with a free
+!  parameter, gamma, that allows the spectral shape to be modified 
+!  independently of the cosmological parameters.  This is now
+!  HIGHLY DEPRECATED (i.e., wrong)
 
 !     Compute shape parameter
 
