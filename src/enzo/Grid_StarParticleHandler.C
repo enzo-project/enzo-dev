@@ -662,6 +662,50 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleType[i] = NormalStarType;
     } 
 
+    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
+
+      //---- Springel & Hernquist 2003 SF algorithm
+
+      float *coolingrate = new float[size];
+
+      for(int coolindex=0; coolindex<size; coolindex++){
+
+        float cgsdensity = BaryonField[DensNum][coolindex]*DensityUnits;
+        float *electronguessptr;
+        float electronguess = 0.01;
+        electronguessptr = &electronguess;
+        coolingrate[coolindex] = GadgetCoolingRate
+          (log10(temperature[coolindex]), cgsdensity, electronguessptr, zred);
+      }     
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      FORTRAN_NAME(star_maker5)(
+       GridDimension, GridDimension+1, GridDimension+2,
+       BaryonField[DensNum], dmfield, temperature, coolingrate,
+          BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
+       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum], 
+          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
+          CellLeftEdge[2], &GhostZones, 
+       &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime, 
+       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       tg->ParticlePosition[0], tg->ParticlePosition[1], 
+          tg->ParticlePosition[2], 
+       tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+          tg->ParticleVelocity[2], 
+       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
+          tg->ParticleAttribute[2], ran1_init);
+
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = NormalStarType;
+
+      delete [] coolingrate;
+
+    }
+
     /* This creates sink particles which suck up mass off the grid. */
 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
