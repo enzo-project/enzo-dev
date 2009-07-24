@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1: Tom Abel adopted  (2009)
 /
 /
 ************************************************************************/
@@ -97,14 +97,15 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   float *TurbulenceVelocity[3],*DrivingField[3];
   for (int dim = 0; dim < 3; dim++) {
     TurbulenceVelocity[dim] = new float[activesize];
-    DrivingField[dim] = new float[activesize];
+    if (UseDrivingField) DrivingField[dim] = new float[activesize];
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[dim][n] = 0.0;
-      DrivingField[dim][n] = 0.0;
+    if (UseDrivingField) DrivingField[dim][n] = 0.0;
     }
   }
 
-  printf("Begin generating turbulent velocity spectrum...\n");
+  printf("Begin generating turbulent velocity spectrum... %i\n", GridDimension[0]-2*DEFAULT_GHOST_ZONES);
+  
   Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, cs_medium*mach, 1, 5, 1,
 		       CellLeftEdge, CellWidth, seed, level);
   printf("Turbulent spectrum generated\n");

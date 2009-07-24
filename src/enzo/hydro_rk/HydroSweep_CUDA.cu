@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang, KIPAC/Stanford
 /  date:       January, 2009
-/  modified1:
+/  modified1: Tom Abel July 2009
 /
 /  description: 
 /      This is the heart of the Hydro solver where fluxes at cell
@@ -30,9 +30,10 @@
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
 #define CUDA_GRID_SIZE 640
-#define Gamma 1.4
+#define Gamma 1.001
 #define Theta_Limiter 1.5
-#define EOSType 0
+#define EOSType 3
+#define EOSSoundSpeed 1
 #define NEQ_HYDRO 5
 #define iD 0
 #define iS1 1
@@ -88,7 +89,8 @@ __device__ float Min(const float &a, const float &b, const float &c);
 /
 *******************************************************************************/
 
-int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
+int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], 
+			 int GridStartIndex[], int GridEndIndex[], int GridRank,
 		          float dtdx, float dt)
 {
 
@@ -815,5 +817,12 @@ __device__ void EOS(float &p, float &rho, float &e, float &cs, const int &eostyp
     cs = sqrt(Gamma*p/rho);
 
   }
+
+  if (eostype == 3) { // straight isothermal
+    double c_s = EOSSoundSpeed;
+    p = rho*c_s*c_s;
+    e = p / ((Gamma-1.0)*rho);
+  }
+
 
 }
