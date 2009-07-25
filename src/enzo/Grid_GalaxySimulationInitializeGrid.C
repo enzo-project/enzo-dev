@@ -35,8 +35,8 @@
 
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
-            float *TemperatureUnits, float *TimeUnits,
-            float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
@@ -327,17 +327,13 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
      }
 
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
-    TemperatureUnits=1, MassUnits=1;
+    TemperatureUnits=1;
+  double MassUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
-
-  double MassUnitsDouble=1.0;
-
-  if(ComovingCoordinates)
-    MassUnitsDouble = double(DensityUnits)*POW(double(LengthUnits), 3.0);
 
   // Set the point source gravity parameters.  This is the DM mass (in g)
   //   within rs.  The core radius to rs in cm.
@@ -347,11 +343,11 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
   // Grid::ComputeAccelerationFieldExternal, and converted back to CGS where needed.
   //
 
-  PointSourceGravityConstant = (M_200/f_C)*(log(1.0+1.0)-1.0/(1.0+1.0))*1000.0 / MassUnitsDouble;
+  PointSourceGravityConstant = (M_200/f_C)*(log(1.0+1.0)-1.0/(1.0+1.0))*1000.0 / MassUnits;
   PointSourceGravityCoreRadius = r_s*100.0 / LengthUnits;
 
   /*
-  fprintf(stderr,"Grid::GalaxySimulationInitializeGrid:  %d  %e  %e\n",MyProcessorNumber,MassUnitsDouble, LengthUnits);
+  fprintf(stderr,"Grid::GalaxySimulationInitializeGrid:  %d  %e  %e\n",MyProcessorNumber,MassUnits, LengthUnits);
   fprintf(stderr,"  PointSourceGravityConstant = %e  %d\n",PointSourceGravityConstant,MyProcessorNumber);
   fprintf(stderr,"  PointSourceGravityCoreRadius = %e  %d\n",PointSourceGravityCoreRadius,MyProcessorNumber);
   */

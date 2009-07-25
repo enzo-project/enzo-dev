@@ -34,7 +34,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
        	      float *TemperatureUnits, float *TimeUnits,
-       	      float *VelocityUnits, float *MassUnits, FLOAT Time);
+       	      float *VelocityUnits, double *MassUnits, FLOAT Time);
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
  
@@ -77,7 +77,7 @@ int grid::ComputeAccelerationFieldExternal()
     VelocityUnits = 1, AccelUnits = 1;
   double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits,  Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
   AccelUnits = LengthUnits/TimeUnits/TimeUnits;

@@ -41,6 +41,11 @@ int grid::AddAmbipolarDiffusion()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+				   TENum, B1Num, B2Num, B3Num, PhiNum);
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
     TimeUnits = 1.0, VelocityUnits = 1.0;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -77,10 +82,10 @@ int grid::AddAmbipolarDiffusion()
 	
 	igrid = i + (j + k*ny)*nx;
 
-	rho = BaryonField[iden][igrid];
-	Bx  = BaryonField[iBx ][igrid];
-	By  = BaryonField[iBy ][igrid];
-	Bz  = BaryonField[iBz ][igrid];
+	rho = BaryonField[DensNum][igrid];
+	Bx  = BaryonField[B1Num][igrid];
+	By  = BaryonField[B2Num][igrid];
+	Bz  = BaryonField[B3Num][igrid];
 	B2  = Bx*Bx + By*By + Bz*Bz;
 
 	dt1 = 0.3*dx*pow(rho,1.5)/(A*B2)*dx;
@@ -105,18 +110,18 @@ int grid::AddAmbipolarDiffusion()
 
 	  igrid = i + (j + k*ny)*nx;
 	  
-	  rho = BaryonField[iden][igrid];
-	  Bx  = BaryonField[iBx ][igrid];
-	  By  = BaryonField[iBy ][igrid];
-	  Bz  = BaryonField[iBz ][igrid];
+	  rho = BaryonField[DensNum][igrid];
+	  Bx  = BaryonField[B1Num][igrid];
+	  By  = BaryonField[B2Num][igrid];
+	  Bz  = BaryonField[B3Num][igrid];
 	
 
-	  dBxdy = (BaryonField[iBx][igrid+nx   ] - BaryonField[iBx][igrid-nx   ]);
-	  dBxdz = (BaryonField[iBx][igrid+nx*ny] - BaryonField[iBx][igrid-nx*ny]);
-	  dBydx = (BaryonField[iBy][igrid+1    ] - BaryonField[iBy][igrid-1    ]);
-	  dBydz = (BaryonField[iBy][igrid+nx*ny] - BaryonField[iBy][igrid-nx*ny]);
-	  dBzdx = (BaryonField[iBz][igrid+1    ] - BaryonField[iBz][igrid-1    ]);
-	  dBzdy = (BaryonField[iBz][igrid+nx   ] - BaryonField[iBz][igrid-nx   ]);
+	  dBxdy = (BaryonField[B1Num][igrid+nx   ] - BaryonField[B1Num][igrid-nx   ]);
+	  dBxdz = (BaryonField[B1Num][igrid+nx*ny] - BaryonField[B1Num][igrid-nx*ny]);
+	  dBydx = (BaryonField[B2Num][igrid+1    ] - BaryonField[B2Num][igrid-1    ]);
+	  dBydz = (BaryonField[B2Num][igrid+nx*ny] - BaryonField[B2Num][igrid-nx*ny]);
+	  dBzdx = (BaryonField[B3Num][igrid+1    ] - BaryonField[B3Num][igrid-1    ]);
+	  dBzdy = (BaryonField[B3Num][igrid+nx   ] - BaryonField[B3Num][igrid-nx   ]);
 	  
 	  D[0][igrid] = Bx*Bz*(dBydx-dBxdy)-(By*By+Bz*Bz)*(dBzdy-dBydz)+Bx*By*(dBxdz-dBzdx);
 	  D[1][igrid] = Bx*By*(dBzdy-dBydz)-(Bx*Bx+Bz*Bz)*(dBxdz-dBzdx)+By*Bz*(dBydx-dBxdy);
@@ -144,9 +149,9 @@ int grid::AddAmbipolarDiffusion()
 	  AD[1] = (D[0][igrid+nx*ny]-D[0][igrid-nx*ny])-(D[2][igrid+1    ]-D[2][igrid-1    ]);
 	  AD[2] = (D[1][igrid+1    ]-D[1][igrid-1    ])-(D[0][igrid+nx   ]-D[0][igrid-nx   ]);
 
-	  BaryonField[iBx][igrid] += dt_ad/dx*AD[0];
-	  BaryonField[iBy][igrid] += dt_ad/dx*AD[1]; 
-	  BaryonField[iBz][igrid] += dt_ad/dx*AD[2];
+	  BaryonField[B1Num][igrid] += dt_ad/dx*AD[0];
+	  BaryonField[B2Num][igrid] += dt_ad/dx*AD[1]; 
+	  BaryonField[B3Num][igrid] += dt_ad/dx*AD[2];
 
 	}
       }
@@ -158,7 +163,7 @@ int grid::AddAmbipolarDiffusion()
   }
 
   /*for (int i = 0; i < size; i++) {
-    printf("%g ", BaryonField[iBy][i]);
+    printf("%g ", BaryonField[B2Num][i]);
   }
   printf("\n");*/
 

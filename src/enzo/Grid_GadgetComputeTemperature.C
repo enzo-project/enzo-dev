@@ -36,7 +36,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int grid::GadgetComputeTemperature(FLOAT time, float *temperature)
 {
@@ -87,10 +87,10 @@ int grid::GadgetComputeTemperature(FLOAT time, float *temperature)
 
   // get physical units
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1, 
-    TemperatureUnits=1, MassUnits=1;
+    TemperatureUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
   

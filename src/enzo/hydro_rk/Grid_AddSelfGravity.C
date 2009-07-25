@@ -29,14 +29,14 @@ int grid::AddSelfGravity(float coef)
   }
 
   if (Coordinate == Cartesian) {
-    int igrid;
+    int i, j, k, igrid;
     float temp1, temp2, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  temp1 = OldBaryonField[iden][igrid]/BaryonField[iden][igrid];
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	igrid = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, igrid++) {
+	  temp1 = OldBaryonField[DensNum][igrid] / BaryonField[DensNum][igrid];
 	  temp2 =  dtFixed*0.5*(1.0 + temp1);
 	  gx = AccelerationField[0][igrid];
 	  gy = (GridRank > 1) ? AccelerationField[1][igrid] : 0.0;

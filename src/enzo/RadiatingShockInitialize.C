@@ -47,7 +47,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
  
 int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			 TopGridData &MetaData)
@@ -283,7 +283,8 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   */
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1;
+  double MassUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
@@ -335,7 +336,8 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     }
 
     InjectionMass2Density_scaleFactor = 1.989e33 / 
-      (double(MassUnits) * numberInjectionCells * pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
+      (MassUnits * numberInjectionCells * 
+       pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
 
     // ignore D mass
     RadiatingShockInnerDensity = (TestProblemData.InitialHydrogenMass + 

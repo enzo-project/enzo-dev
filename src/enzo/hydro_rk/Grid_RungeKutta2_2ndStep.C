@@ -43,14 +43,6 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
-
   double time1 = ReturnWallTime();
 
   float *dU[NEQ_HYDRO+NSpecies+NColor];
@@ -67,34 +59,11 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     dU[field] = new float[activesize];
-    for (int i = 0; i < activesize; i++) {
+    for (int i = 0; i < activesize; i++)
       dU[field][i] = 0.0;
-    }
   }
 
-  Prim[iden ] = BaryonField[DensNum];
-  Prim[ivx  ] = BaryonField[Vel1Num];
-  Prim[ivy  ] = BaryonField[Vel2Num];
-  Prim[ivz  ] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
-  if (DualEnergyFormalism) {
-    Prim[ieint] = BaryonField[GENum];
-  }
-
-
-  // copy species field
-  for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
-    // change species from density to mass fraction
-    for (int n = 0; n < size; n++) {
-      BaryonField[ns][n] /= BaryonField[iden][n];
-    }
-    Prim[ns] = BaryonField[ns];
-  }
-
-  // copy color field
-  for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
-    Prim[nc] = BaryonField[nc];
-  }
+  this->ReturnHydroRKPointers(Prim);
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -164,9 +133,9 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
     this->CopyOldBaryonFieldToBaryonField();
     // change species from density to mass fraction
-    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
       for (int n = 0; n < size; n++) {
-	BaryonField[ns][n] /= BaryonField[iden][n];
+	Prim[ns][n] /= Prim[iden][n];
       }
     }
 

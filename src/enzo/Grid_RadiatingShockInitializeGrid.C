@@ -35,7 +35,7 @@ float cell_fraction(FLOAT cellx, FLOAT celly, FLOAT cellz, FLOAT shockx, FLOAT s
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 void set_analytic_sedov(int Nbins, double *radius, double *density,
 			double *pressure, double *velocity,
@@ -125,10 +125,10 @@ int grid::RadiatingShockInitializeGrid(FLOAT dr,
       printf("input pressure is %e\n",RadiatingShockPressure);
 
     float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,
-      VelocityUnits=1.0, MassUnits=1.0;
+      VelocityUnits=1.0;
 
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-		 &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
+		 &TimeUnits, &VelocityUnits, 0.0) == FAIL) {
             ENZO_FAIL("Error in GetUnits.");
     }
  
