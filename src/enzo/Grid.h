@@ -988,7 +988,7 @@ class grid
 /* Particles: Update particle positions (push)
     (for step #13) */
 
-   int UpdateParticlePosition(float TimeStep);
+   int UpdateParticlePosition(float TimeStep, int OffProcessorUpdate = FALSE);
 
 /* Particles: Move particles from TargetGrid to this grid. */
 

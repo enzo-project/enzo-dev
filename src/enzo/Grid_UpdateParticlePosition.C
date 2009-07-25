@@ -4,7 +4,14 @@
 /
 /  written by: Greg Bryan
 /  date:       May, 1995
-/  modified1:
+/  modified1:  David Collins
+/  date:       July, 2009
+/              Added OffProcessorUpdate.  This is to fix an error in 
+/              DepositParticlePositions wherein particles need to be updated
+/              before being interpolated into the Parent grid's
+/              GravitatingMassFieldParticles, and the Parent may
+/              be on a different process.
+/           
 /
 /  PURPOSE:
 /
@@ -28,12 +35,12 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
  
  
-int grid::UpdateParticlePosition(float TimeStep)
+int grid::UpdateParticlePosition(float TimeStep, int OffProcessorUpdate)
 {
  
   /* Return if this doesn't concern us. */
- 
-  if (ProcessorNumber != MyProcessorNumber)
+  /* OffProcessorUpdate defaults to FALSE */
+  if (ProcessorNumber != MyProcessorNumber && OffProcessorUpdate == FALSE)
     return SUCCESS;
  
   if (NumberOfParticles == 0) return SUCCESS;
