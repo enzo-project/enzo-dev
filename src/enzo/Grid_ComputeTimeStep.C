@@ -88,7 +88,7 @@ float grid::ComputeTimeStep()
  
   /* 1) Compute Courant condition for baryons. */
  
-  if (NumberOfBaryonFields > 0) {
+  if (NumberOfBaryonFields > 0 && (HydroMethod != HD_RK) && (HydroMethod != MHD_RK)) {
  
     /* Find fields: density, total energy, velocity1-3. */
  
@@ -143,6 +143,65 @@ float grid::ComputeTimeStep()
     dtBaryons *= CourantSafetyNumber;
  
   }
+
+
+  if (NumberOfBaryonFields > 0 && 
+      (HydroMethod == HD_RK)) {
+
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+					 Vel3Num, TENum) == FAIL) {
+      fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
+      exit(FAIL);
+    }
+
+    FLOAT dxinv = 1.0 / CellWidth[0][0];
+    FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0] : 0.0;
+    FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
+    float dt_temp = 1.e-20, dt_ltemp, dt_x, dt_y, dt_z;
+    float rho, p, vx, vy, vz, v2, eint, etot, h, cs, dpdrho, dpde,
+      v_signal_x, v_signal_y, v_signal_z;
+    int n = 0;
+    for (int k = 0; k < GridDimension[2]; k++) {
+      for (int j = 0; j < GridDimension[1]; j++) {
+	for (int i = 0; i < GridDimension[0]; i++, n++) {
+	  rho = BaryonField[DensNum][n];
+	  vx  = BaryonField[Vel1Num][n];
+	  vy  = BaryonField[Vel2Num][n];
+	  vz  = BaryonField[Vel3Num][n];
+
+	  if (DualEnergyFormalism) {
+	    eint = BaryonField[GENum][n];
+	  }
+	  else {
+	    etot = BaryonField[TENum][n];
+	    v2 = vx*vx + vy*vy + vz*vz;
+	    eint = etot - 0.5*v2;
+	  }
+
+	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
+
+	  v_signal_x = (cs + fabs(vx));
+	  v_signal_y = (cs + fabs(vy));
+	  v_signal_z = (cs + fabs(vz));
+
+	  dt_x = v_signal_x * dxinv;
+	  dt_y = v_signal_y * dyinv;
+	  dt_z = v_signal_z * dzinv;
+
+	  dt_ltemp = my_MAX(dt_x, dt_y, dt_z);
+
+	  if (dt_ltemp > dt_temp) {
+	    dt_temp = dt_ltemp;
+	  }
+        }
+      }
+    }
+
+    dtBaryons = CourantSafetyNumber / dt_temp;
+
+  }
+
 
   // MHD
   if (NumberOfBaryonFields > 0 && HydroMethod == MHD_RK) {
@@ -222,6 +281,7 @@ float grid::ComputeTimeStep()
       }
     }
     dtMHD = CourantSafetyNumber / dt_temp;
+
     //    if (dtMHD*TimeUnits/yr < 5) {
     //float ca = B_dt/sqrt(rho_dt)*VelocityUnits;
     //printf("dt=%g, rho=%g, B=%g\n, v=%g, ca=%g, dt=%g", dtMHD*TimeUnits/yr, rho_dt*DensityUnits, B_dt*MagneticUnits, 
@@ -277,6 +337,7 @@ float grid::ComputeTimeStep()
   /* 5) calculate minimum timestep */
  
   dt = min(dtBaryons, dtParticles);
+  dt = min(dt, dtMHD);
   dt = min(dt, dtViscous);
   dt = min(dt, dtAcceleration);
   dt = min(dt, dtExpansion);

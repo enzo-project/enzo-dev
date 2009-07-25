@@ -60,7 +60,7 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
  
   /* Find Velocity2, if possible. */
  
-  if (GridRank > 1)
+  if (GridRank > 1 || HydroMethod==HD_RK)
     if ((Vel2Num = FindField(Velocity2, FieldType,
 			     NumberOfBaryonFields)) < 0) {
       ENZO_FAIL("Cannot find Velocity2.");
@@ -68,7 +68,7 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
  
   /* Find Velocity3, if possible. */
  
-  if (GridRank > 2)
+  if (GridRank > 2 || HydroMethod==HD_RK)
     if ((Vel3Num = FindField(Velocity3, FieldType,
 			     NumberOfBaryonFields)) == 0) {
       ENZO_FAIL("Cannot find Velocity3.");

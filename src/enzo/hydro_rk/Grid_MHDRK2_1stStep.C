@@ -45,7 +45,7 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, PhiNum, HMNum, H2INum, H2IINum;
+    B1Num, B2Num, B3Num, PhiNum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
