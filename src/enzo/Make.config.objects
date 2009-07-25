@@ -168,12 +168,12 @@ OBJS_CONFIG_LIB = \
         fortio.o \
         fourn.o \
         FreeRealMem.o \
-		GadgetInitCoolMemory.o \
-		GadgetIonizeParamsTable.o \
-		GadgetMakeCoolingTable.o \
-		Gadget.o \
-		GadgetReadIonizeParams.o \
-		GalaxySimulationInitialize.o \
+	GadgetInitCoolMemory.o \
+	GadgetIonizeParamsTable.o \
+	GadgetMakeCoolingTable.o \
+	Gadget.o \
+	GadgetReadIonizeParams.o \
+	GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
         GetNodeFreeMemory.o \
@@ -257,9 +257,9 @@ OBJS_CONFIG_LIB = \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
         Grid_DeleteFlaggingField.o \
-		Grid_FlagCellsToBeRefinedByMetallicity.o	\
+	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
-		Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
         Grid_DepositPositions.o \
@@ -284,16 +284,16 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
-		Grid_GadgetCalculateCooling.o \
-		Grid_GadgetComputeTemperature.o \
-		Grid_GadgetComputeTemperatureDEF.o \
-		Grid_GadgetCoolingRate.o \
-		Grid_GadgetCoolingRateFromU.o \
-		Grid_GadgetCoolingTime.o \
-		Grid_GadgetEquilibriumCooling.o \
-		Grid_Gadgetconvertutotemp.o \
-		Grid_Gadgetfindabundancesandrates.o \
-		Grid_GalaxySimulationInitializeGrid.o \
+	Grid_GadgetCalculateCooling.o \
+	Grid_GadgetComputeTemperature.o \
+	Grid_GadgetComputeTemperatureDEF.o \
+	Grid_GadgetCoolingRate.o \
+	Grid_GadgetCoolingRateFromU.o \
+	Grid_GadgetCoolingTime.o \
+	Grid_GadgetEquilibriumCooling.o \
+	Grid_Gadgetconvertutotemp.o \
+	Grid_Gadgetfindabundancesandrates.o \
+	Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
@@ -305,7 +305,7 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyPhysicalQuantities.o \
         Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
-		Grid_IdentifyGloverSpeciesFields.o \
+	Grid_IdentifyGloverSpeciesFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \
@@ -351,7 +351,7 @@ OBJS_CONFIG_LIB = \
         Grid_ProjectToPlane.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
         Grid_RadiationComputeDensities.o \
-		Grid_RadiatingShockInitializeGrid.o \
+	Grid_RadiatingShockInitializeGrid.o \
         Grid_ReadGrid.o \
         Grid_ReadRandomForcingFields.o \
         Grid_RemoveForcingFromBaryonFields.o \
@@ -420,7 +420,7 @@ OBJS_CONFIG_LIB = \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
         InitializeEquilibriumCoolData.o \
-		InitializeGadgetEquilibriumCoolData.o \
+	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeMovieFile.o \
         InitializeNew.o \
@@ -445,7 +445,7 @@ OBJS_CONFIG_LIB = \
         ListIO.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
-		MersenneTwister.o \
+	MersenneTwister.o \
         mg_calc_defect.o \
         mg_prolong2.o \
         mg_prolong.o \
@@ -500,7 +500,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
         QuickSortAndDrag.o \
-		RadiatingShockInitialize.o \
+	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
@@ -571,7 +571,7 @@ OBJS_CONFIG_LIB = \
         star_maker2.o \
         star_maker3.o \
         star_maker4.o \
-		star_maker5.o \
+	star_maker5.o \
         star_maker7.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
@@ -676,77 +676,81 @@ POBJS_CONFIG_LIB = \
         StarParticleRadTransfer.o \
         WritePhotonSources.o
 
-
-OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o                                    \
-                hydro_rk/Collapse1DInitialize.o                                 \
-                hydro_rk/Collapse3DInitialize.o                                 \
-                hydro_rk/EvolveLevel_RK2.o                                      \
-                hydro_rk/GalaxyDiskInitialize.o                                 \
-                hydro_rk/Grid_AddSelfGravity.o                                   \
-                hydro_rk/Grid_AddViscosity.o                                    \
-                hydro_rk/Grid_AGNDiskInitializeGrid.o                           \
-                hydro_rk/Grid_Collapse1DInitializeGrid.o                        \
-                hydro_rk/Grid_Collapse3DInitializeGrid.o                        \
-                hydro_rk/Grid_CopyOldBaryonFieldToBaryonField.o                 \
-                hydro_rk/Grid_GalaxyDiskInitializeGrid.o                        \
-                hydro_rk/Grid_Hydro1DTestInitializeGrid.o                       \
-                hydro_rk/Grid_Hydro3D.o                                         \
-                hydro_rk/Grid_RungeKutta2_1stStep.o                              \
-                hydro_rk/Grid_RungeKutta2_2ndStep.o                              \
-                hydro_rk/Grid_SaveSubgridFluxes.o                                \
-                hydro_rk/Grid_SetFloor.o                                        \
-                hydro_rk/Grid_SourceTerms.o                                      \
-                hydro_rk/Grid_TurbulenceInitializeGrid.o                        \
-                hydro_rk/Grid_UpdatePrim.o                                       \
-                hydro_rk/Grid_ZeroFluxes.o                                      \
-                hydro_rk/Turbulence_Generator.o                                 \
-                hydro_rk/HLL_PLM.o                                               \
-                hydro_rk/HLLC_PLM.o                                              \
-                hydro_rk/HLL_PPM.o                                               \
-                hydro_rk/Hydro1DTestInitialize.o                                 \
-                hydro_rk/HydroLine.o                                             \
-                hydro_rk/HydroSweepX.o                                           \
-                hydro_rk/HydroSweepY.o                                           \
-                hydro_rk/HydroSweepZ.o                                           \
-                hydro_rk/LLF_PLM.o                                               \
-                hydro_rk/LLF_Zero.o                                             \
-                hydro_rk/Rec_PLM.o                                               \
-                hydro_rk/Rec_PPM.o                                               \
-                hydro_rk/Riemann_HLL.o                                           \
-                hydro_rk/Riemann_HLLC.o                                          \
-                hydro_rk/Riemann_LLF.o                                           \
-                hydro_rk/TurbulenceInitialize.o                                  \
-                hydro_rk/CollapseMHD3DInitialize.o              \
-                hydro_rk/Grid_AddAmbipolarDiffusion.o           \
-                hydro_rk/Grid_AddResistivity.o                  \
-                hydro_rk/Grid_CollapseMHD3DInitializeGrid.o     \
-                hydro_rk/Grid_MHD1DTestInitializeGrid.o         \
-                hydro_rk/Grid_MHD2DTestInitializeGrid.o         \
-                hydro_rk/Grid_MHD3DTestInitializeGrid.o         \
-                hydro_rk/Grid_MHD3D.o                           \
-                hydro_rk/Grid_MHDRK2_1stStep.o                  \
-                hydro_rk/Grid_MHDRK2_2ndStep.o                  \
-                hydro_rk/Grid_MHDSourceTerms.o                  \
-                hydro_rk/Grid_MHDTurbulenceInitializeGrid.o     \
-                hydro_rk/Grid_ReduceWindBoundary.o              \
-                hydro_rk/Grid_SaveMHDSubgridFluxes.o            \
-                hydro_rk/Grid_UpdateMHDPrim.o                   \
-                hydro_rk/HLL_PLM_MHD.o                          \
-                hydro_rk/LLF_PLM_MHD.o                          \
-                hydro_rk/MHD1DTestInitialize.o                  \
-                hydro_rk/MHD2DTestInitialize.o                  \
-                hydro_rk/MHD3DTestInitialize.o                  \
-                hydro_rk/MHDLine.o                              \
-                hydro_rk/MHDSweepX.o                            \
-                hydro_rk/MHDSweepY.o                            \
-        	hydro_rk/MHDSweepZ.o				\
-		hydro_rk/MHDTurbulenceInitialize.o		\
-		hydro_rk/Riemann_HLL_MHD.o			\
-		hydro_rk/Riemann_LLF_MHD.o
-
+OBJS_HYDRO_RK = \
+      	hydro_rk/AGNDiskInitialize.o \
+        hydro_rk/Collapse1DInitialize.o \
+        hydro_rk/Collapse3DInitialize.o \
+        hydro_rk/EvolveLevel_RK2.o \
+        hydro_rk/GalaxyDiskInitialize.o \
+        hydro_rk/Grid_AddSelfGravity.o \
+        hydro_rk/Grid_AddViscosity.o \
+        hydro_rk/Grid_AGNDiskInitializeGrid.o \
+        hydro_rk/Grid_Collapse1DInitializeGrid.o \
+        hydro_rk/Grid_Collapse3DInitializeGrid.o \
+        hydro_rk/Grid_CopyOldBaryonFieldToBaryonField.o \
+        hydro_rk/Grid_GalaxyDiskInitializeGrid.o \
+        hydro_rk/Grid_Hydro1DTestInitializeGrid.o \
+        hydro_rk/Grid_Hydro3D.o \
+	hydro_rk/Grid_ReturnHydroRKPointers.o \
+	hydro_rk/Grid_ReturnOldHydroRKPointers.o \
+        hydro_rk/Grid_RungeKutta2_1stStep.o \
+        hydro_rk/Grid_RungeKutta2_2ndStep.o \
+        hydro_rk/Grid_SaveSubgridFluxes.o \
+        hydro_rk/Grid_SetFloor.o \
+	hydro_rk/Grid_SetNumberOfColours.o \
+        hydro_rk/Grid_SourceTerms.o \
+        hydro_rk/Grid_TurbulenceInitializeGrid.o \
+        hydro_rk/Grid_UpdatePrim.o \
+        hydro_rk/Grid_ZeroFluxes.o \
+        hydro_rk/Turbulence_Generator.o \
+        hydro_rk/HLL_PLM.o \
+        hydro_rk/HLLC_PLM.o \
+        hydro_rk/Hydro1DTestInitialize.o \
+        hydro_rk/HydroLine.o \
+        hydro_rk/HydroSweepX.o \
+        hydro_rk/HydroSweepY.o \
+        hydro_rk/HydroSweepZ.o \
+        hydro_rk/LLF_PLM.o \
+        hydro_rk/LLF_Zero.o \
+        hydro_rk/Rec_PLM.o \
+        hydro_rk/Riemann_HLL.o \
+        hydro_rk/Riemann_HLLC.o \
+        hydro_rk/Riemann_LLF.o \
+        hydro_rk/TurbulenceInitialize.o \
+        hydro_rk/CollapseMHD3DInitialize.o \
+        hydro_rk/Grid_AddAmbipolarDiffusion.o \
+        hydro_rk/Grid_AddResistivity.o \
+        hydro_rk/Grid_CollapseMHD3DInitializeGrid.o \
+        hydro_rk/Grid_MHD1DTestInitializeGrid.o \
+        hydro_rk/Grid_MHD2DTestInitializeGrid.o \
+        hydro_rk/Grid_MHD3DTestInitializeGrid.o \
+        hydro_rk/Grid_MHD3D.o \
+        hydro_rk/Grid_MHDRK2_1stStep.o \
+        hydro_rk/Grid_MHDRK2_2ndStep.o \
+        hydro_rk/Grid_MHDSourceTerms.o \
+        hydro_rk/Grid_MHDTurbulenceInitializeGrid.o \
+        hydro_rk/Grid_ReduceWindBoundary.o \
+        hydro_rk/Grid_SaveMHDSubgridFluxes.o \
+        hydro_rk/Grid_UpdateMHDPrim.o \
+	hydro_rk/Grid_UpdateElectronDensity.o \
+        hydro_rk/HLL_PLM_MHD.o \
+        hydro_rk/LLF_PLM_MHD.o \
+        hydro_rk/MHD1DTestInitialize.o \
+        hydro_rk/MHD2DTestInitialize.o \
+        hydro_rk/MHD3DTestInitialize.o \
+        hydro_rk/MHDLine.o \
+        hydro_rk/MHDSweepX.o \
+        hydro_rk/MHDSweepY.o \
+	hydro_rk/MHDSweepZ.o \
+	hydro_rk/MHDTurbulenceInitialize.o \
+	hydro_rk/Riemann_HLL_MHD.o \
+	hydro_rk/Riemann_LLF_MHD.o
 
 # Objects for the CUDA GPU-computing support
-OBJS_ECUDA_ALL = hydro_rk/CUDA_Rec_PLM.o hydro_rk/HydroSweep_CUDA.o hydro_rk/MHDSweep_CUDA.o
+OBJS_ECUDA_ALL = \
+	hydro_rk/CUDA_Rec_PLM.o \
+	hydro_rk/HydroSweep_CUDA.o \
+	hydro_rk/MHDSweep_CUDA.o
 
 
 

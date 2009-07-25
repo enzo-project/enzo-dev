@@ -21,9 +21,9 @@
 int HLL_PLM(float **prim, float **priml, float **primr,
 	    float **species, float **colors,  float **FluxLine, int ActiveSize,
 	    char direc, int ij, int ik);
-int HLL_PPM(float **prim, float **priml, float **primr,
-	    float **species, float **colors,  float **FluxLine, int ActiveSize,
-	    char direc, int ij, int ik);
+//int HLL_PPM(float **prim, float **priml, float **primr,
+//	    float **species, float **colors,  float **FluxLine, int ActiveSize,
+//	    char direc, int ij, int ik);
 int HLLC_PLM(float **prim, float **priml, float **primr,
 	     float **species, float **colors,  float **FluxLine, int ActiveSize,
 	     char direc, int ij, int ik);
@@ -72,12 +72,12 @@ int HydroLine(float **Prim, float **priml, float **primr,
       return FAIL;
     }
   }
-  if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
-    if (HLL_PPM(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {
-      printf("HydroLine: HLL_PLM failed\n");
-      return FAIL;
-    }
-  }
+//  if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
+//    if (HLL_PPM(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {
+//      printf("HydroLine: HLL_PLM failed\n");
+//      return FAIL;
+//    }
+//  }
   else {
     printf("Hydro solver undefined\n");
     return FAIL;

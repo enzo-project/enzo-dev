@@ -38,12 +38,9 @@ int grid::MHDSourceTerms(float **dU)
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, PhiNum, HMNum, H2INum, H2IINum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
+    B1Num, B2Num, B3Num, PhiNum;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+				   TENum, B1Num, B2Num, B3Num, PhiNum);
 
 
 #ifdef USE
@@ -69,12 +66,12 @@ int grid::MHDSourceTerms(float **dU)
 	igridym1 = i+(j-1+k*GridDimension[1])*GridDimension[0];
 	igridzp1 = i+(j+(k+1)*GridDimension[1])*GridDimension[0];
 	igridzm1 = i+(j+(k-1)*GridDimension[1])*GridDimension[0];
-	divB[n] = 0.5*(BaryonField[iBx][igrid+1]-BaryonField[iBx][igrid-1])*dtdx +
-	  0.5*(BaryonField[iBy][igridyp1]-BaryonField[iBy][igridym1])*dtdy +
-	  0.5*(BaryonField[iBz][igridzp1]-BaryonField[iBz][igridzm1])*dtdz; 
-	gradPhi[0][n] = 0.5*(BaryonField[iPhi][igrid+1]-BaryonField[iPhi][igrid-1])*dtdx;
-	gradPhi[1][n] = 0.5*(BaryonField[iPhi][igridyp1]-BaryonField[iPhi][igridym1])*dtdy;
-	gradPhi[2][n] = 0.5*(BaryonField[iPhi][igridzp1]-BaryonField[iPhi][igridzm1])*dtdz;
+	divB[n] = 0.5*(BaryonField[B1Num][igrid+1]-BaryonField[B1Num][igrid-1])*dtdx +
+	  0.5*(BaryonField[B2Num][igridyp1]-BaryonField[B2Num][igridym1])*dtdy +
+	  0.5*(BaryonField[B3Num][igridzp1]-BaryonField[B3Num][igridzm1])*dtdz; 
+	gradPhi[0][n] = 0.5*(BaryonField[PhiNum][igrid+1]-BaryonField[PhiNum][igrid-1])*dtdx;
+	gradPhi[1][n] = 0.5*(BaryonField[PhiNum][igridyp1]-BaryonField[PhiNum][igridym1])*dtdy;
+	gradPhi[2][n] = 0.5*(BaryonField[PhiNum][igridzp1]-BaryonField[PhiNum][igridzm1])*dtdz;
 	*/ 
 	dU[iS1  ][n] -= divB[n]*Bx;
 	dU[iS2  ][n] -= divB[n]*By;
@@ -229,12 +226,12 @@ int grid::MHDSourceTerms(float **dU)
 	  rho = BaryonField[DensNum][igrid];
 	  
 	  
-	  dU[iBx  ][n] += dtFixed*coef*BaryonField[iBx][n];
-	  dU[iBy  ][n] += dtFixed*coef*BaryonField[iBy][n];
-	  dU[iBz  ][n] += dtFixed*coef*BaryonField[iBz][n];
-	  dU[iEtot][n] -= dtFixed*coef* (BaryonField[iBx][n]*BaryonField[iBx][n]+
-					 BaryonField[iBy][n]*BaryonField[iBy][n]+
-					 BaryonField[iBz][n]*BaryonField[iBz][n]);
+	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][n];
+	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][n];
+	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][n];
+	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][n]*BaryonField[B1Num][n]+
+					BaryonField[B2Num][n]*BaryonField[B2Num][n]+
+					BaryonField[B3Num][n]*BaryonField[B3Num][n]);
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
 	}
       }
@@ -308,26 +305,18 @@ int grid::MHDSourceTerms(float **dU)
     float vels[3]; 
     int n = 0;
 
-    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
-    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
-    int ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
-    int ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
-    
-
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[iden][igrid];
+	  rho = BaryonField[DensNum][igrid];
 	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i];
 	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i];
 	 
-	  vels[0] = BaryonField[ivx][igrid];
-	  vels[1] = BaryonField[ivy][igrid];
-	  vels[2] = BaryonField[ivz][igrid];
+	  vels[0] = BaryonField[Vel1Num][igrid];
+	  vels[1] = BaryonField[Vel2Num][igrid];
+	  vels[2] = BaryonField[Vel3Num][igrid];
 
 	  //adding Omega cross v term; given Omega in z direction
 	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*

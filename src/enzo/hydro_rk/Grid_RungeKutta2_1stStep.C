@@ -40,12 +40,6 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;  }
-
   double time1 = ReturnWallTime();
   int igrid;
   /* allocate space for fluxes */
@@ -99,41 +93,14 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
 
   int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-  }
   
   int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-  }
 
-  Prim[iden ] = BaryonField[DensNum];
-  Prim[ivx  ] = BaryonField[Vel1Num];
-  Prim[ivy  ] = BaryonField[Vel2Num];
-  Prim[ivz  ] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
-
-  //      fprintf(stderr,"%i %i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
-  //      fprintf(stderr,"%i %i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
-
-  if (DualEnergyFormalism) {
-    Prim[ieint] = BaryonField[GENum];
-  }
-
-  // copy species field
-  for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
-    // change species from density to mass fraction
-    for (int n = 0; n < size; n++) {
-      BaryonField[ns][n] /= BaryonField[iden][n];
-    }
-    Prim[ns] = BaryonField[ns];
-  }
-
-  // copy color field
-  for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
-    Prim[nc] = BaryonField[nc];
-  }
+  this->ReturnHydroRKPointers(Prim);
 
   // RK2 first step
 #ifdef ECUDA 
@@ -170,10 +137,10 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     printf("Falling back to zero order at RK 1st step\n");
     // fall back to zero order scheme
     this->CopyOldBaryonFieldToBaryonField();
-    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
       // change species from density to mass fraction
       for (int n = 0; n < size; n++) {
-	BaryonField[ns][n] /= BaryonField[iden][n];
+	Prim[ns][n] /= Prim[iden][n];
       }
     }
     this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);

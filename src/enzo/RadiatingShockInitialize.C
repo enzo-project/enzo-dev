@@ -336,7 +336,8 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     }
 
     InjectionMass2Density_scaleFactor = 1.989e33 / 
-      (double(MassUnits) * numberInjectionCells * pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
+      (MassUnits * numberInjectionCells * 
+       pow((dx*POW(RefineBy,-MaximumRefinementLevel)),3));
 
     // ignore D mass
     RadiatingShockInnerDensity = (TestProblemData.InitialHydrogenMass + 

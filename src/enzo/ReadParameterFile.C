@@ -82,7 +82,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
-    ret += sscanf(line, "InitialCPUTime     = %"FSYM, &MetaData.CPUTime);
+    ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
     ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
@@ -498,8 +498,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinementLevelExponent+4,
 		  MinimumMassForRefinementLevelExponent+5,
 		  MinimumMassForRefinementLevelExponent+6);
-    ret += sscanf(line, "MinimumSlopeForRefinement = %"FSYM,
-		  &MinimumSlopeForRefinement);
+    ret += sscanf(line, "MinimumSlopeForRefinement ="
+		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  MinimumSlopeForRefinement+0,
+		  MinimumSlopeForRefinement+1,
+		  MinimumSlopeForRefinement+2,
+		  MinimumSlopeForRefinement+3,
+		  MinimumSlopeForRefinement+4,
+		  MinimumSlopeForRefinement+5,
+		  MinimumSlopeForRefinement+6);
     ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
 		  &MinimumPressureJumpForRefinement);
     ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,
@@ -897,6 +904,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     //    FluxCorrection            = FALSE;
   }
  
+  /* For rk_hydro, we need to set some variables */
+
   if (DualEnergyFormalism) {
     NEQ_HYDRO = 6;
     NEQ_MHD   = 10;
@@ -907,6 +916,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iPhi = 9;
     iEint = 5;
   }
+
+  // Don't include free electron field
+  switch (MultiSpecies) {
+  case 0:  NSpecies = 0; break;
+  case 1:  NSpecies = 5; break;
+  case 2:  NSpecies = 8; break;
+  case 3:  NSpecies = 11; break;
+  default: NSpecies = 0; break;
+  }
+
+  // Determine color fields (NColor) later inside a grid object.
+  // ...
 
   /* Set the number of particle attributes, if left unset. */
  

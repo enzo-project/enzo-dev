@@ -6,7 +6,7 @@
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                  cooltime,
      &                in, jn, kn, nratec, iexpand, imethod,
-     &                idual, ispecies, imetal, idim,
+     &                idual, ispecies, imetal, imcool, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
@@ -49,7 +49,7 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        n_xe
+     &        n_xe, imcool
       real    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end
@@ -157,7 +157,7 @@
          call cool1d_multi(     
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, idim,
+     &                iexpand, ispecies, imetal, imcool, idim,
      &                is, ie, j, k, ih2co, ipiht, 1,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,

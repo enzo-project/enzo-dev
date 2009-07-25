@@ -7,7 +7,7 @@
       subroutine cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, idim,
+     &                iexpand, ispecies, imetal, imcool, idim,
      &                is, ie, j, k, ih2co, ipiht, iter,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
@@ -58,9 +58,9 @@
 !  Arguments
 
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imetal, 
+     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
-     &        n_xe
+     &        n_xe, imetal
       real    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
@@ -89,9 +89,10 @@
 !  Parameters
 
       double precision mh
-      real    ZSOLAR
+      real    ZSOLAR, mu_metal
       parameter (mh = 1.67d-24)      !DPC
       parameter (ZSOLAR = 0.02041)
+      parameter (mu_metal = 16.0)    ! approx. mean molecular weight of metals
 
 !  Locals
 
@@ -225,6 +226,14 @@
             tgas(i) = tgas(i) +
      &            HM(i,j,k) + (H2I(i,j,k) + H2II(i,j,k))/2.0
             end if
+         enddo
+      endif
+
+!     Include metal species
+      
+      if (imetal .eq. 1) then
+         do i = is+1, ie+1
+            tgas(i) = tgas(i) + metal(i,j,k)/mu_metal
          enddo
       endif
 
@@ -621,7 +630,7 @@ c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
 
 !     --- Cooling/heating due to metals ---
 
-      if (imetal .eq. 1) then
+      if (imcool .eq. 1) then
 
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
@@ -684,11 +693,11 @@ c
             endif
          enddo
 
-      endif                     ! imetal == 1
+      endif                     ! imcool == 1
 
 #ifdef CEN_METALS
 
-      if (imetal .eq. 2) then
+      if (imcool .eq. 2) then
 
 !     Generate table if required
 
