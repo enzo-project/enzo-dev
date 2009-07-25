@@ -702,6 +702,7 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o                                    
                 hydro_rk/Turbulence_Generator.o                                 \
                 hydro_rk/HLL_PLM.o                                               \
                 hydro_rk/HLLC_PLM.o                                              \
+                hydro_rk/HLL_PPM.o                                               \
                 hydro_rk/Hydro1DTestInitialize.o                                 \
                 hydro_rk/HydroLine.o                                             \
                 hydro_rk/HydroSweepX.o                                           \
@@ -710,6 +711,7 @@ OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o                                    
                 hydro_rk/LLF_PLM.o                                               \
                 hydro_rk/LLF_Zero.o                                             \
                 hydro_rk/Rec_PLM.o                                               \
+                hydro_rk/Rec_PPM.o                                               \
                 hydro_rk/Riemann_HLL.o                                           \
                 hydro_rk/Riemann_HLLC.o                                          \
                 hydro_rk/Riemann_LLF.o                                           \

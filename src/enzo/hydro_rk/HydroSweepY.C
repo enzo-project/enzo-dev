@@ -118,7 +118,7 @@ int HydroSweepY(float **Prim, float **Flux3D, int GridDimension[],
       // compute FluxLine from U1 and Prim1
       if (HydroLine(Prim1, priml, primr, species, colors, 
 		    FluxLine, Yactivesize, dtdx, 'y', i, k, fallback) == FAIL) {
-	printf("SRHydroline failed.\n");
+	printf("Hydroline failed.\n");
 	return FAIL;
       }
       

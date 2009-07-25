@@ -44,7 +44,7 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
+    HMNum, H2INum, H2IINum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");

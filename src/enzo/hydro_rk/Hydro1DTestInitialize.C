@@ -113,7 +113,7 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 						  pl,   pr,
 						  Bxl,  Bxr,
 						  Byl,  Byr)  == FAIL) {
-    fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+    fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
     return FAIL;
   }
 
@@ -157,7 +157,7 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 						    pl,   pr,
 						    Bxl,  Bxr,
 						    Byl,  Byr) == FAIL) {
-	  fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+	  fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;

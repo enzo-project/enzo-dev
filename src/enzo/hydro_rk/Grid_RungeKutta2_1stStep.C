@@ -114,8 +114,8 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   Prim[ivz  ] = BaryonField[Vel3Num];
   Prim[ietot] = BaryonField[TENum];
 
-  //    fprintf(stderr,"%i %i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
-  //    fprintf(stderr,"%i %i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
+  //      fprintf(stderr,"%i %i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
+  //      fprintf(stderr,"%i %i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
 
   if (DualEnergyFormalism) {
     Prim[ieint] = BaryonField[GENum];

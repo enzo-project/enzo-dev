@@ -1,0 +1,71 @@
+#
+# AMR PROBLEM DEFINITION FILE: Kelvin Helmholtz with a ramp                    (Tom Abel 09)
+# Robertson, Kravstov, Gnedin & Abel 2009
+# 
+# 
+# 
+#
+#  HydroMethod = 3/RiemanSolver = 4 (HLLC) shows this strongly, so does PPM (HM=0)
+#  HM=3 wit RiemanSolver 1 (HLL) or 3 (LLF) pass this better and so does Zeus
+# 
+ProblemType                =  201
+MHD2DProblemType = 9
+VelAnyl = 1
+TopGridRank                = 2
+TopGridDimensions          = 512 512
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3 
+RightFaceBoundaryCondition = 3 3 3
+#
+#  set I/O and stop/start parameters
+#
+StopTime = 2
+#StopCycle = 5
+dtDataDump             = 0.05
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy             = 1
+MaximumRefinementLevel      = 0
+#
+#  set hydro parameters
+#
+Gamma                       = 1.6667
+Mu                          = 1
+HydroMethod                 = 0
+CourantSafetyNumber         = 0.8
+Theta_Limiter               = 1.9
+RiemannSolver               = 3
+ReconstructionMethod        = 0
+DualEnergyFormalism         = 0           // Should stay 0 for isothermal problems
+RKOrder                     = 2
+SmallRho                    = 1e-4
+SmallP                      = 1e-10
+SmallT                      = 5
+EOSType                     = 0
+#
+# problem parameters
+#
+UsePhysicalUnit = 0
+RefineAtStart = 1
+#
+LowerBx = 1e-9
+#Debug1 = 1
+
+UpperVelocityX = -0.5
+UpperVelocityY = 0
+UpperPressure = 2.5
+UpperDensity = 1
+UpperBx = 0
+UpperBy = 0
+
+LowerVelocityX = 0.5
+LowerVelocityY = 0
+LowerPressure = 2.5
+LowerDensity = 2
+
+LowerBx = 0
+LowerBy = 0
+
