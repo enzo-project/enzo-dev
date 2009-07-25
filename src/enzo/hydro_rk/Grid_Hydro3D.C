@@ -197,7 +197,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
       }
     }
   }
-
+  
   // Sweep Z
 
   if (GridRank > 2) {

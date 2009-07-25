@@ -1899,9 +1899,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int Hydro1DTestInitializeGrid(float rhol, float rhor,
 				float vxl,  float vxr,
 				float vyl,  float vyr,
-				float pl,   float pr,
-				float Bxl,  float Bxr,
-				float Byl,  float Byr);
+				float pl,   float pr);
   int RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
