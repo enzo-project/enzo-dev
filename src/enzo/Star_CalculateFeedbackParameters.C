@@ -41,7 +41,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenMaxVelocity = 35;		// km/s
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, c = 3.0e10;
 
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
@@ -84,11 +84,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case CONT_SUPERNOVA:
-    // inject energy into a sphere
+    // Inject energy into a sphere
     Radius = StarClusterSNRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
-    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr). These numbers are defined in Star_SetFeedbackFlag.C.
+    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
@@ -98,17 +98,49 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
-    // inject energy into a sphere
+    /* Using Star_CalculateMassAccretion.C estimate the feedback energy based on Bondi accretion rate.  
+       Unless we do Star_Accrete.C, this only gives us the parameter but not the actual accretion.
+       This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C. */
+    fprintf(stderr, "I'm here -1 !\n");
+    if (this->CalculateMassAccretion() == FAIL) {
+      fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
+      ENZO_FAIL("");
+    }
+    fprintf(stderr, "I'm here -2 !\n");
+
+    // Inject energy into a sphere
     Radius = MBHFeedbackRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
-    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr). These numbers are defined in Star_SetFeedbackFlag.C.
-    Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
+    // Release MBH-AGN thermal energy constantly. Here no mass is released.
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
-    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
-    EjectaMetalDensity = EjectaDensity * StarMetalYield;
-    EjectaThermalEnergy = MBHFeedbackEnergy / Msun /
-      (VelocityUnits * VelocityUnits);    
+    EjectaDensity = 0.0;
+    EjectaMetalDensity = 0.0;
+
+    /* For CONT_SUPERNOVA, the unit of EjectaThermalEnergy is ergs/g, 
+       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
+       This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
+    fprintf(stderr, "I'm here -3 !\n");
+    fprintf(stderr, "MBHFeedbackThermalCoupling =%g", MBHFeedbackThermalCoupling);
+    fprintf(stderr, "MBHFeedbackRadiativeEfficiency =%g", MBHFeedbackRadiativeEfficiency);
+    fprintf(stderr, "this->accretion_rate[0] =%g", this->accretion_rate[0]);
+    fprintf(stderr, "accretion_rate[0] =%g", accretion_rate[0]);
+    fprintf(stderr, "this->CurrentGrid->dtFixed =%g", this->CurrentGrid->dtFixed);
+    fprintf(stderr, "CurrentGrid->dtFixed =%g", CurrentGrid->dtFixed);
+    fprintf(stderr, "TimeUnits = %g", TimeUnits);
+
+    EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
+      accretion_rate[0] * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
+      (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
+    fprintf(stderr, "I'm here -4 !\n");
+
+    naccretions = 0;
+    fprintf(stderr, "I'm here -5 !\n");
+
+    delete [] accretion_rate;
+    delete [] accretion_time;
+    fprintf(stderr, "I'm here -6 !\n");
+
     break;
 
   case MBH_RADIATIVE:

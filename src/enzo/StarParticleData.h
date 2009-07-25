@@ -57,8 +57,9 @@ SPEXTERN float  StarClusterRegionRightEdge[3];
 
 SPEXTERN int    MBHUseMetalField;
 SPEXTERN float  MBHMinDynamicalTime;
-SPEXTERN double MBHFeedbackEnergy;
 SPEXTERN float  MBHFeedbackRadius;
+SPEXTERN float  MBHFeedbackRadiativeEfficiency;
+SPEXTERN float  MBHFeedbackThermalCoupling;
 SPEXTERN float  MBHMinimumMass;
 SPEXTERN float  MBHCombineRadius;
 SPEXTERN double MBHIonizingLuminosity;

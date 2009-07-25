@@ -40,7 +40,7 @@ int ReadUnits(FILE *fptr)
 
     int ret = 0;
     /* read parameters */
-    ret += sscanf(line, "MassUnits = %"FSYM, &GlobalMassUnits);
+    ret += sscanf(line, "MassUnits = %lf", &GlobalMassUnits);
     ret += sscanf(line, "DensityUnits = %"FSYM, &GlobalDensityUnits);
     ret += sscanf(line, "LengthUnits = %"FSYM, &GlobalLengthUnits);
     ret += sscanf(line, "TimeUnits = %"FSYM, &GlobalTimeUnits);

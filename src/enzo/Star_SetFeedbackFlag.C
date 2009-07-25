@@ -93,7 +93,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
     break;
 
   case MBH:
-    if (this->type > 0)
+    AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
+    if (this->type > 0 && AgeInMyr > 0)
       if (RadiativeTransfer) 
 	this->FeedbackFlag = MBH_RADIATIVE;
       else

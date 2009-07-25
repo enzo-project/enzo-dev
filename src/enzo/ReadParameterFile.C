@@ -594,8 +594,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHUseMetalField);
     ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
 		  &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHFeedbackEnergy = %lf", &MBHFeedbackEnergy);
     ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
+    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
+    ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
