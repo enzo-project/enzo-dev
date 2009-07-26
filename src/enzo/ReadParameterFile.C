@@ -93,9 +93,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
-    ret += sscanf(line, "TimeLastRestartDump = %"PSYM,
+    ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
-    ret += sscanf(line, "dtRestartDump       = %"PSYM, &MetaData.dtRestartDump);
+    ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
     ret += sscanf(line, "TimeLastDataDump    = %"PSYM,
 		  &MetaData.TimeLastDataDump);
     ret += sscanf(line, "dtDataDump          = %"PSYM, &MetaData.dtDataDump);
