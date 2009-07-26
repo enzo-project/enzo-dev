@@ -9,7 +9,7 @@
 #
 ProblemType            = 100
 TopGridRank            = 1
-TopGridDimensions      = 8 
+TopGridDimensions      = 80 
 HydroMethod            = 3
 RiemannSolver          = 1
 ReconstructionMethod   = 1
@@ -20,8 +20,8 @@ Theta_Limiter          = 1.5
 StopTime               = 2.0
 dtDataDump             = 0.1
 DataDumpName           = hydro1D_
-CycleSkipDataDump      = 1
-StopCycle              = 10
+#CycleSkipDataDump      = 100
+#StopCycle              = 19
 #
 LeftFaceBoundaryCondition    = 3 3 3
 RightFaceBoundaryCondition   = 3 3 3

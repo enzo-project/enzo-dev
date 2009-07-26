@@ -103,11 +103,10 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
 
   // update conserved variables
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				   Vel3Num, TENum, B1Num, B2Num, B3Num);
+				   Vel3Num, TENum);
 
   float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
     rho, vx, vy, vz, e, etot, Tau, eint, p, v2,
@@ -185,6 +184,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	  printf("UpdatePrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g\n", 
 		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
 	  printf("rho_new=%g, rho=%g, rho_old=%g\n", D_new, rho, rho_old);
+	  printf("i=%i, j=%i, k=%i\n", i,j,k);
+
 	  //return FAIL;
 	}
 	

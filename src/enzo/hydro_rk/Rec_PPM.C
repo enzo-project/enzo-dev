@@ -30,7 +30,7 @@ void ppm_quartic(float **prim, float **p0l, float **p0r, int ActiveSize, int Neq
   int iprim;
 
   for (int field = 0; field < Neq; field++) {
-    for (int i = 0; i < ActiveSize+3; i++) {
+    for (int i = 0; i < ActiveSize+2; i++) {
       iprim = i + 1;
 
       ap2 = prim[field][iprim+2];
@@ -79,7 +79,7 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
   float rho_p1, rho_m1, p_p1, p_m1, v_p1, v_m1, p_p2, p_m2, p;
 
   int iprim;
-  for (int i = 0; i < ActiveSize+2; i++) {
+  for (int i = 0; i < ActiveSize+1; i++) {
     iprim = i + 2;
     rho_p1 = prim[iden][iprim+1];
     rho_m1 = prim[iden][iprim-1];

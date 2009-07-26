@@ -56,10 +56,8 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   
   Prim[iden] = BaryonField[DensNum];
   Prim[ivx] = BaryonField[Vel1Num];
-  if (GridRank > 1)
-    Prim[ivy] = BaryonField[Vel2Num];
-  if (GridRank > 2)
-    Prim[ivz] = BaryonField[Vel3Num];
+  Prim[ivy] = BaryonField[Vel2Num];
+  Prim[ivz] = BaryonField[Vel3Num];
   Prim[ietot] = BaryonField[TENum];
   if (DualEnergyFormalism)
     Prim[ieint] = BaryonField[GENum];

@@ -54,9 +54,10 @@ int HydroSweepZ(float **Prim, float **Flux3D, int GridDimension[],
     Prim1[field] = new float[GridDimension[2]];
   }
 
+  int extra = (ReconstructionMethod == PPM);
   for (int field = 0; field < NEQ_HYDRO-idual; field++) {
-    priml[field] = new float[Zactivesize+1];
-    primr[field] = new float[Zactivesize+1];
+    priml[field] = new float[Zactivesize+1+extra];
+    primr[field] = new float[Zactivesize+1+extra];
   }
 
   for (int field = 0; field < NSpecies; field ++) {
