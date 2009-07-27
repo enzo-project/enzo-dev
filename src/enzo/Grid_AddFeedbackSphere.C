@@ -237,8 +237,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    //increase = BaryonField[DensNum][index] / OldDensity;
 	    if (ZField == TRUE) {
 	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[ZNum][index] + 
-			       factor*EjectaMetalDensity) /
+		metallicity = (BaryonField[ZNum][index] + EjectaMetalDensity) /
 		  BaryonField[DensNum][index];
 	      } else {
 		metallicity = BaryonField[ZNum][index] / BaryonField[DensNum][index];

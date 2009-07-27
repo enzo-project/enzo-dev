@@ -5,7 +5,7 @@ c
       subroutine cool1d_sep(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, idim,
+     &                iexpand, ispecies, imetal, imcool, idim,
      &                is, ie, j, k, ih2co, ipiht, iter,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
@@ -52,9 +52,9 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imetal, 
+     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, 
-     &        iradtrans, n_xe, nedot
+     &        iradtrans, n_xe, nedot, imetal
       real    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
@@ -491,7 +491,7 @@ c
 c     --- Cooling/heating due to metals ---
 c
 
-      if (imetal .eq. 1) then
+      if (imcool .eq. 1) then
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
          dlogxea = (logxe1 - logxe0) / real(n_xe-1)
@@ -552,11 +552,11 @@ c
 
             endif
          enddo
-      endif ! imetal == 1
+      endif ! imcool == 1
 
 #ifdef CEN_METALS
 c
-      if (imetal .eq. 2) then
+      if (imcool .eq. 2) then
 c
 c     Generate table if required
 c

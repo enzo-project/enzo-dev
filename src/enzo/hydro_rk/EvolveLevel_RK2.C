@@ -179,7 +179,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid;
   int RefinementFactors[MAX_DIMENSION];
-  int cycle = 0, counter = 0, grid1, subgrid, iLevel, ErrorSignal = 0;
+  int cycle = 0, counter = 0, grid1, subgrid, iLevel;
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
 
@@ -222,7 +222,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
 
+  /* Count the number of colours in the first grid (to define Ncolor) */
 
+  Grids[0]->GridData->SetNumberOfColours();
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
@@ -255,10 +257,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       counter = 0;
       while (NextGrid != NULL) {
 	NextGrid = NextGrid->NextGridThisLevel;
-	if (++counter > MAX_NUMBER_OF_SUBGRIDS) {
-	  fprintf(stderr, "More subgrids than MAX_NUMBER_OF_SUBGRIDS.\n");
-	  ENZO_FAIL("");
-	}
+	if (++counter > MAX_NUMBER_OF_SUBGRIDS)
+	  ENZO_FAIL("More subgrids than MAX_NUMBER_OF_SUBGRIDS.");
       }
       NumberOfSubgrids[grid1] = counter + 1;
     }
@@ -322,18 +322,21 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       //      lmax = 0; // <- Pengs version had lmax = 6
       //      lmax = 1;
-      FLOAT dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
-      FLOAT dy0 = (MetaData->TopGridRank > 1) ? 
+      FLOAT dx0, dy0, dz0, h_min, DivBDampingLength = 1.0;
+
+      dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
+      dy0 = (MetaData->TopGridRank > 1) ? 
 	(DomainRightEdge[1] - DomainLeftEdge[1]) / MetaData->TopGridDims[1] : 1e8;
-      FLOAT dz0 = (MetaData->TopGridRank > 2) ? 
+      dz0 = (MetaData->TopGridRank > 2) ? 
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
-      FLOAT h_min = my_MIN(dx0, dy0, dz0);
+      h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
-      FLOAT DivBDampingLength=1.;
       C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
-      if (debug) fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", h_min, dt0, C_h, C_p);
+      if (debug) 
+	fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", 
+		h_min, dt0, C_h, C_p);
     }
 
 //     if (SelfGravity && MetaData->TopGridRank == 3) {
@@ -410,31 +413,20 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif /* TRANSFER */
 
 
-      if (Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField() == FAIL) {
-	fprintf(stderr, "Error in grid->CopyBaryonFieldToOldBaryonField.\n");
-	ENZO_FAIL("");
-      }
+      Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       if (UseHydro) {
-	if (HydroMethod == HD_RK) {
-	  if (Grids[grid1]->GridData->RungeKutta2_1stStep(LevelCycleCount[level], 
-							 SubgridFluxesEstimate[grid1],
-							 NumberOfSubgrids[grid1], level,
-							 Exterior) == FAIL) {
-	    fprintf(stderr, "Error in grid->RungeKutta2_1stStep.\n");
-	    ENZO_FAIL("");
-	  }
-	} 
-	else if (HydroMethod == MHD_RK) {
-	  if (Grids[grid1]->GridData->MHDRK2_1stStep(LevelCycleCount[level], 
-						    SubgridFluxesEstimate[grid1],
-						    NumberOfSubgrids[grid1], level,
-						    Exterior) == FAIL) {
-	    fprintf(stderr, "Error in grid->MHDRK2_1stStep.\n");
-	    ENZO_FAIL("");
-	  }
-	}
-      }
+
+	if (HydroMethod == HD_RK)
+	  Grids[grid1]->GridData->RungeKutta2_1stStep
+	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	     NumberOfSubgrids[grid1], level, Exterior);
+
+	else if (HydroMethod == MHD_RK)
+	  Grids[grid1]->GridData->MHDRK2_1stStep
+	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	     NumberOfSubgrids[grid1], level, Exterior);
+      } // ENDIF UseHydro
 	
       /* Do this here so that we can get the correct
 	 time interpolated boundary condition */
@@ -447,37 +439,26 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ENZO_FAIL("");
       }*/
 #ifdef FAST_SIB
-  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+  SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			level, MetaData, Exterior, LevelArray[level]);
 #else
-  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                            Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+  SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+			Exterior, LevelArray[level]);
 #endif
     
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
-	if (HydroMethod == HD_RK) {
-	  if (Grids[grid1]->GridData->RungeKutta2_2ndStep(LevelCycleCount[level], 
-							 SubgridFluxesEstimate[grid1],
-							 NumberOfSubgrids[grid1], level,
-							 Exterior) == FAIL) {
-	    fprintf(stderr, "Error in grid->RungeKutta2_2ndStep.\n");
-	    ErrorSignal = 1;
-	    continue;
-	  }
-	}
-	else if (HydroMethod == MHD_RK) {
-	  if (Grids[grid1]->GridData->MHDRK2_2ndStep(LevelCycleCount[level], 
-						    SubgridFluxesEstimate[grid1],
-						    NumberOfSubgrids[grid1], level,
-						    Exterior) == FAIL) {
-	    fprintf(stderr, "Error in grid->MHDRK2_2ndStep.\n");
-	    ENZO_FAIL("");
-	  }
+	if (HydroMethod == HD_RK)
+	  Grids[grid1]->GridData->RungeKutta2_2ndStep
+	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	     NumberOfSubgrids[grid1], level, Exterior);
 
+	else if (HydroMethod == MHD_RK) {
+	  Grids[grid1]->GridData->MHDRK2_2ndStep
+	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	     NumberOfSubgrids[grid1], level, Exterior);
+	  
 	  if (UseAmbipolarDiffusion) {
 	    Grids[grid1]->GridData->AddAmbipolarDiffusion();
 	  }
@@ -488,11 +469,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	
 	 
 	  time1 = ReturnWallTime();
-
+	  
 	  Grids[grid1]->GridData->PoissonSolver(level);
 	
-	}
-      }
+	} // ENDIF MHD_RK
+      } // ENDIF UseHydro
 
       /* Add viscosity */
 
@@ -557,16 +538,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);
-
-    /* Check for stop (unpleasant to exit from here, but...). */
-
-    if (MetaData->StopFirstTimeAtLevel > 0 &&
-	level >= MetaData->StopFirstTimeAtLevel &&
-	LevelArray[level+1] == NULL) {
-      fprintf(stderr, "Stopping due to request on level %d\n", level);
-
-      my_exit(EXIT_SUCCESS);
-    }
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
 

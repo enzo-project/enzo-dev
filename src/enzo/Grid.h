@@ -1892,21 +1892,23 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 // new hydro & MHD routines
 //------------------------------------------------------------------------
 
+  int SetNumberOfColours(void);
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
   int Hydro1DTestInitializeGrid(float rhol, float rhor,
 				float vxl,  float vxr,
 				float vyl,  float vyr,
-				float pl,   float pr,
-				float Bxl,  float Bxr,
-				float Byl,  float Byr);
+				float pl,   float pr);
   int RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
   int RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
+  int ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions = true);
+  int ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions = true);
+  int UpdateElectronDensity(void);
   int UpdatePrim(float **dU, float c1, float c2);
   int Hydro3D(float **Prim, float **dU, float dt,
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
@@ -2062,12 +2064,12 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   /* Non-ideal effects */
 
   int AddViscosity();
-  int ComputeViscosity(float *viscosity);
+  int ComputeViscosity(float *viscosity, int DensNum);
 
   int AddAmbipolarDiffusion();
 
   int AddResistivity();
-  int ComputeResistivity(float *resistivity);
+  int ComputeResistivity(float *resistivity, int DensNum);
   /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
 
 };
