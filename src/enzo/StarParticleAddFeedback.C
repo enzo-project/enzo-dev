@@ -79,8 +79,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-    if (!cstar->ApplyFeedbackTrue(SNe_dt))
-      continue;
+    if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
+      if (!cstar->ApplyFeedbackTrue(SNe_dt))
+	continue;
     
     /* Compute some parameters */
 

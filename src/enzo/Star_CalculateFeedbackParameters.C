@@ -98,9 +98,12 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
+    if (this->type != MBH) break;
+
     /* Using Star_CalculateMassAccretion.C estimate the feedback energy based on Bondi accretion rate.  
        Unless we do Star_Accrete.C, this only gives us the parameter but not the actual accretion.
        This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C. */
+
     fprintf(stderr, "I'm here -1 !\n");
     if (this->CalculateMassAccretion() == FAIL) {
       fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
@@ -121,13 +124,14 @@ void Star::CalculateFeedbackParameters(float &Radius,
        but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
     fprintf(stderr, "I'm here -3 !\n");
-    fprintf(stderr, "MBHFeedbackThermalCoupling =%g", MBHFeedbackThermalCoupling);
-    fprintf(stderr, "MBHFeedbackRadiativeEfficiency =%g", MBHFeedbackRadiativeEfficiency);
-    fprintf(stderr, "this->accretion_rate[0] =%g", this->accretion_rate[0]);
-    fprintf(stderr, "accretion_rate[0] =%g", accretion_rate[0]);
-    fprintf(stderr, "this->CurrentGrid->dtFixed =%g", this->CurrentGrid->dtFixed);
-    fprintf(stderr, "CurrentGrid->dtFixed =%g", CurrentGrid->dtFixed);
-    fprintf(stderr, "TimeUnits = %g", TimeUnits);
+    fprintf(stderr, "MBHFeedbackThermalCoupling =%g\n", MBHFeedbackThermalCoupling);
+    fprintf(stderr, "MBHFeedbackRadiativeEfficiency =%g\n", MBHFeedbackRadiativeEfficiency);
+    //    fprintf(stderr, "this->ReturnCurrentGrid->dtFixed =%g\n", this->ReturnCurrentGrid()->ReturnTimeStep());
+    //    fprintf(stderr, "this->CurrentGrid->dtFixed =%g\n", this->CurrentGrid->dtFixed);
+    //    fprintf(stderr, "this->accretion_rate[0] =%g\n", this->accretion_rate[0]);
+    fprintf(stderr, "accretion_rate[0] =%g\n", accretion_rate[0]);
+    fprintf(stderr, "CurrentGrid->dtFixed =%g\n", CurrentGrid->dtFixed);
+    fprintf(stderr, "TimeUnits = %g\n", TimeUnits);
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       accretion_rate[0] * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
