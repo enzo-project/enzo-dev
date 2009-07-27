@@ -325,7 +325,11 @@ Eint32 main(Eint32 argc, char *argv[])
 			   RegionStart, RegionEnd,
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, MyProcessorNumber) == FAIL) {
-    my_exit(EXIT_FAILURE);
+    if(int_argc==1){
+      my_exit(EXIT_SUCCESS);
+    } else {
+      my_exit(EXIT_FAILURE);
+    }
   }
 
  

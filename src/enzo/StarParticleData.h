@@ -34,6 +34,7 @@ SPEXTERN float StarMetalYield;
 SPEXTERN float StarEnergyToThermalFeedback;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
+
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIBlackHoles;
 SPEXTERN float PopIIIBHLuminosityEfficiency;
@@ -55,6 +56,14 @@ SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
+
+SPEXTERN int    MBHUseMetalField;
+SPEXTERN float  MBHMinDynamicalTime;
+SPEXTERN double MBHFeedbackEnergy;
+SPEXTERN float  MBHFeedbackRadius;
+SPEXTERN float  MBHMinimumMass;
+SPEXTERN float  MBHCombineRadius;
+SPEXTERN double MBHIonizingLuminosity;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

@@ -55,6 +55,20 @@ int grid::ComputeTemperatureField(float *temperature)
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
  
+  /* If Gadget equilibrium cooling is on, call the appropriate routine,
+     then exit - don't use the rest of the routine. */
+
+  if(GadgetEquilibriumCooling){
+    if(DualEnergyFormalism)
+      result = this->GadgetComputeTemperatureDEF(Time, temperature);
+    else
+      result = this->GadgetComputeTemperature(Time,temperature);
+
+    if(result == FAIL) { ENZO_FAIL("Error in grid->ComputePressure: Gadget.");
+    }
+    return SUCCESS;
+  }
+
   /* Compute the pressure first. */
  
   if (DualEnergyFormalism)
@@ -63,8 +77,7 @@ int grid::ComputeTemperatureField(float *temperature)
     result = this->ComputePressure(Time, temperature);
  
   if (result == FAIL) {
-    fprintf(stderr, "Error in grid->ComputePressure.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->ComputePressure.");
   }
  
   /* Compute the size of the fields. */
@@ -76,8 +89,7 @@ int grid::ComputeTemperatureField(float *temperature)
   /* Find Density, if possible. */
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Cannot find density.");
   }
  
  
@@ -98,8 +110,7 @@ int grid::ComputeTemperatureField(float *temperature)
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in GetUnits.");
   }
  
   if (MultiSpecies == FALSE)
@@ -117,8 +128,7 @@ int grid::ComputeTemperatureField(float *temperature)
  
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
  
     /* Compute temperature with mu calculated directly. */

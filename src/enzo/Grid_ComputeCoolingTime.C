@@ -41,6 +41,16 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int RadiationFieldCalculateRates(FLOAT Time);
 int FindField(int field, int farray[], int numfields);
+int GadgetCoolingTime(float *d, float *e, float *ge, 
+		      float *u, float *v, float *w,
+		      float *cooltime,
+		      int *in, int *jn, int *kn, int *iexpand, 
+		      hydro_method *imethod, int *idual, int *idim,
+		      int *is, int *js, int *ks, int *ie, int *je, 
+		      int *ke, float *dt, float *aye,
+		      float *fh, float *utem, float *uxyz, 
+		      float *uaye, float *urho, float *utim,
+		      float *gamma);
 
 int multi_CloudyCooling_time(float *density,float *totalenergy,float *gasenergy,
 			     float *velocity1,float *velocity2,float *velocity3,
@@ -62,7 +72,7 @@ extern "C" void FORTRAN_NAME(cool_multi_time)(
            float *cooltime,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
            hydro_method *imethod,
-        int *idual, int *ispecies, int *imetal, int *idim,
+        int *idual, int *ispecies, int *imetal, int *imcool, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
 	   int *ipiht,
 	float *dt, float *aye, float *temstart, float *temend,
@@ -171,12 +181,17 @@ int grid::ComputeCoolingTime(float *cooling_time)
   /* Metal cooling codes. */
  
   int MetalCoolingType = FALSE, MetalNum = 0;
+  int MetalFieldPresent = FALSE;
+
+  // First see if there's a metal field (so we can conserve species in
+  // the solver)
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
+    MetalNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+  MetalFieldPresent = (MetalNum != -1);
+
+  // Double check if there's a metal field when we have metal cooling
   if (MetalCooling == JHW_METAL_COOLING) {
-    if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-	!= -1)
-      MetalCoolingType = JHW_METAL_COOLING;
-    else if ((MetalNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-	     != -1)
+    if (MetalNum != -1)
       MetalCoolingType = JHW_METAL_COOLING;
     else {
       fprintf(stderr, 
@@ -186,15 +201,14 @@ int grid::ComputeCoolingTime(float *cooling_time)
     }
   }
   if (MetalCooling == CEN_METAL_COOLING)
-    if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-	!= -1)
+    if (MetalNum != 1)
       MetalCoolingType = CEN_METAL_COOLING;
-  if (MetalCooling == CLOUDY_METAL_COOLING) {
-    if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) != -1)
-      MetalCoolingType = CLOUDY_METAL_COOLING;
-    else
+    else {
+      fprintf(stderr, 
+	      "Warning: No metal field found.  Turning OFF MetalCooling.\n");
+      MetalCooling = FALSE;
       MetalNum = 0;
-  }
+    }
  
   /* Calculate the rates due to the radiation field. */
  
@@ -244,8 +258,8 @@ int grid::ComputeCoolingTime(float *cooling_time)
        GridDimension, GridDimension+1, GridDimension+2,
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
           &HydroMethod,
-       &DualEnergyFormalism, &MultiSpecies, &MetalCoolingType, &GridRank,
-       GridStartIndex, GridStartIndex+1, GridStartIndex+2,
+       &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCoolingType, 
+       &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
           GridEndIndex, GridEndIndex+1, GridEndIndex+2,
           &CoolData.ih2co, &CoolData.ipiht,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
@@ -276,7 +290,24 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiativeTransfer, BaryonField[gammaHINum], 
        BaryonField[gammaHeINum], BaryonField[gammaHeIINum]);
-  } else { // if not multispecies, must be generic cooling.
+  } else if (GadgetEquilibriumCooling==1) {      
+    int result = GadgetCoolingTime
+      (
+       density,totalenergy,gasenergy,velocity1,
+       velocity2,velocity3,
+       cooling_time,
+       GridDimension,GridDimension+1,
+       GridDimension+2, &ComovingCoordinates, &HydroMethod,
+       &DualEnergyFormalism, &GridRank,
+       GridStartIndex,GridStartIndex+1,GridStartIndex+2,
+       GridEndIndex,GridEndIndex+1,GridEndIndex+2,&dtFixed,
+       &afloat,&CoolData.HydrogenFractionByMass,
+       &TemperatureUnits,&LengthUnits,
+       &aUnits,&DensityUnits,&TimeUnits,&Gamma);
+    if (result == FAIL )  {
+      ENZO_FAIL("Error in GadgetCoolingTime.  Exiting.");
+    }
+  } else { // if not multispecies or Gadget cooling, must be generic cooling.
     FORTRAN_NAME(cool_time)(
        BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
           BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],

@@ -161,7 +161,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 						LeftBx,  RightBx,
 						LeftBy,  RightBy,
 						LeftBz,  RightBz)  == FAIL) {
-    fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+    fprintf(stderr, "Error in MHD1DTestInitializeGrid.\n");
     return FAIL;
   }
 
@@ -207,7 +207,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 						    LeftBx,  RightBx,
 						    LeftBy,  RightBy,
 						    LeftBz,  RightBz) == FAIL) {
-	  fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+	  fprintf(stderr, "Error in MHD1DTestInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;

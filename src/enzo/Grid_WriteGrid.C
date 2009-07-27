@@ -320,7 +320,8 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     }   // end of loop over fields
  
-    /* If this is cosmology, compute the temperature field as well since
+    /* If this is cosmology, or one of the Sedov-based test problems,
+       compute the temperature field as well since
        its such a pain to compute after the fact. */
  
     if (OutputTemperature) {

@@ -50,6 +50,7 @@ int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
+int InitializeGadgetEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -81,7 +82,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
-    ret += sscanf(line, "InitialCPUTime     = %"FSYM, &MetaData.CPUTime);
+    ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
     ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
@@ -92,9 +93,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
-    ret += sscanf(line, "TimeLastRestartDump = %"PSYM,
+    ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
-    ret += sscanf(line, "dtRestartDump       = %"PSYM, &MetaData.dtRestartDump);
+    ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
     ret += sscanf(line, "TimeLastDataDump    = %"PSYM,
 		  &MetaData.TimeLastDataDump);
     ret += sscanf(line, "dtDataDump          = %"PSYM, &MetaData.dtDataDump);
@@ -259,7 +260,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
     ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
     ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
- 
+    ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
+		  &MustRefineRegionMinRefinementLevel);
+    ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
+		  &MetallicityRefinementMinLevel);
+    ret += sscanf(line, "MetallicityRefinementMinMetallicity      = %"FSYM, 
+		  &MetallicityRefinementMinMetallicity);
+
     ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);
     ret += sscanf(line, "DomainRightEdge       = %"PSYM" %"PSYM" %"PSYM, DomainRightEdge,
@@ -273,7 +280,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RefineRegionRightEdge = %"PSYM" %"PSYM" %"PSYM,
 		  RefineRegionRightEdge, RefineRegionRightEdge+1,
 		  RefineRegionRightEdge+2);
- 
+     ret += sscanf(line, "MustRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  MustRefineRegionLeftEdge, MustRefineRegionLeftEdge+1,
+		  MustRefineRegionLeftEdge+2);
+    ret += sscanf(line, "MustRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
+		  MustRefineRegionRightEdge, MustRefineRegionRightEdge+1,
+		  MustRefineRegionRightEdge+2);
+
     if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
     if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
@@ -316,11 +329,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &DualEnergyFormalismEta2);
     ret += sscanf(line, "ParticleCourantSafetyNumber = %"FSYM,
 		  &ParticleCourantSafetyNumber);
+    ret += sscanf(line, "RootGridCourantSafetyNumber = %"FSYM,
+		  &RootGridCourantSafetyNumber);
     ret += sscanf(line, "RandomForcing = %"ISYM, &RandomForcing); //AK
     ret += sscanf(line, "RandomForcingEdot = %"FSYM, &RandomForcingEdot); //AK
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
+    ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
     ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
     ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
@@ -484,8 +500,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinementLevelExponent+4,
 		  MinimumMassForRefinementLevelExponent+5,
 		  MinimumMassForRefinementLevelExponent+6);
-    ret += sscanf(line, "MinimumSlopeForRefinement = %"FSYM,
-		  &MinimumSlopeForRefinement);
+    ret += sscanf(line, "MinimumSlopeForRefinement ="
+		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		  MinimumSlopeForRefinement+0,
+		  MinimumSlopeForRefinement+1,
+		  MinimumSlopeForRefinement+2,
+		  MinimumSlopeForRefinement+3,
+		  MinimumSlopeForRefinement+4,
+		  MinimumSlopeForRefinement+5,
+		  MinimumSlopeForRefinement+6);
     ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
 		  &MinimumPressureJumpForRefinement);
     ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,
@@ -580,6 +603,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
+    ret += sscanf(line, "MBHUseMetalField = %"ISYM, 
+		  &MBHUseMetalField);
+    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
+		  &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHFeedbackEnergy = %lf", &MBHFeedbackEnergy);
+    ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
+    ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
+		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHCombineRadius = %"FSYM,
+		  &MBHCombineRadius);
+    ret += sscanf(line, "MBHIonizingLuminosity = %lf", 
+		  &MBHIonizingLuminosity);
 
     /* Read Movie Dump parameters */
 
@@ -706,6 +741,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Implosion")           ) ret++;
     if (strstr(line, "SedovBlast")          ) ret++;
     if (strstr(line, "Units")               ) ret++;
+    if (strstr(line, "RadiatingShock")      ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
@@ -724,6 +760,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TracerParticleCreation")) ret++;
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
+    if (strstr(line, "GalaxySimulation")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
     if (strstr(line, "PoissonSolverTest")) ret++;
@@ -746,6 +783,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   delete [] dummy;
   rewind(fptr);
+
+  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
@@ -809,6 +848,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
+  /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
+     or RadiationFieldType to be on - both are taken care of in
+     the Gadget cooling routine.  Therefore, we turn them off!
+     Also, initialize the Gadget equilibrium cooling data. */
+
+  if(GadgetEquilibriumCooling == TRUE){
+
+    if(MyProcessorNumber == ROOT_PROCESSOR ) {
+      fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
+      fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
+      fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
+    }
+
+    RadiationFieldType = 0;
+    MultiSpecies       = 0;
+    RadiativeCooling   = 1;
+
+    // initialize Gadget equilibrium cooling
+    if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
+            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
+    } 
+  }
+
   /* If set, initialize the RadiativeCooling and RateEquations data. */
 
   if (MultiSpecies > 0)
@@ -818,6 +880,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
+      GadgetEquilibriumCooling == 0 &&
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
@@ -828,8 +891,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (MetalCooling == CLOUDY_METAL_COOLING) {
     if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in InitializeCloudyCooling.\n");
-      return FAIL;
+      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
 
@@ -848,6 +910,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     //    FluxCorrection            = FALSE;
   }
  
+  /* For rk_hydro, we need to set some variables */
+
   if (DualEnergyFormalism) {
     NEQ_HYDRO = 6;
     NEQ_MHD   = 10;
@@ -858,6 +922,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     iPhi = 9;
     iEint = 5;
   }
+
+  // Don't include free electron field
+  switch (MultiSpecies) {
+  case 0:  NSpecies = 0; break;
+  case 1:  NSpecies = 5; break;
+  case 2:  NSpecies = 8; break;
+  case 3:  NSpecies = 11; break;
+  default: NSpecies = 0; break;
+  }
+
+  // Determine color fields (NColor) later inside a grid object.
+  // ...
 
   /* Set the number of particle attributes, if left unset. */
  
@@ -910,6 +986,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                                           && ProblemType != 7  // SedovBlast test
                                           && ProblemType != 8  // KH test
                                           && ProblemType != 9  // Noh test
+                                          && ProblemType != 11 // Radiating shock test
                                           ) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("WARNING! Setting MetaData.PPMDiffusionParameter = 0\n");

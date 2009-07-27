@@ -4,7 +4,7 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: 
 /
 /  PURPOSE: When we remove baryons from the grid to add to the star
 /           particle, look for a sphere that contains twice its mass.
@@ -248,7 +248,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   /* If sphere not contained in grids in this level, check again in
      level-1. */
 
-  SphereContained = (cornersContained < 8);
+  SphereContained = (cornersContained == 8);
 
   /* If contained and this is for star formation, we record how much
      mass we should add and reset the flags for formation. */

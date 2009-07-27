@@ -170,10 +170,32 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     break;
 
   case 11:
-    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
-    if (NumberOfFlaggedCells < 0) 
-	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
-    break;
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
+      if (NumberOfFlaggedCells < 0) {
+		ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
+      }
+      break;
+
+      /* ==== METHOD 12: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
+ 
+    case 12:
+ 
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
+      if (NumberOfFlaggedCells < 0) {
+        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
+      }
+      break;
+ 
+
+      /* ==== METHOD 13: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
+ 
+    case 13:
+ 
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
+      if (NumberOfFlaggedCells < 0) {
+        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
+      }
+      break;
  
     /* ==== undefined ==== */
  

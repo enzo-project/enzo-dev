@@ -41,7 +41,8 @@
 #define PRINT_CUDA_TIMING 1
 //#define Gamma 2.0
 #define Theta_Limiter 1.5
-#define EOSType 0
+#define EOSType 3
+#define EOSSoundSpeed 1
 #define NEQ_MHD 9
 #define iD 0
 #define iS1 1
@@ -322,23 +323,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					         FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
 					         FluxPhi_Device, C_h, Gamma, 
 						 size, GridDimension[0], GridDimension[1], GridDimension[2]);
-
-  /*
-  float *flux = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(flux, FluxTau_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  printf("flux:%d %d\n", GridStartIndex[1], GridEndIndex[1]);
-  for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-  if (i == 66 && j == 66) {
-  for (int k = 2; k < GridDimension[2]-1; k++)
-    printf("%g ", flux[i+(j+k*GridDimension[1])*GridDimension[0]]);
-  }
-  //printf("\n");
-  }
-  //printf("\n");
-  }
-  free(flux);
-  */
   
     MHDComputedUz_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
   						     FluxBx_Device, FluxBy_Device, FluxBz_Device, FluxPhi_Device, 
@@ -1077,6 +1061,12 @@ __device__ void EOS(float &p, float &rho, float &e, float &cs, const float &cGam
 
     cs = sqrt(cGamma*p/rho);
 
+  }
+
+  if (eostype == 3) { // straight isothermal
+    double c_s = EOSSoundSpeed;
+    p = rho*c_s*c_s;
+    e = p / ((cGamma-1.0)*rho);
   }
 
 }

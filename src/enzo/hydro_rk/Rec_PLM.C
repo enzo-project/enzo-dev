@@ -18,7 +18,6 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "ReconstructionRoutines.h"
-#include "EOS.h"
 
 
 inline void plm_l(float &vm1, float &v, float &vp1, float &vl_plm)

@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       November, 2005
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 /  NOTES:  When the star particle is created, it is assigned the 
 /          ParticleType from the grid.  Change this to represent the 
@@ -94,6 +95,16 @@ int Star::SetFeedbackFlag(FLOAT Time)
   case PopIII_CF:
     if (this->type < 0) this->FeedbackFlag = COLOR_FIELD;
     else FeedbackFlag = NO_FEEDBACK;
+    break;
+
+  case MBH:
+    if (this->type > 0)
+      if (RadiativeTransfer) 
+	this->FeedbackFlag = MBH_RADIATIVE;
+      else
+	this->FeedbackFlag = MBH_THERMAL;
+    else
+      this->FeedbackFlag = NO_FEEDBACK;
     break;
 
   } // ENDSWITCH

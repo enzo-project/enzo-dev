@@ -108,8 +108,31 @@ const field_type
   AccelerationField2         = 59, 
   AccelerationField3         = 60,
 
-  ForbiddenRefinement = 61,
-  FieldUndefined  = 62;
+  Galaxy1Color          = 61,
+  Galaxy2Color          = 62,
+
+/* these are required for Simon Glover's chemistry (which also needs some of the
+   other fields, which are used for MultiSpecies) */
+  CIDensity       = 63,
+  CIIDensity      = 64, 
+  OIDensity       = 65, 
+  OIIDensity      = 66,
+  SiIDensity      = 67,
+  SiIIDensity     = 68,
+  SiIIIDensity    = 69,
+  CHIDensity      = 70,
+  CH2IDensity     = 71,
+  CH3IIDensity    = 72,
+  C2IDensity      = 73,
+  COIDensity      = 74,
+  HCOIIDensity    = 75,
+  OHIDensity      = 76,
+  H2OIDensity     = 77,
+  O2IDensity      = 78,
+
+  ForbiddenRefinement = 79,
+
+  FieldUndefined  = 80;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -187,7 +210,8 @@ const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
-  PopIII_CF = PARTICLE_TYPE_COLOR_STAR; // Non-radiating PopIII
+  PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
+  MBH = PARTICLE_TYPE_MBH;
 
 /* Define a float/int union. */
 

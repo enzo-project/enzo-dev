@@ -27,6 +27,7 @@
 int grid::MultiSpeciesHandler()
 {
   if ((!MultiSpecies) && (!RadiativeCooling)) return SUCCESS; 
+  if (GadgetEquilibriumCooling != 0) return SUCCESS;
 
   JBPERF_START("grid_MultiSpeciesHandler");
 

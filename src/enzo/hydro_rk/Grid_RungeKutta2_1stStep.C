@@ -21,8 +21,9 @@
 #include "Grid.h"
 
 double ReturnWallTime();
-int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
-		          float dtdx, float dt);
+int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], 
+			 int GridStartIndex[], int GridEndIndex[], int GridRank,
+			 float dtdx, float dt);
 
 int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
@@ -38,12 +39,6 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   if (NumberOfBaryonFields == 0) {
     return SUCCESS;
   }
-
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;  }
 
   double time1 = ReturnWallTime();
   int igrid;
@@ -94,65 +89,40 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   } // end of loop over subgrids
 
 
-  float *dU[NEQ_HYDRO+NSpecies+NColor];
+
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
 
   int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
-  }
   
   int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-  }
-  for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
-    dU[field] = new float[activesize];
-    for (int i = 0; i < activesize; i++) {
-      dU[field][i] = 0.0;
-    }
-  }
 
-  Prim[iden ] = BaryonField[DensNum];
-  Prim[ivx  ] = BaryonField[Vel1Num];
-  Prim[ivy  ] = BaryonField[Vel2Num];
-  Prim[ivz  ] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
-  //  fprintf(stderr,"%i %i %i %i\n", DensNum, TENum, Vel1Num,Vel2Num,Vel3Num);
-  //  fprintf(stderr,"%i %i %i %i\n", iden,ivx,ivy,ivz,ietot);
-  if (DualEnergyFormalism) {
-    Prim[ieint] = BaryonField[GENum];
-  }
-
-  // copy species field
-  for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
-    // change species from density to mass fraction
-    for (int n = 0; n < size; n++) {
-      BaryonField[ns][n] /= BaryonField[iden][n];
-    }
-    Prim[ns] = BaryonField[ns];
-  }
-
-  // copy color field
-  for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
-    Prim[nc] = BaryonField[nc];
-  }
+  this->ReturnHydroRKPointers(Prim);
 
   // RK2 first step
 #ifdef ECUDA 
   if (UseCUDA == 1) {
-
     FLOAT dtdx = dtFixed/CellWidth[0][0];
     double time2 = ReturnWallTime();
     if (HydroTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
 		  	      dtdx, dtFixed) == FAIL) {
-      printf("RK1: HydroTimeUpdate_CUDA3 failed.\n");
+      printf("RK1: HydroTimeUpdate_CUDA failed.\n");
       return FAIL;
     }
     return SUCCESS;
   }
 #endif
 
+  float *dU[NEQ_HYDRO+NSpecies+NColor];
+  for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    dU[field] = new float[activesize];
+    for (int i = 0; i < activesize; i++) {
+      dU[field][i] = 0.0;
+    }
+  }
 
   // compute dU
   int fallback = 0;
@@ -167,10 +137,10 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     printf("Falling back to zero order at RK 1st step\n");
     // fall back to zero order scheme
     this->CopyOldBaryonFieldToBaryonField();
-    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
       // change species from density to mass fraction
       for (int n = 0; n < size; n++) {
-	BaryonField[ns][n] /= BaryonField[iden][n];
+	Prim[ns][n] /= Prim[iden][n];
       }
     }
     this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);

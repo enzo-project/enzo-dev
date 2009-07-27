@@ -90,6 +90,10 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
     break;
+
+  case MBH:
+    break;
+
   default:
     fprintf(stderr, "Star type = %"ISYM" not understood.\n", this->type);
     ENZO_FAIL("");

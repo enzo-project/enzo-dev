@@ -346,7 +346,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling) {
+      if (MultiSpecies && RadiativeCooling && GadgetEquilibriumCooling == 0) {
  
 	JBPERF_START("evolve-level-14"); // change this?
 
