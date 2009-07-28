@@ -40,8 +40,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenDensity	  = 1;	// cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, c = 3.0e10;
+  const double pc = 3.086e18, Msun = 1.989e33, 
+    Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10;
 
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
@@ -74,7 +75,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case STROEMGREN:
     Radius = BirthRadius * pc / LengthUnits;
     Radius = max(Radius, 1.5*StarLevelCellWidth);
-    EjectaDensity = WhalenDensity * pMass / DensityUnits;
+    EjectaDensity = WhalenDensity * m_h / DensityUnits;
     EjectaThermalEnergy =
       WhalenTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     break;
@@ -98,18 +99,88 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
-    if (this->type != MBH) break;
+    if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
-    /* Using Star_CalculateMassAccretion.C estimate the feedback energy based on Bondi accretion rate.  
-       Unless we do Star_Accrete.C, this only gives us the parameter but not the actual accretion.
-       This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C. */
+    //*****************
+    /* Using the code snippets adopted from Star_CalculateMassAccretion.C 
+       estimate the feedback energy based on Bondi accretion rate.  
+       This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C.  - Ji-hoon Kim */
 
-    fprintf(stderr, "I'm here -1 !\n");
-    if (this->CalculateMassAccretion() == FAIL) {
-      fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+
+    if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+						Vel3Num, TENum) == FAIL) {
+      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
       ENZO_FAIL("");
     }
-    fprintf(stderr, "I'm here -2 !\n");
+
+    if (MultiSpecies)
+      if (CurrentGrid->
+	  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
+				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
+	  == FAIL) {
+	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
+	ENZO_FAIL("");
+      }
+
+    int igrid[MAX_DIMENSION], dim, index, size = 1;
+    float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
+    float *temperature, density;
+    
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      size *= CurrentGrid->GridDimension[dim];
+      igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+	CurrentGrid->CellWidth[0][0];
+    }
+
+    temperature = new float[size];
+    if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+      fprintf(stderr, "Error in ComputeTemperatureField.\n");
+      ENZO_FAIL("");
+    }
+
+    // Calculate gas density inside cell
+    index = 
+      ((igrid[2] + CurrentGrid->GridStartIndex[2]) * CurrentGrid->GridDimension[1] + 
+       igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
+      igrid[0] + CurrentGrid->GridStartIndex[0];
+    density = CurrentGrid->BaryonField[DensNum][index];
+    if (MultiSpecies == 0) {
+      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
+      mu = DEFAULT_MU;
+    } else {
+      number_density = 
+	CurrentGrid->BaryonField[HINum][index] + 
+	CurrentGrid->BaryonField[HIINum][index] +
+	CurrentGrid->BaryonField[DeNum][index] +
+	0.25 * (CurrentGrid->BaryonField[HeINum][index] +
+		CurrentGrid->BaryonField[HeIINum][index] +
+		CurrentGrid->BaryonField[HeIIINum][index]);
+      if (MultiSpecies > 1)
+	number_density += 
+	  CurrentGrid->BaryonField[HMNum][index] +
+	  0.5 * (CurrentGrid->BaryonField[H2INum][index] +
+		 CurrentGrid->BaryonField[H2IINum][index]);
+      mu = density / number_density;
+    }
+    c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
+    old_mass = this->Mass;
+
+    // Calculate gas relative velocity (cm/s)
+    v_rel = 0.0;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      delta_vel[dim] = vel[dim] - CurrentGrid->BaryonField[Vel1Num+dim][index];
+      v_rel += delta_vel[dim] * delta_vel[dim];
+    }
+    v_rel = sqrt(v_rel) * VelocityUnits;
+
+    // Calculate accretion rate in Msun/s
+    mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
+      (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
+
+    // end of the code snippets from Star_CalculateMassAccretion.C
 
     // Inject energy into a sphere
     Radius = MBHFeedbackRadius * pc / LengthUnits;
@@ -120,30 +191,13 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaDensity = 0.0;
     EjectaMetalDensity = 0.0;
 
-    /* For CONT_SUPERNOVA, the unit of EjectaThermalEnergy is ergs/g, 
+    /* For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
        but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
-    fprintf(stderr, "I'm here -3 !\n");
-    fprintf(stderr, "MBHFeedbackThermalCoupling =%g\n", MBHFeedbackThermalCoupling);
-    fprintf(stderr, "MBHFeedbackRadiativeEfficiency =%g\n", MBHFeedbackRadiativeEfficiency);
-    //    fprintf(stderr, "this->ReturnCurrentGrid->dtFixed =%g\n", this->ReturnCurrentGrid()->ReturnTimeStep());
-    //    fprintf(stderr, "this->CurrentGrid->dtFixed =%g\n", this->CurrentGrid->dtFixed);
-    //    fprintf(stderr, "this->accretion_rate[0] =%g\n", this->accretion_rate[0]);
-    fprintf(stderr, "accretion_rate[0] =%g\n", accretion_rate[0]);
-    fprintf(stderr, "CurrentGrid->dtFixed =%g\n", CurrentGrid->dtFixed);
-    fprintf(stderr, "TimeUnits = %g\n", TimeUnits);
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      accretion_rate[0] * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
+      mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
       (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
-    fprintf(stderr, "I'm here -4 !\n");
-
-    naccretions = 0;
-    fprintf(stderr, "I'm here -5 !\n");
-
-    delete [] accretion_rate;
-    delete [] accretion_time;
-    fprintf(stderr, "I'm here -6 !\n");
 
     break;
 
@@ -154,3 +208,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   
   return;
 }
+
+
+
+
