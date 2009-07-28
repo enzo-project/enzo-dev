@@ -972,6 +972,27 @@
 	$(error Illegal value '$(CONFIG_GRAVITY_4S)' for $$(CONFIG_GRAVITY_4S))
     endif
 
+#-----------------------------------------------------------------------
+# Determine MHDCT object files. dcc July 28 2009
+#-----------------------------------------------------------------------
+    ERROR_MHDCT = 1
+
+    ifeq ($(CONFIG_MHDCT),yes)
+        ERROR_MHDCT = 0
+        ASSEMBLE_OBJS_MHDCT = $(OBJS_MHDCT)
+        ASSEMBLE_MHDCT_DEFINES = -DMHDCT
+    endif
+
+    ifeq ($(CONFIG_MHDCT),no)
+        ERROR_MHDCT = 0
+    endif
+
+    ifeq ($(ERROR_MHDCT),1)
+        .PHONY: error_mhdf
+        error_mhdf:
+        $(error Illegal Value '$(CONFIG_MHDCT)' for $$(CONFIG_MHDCT))
+    endif
+
 
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
@@ -1033,7 +1054,8 @@
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES) \
-              $(ASSEMBLE_GRAVITY_4S_DEFINES)
+              $(ASSEMBLE_GRAVITY_4S_DEFINES) \
+              $(ASSEMBLE_MHDCT_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
@@ -1050,7 +1072,8 @@
     	       $(OBJS_LCAPERF_LIB) \
 	       $(OBJS_HYDRO_RK) \
 	       $(OBJS_ECUDA_LIB) \
-	       $(OBJS_PYTHON) 
+	       $(OBJS_PYTHON)  \
+           $(ASSEMBLE_OBJS_MHDCT)
 
     LIBS = $(MACH_LIBS) \
            $(ASSEMBLE_MPI_LIBS) \

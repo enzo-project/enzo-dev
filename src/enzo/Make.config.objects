@@ -1035,3 +1035,5 @@ OBJS_ECUDA_ALL = \
 	hydro_rk/MHDSweep_CUDA.o
 #	hydro_rk/overlapping_MHDSweep_CUDA.o
 #
+OBJS_MHDCT = MHDBlastInitialize.o \
+	Grid_MHDBlastInitializeGrid.o
