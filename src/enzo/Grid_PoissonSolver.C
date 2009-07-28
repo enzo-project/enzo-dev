@@ -100,20 +100,22 @@ int grid::PoissonSolver(int level)
 
  //  this->PoissonSolverDirichletBC(divB_p);
 
-  if (debug){
+  bool badDiv=false;
     float divSum = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
+	  if (divB_p[igrid]>DivergenceCleaningThreshold) badDiv=true;
 	  divSum += fabs(divB_p[igrid]/dx[0]);
 	}
       }
     }
     
     printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
-  }
-  
+    
+    if (!badDiv) return SUCCESS;
+
   int type=UseDivergenceCleaning;
 
   if (type == 1) PoissonSolverSOR();
@@ -618,7 +620,8 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 				   int check, float diffvalue){
 
   
-  
+  return SUCCESS;
+
   //if (!debug) return SUCCESS;
 
   if (ProcessorNumber!=4) return SUCCESS;

@@ -117,12 +117,12 @@ int grid::CheckForSharedFace(grid *OtherGrid,
 	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
 		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
 		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
 	      }
 	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
 		  (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
 		  (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
 	      }
 	    }
 

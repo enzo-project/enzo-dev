@@ -107,6 +107,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
  
+ 
   for (k = -kdim; k <= +kdim; k++) {
     EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
     for (j = -jdim; j <= +jdim; j++) {
@@ -139,7 +140,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 		((k== 1) && (LeftFaceBoundaryCondition[2] == shearing))){
 	      
 	      //printf("Edge 1- %" GOUTSYM "  %" GOUTSYM " %" GOUTSYM " \n", EdgeOffset[0],  EdgeOffset[1],  EdgeOffset[2]);
-	      EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+	      EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
 	      //printf("Edge 2- %" GOUTSYM "  %" GOUTSYM " %" GOUTSYM " \n", EdgeOffset[0],  EdgeOffset[1],  EdgeOffset[2]);
 	    
 	    }
@@ -148,7 +149,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 		(k== -1 && RightFaceBoundaryCondition[2] == shearing)){
 	      //printf("Edge 1+ %" GOUTSYM "  %" GOUTSYM " %" GOUTSYM "\n", EdgeOffset[0],  EdgeOffset[1],  EdgeOffset[2]);
   
-	      EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+	      EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
 	      //printf("Edge 2+ %" GOUTSYM "  %" GOUTSYM " %" GOUTSYM "\n", EdgeOffset[0],  EdgeOffset[1],  EdgeOffset[2]);
   	    }
 	  }

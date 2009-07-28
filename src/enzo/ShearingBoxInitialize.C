@@ -83,7 +83,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
   float ThermalMagneticRatio=400; 
   float FluctuationAmplitudeFraction=0.1;
   int ShearingBoxRefineAtStart   = FALSE;
-  float ShearingGeometry=0.5;
+  float ShearingGeometry=2.0;
   int InitialMagneticFieldConfiguration=0;
   int RefineAtStart=1;
 
@@ -157,6 +157,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
   DataLabel[count++] =  (char*) BxName;
   DataLabel[count++] =  (char*) ByName;
   DataLabel[count++] =  (char*) BzName;
+  DataLabel[count++] =  (char*) PhiName;
   }
 
   for (int i = 0; i < count; i++) {
