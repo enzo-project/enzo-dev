@@ -276,7 +276,8 @@ c
       subroutine star_feedback3(nx, ny, nz,
      &                      d, dm, te, ge, u, v, w,
      &                      metal, zfield1, zfield2,
-     &                      idual, imetal, imethod, dt, r, dx, t, z,
+     &                      idual, imetal, imulti_metals, imethod, 
+     &                      dt, r, dx, t, z,
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
@@ -308,6 +309,7 @@ c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    idual    - dual energy flag
 c    imetal   - metallicity flag (0 - none, 1 - yes)
+c    imulti_metals - flag to use multi metals zfield 1 and 2
 c    imethod  - hydro method (0 - PPMDE, 1 - PPMLR, 2 - ZEUS)
 c
 c    x/y/z start - starting position of grid origin
@@ -333,7 +335,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      integer nx, ny, nz, ibuff, npart, idual, imetal, 
+     &      imulti_metals, imethod
       real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), ge(nx,ny,nz)
@@ -456,8 +459,10 @@ c
      &              (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
      &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
 
-               zfield1(i,j,k) = metal(i,j,k)
-               zfield2(i,j,k) = metal(i,j,k)
+               if (imulti_metals .eq. 1) then
+                  zfield1(i,j,k) = metal(i,j,k)
+                  zfield2(i,j,k) = metal(i,j,k)
+               endif
 c
             endif
 c
