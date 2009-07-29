@@ -190,6 +190,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
 
     ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
+    ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
  
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;

@@ -132,9 +132,9 @@ all: $(EXE).exe
 .PRECIOUS: %.o %.f
 
 .src.f:
-	@echo "Compiling $<"
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
 .f.o:
+	@echo "Compiling $<"
 	@rm -f $@
 	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
