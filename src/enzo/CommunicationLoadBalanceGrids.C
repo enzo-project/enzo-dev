@@ -4,7 +4,8 @@
 /
 /  written by: Greg Bryan
 /  date:       December, 1997
-/  modified1:
+/  modified1:  John Wise (July, 2009): Mode 2 -- load balance only
+/              within a node.
 /
 /  PURPOSE:
 /
@@ -63,6 +64,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 #endif
 
   double tt0, tt1;
+  CommunicationBarrier();
   tt0 = ReturnWallTime();
  
   GridsMoved = 0;
@@ -80,6 +82,33 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
     ProcessorComputeTime[proc] += ComputeTime[i];
     NewProcessorNumber[i] = proc;
   }
+
+ // Mode 1: Load balance over all processors.  Mode 2/3: Load balance
+ // only within a node.  Assumes scheduling in blocks (2) or
+ // round-robin (3).
+ int StartProc, EndProc;
+ int proc0 = -1, dproc = -1;
+ switch (LoadBalancing) {
+ case 1:
+   StartProc = 0;
+   EndProc = NumberOfProcessors;
+   break;
+ case 2:  // block scheduling (ranger)
+   StartProc = CoresPerNode * (MyProcessorNumber / CoresPerNode);
+   EndProc = StartProc + CoresPerNode;
+   break;
+ case 3:  // round-robin scheduling
+   dproc = NumberOfProcessors / CoresPerNode;
+   proc0 = MyProcessorNumber % dproc;
+   break;
+ default:
+   if (debug)
+     printf("Warning: unknown value for LoadBalancing.  Setting to 1.\n");
+   StartProc = 0;
+   EndProc = NumberOfProcessors;
+   LoadBalancing = 1;
+   break;
+ } // ENDSWITCH LoadBalancing
  
   /* Transfer grids from heavily-loaded processors. */
  
@@ -95,23 +124,39 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 
     //dcc 09/22/05 updated this loop to avoid huge_number being too small.
 
-    for (i = 0; i < NumberOfProcessors; i++) {
-      if (ProcessorComputeTime[i] > MaxVal) {
-	MaxVal = ProcessorComputeTime[i];
-	MaxProc = i;
+    if (LoadBalancing == 1 || LoadBalancing == 2) {
+      for (i = StartProc; i < EndProc; i++) {
+       if (ProcessorComputeTime[i] > MaxVal) {
+         MaxVal = ProcessorComputeTime[i];
+         MaxProc = i;
+       }
+      }
+      for (i = StartProc; i < EndProc; i++) {
+       if (ProcessorComputeTime[i] < MinVal) {
+         MinVal = ProcessorComputeTime[i];
+         MinProc = i;
+       }
       }
     }
-    for (i = 0; i < NumberOfProcessors; i++) {
-      if (ProcessorComputeTime[i] < MinVal) {
-	MinVal = ProcessorComputeTime[i];
-	MinProc = i;
+
+    else if (LoadBalancing == 3) {
+      for (i = proc0; i < NumberOfProcessors; i += dproc) {
+       if (ProcessorComputeTime[i] > MaxVal) {
+         MaxVal = ProcessorComputeTime[i];
+         MaxProc = i;
+       }
+      }
+      for (i = proc0; i < NumberOfProcessors; i += dproc) {
+       if (ProcessorComputeTime[i] < MinVal) {
+         MinVal = ProcessorComputeTime[i];
+         MinProc = i;
+       }
       }
     }
 
-    if(MinProc == -1 || MaxProc == -1 )
-      fprintf(stderr, "TERRIBLE ERROR: CommunicationLoadBalance unable to find processors.\n");
-
-
+    if ((MinProc == -1 || MaxProc == -1) && LoadBalancing == 1)
+      fprintf(stderr, "TERRIBLE ERROR [P%"ISYM"]: CommunicationLoadBalance unable to find processors.\n", MyProcessorNumber);
+    
     /* Mark a grid transfer if the ratio is large enough. */
  
     if (MaxVal > LOAD_BALANCE_RATIO*MinVal) {
@@ -123,18 +168,6 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 	proc = NewProcessorNumber[i];
 	if (proc == MaxProc && ComputeTime[i] < 0.5*(MaxVal-MinVal)) {
  
-	  /* Transfer. */
- 
-//	  printf("%"ISYM": moving grid %"ISYM" from %"ISYM" -> %"ISYM" (MoveParticles = %"ISYM")\n", MyProcessorNumber, i, proc, MinProc, MoveParticles);
- 
-          /* Attach ForcingFields before transfer, if necessary; then detach */
- 
-//          if (RandomForcing)  //AK
-//            GridHierarchyPointer[i]->GridData->AppendForcingToBaryonFields();
-//          GridHierarchyPointer[i]->GridData->
-//	    CommunicationMoveGrid(MinProc, MoveParticles);
-//          if (RandomForcing)  //AK
-//            GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
 	  NewProcessorNumber[i] = MinProc;
 	  GridsMoved++;
  
@@ -172,8 +205,45 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   }
  
 #ifdef MPI_INSTRUMENTATION
-  moving_pct += float(out_count)/NumberOfGrids;
+  moving_pct += float(GridsMoved)/NumberOfGrids;
 #endif /* MPI_INSTRUMENTATION */
+
+  /* If mode 2 or 3, gather all moves from other nodes.  Processor
+     numbers are only valid on the node.  Zero out other values and
+     collect from remote nodes. */
+
+  for (i = 0; i < NumberOfProcessors; i++)
+    if (LoadBalancing == 2) {
+      if (i < StartProc || i >= EndProc)
+       ProcessorComputeTime[i] = 0;
+    }
+    else if (LoadBalancing == 3) {
+      if (i % dproc != proc0)
+       ProcessorComputeTime[i] = 0;
+    }
+
+
+  if (LoadBalancing == 2 || LoadBalancing == 3) {
+    for (i = 0; i < NumberOfGrids; i++) {
+
+      if (LoadBalancing == 2)
+       if (NewProcessorNumber[i] < StartProc || NewProcessorNumber[i] >= EndProc)
+         NewProcessorNumber[i] = -1;
+
+      // Trash processor number for remote grids.
+      // dproc == # of nodes, proc0 == local node #
+      if (LoadBalancing == 3)
+       if (NewProcessorNumber[i] % dproc != proc0)
+         NewProcessorNumber[i] = -1;
+
+    } // ENDFOR
+
+#ifdef USE_MPI
+    CommunicationAllReduceValues(NewProcessorNumber, NumberOfGrids, MPI_MAX);
+#endif /* USE_MPI */
+
+  } // ENDIF LoadBalancing == 2 || 3
+
 
   /* Now we know where the grids are going, transfer them. */
 
@@ -221,7 +291,8 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
     printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
 	   "(%lg seconds elapsed)\n", GridsMoved, NumberOfGrids, tt1-tt0);
   }
-#ifdef UNUSED 
+#ifdef UNUSED
+  CommunicationSumValues(ProcessorComputeTime, NumberOfProcessors);
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
     float norm = ProcessorComputeTime[0];

@@ -109,7 +109,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
-  LoadBalancing = 1; //On, memory equalization method
+  LoadBalancing = 1;     //On, memory equalization method
+  LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
+  CoresPerNode = 1;
+  PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
 
