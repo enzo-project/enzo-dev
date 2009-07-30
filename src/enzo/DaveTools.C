@@ -34,16 +34,14 @@ void wall_time_stop(){
 }  
 void wall_time (char * string)
 {
-  //if( MyProcessorNumber != ROOT_PROCESSOR)
-  //return;
-  // get current time in seconds (specifically the number of 
-  // seconds since 00:00:00 UTC January 1 1970)              
-  
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv,&tz);
-  fprintf(wall_ptr,"%d TIME %s %f \n", MyProcessorNumber, string, tv.tv_sec + 1e-6*tv.tv_usec);
-  fflush(wall_ptr);
+  //wall_ptr == null unless wall_time_start is called
+  if( wall_ptr ){
+    struct timeval tv;
+    struct timezone tz;
+    gettimeofday(&tv,&tz);
+    fprintf(wall_ptr,"%d TIME %s %f \n", MyProcessorNumber, string, tv.tv_sec + 1e-6*tv.tv_usec);
+    fflush(wall_ptr);
+  }
 }
 
 //This routine checks the list SingleGridDumpList for the given flag value.

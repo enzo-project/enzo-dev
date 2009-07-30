@@ -894,6 +894,13 @@ EXTERN float ConductionCourantSafetyNumber;
 
 #ifdef MHDCT
 //MHDCT variables
+EXTERN float CT_AthenaDissipation;
+EXTERN int MHD_WriteElectric;
+EXTERN int MHDLi[5];    //Options for the MHD_Li method
+EXTERN int MHD_Equation;// Keep this == 1
+EXTERN float tiny_pressure;
+EXTERN int MHD_DivB; //depricated in favor of MHD_CT_Method
+EXTERN int MHD_CT_Method;
 EXTERN int DEFAULT_GHOST_ZONES;
 EXTERN int MHD_Used;// Only used to detect old style parameter files
 EXTERN float IsothermalSoundSpeed;
@@ -902,6 +909,7 @@ EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
 EXTERN int useMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
+EXTERN char *MHDcLabel[3];
 EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];

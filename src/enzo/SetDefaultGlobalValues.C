@@ -721,6 +721,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 #ifdef MHDCT
   //MHDCT variables
+  CT_AthenaDissipation = 0.0;
+  MHD_WriteElectric = TRUE;
+  MHDLi[0]                 = 2;
+  MHDLi[1]                 = 1;
+  MHDLi[2]                 = 5;
+  MHDLi[3]                 = 1;
+  MHDLi[4]                 = 0;
+  MHD_Equation = 1;
+  tiny_pressure = tiny_number;
+  MHD_CT_Method = 0;
   DEFAULT_GHOST_ZONES = 3;
   MHD_Used = FALSE;
   IsothermalSoundSpeed = 1.0;

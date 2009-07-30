@@ -43,6 +43,6 @@ int MHDCT_ParameterJuggle(){
     fprintf(stderr,"Either set MHD_Used = 0, or use HydroMethod 6\n");
     return FAIL;
   }
-  
+  MHD_CT_Method = MHD_CT_Method;
   return SUCCESS;
 }

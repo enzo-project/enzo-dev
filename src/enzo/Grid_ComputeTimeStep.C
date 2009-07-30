@@ -50,7 +50,18 @@ extern "C" void PFORTRAN_NAME(calc_dt)(
                   float *d, float *p, float *u, float *v, float *w,
 			     float *dt, float *dtviscous);
  
- 
+#ifdef MHDCT
+extern "C" void
+FORTRAN_NAME(mhd_dt)(float *bxc, float *byc, float *bzc,
+                     float *vx, float *vy, float *vz,
+                     float *d, float *p, float *gamma, float *dt,
+                     FLOAT *dx, FLOAT *dy, FLOAT *dz,
+                     int *idim, int *jdim, int *kdim, int * rank,
+                     int *i1, int *i2,
+                     int *j1, int *j2,
+                     int *k1, int *k2, float* eng);
+
+#endif //MHDCT 
 float grid::ComputeTimeStep()
 {
  

@@ -560,5 +560,8 @@ typedef int            HDF5_hid_t;
 #ifdef MHDCT
 //For the MidWayDump tool
 #define N_DbgWrites 30 
+#define nBfields 3
+#define MAX_NUMBER_RANDOM_FORCING 3
+
 #endif //MHDCT
 #endif

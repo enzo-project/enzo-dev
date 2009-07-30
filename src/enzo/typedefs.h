@@ -217,6 +217,17 @@ const interpolation_type
 
 /* Hydrodynamics methods. */
 
+#ifdef MHDCT
+const hydro_method
+  PPM_DirectEuler      = 0,
+  PPM_LagrangeRemap    = 1,
+  Zeus_Hydro           = 2,
+  HD_RK                = 3,
+  MHD_RK               = 4,
+  NoHydro              = 5, 
+  MHD_Li             = 6,
+  HydroMethodUndefined = 7;
+#else
 const hydro_method
   PPM_DirectEuler      = 0,
   PPM_LagrangeRemap    = 1,

@@ -356,6 +356,17 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     }   // end of loop over fields
  
+#ifdef MHDCT
+    if( useMHDCT ){
+      for(field=0;field<nBfields;field++){
+	WriteDataset(group_id,CenteredB[field],temp,
+		     GridDimension,GridRank,
+		     GridStartIndex,GridEndIndex,ActiveDim,
+		     MHDcLabel[field], MHDUnits[0], file_type_id, float_type_id,log_fptr);
+      }
+    }
+
+#endif 
     /* If this is cosmology, compute the temperature field as well since
        its such a pain to compute after the fact. */
  

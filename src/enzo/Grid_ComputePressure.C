@@ -84,17 +84,27 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
   /* special loop for no interpolate. */
  
-  if (time == Time)
+  if (time == Time){
  
     for (i = 0; i < size; i++) {
  
+#ifdef MHDCT      
+      if( EquationOfState == 0 )
+#endif MHDCT
       total_energy  = BaryonField[TENum][i];
       density       = BaryonField[DensNum][i];
       velocity1     = BaryonField[Vel1Num][i];
+#ifdef MHDCT
+      if (GridRank > 1 || useMHDCT)
+	velocity2   = BaryonField[Vel2Num][i];
+      if (GridRank > 2 || useMHDCT)
+	velocity3   = BaryonField[Vel3Num][i];
+#else
       if (GridRank > 1)
 	velocity2   = BaryonField[Vel2Num][i];
       if (GridRank > 2)
 	velocity3   = BaryonField[Vel3Num][i];
+#endif //MHDCT
 
       if (EOSType > 0){
 
@@ -104,6 +114,25 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
 
       } else { 
+
+#ifdef MHDCT
+	//I apologize for this being terrible.  A refactor will happen soon.
+	if(HydroMethod == MHD_Li){
+	  if( EquationOfState == 1){
+	    pressure[i] = IsothermalSoundSpeed *IsothermalSoundSpeed * BaryonField[DensNum][i];
+	  }else{
+	    
+	    gas_energy = total_energy -density*OneHalf*(velocity1*velocity1 +
+							velocity2*velocity2 +
+							velocity3*velocity3) -
+	      OneHalf*(CenteredB[0][i]*CenteredB[0][i]+
+		       CenteredB[1][i]*CenteredB[1][i]+
+		       CenteredB[2][i]*CenteredB[2][i]);
+	    
+	    pressure[i] = (Gamma - 1.0)*gas_energy;
+	  }
+	}else{//HydroMethod == MHD_Li
+#endif //MHDCT
       /* gas energy = E - 1/2 v^2. */
 	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
 						velocity2*velocity2 +
@@ -118,28 +147,42 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
 	if (pressure[i] < tiny_number)
 	  pressure[i] = tiny_number;
+#ifdef MHDCT
+	}//HydroMethod == MHD_Li
+#endif //MHDCT
       }
     } // end of loop
  
-  else
+  }else{
  
     /* general case: */
  
     for (i = 0; i < size; i++) {
- 
+#ifdef MHDCT 
+      if( EquationOfState == 0)
+#endif
       total_energy  = coef   *   BaryonField[TENum][i] +
 	              coefold*OldBaryonField[TENum][i];
+
       density       = coef   *   BaryonField[DensNum][i] +
                       coefold*OldBaryonField[DensNum][i];
       velocity1     = coef   *   BaryonField[Vel1Num][i] +
                       coefold*OldBaryonField[Vel1Num][i];
- 
+#ifdef MHDCT
+      if (GridRank > 1 || useMHDCT)
+	velocity2   = coef   *   BaryonField[Vel2Num][i] +
+	              coefold*OldBaryonField[Vel2Num][i];
+      if (GridRank > 2 || useMHDCT)
+	velocity3   = coef   *   BaryonField[Vel3Num][i] +
+	              coefold*OldBaryonField[Vel3Num][i];
+#else
       if (GridRank > 1)
 	velocity2   = coef   *   BaryonField[Vel2Num][i] +
 	              coefold*OldBaryonField[Vel2Num][i];
       if (GridRank > 2)
 	velocity3   = coef   *   BaryonField[Vel3Num][i] +
 	              coefold*OldBaryonField[Vel3Num][i];
+#endif//MHDCT
  
       if (EOSType > 0) {
 	
@@ -148,6 +191,27 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
 
       } else {
+#ifdef MHDCT
+	if( HydroMethod == MHD_Li ){
+	  if( EquationOfState == 1){
+	    for( i=0;i<size;i++)
+	      pressure[i] = IsothermalSoundSpeed *IsothermalSoundSpeed * density;
+	  }else{
+	      gas_energy    = total_energy - density * OneHalf*(velocity1*velocity1 +
+								velocity2*velocity2 +
+								velocity3*velocity3);
+	      
+	      gas_energy  -= OneHalf*(coef*(CenteredB[0][i]*CenteredB[0][i]+
+					    CenteredB[1][i]*CenteredB[1][i]+
+					    CenteredB[2][i]*CenteredB[2][i]) +
+				      coefold*(OldCenteredB[0][i]*OldCenteredB[0][i]+
+					       OldCenteredB[1][i]*OldCenteredB[1][i]+
+					       OldCenteredB[2][i]*OldCenteredB[2][i]));
+	      
+	      pressure[i] = density*gas_energy;//(Gamma - 1.0)*gas_energy;
+	  }//Adiabatic EOS
+	}else{
+#endif
       /* gas energy = E - 1/2 v^2. */
 	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
 						velocity2*velocity2 +
@@ -160,12 +224,14 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	}
 	
 	pressure[i] = (Gamma - 1.0)*density*gas_energy;
-	
+#ifdef MHDCT
+	}// HydroMethod == MHD_Li
+#endif //MHD
 	if (pressure[i] < tiny_number)
 	  pressure[i] = tiny_number;
       }
     } /* end of loop over cells */
- 
+  }//time != time
   /* Correct for Gamma from H2. */
  
   if (MultiSpecies > 1) {

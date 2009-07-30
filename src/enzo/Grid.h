@@ -2636,6 +2636,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
 
 #ifdef MHDCT
+
   //Variables
     //CenteredB is used in the Riemann solver (SolveMHDequations) and the timestep (dtMagnetic)
   //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
@@ -2675,6 +2676,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float *DxBz, *DyBz, *DxyBz;
   int * DBxFlag, *DByFlag, *DBzFlag;
   //Evolution/AMR routines
+  int SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
+			fluxes *SubgridFluxes[], int level, int grid);
+  int ComputeElectricField(float dT, float ** Fluxes);
+  int MHD_Curl( int * Start, int * End, int Method);
+  int CenterMagneticField(int * Start = NULL, int * End = NULL);
+
   //Test Problems
   int MHDBlastInitializeGrid(float Density0, float Density1,
                              float Energy0,  float Energy1,
