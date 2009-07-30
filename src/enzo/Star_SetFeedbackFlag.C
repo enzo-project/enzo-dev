@@ -97,8 +97,10 @@ int Star::SetFeedbackFlag(FLOAT Time)
     if (this->type > 0 && AgeInMyr > 0)
       if (RadiativeTransfer) 
 	this->FeedbackFlag = MBH_RADIATIVE;
-      else
+      else if (MBHFeedbackThermal)
 	this->FeedbackFlag = MBH_THERMAL;
+      else
+	this->FeedbackFlag = NO_FEEDBACK;
     else
       this->FeedbackFlag = NO_FEEDBACK;
     break;

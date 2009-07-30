@@ -195,9 +195,13 @@ void Star::CalculateFeedbackParameters(float &Radius,
        but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
+    //EjectaThermalEnergy = 1e54/(VelocityUnits * VelocityUnits);
+
+    
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
       (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
+    
 
     break;
 

@@ -528,18 +528,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIISupernovaRadius);
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
-  fprintf(fptr, "MBHUseMetalField               = %"ISYM"\n",
-	  MBHUseMetalField);
   fprintf(fptr, "MBHMinDynamicalTime            = %"GSYM"\n",
           MBHMinDynamicalTime);
+  fprintf(fptr, "MBHMinimumMass                 = %"GSYM"\n",
+          MBHMinimumMass);
+  fprintf(fptr, "MBHFeedbackThermal               = %"ISYM"\n",
+	  MBHFeedbackThermal);
   fprintf(fptr, "MBHFeedbackRadius              = %"GSYM"\n",
           MBHFeedbackRadius);
   fprintf(fptr, "MBHFeedbackRadiativeEfficiency = %"GSYM"\n",
           MBHFeedbackRadiativeEfficiency);
   fprintf(fptr, "MBHFeedbackThermalCoupling     = %"GSYM"\n",
           MBHFeedbackThermalCoupling);
-  fprintf(fptr, "MBHMinimumMass                 = %"GSYM"\n",
-          MBHMinimumMass);
   fprintf(fptr, "MBHCombineRadius               = %"GSYM"\n",
           MBHCombineRadius);
   fprintf(fptr, "MBHIonizingLuminosity          = %lg\n",
