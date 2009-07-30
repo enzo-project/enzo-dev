@@ -1037,3 +1037,7 @@ OBJS_ECUDA_ALL = \
 #
 OBJS_MHDCT = MHDBlastInitialize.o \
 	Grid_MHDBlastInitializeGrid.o
+	Grid_MHDBlastInitializeGrid.o\
+	MHDCT_ParameterJuggle.o \
+	DaveTools.o 
+#	Grid_SolveMHDEquations.o

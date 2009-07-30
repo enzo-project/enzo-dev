@@ -8,7 +8,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "pout.h"
+#include "DaveTools.h"
 #define ABS abs
 
 //both declared below.
@@ -17,11 +17,10 @@ float blaststyle(int i,int j, int k, int InitStyle, float BlastCenterLocal[], fl
 void eigen( float d, float vx, float vy, float vz, 
 	    float bx, float by, float bz, float eng, 
 	    float right[][7]);
+#ifdef Unsupported
 float AreaWrapper(int i,int j,int k,int dim, int rank, float dx ,float dy, float dz,float Normal[]);
 float VolumeWrapper(int i,int j,int k, int rank, float dx ,float dy, float dz,float Normal[]);
-float AreaBelow(float pA[], float pB[], float pC[], float pD[], float Line[]);
-float Triangle(float Base, float Height);
-float Quadralateral(float pA[], float pB[], float pC[], float pD[]);
+#endif //Unsupported
 
 int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 				 float EnergyA,  float EnergyB,
@@ -33,20 +32,10 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   
 {
 
-  //<dbg>
-  //fprintf(stderr,"fuck %f %f\n",DensityA,DensityB);
-  //return FAIL;
-  //</dbg>
-  
   //Every processor needs to know this for every grid,
   //WHETHER OR NOT IT HAS THE DATA.
 
   float Pi = 3.14159265;
-
-#ifndef ATHENA
-   int  EquationOfState = 0 ;
-   float IsothermalSoundSpeed = 0;
-#endif  
 
   if( EquationOfState == 0 ){
     NumberOfBaryonFields = 5;
@@ -230,7 +219,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	case 6:
 	case 7:
 	case 8:
-	  // test for passing, 'n' shit.
+	  // Misc tests
 	  
 	  which = 2;
 	  if(InitStyle == 5) value = 10*(i-DEFAULT_GHOST_ZONES) + 
@@ -246,7 +235,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  BaryonField[3][index] = value + 3;
 	  if( EquationOfState == 0)
 	    BaryonField[4][index] = value + 4;
-	  if( MHD_Used == TRUE ){
+	  if( useMHDCT == TRUE ){
 	    CenteredB[0][index] = value + 5;
 	    CenteredB[1][index] = value + 6;
 	    CenteredB[2][index] = value + 7;
@@ -261,6 +250,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  BaryonField[ Ev[2] ][index] = k - DEFAULT_GHOST_ZONES;;
 	  break;
 
+#ifdef Unsupprted
 	  //Volume fraction for oblique grids
 	case 10:
 	  which = 0;
@@ -270,6 +260,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    return FAIL;
 	  }
 	  break;
+#endif
 	default:
 	  which = 0;
 	  fraction = blaststyle(i,j,k,InitStyle, BlastCenterLocal, Radius);
@@ -287,11 +278,11 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  if( EquationOfState == 0 ) BaryonField[Eeng][index] = 
 				       (1-fraction)*EnergyA + fraction*EnergyB;
 	  BaryonField[ Ev[0] ][index] = (1-fraction)*VelocityA[0]+fraction* VelocityB[0]; 
-	  if( GridRank > 1 || MHD_Used == TRUE )
+	  if( GridRank > 1 || useMHDCT == TRUE )
 	  BaryonField[ Ev[1] ][index] = (1-fraction)*VelocityA[1]+fraction* VelocityB[1]; 
-	  if( GridRank > 2 || MHD_Used == TRUE )
+	  if( GridRank > 2 || useMHDCT == TRUE )
 	  BaryonField[ Ev[2] ][index] = (1-fraction)*VelocityA[2]+fraction* VelocityB[2]; 
-	  if( MHD_Used == TRUE ){
+	  if( useMHDCT == TRUE ){
 	    CenteredB[0][index] = (1-fraction) * BA[0] + fraction*BB[0];
 	    CenteredB[1][index] = (1-fraction) * BA[1] + fraction*BB[1];
 	    CenteredB[2][index] = (1-fraction) * BA[2] + fraction*BB[2];
@@ -300,15 +291,13 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  continue;
 	}
 
-	
 	switch( PerturbMethod ){
-
 	case 1:
 	  BaryonField[ Ev[0] ][index]+= PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) 
-						     - .5);
-
+							   - .5);
+	  
 	  BaryonField[ Ev[1] ][index]+= PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) 
-						     - .5);
+							   - .5);
 	  break;
 
 	  //Plane Symmetric
@@ -355,7 +344,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  //Plane Symmetric, energy preserving
 	case 7: 
 	  if( EquationOfState == 0 ){
-	    if( MHD_Used == TRUE ){
+	    if( useMHDCT == TRUE ){
 	      BaryonField[ Eeng ][index] -= 0.5 * (BaryonField[ Eden ][index] *
 					  (BaryonField[ Ev[0] ][index] * BaryonField[ Ev[0] ][index]+
 					   BaryonField[ Ev[1] ][index] * BaryonField[ Ev[1] ][index] ) );
@@ -376,7 +365,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  }
 
 	  if( EquationOfState == 0 ){
-	    if( MHD_Used == TRUE ){
+	    if( useMHDCT == TRUE ){
 	      BaryonField[ Eeng ][index] += 0.5 * (BaryonField[ Eden ][index] *
 					  (BaryonField[ Ev[0] ][index] * BaryonField[ Ev[0] ][index]+
 					   BaryonField[ Ev[1] ][index] * BaryonField[ Ev[1] ][index] ) );
@@ -456,7 +445,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  case 84:
 	  case 85:
 	  case 86:
-
 	    Amp = 1- fraction * 2;
 	    //if( which == 0 ) Amp = +1;
 	    //if( which == 1 ) Amp = -1;
@@ -494,7 +482,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //
 
 
-  if( MHD_Used == TRUE )
+  if( useMHDCT == TRUE )
     for(field=0;field<3;field++){
       for(k=0; k<MagneticDims[field][2]; k++)
 	for(j=0; j<MagneticDims[field][1]; j++)
@@ -532,6 +520,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    case 9:
 	      //nothing to be done for this.
 	      break;
+#ifdef Unsupporetd	      
 	    case 10:
 	      which = 0;
 	      fraction = AreaWrapper(i,j,k,field, GridRank, CellWidth[0][0], CellWidth[1][0], CellWidth[2][0],Normal);
@@ -539,8 +528,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 		fprintf(stderr,"MHDBlastInitializeGrid: problem with Area Wrapper.\n");
 		return FAIL;
 	      }
-
 	      break;
+#endif
 	      
 	    default:
 	      which = 0;
@@ -665,9 +654,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   
   //  this->CenterMagneticField();
 
-  
-  //<dcc>
-  if(WriteInThisF(99)==TRUE ){
+  if(CheckForSingleGridDump(99)==TRUE ){
       
     char basename[30];
     sprintf(basename,"data9900.grid");//, LevelCycleCount[level], level, grid);

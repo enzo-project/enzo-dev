@@ -719,6 +719,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+#ifdef MHDCT
+  //MHDCT variables
+  DEFAULT_GHOST_ZONES = 3;
+  MHD_Used = FALSE;
+  IsothermalSoundSpeed = 1.0;
+  MHD_ProjectB = FALSE;
+  MHD_ProjectE = TRUE;
+  useMHDCT = FALSE;
+  EquationOfState = 0;
+  for(int dccdbg=0; dccdbg<N_DbgWrites;dccdbg++) SingleGridDumpList[dccdbg]=0;
+
+#endif //MHDCT
 
   MoveParticlesBetweenSiblings = TRUE;
 

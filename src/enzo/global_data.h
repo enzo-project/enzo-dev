@@ -892,4 +892,21 @@ EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
-#endif
+#ifdef MHDCT
+//MHDCT variables
+EXTERN int DEFAULT_GHOST_ZONES;
+EXTERN int MHD_Used;// Only used to detect old style parameter files
+EXTERN float IsothermalSoundSpeed;
+EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be used in initialization.
+EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
+EXTERN int useMHDCT;
+EXTERN int EquationOfState;
+EXTERN char *MHDLabel[3];
+EXTERN char *MHDUnits[3];
+EXTERN char *MHDeLabel[3];
+EXTERN char *MHDeUnits[3];
+EXTERN int SingleGridDumpList[N_DbgWrites];
+#endif //MHDCT
+
+#endif /*global_data_defined__*/
+

@@ -50,11 +50,11 @@ MACH_LD_MPI    = mpicxx
 
 # Without MPI
 
-MACH_CC_NOMPI  = cc
-MACH_CXX_NOMPI = CC
-MACH_FC_NOMPI  = ftn
-MACH_F90_NOMPI = ftn
-MACH_LD_NOMPI  = CC
+MACH_CC_NOMPI  = pgcc
+MACH_CXX_NOMPI = pgCC
+MACH_FC_NOMPI  = pgf90
+MACH_F90_NOMPI = pgf90
+MACH_LD_NOMPI  = pgCC
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines

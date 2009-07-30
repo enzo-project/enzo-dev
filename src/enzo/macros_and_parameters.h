@@ -54,7 +54,9 @@
 
 #define MEMORY_POOL_SIZE  __memory_pool_size
 
+#ifndef MHDCT
 #define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
+#endif //MHDCT
 
 #define MAX_NUMBER_OF_OUTPUT_REDSHIFTS    500
 
@@ -555,5 +557,8 @@ typedef int            HDF5_hid_t;
 #else
 #define TIME_MSG(A) ;
 #endif
-
+#ifdef MHDCT
+//For the MidWayDump tool
+#define N_DbgWrites 30 
+#endif //MHDCT
 #endif

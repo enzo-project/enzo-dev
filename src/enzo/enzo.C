@@ -50,6 +50,9 @@
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
 #endif
+#ifdef MHDCT
+#include "DaveTools.h"
+#endif //MHDCT
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);

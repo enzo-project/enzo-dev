@@ -910,6 +910,22 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
+#ifdef MHDCT
+    //MHDCT variables
+    ret += sscanf(line, "SingleGridDump = %d %d %d %d %d %d %d %d %d %d", SingleGridDumpList,
+		  SingleGridDumpList +1,SingleGridDumpList +2,SingleGridDumpList +3,
+		  SingleGridDumpList +4,SingleGridDumpList +5,SingleGridDumpList +6,
+		  SingleGridDumpList +7,SingleGridDumpList +8,SingleGridDumpList +9);
+		  
+    ret += sscanf(line,"DEFAULT_GHOST_ZONES = %"ISYM,&DEFAULT_GHOST_ZONES);
+    ret += sscanf(line,"MHD_Used = %"ISYM,&MHD_Used);
+    ret += sscanf(line,"IsothermalSoundSpeed = %"GSYM,&IsothermalSoundSpeed);
+    ret += sscanf(line,"MHD_ProjectB = %"ISYM,&MHD_ProjectB);
+    ret += sscanf(line,"MHD_ProjectE = %"ISYM,&MHD_ProjectE);
+    ret += sscanf(line,"useMHDCT = %"ISYM,&useMHDCT);
+    ret += sscanf(line,"EquationOfState = %"ISYM,&EquationOfState);
+#endif //MHDCT
+
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
