@@ -105,6 +105,12 @@
 #define FORTRAN_NAME(NAME) NAME
 #endif
 
+#ifdef CONFIG_PFLOAT_16
+#define PFORTRAN_NAME(NAME) NAME##_c
+#else
+#define PFORTRAN_NAME(NAME) FORTRAN_NAME(NAME)
+#endif
+
 /* Precision-related definitions. */
 
 typedef long long long_int;

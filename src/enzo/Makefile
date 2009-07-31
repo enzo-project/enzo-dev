@@ -175,9 +175,9 @@ all: $(EXE).exe
 	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
           fi)
