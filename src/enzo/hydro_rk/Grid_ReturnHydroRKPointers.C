@@ -66,7 +66,9 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBx] = BaryonField[B1Num];
     Prim[iBy] = BaryonField[B2Num];
     Prim[iBz] = BaryonField[B3Num];
+    Prim[iPhi] = BaryonField[PhiNum];
   }
+
 
   /* Add the species */
 
