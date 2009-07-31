@@ -1,17 +1,19 @@
 #=======================================================================
 #
-# FILE:        Makefile.config
+# FILE:        Makefile
 #
-# SUMMARY:     Configurable Makefile for Enzo
+# SUMMARY:     Configurable Makefile for Enzo analysis toolkit (enzo_anyl)
 #
-# AUTHOR:      James Bordner (jobordner@ucsd.edu)
+# AUTHOR:      Ji-hoon Kim (me@jihoonkim.org)
 #
-# DATE:        2007-02-21
+# DATE:        2009-07-29
 #
 # DESCRIPTION
+#	       Adopted from Makefile for enzohop
+#	
 #              See 'gmake help' for definitive description of targets
 #
-#              Makefile.config includes the following files:
+#              Makefile includes the following files:
 # 
 #              Make.config.settings   default configuration settings
 #              Make.config.override   local user settings
@@ -39,13 +41,11 @@
 SHELL    = /bin/bash
 
 TOP_DIR  = ../..
-EXE      = enzo
+EXE      = enzo_anyl
 OUTPUT   = out.compile
 
-ENZO_DIR = .
+ENZO_DIR = $(TOP_DIR)/src/enzo
 MODULES  = 
-
-SVN      = svn
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
@@ -69,12 +69,18 @@ include $(ENZO_DIR)/Make.config.machine
 #-----------------------------------------------------------------------
 
 MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
-
 include $(MAKE_CONFIG_OVERRIDE)
 
-# THIS WAY OF DOING THE ABOVE DOES NOT WORK:
-#
-# include $(ENZO_DIR)/Make.config.override
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# ENZO_ANYL ONLY: override the override, these I found are needed 
+# for smooth compiling, you may want to try other options
+
+CONFIG_PRECISION = 32
+CONFIG_INTEGERS  = 32
+CONFIG_USE_MPI   = yes
+CONFIG_PHOTON    = yes
+CONFIG_FAST_SIB  = yes
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------
 # Make.config.assemble takes the settings in the Make.config.settings
@@ -82,14 +88,13 @@ include $(MAKE_CONFIG_OVERRIDE)
 # required by this makefile.  E.g. $(CXX), $(CXXFLAGS), etc.
 #-----------------------------------------------------------------------
 
-include Make.config.assemble
+include $(ENZO_DIR)/Make.config.assemble
 
 #-----------------------------------------------------------------------
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
--include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
--include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
+include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
 
 #=======================================================================
 # OBJECT FILES
@@ -98,47 +103,47 @@ include Make.config.assemble
 include Make.config.objects
 
 #-----------------------------------------------------------------------
-# MAKE ENZO BY DEFAULT
+# MAIN TARGET
 #-----------------------------------------------------------------------
 
-all: $(EXE).exe
-
-#-----------------------------------------------------------------------
-# MAIN AN EXECUTABLE
-#-----------------------------------------------------------------------
-
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+$(EXE).exe: $(MODULES) dep $(OBJS_ANYL_LIB) purge_main
 	@rm -f $@
 	@echo "Linking"
-	-@$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
+	-@$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o \
+             $(ENZO_DIR)/hydro_rk/*.o $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-	   echo "Success!"; \
-	else \
-	   echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
-	   cat temp1 $(OUTPUT) > temp2; \
-	   rm -f temp1; \
-	   mv -f temp2 $(OUTPUT); \
-	   echo "Failed! See $(OUTPUT) for error messages"; \
-	fi)
+             echo "Success!"; \
+         else \
+             echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o $(ENZO_DIR)/hydro_rk/*.o $(LIBS)" >> temp1; \
+             cat temp1 $(OUTPUT) > temp2; \
+             rm -f temp1; \
+             mv -f temp2 $(OUTPUT); \
+             echo "Failed! See $(OUTPUT) for error messages"; \
+         fi)
+
+.PHONY: purge_main
+purge_main:
+	if [ -e $(ENZO_DIR)/enzo.o ]; then \
+		/bin/rm $(ENZO_DIR)/enzo.o; \
+		fi
+	if [ -e $(ENZO_DIR)/EvolveHierarchy.o ]; then \
+		/bin/rm $(ENZO_DIR)/EvolveHierarchy.o; \
+		fi
 
 #-----------------------------------------------------------------------
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
-
-# Inhibit removing any *.o files after compiling
-
-.PRECIOUS: %.o %.f
+.SUFFIXES: .c .C .src .src90 .f .f90
 
 .src.f:
+	@echo "Compiling $<"
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
 .f.o:
-	@echo "Compiling $<"
 	@rm -f $@
 	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-             touch $*.f; \
+             rm -f $*.f; \
           else \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
@@ -195,69 +200,6 @@ all: $(EXE).exe
              exit 1; \
           fi)
 
-.cu.o: 
-	@rm -f $@
-	@echo "Compiling $<"
-	-@($(CUDACOMPILER) -c -o $@ $(DEFINES)  $(INCLUDES) $*.cu) >& $(OUTPUT)
-	@(if [ ! -e $@ ]; then \
-	     echo; \
-             echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu"; \
-             echo; \
-             $(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu;\
-             echo; \
-             exit 1; \
-          fi)
-
-#-----------------------------------------------------------------------
-# Generate all make-generated source files
-#-----------------------------------------------------------------------
-
-.PHONY: autogen
-autogen: svn_version.def auto_show_config.C auto_show_flags.C auto_show_version.C
-
-# Force update of auto_show_config.C
-
-.PHONY: auto_show_config.C
-auto_show_config.C:
-	-@$(MAKE) -s show-config  >& temp.show-config
-	-@awk 'BEGIN {print "#include <stdio.h>\nvoid auto_show_config(FILE *fp) {"}; {print "   fprintf (fp,\""$$0"\\n\");"}; END {print "}"}' < temp.show-config > auto_show_config.C
-
-# Force update of auto_show_flags.C
-
-.PHONY: auto_show_flags.C
-auto_show_flags.C:
-	-@$(MAKE) -s show-flags  >& temp.show-flags
-	-@awk 'BEGIN {print "#include <stdio.h>\nvoid auto_show_flags(FILE *fp) {"}; {print "   fprintf (fp,\""$$0"\\n\");"}; END {print "}"}' < temp.show-flags > auto_show_flags.C
-
-# Force update of auto_show_version.C
-
-.PHONY: auto_show_version.C
-auto_show_version.C:
-	-@$(MAKE) -s show-version  >& temp.show-version
-	-@awk 'BEGIN {print "#include <stdio.h>\nvoid auto_show_version(FILE *fp) {"}; {print "   fprintf (fp,\""$$0"\\n\");"}; END {print "}"}' < temp.show-version > auto_show_version.C
-
-#-----------------------------------------------------------------------
-# Generate SVN version source file 'svn_version.def'
-#-----------------------------------------------------------------------
-
-# Force update of svn_version.def
-.PHONY: svn_version.def
-svn_version.def:
-	-@$(SVN) info -R $(TOP_DIR) | grep Revision | sort | uniq | tail -1 | \
-           awk '{print "#define ENZO_SVN_REVISION",$$2}' > svn_version.def
-	-@$(SVN) info $(TOP_DIR) | awk '/URL/{print "#define ENZO_SVN_BRANCH","\""$$2"\""};' >> svn_version.def 
-	-@if [ ! -s svn_version.def ]; then \
-	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
-	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \
-	fi
-
-# Determine Enzo version
-
-.PHONY: get-version
-get-version:
-	@$(SVN) info $(TOP_DIR) | awk '/URL/{print $$2}'      > $(TOP_DIR)/BRANCH
-	@$(SVN) info $(TOP_DIR) | awk '/Revision/{print $$2}' > $(TOP_DIR)/REVISION
-
 #-----------------------------------------------------------------------
 # Generate dependency file
 #-----------------------------------------------------------------------
@@ -265,21 +207,9 @@ get-version:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.src *src90 *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -m -- -- *.C *.src *.h) >& out.make.DEPEND
 
 include DEPEND
-
-#-----------------------------------------------------------------------
-# Radiative transfer module
-#-----------------------------------------------------------------------
-
-#include $(ENZO_DIR)/photons/Make.config.objects
-#
-#.PHONY: photon
-#photon: OBJS_LIB += photons/*.o
-#photon:
-#	@echo "Making radiative transfer module"
-#	+(cd photons/ ; make photon)
 
 #-----------------------------------------------------------------------
 # INSTALL TARGET
@@ -288,15 +218,9 @@ include DEPEND
 install: $(TOP_DIR)/bin
 	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
 	-@cp $(EXE).exe $(TOP_DIR)/bin/$(EXE)
-	-@cp gridtests.exe $(TOP_DIR)/bin/gridtests
-	-@cp ealfloattests.exe $(TOP_DIR)/bin/ealfloattests
-	-@cp ealinttests.exe $(TOP_DIR)/bin/ealinttests
-	-@cp readgridtests.exe $(TOP_DIR)/bin/readgridtests
-	-@cp analysisbaseclasstests.exe $(TOP_DIR)/bin/analysisbaseclasstests
-	-$(MAKE) -s show-flags   >& $(TOP_DIR)/bin/$(EXE).show-flags
-	-$(MAKE) -s show-config  >& $(TOP_DIR)/bin/$(EXE).show-config
-	-$(MAKE) -s show-version >& $(TOP_DIR)/bin/$(EXE).show-version
-	-$(MAKE) -s show-diff    >& $(TOP_DIR)/bin/$(EXE).show-diff
+	-$(MAKE) show-flags >& $(TOP_DIR)/bin/$(EXE).show-flags
+	-$(MAKE) show-config >& $(TOP_DIR)/bin/$(EXE).show-config
+	-$(MAKE) show-version >& $(TOP_DIR)/bin/$(EXE).show-version
 
 $(TOP_DIR)/bin:
 	mkdir $(TOP_DIR)/bin
@@ -311,8 +235,8 @@ help:
 	@echo "   Enzo Makefile Help"
 	@echo "========================================================================"
 	@echo
-	@echo "   gmake                Compile and generate the executable 'enzo.exe'"
-	@echo "   gmake install        Copy the executable to bin/enzo"
+	@echo "   gmake                Compile and generate the executable 'enzo_anyl.exe'"
+	@echo "   gmake install        Copy the executable to bin"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
@@ -329,8 +253,7 @@ help:
 #-----------------------------------------------------------------------
 
 clean:
-	-@rm -f *.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def hydro_rk/*.o
+	-@rm -f *.o *.mod *.f *.f90 *~ $(OUTPUT) $(EXE).exe
 
 #-----------------------------------------------------------------------
 # Include configuration targets

@@ -30,7 +30,7 @@ int i,j;
   {
     for(i=j;i<min(j+m,n);i++)
     {
-      fprintf(log_fptr, "%1"ISYM, x[i]);
+      fprintf(log_fptr, "%1"ISYM" ", x[i]);
     }
     fprintf(log_fptr,"\n");
   }

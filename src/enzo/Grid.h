@@ -30,9 +30,9 @@ struct HierarchyEntry;
 
 #include "EnzoArray.h"
 
-#ifdef ANALYSIS_TOOLS
-#   include "AnalyzeClusters.h"
-#endif
+//#ifdef ANALYSIS_TOOLS
+#include "../anyl/AnalyzeClusters.h"
+//#endif
 
 #ifdef TRANSFER
 #include "PhotonPackage.h"
@@ -1771,9 +1771,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Includes for analysis tools */
 
-#ifdef ANALYSIS_TOOLS
-#   include "Grid_AnalyzeClusters.h"
-#endif
+//#ifdef ANALYSIS_TOOLS
+#include "../anyl/Grid_AnalyzeClusters.h"
+//#endif
 
 #ifdef USE_PYTHON
     void ConvertToNumpy(int GridID, PyArrayObject *container[],
