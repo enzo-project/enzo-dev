@@ -126,6 +126,25 @@ extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int ran1_init);
 
+int star_maker8(int *nx, int *ny, int *nz, int *size,
+		float *d, float *te, float *ge, float *u, float *v, float *w,
+		float *bx, float *by, float *bz, float *dt, float *r, float *dx, FLOAT *t, float *z, 
+		int *procnum,
+		float *d1, float *x1, float *v1, float *t1,
+		int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
+		int *ibuff, 
+		int *imethod, int *idual, float *massthresh, int *level, int *np,
+		FLOAT *xp, FLOAT *yp, FLOAT *zp, 
+		float *up, float *vp, float *wp, float *mp, 
+		float *tcp, float *tdp, float *dm, int *type,
+		int *npold, FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, 
+		float *upold, float *vpold, float *wpold, float *mpold,
+		float *tcpold, float *tdpold, float *dmold, 
+		float *nx_jet, float *ny_jet, float *nz_jet,
+		int *typeold, int *idold, int *ctype,
+		float *jlrefine, float *temp, float *gamma, float *mu,
+		int *nproc, int *nstar);
+
 #ifdef STAR1
 extern "C" void FORTRAN_NAME(star_feedback1)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v,
@@ -307,7 +326,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   }
  
   /* If using MHD, subtract magnetic energy from total energy because 
-     density may be modified in star_maker3. */
+     density may be modified in star_maker8. */
   
   float *Bfieldx = NULL, *Bfieldy = NULL, *Bfieldz = NULL;
   if (HydroMethod == MHD_RK) {
@@ -723,27 +742,67 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
-		      BaryonField[DensNum], BaryonField[Vel1Num],
-		      BaryonField[Vel2Num], BaryonField[Vel3Num],
-		      &dtFixed, BaryonField[NumberOfBaryonFields],
-		      &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
-		      &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-		      &MaximumNumberOfNewParticles, CellLeftEdge[0], 
-		      CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
-		      &ihydro, &SinkParticleMassThreshold, &level, 
-		      &NumberOfNewParticles, tg->ParticlePosition[0], 
-		      tg->ParticlePosition[1], tg->ParticlePosition[2], 
-		      tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
-		      tg->ParticleVelocity[2], tg->ParticleMass, 
-		      tg->ParticleAttribute[0], tg->ParticleAttribute[1], 
-		      tg->ParticleType, &NumberOfParticles, ParticlePosition[0],
-		      ParticlePosition[1], ParticlePosition[2], 
-		      ParticleVelocity[0], ParticleVelocity[1], 
-		      ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
-		      ParticleAttribute[1], ParticleType, &SinkParticleType, 
-		      &JeansLengthRefinement, temperature) == FAIL) {
-	    ENZO_FAIL("Error in star_maker3");
+      if(HydroMethod == MHD_RK){
+	/* set pointer to the wind direction if wind feedback is used*/
+
+	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
+	/*printf("Grid_StarParticleHandler l479 - just made nx_jet etc.\n");*/
+	if (StellarWindFeedback) {
+	  printf("Grid_StarParticleHandler 751 - star maker 8 called\n");
+	  nx_jet = ParticleAttribute[3];
+	  ny_jet = ParticleAttribute[4];
+	  nz_jet = ParticleAttribute[5];
+	}
+
+	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
+			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
+			BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
+			Bfieldx, Bfieldy, Bfieldz,
+			&dtFixed, BaryonField[NumberOfBaryonFields],
+			&CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+			&DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+			&MaximumNumberOfNewParticles, CellLeftEdge[0], 
+			CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+			&ihydro, &DualEnergyFormalism, &SinkParticleMassThreshold, &level, 
+			&NumberOfNewParticles, tg->ParticlePosition[0], 
+			tg->ParticlePosition[1], tg->ParticlePosition[2], 
+			tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+			tg->ParticleVelocity[2], tg->ParticleMass, 
+			tg->ParticleAttribute[0], tg->ParticleAttribute[1], tg->ParticleAttribute[2],
+			tg->ParticleType, &NumberOfParticles, ParticlePosition[0],
+			ParticlePosition[1], ParticlePosition[2], 
+			ParticleVelocity[0], ParticleVelocity[1], 
+			ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
+			ParticleAttribute[1], ParticleAttribute[2], nx_jet, ny_jet, nz_jet,
+			ParticleType, ParticleNumber, &SinkParticleType, 
+			&JeansLengthRefinement, temperature, &Gamma, &Mu,
+			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
+	  fprintf(stderr, "Error in star_maker8\n");
+	  return FAIL;
+	}
+      } else {
+	if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
+		       BaryonField[DensNum], BaryonField[Vel1Num],
+		       BaryonField[Vel2Num], BaryonField[Vel3Num],
+		       &dtFixed, BaryonField[NumberOfBaryonFields],
+		       &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+		       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+		       &MaximumNumberOfNewParticles, CellLeftEdge[0], 
+		       CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+		       &ihydro, &SinkParticleMassThreshold, &level, 
+		       &NumberOfNewParticles, tg->ParticlePosition[0], 
+		       tg->ParticlePosition[1], tg->ParticlePosition[2], 
+		       tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+		       tg->ParticleVelocity[2], tg->ParticleMass, 
+		       tg->ParticleAttribute[0], tg->ParticleAttribute[1], 
+		       tg->ParticleType, &NumberOfParticles, ParticlePosition[0],
+		       ParticlePosition[1], ParticlePosition[2], 
+		       ParticleVelocity[0], ParticleVelocity[1], 
+		       ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
+		       ParticleAttribute[1], ParticleType, &SinkParticleType, 
+		       &JeansLengthRefinement, temperature) == FAIL) {
+	  ENZO_FAIL("Error in star_maker3");
+	}
       }
 
       /* Delete any merged particles (Mass == FLOAT_UNDEFINED) */

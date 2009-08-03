@@ -10,7 +10,7 @@
 #
 #=======================================================================
 
-MACH_TEXT  = SUnnyvale
+MACH_TEXT  = Sunnyvale
 MACH_VALID = 1
 MACH_FILE  = Make.mach.sunnyvale
 
@@ -57,7 +57,7 @@ MACH_LD_NOMPI  = icc
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
-MACH_DEFINES = -DLINUX -DH5_USE_16_API -DTRANSFER
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DTRANSFER -DWINDS
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
