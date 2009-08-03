@@ -7,61 +7,108 @@
 
 ProblemType                = 31
 TopGridRank                = 3
-TopGridDimensions          = 16 32 16
 SelfGravity                = 0
 TopGridGravityBoundary     = 0 
-LeftFaceBoundaryCondition  = 4 3 3
-RightFaceBoundaryCondition = 4 3 3
-PointSourceGravity         = 0
-DomainLeftEdge             = 0 0 0
-DomainRightEdge            = 1 2 1
+
 
 #
 #  set I/O and stop/start parameters
 # 
 
-StopTime               = 62.800
-dtDataDump             = 6.28
-#CycleSkipDataDump= 1
-DataDumpName           = data
+
 
 #
 #  set grid refinement parameters
 #
 StaticHierarchy           = 0
 FluxCorrection            = 1
-MaximumRefinementLevel    = 2
+MaximumRefinementLevel    = 6
 RefineBy                  = 2
-CellFlaggingMethod        = 2 
-#RefineByResistiveLengthSafetyFactor = 16
 MinimumEfficiency         = 0.4
 InterpolationMethod         = 4
 ConservativeInterpolation   = 0
 NumberOfBufferZones         = 3
 
+
 #
 #  set hydro parameters
 #
-Gamma  = 1.001
-Mu                          = 1
+#Gamma                       = 0.999991
+#Gamma  = 1.666
+Gamma  = 1.0001
+Mu                          = 2
 CourantSafetyNumber         = 0.2
-HydroMethod                 = 0
 DualEnergyFormalism         = 1
 Theta_Limiter               = 1.5
 RKOrder                     = 2
-EOSType                     = 0
-RiemannSolver = 0
+
 
 #
 # problem parameters
 #
 
+
+
+### Balbus and Hawley Shearing Boxhug 
+
+ShearingBoxProblemType = 1
+
+TopGridDimensions          = 32 64 32
+LeftFaceBoundaryCondition  = 4 3 3
+RightFaceBoundaryCondition = 4 3 3
+ShearingVelocityDirection = 1
+DomainLeftEdge=0 0 0
+DomainRightEdge= 1 2 1
+
+
+HydroMethod                 = 4
+EOSType                     = 3
+EOSSoundSpeed = 0.001
+RiemannSolver = 1
+ShearingBoxRefineAtStart = 0
+CellFlaggingMethod        = 2 11
+RefineByResistiveLengthSafetyFactor = 16
+
+
+StopTime = 62800
+dtDataDump             = 62.8
+DataDumpName           = data
+
 AngularVelocity = 0.001
 VelocityGradient = 1.5
-ShearingBoxGeometry = 0.15
-ShearingBoxRefineAtStart = 1
+#ShearingBoxGeometry = 0.15
+InitialMagneticFieldConfiguration = 0
 
-#ThermalMagneticRatio=20.05
-#FluctuationAmplitudeFraction=0.005 
+ThermalMagneticRatio=20.05
+FluctuationAmplitudeFraction=0.005 
 
 
+### Advecting Sphere
+
+#ShearingBoxProblemType = 0
+
+
+#TopGridDimensions          = 16 16 32
+##TopGridDimensions          = 64 64 128
+#LeftFaceBoundaryCondition  = 4 3 3
+#RightFaceBoundaryCondition = 4 3 3
+#ShearingVelocityDirection = 1
+#DomainLeftEdge=0 0 0
+#DomainRightEdge= 1 1 2
+
+
+#HydroMethod                 = 3
+#EOSType                     = 3
+#EOSSoundSpeed = 0.001
+#RiemannSolver = 1
+#ShearingBoxRefineAtStart = 1
+#CellFlaggingMethod        = 2 
+
+
+#StopTime = 62800
+#dtDataDump             = 3.14
+#DataDumpName           = data
+
+#AngularVelocity = 0.001
+#VelocityGradient = 1.5
+#ShearingBoxGeometry = 0.25

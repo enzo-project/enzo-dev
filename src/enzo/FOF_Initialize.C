@@ -98,8 +98,8 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int TopGridDims3 = MetaData->TopGridDims[0] * MetaData->TopGridDims[1] * 
     MetaData->TopGridDims[2];
 
-  //  double EnzoMassUnits = (double) DensityUnits * pow(LengthUnits, 3.0) /
-  //  TopGridDims3;
+  MassUnits = (double) DensityUnits * pow(LengthUnits, 3.0) /
+    TopGridDims3;
 
   // Copy other cosmology parameters
   D.Omega = OmegaMatterNow;

@@ -45,21 +45,30 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   /* Return if this doesn't involve us. */
  
+
+ 
   if (ProcessorNumber != MyProcessorNumber &&
       OtherGrid->ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
+
 //  printf("CopyZonesFromGrid: %"ISYM"\n", NumberOfBaryonFields);
  
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
+
+
  
   this->DebugCheck("CopyZonesFromGrid (before)");
+ 
+
+
  
   /* declarations */
  
   int dim;
 
+  int StartSave[3];
   
   bool shiftPos, shiftNeg; float delta;
   if (ShearingBoundaryDirection!=-1){
@@ -98,9 +107,10 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   for (dim = 0; dim < GridRank; dim++)
     if (GridLeft[dim]  >= OtherGrid->GridRightEdge[dim] ||
-        GridRight[dim] <= OtherGrid->GridLeftEdge[dim]   )
+        GridRight[dim] <= OtherGrid->GridLeftEdge[dim]   )   
       return SUCCESS;
  
+
   /* There is some overlap, so copy overlapping region */
  
   //FLOAT Left, Right;
@@ -137,21 +147,18 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
       Start[dim] = nint((Left[dim]  - GridLeft[dim]) / CellWidth[dim][0]);
       End[dim]   = nint((Right[dim] - GridLeft[dim]) / CellWidth[dim][0]) - 1;
 
-      if (ShearingVelocityDirection==dim && (shiftNeg || shiftPos)){
-	if (isTopGrid()){   
-	  //technically, the top grid only needs to extend in one direction because the copy will happen with either the end or the beginning.
-	  Start[dim] = (int) ceil((Left[dim]  - GridLeft[dim]) / CellWidth[dim][0]);
-	  End[dim]   = (int) ceil((Right[dim] - GridLeft[dim]) / CellWidth[dim][0]) - 1;
-	}
-       	else{
-	  Start[dim] = (int) ceil((Left[dim]  - GridLeft[dim]) / CellWidth[dim][0]);
-	  End[dim]   = (int) floor((Right[dim] - GridLeft[dim]) / CellWidth[dim][0]) - 1;
- 	}
+      if (ShearingVelocityDirection==dim && isShearing){
+
+
+	Start[dim] = (int) floor((Left[dim]  - GridLeft[dim]) / CellWidth[dim][0]);
+	End[dim]   = (int) floor((Right[dim] - GridLeft[dim]) / CellWidth[dim][0]) - 1;
       }
  
       if (End[dim] - Start[dim] < 0)
 	return SUCCESS;
- 
+
+    
+
       /* Compute index positions in the other grid */
  
       StartOther[dim] = nint((Left[dim] - OtherGrid->CellLeftEdge[dim][0])/
@@ -162,10 +169,15 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	StartOther[dim] = (int) floor((Left[dim] - OtherGrid->CellLeftEdge[dim][0]) / 
 				      CellWidth[dim][0]);
       
+
+      StartSave[dim]=StartOther[dim];
+
       /* Copy dimensions into temporary space */
  
       OtherDim[dim] = OtherGrid->GridDimension[dim];
     }
+
+  
  
   /* Calculate dimensions */
  
@@ -175,17 +187,22 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   //need extra cell if you want to do shearing boundaries 
   //and that needs to be communicated from other grids possibly
 
-  int ShearingCommunicationDims[3];
+  int ShearingCommunicationDims[3];  
+
+  //We want two more cells on the other grid for the interpolation
+
   if (isShearing){
     int x=Dim[ShearingVelocityDirection];
-    int otherX=OtherDim[ShearingVelocityDirection];
-    if (x+1<=otherX) 
-      x=x+1;
-    else x=otherX;
+    x=x+1;
+    //printf("*** %d (%d)\n", x, OtherDim[ShearingVelocityDirection] );
+   
+
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      if (dim==ShearingVelocityDirection)
+      if (dim==ShearingVelocityDirection){
 	ShearingCommunicationDims[dim]=x;
+	//if (x>OtherDim[dim]) printf("BAAAAAAAD!!!!!\n");
+      }
       else
 	ShearingCommunicationDims[dim] = Dim[dim];
 
@@ -226,17 +243,25 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	CommunicationDirection == COMMUNICATION_SEND)
       return SUCCESS;    
     for (dim = 0; dim < GridRank; dim++) {
-      if (isShearing) OtherDim[dim]=ShearingCommunicationDims[dim];
-      else OtherDim[dim] = Dim[dim];
-      StartOther[dim] = 0;
+      if (isShearing) {
+	OtherDim[dim]=ShearingCommunicationDims[dim];
+	StartOther[dim] = 0;
+      }
+      else{
+	OtherDim[dim] = Dim[dim];
+	StartOther[dim] = 0;
+      }
     }
   }
- 
+
+  
+
   /* Return if this is not our concern. */
  
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
- 
+
+
   /* Copy zones */
  
 
@@ -255,31 +280,32 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
 
 
-  // printf("Dim: %i %i %i  Start: %i %i %i   StartOther: %i %i %i\n", 
-// 	  Dim[0], Dim[1], Dim[2], Start[0], Start[1], Start[2], 
-// 	  StartOther[0],StartOther[1],StartOther[2]);
 
-
+  
  
   for (int field = 0; field < NumberOfBaryonFields; field++)
- 
-   for (int k = 0; k < Dim[2]; k++)
+    for (int k = 0; k < Dim[2]; k++)
       for (int j = 0; j < Dim[1]; j++) {
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
                     (k + Start[2])*GridDimension[0]*GridDimension[1];
 	otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
                      (k + StartOther[2])*OtherDim[0]*OtherDim[1];
 	for (int i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
-	  BaryonField[field][thisindex] =
-	    OtherGrid->BaryonField[field][otherindex];
 
-	  if (isShearing){
-	    val1=OtherGrid->BaryonField[field][otherindex];
+		  
+	  if (!isShearing) {  
+	    BaryonField[field][thisindex] = OtherGrid->BaryonField[field][otherindex];
+	  }
+	  else {
+
+	  
+	    val1=OtherGrid->BaryonField[field][otherindex];//This guaranteed to be in the active zone of the other grid
 	    val2=OtherGrid->BaryonField[field][otherindex+ addDim[ShearingVelocityDirection]];
-	    
 	    BaryonField[field][thisindex] = (float) (b*val1+a*val2);
 
-	    
+
+		     
+
 	    if (FieldType[field]==velocityTypes[ShearingVelocityDirection]){ 
 	      if (shiftNeg){
 		BaryonField[field][thisindex] -=delta;	  
@@ -287,13 +313,11 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      else if (shiftPos){
 		BaryonField[field][thisindex] +=delta;
 	      }
-
-	      //    printf ("Neg: %d  Pos: %d, (%d %d %d) %"GSYM"\n", shiftNeg, shiftPos, i,j,k, 
-	      //      BaryonField[field][thisindex]);
+	      
 	    }
-	  
-	  
 	  }
+	  
+	  
 	}}
  
   //Update the energys due to sheared boundaries
@@ -350,9 +374,13 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   
   if (MyProcessorNumber != OtherGrid->ProcessorNumber)
     OtherGrid->DeleteAllFields();
-  
+
+
+
   this->DebugCheck("CopyZonesFromGrid (after)");
   
+
+   
   return SUCCESS;
   
 }
