@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include <math.h>
 
 
 int FastFourierTransform(float *buffer, int Rank, int DimensionReal[], 
@@ -99,20 +100,22 @@ int grid::PoissonSolver(int level)
 
  //  this->PoissonSolverDirichletBC(divB_p);
 
-  if (debug){
+  bool badDiv=false;
     float divSum = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
+	  if (divB_p[igrid]>DivergenceCleaningThreshold) badDiv=true;
 	  divSum += fabs(divB_p[igrid]/dx[0]);
 	}
       }
     }
     
     printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
-  }
-  
+    
+    if (!badDiv) return SUCCESS;
+
   int type=UseDivergenceCleaning;
 
   if (type == 1) PoissonSolverSOR();
@@ -394,12 +397,12 @@ int grid::PoissonSolverSOR2()
 
     int maxdim=max(GridDimension[0]+1, max(GridDimension[1]+1, GridDimension[2]+1));
     
-    float srad=(COS(Pi/GridDimension[0])+COS(Pi/GridDimension[1])+COS(Pi/GridDimension[2]))/3;
-  float w=2/(1+POW(1-POW(srad,2),0.5));
-  // fprintf(stderr, "w= %f\n", w); 
+    float srad=(cos(Pi/GridDimension[0])+cos(Pi/GridDimension[1])+cos(Pi/GridDimension[2]))/3;
+  float w=2/(1+pow(1-pow(srad,2),0.5));
+  // printf(stderr, "w= %f\n", w); 
   //  w=1;
 
-    //fprintf(stderr, "converge: %f \n", converge);
+    //printf(stderr, "converge: %f \n", converge);
     //for (int n=0; n<converge; n++){
     
 
@@ -462,7 +465,7 @@ int grid::PoissonSolverSOR2()
       if (debug&& counter%maxdim== maxdim-1) 
 	 if (debug) printf("Div Cleaning %d Iterations, Error %f\n", 
 		counter, sumerror);
-      //  if (counter%2== 1) fprintf(stderr, "Div Cleaning %d Iterations, Error %f\n", counter, sumerror);
+      //  if (counter%2== 1) printf(stderr, "Div Cleaning %d Iterations, Error %f\n", counter, sumerror);
 
 
 
@@ -540,7 +543,7 @@ int grid::PoissonSolverMultigrid()
 //   sprintf(c, "BO_%"GOUTSYM".TNT",Time);
 
 //   FILE *fptr=fopen(c, "w");
-//   fprintf(fptr, "x\ty\tvalue\twidth\theight\n");
+//   printf(fptr, "x\ty\tvalue\twidth\theight\n");
 //   int xD[3]={GridDimension[0],GridDimension[1], GridDimension[2]};
 //    int diffs[3]={1, xD[0], xD[1]*xD[0]}; 
  
@@ -551,7 +554,7 @@ int grid::PoissonSolverMultigrid()
 //   if (check==0){fail=true;}
 
 //   else if (check ==1){
-//     //  fprintf(stderr, "Checking Grid for Badness Level %d\n", Level);
+//     //  printf(stderr, "Checking Grid for Badness Level %d\n", Level);
 //     //int direction=0;
 
     
@@ -564,8 +567,8 @@ int grid::PoissonSolverMultigrid()
 // 	}}}}
 
 //   if (fail){
-//     fprintf(stderr, "\n\n*******Displaying Data********\n");
-//     fprintf(stderr, display); 	  fprintf(stderr, "\n");
+//     printf(stderr, "\n\n*******Displaying Data********\n");
+//     printf(stderr, display); 	  printf(stderr, "\n");
     
     
 //     bool intertemp;
@@ -583,10 +586,10 @@ int grid::PoissonSolverMultigrid()
 //        for (ijk[ind1] = 0; ijk[ind1] < GridDimension[ind1]; ijk[ind1]=ijk[ind1]+1){
 
 // 	 index = GetIndex(ijk[0], ijk[1], ijk[2]);
-// 	 fprintf(stderr, "%g\t", field[index]);
-// 	 fprintf(fptr, "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
+// 	 printf(stderr, "%g\t", field[index]);
+// 	 printf(fptr, "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
 //        }
-//       fprintf(stderr, "\n");
+//       printf(stderr, "\n");
 //     }
     
    
@@ -615,21 +618,27 @@ int grid::PoissonSolverMultigrid()
 
 int grid::PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
 				   int check, float diffvalue){
-  
-  if (!debug) return SUCCESS;
 
   
+  // return SUCCESS;
+
+  //if (!debug) return SUCCESS;
+
+  //if (ProcessorNumber!=4) return SUCCESS;
+
   if (ProcessorNumber != MyProcessorNumber) {
-    fprintf(stdout, "PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
+    printf("PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
     return SUCCESS;
   }
 
 
-  char* c= (char *)malloc(100 * sizeof(char));
-  sprintf(c, "BO_%"GOUTSYM".TNT",Time);
 
-  FILE *fptr=fopen(c, "w");
-  fprintf(fptr, "x\ty\tvalue\twidth\theight\n");
+ //  char* c= (char *)malloc(100 * sizeof(char));
+//   sprintf(c, "BO_%"GOUTSYM".TNT",Time);
+
+//   FILE *fptr=fopen(c, "w");
+//   fprintf(fptr, "x\ty\tvalue\twidth\theight\n");
+
   int xD[3]={GridDimension[0],GridDimension[1], GridDimension[2]};
    int diffs[3]={1, xD[0], xD[1]*xD[0]}; 
  
@@ -640,7 +649,7 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
   if (check==0){fail=true;}
 
   else if (check ==1){
-    //  fprintf(stdout, "Checking Grid for Badness Level %d\n", Level);
+    //  printf(stdout, "Checking Grid for Badness Level %d\n", Level);
     //int direction=0;
 
     
@@ -653,9 +662,9 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 	}}}}
 
   if (fail){
-    fprintf(stdout, "\n\n*******Processor # %d ********\n", ProcessorNumber);
-    fprintf(stdout, "\n\n*******Displaying Data********\n");
-    fprintf(stdout, display); 	  fprintf(stdout, "\n");
+    printf( "\n\n*******Processor # %d ********\n", ProcessorNumber);
+    printf( "\n\n*******Displaying Data (Slice in %d on cell %d) (TopGrid %d)  ********\n", direction, slice, isTopGrid() );
+    printf( display); 	  printf( "\n");
     
     
     bool intertemp;
@@ -678,15 +687,17 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
        for (ijk[ind1] = 0; ijk[ind1] < GridDimension[ind1]; ijk[ind1]=ijk[ind1]+1){
 
 	 index=ijk[0]+ijk[1]*(GridDimension[0])+ ijk[2]*(GridDimension[0])*(GridDimension[1]);
-	 fprintf(stdout, "%2.4E \t", field[index]);
-	 fprintf(fptr, "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
+	 //printf( "%2.1E \t", field[index]);
+	 printf( "%.4g \t", field[index]);
+	 //printf( "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
        }
-      fprintf(stdout, "\n");
+      printf( "\n");
     }
     
    
   }
-  fclose(fptr);
+  //fclose(fptr);
+ 
  return true;
 }
 
@@ -697,5 +708,7 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 
 
 int grid::PrintToScreenBoundaries(float *field, char *display){
-  PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[0]/2), 0, 0.0); return true;
+  // PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 0, 0.0); return true;
+  PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-DEFAULT_GHOST_ZONES, 0, 0.0);
+
 }

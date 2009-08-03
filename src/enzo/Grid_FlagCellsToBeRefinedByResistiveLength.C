@@ -57,6 +57,12 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
     curlBx, curlBy, curlBz, absB2, curlB2;
   int xmo, xpo, ymo, ypo, zmo, zpo;
   FLOAT x, y, z, r;
+
+
+  int iBx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+  int iBy=FindField(Velocity2, FieldType, NumberOfBaryonFields); 
+  int iBz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+      
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {	
