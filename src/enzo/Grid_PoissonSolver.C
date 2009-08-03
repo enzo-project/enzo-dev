@@ -620,11 +620,11 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 				   int check, float diffvalue){
 
   
-  return SUCCESS;
+  // return SUCCESS;
 
   //if (!debug) return SUCCESS;
 
-  if (ProcessorNumber!=4) return SUCCESS;
+  //if (ProcessorNumber!=4) return SUCCESS;
 
   if (ProcessorNumber != MyProcessorNumber) {
     printf("PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);

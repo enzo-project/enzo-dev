@@ -67,22 +67,14 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 
   
 
-  int iden=FindField(Density, FieldType, NumberOfBaryonFields);
-  int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-  int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-  int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
-  int ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
-  int ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
+
   
-  int iBx, iBy, iBz;
+//  int iBx, iBy, iBz;
   int iB[3]={-1,-1,-1};
   if (useMHD){
-    iBx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-    iBy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
     iB[0]=iBx;
     iB[1]=iBy;
     if (GridRank==3){ 
-      iBz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
       iB[2]=iBz;
     }
   }
@@ -101,7 +93,9 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   srand(110182*ProcessorNumber);
 
 
-  int i,j,k; int n=0; float eint, v2, vx,vy,vz;
+  int i,j,k; 
+  int n=0; 
+  float eint, v2, vx,vy,vz;
 
   float rhou, lenu, tempu, tu, velu;
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
@@ -159,6 +153,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  xVel[ShearingBoundaryDirection]=magnitude*sin(z*2.0*ShearingGeometry*3.14156);
 	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(y*2.0*ShearingGeometry*3.14156);
 	  BaryonField[iden ][n] = rho;
+
+	  
 	}
 
 	float rhoActual=BaryonField[iden ][n];
@@ -178,6 +174,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	BaryonField[ivy  ][n] = xVel[1];
 	BaryonField[ivz  ][n] = xVel[2];
 
+	
+	
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
@@ -204,6 +202,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
       } // end loop over grid
     }
   }
+
+
 
   return SUCCESS;
 

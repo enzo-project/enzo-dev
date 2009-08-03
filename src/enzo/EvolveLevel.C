@@ -278,6 +278,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
  
+  if(ShearingBoundaryDirection !=-1){
+#ifdef FAST_SIB
+  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
+    ENZO_FAIL("");
+#else
+  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                            Exterior, LevelArray[level]) == FAIL)
+    ENZO_FAIL("");
+#endif
+  }
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -447,6 +458,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                               Exterior, LevelArray[level]);
 #endif
+
+  if(ShearingBoundaryDirection !=-1){
+#ifdef FAST_SIB
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			      level, MetaData, Exterior, LevelArray[level]);
+#else
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                              Exterior, LevelArray[level]);
+#endif
+  }
 
     /* Finalize (accretion, feedback, etc.) star particles */
  
