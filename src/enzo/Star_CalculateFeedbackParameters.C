@@ -101,7 +101,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case MBH_THERMAL:
     if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
-    //*****************
     /* Using the code snippets adopted from Star_CalculateMassAccretion.C 
        estimate the feedback energy based on Bondi accretion rate.  
        This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C.  - Ji-hoon Kim */
@@ -195,13 +194,14 @@ void Star::CalculateFeedbackParameters(float &Radius,
        but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
-    //EjectaThermalEnergy = 1e54/(VelocityUnits * VelocityUnits);
-
-    
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
       (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
-    
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+    EjectaThermalEnergy = 1e57/(VelocityUnits * VelocityUnits);  //for Sedov test
+#endif
 
     break;
 
