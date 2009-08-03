@@ -78,7 +78,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
 #ifdef MHDCT
   if(useMHDCT)
     {
-      
+
       for(field=0; field<3; field++){
  	MagneticSize[field] = 1;
  	ElectricSize[field] = 1;
@@ -100,6 +100,10 @@ void grid::PrepareGrid(int Rank, int GridDim[],
 	      MHDEndIndex[field][dim]++;
 	      MHDeEndIndex[field][dim]--;
 	  }
+	  fprintf(stderr,"moo PrepareGrid MHDStart %"ISYM" regular %"ISYM"\n",
+		  MHDStartIndex[field][dim],GridStartIndex[dim]);
+	  fprintf(stderr,"moo PrepareGrid MHDEnd %"ISYM" regular %"ISYM"\n",
+		  MHDEndIndex[field][dim],GridEndIndex[dim]);
  	  MagneticSize[field] *= MagneticDims[field][dim];
  	  ElectricSize[field] *= ElectricDims[field][dim];
  	}//dim

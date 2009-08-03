@@ -919,7 +919,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"MHD_Equation = %"ISYM,&MHD_Equation);
     ret += sscanf(line,"tiny_pressure = %"GSYM,&tiny_pressure);
-    ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method); //depricated variable name
     ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
     ret += sscanf(line, "SingleGridDump = %d %d %d %d %d %d %d %d %d %d", SingleGridDumpList,
 		  SingleGridDumpList +1,SingleGridDumpList +2,SingleGridDumpList +3,
