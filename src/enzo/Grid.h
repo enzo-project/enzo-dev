@@ -2046,6 +2046,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			      int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
+
+  int getField(int i){return FieldType[i];};
   
   int ReduceWindBoundary();
 

@@ -446,6 +446,7 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceSimulatedAnnealing.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \
@@ -576,6 +577,7 @@ OBJS_CONFIG_LIB = \
         star_maker4.o \
 	star_maker5.o \
         star_maker7.o \
+	star_maker8.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \

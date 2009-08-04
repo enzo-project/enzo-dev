@@ -5,7 +5,7 @@
 #  define problem
 #
 
-ProblemType                = 31
+ProblemType                = 35
 TopGridRank                = 3
 SelfGravity                = 0
 TopGridGravityBoundary     = 0 
