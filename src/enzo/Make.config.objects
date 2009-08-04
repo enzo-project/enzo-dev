@@ -446,6 +446,7 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceSimulatedAnnealing.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \

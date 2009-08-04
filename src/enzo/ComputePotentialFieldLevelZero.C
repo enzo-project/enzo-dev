@@ -175,7 +175,15 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
     TransposeOnCompletion = TRUE;
   else
     TransposeOnCompletion = FALSE;
- 
+
+  /* If we have load balanced the root grids, then we have to
+     recalculate the Green's function. */
+
+  if (NumberOfProcessors > 1 && LoadBalancing > 1 &&
+      MetaData->CycleNumber % LoadBalancingCycleSkip == 0 &&
+      StaticRefineRegionLevel[0] == INT_UNDEFINED)
+    FirstCall = TRUE;
+   
   /* ------------------------------------------------------------------- */
   /* If this is the first time this routine has been called, then generate
      the Green's function. */
