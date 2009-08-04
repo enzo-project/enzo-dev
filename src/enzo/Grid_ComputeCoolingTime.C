@@ -4,7 +4,8 @@
 /
 /  written by: Greg Bryan
 /  date:       April, 1995
-/  modified1:
+/  modified1:  Elizabeth Harper-Clark, August 2009
+/              added in CoolingModel parameter
 /
 /  PURPOSE:
 /
