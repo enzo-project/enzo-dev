@@ -114,7 +114,7 @@ int grid::SolveRadiativeCooling()
     return SUCCESS;
 
   if(RadiativeCooling == 0)
-    return SUCESS;
+    return SUCCESS;
  
   this->DebugCheck("SolveRadiativeCooling");
  
