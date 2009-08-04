@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       December, 1997
-/  modified1:  John Wise (July, 2009): Mode 2 -- load balance only
+/  modified1:  John Wise (July, 2009): Mode 2/3 -- load balance only
 /              within a node.
 /
 /  PURPOSE:

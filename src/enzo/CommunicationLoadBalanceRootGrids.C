@@ -35,6 +35,14 @@
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 void icol(int *x, int n, int m, FILE *log_fptr);
 void fpcol(Eflt64 *x, int n, int m, FILE *fptr);
+int DetermineNumberOfNodes(void);
+int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes, 
+				  int* &ProcessorNumbers, double* NumberOfCells, 
+				  double* NumberOfSubcells);
+int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
+				int NumberOfSubgrids[] = NULL,
+				int FluxFlag = FALSE,
+				TopGridData* MetaData = NULL);
 
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber)
@@ -46,17 +54,31 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
   if (CycleNumber % LoadBalancingCycleSkip != 0)
     return SUCCESS;
 
+  /* If this is a zoom-in calculation, we shouldn't load balance the
+     root grids by nodes but the finest static grid. */
+
+  if (StaticRefineRegionLevel[0] != INT_UNDEFINED)
+    return SUCCESS;
+
   /* Declarations */
 
   LevelHierarchyEntry *Temp;
 
   char line[MAX_LINE_LENGTH];
-  int i, dim, GridID, Rank, ThisLevel, dummy, ThisTask, GridDims[MAX_DIMENSION];
+  int i, level, dim, Rank, ThisLevel, dummy, ThisTask;
   int size, grid_num, RootGridID, NumberOfRootGrids;
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION], GridPosition[MAX_DIMENSION];
-  double *NumberOfSubgridCells;
+  int GridDims[MAX_DIMENSION];
+  double *NumberOfCells, *NumberOfSubgridCells;
   int *RootProcessors, *GridMap;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+
+  int NumberOfNodes = DetermineNumberOfNodes();
+
+  // Root processor does all of the work, and broadcasts the new
+  // processor numbers
+
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
   // Count number of level-0 grids
   NumberOfRootGrids = 0;
@@ -66,10 +88,13 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
   // Allocate some memory
   GridMap = new int[NumberOfRootGrids];
   RootProcessors = new int[NumberOfRootGrids];
+  NumberOfCells = new double[NumberOfRootGrids];
   NumberOfSubgridCells = new double[NumberOfRootGrids];
 
-  for (i = 0; i < NumberOfRootGrids; i++)
+  for (i = 0; i < NumberOfRootGrids; i++) {
+    NumberOfCells[i] = 0;
     NumberOfSubgridCells[i] = 0;
+  }
 
   // We need this for the root grid map
   Enzo_Dims_create(NumberOfRootGrids, TopGridRank, LayoutTemp);
@@ -78,143 +103,94 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
   for (dim = TopGridRank; dim < MAX_DIMENSION; dim++)
     Layout[TopGridRank-1-dim] = 0;
 
-  /* Fill out (processor number)->(grid number) map */
+  /* Fill out (processor number)->(grid number) map in level-0, then
+     count subgrid cells contained in each root grid */
 
   int gridcount = 0;
-  for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel) {
-    Temp->GridData->ReturnGridInfo(&Rank, GridDims, LeftEdge, RightEdge);
-    for (dim = 0; dim < Rank; dim++)
-      GridPosition[dim] = int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
-			      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
-    grid_num = GridPosition[0] + 
-      Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
-    RootProcessors[gridcount] = Temp->GridData->ReturnProcessorNumber();
-    GridMap[grid_num] = gridcount++;
-  } // ENDFOR level-0 grids
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
 
-  /* Count level-1 cells contained in each root grid */
+      Temp->GridData->ReturnGridInfo(&Rank, GridDims, LeftEdge, RightEdge);
+      for (dim = 0, size = 1; dim < Rank; dim++) {
+	GridPosition[dim] = int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
+				(DomainRightEdge[dim] - DomainLeftEdge[dim]));
+	size *= GridDims[dim];
+      }
+      grid_num = GridPosition[0] + 
+	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
 
-  for (Temp = LevelArray[1]; Temp; Temp = Temp->NextGridThisLevel) {
-    Temp->GridData->ReturnGridInfo(&Rank, GridDims, LeftEdge, RightEdge);
-    for (dim = 0, size = 1; dim < Rank; dim++) {
-      GridPosition[dim] = int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
-			      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
-      size *= GridDims[dim];
-    }
-    grid_num = GridPosition[0] + 
-      Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
-    RootGridID = GridMap[grid_num];
-    NumberOfSubgridCells[RootGridID] += size;
-  } // ENDFOR level-1 grids
+      if (level == 0) {
+	RootProcessors[gridcount] = Temp->GridData->ReturnProcessorNumber();
+	NumberOfCells[gridcount] += size;
+	GridMap[grid_num] = gridcount++;
+      } 
+
+      else {
+	RootGridID = GridMap[grid_num];
+	NumberOfSubgridCells[RootGridID] += size;
+      }
+
+    } // ENDFOR grids
+  } // ENDFOR levels
 
   /* Now that we have the number of subgrid cells in each topgrid, we
      can distribute the topgrid tiles so each compute node have a
-     similar total number of subgrid cells.  Place them cyclical and
-     then move them around. */
+     similar total number of subgrid cells.  Use simulated annealing
+     to load balance. */
 
-  int Node, NewProc;
-  int NumberOfNodes = NumberOfProcessors / CoresPerNode;
-  double *CellsPerNode = new double[NumberOfNodes];
-  int *GridsPerNode = new int[NumberOfNodes];
-  double TotalSubgridCells = 0;
+  LoadBalanceSimulatedAnnealing(NumberOfRootGrids, NumberOfNodes, 
+				RootProcessors, NumberOfCells,
+				NumberOfSubgridCells);
+  delete [] GridMap;
+  delete [] NumberOfCells;
+  delete [] NumberOfSubgridCells;
 
-  for (i = 0; i < NumberOfNodes; i++) {
-    CellsPerNode[i] = 0;
-    GridsPerNode[i] = 0;
-  }
+  } // ENDIF ROOT_PROCESSOR
 
-  for (i = 0; i < NumberOfRootGrids; i++) {
-    if (LoadBalancing == 2)
-      Node = RootProcessors[i] / CoresPerNode;
-    else if (LoadBalancing == 3)
-      Node = RootProcessors[i] % NumberOfNodes;
-    CellsPerNode[Node] += NumberOfSubgridCells[i];
-    TotalSubgridCells += NumberOfSubgridCells[i];
-    GridsPerNode[Node]++;
-  }
+#ifdef USE_MPI
+  MPI_Bcast(&NumberOfRootGrids, 1, IntDataType, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  if (MyProcessorNumber != ROOT_PROCESSOR)
+    RootProcessors = new int[NumberOfRootGrids];
+  MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
+	    MPI_COMM_WORLD);
+#endif
 
-  // Load balance the nodes
-  bool Done = false;
-  int MinNode, MaxNode;
-  double MaxVal, MinVal;
-  int MaxGridsPerNode = NumberOfRootGrids / NumberOfNodes;
-  double DesiredSubgridCells = TotalSubgridCells / NumberOfNodes;
-  double OptimalSize, DifferenceFromOptimal;
+  /* Move the grids to their new processors */
 
-  while (!Done) {
+  /* Post receives */
 
-    MaxNode = -1;
-    MinNode = -1;
-    MaxVal = 0;
-    MinVal = huge_number;
+  CommunicationReceiveIndex = 0;
+  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+  CommunicationDirection = COMMUNICATION_POST_RECEIVE;
 
-    for (i = 0; i < NumberOfNodes; i++) {
-      if (CellsPerNode[i] > MaxVal) {
-       MaxVal = CellsPerNode[i];
-       MaxNode = i;
-      }
-      if (CellsPerNode[i] < MinVal) {
-       MinVal = CellsPerNode[i];
-       MinNode = i;
-      }
+  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++)
+    if (Temp->GridData->ReturnProcessorNumber() != RootProcessors[i])
+      Temp->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
+
+  /* Send grids */
+
+  CommunicationDirection = COMMUNICATION_SEND;
+
+  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++)
+    if (Temp->GridData->ReturnProcessorNumber() != RootProcessors[i]) {
+      if (RandomForcing)  //AK
+	Temp->GridData->AppendForcingToBaryonFields();
+      Temp->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
     }
 
-//    if (debug) {
-//      printf("LBRoot: Min/Max Node = %d(%lg)/%d(%lg)\n",
-//            MinNode, MinVal, MaxNode, MaxVal);
-//      printf("Cells:");
-//      fpcol(CellsPerNode, NumberOfNodes, 16, stdout);
-//      printf("Grids:");
-//      icol(GridsPerNode, NumberOfNodes, 16, stdout);
-//    }
+  /* Receive grids */
 
-    if (MaxVal > LOAD_BALANCE_RATIO*MinVal) {
-      for (i = 0; i < NumberOfRootGrids; i++) {
+  if (CommunicationReceiveHandler() == FAIL)
+    ENZO_FAIL("");
 
-       if (LoadBalancing == 2)
-         Node = RootProcessors[i] / CoresPerNode;
-       else if (LoadBalancing == 3)
-         Node = RootProcessors[i] % NumberOfNodes;
+  /* Update processor numbers */
+    
+  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++) {
+    Temp->GridData->SetProcessorNumber(RootProcessors[i]);
+    if (RandomForcing)  //AK
+      Temp->GridData->RemoveForcingFromBaryonFields();
+  }
 
-       OptimalSize = (DesiredSubgridCells - MinVal) / 
-	 (MaxGridsPerNode - GridsPerNode[MinNode]);
-       DifferenceFromOptimal = fabs(OptimalSize - NumberOfSubgridCells[i]) /
-	 OptimalSize;
-
-       if (Node == MaxNode &&
-           (NumberOfSubgridCells[i] < (MaxVal-MinVal)/2 ||
-	    DifferenceFromOptimal < 0.5)) {
-
-         if (LoadBalancing == 2)  // block scheduling
-           RootProcessors[i] = MinNode * CoresPerNode + GridsPerNode[MinNode];
-         else if (LoadBalancing == 3)  // round-robin
-           RootProcessors[i] = MinNode + NumberOfNodes * GridsPerNode[MinNode];
-
-         /* Update node subgrid cell counts */
-
-         CellsPerNode[MinNode] += NumberOfSubgridCells[i];
-         CellsPerNode[MaxNode] -= NumberOfSubgridCells[i];
-
-	 GridsPerNode[MinNode]++;
-	 GridsPerNode[MaxNode]--;
-
-         break;
-
-       } // ENDIF move
-      } // ENDFOR root grids
-
-      // If we didn't find an appropriate transfer then quit.
-      Done = (i == NumberOfRootGrids);
-
-    } else
-      Done = true;
-
-  } // ENDWHILE !Done
-
-  delete [] GridMap;
-  delete [] NumberOfSubgridCells;
-  delete [] CellsPerNode;
-  delete [] GridsPerNode;
   delete [] RootProcessors;
 
   return SUCCESS;
