@@ -197,7 +197,10 @@ int grid::CheckForOverlap(grid *OtherGrid,
     } // end: loop of j
   } // end: loop of k
 
- 
+//   PrintToScreenBoundaries(	BaryonField[iden  ], "Density");
+//  PrintToScreenBoundaries(	BaryonField[ivx  ], "Vx2");
+//    PrintToScreenBoundaries(	BaryonField[ivy  ], "Vy2");
+//    PrintToScreenBoundaries(	BaryonField[ivz  ], "Vz2");
  
  
   return SUCCESS;

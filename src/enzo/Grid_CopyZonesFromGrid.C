@@ -336,12 +336,17 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     
     int iBx, iBy, iBz;
     if (useMHD){
-      iBx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-      iBy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-      if (GridRank==3) iBz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+      iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+      iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+      if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
       
     }
     
+   
+ 
+ 
+
+
     for (int k = 0; k < Dim[2]; k++)
       for (int j = 0; j < Dim[1]; j++) {
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
@@ -379,6 +384,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   this->DebugCheck("CopyZonesFromGrid (after)");
   
+  
+//  printf("***Labels copy %d \n", FieldType[ivy]);
 
    
   return SUCCESS;

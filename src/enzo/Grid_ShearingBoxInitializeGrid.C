@@ -66,7 +66,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   
 
   
-
+ 
 
   
 //  int iBx, iBy, iBz;
@@ -150,8 +150,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	 
 	}
 	else if (ShearingBoxProblemType == 1){ 
-	  xVel[ShearingBoundaryDirection]=magnitude*sin(z*2.0*ShearingGeometry*3.14156);
-	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(y*2.0*ShearingGeometry*3.14156);
+	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*3.14156);
+	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*3.14156);
 	  BaryonField[iden ][n] = rho;
 
 	  
@@ -202,10 +202,12 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
       } // end loop over grid
     }
   }
+ 
 
-
-
+ 
   return SUCCESS;
+
+ 
 
  
 }
