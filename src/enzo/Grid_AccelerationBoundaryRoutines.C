@@ -77,6 +77,7 @@ int grid::AttachAcceleration(){
   FieldType[1] = ((GridRank >= 2 ) ? Acceleration1 : FieldUndefined );
   FieldType[2] = ((GridRank >= 3 ) ? Acceleration2 : FieldUndefined );
 
+ 
   
   return SUCCESS;
 }

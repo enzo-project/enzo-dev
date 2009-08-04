@@ -29,8 +29,13 @@
 
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
-                          1 = Equalize processor memory count */
+                          1 = Equalize processor memory count
+                         2 = Load balance only on a node
+*/
 EXTERN int LoadBalancing;
+EXTERN int LoadBalancingCycleSkip;
+EXTERN int CoresPerNode;
+EXTERN int PreviousMaxTask;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */

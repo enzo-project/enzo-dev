@@ -51,6 +51,7 @@ OBJS_CONFIG_LIB = \
         CommunicationCombineGrids.o \
         CommunicationCollectParticles.o \
         CommunicationInitialize.o \
+        CommunicationLoadBalanceRootGrids.o \
         CommunicationLoadBalanceGrids.o \
         CommunicationParallelFFT.o \
         CommunicationPartitionGrid.o \
@@ -101,6 +102,7 @@ OBJS_CONFIG_LIB = \
         DepositBaryons.o \
         DepositParticleMassField.o \
         DepositParticleMassFlaggingField.o \
+	DetermineNumberOfNodes.o \
         DoubleMachInitialize.o \
         E_ColumnFormat.o \
         ealFloat.o \
@@ -427,6 +429,7 @@ OBJS_CONFIG_LIB = \
         InitializePythonInterface.o \
         InitializeRadiationFieldData.o \
         InitializeRateData.o \
+	InitialLoadBalanceRootGrids.o \
         interp1d.o \
         interp2d.o \
         interp3d.o \

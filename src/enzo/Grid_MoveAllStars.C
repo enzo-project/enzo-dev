@@ -51,7 +51,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
 
   /* Determine level of this grid */
 
-  int ThisLevel = nint(-logf(TopGridDimension * CellWidth[0][0]) / logf(2.0f));
+  int ThisLevel = nint(-logf(TopGridDimension * CellWidth[0][0]) / M_LN2);
 
   /* Debugging info. */
 

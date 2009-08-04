@@ -415,6 +415,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       /* Redistribute grids over processors to Load balance. */
       switch( LoadBalancing ){
       case 1:
+      case 2:
+      case 3:
 	CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
 				      MoveParticles);
 	break;

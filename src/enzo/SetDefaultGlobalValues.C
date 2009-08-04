@@ -109,7 +109,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
-  LoadBalancing = 1; //On, memory equalization method
+  LoadBalancing = 1;     //On, memory equalization method
+  LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
+  CoresPerNode = 1;
+  PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
 
@@ -325,7 +328,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun
-  StarClusterSNEnergy              = 6.8e48; // erg / Msun (Woosley&Weaver86)
+  StarClusterSNEnergy              = 6.8e48;       // erg / Msun (Woosley&Weaver86)
   StarClusterSNRadius              = 10;           // pc
   StarClusterFormEfficiency        = 0.1;
   StarClusterMinimumMass           = 1000;         // Msun
@@ -338,19 +341,20 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIStarMass                   = 100;
   PopIIIBlackHoles                 = FALSE;
   PopIIIBHLuminosityEfficiency     = 0.1;
-  PopIIIOverDensityThreshold       = 1e6;         // times mean total density
+  PopIIIOverDensityThreshold       = 1e6;          // times mean total density
   PopIIIH2CriticalFraction         = 5e-4;
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
 
-  MBHUseMetalField         = FALSE;
-  MBHMinDynamicalTime      = 10e6;         // in years
-  MBHFeedbackEnergy        = 6.8e48; // erg / Msun (Woosley&Weaver86)
-  MBHFeedbackRadius        = 10;           // pc
-  MBHMinimumMass           = 1000;         // Msun
-  MBHCombineRadius         = 10;           // pc
-  MBHIonizingLuminosity    = 1e47;         // ph/s / Msun
+  MBHMinDynamicalTime              = 10e6;         // in years
+  MBHMinimumMass                   = 1000;         // Msun
+  MBHFeedbackThermal               = FALSE;
+  MBHFeedbackRadius                = 10;           // pc
+  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura&Sunyaev (1973)
+  MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHCombineRadius                 = 10;           // pc
+  MBHIonizingLuminosity            = 1e47;         // ph/s / Msun
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

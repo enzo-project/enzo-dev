@@ -205,9 +205,17 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    /* Add total energies of spheres together, then divide by
 	       density to get specific energy */
 	    
-	    newGE = (OldDensity * BaryonField[GENum][index] +
-		     ramp * factor*EjectaDensity * EjectaThermalEnergy) /
-	      BaryonField[DensNum][index];
+	    /* For MBH_THERMAL, I used different definition for EjectaThermalEnergy;
+	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
+	    if (cstar->FeedbackFlag != MBH_THERMAL) {
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+	    } else {
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];	      
+	    }
 	    newGE = min(newGE, maxGE);
 //	    newGE = ramp * EjectaThermalEnergy;
 //	    printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
