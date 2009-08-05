@@ -97,16 +97,15 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
-    ret += sscanf(line, "Density = %f", &CloudDensity);
-    ret += sscanf(line, "SoundVelocity = %f", &CloudSoundSpeed);
-    ret += sscanf(line, "MachNumber = %f", &CloudMachNumber);
-    ret += sscanf(line, "AngularVelocity = %f", &CloudAngularVelocity);
+    ret += sscanf(line, "Density = %"FSYM, &CloudDensity);
+    ret += sscanf(line, "SoundVelocity = %"FSYM, &CloudSoundSpeed);
+    ret += sscanf(line, "MachNumber = %"FSYM, &CloudMachNumber);
+    ret += sscanf(line, "AngularVelocity = %"FSYM, &CloudAngularVelocity);
     ret += sscanf(line, "CloudRadius = %"FSYM, &CloudRadius);
     ret += sscanf(line, "SetTurbulence = %d", &SetTurbulence);
     ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
-    ret += sscanf(line, "InitialBfield = %f", &InitialBField);
+    ret += sscanf(line, "InitialBfield = %"FSYM, &InitialBField);
     ret += sscanf(line, "CloudType = %d", &CloudType);
-
   }
 
   /* Convert to code units */
@@ -117,13 +116,15 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, MetaData.Time);
   PressureUnits = DensityUnits * pow(VelocityUnits,2);
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
-      
+
   CloudDensity /= DensityUnits;
   CloudSoundSpeed /= VelocityUnits;
   InitialBField /= MagneticUnits;
   CloudAngularVelocity *= TimeUnits;
 
-  printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
+  printf("Magnetic Units=%g\n", MagneticUnits);  
+  printf("B field=%g\n", InitialBField);  
+printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
   printf("DensityUnits=%g,VelocityUnits=%g,LengthUnits=%g,TimeUnits=%g (%g yr),PressureUnits=%g\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
   printf("CloudDensity=%g, CloudSoundSpeed=%g, CloudRadius=%g, CloudAngularVelocity=%g\n", 

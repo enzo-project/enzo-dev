@@ -514,8 +514,10 @@ int Group_WriteAllData(char *basename, int filenumber,
           }
         } // ENDIF restart
  
-      } // ENDIF ROOT_PROCESSOR
-    } // ENDIF global
+      }
+    }
+
+
   
 //  fprintf(stderr, "Sync point ok\n");
  
@@ -577,6 +579,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     fclose(fptr);
   
   }
+
  
   // Output Boundary condition info
  
@@ -641,6 +644,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 
 #endif
+
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((mptr = fopen(memorymapname, "w")) == NULL) {

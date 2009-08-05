@@ -83,7 +83,7 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
   float ThermalMagneticRatio=400; 
   float FluctuationAmplitudeFraction=0.1;
   int ShearingBoxRefineAtStart   = FALSE;
-  float ShearingGeometry=0.5;
+  float ShearingGeometry=2.0;
   int InitialMagneticFieldConfiguration=0;
   int RefineAtStart=1;
 
@@ -97,12 +97,13 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
 
 /* read parameters */
     ret += sscanf(line, "ShearingBoxRefineAtStart = %"ISYM, &RefineAtStart); 
-    ret += sscanf(line, "ThermalMagneticRatio= %"FSYM, &ThermalMagneticRatio);
-    ret += sscanf(line, "FluctuationAmplitudeFraction = %"FSYM, &FluctuationAmplitudeFraction);
+    ret += sscanf(line, "ShearingBoxThermalMagneticRatio= %"FSYM, &ThermalMagneticRatio);
+    ret += sscanf(line, "ShearingBoxFluctuationAmplitudeFraction = %"FSYM, &FluctuationAmplitudeFraction);
     ret += sscanf(line, "ShearingBoxGeometry = %"FSYM, &ShearingGeometry);  
+    ret += sscanf(line, "ShearingBoxInitialMagneticFieldConfiguration = %"ISYM, &InitialMagneticFieldConfiguration);  
  
   } 
-  printf("Geo %"FSYM, ShearingGeometry);
+ 
 
 
   if (TopGrid.GridData->ShearingBoxInitializeGrid(ThermalMagneticRatio, FluctuationAmplitudeFraction, ShearingGeometry, InitialMagneticFieldConfiguration)
@@ -157,11 +158,15 @@ int ShearingBoxInitialize (FILE *fptr, FILE *Outfptr,
   DataLabel[count++] =  (char*) BxName;
   DataLabel[count++] =  (char*) ByName;
   DataLabel[count++] =  (char*) BzName;
+  DataLabel[count++] =  (char*) PhiName;
   }
 
   for (int i = 0; i < count; i++) {
     DataUnits[i] = NULL;
   }
+
+
+
 
   return SUCCESS;
 
