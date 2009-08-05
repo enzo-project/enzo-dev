@@ -780,7 +780,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
-  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
+  //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
@@ -1055,7 +1055,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ParticleTypeInFile = TRUE;
   }
  
-  if (WritePotential && ComovingCoordinates && SelfGravity) {
+  //  if (WritePotential && ComovingCoordinates && SelfGravity) {
+  if (WritePotential && SelfGravity) {
     CopyGravPotential = TRUE;
   }
 
