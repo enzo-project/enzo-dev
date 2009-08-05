@@ -47,6 +47,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
 
+  int igrid[MAX_DIMENSION], dim, index;
+  int size=1;
+  float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
+  float *temperature, density;
+
   Radius = 0.0;
   EjectaDensity = 0.0;
   EjectaThermalEnergy = 0.0;
@@ -124,10 +129,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 	ENZO_FAIL("");
       }
 
-    int igrid[MAX_DIMENSION], dim, index, size = 1;
-    float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
-    float *temperature, density;
-    
+   
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       size *= CurrentGrid->GridDimension[dim];
       igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
@@ -206,6 +208,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_RADIATIVE:
+    fprintf(stderr, "CalculateFeedbackParameters: This option not yet implemented.\n");
     break;
 
   } // ENDSWITCH FeedbackFlag
