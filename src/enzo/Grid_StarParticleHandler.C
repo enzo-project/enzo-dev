@@ -507,7 +507,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 #endif /* STAR1 */
  
     if (STARMAKE_METHOD(NORMAL_STAR)) {
-      printf("StarParticleHAndler, nromal star");
+      printf("StarParticleHandler, normal star\n");
       //---- MODIFIED SF ALGORITHM ("STANDARD VERSION")
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
@@ -536,7 +536,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     } 
 
     if (STARMAKE_METHOD(UNIGRID_STAR)) {
-      printf("StarParticleHAndler, unigrid");
+      printf("StarParticleHandler, unigrid\n");
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
       
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
@@ -566,7 +566,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(KRAVTSOV_STAR)) {
-      printf("StarParticleHAndler, Kravtsov");
+      printf("StarParticleHandler, Kravtsov\n");
       //---- KRAVTSOV SF ALGORITHM
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
@@ -595,7 +595,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(POP3_STAR)) {
-      printf("StarParticleHAndler, pop3");
+      printf("StarParticleHandler, pop3\n");
       //---- POPULATION III (SINGLE STAR)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
@@ -621,7 +621,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(STAR_CLUSTER)) {
-      printf("StarParticleHAndler, star cluster");
+      printf("StarParticleHandler, star cluster\n");
       //---- RADIATIVE STELLAR CLUSTERS
 
       // Convert into a parameter!
@@ -652,7 +652,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(INSTANT_STAR)) {
-      printf("StarParticleHAndler, instant star");
+      printf("StarParticleHandler, instant star\n");
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO stochastic SF)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
@@ -681,7 +681,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     } 
 
     if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
-      printf("StarParticleHAndler, SHstar");
+      printf("StarParticleHandler, SHstar\n");
       //---- Springel & Hernquist 2003 SF algorithm
 
       float *coolingrate = new float[size];
@@ -730,7 +730,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     if (StarParticleCreation == 4 && level == MaximumRefinementLevel) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
-      printf("StarParticleHAndler, sink part");
+      printf("StarParticleHandler, sink particle \n");
       int ihydro = (int) HydroMethod;
       float SinkParticleMassThreshold = huge_number;
       float JeansLengthRefinement = FLOAT_UNDEFINED;

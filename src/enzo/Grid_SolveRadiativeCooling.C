@@ -113,11 +113,7 @@ int grid::SolveRadiativeCooling()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
 
-<<<<<<< local
-  if(RadiativeCooling == 0)
-=======
   if (RadiativeCooling == 0) 
->>>>>>> other
     return SUCCESS;
  
   this->DebugCheck("SolveRadiativeCooling");
