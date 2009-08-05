@@ -140,6 +140,9 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
+  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_DEPTH_OF_HIERARCHY)
+    ENZO_FAIL("Exceeds MAX_DEPTH_OF_HIERARCHY.  Please increase and re-compile.");
+
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       if (Temp->GridData->AddFields(TypesToAdd, FieldsToAdd) == FAIL) {
