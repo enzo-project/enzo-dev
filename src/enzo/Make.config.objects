@@ -740,6 +740,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/Grid_UpdateElectronDensity.o \
         hydro_rk/HLL_PLM_MHD.o \
         hydro_rk/LLF_PLM_MHD.o \
+        hydro_rk/HLL_PPM_MHD.o \
         hydro_rk/MHD1DTestInitialize.o \
         hydro_rk/MHD2DTestInitialize.o \
         hydro_rk/MHD3DTestInitialize.o \
