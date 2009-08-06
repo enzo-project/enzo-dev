@@ -948,6 +948,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
     MaximumGravityRefinementLevel = MaximumRefinementLevel;
 #endif
+
+    ret += sscanf(line, "IsothermalSoundSpeed = %"GSYM, &IsothermalSoundSpeed);
+    ret += sscanf(line, "RefineByJeansLengthUnits = %"ISYM, &RefineByJeansLengthUnits);
  
   MaximumGravityRefinementLevel =
     min(MaximumGravityRefinementLevel, MaximumRefinementLevel);
