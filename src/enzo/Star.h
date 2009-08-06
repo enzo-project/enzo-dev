@@ -97,6 +97,8 @@ public:
   void	Merge(Star *a);
   bool	Mergable(Star a);
   bool  Mergable(Star *a);
+  bool	MergableMBH(Star a);
+  bool  MergableMBH(Star *a);
   float Separation(Star a);
   float Separation(Star *a);
   float Separation2(Star a);

@@ -202,7 +202,12 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
-    EjectaThermalEnergy = 1.0e53 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    //EjectaThermalEnergy = 1.0e52 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
+    // For the continuous energy injection case (variation of Sedov test)
+    EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
+      / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
 #endif
 
     break;

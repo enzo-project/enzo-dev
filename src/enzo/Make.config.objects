@@ -557,6 +557,7 @@ OBJS_CONFIG_LIB = \
         StarParticleFindAll.o \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
+        StarParticleMergeMBH.o \
         StarRoutines.o \
         Star_Accrete.o \
         Star_ActivateNewStar.o \

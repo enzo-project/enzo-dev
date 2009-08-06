@@ -203,13 +203,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
-	    
+
+	    /*
 	    if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      fprintf(stderr, "Time = %g\n", Time);
 	      fprintf(stderr, "dtFixed = %g\n", dtFixed);
 	      fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
 	      fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);
 	    }
+	    */
 
 	    /* Add total energies of spheres together, then divide by
 	       density to get specific energy */
