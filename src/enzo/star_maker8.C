@@ -101,6 +101,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       sink_index[nsinks++] = n;
     }
   }
+  //printf("star_maker8: nsinks = %d\n", nsinks);
 
   /* sink particle accretes gas from parent cell according to modified Bondi-Hoyle formula. 
    Reference: M. Ruffert, ApJ (1994) 427 342 */
@@ -294,7 +295,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   if (StellarWindFeedback == 2 && bx == NULL) { /*protostellar jets by random direction*/
     for (n = 0; n < nsinks; n++) {
-      printf("StellarWindFeedback = 2 running\n");
+      //printf("StellarWindFeedback = 2 running\n");
       bb = sink_index[n];
 
       if (mpold[bb] < 0.0) continue;
@@ -345,7 +346,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	ny_b = ny_jet[bb];
 	nz_b = nz_jet[bb];
       }
-      printf("StellarWindFeedback = 2 l351\n");
+      //printf("StellarWindFeedback = 2 l351\n");
       /* Find the supercell and caclualte its total mass */
   printf("%f\n",*nx_jet);
       for (int kk = -2; kk <= 2; kk++) {
@@ -415,15 +416,14 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   /* StellarWindFeedback 3: Isotropic wind */
 
   float mdot_wind = 1e-5*(*dt)*(*t1)/(3.1557e7*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
-  printf("mdotwind = %e\n",mdot_wind);
   v_wind = 2.0e6/(*v1);
   mdot_wind = mdot_wind/(4.0*Pi); /* mass Per solid angle */
-  printf("mdotwind = %e\n",mdot_wind);
   //printf("Adding Stellar wind 3: dt =%e, mdot =%e, Vwind =%e, rho_wind =%e \n",dt,mdot_wind*umass/(*t1),v_wind*(*v1),rho_wind*(*d1));
   FLOAT radius_cell[MAX_SUPERCELL_NUMBER]; 
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   float SolidAngle;
   if (StellarWindFeedback == 3) {
+  printf("mdotwind = %e\n",mdot_wind);
     // printf("STELLAR WIND FEEDBACK = 3\n");
     for (n = 0; n < nsinks; n++) {
       
@@ -500,7 +500,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
 	 else { 
 	   SolidAngle = 4.*3.1415926/n_cell; 
-	   //printf("star_maker3.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
+	   //printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(pow((*dx),3));
 	cells_volume += pow((*dx),3);
@@ -629,10 +629,10 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   } // if (level == maxlevel)
 
   //if (ii > 0)
-  //printf("P(%d): star_maker3[add]: %d new sink particles\n", *nproc, ii);
+  //printf("P(%d): star_maker8[add]: %d new sink particles\n", *nproc, ii);
 
   if (ii >= *nmax) {
-    fprintf(stdout, "star_maker3: %d reached max new particle count %d\n", ii, *nmax);
+    fprintf(stdout, "star_maker8: %d reached max new particle count %d\n", ii, *nmax);
     return FAIL;
   }
 
