@@ -93,7 +93,7 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
      fields.  We will check if the field already exists inside the
      grid routine. */
 
-  int OldNumberOfBaryonFields, FieldsToAdd = 0;
+  int OldNumberOfBaryonFields = 0, FieldsToAdd = 0;
   int TypesToAdd[MAX_NUMBER_OF_BARYON_FIELDS];
   int ExistingTypes[MAX_NUMBER_OF_BARYON_FIELDS];
 
