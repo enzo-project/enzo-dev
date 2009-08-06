@@ -47,6 +47,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
 
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
+
+
+    int igrid[MAX_DIMENSION], dim, index, size = 1;
+    float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
+    float *temperature, density;
+    
+
   Radius = 0.0;
   EjectaDensity = 0.0;
   EjectaThermalEnergy = 0.0;
@@ -106,10 +116,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
        estimate the feedback energy based on Bondi accretion rate.  
        This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C.  - Ji-hoon Kim */
 
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
-
     if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 						Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
@@ -125,10 +131,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 	ENZO_FAIL("");
       }
 
-    int igrid[MAX_DIMENSION], dim, index, size = 1;
-    float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
-    float *temperature, density;
-    
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       size *= CurrentGrid->GridDimension[dim];
       igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /

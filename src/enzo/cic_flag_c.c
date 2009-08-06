@@ -10,8 +10,8 @@
 /* ======================================================================= */
 /* //////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\c */
 /* Subroutine */ 
-int cic_flag(EFLOAT *posx, EFLOAT *posy, EFLOAT *posz, int *ndim, int *npositions, 
-	     int *itype, int *ffield, EFLOAT *leftedge, int *dim1, int *dim2, 
+int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions, 
+	     int *itype, int *ffield, FLOAT *leftedge, int *dim1, int *dim2, 
 	     int *dim3, float *cellsize, int *imatch, int *cellsflagged)
 {
     /* System generated locals */
@@ -21,7 +21,7 @@ int cic_flag(EFLOAT *posx, EFLOAT *posy, EFLOAT *posz, int *ndim, int *nposition
     /* Local variables */
     static int n, i1, j1, k1;
     static float fact,  xpos, ypos, zpos;
-    static EFLOAT edge1, edge2, edge3;
+    static FLOAT edge1, edge2, edge3;
 
 /*  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD */
 
@@ -93,11 +93,11 @@ int cic_flag(EFLOAT *posx, EFLOAT *posy, EFLOAT *posz, int *ndim, int *nposition
 
 /*           Compute the position of the central cell */
 
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 		r__2 = (posx[n] - leftedge[1]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		xpos = MIN(r__1,edge1);
+		r__1 = max(r__2,0.5001);
+		xpos = min(r__1,edge1);
 
 /*           Convert this into an integer index */
 
@@ -127,16 +127,16 @@ int cic_flag(EFLOAT *posx, EFLOAT *posy, EFLOAT *posz, int *ndim, int *nposition
 
 /*           Compute the position of the central cell */
 
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 		r__2 = (posx[n] - leftedge[1]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		xpos = MIN(r__1,edge1);
-/* Computing MIN */
-/* Computing MAX */
+		r__1 = max(r__2,0.5001);
+		xpos = min(r__1,edge1);
+/* Computing min */
+/* Computing max */
 		r__2 = (posy[n] - leftedge[2]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		ypos = MIN(r__1,edge2);
+		r__1 = max(r__2,0.5001);
+		ypos = min(r__1,edge2);
 
 /*           Convert this into an integer index */
 
@@ -169,21 +169,21 @@ int cic_flag(EFLOAT *posx, EFLOAT *posy, EFLOAT *posz, int *ndim, int *nposition
 
 /*           Compute the position of the central cell */
 
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 		r__2 = (posx[n] - leftedge[1]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		xpos = MIN(r__1,edge1);
-/* Computing MIN */
+		r__1 = max(r__2,0.5001);
+		xpos = min(r__1,edge1);
+/* Computing min */
 /* Computing max */
 		r__2 = (posy[n] - leftedge[2]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		ypos = MIN(r__1,edge2);
-/* Computing MIN */
+		r__1 = max(r__2,0.5001);
+		ypos = min(r__1,edge2);
+/* Computing min */
 /* Computing max */
 		r__2 = (posz[n] - leftedge[3]) * fact;
-		r__1 = MAX(r__2,0.5001);
-		zpos = MIN(r__1,edge3);
+		r__1 = max(r__2,0.5001);
+		zpos = min(r__1,edge3);
 
 /*           Convert this into an integer index */
 

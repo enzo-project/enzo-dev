@@ -1,3 +1,4 @@
+#ifndef CONFIG_PFLOAT_16
 #include "fortran.def"
 #include "error.def"
 
@@ -103,3 +104,4 @@ c
 c
       return
       end
+#endif

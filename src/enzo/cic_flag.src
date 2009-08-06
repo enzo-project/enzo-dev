@@ -1,3 +1,4 @@
+#ifndef CONFIG_PFLOAT_16
 #include "fortran.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
@@ -166,3 +167,4 @@ c
 c
       return
       end
+#endif

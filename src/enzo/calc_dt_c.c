@@ -115,28 +115,28 @@ int calc_dt_c(int *rank, int *idim, int *jdim,
     if (*rank == 1) {
 	i__1 = *i2 + 1;
 	for (i__ = *i1 + 1; i__ <= i__1; ++i__) {
-/* Computing MAX */
+/* Computing max */
 	    r__1 = sqrt(*gamma * p[i__ + (p_dim2 + 1) * p_dim1] / d__[i__ + (
 		    d_dim2 + 1) * d_dim1]);
-	    cs = MAX(r__1,1e-20f);
+	    cs = max(r__1,1e-20f);
 	    if (*ipfree == 1) {
 		cs = 1e-20f;
 	    }
-/* Computing MIN */
+/* Computing min */
 	    r__2 = *dt, r__3 = dx[i__] * *aye / (cs + (r__1 = u[i__ + (u_dim2 
 		    + 1) * u_dim1] - *vgx, dabs(r__1)));
-	    *dt = MIN(r__2,r__3);
+	    *dt = min(r__2,r__3);
 	}
 	if (*ihydro == 2) {
 	    i__1 = *i2 + 1;
 	    for (i__ = *i1 + 1; i__ <= i__1; ++i__) {
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 		r__3 = -u[i__ + 1 + (u_dim2 + 1) * u_dim1] + u[i__ + (u_dim2 
 			+ 1) * u_dim1];
-		r__1 = *dtviscous, r__2 = dx[i__] * *aye / (*c2 * 4.f * MAX(
+		r__1 = *dtviscous, r__2 = dx[i__] * *aye / (*c2 * 4.f * max(
 			r__3,1e-20f));
-		*dtviscous = MIN(r__1,r__2);
+		*dtviscous = min(r__1,r__2);
 	    }
 	}
     }
@@ -148,35 +148,35 @@ int calc_dt_c(int *rank, int *idim, int *jdim,
 	for (j = *j1 + 1; j <= i__1; ++j) {
 	    i__2 = *i2 + 1;
 	    for (i__ = *i1 + 1; i__ <= i__2; ++i__) {
-/* Computing MAX */
+/* Computing max */
 		r__1 = sqrt(*gamma * p[i__ + (j + p_dim2) * p_dim1] / d__[i__ 
 			+ (j + d_dim2) * d_dim1]);
-		cs = MAX(r__1,1e-20f);
+		cs = max(r__1,1e-20f);
 		if (*ipfree == 1) {
 		    cs = 1e-20f;
 		}
-/* Computing MIN */
+/* Computing min */
 		r__3 = *dt, r__4 = dx[i__] * *aye / (cs + (r__1 = u[i__ + (j 
-			+ u_dim2) * u_dim1] - *vgx, dabs(r__1))), r__3 = MIN(
+			+ u_dim2) * u_dim1] - *vgx, dabs(r__1))), r__3 = min(
 			r__3,r__4), r__4 = dy[j] * *aye / (cs + (r__2 = v[i__ 
 			+ (j + v_dim2) * v_dim1] - *vgy, dabs(r__2)));
-		*dt = MIN(r__3,r__4);
+		*dt = min(r__3,r__4);
 	    }
 
 	    if (*ihydro == 2) {
 		i__2 = *i2 + 1;
 		for (i__ = *i1 + 1; i__ <= i__2; ++i__) {
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 		    r__3 = -u[i__ + 1 + (j + u_dim2) * u_dim1] + u[i__ + (j + 
 			    u_dim2) * u_dim1];
-/* Computing MAX */
+/* Computing max */
 		    r__4 = -v[i__ + (j + 1 + v_dim2) * v_dim1] + v[i__ + (j + 
 			    v_dim2) * v_dim1];
 		    r__1 = *dtviscous, r__2 = dx[i__] * *aye / (*c2 * 4.f * 
-			    MAX(r__3,1e-20f)), r__1 = MIN(r__1,r__2), r__2 = 
-			    dy[j] * *aye / (*c2 * 4.f * MAX(r__4,1e-20f));
-		    *dtviscous = MIN(r__1,r__2);
+			    max(r__3,1e-20f)), r__1 = min(r__1,r__2), r__2 = 
+			    dy[j] * *aye / (*c2 * 4.f * max(r__4,1e-20f));
+		    *dtviscous = min(r__1,r__2);
 		}
 	    }
 	}
@@ -201,22 +201,22 @@ int calc_dt_c(int *rank, int *idim, int *jdim,
 			        p[i__ + (j + k * d_dim2) * d_dim1], i__,j,k);
 			      
 		    }
-/* Computing MAX */
+/* Computing max */
 		    r__1 = sqrt(*gamma * p[i__ + (j + k * p_dim2) * p_dim1] / 
 			    d__[i__ + (j + k * d_dim2) * d_dim1]);
-		    cs = MAX(r__1,1e-20f);
+		    cs = max(r__1,1e-20f);
 		    if (*ipfree == 1) {
 			cs = 1e-20f;
 		    }
-/* Computing MIN */
+/* Computing min */
 		    r__4 = dx[i__] * *aye / (cs + (r__1 = u[i__ + (j + k * 
 			    u_dim2) * u_dim1] - *vgx, dabs(r__1))), r__5 = dy[
 			    j] * *aye / (cs + (r__2 = v[i__ + (j + k * v_dim2)
-			     * v_dim1] - *vgy, dabs(r__2))), r__4 = MIN(r__4,
+			     * v_dim1] - *vgy, dabs(r__2))), r__4 = min(r__4,
 			    r__5), r__5 = dz[k] * *aye / (cs + (r__3 = w[i__ 
 			    + (j + k * w_dim2) * w_dim1] - *vgz, dabs(r__3)));
-		    dt1 = MIN(r__4,r__5);
-		    *dt = MIN(*dt,dt1);
+		    dt1 = min(r__4,r__5);
+		    *dt = min(*dt,dt1);
 /*                  if (dt1 .lt. 1.0e-5) write(6,1000) dt1,d(i,j,k), */
 /*     &                  p(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k) */
 /* L1000: */
@@ -225,23 +225,23 @@ int calc_dt_c(int *rank, int *idim, int *jdim,
 		if (*ihydro == 2) {
 		    i__3 = *i2 + 1;
 		    for (i__ = *i1 + 1; i__ <= i__3; ++i__) {
-/* Computing MIN */
-/* Computing MAX */
+/* Computing min */
+/* Computing max */
 			r__3 = -u[i__ + 1 + (j + k * u_dim2) * u_dim1] + u[
 				i__ + (j + k * u_dim2) * u_dim1];
-/* Computing MAX */
+/* Computing max */
 			r__4 = -v[i__ + (j + 1 + k * v_dim2) * v_dim1] + v[
 				i__ + (j + k * v_dim2) * v_dim1];
-/* Computing MAX */
+/* Computing max */
 			r__5 = -w[i__ + (j + (k + 1) * w_dim2) * w_dim1] + w[
 				i__ + (j + k * w_dim2) * w_dim1];
-			r__1 = dx[i__] * *aye / (*c2 * 4.f * MAX(r__3,1e-20f)
-				), r__2 = dy[j] * *aye / (*c2 * 4.f * MAX(
-				r__4,1e-20f)), r__1 = MIN(r__1,r__2), r__2 = 
-				dz[k] * *aye / (*c2 * 4.f * MAX(r__5,1e-20f))
+			r__1 = dx[i__] * *aye / (*c2 * 4.f * max(r__3,1e-20f)
+				), r__2 = dy[j] * *aye / (*c2 * 4.f * max(
+				r__4,1e-20f)), r__1 = min(r__1,r__2), r__2 = 
+				dz[k] * *aye / (*c2 * 4.f * max(r__5,1e-20f))
 				;
-			dt1 = MIN(r__1,r__2);
-			*dtviscous = MIN(*dtviscous,dt1);
+			dt1 = min(r__1,r__2);
+			*dtviscous = min(*dtviscous,dt1);
 		    }
 		}
 	    }
