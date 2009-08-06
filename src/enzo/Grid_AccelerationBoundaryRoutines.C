@@ -155,6 +155,17 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
     ENZO_FAIL("");
 #endif
   
+ if(ShearingBoundaryDirection !=-1){
+#ifdef FAST_SIB
+  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData,
+			    NULL, NULL) == FAIL)
+    ENZO_FAIL("");
+#else
+  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			    NULL, NULL) == FAIL)
+    ENZO_FAIL("");
+#endif
+ }
   
   for (grid = 0; grid < NumberOfGrids; grid++) {
 

@@ -708,7 +708,8 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 
 
 int grid::PrintToScreenBoundaries(float *field, char *display){
-   PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 0, 0.0); return true;
-  // PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-DEFAULT_GHOST_ZONES, 0, 0.0);
+     PrintToScreenBoundaries(field, display, 2, (int) floor(GridDimension[1]/2.0), 0, 0.0); return true;
+  //PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-DEFAULT_GHOST_ZONES, 0, 0.0);
+  //PrintToScreenBoundaries(field, display, 2, DEFAULT_GHOST_ZONES, 0, 0.0);
 
 }

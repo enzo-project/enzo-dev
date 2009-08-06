@@ -29,6 +29,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int FindField(int field, int farray[], int numfields);
+
 
 int grid::MHDSourceTerms(float **dU)
 {
@@ -297,7 +299,7 @@ int grid::MHDSourceTerms(float **dU)
   
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 31 && ShearingBoxProblemType !=0) {
+  if (ProblemType == 35 && ShearingBoxProblemType !=0) {
     
     int igrid;
     float rho, gx, gy, gz;
@@ -305,18 +307,23 @@ int grid::MHDSourceTerms(float **dU)
     float vels[3]; 
     int n = 0;
 
+    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
+    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+ 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
+	  rho = BaryonField[iden][igrid];
 	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i];
 	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i];
 	 
-	  vels[0] = BaryonField[Vel1Num][igrid];
-	  vels[1] = BaryonField[Vel2Num][igrid];
-	  vels[2] = BaryonField[Vel3Num][igrid];
+	  vels[0] = BaryonField[ivx][igrid];
+	  vels[1] = BaryonField[ivy][igrid];
+	  vels[2] = BaryonField[ivz][igrid];
 
 	  //adding Omega cross v term; given Omega in z direction
 	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*

@@ -222,6 +222,21 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
 
+  if(ShearingBoundaryDirection !=-1){
+    
+    printf("Second BC set 1\n\n");
+
+#ifdef FAST_SIB
+  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
+    ENZO_FAIL("");
+#else
+  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                            Exterior, LevelArray[level]) == FAIL)
+    ENZO_FAIL("");
+#endif
+
+  }
   /* Count the number of colours in the first grid (to define Ncolor) */
 
   Grids[0]->GridData->SetNumberOfColours();
@@ -446,6 +461,17 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			Exterior, LevelArray[level]);
 #endif
     
+  if(ShearingBoundaryDirection !=-1){
+
+    printf("Second BC set 2\n\n");
+#ifdef FAST_SIB
+  SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			level, MetaData, Exterior, LevelArray[level]);
+#else
+  SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+			Exterior, LevelArray[level]);
+#endif
+}
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
@@ -530,6 +556,18 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
 			  Exterior, LevelArray[level]);
 #endif
+
+  if(ShearingBoundaryDirection !=-1){
+
+    printf("Second BC set 3\n\n");
+#ifdef FAST_SIB
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
+			  MetaData, Exterior, LevelArray[level]);
+#else
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			  Exterior, LevelArray[level]);
+#endif
+  }
 
     /* Finalize (accretion, feedback, etc.) star particles */
  

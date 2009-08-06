@@ -206,7 +206,16 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  etot = eint + 0.5*v2 + 0.5*B2/D_new;
 	}
 	
+	if (By_new>2.0e-7 && debug) {
+	  printf("Changing from %g to %g, at (%"ISYM" %"ISYM" %"ISYM") of %"ISYM" %"ISYM" %"ISYM"\n", 	BaryonField[B2Num][igrid], 
+		 By_new, i,j,k, GridDimension[0], GridDimension[1], GridDimension[2]);
+	  printf("Values Old: %g New: %g ByOld: %g By: %g dU%g Components (%g %g %g)\n", 	BaryonField[B2Num][igrid], 
+		 By_new, By_old, By, dU[iBy][n],   c1*By_old , (1.0-c1)*By , c2*dU[iBy][n]);
+	}
+
 	BaryonField[DensNum][igrid] = D_new;
+
+	
 	BaryonField[Vel1Num][igrid] = vx;
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;

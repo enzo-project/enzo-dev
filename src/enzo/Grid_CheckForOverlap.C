@@ -89,7 +89,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
-    while (ShearingOffset > Ly) {
+    while (ShearingOffset >= Ly) {
       ShearingOffset -= Ly;
     }  
   }
@@ -153,8 +153,9 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      }
 	    }
 
-
+	 
 	
+
 	  // Full periodic case (26 checks)
 	    
 	  if ((GridRank > 2 || k == 0) && 
@@ -197,7 +198,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
     } // end: loop of j
   } // end: loop of k
 
-//   PrintToScreenBoundaries(	BaryonField[iden  ], "Density");
+
 //  PrintToScreenBoundaries(	BaryonField[ivx  ], "Vx2");
 //    PrintToScreenBoundaries(	BaryonField[ivy  ], "Vy2");
 //    PrintToScreenBoundaries(	BaryonField[ivz  ], "Vz2");

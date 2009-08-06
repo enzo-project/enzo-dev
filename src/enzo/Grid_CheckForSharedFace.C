@@ -78,7 +78,7 @@ int grid::CheckForSharedFace(grid *OtherGrid,
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
-    while (ShearingOffset > Ly) {
+    while (ShearingOffset >= Ly) {
       ShearingOffset -= Ly;
     }  
   }

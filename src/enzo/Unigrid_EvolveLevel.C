@@ -491,10 +491,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
     JBPERF_START("evolve-level-21"); // SetBoundaryConditions()
 #endif
 
-    if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			      Exterior, LevelArray[level]) == FAIL)
       ENZO_FAIL("");
  
+if(ShearingBoundaryDirection !=-1){
+  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+			      Exterior, LevelArray[level]) == FAIL)
+      ENZO_FAIL("");
+  
+}
 #ifdef USE_JBPERF
     JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
 #endif
