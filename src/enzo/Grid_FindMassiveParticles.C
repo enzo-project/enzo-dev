@@ -36,8 +36,8 @@ int grid::FindMassiveParticles(float min_mass, int level, FLOAT *pos[], int &npa
   FLOAT r;
   bool inside;
 
-  // Factor of 1.01 to avoid any round-off errors
-  AdjustedMass = 1.01 * min_mass * pow(8.0, level);
+  // Factor of 1.5 to avoid any round-off errors
+  AdjustedMass = 1.5 * min_mass * pow(8.0, level);
 
   if (CountOnly == TRUE) {
 

@@ -93,7 +93,7 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
      fields.  We will check if the field already exists inside the
      grid routine. */
 
-  int OldNumberOfBaryonFields, FieldsToAdd = 0;
+  int OldNumberOfBaryonFields = 0, FieldsToAdd = 0;
   int TypesToAdd[MAX_NUMBER_OF_BARYON_FIELDS];
   int ExistingTypes[MAX_NUMBER_OF_BARYON_FIELDS];
 
@@ -139,6 +139,9 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     fprintf(stdout, "RadiativeTransferInitialize: Increasing baryon fields "
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
+
+  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_DEPTH_OF_HIERARCHY)
+    ENZO_FAIL("Exceeds MAX_DEPTH_OF_HIERARCHY.  Please increase and re-compile.");
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)

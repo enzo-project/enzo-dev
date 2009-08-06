@@ -65,12 +65,12 @@ int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes,
   // configuration is forgotten.  1e-3 is a good value because we want
   // to keep the grid transfers to a minimum.  This parameter is
   // expressed in the fraction of the initial cost function.
-  const float initial_temperature = 1e-2;
+  const float initial_temperature = 1e-3;
 
   // Preference to which the nodes are balanced with the number of
   // subgrid cells over the balance of the cells on processors.  4 is
   // a good value.
-  const float node_balance_weight = 8.0;
+  const float node_balance_weight = 1.0;
 
   // In the random choice of a new processor, this is the probability
   // that this processor will be on the same node as before.
@@ -82,10 +82,10 @@ int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes,
   const int NumberOfIterations = 100;
 
   // Number of attempted moves at a single temperature
-  const int NumberOfTries = 25;
+  const int NumberOfTries = NumberOfGrids;
 
   // Maximum number of moves at a temperature
-  const int MoveLimit = 5;
+  int MoveLimit = NumberOfTries / 5;
 
   // Factor to reduce the temperature each iteration
   const float TemperatureReduce = 0.95;
