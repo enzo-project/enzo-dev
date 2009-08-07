@@ -318,6 +318,13 @@ bool Star::Mergable(Star a)
 }
 bool Star::Mergable(Star *a) { return this->Mergable(*a); }
 
+bool Star::MergableMBH(Star a)
+{
+  // Merge MBH particle with another 
+  return type == a.type && type > 0;
+}
+bool Star::MergableMBH(Star *a) { return this->MergableMBH(*a); }
+
 float Star::Separation2(Star a)
 {
   int dim;
