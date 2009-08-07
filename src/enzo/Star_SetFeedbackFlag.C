@@ -97,11 +97,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
   case MBH:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
-    if (this->type > 0 && AgeInMyr > 0)
-      if (MBHFeedbackThermal)
-	this->FeedbackFlag = MBH_THERMAL;
-      else
-	this->FeedbackFlag = NO_FEEDBACK; 
+    if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
+      this->FeedbackFlag = MBH_THERMAL;
     else
       this->FeedbackFlag = NO_FEEDBACK;
 
