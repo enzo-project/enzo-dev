@@ -99,8 +99,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
     ENZO_FAIL("");
   }
   
-  fprintf(stderr,"I'm here in Grid_AddFeedbackSphere.C\n");
-
   /* Find Multi-species fields. */
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
