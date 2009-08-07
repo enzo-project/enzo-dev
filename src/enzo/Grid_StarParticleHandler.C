@@ -775,10 +775,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     /* This creates sink particles which suck up mass off the grid. */
 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
-
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
-
+ 
       int ihydro = (int) HydroMethod;
       float SinkParticleMassThreshold = huge_number;
       float JeansLengthRefinement = FLOAT_UNDEFINED;
@@ -790,17 +789,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      if(HydroMethod == MHD_RK){
+      if(HydroMethod == MHD_RK || HydroMethod == HD_RK ){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
 	/*printf("Grid_StarParticleHandler l479 - just made nx_jet etc.\n");*/
 	if (StellarWindFeedback) {
-	  printf("Grid_StarParticleHandler 751 - star maker 8 called\n");
 	  nx_jet = ParticleAttribute[3];
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
+	  printf("Grid_StarParticleHandler 751 - star maker 8 called\n");
 
 	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
@@ -828,6 +827,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ENZO_FAIL("Error in star_maker8.\n");
 	}
       } else {
+	  printf("Grid_StarParticleHandler 784 - sink maker called\n");
 	if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
 		       BaryonField[DensNum], BaryonField[Vel1Num],
 		       BaryonField[Vel2Num], BaryonField[Vel3Num],
