@@ -426,7 +426,7 @@ main(int argc, char *argv[])
       ProfileRadius[i] = POW(10, log10(InnerEdge) + float(i-1)*dlogRadius); 
 
     /* Linearly binned "ProfileRadius2" for .Vertical profile only 
-       becuase logarithmic profile interval may not make sense in vertical profile. - Ji-hoon Kim */
+       becuase logarithmic interval may not make sense for vertical profile. - Ji-hoon Kim */
 
     FLOAT ProfileRadius2[MAX_BINS+1];  
     ProfileRadius2[0] = 0;

@@ -97,7 +97,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
-    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
+    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits; 
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
     EjectaThermalEnergy = StarClusterSNEnergy / Msun /
       (VelocityUnits * VelocityUnits);
@@ -106,7 +106,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case MBH_THERMAL:
     if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
-    //*****************
     /* Using the code snippets adopted from Star_CalculateMassAccretion.C 
        estimate the feedback energy based on Bondi accretion rate.  
        This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C.  - Ji-hoon Kim */
@@ -191,19 +190,25 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // Release MBH-AGN thermal energy constantly. Here no mass is released.
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
     EjectaDensity = 0.0;
-    EjectaMetalDensity = 0.0;
+    EjectaMetalDensity = 0.0; 
 
     /* For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
-       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
+       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
-    //EjectaThermalEnergy = 1e54/(VelocityUnits * VelocityUnits);
-
-    
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
-      (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
+      mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits / EjectaVolume / 
+      DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+    //EjectaThermalEnergy = 1.0e52 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
+    // For the continuous energy injection case (variation of Sedov test)
+    EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
+      / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
+#endif
 
     break;
 

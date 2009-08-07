@@ -1006,7 +1006,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   } 
 
 
-  if (StarParticleFeedback == 5) {  
+  if (STARFEED_METHOD(SPRINGEL_HERNQUIST_STAR)) {  
 
     //---- SPRINGEL & HERNQUIST ALGORITHM
 

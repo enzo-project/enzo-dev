@@ -26,6 +26,7 @@
 
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 
 int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 			   TopGridData *MetaData, Star *&AllStars)
@@ -60,6 +61,13 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleMergeNew.\n");
+    ENZO_FAIL("");
+  }
+
+  /* Merge MBH particles that are close enough - Ji-hoon Kim */
+
+  if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
+    fprintf(stderr, "Error in StarParticleMergeMBH.\n");
     ENZO_FAIL("");
   }
 
