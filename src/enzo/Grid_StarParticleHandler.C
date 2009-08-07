@@ -651,6 +651,54 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     }
 
+    if (STARMAKE_METHOD(MBH_PARTICLE)) {
+
+      //---- MASSIVE BLACK HOLE PARTICLE using the usual sink_maker
+
+      /* At the moment MBH particle is not meant to be created like this;
+	 rather, it is supposed to be put by hand.  
+	 So this is rather for the consistency of the code.  - Ji-hoon Kim */
+
+      int ihydro = (int) HydroMethod;
+      float SinkParticleMassThreshold = huge_number;
+      float JeansLengthRefinement = FLOAT_UNDEFINED;
+      for (int method = 0; method < MAX_FLAGGING_METHODS; method++) {
+	if (CellFlaggingMethod[method] == 2)
+	  SinkParticleMassThreshold = MinimumMassForRefinement[method]*
+	    pow(RefineBy, level*MinimumMassForRefinementLevelExponent[method]);
+	if (CellFlaggingMethod[method] == 6)
+	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
+      }
+
+      int MBHParticleType = -PARTICLE_TYPE_MBH; //minus sign needed for yet-to-be born Star particle
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
+		     BaryonField[DensNum], BaryonField[Vel1Num],
+		     BaryonField[Vel2Num], BaryonField[Vel3Num],
+		     &dtFixed, BaryonField[NumberOfBaryonFields],
+		     &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+		     &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+		     &MaximumNumberOfNewParticles, CellLeftEdge[0], 
+		     CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+		     &ihydro, &SinkParticleMassThreshold, &level, 
+		     &NumberOfNewParticles, tg->ParticlePosition[0], 
+		     tg->ParticlePosition[1], tg->ParticlePosition[2], 
+		     tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+		     tg->ParticleVelocity[2], tg->ParticleMass, 
+		     tg->ParticleAttribute[0], tg->ParticleAttribute[1], 
+		     tg->ParticleType, &NumberOfParticles, ParticlePosition[0],
+		     ParticlePosition[1], ParticlePosition[2], 
+		     ParticleVelocity[0], ParticleVelocity[1], 
+		     ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
+		     ParticleAttribute[1], ParticleType, &MBHParticleType, 
+		     &JeansLengthRefinement, temperature) == FAIL) {
+	ENZO_FAIL("Error in sink_maker for MBH.");
+      }
+      
+    }
+
     if (STARMAKE_METHOD(INSTANT_STAR)) {
 
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO stochastic SF)
@@ -777,8 +825,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 			ParticleType, ParticleNumber, &SinkParticleType, 
 			&JeansLengthRefinement, temperature, &Gamma, &Mu,
 			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
-	  fprintf(stderr, "Error in star_maker8\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in star_maker8.\n");
 	}
       } else {
 	if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
@@ -801,7 +848,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 		       ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
 		       ParticleAttribute[1], ParticleType, &SinkParticleType, 
 		       &JeansLengthRefinement, temperature) == FAIL) {
-	  ENZO_FAIL("Error in star_maker3");
+	  ENZO_FAIL("Error in sink_maker.\n");
 	}
       }
 

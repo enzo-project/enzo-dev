@@ -420,6 +420,7 @@ typedef int            HDF5_hid_t;
 #define STAR_CLUSTER    5
 #define INSTANT_STAR    7
 #define SPRINGEL_HERNQUIST_STAR 8
+#define MBH_PARTICLE    9
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 

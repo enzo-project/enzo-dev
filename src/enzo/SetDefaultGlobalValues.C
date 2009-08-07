@@ -348,7 +348,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaUseColour         = FALSE;
 
   MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1000;         // Msun
+  MBHMinimumMass                   = 1e6;          // Msun
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura&Sunyaev (1973)
