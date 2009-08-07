@@ -63,12 +63,12 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, TimeNow);
 
-  /* Merge all yet-to-be born stars within r_merge */
+  /* Merge multiple MBH particles within r_merge */
 
   rmerge2 = powf(MBHCombineRadius * pc / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
-    if (ThisStar->IsActive() || ThisStar->MarkedToDelete())
+    if (ThisStar->ReturnType() != MBH || ThisStar->IsActive() || ThisStar->MarkedToDelete())
       continue;
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {

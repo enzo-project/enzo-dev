@@ -64,7 +64,8 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     ENZO_FAIL("");
   }
 
-  /* Merge MBH particles that are close enough - Ji-hoon Kim */
+  /* Merge MBH particles that are close enough.  
+     This might slow things down for John's run... so I should find smarter way.  - Ji-hoon Kim */
 
   if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleMergeMBH.\n");
