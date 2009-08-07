@@ -214,10 +214,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     break;
 
-  case MBH_RADIATIVE:
-    fprintf(stderr, "CalculateFeedbackParameters: This option not yet implemented.\n");
-    break;
-
   } // ENDSWITCH FeedbackFlag
   
   return;
