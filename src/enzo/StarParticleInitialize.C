@@ -71,6 +71,11 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
      there.
   */
 
+//  if (MyProcessorNumber == ROOT_PROCESSOR) {
+//    for (cstar = AllStars; cstar; cstar = cstar->NextStar)
+//      cstar->PrintInfo();
+//  }
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     cstar->SetFeedbackFlag(TimeNow);
     cstar->CopyToGrid();

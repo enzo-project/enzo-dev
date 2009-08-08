@@ -112,6 +112,7 @@ public:
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);
+  void  PrintInfo(void);
 
   void  CalculateFeedbackParameters(float &Radius, float SNe_dt, 
 				    float RootCellWidth,
