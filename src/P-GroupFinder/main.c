@@ -152,7 +152,7 @@ int main(int argc, char **argv)
     Files = find_files(input_fname);
   else if (formatType == ENZO) {
     Files = enzoFindFiles(input_fname);
-    MarkInteriorParticles(input_fname, Files);
+    //MarkInteriorParticles(input_fname, Files);
   }
 
   SearchRadius= LinkLength*BoxSize/pow(NumPart,1.0/3);
