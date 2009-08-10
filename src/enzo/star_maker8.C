@@ -421,7 +421,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   if (StellarWindFeedback == 2 && bx == NULL) { /*protostellar jets by random direction*/
     for (n = 0; n < nsinks; n++) {
-      //printf("StellarWindFeedback = 2 running\n");
+      printf("StellarWindFeedback = 2 running\n");
       bb = sink_index[n];
 
       if (mpold[bb] < 0.0) continue;
