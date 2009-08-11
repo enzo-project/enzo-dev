@@ -321,7 +321,7 @@ bool Star::Mergable(Star *a) { return this->Mergable(*a); }
 bool Star::MergableMBH(Star a)
 {
   // Merge MBH particle with another 
-  return type == a.type && a.type == MBH && type > 0;
+  return type == a.type && type == MBH;
 }
 bool Star::MergableMBH(Star *a) { return this->MergableMBH(*a); }
 

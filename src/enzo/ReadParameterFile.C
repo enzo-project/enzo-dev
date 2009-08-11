@@ -1038,13 +1038,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      must be turned on. */
 
   int method;
-  bool MustRefineParticles = false;
-  for (method = 0; method < MAX_FLAGGING_METHODS; method++)
+  bool TurnOnParticleMassRefinement = false;
+  for (method = 0; method < MAX_FLAGGING_METHODS; method++) 
     if (CellFlaggingMethod[method] == 8) {
-      MustRefineParticles = true;
+      TurnOnParticleMassRefinement = true;
       break;
     }
-  if (MustRefineParticles) {
+  for (method = 0; method < MAX_FLAGGING_METHODS; method++) 
+    if (CellFlaggingMethod[method] == 4) {
+      TurnOnParticleMassRefinement = false;
+      break;
+    }
+  if (TurnOnParticleMassRefinement) {
     method = 0;
     while (CellFlaggingMethod[method] != INT_UNDEFINED)
       method++;
