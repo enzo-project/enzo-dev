@@ -668,9 +668,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Sink particles (for present day star formation) & winds */
-    ret += sscanf(line, "SinkMergeDistance = %"FSYM, &SinkMergeDistance);
-    ret += sscanf(line, "SinkMergeMass        = %"FSYM, &SinkMergeMass);
-    ret += sscanf(line, "StellarWindFeedback  = %"ISYM, &StellarWindFeedback);
+    ret += sscanf(line, "SinkMergeDistance     = %"FSYM, &SinkMergeDistance);
+    ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
+    ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
 
     //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
@@ -820,7 +820,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   StarMakerOverDensityThreshold /= DensityUnits;
   //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
 
-  SinkMergeDistance /= LengthUnits;
+  if (SinkMergeDistance > 1.0)
+    SinkMergeDistance /= LengthUnits;
+  printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
   SmallRho /= DensityUnits;
   SmallP /= PressureUnits;
   SmallT /= TemperatureUnits;

@@ -266,7 +266,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     
     /*maxdens = jlsquared * temp[index] / dx2;
       drho = max(0.0, d[index] - maxdens);*/        
-    printf("star_maker8: Accretion routine, mass added = %"FSYM"\n",drho*pow(*dx,3)*umass);
+    //printf("star_maker8: Accretion routine, mass added = %"FSYM"\n",drho*pow(*dx,3)*umass);
 
     upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
     vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
@@ -421,7 +421,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   if (StellarWindFeedback == 2 && bx == NULL) { /*protostellar jets by random direction*/
     for (n = 0; n < nsinks; n++) {
-      printf("StellarWindFeedback = 2 running\n");
+      //printf("StellarWindFeedback = 2 running\n");
       bb = sink_index[n];
 
       if (mpold[bb] < 0.0) continue;
@@ -738,7 +738,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	      dist2 = delx*delx + dely*dely + delz*delz;
 
 	      /* If sink is within 5 cells and closest one, then add to it */
-	      printf("star_maker8:  distance: dist=%"FSYM", SCD =%"FSYM" \n",pow(dist2,0.5),SinkCollapseDistance );	      
+	      //printf("star_maker8:  distance: dist=%"FSYM", SCD =%"FSYM" \n",pow(dist2,0.5),SinkCollapseDistance );	      
 	      if (dist2 < pow(SinkCollapseDistance,2) && dist2 < nearestdx2) {
 		nearestdx2 = dist2;
 		closest = n;
