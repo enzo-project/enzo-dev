@@ -979,6 +979,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 //  The following is an over-ride to force PPMDiffusion OFF. This has
 //  been fixed in this latest version (AK).
 
+//  NOTE: The fix keeps the code from crashing, but is not a proper 
+//  implementation of PPM diffusion.  The reason why is that Enzo typically
+//  uses 3 ghost zones, and the correct PPM diffusion implementation requires
+//  4 parameters.  SO, you should not use this parameter for, e.g., cosmology
+//  runs unless you know what you're doing.  (BWO)
+
   if (MetaData.PPMDiffusionParameter != 0 && ProblemType != 60 // Turbulence
                                           && ProblemType != 4  // Double Mach Reflection test
                                           && ProblemType != 6  // Implosion test
