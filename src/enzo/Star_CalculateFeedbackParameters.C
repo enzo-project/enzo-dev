@@ -203,13 +203,15 @@ void Star::CalculateFeedbackParameters(float &Radius,
       min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits / EjectaVolume / 
       DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
-#define NOT_SEDOV_TEST
+#define SEDOV_TEST
 #ifdef SEDOV_TEST
-    //EjectaThermalEnergy = 1.0e52 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    EjectaThermalEnergy = 1.0e54 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
     // For the continuous energy injection case (variation of Sedov test)
+    /*
     EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
       / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    */
 #endif
 
     break;

@@ -431,9 +431,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
 
-  EOSType	  = 0;
-  UsePhysicalUnit = 0;
-
   UseDivergenceCleaning		   = 0;
   DivergenceCleaningBoundaryBuffer = 0;
   DivergenceCleaningThreshold	   = 0.001;
