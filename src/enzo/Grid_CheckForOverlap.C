@@ -107,7 +107,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
 
 
-
+  //PrintToScreenBoundaries(BaryonField[2], "Vy");
 
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
@@ -124,21 +124,23 @@ int grid::CheckForOverlap(grid *OtherGrid,
 
 
 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
+			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0])                        ) &&
+			 (CellLeftEdge[0][GridDimension[0]-1] >
+			 DomainRightEdge[0] || ShearingBoundaryDirection!=-1 ))                        ) &&
 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
+			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1])                        ) &&
+			 (CellLeftEdge[1][GridDimension[1]-1] >
+			 DomainRightEdge[1]  || ShearingBoundaryDirection!=-1 ))                        ) &&
 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
+			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])                        )   ) {
+			 (CellLeftEdge[2][GridDimension[2]-1] >
+			 DomainRightEdge[2])  || ShearingBoundaryDirection!=-1 )  )   ){
  
+ 
+
 
 	  if (ShearingBoundaryDirection!=-1){
 	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
@@ -163,11 +165,19 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      (i != 0 || j != 0 || k != 0) && 
 	      (FullPeriod == TRUE || ShearingBoundaryDirection!=-1)) {
 	    
+	    if (	GridLeftEdge[0]==0.0 && 
+			GridLeftEdge[1]==1.0 &&  
+			GridLeftEdge[2]==0.0) // printf("The indices3: %d %d %d (%d %d %d)\n", i,j,k, 1,jdim,kdim);
+
+	    if (i==1 && j==1 &&
+		GridLeftEdge[0]==0.0 && 
+		GridLeftEdge[1]==1.0 &&  
+		GridLeftEdge[2]==0.0) 
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      printf("Error in grid->*CopyFunction (2)\n");
 	      ENZO_FAIL("CopyFunctionFail(2)");}
 	    
-	  
+	    
 	  }
 	    
 	    
@@ -199,11 +209,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
   } // end: loop of k
 
 
-//  PrintToScreenBoundaries(	BaryonField[ivx  ], "Vx2");
-//    PrintToScreenBoundaries(	BaryonField[ivy  ], "Vy2");
-//    PrintToScreenBoundaries(	BaryonField[ivz  ], "Vz2");
- 
- 
   return SUCCESS;
  
 }

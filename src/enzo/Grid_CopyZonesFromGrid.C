@@ -169,9 +169,9 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  End[dim]   = EndTemp; 
       }
  
+     
       if (End[dim] - Start[dim] < 0)
 	return SUCCESS;
-
     
 
       /* Compute index positions in the other grid */
@@ -206,25 +206,32 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     
     b=1.0-a;
     
- //    printf("A B %"GOUTSYM" %"GOUTSYM"  \n GridStartLeftShifted %"GOUTSYM" GridStartLeftOriginal %"GOUTSYM"  \n GridLeftShifted %"GOUTSYM"  GridLeftGhost %"GOUTSYM"  \n Other %"GOUTSYM"  OtherActiveLeft %"GOUTSYM" OtherGhostLeft %"GOUTSYM" Left %"GOUTSYM" \n", a, b, 
+//     if (GridLeftEdge[0]==0.0 & GridLeftEdge[1]==1.0 &&  GridLeftEdge[2]==0.0){
+//     printf("A B %"GOUTSYM" %"GOUTSYM"  \n GridStartLeftShifted %"GOUTSYM" GridStartLeftOriginal %"GOUTSYM"  \n GridLeftShifted %"GOUTSYM"  GridLeftGhost %"GOUTSYM"  GridLeftEdge %"GOUTSYM"  %"GOUTSYM"  %"GOUTSYM" \n Other %"GOUTSYM"  OtherActiveLeft %"GOUTSYM" OtherGhostLeft %"GOUTSYM" Left %"GOUTSYM" \n", a, b, 
 // 	   CellLeftEdge[ShearingVelocityDirection][Start[ShearingVelocityDirection]] + EdgeOffset[ShearingVelocityDirection],  
 // 	   CellLeftEdge[ShearingVelocityDirection][Start[ShearingVelocityDirection]], 
 
+	   
 // 	   GridLeft[ShearingVelocityDirection], 
 // 	   CellLeftEdge[ShearingVelocityDirection][0],
+// 	   GridLeftEdge[0],  GridLeftEdge[1],  GridLeftEdge[2],
 
 // 	   OtherGrid->CellLeftEdge[ShearingVelocityDirection][StartOther[ShearingVelocityDirection]], 
 // 	   OtherGrid->GridLeftEdge[ShearingVelocityDirection], 
 // 	   OtherGrid->CellLeftEdge[ShearingVelocityDirection][0],
 // 	   Left[ShearingVelocityDirection] );
 
-//     printf("EdgeOffSet %"GOUTSYM"  %"GOUTSYM" %"GOUTSYM"\n", EdgeOffset[0], EdgeOffset[1], EdgeOffset[2]);
+//     printf("EdgeOffSet %"GOUTSYM"  %"GOUTSYM" %"GOUTSYM"\n", EdgeOffset[0], EdgeOffset[1], EdgeOffset[2]);}
   }
  
+
+  
   /* Calculate dimensions */
  
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
+  for (dim = 0; dim < MAX_DIMENSION; dim++){
     Dim[dim] = End[dim] - Start[dim] + 1;
+
+  }
 
   //need extra cell if you want to do shearing boundaries 
   //and that needs to be communicated from other grids possibly
@@ -349,31 +356,17 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      
 	    }
 	  }
+
+
+ 
+
+
 	  
 
 
-    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
-    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
-    int ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
-    int ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
-    
-    int iBx, iBy, iBz;
-    if (useMHD){
-      iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
-      iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
-      if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
-    }
+  
  
-	  	    if (((BaryonField[field][thisindex]>2.0e-7 && field==iBy) ||
-			( ABS(val1-val2)>ABS(0.001*val1) && field==ivy)) && debug)
-		      printf("Shearing %d Field %d val  %g %g %g \n(%d %d %d) minusStart (%d %d %d) dims (%d %d %d), Griddims  (%d %d %d), \nOther (%d %d %d) minusStart (%d %d %d) dims (%d %d %d), Griddims  (%d %d %d) \n\n", isShearing, field,
-		     BaryonField[field][thisindex],  val1, val2, 
-		     i+Start[0],  j+Start[1],  k+Start[2], i,j,k, Dim[0], Dim[1], Dim[2], 
-		     GridDimension[0],  GridDimension[1],  GridDimension[2],
-		     i+StartOther[0],  j+StartOther[1],  k+StartOther[2], i,j,k, OtherDim[0], OtherDim[1], OtherDim[2], 
-		     OtherGrid->GridDimension[0],  OtherGrid->GridDimension[1],  OtherGrid->GridDimension[2]);
+
 	}}
  
   //Update the energys due to sheared boundaries
@@ -442,7 +435,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   this->DebugCheck("CopyZonesFromGrid (after)");
   
-  
+  if(isShearing)  PrintToScreenBoundaries(BaryonField[2], "Vy after a copy");
 //  printf("***Labels copy %d \n", FieldType[ivy]);
 
    

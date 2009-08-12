@@ -80,15 +80,17 @@ extern int CopyPotentialFieldAverage;
 /* This routine sets all the boundary conditions for Grids by either
    interpolating from their parents or copying from sibling grids. */
  
+
+
 #ifdef FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData,
-			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
+			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level, bool shearingRepeat)
 #else
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           int level, TopGridData *MetaData,
-                          ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
+                          ExternalBoundary *Exterior, LevelHierarchyEntry *Level, bool shearingRepeat)
 #endif
 {
   //printf("Here in SetBoundaryConditions\n");
@@ -122,12 +124,13 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
  
       CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
       if (level == 0) {
+	if(!shearingRepeat){
 	if (Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior)
 	    == FAIL) {
 	  fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
 	  ENZO_FAIL("");
 	}
-      }
+	}}
       else {
 	if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
 	     (Grids[grid1]->ParentGrid->GridData)) == FAIL) {
@@ -253,6 +256,29 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   return SUCCESS;
 }
  
+#ifdef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
+#else
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
+#endif
+{
+#ifdef FAST_SIB
+  return SetBoundaryConditions( Grids, NumberOfGrids,
+			     SiblingList,
+			     level, MetaData,
+			     Exterior,  Level, false);
+#else
+  return SetBoundaryConditions(Grids, NumberOfGrids,
+			    level, MetaData,
+			    Exterior, Level, false);
+#endif
+  
+    }
  
 /* ======================================================================= */
 /* This routine prepares the density field for all the grids on this level,

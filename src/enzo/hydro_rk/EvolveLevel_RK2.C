@@ -91,6 +91,24 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           int level, TopGridData *MetaData,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
+
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData, 
+			  ExternalBoundary *Exterior, bool shearingRepeat);
+#ifdef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry * Level, bool shearingRepeat);
+#else
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level, bool shearingRepeat);
+#endif
+
+
+
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
 		      int level, ExternalBoundary *Exterior);
 
@@ -224,15 +242,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if(ShearingBoundaryDirection !=-1){
     
-    printf("Second BC set 1\n\n");
+  
 
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
+			    level, MetaData, Exterior, LevelArray[level], true) == FAIL)
     ENZO_FAIL("");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                            Exterior, LevelArray[level]) == FAIL)
+                            Exterior, LevelArray[level], true) == FAIL)
     ENZO_FAIL("");
 #endif
 
@@ -463,13 +481,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
   if(ShearingBoundaryDirection !=-1){
 
-    printf("Second BC set 2\n\n");
+   
 #ifdef FAST_SIB
   SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			level, MetaData, Exterior, LevelArray[level]);
+			level, MetaData, Exterior, LevelArray[level], true);
 #else
   SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-			Exterior, LevelArray[level]);
+			Exterior, LevelArray[level], true);
 #endif
 }
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -559,13 +577,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if(ShearingBoundaryDirection !=-1){
 
-    printf("Second BC set 3\n\n");
+   
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
-			  MetaData, Exterior, LevelArray[level]);
+			  MetaData, Exterior, LevelArray[level], true);
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
-			  Exterior, LevelArray[level]);
+			  Exterior, LevelArray[level], true);
 #endif
   }
 

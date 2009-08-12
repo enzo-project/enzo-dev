@@ -84,23 +84,21 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 	/* This unfortunate bit of logic is to make sure we should be
 	   applying periodic bc's in this direction. */
  
-
-
 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
+			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0])                        ) &&
+			 (CellLeftEdge[0][GridDimension[0]-1] >
+			 DomainRightEdge[0] || ShearingBoundaryDirection!=-1 ))                        ) &&
 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
+			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1])                        ) &&
+			 (CellLeftEdge[1][GridDimension[1]-1] >
+			 DomainRightEdge[1]  || ShearingBoundaryDirection!=-1 ))                        ) &&
 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
+			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingBoundaryDirection!=-1 ))    ) &&
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])                        )   ) {
+			 (CellLeftEdge[2][GridDimension[2]-1] >
+			 DomainRightEdge[2])  || ShearingBoundaryDirection!=-1 )  )   ){
  
 
 	  if (ShearingBoundaryDirection!=-1){

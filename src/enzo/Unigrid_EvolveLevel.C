@@ -92,6 +92,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  int level, TopGridData *MetaData,
 			  ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry * Level, bool shearingRepeat);
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[]);
