@@ -155,6 +155,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
 		      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			    TopGridData &MetaData);
 
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -365,6 +367,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType == 11)
     ret = RadiatingShockInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 12) Free expansion blast wave
+  if (ProblemType == 12)
+    ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 20) Zeldovich Pancake
  
