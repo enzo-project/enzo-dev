@@ -58,7 +58,7 @@ enum species {
 };
 
 int grid::PhotonBoundaryConditions(grid **Grids0, int nGrids0, FLOAT *r, const FLOAT *u, PhotonPackageEntry *PP,
-        grid* &MoveToGrid, int &DeltaLevel, const float *DomainWidth, int &DeleteMe, grid *ParentGrid) {
+        grid* &MoveToGrid, int &DeltaLevel, const FLOAT *DomainWidth, int &DeleteMe, grid *ParentGrid) {
     int dummy, i;
     if (    (r[0] <= GridLeftEdge[0]) || (GridRightEdge[0] <= r[0])  ||
             (r[1] <= GridLeftEdge[1]) || (GridRightEdge[1] <= r[1])  ||

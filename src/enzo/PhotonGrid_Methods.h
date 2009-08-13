@@ -205,7 +205,7 @@ int MergePausedPhotonPackages(void);
 /* Walk Photon Package one by one */ 
 
    int PhotonBoundaryConditions(grid **Grids0, int nGrids0, FLOAT *r, const FLOAT *u, PhotonPackageEntry *PP,
-        grid* &MoveToGrid, int &DeltaLevel, const float *DomainWidth, int &DeleteMe, grid *ParentGrid);
+        grid* &MoveToGrid, int &DeltaLevel, const FLOAT *DomainWidth, int &DeleteMe, grid *ParentGrid);
    void PhotonDoAbsorption(int i, float* field, int kphNum, int gammaNum, int index, float conversion, FLOAT sigma, FLOAT dr, FLOAT &photons, FLOAT rate_kph, FLOAT rate_gamma); 
    double PhotonRadiationPressureConversion(float DensityUnits, float VelocityUnits, FLOAT CellVolume);
    int WalkPhotonPackage(PhotonPackageEntry **PP, 
