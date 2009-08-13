@@ -491,6 +491,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
 
+  fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
+  fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
+          
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
 	  StarClusterUseMetalField);
   fprintf(fptr, "StarClusterMinDynamicalTime           = %"GSYM"\n",
@@ -533,7 +536,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHMinDynamicalTime);
   fprintf(fptr, "MBHMinimumMass                 = %"GSYM"\n",
           MBHMinimumMass);
-  fprintf(fptr, "MBHFeedbackThermal               = %"ISYM"\n",
+  fprintf(fptr, "MBHFeedbackThermal             = %"ISYM"\n",
 	  MBHFeedbackThermal);
   fprintf(fptr, "MBHFeedbackRadius              = %"GSYM"\n",
           MBHFeedbackRadius);
@@ -543,7 +546,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackThermalCoupling);
   fprintf(fptr, "MBHCombineRadius               = %"GSYM"\n",
           MBHCombineRadius);
-  fprintf(fptr, "MBHIonizingLuminosity          = %lg\n",
+  fprintf(fptr, "MBHIonizingLuminosity          = %lg\n\n",
           MBHIonizingLuminosity);
 
   /* Most Stanford additions: */

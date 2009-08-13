@@ -82,7 +82,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
       if (!cstar->ApplyFeedbackTrue(SNe_dt))
 	continue;
-    
+
     /* Compute some parameters */
 
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 

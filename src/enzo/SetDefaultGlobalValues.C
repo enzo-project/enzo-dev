@@ -348,7 +348,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaUseColour         = FALSE;
 
   MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1000;         // Msun
+  MBHMinimumMass                   = 1e6;          // Msun
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura&Sunyaev (1973)
@@ -543,6 +543,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
+
+  IsothermalSoundSpeed = 1.0;
+  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";

@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       December, 1997
-/  modified1:  John Wise (July, 2009): Mode 2 -- load balance only
+/  modified1:  John Wise (July, 2009): Mode 2/3 -- load balance only
 /              within a node.
 /
 /  PURPOSE:
@@ -166,7 +166,15 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
       for (i = 0; i < NumberOfGrids; i++) {
 	//proc = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
 	proc = NewProcessorNumber[i];
+//	if (proc == MaxProc)
+//	  printf("P%d / N%d :: grid %d - work = %g, min = %g, max = %g\n",
+//		 MyProcessorNumber, MyProcessorNumber/CoresPerNode,
+//		 i, ComputeTime[i], MinVal, MaxVal);
 	if (proc == MaxProc && ComputeTime[i] < 0.5*(MaxVal-MinVal)) {
+
+//	  printf("\t P%d / N%d :: moving grid %d from %d => %d\n",
+//		 MyProcessorNumber, MyProcessorNumber/CoresPerNode,
+//		 i, MaxProc, MinProc);
  
 	  NewProcessorNumber[i] = MinProc;
 	  GridsMoved++;

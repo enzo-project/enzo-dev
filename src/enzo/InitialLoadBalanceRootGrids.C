@@ -33,16 +33,27 @@
 #define LOAD_BALANCE_RATIO 1.05
 
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-void icol(int *x, int n, int m, FILE *log_fptr);
-void fpcol(Eflt64 *x, int n, int m, FILE *fptr);
 int DetermineNumberOfNodes(void);
+int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes, 
+				  int* &ProcessorNumbers, double* NumberOfCells, 
+				  double* NumberOfSubcells);
 
 int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
 				int TopGridDim, int &NumberOfRootGrids,
 				int* &RootProcessors)
 {
 
+  /* Determine number of nodes and thus cores/node */
+
+  int NumberOfNodes = DetermineNumberOfNodes();
+
   if (NumberOfProcessors == 1 || LoadBalancing <= 1)
+    return SUCCESS;
+
+  /* If this is a zoom-in calculation, we shouldn't load balance the
+     root grids by nodes but the finest static grid. */
+
+  if (StaticRefineRegionLevel[0] != INT_UNDEFINED)
     return SUCCESS;
 
   /* Declarations */
@@ -53,13 +64,14 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   int ThisTask, *GridMap;
   int size, grid_num, RootGridID, GridPosition[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
-  double *NumberOfSubgridCells;
+  double *NumberOfCells, *NumberOfSubgridCells;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ThisCellWidth;
 
-  /* Determine number of nodes and thus cores/node */
+  // Root processor does all of the work, and broadcasts the new
+  // processor numbers
 
-  int NumberOfNodes = DetermineNumberOfNodes();
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
   // Count number of level-0 grids (assume that all level-0 grids at
   // the beginning)
@@ -82,11 +94,14 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   for (dim = TopGridRank; dim < MAX_DIMENSION; dim++)
     Layout[TopGridRank-1-dim] = 0;
 
-  GridMap = new int[NumberOfRootGrids];
   RootProcessors = new int[NumberOfRootGrids];
+  GridMap = new int[NumberOfRootGrids];
+  NumberOfCells = new double[NumberOfRootGrids];
   NumberOfSubgridCells = new double[NumberOfRootGrids];
-  for (i = 0; i < NumberOfRootGrids; i++)
+  for (i = 0; i < NumberOfRootGrids; i++) {
+    NumberOfCells[i] = 0;
     NumberOfSubgridCells[i] = 0;
+  }
 
   // Start reading hierarchy
   rewind(fptr);
@@ -124,6 +139,15 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
     // last line
     if (sscanf(line, "GravityBoundaryType = %"ISYM, &dummy) > 0) {
 
+      for (dim = 0, size = 1; dim < Rank; dim++) {
+	GridPosition[dim] =
+	  int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
+	      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
+	size *= GridDims[dim];
+      }
+      grid_num = GridPosition[0] +
+	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
+
       ThisCellWidth = (RightEdge[0] - LeftEdge[0]) /
        (GridDims[0] - 2*DEFAULT_GHOST_ZONES);
       ThisLevel = nint(-logf(TopGridDim * ThisCellWidth) / M_LN2);
@@ -131,29 +155,16 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
       // Record GridMap number if level-0
       if (ThisLevel == 0) {
 
-       for (dim = 0; dim < Rank; dim++)
-         GridPosition[dim] =
-           int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
-               (DomainRightEdge[dim] - DomainLeftEdge[dim]));
-       grid_num = GridPosition[0] +
-         Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
        GridMap[grid_num] = GridID-1;
        RootProcessors[GridID-1] = ThisTask;
+       NumberOfCells[GridID-1] += size;
 
       } // ENDIF level 0
 
       // From the grid map, determine in which root grid the subgrid
       // is located and add to subgrid cell count.
-      if (ThisLevel == 1) {
+      else if (ThisLevel == 1) {
 
-       for (dim = 0, size = 1; dim < Rank; dim++) {
-         GridPosition[dim] =
-           int(Layout[dim] * (LeftEdge[dim] - DomainLeftEdge[dim]) /
-               (DomainRightEdge[dim] - DomainLeftEdge[dim]));
-         size *= GridDims[dim];
-       }
-       grid_num = GridPosition[0] +
-         Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
        RootGridID = GridMap[grid_num];
        NumberOfSubgridCells[RootGridID] += size;
 
@@ -165,115 +176,28 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
 
   /* Now that we have the number of subgrid cells in each topgrid, we
      can distribute the topgrid tiles so each compute node have a
-     similar total number of subgrid cells.  Place them cyclical and
-     then move them around. */
+     similar total number of subgrid cells.  Use simulated annealing
+     to load balance. */
 
-  int Node, NewProc;
-  double *CellsPerNode = new double[NumberOfNodes];
-  int *GridsPerNode = new int[NumberOfNodes];
-  double TotalSubgridCells = 0;
+  LoadBalanceSimulatedAnnealing(NumberOfRootGrids, NumberOfNodes, 
+				RootProcessors, NumberOfCells,
+				NumberOfSubgridCells);
 
-  for (i = 0; i < NumberOfNodes; i++) {
-    CellsPerNode[i] = 0;
-    GridsPerNode[i] = 0;
-  }
+  delete [] GridMap;
+  delete [] NumberOfCells;
+  delete [] NumberOfSubgridCells;
 
-  for (i = 0; i < NumberOfRootGrids; i++) {
-    if (LoadBalancing == 2)
-      Node = RootProcessors[i] / CoresPerNode;
-    else if (LoadBalancing == 3)
-      Node = RootProcessors[i] % NumberOfNodes;
-    CellsPerNode[Node] += NumberOfSubgridCells[i];
-    TotalSubgridCells += NumberOfSubgridCells[i];
-    GridsPerNode[Node]++;
-  }
+  } // ENDIF ROOT_PROCESSOR
 
-  // Load balance the nodes
-  bool Done = false;
-  int MinNode, MaxNode;
-  double MaxVal, MinVal;
-  int MaxGridsPerNode = NumberOfRootGrids / NumberOfNodes;
-  double DesiredSubgridCells = TotalSubgridCells / NumberOfNodes;
-  double OptimalSize, DifferenceFromOptimal;
-
-  while (!Done) {
-
-    MaxNode = -1;
-    MinNode = -1;
-    MaxVal = 0;
-    MinVal = huge_number;
-
-    for (i = 0; i < NumberOfNodes; i++) {
-      if (CellsPerNode[i] > MaxVal) {// || GridsPerNode[i] > MaxGridsPerNode) {
-       MaxVal = CellsPerNode[i];
-       MaxNode = i;
-      }
-      if (CellsPerNode[i] < MinVal) {// && GridsPerNode[i] < MaxGridsPerNode) {
-       MinVal = CellsPerNode[i];
-       MinNode = i;
-      }
-    }
-
-//    if (debug) {
-//      printf("LBRoot: Min/Max Node = %d(%lg)/%d(%lg)\n",
-//            MinNode, MinVal, MaxNode, MaxVal);
-//      printf("Cells:");
-//      fpcol(CellsPerNode, NumberOfNodes, 16, stdout);
-//      printf("Grids:");
-//      icol(GridsPerNode, NumberOfNodes, 16, stdout);
-//    }
-
-    if (MaxVal > LOAD_BALANCE_RATIO*MinVal) {
-      for (i = 0; i < NumberOfRootGrids; i++) {
-
-       if (LoadBalancing == 2)
-         Node = RootProcessors[i] / CoresPerNode;
-       else if (LoadBalancing == 3)
-         Node = RootProcessors[i] % NumberOfNodes;
-
-       OptimalSize = (DesiredSubgridCells - MinVal) / 
-	 (MaxGridsPerNode - GridsPerNode[MinNode]);
-       DifferenceFromOptimal = fabs(OptimalSize - NumberOfSubgridCells[i]) /
-	 OptimalSize;
-
-       if (Node == MaxNode &&
-           (NumberOfSubgridCells[i] < (MaxVal-MinVal)/2 ||
-	    DifferenceFromOptimal < 0.5)) {
-
-//	    (GridsPerNode[MinNode] < MaxGridsPerNode &&
-//	     GridsPerNode[MaxNode] > MaxGridsPerNode))) {
-
-         if (LoadBalancing == 2)  // block scheduling
-           RootProcessors[i] = MinNode * CoresPerNode + GridsPerNode[MinNode];
-         else if (LoadBalancing == 3)  // round-robin
-           RootProcessors[i] = MinNode + NumberOfNodes * GridsPerNode[MinNode];
-
-         /* Update node subgrid cell counts */
-
-         CellsPerNode[MinNode] += NumberOfSubgridCells[i];
-         CellsPerNode[MaxNode] -= NumberOfSubgridCells[i];
-
-	 GridsPerNode[MinNode]++;
-	 GridsPerNode[MaxNode]--;
-
-         break;
-
-       } // ENDIF move
-      } // ENDFOR root grids
-
-      // If we didn't find an appropriate transfer then quit.
-      Done = (i == NumberOfRootGrids);
-
-    } else
-      Done = true;
-
-  } // ENDWHILE !Done
+#ifdef USE_MPI
+  MPI_Bcast(&NumberOfRootGrids, 1, IntDataType, ROOT_PROCESSOR, MPI_COMM_WORLD);
+  if (MyProcessorNumber != ROOT_PROCESSOR)
+    RootProcessors = new int[NumberOfRootGrids];
+  MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
+	    MPI_COMM_WORLD);
+#endif
 
   rewind(fptr);
-  delete [] GridMap;
-  delete [] NumberOfSubgridCells;
-  delete [] CellsPerNode;
-  delete [] GridsPerNode;
 
   return SUCCESS;
 }

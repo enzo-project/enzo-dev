@@ -40,22 +40,20 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenDensity	  = 1;	// cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double pc = 3.086e18, Msun = 1.989e33, 
-    Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
-  const double k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10;
+  const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
+    k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25;
 
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
 
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+    DINum, DIINum, HDINum;
 
-
-    int igrid[MAX_DIMENSION], dim, index, size = 1;
-    float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
-    float *temperature, density;
-    
+  int igrid[MAX_DIMENSION], dim, index;
+  int size=1;
+  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_Edd, v_rel, dvel;
+  float *temperature, density;
 
   Radius = 0.0;
   EjectaDensity = 0.0;
@@ -102,7 +100,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
-    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
+    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits; 
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
     EjectaThermalEnergy = StarClusterSNEnergy / Msun /
       (VelocityUnits * VelocityUnits);
@@ -111,10 +109,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case MBH_THERMAL:
     if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
-    //*****************
-    /* Using the code snippets adopted from Star_CalculateMassAccretion.C 
-       estimate the feedback energy based on Bondi accretion rate.  
-       This implicitly assume LOCAL_ACCRETION in Star_CalculateMassAccretion.C.  - Ji-hoon Kim */
+    /* Using the code snippets adopted from Star_CalculateMassAccretion.C (case LOCAL_ACCRETION)
+       estimate the Bondi accretion rate.  - Ji-hoon Kim */
 
     if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 						Vel3Num, TENum) == FAIL) {
@@ -168,7 +164,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       mu = density / number_density;
     }
     c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = this->Mass;
+    old_mass = this->Mass; //Msun
 
     // Calculate gas relative velocity (cm/s)
     v_rel = 0.0;
@@ -178,11 +174,15 @@ void Star::CalculateFeedbackParameters(float &Radius,
     }
     v_rel = sqrt(v_rel) * VelocityUnits;
 
-    // Calculate accretion rate in Msun/s
+    // Calculate Bondi accretion rate in Msun/s 
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
-    // end of the code snippets from Star_CalculateMassAccretion.C
+    /* end of the code snippets from Star_CalculateMassAccretion.C */
+
+    // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
+    mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
+      MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
     // Inject energy into a sphere
     Radius = MBHFeedbackRadius * pc / LengthUnits;
@@ -191,23 +191,26 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // Release MBH-AGN thermal energy constantly. Here no mass is released.
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
     EjectaDensity = 0.0;
-    EjectaMetalDensity = 0.0;
+    EjectaMetalDensity = 0.0; 
 
-    /* For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
-       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs.
+    /* Now calculate the feedback parameter based on mdot estimated above.  - Ji-hoon Kim 
+       For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
+       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
-    //EjectaThermalEnergy = 1e54/(VelocityUnits * VelocityUnits);
-
-    
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
-      (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
+      min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits / EjectaVolume / 
+      DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+    //EjectaThermalEnergy = 1.0e52 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
+    // For the continuous energy injection case (variation of Sedov test)
+    EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
+      / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+#endif
 
-    break;
-
-  case MBH_RADIATIVE:
     break;
 
   } // ENDSWITCH FeedbackFlag

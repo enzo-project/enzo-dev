@@ -41,10 +41,12 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  FieldType[NumberOfBaryonFields++] = Bfield1;
-  FieldType[NumberOfBaryonFields++] = Bfield2;
-  FieldType[NumberOfBaryonFields++] = Bfield3;
-  FieldType[NumberOfBaryonFields++] = PhiField;
+  if (HydroMethod == MHD_RK) {
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield2;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
 
   /* Return if this doesn't concern us. */
 
@@ -80,13 +82,13 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
 
   
   /* transform pressure to total energy */
-  float etotl, etotr, v2, B2;
+  float etotl, etotr, v2, B2=0;
   v2 = vxl * vxl + vyl * vyl + vzl*vzl;
-  B2 = Bxl*Bxl + Byl*Byl + Bzl*Bzl;
+  if (HydroMethod == MHD_RK) B2 = Bxl*Bxl + Byl*Byl + Bzl*Bzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2 + 0.5*B2/rhol; 
 
   v2 = vxr * vxr + vyr * vyr + vzr*vzr;
-  B2 = Bxr*Bxr + Byr*Byr + Bzr*Bzr;
+  if (HydroMethod == MHD_RK) B2 = Bxr*Bxr + Byr*Byr + Bzr*Bzr; else B2 = 0.;
   etotr = pr / ((Gamma-1.0)*rhor) + 0.5*v2 + 0.5*B2/rhor;
 
   FLOAT x;
@@ -106,20 +108,24 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
       BaryonField[ivy  ][i] = 0.0;
       BaryonField[ivz  ][i] = 0.0;
       BaryonField[ietot][i] = 1.0;
-      BaryonField[iBx  ][i] = 0.0;
-      BaryonField[iBy  ][i] = 0.0;
-      BaryonField[iBz  ][i] = 1.0/sqrt(4.0*Pi*0.01)*exp(-(x-0.5)*(x-0.5)/(4.0*0.01));
-      BaryonField[iPhi ][i] = 0.0;
+      if (HydroMethod == MHD_RK) {
+	BaryonField[iBx  ][i] = 0.0;
+	BaryonField[iBy  ][i] = 0.0;
+	BaryonField[iBz  ][i] = 1.0/sqrt(4.0*Pi*0.01)*exp(-(x-0.5)*(x-0.5)/(4.0*0.01));
+	BaryonField[iPhi ][i] = 0.0;
+      }
     } else {
       BaryonField[iden ][i] = 1.0;
       BaryonField[ivx  ][i] = 0.0;
       BaryonField[ivy  ][i] = 0.0;
       BaryonField[ivz  ][i] = 0.0;
       BaryonField[ietot][i] = 1.0;
-      BaryonField[iBx  ][i] = 0.0;
-      BaryonField[iBy  ][i] = 0.0;
-      BaryonField[iBz  ][i] = 1.0/sqrt(4.0*Pi*0.01)*exp(-(x-0.5)*(x-0.5)/(4.0*0.01));
-      BaryonField[iPhi ][i] = 0.0;
+      if (HydroMethod == MHD_RK) {
+	BaryonField[iBx  ][i] = 0.0;
+	BaryonField[iBy  ][i] = 0.0;
+	BaryonField[iBz  ][i] = 1.0/sqrt(4.0*Pi*0.01)*exp(-(x-0.5)*(x-0.5)/(4.0*0.01));
+	BaryonField[iPhi ][i] = 0.0;
+      }
     }
   }
 #endif
@@ -139,10 +145,12 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = pl / ((Gamma-1.0)*rhol);
       }
-      BaryonField[iBx  ][i] = Bxl;
-      BaryonField[iBy  ][i] = Byl;
-      BaryonField[iBz  ][i] = Bzl;
-      BaryonField[iPhi ][i] = 0.0;
+      if (HydroMethod == MHD_RK) {
+	BaryonField[iBx  ][i] = Bxl;
+	BaryonField[iBy  ][i] = Byl;
+	BaryonField[iBz  ][i] = Bzl;
+	BaryonField[iPhi ][i] = 0.0;
+      }
     } else {
       BaryonField[iden ][i] = rhor;
       BaryonField[ivx  ][i] = vxr;
@@ -152,10 +160,12 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = pr / ((Gamma-1.0)*rhor);
       }
-      BaryonField[iBx  ][i] = Bxr;
-      BaryonField[iBy  ][i] = Byr;
-      BaryonField[iBz  ][i] = Bzr;
-      BaryonField[iPhi ][i] = 0.0;
+      if (HydroMethod == MHD_RK) {
+	BaryonField[iBx  ][i] = Bxr;
+	BaryonField[iBy  ][i] = Byr;
+	BaryonField[iBz  ][i] = Bzr;
+	BaryonField[iPhi ][i] = 0.0;
+      }
     }
   }
 

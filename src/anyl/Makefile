@@ -2,7 +2,8 @@
 #
 # FILE:        Makefile
 #
-# SUMMARY:     Configurable Makefile for Enzo analysis toolkit (enzo_anyl)
+# SUMMARY:     Configurable Makefile for Enzo analysis toolkit 
+#		(anyl, previously also known as enzo_anyl)
 #
 # AUTHOR:      Ji-hoon Kim (me@jihoonkim.org)
 #
@@ -41,7 +42,7 @@
 SHELL    = /bin/bash
 
 TOP_DIR  = ../..
-EXE      = enzo_anyl
+EXE      = anyl
 OUTPUT   = out.compile
 
 ENZO_DIR = $(TOP_DIR)/src/enzo
@@ -72,8 +73,8 @@ MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
 include $(MAKE_CONFIG_OVERRIDE)
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# ENZO_ANYL ONLY: override the override, these I found are needed 
-# for smooth compiling, you may want to try other options
+# ANYL ONLY: override the override, These I found are needed 
+# for smooth compiling, but you may want to try other options.
 
 CONFIG_PRECISION = 32
 CONFIG_INTEGERS  = 32
@@ -235,7 +236,7 @@ help:
 	@echo "   Enzo Makefile Help"
 	@echo "========================================================================"
 	@echo
-	@echo "   gmake                Compile and generate the executable 'enzo_anyl.exe'"
+	@echo "   gmake                Compile and generate the executable 'anyl.exe'"
 	@echo "   gmake install        Copy the executable to bin"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."

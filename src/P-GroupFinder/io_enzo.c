@@ -6,11 +6,8 @@
  Last Modified: 02 Jul 2005
  History:
 ************************************************************************/
-#define BUFSIZE 100000
 #define MAXFILES 400000
 #define MAX_FILE_LENGTH 512
-//#define USE_HDF5
-//#define USE_HDF4
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -102,8 +99,9 @@ int enzoFindFiles (char *fname)
   char 	 hFilename[200], line[200];
   float  redshift, initialRedshift, HubbleConstantNow;
   float  TempFloatArray[3];
+  float  GridLeftEdge[3], GridRightEdge[3];
   long 	 dummy, NumFiles;
-  int    dim, staticLevel, finestStaticLevel = -1, TempInt;
+  int    inside, dim, staticLevel, finestStaticLevel = -1, TempInt;
   int    TopGrid[3];
 
   /*********** Get parameters from parameter file ***********/
@@ -203,9 +201,20 @@ int enzoFindFiles (char *fname)
 
   while(fgets(line, 200, fptr) != NULL) {
 
+    sscanf(line, "GridLeftEdge = %f %f %f", GridLeftEdge+0, GridLeftEdge+1, 
+	   GridLeftEdge+2);
+    sscanf(line, "GridRightEdge = %f %f %f", GridRightEdge+0, GridRightEdge+1,
+	   GridRightEdge+2);
     if (sscanf(line, "NumberOfParticles = %ld", &dummy) == 1) {
-      
-      NumPart += dummy;
+
+      inside = 1;
+      for (dim = 0; dim < 3; dim++)
+	inside &= (GridLeftEdge[dim] >= leftEdge[dim] &&
+		   GridRightEdge[dim] <= rightEdge[dim]);
+
+      // Only count particles if inside the region
+      if (inside)
+	NumPart += dummy;
       NpartInGrids[NumFiles] = dummy;
       NumFiles++;
     }
@@ -236,8 +245,10 @@ void enzoCountLocalParticles (char *fname, int files)
   int 	 	 i, j, dim, dummy, grid, filecount_local;
   int 	 	 n, slab, TotalLocal, PbufPlace, ptype_size;
   int 		*id, *level;
+  int           *inside, GridsInside;
   int            startIndex, endIndex;
-  float          GridLeftEdge, GridRightEdge, cellWidth, rootCellWidth;
+  float          GridLeftEdge[3], GridRightEdge[3];
+  float		 cellWidth, rootCellWidth;
   float          ln2 = log(2.0);
   double 	*pos[3];
   float         *vel[3], *mass;
@@ -277,10 +288,14 @@ void enzoCountLocalParticles (char *fname, int files)
   NtoLeft_local = malloc(sizeof(int)*NTask);
   NtoRight_local =malloc(sizeof(int)*NTask);
   level = malloc(sizeof(int)*files);
+  inside = malloc(sizeof(int)*files);
 #ifdef USE_HDF5
   for (i = 0; i < files; i++)
     filename[i] = (char*) malloc(MAX_FILE_LENGTH);
 #endif
+
+  for (i = 0; i < files; i++)
+    inside[i] = 0;
 
   Nlocal_in_file = 0;
   for (i=0; i<NTask; i++)
@@ -307,15 +322,20 @@ void enzoCountLocalParticles (char *fname, int files)
       grid = dummy-1;
     sscanf(line, "GridStartIndex = %d", &startIndex);
     sscanf(line, "GridEndIndex = %d", &endIndex);
-    sscanf(line, "GridLeftEdge = %f", &GridLeftEdge);
-    sscanf(line, "GridRightEdge = %f", &GridRightEdge);
+    sscanf(line, "GridLeftEdge = %f %f %f", GridLeftEdge+0, GridLeftEdge+1, 
+	   GridLeftEdge+2);
+    sscanf(line, "GridRightEdge = %f %f %f", GridRightEdge+0, GridRightEdge+1,
+	   GridRightEdge+2);
     if (sscanf(line, "NumberOfParticles = %d", &dummy) == 1) {
 
       // Calculate and store grid level
-      cellWidth = (GridRightEdge - GridLeftEdge) / (endIndex - startIndex + 1);
+      cellWidth = (GridRightEdge[0] - GridLeftEdge[0]) / (endIndex - startIndex + 1);
       if (grid == 0) rootCellWidth = cellWidth;
       level[grid] = nint(log(rootCellWidth / cellWidth) / ln2);
-
+      inside[grid] = 1;
+      for (dim = 0; dim < 3; dim++)
+	inside[grid] &= (GridLeftEdge[dim] >= leftEdge[dim] &&
+			 GridRightEdge[dim] <= rightEdge[dim]);
     }
 
     if (sscanf(line, "ParticleFileName = %s", dummy_str) == 1)
@@ -326,7 +346,13 @@ void enzoCountLocalParticles (char *fname, int files)
   fclose(fptr);
 
   if (ThisTask == 0) {
-    fprintf(stdout, "enzoCountLocalParticles: reading %d grids ...\n", files); 
+    GridsInside = 0;
+    for (i = 0; i < files; i++)
+      GridsInside += inside[i];
+    fprintf(stdout, "enzoCountLocalParticles: reading %d grids ...\n", GridsInside); 
+    if (GridsInside != files)
+      fprintf(stdout, "enzoCountLocalParticles: excluding %d grids ...\n", 
+	      files-GridsInside);       
     fflush(stdout);
   }
 
@@ -339,7 +365,7 @@ void enzoCountLocalParticles (char *fname, int files)
     }
 
     if (i % NTask != ThisTask) continue;
-    if (!NpartInGrids[i]) {
+    if (!NpartInGrids[i] || !inside[i]) {
       filecount_local++;
       continue;
     }
@@ -471,6 +497,7 @@ void enzoCountLocalParticles (char *fname, int files)
     free(filename[i]);
 #endif  
   free(level);
+  free(inside);
 
   MPI_Allreduce(Nslab_local,    Nslab,    NTask, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
   MPI_Allreduce(NtoLeft_local,  NtoLeft,  NTask, MPI_INT, MPI_SUM, MPI_COMM_WORLD);

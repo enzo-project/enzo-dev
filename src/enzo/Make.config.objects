@@ -173,6 +173,7 @@ OBJS_CONFIG_LIB = \
         FOF_unbind.o \
         fortio.o \
         fourn.o \
+	FreeExpansionInitialize.o \
         FreeRealMem.o \
 	GadgetInitCoolMemory.o \
 	GadgetIonizeParamsTable.o \
@@ -290,6 +291,7 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
+	Grid_FreeExpansionInitializeGrid.o \
 	Grid_GadgetCalculateCooling.o \
 	Grid_GadgetComputeTemperature.o \
 	Grid_GadgetComputeTemperatureDEF.o \
@@ -450,6 +452,7 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceSimulatedAnnealing.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \
@@ -561,6 +564,7 @@ OBJS_CONFIG_LIB = \
         StarParticleFindAll.o \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
+        StarParticleMergeMBH.o \
         StarRoutines.o \
         Star_Accrete.o \
         Star_ActivateNewStar.o \
@@ -581,6 +585,7 @@ OBJS_CONFIG_LIB = \
         star_maker4.o \
 	star_maker5.o \
         star_maker7.o \
+	star_maker8.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
@@ -744,6 +749,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/Grid_UpdateElectronDensity.o \
         hydro_rk/HLL_PLM_MHD.o \
         hydro_rk/LLF_PLM_MHD.o \
+        hydro_rk/HLL_PPM_MHD.o \
         hydro_rk/MHD1DTestInitialize.o \
         hydro_rk/MHD2DTestInitialize.o \
         hydro_rk/MHD3DTestInitialize.o \

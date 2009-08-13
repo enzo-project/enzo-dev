@@ -694,4 +694,7 @@ EXTERN int useMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
+EXTERN float IsothermalSoundSpeed;
+EXTERN int RefineByJeansLengthUnits;
+
 #endif

@@ -71,21 +71,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
       }
     }
  
-  if (ProblemType==400) { // For shearing box we have another offset in the y direction
-    Lx = (DomainRightEdge[0]-DomainLeftEdge[0]);
-    Ly = (DomainRightEdge[1]-DomainLeftEdge[1]);
-    ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
-    //ShearingOffset = 0.0;
-    while (ShearingOffset > Ly) {
-      ShearingOffset -= Ly;
-    }  // clip Offset to multiples of my cell width (actually done in grid::CopyZonesFromGrid anway)
-    //    ShearingOffset = (float) ( (int) ShearingOffset/CellWidth[1]) * CellWidth[1];
-    /*    fprintf(stderr, "grid::CheckForOverlap: ShearingOffset %g %g\n %g %g \n %g %g \n", 
-	    Time, ShearingOffset, GridLeftEdge[0], GridLeftEdge[1], 
-	    GridRightEdge[0], GridRightEdge[1]);
-    */
-  }
-
+  
 
   /* set Boundary conditions */
  

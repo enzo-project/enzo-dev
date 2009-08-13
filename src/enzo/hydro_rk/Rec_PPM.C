@@ -79,15 +79,16 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
   float rho_p1, rho_m1, p_p1, p_m1, v_p1, v_m1, p_p2, p_m2, p;
 
   int iprim;
+  int ipres=1;
   for (int i = 0; i < ActiveSize+1; i++) {
     iprim = i + 2;
     rho_p1 = prim[iden][iprim+1];
     rho_m1 = prim[iden][iprim-1];
-    p = prim[ietot][iprim];
-    p_p1 = prim[ietot][iprim+1];
-    p_p2 = prim[ietot][iprim+2];
-    p_m1 = prim[ietot][iprim-1];
-    p_m2 = prim[ietot][iprim-2];
+    p = prim[ipres][iprim];
+    p_p1 = prim[ipres][iprim+1];
+    p_p2 = prim[ipres][iprim+2];
+    p_m1 = prim[ipres][iprim-1];
+    p_m2 = prim[ipres][iprim-2];
     v_p1 = prim[ivx][iprim+1];
     v_m1 = prim[ivx][iprim-1];
 
@@ -98,7 +99,7 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
       am1 = prim[field][iprim-1];
       am2 = prim[field][iprim-2];
      
-      if (0) {
+      if (1) {
 	// 1) Contact steeping
 	if (Gamma*K0*fabs(rho_p1-rho_m1)/min(rho_p1,rho_m1) >= 
 	    fabs(p_p1-p_m1)/min(p_p1, p_m1)) {
@@ -150,11 +151,11 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
 	  if (fabs(p_p1-p_m1)/min(p_p1,p_m1) > eps2 && v_m1 > v_p1) {
 	    f0 = min(1.0, max(0.0, ((p_p1-p_m1)/(p_p2-p_m2) - w1)*w2));
 	    if (p_p1 - p_m1 > 0) {
-	      p_p3 = prim[ietot][iprim+3];
+	      p_p3 = prim[ipres][iprim+3];
 	      f0p1 = min(1.0, max(0.0, ((p_p2-p)/(p_p3-p_m1) - w1)*w2));
 	      f = max(f0, f0p1);
 	    } else {
-	      p_m3 = prim[ietot][iprim-3];
+	      p_m3 = prim[ipres][iprim-3];
 	      f0m1 = min(1.0, max(0.0, ((p-p_m2)/(p_p1-p_m3) - w1)*w2));
 	      f = max(f0, f0m1);
 	    }
@@ -163,7 +164,7 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
 	    p0r[field][i] = a*f + p0r[field][i]*(1.0-f);
 	  }
 	}
-      } // turn off steepening and shock flattening
+      } // turn on/off steepening and shock flattening
 
       // 3) Monotonization:
       ar = p0l[field][i+1];

@@ -71,7 +71,11 @@
 
 #define MAX_STATIC_REGIONS               1000
 
+#ifdef WINDS
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
+#else
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  3
+#endif
 
 #define MAX_TIME_ACTIONS                   10
 
@@ -422,6 +426,7 @@ typedef int            HDF5_hid_t;
 #define STAR_CLUSTER    5
 #define INSTANT_STAR    7
 #define SPRINGEL_HERNQUIST_STAR 8
+#define MBH_PARTICLE    9
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 
@@ -436,7 +441,6 @@ typedef int            HDF5_hid_t;
 #define STROEMGREN 5
 #define DEATH 6
 #define MBH_THERMAL 7
-#define MBH_RADIATIVE 8
 
 /* Sink particle accretion modes */
 

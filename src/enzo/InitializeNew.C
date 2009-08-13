@@ -155,6 +155,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
 		      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			    TopGridData &MetaData);
 
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -365,6 +367,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType == 11)
     ret = RadiatingShockInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 12) Free expansion blast wave
+  if (ProblemType == 12)
+    ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 20) Zeldovich Pancake
  
@@ -425,16 +431,18 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
   }
 
-  // 31) Shearing Box Simulation
- 
-    if (ProblemType == 31) 
-      ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
   
  
   // 31) GalaxySimulation
   if (ProblemType == 31)
     ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
 
+
+// 35) Shearing Box Simulation
+  if (ProblemType == 35) 
+      ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
+  
+   
   // 40) Supernova Explosion from restart
  
   if (ProblemType == 40)
@@ -527,6 +535,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
 
  
+  
   if (ret == INT_UNDEFINED) {
     fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
     ENZO_FAIL("");
@@ -622,6 +631,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   }  // end of set Exterior
 
+
+
 #ifdef MEM_TRACE
     MemInUse = mused();
     fprintf(memtracePtr, "Exterior set  %16"ISYM" \n", MemInUse);
@@ -670,7 +681,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
- 
+
+
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
       MinimumMassForRefinement[i] = MinimumOverDensityForRefinement[i];
@@ -707,6 +719,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   int gridcounter = 0;
  
   CurrentGrid = &TopGrid;
+
+
  
   while (CurrentGrid != NULL) {
  
@@ -769,6 +783,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
  
  
+
+  
  
   // Close parameter files
  
@@ -791,6 +807,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   MetaData.FirstTimestepAfterRestart = FALSE;
   
+
+
   return SUCCESS;
  
 }

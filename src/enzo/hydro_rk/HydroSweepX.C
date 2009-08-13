@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
-
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -123,7 +123,7 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
       if (HydroLine(Prim1, priml, primr, species, colors, 
 		    FluxLine, Xactivesize, dtdx, 'x', j, k, fallback) == FAIL) {
 	printf("grid::HydroSweepX: HydroLine failed.\n");
-	return FAIL;
+	ENZO_FAIL("");
       }
 
       // copy FluxLine to the corresponding part of Flux3D

@@ -92,17 +92,25 @@ int Star::SetFeedbackFlag(FLOAT Time)
     this->FeedbackFlag = NO_FEEDBACK;
     break;
 
+  /* For MBH particle. Even with the NO_FEEDBACK flag, 
+     the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
+
   case MBH:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
-    if (this->type > 0 && AgeInMyr > 0)
-      if (RadiativeTransfer) 
-	this->FeedbackFlag = MBH_RADIATIVE;
-      else if (MBHFeedbackThermal)
-	this->FeedbackFlag = MBH_THERMAL;
-      else
-	this->FeedbackFlag = NO_FEEDBACK;
+    if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
+      this->FeedbackFlag = MBH_THERMAL;
     else
       this->FeedbackFlag = NO_FEEDBACK;
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+    //    if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)
+    if (this->type > 0 && AgeInMyr > 0)
+      this->FeedbackFlag = MBH_THERMAL;
+    else
+      this->FeedbackFlag = NO_FEEDBACK;      
+#endif
+
     break;
 
   } // ENDSWITCH

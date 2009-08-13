@@ -97,6 +97,8 @@ public:
   void	Merge(Star *a);
   bool	Mergable(Star a);
   bool  Mergable(Star *a);
+  bool	MergableMBH(Star a);
+  bool  MergableMBH(Star *a);
   float Separation(Star a);
   float Separation(Star *a);
   float Separation2(Star a);
@@ -112,6 +114,7 @@ public:
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);
+  void  PrintInfo(void);
 
   void  CalculateFeedbackParameters(float &Radius, float SNe_dt, 
 				    float RootCellWidth,
