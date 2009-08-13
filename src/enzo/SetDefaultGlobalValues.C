@@ -541,6 +541,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
 
+  IsothermalSoundSpeed = 1.0;
+  RefineByJeansLengthUnits = 0;
+
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
 
