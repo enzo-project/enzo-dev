@@ -4,10 +4,11 @@
 	-lf2c -lm   (in that order)
 */
 
-#include "macros_and_parameters.h"
 #include "f2c.h"
 #include <stdio.h>
 #include <math.h>
+
+#include "macros_and_parameters.h"
 
 /* function proto types */
 void my_exit(int status);

@@ -151,10 +151,10 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "CollapseTestSphereType[%"ISYM"] = %"ISYM, &sphere,
 		    &CollapseTestSphereType[sphere]);
     if (sscanf(line, "CollapseTestSphereRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "CollapseTestSphereRadius[%"ISYM"] = %"FSYM, &sphere,
+      ret += sscanf(line, "CollapseTestSphereRadius[%"ISYM"] = %"PSYM, &sphere,
 		    &CollapseTestSphereRadius[sphere]);
     if (sscanf(line, "CollapseTestSphereCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "CollapseTestSphereCoreRadius[%"ISYM"] = %"FSYM, &sphere,
+      ret += sscanf(line, "CollapseTestSphereCoreRadius[%"ISYM"] = %"PSYM, &sphere,
 		    &CollapseTestSphereCoreRadius[sphere]);
     if (sscanf(line, "CollapseTestSphereDensity[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "CollapseTestSphereDensity[%"ISYM"] = %"FSYM, &sphere,
@@ -166,7 +166,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "CollapseTestSphereMetallicity[%"ISYM"] = %"FSYM, &sphere,
 		    &CollapseTestSphereMetallicity[sphere]);
     if (sscanf(line, "CollapseTestSpherePosition[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "CollapseTestSpherePosition[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+      ret += sscanf(line, "CollapseTestSpherePosition[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM, 
 		    &sphere, &CollapseTestSpherePosition[sphere][0],
 		    &CollapseTestSpherePosition[sphere][1],
 		    &CollapseTestSpherePosition[sphere][2]);

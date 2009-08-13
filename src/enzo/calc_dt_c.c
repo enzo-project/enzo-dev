@@ -4,10 +4,11 @@
 	-lf2c -lm   (in that order)
 */
 
-#include "macros_and_parameters.h"
 #include "f2c.h"
 #include <stdio.h>
 #include <math.h>
+
+#include "macros_and_parameters.h"
 
 /* Table of constant values */
 
