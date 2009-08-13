@@ -4,8 +4,8 @@
 	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
 #include "macros_and_parameters.h"
+#include "f2c.h"
 
 /* ======================================================================= */
 /* //////////////////////  SUBROUTINE CIC_DEPOSIT  \\\\\\\\\\\\\\\\\\\\\\c */
