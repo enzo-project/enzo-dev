@@ -203,7 +203,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits / EjectaVolume / 
       DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
-#define SEDOV_TEST
+#define N_SEDOV_TEST
 #ifdef SEDOV_TEST
     EjectaThermalEnergy = 1.0e54 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     

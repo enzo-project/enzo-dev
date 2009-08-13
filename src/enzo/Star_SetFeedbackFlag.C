@@ -102,7 +102,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
     else
       this->FeedbackFlag = NO_FEEDBACK;
 
-#define SEDOV_TEST
+#define N_SEDOV_TEST
 #ifdef SEDOV_TEST
       //if (this->type > 0 && AgeInMyr > 0)
     if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)

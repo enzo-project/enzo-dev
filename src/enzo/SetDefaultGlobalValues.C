@@ -351,7 +351,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHMinimumMass                   = 1e6;          // Msun
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
-  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura&Sunyaev (1973)
+  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHCombineRadius                 = 10;           // pc
   MBHIonizingLuminosity            = 1e47;         // ph/s / Msun
