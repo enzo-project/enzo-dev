@@ -822,7 +822,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (SinkMergeDistance > 1.0)
     SinkMergeDistance /= LengthUnits;
-  printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
+  //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
   SmallRho /= DensityUnits;
   SmallP /= PressureUnits;
   SmallT /= TemperatureUnits;
