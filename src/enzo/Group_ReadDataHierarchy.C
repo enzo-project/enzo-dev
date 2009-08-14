@@ -120,9 +120,12 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   // If provided load balancing of root grids based on subgrids, use
   // these instead.
-  if (LoadBalancing > 1 && RootGridProcessors != NULL && 
-      GridID <= NumberOfRootGrids)
-    Task = RootGridProcessors[GridID-1];
+  if (LoadBalancing > 1 && RootGridProcessors != NULL)
+    if (GridID <= NumberOfRootGrids)
+      Task = RootGridProcessors[GridID-1];
+    else
+      // Load the child on the same processor as its parent
+      Task = ParentGrid->GridData->ReturnProcessorNumber();
 
   Grid->GridData->SetProcessorNumber(Task);
 
