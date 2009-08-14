@@ -1,4 +1,3 @@
-#include "fortran.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE POP3_COLOR_MAKER \\\\\\\\\\\\\\\\\\\\
 c
@@ -10,6 +9,8 @@ c
      &                      imethod, odthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tcp, type, ctype )
+#ifndef CONFIG_PFLOAT_16
+#include "fortran.def"
 c
 c  CREATES PRIMORDIAL STAR PARTICLES
 c
@@ -266,4 +267,5 @@ c     $        irad
 c      endif
 c
       return
+#endif
       end

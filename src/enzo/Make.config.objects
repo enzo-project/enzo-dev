@@ -487,6 +487,7 @@ OBJS_CONFIG_LIB = \
         pgas2d.o \
         PoissonSolverTestInitialize.o \
         pop3_color_maker.o \
+        pop3_color_maker_c.o \
         pop3_maker.o \
         pop3_properties.o \
         power_of_2.o \

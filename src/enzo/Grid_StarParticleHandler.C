@@ -237,7 +237,7 @@ extern "C" void FORTRAN_NAME(pop3_maker)
    float *mp, float *tdp, float *tcp, float *metalf, 
    int *type, int *ctype, float *justburn, int *iradtrans);
 
-extern "C" void FORTRAN_NAME(pop3_color_maker)
+extern "C" void PFORTRAN_NAME(pop3_color_maker)
   (int *nx, int *ny, int *nz, 
    float *d, float *dm, float *u, float *v, float *w, 
    float *dt, float *r, float *dx, FLOAT *t, float *z, int *procnum, 
@@ -632,7 +632,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR)) {
-      FORTRAN_NAME(pop3_color_maker)
+      PFORTRAN_NAME(pop3_color_maker)
         (GridDimension, GridDimension+1, GridDimension+2, 
          BaryonField[DensNum], dmfield, 
            BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
