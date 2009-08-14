@@ -231,7 +231,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_4
-#define FLOAT float
+#define FLOAT Eflt32
 #define PSYM "f"
 #define GSYM "g"
 #define GOUTSYM ".8g"
