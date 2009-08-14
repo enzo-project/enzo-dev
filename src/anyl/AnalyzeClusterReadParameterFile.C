@@ -168,7 +168,7 @@ int AnalyzeClusterReadParameterFile(char *filename, int &NumberOfCenters,
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       CenterList[dim] = new FLOAT[1];
       CenterList[dim][0] = center[dim];
-      fprintf(stderr, "CenterList[dim][0] = %g, center[dim] = %g", CenterList[dim][0], center[dim]);
+      //fprintf(stderr, "CenterList[dim][0] = %g, center[dim] = %g", CenterList[dim][0], center[dim]);
     }
     NumberOfCenters = 1;
 
