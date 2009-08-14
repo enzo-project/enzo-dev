@@ -59,7 +59,16 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
     ENZO_FAIL("");
   }
 
-  fscanf(fptr, "Task = %"ISYM"\n", &Task);
+  //dcollins, August 5 2009.  Updated failsafe for old files that don't have Task defined.
+  int NewProc = ReadDataGridCounter % NumberOfProcessors;
+  int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
+
+  FILE * ptr_task_check = fptr;
+  
+  if( fscanf(fptr, "Task = %"ISYM"\n", &Task) != 1){
+    Task = NewProc;
+    fptr = ptr_task_check;
+  }
 
   if ( MyProcessorNumber == 0 )
     fprintf(stderr, "Reading Grid %"ISYM" assigned to Task %"ISYM"\n", TestGridID, Task);
@@ -92,8 +101,9 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
 #endif
 
-  int NewProc = ReadDataGridCounter % NumberOfProcessors;
-  int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
+    //dcollins: moved higher in the code.
+    //int NewProc = ReadDataGridCounter % NumberOfProcessors;
+    //int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
 
 #ifdef USE_CYCLIC_CPU_DISTRIBUTION
 

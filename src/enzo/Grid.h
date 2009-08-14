@@ -1601,6 +1601,17 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				     float GalaxySimulationInflowDensity,
 				     int level);
 
+  /* Free expansion test */
+
+  int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
+				  float FreeExpansionDensity,
+				  double FreeExpansionEnergy,
+				  float FreeExpansionMaxVelocity,
+				  float FreeExpansionMass,
+				  float FreeExpansionRadius,
+				  float DensityUnits, float VelocityUnits,
+				  float LengthUnits, float TimeUnits);
+
 /* Supernova restart initialize grid. */
 
   int SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
