@@ -62,7 +62,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  abs_type = abs(this->type);
+  abs_type = ABS(this->type);
   switch (abs_type) {
 
   case PopIII:
