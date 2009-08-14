@@ -84,6 +84,7 @@ OBJS_CONFIG_LIB = \
         CopyParticlesAcrossPeriodicBoundaries.o \
         CopyOverlappingParticleMassFields.o \
         CopyOverlappingZones.o \
+	CopyZonesFromOldGrids.o \
         CosmologyComputeExpansionFactor.o \
         CosmologyComputeExpansionTimestep.o \
         CosmologyComputeTimeFromRedshift.o \
