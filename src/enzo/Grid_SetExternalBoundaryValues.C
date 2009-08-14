@@ -92,7 +92,6 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
     ExternalBoundaryField = field;
 #endif
 
-    printf("\n field = %d, FieldType[field]=%d", field, FieldType[field]); 
     if (Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
 				      GridStartIndex, GridEndIndex,
 				      BaryonField[field], FieldType[field])
