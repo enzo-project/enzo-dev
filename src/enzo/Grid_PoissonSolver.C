@@ -628,9 +628,9 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
   
   //if (ProcessorNumber!=4) return SUCCESS;
 
-    if (GridLeftEdge[0]!=0.0 || GridLeftEdge[1]!=1.0){ 
-      //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      return SUCCESS;}
+//     if (GridLeftEdge[0]!=0.0 || GridLeftEdge[1]!=1.0){ 
+//       //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
+//       return SUCCESS;}
 
   if (ProcessorNumber != MyProcessorNumber) {
     printf("PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
@@ -720,10 +720,10 @@ int grid::PrintToScreenBoundaries(float *field, char *display){
 
   //if (!debug) return SUCCESS;
 
-  return SUCCESS;
+  //return SUCCESS;
 
-  if (GridLeftEdge[0]!=0.0 || GridLeftEdge[1]!=1.0 ||  GridLeftEdge[2]!=0.0){ 
-      //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
+  if (GridLeftEdge[0]!=0.0 || GridLeftEdge[1]!=0.0 ||  GridLeftEdge[2]!=1.0){ 
+    //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
       return SUCCESS;}
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -731,7 +731,8 @@ int grid::PrintToScreenBoundaries(float *field, char *display){
     return SUCCESS;
   }
 
-  PrintToScreenBoundaries(field, display, 1, DEFAULT_GHOST_ZONES, 0, 0.0);
+  PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 0, 0.0); 
+  //PrintToScreenBoundaries(field, display, 1, DEFAULT_GHOST_ZONES, 0, 0.0);
   // PrintToScreenBoundaries(field, display, 0, DEFAULT_GHOST_ZONES, 0, 0.0);
 
 }

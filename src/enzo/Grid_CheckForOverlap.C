@@ -165,14 +165,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      (i != 0 || j != 0 || k != 0) && 
 	      (FullPeriod == TRUE || ShearingBoundaryDirection!=-1)) {
 	    
-	    if (	GridLeftEdge[0]==0.0 && 
-			GridLeftEdge[1]==1.0 &&  
-			GridLeftEdge[2]==0.0) // printf("The indices3: %d %d %d (%d %d %d)\n", i,j,k, 1,jdim,kdim);
-
-	    if (i==1 && j==1 &&
-		GridLeftEdge[0]==0.0 && 
-		GridLeftEdge[1]==1.0 &&  
-		GridLeftEdge[2]==0.0) 
+	   
+	 
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
 	      printf("Error in grid->*CopyFunction (2)\n");
 	      ENZO_FAIL("CopyFunctionFail(2)");}
