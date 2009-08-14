@@ -232,6 +232,7 @@ typedef int            HDF5_hid_t;
 
 #ifdef CONFIG_PFLOAT_4
 #define FLOAT Eflt32
+#define PEXP expf
 #define PSYM "f"
 #define GSYM "g"
 #define GOUTSYM ".8g"
@@ -243,6 +244,7 @@ typedef int            HDF5_hid_t;
 
 #ifdef CONFIG_PFLOAT_8
 #define FLOAT double
+#define PEXP exp
 #define PSYM "lf"
 #define GSYM "g"
 #define GOUTSYM ".14g"
@@ -257,6 +259,7 @@ typedef int            HDF5_hid_t;
 
 #ifdef CONFIG_PFLOAT_16
 #define FLOAT long_double
+#define PEXP expl
 #define PSYM "Lf"
 #define GSYM "g"
 #define GOUTSYM ".21Lg"
