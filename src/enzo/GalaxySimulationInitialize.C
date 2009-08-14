@@ -17,13 +17,13 @@
 // This routine intializes a new simulation based on the parameter file.
 //
 
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
+
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"

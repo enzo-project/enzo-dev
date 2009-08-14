@@ -64,7 +64,7 @@ MACH_DEFINES = -DLINUX -DH5_USE_16_API
 #-----------------------------------------------------------------------
 
 MACH_CPPFLAGS = -P -traditional
-MACH_CFLAGS   = 
+MACH_CFLAGS   = -I/usr/local/include/
 MACH_CXXFLAGS = 
 MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
@@ -133,6 +133,6 @@ LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
                      -L$(INT_DIR)/cc/10.1.018/@sys/lib/ \
                      -lstdc++ -lg2c
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) -lm
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)

@@ -29,8 +29,13 @@
 
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
-                          1 = Equalize processor memory count */
+                          1 = Equalize processor memory count
+                         2 = Load balance only on a node
+*/
 EXTERN int LoadBalancing;
+EXTERN int LoadBalancingCycleSkip;
+EXTERN int CoresPerNode;
+EXTERN int PreviousMaxTask;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -690,5 +695,8 @@ EXTERN int ShearingOtherDirection;
 EXTERN int useMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
+
+EXTERN float IsothermalSoundSpeed;
+EXTERN int RefineByJeansLengthUnits;
 
 #endif

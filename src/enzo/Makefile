@@ -129,16 +129,16 @@ all: $(EXE).exe
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f
+.PRECIOUS: %.o
 
 .src.f:
-	@echo "Compiling $<"
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
 .f.o:
+	@echo "Compiling $<"
 	@rm -f $@
 	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-             touch $*.f; \
+             rm -f $*.f; \
           else \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
@@ -175,9 +175,9 @@ all: $(EXE).exe
 	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
           fi)

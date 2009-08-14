@@ -194,6 +194,7 @@ show-flags:
 show-config:
 	@echo
 	@echo "   MACHINE: $(MACH_TEXT)"
+	@echo "   MACHINE-NAME: $(CONFIG_MACHINE)"
 	@echo
 	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
 	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
@@ -345,6 +346,7 @@ VALID_PARTICLES = particles-32 particles-64 particles-128
 particles-32:  CONFIG_PARTICLES-32
 particles-64:  CONFIG_PARTICLES-64
 particles-128: CONFIG_PARTICLES-128
+	@printf "\nNote that star formation does not work with this option.\n\n"
 particles-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PARTICLES)]\n\n"
 CONFIG_PARTICLES-%: suggest-clean

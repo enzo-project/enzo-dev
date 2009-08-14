@@ -94,6 +94,8 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[]);
+int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
+				      int TopGridRank, int CycleNumber);
 #ifdef USE_PYTHON
 int CallPython();
 #endif
@@ -288,6 +290,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   /* ====== MAIN LOOP ===== */
 
+  bool FirstLoop = true;
   while (!Stop) {
 
 #ifdef USE_JBPERF
@@ -307,7 +310,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     MemInUse = mused();
     fprintf(memtracePtr, "Top %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
 #endif
- 
+
+    /* Load balance the root grids if this isn't the initial call */
+
+    if (!FirstLoop)
+      CommunicationLoadBalanceRootGrids(LevelArray, MetaData.TopGridRank, 
+					MetaData.CycleNumber);
+
     /* Output level information to log file. */
  
     if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -581,6 +590,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 #endif
 
+    FirstLoop = false;
  
   } // ===== end of main loop ====
  

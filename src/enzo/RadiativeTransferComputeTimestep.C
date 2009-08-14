@@ -63,7 +63,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   // Now calculate the timestep on the max. level
   dtPhoton = 1e20;
   for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
-    ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
+    ThisPhotonDT = Temp->GridData->ComputeTimeStep();
     dtPhoton = min(dtPhoton, ThisPhotonDT);
   } // ENDFOR grids
   dtPhoton = CommunicationMinValue(dtPhoton);

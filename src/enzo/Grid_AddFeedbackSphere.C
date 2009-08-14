@@ -1,3 +1,4 @@
+
 /***********************************************************************
 /
 /  GRID: ADD SPHERICAL STAR PARTICLE FEEDBACK TO CELLS
@@ -97,7 +98,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
         ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
   
-
   /* Find Multi-species fields. */
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -200,12 +200,29 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
 
+	    /*
+	    if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
+	      fprintf(stderr, "Time = %g\n", Time);
+	      fprintf(stderr, "dtFixed = %g\n", dtFixed);
+	      fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
+	      fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);
+	    }
+	    */
+
 	    /* Add total energies of spheres together, then divide by
 	       density to get specific energy */
 	    
-	    newGE = (OldDensity * BaryonField[GENum][index] +
-		     ramp * factor*EjectaDensity * EjectaThermalEnergy) /
-	      BaryonField[DensNum][index];
+	    /* For MBH_THERMAL, I used different definition for EjectaThermalEnergy;
+	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
+	    if (cstar->FeedbackFlag != MBH_THERMAL) {
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+	    } else {
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];	      
+	    }
 	    newGE = min(newGE, maxGE);
 //	    newGE = ramp * EjectaThermalEnergy;
 //	    printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",

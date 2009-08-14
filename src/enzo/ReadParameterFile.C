@@ -190,6 +190,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
 
     ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
+    ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
  
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;
@@ -603,14 +604,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
-    ret += sscanf(line, "MBHUseMetalField = %"ISYM, 
-		  &MBHUseMetalField);
+
     ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
 		  &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHFeedbackEnergy = %lf", &MBHFeedbackEnergy);
-    ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
+		  &MBHFeedbackThermal);
+    ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
+    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
+    ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
     ret += sscanf(line, "MBHIonizingLuminosity = %lf", 
@@ -784,7 +787,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
-  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
+  //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
@@ -952,6 +955,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
     MaximumGravityRefinementLevel = MaximumRefinementLevel;
 #endif
+
+    ret += sscanf(line, "IsothermalSoundSpeed = %"GSYM, &IsothermalSoundSpeed);
+    ret += sscanf(line, "RefineByJeansLengthUnits = %"ISYM, &RefineByJeansLengthUnits);
  
   MaximumGravityRefinementLevel =
     min(MaximumGravityRefinementLevel, MaximumRefinementLevel);
@@ -979,6 +985,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 //  PPMDiffusion causes an out-of-bounds condition as currently written
 //  The following is an over-ride to force PPMDiffusion OFF. This has
 //  been fixed in this latest version (AK).
+
+//  NOTE: The fix keeps the code from crashing, but is not a proper 
+//  implementation of PPM diffusion.  The reason why is that Enzo typically
+//  uses 3 ghost zones, and the correct PPM diffusion implementation requires
+//  4 parameters.  SO, you should not use this parameter for, e.g., cosmology
+//  runs unless you know what you're doing.  (BWO)
 
   if (MetaData.PPMDiffusionParameter != 0 && ProblemType != 60 // Turbulence
                                           && ProblemType != 4  // Double Mach Reflection test
@@ -1042,13 +1054,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      must be turned on. */
 
   int method;
-  bool MustRefineParticles = false;
-  for (method = 0; method < MAX_FLAGGING_METHODS; method++)
+  bool TurnOnParticleMassRefinement = false;
+  for (method = 0; method < MAX_FLAGGING_METHODS; method++) 
     if (CellFlaggingMethod[method] == 8) {
-      MustRefineParticles = true;
+      TurnOnParticleMassRefinement = true;
       break;
     }
-  if (MustRefineParticles) {
+  for (method = 0; method < MAX_FLAGGING_METHODS; method++) 
+    if (CellFlaggingMethod[method] == 4) {
+      TurnOnParticleMassRefinement = false;
+      break;
+    }
+  if (TurnOnParticleMassRefinement) {
     method = 0;
     while (CellFlaggingMethod[method] != INT_UNDEFINED)
       method++;
@@ -1059,7 +1076,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ParticleTypeInFile = TRUE;
   }
  
-  if (WritePotential && ComovingCoordinates && SelfGravity) {
+  //  if (WritePotential && ComovingCoordinates && SelfGravity) {
+  if (WritePotential && SelfGravity) {
     CopyGravPotential = TRUE;
   }
 

@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
         auto_show_version.o \
         calcdiss.o \
         calc_dt.o \
+        calc_dt_c.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -37,8 +38,11 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_c.o \
         cic_flag.o \
+        cic_flag_c.o \
         cic_interp.o \
+        cic_interp_c.o \
         cicinterp.o \
         cie_thin_cooling_rate.o \
         CloudyCoolingInterpolate.o \
@@ -52,6 +56,7 @@ OBJS_CONFIG_LIB = \
         CommunicationCombineGrids.o \
         CommunicationCollectParticles.o \
         CommunicationInitialize.o \
+        CommunicationLoadBalanceRootGrids.o \
         CommunicationLoadBalanceGrids.o \
         CommunicationParallelFFT.o \
         CommunicationPartitionGrid.o \
@@ -102,6 +107,7 @@ OBJS_CONFIG_LIB = \
         DepositBaryons.o \
         DepositParticleMassField.o \
         DepositParticleMassFlaggingField.o \
+	DetermineNumberOfNodes.o \
         DoubleMachInitialize.o \
         E_ColumnFormat.o \
         ealFloat.o \
@@ -168,6 +174,7 @@ OBJS_CONFIG_LIB = \
         FOF_unbind.o \
         fortio.o \
         fourn.o \
+	FreeExpansionInitialize.o \
         FreeRealMem.o \
 	GadgetInitCoolMemory.o \
 	GadgetIonizeParamsTable.o \
@@ -286,6 +293,7 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
+	Grid_FreeExpansionInitializeGrid.o \
 	Grid_GadgetCalculateCooling.o \
 	Grid_GadgetComputeTemperature.o \
 	Grid_GadgetComputeTemperatureDEF.o \
@@ -429,6 +437,7 @@ OBJS_CONFIG_LIB = \
         InitializePythonInterface.o \
         InitializeRadiationFieldData.o \
         InitializeRateData.o \
+	InitialLoadBalanceRootGrids.o \
         interp1d.o \
         interp2d.o \
         interp3d.o \
@@ -445,6 +454,7 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceSimulatedAnnealing.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \
@@ -545,6 +555,7 @@ OBJS_CONFIG_LIB = \
         ShockTubeInitialize.o \
         sink_maker.o \
         smooth_deposit.o \
+        smooth_deposit_c.o \
         smooth.o \
         SolveCloudyCooling.o \
         solve_cool.o \
@@ -560,6 +571,7 @@ OBJS_CONFIG_LIB = \
         StarParticleFindAll.o \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
+        StarParticleMergeMBH.o \
         StarRoutines.o \
         Star_Accrete.o \
         Star_ActivateNewStar.o \
@@ -580,6 +592,7 @@ OBJS_CONFIG_LIB = \
         star_maker4.o \
 	star_maker5.o \
         star_maker7.o \
+	star_maker8.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
@@ -646,7 +659,6 @@ POBJS_CONFIG_LIB = \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
         Grid_CommunicationSendPhotonPackages.o \
-        Grid_ComputeRT_TimeStep.o \
         Grid_ConvertToCellCenteredRadiation.o \
         Grid_CorrectRadiationIncompleteness.o \
         Grid_DeletePhotonPackages.o \
@@ -745,6 +757,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/Grid_UpdateElectronDensity.o \
         hydro_rk/HLL_PLM_MHD.o \
         hydro_rk/LLF_PLM_MHD.o \
+        hydro_rk/HLL_PPM_MHD.o \
         hydro_rk/MHD1DTestInitialize.o \
         hydro_rk/MHD2DTestInitialize.o \
         hydro_rk/MHD3DTestInitialize.o \

@@ -120,6 +120,13 @@ int grid::UpdateParticleVelocity(float TimeStep)
 	ParticleVelocity[dim][i] += ParticleAcceleration[dim][i] * TimeStep;
  
   }
+
+
+  if (ProblemType == 29)
+    for (i = 0; i < NumberOfParticles; i++)
+      printf("id=%"ISYM"  %"PSYM" %"PSYM" %"PSYM"\n", ParticleNumber[i],
+	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i]);
+
  
   return SUCCESS;
 }

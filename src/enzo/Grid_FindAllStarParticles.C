@@ -24,6 +24,8 @@
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);
 
+#define RESET_BH_LIFETIMES
+
 int grid::FindAllStarParticles(int level)
 {
 
@@ -46,7 +48,11 @@ int grid::FindAllStarParticles(int level)
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
     ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH) {
-
+#ifdef RESET_BH_LIFETIMES // Make BH lifetimes "infinite"
+      if (ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE &&
+	  ParticleAttribute[1][i] < 1)
+	ParticleAttribute[1][i] = huge_number;
+#endif /* RESET_BH_LIFETIMES */
       NewStar = new Star(this, i, level);
       InsertStarAfter(Stars, NewStar);
       NumberOfStars++;

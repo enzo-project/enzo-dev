@@ -52,9 +52,11 @@ int MHDSweepY(float **Prim, float **Flux3D, int GridDimension[],
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor-idual; field++) {
     Prim1[field] = new float[GridDimension[1]];
   }
+
+  int extra = (ReconstructionMethod == PPM);
   for (int field = 0; field < NEQ_MHD-idual; field++) {
-    priml[field] = new float[Yactivesize+1];
-    primr[field] = new float[Yactivesize+1];
+    priml[field] = new float[Yactivesize+1+extra];
+    primr[field] = new float[Yactivesize+1+extra];
   }
 
   for (int field = 0; field < NSpecies; field ++) {

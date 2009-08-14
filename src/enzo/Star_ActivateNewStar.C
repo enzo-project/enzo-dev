@@ -50,8 +50,11 @@ void Star::ActivateNewStar(FLOAT Time)
       // nothing to do
       break;
     case MBH:
-      // nothing to do; because it usually is already created when the simulations starts
-      break;      
+      if (Mass >= MBHMinimumMass) {
+	type = StarType; 
+	BirthTime = Time;
+      }
+      break;
     } // ENDSWITCH type
   } // ENDIF FORMATION
 

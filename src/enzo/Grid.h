@@ -30,9 +30,9 @@ struct HierarchyEntry;
 
 #include "EnzoArray.h"
 
-#ifdef ANALYSIS_TOOLS
-#   include "AnalyzeClusters.h"
-#endif
+//#ifdef ANALYSIS_TOOLS
+#include "../anyl/AnalyzeClusters.h"
+//#endif
 
 #ifdef TRANSFER
 #include "PhotonPackage.h"
@@ -1609,6 +1609,17 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				     float GalaxySimulationInflowDensity,
 				     int level);
 
+  /* Free expansion test */
+
+  int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
+				  float FreeExpansionDensity,
+				  double FreeExpansionEnergy,
+				  float FreeExpansionMaxVelocity,
+				  float FreeExpansionMass,
+				  float FreeExpansionRadius,
+				  float DensityUnits, float VelocityUnits,
+				  float LengthUnits, float TimeUnits);
+
 /* Supernova restart initialize grid. */
 
   int SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
@@ -1779,9 +1790,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Includes for analysis tools */
 
-#ifdef ANALYSIS_TOOLS
-#   include "Grid_AnalyzeClusters.h"
-#endif
+//#ifdef ANALYSIS_TOOLS
+#include "../anyl/Grid_AnalyzeClusters.h"
+//#endif
 
 #ifdef USE_PYTHON
     void ConvertToNumpy(int GridID, PyArrayObject *container[],
@@ -2054,6 +2065,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			      int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
+
+  int getField(int i){return FieldType[i];};
   
   int ReduceWindBoundary();
 

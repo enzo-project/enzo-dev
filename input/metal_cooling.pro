@@ -138,7 +138,7 @@ end
 
 function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
 
-  plotme = 0
+  plotme = 1
   kb = 1.38065d-16
   pop3 = KEYWORD_SET(pop3)
   nn = N_ELEMENTS(T)
@@ -447,6 +447,8 @@ function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
 ;; METAL COOLING IN T>1E4 K GAS (SUTHERLAND & DOPITA 1993)
 ;;----------------------------------------------------------------------
 
+  sd93_tstart = 1e4
+  finestr_tend = 1e4
   sd93_coolrate = DBLARR(nn)
   sd93_file = "zcool_sd93.dat"
   if ((file_search(sd93_file))[0] eq "") then begin
@@ -464,7 +466,8 @@ function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
         sd93_table[i,*] = REFORM(sd93_raw[i+1,*])
      endfor
 
-     hotgas = WHERE(T ge 1e4, nhot)
+     hotgas = WHERE(T ge sd93_tstart, nhot)
+     no_finestr = WHERE(T ge finestr_tend, nfine)
      if (nhot gt 0) then begin
         logT = ALOG10(T[hotgas])
         logZ = (ALOG10(Z[hotgas]) > sd93_Z[0]) < (sd93_Z[7]-0.01)
@@ -490,17 +493,19 @@ function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
         sd93_coolrate[hotgas] = 10d0^sd93_coolrate_Z - 10d0^sd93_coolrate_Z0
         sd93_coolrate[hotgas] *= nelec[hotgas] * nHII[hotgas]
 
-        c10.total[hotgas] = 0.0
-        c20.total[hotgas] = 0.0
-        c21.total[hotgas] = 0.0
-        o10.total[hotgas] = 0.0
-        o20.total[hotgas] = 0.0
-        o21.total[hotgas] = 0.0
-        si10.total[hotgas] = 0.0
-        si20.total[hotgas] = 0.0
-        si21.total[hotgas] = 0.0
-        cp10.total[hotgas] = 0.0
-        sip10.total[hotgas] = 0.0
+        if (nfine gt 0) then begin
+           c10.total[no_finestr] = 0.0
+           c20.total[no_finestr] = 0.0
+           c21.total[no_finestr] = 0.0
+           o10.total[no_finestr] = 0.0
+           o20.total[no_finestr] = 0.0
+           o21.total[no_finestr] = 0.0
+           si10.total[no_finestr] = 0.0
+           si20.total[no_finestr] = 0.0
+           si21.total[no_finestr] = 0.0
+           cp10.total[no_finestr] = 0.0
+           sip10.total[no_finestr] = 0.0
+        endif
 
      endif ;; hot gas
   endelse ;; SD93 table found
@@ -524,17 +529,17 @@ function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
         PLOT, T, metal_total, /XLOG, /YLOG, $
               XTITLE="Temperature [K]", YTITLE="Cooling Rate [erg cm^-3 s^-1]", $
               YRANGE=[cmin,cmax]
-        OPLOT, T, cp10.total, LINE=1
-        OPLOT, T, sip10.total, LINE=2
-        OPLOT, T, c10.total, LINE=3
-        OPLOT, T, c20.total, LINE=4
-        OPLOT, T, c21.total, LINE=5
-        OPLOT, T, o10.total, LINE=1
-        OPLOT, T, o20.total, LINE=2
-        OPLOT, T, o21.total, LINE=3
-        OPLOT, T, si10.total, LINE=4
-        OPLOT, T, si20.total, LINE=5
-        OPLOT, T, si21.total, LINE=1
+;        OPLOT, T, cp10.total, LINE=1
+;        OPLOT, T, sip10.total, LINE=2
+;        OPLOT, T, c10.total, LINE=3
+;        OPLOT, T, c20.total, LINE=4
+;        OPLOT, T, c21.total, LINE=5
+;        OPLOT, T, o10.total, LINE=1
+;        OPLOT, T, o20.total, LINE=2
+;        OPLOT, T, o21.total, LINE=3
+;        OPLOT, T, si10.total, LINE=4
+;        OPLOT, T, si20.total, LINE=5
+;        OPLOT, T, si21.total, LINE=1
         DEVICE, /CLOSE
         SET_PLOT, 'x'
      endif

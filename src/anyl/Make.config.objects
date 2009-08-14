@@ -1,0 +1,22 @@
+#=======================================================================
+#
+# FILE:        Make.config.objects
+#
+# DESCRIPTION: Make include file defining OBJS_MAIN
+#
+# AUTHOR:      James Bordner (jobordner@ucsd.edu)
+#
+# DATE:        2007-02-21
+#
+#=======================================================================
+
+OBJS_ANYL_LIB = \
+ 		 AnalyzeCluster.o				\
+		 AnalyzeClusterComputeClumpingFactor.o		\
+		 AnalyzeClusterReadParameterFile.o		\
+	 	 Grid_AddToDiskProfile.o			\
+		 Grid_AddToVerticalProfile.o			\
+		 Grid_AddToRadialProfile.o			\
+		 Grid_CollectParticleInfo.o			\
+		 Grid_FindMaximumBaryonDensity.o		\
+		 Grid_FindMeanVelocity.o			

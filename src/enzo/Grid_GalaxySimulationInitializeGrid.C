@@ -219,9 +219,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		}
 	      else
 		{
-		  dens1 = DiskDensity*exp(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/CellWidth[0][0]), 2);
+		  dens1 = DiskDensity*PEXP(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/CellWidth[0][0]), 2);
 		}	  
-	    dens2 = DiskDensity*exp(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/max((ScaleHeightz*Mpc/LengthUnits), CellWidth[0][0])), 2);
+	    dens2 = DiskDensity*PEXP(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/max((ScaleHeightz*Mpc/LengthUnits), CellWidth[0][0])), 2);
 	    
 	    if (dens2 < density)
 	      break;
@@ -315,7 +315,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
 
  // Mass of gas disk and DM at given radius
 
-     M_gas=8.0*M_PI*ScaleHeightz*Mpc/100*ScaleHeightR*Mpc/100*ScaleHeightR*Mpc/100*DiskDensity*DensityUnits*1000*exp(-r/(ScaleHeightR*Mpc/100))*(exp(r/(ScaleHeightR*Mpc/100))-r/(ScaleHeightR*Mpc/100)-1.0);
+     M_gas=8.0*M_PI*ScaleHeightz*Mpc/100*ScaleHeightR*Mpc/100*ScaleHeightR*Mpc/100*DiskDensity*DensityUnits*1000*PEXP(-r/(ScaleHeightR*Mpc/100))*(PEXP(r/(ScaleHeightR*Mpc/100))-r/(ScaleHeightR*Mpc/100)-1.0);
 
      M_DM=(M_200/f_C)*(log(1.0+r/r_s)-(r/r_s)/(1.0+r/r_s));
 
@@ -385,7 +385,7 @@ float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz,
  double den,r1,nx,ny,nz;
 
  points = 100;
- den = DiskDensity*exp(-r/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
+ den = DiskDensity*PEXP(-r/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
 
  for (i=0;i<points;i++)
    {
@@ -393,7 +393,7 @@ float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz,
      ny = drand48()*cellwidth-cellwidth/2.0;
      nz = drand48()*cellwidth-cellwidth/2.0;
      r1 = sqrt(POW((xpos+nx),2)+POW((ypos+ny),2)+POW((zpos+nz),2)); 
-     den = den+DiskDensity*exp(-r1/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
+     den = den+DiskDensity*PEXP(-r1/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
    }
 
  double av_den = den/points;
