@@ -491,6 +491,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
 
+  fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
+  fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
+          
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
 	  StarClusterUseMetalField);
   fprintf(fptr, "StarClusterMinDynamicalTime           = %"GSYM"\n",
