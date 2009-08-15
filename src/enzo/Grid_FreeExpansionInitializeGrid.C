@@ -112,7 +112,7 @@ int grid::FreeExpansionInitializeGrid(int FreeExpansionFullBox,
 	    BaryonField[Vel2Num][index] = speed * dely / radius;
 	  if (GridRank > 2)
 	    BaryonField[Vel3Num][index] = speed * delz / radius;
-	  BaryonField[TENum][index] += 0.5 * speed * speed;
+	  BaryonField[TENum][index] = 0.5 * speed * speed;
 	  
 	} // ENDIF r2 < router2
       } // ENDFOR i

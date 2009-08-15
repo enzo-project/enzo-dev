@@ -41,16 +41,22 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			    TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
+  char	*DensName  = "Density";
+  char	*TEName	   = "TotalEnergy";
+  char	*GEName	   = "GasEnergy";
+  char	*Vel1Name  = "x-velocity";
+  char	*Vel2Name  = "y-velocity";
+  char	*Vel3Name  = "z-velocity";
+  char	*B1Name	   = "Bx";
+  char	*B2Name	   = "By";
+  char	*B3Name	   = "Bz";
+  char	*PhiName   = "Phi";
+  char	*DebugName = "Debug";
+  char	*Phi_pName = "Phip";
 
   /* parameter declarations */
 
-  float FreeExpansionTotalEnergy;
+  float FreeExpansionTotalEnergy, FreeExpansionGasEnergy, B2, V2;
   FLOAT FreeExpansionSubgridLeft, FreeExpansionSubgridRight;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   
@@ -60,18 +66,9 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int  dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
                           SubgridDims[MAX_DIMENSION];
 
-  /* There are four parameters:
-  
-     1) geometry (2D-cylindrical or 3D-spherical), 
-     2) gamma, 
-     3) E, 
-     4) rho_1.
-
-     Set their default values here. */
-
   int   FreeExpansionFullBox     = FALSE;
   float FreeExpansionVelocity[3]   = {0.0, 0.0, 0.0};   // gas initally (t=0) at rest
-  float FreeExpansionBField[3]   = {0.0, 0.0, 0.0};
+  float FreeExpansionBField[3]   = {0.0, 0.0, 0.0};     // Gauss
   float FreeExpansionDensity    = 1.0;
   float FreeExpansionMaxVelocity = FLOAT_UNDEFINED;  // km/s
   float FreeExpansionRadius    = 0.1;
@@ -127,24 +124,34 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* get units */
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits;
+    VelocityUnits, PressureUnits, MagneticUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
 	   &VelocityUnits, 0.0);
+
+  PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    FreeExpansionBField[dim] /= MagneticUnits;
 
   /* Set up current problem time, ambient total energy. */
 
   MetaData.Time         = 0.0;
-  FreeExpansionTotalEnergy = FreeExpansionTemperature / TemperatureUnits / 
+  FreeExpansionGasEnergy = FreeExpansionTemperature / TemperatureUnits / 
     ((Gamma-1.0)*DEFAULT_MU);
+
+  V2 = 0;
+  for (dim = 0; dim < MetaData.TopGridRank; dim++)
+    V2 += FreeExpansionVelocity[dim] * FreeExpansionVelocity[dim];
+  FreeExpansionTotalEnergy = FreeExpansionGasEnergy + 0.5 * V2;
+
+  if (HydroMethod == MHD_RK) {
+    B2 = 0.0;
+    for (dim = 0; dim < MetaData.TopGridRank; dim++)
+      B2 += FreeExpansionBField[dim] * FreeExpansionBField[dim];
+    FreeExpansionTotalEnergy + 0.5 * B2 / FreeExpansionDensity;
+  }
+
   
-  /* compute p_2 as a function of explosion energy E, initial explosion 
-     radius dr, and gamma.
-
-     2D:  p_2 = (gamma-1)*E/(pi*r^2)*rho_in
-     3D:  p_2 = (gamma-1)*E/(4/3*pi*r^3)*rho_in
-          rho_2 = 1 = rho_1
-  */
-
   /* set periodic boundaries (if FullBox=1),
      otherwise keep reflecting (the default) */
 
@@ -158,7 +165,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   TopGrid.GridData->InitializeUniformGrid(FreeExpansionDensity, 
 					  FreeExpansionTotalEnergy,
-					  FreeExpansionTotalEnergy,
+					  FreeExpansionGasEnergy,
 					  FreeExpansionVelocity,
 					  FreeExpansionBField);
 
@@ -220,7 +227,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					  LeftEdge, RightEdge, 0);
       Subgrid[lev]->GridData->InitializeUniformGrid(FreeExpansionDensity,
 						    FreeExpansionTotalEnergy,
-						    FreeExpansionTotalEnergy,
+						    FreeExpansionGasEnergy,
 						    FreeExpansionVelocity,
 						    FreeExpansionBField);
 
@@ -265,6 +272,16 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = B1Name;
+    DataLabel[i++] = B2Name;
+    DataLabel[i++] = B3Name;
+    DataLabel[i++] = PhiName;
+    if (UseDivergenceCleaning) {
+      DataLabel[i++] = Phi_pName;
+      DataLabel[i++] = DebugName;
+    }
+  }
 
   for (int j=0; j< i; j++) 
     DataUnits[j] = NULL;
