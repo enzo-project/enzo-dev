@@ -201,7 +201,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
             break;
   	  case shearing:
-//	     *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
+	     *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
  	    break;
           case BoundaryUndefined:
             break;
@@ -239,7 +239,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	    break;
 	  case shearing:
-// 	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
+ 	    *index = *(index + (EndIndex[0] - StartIndex[0] + 1));
 	    break;
 	  case BoundaryUndefined:
             break;
@@ -307,7 +307,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
             break;
  	  case shearing:
-// 	     *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
+ 	     *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
           case BoundaryUndefined:
             break;
@@ -346,7 +346,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	    break;
  	  case shearing:
-// 	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
+ 	    *index = *(index - (EndIndex[0] - StartIndex[0] + 1));
  	    break;
 	  case BoundaryUndefined:
             break;
@@ -416,7 +416,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
              break;
  	  case shearing:
-// 	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
+ 	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
 	    break;
           case BoundaryUndefined:
             break;
@@ -455,7 +455,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	     break;
  	  case shearing:
-// 	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
+ 	    *index = *(index + (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
 	  case BoundaryUndefined:
             break;
@@ -523,7 +523,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
             break;
  	  case shearing:
-// 	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
+ 	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
           case BoundaryUndefined:
             break;
@@ -563,7 +563,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	    break;
  	  case shearing:
-// 	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
+ 	    *index = *(index - (EndIndex[1] - StartIndex[1] + 1)*GridDims[0]);
  	    break;
 	  case BoundaryUndefined:
             break;
@@ -633,7 +633,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
             break;
  	  case shearing:
-// 	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
+ 	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
           case BoundaryUndefined:
             break;
@@ -670,7 +670,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	    break;
  	  case shearing:
-// 	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
+ 	    *index = *(index + (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
 	  case BoundaryUndefined:
             break;
@@ -738,7 +738,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
             break;
  	  case shearing:
-// 	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
+ 	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
           case BoundaryUndefined:
             break;
@@ -777,7 +777,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 #endif /* USE_PERIODIC */
 	    break;
  	  case shearing:
-// 	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
+ 	    *index = *(index - (EndIndex[2]-StartIndex[2]+1)*GridDims[0]*GridDims[1]);
  	    break;
  	  case BoundaryUndefined:
             break;

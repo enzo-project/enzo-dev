@@ -98,7 +98,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       (VelocityUnits * VelocityUnits);
     break;
 
-  case MBH_THERMAL:
+  case MBH_THERMAL:{
     if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
     //*****************
@@ -201,10 +201,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun / yr * c * c * CurrentGrid->dtFixed * TimeUnits /
       (VelocityUnits * VelocityUnits); //Eq.(34) in Springel (2005) 
+  }
     
-
     break;
-
   case MBH_RADIATIVE:
     break;
 

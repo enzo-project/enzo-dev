@@ -116,14 +116,11 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	  iflux = i + (Xactivesize+1) * (j + k*(Yactivesize+1));
 	  ifluxp1 = iflux + 1;
 
-	  if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	    printf("MHD3D %g \n", dU[iS2][n])  ;
+
 	  for (int field = 0; field < NEQ_MHD + NSpecies + NColor; field++) {
 	    dU[field][n] = -(Flux3D[field][ifluxp1] - Flux3D[field][iflux]) * dtdx;
 	  }
 
-	  if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	    printf("MHD3D 1 %g \n", dU[iS2][n])  ;
 	  // We absorb the dt here
 	  divB[n] = (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux]) / (C_h * C_h) * dtdx;
 	  gradPhi[0][n] = (Flux3D[iBx][ifluxp1] - Flux3D[iBx][iflux]) * dtdx;
@@ -189,8 +186,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	      dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
 	    }
 
-	    if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	      printf("MHD3D 2  %g \n", dU[iS2][n])  ;
+	   
 	    divB[n] += (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux])/(C_h*C_h)*dtdx;
 	    gradPhi[1][n] = (Flux3D[iBy][ifluxp1] - Flux3D[iBy][iflux])*dtdx;
 	  }
@@ -227,8 +223,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	      dU[field][n] -= (Flux3D[field][ifluxp1]-Flux3D[field][iflux])*dtdx;
 	    }
 
-	    if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	      printf("MHD3D 3 %g \n", dU[iS2][n])  ;
+	  
 	  
 	    divB[n] += (Flux3D[iPhi][ifluxp1] - Flux3D[iPhi][iflux])/(C_h*C_h)*dtdx;
 	    gradPhi[2][n] = (Flux3D[iBz][ifluxp1] - Flux3D[iBz][iflux])*dtdx;
@@ -265,8 +260,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	  for (int i = 0; i < Xactivesize; i++, n++) { 
 	 
 
-	    if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	      printf("MHD3D 4 %g \n", dU[iS2][n])  ;
 	  
 	 
 	  }
@@ -287,8 +280,6 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
 	  for (int i = 0; i < Xactivesize; i++, n++) { 
 	 
 
-	    if (i==0 && j==0 && k==1 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	      printf("MHD3D 5 %g \n", dU[iS2][n])  ;
 	  
 	 
 	  }
