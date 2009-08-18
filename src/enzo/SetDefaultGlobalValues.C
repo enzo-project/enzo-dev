@@ -261,6 +261,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiSpecies                = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
+  CIECooling                  = 1;
+  H2OpticalDepthApproximation = 1;
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
