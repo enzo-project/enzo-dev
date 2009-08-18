@@ -10,7 +10,7 @@
 /* ======================================================================= */
 /* /////////////////////  SUBROUTINE POP3_COLOR_MAKER \\\\\\\\\\\\\\\\\\\\ */
 
-/* Subroutine */ int pop3_color_maker__(integer *nx, integer *ny, integer *nz,
+/* Subroutine */ int pop3_color_maker_c(integer *nx, integer *ny, integer *nz,
 	 real *d__, real *dm, real *u, real *v, real *w, real *dt, real *r__, 
 	real *dx, FLOAT *t, real *z__, integer *procnum, real *d1, real *x1, 
 	real *v1, real *t1, integer *nmax,
