@@ -369,6 +369,15 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];
 
+  /* If we're supposed to be outputting on Density, we need to update
+     the current maximum value of that Density. */
+
+    if(OutputOnDensity == 1){
+      int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+      for(i = 0; i < size; i++)
+        max(BaryonField[DensNum][size], CurrentMaximumDensity);
+    }
+
   }  // end: if (NumberOfBaryonFields > 0)
 
   this->DebugCheck("SolveHydroEquations (after)");

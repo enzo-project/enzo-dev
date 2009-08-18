@@ -138,6 +138,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
  
+    /* Maximum density directed output */
+    ret += sscanf(line, "OutputOnDensity = %"ISYM,
+           &OutputOnDensity);
+    ret += sscanf(line, "StartDensityOutputs = %"FSYM,
+           &StartDensityOutputs);
+    ret += sscanf(line, "CurrentDensityOutput = %"FSYM,
+           &CurrentDensityOutput);
+    ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
+           &IncrementDensityOutput);
+
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
                   &MetaData.SubcycleSkipDataDump);

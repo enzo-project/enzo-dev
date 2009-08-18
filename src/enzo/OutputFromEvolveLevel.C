@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -44,6 +45,9 @@ int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 void my_exit(int status);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
 #define TIME_MESSAGING 
 
@@ -68,8 +72,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 				  MetaData->TracerParticleDumpNumber++,
 				  LevelArray, MetaData,
 				  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteTracerParticleData.\n");
-	return FAIL;
+		ENZO_FAIL("Error in WriteTracerParticleData.");
       }
     }
     
@@ -80,7 +83,30 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       MetaData->OutputFirstTimeAtLevel = level+1;
       Write = TRUE;
     }
- 
+
+    if(OutputOnDensity == 1) {
+
+      /* Get our units, but only if we need to. */
+      float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+            TimeUnits = 1, VelocityUnits = 1;
+      FLOAT Time = LevelArray[level]->GridData->ReturnTime();
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+            &TimeUnits, &VelocityUnits, Time) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+      }
+
+      /* Make sure we are all synced up across processors. */
+      CurrentMaximumDensity = CommunicationMaxValue(CurrentMaximumDensity);
+      if(log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+        while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+          CurrentDensityOutput += IncrementDensityOutput;
+        }
+        fprintf(stderr, "Outputting based on DensMax == %0.3f (now set to %0.3f)\n",
+            log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
+        Write = TRUE;
+      }
+    }
+
     // File directed output:
     // Existence of the file outputNow will cause enzo to output the next time the bottom
     //    of the hierarchy is reached.
@@ -133,8 +159,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       if (MyProcessorNumber == ROOT_PROCESSOR){
 	if( outputNow != -1 )
 	  if (unlink("outputNow")) {
-	    fprintf(stderr, "Error deleting 'outputNow'\n");
-	    return FAIL;
+ 	    ENZO_FAIL("Error deleting 'outputNow'");
 	  }
 	if( subcycleCount != -1 )
 	  if (unlink("subcycleCount")) {
@@ -142,8 +167,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	  }
 	if( stopNow != -1 )
 	  if (unlink("stopNow")) {
-	    fprintf(stderr, "Error deleting stopNow\n");
-	    return FAIL;
+   	    ENZO_FAIL("Error deleting stopNow");
 	  } 
       } 
       
@@ -195,15 +219,14 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 			   Temp2->GridHierarchyEntry, *MetaData, Exterior,
 			   LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-      fprintf(stderr, "Error in Group_WriteAllData.\n");
-      return FAIL;
+            ENZO_FAIL("Error in Group_WriteAllData.");
     }
 // #else
 //     if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 // 		     Temp2->GridHierarchyEntry, *MetaData, Exterior, 
 // 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
-//       return FAIL;
+//       ENZO_FAIL("");
 //     }
 // #endif
   }//Write == TRUE

@@ -360,6 +360,14 @@ EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
 
+/* Parameters that control density dex output */
+
+EXTERN int OutputOnDensity;
+EXTERN float StartDensityOutputs;
+EXTERN float CurrentDensityOutput;
+EXTERN float CurrentMaximumDensity;
+EXTERN float IncrementDensityOutput;
+
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonSubcycleSkip;
 

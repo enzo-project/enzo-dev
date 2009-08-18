@@ -216,6 +216,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug2                      = 0;
 
   TracerParticleOn            = 0;
+
+  OutputOnDensity                  = 0;
+  StartDensityOutputs              = 999;
+  CurrentDensityOutput             = 999;
+  IncrementDensityOutput           = 999;
+  CurrentMaximumDensity            = -999;
  
   CubeDumpEnabled             = 0;
 
