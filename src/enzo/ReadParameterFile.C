@@ -105,6 +105,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
+    ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
+                        &OutputParticleTypeGrouping);
     ret += sscanf(line, "TimeLastTracerParticleDump = %"PSYM,
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
@@ -1069,6 +1071,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;
+  }
+
+  if (OutputParticleTypeGrouping && (!ParticleTypeInFile)) {
+    OutputParticleTypeGrouping = FALSE;
   }
  
   //  if (WritePotential && ComovingCoordinates && SelfGravity) {

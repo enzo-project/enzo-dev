@@ -662,7 +662,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     /* Sort particles according to their identifier. */
  
-    this->SortParticlesByNumber();
+    if (OutputParticleTypeGrouping)
+      this->SortParticlesByType();
+    else
+      this->SortParticlesByNumber();
  
     /* Create a temporary buffer (64 bit). */
  
@@ -844,11 +847,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
       if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+
+    if(OutputParticleTypeGrouping)
+        this->CreateParticleTypeGrouping(dset_id, file_dsp_id, group_id, file_id);
  
     h5_status = H5Sclose(file_dsp_id);
       if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
+
     h5_status = H5Dclose(dset_id);
       if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
