@@ -73,6 +73,7 @@ ENZO_FAIL("Couldn't create reference.");}
             if(err < 0) ENZO_FAIL("Couldn't close new dataset.");
 
             if(i<NumberOfParticles)CurrentParticleType = ParticleType[i];
+            start[0] = i;
         }
     }
     return SUCCESS;
