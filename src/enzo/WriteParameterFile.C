@@ -470,6 +470,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  NumberOfParticleAttributes);
   fprintf(fptr, "AddParticleAttributes                 = %"ISYM"\n", 
 	  AddParticleAttributes);
+
+    /* Sink particles (for present day star formation) & winds */
+  fprintf(fptr, "SinkMergeDistance                     = %"FSYM"\n", 
+	  SinkMergeDistance);
+  fprintf(fptr, "SinkMergeMass                         = %"FSYM"\n", 
+	  SinkMergeMass);
+  fprintf(fptr, "StellarWindFeedback                   = %"ISYM"\n", 
+	  StellarWindFeedback);
+  fprintf(fptr, "StellarWindTurnOnMass                 = %"FSYM"\n", 
+	  StellarWindTurnOnMass);
+
+
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",

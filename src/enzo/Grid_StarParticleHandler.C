@@ -828,7 +828,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
-	  printf("Grid_StarParticleHandler 751 - star maker 8 called\n");
 
 	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],

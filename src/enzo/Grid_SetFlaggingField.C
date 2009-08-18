@@ -84,7 +84,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, method);
     if (NumberOfFlaggedCells < 0) {
-      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass.");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass (2).");
     }
     break;
  
@@ -111,7 +111,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, method);
     if (NumberOfFlaggedCells < 0) {
-      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass.");
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass (4).");
     }
     break;
  

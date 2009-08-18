@@ -470,6 +470,7 @@ EXTERN FLOAT TracerParticleCreationLeftEdge[MAX_DIMENSION];
 EXTERN FLOAT TracerParticleCreationRightEdge[MAX_DIMENSION];
 
 EXTERN int   ParticleTypeInFile;
+EXTERN int   OutputParticleTypeGrouping;
 
 EXTERN int   ExternalBoundaryIO;
 EXTERN int   ExternalBoundaryTypeIO;

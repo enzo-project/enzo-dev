@@ -1141,9 +1141,15 @@ class grid
      return PARTICLE_TYPE_DARK_MATTER;
    }
 
-/* Particles: sort particle data in ascending order by number (id). */
+/* Particles: sort particle data in ascending order by number (id) or type. */
 
 void SortParticlesByNumber();
+void SortParticlesByType();
+
+int CreateParticleTypeGrouping(hid_t ptype_dset,
+                               hid_t ptype_dspace,
+                               hid_t parent_group,
+                               hid_t file_id);
 
 // -------------------------------------------------------------------------
 // Communication functions

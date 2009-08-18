@@ -19,9 +19,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
-
-
+#include <unistd.h>
+#include <math.h>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -651,7 +650,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
       int abs_type;
       for (i = 0; i < NumberOfParticles; i++) {
-	abs_type = abs(ParticleType[i]);
+	abs_type = ABS(ParticleType[i]);
         if (abs_type < PARTICLE_TYPE_GAS ||
             abs_type > NUM_PARTICLE_TYPES-1) {
           fprintf(stderr, "file: %s: particle %"ISYM" has unknown type %"ISYM"\n",

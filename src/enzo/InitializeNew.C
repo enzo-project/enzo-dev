@@ -723,8 +723,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     CommunicationPartitionGrid(CurrentGrid, gridcounter);
  
     gridcounter++;
- 
-    CurrentGrid = CurrentGrid->NextGridNextLevel;
+
+    if (PartitionNestedGrids)
+      CurrentGrid = CurrentGrid->NextGridNextLevel;
+    else
+      CurrentGrid = NULL;
  
   }
  
