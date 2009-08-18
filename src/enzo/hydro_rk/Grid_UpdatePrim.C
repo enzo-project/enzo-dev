@@ -144,6 +144,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	S3_new  = c1*rho_old*vz_old + (1.0-c1)*rho*vz + c2*dU[iS3][n];
 	Tau_new = c1*Tau_old + (1.0-c1)*Tau + c2*dU[iEtot][n];
 
+
+	
 	if (DualEnergyFormalism) {
 	  Eint_new = c1*rho_old*eint_old + (1.0-c1)*rho*eint + c2*dU[iEint][n];
 	  /*if (Eint_new < 0) {
@@ -171,6 +173,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	vz = S3_new/D_new;
 	etot = Tau_new/D_new;
 
+
+
 	v2 = vx*vx + vy*vy + vz*vz;
 	// If using polytropic EOS, calcuate etot using density
 	if (EOSType > 0) { 
@@ -194,6 +198,9 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;
 	BaryonField[TENum][igrid] = etot;
+
+
+
 
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;

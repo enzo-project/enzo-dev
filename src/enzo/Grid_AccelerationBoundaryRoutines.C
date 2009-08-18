@@ -27,6 +27,17 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
 
+#ifdef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry * Level, bool shearingRepeat);
+#else
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level,  bool shearingRepeat);
+#endif
+
 
 // Begin the pointer juggle to set the boundary on the acceleration field.
 // Save all BaryonField pointers in temporary array, and set them to be Acceleration Field
@@ -155,6 +166,17 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
     ENZO_FAIL("");
 #endif
   
+ if(ShearingBoundaryDirection !=-1){
+#ifdef FAST_SIB
+  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData,
+			    NULL, NULL, true) == FAIL)
+    ENZO_FAIL("");
+#else
+  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			    NULL, NULL, true) == FAIL)
+    ENZO_FAIL("");
+#endif
+ }
   
   for (grid = 0; grid < NumberOfGrids; grid++) {
 

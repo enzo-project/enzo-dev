@@ -123,6 +123,18 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
 
+#ifdef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry * Level, bool shearingRepeat);
+#else
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level,  bool shearingRepeat);
+#endif
+
+
 #ifdef SAB
 #ifdef FAST_SIB
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
@@ -281,11 +293,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if(ShearingBoundaryDirection !=-1){
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
+			    level, MetaData, Exterior, LevelArray[level], true) == FAIL)
     ENZO_FAIL("");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                            Exterior, LevelArray[level]) == FAIL)
+                            Exterior, LevelArray[level], true) == FAIL)
     ENZO_FAIL("");
 #endif
   }
@@ -462,10 +474,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if(ShearingBoundaryDirection !=-1){
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			      level, MetaData, Exterior, LevelArray[level]);
+			  level, MetaData, Exterior, LevelArray[level], true);
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                              Exterior, LevelArray[level]);
+                              Exterior, LevelArray[level], true);
 #endif
   }
 

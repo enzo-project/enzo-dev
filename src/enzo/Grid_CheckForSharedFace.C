@@ -78,7 +78,7 @@ int grid::CheckForSharedFace(grid *OtherGrid,
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
-    while (ShearingOffset > Ly) {
+    while (ShearingOffset >= Ly) {
       ShearingOffset -= Ly;
     }  
   }
@@ -93,22 +93,25 @@ int grid::CheckForSharedFace(grid *OtherGrid,
 	/* This unfortunate bit of logic is to make sure we should be
 	   applying periodic bc's in this direction. */
  
-
 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
+			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingVelocityDirection==0 ))    ) &&
 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0])                        ) &&
+			 (CellLeftEdge[0][GridDimension[0]-1] >
+			 DomainRightEdge[0] ||  ShearingVelocityDirection==0 ))                        ) &&
 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
+			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingVelocityDirection==1 ))    ) &&
 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1])                        ) &&
+			 (CellLeftEdge[1][GridDimension[1]-1] >
+			 DomainRightEdge[1]  || ShearingVelocityDirection==1 ))                        ) &&
 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
+			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingVelocityDirection==2))    ) &&
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])                        )   ) {
+			 (CellLeftEdge[2][GridDimension[2]-1] >
+			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
+ 
+
+
+
  
 	  /* Full periodic case (26 checks).
 	     This ONLY checks the Periodic shifts.  (that's the i!=0 || ... crap) */
