@@ -317,6 +317,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
+  fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
+  fprintf(fptr, "CIECooling                     = %"ISYM"\n", CIECooling);
+  fprintf(fptr, "H2OpticalDepthApproximation    = %"ISYM"\n", H2OpticalDepthApproximation);
+  fprintf(fptr, "ThreeBodyRate                  = %"ISYM"\n", ThreeBodyRate);
   fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
   fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
