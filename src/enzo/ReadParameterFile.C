@@ -105,6 +105,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
+    ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
+                        &OutputParticleTypeGrouping);
     ret += sscanf(line, "TimeLastTracerParticleDump = %"PSYM,
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
@@ -669,9 +671,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Sink particles (for present day star formation) & winds */
-    ret += sscanf(line, "SinkMergeDistance = %lf", &SinkMergeDistance);
-    ret += sscanf(line, "SinkMergeMass        = %"FSYM, &SinkMergeMass);
-    ret += sscanf(line, "StellarWindFeedback  = %"ISYM, &StellarWindFeedback);
+    ret += sscanf(line, "SinkMergeDistance     = %"FSYM, &SinkMergeDistance);
+    ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
+    ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
 
     //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
@@ -821,7 +823,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   StarMakerOverDensityThreshold /= DensityUnits;
   //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
 
-  SinkMergeDistance /= LengthUnits;
+  if (SinkMergeDistance > 1.0)
+    SinkMergeDistance /= LengthUnits;
+  //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
   SmallRho /= DensityUnits;
   SmallP /= PressureUnits;
   SmallT /= TemperatureUnits;
@@ -1068,6 +1072,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;
+  }
+
+  if (OutputParticleTypeGrouping && (!ParticleTypeInFile)) {
+    OutputParticleTypeGrouping = FALSE;
   }
  
   //  if (WritePotential && ComovingCoordinates && SelfGravity) {

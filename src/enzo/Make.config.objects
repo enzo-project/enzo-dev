@@ -257,6 +257,7 @@ OBJS_CONFIG_LIB = \
         Grid_CosmologyInitializeParticles.o \
         Grid_CosmologySimulationInitializeGrid.o \
         Grid_CreateFieldArray.o \
+        Grid_CreateParticleTypeGrouping.o \
         Grid_DebugCheck.o \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
@@ -381,6 +382,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveRateAndCoolEquations.o \
         Grid_SolveRateEquations.o \
         Grid_SortParticlesByNumber.o \
+        Grid_SortParticlesByType.o \
         Grid_SphericalInfallGetProfile.o \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \

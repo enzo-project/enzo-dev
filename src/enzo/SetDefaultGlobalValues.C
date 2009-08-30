@@ -314,6 +314,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+  OutputParticleTypeGrouping       = FALSE;
 
   PythonSubcycleSkip               = 1;
 
