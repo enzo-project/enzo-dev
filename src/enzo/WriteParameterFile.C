@@ -168,6 +168,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
 
   fprintf(fptr, "LoadBalancing          = %"ISYM"\n", LoadBalancing);
+  fprintf(fptr, "ResetLoadBalancing     = %"ISYM"\n", ResetLoadBalancing);
   fprintf(fptr, "LoadBalancingCycleSkip = %"ISYM"\n", LoadBalancingCycleSkip);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)

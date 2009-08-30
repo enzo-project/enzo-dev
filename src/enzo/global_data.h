@@ -34,6 +34,7 @@
 */
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;
+EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 

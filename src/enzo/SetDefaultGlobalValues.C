@@ -111,6 +111,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
+  ResetLoadBalancing = FALSE;
   CoresPerNode = 1;
   PreviousMaxTask = 0;
 
