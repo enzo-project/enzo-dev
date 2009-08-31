@@ -28,8 +28,6 @@
 #include "Grid.h"
  
  
- 
- 
 int grid::CheckForOverlap(grid *OtherGrid,
 			  boundary_type LeftFaceBoundaryCondition[],
 			  boundary_type RightFaceBoundaryCondition[],
@@ -43,7 +41,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
     return SUCCESS;
  
   int i, j, k;
-  FLOAT EdgeOffset[MAX_DIMENSION] = {0,0,0};
+  FLOAT EdgeOffset[MAX_DIMENSION] = {0.0,0.0,0.0};
  
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
@@ -138,25 +136,25 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
 			 (CellLeftEdge[2][GridDimension[2]-1] >
 			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
+
+// 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] ))    ) &&
+// 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][GridDimension[0]-1] >
+// 			 DomainRightEdge[0] ))                        ) &&
+// 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][0] < DomainLeftEdge[1]  ))    ) &&
+// 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][GridDimension[1]-1] >
+// 			 DomainRightEdge[1] ))                        ) &&
+// 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][0] < DomainLeftEdge[2] ))    ) &&
+// 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][GridDimension[2]-1] >
+// 			 DomainRightEdge[2])  )  )   ){
  
  
 
-
-	  if (ShearingBoundaryDirection!=-1){
-	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
-		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
-		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
-	      }
-	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
-		  (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
-		  (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
-	      }
-	    }
-
-	 
-	
 
 	  // Full periodic case (26 checks)
 	    
@@ -164,15 +162,31 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      (GridRank > 1 || j == 0) &&
 	      (i != 0 || j != 0 || k != 0) && 
 	      (FullPeriod == TRUE || ShearingBoundaryDirection!=-1)) {
+	    	    
+		if (ShearingBoundaryDirection!=-1){
+		  if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
+		      (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
+		      (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
+		    EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+		  }
+		  if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
+		      (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
+		      (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
+		    EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+		  }
+		}
+
 	    
-	   
-	 
-	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-	      printf("Error in grid->*CopyFunction (2)\n");
-	      ENZO_FAIL("CopyFunctionFail(2)");}
-	    
-	    
+		if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
+		  printf("Error in grid->*CopyFunction (2)\n");
+		  ENZO_FAIL("CopyFunctionFail(2)");
+		}
 	  }
+	
+	
+		
+	      
+		  
 	    
 	    
 	    
@@ -180,8 +194,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	    
 	  if ((GridRank > 2 || k == 0) && (GridRank > 1 || j == 0) &&
 	      (FullPeriod==FALSE && ShearingBoundaryDirection==-1) && (ABS(i)+ABS(j)+ABS(k) == 1)) {
-
-  
 
 	    
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
@@ -206,3 +218,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
   return SUCCESS;
  
 }
+
+
+
+
+ 

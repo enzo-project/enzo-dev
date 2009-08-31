@@ -661,9 +661,12 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
       for (ijk[1] = GridStartIndex[1]; ijk[1] <= GridEndIndex[2]; ijk[1]=ijk[1]+1){
 	for (ijk[0] = GridStartIndex[0]; ijk[0] <= GridEndIndex[2]; ijk[0]=ijk[0]+1){
 	  index=ijk[0]+ijk[1]*xD[0]+ijk[2]*xD[1]*xD[0];	
-	  if (abs((float) field[index]-field[index-diffs[0]])>diffvalue ||
-	      abs((float) field[index]-field[index+diffs[0]])>diffvalue) fail=true;
-	}}}}
+	//   if (abs((float) field[index]-field[index-diffs[0]])>diffvalue ||
+// 	      abs((float) field[index]-field[index+diffs[0]])>diffvalue) fail=true;
+	  if (field[index]<=0.0) {slice=ijk[direction]; fail=true;}
+	}}}
+    fail=true;
+  }
 
   if (fail){
      printf("\n\n\n\n");printf(display); 	  printf("Grid Edges %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
@@ -713,23 +716,14 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 
 
 int grid::PrintToScreenBoundaries(float *field, char *display){
-  //   PrintToScreenBoundaries(field, display, 2, (int) floor(GridDimension[1]/2.0), 0, 0.0); return true;
-  //PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-DEFAULT_GHOST_ZONES, 0, 0.0);
-
-  //if (!debug) return SUCCESS;
+ //if (!debug) return SUCCESS;
 
   //return SUCCESS;
 
-  if (GridLeftEdge[0]!=0.0 || GridLeftEdge[1]!=0.0 ||  GridLeftEdge[2]!=1.0){ 
-    //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      return SUCCESS;}
 
-  if (ProcessorNumber != MyProcessorNumber) {
-    printf("PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
-    return SUCCESS;
-  }
 
-  PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 0, 0.0); 
+
+  PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 1, 0.0); 
   //PrintToScreenBoundaries(field, display, 1, DEFAULT_GHOST_ZONES, 0, 0.0);
   // PrintToScreenBoundaries(field, display, 0, DEFAULT_GHOST_ZONES, 0, 0.0);
 
@@ -745,10 +739,7 @@ int grid::PrintToScreenBoundaries(){
       //printf("NotGrid %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
       return SUCCESS;}
 
-  if (ProcessorNumber != MyProcessorNumber) {
-    printf("PrintToScreen wrong processor %d Proc != %d MyProc \n", ProcessorNumber, MyProcessorNumber);
-    return SUCCESS;
-  }
+ 
   for (int i=0; i< NumberOfBaryonFields; i++){
     printf("\n\n\n\n\n\n-------------Displaying %d (%d)\n", FieldType[i], i);
     PrintToScreenBoundaries(OldBaryonField[i], "old", 1, DEFAULT_GHOST_ZONES, 0, 0.0);
@@ -756,4 +747,18 @@ int grid::PrintToScreenBoundaries(){
     PrintToScreenBoundaries(OldBaryonField[i], "old", 0, DEFAULT_GHOST_ZONES, 0, 0.0);
     PrintToScreenBoundaries(BaryonField[i], "new", 0, DEFAULT_GHOST_ZONES, 0, 0.0);
   }
+}
+
+
+int grid::PrintToScreenBoundaries(int field){
+
+
+ 
+  int i=field;
+
+  PrintToScreenBoundaries(BaryonField[i], "Density");
+
+ 
+ return SUCCESS;
+  
 }

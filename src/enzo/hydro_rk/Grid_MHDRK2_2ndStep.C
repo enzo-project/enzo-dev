@@ -43,8 +43,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  PrintToScreenBoundaries(BaryonField[2], "Vy Rk2 Pre");
-  //PrintToScreenBoundaries();
+ 
 
   double time1 = ReturnWallTime();
 
@@ -148,7 +147,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
 
 
-  PrintToScreenBoundaries(BaryonField[2], "Vy Rk2 Post");
+ 
   
   return SUCCESS;
 

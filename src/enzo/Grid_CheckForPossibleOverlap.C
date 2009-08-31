@@ -101,8 +101,31 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 			 (CellLeftEdge[2][GridDimension[2]-1] >
 			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
  
+// 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] ))    ) &&
+// 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][GridDimension[0]-1] >
+// 			 DomainRightEdge[0] ))                        ) &&
+// 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][0] < DomainLeftEdge[1]  ))    ) &&
+// 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][GridDimension[1]-1] >
+// 			 DomainRightEdge[1] ))                        ) &&
+// 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][0] < DomainLeftEdge[2] ))    ) &&
+// 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][GridDimension[2]-1] >
+// 			 DomainRightEdge[2])  )  )   ){
+	
 
-	  if (ShearingBoundaryDirection!=-1){
+
+	  /* Full periodic case (26 checks). */
+ 
+	  if ((GridRank > 2 || k == 0) &&
+	      (GridRank > 1 || j == 0) &&
+	      (i != 0 || j != 0 || k != 0)) {
+
+	    if (ShearingBoundaryDirection!=-1){
 	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
 		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
 		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
@@ -114,13 +137,6 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
 		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
 	      }
 	    }
-
-
-	  /* Full periodic case (26 checks). */
- 
-	  if ((GridRank > 2 || k == 0) &&
-	      (GridRank > 1 || j == 0) &&
-	      (i != 0 || j != 0 || k != 0)) {
 	    if (this->CheckForPossibleOverlapHelper(OtherGrid, EdgeOffset)
 		== TRUE)
 	      return TRUE;

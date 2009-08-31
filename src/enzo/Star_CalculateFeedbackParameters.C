@@ -204,8 +204,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   }
     
     break;
-  case MBH_RADIATIVE:
-    break;
+//   case MBH_RADIATIVE:
+//     break;
 
   } // ENDSWITCH FeedbackFlag
   

@@ -157,6 +157,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	}
 
 	if (D_new < 0 || isnan(D_new)) {
+	  PrintToScreenBoundaries(BaryonField[0], "Density", 1, j);
+
 	  printf("UpdatePrim: rho <0 at %d %d %d: rho_old=%g, rho=%g, rho_new=%g, dU[iD]=%g\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  //D_new = max(D_new, SmallRho);
