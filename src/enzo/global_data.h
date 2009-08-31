@@ -357,6 +357,7 @@ EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
+EXTERN int NumberOfRootGridTilesPerDimensionPerProcessor;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonSubcycleSkip;

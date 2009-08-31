@@ -417,7 +417,7 @@ float grid::ComputeTimeStep()
  
   if (debug1) {
     printf("ComputeTimeStep = %"FSYM" (", dt);
-    if (NumberOfBaryonFields > 0)
+    if (HydroMethod != MHD_RK && NumberOfBaryonFields > 0)
       printf("Bar = %"FSYM" ", dtBaryons);
     if (HydroMethod == MHD_RK)
       printf("dtMHD = %"FSYM" ", dtMHD);

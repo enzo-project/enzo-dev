@@ -204,6 +204,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
   UnigridTranspose            = FALSE;
+  NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
 
