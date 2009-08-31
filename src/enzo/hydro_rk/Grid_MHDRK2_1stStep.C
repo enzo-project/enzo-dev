@@ -44,6 +44,8 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
+
+
   double time1 = ReturnWallTime();
 
   int igrid;
@@ -158,6 +160,8 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
+
+
 
   return SUCCESS;
 

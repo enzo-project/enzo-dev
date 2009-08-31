@@ -119,11 +119,12 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
       if (CommunicationReceiveGridOne[index] != NULL &&
 	  CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL) {
 
-//	fprintf(stdout, "%d %d %d %d %d\n", index, 
-//		CommunicationReceiveCallType[index],
-//		CommunicationReceiveGridOne[index],
-//		CommunicationReceiveMPI_Request[index],
-//		CommunicationReceiveDependsOn[index]);
+// 	if(CommunicationReceiveCallType[index]==2)
+// 	  fprintf(stdout, "%d %d %d %d %d\n", index, 
+// 		CommunicationReceiveCallType[index],
+// 		CommunicationReceiveGridOne[index],
+// 		CommunicationReceiveMPI_Request[index],
+// 		CommunicationReceiveDependsOn[index]);
 
 	/* If this depends on an un-processed receive, then skip it. */
 

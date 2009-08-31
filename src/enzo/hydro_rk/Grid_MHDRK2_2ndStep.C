@@ -43,6 +43,8 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
+ 
+
   double time1 = ReturnWallTime();
 
   float *dU[NEQ_MHD+NSpecies+NColor];
@@ -144,6 +146,9 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
 
+
+ 
+  
   return SUCCESS;
 
 }

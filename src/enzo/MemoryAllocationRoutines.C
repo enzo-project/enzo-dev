@@ -67,8 +67,8 @@ void* operator new(size_t NumberOfBytes)
  
 void operator delete(void *pointer)
 {
-  if (pointer == NULL)
-    return;
+  if (pointer == NULL){
+    return;}
  
   CurrentMemoryUsage -= *(((float *) pointer) - 1);
  
