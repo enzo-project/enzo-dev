@@ -54,7 +54,7 @@ bool FirstTimeCalled = true;
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 {
  
-  if (NumberOfProcessors == 1)
+  if (NumberOfProcessors*NumberOfRootGridTilesPerDimensionPerProcessor == 1)
     return SUCCESS;
  
   // Declarations
