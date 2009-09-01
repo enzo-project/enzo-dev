@@ -104,8 +104,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
 #define SEDOV_TEST
 #ifdef SEDOV_TEST
-      //if (this->type > 0 && AgeInMyr > 0)
-    if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)
+    if (this->type > 0 && AgeInMyr > 0)
+      //if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)
       this->FeedbackFlag = MBH_THERMAL;
     else
       this->FeedbackFlag = NO_FEEDBACK;      

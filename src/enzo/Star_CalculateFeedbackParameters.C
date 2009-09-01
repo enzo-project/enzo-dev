@@ -126,7 +126,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
 	ENZO_FAIL("");
       }
-
    
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       size *= CurrentGrid->GridDimension[dim];
@@ -205,13 +204,13 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
 #define SEDOV_TEST
 #ifdef SEDOV_TEST
-    EjectaThermalEnergy = 1.0e50 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    //EjectaThermalEnergy = 1.0e50 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
     // For the continuous energy injection case (variation of Sedov test)
-    /*
-    EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
+   
+    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 5e11
       / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-    */
+    
 #endif
 
     break;
