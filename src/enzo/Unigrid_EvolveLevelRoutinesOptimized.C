@@ -49,11 +49,16 @@ extern int CopyPotentialFieldAverage;
 /* ======================================================================= */
 /* This routine sets all the boundary conditions for Grids by either
    interpolating from their parents or copying from sibling grids. */
- 
+
+
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  int level, TopGridData *MetaData,
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
 {
+
+  int loopEnd=1;  if (ShearingBoundaryDirection != -1) loopEnd=2;
+  
+   for (int loop=0; loop < loopEnd; loop++){
   int grid, grid2;
  
   /* -------------- FIRST PASS ----------------- */
@@ -72,12 +77,13 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
        boundary conditions. */
  
     if (level == 0) {
-      if (Grids[grid]->GridData->SetExternalBoundaryValues(Exterior)
+      if (loop==0){
+	if (Grids[grid]->GridData->SetExternalBoundaryValues(Exterior)
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
 	ENZO_FAIL("");
-      }
-    }
+      
+	}}}
     else {
       if ((Grids[grid]->GridData->InterpolateBoundaryFromParent
 	   (Grids[grid]->ParentGrid->GridData)) == FAIL) {
@@ -148,10 +154,12 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
- 
+  
   return SUCCESS;
-}
+  
  
+   }
+} 
  
  
 /* ======================================================================= */

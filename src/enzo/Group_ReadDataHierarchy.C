@@ -112,6 +112,20 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 //  if ( MyProcessorNumber == 0 )
 //    fprintf(stderr, "Using dumped task assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, Task);
 
+  /* If requested, reset the grid processors. */
+
+  if (ResetLoadBalancing) {
+    if (GridID <= NumberOfRootGrids)
+      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
+	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
+      else
+	Task = GridID-1;
+    else
+      Task = ParentGrid->GridData->ReturnProcessorNumber();
+    LoadBalancing = 1;
+    ResetLoadBalancing = FALSE;
+  }
+
   // Assign tasks in a round-robin fashion if we're increasing the
   // processor count, but processors are grouped together
   // (0000111122223333).  Only used if LoadBalancing == 2.

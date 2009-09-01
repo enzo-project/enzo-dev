@@ -144,6 +144,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	S3_new  = c1*rho_old*vz_old + (1.0-c1)*rho*vz + c2*dU[iS3][n];
 	Tau_new = c1*Tau_old + (1.0-c1)*Tau + c2*dU[iEtot][n];
 
+
+	
 	if (DualEnergyFormalism) {
 	  Eint_new = c1*rho_old*eint_old + (1.0-c1)*rho*eint + c2*dU[iEint][n];
 	  /*if (Eint_new < 0) {
@@ -155,6 +157,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	}
 
 	if (D_new < 0 || isnan(D_new)) {
+	  PrintToScreenBoundaries(BaryonField[0], "Density", 1, j);
+
 	  printf("UpdatePrim: rho <0 at %d %d %d: rho_old=%g, rho=%g, rho_new=%g, dU[iD]=%g\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  //D_new = max(D_new, SmallRho);
@@ -170,6 +174,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	vy = S2_new/D_new;
 	vz = S3_new/D_new;
 	etot = Tau_new/D_new;
+
+
 
 	v2 = vx*vx + vy*vy + vz*vz;
 	// If using polytropic EOS, calcuate etot using density
@@ -194,6 +200,9 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;
 	BaryonField[TENum][igrid] = etot;
+
+
+
 
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;

@@ -91,6 +91,10 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           int level, TopGridData *MetaData,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
+
+
+
+
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
 		      int level, ExternalBoundary *Exterior);
 
@@ -222,6 +226,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
 
+
+  
   /* Count the number of colours in the first grid (to define Ncolor) */
 
   Grids[0]->GridData->SetNumberOfColours();
@@ -446,6 +452,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			Exterior, LevelArray[level]);
 #endif
     
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
@@ -530,6 +537,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
 			  Exterior, LevelArray[level]);
 #endif
+
+
 
     /* Finalize (accretion, feedback, etc.) star particles */
  

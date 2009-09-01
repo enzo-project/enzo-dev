@@ -754,6 +754,10 @@ class grid
 		       int (grid::*CopyFunction)(grid *OtherGrid,
 						 FLOAT EdgeOffset[]));
 
+ 
+
+
+
 /* baryons: check for subgrids adjacent to external boundary with reflecting BCs. */
 
    int CheckForExternalReflections(
@@ -2063,6 +2067,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			      int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
+  int PrintToScreenBoundaries();
+  int PrintToScreenBoundaries(int field);
 
   int getField(int i){return FieldType[i];};
   
