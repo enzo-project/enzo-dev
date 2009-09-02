@@ -34,7 +34,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData)
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
@@ -60,7 +60,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
 
   /* read input from file */
-
+  rewind(fptr);
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
     ret = 0;
@@ -91,36 +91,26 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   printf("rho_medium=%g, cs=%g, Bnaught=%g\n", rho_medium, cs, Bnaught);
 
 
-//   if (ParallelRootGridIO == TRUE && NumberOfProcessors > 1) {
-//     HierarchyEntry *CurrentGrid;
-//     CurrentGrid = &TopGrid;
-//     int gridcounter=0;
-//     while (CurrentGrid != NULL) {
-//       if (debug)
-// 	printf("MHDTurbulenceInitialize: Partition Initial Grid %"ISYM"\n", gridcounter);
-//       CommunicationPartitionGrid(CurrentGrid, gridcounter);
-//       gridcounter++;
-//       CurrentGrid = CurrentGrid->NextGridNextLevel;
-//     }
+  HierarchyEntry *CurrentGrid;
+  CurrentGrid = &TopGrid;
     
-//     CurrentGrid = &TopGrid;
-    
-//     while (CurrentGrid != NULL) {
-//       if (CurrentGrid->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-// 						      Bnaught, RandomSeed, level) == FAIL) {
-// 	fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
-// 	return FAIL;
-//       }
-//       CurrentGrid = CurrentGrid->NextGridThisLevel;
-//     }
-//   } else { // only one grid:
-    if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-						      Bnaught, RandomSeed, 0) == FAIL) {
+  while (CurrentGrid != NULL) {
+    if (CurrentGrid->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+				   Bnaught, RandomSeed, 0, SetBaryonFields) == FAIL) {
       fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
       return FAIL;
     }
-    //  }
-
+    CurrentGrid = CurrentGrid->NextGridThisLevel;
+  }
+  
+  /*   } else { // only one grid:
+       if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+       Bnaught, RandomSeed, 0, SetBaryonFields) == FAIL) {
+       fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
+       return FAIL;
+       }
+       //  }
+       */
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -158,7 +148,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
 	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-							Bnaught, RandomSeed, level) == FAIL) {
+							Bnaught, RandomSeed, level, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
 	  return FAIL;
 	}
