@@ -365,6 +365,7 @@ OBJS_CONFIG_LIB = \
         Grid_RestoreEnergyConsistency.o \
         Grid_ReturnFluxDims.o \
         Grid_ReturnGridInfo.o \
+	Grid_ReturnStarStatistics.o \
         Grid_RotatingCylinderInitialize.o \
         Grid_SedovBlastInitializeGrid3D.o \
         Grid_SedovBlastInitializeGrid.o \
@@ -557,6 +558,7 @@ OBJS_CONFIG_LIB = \
         StarListRoutines.o \
         StarParticleAccretion.o \
         StarParticleAddFeedback.o \
+	StarParticleCountOnly.o \
         StarParticleDeath.o \
         StarParticleFinalize.o \
         StarParticleFindAll.o \

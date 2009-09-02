@@ -365,7 +365,7 @@ float grid::ComputeTimeStep()
     mindtNOstars = 10;  // Myr
 
   if (STARFEED_METHOD(POP3_STAR) || STARFEED_METHOD(STAR_CLUSTER))
-    if (TotalNumberOfStars > 0 && minStarLifetime < 1e6)
+    if (G_TotalNumberOfStars > 0 && minStarLifetime < 1e6)
       dtStar = minStarLifetime/NumberOfStepsInLifetime;
     else
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
