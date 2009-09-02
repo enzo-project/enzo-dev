@@ -1837,6 +1837,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int AddH2Dissociation(Star *AllStars);
 
+  int ReturnStarStatistics(int &Number, float &minLife);
+
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define
 //------------------------------------------------------------------------
