@@ -208,7 +208,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     
     // For the continuous energy injection case (variation of Sedov test)
    
-    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 5e11
+    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 2.0e11
       / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
 #endif
