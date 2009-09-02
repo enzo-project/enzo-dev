@@ -31,11 +31,14 @@
 #include "CommunicationUtilities.h"
 
 #define LOAD_BALANCE_RATIO 1.05
+#define MOVES_PER_LOOP 20
 
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 void icol(int *x, int n, int m, FILE *log_fptr);
 void fpcol(Eflt64 *x, int n, int m, FILE *fptr);
 int DetermineNumberOfNodes(void);
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes, 
 				  int* &ProcessorNumbers, double* NumberOfCells, 
 				  double* NumberOfSubcells);
@@ -157,40 +160,65 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 
   /* Move the grids to their new processors */
 
-  /* Post receives */
+  HierarchyEntry **Grids;
+  int NumberOfGrids = GenerateGridArray(LevelArray, 0, &Grids);
 
-  CommunicationReceiveIndex = 0;
-  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-  CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+  bool Done = false;
+  int nmove, igrid = 0, StartGrid = 0, EndGrid = 0;
+  while (!Done) {
 
-  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++)
-    if (Temp->GridData->ReturnProcessorNumber() != RootProcessors[i])
-      Temp->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
+    nmove = 0;
+    StartGrid = EndGrid;
+    while (nmove < MOVES_PER_LOOP && igrid < NumberOfGrids) {
+      if (Grids[igrid]->GridData->ReturnProcessorNumber() != RootProcessors[igrid])
+	nmove++;
+      igrid++;
+    }
+    EndGrid = igrid;
+    if (igrid == NumberOfGrids)
+      Done = true;
 
-  /* Send grids */
+//    if (debug) 
+//      printf("LBRoot: done = %d, grids %d -> %d, nmove = %d\n", 
+//	     Done, StartGrid, EndGrid, nmove);
 
-  CommunicationDirection = COMMUNICATION_SEND;
+    /* Post receives */
 
-  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++)
-    if (Temp->GridData->ReturnProcessorNumber() != RootProcessors[i]) {
+    CommunicationReceiveIndex = 0;
+    CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+
+    for (i = StartGrid; i < EndGrid; i++)
+      if (Grids[i]->GridData->ReturnProcessorNumber() != RootProcessors[i])
+	Grids[i]->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
+
+    /* Send grids */
+
+    CommunicationDirection = COMMUNICATION_SEND;
+
+    for (i = StartGrid; i < EndGrid; i++)
+      if (Grids[i]->GridData->ReturnProcessorNumber() != RootProcessors[i]) {
+	if (RandomForcing)  //AK
+	  Grids[i]->GridData->AppendForcingToBaryonFields();
+	Grids[i]->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
+      }
+
+    /* Receive grids */
+
+    if (CommunicationReceiveHandler() == FAIL)
+      ENZO_FAIL("");
+
+    /* Update processor numbers */
+    
+    for (i = StartGrid; i < EndGrid; i++) {
+      Grids[i]->GridData->SetProcessorNumber(RootProcessors[i]);
       if (RandomForcing)  //AK
-	Temp->GridData->AppendForcingToBaryonFields();
-      Temp->GridData->CommunicationMoveGrid(RootProcessors[i], TRUE);
+	Grids[i]->GridData->RemoveForcingFromBaryonFields();
     }
 
-  /* Receive grids */
+  } // ENDWHILE !Done
 
-  if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("");
-
-  /* Update processor numbers */
-    
-  for (Temp = LevelArray[0], i = 0; Temp; Temp = Temp->NextGridThisLevel, i++) {
-    Temp->GridData->SetProcessorNumber(RootProcessors[i]);
-    if (RandomForcing)  //AK
-      Temp->GridData->RemoveForcingFromBaryonFields();
-  }
-
+  delete [] Grids;
   delete [] RootProcessors;
 
   return SUCCESS;

@@ -189,9 +189,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   float InitialFractionHeII = 1.0e-14;
   float InitialFractionHeIII = 1.0e-17;  
 
-  if (CloudType == 3) {
+  /* if (CloudType == 3) {
     CloudRadius = 10.0;
-  }
+    } */
 
   /* Cloud center is box center. */
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, xpos, ypos, zpos,
@@ -253,7 +253,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  /* Type 3: flattened 1/r^2 profile without ambient medium. */
 
 	  if (CloudType == 3) {
-	    Density = CloudDensity / (1.0 + pow(6.0*r,2));
+	    Density = CloudDensity / (1.0 + pow(6.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -288,6 +288,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	  if (CloudType == 1) {
 	    Density = CloudDensity/20.0;
+	    eint = CloudInternalEnergy;
+	  }
+
+          if (CloudType ==3) {
+	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -587,6 +592,45 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleAttribute[1][0] = 0;
     ParticleAttribute[2][0] = mass_p;
   }
+
+  /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  int PutSinkParticle = 0;
+  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  if (PutSinkParticle == 1 && level == 0) {
+    NumberOfParticleAttributes = 6;
+    double mass_p = 1.1*1.989e33;
+    mass_p /= MassUnits;
+    double dx = CellWidth[0][0];
+    double den_p = mass_p / pow(dx,3);
+    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    t_dyn /= TimeUnits;
+
+    NumberOfParticles = 1;
+    NumberOfStarParticles = 1;
+    MaximumParticleNumber = 1;
+    this->AllocateNewParticles(NumberOfParticles);
+    ParticleMass[0] = den_p;
+    ParticleNumber[0] = 0;
+    ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
+    ParticlePosition[0][0] = 0.50;                         
+    ParticlePosition[1][0] = 0.50;
+    ParticlePosition[2][0] = 0.50;
+
+    ParticleVelocity[0][0] = 0.0;
+    ParticleVelocity[1][0] = 0.0;
+    ParticleVelocity[2][0] = 0.0;
+    LibbyTouched = 1;
+    for (i = 0; i< MAX_DIMENSION+1; i++){
+      ParticleAcceleration[i] = NULL;
+    }
+    this->ClearParticleAccelerations();
+
+    ParticleAttribute[0][0] = 0.0; // creation time    
+    ParticleAttribute[1][0] = t_dyn; // dynamical time                                                                
+    ParticleAttribute[2][0] = mass_p; //                                                                                 
+    printf("XXX Sink Particle in, NumberOfParticles = %d \n",NumberOfParticles);
+    }*/
+
 
   int TestMerge = 0;
   if (TestMerge == 1 && level == 0) {

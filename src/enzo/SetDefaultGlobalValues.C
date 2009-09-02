@@ -111,6 +111,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
+  ResetLoadBalancing = FALSE;
   CoresPerNode = 1;
   PreviousMaxTask = 0;
 
@@ -314,6 +315,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+  OutputParticleTypeGrouping       = FALSE;
 
   PythonSubcycleSkip               = 1;
 
@@ -544,6 +546,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
+
+  IsothermalSoundSpeed = 1.0;
+  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";

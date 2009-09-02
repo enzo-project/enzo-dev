@@ -84,6 +84,7 @@ OBJS_CONFIG_LIB = \
         CopyParticlesAcrossPeriodicBoundaries.o \
         CopyOverlappingParticleMassFields.o \
         CopyOverlappingZones.o \
+	CopyZonesFromOldGrids.o \
         CosmologyComputeExpansionFactor.o \
         CosmologyComputeExpansionTimestep.o \
         CosmologyComputeTimeFromRedshift.o \
@@ -169,6 +170,7 @@ OBJS_CONFIG_LIB = \
         FOF_unbind.o \
         fortio.o \
         fourn.o \
+	FreeExpansionInitialize.o \
         FreeRealMem.o \
 	GadgetInitCoolMemory.o \
 	GadgetIonizeParamsTable.o \
@@ -255,6 +257,7 @@ OBJS_CONFIG_LIB = \
         Grid_CosmologyInitializeParticles.o \
         Grid_CosmologySimulationInitializeGrid.o \
         Grid_CreateFieldArray.o \
+        Grid_CreateParticleTypeGrouping.o \
         Grid_DebugCheck.o \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
@@ -286,6 +289,7 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
+	Grid_FreeExpansionInitializeGrid.o \
 	Grid_GadgetCalculateCooling.o \
 	Grid_GadgetComputeTemperature.o \
 	Grid_GadgetComputeTemperatureDEF.o \
@@ -378,6 +382,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveRateAndCoolEquations.o \
         Grid_SolveRateEquations.o \
         Grid_SortParticlesByNumber.o \
+        Grid_SortParticlesByType.o \
         Grid_SphericalInfallGetProfile.o \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
