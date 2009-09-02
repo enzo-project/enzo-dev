@@ -713,6 +713,8 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_TurbulenceInitializeGrid.o \
         hydro_rk/Grid_UpdatePrim.o \
         hydro_rk/Grid_ZeroFluxes.o \
+	hydro_rk/Grid_PrepareVelocityNormalization.o \
+	hydro_rk/Grid_NormalizeVelocities.o \
         hydro_rk/Turbulence_Generator.o \
         hydro_rk/HLL_PLM.o \
         hydro_rk/HLL_PPM.o \

@@ -9,16 +9,12 @@
 /
 ************************************************************************/
 
-#ifdef USE_MPI
-#include <mpi.h>
-#endif /* USE_MPI */
-
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 
 #include "macros_and_parameters.h"
-#include "CommunicationUtilities.h"
+
 
 //int CommunicationAllReduceValues(Eflt64 *Values, int Number, 
 //				  MPI_Op ReduceOperation);
@@ -115,6 +111,8 @@
      }
    }
 
+   return ;
+
    /* Renormalize velocity field to the rms sigma:
       Averaged value of the velocity field square over the entire box = sigma^2 
       Make sure to set NumberOfRootGridTilesPerDimensionPerProcessor = 1
@@ -131,12 +129,8 @@
        }
      }
    }
-   CommunicationBarrier();
-  
-
+ 
   fprintf(stderr, "v_rms: %g\n", v_rms);
-  CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
-  CommunicationAllReduceValues(&dV, 1, MPI_SUM);
   v_rms /= dV;
   fprintf(stderr, "v_rms: %g\n", v_rms);
   v_rms = sqrt(v_rms);

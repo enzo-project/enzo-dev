@@ -1991,6 +1991,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				  float rho_medium, float p_medium, int level);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				  float Bnaught, int seed, int level, int SetBaryonFields);
+
+  int PrepareVelocityNormalization(double *v_rms, double *Volume);
+  int NormalizeVelocities(Eflt factor);
+
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],
 			       FLOAT HaloCoreRadius[MAX_SPHERES],
