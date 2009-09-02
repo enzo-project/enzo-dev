@@ -361,7 +361,14 @@ Eint32 main(Eint32 argc, char *argv[])
     }
 #endif
 
-    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    // TA: Changed this:
+    //    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    // thinking that TopGrid.NextGridThisLevel == NULL when was ParallelRootGridIO == 0 
+    // in the run that wrote this restart dump. 
+    // Removing it however lets one to restart from a single grid
+    // but write parallel root grid io for all new outputs
+
+    if (restart && TopGrid.NextGridThisLevel == NULL) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
  

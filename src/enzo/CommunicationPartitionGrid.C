@@ -38,7 +38,7 @@
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
  
-#define USE_OLD_CPU_DISTRIBUTION
+#define USE_NEW_CPU_DISTRIBUTION
 
 /* This option code ensures that in nested grid sims, the children grids are not split between two grids at level-1.
    It is off by default. */
@@ -54,7 +54,7 @@ bool FirstTimeCalled = true;
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 {
  
-  if (NumberOfProcessors == 1)
+  if (NumberOfProcessors*NumberOfRootGridTilesPerDimensionPerProcessor == 1)
     return SUCCESS;
  
   // Declarations
@@ -118,7 +118,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   /* Swap layout because we want smallest value to be at Layout[0]. */
  
   for (dim = 0; dim < Rank; dim++)
-    Layout[dim] = LayoutTemp[Rank-1-dim];
+    Layout[dim] = LayoutTemp[Rank-1-dim] * NumberOfRootGridTilesPerDimensionPerProcessor;
  
   /* Force some distributions if the default is brain-dead. */
 
@@ -566,14 +566,6 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  NewGrid->CommunicationMoveGrid(NewProc);
 	else
 	  NewGrid->SetProcessorNumber(NewProc);
-        if (MyProcessorNumber == ROOT_PROCESSOR && debug1) {
-          printf("Grid = %"ISYM", K J I: [%"ISYM",%"ISYM",%"ISYM"] Proc = %"ISYM"\n", gridcounter, k, j, i, NewProc);
-          for (dim = 0; dim < Rank; dim++) {
-            printf("  %"ISYM" ::  LeftEdge[%"ISYM"] = %8.4"PSYM"  RightEdge[%"ISYM"] = %8.4"PSYM"\n",
-                   NewProc, dim, LeftEdge[dim], dim, RightEdge[dim]);
-          }
-        }
-
 #endif
 
 #ifdef USE_PERMUTED_CPU_DISTRIBUTION
@@ -581,14 +573,23 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  NewGrid->CommunicationMoveGrid(ProcMap);
 	else
 	  NewGrid->SetProcessorNumber(ProcMap);
+#endif
+
+	// TA introduced to be able to restart from large unigrid files
+	// but allow parallel rootgrid IO
+#ifdef USE_NEW_CPU_DISTRIBUTION
+	  NewGrid->CommunicationMoveGrid(NewProc);
+#endif
+	
+
+	// some debug output
         if (MyProcessorNumber == ROOT_PROCESSOR && debug1) {
-          printf("Grid = %"ISYM", K J I: [%"ISYM",%"ISYM",%"ISYM"] Proc = %"ISYM"\n", gridcounter, k, j, i, ProcMap);
+          printf("Grid = %"ISYM", K J I: [%"ISYM",%"ISYM",%"ISYM"] Proc = %"ISYM"\n", gridcounter, k, j, i, NewProc);
           for (dim = 0; dim < Rank; dim++) {
             printf("  %"ISYM" ::  LeftEdge[%"ISYM"] = %8.4"PSYM"  RightEdge[%"ISYM"] = %8.4"PSYM"\n",
-                   ProcMap, dim, LeftEdge[dim], dim, RightEdge[dim]);
+                   NewProc, dim, LeftEdge[dim], dim, RightEdge[dim]);
           }
-        }
-#endif
+	}
 
         /* Detach ForcingFields from BaryonFields. */
  

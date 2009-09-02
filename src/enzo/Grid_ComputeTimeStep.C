@@ -365,7 +365,7 @@ float grid::ComputeTimeStep()
     mindtNOstars = 10;  // Myr
 
   if (STARFEED_METHOD(POP3_STAR) || STARFEED_METHOD(STAR_CLUSTER))
-    if (TotalNumberOfStars > 0 && minStarLifetime < 1e6)
+    if (G_TotalNumberOfStars > 0 && minStarLifetime < 1e6)
       dtStar = minStarLifetime/NumberOfStepsInLifetime;
     else
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
@@ -417,7 +417,7 @@ float grid::ComputeTimeStep()
  
   if (debug1) {
     printf("ComputeTimeStep = %"FSYM" (", dt);
-    if (NumberOfBaryonFields > 0)
+    if (HydroMethod != MHD_RK && NumberOfBaryonFields > 0)
       printf("Bar = %"FSYM" ", dtBaryons);
     if (HydroMethod == MHD_RK)
       printf("dtMHD = %"FSYM" ", dtMHD);

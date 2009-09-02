@@ -150,7 +150,7 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
@@ -515,7 +515,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 203) MHD Turbulence Collapse */
   if (ProblemType == 203) {
-    ret = MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 204) 3D MHD Test */
@@ -785,9 +785,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("");
     }
  
- 
-
-  
+  // For ProblemType 203 (Turbulence Simulation we only initialize the data
+  // once the topgrid hsa been split.
+ if (ProblemType == 203)
+   if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+   
  
   // Close parameter files
  
