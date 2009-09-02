@@ -116,10 +116,13 @@
    }
 
    /* Renormalize velocity field to the rms sigma:
-      Averaged value of the velocity field squre over the entire box = sigma^2 */
+      Averaged value of the velocity field square over the entire box = sigma^2 
+      Make sure to set NumberOfRootGridTilesPerDimensionPerProcessor = 1
+      so it really uses all patches for the correct average
+*/
 
    double v_rms = 0.0;
-   double dV = 1.0/((float) (igrid));
+   double dV = ((float) (igrid));
    igrid = -1;
    for (k = 0; k < dim2; k++) {
      for (j = 0; j < dim1; j++) {
@@ -128,11 +131,13 @@
        }
      }
    }
+   CommunicationBarrier();
+  
 
-  CommunicationBarrier();
-  v_rms *= dV;
   fprintf(stderr, "v_rms: %g\n", v_rms);
   CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
+  CommunicationAllReduceValues(&dV, 1, MPI_SUM);
+  v_rms /= dV;
   fprintf(stderr, "v_rms: %g\n", v_rms);
   v_rms = sqrt(v_rms);
   double fac = sigma/v_rms;
