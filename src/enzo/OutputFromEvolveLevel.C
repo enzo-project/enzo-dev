@@ -56,7 +56,7 @@ EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
 			  int level, ExternalBoundary *Exterior){
 
-  int Write = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -81,7 +81,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (MetaData->OutputFirstTimeAtLevel > 0 &&
 	level >= MetaData->OutputFirstTimeAtLevel){
       MetaData->OutputFirstTimeAtLevel = level+1;
-      Write = TRUE;
+      WriteOutput = TRUE;
     }
 
     if(OutputOnDensity == 1) {
@@ -103,7 +103,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
         }
         fprintf(stderr, "Outputting based on DensMax == %0.3f (now set to %0.3f)\n",
             log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
-        Write = TRUE;
+        WriteOutput = TRUE;
       }
     }
 
@@ -123,13 +123,13 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 
       if ( outputNow != -1 ){
 	printf("Detected outputNow\n");
-	Write = TRUE;
+	WriteOutput = TRUE;
       }
 
       if( stopNow != -1 ) {
 	printf("Detected stopNow\n");
 	ExitEnzo = TRUE;
-	Write = TRUE;
+	WriteOutput = TRUE;
       }
 
       /* Check to see if new subcycle information has been given to us */
@@ -185,33 +185,21 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	     MetaData->SubcycleNumber, MetaData->SubcycleLastDataDump,
 	     MetaData->SubcycleSkipDataDump);
       MetaData->SubcycleLastDataDump += MetaData->SubcycleSkipDataDump;
-      Write= TRUE;
+      WriteOutput= TRUE;
     } 
     
     if (MetaData->StopFirstTimeAtLevel > 0 &&
 	level >= MetaData->StopFirstTimeAtLevel){
       ExitEnzo = TRUE;
-      Write = TRUE;
+      WriteOutput = TRUE;
     }
   }//Finest Level
 
   FILE *Exit_fptr;
 
-  if( ExitEnzo == TRUE ){
-    if (MovieSkipTimestep != INT_UNDEFINED) {
-      fprintf(stderr, "Closing movie file.\n");
-      MetaData->AmiraGrid.AMRHDF5Close();
-    }
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
-      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
-      Exit_fptr = fopen("RunFinished", "w");
-      fclose(Exit_fptr);
-    }
-    my_exit(EXIT_SUCCESS);
-  }
-  
-  if( Write == TRUE ){
+  if( WriteOutput == TRUE ){
     
+    fprintf(stderr, "WRITING OUT, yo\n");
     LevelHierarchyEntry *Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
       Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
@@ -229,8 +217,20 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 //       ENZO_FAIL("");
 //     }
 // #endif
-  }//Write == TRUE
+  }//WriteOutput == TRUE
 
+  if( ExitEnzo == TRUE ){
+    if (MovieSkipTimestep != INT_UNDEFINED) {
+      fprintf(stderr, "Closing movie file.\n");
+      MetaData->AmiraGrid.AMRHDF5Close();
+    }
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
+      Exit_fptr = fopen("RunFinished", "w");
+      fclose(Exit_fptr);
+    }
+    my_exit(EXIT_SUCCESS);
+  }
   
   
   return SUCCESS;
