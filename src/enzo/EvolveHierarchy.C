@@ -285,7 +285,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* For top-level timestepping with radiative star particles, we want
      to restrict the timesteps.  Collect info here. */
 
-  //  StarParticleCountOnly(LevelArray);
+  StarParticleCountOnly(LevelArray);
  
 #ifdef USE_JBPERF
   Eint32 jb_iter;
