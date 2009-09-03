@@ -47,7 +47,6 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   double time1 = ReturnWallTime();
 
-  float *dU[NEQ_MHD+NSpecies+NColor];
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
   if (StellarWindFeedback)
@@ -109,6 +108,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   /* Compute dU */
 
+  float *dU[NEQ_MHD+NSpecies+NColor];
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);

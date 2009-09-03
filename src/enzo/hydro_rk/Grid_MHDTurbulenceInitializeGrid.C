@@ -108,8 +108,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
   }
 
-  printf("Begin generating turbulent velocity spectrum... %i\n", GridDimension[0]-2*DEFAULT_GHOST_ZONES);
-  
+  if (debug) 
+    printf("Begin generating turbulent velocity spectrum... %i %i %i\n", 
+	   GridDimension[0]-2*DEFAULT_GHOST_ZONES,
+	   GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+	   GridDimension[2]-2*DEFAULT_GHOST_ZONES);
+
   Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[2]-2*DEFAULT_GHOST_ZONES,
@@ -185,12 +189,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 
   // Set the turbulent velocity field
   float v2;
-  n = -1;
+
   int igrid;
+  n = 0;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-
 	igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
         x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
         y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
@@ -213,7 +217,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   for (int i = 0; i < 3; i++) {
-    delete TurbulenceVelocity[i];
+    delete [] TurbulenceVelocity[i];
   }
 
 
