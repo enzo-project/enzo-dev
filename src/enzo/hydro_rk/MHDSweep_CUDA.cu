@@ -37,8 +37,8 @@
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
 #define CUDA_GRID_SIZE 640
-#define GHOST_SIZE 4
-#define PRINT_CUDA_TIMING 1
+//#define GHOST_SIZE 4
+#define PRINT_CUDA_TIMING 0
 //#define Gamma 2.0
 #define Theta_Limiter 1.5
 #define EOSType 3

@@ -103,10 +103,11 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
+  this->ReturnHydroRKPointers(Prim, 0);
+
   if (StellarWindFeedback)
     this->ReduceWindBoundary();
 
-  this->ReturnHydroRKPointers(Prim);
   
   /* RK2 first step */
 
@@ -120,8 +121,6 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
       printf("RK1: MHDTimeUpdate_CUDA failed.\n");
       return FAIL;
     }
-    //return FAIL;
-    //    PerformanceTimers[1] += ReturnWallTime() - time1;
     return SUCCESS;
   }
 #endif
@@ -157,10 +156,6 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
     delete [] dU[field];
   }
-
-  //  PerformanceTimers[1] += ReturnWallTime() - time1;
-
-
 
   return SUCCESS;
 

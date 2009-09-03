@@ -43,16 +43,16 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
- 
 
   double time1 = ReturnWallTime();
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
+  this->ReturnHydroRKPointers(Prim,0);
+
   if (StellarWindFeedback)
     this->ReduceWindBoundary();
 
-  this->ReturnHydroRKPointers(Prim);
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -137,11 +137,6 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     delete [] dU[field];
   }
 
-  //  PerformanceTimers[1] += ReturnWallTime() - time1;
-
-
- 
-  
   return SUCCESS;
 
 }

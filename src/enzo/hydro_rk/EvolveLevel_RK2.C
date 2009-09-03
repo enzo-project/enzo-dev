@@ -432,7 +432,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Grids[grid1]->GridData->MHDRK2_1stStep
 	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
-	  if (debug1) fprintf(stderr, "NumberOfSubgrids : %i \n", NumberOfSubgrids[grid1]);
 	}
       } // ENDIF UseHydro
 	
