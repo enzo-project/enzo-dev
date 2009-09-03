@@ -100,19 +100,8 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   
   if (DualEnergyFormalism > 0) NEQ_MHD = 10;
 
-  float *dU[NEQ_MHD+NSpecies+NColor];
+
   float *Prim[NEQ_MHD+NSpecies+NColor];
-
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-
-  for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++)
-    dU[field] = new float[activesize];
 
   if (StellarWindFeedback)
     this->ReduceWindBoundary();
@@ -138,6 +127,14 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 #endif
 
+  float *dU[NEQ_MHD+NSpecies+NColor];
+
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+
+  for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++)
+    dU[field] = new float[activesize];
 
   int fallback = 0;
   if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 

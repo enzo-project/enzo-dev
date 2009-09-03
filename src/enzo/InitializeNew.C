@@ -222,7 +222,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("");
   }
 
- 
+  fprintf(stderr, "INITIALDT ------------- %e \n", Initialdt);
  
   // Set the number of particle attributes, if left unset
  
