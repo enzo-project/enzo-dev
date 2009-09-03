@@ -448,6 +448,7 @@ Eint32 main(Eint32 argc, char *argv[])
       AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
     }
  
+
 #ifdef USE_MPI
     CommunicationBarrier();
     t_init1 = MPI_Wtime();
@@ -493,10 +494,9 @@ Eint32 main(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
-
- 
   // Call the main evolution routine
  
+  fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {

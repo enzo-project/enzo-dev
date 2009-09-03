@@ -199,19 +199,20 @@ void Star::CalculateFeedbackParameters(float &Radius,
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      min(mdot, mdot_Edd) * Msun * c * c / EjectaVolume / 
-      DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+      min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
     // For Sedov test (This EjectaThermalEnergy is not quite intuitive, but fits the definition at least.)
     /*
-    EjectaThermalEnergy = 1.0e50 / CurrentGrid->dtFixed * TimeUnits
+    EjectaThermalEnergy = 1.0e50 /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     */
     
     // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
-    EjectaThermalEnergy = 1.0e50 / 2.0e11 /
+    fprintf(stderr, "dtFixed = %g", CurrentGrid->dtFixed);
+    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 2.0e11 /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
     
 #endif

@@ -36,7 +36,6 @@ int RebuildHierarchy(TopGridData *MetaData,
 int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);
-int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
 
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)

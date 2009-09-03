@@ -348,8 +348,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
  
+      fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
     if (Initialdt != 0) {
+      
       dt = min(dt, Initialdt);
+      fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
       dtPhoton = dt;
 #endif

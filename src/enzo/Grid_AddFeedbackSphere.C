@@ -203,11 +203,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    OldDensity = BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] += factor*EjectaDensity;
 
-//	    if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
-//	      fprintf(stderr, "Time = %g\n", Time);
-//	      fprintf(stderr, "dtFixed = %g\n", dtFixed);
-//	      fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
-//	      fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);}
+	    /*
+	    if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
+	      fprintf(stderr, "Time = %g\n", Time);
+	      fprintf(stderr, "dtFixed = %g\n", dtFixed);
+	      fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
+	      fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);}
+	    */
 
 	    /* Add total energies of spheres together, then divide by
 	       density to get specific energy */
@@ -221,7 +223,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 		  BaryonField[DensNum][index];
 	      } else {
 		newGE = (OldDensity * BaryonField[GENum][index] +
-			 ramp * factor * EjectaThermalEnergy * dtFixed * TimeUnits) /
+			 ramp * factor * EjectaThermalEnergy) /
 		  BaryonField[DensNum][index];	      
 	      }
 	      newGE = min(newGE, maxGE);  
@@ -242,14 +244,17 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 		  BaryonField[DensNum][index];
 	      } else {
 		newGE = (OldDensity * BaryonField[TENum][index] +
-			 ramp * factor * EjectaThermalEnergy * dtFixed * TimeUnits) /
+			 ramp * factor * EjectaThermalEnergy) /
 		  BaryonField[DensNum][index];	      
 	      }
 	      newGE = min(newGE, maxGE);  
+	      /*
+	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
 		     OldDensity, BaryonField[DensNum][index], 
 		     BaryonField[TENum][index], newGE, EjectaDensity,
-		     EjectaThermalEnergy);
+		     EjectaThermalEnergy);}
+	      */
 
 	      BaryonField[TENum][index] = newGE;
 	    } //end if(GENum >= 0 && DualEnergyFormalism)

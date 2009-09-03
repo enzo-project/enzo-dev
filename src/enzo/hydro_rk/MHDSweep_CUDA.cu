@@ -37,8 +37,8 @@
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
 #define CUDA_GRID_SIZE 640
-#define GHOST_SIZE 4
-#define PRINT_CUDA_TIMING 1
+//#define GHOST_SIZE 4
+#define PRINT_CUDA_TIMING 0
 //#define Gamma 2.0
 #define Theta_Limiter 1.5
 #define EOSType 3
@@ -253,30 +253,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					       FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
 					       FluxPhi_Device, C_h, Gamma, size);
 
-  /*
-  float *flux = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(flux, FluxD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  for (int i = 0; i < size; i++)
-    printf("%g ", flux[i]);
-  printf("\n");
-  free(flux);
-  */
-  
-  /*
-  float *flux1 = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(flux1, FluxD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  printf("flux:\n");
-  //for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-  //for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-  int j = 47, k = 120;
-  for (int i = 2; i < GridDimension[0]-1; i++)
-    printf("%g ", flux1[i+(j+k*GridDimension[1])*GridDimension[0]]);
-  //printf("\n");
-  //}
-  printf("\n");
-  //}
-  free(flux1);
-  */
 
   // compute dU for x direction
   MHDComputedUx_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
@@ -284,22 +260,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					           dUD_Device, dUS1_Device, dUS2_Device, dUS3_Device,
 				                   dUTau_Device, dUBx_Device, dUBy_Device, dUBz_Device, dUPhi_Device, 
 					           dtdx, size);
-  /*
-  float *dU = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(dU, dUD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  printf("dU:\n");
-  //for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-  //for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-
-  for (int i = 2; i < GridDimension[0]-1; i++)
-    //if (isnan(dU[i+(j+k*GridDimension[1])*GridDimension[0]]))
-    //printf("nan %d %d %d", i,j,k);
-    printf("%g ", dU[i+(j+k*GridDimension[1])*GridDimension[0]]);
-  //}
-  //}
-  printf("\n");
-  free(dU);
-  */
 
   if (GridRank > 1) {
     MHDSweepY_CUDA3_kernel<<<dimGrid,dimBlock>>>(Rho_Device, Vx_Device, Vy_Device, Vz_Device, Etot_Device, 

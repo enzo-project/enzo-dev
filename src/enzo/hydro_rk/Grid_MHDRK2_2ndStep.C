@@ -43,28 +43,13 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
- 
 
   double time1 = ReturnWallTime();
 
-  float *dU[NEQ_MHD+NSpecies+NColor];
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-
-  for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++)
-    dU[field] = new float[activesize];
-
-  if (StellarWindFeedback)
-    this->ReduceWindBoundary();
-
   this->ReturnHydroRKPointers(Prim);
+
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -118,7 +103,15 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   } // if (UseCUDA)
 #endif // ifdef ECUDA
 
+  if (StellarWindFeedback)
+    this->ReduceWindBoundary();
+
   /* Compute dU */
+
+  float *dU[NEQ_MHD+NSpecies+NColor];
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
     dU[field] = new float[activesize];
@@ -144,11 +137,6 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     delete [] dU[field];
   }
 
-  //  PerformanceTimers[1] += ReturnWallTime() - time1;
-
-
- 
-  
   return SUCCESS;
 
 }

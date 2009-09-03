@@ -16,10 +16,7 @@
 #include "macros_and_parameters.h"
 
 
-//int CommunicationAllReduceValues(Eflt64 *Values, int Number, 
-//				  MPI_Op ReduceOperation);
-
- double Gaussian(double cs); 
+double Gaussian(double cs); 
 
  void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, float sigma, 
 			   float kmin, float kmax, float dk,
@@ -89,10 +86,10 @@
 	 /* Fourier transform A_k to v(x) 
 	  v(x) = Sum_k{Re(ik x A_k)}*/
 
-	 igrid = -1;
+	 igrid = 0;
 	 for (k = 0; k < dim2; k++) {
 	   for (j = 0; j < dim1; j++) {
-	     for (i = 0; i < dim0; i++,igrid++) {
+	     for (i = 0; i < dim0; i++, igrid++) {
 	       int ii = i + DEFAULT_GHOST_ZONES;
 	       int jj = j + DEFAULT_GHOST_ZONES;
 	       int kk = k + DEFAULT_GHOST_ZONES;
@@ -113,38 +110,5 @@
 
    return ;
 
-   /* Renormalize velocity field to the rms sigma:
-      Averaged value of the velocity field square over the entire box = sigma^2 
-      Make sure to set NumberOfRootGridTilesPerDimensionPerProcessor = 1
-      so it really uses all patches for the correct average
-*/
-
-   double v_rms = 0.0;
-   double dV = ((float) (igrid));
-   igrid = -1;
-   for (k = 0; k < dim2; k++) {
-     for (j = 0; j < dim1; j++) {
-       for (i = 0; i < dim0; i++, igrid++) {
-	 v_rms += vel[0][igrid]*vel[0][igrid] + vel[1][igrid]*vel[1][igrid] + vel[2][igrid]*vel[2][igrid];
-       }
-     }
-   }
- 
-  fprintf(stderr, "v_rms: %g\n", v_rms);
-  v_rms /= dV;
-  fprintf(stderr, "v_rms: %g\n", v_rms);
-  v_rms = sqrt(v_rms);
-  double fac = sigma/v_rms;
-  igrid = -1;
-  for (k = 0; k < dim2; k++) {
-    for (j = 0; j < dim1; j++) {
-      for (i = 0; i < dim0; i++, igrid++) {
-	vel[0][igrid] *= fac;
-	vel[1][igrid] *= fac;
-	vel[2][igrid] *= fac;
-      }
-    }
-  }
-  
 }
 
