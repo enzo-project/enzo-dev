@@ -115,7 +115,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->
 	      AddFeedbackSphere(cstar, l, influenceRadius, VelocityUnits, 
-				TemperatureUnits, EjectaDensity, 
+				TemperatureUnits, TimeUnits, EjectaDensity, 
 				EjectaMetalDensity, EjectaThermalEnergy, 
 				CellsModified) == FAIL) {
 	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
