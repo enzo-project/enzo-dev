@@ -48,7 +48,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
-  this->ReturnHydroRKPointers(Prim,0);
+  this->ReturnHydroRKPointers(Prim);
 
 
 #ifdef ECUDA

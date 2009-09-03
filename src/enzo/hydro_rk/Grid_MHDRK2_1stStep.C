@@ -103,7 +103,7 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
-  this->ReturnHydroRKPointers(Prim, 0);
+  this->ReturnHydroRKPointers(Prim);
 
   /* RK2 first step */
 
