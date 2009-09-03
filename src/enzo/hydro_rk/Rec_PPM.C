@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  PLM RECONSTRUCTION
+/  PPM RECONSTRUCTION
 /
 /  written by: Peng Wang 
 /  date:       May, 2007

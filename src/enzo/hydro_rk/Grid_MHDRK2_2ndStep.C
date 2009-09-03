@@ -50,9 +50,6 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim,0);
 
-  if (StellarWindFeedback)
-    this->ReduceWindBoundary();
-
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -105,6 +102,9 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   } // if (UseCUDA)
 #endif // ifdef ECUDA
+
+  if (StellarWindFeedback)
+    this->ReduceWindBoundary();
 
   /* Compute dU */
 

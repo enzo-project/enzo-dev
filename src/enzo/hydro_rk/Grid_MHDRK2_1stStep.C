@@ -105,10 +105,6 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim, 0);
 
-  if (StellarWindFeedback)
-    this->ReduceWindBoundary();
-
-  
   /* RK2 first step */
 
 
@@ -125,6 +121,8 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   }
 #endif
 
+  if (StellarWindFeedback)
+    this->ReduceWindBoundary();
 
   /* Compute dU */
 
