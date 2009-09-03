@@ -110,7 +110,6 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   
   /* RK2 first step */
 
-  /* Compute dU */
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -126,6 +125,9 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 #endif
+
+
+  /* Compute dU */
 
   float *dU[NEQ_MHD+NSpecies+NColor];
 
