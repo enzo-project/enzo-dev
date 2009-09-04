@@ -496,7 +496,7 @@ Eint32 main(Eint32 argc, char *argv[])
 
   // Call the main evolution routine
  
-  fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
+  if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
