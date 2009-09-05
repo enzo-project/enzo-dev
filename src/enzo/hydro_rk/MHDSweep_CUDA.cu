@@ -36,11 +36,7 @@
 
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
-#ifndef ECUDADEBUG
 #define CUDA_GRID_SIZE 640
-#else 
-#define CUDA_GRID_SIZE 64
-#endif
 
 //#define GHOST_SIZE 4
 #define PRINT_CUDA_TIMING 0
@@ -158,14 +154,15 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 #ifdef ECUDADEBUG
   printf("Theta_Limiter sent to device: %g\n", cTheta_Limiter);
   printf("Gridsize: %i\n", size);
+  printf("NEQ_MHD: %i\n", NEQ_MHD);
   printf("Gridsize: %i %i %i\n", GridDimension[0], GridDimension[1], GridDimension[2]);
-  for (int j=0; j < 3; j++) 
+  for (int j=30; j < 33; j++) 
     for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
 #endif
 
 
   float *PrimDevice = 0;
-  float totalsize=sizeof(float)*(NEQ_MHD+1)*size;
+  int totalsize=sizeof(float)*(NEQ_MHD+1)*size;
   if (cudaMalloc((void**)&PrimDevice, totalsize) != cudaSuccess) {
     printf("cudaMalloc for PrimDevice with size %d failed.\n", totalsize);
     return FAIL;
@@ -315,6 +312,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 						   dt, C_h, C_p, size);
 
   cudaEventRecord(stop, 0);
+  cudaThreadSynchronize();
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "running kernel on GPU took:  %g \n" , elapsedTime/1e3);
@@ -322,6 +320,10 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   // copy prim back to cpu
   cudaEventRecord(start, 0);
+
+#ifdef ECUDADEBUG
+  printf("SIZE: %i\n", size);
+#endif
 
   CUDA_SAFE_CALL(cudaMemcpy(Prim[0], PrimDevice,        sizeof(float)*size, cudaMemcpyDeviceToHost));
   CUDA_SAFE_CALL(cudaMemcpy(Prim[1], PrimDevice+size,   sizeof(float)*size, cudaMemcpyDeviceToHost));
@@ -351,6 +353,12 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "freeing memory on GPU took:  %g \n" , elapsedTime/1e3);
   //  PerformanceTimers[38] += elapsedTime/1e3;
+
+#ifdef ECUDADEBUG
+  printf("After update.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+#endif
 
   return SUCCESS;
 
@@ -969,9 +977,6 @@ __device__ float minmod(const float &a, const float &b, const float &c)
 // do PLM reconstruction for a point
 __device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm, const float &cTheta_Limiter)
 {
-#ifdef ECUDADEBUG
-  printf("plm_point: %g\n", cTheta_Limiter);
-#endif
   float dv_l = (v-vm1) * cTheta_Limiter;
   float dv_r = (vp1-v) * cTheta_Limiter;
   float dv_m = 0.5*(vp1-vm1);

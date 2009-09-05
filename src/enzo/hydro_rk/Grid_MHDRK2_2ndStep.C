@@ -49,8 +49,28 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
 
+#ifdef ECUDADEBUG
+  printf("in Grid_MHDRK_2ndStep.C.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("BaryonField[%i][%i] = %g \n", i, j, BaryonField[i][j]);
+#endif
+
   this->ReturnHydroRKPointers(Prim, false);
   this->ReturnOldHydroRKPointers(OldPrim, false);
+
+  // ok. this line should absolutely not be needed.
+  // however there is one piece of hardware i've compiled on where it will not work 
+  // without. There is absoltuely no reasons I can see how this can happen ... argh.
+  // this same line is in ReturnHydroRKPointers but for some reason n the kolob cluster
+  // in Heidlberg that is not enough. On my laptop no problem.
+  Prim[0] = BaryonField[0];
+
+#ifdef ECUDADEBUG
+  printf("in Grid_MHDRK_2ndStep.C.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+#endif
+
 
 
 #ifdef ECUDA
