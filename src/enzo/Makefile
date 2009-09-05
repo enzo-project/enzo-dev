@@ -198,12 +198,12 @@ all: $(EXE).exe
 .cu.o: 
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CUDACOMPILER) -c -o $@ $(DEFINES)  $(INCLUDES) $*.cu) >& $(OUTPUT)
+	-@($(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
 	     echo; \
-             echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu"; \
+             echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu"; \
              echo; \
-             $(CUDACOMPILER) -c -o $@ $(DEFINES) $(INCLUDES) $*.cu;\
+             $(CUDACOMPILER)  -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu;\
              echo; \
              exit 1; \
           fi)

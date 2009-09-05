@@ -442,11 +442,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseDrivingField   = 0;
   DrivingEfficiency = 1.0;
 
-#ifdef ECUDA
-  UseCUDA = 0;
-#endif
-
-
   /* End of Stanford Hydro additions */
 
   /* test problem values */

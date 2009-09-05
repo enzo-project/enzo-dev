@@ -25,7 +25,7 @@ double ReturnWallTime();
 
 int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], 
 			int GridStartIndex[], int GridEndIndex[], int GridRank,
-		        float dtdx, float dt, float C_h, float C_p);
+		       float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter);
 
 int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			 int NumberOfSubgrids, int level,
@@ -44,10 +44,7 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-
-
   double time1 = ReturnWallTime();
-
   int igrid;
 
   /* allocate space for fluxes */
@@ -103,7 +100,7 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
-  this->ReturnHydroRKPointers(Prim, 0);
+  this->ReturnHydroRKPointers(Prim, false);
 
   /* RK2 first step */
 
@@ -113,16 +110,13 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     FLOAT dtdx = dtFixed/CellWidth[0][0];
     double time2 = ReturnWallTime();
     if (MHDTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
-			    dtdx, dtFixed, C_h, C_p) == FAIL) {
+			    dtdx, dtFixed, C_h, C_p, Theta_Limiter) == FAIL) {
       printf("RK1: MHDTimeUpdate_CUDA failed.\n");
       return FAIL;
     }
     return SUCCESS;
   }
 #endif
-
-  if (StellarWindFeedback)
-    this->ReduceWindBoundary();
 
   /* Compute dU */
 

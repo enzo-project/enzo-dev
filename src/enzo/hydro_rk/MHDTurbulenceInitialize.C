@@ -140,8 +140,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
     }
-  } // endif SetBaryonFields
-  
+ 
   
   /*   } else { // only one grid:
        if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
@@ -235,11 +234,11 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = Drive3Name;
   }
 
-
-
   for (i = 0; i < count; i++) {
     DataUnits[i] = NULL;
   }
+
+  } // endif SetBaryonFields
 
   return SUCCESS;
 
