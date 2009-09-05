@@ -384,7 +384,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
   NSpecies		     = 0;
-  NColor		     = INT_UNDEFINED;
+  NColor		     = 0;
   Theta_Limiter		     = 1.5;
   RKOrder		     = 2;
   UsePhysicalUnit	     = 0;

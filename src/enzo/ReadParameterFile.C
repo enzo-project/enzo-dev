@@ -1118,7 +1118,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
-  fprintf(stderr, "ReadParameter INITIALDT ::::::::::: %16.8e\n", Initialdt);
+  if (debug) 
+    fprintf(stderr, "ReadParameter INITIALDT ::::::::::: %16.8e\n", Initialdt);
 
  //  for (int i=0; i<MetaData.TopGridRank; i++)
 //      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
