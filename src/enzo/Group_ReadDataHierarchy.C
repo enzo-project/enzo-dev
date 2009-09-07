@@ -114,17 +114,14 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   /* If requested, reset the grid processors. */
 
-  if (ResetLoadBalancing) {
+  if (ResetLoadBalancing) 
     if (GridID <= NumberOfRootGrids)
       if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
 	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
       else
-	Task = GridID-1;
+	Task = (GridID-1) % NumberOfProcessors;
     else
       Task = ParentGrid->GridData->ReturnProcessorNumber();
-    LoadBalancing = 1;
-    ResetLoadBalancing = FALSE;
-  }
 
   // Assign tasks in a round-robin fashion if we're increasing the
   // processor count, but processors are grouped together
@@ -140,7 +137,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
     else
       // Load the child on the same processor as its parent
       Task = ParentGrid->GridData->ReturnProcessorNumber();
-
+  
   Grid->GridData->SetProcessorNumber(Task);
 
 #endif
@@ -184,7 +181,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   if(LoadGridDataAtStart){ 
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id) == FAIL) {
       fprintf(stderr, "Error in grid->Group_ReadGrid (grid %"ISYM").\n", GridID);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }else{
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, FALSE) == FAIL) {
