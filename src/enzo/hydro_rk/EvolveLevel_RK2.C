@@ -337,7 +337,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
       h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
-      C_h = 0.02*MetaData->CourantSafetyNumber*h_min/dt0;
+      C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
+      if (EOSType == 3)  // for isothermal runs just use the constant sound speed
+	C_h = EOSSoundSpeed;
+
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
       if (debug) 

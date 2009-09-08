@@ -831,7 +831,7 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
   By[igrid] += dUBy[igrid];
   Bz[igrid] += dUBz[igrid];
   Phi[igrid] += dUPhi[igrid];  
-  Phi[igrid] *= expf(-dt*pow(C_h/C_p,2));
+  Phi[igrid] *= expf(-dt*(C_h/C_p)*(C_h/C_p));
 }
 
 // the main computation routine: compute Flux at the left cell interface given Prim at the center
