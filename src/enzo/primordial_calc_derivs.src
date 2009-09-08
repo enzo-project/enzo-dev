@@ -2,12 +2,6 @@
 #define TOLERANCE 1e-20
 #define RTOL 5e-1
 #define ITERTOL 1e-4
-#undef r16
-#undef r8
-#undef r4
-#undef p16
-#undef p8
-#undef p4
 c -----------------------------------------------------------
 c  This routine is very simple.  It calculates the derivatives
 c  of the species.
@@ -41,10 +35,11 @@ c
       real*8  chunit, checker, dtcoef(NSPECIES)
       real*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sm1(ijk,NSPECIES),
      &       dsq(ijk,NSPECIES), dsp(ijk,NSPECIES), tempde, peqHq, peqHp,
-     &       temp1, temp2, temp3, temp4, tsgamma(ijk), tscapy(ijk,NSPECIES),
-     &       dtot(ijk), rtot(ijk), h2heatp(ijk), h2heatm(ijk), 
-     &       hiheatp(ijk), heiheatp(ijk), heiiheatp(ijk), tsc(ijk),
-     &       esterr(ijk), qbar, qdot, tbar, prevval, itererror, fd(ijk)
+     &       temp1, temp2, temp3, temp4, tsgamma(ijk),
+     &       tscapy(ijk,NSPECIES), dtot(ijk), rtot(ijk), h2heatp(ijk),
+     &       h2heatm(ijk), hiheatp(ijk), heiheatp(ijk), heiiheatp(ijk),
+     &       tsc(ijk), esterr(ijk), qbar, qdot, tbar, prevval,
+     &       itererror, fd(ijk)
       logical dmask(ijk), doupdate, rejected(ijk), eqmask(ijk)
       real dtit(ijk), dom, dt, ttot(ijk), tgas(ijk)
 c

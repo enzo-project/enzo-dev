@@ -270,7 +270,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        (including boundary zones) */
 
     for (dim = 0; dim < GridRank; dim++)
-      GridGlobalStart[dim] = nint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
+      GridGlobalStart[dim] = nlongint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
 	GridStartIndex[dim];
 
     /* fix grid quantities so they are defined to at least 3 dims */

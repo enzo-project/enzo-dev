@@ -262,7 +262,8 @@ c#define OLDGAMMA2
              tgas(i) = tgas(i) * (gamma2(i) - 1.0)/(oldgamma2(i) - 1.0)
              oldgamma2(i) = gamma2(i)
              if(tgas(i).ne.tgas(i).or.tgas(i).lt.0.0d0)then
-               write(0,*)'tgas issue', tgas(i), gamma2(i), x, nH2, nother, gamma
+               write(0,*)'tgas issue', tgas(i), gamma2(i), x, nH2,
+     &                      nother, gamma
                stop
              endif
            enddo
@@ -311,20 +312,20 @@ c        Lookup cooling values and do a linear temperature in log(T)
 c
          turnoff = 1.0
          if(d(i,j,k)*dom.gt.1e18)turnoff=0.0
-         ceHI(i) = (ceHIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))/tdef(i))*turnoff
-         ceHeI(i) = (ceHeIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))/tdef(i))*turnoff
-         ceHeII(i) = (ceHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))/tdef(i))*turnoff
+         ceHI(i) = turnoff*(ceHIa(indixe(i)) + (logtem(i) - t1(i))
+     .         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))/tdef(i))
+         ceHeI(i) = turnoff*(ceHeIa(indixe(i)) + (logtem(i) - t1(i))
+     .         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))/tdef(i))
+         ceHeII(i) = turnoff*(ceHeIIa(indixe(i)) + (logtem(i) - t1(i))
+     .         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))/tdef(i))
          ciHI(i) = (ciHIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))/tdef(i))!*turnoff!*0.0
+     .         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))/tdef(i))!*turnoff
          ciHeI(i) = (ciHeIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))/tdef(i))!*turnoff*0.0
+     .         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))/tdef(i))!*turnoff
          ciHeIS(i) = (ciHeISa(indixe(i)) + (logtem(i) - t1(i))
      .         *(ciHeISa(indixe(i)+1) -ciHeISa(indixe(i)))/tdef(i))!*turnoff
          ciHeII(i) = (ciHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))/tdef(i))!*turnoff!*0.0
+     .         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))/tdef(i))!*turnoff
          reHII(i) = (reHIIa(indixe(i)) + (logtem(i) - t1(i))
      .         *(reHIIa(indixe(i)+1) -reHIIa(indixe(i)))/tdef(i))!*turnoff
          reHeII1(i)=(reHeII1a(indixe(i)) + (logtem(i) - t1(i))
@@ -333,8 +334,8 @@ c
      .        *(reHeII2a(indixe(i)+1)-reHeII2a(indixe(i)))/tdef(i))!*turnoff
          reHeIII(i)=(reHeIIIa(indixe(i)) + (logtem(i) - t1(i))
      .        *(reHeIIIa(indixe(i)+1)-reHeIIIa(indixe(i)))/tdef(i))!*turnoff
-         brem(i) = (brema(indixe(i)) + (logtem(i) - t1(i))
-     .         *(brema(indixe(i)+1) -brema(indixe(i)))/tdef(i))*turnoff
+         brem(i) = turnoff*(brema(indixe(i)) + (logtem(i) - t1(i))
+     .         *(brema(indixe(i)+1) -brema(indixe(i)))/tdef(i))
       endif
       enddo
 c
@@ -343,7 +344,7 @@ c
       do i = is+1, ie+1
          if (itmask(i)) then
          
-         if(omask(i))write(0,*)i,j,k,'a0',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'a0',edotminus(i),edotplus(i),tgas(i)
          edotminus(i) = edotminus(i) + abs(
 c
 c                    Collisional excitations
@@ -353,7 +354,7 @@ c
      .                  *de(i)*dom/4.0                       ! ce of HeI
      .             - (ceHeII(i)*HeII(i))*de(i)/4.0         ! ce of HeII
      .                 ) 
-         if(omask(i))write(0,*)i,j,k,'a1',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'a1',edotminus(i),edotplus(i),tgas(i)
 c
 c                    Collisional ionizations
 c
@@ -364,7 +365,7 @@ c
      .             - ((ciHeIS(i)*HeII(i))*de(i))
      .                  *de(i)*dom/4.0  ! ci of HeIS
      .                 ) 
-         if(omask(i))write(0,*)i,j,k,'a2',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'a2',edotminus(i),edotplus(i),tgas(i)
 c
 c                    Recombinations
 c
@@ -374,11 +375,11 @@ c
      .             - (reHeII2(i)*HeII (i))*de(i)/4.0      ! re of HeII
      .             - (reHeIII(i)*HeIII(i))*de(i)/4.0      ! re of HeIII
      .                 ) 
-         if(omask(i))write(0,*)i,j,k,'a3',edotminus(i),edotplus(i),tgas(i)
-         if(omask(i))write(0,*)i,j,k,'re1',reHII(i),HII(i),de(i)
-         if(omask(i))write(0,*)i,j,k,'re2',reHeII1(i),HeII(i),de(i)/4.0
-         if(omask(i))write(0,*)i,j,k,'re3',reHeII2(i),HeII(i),de(i)/4.0
-         if(omask(i))write(0,*)i,j,k,'re4',reHeIII(i),HeIII(i),de(i)/4.0
+!         if(omask(i))write(0,*)i,j,k,'a3',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'re1',reHII(i),HII(i),de(i)
+!         if(omask(i))write(0,*)i,j,k,'re2',reHeII1(i),HeII(i),de(i)/4.0
+!         if(omask(i))write(0,*)i,j,k,'re3',reHeII2(i),HeII(i),de(i)/4.0
+!         if(omask(i))write(0,*)i,j,k,'re4',reHeIII(i),HeIII(i),de(i)/4.0
 c
 c                    Bremsstrahlung
 c
@@ -386,7 +387,7 @@ c
      .             - (brem(i)*(HII(i)+HeII(i)/4.0+HeIII(i)))
      .                        *de(i)
      .                 ) 
-         if(omask(i))write(0,*)i,j,k,'a4',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'a4',edotminus(i),edotplus(i),tgas(i)
           
 c
 c                    Compton cooling or heating
@@ -395,11 +396,11 @@ c
      &                 HI(i),HII(i),de(i),HeI(i),HeII(i),HeIII(i)
            comp_edot = - comp1*(tgas(i)-comp2)*de(i)/dom
            if (comp_edot.lt.0.0d0) then
-         if(omask(i))write(0,*)i,j,k,'b',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'b',edotminus(i),edotplus(i),tgas(i)
              edotminus(i) = edotminus(i)
      .          + abs(comp_edot)
            else
-         if(omask(i))write(0,*)i,j,k,'c',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'c',edotminus(i),edotplus(i),tgas(i)
              edotplus(i) = edotplus(i)
      .          + abs(comp_edot)
            endif
@@ -408,11 +409,11 @@ c                    X-ray compton heating
 c
            comp_xray_edot=-comp_xraya*(tgas(i)-comp_temp)*de(i)/dom
            if (comp_xray_edot.lt.0.0d0) then
-         if(omask(i))write(0,*)i,j,k,'d1',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'d1',edotminus(i),edotplus(i),tgas(i)
              edotminus(i) = edotminus(i) 
      .             + abs(comp_xray_edot)
            else
-         if(omask(i))write(0,*)i,j,k,'d2',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'d2',edotminus(i),edotplus(i),tgas(i)
              edotplus(i) = edotplus(i)
      .            +  abs(comp_xray_edot)
            endif
@@ -474,7 +475,7 @@ c
             edotminus(i) = edotminus(i) + abs(
      .           float(ih2co)*fudge*H2I(i)*
      .                 gphdl(i)/(1.0 + gphdl1/gpldl(i)) / (2.0*dom) )
-         if(omask(i))write(0,*)i,j,k,'e2',edotminus(i),edotplus(i),tgas(i),gphdl(i),gphdl1,gpldl(i),H2I(i)
+!         if(omask(i))write(0,*)i,j,k,'e2',edotminus(i),edotplus(i),tgas(i),gphdl(i),gphdl1,gpldl(i),H2I(i)
             endif
          enddo
 c
@@ -517,7 +518,7 @@ c     .               ((nH2 + nother)*dom) )
               fudge = min(fudge, 1.0)
             endif
 c
-         if(omask(i))write(0,*)i,j,k,'f',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'f',edotminus(i),edotplus(i),tgas(i)
             edotminus(i)=edotminus(i) + float(ih2co)*fudge*H2I(i)*(
      .          vibh(i)/(1.0+vibh(i)/max(   vibl     ,tiny)) +
      .          roth(i)/(1.0+roth(i)/max(qq*rotl(i),tiny))     
@@ -547,10 +548,10 @@ c               Matt's attempt at a second exponentialier cutoff
                 ciefudge = ciefudge*min((1.-exp(-tau))/tau,1.0)
 c We apply the ciefudge factor at the end, because it should apply to the
 c entire continuum
-         if(omask(i))write(0,*)i,j,k,'g1',edotminus(i),edotplus(i),tgas(i),ciefudge
+!         if(omask(i))write(0,*)i,j,k,'g1',edotminus(i),edotplus(i),tgas(i),ciefudge
                 edotminus(i) = ciefudge*edotminus(i) 
      &                 + ciefudge*H2I(i)*(d(i,j,k)*cieco(i))
-         if(omask(i))write(0,*)i,j,k,'g2',edotminus(i),edotplus(i),tgas(i),cieco(i)
+!         if(omask(i))write(0,*)i,j,k,'g2',edotminus(i),edotplus(i),tgas(i),cieco(i)
               endif
             endif
             enddo
@@ -576,7 +577,7 @@ c     .         *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))/tdef(i)
 #else
             do m = 1, 5
               hdcool(i,m) = hdcoola(indixe(i),m) + (logtem(i) - t1(i))
-     .           *(hdcoola(indixe(i)+1,m) - hdcoola(indixe(i),m))/tdef(i)
+     .          *(hdcoola(indixe(i)+1,m) - hdcoola(indixe(i),m))/tdef(i)
             enddo
 #endif
             endif
@@ -600,11 +601,11 @@ c   Note that, as per Flower 2000, we do not include H2 collisions
                 tau = max(tau, 1.e-5)
                 ciefudge = min((1.-exp(-tau))/tau,1.0)
 c                omask(i) = .true.
-         if(omask(i))write(0,*)i,'h',edotminus(i),edotplus(i),tgas(i),
-     .                               (HDI(i)*10**hdcoolval(i)/coolunit)*ciefudge
+!         if(omask(i))write(0,*)i,'h',edotminus(i),edotplus(i),tgas(i),
+!     .                               (HDI(i)*10**hdcoolval(i)/coolunit)*ciefudge
 c                omask(i) = .false.
                 edotminus(i) = edotminus(i)
-     .                       + 0*HDI(i)*(10**hdcoolval(i)/coolunit)*ciefudge
+     .                   + 0*HDI(i)*(10**hdcoolval(i)/coolunit)*ciefudge
             endif
             omask(i) = .false.
          enddo

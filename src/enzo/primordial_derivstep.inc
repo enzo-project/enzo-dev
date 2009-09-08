@@ -136,9 +136,10 @@ c            write(0,*) iter,inneriter, itererror
      &                      s(i,iHI), s(i,iHII), s(i,iHM), s(i,iH2I),
      &                      s(i,iH2II)!, s(i,iDI), s(i,iDII), s(i,iHDI)
                  write(6,*) "correctH2:",iter,correctH(i),d(i,j,k),
-     &                      sp(i,iHI), sp(i,iHII), sp(i,iHM), sp(i,iH2I),
-     &                      sp(i,iH2II)!, sp(i,iDI), sp(i,iDII), sp(i,iHDI)
-                 write(6,*) "correctH3:",eqmask(i),10**HIfrac(i)+10**H2Ifrac(i)+10**HIIfrac(i), tgas(i)
+     &                     sp(i,iHI), sp(i,iHII), sp(i,iHM), sp(i,iH2I),
+     &                     sp(i,iH2II)!, sp(i,iDI), sp(i,iDII), sp(i,iHDI)
+                 write(6,*) "correctH3:",eqmask(i),10**HIfrac(i)+
+     &                     10**H2Ifrac(i)+10**HIIfrac(i), tgas(i)
 c                 stop
               endif
               s(i,iHI) = s(i,iHI) * correctH(i)
@@ -156,9 +157,9 @@ c                 stop
 c              if((eqmask(i).eqv..true.))then
 c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               dsq(i,ige) = (dsq(i,ige) + chunit*h2heatp(i)/d(i,j,k) 
-     &                                 + 0*ciHIunit*hiheatp(i)/d(i,j,k)
-     &                                 + 0*ciHeIunit*heiheatp(i)/d(i,j,k)
-     &                                 + 0*ciHeIIunit*heiiheatp(i)/d(i,j,k))
+     &                             + 0*ciHIunit*hiheatp(i)/d(i,j,k)
+     &                             + 0*ciHeIunit*heiheatp(i)/d(i,j,k)
+     &                             + 0*ciHeIIunit*heiiheatp(i)/d(i,j,k))
               dsp(i,ige) = (dsp(i,ige) + chunit*h2heatm(i)/d(i,j,k))
               n = ige
 #ifdef PYFORT
@@ -172,18 +173,22 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
      &                / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
               if(miscflag.eqv..true.)then
-                temp1 = (dsqge-dspge) + chunit*(s(i,iH2I)-sp(i,iH2I))/(dtit(i)*d(i,j,k))
+                temp1 = (dsqge-dspge) + 
+     &              chunit*(s(i,iH2I)-sp(i,iH2I))/(dtit(i)*d(i,j,k))
                 if(temp1.gt.0.0d0)then
-                  s(i,ige) = max(sp(i,ige), min(sp(i,ige) + dtit(i)*temp1, s(i,ige)))
+                  s(i,ige) = max(sp(i,ige), min(sp(i,ige) +
+     &              dtit(i)*temp1, s(i,ige)))
                 else
-                  s(i,ige) = min(sp(i,ige), max(sp(i,ige) + dtit(i)*temp1, s(i,ige)))
+                  s(i,ige) = min(sp(i,ige), max(sp(i,ige) +
+     &              dtit(i)*temp1, s(i,ige)))
                 endif
               endif
               temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
      &        (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
      &              /  (1e-2*dtcoef(n)*sp(i,n))
               if(eulermask(i).eqv..true.)
-     &          s(i,ige) = s(i,ige) + chunit*(s(i,iH2I)-sp(i,iH2I))/d(i,j,k)
+     &          s(i,ige) = s(i,ige) +
+     &              chunit*(s(i,iH2I)-sp(i,iH2I))/d(i,j,k)
               if(temp2.gt.esterr(i))then
                 esterr(i) = temp2
                 mins(i) = n
