@@ -24,7 +24,7 @@
 double ReturnWallTime();
 int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], 
 			int GridStartIndex[], int GridEndIndex[], int GridRank,
-		        float dtdx, float dt, float C_h, float C_p);
+		        float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter);
 
 int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
@@ -46,9 +46,31 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   double time1 = ReturnWallTime();
 
-  float *Prim[NEQ_MHD+NSpecies+NColor];
+  float *Prim[NEQ_HYDRO+NSpecies+NColor];
+  float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
 
-  this->ReturnHydroRKPointers(Prim);
+#ifdef ECUDADEBUG
+  printf("in Grid_MHDRK_2ndStep.C.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("BaryonField[%i][%i] = %g \n", i, j, BaryonField[i][j]);
+#endif
+
+  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnOldHydroRKPointers(OldPrim, false);
+
+  // ok. this line should absolutely not be needed.
+  // however there is one piece of hardware i've compiled on where it will not work 
+  // without. There is absoltuely no reasons I can see how this can happen ... argh.
+  // this same line is in ReturnHydroRKPointers but for some reason n the kolob cluster
+  // in Heidlberg that is not enough. On my laptop no problem.
+  Prim[0] = BaryonField[0];
+
+#ifdef ECUDADEBUG
+  printf("in Grid_MHDRK_2ndStep.C.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+#endif
+
 
 
 #ifdef ECUDA
@@ -56,7 +78,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     FLOAT dtdx = dtFixed/CellWidth[0][0];
     double time3 = ReturnWallTime();
     if (MHDTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
-			    dtdx, dtFixed, C_h, C_p) == FAIL) {
+			   dtdx, dtFixed, C_h, C_p, Theta_Limiter) == FAIL) {
       printf("RK2: MHDTimeUpdate_CUDA failed.\n");
       return FAIL;
     }
@@ -68,8 +90,8 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
-	    BaryonField[field][igrid] *= BaryonField[iden][igrid];
-	    OldBaryonField[field][igrid] *= OldBaryonField[iden][igrid];
+	    Prim[field][igrid] *= Prim[iden][igrid];
+	    OldPrim[field][igrid] *= OldPrim[iden][igrid];
 	  }
 	}
       }
@@ -80,7 +102,7 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
-	    BaryonField[field][igrid] = 0.5*(OldBaryonField[field][igrid] + BaryonField[field][igrid]);
+	    Prim[field][igrid] = 0.5*(OldPrim[field][igrid] + Prim[field][igrid]);
 	  }
 	}
       }
@@ -91,8 +113,8 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	    int igrid = i + (j + k*GridDimension[1])*GridDimension[0];
-	    BaryonField[field][igrid] /= BaryonField[iden][igrid];
-	    OldBaryonField[field][igrid] /= OldBaryonField[iden][igrid];
+	    Prim[field][igrid] /= Prim[iden][igrid];
+	    OldPrim[field][igrid] /= OldPrim[iden][igrid];
 	  }
 	}
       }

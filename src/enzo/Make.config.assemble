@@ -491,6 +491,15 @@
         ASSEMBLE_OPT_FLAGS = $(MACH_OPT_DEBUG)
     endif
 
+    # Settings for debugging CUDA
+
+    ifeq ($(CONFIG_OPT),cudadebug)
+        ERROR_OPT = 0
+        ASSEMBLE_OPT_FLAGS = $(MACH_OPT_DEBUG)
+        ASSEMBLE_CUDAFLAGS = $(MACH_OPT_CUDADEBUG)
+	ASSEMBLE_CUDADEBUG_DEFINES = -DECUDADEBUG
+    endif
+
     # Settings for high conservative optimization
 
     ifeq ($(CONFIG_OPT),high)
@@ -732,6 +741,7 @@
     F90      = $(ASSEMBLE_F90)
     LD       = $(ASSEMBLE_LD)
     CUDACOMPILER = $(ASSEMBLE_CUDACOMPILER)
+    CUDACOMPFLAGS = $(ASSEMBLE_CUDAFLAGS)
 
     CPPFLAGS = $(MACH_CPPFLAGS)
     CFLAGS   = $(MACH_CFLAGS) \
@@ -771,6 +781,7 @@
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_ECUDA_DEFINES) \
+              $(ASSEMBLE_CUDADEBUG_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
