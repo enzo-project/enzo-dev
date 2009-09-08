@@ -28,6 +28,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
 
+
+
 // Begin the pointer juggle to set the boundary on the acceleration field.
 // Save all BaryonField pointers in temporary array, and set them to be Acceleration Field
 // pointers.  This lets the SetBoundary condition machenery operate without heft code rewrite.
@@ -155,6 +157,7 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
     ENZO_FAIL("");
 #endif
   
+
   
   for (grid = 0; grid < NumberOfGrids; grid++) {
 

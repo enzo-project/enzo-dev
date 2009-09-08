@@ -348,7 +348,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	    if (io_log) fprintf(log_fptr, "H5Dread boundary type: %"ISYM"\n", h5_status);
 
 	    if( h5_status == h5_error ){	      
-	      for (int k=0;k<size;k++) buffer[size] = BoundaryType[0][dim][i][j];
+	      for (int k=0;k<size;k++) buffer[k] = BoundaryType[0][dim][i][j];
 	      fprintf(stderr,"ExternaBoundary::ReadExternalBoundary Had trouble reading ExternalBoudnary values: field: %i\n", field);
 	      fprintf(stderr,"Continue and hope for the best.\n");
 	    }

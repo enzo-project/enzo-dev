@@ -89,18 +89,8 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   } // end of loop over subgrids
 
 
-
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-
-  this->ReturnHydroRKPointers(Prim);
+  this->ReturnHydroRKPointers(Prim,0);
 
   // RK2 first step
 #ifdef ECUDA 
@@ -115,6 +105,14 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 #endif
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
 
   float *dU[NEQ_HYDRO+NSpecies+NColor];
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {

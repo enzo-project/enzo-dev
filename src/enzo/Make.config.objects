@@ -365,6 +365,7 @@ OBJS_CONFIG_LIB = \
         Grid_RestoreEnergyConsistency.o \
         Grid_ReturnFluxDims.o \
         Grid_ReturnGridInfo.o \
+	Grid_ReturnStarStatistics.o \
         Grid_RotatingCylinderInitialize.o \
         Grid_SedovBlastInitializeGrid3D.o \
         Grid_SedovBlastInitializeGrid.o \
@@ -557,6 +558,7 @@ OBJS_CONFIG_LIB = \
         StarListRoutines.o \
         StarParticleAccretion.o \
         StarParticleAddFeedback.o \
+	StarParticleCountOnly.o \
         StarParticleDeath.o \
         StarParticleFinalize.o \
         StarParticleFindAll.o \
@@ -713,6 +715,8 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_TurbulenceInitializeGrid.o \
         hydro_rk/Grid_UpdatePrim.o \
         hydro_rk/Grid_ZeroFluxes.o \
+	hydro_rk/Grid_PrepareVelocityNormalization.o \
+	hydro_rk/Grid_NormalizeVelocities.o \
         hydro_rk/Turbulence_Generator.o \
         hydro_rk/HLL_PLM.o \
         hydro_rk/HLL_PPM.o \

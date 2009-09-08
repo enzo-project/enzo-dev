@@ -126,7 +126,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
 	ENZO_FAIL("");
       }
-
    
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       size *= CurrentGrid->GridDimension[dim];
@@ -196,22 +195,32 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     /* Now calculate the feedback parameter based on mdot estimated above.  - Ji-hoon Kim 
        For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
-       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3.
+       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3/sec.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits / EjectaVolume / 
-      DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+      min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
-    //EjectaThermalEnergy = 1.0e52 / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    // For Sedov test (This EjectaThermalEnergy is not quite intuitive, but fits the definition at least.)
+    /*
+    EjectaThermalEnergy = 1.0e50 /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    */
     
-    // For the continuous energy injection case (variation of Sedov test)
-    EjectaThermalEnergy = 1.0e52 * CurrentGrid->dtFixed * TimeUnits / 9e14
-      / EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
+    fprintf(stderr, "dtFixed = %g", CurrentGrid->dtFixed);
+    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 2.0e11 /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
 #endif
 
+    // Exaggerate influence radius because the blastwave will enter
+    // into some of the surrounding parent grids within the next
+    // timestep if we inject the energy into a small radius.
+    Radius *= 8.0;    
     break;
 
   } // ENDSWITCH FeedbackFlag

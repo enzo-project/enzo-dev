@@ -42,7 +42,8 @@
 
 
 /* function prototypes */
- 
+
+void my_exit(int status); 
 int ReadListOfFloats(FILE *fptr, int N, float floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
@@ -72,7 +73,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   int comment_count = 0;
  
   /* read until out of lines */
- 
+
+  rewind(fptr);
   while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
       && (comment_count < 2)) {
 
@@ -423,6 +425,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
     ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
+    ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
  
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
  
@@ -719,10 +722,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
     ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
-
-#ifdef ECUDA
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
-#endif
 
     /* If the dummy char space was used, then make another. */
  
@@ -980,6 +980,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   else
     DepositPositionsParticleSmoothRadius = 0;
  
+  
+
 //  PPMDiffusion causes an out-of-bounds condition as currently written
 //  The following is an over-ride to force PPMDiffusion OFF. This has
 //  been fixed in this latest version (AK).
@@ -1116,11 +1118,23 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
+  if (debug) 
+    fprintf(stderr, "ReadParameter INITIALDT ::::::::::: %16.8e\n", Initialdt);
+
  //  for (int i=0; i<MetaData.TopGridRank; i++)
 //      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
 // 	      MetaData.LeftFaceBoundaryCondition[i], 
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 
+  if (UseCUDA) {
+#ifndef ECUDA
+    printf("This executable was compiled without CUDA support.\n");
+    printf("use \n");
+    printf("make cuda-yes\n");
+    printf("Exiting.\n");
+    my_exit(EXIT_SUCCESS);
+#endif
+  }
 
    CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
