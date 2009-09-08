@@ -31,7 +31,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       double &EjectaMetalDensity,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits)
+				       float VelocityUnits, float dtForThisStar)
 {
 
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
@@ -199,10 +199,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
-      min(mdot, mdot_Edd) * Msun * c * c * CurrentGrid->dtFixed * TimeUnits /
+      min(mdot, mdot_Edd) * Msun * c * c * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
-#define NOT_SEDOV_TEST
+#define SEDOV_TEST
 #ifdef SEDOV_TEST
     // For Sedov test (This EjectaThermalEnergy is not quite intuitive, but fits the definition at least.)
     /*
@@ -211,16 +211,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
     */
     
     // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
-    fprintf(stderr, "dtFixed = %g", CurrentGrid->dtFixed);
-    EjectaThermalEnergy = 1.0e50 * CurrentGrid->dtFixed * TimeUnits / 2.0e11 /
+    EjectaThermalEnergy = 1.0e50 * dtForThisStar * TimeUnits / 1e14 /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    /*
+    fprintf(stderr, "dtForThisStar in S_CFP.C = %g\n", dtForThisStar);
+    fprintf(stderr, "1.0e50 * dtForThisStar * TimeUnits / 2.0e11 = %g\n", 1.0e50 * dtForThisStar * TimeUnits / 2.0e11);
+    fprintf(stderr, "EjectaThermalEnergy = %g\n", EjectaThermalEnergy);
+    */
     
 #endif
 
-    // Exaggerate influence radius because the blastwave will enter
-    // into some of the surrounding parent grids within the next
-    // timestep if we inject the energy into a small radius.
-    Radius *= 8.0;    
     break;
 
   } // ENDSWITCH FeedbackFlag

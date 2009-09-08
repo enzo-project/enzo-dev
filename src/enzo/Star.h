@@ -123,7 +123,7 @@ public:
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
-				    float VelocityUnits);
+				    float VelocityUnits, float dtForThisStar);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			 float &Radius, double &EjectaDensity, 

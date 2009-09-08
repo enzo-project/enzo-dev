@@ -127,8 +127,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
   float outerRadius2;
 
   // Correct for exaggerated influence radius for pair-instability supernovae
-  if (cstar->FeedbackFlag == SUPERNOVA ||
-      cstar->FeedbackFlag == MBH_THERMAL)
+  if (cstar->FeedbackFlag == SUPERNOVA)
     radius /= 8.0;
 
   // Correct if the volume with 27 cells is larger than the energy bubble volume
@@ -206,7 +205,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    /*
 	    if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      fprintf(stderr, "Time = %g\n", Time);
-	      fprintf(stderr, "dtFixed = %g\n", dtFixed);
+	      fprintf(stderr, "dtFixed in G_AFS.C = %g\n", dtFixed);
 	      fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
 	      fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);}
 	    */
@@ -215,6 +214,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	       density to get specific energy */
 	    /* For MBH_THERMAL, different definition for EjectaThermalEnergy is used;
 	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
+
+#define SEDOV_TEST
 
 	    if (GENum >= 0 && DualEnergyFormalism) {
 	      if (cstar->FeedbackFlag != MBH_THERMAL) {
@@ -226,7 +227,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 			 ramp * factor * EjectaThermalEnergy) /
 		  BaryonField[DensNum][index];	      
 	      }
+#ifdef SEDOV_TEST
+#else
 	      newGE = min(newGE, maxGE);  
+#endif SEDOV_TEST
 //	      newGE = ramp * EjectaThermalEnergy;
 //	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
 //		     OldDensity, BaryonField[DensNum][index], 
@@ -247,10 +251,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 			 ramp * factor * EjectaThermalEnergy) /
 		  BaryonField[DensNum][index];	      
 	      }
+#ifdef SEDOV_TEST
+#else
 	      newGE = min(newGE, maxGE);  
+#endif SEDOV_TEST
 	      /*
 	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
-	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
+	      fprintf(stderr, "AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
 		     OldDensity, BaryonField[DensNum][index], 
 		     BaryonField[TENum][index], newGE, EjectaDensity,
 		     EjectaThermalEnergy);}

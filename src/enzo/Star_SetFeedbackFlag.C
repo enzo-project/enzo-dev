@@ -102,7 +102,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
     else
       this->FeedbackFlag = NO_FEEDBACK;
 
-#define NOT_SEDOV_TEST
+#define SEDOV_TEST
 #ifdef SEDOV_TEST
   //if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)  //for Sedov test (injecting for 1kyr)
     if (this->type > 0 && AgeInMyr > 0)                      //for Ostriker & McKee test (injecting continuously)
