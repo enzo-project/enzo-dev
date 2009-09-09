@@ -52,13 +52,13 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 				     Vel3Num, TENum, B1Num, B2Num, B3Num, 
 				     PhiNum);
     nfield = n0 = NEQ_MHD;
-  }
-  
+  };
+
   Prim[iden] = BaryonField[DensNum];
-  Prim[ivx] = BaryonField[Vel1Num];
-  Prim[ivy] = BaryonField[Vel2Num];
-  Prim[ivz] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
+  Prim[ivx]  = BaryonField[Vel1Num];
+  Prim[ivy]  = BaryonField[Vel2Num];
+  Prim[ivz]  = BaryonField[Vel3Num];
+  Prim[ietot]= BaryonField[TENum];
   if (DualEnergyFormalism)
     Prim[ieint] = BaryonField[GENum];
 
@@ -66,9 +66,8 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBx] = BaryonField[B1Num];
     Prim[iBy] = BaryonField[B2Num];
     Prim[iBz] = BaryonField[B3Num];
-    Prim[iPhi] = BaryonField[PhiNum];
+    Prim[iPhi]= BaryonField[PhiNum];
   }
-
 
   /* Add the species */
 

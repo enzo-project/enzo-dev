@@ -115,6 +115,7 @@ help-config:
 	@echo
 	@echo "      gmake opt-warn"
 	@echo "      gmake opt-debug"
+	@echo "      gmake opt-cudadebug  (cuda device software emulation)"
 	@echo "      gmake opt-high"
 	@echo "      gmake opt-aggressive"
 	@echo
@@ -562,11 +563,12 @@ CONFIG_OOC-BOUNDARY-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_OPT = opt-warn opt-debug opt-high opt-aggressive
+VALID_OPT = opt-warn opt-debug opt-cudadebug opt-high opt-aggressive
 .PHONY: $(VALID_OPT)
 
 opt-warn:       CONFIG_OPT-warn
 opt-debug:      CONFIG_OPT-debug
+opt-cudadebug:  CONFIG_OPT-cudadebug
 opt-high:       CONFIG_OPT-high
 opt-aggressive: CONFIG_OPT-aggressive
 opt-%:

@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       September, 2007
-/  modified1:
+/  modified1: Tom Abel, allow for parallel generations of ICs (Sept 2009)
 /
 /
 ************************************************************************/
@@ -26,7 +26,8 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-void Turbulence_Generator(float **vel, int size, int ind, float sigma, float kmin, float kmax, float dk,
+void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
+			  float sigma, float kmin, float kmax, float dk,
 			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
 
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
@@ -402,8 +403,10 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       dk = 1.0;
     }
     printf("Begin generating turbulent velocity spectrum...\n");
-    Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
-			 CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
+    Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
     printf("Turbulent spectrum generated\n");
 
@@ -442,7 +445,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
     /* Set turbulent velocity field */
 
-    n = 0;
+    n = -1;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
@@ -477,8 +480,10 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     k2 = 4.0;
     dk = 1.0;
     printf("Begin generating driving force field ...\n");
-    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
-			 CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
+    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
     printf("Driving force field generated\n");
 

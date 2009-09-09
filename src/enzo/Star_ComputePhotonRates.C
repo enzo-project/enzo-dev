@@ -102,7 +102,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     E[1] = 0.0;
     E[2] = 0.0;
     E[3] = 12.8;
-    Q[0] = 3.54e58 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
+    Q[0] = 3.54e58 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
       this->DeltaMass / E[0];
     Q[1] = 0.0;
     Q[2] = 0.0;

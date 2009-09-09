@@ -361,7 +361,14 @@ Eint32 main(Eint32 argc, char *argv[])
     }
 #endif
 
-    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    // TA: Changed this:
+    //    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    // thinking that TopGrid.NextGridThisLevel == NULL when was ParallelRootGridIO == 0 
+    // in the run that wrote this restart dump. 
+    // Removing it however lets one to restart from a single grid
+    // but write parallel root grid io for all new outputs
+
+    if (restart && TopGrid.NextGridThisLevel == NULL) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
  
@@ -441,6 +448,7 @@ Eint32 main(Eint32 argc, char *argv[])
       AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
     }
  
+
 #ifdef USE_MPI
     CommunicationBarrier();
     t_init1 = MPI_Wtime();
@@ -486,10 +494,9 @@ Eint32 main(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
-
- 
   // Call the main evolution routine
  
+  if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {

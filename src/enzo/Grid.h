@@ -1817,7 +1817,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int RemoveParticle(int ID);
 
   int AddFeedbackSphere(Star *cstar, int level, float radius, float VelocityUnits, 
-			float TemperatureUnits, double EjectaDensity, 
+			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
 
@@ -1836,6 +1836,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int UpdateStarParticles(int level);
 
   int AddH2Dissociation(Star *AllStars);
+
+  int ReturnStarStatistics(int &Number, float &minLife);
 
 //------------------------------------------------------------------------
 // Radiative transfer methods that don't fit in the TRANSFER define
@@ -1990,7 +1992,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				  int   sphere_type[MAX_SPHERES],
 				  float rho_medium, float p_medium, int level);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				  float Bnaught, int seed, int level);
+				  float Bnaught, int seed, int level, int SetBaryonFields);
+
+  int PrepareVelocityNormalization(double *v_rms, double *Volume);
+  int NormalizeVelocities(Eflt factor);
+
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],
 			       FLOAT HaloCoreRadius[MAX_SPHERES],

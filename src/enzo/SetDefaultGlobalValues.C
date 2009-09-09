@@ -205,6 +205,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
   UnigridTranspose            = FALSE;
+  NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
 
@@ -353,7 +354,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHMinimumMass                   = 1e6;          // Msun
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
-  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura&Sunyaev (1973)
+  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHCombineRadius                 = 10;           // pc
   MBHIonizingLuminosity            = 1e47;         // ph/s / Msun
@@ -383,7 +384,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
   NSpecies		     = 0;
-  NColor		     = INT_UNDEFINED;
+  NColor		     = 0;
   Theta_Limiter		     = 1.5;
   RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
@@ -433,9 +434,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   iEtot = 4;
   iEint = 0;
 
-  EOSType	  = 0;
-  UsePhysicalUnit = 0;
-
   UseDivergenceCleaning		   = 0;
   DivergenceCleaningBoundaryBuffer = 0;
   DivergenceCleaningThreshold	   = 0.001;
@@ -443,11 +441,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   UseDrivingField   = 0;
   DrivingEfficiency = 1.0;
-
-#ifdef ECUDA
-  UseCUDA = 0;
-#endif
-
 
   /* End of Stanford Hydro additions */
 

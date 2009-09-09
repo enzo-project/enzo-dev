@@ -338,6 +338,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
       C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
+      if (EOSType == 3)  // for isothermal runs just use the constant sound speed
+	C_h = EOSSoundSpeed;
+
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
       if (debug) 
@@ -428,10 +431,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
 
-	else if (HydroMethod == MHD_RK)
+	else if (HydroMethod == MHD_RK) {
 	  Grids[grid1]->GridData->MHDRK2_1stStep
 	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
+	}
       } // ENDIF UseHydro
 	
       /* Do this here so that we can get the correct
@@ -462,6 +466,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
+
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
 	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);

@@ -94,6 +94,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[]);
+int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
 #ifdef USE_PYTHON
@@ -280,6 +281,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     LevelInfofptr = fopen("OutputLevelInformation.out", "w");
     fclose(LevelInfofptr);
   }
+
+  /* For top-level timestepping with radiative star particles, we want
+     to restrict the timesteps.  Collect info here. */
+
+  StarParticleCountOnly(LevelArray);
  
 #ifdef USE_JBPERF
   Eint32 jb_iter;
@@ -342,8 +348,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
  
+    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
     if (Initialdt != 0) {
+      
       dt = min(dt, Initialdt);
+      if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
       dtPhoton = dt;
 #endif

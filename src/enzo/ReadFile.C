@@ -314,9 +314,8 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
  
  
- 
   if (ParallelRootGridIO == TRUE) {
- 
+
   // If doing parallel IO, then just read this grid
  
   if (io_log) fprintf(log_fptr, "RHDF ParallelRootGridIO\n");
