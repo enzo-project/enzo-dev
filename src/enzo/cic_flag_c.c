@@ -16,11 +16,11 @@ int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions
 {
     /* System generated locals */
     int ffield_dim1, ffield_dim2, ffield_offset, i__1;
-    float r__1, r__2;
+    FLOAT r__1, r__2;
 
     /* Local variables */
     static int n, i1, j1, k1;
-    static float fact,  xpos, ypos, zpos;
+    static FLOAT fact,  xpos, ypos, zpos;
     static FLOAT edge1, edge2, edge3;
 
 /*  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD */
@@ -76,9 +76,9 @@ int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions
 
     /* Function Body */
     fact = 1.f / *cellsize;
-    edge1 = (float) (*dim1) - 0.5001;
-    edge2 = (float) (*dim2) - 0.5001;
-    edge3 = (float) (*dim3) - 0.5001;
+    edge1 = (FLOAT) (*dim1) - 0.5001;
+    edge2 = (FLOAT) (*dim2) - 0.5001;
+    edge3 = (FLOAT) (*dim3) - 0.5001;
 
 /*     1D */
 

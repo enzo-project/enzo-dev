@@ -17,11 +17,11 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 {
     /* System generated locals */
     int field_dim1, field_dim2, field_offset, i__1;
-    float r__1, r__2;
+    FLOAT r__1, r__2;
 
     /* Local variables */
     static int n, i1, j1, k1;
-    static float dx, dy, dz, fact,  xpos, ypos, zpos;
+    static FLOAT dx, dy, dz, fact,  xpos, ypos, zpos;
     static FLOAT edge1, edge2, edge3;
 
 
@@ -82,10 +82,10 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
     field -= field_offset;
 
     /* Function Body */
-    fact = (float)1. / *cellsize;
-    edge1 = (float) (*dim1) - (FLOAT).5001;
-    edge2 = (float) (*dim2) - (FLOAT).5001;
-    edge3 = (float) (*dim3) - (FLOAT).5001;
+    fact = (FLOAT)1. / *cellsize;
+    edge1 = (FLOAT) (*dim1) - (FLOAT).5001;
+    edge2 = (FLOAT) (*dim2) - (FLOAT).5001;
+    edge3 = (FLOAT) (*dim3) - (FLOAT).5001;
 
 /*     1D */
 
@@ -104,17 +104,17 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Convert this into an integer index */
 
-	    i1 = (int) (xpos + (float).5);
+	    i1 = (int) (xpos + (FLOAT).5);
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (float).5 - xpos;
+	    dx = (float) i1 + (FLOAT).5 - xpos;
 
 /*           Interpolate from field into sumfield */
 
 	    sumfield[n] = sumfield[n] + field[i1 + (field_dim2 + 1) * 
 		    field_dim1] * dx + field[i1 + 1 + (field_dim2 + 1) * 
-		    field_dim1] * ((float)1. - dx);
+		    field_dim1] * ((FLOAT)1. - dx);
 
 	}
 
@@ -142,22 +142,22 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Convert this into an integer index */
 
-	    i1 = (int) (xpos + (float).5);
-	    j1 = (int) (ypos + (float).5);
+	    i1 = (int) (xpos + (FLOAT).5);
+	    j1 = (int) (ypos + (FLOAT).5);
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (float).5 - xpos;
-	    dy = (float) j1 + (float).5 - ypos;
+	    dx = (float) i1 + (FLOAT).5 - xpos;
+	    dy = (float) j1 + (FLOAT).5 - ypos;
 
 /*           Interpolate from field into sumfield */
 
 	    sumfield[n] = sumfield[n] + field[i1 + (j1 + field_dim2) * 
 		    field_dim1] * dx * dy + field[i1 + 1 + (j1 + field_dim2) *
-		     field_dim1] * ((float)1. - dx) * dy + field[i1 + (j1 + 1 
-		    + field_dim2) * field_dim1] * dx * ((float)1. - dy) + 
+		     field_dim1] * ((FLOAT)1. - dx) * dy + field[i1 + (j1 + 1 
+		    + field_dim2) * field_dim1] * dx * ((FLOAT)1. - dy) + 
 		    field[i1 + 1 + (j1 + 1 + field_dim2) * field_dim1] * ((
-		    float)1. - dx) * ((float)1. - dy);
+		    float)1. - dx) * ((FLOAT)1. - dy);
 
 	}
 
@@ -190,31 +190,31 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Convert this into an integer index */
 
-	    i1 = (int) (xpos + (float).5);
-	    j1 = (int) (ypos + (float).5);
-	    k1 = (int) (zpos + (float).5);
+	    i1 = (int) (xpos + (FLOAT).5);
+	    j1 = (int) (ypos + (FLOAT).5);
+	    k1 = (int) (zpos + (FLOAT).5);
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (float).5 - xpos;
-	    dy = (float) j1 + (float).5 - ypos;
-	    dz = (float) k1 + (float).5 - zpos;
+	    dx = (float) i1 + (FLOAT).5 - xpos;
+	    dy = (float) j1 + (FLOAT).5 - ypos;
+	    dz = (float) k1 + (FLOAT).5 - zpos;
 
 /*           Interpolate from field into sumfield */
 
 	    sumfield[n] = sumfield[n] + 
 	      field[i1+(j1 + k1 * field_dim2) * field_dim1] * dx * dy * dz + 
-	      field[i1+1 + (j1 + k1 * field_dim2) * field_dim1] * ((float)1. - dx) * dy * dz + 
-	      field[i1+(j1 + 1 + k1 * field_dim2) * field_dim1] * dx * ((float)1. - dy) * dz +
-	      field[i1+1 + (j1 + 1 + k1 * field_dim2) * field_dim1] * ((float)1. - dx) *
-	        ((float)1. - dy) * dz + 
-	      field[i1 + (j1 + (k1 + 1) * field_dim2) * field_dim1] * dx * dy * ((float)1. - dz) +
+	      field[i1+1 + (j1 + k1 * field_dim2) * field_dim1] * ((FLOAT)1. - dx) * dy * dz + 
+	      field[i1+(j1 + 1 + k1 * field_dim2) * field_dim1] * dx * ((FLOAT)1. - dy) * dz +
+	      field[i1+1 + (j1 + 1 + k1 * field_dim2) * field_dim1] * ((FLOAT)1. - dx) *
+	        ((FLOAT)1. - dy) * dz + 
+	      field[i1 + (j1 + (k1 + 1) * field_dim2) * field_dim1] * dx * dy * ((FLOAT)1. - dz) +
 	      field[i1 + 1 + (j1 + (k1 + 1) * field_dim2) * field_dim1] *
-	        ((float)1. - dx) * dy * ((float)1. - dz) + 
+	        ((FLOAT)1. - dx) * dy * ((FLOAT)1. - dz) + 
 	      field[i1 + (j1 + 1 + (k1 + 1) * field_dim2) * field_dim1] * dx *
-	        ((float)1. - dy) * ((float)1. - dz) + 
+	        ((FLOAT)1. - dy) * ((FLOAT)1. - dz) + 
 	      field[i1 + 1 + (j1 + 1 + (k1 + 1) * field_dim2) * field_dim1] *
-	        ((float)1. - dx) * ((float)1. - dy) * ((float)1. - dz);
+	        ((FLOAT)1. - dx) * ((FLOAT)1. - dy) * ((FLOAT)1. - dz);
 	}
     }
 
