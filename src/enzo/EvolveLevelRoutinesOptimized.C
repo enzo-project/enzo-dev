@@ -108,7 +108,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
     
   
-    if (loop==0){
+  
       TIME_MSG("Interpolating boundaries from parent");
     
       
@@ -133,11 +133,12 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
 	  if (level == 0) {
-	  
+	    if (loop==0){
 	    if (Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior)
 		== FAIL) {
 	      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
 	      ENZO_FAIL("");}	      
+	    }
 	  }
 	  else {
 	    if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
@@ -183,7 +184,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
       } // ENDFOR grid batches
 
-    }
+    
 
     
 
@@ -255,7 +256,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
     } // end loop over batchs of grids
 
-  
+  }
  
     /* c) Apply external reflecting boundary conditions, if needed.  */
 
@@ -266,7 +267,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	fprintf(stderr, "Error in grid->CheckForExternalReflections.\n");
       }
     
-  }
+  
 #ifdef FORCE_MSG_PROGRESS 
     CommunicationBarrier();
 #endif
