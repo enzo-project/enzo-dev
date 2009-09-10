@@ -68,6 +68,18 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   } // ENDFOR grids
   dtPhoton = CommunicationMinValue(dtPhoton);
 
+  // Use an alternative method to calculate timestep (10% max change
+  // in HII)
+  float dtPhotonA = 1e20;
+  for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
+    for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
+      ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep2();
+      dtPhotonA = min(dtPhotonA, ThisPhotonDT);
+    }
+  CommunicationMinValue(dtPhotonA);
+
+  if (debug) printf("Alternative dtPhoton = %g\n", dtPhotonA);
+
   // Ensure that not too many photon timesteps are taken per hydro step
   HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
   dtPhoton = max(dtPhoton, 
