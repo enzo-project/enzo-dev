@@ -650,7 +650,8 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     if (!CopyGravPotential) {
  
       int Dummy, GridCount;
-      LevelHierarchyEntry *Temp, *LastTemp, *Temp3;
+      LevelHierarchyEntry *Temp, *LastTemp;
+      HierarchyEntry *Temp3;
       LevelHierarchyEntry *FirstTemp = LevelArray[reallevel];
 	
 #ifdef FORCE_MSG_PROGRESS 
