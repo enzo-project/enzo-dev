@@ -239,6 +239,7 @@ int grid::MergePausedPhotonPackages() {
       NewPack->EmissionTimeInterval += TempPP[i].EmissionTimeInterval * weight;
       //NewPack->Radius += TempPP[i].Radius * weight;
       NewPack->ColumnDensity += TempPP[i].ColumnDensity * weight;
+      this->NumberOfPhotonPackages--;
     } else { // ENDIF match
 
       // First put the previous package (after correcting several
