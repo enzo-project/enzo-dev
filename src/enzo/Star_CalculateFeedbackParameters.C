@@ -214,8 +214,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
 
-    Radius = 3.0e4/h*
-    
     fprintf(stderr, "EjectaThermalEnergy = %g in S_CFP.C\n", EjectaThermalEnergy);
     fprintf(stderr, "Radius = %g in S_CFP.C\n", Radius);
     /*
