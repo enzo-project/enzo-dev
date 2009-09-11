@@ -370,6 +370,7 @@ EXTERN int HaloFinderSubfind;
 EXTERN int HaloFinderOutputParticleList;
 EXTERN int HaloFinderMinimumSize;
 EXTERN int HaloFinderCycleSkip;
+EXTERN int HaloFinderRunAfterOutput;
 EXTERN float HaloFinderLinkingLength;
 EXTERN float HaloFinderTimestep;
 EXTERN FLOAT HaloFinderLastTime;
