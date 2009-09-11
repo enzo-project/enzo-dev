@@ -25,7 +25,7 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			 int GridStartIndex[], int GridEndIndex[], int GridRank,
 			 float dtdx, float dt);
 
-int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
 			      ExternalBoundary *Exterior)  {
   /*

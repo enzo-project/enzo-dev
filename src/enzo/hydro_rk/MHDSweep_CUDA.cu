@@ -360,6 +360,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
     for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
 #endif
 
+cudaEventDestroy( start ); 
+cudaEventDestroy( stop ); 
+
   return SUCCESS;
 
 }
