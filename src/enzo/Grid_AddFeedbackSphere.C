@@ -215,7 +215,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    /* For MBH_THERMAL, different definition for EjectaThermalEnergy is used;
 	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
 
-#define SEDOV_TEST
+#define NEVER_SEDOV_TEST
 
 	    if (GENum >= 0 && DualEnergyFormalism) {
 	      if (cstar->FeedbackFlag != MBH_THERMAL) {

@@ -27,7 +27,7 @@
 int StarParticleAccretion(Star *&AllStars)
 {
 
-#define SEDOV_TEST
+#define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
   return SUCCESS;
 #endif

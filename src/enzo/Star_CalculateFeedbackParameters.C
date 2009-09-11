@@ -41,7 +41,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenMaxVelocity = 35;		// km/s
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
-    k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25;
+    k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
@@ -189,20 +189,20 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = max(Radius, 2*StarLevelCellWidth);
 
     // Release MBH-AGN thermal energy constantly. Here no mass is released.
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
+    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);
     EjectaDensity = 0.0;
     EjectaMetalDensity = 0.0; 
 
     /* Now calculate the feedback parameter based on mdot estimated above.  - Ji-hoon Kim 
        For CONT_SUPERNOVA, the unit of EjectaThermalEnergy was ergs/g, 
-       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3/sec.
+       but here for MBH_THERMAL, the unit of EjectaThermalEnergy is ergs/cm^3.
        This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  - Ji-hoon Kim */
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       min(mdot, mdot_Edd) * Msun * c * c * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
-#define SEDOV_TEST
+#define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
     // For Sedov test (This EjectaThermalEnergy is not quite intuitive, but fits the definition at least.)
     /*
@@ -211,12 +211,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
     */
     
     // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
-    EjectaThermalEnergy = 1.0e50 * dtForThisStar * TimeUnits / 1e14 /
+    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+
+    Radius = 3.0e4/h*
+    
+    fprintf(stderr, "EjectaThermalEnergy = %g in S_CFP.C\n", EjectaThermalEnergy);
+    fprintf(stderr, "Radius = %g in S_CFP.C\n", Radius);
     /*
     fprintf(stderr, "dtForThisStar in S_CFP.C = %g\n", dtForThisStar);
     fprintf(stderr, "1.0e50 * dtForThisStar * TimeUnits / 2.0e11 = %g\n", 1.0e50 * dtForThisStar * TimeUnits / 2.0e11);
-    fprintf(stderr, "EjectaThermalEnergy = %g\n", EjectaThermalEnergy);
     */
     
 #endif

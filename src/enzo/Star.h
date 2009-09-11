@@ -126,7 +126,7 @@ public:
 				    float VelocityUnits, float dtForThisStar);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
-			 float &Radius, double &EjectaDensity, 
+			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
