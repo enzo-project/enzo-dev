@@ -535,7 +535,7 @@ cuda-yes: CONFIG_ECUDA-yes
 cuda-no: CONFIG_ECUDA-no
 cuda-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ECUDA)]\n\n"
-CONFIG_ECUDA-%: 
+CONFIG_ECUDA-%: suggest-clean
 	@tmp=.config.temp; \
         echo ""; \
         grep -v CONFIG_ECUDA $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
@@ -607,7 +607,7 @@ tpvel-yes: CONFIG_TPVEL-yes
 tpvel-no: CONFIG_TPVEL-no
 tpvel-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TPVEL)]\n\n"
-CONFIG_TPVEL-%:
+CONFIG_TPVEL-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
@@ -624,7 +624,7 @@ photon-yes: CONFIG_PHOTON-yes
 photon-no: CONFIG_PHOTON-no
 photon-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
-CONFIG_PHOTON-%:
+CONFIG_PHOTON-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \

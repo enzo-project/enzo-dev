@@ -16,6 +16,7 @@
 
 //   float ComputePhotonTimestep(void);
    float ComputeRT_TimeStep(void);
+   float ComputeRT_TimeStep2(void);
 
 /* Photons: return number of PhotonPackages. */
 

@@ -93,7 +93,8 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				TopGridData* MetaData = NULL);
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[]);
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData);
 int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
@@ -410,7 +411,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Inline halo finder */
 
-    FOF(&MetaData, LevelArray);
+    FOF(&MetaData, LevelArray, WroteData);
 
     /* Evolve the top grid (and hence the entire hierarchy). */
 
@@ -530,8 +531,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* If stopping, inline halo finder one more time */
 
     if (Stop && !Restart)
-      FOF(&MetaData, LevelArray);
-
+      FOF(&MetaData, LevelArray, TRUE);
 
     /* Try to cut down on memory fragmentation. */
  

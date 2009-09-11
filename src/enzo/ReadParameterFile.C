@@ -661,6 +661,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "HaloFinderSubfind = %"ISYM, &HaloFinderSubfind);
     ret += sscanf(line, "HaloFinderOutputParticleList = %"ISYM, 
 		  &HaloFinderOutputParticleList);
+    ret += sscanf(line, "HaloFinderRunAfterOutput = %"ISYM, 
+		  &HaloFinderRunAfterOutput);
     ret += sscanf(line, "HaloFinderLinkingLength = %"FSYM, 
 		  &HaloFinderLinkingLength);
     ret += sscanf(line, "HaloFinderMinimumSize = %"ISYM, &HaloFinderMinimumSize);

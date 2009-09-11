@@ -44,28 +44,35 @@ void FOF_Initialize(TopGridData *MetaData,
 		    FOFData &D, bool SmoothData);
 /************************************************************************/
 
-int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData)
 {
 
   if (!InlineHaloFinder)
     return SUCCESS;
 
-  if (HaloFinderCycleSkip == 0 && HaloFinderTimestep < 0)
-    return SUCCESS;
+  // Always run if we've just outputted and HaloFinderRunAfterOutput is on.
+  if (!(WroteData && HaloFinderRunAfterOutput)) {
 
-  if (HaloFinderCycleSkip > 0)
-    if (MetaData->CycleNumber % HaloFinderCycleSkip != 0)
+    if (HaloFinderCycleSkip == 0 && HaloFinderTimestep < 0)
       return SUCCESS;
 
-  if (HaloFinderTimestep > 0 &&
-      MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
-    return SUCCESS;
+    if (HaloFinderCycleSkip > 0)
+      if (MetaData->CycleNumber % HaloFinderCycleSkip != 0)
+	return SUCCESS;
 
-  if (NumberOfProcessors & 1 && NumberOfProcessors > 1) {
-    fprintf(stdout, "FOF: Number of processors (in parallel) must be EVEN to run "
-	    "inline halo finder.\n");
-    return SUCCESS;
-  }
+    if (HaloFinderTimestep > 0 &&
+	MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
+      return SUCCESS;
+
+    if (NumberOfProcessors & 1 && NumberOfProcessors > 1) {
+      fprintf(stdout, "FOF: Number of processors (in parallel) must be "
+	      "EVEN to run inline halo finder.  Turning OFF.\n");
+      InlineHaloFinder = FALSE;
+      return SUCCESS;
+    }
+
+  } // ENDIF force run
 
   if (!ComovingCoordinates)
     fprintf(stdout, "FOF: Warning -- you're running the halo finder on a"
