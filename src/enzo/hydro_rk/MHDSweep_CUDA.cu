@@ -236,7 +236,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 
@@ -359,6 +358,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   for (int j=30; j < 33; j++) 
     for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
 #endif
+
+cudaEventDestroy( start ); 
+cudaEventDestroy( stop ); 
 
   return SUCCESS;
 

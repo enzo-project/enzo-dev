@@ -430,12 +430,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_1stStep
-	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	    (SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
 	  Grids[grid1]->GridData->MHDRK2_1stStep
-	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	    (SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
 	}
       } // ENDIF UseHydro
@@ -464,13 +464,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UseHydro) {
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_2ndStep
-	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	    (SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
 
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
-	    (LevelCycleCount[level], SubgridFluxesEstimate[grid1], 
+	    (SubgridFluxesEstimate[grid1], 
 	     NumberOfSubgrids[grid1], level, Exterior);
 	  
 	  if (UseAmbipolarDiffusion) {
@@ -560,11 +560,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
-    /* Run the MHD Divergence Cleaing                */
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->PoissonSolver(level);
-    
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -653,9 +648,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
-      LevelZoneCycleCount[level] += NumberOfCells;
-      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
-      	LevelZoneCycleCountPerProc[level] += NumberOfCells;
+      //      LevelZoneCycleCount[level] += NumberOfCells;
+      //if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
+      //	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
 
     cycle++;
