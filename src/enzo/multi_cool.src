@@ -229,7 +229,8 @@
 
           dt2 = dt/2.0
           ttmin = huge
-
+	  write(0,*) 'is=',is, ie
+	  write(81,*) 'is=',is, ie
           do i = is+1, ie+1
 
 !            Set energy of this cell (the gamma used here is the right
@@ -383,8 +384,9 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
  8888    continue
       
 !       Abort if iteration count exceeds maximum
-
+	  write(0,*) 'is=',is, ie
          if (iter .gt. itmax) then
+	    write(0,*) 'inside if statement is=',is, ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin
