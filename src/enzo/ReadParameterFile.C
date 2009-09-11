@@ -1129,6 +1129,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 
   if (UseCUDA) {
+    LoadBalancing = 0; // Should explore how LoadBalancing = 1 gives problems with CUDA
 #ifndef ECUDA
     printf("This executable was compiled without CUDA support.\n");
     printf("use \n");

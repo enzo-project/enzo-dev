@@ -20,7 +20,7 @@ CollapseTestUseColour       = 1
 #
 CollapseTestSphereRadius[0]      = 0.2
 CollapseTestSphereDensity[0]     = 1.0
-CollapseTestSphereTemperature[0] = 0.1508
+CollapseTestSphereTemperature[0] = 1.914e-9
 CollapseTestSphereType[0]        = 2       // r^-2
 CollapseTestSphereCoreRadius[0]  = 0.05
 CollapseTestSpherePosition[0]    = 0.25 0.5 0.5
@@ -28,14 +28,14 @@ CollapseTestSphereVelocity[0]    = 0.5 0.0 0.0
 #
 CollapseTestSphereRadius[1]      = 0.2
 CollapseTestSphereDensity[1]     = 1.0
-CollapseTestSphereTemperature[1] = 0.1508
+CollapseTestSphereTemperature[1] = 1.914e-9
 CollapseTestSphereType[1]        = 2       // r^-2
 CollapseTestSphereCoreRadius[1]  = 0.05
 CollapseTestSpherePosition[1]    = 0.75 0.5 0.5
 CollapseTestSphereVelocity[1]    = -0.5 0.0 0.0
 #
 #CollapseTestUniformVelocity      =  0 0 0
-CollapseTestInitialTemperature   = 0.3  // e=1
+CollapseTestInitialTemperature   = 3.634e-9  // e=1
 #
 #  set I/O and stop/start parameters
 #

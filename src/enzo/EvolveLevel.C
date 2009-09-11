@@ -604,7 +604,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* If possible & desired, report on memory usage. */
  
-
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
 #ifdef USE_JBPERF
