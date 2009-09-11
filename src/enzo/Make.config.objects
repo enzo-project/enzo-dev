@@ -218,6 +218,9 @@ OBJS_CONFIG_LIB = \
         Grid_CollectParticleMassFlaggingField.o \
         Grid_CollectStars.o \
         Grid_CommunicationMoveGrid.o \
+        Grid_CommunicationReceiveRegion.o \
+        Grid_CommunicationSendParticles.o \
+        Grid_CommunicationSendRegion.o \
         Grid_CommunicationTransferParticles.o \
         Grid_CommunicationTransferParticlesOpt.o \
         Grid_CommunicationTransferStars.o \
@@ -265,6 +268,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+        Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
         Grid_DepositPositions.o \
@@ -323,10 +327,6 @@ OBJS_CONFIG_LIB = \
         Grid_InterpolateParticlePositions.o \
         Grid_InterpolateParticlesToGrid.o \
         Grid_InterpolatePositions.o \
-        Grid_Irecv_CommunicationReceiveRegion.o \
-        Grid_Irecv_CommunicationSendParticles.o \
-        Grid_Irecv_CommunicationSendRegion.o \
-        Grid_Irecv_DepositBaryons.o \
         Grid_KHInitializeGrid.o \
         Grid_MirrorStarParticles.o \
         Grid_MoveAllParticles.o \
@@ -653,6 +653,7 @@ POBJS_CONFIG_LIB = \
         Grid_AllocateInterpolatedRadiation.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputeRT_TimeStep.o \
+        Grid_ComputeRT_TimeStep2.o \
         Grid_ConvertToCellCenteredRadiation.o \
         Grid_CorrectRadiationIncompleteness.o \
         Grid_DeletePhotonPackages.o \

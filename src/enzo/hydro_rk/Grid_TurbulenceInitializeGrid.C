@@ -474,6 +474,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
 
+
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;

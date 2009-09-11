@@ -322,6 +322,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
   HaloFinderOutputParticleList     = FALSE;
+  HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
   HaloFinderLinkingLength          = 0.1;
   HaloFinderCycleSkip              = 3;

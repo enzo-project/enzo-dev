@@ -61,7 +61,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = TRUE;
   int RandomSeed = 1;
-  float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
+  FLOAT rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
 
   /* read input from file */
   rewind(fptr);
@@ -72,13 +72,16 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     /* read parameters */
 
     ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
-    ret += sscanf(line, "Density = %f", &rho_medium);
-    ret += sscanf(line, "SoundVelocity = %f", &cs);
-    ret += sscanf(line, "MachNumber = %f", &mach);
-    ret += sscanf(line, "InitialBfield = %f", &Bnaught);
+    ret += sscanf(line, "Density = %"FSYM, &rho_medium);
+    ret += sscanf(line, "SoundVelocity = %"FSYM, &cs);
+    ret += sscanf(line, "MachNumber = %"FSYM, &mach);
+    ret += sscanf(line, "InitialBfield = %"FSYM, &Bnaught);
     ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
 
   } // end input from parameter file
+
+  printf("rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
+
   
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;

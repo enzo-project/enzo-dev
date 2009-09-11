@@ -541,6 +541,7 @@
 !       Abort if iteration count exceeds maximum
 
          if (iter .gt. itmax) then
+	    write(0,*) 'inside if statement solve rate cool:',is,ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin
