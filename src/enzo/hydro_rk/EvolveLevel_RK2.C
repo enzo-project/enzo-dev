@@ -154,6 +154,8 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
 		     float dtLevelAbove);
 
 void my_exit(int status);
+int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+               int level);
 
 /* Counters for performance and cycle counting. */
 
@@ -337,7 +339,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
       h_min = my_MIN(dx0, dy0, dz0);
       h_min /= pow(RefineBy, lmax);
-      C_h = 0.02*MetaData->CourantSafetyNumber*h_min/dt0;
+      C_h = 0.1*MetaData->CourantSafetyNumber*h_min/dt0;
+      if (EOSType == 3)  // for isothermal runs just use the constant sound speed
+	C_h = EOSSoundSpeed;
+
       C_p = sqrt(0.18*DivBDampingLength*C_h);
       //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
       if (debug) 
@@ -555,6 +560,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
+    /* Run the MHD Divergence Cleaing                */
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->PoissonSolver(level);
+    
+
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
 
@@ -570,6 +581,24 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     time1 = ReturnWallTime();
 
+#ifdef USE_JBPERF
+    // Update lcaperf "level" attribute
+
+    jbPerf.attribute ("level",&jb_level,JB_INT);
+#endif
+
+    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    CallPython(LevelArray, MetaData, level);
+
+    /* Update SubcycleNumber and the timestep counter for the
+       streaming data if this is the bottom of the hierarchy -- Note
+       that this not unique based on which level is the highest, it
+       just keeps going */
+
+    if (LevelArray[level+1] == NULL) {
+      MetaData->SubcycleNumber++;
+      MetaData->TimestepCounter++;
+    }
 
     /* ------------------------------------------------------- */
     /* For each grid,
@@ -612,12 +641,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
 
     //    LevelWallTime[level] += ReturnWallTime() - time1;
-    if (dtThisLevelSoFar < dtLevelAbove) {
-      if (RebuildHierarchy(MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
-      }
-    }
+    if (dtThisLevelSoFar < dtLevelAbove) 
+      RebuildHierarchy(MetaData, LevelArray, level);
+
     time1 = ReturnWallTime();
 
     /* Count up number of grids on this level. */
@@ -627,14 +653,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
-      //      LevelZoneCycleCount[level] += NumberOfCells;
-      //      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
-      //	LevelZoneCycleCountPerProc[level] += NumberOfCells;
+      LevelZoneCycleCount[level] += NumberOfCells;
+      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
+      	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
 
-
     cycle++;
-    //    LevelCycleCount[level]++;
+    LevelCycleCount[level]++;
 
   } // while (dtThisLevelSoFar < dtLevelAbove)
 

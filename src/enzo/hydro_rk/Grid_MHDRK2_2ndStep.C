@@ -46,8 +46,8 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   double time1 = ReturnWallTime();
 
-  float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
+  float *Prim[NEQ_MHD+NSpecies+NColor];
+  float *OldPrim[NEQ_MHD+NSpecies+NColor];
 
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");

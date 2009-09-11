@@ -661,6 +661,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "HaloFinderSubfind = %"ISYM, &HaloFinderSubfind);
     ret += sscanf(line, "HaloFinderOutputParticleList = %"ISYM, 
 		  &HaloFinderOutputParticleList);
+    ret += sscanf(line, "HaloFinderRunAfterOutput = %"ISYM, 
+		  &HaloFinderRunAfterOutput);
     ret += sscanf(line, "HaloFinderLinkingLength = %"FSYM, 
 		  &HaloFinderLinkingLength);
     ret += sscanf(line, "HaloFinderMinimumSize = %"ISYM, &HaloFinderMinimumSize);
@@ -685,16 +687,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Read MHD Paramters */
     ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
     ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %d", &DivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %f", &DivergenceCleaningThreshold);
-    ret += sscanf(line, "PoissonApproximationThreshold = %f", &PoissonApproximationThreshold);
-    ret += sscanf(line, "AngularVelocity = %f", &AngularVelocity);
-    ret += sscanf(line, "VelocityGradient = %f", &VelocityGradient);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
+    ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
+    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
     ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
-    ret += sscanf(line, "DrivingEfficiency = %f", &DrivingEfficiency);
+    ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
 
     ret += sscanf(line, "StringKick = %d", &StringKick);
     ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
-    ret += sscanf(line, "Theta_Limiter = %f", &Theta_Limiter);
+    ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
     ret += sscanf(line, "RKOrder = %d", &RKOrder);
     ret += sscanf(line, "UseFloor = %d", &UseFloor);
     ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
@@ -777,7 +779,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s", line);
  
   }
- 
+
   /* clean up */
  
   delete [] dummy;
@@ -1127,6 +1129,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 
   if (UseCUDA) {
+    LoadBalancing = 0; // Should explore how LoadBalancing = 1 gives problems with CUDA
 #ifndef ECUDA
     printf("This executable was compiled without CUDA support.\n");
     printf("use \n");
