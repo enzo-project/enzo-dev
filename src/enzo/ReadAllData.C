@@ -44,7 +44,7 @@ void my_exit(int status);
  
 int ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
 		      HierarchyEntry *ParentGrid);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
 int ReadStarParticleData(FILE *fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
@@ -100,7 +100,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, dummy) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  

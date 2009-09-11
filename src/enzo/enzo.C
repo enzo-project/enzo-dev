@@ -56,7 +56,7 @@ int FinalizePythonInterface();
 // Function prototypes
  
 int InitializeNew(  char *filename, HierarchyEntry &TopGrid, TopGridData &tgd,
-		    ExternalBoundary &Exterior, float *Initialdt);
+		    ExternalBoundary &Exterior, float &Initialdt);
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 
 int InitializeLocal(int restart, HierarchyEntry &TopGrid, 
@@ -436,7 +436,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (!restart) {
 
-    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, &Initialdt) == FAIL) {
+    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, Initialdt) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Error in Parameter File %s.\n", ParameterFile);
       my_exit(EXIT_FAILURE);
