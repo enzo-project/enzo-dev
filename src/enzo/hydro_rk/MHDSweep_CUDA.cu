@@ -236,7 +236,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 

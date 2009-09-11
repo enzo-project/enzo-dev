@@ -560,11 +560,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
-    /* Run the MHD Divergence Cleaing                */
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->PoissonSolver(level);
-    
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
