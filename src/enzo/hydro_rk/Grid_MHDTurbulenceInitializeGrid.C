@@ -215,14 +215,14 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
       } 
     }
   }
-
-  for (int i = 0; i < 3; i++) {
+	  printf("Grid_MHDTurb: line 218\n");
+	  /*  for (int i = 0; i < 3; i++) {
     delete [] TurbulenceVelocity[i];
-  }
-
+    }*/
+	  printf("Grid_MHDTurb: line 222\n");
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
-
+  printf("UseDrivingField =%d\n",UseDrivingField);
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
@@ -249,7 +249,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     Fx /= activesize;
     Fy /= activesize;
     Fz /= activesize;
-    
+
     for (n = 0; n < activesize; n++) {
       DrivingField[0][n] -= Fx;
       DrivingField[1][n] -= Fy;
@@ -277,12 +277,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
 
 
-    for (int dim = 0; dim < GridRank; dim++) {
+    /*    for (int dim = 0; dim < GridRank; dim++) {
       delete [] DrivingField[dim];
-    }
+      }*/
   }    
 
-
+	  printf("Grid_MHDTurb: COMPLETED\n");
   return SUCCESS;
 }
 
