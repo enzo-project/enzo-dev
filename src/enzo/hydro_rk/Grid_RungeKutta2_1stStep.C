@@ -90,7 +90,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim,0);
+  this->ReturnHydroRKPointers(Prim,false);
 
   // RK2 first step
 #ifdef ECUDA 
