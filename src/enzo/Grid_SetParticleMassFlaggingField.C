@@ -95,7 +95,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
     /* Allocate and clear mass flagging field. */
  
     this->ClearParticleMassFlaggingField();
- 
+
     for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
 
       /***********************************************************************/
