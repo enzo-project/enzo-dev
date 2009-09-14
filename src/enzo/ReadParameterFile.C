@@ -608,15 +608,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
+		  &MBHAccretingMassRatio);
     ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
 		  &MBHFeedbackThermal);
     ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
+    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
+		  &MBHFeedbackMassEjectionFraction);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
-    ret += sscanf(line, "MBHIonizingLuminosity = %lf", 
-		  &MBHIonizingLuminosity);
 
     /* Read Movie Dump parameters */
 

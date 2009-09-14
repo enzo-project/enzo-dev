@@ -103,8 +103,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       ENZO_FAIL("");
     }
 
-    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); //#####    
+    /*
+    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
     fprintf(stderr, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
+    */
 
     if (SphereContained == FALSE)
       continue;

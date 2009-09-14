@@ -353,12 +353,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
+  MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHCombineRadius                 = 10;           // pc
-  MBHIonizingLuminosity            = 1e47;         // ph/s / Msun
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

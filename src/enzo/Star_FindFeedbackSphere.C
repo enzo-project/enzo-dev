@@ -86,7 +86,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   MBHFeedbackRadiusTooSmall = (type = MBH); //#####
   initialRadius = Radius;
 
-  while (SphereTooSmall || MBHFeedbackRadiusTooSmall) { //#####
+  while (SphereTooSmall || MBHFeedbackRadiusTooSmall) { 
     Radius += CellWidth;
     MassEnclosed = 0;
     Metallicity = 0;
@@ -168,14 +168,14 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     case MBH:  
 #ifdef SEDOV_TEST
       // This is to enlarge the Radius so that the thermal feedback affects the constant mass 
-      // as the AGN bubble expands, not the constant radius.  Ji-hoon Kim in Sep./2009  #####
+      // as the AGN bubble expands, not the constant radius.  Ji-hoon Kim in Sep./2009  
       // MassEnclosed in Msun, 
       // assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to the density in Ostriker & McKee test problem
       // (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) 
       MBHFeedbackRadiusTooSmall = MassEnclosed < 
-	4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 2; 
+	4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
-      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 2);
+      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0);
       fprintf(stderr, "Radius = %g\n", Radius);
 #else
       MBHFeedbackRadiusTooSmall = -1;
@@ -185,24 +185,27 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     }  // ENDSWITCH FeedbackFlag
 
-    // Remove the stellar mass from the sphere and distribute the
-    // gas evenly in the sphere since this is what will happen once
-    // the I-front passes through it.
+#ifdef SEDOV_TEST
     if (type != MBH)  //#####
+#endif 
+      // Remove the stellar mass from the sphere and distribute the
+      // gas evenly in the sphere since this is what will happen once
+      // the I-front passes through it.
       EjectaDensity = (float) 
 	(double(Msun * (MassEnclosed - AccretedMass)) / 
 	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
 	 DensityUnits);
-    // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
-    else //#####
+#ifdef SEDOV_TEST
+    else 
+      // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
       EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
-    //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
-    //      EjectaDensity = Shine[p].Mass / MassEnclosed;
+      fprintf(stderr, "EjectaThermalEnergy = %g in S_FFS.C\n", EjectaThermalEnergy); 
+      fprintf(stderr, "Radius = %g in S_FFS.C\n", Radius);
+#endif
+      //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
+      //      EjectaDensity = Shine[p].Mass / MassEnclosed;
 
   }  // ENDWHILE (too little mass)
-
-  fprintf(stderr, "EjectaThermalEnergy = %g in S_FFS.C\n", EjectaThermalEnergy); //#####
-  fprintf(stderr, "Radius = %g in S_FFS.C\n", Radius);
 
   /* Don't allow the sphere to be too large (2x leeway) */
 

@@ -215,22 +215,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 	    /* For MBH_THERMAL, different definition for EjectaThermalEnergy is used;
 	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
 
-#define NEVER_SEDOV_TEST
-
 	    if (GENum >= 0 && DualEnergyFormalism) {
-	      if (cstar->FeedbackFlag != MBH_THERMAL) {
-		newGE = (OldDensity * BaryonField[GENum][index] +
-			 ramp * factor * EjectaDensity * EjectaThermalEnergy) /
-		  BaryonField[DensNum][index];
-	      } else {
-		newGE = (OldDensity * BaryonField[GENum][index] +
-			 ramp * factor * EjectaThermalEnergy) /
-		  BaryonField[DensNum][index];	      
-	      }
-#ifdef SEDOV_TEST
-#else
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
 	      newGE = min(newGE, maxGE);  
-#endif SEDOV_TEST
 //	      newGE = ramp * EjectaThermalEnergy;
 //	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
 //		     OldDensity, BaryonField[DensNum][index], 
@@ -242,19 +231,17 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
 	    } else {
 
-	      if (cstar->FeedbackFlag != MBH_THERMAL) {
-		newGE = (OldDensity * BaryonField[TENum][index] +
-			 ramp * factor * EjectaDensity * EjectaThermalEnergy) /
-		  BaryonField[DensNum][index];
-	      } else {
-		newGE = (OldDensity * BaryonField[TENum][index] +
-			 ramp * factor * EjectaThermalEnergy) /
-		  BaryonField[DensNum][index];	      
-	      }
+	      newGE = (OldDensity * BaryonField[TENum][index] +
+		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+
+#define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
-#else
+	      newGE = (OldDensity * BaryonField[TENum][index] +
+		       ramp * factor * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+#endif
 	      newGE = min(newGE, maxGE);  
-#endif SEDOV_TEST
 	      /*
 	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      fprintf(stderr, "AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",

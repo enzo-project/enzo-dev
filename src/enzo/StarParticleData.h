@@ -57,12 +57,13 @@ SPEXTERN float  StarClusterRegionRightEdge[3];
 
 SPEXTERN float  MBHMinDynamicalTime;
 SPEXTERN float  MBHMinimumMass;
+SPEXTERN float  MBHAccretingMassRatio;
 SPEXTERN int    MBHFeedbackThermal;
 SPEXTERN float  MBHFeedbackRadius;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
 SPEXTERN float  MBHFeedbackThermalCoupling;
+SPEXTERN float  MBHFeedbackMassEjectionFraction;
 SPEXTERN float  MBHCombineRadius;
-SPEXTERN double MBHIonizingLuminosity;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

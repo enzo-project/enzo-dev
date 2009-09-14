@@ -32,7 +32,7 @@ extern "C" void FORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch);
+			int *imatch1, int *imatch2);
  
  
 int grid::FlagCellsToBeRefinedByMustRefineParticles()
