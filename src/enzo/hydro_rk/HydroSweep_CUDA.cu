@@ -24,8 +24,8 @@
 #include "../macros_and_parameters.h"
 #include "../typedefs.h"
 #include "../global_data.h"
+//#include <stdio.h>
 #include <cutil.h>
-#include <stdio.h>
 
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
@@ -33,7 +33,7 @@
 #define Gamma 1.001
 #define Theta_Limiter 1.5
 #define EOSType 3
-#define EOSSoundSpeed 1
+#define EOSSoundSpeed 1.
 #define NEQ_HYDRO 5
 #define iD 0
 #define iS1 1
@@ -108,8 +108,9 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
 
   // allocate device memory for primitive variables, with an additional field for internal energy
   float *PrimDevice = 0;
-  if (cudaMalloc((void**)&PrimDevice, sizeof(float)*(NEQ_HYDRO+1)*size) != cudaSuccess) {
-    printf("cudaMalloc for PrimDevice with size %d failed.\n", sizeof(float)*(NEQ_HYDRO+1)*size);
+  int totalsize = sizeof(float)*(NEQ_HYDRO+1)*size;
+  if (cudaMalloc((void**)&PrimDevice, totalsize) != cudaSuccess) {
+    printf("cudaMalloc for PrimDevice with size %d failed.\n", totalsize);
     return FAIL;
   }
 
@@ -131,8 +132,6 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
-  //  PerformanceTimers[34] += elapsedTime/1e3;
-
   cudaEventRecord(start, 0);
 
   // allocate device memory for flux
@@ -218,20 +217,19 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
 					               dtdx, size, GridDimension[0], GridDimension[1], GridDimension[2]);
   }
 
-  cudaEventRecord(stop, 0);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&elapsedTime, start, stop);
-  //  PerformanceTimers[36] += elapsedTime/1e3;
-
-  cudaEventRecord(start, 0);
-
-
   // update prim
   HydroUpdatePrim_CUDA3_kernel<<<dimGrid,dimBlock>>>(Rho_Device, Vx_Device, Vy_Device, Vz_Device, Etot_Device,
    					             dUD_Device, dUS1_Device, dUS2_Device, dUS3_Device, dUTau_Device,
 						     dt, size);
 
+  cudaEventRecord(stop, 0);
+  cudaThreadSynchronize();
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&elapsedTime, start, stop);
+
+
   // copy prim back to cpu
+  cudaEventRecord(start, 0);
   
   CUDA_SAFE_CALL(cudaMemcpy(Prim[0], PrimDevice,        sizeof(float)*size, cudaMemcpyDeviceToHost)); // density
   CUDA_SAFE_CALL(cudaMemcpy(Prim[1], PrimDevice+size,   sizeof(float)*size, cudaMemcpyDeviceToHost)); // vx
@@ -255,6 +253,9 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
   cudaEventElapsedTime(&elapsedTime, start, stop);
   //  PerformanceTimers[38] += elapsedTime/1e3;
 
+  cudaEventDestroy( start ); 
+  cudaEventDestroy( stop ); 
+
   return SUCCESS;
 
 }
@@ -266,7 +267,7 @@ __global__ void ComputeInternalEnergy_kernel(float *Vx, float *Vy, float *Vz, fl
   const long bx = blockIdx.x;
   const long by = blockIdx.y;
 
-  long igrid;
+  int igrid;
   igrid = tx + bx*CUDA_BLOCK_SIZE + by*CUDA_BLOCK_SIZE*CUDA_GRID_SIZE;
 
   if (igrid >= size)
@@ -287,7 +288,7 @@ __global__ void HydroSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float
   const long bx = blockIdx.x;
   const long by = blockIdx.y;
 
-  long igrid = tx + bx*CUDA_BLOCK_SIZE + by*CUDA_BLOCK_SIZE*CUDA_GRID_SIZE;
+  int igrid = tx + bx*CUDA_BLOCK_SIZE + by*CUDA_BLOCK_SIZE*CUDA_GRID_SIZE;
 
   // Every flux which is at cell interface is calculated 
   // by the cell to its right. This leads to the weird-looking asymmetry
@@ -819,8 +820,8 @@ __device__ void EOS(float &p, float &rho, float &e, float &cs, const int &eostyp
   }
 
   if (eostype == 3) { // straight isothermal
-    double c_s = EOSSoundSpeed;
-    p = rho*c_s*c_s;
+    cs = EOSSoundSpeed;
+    p = rho*cs*cs;
     e = p / ((Gamma-1.0)*rho);
   }
 
