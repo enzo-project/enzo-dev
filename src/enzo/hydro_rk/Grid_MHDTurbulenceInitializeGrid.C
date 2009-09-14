@@ -131,7 +131,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   float eint, h, dpdrho, dpde, cs;
   eint = cs_medium*cs_medium/(Gamma-1.0);
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
-  FLOAT rs = 2.0;
+  FLOAT rs = 0.5;
   n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
