@@ -40,7 +40,7 @@
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -177,7 +177,7 @@ char outfilename[] = "amr.out";
  
 int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		  TopGridData &MetaData, ExternalBoundary &Exterior,
-		  float *Initialdt)
+		  float &Initialdt)
 {
 
   
@@ -222,8 +222,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("");
   }
 
-  if (debug) fprintf(stderr, "INITIALDT ------------- %e \n", Initialdt);
- 
   // Set the number of particle attributes, if left unset
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)

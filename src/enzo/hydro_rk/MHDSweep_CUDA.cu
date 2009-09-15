@@ -236,7 +236,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 
@@ -359,6 +358,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   for (int j=30; j < 33; j++) 
     for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
 #endif
+
+cudaEventDestroy( start ); 
+cudaEventDestroy( stop ); 
 
   return SUCCESS;
 
@@ -831,7 +833,7 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
   By[igrid] += dUBy[igrid];
   Bz[igrid] += dUBz[igrid];
   Phi[igrid] += dUPhi[igrid];  
-  Phi[igrid] *= expf(-dt*pow(C_h/C_p,2));
+  Phi[igrid] *= expf(-dt*(C_h/C_p)*(C_h/C_p));
 }
 
 // the main computation routine: compute Flux at the left cell interface given Prim at the center

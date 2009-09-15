@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       November, 1994
-/  modified1:  Robert Harkness / Biran O'Shea
+/  modified1:  Robert Harkness / Brian O'Shea
 /  date:       4th June 2006
 /
 /  PURPOSE:

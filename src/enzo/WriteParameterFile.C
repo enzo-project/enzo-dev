@@ -294,6 +294,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "HaloFinderSubfind              = %"ISYM"\n", HaloFinderSubfind);
   fprintf(fptr, "HaloFinderCycleSkip            = %"ISYM"\n", 
 	  HaloFinderCycleSkip);
+  fprintf(fptr, "HaloFinderRunAfterOutput       = %"ISYM"\n", 
+	  HaloFinderRunAfterOutput);
   fprintf(fptr, "HaloFinderOutputParticleList   = %"ISYM"\n", 
 	  HaloFinderOutputParticleList);
   fprintf(fptr, "HaloFinderMinimumSize          = %"ISYM"\n", 

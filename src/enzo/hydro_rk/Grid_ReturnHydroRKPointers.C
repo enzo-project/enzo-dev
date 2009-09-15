@@ -54,7 +54,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     nfield = n0 = NEQ_MHD;
   };
 
-
   Prim[iden] = BaryonField[DensNum];
   Prim[ivx]  = BaryonField[Vel1Num];
   Prim[ivy]  = BaryonField[Vel2Num];
@@ -69,7 +68,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBz] = BaryonField[B3Num];
     Prim[iPhi]= BaryonField[PhiNum];
   }
-
 
   /* Add the species */
 
