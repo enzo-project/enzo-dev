@@ -60,7 +60,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 {
   /* declarations */
 
@@ -1120,15 +1120,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
-  if (debug) 
-    fprintf(stderr, "ReadParameter INITIALDT ::::::::::: %16.8e\n", Initialdt);
-
  //  for (int i=0; i<MetaData.TopGridRank; i++)
 //      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
 // 	      MetaData.LeftFaceBoundaryCondition[i], 
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 
   if (UseCUDA) {
+    LoadBalancing = 0; // Should explore how LoadBalancing = 1 gives problems with CUDA
 #ifndef ECUDA
     printf("This executable was compiled without CUDA support.\n");
     printf("use \n");

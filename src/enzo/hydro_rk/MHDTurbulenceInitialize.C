@@ -141,7 +141,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
       if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
-	fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
+	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
 	return FAIL;
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;

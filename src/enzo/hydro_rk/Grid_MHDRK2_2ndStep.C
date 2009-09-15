@@ -26,9 +26,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			int GridStartIndex[], int GridEndIndex[], int GridRank,
 		        float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter);
 
-int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
-			      int NumberOfSubgrids, int level,
-			      ExternalBoundary *Exterior)
+int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[], 
+			 int NumberOfSubgrids, int level,
+			 ExternalBoundary *Exterior)
   /*
     NumberOfSubgrids: the actual number of subgrids + 1
     SubgridFluxes[NumberOfSubgrids]

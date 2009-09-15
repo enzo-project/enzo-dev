@@ -1923,10 +1923,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				float vxl,  float vxr,
 				float vyl,  float vyr,
 				float pl,   float pr);
-  int RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
+  int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
-  int RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
+  int RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
   int ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions = true);
@@ -2023,10 +2023,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			    FLOAT DiskRadius,
 			    FLOAT DiskHeight, 
 			    int UseGas, int level);
-  int MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+  int MHDRK2_1stStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
-  int MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
+  int MHDRK2_2ndStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
   int MHD3D(float **Prim, float **dU, float dt,

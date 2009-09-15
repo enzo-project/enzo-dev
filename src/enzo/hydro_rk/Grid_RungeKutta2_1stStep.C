@@ -25,7 +25,7 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			 int GridStartIndex[], int GridEndIndex[], int GridRank,
 			 float dtdx, float dt);
 
-int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
 			      ExternalBoundary *Exterior)  {
   /*
@@ -90,7 +90,7 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
 
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim,0);
+  this->ReturnHydroRKPointers(Prim,false);
 
   // RK2 first step
 #ifdef ECUDA 
