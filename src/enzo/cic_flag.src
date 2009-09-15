@@ -73,6 +73,8 @@ c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
+	    write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
+c
 c           Compute the position of the central cell
 c
             xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)

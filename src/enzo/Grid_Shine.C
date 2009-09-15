@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
@@ -99,6 +99,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       float frac = t / (RS->RampTime+dtPhoton);
       RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
       RampPercent = max(min(RampPercent, 1), 0);
+      RampPercent = 1.0; //#####
     }
 
     /* Shake source within the grid cell every time it shines */
@@ -130,6 +131,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       break;
     } // ENDSWITCH type
 
+    fprintf(stderr, "MBH = %d\n", MBH);  //#####
+    fprintf(stderr, "RS->Type = %d\n", RS->Type);  
+
     int ebin;
 
     for (i=0; i < stype; i++) {
@@ -138,7 +142,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 //      ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
 //	      MultiSpecies > 1) ? 3 : i;
       ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
-	      MultiSpecies > 1 && RS->Type == 1) ? 3 : i;
+	      MultiSpecies > 1 && RS->Type == PopIII) ? 3 : i;
 
       photons_per_package = RampPercent * RS->Luminosity * 
 	RS->SED[ebin] * dtPhoton / float(BasePackages);
@@ -147,8 +151,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	EscapedPhotonCount[0] += photons_per_package * BasePackages;
 
       if (DEBUG)
-	printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM"\n", 
-	       ebin, RS->Energy[ebin], RampPercent*RS->Luminosity, 
+	printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 
+	       ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
 	       RS->SED[ebin], photons_per_package);
 
       if (RadiativeTransferInterpolateField)
@@ -180,7 +184,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  NewPack->Photons = photons_per_package;
 
 	  // Type 4 = X-Ray
-	  NewPack->Type = (RS->Type == 2 && i == 0) ? 4 : ebin;
+	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
+
+	  fprintf(stderr, "MBH = %d\n", MBH);  //#####
+	  fprintf(stderr, "RS->Type = %d\n", RS->Type);  
+	  fprintf(stderr, "NewPack->Type = %d\n", NewPack->Type);  
+	  ENZO_FAIL(" whatever! ");
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;
