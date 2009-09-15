@@ -82,24 +82,13 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   /* Convert to code units */
   
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0, VelocityUnits = 1.0, 
-    PressureUnits = 1.0, MagneticUnits = 1.0;
-  if (UsePhysicalUnit) 
-    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, MetaData.Time);
-  PressureUnits = DensityUnits * pow(VelocityUnits,2);
-  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
-
-  rho_medium /= DensityUnits;
-  cs /= VelocityUnits;
-  Bnaught /= MagneticUnits;
-
-  printf("Magnetic Units=%g\n", MagneticUnits);  
-  printf("rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
+  printf(" RAW:  rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
 
   
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
-  GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
+  if (UsePhysicalUnit) 
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
   presu = rhou*lenu*lenu/tu/tu;
   bfieldu = sqrt(presu*4.0*M_PI);
     
