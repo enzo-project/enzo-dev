@@ -71,15 +71,29 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
+    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
     ret += sscanf(line, "Density = %"FSYM, &rho_medium);
     ret += sscanf(line, "SoundVelocity = %"FSYM, &cs);
     ret += sscanf(line, "MachNumber = %"FSYM, &mach);
     ret += sscanf(line, "InitialBfield = %"FSYM, &Bnaught);
-    ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
+    ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
 
   } // end input from parameter file
 
+  /* Convert to code units */
+  
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0, VelocityUnits = 1.0, 
+    PressureUnits = 1.0, MagneticUnits = 1.0;
+  if (UsePhysicalUnit) 
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, MetaData.Time);
+  PressureUnits = DensityUnits * pow(VelocityUnits,2);
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+
+  rho_medium /= DensityUnits;
+  cs /= VelocityUnits;
+  Bnaught /= MagneticUnits;
+
+  printf("Magnetic Units=%g\n", MagneticUnits);  
   printf("rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
 
   
