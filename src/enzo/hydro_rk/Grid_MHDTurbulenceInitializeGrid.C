@@ -20,6 +20,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "StarParticleData.h"
 #include "EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -67,10 +68,10 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     return SUCCESS;
   
 
-  float rhou, lenu, tempu, tu,
-    velu, CriticalDensity = 1, BoxLength = 1;
-  
-  GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
+  float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0,
+    velu = 1.0, CriticalDensity = 1, BoxLength = 1;
+  if (UsePhysicalUnit)
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -131,7 +132,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   float eint, h, dpdrho, dpde, cs;
   eint = cs_medium*cs_medium/(Gamma-1.0);
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
-  FLOAT rs = 2.0;
+  FLOAT rs = 0.3;
   n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
@@ -215,14 +216,14 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
       } 
     }
   }
-
+  // printf("Grid_MHDTurb: line 218\n");
   for (int i = 0; i < 3; i++) {
     delete [] TurbulenceVelocity[i];
-  }
-
+    }
+	  // printf("Grid_MHDTurb: line 222\n");
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
-
+  printf("UseDrivingField =%d\n",UseDrivingField);
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
@@ -249,7 +250,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     Fx /= activesize;
     Fy /= activesize;
     Fz /= activesize;
-    
+
     for (n = 0; n < activesize; n++) {
       DrivingField[0][n] -= Fx;
       DrivingField[1][n] -= Fy;
@@ -277,12 +278,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
 
 
-    for (int dim = 0; dim < GridRank; dim++) {
+     for (int dim = 0; dim < GridRank; dim++) {
       delete [] DrivingField[dim];
-    }
+      }
   }    
 
-
+  //printf("Grid_MHDTurb: COMPLETED\n");
   return SUCCESS;
 }
 

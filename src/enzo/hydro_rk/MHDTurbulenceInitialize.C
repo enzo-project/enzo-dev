@@ -71,21 +71,24 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
+    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
     ret += sscanf(line, "Density = %"FSYM, &rho_medium);
     ret += sscanf(line, "SoundVelocity = %"FSYM, &cs);
     ret += sscanf(line, "MachNumber = %"FSYM, &mach);
     ret += sscanf(line, "InitialBfield = %"FSYM, &Bnaught);
-    ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
+    ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
 
   } // end input from parameter file
 
-  printf("rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
+  /* Convert to code units */
+  
+  printf(" RAW:  rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
 
   
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
-  GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
+  if (UsePhysicalUnit) 
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
   presu = rhou*lenu*lenu/tu/tu;
   bfieldu = sqrt(presu*4.0*M_PI);
     
