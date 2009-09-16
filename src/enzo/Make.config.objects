@@ -238,6 +238,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeExternalNohBoundary.o \
         Grid_ComputeGammaField.o \
         Grid_ComputeLuminosity.o \
+        Grid_ComputeMetalLineLuminosity.o \
         Grid_ComputePressureDualEnergyFormalism.o \
         Grid_ComputePressure.o \
         Grid_ComputeTemperatureField.o \
@@ -355,6 +356,7 @@ OBJS_CONFIG_LIB = \
         Grid_PressurelessCollapseInitialize.o \
         Grid_ProjectSolutionToParentGrid.o \
         Grid_ProjectToPlane.o \
+        Grid_ProjectToPlane2.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
         Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
@@ -495,6 +497,7 @@ OBJS_CONFIG_LIB = \
         project.o \
         projectbool.o \
         ProjectToPlane.o \
+        ProjectToPlane2.o \
         projplane.o \
         prolong.o \
         prolong_tsc.o \
