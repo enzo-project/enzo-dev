@@ -20,6 +20,7 @@
 #include <math.h>
 #include <hdf5.h>
 #include "h5utilities.h"
+#include "performance.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -73,6 +74,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
   } // ENDIF force run
+
+  JBPERF_START("InlineHaloFinder");
 
   if (!ComovingCoordinates)
     fprintf(stdout, "FOF: Warning -- you're running the halo finder on a"
@@ -129,6 +132,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   deallocate_all_memory(AllVars);
 
   HaloFinderLastTime = MetaData->Time;
+
+  JBPERF_STOP("InlineHaloFinder");
 
 }
 
