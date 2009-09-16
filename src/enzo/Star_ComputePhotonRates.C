@@ -108,7 +108,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
 
-    fprintf(stdout, "this->DeltaMass = %g, Q[0]=%g", this->DeltaMass, Q[0]); //#####
+    //fprintf(stdout, "this->DeltaMass = %g, Q[0]=%g\n", this->DeltaMass, Q[0]); 
     break;
 
   default:
