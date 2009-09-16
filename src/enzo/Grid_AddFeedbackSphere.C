@@ -212,8 +212,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
 	    /* Add total energies of spheres together, then divide by
 	       density to get specific energy */
-	    /* For MBH_THERMAL, different definition for EjectaThermalEnergy is used;
-	       see Star_CalculateFeedbackParameters.C  - Ji-hoon Kim */
 
 	    if (GENum >= 0 && DualEnergyFormalism) {
 	      newGE = (OldDensity * BaryonField[GENum][index] +

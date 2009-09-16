@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 1 //#####
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
@@ -94,12 +94,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     //    RS->SED[0] = 1.0;
 #endif
 
-    if (PhotonTime < (RS->CreationTime + RS->RampTime)) {
+    if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
       float t = PhotonTime-RS->CreationTime+dtPhoton;
       float frac = t / (RS->RampTime+dtPhoton);
       RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
       RampPercent = max(min(RampPercent, 1), 0);
-      RampPercent = 1.0; //#####
     }
 
     /* Shake source within the grid cell every time it shines */
@@ -128,17 +127,19 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 //	       PhotonTime-RS->CreationTime+dtPhoton);
       break;
     case MBH:
+      if (MyProcessorNumber == ProcessorNumber)
+	printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
+	       PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
+	       RS->Luminosity);
       break;
     } // ENDSWITCH type
-
-    fprintf(stderr, "MBH = %d\n", MBH);  //#####
-    fprintf(stderr, "RS->Type = %d\n", RS->Type);  
 
     int ebin;
 
     for (i=0; i < stype; i++) {
 
       float photons_per_package;
+      // Type 3 = H2I_LW
 //      ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
 //	      MultiSpecies > 1) ? 3 : i;
       ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
@@ -186,10 +187,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  fprintf(stderr, "MBH = %d\n", MBH);  //#####
-	  fprintf(stderr, "RS->Type = %d\n", RS->Type);  
-	  fprintf(stderr, "NewPack->Type = %d\n", NewPack->Type);  
-	  ENZO_FAIL(" whatever! ");
+	  if (DEBUG){
+	    fprintf(stdout, "MBH = %d\n", MBH);  //#####
+	    fprintf(stdout, "RS->Type = %d\n", RS->Type);  
+	    fprintf(stdout, "NewPack->Type = %d\n", NewPack->Type);  
+	  }
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;
