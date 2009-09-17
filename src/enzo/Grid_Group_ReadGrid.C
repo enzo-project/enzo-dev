@@ -160,7 +160,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
     if (NumberOfBaryonFields > 0) {
- 
+
+      if (NumberOfBaryonFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+	printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	       "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	       NumberOfBaryonFields, MAX_NUMBER_OF_BARYON_FIELDS);
+	ENZO_FAIL("");
+      }
+
       fscanf(fptr, "FieldType = ");
  
       if (ReadListOfInts(fptr, NumberOfBaryonFields, FieldType) == FAIL) {
