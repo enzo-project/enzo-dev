@@ -5,7 +5,7 @@
 # This is because the DEPEND files will change later, and the contents
 # will be machine-dependent.
 
-set EXECS = (enzo ring inits enzohop)
+set EXECS = (enzo ring inits enzohop anyl P-GroupFinder)
 
 foreach exec ($EXECS)
 

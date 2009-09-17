@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -188,6 +189,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int cycle = 0, counter = 0, grid1, subgrid, iLevel;
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
+
+  // Update lcaperf "level" attribute
+
+  Eint32 jb_level = level;
+#ifdef USE_JBPERF
+  jbPerf.attribute ("level",&jb_level,JB_INT);
+#endif
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
@@ -645,6 +653,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
+#ifdef UNUSED
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
@@ -652,6 +661,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       //if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
       //	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
+#endif
 
     cycle++;
     LevelCycleCount[level]++;

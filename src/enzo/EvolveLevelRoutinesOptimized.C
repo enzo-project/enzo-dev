@@ -98,9 +98,9 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   
   int grid1, grid2, StartGrid, EndGrid, loop;
   
-  for (loop = 0; loop < loopEnd; loop++){
+  JBPERF_START("SetBoundaryConditions");
     
-    JBPERF_START("SetBoundaryConditions");
+  for (loop = 0; loop < loopEnd; loop++){
     
 #ifdef FORCE_MSG_PROGRESS 
     CommunicationBarrier();
