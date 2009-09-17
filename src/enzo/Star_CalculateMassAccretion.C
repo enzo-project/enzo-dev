@@ -71,7 +71,7 @@ int Star::CalculateMassAccretion(void)
     }
 
   int igrid[MAX_DIMENSION], dim, index, size = 1;
-  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_Edd, v_rel, dvel;
+  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_UpperLimit, mdot_Edd, v_rel, dvel;
   float *temperature, density;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -131,6 +131,11 @@ int Star::CalculateMassAccretion(void)
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
+    // Don't take out too much mass suddenly; mdot should leave at least 10% of the gas in the grids.
+    // Ji-hoon Kim in Sep.2009
+    mdot_UpperLimit = 0.9 * density * pow(CurrentGrid->CellWidth[0][0], 3.0) / (CurrentGrid->dtFixed);
+    mdot = min(mdot, mdot_UpperLimit);
+
     // No accretion if the BH is in some low-density and cold cell.
     if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
       mdot = 0.0;
@@ -147,6 +152,7 @@ int Star::CalculateMassAccretion(void)
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
       mdot = min(mdot, mdot_Edd); 
+      fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot);
     }
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);
