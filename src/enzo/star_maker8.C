@@ -82,8 +82,10 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
   double        Pi = 3.1415926;
 
+  printf("Star Maker 8 running\n");
+
   /* Compute Units. */
- 
+  
   /* float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
     VelocityUnits = 1;
   double MassUnits = 1;
