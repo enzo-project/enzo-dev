@@ -145,7 +145,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 		"Radius = %"GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
       if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
-	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA)
+	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
+	  cstar->ReturnFeedbackFlag() == MBH_THERMAL )
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Energy = %"GSYM"  , skip = %"ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);

@@ -219,13 +219,20 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 		BaryonField[DensNum][index];
 	      newGE = min(newGE, maxGE);  
 //	      newGE = ramp * EjectaThermalEnergy;
-//	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
-//		     OldDensity, BaryonField[DensNum][index], 
-//		     BaryonField[GENum][index], newGE, EjectaDensity,
-//		     EjectaThermalEnergy);
+	      /*
+	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
+		     OldDensity, BaryonField[DensNum][index], 
+		     BaryonField[GENum][index], newGE, EjectaDensity,
+		     EjectaThermalEnergy);
+	      */
 
 	      BaryonField[GENum][index] = newGE;
 	      BaryonField[TENum][index] = newGE;
+
+	      for (dim = 0; dim < GridRank; dim++)
+		BaryonField[TENum][index] += 
+		  0.5 * BaryonField[Vel1Num+dim][index] * 
+		  BaryonField[Vel1Num+dim][index];
 
 	    } else {
 
@@ -240,6 +247,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 		BaryonField[DensNum][index];
 #endif
 	      newGE = min(newGE, maxGE);  
+
 	      /*
 	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      fprintf(stderr, "AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
@@ -250,12 +258,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
 
 	      BaryonField[TENum][index] = newGE;
 	    } //end if(GENum >= 0 && DualEnergyFormalism)
-
-
-	    for (dim = 0; dim < GridRank; dim++)
-	      BaryonField[TENum][index] += 
-		0.5 * BaryonField[Vel1Num+dim][index] * 
-		BaryonField[Vel1Num+dim][index];
 
 	    //increase = BaryonField[DensNum][index] / OldDensity;
 	    if (ZField == TRUE) {

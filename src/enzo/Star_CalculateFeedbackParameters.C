@@ -95,10 +95,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
-    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits; 
+    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
+    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
-    EjectaThermalEnergy = StarClusterSNEnergy / Msun /
+    EjectaThermalEnergy = StarClusterSNEnergy / Msun /   
       (VelocityUnits * VelocityUnits);
     break;
 
@@ -108,93 +108,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     /* Using the code snippets adopted from Star_CalculateMassAccretion.C (case LOCAL_ACCRETION)
        estimate the Bondi accretion rate.  - Ji-hoon Kim */
 
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
-
-    if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-						Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
-    }
-
-    if (MultiSpecies)
-      if (CurrentGrid->
-	  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
-				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
-	  == FAIL) {
-	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-	ENZO_FAIL("");
-      }
-   
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      size *= CurrentGrid->GridDimension[dim];
-      igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-	CurrentGrid->CellWidth[0][0];
-    }
-
-    temperature = new float[size];
-    if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in ComputeTemperatureField.\n");
-      ENZO_FAIL("");
-    }
-
-    // Calculate gas density inside cell
-    index = 
-      ((igrid[2] + CurrentGrid->GridStartIndex[2]) * CurrentGrid->GridDimension[1] + 
-       igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
-      igrid[0] + CurrentGrid->GridStartIndex[0];
-    density = CurrentGrid->BaryonField[DensNum][index];
-    if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-      mu = DEFAULT_MU;
-    } else {
-      number_density = 
-	CurrentGrid->BaryonField[HINum][index] + 
-	CurrentGrid->BaryonField[HIINum][index] +
-	CurrentGrid->BaryonField[DeNum][index] +
-	0.25 * (CurrentGrid->BaryonField[HeINum][index] +
-		CurrentGrid->BaryonField[HeIINum][index] +
-		CurrentGrid->BaryonField[HeIIINum][index]);
-      if (MultiSpecies > 1)
-	number_density += 
-	  CurrentGrid->BaryonField[HMNum][index] +
-	  0.5 * (CurrentGrid->BaryonField[H2INum][index] +
-		 CurrentGrid->BaryonField[H2IINum][index]);
-      mu = density / number_density;
-    }
-    c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = this->Mass; //Msun
-
-    // Calculate gas relative velocity (cm/s)
-    v_rel = 0.0;
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      delta_vel[dim] = vel[dim] - CurrentGrid->BaryonField[Vel1Num+dim][index];
-      v_rel += delta_vel[dim] * delta_vel[dim];
-    }
-    v_rel = sqrt(v_rel) * VelocityUnits;
-
-    // Calculate Bondi accretion rate in Msun/s 
-    mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
-      (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
-
-    // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
-      mdot = 0.0;
-
-    if (this->type == MBH) { 
-      // For MBH, MBHAccretingMassRatio is implemented because
-      // since we already resolve Bondi radius, the local density we used to calculate mdot 
-      // could be higher than what you are supposed to use for mdot, thus overestimating mdot.
-      // So MBHAccretingMassRatio < 1 can be used to fix this.  Ji-hoon Kim Sep.2009
-      mdot *= MBHAccretingMassRatio;
-
-      // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
-      mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
-	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
-
-      mdot = min(mdot, mdot_Edd); 
-    }
+    mdot = this->DeltaMass;
 
     /* end of the code snippets from Star_CalculateMassAccretion.C */
 
@@ -202,9 +116,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = MBHFeedbackRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
-    // Release MBH-AGN thermal energy constantly. Here no mass is released.
-    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);
-    EjectaDensity = mdot * Msun * c * c * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
+    // Release MBH-AGN thermal energy constantly. 
+    // Only EjectaVolume is in physical units; all others are in code units.
+    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
+    EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
       EjectaVolume / DensityUnits;
     EjectaMetalDensity = EjectaDensity * StarMetalYield; //very fiducial
 
@@ -214,7 +129,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun * c * c * dtForThisStar * TimeUnits / 
-      EjectaDensity / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST
@@ -230,16 +145,14 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaDensity = 0.0;
     EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-
-    fprintf(stderr, "EjectaThermalEnergy = %g in S_CFP.C\n", EjectaThermalEnergy);
-    fprintf(stderr, "Radius = %g in S_CFP.C\n", Radius);
-    /*
-    fprintf(stderr, "dtForThisStar in S_CFP.C = %g\n", dtForThisStar);
-    fprintf(stderr, "1.0e50 * dtForThisStar * TimeUnits / 2.0e11 = %g\n", 1.0e50 * dtForThisStar * TimeUnits / 2.0e11);
-    */
-    
 #endif
 
+    /*
+    fprintf(stderr, "EjectaThermalEnergy = %g in S_CFP.C\n", EjectaThermalEnergy);
+    fprintf(stderr, "EjectaDensity = %g in S_CFP.C\n", EjectaDensity);
+    fprintf(stderr, "Radius = %g in S_CFP.C\n", Radius);
+    fprintf(stderr, "dtForThisStar in S_CFP.C = %g\n", dtForThisStar);
+    */
     break;
 
   } // ENDSWITCH FeedbackFlag
