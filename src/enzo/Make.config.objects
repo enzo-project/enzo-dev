@@ -62,6 +62,7 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
+        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
         CommunicationTransferStars.o \

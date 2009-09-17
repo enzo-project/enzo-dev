@@ -59,13 +59,16 @@ int grid::MoveAllPhotonPackages(int NumberOfGrids, grid* FromGrid[])
   /* Error check number of photons.  If a bad value, reset photons */
 
   if (NumberOfPhotonPackages < 0) {
-    printf("MoveAllPackages: WARNING. Resetting photons.\n");
+    printf("MoveAllPackages: WARNING. Resetting photons. "
+	   "NumberOfPhotons = %"ISYM"\n", NumberOfPhotonPackages);
     NumberOfPhotonPackages = 0;
     TotalNumberOfPackages = 0;
     while (PP != NULL) {
       PP = DeletePhotonPackage(PP);
       PP = PP->NextPackage;
+      TotalNumberOfPackages++;
     }
+    printf("MoveAllPackages: deleted %"ISYM" photons\n", TotalNumberOfPackages);
     return SUCCESS;
   }
 
