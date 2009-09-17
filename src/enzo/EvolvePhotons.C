@@ -54,6 +54,7 @@ PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 			       LevelHierarchyEntry *LevelArray[]);
 void PrintSourceClusteringTree(SuperSourceEntry *leaf);
+int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -383,6 +384,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    }
 
     debug = debug_store;
+
+    /* We don't rely on the count NumberOfPhotonPackages here, so they
+       aren't synchronized across processors.  But in RebuildHierarchy, 
+       this number is needed.  Synchronize them now. */
+
+    CommunicationSyncNumberOfPhotons(LevelArray);
 
     if (!LoopTime)
       break;
