@@ -133,7 +133,9 @@ int Star::CalculateMassAccretion(void)
 
     // Don't take out too much mass suddenly; mdot should leave at least 10% of the gas in the grids.
     // Ji-hoon Kim in Sep.2009
-    mdot_UpperLimit = 0.9 * density * pow(CurrentGrid->CellWidth[0][0], 3.0) / (CurrentGrid->dtFixed);
+    mdot_UpperLimit = 0.9 * density * DensityUnits * 
+      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) * Msun / 
+      (CurrentGrid->dtFixed) / TimeUnits;
     mdot = min(mdot, mdot_UpperLimit);
 
     // No accretion if the BH is in some low-density and cold cell.

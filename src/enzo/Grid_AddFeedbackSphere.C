@@ -40,7 +40,8 @@
 
 int FindField(int field, int farray[], int numfields);
 
-int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float VelocityUnits, 
+int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits, 
+			    float LengthUnits, float VelocityUnits, 
 			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			    double EjectaMetalDensity, double EjectaThermalEnergy, 
 			    int &CellsModified)
@@ -110,6 +111,36 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float Velocity
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
       ENZO_FAIL("");
     }
+
+
+  /***********************************************************************
+                  PopIII Black Hole and Massive Balck Hole
+  ************************************************************************/
+
+  // Substract the accreted gas mass out for Star particle type BlackHole and MBH.
+  // Note that DeltaMass is calculated in the previous timestep 
+  // at Star_CalculateMassAccretion.C.
+  // At the moment, the mass is substracted only from the cell the particle resides in.
+  // Ji-hoon Kim in Sep.2009
+
+  if ((cstar->type == BlackHole || cstar->type == MBH) && (cstar->level == level)) {
+
+    double Msun = 1.989e33;
+
+    i = int((cstar->pos[0] - GridLeftEdge[0]) / CellWidth[0][0]);
+    j = int((cstar->pos[1] - GridLeftEdge[1]) / CellWidth[1][0]);
+    k = int((cstar->pos[2] - GridLeftEdge[2]) / CellWidth[2][0]);
+    index = (k*GridDimension[1] + j)*GridDimension[0] + i;
+
+    OldDensity = BaryonField[DensNum][index];
+    float OldMass = OldDensity * DensityUnits 
+      * pow(CellWidth[0][0]*LengthUnits, 3.0); //g
+    
+    BaryonField[DensNum][index] = (OldMass - cstar->DeltaMass * Msun) /
+      pow(CellWidth[0][0]*LengthUnits, 3.0) / DensityUnits;    
+
+  }
+
 
   /***********************************************************************
                                  SUPERNOVAE
