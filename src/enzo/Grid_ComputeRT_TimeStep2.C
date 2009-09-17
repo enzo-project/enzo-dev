@@ -28,7 +28,7 @@
 #include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 
-#define MAX_CHANGE 0.1
+#define MAX_CHANGE 0.5
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 

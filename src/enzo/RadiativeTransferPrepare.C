@@ -27,7 +27,8 @@
 #include "Star.h"
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
-				     TopGridData *MetaData, float dtLevelAbove);
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level);
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars);
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -41,12 +42,15 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   /* Return if this does not concern us */
   if (!(RadiativeTransfer)) return SUCCESS;
 
-  if (dtPhoton > 0.0 && 
-      LevelArray[level]->GridData->ReturnTime() >= PhotonTime) {
+  FLOAT GridTime, dt;
+  GridTime = LevelArray[level]->GridData->ReturnTime();
+  dt = LevelArray[level]->GridData->ReturnTimeStep();
+
+  if (dtPhoton > 0.0 && GridTime+dt >= PhotonTime) {
 
     /* Determine the photon timestep */
 
-    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove);
+    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
 
     /* Convert star particles into radiation sources only if we're going
        into EvolvePhotons */
@@ -64,7 +68,6 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
       fprintf(stderr, "Error in RestartPhotons.\n");
       ENZO_FAIL("");
     }
-
 
   return SUCCESS;
 
