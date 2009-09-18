@@ -531,7 +531,8 @@ c                enddo
                 do n = 1, ncspecies
                   tscapy(i,n) = (((tsc(i)+1.d0)**2.d0)*sp(i,n)-sm1(i,n))
      &                        / (tsc(i)**2.0 + 2.0d0*tsc(i))
-                  if(tscapy(i,n).lt.0.0d0.and.capycare(n).eqv..true.)then
+                  if(tscapy(i,n).lt.0.0d0.and.
+     &               capycare(n).eqv..true.)then
                     if(eqmask(i).eqv..true.)then!.and.eqable(n).eqv..true.)then
                     else
                     write(0,*) 'tscapy problems',eqmask(i),rejected(i),
@@ -640,9 +641,12 @@ c           Guess stepsize for next iteration.
 #ifdef PYFORT
               dtit(i) = min(dt(i,j,k)-ttot(i),max(
      &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
+              dtit(i) = min(dt(i,j,k)/5.0, dtit(i))
+              dtit(i) = min(dt/5.0, dtit(i))
 #else
               dtit(i) = min(dt-ttot(i),max(
      &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
+              dtit(i) = min(dt/5.0, dtit(i))
 #endif
             endif
             enddo
