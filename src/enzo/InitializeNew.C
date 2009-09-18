@@ -551,10 +551,16 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   InitializeMovieFile(MetaData, TopGrid);
  
-  // Do some error checking
+  /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED) {
-    fprintf(stderr, "StopTime never set.\n");
+  if (MetaData.StopTime == FLOAT_UNDEFINED)
+    ENZO_FAIL("StopTime never set.");
+
+  int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
+  if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
   }
 

@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
