@@ -83,7 +83,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   ***********************************************************************/
 
   SphereTooSmall = (FeedbackFlag == FORMATION);
-  MBHFeedbackRadiusTooSmall = (type = MBH); //#####
+  MBHFeedbackRadiusTooSmall = (type == MBH); //#####
   initialRadius = Radius;
 
   while (SphereTooSmall || MBHFeedbackRadiusTooSmall) { 
