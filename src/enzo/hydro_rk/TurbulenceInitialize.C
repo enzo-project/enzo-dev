@@ -8,6 +8,9 @@
 /
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include <mpi.h>
+#endif /* USE_MPI */
 
 #include <string.h>
 #include <stdio.h>
@@ -22,6 +25,8 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
+
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -149,34 +154,36 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
     // Compute Velocity Normalization
     double v_rms  = 0;
     double Volume = 0;
+    Eflt fac = 1;
     
-    CurrentGrid = &TopGrid;
-    while (CurrentGrid != NULL) {
-      if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
-	fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
-	return FAIL;
+    if (SetTurbulence) {
+      CurrentGrid = &TopGrid;
+      while (CurrentGrid != NULL) {
+	if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
+	  fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
+	  return FAIL;
+	}
+	CurrentGrid = CurrentGrid->NextGridThisLevel;
+	fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
       }
-      CurrentGrid = CurrentGrid->NextGridThisLevel;
-      fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
-    }
-    
+      
 #ifdef USE_MPI
-    CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
-    CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
+      CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
+      CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-    fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
-    // Carry out the Normalization
-    Eflt fac;
-    v_rms = sqrt(v_rms/Volume); // actuall v_rms
-    fac = CloudSoundSpeed*CloudMachNumber/v_rms;
-
-    CurrentGrid = &TopGrid;
-    while (CurrentGrid != NULL) {
-      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
-	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
-	return FAIL;
+      fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+      // Carry out the Normalization
+      v_rms = sqrt(v_rms/Volume); // actuall v_rms
+      fac = CloudSoundSpeed*CloudMachNumber/v_rms;
+      
+      CurrentGrid = &TopGrid;
+      while (CurrentGrid != NULL) {
+	if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+	  fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	  return FAIL;
+	}
+	CurrentGrid = CurrentGrid->NextGridThisLevel;
       }
-      CurrentGrid = CurrentGrid->NextGridThisLevel;
     }
 
 

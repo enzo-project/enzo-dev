@@ -118,7 +118,8 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     // Compute Normalization
     double v_rms  = 0;
     double Volume = 0;
-    
+    Eflt fac = 1;    
+
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
       if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
@@ -135,7 +136,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 #endif
     fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
     // Carry out the Normalization
-    Eflt fac;
+    
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
     CurrentGrid = &TopGrid;
@@ -146,7 +147,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
     }
- 
+  
   
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
