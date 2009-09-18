@@ -27,12 +27,13 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
-			  float sigma, float kmin, float kmax, float dk,
-			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
 
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 				   float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level)
+				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level,
+				   int SetBaryonFields)
 {
 
   /* declarations */
@@ -132,6 +133,10 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
+
+  if (SetBaryonFields == 0) 
+    return SUCCESS;
+
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0,
     VelocityUnits = 1.0;
@@ -406,42 +411,19 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
 			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
-			 4.0, CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
-			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);
     printf("Turbulent spectrum generated\n");
 
-    /* Renormalize the mass-weighted 3D rms velocity inside the cloud */
+    float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+  if (level > 0) VelocityNormalization = CloudMachNumber; 
 
-    double VelRMS2 = 0.0, Mass = 0.0;
-    n = 0;
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
-	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-	  
-	  r = sqrt(pow(fabs(x-xc),2)+pow(fabs(y-yc),2)+pow(fabs(z-zc),2));
-	  r = max(r, 0.1*CellWidth[0][0]);
-	  
-	  if (r < CloudRadius) {
-	    VelRMS2 += BaryonField[iden][igrid] * 
-	      (pow(TurbulenceVelocity[0][n],2) + pow(TurbulenceVelocity[1][n],2) + pow(TurbulenceVelocity[2][n],2));
-	    Mass += BaryonField[iden][igrid];
-	  }
-	  
-	}
-      }
+  for (i = 0; i < 3; i++) {
+    for (n = 0; n < activesize; n++) {
+      TurbulenceVelocity[i][n] *= VelocityNormalization;
     }
-    
-    VelRMS2 /= Mass;
-    double NormFactor = CloudMachNumber * CloudSoundSpeed / sqrt(VelRMS2);
-    for (i = 0; i < 3; i++) {
-      for (n = 0; n < activesize; n++) {
-	TurbulenceVelocity[i][n] *= NormFactor;
-      }
-    }
+  }
 
     /* Set turbulent velocity field */
 
@@ -484,8 +466,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
 			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
-			 4.0, CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
-			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);
     printf("Driving force field generated\n");
 
 

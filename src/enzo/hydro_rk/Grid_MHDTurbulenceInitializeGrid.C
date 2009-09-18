@@ -28,8 +28,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
-			  float sigma, float kmin, float kmax, float dk,
-			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
 
 int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				      float Bnaught, int seed, int level, int SetBaryonFields)
@@ -118,8 +118,8 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[2]-2*DEFAULT_GHOST_ZONES,
-		       4.0, cs_medium*mach, 1, 5, 1,
-		       CellLeftEdge, CellWidth, seed, level);
+		       4.0, 1, 5, 1,
+		       CellLeftEdge, CellWidth, seed);
   printf("Turbulent spectrum generated\n");
 
   // assume isothermal initially
@@ -233,8 +233,8 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
 		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[2]-2*DEFAULT_GHOST_ZONES, 
-			 4.0, cs_medium*mach, k1, k2, dk,
-			 CellLeftEdge, CellWidth, seed, level);
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, seed);
     printf("Driving force field generated\n");
 
 

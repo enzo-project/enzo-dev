@@ -33,7 +33,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *VelocityUnits, FLOAT Time);
 
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData)
+			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
@@ -79,7 +79,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
-  int   dim, ret, level, sphere, i;
+  int   ret, level, i;
 
   /* set default parameters */
 
@@ -130,14 +130,55 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
   printf("CloudDensity=%g, CloudSoundSpeed=%g, CloudRadius=%g, CloudAngularVelocity=%g\n", 
 	 CloudDensity, CloudSoundSpeed, CloudRadius, CloudAngularVelocity);
 
+
   /* Begin grid initialization */
 
-  if (TopGrid.GridData->TurbulenceInitializeGrid(
+  HierarchyEntry *CurrentGrid; // all level 0 grids on this processor first
+  CurrentGrid = &TopGrid;
+  while (CurrentGrid != NULL) {
+    if (CurrentGrid->GridData->TurbulenceInitializeGrid(
                 CloudDensity, CloudSoundSpeed, CloudRadius, CloudMachNumber, CloudAngularVelocity, InitialBField, 
-		SetTurbulence, CloudType, RandomSeed, 0) == FAIL) {
-    fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
-    return FAIL;
+		SetTurbulence, CloudType, RandomSeed, 0, SetBaryonFields) == FAIL) {
+      fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
+      return FAIL;
+    }
+    CurrentGrid = CurrentGrid->NextGridThisLevel;
   }
+
+  if (SetBaryonFields) {
+    // Compute Velocity Normalization
+    double v_rms  = 0;
+    double Volume = 0;
+    
+    CurrentGrid = &TopGrid;
+    while (CurrentGrid != NULL) {
+      if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
+	fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
+	return FAIL;
+      }
+      CurrentGrid = CurrentGrid->NextGridThisLevel;
+      fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+    }
+    
+#ifdef USE_MPI
+    CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
+    CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
+#endif
+    fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+    // Carry out the Normalization
+    Eflt fac;
+    v_rms = sqrt(v_rms/Volume); // actuall v_rms
+    fac = CloudSoundSpeed*CloudMachNumber/v_rms;
+
+    CurrentGrid = &TopGrid;
+    while (CurrentGrid != NULL) {
+      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	return FAIL;
+      }
+      CurrentGrid = CurrentGrid->NextGridThisLevel;
+    }
+
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -174,8 +215,8 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
 	if (Temp->GridData->TurbulenceInitializeGrid(
-		  CloudDensity, CloudSoundSpeed, CloudRadius, CloudMachNumber, CloudAngularVelocity, InitialBField,
-		  SetTurbulence, CloudType, RandomSeed, level+1) == FAIL) {
+		  CloudDensity, CloudSoundSpeed, CloudRadius, fac, CloudAngularVelocity, InitialBField,
+		  SetTurbulence, CloudType, RandomSeed, level+1, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
 	  return FAIL;
 	}
@@ -373,6 +414,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 
 //   } /* ENDIF Movie */
 
+  } // endif SetBaryonFields
 
   return SUCCESS;
 

@@ -4,7 +4,8 @@
 /
 /  written by: Peng Wang
 /  date:       April, 2007
-/  modified1:
+/  modified1: Tom Abel (September 2009) moved normalization outside to 
+/                            allow multiple grids and parallel setups
 /
 /
 ************************************************************************/
@@ -18,15 +19,14 @@
 
 double Gaussian(double cs); 
 
- void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, float sigma, 
+ void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind,  
 			   float kmin, float kmax, float dk,
-			   FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level)
+			   FLOAT **LeftEdge, FLOAT **CellWidth, int seed)
    /* 
       vel[3][ActiveSize]
       size: the grid dimension
       ind: index of the velocity power spectrum v_k^2 ~ k^{-n}, n = 11/3 for Kolmogorov turbulence,
 	   n = 4 for Larson relation
-      sigma: the rms velocity dispersion
       kmin: the lower wave number cutoff
       kmax: the upper wave number cutoff 
    */

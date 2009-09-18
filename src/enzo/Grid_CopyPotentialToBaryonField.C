@@ -101,8 +101,8 @@ int grid::CopyPotentialToBaryonField()
  
       for (i = 0; i < GridDimension[0]; i++, index++)
       {
-	BaryonField[field][jj++] = PotentialField[index];
-	//        BaryonField[field][jj++] = GravitatingMassField[index];
+	//	BaryonField[field][jj++] = PotentialField[index];
+	        BaryonField[field][jj++] = GravitatingMassField[index];
 	maxPot = max(maxPot,PotentialField[index]);
 	minPot = min(minPot,PotentialField[index]);
       }

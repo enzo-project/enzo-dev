@@ -136,7 +136,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -493,7 +493,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
-    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 200) 1D MHD Test */
@@ -783,6 +783,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("");
     }
  
+ if (ProblemType == 106)
+   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.
  if (ProblemType == 203)
