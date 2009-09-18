@@ -116,6 +116,7 @@ c            write(0,*) iter,inneriter, itererror
             do i=is+1, ie+1
             if(itmask(i).eqv..true.)then
             if(doupdate.eqv..true.)then
+              itererror = d(i,j,k)
               correctHe(i) = (1.0-fh) * d(i,j,k)
      &                    / ( s(i,iHeI) + s(i,iHeII) + s(i,iHeIII) )
               s(i,iHeI) = s(i,iHeI) * correctHe(i)
@@ -131,7 +132,7 @@ c            write(0,*) iter,inneriter, itererror
      &                    / ( s(i,iHI) + s(i,iHII)
      &                      + s(i,iHM) + s(i,iH2I) + s(i,iH2II)
      &                      + 0*s(i,iHDI)/3.0d0 )
-              if (abs(correctH(i)-1.0).gt.0.5.and.d(i,j,k)*dom.gt.1e9) then
+            if (abs(correctH(i)-1.0).gt.0.5.and.d(i,j,k)*dom.gt.1d9)then
                  write(6,*) "correctH1:",iter,correctH(i),d(i,j,k),
      &                      s(i,iHI), s(i,iHII), s(i,iHM), s(i,iH2I),
      &                      s(i,iH2II)!, s(i,iDI), s(i,iDII), s(i,iHDI)
@@ -141,14 +142,18 @@ c            write(0,*) iter,inneriter, itererror
                  write(6,*) "correctH3:",eqmask(i),10**HIfrac(i)+
      &                     10**H2Ifrac(i)+10**HIIfrac(i), tgas(i)
 c                 stop
-              endif
+            endif
               s(i,iHI) = s(i,iHI) * correctH(i)
               s(i,iHII) = s(i,iHII) * correctH(i)
               s(i,iHM) = s(i,iHM) * correctH(i)
               s(i,iH2I) = s(i,iH2I) * correctH(i)
               s(i,iH2II) = s(i,iH2II) * correctH(i)
-              s(i,ide) = s(i,iHII) + s(i,iHeII)/4.0d0 + s(i,iHeIII)/2.0d0
-     &                 + s(i,iH2II)/2.0d0 - s(i,iHM) + s(i,iDII)/2.0d0
+              s(i,ide) = s(i,iHII) 
+     &                 + s(i,iHeII)/4.0d0 
+     &                 + s(i,iHeIII)/2.0d0
+     &                 + s(i,iH2II)/2.0d0 
+     &                 - s(i,iHM) 
+     &                 + s(i,iDII)/2.0d0
               s(i,ide) = max(tiny,s(i,ide))
               dsq(i,ige) = dsq(i,ige)/d(i,j,k) 
               dsp(i,ige) = dsp(i,ige)/d(i,j,k)
@@ -197,6 +202,9 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.1)then
                 rejected(i)=.true.
               endif
+c              if(rejected(i).eqv..true.)then
+c                esterr(i) = max(esterr(i), 1.1)
+c              endif
             endif
             endif
             enddo

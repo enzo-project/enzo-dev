@@ -471,7 +471,7 @@ c     .          write(6,*) 'fudge:', fudge
             endif
 c
             gphdl1 = gphdl(i)/(HI(i)*dom)
-         if(omask(i))write(0,*)i,j,k,'e',edotminus(i),edotplus(i),tgas(i)
+!         if(omask(i))write(0,*)i,j,k,'e',edotminus(i),edotplus(i),tgas(i)
             edotminus(i) = edotminus(i) + abs(
      .           float(ih2co)*fudge*H2I(i)*
      .                 gphdl(i)/(1.0 + gphdl1/gpldl(i)) / (2.0*dom) )
