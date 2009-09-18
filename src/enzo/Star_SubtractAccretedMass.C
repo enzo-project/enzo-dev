@@ -147,10 +147,12 @@ int Star::SubtractAccretedMass(void)
   vel[2] = (denssink*vsink + drho*vgrid) / (denssink + drho);
   vel[3] = (denssink*wsink + drho*wgrid) / (denssink + drho);
 
+  /*
   fprintf(stderr, "star::SubtractAccretedMass:  OldDensity =%g, NewDensity =%g, factor =%g\n", 
 	  OldDensity, NewDensity, factor);
   fprintf(stderr, "star::SubtractAccretedMass:  vel_g[1] = %g -> %g, vel_p[1] = %g -> %g\n", 
 	  ugrid, CurrentGrid->BaryonField[Vel1Num][index], usink, vel[1]);
+  */
 
   if (MultiSpecies) {
     CurrentGrid->BaryonField[DeNum][index] *= factor;
