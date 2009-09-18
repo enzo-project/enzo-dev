@@ -251,7 +251,7 @@ typedef int            HDF5_hid_t;
 #define MY_MPIFLOAT MPI_DOUBLE
 #define FLOATDataType MPI_DOUBLE
 #define HDF5_PREC HDF5_R8
-#define HDF5_FILE_PREC HDF5_FILE_R8
+#define HDF5_FILE_PREC HDF5_R8
 #ifdef USE_PYTHON
 #define ENPY_FLOAT NPY_DOUBLE
 #endif
@@ -266,7 +266,7 @@ typedef int            HDF5_hid_t;
 #define MY_MPIFLOAT MPI_LONG_DOUBLE
 #define FLOATDataType MPI_LONG_DOUBLE
 #define HDF5_PREC HDF5_R16
-#define HDF5_FILE_PREC HDF5_FILE_R16
+#define HDF5_FILE_PREC HDF5_R16
 #ifdef USE_PYTHON
 #define ENPY_FLOAT NPY_LONGDOUBLE
 #endif

@@ -191,7 +191,7 @@ class grid
 
 /* Write grid data to a group file (returns: success/failure) */
 
-   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id);
+   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id, int WriteEverything = FALSE);
 
 /* Write grid data to separate files (returns: success/failure) */
 
@@ -225,6 +225,12 @@ class grid
 
    int Group_WriteGridInterpolate(FLOAT WriteTime, FILE *main_file_pointer,
                             char *base_name, int grid_id, HDF5_hid_t file_id);
+
+private:
+   int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
+                     hid_t data_type, void *data, int active_only = TRUE,
+                     float *temp=NULL);
+public:
 
 /* Compute the timestep constraint for this grid
     (for steps #3 and #4) */
