@@ -188,6 +188,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
  
 #endif /* SPLINE */
  
+#ifdef POTENTIALDEBUGOUTPUT
   for (int i=0;i<GridDimension[0]+6; i++) {
     int igrid = GRIDINDEX_NOGHOST(i,(6+GridDimension[0])/2,(6+GridDimension[0])/2);
     int igrid2 =  ( 18 * (*(ParentDim+1)) + 18 ) * (*ParentDim)+i;
@@ -200,6 +201,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
     minPot = min(minPot,PotentialField[i]);
   }
   if (debug1) printf("PreparePotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
+#endif
 
   /* Clean up parent. */
  

@@ -149,6 +149,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
  
   delete [] rhs;
 
+#ifdef POTENTIALDEBUGOUTPUT
   for (int i=0;i<GridDimension[0]; i++) {
     int igrid = GRIDINDEX_NOGHOST(i,(GridEndIndex[0]+GridStartIndex[0])/2,(GridEndIndex[0]+GridStartIndex[0])/2);
     printf("i: %i \t SolvedSub %g\n", i, PotentialField[igrid]);
@@ -159,7 +160,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     minPot = min(minPot,PotentialField[i]);
   }
   if (debug1) printf("SolvedPotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
-
+#endif
  
   JBPERF_STOP("grid_SolveForPotential");
   return SUCCESS;
