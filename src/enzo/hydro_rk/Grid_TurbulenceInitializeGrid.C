@@ -58,9 +58,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     FieldType[NumberOfBaryonFields++] = Bfield3;
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
-  if(UseDivergenceCleaning){
+  if(UseDivergenceCleaning)
     FieldType[NumberOfBaryonFields++] = Phi_pField;
-  }
+  
   if (MultiSpecies) {
     FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
     FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
@@ -556,6 +556,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   }
   printf("Grid_TurbInit: line 558\n");
+
   for (dim = 0; dim < GridRank; dim++) {
     delete [] TurbulenceVelocity[dim];
     delete [] DrivingField[dim];

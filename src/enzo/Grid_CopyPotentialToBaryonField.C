@@ -95,7 +95,7 @@ int grid::CopyPotentialToBaryonField()
 //  int crap = 0;
 //  float big = -1.0e-20;
 //  float low =  1.0e+20;
- 
+  float maxPot=-1e30, minPot=1e30;
   for (k = 0; k < GridDimension[2]; k++)
   {
     for (j = 0; j < GridDimension[1]; j++)
@@ -104,7 +104,10 @@ int grid::CopyPotentialToBaryonField()
  
       for (i = 0; i < GridDimension[0]; i++, index++)
       {
-        BaryonField[field][jj++] = PotentialField[index];
+	//        BaryonField[field][jj++] = PotentialField[index];
+        BaryonField[field][jj++] = GravitatingMassField[index];
+	maxPot = max(maxPot,PotentialField[index]);
+	minPot = min(minPot,PotentialField[index]);
 //        crap++;
 //        if (PotentialField[index] > big)
 //          big = PotentialField[index];
@@ -116,6 +119,6 @@ int grid::CopyPotentialToBaryonField()
   }
  
 //  fprintf(stderr, "STUFF field %"ISYM"  elements %"ISYM"  %16.8e  %16.8e\n", field, crap, big, low);
- 
+  if (debug1) printf("Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
   return SUCCESS;
 }

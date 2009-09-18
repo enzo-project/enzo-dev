@@ -491,7 +491,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-
+  /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
     ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
@@ -784,11 +784,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
  
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
-  // once the topgrid hsa been split.
+  // once the topgrid has been split.
  if (ProblemType == 203)
    if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     fprintf(stderr, "Error in MHDTurbulenceReInitialize.\n");
      ENZO_FAIL("");
    }
    

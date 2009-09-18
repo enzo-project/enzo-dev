@@ -389,20 +389,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: compute acceleration field for grid and particles. */
 
-      if (SelfGravity && MetaData->TopGridRank == 3) {
+      if (SelfGravity) {
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
-	  if (level > 0) {
-	    if (Grids[grid1]->GridData->SolveForPotential(level) 
-		== FAIL) {
-	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      ENZO_FAIL("");
-	    }
-	  }
-	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
-	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
-	    ENZO_FAIL("");
-	  }
+	  if (level > 0) 
+	    Grids[grid1]->GridData->SolveForPotential(level) ;
+
+	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
 	}
 	// otherwise, interpolate potential from coarser grid, which is
 	//   now done in PrepareDensity.

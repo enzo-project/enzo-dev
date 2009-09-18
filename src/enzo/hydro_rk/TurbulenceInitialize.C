@@ -135,7 +135,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
   if (TopGrid.GridData->TurbulenceInitializeGrid(
                 CloudDensity, CloudSoundSpeed, CloudRadius, CloudMachNumber, CloudAngularVelocity, InitialBField, 
 		SetTurbulence, CloudType, RandomSeed, 0) == FAIL) {
-    fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
+    fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
     return FAIL;
   }
 
@@ -176,7 +176,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 	if (Temp->GridData->TurbulenceInitializeGrid(
 		  CloudDensity, CloudSoundSpeed, CloudRadius, CloudMachNumber, CloudAngularVelocity, InitialBField,
 		  SetTurbulence, CloudType, RandomSeed, level+1) == FAIL) {
-	  fprintf(stderr, "Error in Collapse3DInitializeGrid.\n");
+	  fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;

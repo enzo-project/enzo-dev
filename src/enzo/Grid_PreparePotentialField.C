@@ -188,6 +188,19 @@ int grid::PreparePotentialField(grid *ParentGrid)
  
 #endif /* SPLINE */
  
+  for (int i=0;i<GridDimension[0]+6; i++) {
+    int igrid = GRIDINDEX_NOGHOST(i,(6+GridDimension[0])/2,(6+GridDimension[0])/2);
+    int igrid2 =  ( 18 * (*(ParentDim+1)) + 18 ) * (*ParentDim)+i;
+    printf("i: %i \tParent %g  \t Sub %g\n", i, ParentGrid->PotentialField[igrid2], PotentialField[igrid]);
+  }
+
+  float maxPot=-1e30, minPot=1e30;    
+  for (int i=0;i<size; i++) {
+    maxPot = max(maxPot,PotentialField[i]);
+    minPot = min(minPot,PotentialField[i]);
+  }
+  if (debug1) printf("PreparePotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
+
   /* Clean up parent. */
  
   if (MyProcessorNumber != ParentGrid->ProcessorNumber) {

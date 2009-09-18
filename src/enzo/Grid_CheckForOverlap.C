@@ -56,7 +56,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   //  Mod by RH - always check full periodic
  
-   FullPeriod = TRUE;
+  FullPeriod = TRUE;
  
   /*
     if (CopyFunction == &grid::AddOverlappingParticleMassField) {
@@ -92,8 +92,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
     }  
   }
 
-
-
   /* For periodic boundary conditions, do some extra checks.  This insures
      that grids which overlap along periodic boundaries are handled correctly;
      we do this by actually moving the grid to it's periodic location in the
@@ -101,9 +99,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
      (Here we use EdgeOffset to tell Grid_CopyZonesFromGrid that we have
      moved the base location of the grid). */
  
- 
- 
-
 
   //PrintToScreenBoundaries(BaryonField[2], "Vy");
 
@@ -120,7 +115,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	   applying periodic bc's in this direction. */
  
 
-
 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingVelocityDirection==0 ))    ) &&
 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
@@ -136,25 +130,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
 			 (CellLeftEdge[2][GridDimension[2]-1] >
 			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
-
-// 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-// 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] ))    ) &&
-// 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-// 			 (CellLeftEdge[0][GridDimension[0]-1] >
-// 			 DomainRightEdge[0] ))                        ) &&
-// 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-// 			 (CellLeftEdge[1][0] < DomainLeftEdge[1]  ))    ) &&
-// 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-// 			 (CellLeftEdge[1][GridDimension[1]-1] >
-// 			 DomainRightEdge[1] ))                        ) &&
-// 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-// 			 (CellLeftEdge[2][0] < DomainLeftEdge[2] ))    ) &&
-// 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-// 			 (CellLeftEdge[2][GridDimension[2]-1] >
-// 			 DomainRightEdge[2])  )  )   ){
- 
- 
-
 
 	  // Full periodic case (26 checks)
 	    
@@ -182,14 +157,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 		  ENZO_FAIL("CopyFunctionFail(2)");
 		}
 	  }
-	
-	
-		
-	      
-		  
-	    
-	    
-	    
+
 	  // partial periodic case (6 checks)
 	    
 	  if ((GridRank > 2 || k == 0) && (GridRank > 1 || j == 0) &&
@@ -201,7 +169,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      ENZO_FAIL("");
 	    }
 	  }
- 
 
 	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
 	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
