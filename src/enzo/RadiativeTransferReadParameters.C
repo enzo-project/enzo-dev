@@ -58,7 +58,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
-
+  RadiativeTransferHIIRestrictedTimestep      = FALSE;
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -97,6 +97,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferSourceClustering);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
+    ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
+		  &RadiativeTransferHIIRestrictedTimestep);
 
     /* if the line is suspicious, issue a warning */
 

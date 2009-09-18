@@ -34,15 +34,17 @@
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
-				     TopGridData *MetaData, float dtLevelAbove)
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level)
 {
 
   const int MaxStepsPerHydroStep = 8;
+  const float PhotonCourantFactor = 1.0;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
-  int l, level, maxLevel;
-  FLOAT HydroTime;
+  int l, maxLevel;
+  FLOAT OldTime, HydroTime;
   float ThisPhotonDT;
 
   // Search for the maximum level
@@ -60,30 +62,47 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       break;
     }
 
-  // Now calculate the timestep on the max. level
   dtPhoton = 1e20;
-  for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
-    ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
-    dtPhoton = min(dtPhoton, ThisPhotonDT);
-  } // ENDFOR grids
-  dtPhoton = CommunicationMinValue(dtPhoton);
 
-  // Use an alternative method to calculate timestep (10% max change
-  // in HII)
-  float dtPhotonA = 1e20;
-  for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
-    for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
-      ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep2();
-      dtPhotonA = min(dtPhotonA, ThisPhotonDT);
-    }
-  CommunicationMinValue(dtPhotonA);
+  // Calculate timestep by limiting to a 50% max change in HII
+  if (RadiativeTransferHIIRestrictedTimestep) {
 
-  if (debug) printf("Alternative dtPhoton = %g\n", dtPhotonA);
+    for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
+      for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
+	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep2();
+	dtPhoton = min(dtPhoton, ThisPhotonDT);
+      }
+    CommunicationMinValue(dtPhoton);
 
-  // Ensure that not too many photon timesteps are taken per hydro step
-  HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
-  dtPhoton = max(dtPhoton, 
-		 (HydroTime - PhotonTime) / MaxStepsPerHydroStep);
+  } // ENDIF
+
+  // otherwise use hydro timestep on finest level
+  else {
+
+    if (maxLevel > 0) {
+      for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
+	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
+	dtPhoton = min(dtPhoton, ThisPhotonDT);
+      } // ENDFOR grids
+      dtPhoton = CommunicationMinValue(dtPhoton);
+    } else
+      dtPhoton = dtLevelAbove;
+    dtPhoton *= PhotonCourantFactor;
+
+    // Ensure that not too many photon timesteps are taken per hydro step
+    HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
+    dtPhoton = max(dtPhoton, 
+		   (HydroTime - PhotonTime) / MaxStepsPerHydroStep);
+
+  } // ENDELSE
+
+  /* Do not go past the level-0 time (+timestep) */
+
+  HydroTime = LevelArray[0]->GridData->ReturnTime();
+  if (level == 0)
+    HydroTime += LevelArray[0]->GridData->ReturnTimeStep();
+  dtPhoton = min(HydroTime - PhotonTime, dtPhoton);
+
   if (InitialTimestep && !MetaData->FirstTimestepAfterRestart)
     dtPhoton = min(dtPhoton, dtLevelAbove);
   

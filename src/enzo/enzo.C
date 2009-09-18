@@ -84,6 +84,12 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
+int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
+		    int ProjectStartTemp[], int ProjectEndTemp[], 
+		    FLOAT ProjectStartCoordinate[],
+		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
+		    int ProjectionDimension, char *ProjectionFileName,
+		    int ProjectionSmooth, ExternalBoundary *Exterior);
 int OutputAsParticleData(TopGridData &MetaData,
 			 LevelHierarchyEntry *LevelArray[],
 			 int RegionStart[], int RegionEnd[],
@@ -415,7 +421,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   // Project 3D field to 2D plane
  
-  if (project) {
+  if (project == 1) {
     if (ProjectToPlane(MetaData, LevelArray, RegionStart, RegionEnd,
 		     RegionStartCoordinates, RegionEndCoordinates,
 		     RegionLevel, ProjectionDimension, "amr.project",
@@ -425,6 +431,25 @@ Eint32 main(Eint32 argc, char *argv[])
       my_exit(EXIT_SUCCESS);
   } 
 
+  int dim, dim1, dim2;
+  char proj_name[100];
+  if (project == 2) {
+    dim1 = (ProjectionDimension == -1) ? 0 : ProjectionDimension;
+    dim2 = (ProjectionDimension == -1) ? 
+      MetaData.TopGridRank : ProjectionDimension+1;
+    for (dim = dim1; dim < dim2; dim++) {
+      sprintf(proj_name, "amr_%c.project", 120+dim);
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
+      if (ProjectToPlane2(MetaData, LevelArray, RegionStart, RegionEnd,
+			  RegionStartCoordinates, RegionEndCoordinates,
+			  RegionLevel, dim, proj_name,
+			  ProjectionSmooth, &Exterior) == FAIL)
+	my_exit(EXIT_FAILURE);
+      else
+	my_exit(EXIT_SUCCESS);
+    } // ENDFOR dim
+  } 
  
   // Normal start: Open and read parameter file
 

@@ -47,7 +47,7 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
 
   int NumberOfNodes = DetermineNumberOfNodes();
 
-  if (NumberOfProcessors == 1 || LoadBalancing <= 1)
+  if (NumberOfProcessors == 1 || LoadBalancing == 0)
     return SUCCESS;
 
   /* If this is a zoom-in calculation, we shouldn't load balance the
@@ -86,6 +86,19 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
       break;
 
   } // ENDWHILE lines
+
+  } // ENDIF root processor
+
+  // If we're doing normal load balancing, synchronize and exit.
+  if (LoadBalancing == 1) {
+    rewind(fptr);
+#ifdef USE_MPI
+    MPI_Bcast(&NumberOfRootGrids, 1, IntDataType, ROOT_PROCESSOR, MPI_COMM_WORLD);
+#endif /* USE_MPI */
+    return SUCCESS;
+  } // ENDIF LoadBalancing == 1
+
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
 
   // Compute (processor number)->(grid number) map
   Enzo_Dims_create(NumberOfRootGrids, TopGridRank, LayoutTemp);
