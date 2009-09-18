@@ -98,9 +98,9 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
  
   /* Baryons: deposit mass into GravitatingMassField. */
  
-  if (CurrentGrid->AddBaryonsToGravitatingMassField() == FAIL) {
+  //  if (CurrentGrid->AddBaryonsToGravitatingMassField() == FAIL) {
+    if (DepositBaryons(Grid, When) == FAIL) {
 //  fprintf(stderr, "  PGMF - DepositBaryons\n");
-//  if (DepositBaryons(Grid, When) == FAIL) {
     fprintf(stderr, "Error in grid->AddBaryonsToGravitatingMassField\n");
     ENZO_FAIL("");
   }

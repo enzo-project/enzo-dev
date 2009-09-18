@@ -174,8 +174,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   }
 
   for (dim = 0; dim < GridRank; dim++) {
-    TurbulenceVelocity[dim] = new float[activesize];
-    DrivingField[dim] = new float[activesize];
+    TurbulenceVelocity[dim] = new float[size];
+    DrivingField[dim] = new float[size];
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[dim][n] = 0.0;
       DrivingField[dim][n] = 0.0;
@@ -427,7 +427,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
     /* Set turbulent velocity field */
 
-    n = -1;
+    n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
