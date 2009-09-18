@@ -470,6 +470,13 @@ class grid
 		      int XrayUseLookupTable, float XrayLowerCutoffkeV,
 		      float XrayUpperCutoffkeV, char *XrayFileName);
 
+   int ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[], 
+		       FLOAT ProjectedFieldRightEdge[],
+		       int ProjectedFieldDims[], float *ProjectedField[], 
+		       int ProjectionDimension, int ProjectionSmooth,
+		       int NumberOfProjectedFields, int level,
+		       int MetalLinesUseLookupTable, char *MetalLinesFilename);
+
 /* Set the fields to zero under the active region of the specified subgrid. */
 
    int ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero, 
@@ -1879,6 +1886,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 //-----------------------------------------------------------------------
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
+  int ComputeMetalLineLuminosity(float *total_luminosity, float *all_emis, 
+				 float *temperature);
 
 
 //------------------------------------------------------------------------

@@ -262,28 +262,41 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
+  int i, j, k, field;
 
+  if (!isShearing) {
  
-  for (int field = 0; field < NumberOfBaryonFields; field++)
-    for (int k = 0; k < Dim[2]; k++)
-      for (int j = 0; j < Dim[1]; j++) {
-	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
-	  (k + Start[2])*GridDimension[0]*GridDimension[1];
-	otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
-	  (k + StartOther[2])*OtherDim[0]*OtherDim[1];
-	for (int i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
+    for (field = 0; field < NumberOfBaryonFields; field++)
+      for (k = 0; k < Dim[2]; k++)
+	for (j = 0; j < Dim[1]; j++) {
+	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
+	    (k + Start[2])*GridDimension[0]*GridDimension[1];
+	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
+	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
+	  for (i = 0; i < Dim[0]; i++, thisindex++, otherindex++) {
+	    BaryonField[field][thisindex] = 
+	      OtherGrid->BaryonField[field][otherindex];
+	  } // ENDFOR i
+	} // ENDFOR j
+  } // ENDFOR !isShearing
 
-	 
-	  if (!isShearing) {  
-	    BaryonField[field][thisindex] = OtherGrid->BaryonField[field][otherindex];
-	  }
-	  else {
+  // isShearing
+  else {
+
+    for (field = 0; field < NumberOfBaryonFields; field++)
+      for (k = 0; k < Dim[2]; k++)
+	for (j = 0; j < Dim[1]; j++) {
+	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
+	    (k + Start[2])*GridDimension[0]*GridDimension[1];
+	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
+	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
+	  for (i = 0; i < Dim[0]; i++, thisindex++, otherindex++) {
 	   
 	    val1=OtherGrid->BaryonField[field][otherindex];//This guaranteed to be in the active zone of the other grid
 	    val2=OtherGrid->BaryonField[field][otherindex+ addDim[ShearingVelocityDirection]];
 	    BaryonField[field][thisindex] = (float) (b*val1+a*val2);
 
-	  //   if ( BaryonField[field][thisindex]<0.0 && field==0)
+//          if ( BaryonField[field][thisindex]<0.0 && field==0)
 // 	      printf("# (%d, %d %d) Start: %d %d %d, End %d %d %d, StartOther %d %d %d, a b %"GOUTSYM" %"GOUTSYM", vals %"GOUTSYM" %"GOUTSYM", %"GOUTSYM", %g %g %g, %g, (upper term %g)    \n", 
 // 		     MyProcessorNumber, ProcessorNumber, OtherGrid->ProcessorNumber,
 // 		     Start[0], Start[1], Start[2], End[0], End[1], End[2], StartOther[0], StartOther[1], StartOther[2],
@@ -296,11 +309,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 // 		      EdgeOffset[ShearingVelocityDirection]-
 // 		      OtherGrid->CellLeftEdge[ShearingVelocityDirection][StartOther[ShearingVelocityDirection]])
 // 		     );
-	    
-
-
-
-		     
 
 	    if (FieldType[field]==velocityTypes[ShearingVelocityDirection]){ 
 	      if (shiftNeg){
@@ -311,10 +319,9 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      }
 	      
 	    }
-	  }
-
-
-	}}
+	  } // ENDFOR i
+	} // ENDFOR j
+  } // ENDELSE isShearing
  
   //Update the energys due to sheared boundaries
 

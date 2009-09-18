@@ -105,7 +105,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceRampTime[source]);
     if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
+      ret += sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceEnergyBins[source]);
     if (sscanf(line, "PhotonTestSourceSED[%"ISYM"]", &source) > 0) {
       numbers = strstr(line, "=")+2;
@@ -114,6 +114,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       while (value != NULL) {
 	PhotonTestSourceSED[source][count++] = atof(value);
 	value = strtok(NULL, delims);
+	ret++;
       }
     }
     if (sscanf(line, "PhotonTestSourceEnergy[%"ISYM"]", &source) > 0) {
@@ -123,6 +124,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       while (value != NULL) {
 	PhotonTestSourceEnergy[source][count++] = atof(value);
 	value = strtok(NULL, delims);
+	ret++;
       }
     }
 

@@ -113,6 +113,9 @@ c  Metal cooling locals
 c
       integer xe_idx
       real logxe0, logxe1, dlogxea, log_xe, xe1, dlogT, dlogxe, xi
+      real xe_slope, xe_logtem0, xe_min, xe_max
+      parameter (xe_slope = 5.0, xe_logtem0 = 9.7859)  ! e^9.78 = 10^4.25 K
+      parameter (xe_min = -9.21)  ! e^-9.21 = 1e-4
 #ifdef CEN_METALS
       integer nti, ndi, cmgenerate, NIT, NID, NIB
       real    TEMMIN, DELT, DENMIN, DELD, FREQDEL, FREQMIN
@@ -507,6 +510,11 @@ c
             if (itmask(i)) then
                log_xe = max(min(log(de(i,j,k) / d(i,j,k)), logxe1), 
      $              logxe0)
+               if (logtem(i) .lt. xe_logtem0) then
+                  xe_max = max(xe_slope * (logtem(i) - xe_logtem0), 
+     $                         xe_min)
+                  log_xe = min(log_xe, xe_max)
+               endif
                xe_idx = min(n_xe-1,
      $              max(1, int((log_xe - logxe0)/dlogxea)+1))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
@@ -527,11 +535,12 @@ c
      $        metala(tcmb_idx,   xe_idx  ) * (1-dlogxe) * (1-dlogTcmb) +
      $        metala(tcmb_idx+1, xe_idx  ) * (dlogxe  ) * (1-dlogTcmb) +
      $        metala(tcmb_idx,   xe_idx+1) * (1-dlogxe) * (dlogTcmb)   +
-     $          metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
+     $        metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
                metalc(i) = metalc(i) - metalc_cmb
 
                xi = min(3.0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
-              edot(i,18) = -metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
+               edot(i,18) = -metalc(i) * d(i,j,k) * 
+     $              (xi/JHW_METALS_NORMZ) / dom
 #ifdef UNUSED
                if (xi .gt. 1e-06) then
                   write(6,777) i,j,k, exp(log_xe), exp(logtem(i)), 
