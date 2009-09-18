@@ -121,11 +121,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 		       4.0, 1, 5, 1,
 		       CellLeftEdge, CellWidth, seed);
   printf("Turbulent spectrum generated\n");
-    float VelocityNormalization = 1;
-// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
-  if (level > 0) VelocityNormalization = CloudMachNumber; 
 
-  for (i = 0; i < 3; i++) {
+  float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+  if (level > 0) VelocityNormalization = mach; 
+
+  for (int i = 0; i < 3; i++) {
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[i][n] *= VelocityNormalization;
     }
