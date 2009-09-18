@@ -30,7 +30,7 @@
 #include "RadiativeTransferHealpixRoutines.h"
 
 #ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6
+#define ROUNDOFF 1e-6f
 #endif
 #ifdef CONFIG_BFLOAT_8
 #define ROUNDOFF 1e-12
@@ -123,7 +123,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   // speed of light in code units. note this one is independent of a(t)
   float c_cgs = 2.99792e10;
-  double c = c_cgs/VelocityUnits, c_inv;
+  float c = c_cgs/VelocityUnits, c_inv;
 
   // Modify the photon propagation speed by this parameter
   c *= RadiativeTransferPropagationSpeedFraction;
@@ -165,8 +165,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   // Quantities that help finding which cell index am I in ? 
 
-  FLOAT DomainWidth[3];
-  FLOAT dx, dx2;
+  float DomainWidth[3];
+  float dx, dx2, dxhalf;
   for (dim=0; dim<GridRank; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
     CellVolume *= CellWidth[i][0];
@@ -174,6 +174,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   dx = CellWidth[0][0];
   dx2 = dx*dx;
+  dxhalf = 0.5f * dx;
   SplitCriteron = dx2 / RaysPerCell;
   SplitCriteronIonized = dx2;
   Volume_inv = 1.0 / CellVolume;
@@ -613,7 +614,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     mz = fabs(sz + midpoint * uz -
 	      (GridLeftEdge[2] + (gk+0.5f)*CellWidth[2][0]));
     nearest_edge = max(max(mx, my), mz);
-    slice_factor = min(0.5f + (0.5f*dx-nearest_edge) / (dtheta*r), 1.0f);
+    slice_factor = min(0.5f + (dxhalf-nearest_edge) / (dtheta*r), 1.0f);
     slice_factor2 = slice_factor * slice_factor;
 //    printf("mx, my, mz = %g %g %g, dtheta = %g, dtheta*r = %g, slice_factor = %g\n",
 //	   mx, my, mz, dtheta, dtheta*r, slice_factor);
@@ -753,7 +754,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
 
-    BaryonField[kphHeIINum][index] += 1;
+    //BaryonField[kphHeIINum][index] += 1;
 
     // return in case we're pausing to merge
     if (PauseMe)
