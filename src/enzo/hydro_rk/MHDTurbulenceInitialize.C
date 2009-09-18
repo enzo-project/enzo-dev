@@ -148,15 +148,6 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     }
  
   
-  /*   } else { // only one grid:
-       if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-       Bnaught, RandomSeed, 0, SetBaryonFields) == FAIL) {
-       fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
-       return FAIL;
-       }
-       //  }
-       */
-
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
 
@@ -192,7 +183,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, fac, 
 							Bnaught, RandomSeed, level, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
 	  return FAIL;
