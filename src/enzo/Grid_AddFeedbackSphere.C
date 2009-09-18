@@ -79,7 +79,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   else
     MetalNum = 0;
 
-  /* Find SN colour field */
+  /* Find SNs colour field */
 
   int UseColour = FALSE, SNColourNum;
   if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
@@ -111,36 +111,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
       ENZO_FAIL("");
     }
-
-
-  /***********************************************************************
-                  PopIII Black Hole and Massive Balck Hole
-  ************************************************************************/
-
-  // Substract the accreted gas mass out for Star particle type BlackHole and MBH.
-  // Note that DeltaMass is calculated in the previous timestep 
-  // at Star_CalculateMassAccretion.C.
-  // At the moment, the mass is substracted only from the cell the particle resides in.
-  // Ji-hoon Kim in Sep.2009
-
-  if ((cstar->type == BlackHole || cstar->type == MBH) && (cstar->level == level)) {
-
-    double Msun = 1.989e33;
-
-    i = int((cstar->pos[0] - GridLeftEdge[0]) / CellWidth[0][0]);
-    j = int((cstar->pos[1] - GridLeftEdge[1]) / CellWidth[1][0]);
-    k = int((cstar->pos[2] - GridLeftEdge[2]) / CellWidth[2][0]);
-    index = (k*GridDimension[1] + j)*GridDimension[0] + i;
-
-    OldDensity = BaryonField[DensNum][index];
-    float OldMass = OldDensity * DensityUnits 
-      * pow(CellWidth[0][0]*LengthUnits, 3.0); //g
-    
-    BaryonField[DensNum][index] = (OldMass - cstar->DeltaMass * Msun) /
-      pow(CellWidth[0][0]*LengthUnits, 3.0) / DensityUnits;    
-
-  }
-
 
   /***********************************************************************
                                  SUPERNOVAE
@@ -476,6 +446,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HIINum][index] *= factor;
 	      BaryonField[HDINum][index] *= factor;
 	    }
+
+	    if (ZField == TRUE)
+	      BaryonField[ZNum][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star

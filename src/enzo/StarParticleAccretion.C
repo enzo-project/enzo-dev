@@ -24,7 +24,13 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-int StarParticleAccretion(Star *&AllStars)
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+
+int StarParticleAccretion(TopGridData *MetaData, 
+			  LevelHierarchyEntry *LevelArray[], int level, 
+			  Star *&AllStars)
 {
 
 #define NOT_SEDOV_TEST
@@ -35,8 +41,19 @@ int StarParticleAccretion(Star *&AllStars)
 #endif
 
   Star *ThisStar;
+  FLOAT Time;
+  LevelHierarchyEntry *Temp;
 
-  /* Add accreted mass to star particles */
+  Temp = LevelArray[level];
+  Time = Temp->GridData->ReturnTime();
+
+  /* Set the units. */
+
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
+    VelocityUnits;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, Time);
+
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
 
@@ -45,10 +62,19 @@ int StarParticleAccretion(Star *&AllStars)
       ENZO_FAIL("");
     }
 
+    /* Add accreted mass to star particles */
+
     if (ThisStar->Accrete() == FAIL) {
       fprintf(stderr, "Error in star::Accrete.\n");
       ENZO_FAIL("");
     }
+
+    /* Subtract accreted mass from grids */
+    
+    if (ThisStar->SubtractAccretedMass() == FAIL) {
+	  fprintf(stderr, "Error in grid::SubtractAccretedMass.\n");
+	  ENZO_FAIL("");
+	}
     
   }
 

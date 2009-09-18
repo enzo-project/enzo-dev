@@ -31,7 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::CalculateMassAccretion(void)
 {
 
-  if ((this->type != BlackHole && this->type != MBH) || this->CurrentGrid == NULL)
+  if ((this->type != BlackHole && abs(this->type) != MBH) || this->CurrentGrid == NULL)
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
@@ -131,10 +131,12 @@ int Star::CalculateMassAccretion(void)
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
-    // Don't take out too much mass suddenly; mdot should leave at least 10% of the gas in the grids.
+    // Don't take out too much mass suddenly; 
+    // mdot should leave at least 75% of the gas in the grids.
+    // following star_maker8.C by Peng Wang
     // Ji-hoon Kim in Sep.2009
-    mdot_UpperLimit = 0.9 * density * DensityUnits * 
-      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) * Msun / 
+    mdot_UpperLimit = 0.25 * density * DensityUnits * 
+      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
       (CurrentGrid->dtFixed) / TimeUnits;
     mdot = min(mdot, mdot_UpperLimit);
 
