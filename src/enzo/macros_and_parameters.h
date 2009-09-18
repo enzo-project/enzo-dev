@@ -67,7 +67,7 @@
 
 #define GRAVITY_BUFFER_SIZE                 3
 
-#define MAX_FLAGGING_METHODS                17
+#define MAX_FLAGGING_METHODS                9
 
 #define MAX_STATIC_REGIONS               1000
 
