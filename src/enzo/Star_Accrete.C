@@ -52,14 +52,15 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
+  fprintf(stdout, "star::Accrete:  accretion_time[] = %g, this_dt = %g, DeltaMass = %g\n",
+	  accretion_time[0], this_dt, DeltaMass); //#####
   Mass += DeltaMass;
   FinalMass += DeltaMass;
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
-  /* Now this is done in Star_SubtractAccretedMass.C 
-     Ji-hoon Kim in Sep.2009 */
-
+  /* Below was an approximation for DetalMass <<1; 
+     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim in Sep.2009 */
   /*
   ratio2 = DeltaMass / Mass;
   ratio1 = 1.0 - ratio2;

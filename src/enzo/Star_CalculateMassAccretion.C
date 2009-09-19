@@ -131,10 +131,8 @@ int Star::CalculateMassAccretion(void)
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
-    // Don't take out too much mass suddenly; 
-    // mdot should leave at least 75% of the gas in the grids.
-    // following star_maker8.C by Peng Wang
-    // Ji-hoon Kim in Sep.2009
+    // Don't take out too much mass suddenly; mdot should leave at least 75% of the gas in the grids.
+    // following star_maker8.C by Peng Wang  - Ji-hoon Kim in Sep.2009
     mdot_UpperLimit = 0.25 * density * DensityUnits * 
       pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
       (CurrentGrid->dtFixed) / TimeUnits;
@@ -156,7 +154,8 @@ int Star::CalculateMassAccretion(void)
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
       mdot = min(mdot, mdot_Edd); 
-      fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot);
+      fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", 
+	      mdot_UpperLimit, mdot_Edd, mdot); //#####
     }
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);
