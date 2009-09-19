@@ -140,6 +140,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
   double MassUnits = DensityUnits*pow(LengthUnits,3);
   printf("Mass Units = %g \n",MassUnits);
+  printf("Time Units = %g \n",TimeUnits);
+
 
   size = 1;
   for (dim = 0; dim < GridRank; dim++) {
