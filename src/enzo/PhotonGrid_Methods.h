@@ -100,9 +100,15 @@ void ResetPhotonPackagePointer(void) {
 int MoveFinishedPhotonsBack(void) {
 
   if (FinishedPhotonPackages != NULL) {
+
+    // Find the end of the PhotonPackages list
+    PhotonPackageEntry *PP = PhotonPackages;
+    while (PP->NextPackage != NULL)
+      PP = PP->NextPackage;
+
     if (FinishedPhotonPackages->NextPackage != NULL)
-      FinishedPhotonPackages->NextPackage->PreviousPackage = PhotonPackages;
-    PhotonPackages->NextPackage = FinishedPhotonPackages->NextPackage;
+      FinishedPhotonPackages->NextPackage->PreviousPackage = PP;
+    PP->NextPackage = FinishedPhotonPackages->NextPackage;
 
     FinishedPhotonPackages->PreviousPackage = NULL;
     FinishedPhotonPackages->NextPackage = NULL;
@@ -111,6 +117,62 @@ int MoveFinishedPhotonsBack(void) {
   return SUCCESS;
 }
 
+/************************************************************************
+   UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
+************************************************************************/
+
+#ifdef UNUSED
+int ErrorCheckPhotonNumber(int level) {
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+  int count = 0, fcount = 0;
+  PhotonPackageEntry *PP;
+  for (PP = PhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    count++;
+  for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    fcount++;
+  if (count != NumberOfPhotonPackages) {
+    printf("level %"ISYM", grid %"ISYM" (%x)\n", level, this->ID, this);
+    printf("-> Mismatch between photon count (%"ISYM", %"ISYM") and "
+	   "NumberOfPhotonPackages (%"ISYM")\n", 
+	   count, fcount, NumberOfPhotonPackages);
+    return FAIL;
+  }
+  return SUCCESS;
+}
+
+int ReturnFinishedPhotonCount(void) {
+  int result = 0;
+  if (MyProcessorNumber != ProcessorNumber)
+    return result;
+  PhotonPackageEntry *PP = FinishedPhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  return result;
+}
+
+int ReturnRealPhotonCount(void) {
+  int result = 0;
+  if (MyProcessorNumber != ProcessorNumber)
+    return result;
+  PhotonPackageEntry *PP = PhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  PP = FinishedPhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  return result;
+}
+#endif /* UNUSED */
+/************************************************************************
+   END -- UNUSED FUNCTIONS
+************************************************************************/
 
 int CountPhotonNumber(void) {
 

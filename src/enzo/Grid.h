@@ -1823,7 +1823,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int RemoveParticle(int ID);
 
-  int AddFeedbackSphere(Star *cstar, int level, float radius, float VelocityUnits, 
+  int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
+			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
@@ -1947,7 +1948,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level);
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level, 
+			       int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
 			       FLOAT r_sphere[MAX_SPHERES],
 			       FLOAT rc_sphere[MAX_SPHERES],

@@ -58,3 +58,7 @@ EXTERN int RadiationPressure;
 EXTERN int RadiativeTransferOpticallyThinH2;
 
 EXTERN int RadiativeTransferPeriodicBoundary;
+
+/* Flag to use timestepping to restrict HII fraction change to 50% */
+
+EXTERN int RadiativeTransferHIIRestrictedTimestep;

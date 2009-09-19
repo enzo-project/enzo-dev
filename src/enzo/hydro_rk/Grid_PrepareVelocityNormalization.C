@@ -41,19 +41,23 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
     ENZO_FAIL("");
   }
 
-  int dim;
 
   int i, j, k, index;
+  double MassFactor=1;
+  for (int dim = 0; dim < GridRank; dim++)
+    MassFactor *= CellWidth[dim][0];
+
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
-	for (dim = 0; dim < GridRank; dim++) {
+	for (int dim = 0; dim < GridRank; dim++) {
 	  int vel = Vel1Num + dim;
-	  (*v_rms) += BaryonField[vel][index]*BaryonField[vel][index];
+	  (*v_rms) += BaryonField[vel][index]*BaryonField[vel][index]*MassFactor;
 	}
-	(*Volume) += 1;
+	(*Volume) += MassFactor;
       }
+
 
   return SUCCESS;
 }

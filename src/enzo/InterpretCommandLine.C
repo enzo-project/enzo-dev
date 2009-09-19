@@ -238,7 +238,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
   if (argc != 1) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       PrintUsage(myname);
-    ENZO_FAIL("");
+    my_exit(EXIT_SUCCESS);
   }
   *ParameterFile = argv[0];
  

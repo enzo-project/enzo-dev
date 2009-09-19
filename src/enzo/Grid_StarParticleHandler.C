@@ -478,11 +478,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     int NumberOfNewParticlesSoFar = 0;
     int NumberOfNewParticles = 0;
  
-    if (debug && NumberOfNewParticles > 0) {
-       fprintf(stderr, "StarParticle: New StarParticles = "
-	       "%"ISYM"\n", NumberOfNewParticles);
-    }
-
 #ifdef STAR1
     //    if (StarParticleCreation == 1) {
     if (0) {
@@ -863,8 +858,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     } // ENDIF sinks
  
     /* If not set in the above routine, then set the metal fraction to zero. */
- 
-    if (MetallicityField == FALSE || StarParticleCreation < 2)
+
+    int NoMetallicityAttribute = 
+      (STARMAKE_METHOD(SINK_PARTICLE) || STARMAKE_METHOD(MBH_PARTICLE));
+    if (MetallicityField == FALSE || NoMetallicityAttribute)
       for (i = 0; i < NumberOfNewParticles; i++)
 	tg->ParticleAttribute[2][i] = 0.0;
  

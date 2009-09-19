@@ -93,6 +93,7 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
+  int	SubtractAccretedMass(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);

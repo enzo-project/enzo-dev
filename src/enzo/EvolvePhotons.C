@@ -55,11 +55,16 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 			       LevelHierarchyEntry *LevelArray[]);
 void PrintSourceClusteringTree(SuperSourceEntry *leaf);
 int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
+int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *AllStars, FLOAT GridTime, int level, int LoopTime)
 {
+
+  bool FirstTime = true;
 
   if (!RadiativeTransfer)
     return SUCCESS;
@@ -67,7 +72,17 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (dtPhoton <= 0)
     return SUCCESS;
 
+  //while (GridTime > PhotonTime) {
   while (GridTime >= PhotonTime) {
+
+    /* Recalculate timestep if this isn't the first loop.  We already
+       did this in RadiativeTransferPrepare */
+
+    FLOAT dtLevelAbove;
+    if (!FirstTime) {
+      dtLevelAbove = LevelArray[level]->GridData->ReturnTimeStep();
+      RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
+    }
 
     if (debug && LoopTime == TRUE)
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
@@ -84,7 +99,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     HierarchyEntry **Grids;
     HierarchyEntry **Parents;
     LevelHierarchyEntry *Temp;
-    int GridNum = 0, value, i, proc;
+    int GridNum = 0, value, i, proc, lvl;
     int NumberOfGrids = 0;  
     level = 0;
 
@@ -107,11 +122,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-    if (dtPhoton < 0.) {
-      fprintf(stdout, "\nEvolvePhotons: dtPhoton < 0  %"GSYM"\n", dtPhoton);
-      return SUCCESS;
-    }
-
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
     int Rank, Dims[MAX_DIMENSION];
@@ -119,8 +129,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   
     /* Initialize radiation fields */  
 
-    for (level = MAX_DEPTH_OF_HIERARCHY-1; level >= 0 ; level--)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
 	  ENZO_FAIL("");
@@ -154,8 +164,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     while (RS != NULL) {
       int Continue = 1;
-      for (level = MAX_DEPTH_OF_HIERARCHY-1; (level >= 0 && Continue); level--) {
-	for (Temp = LevelArray[level]; (Temp && Continue); 
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; (lvl >= 0 && Continue); lvl--) {
+	for (Temp = LevelArray[lvl]; (Temp && Continue); 
 	     Temp = Temp->NextGridThisLevel)
 	  if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	    if (Temp->GridData->PointInGrid(RS->Position)) {
@@ -173,7 +183,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	MPI_Allreduce(&value, &Continue, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
 #endif /* USE_MPI */    
 
-	if (level == 0 && Continue) {  // this should never happen ... 
+	if (lvl == 0 && Continue) {  // this should never happen ... 
 	  fprintf(stderr, "Could not find grid for source %x: Pos: %"FSYM" %"FSYM" %"FSYM"\n",
 		  RS, RS->Position[0], RS->Position[1], RS->Position[2]);
 	  ENZO_FAIL("");
@@ -191,8 +201,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Initialize interpolated radiation fields */  
 
     //  if (RadiativeTransferInterpolateField)
-    //    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    //      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    //    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    //      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
     //	if (Temp->GridData->AllocateInterpolatedRadiation() == FAIL) {
     //	  fprintf(stderr, "Error in grid->AllocateInterpolatedRadiation.\n");
     //	  ENZO_FAIL("");
@@ -221,9 +231,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     while (keep_transporting) {
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
-      for (level = MAX_DEPTH_OF_HIERARCHY-1; level >= 0 ; level--) {
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
-	NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
 	for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
 	  if (Grids[GridNum]->ParentGrid != NULL) 
@@ -231,7 +241,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  else
 	    Helper = NULL;
 	  if (Grids[GridNum]->GridData->TransportPhotonPackages
-	      (level, &PhotonsToMove, GridNum, Grids0, 
+	      (lvl, &PhotonsToMove, GridNum, Grids0, 
 	       nGrids0, Helper, Grids[GridNum]->GridData) == FAIL) {
 	    fprintf(stderr, "Error in %"ISYM" th grid. "
 		    "grid->TransportPhotonPackages.\n",GridNum);
@@ -278,8 +288,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Move all finished photon packages back to their original place,
        PhotonPackages */
 
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	Temp->GridData->MoveFinishedPhotonsBack();
 
     /* If we're keeping track of photon escape fractions on multiple
@@ -340,16 +350,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     // Divide the photo-ionization and photo-heating rates by the
     // number of particles (rho * dx^3)
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->RadiationPresent() == TRUE)
 	  if (Temp->GridData->FinalizeRadiationFields() == FAIL) {
 	    fprintf(stderr, "Error in FinalizeRadiationFields.\n");
 	    ENZO_FAIL("");
 	  }
 
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->RadiationPresent() == TRUE) {
 
 	  if (RadiativeTransferCoupledRateSolver && 
@@ -375,8 +385,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        solver, we have to set the H2 dissociation rates */
 
     if (RadiativeTransferOpticallyThinH2)
-      for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
-	for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == FALSE)
 	    if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
 	      fprintf(stderr, "Error in AddH2Dissociation.\n");
@@ -393,6 +403,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (!LoopTime)
       break;
+    
+    FirstTime = false;
 
   } // ENDWHILE GridTime >= PhotonTime
 

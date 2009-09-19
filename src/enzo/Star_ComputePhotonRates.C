@@ -108,6 +108,11 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
 
+#define NOT_HII_REGION_TEST
+#ifdef HII_REGION_TEST
+    Q[0] = 1.0e65 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
+#endif
+
     //fprintf(stdout, "this->DeltaMass = %g, Q[0]=%g\n", this->DeltaMass, Q[0]); 
     break;
 
