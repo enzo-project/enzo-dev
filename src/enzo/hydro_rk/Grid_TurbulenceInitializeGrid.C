@@ -543,10 +543,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
 
   }
-<<<<<<< local
-=======
-  printf("Grid_TurbInit: line 558\n");
->>>>>>> other
 
   for (dim = 0; dim < GridRank; dim++) {
     delete [] TurbulenceVelocity[dim];
