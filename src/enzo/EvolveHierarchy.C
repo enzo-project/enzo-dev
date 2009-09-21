@@ -67,7 +67,8 @@ int WriteAllData(char *basename, int filenumber,
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
+         int RestartDump = FALSE);
 
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);

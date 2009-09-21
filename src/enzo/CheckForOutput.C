@@ -35,7 +35,7 @@
 //#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1);
+		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 //#else
 /* 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,

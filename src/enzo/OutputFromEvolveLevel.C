@@ -36,7 +36,7 @@ int WriteTracerParticleData(char *basename, int filenumber,
 //#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		       TopGridData &MetaData, ExternalBoundary *Exterior,
-		       FLOAT WriteTime = -1);
+		       FLOAT WriteTime = -1, int RestartDump = FALSE);
 // #else
 // int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 //                  TopGridData &MetaData, ExternalBoundary *Exterior,
@@ -57,6 +57,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 			  int level, ExternalBoundary *Exterior){
 
   int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  int RestartDump = FALSE;
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -113,13 +114,14 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     // a file subcycleCount will change the number of subcycle skip output
     // a file stopNow will output and then exit enzo.
     
-    int outputNow = -1, stopNow = -1, subcycleCount=-1;
+    int outputNow = -1, stopNow = -1, subcycleCount=-1, restartDumpNow=-1;
     if( FileDirectedOutput == TRUE){
       
       CommunicationBarrier();
       outputNow = access("outputNow", F_OK);
       subcycleCount = access("subcycleCount", F_OK);
       stopNow = access("stopNow", F_OK) ;
+      restartDumpNow = access("restartDump", F_OK);
 
       if ( outputNow != -1 ){
 	printf("Detected outputNow\n");
@@ -130,6 +132,13 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	printf("Detected stopNow\n");
 	ExitEnzo = TRUE;
 	WriteOutput = TRUE;
+      }
+
+      if( restartDumpNow != -1 ) {
+	printf("Detected restartDump\n");
+	ExitEnzo = TRUE;
+	WriteOutput = TRUE;
+    RestartDump = TRUE;
       }
 
       /* Check to see if new subcycle information has been given to us */
@@ -169,6 +178,10 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	  if (unlink("stopNow")) {
    	    ENZO_FAIL("Error deleting stopNow");
 	  } 
+	if( restartDumpNow != -1 )
+	  if (unlink("restartDump")) {
+   	    ENZO_FAIL("Error deleting restartDump");
+	  } 
       } 
       
       CommunicationBarrier();
@@ -206,7 +219,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 			   Temp2->GridHierarchyEntry, *MetaData, Exterior,
-			   LevelArray[level]->GridData->ReturnTime()) == FAIL) {
+			   LevelArray[level]->GridData->ReturnTime(), RestartDump) == FAIL) {
             ENZO_FAIL("Error in Group_WriteAllData.");
     }
 // #else

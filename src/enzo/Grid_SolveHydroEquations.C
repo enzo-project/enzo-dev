@@ -215,6 +215,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* allocate space for fluxes */
 
+    /* Set up our restart dump fluxes container */
+    this->SubgridFluxStorage = SubgridFluxes;
+    this->NumberOfSubgrids = NumberOfSubgrids;
+
     for (i = 0; i < NumberOfSubgrids; i++) {
       for (dim = 0; dim < GridRank; dim++)  {
 

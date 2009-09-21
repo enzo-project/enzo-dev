@@ -77,6 +77,11 @@ class grid
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
 
+  // For restart dumps
+
+  int NumberOfSubgrids;
+  fluxes **SubgridFluxStorage;
+
   // MHD data
   float *divB;
   float *gradPhi[MAX_DIMENSION];
@@ -131,6 +136,8 @@ class grid
 //
   int TimestepsSinceCreation; 	// Not really since creation anymore... 
   				// resets everytime the grid outputs
+
+
 //
 // Friends
 //
@@ -192,6 +199,8 @@ class grid
 /* Write grid data to a group file (returns: success/failure) */
 
    int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id, int WriteEverything = FALSE);
+
+   int WriteFluxes(hid_t grid_node);
 
 /* Write grid data to separate files (returns: success/failure) */
 

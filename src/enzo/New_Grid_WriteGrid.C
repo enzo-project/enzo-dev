@@ -66,12 +66,15 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   hid_t       float_type_id, FLOAT_type_id;
   hid_t       file_type_id, FILE_type_id;
   hid_t       file_dsp_id;
+  hid_t       old_fields;
  
   hsize_t     OutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[1];
  
   herr_t      h5_status;
   herr_t      h5_error = -1;
+
+  file_type_id = HDF5_REAL;
 
   int CopyActive = TRUE;
   if(WriteEverything==TRUE)CopyActive = FALSE;
@@ -159,7 +162,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   {
  
     group_id = H5Gcreate(file_id, name, 0);
-    if( group_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( group_id == h5_error ){ENZO_FAIL("IO Problem");}
+
+    if(WriteEverything == TRUE) {
+        old_fields = H5Gcreate(group_id, "OldFields", 0);
+    }
  
   }
  
@@ -213,10 +220,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         /* In this case, we write the OldBaryonField, too */
 
         char field_name[MAX_LINE_LENGTH];
-        sprintf(field_name, "Old%s", DataLabel[field]);
 
         this->write_dataset(GridRank, OutDims, DataLabel[field],
-                      group_id, file_type_id, (VOIDP) OldBaryonField[field],
+                      old_fields, file_type_id, (VOIDP) OldBaryonField[field],
                       CopyActive, temp);
 
       }
@@ -433,23 +439,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     if( ParticleType == NULL ){ENZO_FAIL("Particle Type is NULL!");}
  
     file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( file_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
     dset_id =  H5Dcreate(group_id, "particle_type", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
-      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( dset_id == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                         (VOIDP) ParticleType[i]);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+                         (VOIDP) ParticleType);
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
 
     if(OutputParticleTypeGrouping)
         this->CreateParticleTypeGrouping(dset_id, file_dsp_id, group_id, file_id);
  
     h5_status = H5Sclose(file_dsp_id);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
 
     h5_status = H5Dclose(dset_id);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
     }
 
@@ -473,6 +479,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   if (MyProcessorNumber == ProcessorNumber)
   {
+     if (WriteEverything == TRUE) this->WriteFluxes(group_id);
      h5_status = H5Gclose(group_id);
 
   }
@@ -502,6 +509,8 @@ int grid::write_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
     hid_t h5_status;
     herr_t      h5_error = -1;
     int i, j, k, dim, ActiveDim[MAX_DIMENSION];
+    char err[255];
+    snprintf(err, 254, "IO Problem with %s", name);
 
     for (dim = 0; dim < 3; dim++)
       ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
@@ -522,21 +531,89 @@ int grid::write_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
     }
 
     file_dsp_id = H5Screate_simple((Eint32) ndims, dims, NULL);
-    if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( file_dsp_id == h5_error ){ENZO_FAIL(err);}
 
     dset_id =  H5Dcreate(group, name, data_type, file_dsp_id, H5P_DEFAULT);
-    if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( dset_id == h5_error ){ENZO_FAIL(err);}
 
     h5_status = H5Dwrite(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                         (VOIDP) temp);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL(err);}
 
     h5_status = H5Sclose(file_dsp_id);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL(err);}
 
     h5_status = H5Dclose(dset_id);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL(err);}
 
     return SUCCESS;
 
+}
+
+int grid::WriteFluxes(hid_t grid_node)
+{
+  /* We have to set up the group pointer here */
+
+  int i, j, field, dim;
+
+  hsize_t size;
+
+  hid_t h5_error = -1;
+  hid_t subgrid_group = h5_error;
+  hid_t axis_group = h5_error;
+  hid_t left_group, right_group;
+  hid_t fluxes_node = H5Gcreate(grid_node, "Fluxes", 0);
+
+  char name[255];
+
+  for (i = 0; i < this->NumberOfSubgrids; i++) {
+
+    /* Make our group here */
+
+    snprintf(name, 254, "Subgrid%08d", i);
+
+    subgrid_group = H5Gcreate(fluxes_node, name, 0);
+    if(subgrid_group == h5_error){ENZO_FAIL("IO Problem");}
+
+    for (dim = 0; dim < GridRank; dim++) {
+      /* compute size (in floats) of flux storage */
+
+      snprintf(name, 254, "Axis%d", dim);
+      axis_group = H5Gcreate(subgrid_group, name, 0);
+      if(axis_group == h5_error){ENZO_FAIL("IO Problem");}
+
+      size = 1;
+
+      left_group = H5Gcreate(axis_group, "Left", 0);
+      if(left_group == h5_error){ENZO_FAIL("IO Problem");}
+
+      right_group = H5Gcreate(axis_group, "Right", 0);
+      if(right_group == h5_error){ENZO_FAIL("IO Problem");}
+
+      for (j = 0; j < GridRank; j++)
+        size *= SubgridFluxStorage[i]->LeftFluxEndGlobalIndex[dim][j] -
+          SubgridFluxStorage[i]->LeftFluxStartGlobalIndex[dim][j] + 1;
+
+      for (field = 0; field < NumberOfBaryonFields; field++) {
+        /* Every single baryon field should exist, if this is called after the
+           hydro solver but before deallocation. */
+        /* Now we just write it out, and we know the name and all that. */
+
+        this->write_dataset(1, &size, DataLabel[field], left_group,
+                            HDF5_REAL, (void *) SubgridFluxStorage[i]->LeftFluxes[field][dim],
+                            FALSE);
+
+        this->write_dataset(1, &size, DataLabel[field], right_group,
+                            HDF5_REAL, (void *) SubgridFluxStorage[i]->RightFluxes[field][dim],
+                            FALSE);
+
+      }
+
+      H5Gclose(left_group);
+      H5Gclose(right_group);
+      H5Gclose(axis_group);
+    }
+
+    H5Gclose(subgrid_group);
+  }
 }

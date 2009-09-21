@@ -311,7 +311,7 @@ OBJS_CONFIG_LIB = \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_ReadGrid.o \
         Grid_Group_WriteGridInterpolate.o \
-        Grid_Group_WriteGrid.o \
+        New_Grid_WriteGrid.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
