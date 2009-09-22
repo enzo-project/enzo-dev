@@ -24,14 +24,6 @@
 #endif
 #endif
 
-#include "message.h"
-
-#ifdef CONFIG_THROW_ABORT
-#define ENZO_FAIL(A) raise(SIGABRT);
-#else
-#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
-#endif
-
 /* Modifiable Parameters */
 
 #define MAX_NUMBER_OF_TASKS             16384
@@ -94,6 +86,20 @@
 /* Unmodifiable Parameters */
 
 #define MAX_DIMENSION                       3  /* must be 3! */
+
+#include "message.h"
+
+/* We have two possibilities for throwing an exception.
+   You can throw ENZO_FAIL, which takes no arguments and is safe to use with a
+   semicolon, or you can throw ENZO_VFAIL which must NOT have a semicolon and
+   comes enclosed in brackets.  You can supply format strings to ENZO_VFAIL.  */
+#ifdef CONFIG_THROW_ABORT
+#define ENZO_FAIL(A) raise(SIGABRT);
+#define ENZO_VFAIL(A, ...) raise(SIGABRT);
+#else
+#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
+#define ENZO_VFAIL(format, ...) {snprintf(current_error, 254, format, ##__VA_ARGS__); throw(EnzoFatalException(current_error, __FILE__, __LINE__));}
+#endif
 
 /* Fortran name generator (cpp blues) */
 

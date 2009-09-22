@@ -24,12 +24,12 @@
 #include <string.h>
 #include <unistd.h>
  
+#define DEFINE_STORAGE
 #include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
-#define DEFINE_STORAGE
 #include "global_data.h"
 #include "units.h"
 #include "flowdefs.h"
