@@ -131,18 +131,20 @@ int Star::SubtractAccretedMass(void)
 
   /* Modify density and velocity fields, for both the particle and the grid */
 
-  //this->Mass += this->DeltaMass;  // this is already done in Star_Accrete.C
+  //this->Mass += this->DeltaMass;//this is already done in Star_Accrete.C
   vel[0] = (denssink*usink + drho*ugrid) / (denssink + drho);
   vel[1] = (denssink*vsink + drho*vgrid) / (denssink + drho);
   vel[2] = (denssink*wsink + drho*wgrid) / (denssink + drho);
 
   CurrentGrid->BaryonField[DensNum][index] *= factor;
   //CurrentGrid->BaryonField[Vel1Num][index] = (densgrid*ugrid - drho*ugrid) / (densgrid - drho);
-                                           //= ugrid; //velocity of the grids will be unchanged!
+  //                                         = ugrid; //velocity of the grids will be unchanged!
 
+  /*
   fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %g, OldDensity =%g, NewDensity =%g, factor =%g\n", 
-	  this->DeltaMass, OldDensity, NewDensity, factor); //#####
-  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);
+	  this->DeltaMass, OldDensity, NewDensity, factor); 
+  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);//#####
+  */
 
   if (MultiSpecies) {
     CurrentGrid->BaryonField[DeNum][index] *= factor;
