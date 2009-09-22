@@ -40,7 +40,6 @@ OBJS_CONFIG_LIB = \
         cic_flag.o \
         cic_interp.o \
         cicinterp.o \
-        CloudyCoolingInterpolate.o \
         cluster_maker.o \
         c_message.o \
         colh2diss.o \
@@ -75,6 +74,7 @@ OBJS_CONFIG_LIB = \
         ComputeRandomForcingNormalization.o \
         ComputeTable.o \
         Continue.o \
+	cool1d_cloudy.o \
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -485,8 +485,6 @@ OBJS_CONFIG_LIB = \
 	mg_restrict.o \
 	mkl_st1.o \
 	Mpich_V1_Dims_create.o \
-	multi_CloudyCooling.o \
-	multi_CloudyCooling_time.o \
 	multi_cool.o \
 	MultigridSolver.o \
 	mused.o \
@@ -573,7 +571,6 @@ OBJS_CONFIG_LIB = \
         sink_maker.o \
         smooth_deposit.o \
         smooth.o \
-        SolveCloudyCooling.o \
         solve_cool.o \
         solve_rate.o \
         solve_rate_cool.o \
