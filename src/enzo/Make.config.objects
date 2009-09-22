@@ -40,7 +40,6 @@ OBJS_CONFIG_LIB = \
         cic_flag.o \
         cic_interp.o \
         cicinterp.o \
-        CloudyCoolingInterpolate.o \
         cluster_maker.o \
         c_message.o \
         colh2diss.o \
