@@ -88,7 +88,8 @@ int Star::CalculateMassAccretion(void)
 
   /* Reset the accretion rate (DeltaMass) */
 
-  if(this->type != MBH) this->ResetAccretion();  //#####
+  //if(this->type != MBH) this->ResetAccretion();  //#####
+  this->ResetAccretion();
 
   if (AccretionType == LOCAL_ACCRETION) {
 
