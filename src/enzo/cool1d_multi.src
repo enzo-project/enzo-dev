@@ -31,8 +31,11 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, gammaHI, gammaHeI, gammaHeII,
-     &                itmask
-     &                     )
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW,
+     &                itmask)
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
 !
@@ -41,6 +44,7 @@
 !  modified1: January, 1996 by Greg Bryan; adapted to KRONOS
 !  modified2: October, 1996 by GB; moved to AMR
 !  modified3: February, 2003 by Robert Harkness; iteration mask
+!  modified6: September, 2009 by BDS to include cloudy cooling
 !
 !  PURPOSE:
 !    Solve the energy cooling equations.
@@ -85,6 +89,17 @@
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
       real    xe_start, xe_end
+
+!  Cloudy cooling data
+
+      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer clGridDim(clGridRank)
+      real clMetNorm, clEleFra
+      real clPar1(clGridDim(1)), clPar2(clGridDim(2)),
+     &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
+     &     clPar5(clGridDim(5))
+      real clCooling(clDataSize), clHeating(clDataSize), 
+     &     clMMW(clDataSize)
 
 !  Parameters
 
@@ -805,6 +820,22 @@ c
       endif
 
 #endif /* CEN_METALS */
+
+!     --- Cloudy metal cooling and heating ---
+
+      if (imcool .eq. 3) then
+
+         call cool1D_cloudy(d, de, HI, HII, HeI, HeII, HeIII,
+     &        HM, H2I, H2II, DI, DII, HDI, metal,
+     &        in, jn, kn, is, ie, j, k,
+     &        logtem, edot, comp2, ispecies, dom, zr,
+     &        icmbTfloor, iClHeat, iClMMW,
+     &        clMetNorm, clEleFra, clGridRank, clGridDim,
+     &        clPar1, clPar2, clPar3, clPar4, clPar5,
+     &        clDataSize, clCooling, clHeating, clMMW,
+     &        itmask)
+
+      endif
 
 !     Set tgasold
 

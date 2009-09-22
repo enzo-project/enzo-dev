@@ -324,7 +324,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
   fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
   fprintf(fptr, "CMBTemperatureFloor            = %"ISYM"\n", CloudyCoolingData.CMBTemperatureFloor);
-  fprintf(fptr, "ConstantTemperatureFloor       = %"FSYM"\n", CloudyCoolingData.ConstantTemperatureFloor);
   fprintf(fptr, "CloudyMetallicityNormalization = %"FSYM"\n", CloudyCoolingData.CloudyMetallicityNormalization);
   fprintf(fptr, "CloudyElectronFractionFactor   = %"FSYM"\n", CloudyCoolingData.CloudyElectronFractionFactor);
   fprintf(fptr, "MetalCooling                   = %"ISYM"\n", MetalCooling);

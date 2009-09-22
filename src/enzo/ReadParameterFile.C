@@ -351,7 +351,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "IncludeCloudyHeating = %"ISYM, &CloudyCoolingData.IncludeCloudyHeating);
     ret += sscanf(line, "IncludeCloudyMMW = %"ISYM, &CloudyCoolingData.IncludeCloudyMMW);
     ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
-    ret += sscanf(line, "ConstantTemperatureFloor = %"FSYM, &CloudyCoolingData.ConstantTemperatureFloor);
     ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
     ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
@@ -878,10 +877,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 
   /* If set, initialize the RadiativeCooling and RateEquations data. */
 
-  if (MultiSpecies > 0)
+  if (MultiSpecies > 0) {
     if (InitializeRateData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeRateData.");
     }
+    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in InitializeCloudyCooling.");
+    }
+  }
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
@@ -889,14 +892,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialize CloudyCooling. */
-
-  if (MetalCooling == CLOUDY_METAL_COOLING) {
-    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
 
