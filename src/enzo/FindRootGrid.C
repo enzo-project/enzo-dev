@@ -25,22 +25,22 @@
 #include "LevelHierarchy.h"
 
 #ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-5
+#define ROUNDOFF 1e-6f
 #endif
 #ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-10
+#define ROUNDOFF 1e-12
 #endif
 #ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-14
+#define ROUNDOFF 1e-16
 #endif
 
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, 
 		 FLOAT rx, FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz)
 {
 
-  if (rx <= DomainLeftEdge[0] || rx >= DomainRightEdge[0] ||
-      ry <= DomainLeftEdge[1] || ry >= DomainRightEdge[1] ||
-      rz <= DomainLeftEdge[2] || rz >= DomainRightEdge[2]) {
+  if (rx < DomainLeftEdge[0] || rx > DomainRightEdge[0] ||
+      ry < DomainLeftEdge[1] || ry > DomainRightEdge[1] ||
+      rz < DomainLeftEdge[2] || rz > DomainRightEdge[2]) {
     dummy = INT_UNDEFINED;
     return SUCCESS;
   }

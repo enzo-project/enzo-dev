@@ -337,7 +337,7 @@ float Star::Separation2(Star a)
 }
 float Star::Separation2(Star *a) { return this->Separation2(*a); };
 
-float Star::Separation(Star a)  { return sqrt(this->Separation(a)); }
+float Star::Separation(Star a)  { return sqrt(this->Separation2(a)); }
 float Star::Separation(Star *a) { return this->Separation(*a); };
 
 void Star::CopyToGrid(void)

@@ -29,8 +29,13 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
+  if (CurrentGrid == NULL)
+    return SUCCESS;
+
+  /*
   if ((this->type != BlackHole && abs(this->type) != MBH) || (CurrentGrid == NULL))
     return SUCCESS;
+  */
 
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;

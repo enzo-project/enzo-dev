@@ -370,6 +370,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    rz -= DomainWidth[2];
 	  }
 	  FindRootGrid(dummy, Grids0, nGrids0, rx, ry, rz, ux, uy, uz);
+	  if (dummy == INT_UNDEFINED)
+	    ENZO_FAIL("Periodic photon boundary failed to find the next grid.");
 	  (*MoveToGrid) = Grids0[dummy];
 	  DeltaLevel = 0;
 	  (*PP)->Radius += ROUNDOFF;
@@ -818,6 +820,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	      rz -= DomainWidth[2];
 	    }
 	    FindRootGrid(dummy, Grids0, nGrids0, rx, ry, rz, ux, uy, uz);
+	    if (dummy == INT_UNDEFINED)
+	      ENZO_FAIL("Periodic photon boundary failed to find the next grid.");
 	    (*MoveToGrid) = Grids0[dummy];
 	    DeltaLevel = 0;
 	    (*PP)->Radius += ROUNDOFF;
