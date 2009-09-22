@@ -471,10 +471,6 @@ Eint32 main(Eint32 argc, char *argv[])
 
   }
 
-
-#ifdef TRANSFER
-#endif
-
   /* Initialize the radiative transfer */
 
 #ifdef TRANSFER

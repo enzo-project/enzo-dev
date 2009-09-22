@@ -214,6 +214,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
     mk_xy2pix(&x2pix[0], &y2pix[0]);
   }
 
+  // if using an implicit RT solver, declare the appropriate object here
+
+  if (RadiativeTransferFLD == 1)
+    ImplicitSolver = new FSProb; 
+  else
+    ImplicitSolver = new NullProblem;
 
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
