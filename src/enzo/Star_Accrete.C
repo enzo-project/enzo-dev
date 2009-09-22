@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             September, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -29,13 +30,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
-  if (CurrentGrid == NULL)
-    return SUCCESS;
-
-  /*
   if ((this->type != BlackHole && abs(this->type) != MBH) || (CurrentGrid == NULL))
     return SUCCESS;
-  */
 
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
@@ -57,8 +53,6 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
-  fprintf(stdout, "star::Accrete:  accretion_time[] = %g, this_dt = %g, DeltaMass = %g\n",
-	  accretion_time[0], this_dt, DeltaMass); //#####
   Mass += DeltaMass;
   FinalMass += DeltaMass;
 
@@ -78,6 +72,12 @@ int Star::Accrete(void)
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     delta_vel[dim] = 0.0;
   }
+
+  /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
+
+  last_accretion_rate = accretion_rate[n-1]; //#####
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
+	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
 
   /* Remove these entries in the accretion table */
 

@@ -88,7 +88,6 @@ int Star::CalculateMassAccretion(void)
 
   /* Reset the accretion rate (DeltaMass) */
 
-  //if(this->type != MBH) this->ResetAccretion();  //#####
   this->ResetAccretion();
 
   if (AccretionType == LOCAL_ACCRETION) {
@@ -155,8 +154,7 @@ int Star::CalculateMassAccretion(void)
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
       mdot = min(mdot, mdot_Edd); 
-      fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", 
-	      mdot_UpperLimit, mdot_Edd, mdot); //#####
+      //fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot); 
     }
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);

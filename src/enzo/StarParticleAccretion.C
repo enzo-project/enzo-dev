@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             September, 2009
 /
 /  NOTES:
 /

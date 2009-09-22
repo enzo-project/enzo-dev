@@ -116,7 +116,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     /* [2] Method 2
        Use code snippets from Star_CalculateMassAccretion.C. (many comments omitted) 
-       This is redundant, but for now, works great  */
+       This is redundant, but for now, works great!  */
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,

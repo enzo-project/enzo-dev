@@ -30,6 +30,7 @@ class Star
   float		 delta_vel[MAX_DIMENSION];
   int		 naccretions;
   float		*accretion_rate;	// prescribed Mdot(t) [Msun / s]
+  float          last_accretion_rate;
   FLOAT	*accretion_time;	// corresponding time for Mdot(t)
   float		 Mass;		// Msun
   float		 FinalMass;	// Msun
