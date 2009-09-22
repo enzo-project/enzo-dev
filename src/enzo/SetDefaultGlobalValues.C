@@ -359,6 +359,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackMetalYield            = 0.02;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHCombineRadius                 = 10;           // pc
 
   NumberOfParticleAttributes       = INT_UNDEFINED;

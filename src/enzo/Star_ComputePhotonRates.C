@@ -113,7 +113,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[0] = 1.0e65 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
 #endif
 
-    //fprintf(stdout, "this->DeltaMass = %g, Q[0]=%g\n", this->DeltaMass, Q[0]); 
+    fprintf(stdout, "star::ComputePhotonRates: this->DeltaMass = %g, Q[0]=%g\n", this->DeltaMass, Q[0]); //#####
     break;
 
   default:

@@ -220,7 +220,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
     EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
       EjectaVolume / DensityUnits; 
-    EjectaMetalDensity = EjectaDensity * StarMetalYield; //very fiducial
+    EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; //very fiducial
 
     /* Now calculate the feedback parameter based on mdot estimated above.  
        The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2.  - Ji-hoon Kim  Aug.2009 */

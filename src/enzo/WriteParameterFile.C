@@ -565,6 +565,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackThermalCoupling);
   fprintf(fptr, "MBHFeedbackMassEjectionFraction = %"GSYM"\n",
           MBHFeedbackMassEjectionFraction);
+  fprintf(fptr, "MBHFeedbackMetalYield = %"GSYM"\n",
+          MBHFeedbackMetalYield);
   fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n",
           MBHCombineRadius);
 

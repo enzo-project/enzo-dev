@@ -617,6 +617,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
     ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
 		  &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, 
+		  &MBHFeedbackMetalYield);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
 

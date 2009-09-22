@@ -56,17 +56,16 @@ int Star::SubtractAccretedMass(void)
 
   /* Find metallicity or SN Color field and set flag. */
 
-  /*
   int ZNum, ZField;
   int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
+  if ((MetalNum = FindField(Metallicity, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
       != -1)
     MetallicityField = TRUE;
   else
     MetalNum = 0;
 
   int UseColour = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
+  if ((SNColourNum = FindField(SNColour, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
       != -1)
     UseColour = TRUE;
   else
@@ -74,7 +73,6 @@ int Star::SubtractAccretedMass(void)
 
   ZNum = max(MetalNum, SNColourNum);
   ZField = max(MetallicityField, UseColour);
-  */
 
   /* Find fields: density, total energy, velocity1-3. */
 
@@ -143,7 +141,7 @@ int Star::SubtractAccretedMass(void)
                                            //= ugrid; //velocity of the grids will be unchanged!
 
   fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %g, OldDensity =%g, NewDensity =%g, factor =%g\n", 
-	  this->DeltaMass, OldDensity, NewDensity, factor); 
+	  this->DeltaMass, OldDensity, NewDensity, factor); //#####
   fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);
 
   if (MultiSpecies) {
@@ -166,10 +164,8 @@ int Star::SubtractAccretedMass(void)
     CurrentGrid->BaryonField[HDINum][index] *= factor;
   }
 
-  /*  
   if (ZField == TRUE)
     CurrentGrid->BaryonField[ZNum][index] *= factor;
-  */
 
   return SUCCESS;
 
