@@ -309,9 +309,9 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
-        Grid_Group_ReadGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         New_Grid_WriteGrid.o \
+        New_Grid_ReadGrid.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \

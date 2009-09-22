@@ -238,8 +238,11 @@ class grid
 
 private:
    int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
-                     hid_t data_type, void *data, int active_only = TRUE,
-                     float *temp=NULL);
+       hid_t data_type, void *data, int active_only = TRUE,
+       float *temp=NULL);
+   int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+       hid_t data_type, void *read_to, int copy_back_active=FALSE,
+       float *copy_to=NULL, int *active_dims=NULL);
 public:
 
 /* Compute the timestep constraint for this grid
