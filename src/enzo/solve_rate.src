@@ -95,7 +95,7 @@ c
      &     DIp(ijk), DIIp(ijk), HDIp(ijk),
      &     k24shield(ijk), k25shield(ijk), k26shield(ijk),
      &     totalH(ijk), totalHe(ijk), totalD, 
-     &     correctH, correctHe, correctD
+     &     correctH, correctHe, correctD, metalfree
 
       double precision coolunit, dbase1, tbase1, xbase1
 c
@@ -885,11 +885,12 @@ c
 c     Correct densities by keeping fractions the same
 c
       do i = is+1, ie+1
-         correctH = fh*d(i,j,k)/totalH(i)
+         metalfree = totalH(i) + totalHe(i)
+         correctH = fh*metalfree/totalH(i)
          HI(i,j,k)  = HI(i,j,k)*correctH
          HII(i,j,k) = HII(i,j,k)*correctH
 c
-         correctHe = (1.0 - fh)*d(i,j,k)/totalHe(i)
+         correctHe = (1.0 - fh)*metalfree/totalHe(i)
          HeI(i,j,k)   = HeI(i,j,k)*correctHe
          HeII(i,j,k)  = HeII(i,j,k)*correctHe
          HeIII(i,j,k) = HeIII(i,j,k)*correctHe
@@ -913,7 +914,8 @@ c
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
             totalD = DI(i,j,k) + DII(i,j,k) + 2.0/3.0*HDI(i,j,k)
-            correctD = fh*dtoh*d(i,j,k)/totalD
+            metalfree = totalH(i) + totalHe(i) + totalD
+            correctD = fh*dtoh*metalfree/totalD
             DI  (i,j,k) = DI (i,j,k)*correctD
             DII (i,j,k) = DII(i,j,k)*correctD
             HDI (i,j,k) = HDI(i,j,k)*correctD

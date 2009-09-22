@@ -80,6 +80,8 @@ extern int CopyPotentialFieldAverage;
 /* This routine sets all the boundary conditions for Grids by either
    interpolating from their parents or copying from sibling grids. */
  
+
+
 #ifdef FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
@@ -87,159 +89,150 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
 #else
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
-                          int level, TopGridData *MetaData,
-                          ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
 #endif
 {
-  int grid1, grid2, StartGrid, EndGrid;
-
+ 
+  int loopEnd = (ShearingBoundaryDirection != 1) ? 2 : 1;
+  
+  int grid1, grid2, StartGrid, EndGrid, loop;
+  
   JBPERF_START("SetBoundaryConditions");
-
+    
+  for (loop = 0; loop < loopEnd; loop++){
+    
 #ifdef FORCE_MSG_PROGRESS 
-  CommunicationBarrier();
+    CommunicationBarrier();
 #endif
-
-  TIME_MSG("Interpolating boundaries from parent");
-  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
-
-    if (traceMPI) fprintf(tracePtr, "SBC loop\n");
- 
-    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
-
-    /* -------------- FIRST PASS ----------------- */
-    /* Here, we just generate the calls to generate the receive buffers,
-       without actually doing anything. */
-
-    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
-    CommunicationReceiveIndex = 0;
-
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
- 
-    /* a) Interpolate boundaries from the parent grid or set external
-       boundary conditions. */
- 
-      CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-      if (level == 0) {
-	if (Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior)
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-	  ENZO_FAIL("");
-	}
-      }
-      else {
-	if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
-	     (Grids[grid1]->ParentGrid->GridData)) == FAIL) {
-	  fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	  ENZO_FAIL("");
-	}
-      }
-    } // ENDFOR grids
-
-    /* -------------- SECOND PASS ----------------- */
-    /* Now we generate all the sends, and do all the computation for grids
-       which are on the same processor as well. */
-
-    CommunicationDirection = COMMUNICATION_SEND;
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
-
-      /* a) Interpolate boundaries from the parent grid or set external
-	 boundary conditions. */
-
-      if (level > 0)
-	if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
-	     (Grids[grid1]->ParentGrid->GridData)) == FAIL) {
-	  fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	  ENZO_FAIL("");
-	}
+  
+    TIME_MSG("Interpolating boundaries from parent");
       
-    } // ENDFOR grids
+    for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
+	
+      if (traceMPI) fprintf(tracePtr, "SBC loop\n");
+	
+      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+	
+      /* -------------- FIRST PASS ----------------- */
+      /* Here, we just generate the calls to generate the receive buffers,
+	 without actually doing anything. */
+      
+      CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+      CommunicationReceiveIndex = 0;
+      
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
+	
+	/* a) Interpolate boundaries from the parent grid or set external
+	   boundary conditions. */
+	
+	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+	
+	if (level == 0) {
+	  if (loop == 0)
+	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
+	} else {
+	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
+	    (Grids[grid1]->ParentGrid->GridData);
+	}
 
-    /* -------------- THIRD PASS ----------------- */
-    /* In this final step, we get the messages as they come in and then
-       match them to the methods which generate the receive handle. */
+      } // ENDFOR grids
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+	/* -------------- SECOND PASS ----------------- */
+	/* Now we generate all the sends, and do all the computation
+	   for grids which are on the same processor as well. */
 
-  } // ENDFOR grid batches
+      CommunicationDirection = COMMUNICATION_SEND;
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 
-  TIME_MSG("Copying zones in SetBoundaryConditions");
-  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
-    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+	/* a) Interpolate boundaries from the parent grid or set
+	   external boundary conditions. */
 
-    /* -------------- FIRST PASS ----------------- */
-    /* b) Copy any overlapping zones for sibling grids.  */
+	if (level > 0)
+	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
+	    (Grids[grid1]->ParentGrid->GridData);
+     
+      
+      } // ENDFOR grids
 
-    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
-    CommunicationReceiveIndex = 0;
+	//Grids[StartGrid]->GridData->PrintToScreenBoundaries(0);
+
+	/* -------------- THIRD PASS ----------------- */
+	/* In this final step, we get the messages as they come in and
+	   then match them to the methods which generate the receive
+	   handle. */
+
+      if (CommunicationReceiveHandler() == FAIL)
+	ENZO_FAIL("");
+
+    } // ENDFOR grid batches
+
+    TIME_MSG("Copying zones in SetBoundaryConditions");
+    for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
+      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+
+      /* -------------- FIRST PASS ----------------- */
+      /* b) Copy any overlapping zones for sibling grids.  */
+
+      CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+      CommunicationReceiveIndex = 0;
  
 #ifdef FAST_SIB
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(
-				     SiblingList[grid1].GridList[grid2],
-				     MetaData->LeftFaceBoundaryCondition,
-				     MetaData->RightFaceBoundaryCondition,
-				     &grid::CopyZonesFromGrid)
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-	}
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+	for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyZonesFromGrid);
 #else
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                     MetaData->LeftFaceBoundaryCondition,
-                                     MetaData->RightFaceBoundaryCondition,
-                                     &grid::CopyZonesFromGrid)
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-	}
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+	for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(Grids[grid2]->GridData,
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyZonesFromGrid);
 #endif
 
-    /* -------------- SECOND PASS ----------------- */
-    /* b) Copy any overlapping zones for sibling grids.  */
+      /* -------------- SECOND PASS ----------------- */
+      /* b) Copy any overlapping zones for sibling grids.  */
 
-    CommunicationDirection = COMMUNICATION_SEND;
+      CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(
-				     SiblingList[grid1].GridList[grid2],
-				     MetaData->LeftFaceBoundaryCondition,
-				     MetaData->RightFaceBoundaryCondition,
-				     &grid::CopyZonesFromGrid)
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-	}
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+	for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyZonesFromGrid);
 #else
-    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                     MetaData->LeftFaceBoundaryCondition,
-                                     MetaData->RightFaceBoundaryCondition,
-                                     &grid::CopyZonesFromGrid)
-	    == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-	}
+      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+	for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(Grids[grid2]->GridData,
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyZonesFromGrid);
 #endif
 
-    /* -------------- THIRD PASS ----------------- */
+      /* -------------- THIRD PASS ----------------- */
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+      if (CommunicationReceiveHandler() == FAIL)
+	ENZO_FAIL("");
 
-  } // end loop over batchs of grids
+    } // end loop over batchs of grids
 
-
+  } // ENDFOR loop
+ 
     /* c) Apply external reflecting boundary conditions, if needed.  */
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    if (Grids[grid1]->GridData->CheckForExternalReflections
-	(MetaData->LeftFaceBoundaryCondition,
-	 MetaData->RightFaceBoundaryCondition) == FAIL) {
-      fprintf(stderr, "Error in grid->CheckForExternalReflections.\n");
-    }
- 
+    Grids[grid1]->GridData->CheckForExternalReflections
+      (MetaData->LeftFaceBoundaryCondition,
+       MetaData->RightFaceBoundaryCondition);
+  
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
 #endif
@@ -249,13 +242,15 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   JBPERF_STOP("SetBoundaryConditions");
 
   return SUCCESS;
+  
 }
  
+
  
-/* ======================================================================= */
-/* This routine prepares the density field for all the grids on this level,
-   both particle and baryonic densities.  It also calculates the potential
-   field if this is level 0 (since this involves communication). */
+  /* ======================================================================= */
+  /* This routine prepares the density field for all the grids on this level,
+     both particle and baryonic densities.  It also calculates the potential
+     field if this is level 0 (since this involves communication). */
  
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -263,12 +258,12 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			int level, TopGridData *MetaData, FLOAT When)
 #else   // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-                        int level, TopGridData *MetaData, FLOAT When)
+			int level, TopGridData *MetaData, FLOAT When)
 #endif  // end FAST_SIB
 {
 
   /* Return if this does not concern us */
-  if (!(SelfGravity)) return SUCCESS;
+  if (!SelfGravity) return SUCCESS;
  
   JBPERF_START("PrepareDensityField");
 
@@ -277,10 +272,10 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /* Set the time for evaluation of the fields, etc. */
  
   FLOAT EvaluateTime = LevelArray[level]->GridData->ReturnTime() +
-                   When*LevelArray[level]->GridData->ReturnTimeStep();
+    When*LevelArray[level]->GridData->ReturnTimeStep();
  
-  /* If level is above MaximumGravityRefinementLevel, then just update the
-     gravity at the MaximumGravityRefinementLevel. */
+  /* If level is above MaximumGravityRefinementLevel, then just
+     update the gravity at the MaximumGravityRefinementLevel. */
  
   int reallevel = level;
   level = min(level, MaximumGravityRefinementLevel);
@@ -296,7 +291,8 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
      (Do a batch of grids at a time; this is a loop over the batches)
   */
 
-  if (traceMPI) fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField (Send)\n");
+  if (traceMPI) 
+    fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField (Send)\n");
 
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
@@ -312,29 +308,25 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      if (DepositParticleMassField(Grids[grid1], EvaluateTime) == FAIL) {
-	ENZO_FAIL("Error in DepositParticleMassField.");
-      }
+      DepositParticleMassField(Grids[grid1], EvaluateTime);
 
 #ifdef FORCE_MSG_PROGRESS 
     CommunicationBarrier();
 #endif
 
-    if (traceMPI) fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField (Receive)\n");
+    if (traceMPI) 
+      fprintf(tracePtr, "PrepareDensityField: Enter DepositParticleMassField"
+	      " (Receive)\n");
  
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      if (DepositParticleMassField(Grids[grid1], EvaluateTime) == FAIL) {
-	fprintf(stderr, "Error in DepositParticleMassField.\n");
-	ENZO_FAIL("");
-      }
+      DepositParticleMassField(Grids[grid1], EvaluateTime);
 
     /* Finally, receive the data and process it. */
     
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
     
@@ -351,7 +343,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /* Grids: compute the GravitatingMassField (baryons & particles). */
   /*   This is now split into two section. */
  
-  if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF1 (send)\n", MyProcessorNumber);
+  if (traceMPI) 
+    fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF1 (send)\n", 
+	    MyProcessorNumber);
  
   TIME_MSG("PrepareGravitatingMassField1");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -365,24 +359,17 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
  
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      if (PrepareGravitatingMassField1(Grids[grid1]) == FAIL) {
-	fprintf(stderr, "Error in PrepareGravitatingMassField1.\n");
-	ENZO_FAIL("");
-      }
+      PrepareGravitatingMassField1(Grids[grid1]);
 
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      if (PrepareGravitatingMassField1(Grids[grid1]) == FAIL) {
-	fprintf(stderr, "Error in PrepareGravitatingMassField1.\n");
-	ENZO_FAIL("");
-      }
+      PrepareGravitatingMassField1(Grids[grid1]);
 
     /* Finally, receive the data and process it. */
     
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
 
@@ -391,7 +378,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   CommunicationBarrier();
 #endif
 
-  if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", MyProcessorNumber);
+  if (traceMPI) 
+    fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", 
+	    MyProcessorNumber);
  
   TIME_MSG("PrepareGravitatingMassField2");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -403,44 +392,31 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveIndex = 0;
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
- 
+      
 #ifdef FAST_SIB
-  for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-    if (PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
-				     MetaData, level, When) == FAIL) {
-      fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("");
-    }
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
+				   MetaData, level, When);
 #else
-  for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-    if (PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
-				     level, When) == FAIL) {
-      fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("");
-    }
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
+				   level, When);
 #endif
 
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
-  for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-    if (PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
-				     MetaData, level, When) == FAIL) {
-      fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("");
-    }
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
+				   MetaData, level, When);
 #else
-  for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-    if (PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
-				     level, When) == FAIL) {
-      fprintf(stderr, "Error in PrepareGravitatingMassField.\n");
-      ENZO_FAIL("");
-    }
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
+				   level, When);
 #endif
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
 
@@ -457,7 +433,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
   //  if (level > 0)
  
-  if (traceMPI) fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): COMF1 (send)\n", MyProcessorNumber);
+  if (traceMPI) 
+    fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): COMF1 (send)\n", 
+	    MyProcessorNumber);
  
   TIME_MSG("CopyOverlappingMassField");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -466,56 +444,45 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     CommunicationReceiveIndex = 0;
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
- 
+      
 #ifdef FAST_SIB
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(
-				   SiblingList[grid1].GridList[grid2],
-				   MetaData->LeftFaceBoundaryCondition,
-				   MetaData->RightFaceBoundaryCondition,
-				   &grid::CopyOverlappingMassField) == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	  ENZO_FAIL("");
-	}
+	Grids[grid1]->GridData->
+	  CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			  MetaData->LeftFaceBoundaryCondition,
+			  MetaData->RightFaceBoundaryCondition,
+			  &grid::CopyOverlappingMassField);
 #else
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyOverlappingMassField) == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	  ENZO_FAIL("");
-	}
+	Grids[grid1]->GridData->
+	  CheckForOverlap(Grids[grid2]->GridData,
+			  MetaData->LeftFaceBoundaryCondition,
+			  MetaData->RightFaceBoundaryCondition,
+			  &grid::CopyOverlappingMassField);
 #endif
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(
-				   SiblingList[grid1].GridList[grid2],
-				   MetaData->LeftFaceBoundaryCondition,
-				   MetaData->RightFaceBoundaryCondition,
-				   &grid::CopyOverlappingMassField) == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	  ENZO_FAIL("");
-	}
+	Grids[grid1]->GridData->
+	  CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			  MetaData->LeftFaceBoundaryCondition,
+			  MetaData->RightFaceBoundaryCondition,
+			  &grid::CopyOverlappingMassField);
 #else
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
       for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyOverlappingMassField) == FAIL) {
-	  fprintf(stderr, "Error in grid->CopyOverlappingMassField.\n");
-	  ENZO_FAIL("");
-	}
+	Grids[grid1]->GridData->
+	  CheckForOverlap(Grids[grid2]->GridData,
+			  MetaData->LeftFaceBoundaryCondition,
+			  MetaData->RightFaceBoundaryCondition,
+			  &grid::CopyOverlappingMassField);
 #endif
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
 
@@ -538,39 +505,28 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): CPFLZero "
 	      "(send-receive)\n", MyProcessorNumber);
 #ifdef FAST_SIB
-    if (ComputePotentialFieldLevelZero(MetaData, SiblingList, 
-				       Grids, NumberOfGrids) == FAIL) {
-	fprintf(stderr, "Error in ComputePotentialFieldLevelZero.\n");
-	ENZO_FAIL("");
-    }
+    ComputePotentialFieldLevelZero(MetaData, SiblingList,
+				   Grids, NumberOfGrids);
 #else
-    if (ComputePotentialFieldLevelZero(MetaData, Grids, 
-				       NumberOfGrids) == FAIL) {
-	fprintf(stderr, "Error in ComputePotentialFieldLevelZero.\n");
-	ENZO_FAIL("");
-    }
+    ComputePotentialFieldLevelZero(MetaData, Grids, NumberOfGrids);
 #endif
   }
        
- 
   /************************************************************************/
   /* Compute a first iteration of the potential and share BV's. */
  
 #define ITERATE_POTENTIAL
 #ifdef ITERATE_POTENTIAL
+  int iterate;
   if (level > 0) {
     CopyPotentialFieldAverage = 1;
-    for (int iterate = 0; iterate < PotentialIterations; iterate++) {
+    for (iterate = 0; iterate < PotentialIterations; iterate++) {
       
       if (iterate > 0)
 	CopyPotentialFieldAverage = 2;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-	if (Grids[grid1]->GridData->SolveForPotential
-	    (level, EvaluateTime) == FAIL) {
-	  fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	  ENZO_FAIL("");
-	}
+	Grids[grid1]->GridData->SolveForPotential(level, EvaluateTime);
 	if (CopyGravPotential)
 	  Grids[grid1]->GridData->CopyPotentialToBaryonField();
       }
@@ -592,40 +548,32 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #ifdef FAST_SIB
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
  
-            //fprintf(stderr, "#SIBSend on cpu %"ISYM": %"ISYM"\n", MyProcessorNumber, SiblingList[grid1].NumberOfSiblings);
+	  //fprintf(stderr, "#SIBSend on cpu %"ISYM": %"ISYM"\n", MyProcessorNumber, SiblingList[grid1].NumberOfSiblings);
  
-            // for (grid2 = SiblingList[grid1].NumberOfSiblings-1; grid2 = 0; grid2--)
+	  // for (grid2 = SiblingList[grid1].NumberOfSiblings-1; grid2 = 0; grid2--)
 	  for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	    if (Grids[grid1]->GridData->CheckForOverlap(
-				   SiblingList[grid1].GridList[grid2],
-				   MetaData->LeftFaceBoundaryCondition,
-				   MetaData->RightFaceBoundaryCondition,
-				   &grid::CopyPotentialField) == FAIL) {
-	      fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	      ENZO_FAIL("");
-	    }
- 
+	    Grids[grid1]->GridData->
+	      CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			      MetaData->LeftFaceBoundaryCondition,
+			      MetaData->RightFaceBoundaryCondition,
+			      &grid::CopyPotentialField);
+	    
 	  grid2 = grid1;
-	  if (Grids[grid1]->GridData->CheckForOverlap(
-                                   Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyPotentialField) == FAIL) {
-	    fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	    ENZO_FAIL("");
-	  }
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(Grids[grid2]->GridData,
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyPotentialField);
 	  
 	} // ENDFOR grid1
 #else
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	    if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyPotentialField) == FAIL) {
-	      fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	      ENZO_FAIL("");
-	    }
+	    Grids[grid1]->GridData->
+	      CheckForOverlap(Grids[grid2]->GridData,
+			      MetaData->LeftFaceBoundaryCondition,
+			      MetaData->RightFaceBoundaryCondition,
+			      &grid::CopyPotentialField);
 #endif
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -644,40 +592,31 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
 	  // for (grid2 = SiblingList[grid1].NumberOfSiblings-1; grid2 = 0; grid2--)
 	  for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
-	    if (Grids[grid1]->GridData->CheckForOverlap(
-				   SiblingList[grid1].GridList[grid2],
-				   MetaData->LeftFaceBoundaryCondition,
-				   MetaData->RightFaceBoundaryCondition,
-				   &grid::CopyPotentialField) == FAIL) {
-	      fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	      ENZO_FAIL("");
-	    }
+	    Grids[grid1]->GridData->
+	      CheckForOverlap(SiblingList[grid1].GridList[grid2],
+			      MetaData->LeftFaceBoundaryCondition,
+			      MetaData->RightFaceBoundaryCondition,
+			      &grid::CopyPotentialField);
  
 	  grid2 = grid1;
-	  if (Grids[grid1]->GridData->CheckForOverlap(
-                                   Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyPotentialField) == FAIL) {
-	    fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	    ENZO_FAIL("");
-	  }
+	  Grids[grid1]->GridData->
+	    CheckForOverlap(Grids[grid2]->GridData,
+			    MetaData->LeftFaceBoundaryCondition,
+			    MetaData->RightFaceBoundaryCondition,
+			    &grid::CopyPotentialField);
  
 	} // ENDFOR grid1
 #else
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  for (grid2 = 0; grid2 < NumberOfGrids; grid2++)
-	    if (Grids[grid1]->GridData->CheckForOverlap(Grids[grid2]->GridData,
-                                   MetaData->LeftFaceBoundaryCondition,
-                                   MetaData->RightFaceBoundaryCondition,
-                                   &grid::CopyPotentialField) == FAIL) {
-	      fprintf(stderr, "Error in grid->CopyPotentialField.\n");
-	      ENZO_FAIL("");
-	    }
+	    Grids[grid1]->GridData->
+	      CheckForOverlap(Grids[grid2]->GridData,
+			      MetaData->LeftFaceBoundaryCondition,
+			      MetaData->RightFaceBoundaryCondition,
+			      &grid::CopyPotentialField);
 #endif
 
-	if (CommunicationReceiveHandler() == FAIL)
-	  ENZO_FAIL("");
+	CommunicationReceiveHandler();
 
       } // ENDFOR grid batches
     } // ENDFOR iterations
@@ -693,15 +632,15 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
     /* compute potential and acceleration on coarser level [LOCAL]
        (but only if there is at least a subgrid -- it should be only
-        if there is a subgrrid on reallevel, but this is ok). */
+       if there is a subgrrid on reallevel, but this is ok). */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       if (Grids[grid1]->NextGridNextLevel != NULL) {
 	Grids[grid1]->GridData->SolveForPotential(MaximumGravityRefinementLevel);
-        if (CopyGravPotential)
-          Grids[grid1]->GridData->CopyPotentialToBaryonField();
-        else
-  	  Grids[grid1]->GridData->ComputeAccelerationField
+	if (CopyGravPotential)
+	  Grids[grid1]->GridData->CopyPotentialToBaryonField();
+	else
+	  Grids[grid1]->GridData->ComputeAccelerationField
 	    ((HydroMethod == Zeus_Hydro) ? DIFFERENCE_TYPE_STAGGERED : 
 	     DIFFERENCE_TYPE_NORMAL, MaximumGravityRefinementLevel);
       }
@@ -712,8 +651,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
       int Dummy, GridCount;
       LevelHierarchyEntry *Temp, *LastTemp;
+      HierarchyEntry *Temp3;
       LevelHierarchyEntry *FirstTemp = LevelArray[reallevel];
-      
+	
 #ifdef FORCE_MSG_PROGRESS 
       CommunicationBarrier();
 #endif
@@ -726,35 +666,26 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	Temp = FirstTemp;
 	while (Temp != NULL && GridCount++ < GRIDS_PER_LOOP) {
-	  HierarchyEntry *Temp3 = Temp->GridHierarchyEntry;
+	  Temp3 = Temp->GridHierarchyEntry;
 	  for (Dummy = reallevel; Dummy > MaximumGravityRefinementLevel; Dummy--)
 	    Temp3 = Temp3->ParentGrid;
-	  if (Temp->GridData->InterpolateAccelerations(Temp3->GridData) 
-	      == FAIL) {
-	    fprintf(stderr, "Error in grid->InterpolateAccelerations.\n");
-	    ENZO_FAIL("");
-	  }
+	  Temp->GridData->InterpolateAccelerations(Temp3->GridData);
 	  Temp = Temp->NextGridThisLevel;
-	}
+	} // ENDWHILE
 	LastTemp = Temp;
 
 	CommunicationDirection = COMMUNICATION_SEND;
 	Temp = FirstTemp;
 	while (Temp != LastTemp) {
-	  HierarchyEntry *Temp3 = Temp->GridHierarchyEntry;
+	  Temp3 = Temp->GridHierarchyEntry;
 	  for (Dummy = reallevel; Dummy > MaximumGravityRefinementLevel; Dummy--)
 	    Temp3 = Temp3->ParentGrid;
-	  if (Temp->GridData->InterpolateAccelerations(Temp3->GridData) 
-	      == FAIL) {
-	    fprintf(stderr, "Error in grid->InterpolateAccelerations.\n");
-	    ENZO_FAIL("");
-	  }
+	  Temp->GridData->InterpolateAccelerations(Temp3->GridData);
 	  Temp = Temp->NextGridThisLevel;
 	}
 	FirstTemp = LastTemp;
 
-	if (CommunicationReceiveHandler() == FAIL)
-	  ENZO_FAIL("");
+	CommunicationReceiveHandler();
 
       } while (LastTemp != NULL);
 
@@ -762,15 +693,15 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
   } // end: if (reallevel > MaximumGravityRefinementLevel)
 
-  // --------------------------------------------------
-  // MEMORY LEAK FIX
-  //
-  // valgrind error: "1,388,304 (67,352 direct, 1,320,952 indirect)
-  // bytes in 130 blocks are definitely lost in loss record 22 of 46"
-  //
-  // Adding missing delete [] () for Grids[] allocated in
-  // GenerateGridArray()
-  // --------------------------------------------------
+    // --------------------------------------------------
+    // MEMORY LEAK FIX
+    //
+    // valgrind error: "1,388,304 (67,352 direct, 1,320,952 indirect)
+    // bytes in 130 blocks are definitely lost in loss record 22 of 46"
+    //
+    // Adding missing delete [] () for Grids[] allocated in
+    // GenerateGridArray()
+    // --------------------------------------------------
 
   delete [] Grids;
 
@@ -782,9 +713,9 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 }
  
  
-/* ======================================================================= */
-/* This routines does the flux correction and project for all grids on this
-   level from the list of subgrids. */
+  /* ======================================================================= */
+  /* This routines does the flux correction and project for all grids on this
+     level from the list of subgrids. */
  
 #ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
@@ -816,8 +747,8 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
      (a)  project the subgrid's solution into this grid (step #18)
      (a1) project the neighboring subgrid's solution into this grid
      (b)  correct for the difference between this grid's fluxes and the
-          subgrid's fluxes. (step #19) */
- 
+     subgrid's fluxes. (step #19) */
+  
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
 #endif
@@ -831,7 +762,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     CommunicationReceiveIndex = 0;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
- 
+      
       /* Loop over subgrids for this grid. */
  
       NextGrid = Grids[grid1]->NextGridNextLevel;
@@ -847,11 +778,8 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	CommunicationReceiveArgumentInt[1][CommunicationReceiveIndex] = subgrid;
 #endif /* USE_MPI */
 
-	if (NextGrid->GridData->GetProjectedBoundaryFluxes(
-		      Grids[grid1]->GridData, SubgridFluxesRefined) == FAIL) {
-	  fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	  ENZO_FAIL("");
-	}
+	NextGrid->GridData->
+	  GetProjectedBoundaryFluxes(Grids[grid1]->GridData, SubgridFluxesRefined);
  
 	NextGrid = NextGrid->NextGridThisLevel;
 	subgrid++;
@@ -873,37 +801,27 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
 	/* Project subgrid's refined fluxes to the level of this grid. */
 
-	if (NextGrid->GridData->GetProjectedBoundaryFluxes(
-		      Grids[grid1]->GridData, SubgridFluxesRefined) == FAIL) {
-	  fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	  ENZO_FAIL("");
-	}
+	NextGrid->GridData->
+	  GetProjectedBoundaryFluxes(Grids[grid1]->GridData, SubgridFluxesRefined);
 
-        /* Correct this grid for the refined fluxes (step #19)
-           (this also deletes the fields in SubgridFluxesRefined). 
+	/* Correct this grid for the refined fluxes (step #19)
+	   (this also deletes the fields in SubgridFluxesRefined). 
 	   (only call it if the grid and sub-grid are on the same
-	    processor, otherwise handled in CommunicationReceiveHandler.) */
+	   processor, otherwise handled in CommunicationReceiveHandler.) */
 
 #ifdef FLUX_FIX	
 	if (NextGrid->GridData->ReturnProcessorNumber() ==
 	    Grids[grid1]->GridData->ReturnProcessorNumber())
-	  if (Grids[grid1]->GridData->CorrectForRefinedFluxes
-	      (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
-	       SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
-	       FALSE, MetaData) == FAIL) {
-	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("");
-	  }
+	  Grids[grid1]->GridData->CorrectForRefinedFluxes
+	    (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
+	     SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
+	     FALSE, MetaData);
 #else
 	if (NextGrid->GridData->ReturnProcessorNumber() ==
 	    Grids[grid1]->GridData->ReturnProcessorNumber())
-	  if (Grids[grid1]->GridData->CorrectForRefinedFluxes
-	      (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
-	       SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])
-	      == FAIL) {
-	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("");
-	  }
+	  Grids[grid1]->GridData->CorrectForRefinedFluxes
+	    (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
+	     SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1]);
 #endif /* FLUX_FIX */
 
 	NextGrid = NextGrid->NextGridThisLevel;
@@ -916,13 +834,11 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     /* -------------- THIRD PASS ----------------- */
 
 #ifdef FLUX_FIX
-    if (CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids, 
-				    FALSE, MetaData) == FAIL)
+    CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids, 
+				FALSE, MetaData);
 #else
-    if (CommunicationReceiveHandler(SubgridFluxesEstimate,
-				    NumberOfSubgrids) == FAIL)
+    CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids);
 #endif
-      ENZO_FAIL("");
 
   } // ENDFOR grid batches
 
@@ -941,7 +857,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     CommunicationReceiveIndex = 0;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
- 
+	  
       /* Loop over subgrids for this grid. */
  
       CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
@@ -950,7 +866,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
       while (NextEntry != NULL && FluxCorrection) {
 
 	/* make sure this isn't a "proper" subgrid */
-
+	
 	if (NextEntry->GridHierarchyEntry->ParentGrid != Grids[grid1]) {
 	  
 	  /* Project subgrid's refined fluxes to the level of this grid. */
@@ -961,11 +877,8 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	    NumberOfSubgrids[grid1]-1;
 #endif /* USE_MPI */
 
-	  if (NextEntry->GridData->GetProjectedBoundaryFluxes
-	      (Grids[grid1]->GridData, SubgridFluxesRefined) == FAIL) {
-	    fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	    ENZO_FAIL("");
-	  }
+	  NextEntry->GridData->GetProjectedBoundaryFluxes
+	    (Grids[grid1]->GridData, SubgridFluxesRefined);
 	}
 
 	NextEntry = NextEntry->NextGridThisLevel;
@@ -986,28 +899,22 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	/* make sure this isn't a "proper" subgrid */
 
 	if (NextEntry->GridHierarchyEntry->ParentGrid != Grids[grid1]) {
- 
+	  
 	  /* Project subgrid's refined fluxes to the level of this grid. */
 
-	  if (NextEntry->GridData->GetProjectedBoundaryFluxes
-	      (Grids[grid1]->GridData, SubgridFluxesRefined) == FAIL) {
-	    fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	    ENZO_FAIL("");
-	  }
+	  NextEntry->GridData->GetProjectedBoundaryFluxes
+	    (Grids[grid1]->GridData, SubgridFluxesRefined);
  
 	  /* Correct this grid for the refined fluxes (step #19)
 	     (this also deletes the fields in SubgridFluxesRefined). */
  
 	  if (NextEntry->GridData->ReturnProcessorNumber() ==
 	      Grids[grid1]->GridData->ReturnProcessorNumber())
-	    if (Grids[grid1]->GridData->CorrectForRefinedFluxes
-		(SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
-		 &SubgridFluxesRefined,
-		 SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
-		 TRUE, MetaData) == FAIL) {
-	      fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	      ENZO_FAIL("");
-	    }
+	    Grids[grid1]->GridData->CorrectForRefinedFluxes
+	      (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
+	       &SubgridFluxesRefined,
+	       SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
+	       TRUE, MetaData);
 	}
 
 	NextEntry = NextEntry->NextGridThisLevel;
@@ -1017,9 +924,8 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
     /* -------------- THIRD PASS ----------------- */
 
-    if (CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids, 
-				    TRUE, MetaData) == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids, 
+				TRUE, MetaData);
 
   } // ENDFOR grid batches
 #endif /* FLUX_FIX */
@@ -1039,7 +945,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationReceiveIndex = 0;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 
-       /* Loop over subgrids for this grid: replace solution. */
+      /* Loop over subgrids for this grid: replace solution. */
 
       CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
       NextGrid = Grids[grid1]->NextGridNextLevel;
@@ -1047,12 +953,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
 	/* Project the subgrid solution into this grid. */
 
-	if (NextGrid->GridData->ProjectSolutionToParentGrid
-	    (*Grids[grid1]->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  ENZO_FAIL("");
-	}
-
+	NextGrid->GridData->ProjectSolutionToParentGrid(*Grids[grid1]->GridData);
 	NextGrid = NextGrid->NextGridThisLevel;
       } // ENDWHILE subgrids
     } // ENDFOR grids
@@ -1062,7 +963,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationDirection = COMMUNICATION_SEND;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 
-       /* Loop over subgrids for this grid: replace solution. */
+      /* Loop over subgrids for this grid: replace solution. */
 
       CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
       NextGrid = Grids[grid1]->NextGridNextLevel;
@@ -1070,20 +971,14 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
 	/* Project the subgrid solution into this grid. */
 
-	if (NextGrid->GridData->ProjectSolutionToParentGrid
-	    (*Grids[grid1]->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  ENZO_FAIL("");
-	}
-
+	NextGrid->GridData->ProjectSolutionToParentGrid(*Grids[grid1]->GridData);
 	NextGrid = NextGrid->NextGridThisLevel;
       } // ENDWHILE subgrids
     } // ENDFOR grids
 
     /* -------------- THIRD PASS ----------------- */
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+    CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
 
@@ -1129,3 +1024,4 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
   return NumberOfGrids;
 }
  
+  

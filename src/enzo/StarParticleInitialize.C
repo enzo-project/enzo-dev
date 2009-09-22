@@ -26,6 +26,7 @@
 
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 
 int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 			   TopGridData *MetaData, Star *&AllStars)
@@ -63,6 +64,14 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     ENZO_FAIL("");
   }
 
+  /* Merge MBH particles that are close enough.  
+     This might slow things down for John's run... so I should find smarter way.  - Ji-hoon Kim */
+
+  if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
+    fprintf(stderr, "Error in StarParticleMergeMBH.\n");
+    ENZO_FAIL("");
+  }
+
   /* 
      Set feedback flags.  
 
@@ -70,6 +79,11 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
      to the global list (AllStars) so these changes are reflected
      there.
   */
+
+//  if (MyProcessorNumber == ROOT_PROCESSOR) {
+//    for (cstar = AllStars; cstar; cstar = cstar->NextStar)
+//      cstar->PrintInfo();
+//  }
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
     cstar->SetFeedbackFlag(TimeNow);

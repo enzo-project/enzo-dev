@@ -585,8 +585,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	}
 
 	if (HydroMethod == MHD_RK) {
-	  BaryonField[iBx ][igrid] = 0.0;
-	  BaryonField[iBy ][igrid] = 0.0;
+	  BaryonField[iBx ][igrid] = Bxl;
+	  BaryonField[iBy ][igrid] = Byl;
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
@@ -668,6 +668,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
     FLOAT x, y, r, xc = 0.2,  xs = 0.6, delx=0.001;
     int igrid;
+
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
 	
@@ -701,6 +702,51 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	if ((y > .45 ) && (y < .55) && (x < 0.9*xs) && (x>0.8*xs)) 
 	  BaryonField[iden][igrid] += 1e-4*rho0;
 
+      }
+    }
+  }
+
+  /* Kelvin Helmholtz Problem as in Robertson, Kravstov, Gnedin & Abel */ 
+  if (MHD2DProblemType == 9) {
+    FLOAT x,y;
+    int n=0;
+    float omega=0.1;
+    float ramp,eint;
+    float delx=0.05; // range in y over which to apply the ramp
+
+    for (int j = 0; j < GridDimension[1]; j++) {
+      for (int i = 0; i < GridDimension[0]; i++, n++) {
+	
+	igrid = i + j*GridDimension[0];
+	
+	/* Compute position */
+	
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	
+	ramp =  1./((1.+exp(-2/delx*(y-0.25)))*(1.+exp(-2/delx*(0.75-y))));
+	BaryonField[iden ][igrid] = rhou + ramp*(rhol-rhou);
+	BaryonField[ivx  ][igrid] = vxu  + ramp*(vxl-vxu);
+	BaryonField[ivy  ][igrid] = vyu  + ramp*(vyl-vyu);
+	BaryonField[ivz  ][igrid] = 0.0;
+	
+	// y-velocity perturbation: 
+	BaryonField[ivy][igrid]  += omega*sin(2.*M_PI*x);
+	
+	eint = (pu + ramp*(pl-pu)) / ((Gamma-1.0)*BaryonField[iden][igrid]);
+	BaryonField[ietot][igrid] = eint + 
+	  0.5*(pow(BaryonField[ivx  ][igrid],2)+
+	       pow(BaryonField[ivy  ][igrid],2)+
+	       pow(BaryonField[ivz  ][igrid],2));
+	if (DualEnergyFormalism) {
+	  BaryonField[ieint][igrid] = eint ;
+	}
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx  ][igrid] = Bxu + ramp*(Bxl-Bxu);
+	  BaryonField[iBy  ][igrid] = Byu + ramp*(Byl-Byu);
+	  BaryonField[iBz  ][igrid] = 0.0;
+	  BaryonField[iPhi ][igrid] = 0.0;
+	}
       }
     }
   }

@@ -79,26 +79,34 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-    if (!cstar->ApplyFeedbackTrue(SNe_dt))
-      continue;
-    
-    /* Compute some parameters */
+    if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
+      if (!cstar->ApplyFeedbackTrue(SNe_dt))
+	continue;
 
+    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+	  
+    /* Compute some parameters */
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
            SNe_dt, EjectaDensity, EjectaThermalEnergy, EjectaMetalDensity, 
 	   DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-	   VelocityUnits);
+	   VelocityUnits, dtForThisStar);
+
 
     /* Determine if a sphere with enough mass (or equivalently radius
        for SNe) is enclosed within grids on this level */
 
     if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, SphereContained, SkipMassRemoval,	DensityUnits, 
+	       EjectaDensity, EjectaThermalEnergy, SphereContained, SkipMassRemoval,	DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
 	       VelocityUnits) == FAIL) {
       fprintf(stderr, "Error in star::FindFeedbackSphere\n");
       ENZO_FAIL("");
     }
+
+    /*
+    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+    fprintf(stderr, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
+    */
 
     if (SphereContained == FALSE)
       continue;
@@ -111,10 +119,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     if (SkipMassRemoval == FALSE)
       for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
-	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel)
+	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->
-	      AddFeedbackSphere(cstar, l, influenceRadius, VelocityUnits, 
-				TemperatureUnits, EjectaDensity, 
+	      AddFeedbackSphere(cstar, l, influenceRadius, DensityUnits, LengthUnits, 
+				VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
 				EjectaMetalDensity, EjectaThermalEnergy, 
 				CellsModified) == FAIL) {
 	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
@@ -137,7 +145,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 		"Radius = %"GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
       if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
-	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA)
+	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
+	  cstar->ReturnFeedbackFlag() == MBH_THERMAL )
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Energy = %"GSYM"  , skip = %"ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);

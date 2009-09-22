@@ -20,6 +20,7 @@
 #include <math.h>
 #include <hdf5.h>
 #include "h5utilities.h"
+#include "performance.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -44,28 +45,37 @@ void FOF_Initialize(TopGridData *MetaData,
 		    FOFData &D, bool SmoothData);
 /************************************************************************/
 
-int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData)
 {
 
   if (!InlineHaloFinder)
     return SUCCESS;
 
-  if (HaloFinderCycleSkip == 0 && HaloFinderTimestep < 0)
-    return SUCCESS;
+  // Always run if we've just outputted and HaloFinderRunAfterOutput is on.
+  if (!(WroteData && HaloFinderRunAfterOutput)) {
 
-  if (HaloFinderCycleSkip > 0)
-    if (MetaData->CycleNumber % HaloFinderCycleSkip != 0)
+    if (HaloFinderCycleSkip == 0 && HaloFinderTimestep < 0)
       return SUCCESS;
 
-  if (HaloFinderTimestep > 0 &&
-      MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
-    return SUCCESS;
+    if (HaloFinderCycleSkip > 0)
+      if (MetaData->CycleNumber % HaloFinderCycleSkip != 0)
+	return SUCCESS;
 
-  if (NumberOfProcessors & 1 && NumberOfProcessors > 1) {
-    fprintf(stdout, "FOF: Number of processors (in parallel) must be EVEN to run "
-	    "inline halo finder.\n");
-    return SUCCESS;
-  }
+    if (HaloFinderTimestep > 0 &&
+	MetaData->Time - HaloFinderLastTime < HaloFinderTimestep)
+      return SUCCESS;
+
+    if (NumberOfProcessors & 1 && NumberOfProcessors > 1) {
+      fprintf(stdout, "FOF: Number of processors (in parallel) must be "
+	      "EVEN to run inline halo finder.  Turning OFF.\n");
+      InlineHaloFinder = FALSE;
+      return SUCCESS;
+    }
+
+  } // ENDIF force run
+
+  JBPERF_START("InlineHaloFinder");
 
   if (!ComovingCoordinates)
     fprintf(stdout, "FOF: Warning -- you're running the halo finder on a"
@@ -122,6 +132,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[])
   deallocate_all_memory(AllVars);
 
   HaloFinderLastTime = MetaData->Time;
+
+  JBPERF_STOP("InlineHaloFinder");
 
 }
 
@@ -233,20 +245,20 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
     fprintf(fd, "#\n");
     fprintf(fd, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
     fprintf(fd, "#\n");
-    fprintf(fd, "datavar 1 halo_number\n");
-    fprintf(fd, "datavar 2 number_of_particles\n");
-    fprintf(fd, "datavar 3 halo_mass\n");
-    fprintf(fd, "datavar 4 virial_mass\n");
-    fprintf(fd, "datavar 5 stellar_mass\n");
-    fprintf(fd, "datavar 6 virial_radius\n");
-    fprintf(fd, "datavar 7 x_velocity\n");
-    fprintf(fd, "datavar 8 y_velocity\n");
-    fprintf(fd, "datavar 9 z_velocity\n");
-    fprintf(fd, "datavar 10 velocity_dispersion\n");
-    fprintf(fd, "datavar 11 x_angular_momentum\n");
-    fprintf(fd, "datavar 12 y_angular_momentum\n");
-    fprintf(fd, "datavar 13 z_angular_momentum\n");
-    fprintf(fd, "datavar 14 spin\n");
+    fprintf(fd, "datavar 0 halo_number\n");
+    fprintf(fd, "datavar 1 number_of_particles\n");
+    fprintf(fd, "datavar 2 halo_mass\n");
+    fprintf(fd, "datavar 3 virial_mass\n");
+    fprintf(fd, "datavar 4 stellar_mass\n");
+    fprintf(fd, "datavar 5 virial_radius\n");
+    fprintf(fd, "datavar 6 x_velocity\n");
+    fprintf(fd, "datavar 7 y_velocity\n");
+    fprintf(fd, "datavar 8 z_velocity\n");
+    fprintf(fd, "datavar 9 velocity_dispersion\n");
+    fprintf(fd, "datavar 10 x_angular_momentum\n");
+    fprintf(fd, "datavar 11 y_angular_momentum\n");
+    fprintf(fd, "datavar 12 z_angular_momentum\n");
+    fprintf(fd, "datavar 13 spin\n");
     fprintf(fd, "\n");
 
     if (HaloFinderOutputParticleList && !HaloFinderSubfind) {

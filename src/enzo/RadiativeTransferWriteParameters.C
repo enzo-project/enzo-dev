@@ -57,8 +57,10 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferInterpolateField);
   fprintf(fptr, "RadiativeTransferSourceClustering         = %"ISYM"\n", 
 	  RadiativeTransferSourceClustering);
-  fprintf(fptr, "RadiativeTransferPhotonMergeRadius        = %"FSYM"\n\n", 
+  fprintf(fptr, "RadiativeTransferPhotonMergeRadius        = %"FSYM"\n", 
 	  RadiativeTransferPhotonMergeRadius);
+  fprintf(fptr, "RadiativeTransferHIIRestrictedTimestep    = %"ISYM"\n\n", 
+	  RadiativeTransferHIIRestrictedTimestep);
   
   return SUCCESS;
 }

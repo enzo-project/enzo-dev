@@ -44,7 +44,7 @@ void my_exit(int status);
  
 int ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
 		      HierarchyEntry *ParentGrid);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
 int ReadStarParticleData(FILE *fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
@@ -100,7 +100,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, dummy) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  
@@ -123,27 +123,26 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef USE_HDF4
   if (BRerr == 0)
     if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
+      fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",           
 	      MetaData.BoundaryConditionName);                  
-      BRerr = 1;
-    }
+      fprintf(stderr, "Will try HDF5 instead.\n");
 #else
-  if (BRerr == 0) {
-    if(LoadGridDataAtStart){    
-      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-		MetaData.BoundaryConditionName);
-	BRerr = 1;
+      if(LoadGridDataAtStart){    
+	if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	  fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		  MetaData.BoundaryConditionName);
+	  BRerr = 1;
+	}
+      }else{
+	if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	  fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		  MetaData.BoundaryConditionName);
+	  BRerr = 1;
+	}
       }
-    }else{
-      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-		MetaData.BoundaryConditionName);
-	BRerr = 1;
-      }
+#endif
+#ifdef USE_HDF4
     }
-  }
-
 #endif
 
   if (BRerr ==0) strcat(MetaData.BoundaryConditionName, hdfsuffix);

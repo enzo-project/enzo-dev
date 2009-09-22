@@ -86,6 +86,7 @@ int grid::FlagCellsToBeRefinedBySlope()
 
   if (ProblemType ==  6) NumberOfFields = 1; // Implosion (AK)
   if (ProblemType ==  7) NumberOfFields = 2; // SedovBlast (AK)
+  if (ProblemType == 11) NumberOfFields = 2; // RadiatingShock (BWO)
   if (ProblemType == 30) NumberOfFields = 2; // Cosmology (BWO 23 May 2006)
 
   for (dim = 0; dim < GridRank; dim++)
@@ -93,6 +94,25 @@ int grid::FlagCellsToBeRefinedBySlope()
  
       for (int field = 0; field < NumberOfFields; field++) {
  
+
+	bool doField=false; float MinimumSlopeForRefinementThis;
+	if (SlopeFlaggingFields[0]==INT_UNDEFINED){ 
+	  MinimumSlopeForRefinementThis=MinimumSlopeForRefinement[0];
+	  doField=true;}
+	else{
+	  for (int g=0; g<MAX_FLAGGING_METHODS; g++){
+	     if (SlopeFlaggingFields[g]==FieldType[field]){
+	       MinimumSlopeForRefinementThis=MinimumSlopeForRefinement[g];
+	       doField=true;
+	     }
+	  }
+	}
+	
+
+
+	  if (doField){
+
+
 	/* zero slope */
  
 	for (i = 0; i < size; i++)
@@ -114,7 +134,9 @@ int grid::FlagCellsToBeRefinedBySlope()
 	/* flag field based on slope */
  
 	for (i = 0; i < size; i++)
-	  FlaggingField[i] += (TempBuffer[i] > MinimumSlopeForRefinement) ? 1 : 0;
+	  FlaggingField[i] += (TempBuffer[i] > MinimumSlopeForRefinementThis) ? 1 : 0;
+
+	  } // end loop over do condition
  
       }  // end loop over field
  

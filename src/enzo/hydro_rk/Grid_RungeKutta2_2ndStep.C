@@ -22,9 +22,11 @@
 
 
 double ReturnWallTime();
+int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
+		          float dtdx, float dt);
 
 
-int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
+int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
 			      ExternalBoundary *Exterior)
   /*
@@ -41,18 +43,66 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
-
   double time1 = ReturnWallTime();
 
-  float *dU[NEQ_HYDRO+NSpecies+NColor];
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
+  float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
+
+  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnOldHydroRKPointers(OldPrim, false);
+
+#ifdef ECUDA
+  if (UseCUDA == 1) {
+
+    FLOAT dtdx = dtFixed/CellWidth[0][0];
+    double time3 = ReturnWallTime();
+    if (HydroTimeUpdate_CUDA(Prim, GridDimension, GridStartIndex, GridEndIndex, GridRank,
+		      	      dtdx, dtFixed) == FAIL) {
+      printf("RK2: MHDTimeUpdate_CUDA failed.\n");
+      return FAIL;
+    }
+    
+    double time2 = ReturnWallTime();
+
+    for (int field = ivx; field <= ietot; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
+	    Prim[field][igrid] *= Prim[iden][igrid];
+	    OldPrim[field][igrid] *= OldPrim[iden][igrid];
+	  }
+	}
+      }
+    }
+
+    for (int field = 0; field < NEQ_HYDRO; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid =i + (j + k*GridDimension[1])*GridDimension[0];
+	    Prim[field][igrid] = 0.5*(OldPrim[field][igrid] + Prim[field][igrid]);
+	  }
+	}
+      }
+    }
+
+    for (int field = ivx; field <= ietot; field++) {
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	    int igrid = i + (j + k*GridDimension[1])*GridDimension[0];
+	    Prim[field][igrid] /= Prim[iden][igrid];
+	    OldPrim[field][igrid] /= OldPrim[iden][igrid];
+	  }
+	}
+      }
+    }
+
+    return SUCCESS;
+
+  } // if UseCUDA == 1
+#endif /* ECUDA */
 
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++)
@@ -62,36 +112,12 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
   for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
 
-
+  float *dU[NEQ_HYDRO+NSpecies+NColor];
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     dU[field] = new float[activesize];
     for (int i = 0; i < activesize; i++) {
       dU[field][i] = 0.0;
     }
-  }
-
-  Prim[iden ] = BaryonField[DensNum];
-  Prim[ivx  ] = BaryonField[Vel1Num];
-  Prim[ivy  ] = BaryonField[Vel2Num];
-  Prim[ivz  ] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
-  if (DualEnergyFormalism) {
-    Prim[ieint] = BaryonField[GENum];
-  }
-
-
-  // copy species field
-  for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
-    // change species from density to mass fraction
-    for (int n = 0; n < size; n++) {
-      BaryonField[ns][n] /= BaryonField[iden][n];
-    }
-    Prim[ns] = BaryonField[ns];
-  }
-
-  // copy color field
-  for (int nc = NEQ_HYDRO+NSpecies; nc < NEQ_HYDRO+NSpecies+NColor; nc++) {
-    Prim[nc] = BaryonField[nc];
   }
 
   int fallback = 0;
@@ -109,9 +135,9 @@ int grid::RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
     this->CopyOldBaryonFieldToBaryonField();
     // change species from density to mass fraction
-    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies; ns++) {
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
       for (int n = 0; n < size; n++) {
-	BaryonField[ns][n] /= BaryonField[iden][n];
+	Prim[ns][n] /= Prim[iden][n];
       }
     }
 

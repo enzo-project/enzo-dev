@@ -35,8 +35,7 @@ extern "C" FLOAT FORTRAN_NAME(calc_growth)(FLOAT *z);
 FLOAT ps_tophat(FLOAT *kptnr);
 FLOAT EvaluatePowerSpectrum(FLOAT k, int Species);
  
- 
- 
+  
  
 int InitializePowerSpectrum()
 {
@@ -63,6 +62,9 @@ int InitializePowerSpectrum()
   // Set Normalization by sigma8
  
   Normalization = sigma8*sigma8/(s1 + s2);
+  if (debug) printf("Found a normalization at 8/h Mpc as %g in input power spectrum.\n", 
+		    sqrt(s1+s2));
+  if (debug) printf("Set it to input sigma8 at 8/h Mpc of %g.\n", sigma8);
  
   return SUCCESS;
 }

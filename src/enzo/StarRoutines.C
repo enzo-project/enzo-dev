@@ -124,6 +124,41 @@ Star::Star(StarBuffer *buffer, int n)
   PrevStar = NULL;
 }
 
+Star::Star(StarBuffer buffer) 
+{
+  int i;
+  CurrentGrid = NULL;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    pos[i] = buffer.pos[i];
+    vel[i] = buffer.vel[i];
+    delta_vel[i] = buffer.delta_vel[i];
+  }
+  naccretions = min(buffer.naccretions, MAX_ACCR);
+  if (naccretions > 0) {
+    accretion_time = new FLOAT[naccretions];
+    accretion_rate = new float[naccretions];
+    for (i = 0; i < naccretions; i++) {
+      accretion_time[i] = buffer.accretion_time[i];
+      accretion_rate[i] = buffer.accretion_rate[i];
+    }
+  } else {
+    accretion_time = NULL;
+    accretion_rate = NULL;
+  }
+  Mass = buffer.Mass;
+  FinalMass = buffer.FinalMass;
+  DeltaMass = buffer.DeltaMass;
+  BirthTime = buffer.BirthTime;
+  LifeTime = buffer.LifeTime;
+  FeedbackFlag = buffer.FeedbackFlag;
+  Identifier = buffer.Identifier;
+  level = buffer.level;
+  GridID = buffer.GridID;
+  type = buffer.type;
+  NextStar = NULL;
+  PrevStar = NULL;
+}
+
 Star::~Star(void)
 {
   if (accretion_rate != NULL)
@@ -288,6 +323,13 @@ bool Star::Mergable(Star a)
 }
 bool Star::Mergable(Star *a) { return this->Mergable(*a); }
 
+bool Star::MergableMBH(Star a)
+{
+  // Merge MBH particle with another 
+  return type == a.type && type == MBH;
+}
+bool Star::MergableMBH(Star *a) { return this->MergableMBH(*a); }
+
 float Star::Separation2(Star a)
 {
   int dim;
@@ -300,7 +342,7 @@ float Star::Separation2(Star a)
 }
 float Star::Separation2(Star *a) { return this->Separation2(*a); };
 
-float Star::Separation(Star a)  { return sqrt(this->Separation(a)); }
+float Star::Separation(Star a)  { return sqrt(this->Separation2(a)); }
 float Star::Separation(Star *a) { return this->Separation(*a); };
 
 void Star::CopyToGrid(void)
@@ -367,6 +409,25 @@ void Star::DeleteCopyInGrid(void)
 	InsertStarAfter(CurrentGrid->Stars, MoveStar);
     } // ENDWHILE stars
   } // ENDIF grid != NULL
+  return;
+}
+
+void Star::PrintInfo(void)
+{
+  printf("Star %"ISYM": pos = %"PSYM" %"PSYM" %"PSYM", vel = %"FSYM" %"FSYM" %"FSYM"\n",
+	 Identifier, pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
+  printf("\t delta_vel = %"FSYM" %"FSYM" %"FSYM"\n", delta_vel[0], delta_vel[1],
+	 delta_vel[2]);
+  printf("\t naccr = %"ISYM, naccretions);
+  if (naccretions > 0)
+    printf(", accr_rate[0] = %"GSYM", accr_time[0] = %"GSYM"\n", 
+	   accretion_rate[0], accretion_time[0]);
+  else
+    printf("\n");
+  printf("\t birthtime = %"FSYM", lifetime = %"FSYM"\n", BirthTime, LifeTime);
+  printf("\t mass = %"GSYM", dmass = %"GSYM", type = %"ISYM", grid %"ISYM","
+	 " lvl %"ISYM"\n", Mass, DeltaMass, type, GridID, level);
+  printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   return;
 }
 

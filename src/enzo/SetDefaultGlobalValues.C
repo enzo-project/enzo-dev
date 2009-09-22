@@ -69,7 +69,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.ResubmitCommand = NULL;
  
   MetaData.TimeLastRestartDump = 0.0;
-  MetaData.dtRestartDump       = 5.0*3600.0;   // every 5 hours
+  MetaData.dtRestartDump       = FLOAT_UNDEFINED;
   MetaData.TimeLastDataDump    = FLOAT_UNDEFINED;
   MetaData.dtDataDump          = 0.0;
   MetaData.TimeLastHistoryDump = FLOAT_UNDEFINED;
@@ -109,7 +109,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
-  LoadBalancing = 1; //On, memory equalization method
+  LoadBalancing = 1;     //On, memory equalization method
+  LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
+  ResetLoadBalancing = FALSE;
+  CoresPerNode = 1;
+  PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
 
@@ -162,6 +166,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
+  MustRefineRegionMinRefinementLevel = -1;        // unused if negative
+  MetallicityRefinementMinLevel = -1;
+  MetallicityRefinementMinMetallicity = 1.0e-5;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
@@ -171,6 +178,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    MinimumSlopeForRefinement[i]= 0.3;
+    SlopeFlaggingFields[i] = INT_UNDEFINED;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -189,6 +198,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+    MustRefineRegionLeftEdge[dim] = 0.0;
+    MustRefineRegionRightEdge[dim] = 1.0;
   }
  
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
@@ -198,6 +209,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
   UnigridTranspose            = FALSE;
+  NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
 
@@ -246,11 +258,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DualEnergyFormalismEta1     = 0.001;             // typical 0.001
   DualEnergyFormalismEta2     = 0.1;               // 0.08-0.1
   ParticleCourantSafetyNumber = 0.5;
+  RootGridCourantSafetyNumber = 1.0;
   RandomForcing               = FALSE;             // off //AK
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
+  GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  GloverChemistryModel        = 0;                 // 0ff
+  GloverRadiationBackground   = 0;
+  GloverOpticalDepth          = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   AdjustUVBackground          = 1;
@@ -280,11 +297,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseMinimumPressureSupport        = FALSE;
   MinimumPressureSupportParameter  = 100.0;
  
-  MinimumSlopeForRefinement        = 0.3;          // 30% change in value
+  //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  RefineByResistiveLengthSafetyFactor  = 2.0;
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
@@ -301,12 +319,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+  OutputParticleTypeGrouping       = FALSE;
 
   PythonSubcycleSkip               = 1;
 
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
   HaloFinderOutputParticleList     = FALSE;
+  HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
   HaloFinderLinkingLength          = 0.1;
   HaloFinderCycleSkip              = 3;
@@ -316,7 +336,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarClusterUseMetalField         = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun
-  StarClusterSNEnergy              = 6.8e48; // erg / Msun (Woosley&Weaver86)
+  StarClusterSNEnergy              = 6.8e48;       // erg / Msun (Woosley&Weaver86)
   StarClusterSNRadius              = 10;           // pc
   StarClusterFormEfficiency        = 0.1;
   StarClusterMinimumMass           = 1000;         // Msun
@@ -329,11 +349,22 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIStarMass                   = 100;
   PopIIIBlackHoles                 = FALSE;
   PopIIIBHLuminosityEfficiency     = 0.1;
-  PopIIIOverDensityThreshold       = 1e6;         // times mean total density
+  PopIIIOverDensityThreshold       = 1e6;          // times mean total density
   PopIIIH2CriticalFraction         = 5e-4;
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
+
+  MBHMinDynamicalTime              = 10e6;         // in years
+  MBHMinimumMass                   = 1e6;          // Msun
+  MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
+  MBHFeedbackThermal               = FALSE;
+  MBHFeedbackRadius                = 10;           // pc
+  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
+  MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHCombineRadius                 = 10;           // pc
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
@@ -350,78 +381,72 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   ran1_init = 0;
 
-  SinkMergeDistance                = 1e16;
-  SinkMergeMass                    = 0.1;
-  TotalSinkMass                    = 0.0;
-  StellarWindFeedback              = 0;
-  StellarWindTurnOnMass            = 0.1;
+  SinkMergeDistance     = 1e16;
+  SinkMergeMass         = 0.1;
+  TotalSinkMass         = 0.0;
+  StellarWindFeedback   = 0;
+  StellarWindTurnOnMass = 0.1;
 
-  UseHydro = 1;
-  Coordinate = Cartesian;
-  NSpecies = 0;
-  NColor   = 0;
-  Theta_Limiter = 1.5;
-  RKOrder = 2;
-  UsePhysicalUnit = 0;
-  NEQ_HYDRO = 5;
-  NEQ_MHD   = 9;
-  SmallRho = 1e-30;
-  SmallP   = 1e-35;
-  SmallEint = 1e-30;
-  SmallT   = 1e-10;
-  MaximumAlvenSpeed = 1e30;
-  RiemannSolver = HLL;
-  ReconstructionMethod = PLM;
-  EOSType = 0;
-  EOSSoundSpeed = 2.65e4;
-  EOSCriticalDensity = 1e-13;
-  EOSGamma = 1.667;
-  Mu = 0.6;
-  CoolingCutOffDensity1 = 0;
-  CoolingCutOffDensity2 = 1e10;
-  CoolingCutOffTemperature = 0.0;
+  UseHydro		     = 1;
+  Coordinate		     = Cartesian;
+  NSpecies		     = 0;
+  NColor		     = 0;
+  Theta_Limiter		     = 1.5;
+  RKOrder		     = 2;
+  UsePhysicalUnit	     = 0;
+  NEQ_HYDRO		     = 5;
+  NEQ_MHD		     = 9;
+  SmallRho		     = 1e-30;
+  SmallP		     = 1e-35;
+  SmallEint		     = 1e-30;
+  SmallT		     = 1e-10;
+  MaximumAlvenSpeed	     = 1e30;
+  RiemannSolver		     = HLL;
+  ReconstructionMethod	     = PLM;
+  EOSType		     = 0;
+  EOSSoundSpeed		     = 2.65e4;
+  EOSCriticalDensity	     = 1e-13;
+  EOSGamma		     = 1.667;
+  Mu			     = 0.6;
+  CoolingCutOffDensity1	     = 0;
+  CoolingCutOffDensity2	     = 1e10;
+  CoolingCutOffTemperature   = 0.0;
   CoolingPowerCutOffDensity1 = 0;
   CoolingPowerCutOffDensity2 = 1e10;
-  UseH2OnDust = 0;
-  PhotoelectricHeating = 0;
-  UseFloor = 0;
-  UseViscosity = 0;
-  UseAmbipolarDiffusion = 0;
-  UseResistivity = 0;
+  UseH2OnDust		     = 0;
+  PhotoelectricHeating	     = 0;
+  UseCUDA		     = 0;
+  UseFloor		     = 0;
+  UseViscosity		     = 0;
+  UseAmbipolarDiffusion	     = 0;
+  UseResistivity	     = 0;
 
   StringKick = 0;
 
-  iden = 0;
-  ivx = 1;
-  ivy = 2;
-  ivz = 3;
+  iden	= 0;
+  ivx	= 1;
+  ivy	= 2;
+  ivz	= 3;
   ietot = 4;
   ieint = 0;
-  iBx = 5;
-  iBy = 6;
-  iBz = 7;
-  iPhi = 8;
-  iD = 0;
-  iS1 = 1;
-  iS2 = 2;
-  iS3 = 3;
+  iBx	= 5;
+  iBy	= 6;
+  iBz	= 7;
+  iPhi	= 8;
+  iD	= 0;
+  iS1	= 1;
+  iS2	= 2;
+  iS3	= 3;
   iEtot = 4;
   iEint = 0;
 
-  EOSType = 0;
-  UsePhysicalUnit = 0;
+  UseDivergenceCleaning		   = 0;
+  DivergenceCleaningBoundaryBuffer = 0;
+  DivergenceCleaningThreshold	   = 0.001;
+  PoissonApproximationThreshold	   = 0.001;
 
-  UseDivergenceCleaning = 0;
-  DivergenceCleaningThreshold = 0.001;
-  PoissonApproximationThreshold = 0.001;
-
-  UseDrivingField = 0;
+  UseDrivingField   = 0;
   DrivingEfficiency = 1.0;
-
-#ifdef ECUDA
-  UseCUDA = 0;
-#endif
-
 
   /* End of Stanford Hydro additions */
 
@@ -445,8 +470,27 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.DII_Fraction = tiny_number;
   TestProblemData.HDI_Fraction = tiny_number;
 
+  // This is for ionized gas (within a supernova blast, for example)
+  TestProblemData.HI_Fraction_Inner = 1.0;
+  TestProblemData.HII_Fraction_Inner = tiny_number;
+  TestProblemData.HeI_Fraction_Inner = 1.0;
+  TestProblemData.HeII_Fraction_Inner = tiny_number;
+  TestProblemData.HeIII_Fraction_Inner = tiny_number;
+  TestProblemData.HM_Fraction_Inner = tiny_number;
+  TestProblemData.H2I_Fraction_Inner = tiny_number;
+  TestProblemData.H2II_Fraction_Inner = tiny_number;
+  TestProblemData.DI_Fraction_Inner = 2.0*3.4e-5;
+  TestProblemData.DII_Fraction_Inner = tiny_number;
+  TestProblemData.HDI_Fraction_Inner = tiny_number;
+
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
+
+  TestProblemData.UseMassInjection = 0;
+  TestProblemData.InitialHydrogenMass = tiny_number;
+  TestProblemData.InitialDeuteriumMass = tiny_number;
+  TestProblemData.InitialHeliumMass = tiny_number;
+  TestProblemData.InitialMetalMass = tiny_number;
 
   TestProblemData.MultiMetals = 0;
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
@@ -460,9 +504,49 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MaximumTemperature    = 1e7;
   TestProblemData.ResetEnergies         = 1;
 
+  TestProblemData.GloverChemistryModel = 0;
+  // This is for the gas in the surrounding medium, for the blast wave problem.
+  TestProblemData.CI_Fraction = tiny_number;
+  TestProblemData.CII_Fraction = tiny_number;
+  TestProblemData.OI_Fraction = tiny_number;
+  TestProblemData.OII_Fraction = tiny_number;
+  TestProblemData.SiI_Fraction = tiny_number;
+  TestProblemData.SiII_Fraction = tiny_number;
+  TestProblemData.SiIII_Fraction = tiny_number;
+  TestProblemData.CHI_Fraction = tiny_number;
+  TestProblemData.CH2I_Fraction = tiny_number;
+  TestProblemData.CH3II_Fraction = tiny_number;
+  TestProblemData.C2I_Fraction = tiny_number;
+  TestProblemData.COI_Fraction = tiny_number;
+  TestProblemData.HCOII_Fraction = tiny_number;
+  TestProblemData.OHI_Fraction = tiny_number;
+  TestProblemData.H2OI_Fraction = tiny_number;
+  TestProblemData.O2I_Fraction = tiny_number;
+
+  // This is for the gas in the region where the blast wave energy is injected
+  TestProblemData.CI_Fraction_Inner = tiny_number;
+  TestProblemData.CII_Fraction_Inner = tiny_number;
+  TestProblemData.OI_Fraction_Inner = tiny_number;
+  TestProblemData.OII_Fraction_Inner = tiny_number;
+  TestProblemData.SiI_Fraction_Inner = tiny_number;
+  TestProblemData.SiII_Fraction_Inner = tiny_number;
+  TestProblemData.SiIII_Fraction_Inner = tiny_number;
+  TestProblemData.CHI_Fraction_Inner = tiny_number;
+  TestProblemData.CH2I_Fraction_Inner = tiny_number;
+  TestProblemData.CH3II_Fraction_Inner = tiny_number;
+  TestProblemData.C2I_Fraction_Inner = tiny_number;
+  TestProblemData.COI_Fraction_Inner = tiny_number;
+  TestProblemData.HCOII_Fraction_Inner = tiny_number;
+  TestProblemData.OHI_Fraction_Inner = tiny_number;
+  TestProblemData.H2OI_Fraction_Inner = tiny_number;
+  TestProblemData.O2I_Fraction_Inner = tiny_number;
+
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
+
+  IsothermalSoundSpeed = 1.0;
+  RefineByJeansLengthUnits = 0;
 
   MetalCooling = FALSE;
   MetalCoolingTable = (char*) "metal_cool.dat";
@@ -477,5 +561,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Shearing Boundary Conditions variables */
+
+  
+  AngularVelocity=0.001;
+  VelocityGradient=1.0;
+  ShearingBoundaryDirection=-1;
+  ShearingVelocityDirection=-1;
+  ShearingBoxProblemType = 0; 
+  useMHD=0;
   return SUCCESS;
 }

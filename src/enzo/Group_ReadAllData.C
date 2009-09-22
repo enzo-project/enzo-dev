@@ -51,11 +51,15 @@ void my_exit(int status);
 /* function prototypes */
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
-			    HierarchyEntry *ParentGrid, hid_t file_id);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
+			    HierarchyEntry *ParentGrid, hid_t file_id,
+			    int NumberOfRootGrids, int *RootGridProcessors);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
 int ReadStarParticleData(FILE *fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
+int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
+				int TopGridDim, int &NumberOfRootGrids,
+				int* &RootProcessors);
  
 extern char RadiationSuffix[];
 extern char HierarchySuffix[];
@@ -77,6 +81,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   //  char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
   char groupfilename[MAX_LINE_LENGTH];
+  char line[MAX_LINE_LENGTH];
 
   FILE *fptr;
   FILE *tptr;
@@ -94,6 +99,9 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   int GridKD = 1;
 
   float dummy;
+  int dummy_int;
+
+  int *NumberOfSubgridCells;
 
   // store the original parameter file name, in case we need it later
   strcpy(PrevParameterFileName, name);
@@ -118,14 +126,13 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, dummy) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  
   /* Close main file. */
  
   fclose(fptr);
-
 
   // name is something like /dsgpfs/harkness/NewL7/Dumps/DD0156/DD0156
   // open the hdf file on this processor /dsgpfs/harkness/NewL7/Dumps/DD0156/DD0156.cpu0000, etc.
@@ -153,7 +160,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   if ((fptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
     fprintf(stderr, "Error opening boundary condition file: %s\n",
 	    MetaData.BoundaryConditionName);
-    BRerr = 1;
+    return FAIL;
   }
 
   // Below, ENZO_FAIL is changed to "return FAIL" to deal with various data formats including HDF4, HDF5, packed-HDF5
@@ -161,27 +168,19 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   // This will allow a graceful exit when the dataformat is not packed-HDF5.
   // - Ji-hoon Kim
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
-#ifdef USE_HDF4
-  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-    fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",           
-            MetaData.BoundaryConditionName);                  
-    BRerr = 1;
-  }
-#else
-  if(LoadGridDataAtStart){    
-    if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
+    if(LoadGridDataAtStart){    
+      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	return FAIL;
+      }
+    }else{
+      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	return FAIL;
+      }
     }
-  }else{
-    if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-      fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-	      MetaData.BoundaryConditionName);
-      BRerr = 1;
-    }
-  }
-#endif
 
   strcat(MetaData.BoundaryConditionName, hdfsuffix);
   if (fptr != NULL) fclose(fptr);
@@ -224,23 +223,40 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   strcpy(hierarchyname, name);
   strcat(hierarchyname, HierarchySuffix);
- 
-  /* Read Data Hierarchy. */
+
+  /* scan data hierarchy for maximum task number */
  
   if ((fptr = fopen(hierarchyname, "r")) == NULL) {
     fprintf(stderr, "Error opening hierarchy file %s.\n", hierarchyname);
     ENZO_FAIL("");
   }
 
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
+    if (sscanf(line, "Task = %"ISYM, &dummy_int) > 0)
+      PreviousMaxTask = max(PreviousMaxTask, dummy_int);
+
+  rewind(fptr);
+
+  /* If we're load balancing only within nodes, count level-1 cells in
+     each level-0 grid and load balance the entire nodes. */
+
+  if (ResetLoadBalancing)
+    LoadBalancing = 1;
+
+  int *RootGridProcessors = NULL, NumberOfRootGrids = 1;
+  InitialLoadBalanceRootGrids(fptr, MetaData.TopGridRank, MetaData.TopGridDims[0], 
+			      NumberOfRootGrids, RootGridProcessors);
+
+  /* Read Data Hierarchy. */
 
   if(LoadGridDataAtStart){
     // open of HDF5 file here with incore properties
 
-    fprintf(stderr, "OPEN %s on processor %"ISYM"\n", groupfilename, MyProcessorNumber);
-
     CommunicationBarrier();
 
 #ifdef SINGLE_HDF5_OPEN_ON_INPUT
+
+    fprintf(stderr, "OPEN %s on processor %"ISYM"\n", groupfilename, MyProcessorNumber);
 
 #ifdef USE_HDF5_INPUT_BUFFERING
     memory_increment = 1024*1024;
@@ -262,17 +278,23 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #else
 
+    if (debug) fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
+    //printf("P%d: OPEN data hierarchy %s\n", MyProcessorNumber, hierarchyname);
     file_id = h5_error;
 
 #endif /* SINGLE OPEN */
   }
 
   GridID = 1;
-  if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id) == FAIL) {
+  if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id,
+			      NumberOfRootGrids, RootGridProcessors) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     return FAIL;
   }
 
+  //printf("P%d: out of Group_RDH\n", MyProcessorNumber);
+  //CommunicationBarrier();
+  
   if(LoadGridDataAtStart){
     // can close HDF5 file here
 
@@ -342,6 +364,13 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   AddParticleAttributes = FALSE;
 
+  /* If we're reseting load balancing (i.e. the host processors), turn
+     off the reset flag because we've already done this and don't want
+     it to propagate to later datadumps. */
+
+  if (ResetLoadBalancing)
+    ResetLoadBalancing = FALSE;
+
 //  Stop I/O timing
 
 #ifdef USE_MPI
@@ -356,6 +385,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   fprintf(xptr, "IN %12.4e  %s\n", (io_stop-io_start), name);
   fclose(xptr);
 #endif /* USE_MPI */
- 
+
+  delete [] RootGridProcessors;
+
   return SUCCESS;
 }

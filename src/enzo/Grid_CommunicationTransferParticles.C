@@ -34,11 +34,6 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 		 float_int *ParticleData[6], int CopyDirection)
 {
  
-  /* If there are no particles to move, we're done. */
- 
-  if (MyProcessorNumber != ProcessorNumber)
-    return SUCCESS;
- 
   /* Declarations. */
  
   int i, j, k, dim, grid;
@@ -47,6 +42,11 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
   /* Copy particle out of grid. */
  
   if (CopyDirection == COPY_OUT) {
+
+    /* If there are no particles to move, we're done. */
+ 
+    if (NumberOfParticles == 0)
+      return SUCCESS;
  
     /* Count particles to move (mark already counted by setting mass < 0). */
  

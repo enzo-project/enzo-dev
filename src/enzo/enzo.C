@@ -53,12 +53,13 @@
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);
+int FinalizePythonInterface();
 #endif
  
 // Function prototypes
  
 int InitializeNew(  char *filename, HierarchyEntry &TopGrid, TopGridData &tgd,
-		    ExternalBoundary &Exterior, float *Initialdt);
+		    ExternalBoundary &Exterior, float &Initialdt);
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 
 int InitializeLocal(int restart, HierarchyEntry &TopGrid, 
@@ -89,6 +90,12 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
+int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
+		    int ProjectStartTemp[], int ProjectEndTemp[], 
+		    FLOAT ProjectStartCoordinate[],
+		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
+		    int ProjectionDimension, char *ProjectionFileName,
+		    int ProjectionSmooth, ExternalBoundary *Exterior);
 int OutputAsParticleData(TopGridData &MetaData,
 			 LevelHierarchyEntry *LevelArray[],
 			 int RegionStart[], int RegionEnd[],
@@ -332,7 +339,11 @@ Eint32 main(Eint32 argc, char *argv[])
 			   RegionStart, RegionEnd,
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, MyProcessorNumber) == FAIL) {
-    my_exit(EXIT_FAILURE);
+    if(int_argc==1){
+      my_exit(EXIT_SUCCESS);
+    } else {
+      my_exit(EXIT_FAILURE);
+    }
   }
 
  
@@ -364,24 +375,14 @@ Eint32 main(Eint32 argc, char *argv[])
     }
 #endif
 
-    /*
-#if defined(USE_HDF5_GROUPS) && !defined(USE_HDF4)
-    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "Error in Group_ReadAllData %s.\n", ParameterFile);
-      my_exit(EXIT_FAILURE);
-    }
-#else 
-    if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
-      my_exit(EXIT_FAILURE);
-    }
-#endif
-    */
+    // TA: Changed this:
+    //    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    // thinking that TopGrid.NextGridThisLevel == NULL when was ParallelRootGridIO == 0 
+    // in the run that wrote this restart dump. 
+    // Removing it however lets one to restart from a single grid
+    // but write parallel root grid io for all new outputs
 
-
-    if (!ParallelRootGridIO && restart && TopGrid.NextGridThisLevel == NULL) {
+    if (restart && TopGrid.NextGridThisLevel == NULL) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
  
@@ -428,7 +429,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   // Project 3D field to 2D plane
  
-  if (project) {
+  if (project == 1) {
     if (ProjectToPlane(MetaData, LevelArray, RegionStart, RegionEnd,
 		     RegionStartCoordinates, RegionEndCoordinates,
 		     RegionLevel, ProjectionDimension, "amr.project",
@@ -438,6 +439,25 @@ Eint32 main(Eint32 argc, char *argv[])
       my_exit(EXIT_SUCCESS);
   } 
 
+  int dim, dim1, dim2;
+  char proj_name[100];
+  if (project == 2) {
+    dim1 = (ProjectionDimension == -1) ? 0 : ProjectionDimension;
+    dim2 = (ProjectionDimension == -1) ? 
+      MetaData.TopGridRank : ProjectionDimension+1;
+    for (dim = dim1; dim < dim2; dim++) {
+      sprintf(proj_name, "amr_%c.project", 120+dim);
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
+      if (ProjectToPlane2(MetaData, LevelArray, RegionStart, RegionEnd,
+			  RegionStartCoordinates, RegionEndCoordinates,
+			  RegionLevel, dim, proj_name,
+			  ProjectionSmooth, &Exterior) == FAIL)
+	my_exit(EXIT_FAILURE);
+      else
+	my_exit(EXIT_SUCCESS);
+    } // ENDFOR dim
+  } 
  
   // Normal start: Open and read parameter file
 
@@ -449,7 +469,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (!restart) {
 
-    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, &Initialdt) == FAIL) {
+    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, Initialdt) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Error in Parameter File %s.\n", ParameterFile);
       my_exit(EXIT_FAILURE);
@@ -461,6 +481,7 @@ Eint32 main(Eint32 argc, char *argv[])
       AddLevel(LevelArray, &TopGrid, 0);    // recursively add levels
     }
  
+
 #ifdef USE_MPI
     CommunicationBarrier();
     t_init1 = MPI_Wtime();
@@ -493,10 +514,9 @@ Eint32 main(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
-
- 
   // Call the main evolution routine
  
+  if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, 
 #ifdef TRANSFER
@@ -605,6 +625,9 @@ Eint32 main(Eint32 argc, char *argv[])
 void my_exit(int status)
 {
   // Exit gracefully if successful; abort on error
+#ifdef USE_PYTHON
+  FinalizePythonInterface();
+#endif
 
   if (status == EXIT_SUCCESS) {
 

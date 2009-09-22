@@ -31,10 +31,14 @@ int grid::InitializeUniformGrid(float UniformDensity,
 {
   /* declarations */
  
-  int dim, i, size, field;
+  int dim, i, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum;
+
+  int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
+    CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
+
 
   int ExtraField[2];
 
@@ -95,6 +99,67 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
  
+  // Simon glover's chemistry models (there are several)
+  //
+  // model #1:  primordial (H, D, He)
+  // model #2:  low Z (H, D, He, C, O, Si)
+  // model #3:  molecular (H, D, He, C, O, Si, plus molecules)
+  // model #4:  simple (just hydrogen)
+  // model #5: slightly less simple ( hydrogen plus CO)
+  // model #7:  GMC (H, D,He, C, O, plus molecules)
+  if(TestProblemData.GloverChemistryModel){
+
+    GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
+
+    // a few species are in all of the models
+    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
+    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
+    FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
+
+    // more primordial species
+    if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
+      FieldType[DINum    = NumberOfBaryonFields++] = DIDensity;
+      FieldType[DIINum   = NumberOfBaryonFields++] = DIIDensity;
+      FieldType[HDINum   = NumberOfBaryonFields++] = HDIDensity;
+      FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+      FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
+      FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+    }
+
+    // CO molecule
+    if( (GCM==3) || (GCM==5) || (GCM==7) ){
+      FieldType[COINum   = NumberOfBaryonFields++] = COIDensity;
+    }
+
+    // atomic carbon, oxygen
+    if( (GCM==2) || (GCM==3) || (GCM==7) ){
+      FieldType[CINum     = NumberOfBaryonFields++] = CIDensity;
+      FieldType[CIINum    = NumberOfBaryonFields++] = CIIDensity;
+      FieldType[OINum     = NumberOfBaryonFields++] = OIDensity;
+      FieldType[OIINum    = NumberOfBaryonFields++] = OIIDensity;
+    }
+
+    // atomic silicon
+    if( (GCM==2) || (GCM==3) ){
+      FieldType[SiINum    = NumberOfBaryonFields++] = SiIDensity;
+      FieldType[SiIINum   = NumberOfBaryonFields++] = SiIIDensity;
+      FieldType[SiIIINum  = NumberOfBaryonFields++] = SiIIIDensity;
+    }
+
+    // a ton of molecules
+    if( (GCM==3) || (GCM==7) ){
+      FieldType[CHINum   = NumberOfBaryonFields++] = CHIDensity;
+      FieldType[CH2INum  = NumberOfBaryonFields++] = CH2IDensity;
+      FieldType[CH3IINum = NumberOfBaryonFields++] = CH3IIDensity;
+      FieldType[C2INum   = NumberOfBaryonFields++] = C2IDensity;
+      FieldType[HCOIINum = NumberOfBaryonFields++] = HCOIIDensity;
+      FieldType[OHINum   = NumberOfBaryonFields++] = OHIDensity;
+      FieldType[H2OINum  = NumberOfBaryonFields++] = H2OIDensity;
+      FieldType[O2INum   = NumberOfBaryonFields++] = O2IDensity;
+    }
+
+  } //   if(TestProblemData.GloverChemistryModel)
+
   /* Return if this doesn't concern us. */
  
   if (ProcessorNumber != MyProcessorNumber)
@@ -211,8 +276,67 @@ int grid::InitializeUniformGrid(float UniformDensity,
       }
     } // if(TestProblemData.UseMetallicityField)
 
-    
-    
+        // simon glover chemistry stuff
+    if(TestProblemData.GloverChemistryModel){
+      float tempHM, tempH2II;
+
+      GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
+
+      BaryonField[HIINum][i] = TestProblemData.HII_Fraction * 
+	TestProblemData.HydrogenFractionByMass * UniformDensity;
+      BaryonField[H2INum][i] = TestProblemData.H2I_Fraction *
+	  BaryonField[0][i] * TestProblemData.HydrogenFractionByMass;
+
+      tempHM = TestProblemData.HM_Fraction * BaryonField[HIINum][i];
+
+      tempH2II = TestProblemData.H2II_Fraction * 2.0 * BaryonField[HIINum][i];
+
+      BaryonField[HINum][i] = TestProblemData.HydrogenFractionByMass*BaryonField[0][i]
+	- BaryonField[HIINum][i];
+      BaryonField[HINum][i] -= (tempHM + tempH2II + BaryonField[H2INum][i]);
+
+      if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
+	BaryonField[DINum   ][i] = TestProblemData.DI_Fraction * UniformDensity;
+	BaryonField[DIINum  ][i] = TestProblemData.DII_Fraction * UniformDensity;
+	BaryonField[HDINum  ][i] = TestProblemData.HDI_Fraction * UniformDensity;
+	BaryonField[HeIINum][i] =  TestProblemData.HeII_Fraction *
+	  UniformDensity * (1.0-TestProblemData.HydrogenFractionByMass);
+	BaryonField[HeIIINum][i] = TestProblemData.HeIII_Fraction *
+	  UniformDensity * (1.0-TestProblemData.HydrogenFractionByMass);
+	BaryonField[HeINum][i] =
+	  (1.0 - TestProblemData.HydrogenFractionByMass)*UniformDensity -
+	  BaryonField[HeIINum][i] - BaryonField[HeIIINum][i];
+      }
+
+      if( (GCM==3) || (GCM==5) || (GCM==7) )
+	BaryonField[COINum  ][i] = TestProblemData.COI_Fraction * UniformDensity;
+
+      if( (GCM==2) || (GCM==3) || (GCM==7) ){
+	BaryonField[CINum ][i] = TestProblemData.CI_Fraction * UniformDensity;
+	BaryonField[CIINum][i] = TestProblemData.CII_Fraction * UniformDensity;
+	BaryonField[OINum ][i] = TestProblemData.OI_Fraction * UniformDensity;
+	BaryonField[OIINum][i] = TestProblemData.OII_Fraction * UniformDensity;
+      }
+
+      if( (GCM==2) || (GCM==3) ){
+	BaryonField[SiINum  ][i] = TestProblemData.SiI_Fraction * UniformDensity;
+	BaryonField[SiIINum ][i] = TestProblemData.SiII_Fraction * UniformDensity;
+	BaryonField[SiIIINum][i] = TestProblemData.SiIII_Fraction * UniformDensity;
+      }
+
+      if( (GCM==3) || (GCM==7) ){
+	BaryonField[CHINum  ][i] = TestProblemData.CHI_Fraction * UniformDensity;
+	BaryonField[CH2INum ][i] = TestProblemData.CH2I_Fraction * UniformDensity;
+	BaryonField[CH3IINum][i] = TestProblemData.CH3II_Fraction * UniformDensity;
+	BaryonField[C2INum  ][i] = TestProblemData.C2I_Fraction * UniformDensity;
+	BaryonField[HCOIINum][i] = TestProblemData.HCOII_Fraction * UniformDensity;
+	BaryonField[OHINum  ][i] = TestProblemData.OHI_Fraction * UniformDensity;
+	BaryonField[H2OINum ][i] = TestProblemData.H2OI_Fraction * UniformDensity;
+	BaryonField[O2INum  ][i] = TestProblemData.O2I_Fraction * UniformDensity;
+      }
+
+    } // if(TestProblemData.GloverChemistryModel)
+
   } // for (i = 0; i < size; i++)
 
   return SUCCESS;

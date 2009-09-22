@@ -27,7 +27,8 @@
 #include "Star.h"
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
-				     TopGridData *MetaData, float dtLevelAbove);
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level);
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars);
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -41,15 +42,23 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   /* Return if this does not concern us */
   if (!RadiativeTransfer) return SUCCESS;
 
-  /* Determine the photon timestep */
+  FLOAT GridTime, dt;
+  GridTime = LevelArray[level]->GridData->ReturnTime();
+  dt = LevelArray[level]->GridData->ReturnTimeStep();
 
-  RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove);
+  //if (dtPhoton >= 0.0 && GridTime+dt >= PhotonTime) {
+  if (GridTime+dt >= PhotonTime) {
 
-  /* Convert star particles into radiation sources only if we're going
-     into EvolvePhotons */
+    /* Determine the photon timestep */
 
-  if (dtPhoton > 0.0 && LevelArray[level]->GridData->ReturnTime() >= PhotonTime)
+    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
+
+    /* Convert star particles into radiation sources only if we're going
+       into EvolvePhotons */
+
     StarParticleRadTransfer(LevelArray, level, AllStars);
+
+  } // ENDIF
   
   /* If the first timestep after restart and we have radiation
      sources, go back a light crossing time of the box and run

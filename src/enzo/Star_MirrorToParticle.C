@@ -46,7 +46,7 @@ void Star::MirrorToParticle(void)
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
 
   // Find where this star particle is stored in main arrays
-  for (i = 0; i < CurrentGrid->NumberOfParticles; i++)
+  for (i = 0; i < CurrentGrid->NumberOfParticles; i++) 
     if (CurrentGrid->ParticleNumber[i] == this->Identifier) {
       place = i;
       break;

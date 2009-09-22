@@ -29,8 +29,14 @@
 
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
-                          1 = Equalize processor memory count */
+                          1 = Equalize processor memory count
+                         2 = Load balance only on a node
+*/
 EXTERN int LoadBalancing;
+EXTERN int LoadBalancingCycleSkip;
+EXTERN int ResetLoadBalancing;
+EXTERN int CoresPerNode;
+EXTERN int PreviousMaxTask;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -99,9 +105,30 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+                         12 = FlagCellsToBeRefinedByMustRefineRegion
+			 13 = FlagCellsToBeRefinedByMetallicity
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
+
+/* left and right boundaries of the 'must refine region'
+   for CellFlaggingMethod = 10 */
+
+EXTERN FLOAT MustRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
+
+EXTERN FLOAT MustRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+
+/* specifies the level to which FlagCellsToBeRefinedByMustRefineRegion
+   will refine up to (does not prevent refinement to higher levels) */
+
+EXTERN int MustRefineRegionMinRefinementLevel;
+
+/* specifies the level to which FlagGridCellsToBeRefinedByMetallicity
+   will refine up to (does not prevent refinement to higher levels) */
+EXTERN int MetallicityRefinementMinLevel;
+
+/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+EXTERN float MetallicityRefinementMinMetallicity;
 
 
 /* Velocity to limit timesteps */
@@ -233,6 +260,11 @@ EXTERN float DualEnergyFormalismEta2;
 
 EXTERN float ParticleCourantSafetyNumber;
 
+/* This is a parameter to control root grid time steps, and is basically
+   a hack to ensure that star particles don't get ejected out of grids. */
+
+EXTERN float RootGridCourantSafetyNumber;
+
 /* Radiative cooling on/off flag and associated data. */
 
 EXTERN int RadiativeCooling;
@@ -241,6 +273,10 @@ EXTERN CoolDataType CoolData;
 /* Cloudy cooling parameters and data. */
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
+
+/* Gadget Equilibrium cooling on/off flag */
+
+EXTERN int GadgetEquilibriumCooling;
 
 /* Random Forcing on/off flag and associated data. */ //AK
 
@@ -253,6 +289,11 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN RateDataType RateData;
+
+/* Glover chemistry/cooling network flags */
+EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
+EXTERN int GloverRadiationBackground; // 1: low Z, 2: ISM
+EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 /* Multi-element metallicity field flag and count. */
 
@@ -317,6 +358,7 @@ EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
+EXTERN int NumberOfRootGridTilesPerDimensionPerProcessor;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonSubcycleSkip;
@@ -328,6 +370,7 @@ EXTERN int HaloFinderSubfind;
 EXTERN int HaloFinderOutputParticleList;
 EXTERN int HaloFinderMinimumSize;
 EXTERN int HaloFinderCycleSkip;
+EXTERN int HaloFinderRunAfterOutput;
 EXTERN float HaloFinderLinkingLength;
 EXTERN float HaloFinderTimestep;
 EXTERN FLOAT HaloFinderLastTime;
@@ -339,7 +382,8 @@ EXTERN FLOAT HaloFinderLastTime;
 /* For CellFlaggingMethod = 1,
    The minimum relative slope (da/dx over a) required for refinement. */
 
-EXTERN float MinimumSlopeForRefinement;
+EXTERN float MinimumSlopeForRefinement[MAX_FLAGGING_METHODS];
+EXTERN int SlopeFlaggingFields[MAX_FLAGGING_METHODS];
 
 /* For CellFlaggingMethod = 2,
    The minimum refined mass for the ByMass refining scheme
@@ -373,7 +417,16 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
 
+
+
 EXTERN float MinimumShearForRefinement;
+
+/* For CellFlaggingMethod = 11,
+   The number of cells by which the Resistive length abs(B)/abs(curl(B)) 
+   should be resolved. */
+
+EXTERN float RefineByResistiveLengthSafetyFactor;
+
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -410,6 +463,7 @@ EXTERN FLOAT TracerParticleCreationLeftEdge[MAX_DIMENSION];
 EXTERN FLOAT TracerParticleCreationRightEdge[MAX_DIMENSION];
 
 EXTERN int   ParticleTypeInFile;
+EXTERN int   OutputParticleTypeGrouping;
 
 EXTERN int   ExternalBoundaryIO;
 EXTERN int   ExternalBoundaryTypeIO;
@@ -539,13 +593,11 @@ EXTERN double ExternalGravityRadius;
 /* Poisson Clean */
 
 EXTERN int UseDivergenceCleaning;
+EXTERN int DivergenceCleaningBoundaryBuffer;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
 
-/* For Shearing Box */
 
-EXTERN float AngularVelocity;
-EXTERN float VelocityGradient;
 
 /* Star Particle paramters */
 
@@ -560,7 +612,8 @@ EXTERN int NBodyDirectSummation;
 /* Turbulence simulation parameters */
 EXTERN int UseDrivingField;
 EXTERN float DrivingEfficiency;
-
+/* Parameters to use CUDA extensions */ 
+EXTERN int UseCUDA;
 
 /* End of Stanford block */
 
@@ -632,5 +685,20 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 
 EXTERN int RadiativeTransferCoupledRateSolver;
 
+
+
+/* Shearing Boundary Conditions */
+
+EXTERN float AngularVelocity;
+EXTERN float VelocityGradient;
+EXTERN int ShearingBoundaryDirection;
+EXTERN int ShearingVelocityDirection;
+EXTERN int ShearingOtherDirection;
+EXTERN int useMHD;
+EXTERN FLOAT TopGridDx[MAX_DIMENSION];
+EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
+
+EXTERN float IsothermalSoundSpeed;
+EXTERN int RefineByJeansLengthUnits;
 
 #endif

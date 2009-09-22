@@ -31,13 +31,12 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     return SUCCESS;
   }
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  int i, j, k, n, dim, igrid, field, size, activesize;
+  for (dim = 0, size = 1; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
 
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (dim = 0, activesize = 1; dim < GridRank; dim++) {
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
   }
 
@@ -47,52 +46,56 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
   if ( (NSpecies+NColor) > 0) {
     D = new float[activesize];
     sum = new float[activesize];
-    for (int i = 0; i < activesize; i++) {
+    for (i = 0; i < activesize; i++) {
       D[i] = 0.0;
       sum[i] = 0.0;
     }
   }
 
-  // update species                                                                       
-  int igrid;
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
-    int n = 0;
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-          igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-          BaryonField[field][igrid] = c1*OldBaryonField[field][igrid] +
-            (1-c1)*BaryonField[field][igrid]*BaryonField[iden][igrid] + c2*dU[field][n];
-          D[n] += BaryonField[field][igrid];
+  float *Prim[NEQ_HYDRO+NSpecies+NColor];
+  float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
+  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnOldHydroRKPointers(OldPrim, false);
+
+  // update species and colours
+
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    n = 0;
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
+        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
+          Prim[field][igrid] = c1*OldPrim[field][igrid] +
+            (1-c1)*Prim[field][igrid]*Prim[iden][igrid] + c2*dU[field][n];
+          D[n] += Prim[field][igrid];
         }
       }
     }
   }
 
-  // renormalize species
+  // renormalize species and colours
 
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
-    int n = 0;
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-          igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-          BaryonField[field][igrid] = min(1.0, max((BaryonField[field][igrid]/D[n]), SmallX));	  
-	  BaryonField[field][igrid] = BaryonField[field][igrid]/D[n];
-          sum[n] += BaryonField[field][igrid];
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    n = 0;
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
+        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
+          Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
+	  Prim[field][igrid] = Prim[field][igrid]/D[n];
+          sum[n] += Prim[field][igrid];
         }
       }
     }
   }
 
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
-    int n = 0;
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-        for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-          igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-          BaryonField[field][igrid] /= sum[n];
-        }
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+    n = 0;
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
+        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++)
+          Prim[field][igrid] /= sum[n];
       }
     }
   }
@@ -100,36 +103,32 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
 
   // update conserved variables
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-    B1Num, B2Num, B3Num, HMNum, H2INum, H2IINum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				   Vel3Num, TENum);
 
   float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
     rho, vx, vy, vz, e, etot, Tau, eint, p, v2,
     D_new, S1_new, S2_new, S3_new, Tau_new, h, cs, dpdrho, dpde, Eint_new;
 
-  int n = 0;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+  n = 0;
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	// first convert to conserved variables to do the update
 	igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-	rho_old  = OldBaryonField[DensNum ][igrid];
-	vx_old   = OldBaryonField[Vel1Num  ][igrid];
+	rho_old  = OldBaryonField[DensNum][igrid];
+	vx_old   = OldBaryonField[Vel1Num][igrid];
 	vy_old   = OldBaryonField[Vel2Num][igrid];
-	vz_old   = OldBaryonField[Vel3Num ][igrid];
+	vz_old   = OldBaryonField[Vel3Num][igrid];
 	etot_old = OldBaryonField[TENum][igrid];
 	if (DualEnergyFormalism) {
 	  eint_old = OldBaryonField[GENum][igrid];
 	}
 	Tau_old = rho_old*etot_old;
 
-	rho  = BaryonField[DensNum ][igrid];
+	rho  = BaryonField[DensNum][igrid];
 	vx   = BaryonField[Vel1Num][igrid];
 	vy   = BaryonField[Vel2Num][igrid];
 	vz   = BaryonField[Vel3Num][igrid];
@@ -144,6 +143,9 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	S2_new  = c1*rho_old*vy_old + (1.0-c1)*rho*vy + c2*dU[iS2][n];
 	S3_new  = c1*rho_old*vz_old + (1.0-c1)*rho*vz + c2*dU[iS3][n];
 	Tau_new = c1*Tau_old + (1.0-c1)*Tau + c2*dU[iEtot][n];
+
+
+	
 	if (DualEnergyFormalism) {
 	  Eint_new = c1*rho_old*eint_old + (1.0-c1)*rho*eint + c2*dU[iEint][n];
 	  /*if (Eint_new < 0) {
@@ -155,12 +157,14 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	}
 
 	if (D_new < 0 || isnan(D_new)) {
+	  PrintToScreenBoundaries(BaryonField[0], "Density", 1, j);
+
 	  printf("UpdatePrim: rho <0 at %d %d %d: rho_old=%g, rho=%g, rho_new=%g, dU[iD]=%g\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  //D_new = max(D_new, SmallRho);
 	  D_new = rho;
 	  //D_new = rho;
-	  //return FAIL;
+	  return FAIL;
 	}
 
 	//D_new = max(D_new, SmallRho);
@@ -170,6 +174,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	vy = S2_new/D_new;
 	vz = S3_new/D_new;
 	etot = Tau_new/D_new;
+
+
 
 	v2 = vx*vx + vy*vy + vz*vz;
 	// If using polytropic EOS, calcuate etot using density
@@ -184,14 +190,20 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 	  printf("UpdatePrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g\n", 
 		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
 	  printf("rho_new=%g, rho=%g, rho_old=%g\n", D_new, rho, rho_old);
+	  printf("i=%i, j=%i, k=%i\n", i,j,k);
+
 	  //return FAIL;
 	}
 	
-	BaryonField[DensNum ][igrid] = D_new;
-	BaryonField[Vel1Num ][igrid] = vx;
+	BaryonField[DensNum][igrid] = D_new;
+	BaryonField[Vel1Num][igrid] = vx;
 	BaryonField[Vel2Num][igrid] = vy;
-	BaryonField[Vel3Num  ][igrid] = vz;
+	BaryonField[Vel3Num][igrid] = vz;
 	BaryonField[TENum][igrid] = etot;
+
+
+
+
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  eint = Eint_new/D_new;
@@ -232,11 +244,11 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
   // convert species from mass fraction to density
   
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
-    for (int n = 0; n < size; n++) {
-      BaryonField[field][n] *= BaryonField[iden][n];
-    }
-  }
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
+    for (n = 0; n < size; n++)
+      Prim[field][n] *= BaryonField[DensNum][n];
+
+  this->UpdateElectronDensity();
 
   if ( (NSpecies+NColor) > 0) {
     delete [] D;

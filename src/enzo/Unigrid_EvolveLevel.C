@@ -346,7 +346,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling) {
+      if (MultiSpecies && RadiativeCooling && GadgetEquilibriumCooling == 0) {
  
 	JBPERF_START("evolve-level-14"); // change this?
 
@@ -491,10 +491,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
     JBPERF_START("evolve-level-21"); // SetBoundaryConditions()
 #endif
 
-    if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			      Exterior, LevelArray[level]) == FAIL)
       ENZO_FAIL("");
  
+
 #ifdef USE_JBPERF
     JBPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
 #endif
@@ -512,29 +513,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
  
 #ifdef USE_JBPERF
     JBPERF_STOP("evolve-level-22"); // CommunicationUpdateStarParticleCount()
-#endif
-
-    /* Check for movie output (only check if this is bottom of hierarchy). */
- 
-#ifdef USE_JBPERF
-    JBPERF_START("evolve-level-23"); // WriteMovieData()
-#endif
-
-    if (LevelArray[level+1] == NULL)
-      if (LevelArray[level]->GridData->ReturnTime() >=
-	  MetaData->TimeLastMovieDump + MetaData->dtMovieDump &&
-	  MetaData->dtMovieDump > 0.0) {
-	MetaData->TimeLastMovieDump += MetaData->dtMovieDump;
-	if (WriteMovieData(MetaData->MovieDumpName,
-			  MetaData->MovieDumpNumber++, LevelArray, MetaData,
-			  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	  fprintf(stderr, "Error in WriteMovieData.\n");
-	  ENZO_FAIL("");
-	}
-      }
- 
-#ifdef USE_JBPERF
-    JBPERF_STOP("evolve-level-23"); // WriteMovieData()
 #endif
 
     /* Check for tracer particle output (only if this bottom of hierarchy). */

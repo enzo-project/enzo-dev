@@ -40,13 +40,15 @@ bool Star::IsARadiationSource(FLOAT Time)
   ********************************************************************/
 
   // Particles only marked for nothing or continuous supernova
-  rules[0] = (FeedbackFlag == NO_FEEDBACK || FeedbackFlag == CONT_SUPERNOVA);
+  rules[0] = (FeedbackFlag == NO_FEEDBACK || 
+	      FeedbackFlag == CONT_SUPERNOVA ||
+	      FeedbackFlag == MBH_THERMAL);
   
   // Living
   rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime);
 
   // Non-zero BH accretion
-  if (type == BlackHole && naccretions > 0)
+  if ((type == BlackHole || type == MBH) && naccretions > 0)
     rules[2] = (accretion_rate[0] > tiny_number);
   else
     rules[2] = true;

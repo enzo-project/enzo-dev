@@ -177,7 +177,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 						    LowerPressure,   UpperPressure,
 						    LowerBx,  UpperBx,
 						    LowerBy,  UpperBy) == FAIL) {
-	  fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+	  fprintf(stderr, "Error in MHD2DTestInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;
@@ -199,7 +199,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
       }
     }
 
-    //WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
+    //WriteAllData(MetaData.DataDumpName, MetaDaGrita.DataDumpNumber,
     //       &TopGrid, MetaData, Exterior, -1);
 
   } // end: if (RefineAtStart)

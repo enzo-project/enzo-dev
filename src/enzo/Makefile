@@ -125,20 +125,20 @@ all: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o
+.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
 
 # Inhibit removing any *.o files after compiling
 
 .PRECIOUS: %.o %.f %.f90
 
 .src.f:
-	@echo "Compiling $<"
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
 .f.o:
+	@echo "Compiling $<"
 	@rm -f $@
 	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-             touch $*.f; \
+             rm -f $*.f; \
           else \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
@@ -191,6 +191,19 @@ all: $(EXE).exe
              echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C"; \
              echo; \
              $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C;\
+             echo; \
+             exit 1; \
+          fi)
+
+.cu.o: 
+	@rm -f $@
+	@echo "Compiling $<"
+	-@($(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu) >& $(OUTPUT)
+	@(if [ ! -e $@ ]; then \
+	     echo; \
+             echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu"; \
+             echo; \
+             $(CUDACOMPILER)  -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu;\
              echo; \
              exit 1; \
           fi)

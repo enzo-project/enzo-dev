@@ -19,9 +19,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
- 
-
-
+#include <unistd.h>
+#include <math.h>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -161,7 +160,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
     if (NumberOfBaryonFields > 0) {
- 
+
+      if (NumberOfBaryonFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+	printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	       "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	       NumberOfBaryonFields, MAX_NUMBER_OF_BARYON_FIELDS);
+	ENZO_FAIL("");
+      }
+
       fscanf(fptr, "FieldType = ");
  
       if (ReadListOfInts(fptr, NumberOfBaryonFields, FieldType) == FAIL) {
@@ -335,8 +341,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
       dset_id =  H5Dopen(group_id, DataLabel[field]);
       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
+      //      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+       if( dset_id == h5_error ){
+	 fprintf(stderr, "NumberOfBaryonFields = %d", field);
+	 my_exit(EXIT_FAILURE);
+       }
+
       h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
       if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
@@ -647,7 +657,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
       int abs_type;
       for (i = 0; i < NumberOfParticles; i++) {
-	abs_type = abs(ParticleType[i]);
+	abs_type = ABS(ParticleType[i]);
         if (abs_type < PARTICLE_TYPE_GAS ||
             abs_type > NUM_PARTICLE_TYPES-1) {
           fprintf(stderr, "file: %s: particle %"ISYM" has unknown type %"ISYM"\n",

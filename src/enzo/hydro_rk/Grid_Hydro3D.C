@@ -22,6 +22,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int HydroSweepX(float **Prim,  float **Flux3D, int GridDimension[], 
 		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback);
@@ -196,7 +197,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
       }
     }
   }
-
+  
   // Sweep Z
 
   if (GridRank > 2) {

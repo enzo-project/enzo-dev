@@ -60,6 +60,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferFLD                        = FALSE;
   RadiativeTransferFLDCallOnLevel             = 0;
+  RadiativeTransferHIIRestrictedTimestep      = FALSE;
 
   /* read input from file */
 
@@ -103,6 +104,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferFLD);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
 		  &RadiativeTransferFLDCallOnLevel);
+    ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
+		  &RadiativeTransferHIIRestrictedTimestep);
 
     /* if the line is suspicious, issue a warning */
 

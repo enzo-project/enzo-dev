@@ -169,28 +169,3 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   return SUCCESS;
 
 }
-
-/***********************************************************************/
-
-Eint32 compare_grid(const void *a, const void *b)
-{
-  struct particle_data *ia = (struct particle_data*) a;
-  struct particle_data *ib = (struct particle_data*) b;
-  if (ia->grid - ib->grid < 0)
-    return -1;
-  else if (ia->grid - ib->grid > 0)
-    return 1;
-  return 0;
-}
-/***********************************************************************/
-
-Eint32 compare_proc(const void *a, const void *b)
-{
-  struct particle_data *ia = (struct particle_data*) a;
-  struct particle_data *ib = (struct particle_data*) b;
-  if (ia->proc - ib->proc < 0)
-    return -1;
-  else if (ia->proc - ib->proc > 0)
-    return 1;
-  return 0;
-}

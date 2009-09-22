@@ -10,14 +10,14 @@
       integer*8     :: ll
 #endif
 
-#ifdef r4
+#ifdef CONFIG_BFLOAT_4
       real*4        :: sp
       real*4        :: dp
       complex*8     :: cp
       complex*8     :: zp
 #endif
 
-#ifdef r8
+#ifdef CONFIG_BFLOAT_8
       real*8        :: sp
       real*8        :: dp
       complex*16    :: cp

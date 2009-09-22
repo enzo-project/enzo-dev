@@ -40,7 +40,7 @@
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -68,6 +68,8 @@ int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
+int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
 int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid);
 int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
@@ -77,6 +79,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			  TopGridData &MetaData);
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
+int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -120,6 +124,8 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
                            TopGridData &MetaData);
 
+int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
 
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
@@ -133,7 +139,7 @@ int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
 int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -147,20 +153,18 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AGNDiskInitialize(FILE *fptr, FILE *Outfptr, 
 		      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			    TopGridData &MetaData);
 
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
-int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, 
-				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
-int MRICollapseInitialize(FILE *fptr, FILE *Outfptr, 
-				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
 
 #ifdef MEM_TRACE
@@ -176,8 +180,10 @@ char outfilename[] = "amr.out";
  
 int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		  TopGridData &MetaData, ExternalBoundary &Exterior,
-		  float *Initialdt)
+		  float &Initialdt)
 {
+
+  
  
   // Declarations
  
@@ -218,7 +224,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     fprintf(stderr, "Error in ReadParameterFile.\n");
     ENZO_FAIL("");
   }
- 
+
   // Set the number of particle attributes, if left unset
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)
@@ -357,6 +363,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType == 10)
     ret = RotatingCylinderInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 11) RadiatingShock
+ 
+  if (ProblemType == 11)
+    ret = RadiatingShockInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 12) Free expansion blast wave
+  if (ProblemType == 12)
+    ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 20) Zeldovich Pancake
  
@@ -416,7 +431,19 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ret = CosmologySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
     }
   }
+
+  
  
+  // 31) GalaxySimulation
+  if (ProblemType == 31)
+    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+
+// 35) Shearing Box Simulation
+  if (ProblemType == 35) 
+      ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
+  
+   
   // 40) Supernova Explosion from restart
  
   if (ProblemType == 40)
@@ -449,13 +476,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-    if (ProblemType ==400) {
-    ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-    if (ProblemType ==401) {
-    ret = MRICollapseInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-
 
 
 
@@ -474,9 +494,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-
+  /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
-    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 200) 1D MHD Test */
@@ -496,7 +516,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 203) MHD Turbulence Collapse */
   if (ProblemType == 203) {
-    ret = MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 204) 3D MHD Test */
@@ -528,6 +548,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
 
  
+  
   if (ret == INT_UNDEFINED) {
     fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
     ENZO_FAIL("");
@@ -545,10 +566,16 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   InitializeMovieFile(MetaData, TopGrid);
  
-  // Do some error checking
+  /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED) {
-    fprintf(stderr, "StopTime never set.\n");
+  if (MetaData.StopTime == FLOAT_UNDEFINED)
+    ENZO_FAIL("StopTime never set.");
+
+  int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
+  if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
   }
 
@@ -623,6 +650,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   }  // end of set Exterior
 
+
+
 #ifdef MEM_TRACE
     MemInUse = mused();
     fprintf(memtracePtr, "Exterior set  %16"ISYM" \n", MemInUse);
@@ -638,8 +667,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     MetaData.TimeLastDataDump = MetaData.Time - MetaData.dtDataDump*1.00001;
   if (MetaData.TimeLastHistoryDump == FLOAT_UNDEFINED)
     MetaData.TimeLastHistoryDump = MetaData.Time - MetaData.dtHistoryDump;
-  if (MetaData.TimeLastMovieDump == FLOAT_UNDEFINED)
-    MetaData.TimeLastMovieDump = MetaData.Time - MetaData.dtMovieDump;
  
   if (MetaData.TimeLastTracerParticleDump == FLOAT_UNDEFINED)
     MetaData.TimeLastTracerParticleDump =
@@ -656,20 +683,25 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // variable (should be renamed just Energy) into GasEnergy
  
   if (HydroMethod == Zeus_Hydro &&
+      ProblemType != 10 &&  // BWO (Rotating cylinder)
+      ProblemType != 11 &&  // BWO (radiating shock)
       ProblemType != 20 &&
       ProblemType != 27 &&
       ProblemType != 30 &&
+      ProblemType != 31 &&  // BWO (isolated galaxies)
       ProblemType != 60) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
  
-  // If using StarParticles, set the number to zero
- 
-  if (StarParticleCreation || StarParticleFeedback)
-    NumberOfStarParticles = 0;
+  // If using StarParticles, set the number to zero 
+  // (assuming it hasn't already been set)
+  if (NumberOfStarParticles == NULL)
+    if (StarParticleCreation || StarParticleFeedback)
+      NumberOfStarParticles = 0;
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
- 
+
+
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
       MinimumMassForRefinement[i] = MinimumOverDensityForRefinement[i];
@@ -706,6 +738,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   int gridcounter = 0;
  
   CurrentGrid = &TopGrid;
+
+
  
   while (CurrentGrid != NULL) {
  
@@ -717,8 +751,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     CommunicationPartitionGrid(CurrentGrid, gridcounter);
  
     gridcounter++;
- 
-    CurrentGrid = CurrentGrid->NextGridNextLevel;
+
+    if (PartitionNestedGrids)
+      CurrentGrid = CurrentGrid->NextGridNextLevel;
+    else
+      CurrentGrid = NULL;
  
   }
  
@@ -767,7 +804,22 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("");
     }
  
- 
+ if (ProblemType == 106)
+   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+
+  // For ProblemType 203 (Turbulence Simulation we only initialize the data
+  // once the topgrid has been split.
+ if (ProblemType == 203)
+   if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in MHDTurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+   
  
   // Close parameter files
  
@@ -790,6 +842,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   MetaData.FirstTimestepAfterRestart = FALSE;
   
+
+
   return SUCCESS;
  
 }

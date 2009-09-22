@@ -73,6 +73,13 @@ Star *StarListToArray(Star *Node, int n)
 /* Since InsertStarAfter puts the node after the head node.  We insert
    the nodes in a fashion to preserve the order of the array. */
 
+Star* StarBufferToList(StarBuffer buffer)
+{
+  Star *result = NULL;
+  result = new Star(buffer);
+  return result;
+}
+
 Star* StarBufferToList(StarBuffer *buffer, int n) 
 {
   int i;

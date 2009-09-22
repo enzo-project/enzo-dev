@@ -107,7 +107,7 @@ c
       parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
      &           msolar=1.989e33)
 c
-      ii = 0
+      ii = np
 c
 c  for each zone, : "star" particle is created if answers to all the
 c  following questions are affirmative:

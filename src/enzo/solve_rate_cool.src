@@ -7,7 +7,7 @@
       subroutine solve_rate_cool(d, e, ge, u, v, w, de,
      &                HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod,
-     &                idual, ispecies, imetal, idim,
+     &                idual, ispecies, imetal, imcool, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
@@ -68,6 +68,7 @@
 !    iradshield - flag for crude radiative shielding correction (rad type 12)
 !    iradtype - type of radiative field (only used if = 8)
 !    imetal   - flag if metal field is active (0 = no, 1 = yes)
+!    imcool   - flag if there is metal cooling
 !    imethod  - Hydro method (0 = PPMDE, 2 = ZEUS-type)
 !    ih2co    - flag to include H2 cooling (1 = on, 0 = off)
 !    ipiht    - flag to include photoionization heating (1 = on, 0 = off)
@@ -105,7 +106,7 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        iradcoupled, iradstep, n_xe, ierr
+     &        iradcoupled, iradstep, n_xe, ierr, imcool
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
 
@@ -286,7 +287,7 @@
             call cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, idim,
+     &                iexpand, ispecies, imetal, imcool, idim,
      &                is, ie, j, k, ih2co, ipiht, iter,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
@@ -540,6 +541,7 @@
 !       Abort if iteration count exceeds maximum
 
          if (iter .gt. itmax) then
+	    write(0,*) 'inside if statement solve rate cool:',is,ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin
@@ -569,9 +571,9 @@
 !     Correct the species to ensure consistency (i.e. type conservation)
 
       call make_consistent(de, HI, HII, HeI, HeII, HeIII,
-     &                     HM, H2I, H2II, DI, DII, HDI, d,
-     &                     is, ie, js, je, ks, ke,
-     &                     in, jn, kn, ispecies, fh, dtoh)
+     &                     HM, H2I, H2II, DI, DII, HDI, metal, 
+     &                     d, is, ie, js, je, ks, ke,
+     &                     in, jn, kn, ispecies, imetal, fh, dtoh)
 
       return
       end
@@ -1445,19 +1447,19 @@ c
 !     insure conservation of particle number and charge.
 
       subroutine make_consistent(de, HI, HII, HeI, HeII, HeIII,
-     &                        HM, H2I, H2II, DI, DII, HDI, d,
+     &                        HM, H2I, H2II, DI, DII, HDI, metal, d,
      &                        is, ie, js, je, ks, ke,
-     &                        in, jn, kn, ispecies, fh, dtoh)
+     &                        in, jn, kn, ispecies, imetal, fh, dtoh)
 ! -------------------------------------------------------------------
 
       implicit NONE
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
-     &         d(in,jn,kn)
+     &         d(in,jn,kn), metal(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
       real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)  
       real    fh, dtoh
@@ -1472,6 +1474,7 @@ c
       integer i, j, k
       real totalH(ijk), totalHe(ijk), 
      &     totalD, correctH, correctHe, correctD
+      real metalfree(ijk)
 
 !     Loop over all zones
 
@@ -1480,6 +1483,16 @@ c
 
 !     Compute total densities of H and He
 !         (ensure non-negativity)
+
+      if (imetal .eq. 1) then
+         do i = is+1, ie+1
+            metalfree(i) = d(i,j,k) - metal(i,j,k)
+         enddo
+      else
+         do i = is+1, ie+1
+            metalfree(i) = d(i,j,k)
+         enddo
+      endif
 
       do i = is+1, ie+1
          HI   (i,j,k) = abs(HI   (i,j,k))
@@ -1505,11 +1518,11 @@ c
 !     Correct densities by keeping fractions the same
 
       do i = is+1, ie+1
-         correctH = fh*d(i,j,k)/totalH(i)
+         correctH = fh*metalfree(i)/totalH(i)
          HI(i,j,k)  = HI(i,j,k)*correctH
          HII(i,j,k) = HII(i,j,k)*correctH
 
-         correctHe = (1.0 - fh)*d(i,j,k)/totalHe(i)
+         correctHe = (1.0 - fh)*metalfree(i)/totalHe(i)
          HeI(i,j,k)   = HeI(i,j,k)*correctHe
          HeII(i,j,k)  = HeII(i,j,k)*correctHe
          HeIII(i,j,k) = HeIII(i,j,k)*correctHe
@@ -1531,7 +1544,7 @@ c
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
             totalD = DI(i,j,k) + DII(i,j,k) + 2.0/3.0*HDI(i,j,k)
-            correctD = fh*dtoh*d(i,j,k)/totalD
+            correctD = fh*dtoh*metalfree(i)/totalD
             DI  (i,j,k) = DI (i,j,k)*correctD
             DII (i,j,k) = DII(i,j,k)*correctD
             HDI (i,j,k) = HDI(i,j,k)*correctD

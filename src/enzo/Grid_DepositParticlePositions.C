@@ -258,7 +258,9 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
     /* Move particles to positions at Time + TimeDifference. */
  
-    this->UpdateParticlePosition(TimeDifference);
+    //The second argument forces the update even if 
+    //MyProcessor == Target->ProcessorNumber != this->ProcessorNumber
+    this->UpdateParticlePosition(TimeDifference, TRUE);
  
     /* Deposit particles. */
 

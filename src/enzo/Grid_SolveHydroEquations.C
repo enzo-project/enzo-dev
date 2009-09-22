@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
-#include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -72,7 +71,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* initialize */
 
-    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];
+    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];   // MAX_COLOR is defined in fortran.def
     Elong_int GridGlobalStart[MAX_DIMENSION];
     FLOAT a = 1, dadt;
 
@@ -105,6 +104,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Add metallicity as a colour variable. */
 
     int MetalNum;
+
     if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) != -1) {
       colnum[NumberOfColours++] = MetalNum;
       if (MultiMetals || TestProblemData.MultiMetals) {
@@ -120,6 +120,71 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	!= -1) {
       colnum[NumberOfColours++] = SNColourNum;
     }
+
+    /* Add Simon Glover's chemistry species as color fields */
+
+    if(TestProblemData.GloverChemistryModel){
+
+      // Declarations for Simon Glover's cooling.
+      int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+	DINum, DIINum, HDINum;
+
+      int CINum,CIINum,OINum,OIINum,SiINum,SiIINum,SiIIINum,CHINum,CH2INum,
+	CH3IINum,C2INum,COINum,HCOIINum,OHINum,H2OINum,O2INum;
+
+      int GCM = TestProblemData.GloverChemistryModel;  // purely for convenience
+
+      if (IdentifyGloverSpeciesFields(HIINum,HINum,H2INum,DINum,DIINum,HDINum,
+				      HeINum,HeIINum,HeIIINum,CINum,CIINum,OINum,
+				      OIINum,SiINum,SiIINum,SiIIINum,CHINum,CH2INum,
+				      CH3IINum,C2INum,COINum,HCOIINum,OHINum,H2OINum,
+				      O2INum) == FAIL) {
+	ENZO_FAIL("Error in IdentifyGloverSpeciesFields.");
+      }
+
+      colnum[NumberOfColours++] = HIINum;
+      colnum[NumberOfColours++] = HINum;
+      colnum[NumberOfColours++] = H2INum;
+
+      if( (GCM==1) || (GCM==2) || (GCM==3) || (GCM==7) ){
+	colnum[NumberOfColours++] = DINum;
+	colnum[NumberOfColours++] = DIINum;
+	colnum[NumberOfColours++] = HDINum;
+	colnum[NumberOfColours++] = HeINum;
+	colnum[NumberOfColours++] = HeIINum;
+	colnum[NumberOfColours++] = HeIIINum;
+      }
+
+      if( (GCM==3) || (GCM==5) || (GCM==7) ){
+	colnum[NumberOfColours++] = COINum;
+      }
+
+      if( (GCM==2) || (GCM==3) || (GCM==7) ){
+	colnum[NumberOfColours++] = CINum;
+	colnum[NumberOfColours++] = CIINum;
+	colnum[NumberOfColours++] = OINum;
+	colnum[NumberOfColours++] = OIINum;
+      }
+
+      if( (GCM==2) || (GCM==3) ){
+	colnum[NumberOfColours++] = SiINum;
+	colnum[NumberOfColours++] = SiIINum;
+	colnum[NumberOfColours++] = SiIIINum;
+      }
+
+      if( (GCM==3) || (GCM==7) ){
+	colnum[NumberOfColours++] = CHINum;
+	colnum[NumberOfColours++] = CH2INum;
+	colnum[NumberOfColours++] = CH3IINum;
+	colnum[NumberOfColours++] = C2INum;
+	colnum[NumberOfColours++] = HCOIINum;
+	colnum[NumberOfColours++] = OHINum;
+	colnum[NumberOfColours++] = H2OINum;
+	colnum[NumberOfColours++] = O2INum;
+      }
+      
+    } // if(TestProblemData.GloverChemistryModel)
+
 
     /* Determine if Gamma should be a scalar or a field. */
 

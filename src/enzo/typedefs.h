@@ -109,7 +109,29 @@ const field_type
   AccelerationField2         = 59, 
   AccelerationField3         = 60,
 
-  FieldUndefined  = 61;
+  Galaxy1Color          = 61,
+  Galaxy2Color          = 62,
+
+/* these are required for Simon Glover's chemistry (which also needs some of the
+   other fields, which are used for MultiSpecies) */
+  CIDensity       = 63,
+  CIIDensity      = 64, 
+  OIDensity       = 65, 
+  OIIDensity      = 66,
+  SiIDensity      = 67,
+  SiIIDensity     = 68,
+  SiIIIDensity    = 69,
+  CHIDensity      = 70,
+  CH2IDensity     = 71,
+  CH3IIDensity    = 72,
+  C2IDensity      = 73,
+  COIDensity      = 74,
+  HCOIIDensity    = 75,
+  OHIDensity      = 76,
+  H2OIDensity     = 77,
+  O2IDensity      = 78,
+
+  FieldUndefined  = 79;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -122,7 +144,8 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) (((A) >= TotalEnergy && (A) <= Velocity3) ? FALSE : TRUE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) (((A) >= kphHI && (A) <= kdissH2I) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -131,7 +154,8 @@ const boundary_type
   outflow           = 1,
   inflow            = 2,
   periodic          = 3,
-  BoundaryUndefined = 4;
+  shearing          = 4,
+  BoundaryUndefined = 5;
 
 // enum boundary_type {reflecting, outflow, inflow, periodic, BoundaryUndefined};
 
@@ -184,7 +208,8 @@ enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
 const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
-  BlackHole = PARTICLE_TYPE_BLACK_HOLE;
+  BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  MBH = PARTICLE_TYPE_MBH;
 
 /* Define a float/int union. */
 
@@ -210,6 +235,13 @@ struct particle_data {
   int   type;
   int   grid;
   int   proc;
+};
+
+#include "StarBuffer.h"
+struct star_data {
+  StarBuffer data;
+  int grid;
+  int proc;
 };
 
 #endif

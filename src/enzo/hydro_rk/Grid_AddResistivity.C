@@ -26,6 +26,11 @@
 #include "CosmologyParameters.h"
 #include "EOS.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+
+
 int grid::AddResistivity()
 {
 
@@ -36,6 +41,12 @@ int grid::AddResistivity()
 
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int B1Num, B2Num, B3Num, PhiNum;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+				   TENum, B1Num, B2Num, B3Num, PhiNum);
+
 
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -59,7 +70,7 @@ int grid::AddResistivity()
 
   float *resistivity = new float[activesize];
 
-  this->ComputeResistivity(resistivity);
+  this->ComputeResistivity(resistivity, DensNum);
 
   /* Compute resistive time step */
  
@@ -87,24 +98,24 @@ int grid::AddResistivity()
 	  
 	  int ip1 = i+1 + (j+k*GridDimension[1])*GridDimension[0];
 	  int im1 = i-1 + (j+k*GridDimension[1])*GridDimension[0];
-	  d2Bx[0][n] = (BaryonField[iBx][ip1] - 2.0*BaryonField[iBx][igrid] + BaryonField[iBx][im1]);
-	  d2By[0][n] = (BaryonField[iBy][ip1] - 2.0*BaryonField[iBy][igrid] + BaryonField[iBy][im1]);
-	  d2Bz[0][n] = (BaryonField[iBz][ip1] - 2.0*BaryonField[iBz][igrid] + BaryonField[iBz][im1]);
+	  d2Bx[0][n] = (BaryonField[B1Num][ip1] - 2.0*BaryonField[B1Num][igrid] + BaryonField[B1Num][im1]);
+	  d2By[0][n] = (BaryonField[B2Num][ip1] - 2.0*BaryonField[B2Num][igrid] + BaryonField[B2Num][im1]);
+	  d2Bz[0][n] = (BaryonField[B3Num][ip1] - 2.0*BaryonField[B3Num][igrid] + BaryonField[B3Num][im1]);
 
 	  if (GridRank > 1) {
 	    int jp1 = i + (j+1+k*GridDimension[1])*GridDimension[0];
 	    int jm1 = i + (j-1+k*GridDimension[1])*GridDimension[0];
-	    d2Bx[1][n] = (BaryonField[iBx][jp1] - 2.0*BaryonField[iBx][igrid] + BaryonField[iBx][jm1]);
-	    d2By[1][n] = (BaryonField[iBy][jp1] - 2.0*BaryonField[iBy][igrid] + BaryonField[iBy][jm1]);
-	    d2Bz[1][n] = (BaryonField[iBz][jp1] - 2.0*BaryonField[iBz][igrid] + BaryonField[iBz][jm1]);
+	    d2Bx[1][n] = (BaryonField[B1Num][jp1] - 2.0*BaryonField[B1Num][igrid] + BaryonField[B1Num][jm1]);
+	    d2By[1][n] = (BaryonField[B2Num][jp1] - 2.0*BaryonField[B2Num][igrid] + BaryonField[B2Num][jm1]);
+	    d2Bz[1][n] = (BaryonField[B3Num][jp1] - 2.0*BaryonField[B3Num][igrid] + BaryonField[B3Num][jm1]);
 	  }
 	  
 	  if (GridRank > 2) {
 	    int kp1 = i + (j+(k+1)*GridDimension[1])*GridDimension[0];
 	    int km1 = i + (j+(k-1)*GridDimension[1])*GridDimension[0];
-	    d2Bx[2][n] = (BaryonField[iBx][kp1] - 2.0*BaryonField[iBx][igrid] + BaryonField[iBx][km1]);
-	    d2By[2][n] = (BaryonField[iBy][kp1] - 2.0*BaryonField[iBy][igrid] + BaryonField[iBy][km1]);
-	    d2Bz[2][n] = (BaryonField[iBz][kp1] - 2.0*BaryonField[iBz][igrid] + BaryonField[iBz][km1]);
+	    d2Bx[2][n] = (BaryonField[B1Num][kp1] - 2.0*BaryonField[B1Num][igrid] + BaryonField[B1Num][km1]);
+	    d2By[2][n] = (BaryonField[B2Num][kp1] - 2.0*BaryonField[B2Num][igrid] + BaryonField[B2Num][km1]);
+	    d2Bz[2][n] = (BaryonField[B3Num][kp1] - 2.0*BaryonField[B3Num][igrid] + BaryonField[B3Num][km1]);
 	  }
 	  	  
 	}
@@ -119,9 +130,9 @@ int grid::AddResistivity()
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i + (j+k*GridDimension[1])*GridDimension[0];
 
-	  BaryonField[iBx][igrid] += dt_res/dx*resistivity[n]/dx*(d2Bx[0][n]+d2Bx[1][n]+d2Bx[2][n]);	  
-	  BaryonField[iBy][igrid] += dt_res/dx*resistivity[n]/dx*(d2By[0][n]+d2By[1][n]+d2By[2][n]);	  
-	  BaryonField[iBz][igrid] += dt_res/dx*resistivity[n]/dx*(d2Bz[0][n]+d2Bz[1][n]+d2Bz[2][n]);
+	  BaryonField[B1Num][igrid] += dt_res/dx*resistivity[n]/dx*(d2Bx[0][n]+d2Bx[1][n]+d2Bx[2][n]);	  
+	  BaryonField[B2Num][igrid] += dt_res/dx*resistivity[n]/dx*(d2By[0][n]+d2By[1][n]+d2By[2][n]);	  
+	  BaryonField[B3Num][igrid] += dt_res/dx*resistivity[n]/dx*(d2Bz[0][n]+d2Bz[1][n]+d2Bz[2][n]);
 	  
 	}
       }
@@ -144,11 +155,7 @@ int grid::AddResistivity()
 
 }
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
-
-int grid::ComputeResistivity(float *resistivity)
+int grid::ComputeResistivity(float *resistivity, int DensNum)
 {
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
@@ -170,7 +177,7 @@ int grid::ComputeResistivity(float *resistivity)
 	
 	/* Calculate molecular number density */
 
-	rho = BaryonField[iden][igrid];
+	rho = BaryonField[DensNum][igrid];
 	nH2 = rho*DensityUnits/(Mu*mp);
 
 	/* Calculate temperature */

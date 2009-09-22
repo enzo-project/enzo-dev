@@ -49,7 +49,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   //MetaData->FirstTimestepAfterRestart = FALSE;
 
-  if (AllStars == NULL)
+  if (GlobalRadiationSources->NextSource == NULL)
     return SUCCESS;
 
   if (!RadiativeTransfer)

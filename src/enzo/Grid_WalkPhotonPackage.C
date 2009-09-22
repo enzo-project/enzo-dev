@@ -30,7 +30,7 @@
 #include "RadiativeTransferHealpixRoutines.h"
 
 #ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6
+#define ROUNDOFF 1e-6f
 #endif
 #ifdef CONFIG_BFLOAT_8
 #define ROUNDOFF 1e-12
@@ -123,7 +123,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   // speed of light in code units. note this one is independent of a(t)
   float c_cgs = 2.99792e10;
-  double c = c_cgs/VelocityUnits, c_inv;
+  float c = c_cgs/VelocityUnits, c_inv;
 
   // Modify the photon propagation speed by this parameter
   c *= RadiativeTransferPropagationSpeedFraction;
@@ -161,12 +161,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     ENZO_FAIL("");
   }
 
-  //  if (DEBUG) fprintf(stderr,"%"GSYM" %"GSYM" %"GSYM". \n", dir_vec[0],dir_vec[1],dir_vec[2]);
+  if (DEBUG) fprintf(stderr,"grid::WalkPhotonPackage: %"GSYM" %"GSYM" %"GSYM". \n", dir_vec[0],dir_vec[1],dir_vec[2]);
 
   // Quantities that help finding which cell index am I in ? 
 
-  FLOAT DomainWidth[3];
-  FLOAT dx, dx2;
+  float DomainWidth[3];
+  float dx, dx2, dxhalf;
   for (dim=0; dim<GridRank; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
     CellVolume *= CellWidth[i][0];
@@ -174,6 +174,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   dx = CellWidth[0][0];
   dx2 = dx*dx;
+  dxhalf = 0.5f * dx;
   SplitCriteron = dx2 / RaysPerCell;
   SplitCriteronIonized = dx2;
   Volume_inv = 1.0 / CellVolume;
@@ -246,7 +247,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT ddr, dP, EndTime;
   FLOAT nH, nHI, nHeI, nHeII, fH, nH2I, nHI_inv, nHeI_inv, nHeII_inv, xe;
   FLOAT thisDensity, inverse_rho;
-  float shield1, shield2, solid_angle, filling_factor, midpoint;
+  float shield1, shield2, solid_angle, filling_factor, midpoint, nearest_edge;
   EndTime = PhotonTime+dtPhoton;
 
   int dummy;
@@ -369,6 +370,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    rz -= DomainWidth[2];
 	  }
 	  FindRootGrid(dummy, Grids0, nGrids0, rx, ry, rz, ux, uy, uz);
+	  if (dummy == INT_UNDEFINED)
+	    ENZO_FAIL("Periodic photon boundary failed to find the next grid.");
 	  (*MoveToGrid) = Grids0[dummy];
 	  DeltaLevel = 0;
 	  (*PP)->Radius += ROUNDOFF;
@@ -605,14 +608,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 //    //filling_factor = 0.5*(oldr*oldr + r*r) * ddr * omega_package * Volume_inv;
 //    //filling_factor = r*r * ddr * omega_package * Volume_inv;
-    mx = fabs(sx + (oldr + 0.5*ddr - ROUNDOFF) * ux -
-	      (GridLeftEdge[0] + (gi+0.5)*CellWidth[0][0]));
-    my = fabs(sy + (oldr + 0.5*ddr - ROUNDOFF) * uy -
-	      (GridLeftEdge[1] + (gj+0.5)*CellWidth[1][0]));
-    mz = fabs(sz + (oldr + 0.5*ddr - ROUNDOFF) * uz -
-	      (GridLeftEdge[2] + (gk+0.5)*CellWidth[2][0]));
-    float nearest_edge = max(max(mx, my), mz);
-    slice_factor = min(0.5 + (0.5*dx-nearest_edge) / (dtheta*r), 1);
+    midpoint = oldr + 0.5f*ddr - ROUNDOFF;
+    mx = fabs(sx + midpoint * ux -
+	      (GridLeftEdge[0] + (gi+0.5f)*CellWidth[0][0]));
+    my = fabs(sy + midpoint * uy -
+	      (GridLeftEdge[1] + (gj+0.5f)*CellWidth[1][0]));
+    mz = fabs(sz + midpoint * uz -
+	      (GridLeftEdge[2] + (gk+0.5f)*CellWidth[2][0]));
+    nearest_edge = max(max(mx, my), mz);
+    slice_factor = min(0.5f + (dxhalf-nearest_edge) / (dtheta*r), 1.0f);
     slice_factor2 = slice_factor * slice_factor;
 //    printf("mx, my, mz = %g %g %g, dtheta = %g, dtheta*r = %g, slice_factor = %g\n",
 //	   mx, my, mz, dtheta, dtheta*r, slice_factor);
@@ -752,7 +756,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
 
-    BaryonField[kphHeIINum][index] += 1;
+    //BaryonField[kphHeIINum][index] += 1;
 
     // return in case we're pausing to merge
     if (PauseMe)
@@ -765,8 +769,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 		"PP->CurrentTime: \n",
 		(*PP)->Photons, (*PP)->Radius, (*PP)->CurrentTime);
       if (DEBUG>1) 
-	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\n", 
-		dP, ddr, cdt);
+	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n", 
+		dP, ddr, cdt, tau);
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
       return SUCCESS;
@@ -816,6 +820,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	      rz -= DomainWidth[2];
 	    }
 	    FindRootGrid(dummy, Grids0, nGrids0, rx, ry, rz, ux, uy, uz);
+	    if (dummy == INT_UNDEFINED)
+	      ENZO_FAIL("Periodic photon boundary failed to find the next grid.");
 	    (*MoveToGrid) = Grids0[dummy];
 	    DeltaLevel = 0;
 	    (*PP)->Radius += ROUNDOFF;

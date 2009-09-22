@@ -72,6 +72,13 @@ int InitializePythonInterface(int argc, char *argv[])
   return SUCCESS;
 }
 
+int FinalizePythonInterface()
+{
+  Py_Finalize();
+  if(debug)fprintf(stdout, "Completed Python interpreter finalization.\n");
+  return SUCCESS;
+}
+
 #define TEMP_PYINT(A) Py_XDECREF(temp_int); temp_int = PyLong_FromLong((long) A);
 #define TEMP_PYFLOAT(A) Py_XDECREF(temp_float); temp_float = PyFloat_FromDouble((double) A);
 #define TEMP_PYSTRING(A) Py_XDECREF(temp_string); temp_string = PyString_FromString(A);

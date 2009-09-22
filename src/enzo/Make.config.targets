@@ -115,6 +115,7 @@ help-config:
 	@echo
 	@echo "      gmake opt-warn"
 	@echo "      gmake opt-debug"
+	@echo "      gmake opt-cudadebug  (cuda device software emulation)"
 	@echo "      gmake opt-high"
 	@echo "      gmake opt-aggressive"
 	@echo
@@ -163,6 +164,10 @@ help-config:
 	@echo "      gmake hypre-yes"
 	@echo "      gmake hypre-no"
 	@echo 
+	@echo "   Set whether to use CUDA (GPU-computing)"
+	@echo
+	@echo "      gmake cuda-yes"
+	@echo "      gmake cuda-no"
 
 #-----------------------------------------------------------------------
 
@@ -212,6 +217,7 @@ show-config:
 	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
+	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
@@ -527,6 +533,24 @@ CONFIG_PYTHON-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+VALID_ECUDA = cuda-yes cuda-no
+.PHONY: $(VALID_ECUDA)
+
+cuda-yes: CONFIG_ECUDA-yes
+cuda-no: CONFIG_ECUDA-no
+cuda-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ECUDA)]\n\n"
+CONFIG_ECUDA-%: suggest-clean
+	@tmp=.config.temp; \
+        echo ""; \
+        grep -v CONFIG_ECUDA $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ECUDA = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_ECUDA:
+	@echo
+
+#-----------------------------------------------------------------------
+
 VALID_OOC-BOUNDARY = ooc-boundary-yes ooc-boundary-no
 .PHONY: $(VALID_OOC-BOUNDARY)
 
@@ -544,11 +568,12 @@ CONFIG_OOC-BOUNDARY-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_OPT = opt-warn opt-debug opt-high opt-aggressive
+VALID_OPT = opt-warn opt-debug opt-cudadebug opt-high opt-aggressive
 .PHONY: $(VALID_OPT)
 
 opt-warn:       CONFIG_OPT-warn
 opt-debug:      CONFIG_OPT-debug
+opt-cudadebug:  CONFIG_OPT-cudadebug
 opt-high:       CONFIG_OPT-high
 opt-aggressive: CONFIG_OPT-aggressive
 opt-%:
@@ -587,7 +612,7 @@ tpvel-yes: CONFIG_TPVEL-yes
 tpvel-no: CONFIG_TPVEL-no
 tpvel-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TPVEL)]\n\n"
-CONFIG_TPVEL-%:
+CONFIG_TPVEL-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
@@ -604,7 +629,7 @@ photon-yes: CONFIG_PHOTON-yes
 photon-no: CONFIG_PHOTON-no
 photon-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
-CONFIG_PHOTON-%:
+CONFIG_PHOTON-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \

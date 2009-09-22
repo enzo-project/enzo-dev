@@ -55,10 +55,10 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
     Prim1[field] = new float[GridDimension[0]];
   }
 
-
+  int extra = (ReconstructionMethod == PPM);
   for (int field = 0; field < NEQ_MHD-idual; field++) {
-    priml[field] = new float[Xactivesize+1];
-    primr[field] = new float[Xactivesize+1];
+    priml[field] = new float[Xactivesize+1+extra];
+    primr[field] = new float[Xactivesize+1+extra];
   }
 
   for (int field = 0; field < NSpecies; field ++) {

@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -30,11 +31,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::CalculateMassAccretion(void)
 {
 
-  if (this->type != BlackHole || this->CurrentGrid == NULL)
+  if ((this->type != BlackHole && abs(this->type) != MBH) || this->CurrentGrid == NULL)
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
-  const double Msun = 1.989e33, yr = 3.1557e7;
+  const double Msun = 1.989e33, yr = 3.1557e7, sigma_T = 6.65e-25, c = 3.0e10;
   const int AccretionType = LOCAL_ACCRETION;
   FLOAT time = CurrentGrid->OldTime;
 
@@ -70,7 +71,7 @@ int Star::CalculateMassAccretion(void)
     }
 
   int igrid[MAX_DIMENSION], dim, index, size = 1;
-  float c_s, mu, number_density, old_mass, delta_mass, mdot, v_rel, dvel;
+  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_UpperLimit, mdot_Edd, v_rel, dvel;
   float *temperature, density;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -129,10 +130,34 @@ int Star::CalculateMassAccretion(void)
     // Calculate accretion rate in Msun/s
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
-  
+
+    // Don't take out too much mass suddenly; 
+    // mdot should leave at least 75% of the gas in the grids.
+    // following star_maker8.C by Peng Wang
+    // Ji-hoon Kim in Sep.2009
+    mdot_UpperLimit = 0.25 * density * DensityUnits * 
+      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
+      (CurrentGrid->dtFixed) / TimeUnits;
+    mdot = min(mdot, mdot_UpperLimit);
+
     // No accretion if the BH is in some low-density and cold cell.
     if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
       mdot = 0.0;
+
+    if (this->type == MBH) { 
+      // For MBH, MBHAccretingMassRatio is implemented because
+      // since we already resolve Bondi radius, the local density we used to calculate mdot 
+      // could be higher than what you are supposed to use for mdot, thus overestimating mdot.
+      // So MBHAccretingMassRatio < 1 can be used to fix this.  Ji-hoon Kim Sep.2009
+      mdot *= MBHAccretingMassRatio;
+
+      // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
+      mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
+	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
+
+      mdot = min(mdot, mdot_Edd); 
+      fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot);
+    }
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);
 

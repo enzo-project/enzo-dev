@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
-
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -55,9 +55,11 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
     Prim1[field] = new float[GridDimension[0]];
   }
 
+  int extra = (ReconstructionMethod == PPM);
+  //    fprintf(stderr, "extra %i\n", extra);
   for (int field = 0; field < NEQ_HYDRO-idual; field++) {
-    priml[field] = new float[Xactivesize+1];
-    primr[field] = new float[Xactivesize+1];
+    priml[field] = new float[Xactivesize+1+extra];
+    primr[field] = new float[Xactivesize+1+extra];
   }
 
   for (int field = 0; field < NSpecies; field ++) {
@@ -120,8 +122,8 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
       // compute FluxLine from U1 and Prim1
       if (HydroLine(Prim1, priml, primr, species, colors, 
 		    FluxLine, Xactivesize, dtdx, 'x', j, k, fallback) == FAIL) {
-	printf("grid::SRHydroSweepX: SRHydroLine failed.\n");
-	return FAIL;
+	printf("grid::HydroSweepX: HydroLine failed.\n");
+	ENZO_FAIL("");
       }
 
       // copy FluxLine to the corresponding part of Flux3D

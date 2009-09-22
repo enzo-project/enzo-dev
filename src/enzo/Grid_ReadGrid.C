@@ -42,16 +42,15 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
 // extern int ParticleTypeInFile; // declared and set in ReadParameterFile
  
-#ifdef USE_HDF4
-int ReadField(float *temp, int Dims[], int Rank, char *name,
-	      char *field_name);
-static int32 sd_id, sds_index; // HDF4 (SD) handlers                                               
+#ifdef USE_HDF4 //Ji-hoon Kim
+int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
+static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
  
 int grid::ReadGrid(FILE *fptr, int GridID, 
 		   int ReadText, int ReadData)
 {
- 
+  bool TryHDF5 = TRUE; 
   int i, j, k, dim, field, size, active_size;
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
   char logname[MAX_LINE_LENGTH];
@@ -82,9 +81,9 @@ int grid::ReadGrid(FILE *fptr, int GridID,
                                     "metallicity_fraction", "alpha_fraction"};
 
 #ifdef USE_HDF4
-    int32 TempIntArray2[MAX_DIMENSION];
-    int32 sds_id, num_type2, attributes, TempInt;  
-    sds_index = 0;  // start at first SDS                                                                            
+  Eint32 TempIntArray2[MAX_DIMENSION];
+  Eint32 sds_id, num_type2, attributes, TempInt;  
+  sds_index = 0;  // start at first SDS                                                                            
 #endif 
  
 #ifdef IO_LOG
@@ -162,6 +161,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
             ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
     if (NumberOfBaryonFields > 0) {
+
+      if (NumberOfBaryonFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+	printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	       "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	       NumberOfBaryonFields, MAX_NUMBER_OF_BARYON_FIELDS);
+	ENZO_FAIL("");
+      }
  
       fscanf(fptr, "FieldType = ");
  
@@ -253,44 +259,49 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     if (MyProcessorNumber == ProcessorNumber){
 
 #ifdef USE_HDF4
+      TryHDF5 = FALSE; // try with HDF4 first
       if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
-	fprintf(stderr, "Error opening file %s.\n", name);
-	return FAIL;
+	fprintf(stderr, "Error opening file with HDF4: %s.\n", name);
+	fprintf(stderr, "Will try HDF 5 instead.\n");
+	TryHDF5 = TRUE;
       }
 
-      sds_id = SDselect(sd_id, sds_index++);
-      while (SDiscoordvar(sds_id)) {
-	SDendaccess(sds_id);
+      if (!TryHDF5) {
 	sds_id = SDselect(sd_id, sds_index++);
+	while (SDiscoordvar(sds_id)) {
+	  SDendaccess(sds_id);
+	  sds_id = SDselect(sd_id, sds_index++);
+	}
+	if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
+		      &attributes) == HDF_FAIL) {
+	  fprintf(stderr, "Error reading dims0 from %s.\n", name);
+	  return FAIL;
+	}
+	SDendaccess(sds_id);
+	sds_index--;
+	
+	if (TempInt != GridRank) {
+	  fprintf(stderr, "HDF rank (%d) does not match GridRank.\n", TempInt);
+	  return FAIL;
+	}
       }
-      if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
-		    &attributes) == HDF_FAIL) {
-	fprintf(stderr, "Error reading dims0 from %s.\n", name);
-	return FAIL;
-      }
-      SDendaccess(sds_id);
-      sds_index--;
-
-      if (TempInt != GridRank) {
-	fprintf(stderr, "HDF rank (%d) does not match GridRank.\n", TempInt);
-	return FAIL;
-      }
-#else
-      if(!ReadText){
-	// build filename from grid id
-	char id[MAX_GRID_TAG_SIZE];
-	sprintf(id, "%"GRID_TAG_FORMAT""ISYM, GridID);
-	strcpy(name, PrevParameterFileName);
-	strcat(name, ".grid");
-	strcat(name, id);
-      }
+#endif
+      if (TryHDF5) {
+	if(!ReadText){
+	  // build filename from grid id
+	  char id[MAX_GRID_TAG_SIZE];
+	  sprintf(id, "%"GRID_TAG_FORMAT""ISYM, GridID);
+	  strcpy(name, PrevParameterFileName);
+	  strcat(name, ".grid");
+	  strcat(name, id);
+	}
       
       if (io_log) fprintf(log_fptr,"H5Fopen with Name %s\n",name);
  
       file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
       if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
-#endif
+      }
 
       /* fill in ActiveDim for dims up to 3d */
  
@@ -317,46 +328,47 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       /* allocate temporary space */
  
-#ifdef USE_HDF4
-      float *temp = new float[active_size];
+#ifdef USE_HDF4 // will use float also for HDF5 if USE_HDF4
+      float32 *temp = new float32[active_size];  // not general but good enough?
 #else
-      io_type *temp = new io_type[active_size];
+	io_type *temp = new io_type[active_size];
 #endif
- 
       /* loop over fields, reading each one */
  
       for (field = 0; field < NumberOfBaryonFields; field++) {
  
 	/* get data into temporary array */
-
 #ifdef USE_HDF4
-	if (ReadField(temp, ActiveDim, GridRank, name, 
-		      DataLabel[field]) == FAIL) {
+	if (!TryHDF5) 
+	  if (ReadField(temp, ActiveDim, GridRank, name, 
+			DataLabel[field]) == FAIL) {
 	  fprintf(stderr, "Error reading field %d.\n", field);
 	  return FAIL;
 	}
-#else
-	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
-        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", DataLabel[field]);
- 
-	dset_id =  H5Dopen(file_id, DataLabel[field]);
-        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
-        if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
-	h5_status = H5Sclose(file_dsp_id);
-        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dclose(dset_id);
-        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
-#endif 
+#endif
+	if(TryHDF5) {
+	  file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", DataLabel[field]);
+	  
+	  dset_id =  H5Dopen(file_id, DataLabel[field]);
+	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  h5_status = H5Sclose(file_dsp_id);
+	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Dclose(dset_id);
+	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	}
+
  
 	/* copy active region into whole grid */
  
@@ -364,7 +376,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
 	for (i = 0; i < size; i++)
 	  BaryonField[field][i] = 0;
- 
+	
 	for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	  for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
 	    for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
@@ -419,9 +431,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     if (MyProcessorNumber == ProcessorNumber) {
 
-#ifdef USE_HDF4
-#else
-      if(!ReadText){
+
+      if ((TryHDF5) && (!ReadText)){
 	// build filename from grid id
 	char id[MAX_GRID_TAG_SIZE];
 	sprintf(id, "%"GRID_TAG_FORMAT""ISYM, GridID);
@@ -429,31 +440,33 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	strcpy(name, ".grid");
 	strcat(name, id);
       }
-#endif
  
       /* Open file if not already done (note: particle name must = grid name). */
  
       if (NumberOfBaryonFields == 0) {
  
 #ifdef USE_HDF4
-	if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
-	  fprintf(stderr, "Error opening file %s.\n", name);
-	  return FAIL;
-	}
-#else
+	if (!TryHDF5) 
+	  if ((sd_id = SDstart(name, DFACC_RDONLY)) == HDF_FAIL) {
+	    fprintf(stderr, "Error opening file %s.\n", name);
+	    return FAIL;
+	  }
+#endif
 	if (MyProcessorNumber == ProcessorNumber)
 	  {
 	    strcpy(logname, name);
 	    strcat(logname, ".hdf.log");
 	    if (io_log) log_fptr = fopen(logname, "a");
 	  }
- 
+	
 	if (io_log) fprintf(log_fptr, "H5Fopen with Name %s\n", name);
- 
-	file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
-        if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-        if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
-#endif
+	
+	if(TryHDF5) {
+	  file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
+	  if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+	  if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+	}
+	
  
       } // end: if (NumberOfBaryonFields == 0)
  
@@ -464,362 +477,236 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       TempIntArray[0] = NumberOfParticles;
       
 #ifdef USE_HDF4
-
-      float *temp = new float[active_size];
-
-      int32 HDFDataType = (sizeof(Eflt) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;
-      if (sizeof(Eflt) == 16) HDFDataType = DFNT_FLOAT128;
-
-      /* Read dims.
-	 If Rank != 1, we may have just read some other field SDS.  If so,
-	 then try again. */
-      
-      TempInt = 0;
-      while (TempInt != 1) {
-	sds_id = SDselect(sd_id, sds_index++);
-	while (SDiscoordvar(sds_id)) {
-	  SDendaccess(sds_id);
+      if (!TryHDF5) {
+      TempIntArray2[0] = Eint32(NumberOfParticles);
+	
+      Eint32 HDFDataType = (sizeof(FLOAT) == 4) ? DFNT_FLOAT32 : DFNT_FLOAT64;  // DFNT_* are defined by HDF4
+      if (sizeof(FLOAT) == 16) HDFDataType = DFNT_FLOAT128;
+	
+	/* Read dims.
+	   If Rank != 1, we may have just read some other field SDS.  If so,
+	   then try again. */
+	
+	TempInt = 0;
+	while (TempInt != 1) {
 	  sds_id = SDselect(sd_id, sds_index++);
-	}
-	if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
-		      &attributes) == HDF_FAIL) {
-	  fprintf(stderr, "Error reading dims1 from %s.\n", name);
-	  return FAIL;
-	}
-	SDendaccess(sds_id);
-      }
-      sds_index--; 
-
-      /* Check dims. */
-
-      if (TempInt != 1 || TempIntArray2[0] != NumberOfParticles) {
-	fprintf(stderr, "HDF particle dims do not match NumberOfParticles.\n");
-	fprintf(stderr, "  (HDF dim[0] = %d, NumberOfParticles = %d)\n",
-		int(TempIntArray2[0]), NumberOfParticles);
-	return FAIL;  
-      }
-
-      /* Read ParticlePosition (use temporary buffer). */ 
-      
-      for (dim = 0; dim < GridRank; dim++) {
-
-	if (num_type2 == HDFDataType) {
-
-	  /* same data type: just read. */
-
-	  if (ReadField((float *) ParticlePosition[dim], &NumberOfParticles, 1, name, 
-			ParticlePositionLabel[dim]) == FAIL) {
-	    fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
+	  while (SDiscoordvar(sds_id)) {
+	    SDendaccess(sds_id);
+	    sds_id = SDselect(sd_id, sds_index++);
+	  }
+	  if (SDgetinfo(sds_id, dummy, &TempInt, TempIntArray2, &num_type2, 
+			&attributes) == HDF_FAIL) {
+	    fprintf(stderr, "Error reading dims1 from %s.\n", name);
 	    return FAIL;
 	  }
+	  SDendaccess(sds_id);
+	}
+	sds_index--; 
 	
-	} else {
-
-	  /* convert data: Read into temporary buffer and copy. */
-
-	  if (ReadField(temp, &NumberOfParticles, 1, name, 
-			ParticlePositionLabel[dim]) == FAIL) {
-	    fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
-	    return FAIL;
-	  }
-
-	  float64 *temp64 = (float64 *) temp;
-	  long_double *temp128 = (long_double *) temp;
-	  
-	  if (num_type2 == DFNT_FLOAT32)
-	    for (i = 0; i < NumberOfParticles; i++)
-	      ParticlePosition[dim][i] = Eflt(temp[i]);
-	  if (num_type2 == DFNT_FLOAT64)
-	    for (i = 0; i < NumberOfParticles; i++)
-	      ParticlePosition[dim][i] = Eflt(temp64[i]);
-	  if (num_type2 == DFNT_FLOAT128)
-	    for (i = 0; i < NumberOfParticles; i++)
-	      ParticlePosition[dim][i] = Eflt(temp128[i]);
-	}
-      } // end: loop over dims
-
-      delete [] temp;
-
-      /* Read ParticleVelocity. */
-
-      for (dim = 0; dim < GridRank; dim++) {
-	if (ReadField(ParticleVelocity[dim], &NumberOfParticles, 1, name,
-		      ParticleVelocityLabel[dim]) == FAIL) {
-	  fprintf(stderr, "Error reading ParticleVelocity %d\n", dim);
-	  return FAIL;
-	}
-      }
-
-      /* Read ParticleMass. */
-
-      if (ReadField(ParticleMass, &NumberOfParticles, 1, name,
-		    "particle_mass") == FAIL)
-	return FAIL;
-
-      /* Read ParticleNumber */
-      
-      if (ReadField((float *) ParticleNumber, &NumberOfParticles, 1, name,
-		    "particle_index") == FAIL)
-	return FAIL;
-
-      /* Read particle type if present */
-      
-      if (ParticleTypeInFile == TRUE) {
+	/* Check dims. */
 	
-	if (ReadField((float *) ParticleType, &NumberOfParticles, 1, name,
-		      "particle_type") == FAIL)
-	  return FAIL;
-
-#define NO_CHECK_PARTICLE_TYPE
-#ifdef CHECK_PARTICLE_TYPE
-	for (i = 0; i < NumberOfParticles; i++)
-	  if (ParticleType[i] < PARTICLE_TYPE_GAS ||
-	      ParticleType[i] > NUM_PARTICLE_TYPES-1) {
-	  fprintf(stderr, "file: %s: particle %d has unknown type %d\n",
-		  name, i, ParticleType[i]);
-	  return FAIL;
-	  }
-#endif
-
-    }
-
-      /* Read ParticleAttributes. */
-
-#define NO_RESTART_WITH_ATTRIBUTES
-      for (j = 0; j < NumberOfParticleAttributes; j++) {
-#ifdef RESTART_WITH_ATTRIBUTES
-	for (i=0; i < NumberOfParticles; i++)
-	  ParticleAttribute[j][i] = 0;
-#else
-	if (ReadField(ParticleAttribute[j], &NumberOfParticles, 1, name,
-		      ParticleAttributeLabel[j]) == FAIL) {
-	  fprintf(stderr, "Error reading ParticleAttribute %d\n", j);
-	  return FAIL;
+	if (TempInt != 1 || TempIntArray2[0] != NumberOfParticles) {
+	  fprintf(stderr, "HDF particle dims do not match NumberOfParticles.\n");
+	  fprintf(stderr, "  (HDF dim[0] = %d, NumberOfParticles = %d)\n",
+		  int(TempIntArray2[0]), NumberOfParticles);
+	  return FAIL;  
 	}
-#endif
-      }
-      
-      /* If the particle type is not in the file, then set it according
-	 to the value of the attributes. */
-
-      if (ParticleTypeInFile != TRUE)
-	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleType[i] = ReturnParticleType(i);
-
-#else /* USE_HDF4 */
-
+	
       /* Create a temporary buffer (32 bit or twice the size for 64). */
       
-      io_type *temp = NULL;
-
-      switch(sizeof(FLOAT))
-	{
-	case 4: temp = new io_type[NumberOfParticles];	  break;
- 	case 8: temp = new io_type[NumberOfParticles*2];  break;
- 	case 16:temp = new io_type[NumberOfParticles*4];  break;
- 	default: printf("INCORRECT FLOAT DEFINITION\n");
- 	}
- 
+      float32 *temp = NULL;
+      if (num_type2 != HDFDataType) {
+	if (num_type2 == DFNT_FLOAT64)
+	  temp = new float32[NumberOfParticles*2];
+	if (num_type2 == DFNT_FLOAT128)
+	  temp = new float32[NumberOfParticles*4];
+      }
       if (temp == NULL)
-	temp = new io_type[NumberOfParticles];
-  
-      /* Read ParticlePosition (use temporary buffer). */
- 
-      for (dim = 0; dim < GridRank; dim++) {
- 
-	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n", ParticlePositionLabel[dim]);
- 
-	dset_id =  H5Dopen(file_id, ParticlePositionLabel[dim]);
-        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	num_type = H5Dget_type(dset_id);
-	num_size = H5Tget_size(num_type);
- 
-	if (sizeof(FLOAT) == 16)
-	  {
- 
-	    //NOTE: for 128bits this must be FILE_type_id and NOT FLOAT_type_id!
-	    h5_status = H5Dread(dset_id, FILE_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
-	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	  } else 
-	  {
-	    h5_status = H5Dread(dset_id, FLOAT_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
-	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	temp = new float32[NumberOfParticles];
+
+	/* Read ParticlePosition (use temporary buffer). */ 
+	
+	for (dim = 0; dim < GridRank; dim++) {
+	  
+	  if (num_type2 == HDFDataType) {
 	    
+	    /* same data type: just read. */
+	    
+	    if (ReadField((float *) ParticlePosition[dim], &NumberOfParticles, 1, name, 
+			  ParticlePositionLabel[dim]) == FAIL) {
+	      fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
+	      return FAIL;
+	    }
+	    
+	  } else {
+	    
+	    /* convert data: Read into temporary buffer and copy. */
+	    
+	    if (ReadField(temp, &NumberOfParticles, 1, name, 
+			  ParticlePositionLabel[dim]) == FAIL) {
+	      fprintf(stderr, "Error reading ParticlePosition %d\n", dim);
+	      return FAIL;
+	    }
+	    
+	    float64 *temp64 = (float64 *) temp;
+	    long_double *temp128 = (long_double *) temp;
+	    
+	    if (num_type2 == DFNT_FLOAT32)
+	      for (i = 0; i < NumberOfParticles; i++)
+		ParticlePosition[dim][i] = FLOAT(temp[i]);
+	    if (num_type2 == DFNT_FLOAT64)
+	      for (i = 0; i < NumberOfParticles; i++)
+		ParticlePosition[dim][i] = FLOAT(temp64[i]);
+	    if (num_type2 == DFNT_FLOAT128)
+	      for (i = 0; i < NumberOfParticles; i++)
+		ParticlePosition[dim][i] = FLOAT(temp128[i]);
 	  }
- 
-	h5_status = H5Sclose(file_dsp_id);
-        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dclose(dset_id);
-        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      }
- 
-      /* Read ParticleVelocity. */
- 
-      for (dim = 0; dim < GridRank; dim++) {
- 
-	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", ParticleVelocityLabel[dim]);
- 
-	dset_id =  H5Dopen(file_id, ParticleVelocityLabel[dim]);
-        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
-        if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Sclose(file_dsp_id);
-        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dclose(dset_id);
-        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleVelocity[dim][i] = float(temp[i]);
-      }
-  
-      /* Read ParticleMass into temporary buffer and Copy to ParticleMass. */
- 
-      file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      if (io_log) fprintf(log_fptr,"H5Dopen with Name = particle_mass\n");
- 
-      dset_id =  H5Dopen(file_id, "particle_mass");
-      if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
-      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      for (i = 0; i < NumberOfParticles; i++)
-	ParticleMass[i] = float(temp[i]);
- 
-      /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
- 
-      int *tempint = new int[NumberOfParticles];
- 
-      file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-      if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
- 
-      if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_index\n");
- 
-      dset_id =  H5Dopen(file_id, "particle_index");
-      if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
-      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      for (i = 0; i < NumberOfParticles; i++)
-	ParticleNumber[i] = tempint[i];
- 
-       // Read ParticleType if present
- 
-      if (ParticleTypeInFile == TRUE) {
- 
-	/* Read ParticleType into temporary buffer and Copy to ParticleType. */
- 
-	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-        if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
- 
-	if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_type\n");
- 
-	dset_id =  H5Dopen(file_id, "particle_type");
-        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
-        if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Sclose(file_dsp_id);
-        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	h5_status = H5Dclose(dset_id);
-        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleType[i] = tempint[i];
- 
-	for (i = 0; i < NumberOfParticles; i++)
-	  if (ParticleType[i] < PARTICLE_TYPE_GAS ||
-	      ParticleType[i] > NUM_PARTICLE_TYPES-1) {
-	    fprintf(stderr, "file: %s: particle %"ISYM" has unknown type %"ISYM"\n",
-		    name, i, ParticleType[i]);
-	    ENZO_FAIL("");
+	} // end: loop over dims
+	
+	delete [] temp;
+	
+	/* Read ParticleVelocity. */
+	
+	for (dim = 0; dim < GridRank; dim++) {
+	  if (ReadField(ParticleVelocity[dim], &NumberOfParticles, 1, name,
+			ParticleVelocityLabel[dim]) == FAIL) {
+	    fprintf(stderr, "Error reading ParticleVelocity %d\n", dim);
+	    return FAIL;
 	  }
- 
-      } else {
- 
-	/* Otherwise create the type. */
- 
-	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleType[i] = ReturnParticleType(i);
- 
-      } 
- 
-      /* Read ParticleAttributes. */
-      if (AddParticleAttributes) {
+	}
+	
+	/* Read ParticleMass. */
+	
+	if (ReadField(ParticleMass, &NumberOfParticles, 1, name,
+		      "particle_mass") == FAIL)
+	  return FAIL;
+	
+	/* Read ParticleNumber */
+	
+	if (ReadField((float *) ParticleNumber, &NumberOfParticles, 1, name,
+		      "particle_index") == FAIL)
+	  return FAIL;
+	
+	/* Read particle type if present */
+	
+	if (ParticleTypeInFile == TRUE) {
+	  
+	  if (ReadField((float *) ParticleType, &NumberOfParticles, 1, name,
+			"particle_type") == FAIL)
+	    return FAIL;
+	  
+#define NO_CHECK_PARTICLE_TYPE
+#ifdef CHECK_PARTICLE_TYPE
+	  for (i = 0; i < NumberOfParticles; i++)
+	    if (ParticleType[i] < PARTICLE_TYPE_GAS ||
+		ParticleType[i] > NUM_PARTICLE_TYPES-1) {
+	      fprintf(stderr, "file: %s: particle %d has unknown type %d\n",
+		      name, i, ParticleType[i]);
+	      return FAIL;
+	    }
+#endif
+	  
+	}
+	
+	/* Read ParticleAttributes. */
+	
+#define NO_RESTART_WITH_ATTRIBUTES
 	for (j = 0; j < NumberOfParticleAttributes; j++) {
-	  ParticleAttribute[j] = new float[NumberOfParticles];
+#ifdef RESTART_WITH_ATTRIBUTES
 	  for (i=0; i < NumberOfParticles; i++)
 	    ParticleAttribute[j][i] = 0;
+#else
+	  if (ReadField(ParticleAttribute[j], &NumberOfParticles, 1, name,
+			ParticleAttributeLabel[j]) == FAIL) {
+	    fprintf(stderr, "Error reading ParticleAttribute %d\n", j);
+	    return FAIL;
+	  }
+#endif
 	}
-      } else {
-	for (j = 0; j < NumberOfParticleAttributes; j++) {
- 
+	
+	/* If the particle type is not in the file, then set it according
+	   to the value of the attributes. */
+	
+	if (ParticleTypeInFile != TRUE)
+	  for (i = 0; i < NumberOfParticles; i++)
+	    ParticleType[i] = ReturnParticleType(i);
+      } // (!TryHDF5)
+
+#endif
+
+      if (TryHDF5) {
+	/* Create a temporary buffer (32 bit or twice the size for 64). */
+	
+	io_type *temp = NULL;
+	
+	switch(sizeof(FLOAT))
+	  {
+	  case 4: temp = new io_type[NumberOfParticles];	  break;
+	  case 8: temp = new io_type[NumberOfParticles*2];  break;
+	  case 16:temp = new io_type[NumberOfParticles*4];  break;
+	  default: printf("INCORRECT FLOAT DEFINITION\n");
+	  }
+	
+	if (temp == NULL)
+	  temp = new io_type[NumberOfParticles];
+	
+	/* Read ParticlePosition (use temporary buffer). */
+	
+	for (dim = 0; dim < GridRank; dim++) {
+	  
 	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
 	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	  if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n",ParticleAttributeLabel[j]);
 	  
-	  dset_id =  H5Dopen(file_id, ParticleAttributeLabel[j]);
+	  if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n", ParticlePositionLabel[dim]);
+	  
+	  dset_id =  H5Dopen(file_id, ParticlePositionLabel[dim]);
 	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
 	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
+	  
+	  num_type = H5Dget_type(dset_id);
+	  num_size = H5Tget_size(num_type);
+	  
+	  if (sizeof(FLOAT) == 16)
+	    {
+	      
+	      //NOTE: for 128bits this must be FILE_type_id and NOT FLOAT_type_id!
+	      h5_status = H5Dread(dset_id, FILE_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
+	      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      
+	    } else 
+	    {
+	      h5_status = H5Dread(dset_id, FLOAT_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
+	      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      
+	    }
+	  
+	  h5_status = H5Sclose(file_dsp_id);
+	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Dclose(dset_id);
+	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	}
+	
+	/* Read ParticleVelocity. */
+	
+	for (dim = 0; dim < GridRank; dim++) {
+	  
+	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", ParticleVelocityLabel[dim]);
+	  
+	  dset_id =  H5Dopen(file_id, ParticleVelocityLabel[dim]);
+	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  
 	  h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
 	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
@@ -831,17 +718,157 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  h5_status = H5Dclose(dset_id);
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
 	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
-	    
+	  
 	  for (i = 0; i < NumberOfParticles; i++)
-	    ParticleAttribute[j][i] = float(temp[i]);
- 
+	    ParticleVelocity[dim][i] = float(temp[i]);
 	}
-      } // ENDELSE AddParticleAttributes 
+	
+	/* Read ParticleMass into temporary buffer and Copy to ParticleMass. */
+	
+	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	if (io_log) fprintf(log_fptr,"H5Dopen with Name = particle_mass\n");
+	
+	dset_id =  H5Dopen(file_id, "particle_mass");
+	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Sclose(file_dsp_id);
+	if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Dclose(dset_id);
+	if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	for (i = 0; i < NumberOfParticles; i++)
+	  ParticleMass[i] = float(temp[i]);
+	
+	/* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
+	
+	int *tempint = new int[NumberOfParticles];
+	
+	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
+	
+	if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_index\n");
+	
+	dset_id =  H5Dopen(file_id, "particle_index");
+	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+	if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Sclose(file_dsp_id);
+	if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	h5_status = H5Dclose(dset_id);
+	if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	
+	for (i = 0; i < NumberOfParticles; i++)
+	  ParticleNumber[i] = tempint[i];
+	
+	// Read ParticleType if present
+	
+	if (ParticleTypeInFile == TRUE) {
+	  
+	  /* Read ParticleType into temporary buffer and Copy to ParticleType. */
+	  
+	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	  if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
+	  
+	  if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_type\n");
+	  
+	  dset_id =  H5Dopen(file_id, "particle_type");
+	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Sclose(file_dsp_id);
+	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  h5_status = H5Dclose(dset_id);
+	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+	  for (i = 0; i < NumberOfParticles; i++)
+	    ParticleType[i] = tempint[i];
+	  
+	  for (i = 0; i < NumberOfParticles; i++)
+	    if (ParticleType[i] < PARTICLE_TYPE_GAS ||
+		ParticleType[i] > NUM_PARTICLE_TYPES-1) {
+	      fprintf(stderr, "file: %s: particle %"ISYM" has unknown type %"ISYM"\n",
+		      name, i, ParticleType[i]);
+	      ENZO_FAIL("");
+	    }
+	  
+	} else {
+ 
+	  /* Otherwise create the type. */
+	  
+	  for (i = 0; i < NumberOfParticles; i++)
+	    ParticleType[i] = ReturnParticleType(i);
+	  
+	} 
+	
+	/* Read ParticleAttributes. */
+	if (AddParticleAttributes) {
+	  for (j = 0; j < NumberOfParticleAttributes; j++) {
+	    ParticleAttribute[j] = new float[NumberOfParticles];
+	    for (i=0; i < NumberOfParticles; i++)
+	      ParticleAttribute[j][i] = 0;
+	  }
+	} else {
+	  for (j = 0; j < NumberOfParticleAttributes; j++) {
+	    
+	    file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+	    if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+	    if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	    
+	    if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n",ParticleAttributeLabel[j]);
+	    
+	    dset_id =  H5Dopen(file_id, ParticleAttributeLabel[j]);
+	    if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+	    if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	    
+	    h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
+	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    
+	    h5_status = H5Sclose(file_dsp_id);
+	    if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    
+	    h5_status = H5Dclose(dset_id);
+	    if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    
+	    for (i = 0; i < NumberOfParticles; i++)
+	      ParticleAttribute[j][i] = float(temp[i]);
+	    
+	  }
+	} // ENDELSE AddParticleAttributes 
+	
+	delete [] temp;
+	delete [] tempint;
+      } // (TryHDF5)
 
-      delete [] temp;
-      delete [] tempint;
-
-#endif /* USE_HDF4 */
  
     } // end: if (MyProcessorNumber == ProcessorNumber)
   } // end: if (NumberOfParticles > 0 && ReadData)
@@ -853,22 +880,25 @@ int grid::ReadGrid(FILE *fptr, int GridID,
        && ReadData ){
 
 #ifdef USE_HDF4
-    SDend(sd_id);
-#else
-    h5_status = H5Fclose(file_id);
-    if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if (!TryHDF5) SDend(sd_id);
 #endif
 
+    if (TryHDF5) {
+      h5_status = H5Fclose(file_id);
+      if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    }
+
+    
   }
- 
+  
   if (MyProcessorNumber == ProcessorNumber)
     {
       if (io_log) fclose(log_fptr);
     }
- 
+  
   return SUCCESS;
- 
+  
 }
 
 

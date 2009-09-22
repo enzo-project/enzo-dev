@@ -69,6 +69,9 @@ int Star::HitEndpoint(FLOAT Time)
 
   case BlackHole:
     break;
+    
+  case MBH:
+    break;
 
   } // ENDSWITCH
 

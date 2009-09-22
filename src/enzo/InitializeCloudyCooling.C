@@ -42,7 +42,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int InitializeCloudyCooling(FLOAT Time)
 {
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (debug) {
     fprintf(stderr,"Initializing Cloudy cooling.\n");
     fprintf(stderr,"CloudyCoolingGridFile: %s.\n",CloudyCoolingData.CloudyCoolingGridFile);
     fprintf(stderr,"IncludingCloudyHeating: %"ISYM".\n",CloudyCoolingData.IncludeCloudyHeating);
@@ -98,7 +98,7 @@ int InitializeCloudyCooling(FLOAT Time)
   herr_t      status;
   herr_t      h5_error = -1;
 
-  fprintf(stderr,"Reading Cloudy data from %s.\n", CloudyCoolingData.CloudyCoolingGridFile);
+  if (debug) fprintf(stderr,"Reading Cloudy data from %s.\n", CloudyCoolingData.CloudyCoolingGridFile);
   file_id = H5Fopen(CloudyCoolingData.CloudyCoolingGridFile, H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open cooling dataset and get grid dimensions.
@@ -121,7 +121,7 @@ int InitializeCloudyCooling(FLOAT Time)
     return FAIL;
   }
   CloudyCoolingData.CloudyCoolingGridRank = (int) temp_int;
-  fprintf(stderr,"Cloudy cooling grid rank: %"ISYM".\n",CloudyCoolingData.CloudyCoolingGridRank);
+  if (debug) fprintf(stderr,"Cloudy cooling grid rank: %"ISYM".\n",CloudyCoolingData.CloudyCoolingGridRank);
   status = H5Aclose(attr_id);
   if (attr_id == h5_error) {
     fprintf(stderr,"Failed to close Rank attribute in Cooling dataset.\n");
@@ -141,12 +141,12 @@ int InitializeCloudyCooling(FLOAT Time)
     fprintf(stderr,"Failed to read Dimension attribute in Cooling dataset.\n");
     return FAIL;
   }
-  fprintf(stderr,"Cloudy cooling grid dimensions:");
+  if (debug) fprintf(stderr,"Cloudy cooling grid dimensions:");
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
     CloudyCoolingData.CloudyCoolingGridDimension[q] = (int) temp_int_arr[q];
-    fprintf(stderr," %"ISYM,CloudyCoolingData.CloudyCoolingGridDimension[q]);
+    if (debug) fprintf(stderr," %"ISYM,CloudyCoolingData.CloudyCoolingGridDimension[q]);
   }
-  fprintf(stderr,".\n");
+  if (debug) fprintf(stderr,".\n");
   status = H5Aclose(attr_id);
   if (attr_id == h5_error) {
     fprintf(stderr,"Failed to close Dimension attribute in Cooling dataset.\n");
@@ -161,7 +161,7 @@ int InitializeCloudyCooling(FLOAT Time)
   temp_data = new float64[dataset_size];
 
   status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
-  fprintf(stderr,"Reading Cloudy Cooling dataset.\n");
+  if (debug) fprintf(stderr,"Reading Cloudy Cooling dataset.\n");
   if (status == h5_error) {
     fprintf(stderr,"Failed to read Cooling dataset.\n");
     return FAIL;
@@ -194,7 +194,7 @@ int InitializeCloudyCooling(FLOAT Time)
     }
 
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
-    fprintf(stderr,"Reading Cloudy Heating dataset.\n");
+    if (debug) fprintf(stderr,"Reading Cloudy Heating dataset.\n");
     if (status == h5_error) {
       fprintf(stderr,"Failed to read Heating dataset.\n");
       return FAIL;
@@ -228,7 +228,7 @@ int InitializeCloudyCooling(FLOAT Time)
     }
 
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
-    fprintf(stderr,"Reading Cloudy MMW dataset.\n");
+    if (debug) fprintf(stderr,"Reading Cloudy MMW dataset.\n");
     if (status == h5_error) {
       fprintf(stderr,"Failed to read MMW dataset.\n");
       return FAIL;
@@ -267,7 +267,7 @@ int InitializeCloudyCooling(FLOAT Time)
     }
 
     status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
-    fprintf(stderr,"Reading Cloudy %s dataset.\n",parameter_name);
+    if (debug) fprintf(stderr,"Reading Cloudy %s dataset.\n",parameter_name);
     if (status == h5_error) {
       fprintf(stderr,"Failed to read %s dataset.\n",parameter_name);
       return FAIL;
@@ -285,10 +285,10 @@ int InitializeCloudyCooling(FLOAT Time)
       return FAIL;
     }
 
-    fprintf(stderr,"%s: %"GSYM" to %"GSYM" (%"ISYM" steps).\n",parameter_name,
-	    CloudyCoolingData.CloudyCoolingGridParameters[q][0],
-	    CloudyCoolingData.CloudyCoolingGridParameters[q][CloudyCoolingData.CloudyCoolingGridDimension[q]-1],
-	    CloudyCoolingData.CloudyCoolingGridDimension[q]);
+    if (debug) fprintf(stderr,"%s: %"GSYM" to %"GSYM" (%"ISYM" steps).\n",parameter_name,
+		       CloudyCoolingData.CloudyCoolingGridParameters[q][0],
+		       CloudyCoolingData.CloudyCoolingGridParameters[q][CloudyCoolingData.CloudyCoolingGridDimension[q]-1],
+		       CloudyCoolingData.CloudyCoolingGridDimension[q]);
 
   } // for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++)
 

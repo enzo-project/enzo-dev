@@ -90,6 +90,32 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
     break;
+
+    /* Approximation to the multi-color disk and power law of an
+       accreting massive BH */
+
+  case MBH:
+    XrayLuminosityFraction = 0.43;
+    EnergyFractionLW = 1.51e-3;
+    MeanEnergy = 93.0;  // eV
+    E[0] = 460.0;
+    E[1] = 0.0;
+    E[2] = 0.0;
+    E[3] = 12.8;
+    Q[0] = 3.54e58 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
+      this->DeltaMass / E[0];
+    Q[1] = 0.0;
+    Q[2] = 0.0;
+    Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
+
+#define NOT_HII_REGION_TEST
+#ifdef HII_REGION_TEST
+    Q[0] = 1.0e65 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
+#endif
+
+    //fprintf(stdout, "this->DeltaMass = %g, Q[0]=%g\n", this->DeltaMass, Q[0]); 
+    break;
+
   default:
     fprintf(stderr, "Star type = %"ISYM" not understood.\n", this->type);
     ENZO_FAIL("");

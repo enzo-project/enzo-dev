@@ -35,9 +35,6 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *ColourName = "colour";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
 
   /* declarations */
 
@@ -50,9 +47,7 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   float  rhol = 1.0, rhor = 1.0, 
     vxl = 0, vxr = 0, 
     vyl = 0, vyr = 0, 
-    pl = 1.0, pr = 1.0,
-    Bxl = 0.0, Bxr = 0.0,
-    Byl = 0.0, Byr = 0.0;
+    pl = 1.0, pr = 1.0;
   
   /* read input from file */
 
@@ -72,10 +67,6 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &pl);
     ret += sscanf(line, "LeftDensity = %f", 
 		  &rhol);
-    ret += sscanf(line, "LeftBx = %f",
-		  &Bxl);
-    ret += sscanf(line, "LeftBy = %f",
-		  &Byl);
     ret += sscanf(line, "RightVelocityX = %f", 
 		  &vxr);
     ret += sscanf(line, "RightVelocityY = %f", 
@@ -84,10 +75,6 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &pr);
     ret += sscanf(line, "RightDensity = %f",
                   &rhor);
-    ret += sscanf(line, "RightBx = %f",
-		  &Bxr);
-    ret += sscanf(line, "RightBy = %f",
-		  &Byr);
 
     /* if the line is suspicious, issue a warning */
 
@@ -110,10 +97,8 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->Hydro1DTestInitializeGrid(rhol, rhor,
 						  vxl,  vxr,
 						  vyl,  vyr,
-						  pl,   pr,
-						  Bxl,  Bxr,
-						  Byl,  Byr)  == FAIL) {
-    fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+						  pl,   pr)  == FAIL) {
+    fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
     return FAIL;
   }
 
@@ -154,10 +139,8 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 	if (Temp->GridData->Hydro1DTestInitializeGrid(rhol, rhor,
 						    vxl,  vxr,
 						    vyl,  vyr,
-						    pl,   pr,
-						    Bxl,  Bxr,
-						    Byl,  Byr) == FAIL) {
-	  fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+						    pl,   pr) == FAIL) {
+	  fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;
@@ -217,14 +200,6 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 	    vyl);
     fprintf(Outfptr, "RightVelocityY = %f\n",
             vyr);
-    fprintf(Outfptr, "LeftBx = %f\n",
-	    Bxl);
-    fprintf(Outfptr, "RightBx = %f\n",
-	    Bxr);
-    fprintf(Outfptr, "LeftBy = %f\n",
-	    Byl);
-    fprintf(Outfptr, "RightBy = %f\n",
-	    Byr);
     fprintf(Outfptr, "LeftPressure = %f\n",
             pl);
     fprintf(Outfptr, "RightPressure = %f\n",

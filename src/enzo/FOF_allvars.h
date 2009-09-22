@@ -42,16 +42,16 @@ struct FOF_particle_data
 {
   double  	Pos[3];
   float  	Vel[3];
-  int    	Type;
+  char    	Type;
   int    	ID;
   int    	MinID;
-  int    	GrLen;
+  Eint32    	GrLen;
   float  	Mass;
   //float  	Attr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   float  	Energy;
   float  	Rho;
   int    	PartID;
-  int           slab;
+  Eint32        slab;
   //int           level;
   //int           GridID;
 };

@@ -1,41 +1,249 @@
-EXEC   = P-GroupFinder
-#HDF_DIR = /sw
-HDF_DIR = /usr/local/hdf5/1.8.2s
+#=======================================================================
+#
+# FILE:        Makefile
+#
+# SUMMARY:     Configurable Makefile for Enzo analysis toolkit 
+#		(anyl, previously also known as enzo_anyl)
+#
+# AUTHOR:      John Wise (john.h.wise@nasa.gov)
+#
+# DATE:        2009-08-07
+#
+# DESCRIPTION
+#	       Adopted from Makefile for enzohop
+#	
+#              See 'gmake help' for definitive description of targets
+#
+#              Makefile includes the following files:
+# 
+#              Make.config.settings   default configuration settings
+#              Make.config.override   local user settings
+#              Make.config.assemble   maps 'config' settings to 'flag' settings
+#              Make.config.targets    configure targets
+#              Make.mach.*            all machine-dependent settings
+#              Make.config.objects    list of object files
+#              DEPEND                 Make-generated dependencies
+#
+#              Make.mach.* should be the only file that one should
+#              edit when porting Enzo to a new machine.
+#
+#              Make.config.override should be the only file that
+#              one should edit when defining local user settings.
+#              Preferably, this is done implicitly through
+#              the available make targets (e.g. "gmake precision-32").
+#              Use "gmake help-config" for a list of all configuration
+#              settings.  These make targets do error-checking; hand-editing 
+#              Make.config.override is more error-prone.
+#
+#=======================================================================
 
-#OPT1   = -DFOF_ONLY -DUSE_HDF5 # does only FOF group finding
-OPT1   = -DUSE_HDF5 # does only FOF group finding
+# Use bash since sh on datastar does not recognize ">&" used in dep: target
 
-OPTIMIZE = -O3
+SHELL    = /bin/bash
 
-OPTIONS = $(OPTIMIZE) $(OPT1) -g
+TOP_DIR  = ../..
+EXE      = P-GroupFinder
+OUTPUT   = out.compile
 
+ENZO_DIR = $(TOP_DIR)/src/enzo
+MODULES  = 
 
-OBJS = main.o io_input.o io_enzo.o io_hdf.o io_hdf5.o cmpfunc.o allvars.o \
-	allocate.o ngbtree.o forcetree.o subfind.o density.o unbind.o \
-	find_subgroups.o order_by_potential.o properties.o nrsrc/nrutil.o \
-	nrsrc/sort2_int.o nrsrc/sort_int.o nrsrc/iindexx.o nrsrc/selectb.o \
-	nrsrc/indexx.o nrsrc/sort2_flt_int.o 
+#-----------------------------------------------------------------------
+# Make.config.settings is used for setting default values to all compile-time 
+# configuration settings.
+#-----------------------------------------------------------------------
 
-CC     = mpicc
+include $(ENZO_DIR)/Make.config.settings
 
-INCL   = parameters.h allvars.h proto.h ngbtree.h forcetree.h \
-	 nrsrc/nrutil.h
+#-----------------------------------------------------------------------
+# Make.config.machine is used for setting which Make.mach.* file to use
+#-----------------------------------------------------------------------
 
-CFLAGS = $(OPTIONS) -I/usr/include/ -I$(HDF_DIR)/include
+MAKE_CONFIG_MACHINE  = $(ENZO_DIR)/Make.config.machine
+include $(ENZO_DIR)/Make.config.machine
 
-LIBS = -L$(HDF_DIR)/lib 		\
-	-lm -lhdf5 -lz -lsz
-#LIBS = -L$(HDF_DIR)/lib 		\
-#	-limf -lm -lmfhdf -ldf -ljpeg -lsz -lz	\
-#	-lmpi
+#-----------------------------------------------------------------------
+# Make.config.override is used for overriding the default settings in
+# Make.config.settings.  This was made separate from the default settings 
+# to enable easily interfacing Enzo with a software testing environment 
+# like lcatest.
+#-----------------------------------------------------------------------
 
-$(EXEC): $(OBJS) 
-	 $(CC) $(OBJS) $(LIBS) -o $(EXEC)  
+MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
+include $(MAKE_CONFIG_OVERRIDE)
 
-$(OBJS): $(INCL) 
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# ANYL ONLY: override the override, These I found are needed 
+# for smooth compiling, but you may want to try other options.
 
-.PHONY : clean
+#CONFIG_PRECISION = 32
+CONFIG_INTEGERS  = 32
+CONFIG_USE_MPI   = yes
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#-----------------------------------------------------------------------
+# Make.config.assemble takes the settings in the Make.config.settings
+# and Make.config.override, and generates the appropriate make variables
+# required by this makefile.  E.g. $(CXX), $(CXXFLAGS), etc.
+#-----------------------------------------------------------------------
+
+include $(ENZO_DIR)/Make.config.assemble
+
+#-----------------------------------------------------------------------
+# Make.mach.<machine-name> defines all machine-dependent settings.
+#-----------------------------------------------------------------------
+
+include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
+
+# Override previous defines
+DEFINES = -DUSE_HDF5
+
+#=======================================================================
+# OBJECT FILES
+#=======================================================================
+
+include Make.config.objects
+
+#-----------------------------------------------------------------------
+# MAIN TARGET
+#-----------------------------------------------------------------------
+
+$(EXE): $(MODULES) dep $(OBJS_PGROUP_LIB)
+	@rm -f $@
+	@echo "Linking"
+	-@$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS) >& $(OUTPUT)
+	@(if [ -e $@ ]; then \
+             echo "Success!"; \
+         else \
+             echo "$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS)" >> temp1; \
+             cat temp1 $(OUTPUT) > temp2; \
+             rm -f temp1; \
+             mv -f temp2 $(OUTPUT); \
+             echo "Failed! See $(OUTPUT) for error messages"; \
+         fi)
+
+#-----------------------------------------------------------------------
+# Implicit rules
+#-----------------------------------------------------------------------
+
+.SUFFIXES: .c .C .src .src90 .f .f90
+
+.src.f:
+	@echo "Compiling $<"
+	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
+.f.o:
+	@rm -f $@
+	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
+	@(if [ -e $@ ]; then \
+             rm -f $*.f; \
+          else \
+             echo; \
+             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $*.f"; \
+             echo; \
+             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f; \
+             $(FC) -c -o $@ $(FFLAGS) $*.f; \
+             echo; \
+             exit 1; \
+          fi)
+
+.src90.f90:
+	@echo "Compiling $<"
+	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
+.f90.o:
+	@rm -f $@
+	-@($(F90) -c -o $@ $(F90FLAGS) $*.f90) >& $(OUTPUT)
+	@(if [ -e $@ ]; then \
+             rm -f $*.f90; \
+          else \
+             echo; \
+             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \
+             echo "$(F90) -c -o $@ $(F90FLAGS) $*.f90"; \
+             echo; \
+             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90; \
+             $(F90) -c -o $@ $(F90FLAGS) $*.f90; \
+             echo; \
+             exit 1; \
+          fi)
+
+.c.o:
+	@rm -f $@
+	@echo "Compiling $<"
+	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
+	@(if [ ! -e $@ ]; then \
+             echo; \
+             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo; \
+             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             echo; \
+             exit 1; \
+          fi)
+
+.C.o:
+	@rm -f $@
+	@echo "Compiling $<"
+	-@($(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C) >& $(OUTPUT)
+	@(if [ ! -e $@ ]; then \
+             echo; \
+             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C"; \
+             echo; \
+             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C;\
+             echo; \
+             exit 1; \
+          fi)
+
+#-----------------------------------------------------------------------
+# Generate dependency file
+#-----------------------------------------------------------------------
+
+.PHONY: dep
+dep:
+	@echo "Updating DEPEND"
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -m -- -- *.c *.h) >& out.make.DEPEND
+
+include DEPEND
+
+#-----------------------------------------------------------------------
+# INSTALL TARGET
+#-----------------------------------------------------------------------
+
+install: $(TOP_DIR)/bin
+	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
+	-@cp $(EXE) $(TOP_DIR)/bin/$(EXE)
+
+$(TOP_DIR)/bin:
+	mkdir $(TOP_DIR)/bin
+
+#-----------------------------------------------------------------------
+# HELP TARGET
+#-----------------------------------------------------------------------
+
+help:
+	@echo
+	@echo "========================================================================"
+	@echo "   Enzo Makefile Help"
+	@echo "========================================================================"
+	@echo
+	@echo "   gmake                Compile and generate the executable 'anyl.exe'"
+	@echo "   gmake install        Copy the executable to bin"
+	@echo "   gmake help           Display this help information"
+	@echo "   gmake clean          Remove object files, executable, etc."
+	@echo "   gmake dep            Create make dependencies in DEPEND file"
+	@echo
+	@echo "   gmake help-config    Display detailed help on configuration make targets"
+	@echo "   gmake show-config    Display the configuration settings"
+	@echo "   gmake show-flags     Display specific compilation flags"
+	@echo "   gmake default        Reset the configuration to the default values"
+	@echo
+
+#-----------------------------------------------------------------------
 
 clean:
-	 rm -f $(OBJS) $(EXEC)
+	-@rm -f *.o *.mod *.f *.f90 nrsrc/*.o *~ $(OUTPUT) $(EXE)
 
+#-----------------------------------------------------------------------
+# Include configuration targets
+#-----------------------------------------------------------------------
+
+include $(ENZO_DIR)/Make.config.targets

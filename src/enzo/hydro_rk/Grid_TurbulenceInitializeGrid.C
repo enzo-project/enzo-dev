@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       September, 2007
-/  modified1:
+/  modified1: Tom Abel, allow for parallel generations of ICs (Sept 2009)
 /
 /
 ************************************************************************/
@@ -26,12 +26,14 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-void Turbulence_Generator(float **vel, int size, int ind, float sigma, float kmin, float kmax, float dk,
-			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
+void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
 
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 				   float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level)
+				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level,
+				   int SetBaryonFields)
 {
 
   /* declarations */
@@ -48,6 +50,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
+
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
@@ -57,9 +60,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     FieldType[NumberOfBaryonFields++] = Bfield3;
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
-  if(UseDivergenceCleaning){
+  if(UseDivergenceCleaning)
     FieldType[NumberOfBaryonFields++] = Phi_pField;
-  }
+  
   if (MultiSpecies) {
     FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
     FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
@@ -132,11 +135,18 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     return SUCCESS;
   }
 
+  if (SetBaryonFields == 0) 
+    return SUCCESS;
+
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0,
     VelocityUnits = 1.0;
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
   double MassUnits = DensityUnits*pow(LengthUnits,3);
+  printf("Mass Units = %g \n",MassUnits);
+  printf("Time Units = %g \n",TimeUnits);
+
 
   size = 1;
   for (dim = 0; dim < GridRank; dim++) {
@@ -168,8 +178,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   }
 
   for (dim = 0; dim < GridRank; dim++) {
-    TurbulenceVelocity[dim] = new float[activesize];
-    DrivingField[dim] = new float[activesize];
+    TurbulenceVelocity[dim] = new float[size];
+    DrivingField[dim] = new float[size];
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[dim][n] = 0.0;
       DrivingField[dim][n] = 0.0;
@@ -188,9 +198,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   float InitialFractionHeII = 1.0e-14;
   float InitialFractionHeIII = 1.0e-17;  
 
-  if (CloudType == 3) {
+  /* if (CloudType == 3) {
     CloudRadius = 10.0;
-  }
+    } */
 
   /* Cloud center is box center. */
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, xpos, ypos, zpos,
@@ -252,7 +262,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  /* Type 3: flattened 1/r^2 profile without ambient medium. */
 
 	  if (CloudType == 3) {
-	    Density = CloudDensity / (1.0 + pow(6.0*r,2));
+	    Density = CloudDensity / (1.0 + pow(6.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -287,6 +297,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	  if (CloudType == 1) {
 	    Density = CloudDensity/20.0;
+	    eint = CloudInternalEnergy;
+	  }
+
+          if (CloudType ==3) {
+	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -397,43 +412,23 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       dk = 1.0;
     }
     printf("Begin generating turbulent velocity spectrum...\n");
-    Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
-			 CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
-			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
+    Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);
     printf("Turbulent spectrum generated\n");
 
-    /* Renormalize the mass-weighted 3D rms velocity inside the cloud */
+    float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+  if (level > 0) VelocityNormalization = CloudMachNumber; 
 
-    double VelRMS2 = 0.0, Mass = 0.0;
-    n = 0;
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
-	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-	  
-	  r = sqrt(pow(fabs(x-xc),2)+pow(fabs(y-yc),2)+pow(fabs(z-zc),2));
-	  r = max(r, 0.1*CellWidth[0][0]);
-	  
-	  if (r < CloudRadius) {
-	    VelRMS2 += BaryonField[iden][igrid] * 
-	      (pow(TurbulenceVelocity[0][n],2) + pow(TurbulenceVelocity[1][n],2) + pow(TurbulenceVelocity[2][n],2));
-	    Mass += BaryonField[iden][igrid];
-	  }
-	  
-	}
-      }
+  for (i = 0; i < 3; i++) {
+    for (n = 0; n < activesize; n++) {
+      TurbulenceVelocity[i][n] *= VelocityNormalization;
     }
-    
-    VelRMS2 /= Mass;
-    double NormFactor = CloudMachNumber * CloudSoundSpeed / sqrt(VelRMS2);
-    for (i = 0; i < 3; i++) {
-      for (n = 0; n < activesize; n++) {
-	TurbulenceVelocity[i][n] *= NormFactor;
-      }
-    }
+  }
+
 
     /* Set turbulent velocity field */
 
@@ -466,15 +461,18 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
 
+
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
     k2 = 4.0;
     dk = 1.0;
     printf("Begin generating driving force field ...\n");
-    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
-			 CloudSoundSpeed*CloudMachNumber, k1, k2, dk,
-			 CellLeftEdge, CellWidth, TurbulenceSeed, level);
+    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);
     printf("Driving force field generated\n");
 
 
@@ -522,6 +520,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       }
     }
     
+    //printf("Grid_TubInit: Mass = %"FSYM"\n",Mass);
     VelRMS /= Mass;
     double t_ff = sqrt(32.0/(3.0*M_PI*CloudDensity));
     double NormFactor = CloudMachNumber * CloudSoundSpeed / VelRMS / t_ff;
@@ -583,6 +582,45 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleAttribute[2][0] = mass_p;
   }
 
+  /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  int PutSinkParticle = 0;
+  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  if (PutSinkParticle == 1 && level == 0) {
+    NumberOfParticleAttributes = 6;
+    double mass_p = 1.1*1.989e33;
+    mass_p /= MassUnits;
+    double dx = CellWidth[0][0];
+    double den_p = mass_p / pow(dx,3);
+    double t_dyn = sqrt(3*Pi/(6.672e-8*den_p*DensityUnits));
+    t_dyn /= TimeUnits;
+
+    NumberOfParticles = 1;
+    NumberOfStarParticles = 1;
+    MaximumParticleNumber = 1;
+    this->AllocateNewParticles(NumberOfParticles);
+    ParticleMass[0] = den_p;
+    ParticleNumber[0] = 0;
+    ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
+    ParticlePosition[0][0] = 0.50;                         
+    ParticlePosition[1][0] = 0.50;
+    ParticlePosition[2][0] = 0.50;
+
+    ParticleVelocity[0][0] = 0.0;
+    ParticleVelocity[1][0] = 0.0;
+    ParticleVelocity[2][0] = 0.0;
+    LibbyTouched = 1;
+    for (i = 0; i< MAX_DIMENSION+1; i++){
+      ParticleAcceleration[i] = NULL;
+    }
+    this->ClearParticleAccelerations();
+
+    ParticleAttribute[0][0] = 0.0; // creation time    
+    ParticleAttribute[1][0] = t_dyn; // dynamical time                                                                
+    ParticleAttribute[2][0] = mass_p; //                                                                                 
+    printf("XXX Sink Particle in, NumberOfParticles = %d \n",NumberOfParticles);
+    }*/
+
+
   int TestMerge = 0;
   if (TestMerge == 1 && level == 0) {
 
@@ -630,7 +668,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 
   }
-
 
   return SUCCESS;
 }

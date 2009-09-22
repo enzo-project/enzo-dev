@@ -16,7 +16,7 @@ struct PhotonPackageEntry  {
   PhotonPackageEntry *PreviousPackage; // Previous Link
   SuperSourceEntry *CurrentSource;  // Currently used (super)source  
   float Photons;                // number of photons in package
-  int   Type;                   // 0 = HI, 1=HeI, 2=HeII, 3=Xray, 4=H2I_LW
+  int   Type;                   // 0 = HI, 1=HeI, 2=HeII, 3=H2I_LW, 4=Xray
   float Energy;                 // Mean energy of photons in this package [eV]
   double CrossSection;          // Cross-section of absorber [cm^2]
   FLOAT EmissionTimeInterval;   // Time over which package was emitted

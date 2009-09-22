@@ -19,7 +19,7 @@ int mkPix2xy(long *ipix2x, long *ipix2y)
       id = jpix&1;
       jpix = jpix/2 ;
       ix = id*ip+ix ;
-      id = jpix&2;
+      id = jpix&1;
       jpix = jpix/2;
       iy = id*ip+iy;
       ip = 2*ip;  
@@ -119,12 +119,12 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v, double (*vertex)[3]=0)
 
   if( nside<1 || nside>ns_max ) {
     fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    exit(0);
+    ENZO_FAIL("");
   }
   npix = 12 * nside*nside;
   if( ipix<0 || ipix>npix-1 ) {
     fprintf(stderr, "%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix);
-    exit(0);
+    ENZO_FAIL("");
   }
 
   /* initiates the array for the pixel number -> (x,y) mapping */
@@ -271,8 +271,9 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
   //  static char setup_done = 0;
 
   if( nside<1 || nside>ns_max ) {
-    fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    exit(0);
+    fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", 
+	    __FILE__, __LINE__, nside);
+    ENZO_FAIL("");
   }
   //  if( !setup_done ) {
   //    mk_xy2pix(x2pix,y2pix);

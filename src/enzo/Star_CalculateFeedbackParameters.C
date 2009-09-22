@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -30,7 +31,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       double &EjectaMetalDensity,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits)
+				       float VelocityUnits, float dtForThisStar)
 {
 
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
@@ -39,11 +40,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float	WhalenDensity	  = 1;	// cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
-  const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
-    gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
+  const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
+    k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
+
+  int igrid[MAX_DIMENSION], dim, index;
+  int size=1;
+  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_Edd, v_rel, dvel;
+  float *temperature, density;
 
   Radius = 0.0;
   EjectaDensity = 0.0;
@@ -73,7 +79,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case STROEMGREN:
     Radius = BirthRadius * pc / LengthUnits;
     Radius = max(Radius, 1.5*StarLevelCellWidth);
-    EjectaDensity = WhalenDensity * pMass / DensityUnits;
+    EjectaDensity = WhalenDensity * m_h / DensityUnits;
     EjectaThermalEnergy =
       WhalenTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     break;
@@ -83,20 +89,77 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case CONT_SUPERNOVA:
-    // inject energy into a sphere
+    // Inject energy into a sphere
     Radius = StarClusterSNRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
-    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr).
+    // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
-    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;
+    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
+    EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
-    EjectaThermalEnergy = StarClusterSNEnergy / Msun /
+    EjectaThermalEnergy = StarClusterSNEnergy / Msun /   
       (VelocityUnits * VelocityUnits);
+    break;
+
+  case MBH_THERMAL:
+    if (this->type != MBH || this->CurrentGrid ==  NULL) break;
+
+    /* Using the code snippets adopted from Star_CalculateMassAccretion.C (case LOCAL_ACCRETION)
+       estimate the Bondi accretion rate.  - Ji-hoon Kim */
+
+    mdot = this->DeltaMass;
+
+    /* end of the code snippets from Star_CalculateMassAccretion.C */
+
+    // Inject energy into a sphere
+    Radius = MBHFeedbackRadius * pc / LengthUnits;
+    Radius = max(Radius, 2*StarLevelCellWidth);
+
+    // Release MBH-AGN thermal energy constantly. 
+    // Only EjectaVolume is in physical units; all others are in code units.
+    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
+    EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
+      EjectaVolume / DensityUnits;
+    EjectaMetalDensity = EjectaDensity * StarMetalYield; //very fiducial
+
+    /* Now calculate the feedback parameter based on mdot estimated above.  
+       The unit of EjectaThermalEnergy was ergs/g = cm^2/s^2.   
+       - Ji-hoon Kim  Aug.2009 */
+
+    EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
+      mdot * Msun * c * c * dtForThisStar * TimeUnits / 
+      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+    /* For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
+       This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  */
+    /*
+    EjectaDensity = 0.0;
+    EjectaThermalEnergy = 1.0e50 /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    */
+    
+    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
+    EjectaDensity = 0.0;
+    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+#endif
+
+    /*
+    fprintf(stderr, "EjectaThermalEnergy = %g in S_CFP.C\n", EjectaThermalEnergy);
+    fprintf(stderr, "EjectaDensity = %g in S_CFP.C\n", EjectaDensity);
+    fprintf(stderr, "Radius = %g in S_CFP.C\n", Radius);
+    fprintf(stderr, "dtForThisStar in S_CFP.C = %g\n", dtForThisStar);
+    */
     break;
 
   } // ENDSWITCH FeedbackFlag
   
   return;
 }
+
+
+
+

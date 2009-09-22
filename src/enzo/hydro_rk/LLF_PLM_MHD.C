@@ -27,6 +27,11 @@
 int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq);
 int plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize);
 int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize);
+#ifdef ECUDA
+void cuda_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq, float Theta_Limiter);
+int cuda_plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize, float Theta_Limiter, int NSpecies);
+int cuda_plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize, float Theta_Limiter, int NColor);
+#endif
 int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize);
 
 int LLF_PLM_MHD(float **prim, float **priml, float **primr,
@@ -35,6 +40,11 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 {
 
   // compute priml and primr
+#ifdef ECUDA
+  if (UseCUDA) {
+    cuda_plm(prim, priml, primr, ActiveSize, 9, Theta_Limiter);
+    } else   
+#endif
   if (plm(prim, priml, primr, ActiveSize, 9) == FAIL) {
     return FAIL;
   }

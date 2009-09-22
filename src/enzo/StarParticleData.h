@@ -21,7 +21,7 @@
 /* Number of Star particles. */
 
 SPEXTERN int NumberOfStarParticles;
-SPEXTERN int TotalNumberOfStars;
+SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */
 
@@ -34,6 +34,7 @@ SPEXTERN float StarMetalYield;
 SPEXTERN float StarEnergyToThermalFeedback;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
+
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIBlackHoles;
 SPEXTERN float PopIIIBHLuminosityEfficiency;
@@ -53,6 +54,16 @@ SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
+
+SPEXTERN float  MBHMinDynamicalTime;
+SPEXTERN float  MBHMinimumMass;
+SPEXTERN float  MBHAccretingMassRatio;
+SPEXTERN int    MBHFeedbackThermal;
+SPEXTERN float  MBHFeedbackRadius;
+SPEXTERN float  MBHFeedbackRadiativeEfficiency;
+SPEXTERN float  MBHFeedbackThermalCoupling;
+SPEXTERN float  MBHFeedbackMassEjectionFraction;
+SPEXTERN float  MBHCombineRadius;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

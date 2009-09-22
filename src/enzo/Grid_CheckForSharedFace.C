@@ -71,6 +71,18 @@ int grid::CheckForSharedFace(grid *OtherGrid,
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
  
+
+  FLOAT Lx, Ly, ShearingOffset;
+
+  if (ShearingBoundaryDirection>-1) { // For shearing box we have another offset in the y direction
+    Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
+    Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
+    ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
+    while (ShearingOffset >= Ly) {
+      ShearingOffset -= Ly;
+    }  
+  }
+
   for (k = -kdim; k <= +kdim; k++) {
     EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
     for (j = -jdim; j <= +jdim; j++) {
@@ -81,35 +93,75 @@ int grid::CheckForSharedFace(grid *OtherGrid,
 	/* This unfortunate bit of logic is to make sure we should be
 	   applying periodic bc's in this direction. */
  
-	if ((i != +1 || (LeftFaceBoundaryCondition[0] == periodic &&
-			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
-	    (i != -1 || (RightFaceBoundaryCondition[0] == periodic &&
-			 CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0])                        ) &&
-	    (j != +1 || (LeftFaceBoundaryCondition[1] == periodic &&
-			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
-	    (j != -1 || (RightFaceBoundaryCondition[1] == periodic &&
-			 CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1])                        ) &&
-	    (k != +1 || (LeftFaceBoundaryCondition[2] == periodic &&
-			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
-	    (k != -1 || (RightFaceBoundaryCondition[2] == periodic &&
-			 CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])                        )   ) {
+	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
+			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingVelocityDirection==0 ))    ) &&
+	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
+			 (CellLeftEdge[0][GridDimension[0]-1] >
+			 DomainRightEdge[0] ||  ShearingVelocityDirection==0 ))                        ) &&
+	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
+			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingVelocityDirection==1 ))    ) &&
+	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
+			 (CellLeftEdge[1][GridDimension[1]-1] >
+			 DomainRightEdge[1]  || ShearingVelocityDirection==1 ))                        ) &&
+	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
+			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingVelocityDirection==2))    ) &&
+	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
+			 (CellLeftEdge[2][GridDimension[2]-1] >
+			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
+ 
+
+// 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][0] < DomainLeftEdge[0] ))    ) &&
+// 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
+// 			 (CellLeftEdge[0][GridDimension[0]-1] >
+// 			 DomainRightEdge[0] ))                        ) &&
+// 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][0] < DomainLeftEdge[1]  ))    ) &&
+// 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
+// 			 (CellLeftEdge[1][GridDimension[1]-1] >
+// 			 DomainRightEdge[1] ))                        ) &&
+// 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][0] < DomainLeftEdge[2] ))    ) &&
+// 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
+// 			 (CellLeftEdge[2][GridDimension[2]-1] >
+// 			 DomainRightEdge[2])  )  )   ){
+
  
 	  /* Full periodic case (26 checks).
 	     This ONLY checks the Periodic shifts.  (that's the i!=0 || ... crap) */
 	
+
+
 	  if ((GridRank > 2 || k == 0) &&
 	      (GridRank > 1 || j == 0) &&
 	      (i != 0 || j != 0 || k != 0)) {
+
+	  if (ShearingBoundaryDirection!=-1){
+	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
+		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
+		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
+		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+	      }
+	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
+		  (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
+		  (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
+		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+	      }
+	    }
  
 	    if (this->CheckForSharedFaceHelper(OtherGrid, EdgeOffset)
 		== TRUE)
 	      return TRUE;
 	  }
  
+	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
+	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
+	  EdgeOffset[0] = FLOAT(i)*(DomainRightEdge[0] - DomainLeftEdge[0]);
+	
+
 	} // end: if (periodic bc's)
+
+ 
  
       } // end: loop of i
     } // end: loop of j

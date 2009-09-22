@@ -130,6 +130,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
                           ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
 #endif
 
+
+
 #ifdef SAB
 #ifdef FAST_SIB
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
@@ -293,6 +295,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
  
 
+
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). */
@@ -352,6 +355,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+    /* Solve the radiative transfer */
+	
+#ifdef TRANSFER
+    GridTime = Grids[0]->GridData->ReturnTime();// + dtThisLevel;
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+#endif /* TRANSFER */
  
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
@@ -414,12 +424,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      /* Solve the radiative transfer */
-	
-#ifdef TRANSFER
-      GridTime = Grids[grid1]->GridData->ReturnTime();
-      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
-#endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
  
@@ -458,14 +462,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			      level, MetaData, Exterior, LevelArray[level]);
+			  level, MetaData, Exterior, LevelArray[level]);
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                              Exterior, LevelArray[level]);
+			  Exterior, LevelArray[level]);
 #endif
 
     /* Finalize (accretion, feedback, etc.) star particles */
- 
+
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars);
 
@@ -497,10 +501,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       } //  end loop over grids
     } // if WritePotential
  
+
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
+
+
+    /* Run the Divergence Cleaing                */
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->PoissonSolver(level);
+    
+
  
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -517,6 +530,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	ENZO_FAIL("");
       }
     }
+
+  
 
 #ifdef USE_JBPERF
     // Update lcaperf "level" attribute
@@ -596,6 +611,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
+    
+
     cycle++;
     LevelCycleCount[level]++;
  
@@ -607,7 +624,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* If possible & desired, report on memory usage. */
  
-
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
 #ifdef USE_JBPERF
@@ -634,7 +650,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] SiblingList;
   }
 
- 
   return SUCCESS;
  
 }

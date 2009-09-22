@@ -48,7 +48,8 @@ static int ReadDataGridCounter = 0;
 
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
-		           HierarchyEntry *ParentGrid, hid_t file_id)
+			    HierarchyEntry *ParentGrid, hid_t file_id,
+			    int NumberOfRootGrids, int *RootGridProcessors)
 {
  
   int TestGridID, NextGridThisLevelID, NextGridNextLevelID;
@@ -111,7 +112,33 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 //  if ( MyProcessorNumber == 0 )
 //    fprintf(stderr, "Using dumped task assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, Task);
 
-    Grid->GridData->SetProcessorNumber(Task);
+  /* If requested, reset the grid processors. */
+
+  if (ResetLoadBalancing) 
+    if (GridID <= NumberOfRootGrids)
+      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
+	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
+      else
+	Task = (GridID-1) % NumberOfProcessors;
+    else
+      Task = ParentGrid->GridData->ReturnProcessorNumber();
+
+  // Assign tasks in a round-robin fashion if we're increasing the
+  // processor count, but processors are grouped together
+  // (0000111122223333).  Only used if LoadBalancing == 2.
+  if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
+    Task = Task * NumberOfProcessors / (PreviousMaxTask+1);
+
+  // If provided load balancing of root grids based on subgrids, use
+  // these instead.
+  if (LoadBalancing > 1 && RootGridProcessors != NULL)
+    if (GridID <= NumberOfRootGrids)
+      Task = RootGridProcessors[GridID-1];
+    else
+      // Load the child on the same processor as its parent
+      Task = ParentGrid->GridData->ReturnProcessorNumber();
+  
+  Grid->GridData->SetProcessorNumber(Task);
 
 #endif
 
@@ -154,7 +181,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   if(LoadGridDataAtStart){ 
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id) == FAIL) {
       fprintf(stderr, "Error in grid->Group_ReadGrid (grid %"ISYM").\n", GridID);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }else{
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, FALSE) == FAIL) {
@@ -199,10 +226,9 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   if (NextGridThisLevelID != 0) {
     Grid->NextGridThisLevel = new HierarchyEntry;
     if (Group_ReadDataHierarchy(fptr, Grid->NextGridThisLevel, NextGridThisLevelID,
-			  ParentGrid, file_id) == FAIL) {
-      fprintf(stderr, "Error in Group_ReadDataHierarchy(1).\n");
-      ENZO_FAIL("");
-    }
+				ParentGrid, file_id, NumberOfRootGrids,
+				RootGridProcessors) == FAIL)
+      ENZO_FAIL("Error in Group_ReadDataHierarchy(1).");
   }
  
   /* Read pointer information for the next grid next level. */
@@ -223,11 +249,10 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
  
   if (NextGridNextLevelID != 0) {
     Grid->NextGridNextLevel = new HierarchyEntry;
-    if (Group_ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID, Grid, file_id)
-	== FAIL) {
-      fprintf(stderr, "Error in Group_ReadDataHierarchy(2).\n");
-      ENZO_FAIL("");
-    }
+    if (Group_ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID, 
+				Grid, file_id, NumberOfRootGrids, 
+				RootGridProcessors) == FAIL)
+      ENZO_FAIL("Error in Group_ReadDataHierarchy(2).");
   }
  
   return SUCCESS;

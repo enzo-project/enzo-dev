@@ -84,14 +84,14 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
   for (field = 0; field < NumberOfBaryonFields; field++) {
  
     if (BaryonField[field] == NULL) {
-      fprintf(stderr, "Baryon field missing.\n");
+      fprintf(stderr, "Baryon field missing. %i %i\n", field, NumberOfBaryonFields);
       ENZO_FAIL("");
     }
 
 #ifdef OOC_BOUNDARY
     ExternalBoundaryField = field;
 #endif
- 
+
     if (Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
 				      GridStartIndex, GridEndIndex,
 				      BaryonField[field], FieldType[field])

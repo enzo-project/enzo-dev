@@ -46,6 +46,12 @@ void Star::ActivateNewStar(FLOAT Time)
     case BlackHole:
       // nothing to do
       break;
+    case MBH:
+      if (Mass >= MBHMinimumMass) {
+	type = StarType; 
+	BirthTime = Time;
+      }
+      break;
     } // ENDSWITCH type
   } // ENDIF FORMATION
 

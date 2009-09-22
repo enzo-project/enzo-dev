@@ -102,6 +102,14 @@ int grid::SolveRateEquations()
   /* Find the density field. */
  
   int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+
+  int MetalNum = 0, MetalFieldPresent = FALSE;
+
+  // First see if there's a metal field (so we can conserve species in
+  // the solver)
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
+    MetalNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+  MetalFieldPresent = (MetalNum != -1);
  
   /* If using cosmology, compute the expansion factor and get units. */
  

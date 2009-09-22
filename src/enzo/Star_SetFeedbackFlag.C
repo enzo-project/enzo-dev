@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       November, 2005
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             July, 2009
 /
 /  NOTES:  When the star particle is created, it is assigned the 
 /          ParticleType from the grid.  Change this to represent the 
@@ -61,7 +62,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  abs_type = abs(this->type);
+  abs_type = ABS(this->type);
   switch (abs_type) {
 
   case PopIII:
@@ -89,6 +90,27 @@ int Star::SetFeedbackFlag(FLOAT Time)
 
   case BlackHole:
     this->FeedbackFlag = NO_FEEDBACK;
+    break;
+
+  /* For MBH particle. Even with the NO_FEEDBACK flag, 
+     the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
+
+  case MBH:
+    AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
+    if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
+      this->FeedbackFlag = MBH_THERMAL;
+    else
+      this->FeedbackFlag = NO_FEEDBACK;
+
+#define NOT_SEDOV_TEST
+#ifdef SEDOV_TEST
+  //if (this->type > 0 && AgeInMyr > 0 && AgeInMyr < 0.001)  //for Sedov test (injecting for 1kyr)
+    if (this->type > 0 && AgeInMyr > 0)                      //for Ostriker & McKee test (injecting continuously)
+      this->FeedbackFlag = MBH_THERMAL;
+    else
+      this->FeedbackFlag = NO_FEEDBACK;      
+#endif
+
     break;
 
   } // ENDSWITCH

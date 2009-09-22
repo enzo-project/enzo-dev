@@ -123,7 +123,7 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
 						pl,   pu,
 						Bxl,  Bxu,
 						Byl,  Byu)  == FAIL) {
-    fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+    fprintf(stderr, "Error in MHD3DTestInitializeGrid.\n");
     return FAIL;
   }
 
@@ -168,7 +168,7 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
 						    pl,   pu,
 						    Bxl,  Bxu,
 						    Byl,  Byu) == FAIL) {
-	  fprintf(stderr, "Error in SRHydroTestInitializeGrid.\n");
+	  fprintf(stderr, "Error in MHD3DTestInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;

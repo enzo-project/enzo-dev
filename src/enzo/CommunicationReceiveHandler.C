@@ -119,11 +119,12 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
       if (CommunicationReceiveGridOne[index] != NULL &&
 	  CommunicationReceiveMPI_Request[index] == MPI_REQUEST_NULL) {
 
-//	fprintf(stdout, "%d %d %d %d %d\n", index, 
-//		CommunicationReceiveCallType[index],
-//		CommunicationReceiveGridOne[index],
-//		CommunicationReceiveMPI_Request[index],
-//		CommunicationReceiveDependsOn[index]);
+// 	if(CommunicationReceiveCallType[index]==2)
+// 	  fprintf(stdout, "%d %d %d %d %d\n", index, 
+// 		CommunicationReceiveCallType[index],
+// 		CommunicationReceiveGridOne[index],
+// 		CommunicationReceiveMPI_Request[index],
+// 		CommunicationReceiveDependsOn[index]);
 
 	/* If this depends on an un-processed receive, then skip it. */
 
@@ -261,6 +262,11 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
 	case 17:
 	  errcode = grid_one->InterpolateParticlesToGrid(NULL);
+	  break;
+
+	case 18:
+	  errcode = grid_one->CommunicationSendStars(grid_two, 
+						     MyProcessorNumber);
 	  break;
 
 	default:

@@ -5,7 +5,8 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1:
+/  modified1:  John Wise
+/  date:       March, 2009 (converted into a class)
 /
 /  PURPOSE:
 /
@@ -53,6 +54,7 @@ public:
   Star();
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
+  Star(StarBuffer buffer) ;
   ~Star();
 
   // Operators
@@ -80,11 +82,12 @@ public:
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(float dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
-  void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
+  void  ResetAccretion(void) { if (type != BlackHole && type != MBH) DeltaMass = 0.0; };
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   bool  ReturnEmissivityFlag(void) { return AddedEmissivity; };
   void  AddEmissivityFlag(void) { this->AddedEmissivity = true; };
+  FLOAT *ReturnPosition(void) { return pos; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -95,10 +98,13 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
+  int	SubtractAccretedMass(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);
   bool  Mergable(Star *a);
+  bool	MergableMBH(Star a);
+  bool  MergableMBH(Star *a);
   float Separation(Star a);
   float Separation(Star *a);
   float Separation2(Star a);
@@ -114,6 +120,7 @@ public:
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);
+  void  PrintInfo(void);
 
   void  CalculateFeedbackParameters(float &Radius, float SNe_dt, 
 				    float RootCellWidth,
@@ -122,10 +129,10 @@ public:
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
-				    float VelocityUnits);
+				    float VelocityUnits, float dtForThisStar);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
-			 float &Radius, double &EjectaDensity, 
+			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,

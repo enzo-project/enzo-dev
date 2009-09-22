@@ -109,15 +109,15 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef, kappa, &
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUBR, intent(in) :: kappa, dt, theta, dx, dy, dz
-  REALSUBR, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUBR, intent(in) :: Ef(*), eta(*)
-  REALSUBR, intent(in) :: BCValsXl(*), BCValsXr(*)
-  REALSUBR, intent(in) :: BCValsYl(*), BCValsYr(*)
-  REALSUBR, intent(in) :: BCValsZl(*), BCValsZr(*)
+  REALSUB, intent(in) :: kappa, dt, theta, dx, dy, dz
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
+  REALSUB, intent(in) :: Ef(*), eta(*)
+  REALSUB, intent(in) :: BCValsXl(*), BCValsXr(*)
+  REALSUB, intent(in) :: BCValsYl(*), BCValsYr(*)
+  REALSUB, intent(in) :: BCValsZl(*), BCValsZr(*)
   real*8,  intent(out) :: matentries(*)
   real*8,  intent(out) :: rhsentries(*)
-  REALSUBR, intent(out) :: rhsnorm
+  REALSUB, intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !=======================================================================
@@ -183,16 +183,16 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUBR, intent(in) :: kappa, dt, theta, dx, dy, dz
-  REALSUBR, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUBR, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
+  REALSUB, intent(in) :: kappa, dt, theta, dx, dy, dz
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
+  REALSUB, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
        intent(in) :: Ef, eta
-  REALSUBR, intent(in) :: BCValsXl(Ny,Nz), BCValsXr(Ny,Nz)
-  REALSUBR, intent(in) :: BCValsYl(Nx,Nz), BCValsYr(Nx,Nz)
-  REALSUBR, intent(in) :: BCValsZl(Nx,Ny), BCValsZr(Nx,Ny)
+  REALSUB, intent(in) :: BCValsXl(Ny,Nz), BCValsXr(Ny,Nz)
+  REALSUB, intent(in) :: BCValsYl(Nx,Nz), BCValsYr(Nx,Nz)
+  REALSUB, intent(in) :: BCValsZl(Nx,Ny), BCValsZr(Nx,Ny)
   real*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
   real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
-  REALSUBR, intent(out) :: rhsnorm
+  REALSUB, intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
@@ -627,14 +627,14 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUBR, intent(in) :: kappa, dt, theta, dx, dy
-  REALSUBR, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUBR, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: Ef, eta
-  REALSUBR, intent(in) :: BCValsXl(Ny), BCValsXr(Ny)
-  REALSUBR, intent(in) :: BCValsYl(Nx), BCValsYr(Nx)
+  REALSUB, intent(in) :: kappa, dt, theta, dx, dy
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
+  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: Ef, eta
+  REALSUB, intent(in) :: BCValsXl(Ny), BCValsXr(Ny)
+  REALSUB, intent(in) :: BCValsYl(Nx), BCValsYr(Nx)
   real*8,  intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
   real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
-  REALSUBR, intent(out) :: rhsnorm
+  REALSUB, intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
@@ -931,13 +931,13 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   integer,  intent(in) :: LimType
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUBR, intent(in) :: kappa, dt, theta, dx
-  REALSUBR, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUBR, intent(in), dimension(1-NGxl:Nx+NGxr) :: Ef, eta
-  REALSUBR, intent(in) :: BCValsXl(1), BCValsXr(1)
+  REALSUB, intent(in) :: kappa, dt, theta, dx
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
+  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr) :: Ef, eta
+  REALSUB, intent(in) :: BCValsXl(1), BCValsXr(1)
   real*8,  intent(out) :: matentries(3,x0s:x0e)
   real*8,  intent(out) :: rhsentries(x0s:x0e)
-  REALSUBR, intent(out) :: rhsnorm
+  REALSUB, intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------

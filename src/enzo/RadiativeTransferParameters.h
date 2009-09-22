@@ -76,3 +76,8 @@ EXTERN int RadiativeTransferFLD;
    solver */
 
 EXTERN int RadiativeTransferFLDCallOnLevel;
+
+/* Flag to use timestepping to restrict HII fraction change to 50% */
+
+EXTERN int RadiativeTransferHIIRestrictedTimestep;
+

@@ -31,6 +31,7 @@
 /* Set the mean molecular mass. */
  
 #define DEFAULT_MU 0.6
+#define MU_METAL 16.0
  
 /* This is minimum returned temperature. (K) */
  
@@ -55,6 +56,21 @@ int grid::ComputeTemperatureField(float *temperature)
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
  
+  /* If Gadget equilibrium cooling is on, call the appropriate routine,
+     then exit - don't use the rest of the routine. */
+
+  if(GadgetEquilibriumCooling){
+    if(DualEnergyFormalism)
+      result = this->GadgetComputeTemperatureDEF(Time, temperature);
+    else
+      result = this->GadgetComputeTemperature(Time,temperature);
+
+    if(result == FAIL) {
+      ENZO_FAIL("Error in grid->ComputePressure: Gadget.");
+    }
+    return SUCCESS;
+  }
+
   /* Compute the pressure first. */
  
   if (DualEnergyFormalism)
@@ -62,10 +78,8 @@ int grid::ComputeTemperatureField(float *temperature)
   else
     result = this->ComputePressure(Time, temperature);
  
-  if (result == FAIL) {
-    fprintf(stderr, "Error in grid->ComputePressure.\n");
-    ENZO_FAIL("");
-  }
+  if (result == FAIL)
+    ENZO_FAIL("Error in grid->ComputePressure.");
  
   /* Compute the size of the fields. */
  
@@ -75,12 +89,19 @@ int grid::ComputeTemperatureField(float *temperature)
  
   /* Find Density, if possible. */
  
-  if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("");
-  }
- 
- 
+  if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0)
+    ENZO_FAIL("Cannot find density.");
+
+  /* Find metal field */
+
+  int MetalNum = 0;
+  bool MetalFieldPresent = false;
+  float inv_metal_mol = 1.0 / MU_METAL;
+
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
+    MetalNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+  MetalFieldPresent = (MetalNum != -1);
+   
   if (ProblemType == 60 || ProblemType == 61) { //AK
     for (i = 0; i < size; i++) {
       if (BaryonField[DensNum][i] <= 0.0)
@@ -96,11 +117,8 @@ int grid::ComputeTemperatureField(float *temperature)
  
   /* Find the temperature units. */
  
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
-  }
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, Time);
 
   /* For Sedov Explosion compute temperature without floor */
 
@@ -109,7 +127,6 @@ int grid::ComputeTemperatureField(float *temperature)
     mol_weight = 1.0;
     min_temperature = tiny_number;
   }
-
 
   if (MultiSpecies == FALSE)
  
@@ -124,11 +141,8 @@ int grid::ComputeTemperatureField(float *temperature)
  
     /* Find Multi-species fields. */
  
-    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
-    }
+    IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+			  HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
  
     /* Compute temperature with mu calculated directly. */
  
@@ -145,6 +159,9 @@ int grid::ComputeTemperatureField(float *temperature)
       if (MultiSpecies > 1)
 	number_density += BaryonField[HMNum][i]   +
 	  0.5*(BaryonField[H2INum][i]  + BaryonField[H2IINum][i]);
+
+      if (MetalFieldPresent)
+	number_density += BaryonField[MetalNum][i] * inv_metal_mol;
  
       /* Ignore deuterium. */
  
