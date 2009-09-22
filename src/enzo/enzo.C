@@ -49,8 +49,6 @@
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
-#include "FSProb.h"
-#include "NullProblem.h"
 #endif
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
@@ -131,7 +129,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 				HierarchyEntry &TopGrid, 
 				TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
-				ImplicitProblemABC *ImplicitSolver,
+				ImplicitProblemABC* &ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
@@ -140,10 +138,6 @@ void jbPerfInitialize (int max_level);
 #endif
 
 void my_exit(int status);
-
-#ifdef TRANSFER
-int DetermineParallelism(HierarchyEntry *TopGrid, TopGridData &MetaData);
-#endif
  
 #ifdef MEM_TRACE
 Eint64 mused(void);
@@ -479,35 +473,18 @@ Eint32 main(Eint32 argc, char *argv[])
 
 
 #ifdef TRANSFER
-    // First, determine Top-Grid Parallelism information (store in grids)
-  if (RadiativeTransferFLD == 1) 
-    if (DetermineParallelism(&TopGrid, MetaData) == FAIL) {
-      fprintf(stderr,"Error in DetermineParallelism.\n");
-      my_exit(EXIT_FAILURE);
-    }
 #endif
-
-  // if using an implicit RT solver, declare the appropriate object here
-#ifdef TRANSFER
-  ImplicitProblemABC *ImplicitSolver;
-  if (RadiativeTransferFLD == 1) {
-    ImplicitSolver = new FSProb; 
-}
-  else {
-    ImplicitSolver = new NullProblem; }
-#endif
-
 
   /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
+  ImplicitProblemABC *ImplicitSolver;
   if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
 				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
 #endif
-
 
 #ifdef MEM_TRACE
   MemInUse = mused();

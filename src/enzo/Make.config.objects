@@ -170,6 +170,7 @@ OBJS_CONFIG_LIB = \
 	fortio.o \
 	fourn.o \
 	FreeRealMem.o \
+	FSMultiSourceInitialize.o \
 	FSProb_constructor.o \
 	FSProb_destructor.o \
 	FSProb_FInterface.o \
@@ -286,6 +287,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedBySlope.o \
 	Grid_FlagRefinedCells.o \
 	Grid_FlagGridArray.o \
+	Grid_FSMultiSourceInitializeGrid.o \
 	Grid_GetEnclosedMass.o \
 	Grid_GetProjectedBoundaryFluxes.o \
 	Grid_GravityEquilibriumTestInitializeGrid.o \
@@ -308,7 +310,6 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolateParticlePositions.o \
 	Grid_InterpolateParticlesToGrid.o \
 	Grid_InterpolatePositions.o \
-	Grid_InterpolateRadiation.o \
 	Grid_Irecv_CommunicationReceiveRegion.o \
 	Grid_Irecv_CommunicationSendParticles.o \
 	Grid_Irecv_CommunicationSendRegion.o \
@@ -615,7 +616,9 @@ POBJS_CONFIG_LIB = \
 	FindRootGrid.o \
 	FindSuperSource.o \
 	FindSuperSourceByPosition.o \
+	FLDCorrectForImpulses.o \
 	Grid_AddH2Dissociation.o \
+	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
 	Grid_CommunicationSendPhotonPackages.o \
@@ -632,6 +635,7 @@ POBJS_CONFIG_LIB = \
 	Grid_IdentifyRadiationPressureFields.o \
 	Grid_InitializeRadiativeTransferFields.o \
 	Grid_InitializeSource.o \
+	Grid_InterpolateRadiationFromParent.o \
 	Grid_MergePausedPhotonPackages.o \
 	Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonTestInitializeGrid.o \
@@ -659,7 +663,8 @@ POBJS_CONFIG_LIB = \
 	StarParticleRadTransfer.o \
 	WritePhotonSources.o
 
-OBJS_HYDRO_RK = hydro_rk/AGNDiskInitialize.o		                        \
+OBJS_HYDRO_RK = \
+	        hydro_rk/AGNDiskInitialize.o		                        \
 		hydro_rk/Collapse1DInitialize.o					\
 		hydro_rk/Collapse3DInitialize.o					\
 		hydro_rk/EvolveLevel_RK2.o					\

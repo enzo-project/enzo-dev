@@ -30,6 +30,7 @@ struct StarBuffer {
   int		Identifier;
   int		level;
   int		GridID;
+  bool          AddedEmissivity;
   star_type	type;
 };
 

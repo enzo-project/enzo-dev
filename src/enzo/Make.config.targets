@@ -621,7 +621,7 @@ hypre-yes: CONFIG_HYPRE-yes
 hypre-no: CONFIG_HYPRE-no
 hypre-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_HYPRE)]\n\n"
-CONFIG_HYPRE-%:
+CONFIG_HYPRE-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_HYPRE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \

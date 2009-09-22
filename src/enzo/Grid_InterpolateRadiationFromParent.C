@@ -62,7 +62,7 @@ extern "C" void FORTRAN_NAME(combine3d)(
  
 /* InterpolateBoundaryFromParent function */
  
-int grid::InterpolateRadiation(grid *ParentGrid, int Field)
+int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
 {
  
   /* Return if this doesn't involve us. */

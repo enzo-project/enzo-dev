@@ -29,17 +29,19 @@
 #include "StarParticleData.h"
 #include "RadiativeTransferHealpixRoutines.h"
 #include "ImplicitProblemABC.h"
-
+#include "FSProb.h"
+#include "NullProblem.h"
 
 int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
-
+int DetermineParallelism(HierarchyEntry *TopGrid, TopGridData &MetaData);
+void my_exit(int status);
 
 int RadiativeTransferInitialize(char *ParameterFile, 
 				HierarchyEntry &TopGrid, 
 				TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
-				ImplicitProblemABC *ImplicitSolver,
+				ImplicitProblemABC* &ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[])
 {
 
@@ -71,13 +73,17 @@ int RadiativeTransferInitialize(char *ParameterFile,
   rewind(fptr);
   if (ProblemType == 50)
     ReadPhotonSources(fptr, MetaData.Time);
+
   PhotonTime = MetaData.Time;
+  MetaData.FLDTime = MetaData.Time;
+  MetaData.dtFLD = 0.0;
 
   fclose(fptr);
 
   if (RadiativeTransferPhotonEscapeRadius > 0) {
     PhotonEscapeFilename = new char[80];
-    sprintf(PhotonEscapeFilename, "fesc%4.4d.dat", MetaData.DataDumpNumber-1);
+    sprintf(PhotonEscapeFilename, "fesc%4.4d.dat", 
+	    (Eint32) MetaData.DataDumpNumber-1);
   }
 
   /* Create all StarParticles from normal particles */
@@ -210,13 +216,21 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
 
   // if using the FLD solver, initialize it here
-  if (RadiativeTransferFLD > 0) {
-#ifdef USE_HYPRE  
-    ImplicitSolver->Initialize(TopGrid, MetaData);
+#ifdef USE_HYPRE
+  if (RadiativeTransferFLD == 1) {
+    ImplicitSolver = new FSProb;
+    if (DetermineParallelism(&TopGrid, MetaData) == FAIL) {
+      fprintf(stderr,"Error in DetermineParallelism.\n");
+      my_exit(EXIT_FAILURE);
+    }
+  } else {
+    ImplicitSolver = new NullProblem;
+  }
+  ImplicitSolver->Initialize(TopGrid, MetaData);
 #else
+  if (RadiativeTransferFLD == 1)
     ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
 #endif
-  }
 
   return SUCCESS;
 

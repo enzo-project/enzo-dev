@@ -265,3 +265,5 @@ int FinalizeRadiationFields(void);
 
 int DeleteEmissivity(void);
 int CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD);
+int AddRadiationImpulse(int field, double Luminosity, double sigma, 
+			FLOAT BirthTime, FLOAT* pos);

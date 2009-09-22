@@ -30,14 +30,22 @@
 #include "RadiativeTransferHealpixRoutines.h"
 #include "ImplicitProblemABC.h"
 
+float CommunicationMinValue(float Value);
+int FLDCorrectForImpulses(int field, LevelHierarchyEntry *LevelArray[],
+			  int level, Star *AllStars, FLOAT FLDTime, 
+			  float dtFLD);
+
 int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
-			     Star *AllStars, ImplicitProblemABC *ImplicitSolver)
+			     TopGridData *MetaData, Star *AllStars, 
+			     ImplicitProblemABC *ImplicitSolver)
 
 {
 
   LevelHierarchyEntry *Temp;
-  FLOAT FLDTime;
-  float dt;
+  int l, CallLevel;
+  float dtLocal, dtGrid;
+  FLOAT LevelTime;
+  Star *cstar;
 
   if (RadiativeTransferFLD == FALSE)
     return SUCCESS;
@@ -59,13 +67,9 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 
   */
 
-  int l, CallLevel;
-  FLOAT LevelTime;
-  FLDTime = LevelArray[RadiativeTransferFLDCallOnLevel]->GridData->
-    ReturnTime();
-  for (l = 0; l <= RadiativeTransferFLDCallOnLevel; l++) {
+  for (l = level; l <= RadiativeTransferFLDCallOnLevel; l++) {
     LevelTime = LevelArray[l]->GridData->ReturnTime();
-    if (LevelTime == FLDTime) {
+    if (LevelTime >= MetaData->FLDTime) {
       CallLevel = l;
       break;
     }
@@ -73,18 +77,37 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 
   if (level == CallLevel) {
 
-    dt = LevelArray[level]->GridData->ReturnTimeStep();
+    /* If this level is less than the FLD timestepping level, we have
+       to calculate the timestep on level L*.  Otherwise, it's already
+       stored in dtFixed. */
+
+    if (level < RadiativeTransferFLDCallOnLevel) {
+      dtLocal = huge_number;
+      for (Temp = LevelArray[RadiativeTransferFLDCallOnLevel];
+	   Temp; Temp = Temp->NextGridThisLevel) {
+	dtGrid = Temp->GridData->ComputeTimeStep();
+	dtLocal = min(dtLocal, dtGrid);
+      }
+      MetaData->dtFLD = CommunicationMinValue(dtLocal);
+    } else
+      MetaData->dtFLD = LevelArray[RadiativeTransferFLDCallOnLevel]->
+	GridData->ReturnTimeStep();
+
+    if (debug)
+      fprintf(stdout, "CallFLD: level %"ISYM", dtFLD = %"PSYM"\n",
+	      level, MetaData->dtFLD);
 
     /* Construct emissivity field on each root grid from the star
        particles (objects) */
 
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
-      Temp->GridData->CreateEmissivityLW(AllStars, FLDTime, dt);
+      Temp->GridData->CreateEmissivityLW(AllStars, MetaData->FLDTime, 
+					 MetaData->dtFLD);
 
     /* Call FLD solver */
 
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
-      ImplicitSolver->Evolve(Temp->GridHierarchyEntry, dt);
+      ImplicitSolver->Evolve(Temp->GridHierarchyEntry, MetaData->dtFLD);
 
     /* Delete emissivity fields */
 
@@ -98,10 +121,24 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
     for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
 	Parent = Temp->GridHierarchyEntry->ParentGrid;
-	Temp->GridData->InterpolateRadiation(Parent->GridData, FieldToCalculate);
+	Temp->GridData->InterpolateRadiationFromParent(Parent->GridData, 
+						       FieldToCalculate);
       }
 
+    MetaData->FLDTime += MetaData->dtFLD;
+
   } // ENDIF level == CallOnLevel
+
+  /* On other levels, we have to check for newly-created stars or
+     sources between calls to the FLD solver and add a temporary 1/r^2
+     radiation field. */
+  
+  else {
+
+    FLDCorrectForImpulses(FieldToCalculate, LevelArray, level, AllStars,
+			  MetaData->FLDTime, MetaData->dtFLD);
+
+  } // ENDELSE level == CallOnLevel
 
   return SUCCESS;
 

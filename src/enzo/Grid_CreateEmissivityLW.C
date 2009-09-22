@@ -22,7 +22,6 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int FindField(int f, int farray[], int n);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -90,12 +89,12 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	E_LW = energies[3];
 	L_LW = Luminosity[3];
 
-	i = int((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidth[0][0]);
-	j = int((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidth[1][0]);
-	k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
+	i = int((cstar->pos[0] - GridLeftEdge[0]) / CellWidth[0][0]);
+	j = int((cstar->pos[1] - GridLeftEdge[1]) / CellWidth[1][0]);
+	k = int((cstar->pos[2] - GridLeftEdge[2]) / CellWidth[2][0]);
 	index = GRIDINDEX(i,j,k);
 
-	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
+	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg / CellVolume * 
 	  TimeFraction;
 
       } // ENDFOR stars
@@ -106,6 +105,9 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
     else {
 
       RadiationSourceEntry *RS;
+
+      // Convert from #/s to RT units
+      double LConv = (double) TimeUnits / pow(LengthUnits,3);
 
       for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
 
@@ -121,14 +123,14 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	  TimeFraction = 1.0;
 
 	E_LW = RS->Energy[3];
-	L_LW = RS->Luminosity * RS->SED[3];
+	L_LW = RS->Luminosity * RS->SED[3] / LConv;
 
-	i = int((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidth[0][0]);
-	j = int((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidth[1][0]);
-	k = int((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidth[2][0]);
+	i = int((RS->Position[0] - GridLeftEdge[0]) / CellWidth[0][0]);
+	j = int((RS->Position[1] - GridLeftEdge[1]) / CellWidth[1][0]);
+	k = int((RS->Position[2] - GridLeftEdge[2]) / CellWidth[2][0]);
 	index = GRIDINDEX(i,j,k);
 
-	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg * CellVolume * 
+	BaryonField[EtaNum][index] += L_LW * E_LW * ev_erg / CellVolume * 
 	  TimeFraction;
 
       } // ENDFOR stars

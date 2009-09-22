@@ -680,7 +680,7 @@ class grid
 /* Interpolate one radiation field.  Based on InterpolateFieldValues
    but removed all of the conservative stuff. */   
 
-   int InterpolateRadiation(grid *ParentGrid, int Field);
+   int InterpolateRadiationFromParent(grid *ParentGrid, int Field);
 
 /* baryons: check for coincident zones between grids & copy if found.
             (correctly includes periodic boundary conditions). */
@@ -1581,6 +1581,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 float EjectaThermalEnergy, 
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
+
+/* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
+  int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
+				  float V1Const, float V2Const, float TEConst, 
+				  float RadConst, int local);
 
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();

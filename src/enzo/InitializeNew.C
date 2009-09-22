@@ -124,6 +124,9 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
+			    HierarchyEntry &TopGrid,
+			    TopGridData &MetaData, int local);
 #endif /* TRANSFER */
 
 
@@ -511,6 +514,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
+  // 250) Multi-source free-streaming radiation test
+#ifdef TRANSFER
+  if (ProblemType == 250)
+    ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+#endif /* TRANSFER */
 
  
   if (ret == INT_UNDEFINED) {

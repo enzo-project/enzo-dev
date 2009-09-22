@@ -118,6 +118,8 @@ struct TopGridData
 #ifdef TRANSFER
   /* Implicit solver data */
   char *RadHydroParameterFname;
+  FLOAT FLDTime;
+  float dtFLD;
 #endif
 
   /* Particle and Particle boundary data. (real one in ExternalBoundary). */
