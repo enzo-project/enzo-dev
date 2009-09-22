@@ -50,7 +50,7 @@ static int GridReadDataGridCounter = 0;
  
  
 int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
-			 int ReadText, int ReadData)
+			 int ReadText, int ReadData, int ReadEverything)
 {
  
   int i, j, k, field, size, active_size;
@@ -66,7 +66,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
   FILE *log_fptr;
  
-  hid_t       group_id, dset_id;
+  hid_t       group_id, dset_id, old_fields;
   hid_t       file_dsp_id;
   hid_t       num_type;
  
@@ -244,8 +244,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     float *temp = new float[active_size];
  
-    /* loop over fields, reading each one */
+    if(ReadEverything == TRUE) {
+      old_fields = H5Gopen(group_id, "OldFields");
+    }
  
+    /* loop over fields, reading each one */
+
     for (field = 0; field < NumberOfBaryonFields; field++) {
 
       BaryonField[field] = new float[size];
@@ -255,6 +259,17 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       this->read_dataset(GridRank, OutDims, DataLabel[field],
           group_id, HDF5_REAL, (VOIDP) temp,
           TRUE, BaryonField[field], ActiveDim);
+
+      if(ReadEverything == TRUE) {
+        OldBaryonField[field] = new float[size];
+        for (i = 0; i < size; i++)
+          OldBaryonField[field][i] = 0;
+
+        this->read_dataset(GridRank, OutDims, DataLabel[field],
+            old_fields, HDF5_REAL, (VOIDP) temp,
+            TRUE, OldBaryonField[field], ActiveDim);
+
+      }
  
     } // end: loop over fields
  
@@ -317,11 +332,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT 
       file_id = H5Fopen(procfilename, H5F_ACC_RDONLY, H5P_DEFAULT);
-      if( file_id == h5_error ){ENZO_FAIL("Error opening file %s", name);}
+      if( file_id == h5_error )ENZO_VFAIL("Error opening file %s", name)
 #endif
  
       group_id = H5Gopen(file_id, name);
-      if( group_id == h5_error ){ENZO_FAIL("Error opening group %s", name);}
+      if( group_id == h5_error )ENZO_VFAIL("Error opening group %s", name)
  
     } // end: if (NumberOfBaryonFields == 0)
  
@@ -353,7 +368,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
     this->read_dataset(1, TempIntArray, "particle_index",
-          group_id, HDF5_INT, (VOIDP) ParticleIndex, FALSE);
+          group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
 
     // Read ParticleType if present
  
@@ -399,7 +414,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     } // ENDELSE add particle attributes
  
     delete [] temp;
-    delete [] tempint;
  
 
   } // end: if (NumberOfParticles > 0) && ReadData && (MyProcessorNumber == ProcessorNumber)

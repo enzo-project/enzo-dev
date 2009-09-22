@@ -171,7 +171,7 @@ class grid
 /* Read grid data from a group file (returns: success/failure) */
 
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
-		      int ReadText = TRUE, int ReadData = TRUE);
+		      int ReadText = TRUE, int ReadData = TRUE, int ReadEverything = FALSE);
 
 /* Get field or particle data based on name or integer 
    defined in typedefs.h. Details are in Grid_CreateFieldArray.C. */
