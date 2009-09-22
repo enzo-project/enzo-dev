@@ -39,9 +39,9 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
  
   /* Get the time and dt for this grid.  Compute time+1/2 dt. */
  
-  FLOAT TimeMidStep =     Grid->GridData->ReturnTime() +
-                      When*Grid->GridData->ReturnTimeStep();
- 
+  FLOAT TimeMidStep =     Grid->GridData->ReturnTime() 
+    + When*Grid->GridData->ReturnTimeStep();
+
   if (CommunicationDirection == COMMUNICATION_SEND ||
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
  

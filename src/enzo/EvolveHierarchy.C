@@ -263,6 +263,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     TopGrid.GridData->ComputeAccelerationField(GRIDS);
   }
 */
+
  
   /* Do the first grid regeneration. */
  

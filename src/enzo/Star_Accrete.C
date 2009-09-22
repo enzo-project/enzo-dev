@@ -32,6 +32,11 @@ int Star::Accrete(void)
   if (CurrentGrid == NULL)
     return SUCCESS;
 
+  /*
+  if ((this->type != BlackHole && abs(this->type) != MBH) || (CurrentGrid == NULL))
+    return SUCCESS;
+  */
+
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
@@ -57,11 +62,19 @@ int Star::Accrete(void)
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
+  /* Now this is done in Star_SubtractAccretedMass.C 
+     Ji-hoon Kim in Sep.2009 */
 
+  /*
   ratio2 = DeltaMass / Mass;
   ratio1 = 1.0 - ratio2;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
+    delta_vel[dim] = 0.0;
+  }
+  */
+
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
     delta_vel[dim] = 0.0;
   }
 

@@ -100,7 +100,12 @@ int grid::ComputeCoolingTime(float *cooling_time)
 {
  
   /* Return if this doesn't concern us. */
+
+  if (RadiativeCooling == 0) return SUCCESS;
  
+  if (RadiativeCooling == 0) // would not know what a cooling time is
+    return SUCCESS;
+
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  

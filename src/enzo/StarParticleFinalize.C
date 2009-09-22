@@ -38,7 +38,9 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars);
-int StarParticleAccretion(Star *&AllStars);
+int StarParticleAccretion(TopGridData *MetaData, 
+			    LevelHierarchyEntry *LevelArray[], int level, 
+			    Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
 void DeleteStarList(Star * &Node);
@@ -84,7 +86,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Update star particles for any accretion */
 
-  if (StarParticleAccretion(AllStars) == FAIL) {
+  if (StarParticleAccretion(MetaData, LevelArray, level, 
+			    AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleAccretion.\n");
     ENZO_FAIL("");
   }

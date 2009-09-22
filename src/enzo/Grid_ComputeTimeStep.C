@@ -288,7 +288,7 @@ float grid::ComputeTimeStep()
     //    v_dt*VelocityUnits/1e5, ca/1e5, LengthUnits/(dxinv*ca)/yr*CourantSafetyNumber);
     // }
 
-  }
+  } // HydroMethod = MHD_RK
 
  
   /* 2) Calculate dt from particles. */
