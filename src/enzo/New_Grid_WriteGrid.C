@@ -76,8 +76,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
   file_type_id = HDF5_REAL;
 
-  int CopyActive = TRUE;
-  if(WriteEverything==TRUE)CopyActive = FALSE;
+  int CopyOnlyActive = TRUE;
+  if(WriteEverything==TRUE)CopyOnlyActive = FALSE;
  
   char *ParticlePositionLabel[] =
      {"particle_position_x", "particle_position_y", "particle_position_z"};
@@ -106,7 +106,27 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
- 
+
+  char pid[MAX_TASK_TAG_SIZE];
+  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
+
+  char gpid[MAX_TASK_TAG_SIZE];
+  sprintf(gpid, "%"TASK_TAG_FORMAT""ISYM, ProcessorNumber);
+
+  char *groupfilename = new char[MAX_LINE_LENGTH];
+  strcpy(groupfilename, base_name);
+  strcat(groupfilename, ".cpu");
+  strcat(groupfilename, pid);
+
+  char *procfilename = new char[MAX_LINE_LENGTH];
+  strcpy(procfilename, base_name);
+  strcat(procfilename, ".cpu");
+  strcat(procfilename, gpid);
+
+  char *name = new char[MAX_LINE_LENGTH];
+  strcpy(name, "/Grid");
+  strcat(name, id);
+
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
     fprintf(fptr, "Task              = %"ISYM"\n", ProcessorNumber);
@@ -134,63 +154,52 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     fprintf(fptr, "NumberOfBaryonFields = %"ISYM"\n", NumberOfBaryonFields);
  
+    if (NumberOfBaryonFields > 0) {
+      fprintf(fptr, "FieldType = ");
+
+      WriteListOfInts(fptr, NumberOfBaryonFields, FieldType);
+
+      fprintf(fptr, "BaryonFileName = %s\n", procfilename);
+
+      fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n", CourantSafetyNumber);
+      fprintf(fptr, "PPMFlatteningParameter = %"ISYM"\n", PPMFlatteningParameter);
+      fprintf(fptr, "PPMDiffusionParameter  = %"ISYM"\n", PPMDiffusionParameter);
+      fprintf(fptr, "PPMSteepeningParameter = %"ISYM"\n", PPMSteepeningParameter);
+
+    }
+
+    fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
+
+    if (NumberOfParticles > 0)
+      fprintf(fptr, "ParticleFileName = %s\n", procfilename); // must be same as above
+ 
+    if (SelfGravity)
+      fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
+
+  }
+
+  /* Return if this does not concern us */
+  if (MyProcessorNumber != ProcessorNumber) {
+    delete [] name;
+    delete [] procfilename;
+    delete [] groupfilename;
+    return SUCCESS;
   }
  
-  char pid[MAX_TASK_TAG_SIZE];
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
- 
-  char gpid[MAX_TASK_TAG_SIZE];
-  sprintf(gpid, "%"TASK_TAG_FORMAT""ISYM, ProcessorNumber);
- 
-  char *groupfilename = new char[MAX_LINE_LENGTH];
-  strcpy(groupfilename, base_name);
-  strcat(groupfilename, ".cpu");
-  strcat(groupfilename, pid);
- 
-  char *procfilename = new char[MAX_LINE_LENGTH];
-  strcpy(procfilename, base_name);
-  strcat(procfilename, ".cpu");
-  strcat(procfilename, gpid);
- 
-  char *name = new char[MAX_LINE_LENGTH];
-  strcpy(name, "/Grid");
-  strcat(name, id);
  
   /* Open HDF file for writing. */
- 
-  if (MyProcessorNumber == ProcessorNumber)
-  {
- 
-    group_id = H5Gcreate(file_id, name, 0);
-    if( group_id == h5_error ){ENZO_FAIL("IO Problem");}
 
-    if(WriteEverything == TRUE) {
-        old_fields = H5Gcreate(group_id, "OldFields", 0);
-    }
- 
+  group_id = H5Gcreate(file_id, name, 0);
+  if( group_id == h5_error ){ENZO_FAIL("IO Problem creating Grid Group");}
+
+  if(WriteEverything == TRUE) {
+    old_fields = H5Gcreate(group_id, "OldFields", 0);
   }
  
   /* ------------------------------------------------------------------- */
   /* 2) save baryon field quantities (including fields). */
  
   if (NumberOfBaryonFields > 0) {
- 
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
- 
-      fprintf(fptr, "FieldType = ");
- 
-      WriteListOfInts(fptr, NumberOfBaryonFields, FieldType);
- 
-      fprintf(fptr, "BaryonFileName = %s\n", procfilename);
- 
-      fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n", CourantSafetyNumber);
-      fprintf(fptr, "PPMFlatteningParameter = %"ISYM"\n", PPMFlatteningParameter);
-      fprintf(fptr, "PPMDiffusionParameter  = %"ISYM"\n", PPMDiffusionParameter);
-      fprintf(fptr, "PPMSteepeningParameter = %"ISYM"\n", PPMSteepeningParameter);
- 
-    }
- 
-    if (MyProcessorNumber == ProcessorNumber) {
  
     /* 2a) Set HDF file dimensions (use FORTRAN ordering). */
  
@@ -213,17 +222,15 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       this->write_dataset(GridRank, OutDims, DataLabel[field],
                     group_id, file_type_id, (VOIDP) BaryonField[field],
-                    CopyActive, temp);
+                    CopyOnlyActive, temp);
 
       if(WriteEverything == TRUE) {
 
         /* In this case, we write the OldBaryonField, too */
 
-        char field_name[MAX_LINE_LENGTH];
-
         this->write_dataset(GridRank, OutDims, DataLabel[field],
                       old_fields, file_type_id, (VOIDP) OldBaryonField[field],
-                      CopyActive, temp);
+                      CopyOnlyActive, temp);
 
       }
  
@@ -340,13 +347,12 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* Write BoundaryFluxes info (why? it's just recreated when the grid
                                   is read in) */
  
-   }  // end: if (ProcessorNumber == MyProcessorNumber)
   } // end: if (NumberOfBaryonFields > 0)
 
   /* ------------------------------------------------------------------- */
   /* 2b) Save particle quantities smoothed to the grid. */
  
-  if (OutputSmoothedDarkMatter > 0 && MyProcessorNumber == ProcessorNumber) {
+  if (OutputSmoothedDarkMatter > 0) {
 
     size = active_size = 1;
     for (dim = 0; dim < GridRank; dim++) {
@@ -382,113 +388,96 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   /* ------------------------------------------------------------------- */
   /* 3) Save particle quantities. */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
- 
   if (NumberOfParticles > 0) {
- 
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(fptr, "ParticleFileName = %s\n", procfilename); // must be same as above
- 
-    if (MyProcessorNumber == ProcessorNumber) {
- 
+
     /* Sort particles according to their identifier. */
- 
+
     if (OutputParticleTypeGrouping)
       this->SortParticlesByType();
     else
       this->SortParticlesByNumber();
- 
+
     /* Create a temporary buffer (64 bit). */
- 
+
     temp = new float[NumberOfParticles];
- 
+
     /* "128-bit" particle positions are stored as what HDF5 calls
-        'native long double.' */
- 
+       'native long double.' */
+
     TempIntArray[0] = NumberOfParticles;
- 
+
     for (dim = 0; dim < GridRank; dim++) {
       this->write_dataset(1, TempIntArray, ParticlePositionLabel[dim],
-                    group_id, HDF5_FILE_PREC, (VOIDP) ParticlePosition[dim], FALSE);
+          group_id, HDF5_FILE_PREC, (VOIDP) ParticlePosition[dim], FALSE);
     }
- 
+
     /* Copy particle velocities to temp and write them. */
- 
+
     for (dim = 0; dim < GridRank; dim++) {
-        this->write_dataset(1, TempIntArray, ParticleVelocityLabel[dim],
-                      group_id, HDF5_REAL, (VOIDP) ParticleVelocity[dim], FALSE);
+      this->write_dataset(1, TempIntArray, ParticleVelocityLabel[dim],
+          group_id, HDF5_REAL, (VOIDP) ParticleVelocity[dim], FALSE);
     }
- 
+
     /* Copy mass to temp and write it. */
- 
+
     this->write_dataset(1, TempIntArray, "particle_mass",
-                  group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
- 
+        group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
+
     this->write_dataset(1, TempIntArray, "particle_index",
-                  group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
- 
+        group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
+
     /* Copy type to temp and write it. */
 
     if (ParticleTypeInFile == TRUE) {
- 
-    /* We leave this here instead of below so that we can output the
-       dataspaces.  Ideally this would be handled with a callback function
-       passed in.  */
-       
-    if( ParticleType == NULL ){ENZO_FAIL("Particle Type is NULL!");}
- 
-    file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
-      if( file_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
- 
-    dset_id =  H5Dcreate(group_id, "particle_type", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
-      if( dset_id == h5_error ){ENZO_FAIL("IO Problem");}
- 
-    h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                         (VOIDP) ParticleType);
-      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
 
-    if(OutputParticleTypeGrouping)
+      /* We leave this here instead of below so that we can output the
+         dataspaces.  Ideally this would be handled with a callback function
+         passed in.  */
+
+      if( ParticleType == NULL ){ENZO_FAIL("Particle Type is NULL!");}
+
+      file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
+      if( file_dsp_id == h5_error ){ENZO_FAIL("Can't create particle_type dataspace");}
+
+      dset_id =  H5Dcreate(group_id, "particle_type", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
+      if( dset_id == h5_error ){ENZO_FAIL("Can't create particle_type dataset");}
+
+      h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+          (VOIDP) ParticleType);
+      if( h5_status == h5_error ){ENZO_FAIL("Can't write particle_type");}
+
+      if(OutputParticleTypeGrouping)
         this->CreateParticleTypeGrouping(dset_id, file_dsp_id, group_id, file_id);
- 
-    h5_status = H5Sclose(file_dsp_id);
-      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
 
-    h5_status = H5Dclose(dset_id);
-      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
- 
+      h5_status = H5Sclose(file_dsp_id);
+      if( h5_status == h5_error ){ENZO_FAIL("Problem closing particle_type dataspace");}
+
+      h5_status = H5Dclose(dset_id);
+      if( h5_status == h5_error ){ENZO_FAIL("Problem closing particle_type dataset");}
+
     }
 
- 
+
     /* Copy particle attributes to temp and write them. */
- 
+
     for (j = 0; j < NumberOfParticleAttributes; j++) {
- 
-        this->write_dataset(1, TempIntArray, ParticleAttributeLabel[j],
-                      group_id, HDF5_REAL, (VOIDP) ParticleAttribute[j], FALSE);
+
+      this->write_dataset(1, TempIntArray, ParticleAttributeLabel[j],
+          group_id, HDF5_REAL, (VOIDP) ParticleAttribute[j], FALSE);
     }
- 
+
     /* clean up */
- 
+
     delete [] temp;
- 
-  } // end: if (MyProcessorNumber...)
+
   } // end: if (NumberOfParticles > 0)
  
   /* Close HDF group and file. */
  
-  if (MyProcessorNumber == ProcessorNumber)
-  {
-     if (WriteEverything == TRUE) this->WriteFluxes(group_id);
-     h5_status = H5Gclose(group_id);
+  if (WriteEverything == TRUE) this->WriteAllFluxes(group_id);
+  h5_status = H5Gclose(group_id);
 
-  }
- 
   /* 4) Save Gravity info. */
- 
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    if (SelfGravity)
-      fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
  
   /* Clean up. */
  
@@ -509,8 +498,6 @@ int grid::write_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
     hid_t h5_status;
     herr_t      h5_error = -1;
     int i, j, k, dim, ActiveDim[MAX_DIMENSION];
-    char err[255];
-    snprintf(err, 254, "IO Problem with %s", name);
 
     for (dim = 0; dim < 3; dim++)
       ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
@@ -531,38 +518,41 @@ int grid::write_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
     }
 
     file_dsp_id = H5Screate_simple((Eint32) ndims, dims, NULL);
-    if( file_dsp_id == h5_error ){ENZO_FAIL(err);}
+    if( file_dsp_id == h5_error )
+        ENZO_VFAIL("Error creating dataspace for %s", name)
 
     dset_id =  H5Dcreate(group, name, data_type, file_dsp_id, H5P_DEFAULT);
-    if( dset_id == h5_error ){ENZO_FAIL(err);}
+    if( dset_id == h5_error )
+        ENZO_VFAIL("Error creating dataset %s", name)
 
     h5_status = H5Dwrite(dset_id, data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                         (VOIDP) temp);
-    if( h5_status == h5_error ){ENZO_FAIL(err);}
+    if( h5_status == h5_error )
+        ENZO_VFAIL("Error writing dataset %s", name)
 
     h5_status = H5Sclose(file_dsp_id);
-    if( h5_status == h5_error ){ENZO_FAIL(err);}
+    if( h5_status == h5_error )
+        ENZO_VFAIL("Error closing dataspace %s", name)
 
     h5_status = H5Dclose(dset_id);
-    if( h5_status == h5_error ){ENZO_FAIL(err);}
+    if( h5_status == h5_error )
+        ENZO_VFAIL("Error closing dataset %s", name)
 
     return SUCCESS;
 
 }
 
-int grid::WriteFluxes(hid_t grid_node)
+int grid::WriteAllFluxes(hid_t grid_node)
 {
   /* We have to set up the group pointer here */
 
-  int i, j, field, dim;
-
-  hsize_t size;
+  int i;
 
   hid_t h5_error = -1;
   hid_t subgrid_group = h5_error;
-  hid_t axis_group = h5_error;
-  hid_t left_group, right_group;
+
   hid_t fluxes_node = H5Gcreate(grid_node, "Fluxes", 0);
+  if(fluxes_node == h5_error){ENZO_FAIL("Can't create group Fluxes");}
 
   char name[255];
 
@@ -573,47 +563,68 @@ int grid::WriteFluxes(hid_t grid_node)
     snprintf(name, 254, "Subgrid%08d", i);
 
     subgrid_group = H5Gcreate(fluxes_node, name, 0);
-    if(subgrid_group == h5_error){ENZO_FAIL("IO Problem");}
+    if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem creating %s", name)
 
-    for (dim = 0; dim < GridRank; dim++) {
-      /* compute size (in floats) of flux storage */
-
-      snprintf(name, 254, "Axis%d", dim);
-      axis_group = H5Gcreate(subgrid_group, name, 0);
-      if(axis_group == h5_error){ENZO_FAIL("IO Problem");}
-
-      size = 1;
-
-      left_group = H5Gcreate(axis_group, "Left", 0);
-      if(left_group == h5_error){ENZO_FAIL("IO Problem");}
-
-      right_group = H5Gcreate(axis_group, "Right", 0);
-      if(right_group == h5_error){ENZO_FAIL("IO Problem");}
-
-      for (j = 0; j < GridRank; j++)
-        size *= SubgridFluxStorage[i]->LeftFluxEndGlobalIndex[dim][j] -
-          SubgridFluxStorage[i]->LeftFluxStartGlobalIndex[dim][j] + 1;
-
-      for (field = 0; field < NumberOfBaryonFields; field++) {
-        /* Every single baryon field should exist, if this is called after the
-           hydro solver but before deallocation. */
-        /* Now we just write it out, and we know the name and all that. */
-
-        this->write_dataset(1, &size, DataLabel[field], left_group,
-                            HDF5_REAL, (void *) SubgridFluxStorage[i]->LeftFluxes[field][dim],
-                            FALSE);
-
-        this->write_dataset(1, &size, DataLabel[field], right_group,
-                            HDF5_REAL, (void *) SubgridFluxStorage[i]->RightFluxes[field][dim],
-                            FALSE);
-
-      }
-
-      H5Gclose(left_group);
-      H5Gclose(right_group);
-      H5Gclose(axis_group);
-    }
+    this->WriteFluxGroup(subgrid_group, this->SubgridFluxStorage[i]);
 
     H5Gclose(subgrid_group);
+  }
+
+  subgrid_group = H5Gcreate(fluxes_node, "BoundaryFluxes", 0);
+  if(subgrid_group == h5_error)ENZO_FAIL("IO Problem creating BoundaryFluxes")
+  this->WriteFluxGroup(subgrid_group, this->BoundaryFluxes);
+
+  H5Gclose(subgrid_group);
+  H5Gclose(fluxes_node);
+
+}
+
+int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
+{
+  hid_t h5_error = -1;
+  hid_t axis_group = h5_error;
+  hid_t left_group, right_group;
+  int i, j, field, dim;
+  hsize_t size;
+
+  char name[255];
+
+  for (dim = 0; dim < GridRank; dim++) {
+    /* compute size (in floats) of flux storage */
+
+    snprintf(name, 254, "Axis%d", dim);
+    axis_group = H5Gcreate(top_group, name, 0);
+    if(axis_group == h5_error){ENZO_FAIL("IO Problem");}
+
+    size = 1;
+
+    left_group = H5Gcreate(axis_group, "Left", 0);
+    if(left_group == h5_error){ENZO_FAIL("IO Problem");}
+
+    right_group = H5Gcreate(axis_group, "Right", 0);
+    if(right_group == h5_error){ENZO_FAIL("IO Problem");}
+
+    for (j = 0; j < GridRank; j++)
+      size *= fluxgroup->LeftFluxEndGlobalIndex[dim][j] -
+        fluxgroup->LeftFluxStartGlobalIndex[dim][j] + 1;
+
+    for (field = 0; field < NumberOfBaryonFields; field++) {
+      /* Every single baryon field should exist, if this is called after the
+         hydro solver but before deallocation. */
+      /* Now we just write it out, and we know the name and all that. */
+
+      this->write_dataset(1, &size, DataLabel[field], left_group,
+          HDF5_REAL, (void *) fluxgroup->LeftFluxes[field][dim],
+          FALSE);
+
+      this->write_dataset(1, &size, DataLabel[field], right_group,
+          HDF5_REAL, (void *) fluxgroup->RightFluxes[field][dim],
+          FALSE);
+
+    }
+
+    H5Gclose(left_group);
+    H5Gclose(right_group);
+    H5Gclose(axis_group);
   }
 }

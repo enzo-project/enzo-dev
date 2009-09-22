@@ -200,7 +200,8 @@ class grid
 
    int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id, int WriteEverything = FALSE);
 
-   int WriteFluxes(hid_t grid_node);
+   int WriteAllFluxes(hid_t grid_node);
+   int WriteFluxGroup(hid_t top_group, fluxes *fluxgroup);
 
 /* Write grid data to separate files (returns: success/failure) */
 

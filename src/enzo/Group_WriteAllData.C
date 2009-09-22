@@ -569,10 +569,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Output TopGrid data
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    if ((fptr = fopen(name, "w")) == NULL) {
-      fprintf(stderr, "Error opening output file %s\n", name);
-      ENZO_FAIL("");
-    }
+    if ((fptr = fopen(name, "w")) == NULL) 
+      ENZO_VFAIL("Error opening output file %s\n", name)
     if (RestartDump == TRUE) {
       fprintf(fptr, "# WARNING! This is a restart dump! Lots of data!\n");
     }
@@ -590,11 +588,9 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Output Boundary condition info
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) {
-      fprintf(stderr, "Error opening boundary condition file: %s\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
-    }
+    if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) 
+      ENZO_VFAIL("Error opening boundary condition file: %s\n",
+	      MetaData.BoundaryConditionName)
     strcat(MetaData.BoundaryConditionName, hdfsuffix);
     if (Exterior->WriteExternalBoundary(fptr, MetaData.BoundaryConditionName)
 	== FAIL)
@@ -631,10 +627,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Output Data Hierarchy
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    if ((fptr = fopen(hierarchyname, "w")) == NULL) {
-      fprintf(stderr, "Error opening hierarchy file %s\n", hierarchyname);
-      ENZO_FAIL("");
-    }
+    if ((fptr = fopen(hierarchyname, "w")) == NULL) 
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
  
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
             gridbasename, GridID, WriteTime, file_id, RestartDump) == FAIL)
@@ -654,10 +648,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    if ((mptr = fopen(memorymapname, "w")) == NULL) {
-      fprintf(stderr, "Error opening memory map file %s\n", memorymapname);
-      ENZO_FAIL("");
-    }
+    if ((mptr = fopen(memorymapname, "w")) == NULL) 
+      ENZO_VFAIL("Error opening memory map file %s\n", memorymapname)
 
   if (WriteMemoryMap(mptr, TempTopGrid, gridbasename, GridKD, WriteTime) == FAIL)
     ENZO_FAIL("Error in WriteMemoryMap");
@@ -678,10 +670,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
-  if ((tptr = fopen(taskmapname, "w")) == NULL) {
-    fprintf(stderr, "Error opening task map file %s\n", taskmapname);
-    ENZO_FAIL("");
-  }
+  if ((tptr = fopen(taskmapname, "w")) == NULL)
+    ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL)
     ENZO_FAIL("Error in WriteTaskMap");
