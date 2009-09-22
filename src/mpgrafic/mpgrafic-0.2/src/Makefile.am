@@ -17,7 +17,7 @@ endif
 if ENZO
 mpgrafic_FCFLAGS += -DENZO $(HDF_INCLUDEDIR)
 mpgrafic_LDFLAGS += $(HDF_LIBDIR) 
-LIBS += -lhdf5_fortran -lhdf5 -lz -lm -lsz
+LIBS += -lhdf5_fortran -lhdf5 -lz -lm
 endif
 
 if ONEDIM
