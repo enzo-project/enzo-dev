@@ -520,6 +520,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
 
+  // 250) Multi-source free-streaming radiation test
+#ifdef TRANSFER
+  if (ProblemType == 250)
+    ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+#endif /* TRANSFER */
+
+
  
   if (ret == INT_UNDEFINED) {
     fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
