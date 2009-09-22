@@ -12,9 +12,6 @@ struct CloudyCoolingDataType
   // Use a CMB temperature floor.
   int CMBTemperatureFloor;
 
-  // Redshift independent temperature floor.
-  float ConstantTemperatureFloor;
-
   // Flag to control whether or not to include heating from Cloudy.
   int IncludeCloudyHeating;
 
@@ -49,6 +46,7 @@ struct CloudyCoolingDataType
   int *CloudyCoolingGridDimension;
 
   // Dataset parameter values.
+  //  float *CloudyCoolingGridParameters[CLOUDY_COOLING_MAX_DIMENSION];
   float **CloudyCoolingGridParameters;
 
   // Heating values
@@ -60,4 +58,6 @@ struct CloudyCoolingDataType
   // Array holding mean molecular weight values
   float *CloudyMeanMolecularWeight;
 
+  // Length of 1D flattened Cloudy data
+  int CloudyDataSize;
 };

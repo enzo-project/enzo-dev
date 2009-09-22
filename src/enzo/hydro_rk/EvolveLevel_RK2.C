@@ -383,6 +383,14 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
 #endif  // end FAST_SIB
 
+    /* Solve the radiative transfer */
+
+#ifdef TRANSFER
+    //Grids[grid1]->GridData->SetTimePreviousTimestep();
+    FLOAT GridTime = Grids[0]->GridData->ReturnTime();
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+    //Grids[grid1]->GridData->SetTimeNextTimestep();
+#endif /* TRANSFER */
 
     /* Compute particle-particle acceleration */
 
@@ -397,20 +405,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: compute acceleration field for grid and particles. */
 
-      if (SelfGravity && MetaData->TopGridRank == 3) {
+      if (SelfGravity) {
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
-	  if (level > 0) {
-	    if (Grids[grid1]->GridData->SolveForPotential(level) 
-		== FAIL) {
-	      fprintf(stderr, "Error in grid->SolveForPotential.\n");
-	      ENZO_FAIL("");
-	    }
-	  }
-	  if (Grids[grid1]->GridData->ComputeAccelerations(level) == FAIL) {
-	    fprintf(stderr, "Error in grid->ComputeAccelerations.\n");
-	    ENZO_FAIL("");
-	  }
+	  if (level > 0) 
+	    Grids[grid1]->GridData->SolveForPotential(level) ;
+
+	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
 	}
 	// otherwise, interpolate potential from coarser grid, which is
 	//   now done in PrepareDensity.
@@ -465,7 +466,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			Exterior, LevelArray[level]);
 #endif
-    
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
@@ -502,15 +502,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UseViscosity) {
 	Grids[grid1]->GridData->AddViscosity();
       }
-
-    /* Solve the radiative transfer */
-
-#ifdef TRANSFER
-      Grids[grid1]->GridData->SetTimePreviousTimestep();
-      FLOAT GridTime = Grids[grid1]->GridData->ReturnTime();
-      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
-      Grids[grid1]->GridData->SetTimeNextTimestep();
-#endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
  

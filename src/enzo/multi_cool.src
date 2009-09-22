@@ -25,7 +25,11 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, kphHI, kphHeI, kphHeII, kdissH2I,
-     &                gammaHI, gammaHeI, gammaHeII)
+     &                gammaHI, gammaHeI, gammaHeII,
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW)
 
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
@@ -80,6 +84,17 @@
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
+
+!  Cloudy cooling data
+
+      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer clGridDim(clGridRank)
+      real clMetNorm, clEleFra
+      real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
+     &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
+     &     clPar5(clGridDim(5))
+      real clCooling(clDataSize), clHeating(clDataSize), 
+     &     clMMW(clDataSize)
 
 !  Parameters
 
@@ -219,6 +234,10 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, gammaHI, gammaHeI, gammaHeII,
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW,
      &                itmask
      &                     )
 

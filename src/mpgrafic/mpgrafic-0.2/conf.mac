@@ -8,5 +8,5 @@
     --enable-enzo \
     --enable-double \
     --enable-onedim \
-    --with-hdf=/usr/local/hdf5/1.8.2p
+    --with-hdf=/usr/local/hdf5/1.8.3p
 

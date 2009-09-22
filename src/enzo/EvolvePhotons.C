@@ -69,10 +69,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (!RadiativeTransfer)
     return SUCCESS;
 
-  if (dtPhoton <= 0)
-    return SUCCESS;
+//  printf("GridTime = %f, PhotonTime = %f, dtPhoton = %g (Loop = %d)\n",
+//	 GridTime, PhotonTime, dtPhoton, (GridTime >= PhotonTime));
 
-  while (GridTime > PhotonTime) {
+  //if (dtPhoton < 0)
+  //  return SUCCESS;
+
+  //while (GridTime > PhotonTime) {
+  while (GridTime >= PhotonTime) {
 
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */
@@ -100,7 +104,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     LevelHierarchyEntry *Temp;
     int GridNum = 0, value, i, proc, lvl;
     int NumberOfGrids = 0;  
-    level = 0;
 
     // delete source if we are passed (or before) their lifetime
     RadiationSourceEntry *RS;
@@ -119,11 +122,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	NumberOfSources++;                 // count sources
 	RS = RS->NextSource;
       }
-    }
-
-    if (dtPhoton < 0.) {
-      fprintf(stdout, "\nEvolvePhotons: dtPhoton < 0  %"GSYM"\n", dtPhoton);
-      return SUCCESS;
     }
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);

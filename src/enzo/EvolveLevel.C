@@ -339,6 +339,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+    /* Solve the radiative transfer */
+	
+#ifdef TRANSFER
+    GridTime = Grids[0]->GridData->ReturnTime();// + dtThisLevel;
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+#endif /* TRANSFER */
  
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
@@ -401,12 +408,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      /* Solve the radiative transfer */
-	
-#ifdef TRANSFER
-      GridTime = Grids[grid1]->GridData->ReturnTime() + dtThisLevel;
-      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
-#endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
  

@@ -255,7 +255,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
 	        CommunicationReceiveMPI_Request+CommunicationReceiveIndex);
       CommunicationReceiveBuffer[CommunicationReceiveIndex] = dens_field;
       CommunicationReceiveDependsOn[CommunicationReceiveIndex] =
-	  CommunicationReceiveCurrentDependsOn;
+	CommunicationReceiveCurrentDependsOn;
       CommunicationReceiveIndex++;
     }
  
