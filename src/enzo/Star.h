@@ -87,7 +87,6 @@ public:
   bool  IsUnborn(void) { return type < 0; }
   bool  ReturnEmissivityFlag(void) { return AddedEmissivity; };
   void  AddEmissivityFlag(void) { this->AddedEmissivity = true; };
-  FLOAT *ReturnPosition(void) { return pos; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);

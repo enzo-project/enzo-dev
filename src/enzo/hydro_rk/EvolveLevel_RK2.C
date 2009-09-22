@@ -101,7 +101,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-		      int level, ExternalBoundary *Exterior
+			  int level, ExternalBoundary *Exterior
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
@@ -601,7 +601,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
-    OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
+    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
+#ifdef TRANSFER
+			  , ImplicitSolver
+#endif
+			  );
     CallPython(LevelArray, MetaData, level);
 
     /* Update SubcycleNumber and the timestep counter for the

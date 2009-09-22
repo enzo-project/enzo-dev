@@ -181,8 +181,11 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
 
     if (debug) printf("Writing restart dump.\n");
-    Group_WriteAllData(MetaData.RestartDumpName, MetaData.RestartDumpNumber++,
-		       TopGrid, MetaData, Exterior);
+	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+			     , ImplicitSolver
+#endif
+			     );
 
     /* On the root processor, write the restart parameter filename to
        a file that will be read by a (batch) script to restart enzo.
