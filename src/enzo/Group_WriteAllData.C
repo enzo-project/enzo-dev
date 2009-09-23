@@ -58,7 +58,7 @@ int SysMkdir(char *startdir, char *directory);
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
 int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *TopGrid,
 		       char *gridbasename, int &GridID, FLOAT WriteTime, hid_t file_id,
-               int RestartDump = FALSE);
+               int CheckpointDump = FALSE);
 int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 		   char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteConfigure(FILE *optr);
@@ -71,7 +71,7 @@ int WriteRadiationData(FILE *fptr);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
-			      FLOAT WriteTime, int RestartDump);
+			      FLOAT WriteTime, int CheckpointDump);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
@@ -96,7 +96,7 @@ extern char LastFileNameWritten[MAX_LINE_LENGTH];
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
 		 ExternalBoundary *Exterior, FLOAT WriteTime = -1, 
-         int RestartDump = FALSE)
+         int CheckpointDump = FALSE)
 {
  
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
@@ -155,7 +155,7 @@ int Group_WriteAllData(char *basename, int filenumber,
      in MetaData.  Note:  Modified 6 Feb 2006 to fix interpolated  data outputs. */
 
   FLOAT SavedTime = MetaData.Time;
-  MetaData.Time = ((WriteTime < 0) || (RestartDump == TRUE)) ? MetaData.Time : WriteTime;
+  MetaData.Time = ((WriteTime < 0) || (CheckpointDump == TRUE)) ? MetaData.Time : WriteTime;
 
   /* If we're writing interpolated dark matter fields, create them now. */
 
@@ -565,14 +565,19 @@ int Group_WriteAllData(char *basename, int filenumber,
   MetaData.BoundaryConditionName = new char[MAX_LINE_LENGTH];
   strcpy(MetaData.BoundaryConditionName, name);
   strcat(MetaData.BoundaryConditionName, BCSuffix);
+
+  /* We set our global variable CheckpointRestart to TRUE here, so that it gets
+     output in the parameter file. */
+
+  CheckpointRestart = CheckpointDump;
  
   // Output TopGrid data
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(name, "w")) == NULL) 
       ENZO_VFAIL("Error opening output file %s\n", name)
-    if (RestartDump == TRUE) {
-      fprintf(fptr, "# WARNING! This is a restart dump! Lots of data!\n");
+    if (CheckpointDump == TRUE) {
+      fprintf(fptr, "# WARNING! This is a checkpoint dump! Lots of data!\n");
     }
     else if (WriteTime >= 0) {
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
@@ -622,7 +627,7 @@ int Group_WriteAllData(char *basename, int filenumber,
      (TempTopGrid is the top of an entirely new hierarchy). */
  
   HierarchyEntry *TempTopGrid;
-  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime, RestartDump);
+  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime, CheckpointDump);
  
   // Output Data Hierarchy
  
@@ -631,7 +636,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
  
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
-            gridbasename, GridID, WriteTime, file_id, RestartDump) == FAIL)
+            gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");
 
   // At this point all the grid data has been written
@@ -733,6 +738,10 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
+
+  /* This should always be false outside of writing and the restart process */
+    
+  CheckpointRestart = FALSE;
 
   CommunicationBarrier();
 // if (debug)

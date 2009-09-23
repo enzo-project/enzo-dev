@@ -594,15 +594,15 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
 
     snprintf(name, 254, "Axis%d", dim);
     axis_group = H5Gcreate(top_group, name, 0);
-    if(axis_group == h5_error){ENZO_FAIL("IO Problem");}
+    if(axis_group == h5_error)ENZO_VFAIL("Can't create %s", name)
 
     size = 1;
 
     left_group = H5Gcreate(axis_group, "Left", 0);
-    if(left_group == h5_error){ENZO_FAIL("IO Problem");}
+    if(left_group == h5_error){ENZO_FAIL("IO Problem with Left");}
 
     right_group = H5Gcreate(axis_group, "Right", 0);
-    if(right_group == h5_error){ENZO_FAIL("IO Problem");}
+    if(right_group == h5_error){ENZO_FAIL("IO Problem with Right");}
 
     for (j = 0; j < GridRank; j++)
       size *= fluxgroup->LeftFluxEndGlobalIndex[dim][j] -

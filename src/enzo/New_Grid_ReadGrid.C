@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <assert.h>
+#include "h5utilities.h"
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -481,3 +483,63 @@ int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
   return SUCCESS;
 }
 
+int grid::ReadAllFluxes(hid_t grid_node)
+{
+  /* We get the attribute describing to us the number of subgrids. */
+
+  readAttribute(grid_node, HDF5_INT, "NumberOfSubgrids", 
+            (void *) &this->NumberOfSubgrids, 1);
+
+  /* Now for every subgrid, we read a flux group, and all of its associated
+     baryon fields. */
+
+}
+
+int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
+{
+  hid_t h5_error = -1;
+  hid_t axis_group = h5_error;
+  hid_t left_group, right_group;
+  int i, j, field, dim;
+  hsize_t size;
+
+  char name[255];
+
+  for (dim = 0; dim < GridRank; dim++) {
+    /* compute size (in floats) of flux storage */
+
+    snprintf(name, 254, "Axis%d", dim);
+    axis_group = H5Gopen(flux_group, name);
+    if(axis_group == h5_error)ENZO_VFAIL("Can't open %s", name)
+
+    size = 1;
+
+    left_group = H5Gopen(axis_group, "Left");
+    if(left_group == h5_error){ENZO_FAIL("IO Problem with Left");}
+
+    right_group = H5Gopen(axis_group, "Right");
+    if(right_group == h5_error){ENZO_FAIL("IO Problem with Right");}
+
+    for (j = 0; j < GridRank; j++)
+      size *= fluxgroup->LeftFluxEndGlobalIndex[dim][j] -
+        fluxgroup->LeftFluxStartGlobalIndex[dim][j] + 1;
+
+    for (field = 0; field < NumberOfBaryonFields; field++) {
+      /* For now our use case ensures these will always exist forever
+         and if they don't, we need a hard failure. */
+
+      this->read_dataset(1, &size, DataLabel[field], left_group,
+          HDF5_REAL, (void *) fluxgroup->LeftFluxes[field][dim],
+          FALSE);
+
+      this->read_dataset(1, &size, DataLabel[field], right_group,
+          HDF5_REAL, (void *) fluxgroup->RightFluxes[field][dim],
+          FALSE);
+
+    }
+
+    H5Gclose(left_group);
+    H5Gclose(right_group);
+    H5Gclose(axis_group);
+  }
+}

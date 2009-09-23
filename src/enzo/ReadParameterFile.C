@@ -85,6 +85,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
     ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
  
+    ret += sscanf(line, "CheckpointRestart = %"ISYM, &CheckpointRestart);
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
     ret += sscanf(line, "StopSteps   = %"ISYM, &MetaData.StopSteps);

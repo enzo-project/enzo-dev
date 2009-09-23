@@ -64,6 +64,7 @@ EXTERN int extract;
 	    51 = ThermalPancake test
 	    60 = TurbulenceSimulation
 	                                                                  */
+EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:

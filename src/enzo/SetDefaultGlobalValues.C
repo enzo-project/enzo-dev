@@ -151,6 +151,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   /* set the default global data. */
                                                  // Debug flag set in main
+  CheckpointRestart         = 0;
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
   huge_number               = 1.0e+20;

@@ -203,6 +203,9 @@ class grid
    int WriteAllFluxes(hid_t grid_node);
    int WriteFluxGroup(hid_t top_group, fluxes *fluxgroup);
 
+   int ReadAllFluxes(hid_t grid_node);
+   int ReadFluxGroup(hid_t top_group, fluxes *fluxgroup);
+
 /* Write grid data to separate files (returns: success/failure) */
 
    int WriteGridX(FILE *main_file_pointer, char *base_name, int grid_id);

@@ -78,6 +78,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "InitialTime         = %"GOUTSYM"\n", MetaData.Time);
   fprintf(fptr, "InitialCPUTime      = %"GSYM"\n\n", MetaData.CPUTime);
  
+  fprintf(fptr, "CheckpointRestart   = %"ISYM"\n", CheckpointRestart);
   fprintf(fptr, "StopTime            = %"GOUTSYM"\n", MetaData.StopTime);
   fprintf(fptr, "StopCycle           = %"ISYM"\n", MetaData.StopCycle);
   fprintf(fptr, "StopSteps           = %"ISYM"\n", MetaData.StopSteps);
