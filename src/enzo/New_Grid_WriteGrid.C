@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-
+#include <assert.h>
+#include "h5utilities.h"
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -556,6 +556,9 @@ int grid::WriteAllFluxes(hid_t grid_node)
 
   char name[255];
 
+  writeScalarAttribute(grid_node, HDF5_INT, "NumberOfSubgrids",
+            &this->NumberOfSubgrids);
+
   for (i = 0; i < this->NumberOfSubgrids; i++) {
 
     /* Make our group here */
@@ -623,8 +626,23 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
 
     }
 
+    /* The dims are always three long, even if zeros... */
+    hsize_t dims = 3;
+
+    writeArrayAttribute(left_group, HDF5_INT, dims, "StartIndex",
+            fluxgroup->LeftFluxStartGlobalIndex[dim]);
+    writeArrayAttribute(left_group, HDF5_INT, dims, "EndIndex",
+            fluxgroup->LeftFluxEndGlobalIndex[dim]);
+
     H5Gclose(left_group);
+
+    writeArrayAttribute(right_group, HDF5_INT, dims, "StartIndex",
+            fluxgroup->LeftFluxStartGlobalIndex[dim]);
+    writeArrayAttribute(right_group, HDF5_INT, dims, "EndIndex",
+            fluxgroup->LeftFluxEndGlobalIndex[dim]);
+
     H5Gclose(right_group);
+
     H5Gclose(axis_group);
   }
 }

@@ -426,6 +426,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
        (NumberOfParticles > 0 || NumberOfBaryonFields > 0)
        && ReadData ){
  
+    if (ReadEverything == TRUE) this->ReadAllFluxes(group_id);
     h5_status = H5Gclose(group_id);
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
 
@@ -487,11 +488,33 @@ int grid::ReadAllFluxes(hid_t grid_node)
 {
   /* We get the attribute describing to us the number of subgrids. */
 
+  int i;
+  hid_t flux_group, subgrid_group;
+  hid_t h5_error = -1;
+  char name[255];
+
   readAttribute(grid_node, HDF5_INT, "NumberOfSubgrids", 
             (void *) &this->NumberOfSubgrids, 1);
 
   /* Now for every subgrid, we read a flux group, and all of its associated
      baryon fields. */
+
+  fprintf(stderr, "Received NumberOfSubgrids = %d\n", this->NumberOfSubgrids);
+  this->SubgridFluxStorage = new fluxes*[this->NumberOfSubgrids];
+
+  flux_group = H5Gopen(grid_node, "Fluxes");
+  if(flux_group == h5_error) ENZO_FAIL("Can't open Fluxes group");
+
+  for(i = 0; i < this->NumberOfSubgrids; i++) {
+    snprintf(name, 254, "Subgrid%08d", i);
+    subgrid_group = H5Gopen(flux_group, name);
+    if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem opening %s", name)
+
+    this->SubgridFluxStorage[i] = new fluxes;
+    this->ReadFluxGroup(subgrid_group, this->SubgridFluxStorage[i]);
+    H5Gclose(subgrid_group);
+  }
+  H5Gclose(flux_group);
 
 }
 
@@ -520,23 +543,43 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
     right_group = H5Gopen(axis_group, "Right");
     if(right_group == h5_error){ENZO_FAIL("IO Problem with Right");}
 
-    for (j = 0; j < GridRank; j++)
+    readAttribute(left_group, HDF5_INT, "StartIndex",
+        fluxgroup->LeftFluxStartGlobalIndex[dim], TRUE);
+    readAttribute(left_group, HDF5_INT, "EndIndex",
+        fluxgroup->LeftFluxEndGlobalIndex[dim], TRUE);
+
+    readAttribute(right_group, HDF5_INT, "StartIndex",
+        fluxgroup->RightFluxStartGlobalIndex[dim], TRUE);
+    readAttribute(right_group, HDF5_INT, "EndIndex",
+        fluxgroup->RightFluxEndGlobalIndex[dim], TRUE);
+
+    for (j = 0; j < GridRank; j++) {
       size *= fluxgroup->LeftFluxEndGlobalIndex[dim][j] -
         fluxgroup->LeftFluxStartGlobalIndex[dim][j] + 1;
+    }
 
     for (field = 0; field < NumberOfBaryonFields; field++) {
       /* For now our use case ensures these will always exist forever
          and if they don't, we need a hard failure. */
+	  if (fluxgroup->LeftFluxes[field][dim] == NULL)
+	    fluxgroup->LeftFluxes[field][dim]  = new float[size];
+	  if (fluxgroup->RightFluxes[field][dim] == NULL)
+	    fluxgroup->RightFluxes[field][dim] = new float[size];
 
       this->read_dataset(1, &size, DataLabel[field], left_group,
           HDF5_REAL, (void *) fluxgroup->LeftFluxes[field][dim],
           FALSE);
-
+    
       this->read_dataset(1, &size, DataLabel[field], right_group,
           HDF5_REAL, (void *) fluxgroup->RightFluxes[field][dim],
           FALSE);
 
     }
+	for (field = NumberOfBaryonFields; field < MAX_NUMBER_OF_BARYON_FIELDS;
+	     field++) {
+          fluxgroup->LeftFluxes[field][dim] = NULL;
+          fluxgroup->RightFluxes[field][dim] = NULL;
+	}
 
     H5Gclose(left_group);
     H5Gclose(right_group);

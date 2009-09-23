@@ -167,8 +167,10 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   /* Read grid data for this grid. */
 
+  /* We pass in the global here as a parameter to the function */
   if(LoadGridDataAtStart){ 
-    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id) == FAIL) {
+    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, TRUE,
+                CheckpointRestart) == FAIL) {
       fprintf(stderr, "Error in grid->Group_ReadGrid (grid %"ISYM").\n", GridID);
       return FAIL;
     }
