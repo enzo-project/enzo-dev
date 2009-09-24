@@ -2,15 +2,8 @@
 /
 /  GRID CLASS (FLAG CELLS TO BE REFINED BY SLOPE)
 /
-/  written by: Greg Bryan
-/  date:       November, 1994
-/  modified1:  Alexei Kritsuk, Feb. 2005. Fixed a bug by adding the second
-/                              fabs() at around L107. Added a switch on
-/                              ProblemType.
-/  modified2:  Brian O'Shea, May 2006.  Changed problemtype 30 to just refine
-/                              on Density and TotalEnergy (as suggested by 
-/                              Alexei Kritsuk).  This is for supernovae.
-/
+/  written by: Tom Abel & Fen Zhao
+/  date:       July, 2008
 /  PURPOSE:
 /
 /  RETURNS:

@@ -1114,7 +1114,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     }
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"CWD %s\n", cwd_buffer);
-    MetaData.GlobalDir = cwd_buffer;
+    //    MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }
