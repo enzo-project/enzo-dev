@@ -31,9 +31,8 @@ int grid::MultiSpeciesHandler()
 
   JBPERF_START("grid_MultiSpeciesHandler");
 
-  if (MultiSpecies && RadiativeCooling && 
-      (MetalCooling != CLOUDY_METAL_COOLING)) {
-	  this->SolveRateAndCoolEquations();
+  if (MultiSpecies && RadiativeCooling) {
+    this->SolveRateAndCoolEquations();
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();

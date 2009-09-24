@@ -50,6 +50,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
+
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
@@ -143,6 +144,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
   double MassUnits = DensityUnits*pow(LengthUnits,3);
+  printf("Mass Units = %g \n",MassUnits);
+  printf("Time Units = %g \n",TimeUnits);
+
 
   size = 1;
   for (dim = 0; dim < GridRank; dim++) {
@@ -425,6 +429,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
   }
 
+
     /* Set turbulent velocity field */
 
     n = 0;
@@ -515,6 +520,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       }
     }
     
+    //printf("Grid_TubInit: Mass = %"FSYM"\n",Mass);
     VelRMS /= Mass;
     double t_ff = sqrt(32.0/(3.0*M_PI*CloudDensity));
     double NormFactor = CloudMachNumber * CloudSoundSpeed / VelRMS / t_ff;
@@ -537,13 +543,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
 
   }
-  printf("Grid_TurbInit: line 558\n");
 
   for (dim = 0; dim < GridRank; dim++) {
     delete [] TurbulenceVelocity[dim];
     delete [] DrivingField[dim];
   }    
-  printf("Grid_TurbInit: line 563\n");
 
   /* Put a sink particle if we are studying massive star formation */
 
@@ -664,7 +668,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 
   }
-
 
   return SUCCESS;
 }

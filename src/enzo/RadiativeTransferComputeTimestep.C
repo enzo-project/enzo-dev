@@ -46,6 +46,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   int l, maxLevel;
   FLOAT OldTime, HydroTime;
   float ThisPhotonDT;
+  bool FoundRadiation = false;
 
   // Search for the maximum level
   for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
@@ -62,7 +63,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       break;
     }
 
-  dtPhoton = 1e20;
+  dtPhoton = 10*huge_number;
 
   // Calculate timestep by limiting to a 50% max change in HII
   if (RadiativeTransferHIIRestrictedTimestep) {
@@ -71,14 +72,17 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
 	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep2();
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
+	if (Temp->GridData->RadiationPresent() == TRUE)
+	  FoundRadiation = true;
       }
     CommunicationMinValue(dtPhoton);
 
   } // ENDIF
 
-  // otherwise use hydro timestep on finest level
-  else {
-
+  // if not (FoundRadiation will always be false if the
+  // RTUseHIIRestricted parameter isn't set) or no radiation, use
+  // hydro timestep on finest level
+  if (!FoundRadiation) {
     if (maxLevel > 0) {
       for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
 	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();

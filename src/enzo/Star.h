@@ -30,6 +30,7 @@ class Star
   float		 delta_vel[MAX_DIMENSION];
   int		 naccretions;
   float		*accretion_rate;	// prescribed Mdot(t) [Msun / s]
+  float          last_accretion_rate;
   FLOAT	*accretion_time;	// corresponding time for Mdot(t)
   float		 Mass;		// Msun
   float		 FinalMass;	// Msun
@@ -79,7 +80,7 @@ public:
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(float dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
-  void  ResetAccretion(void) { if (type != BlackHole && type != MBH) DeltaMass = 0.0; };
+  void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   FLOAT *ReturnPosition(void) { return pos; }

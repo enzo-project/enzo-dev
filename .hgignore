@@ -32,6 +32,7 @@ src/mpgrafic/mpgrafic-0.2/config.log
 src/mpgrafic/mpgrafic-0.2/config.status
 src/mpgrafic/mpgrafic-0.2/src/.deps/parallel_io.Po
 src/mpgrafic/mpgrafic-0.2/src/Makefile
+src/mpgrafic/mpgrafic-0.2/src/params.in
 src/mpgrafic/mpgrafic-0.2/src/mpgrafic
 src/mpgrafic/mpgrafic-0.2/src/*.dat
 src/mpgrafic/mpgrafic-0.2/stamp-h1

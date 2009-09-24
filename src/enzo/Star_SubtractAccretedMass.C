@@ -47,13 +47,8 @@ int Star::SubtractAccretedMass(void)
     return SUCCESS;
 
   int dim, igrid[MAX_DIMENSION], index, size;
-  float OldDensity, NewDensity, factor;
-  float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
   double Msun = 1.989e33;
-  FLOAT time = CurrentGrid->OldTime;
-
-  if (time <= 0)
-    time = CurrentGrid->Time - CurrentGrid->dtFixed;
+  FLOAT time = CurrentGrid->Time;
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -61,17 +56,16 @@ int Star::SubtractAccretedMass(void)
 
   /* Find metallicity or SN Color field and set flag. */
 
-  /*
   int ZNum, ZField;
   int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
+  if ((MetalNum = FindField(Metallicity, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
       != -1)
     MetallicityField = TRUE;
   else
     MetalNum = 0;
 
   int UseColour = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
+  if ((SNColourNum = FindField(SNColour, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
       != -1)
     UseColour = TRUE;
   else
@@ -79,7 +73,6 @@ int Star::SubtractAccretedMass(void)
 
   ZNum = max(MetalNum, SNColourNum);
   ZField = max(MetallicityField, UseColour);
-  */
 
   /* Find fields: density, total energy, velocity1-3. */
 
@@ -115,6 +108,8 @@ int Star::SubtractAccretedMass(void)
 
   float MassConversion = (float) (pow(LengthUnits * CurrentGrid->CellWidth[0][0], 3.0)
 				  * double(DensityUnits) / Msun);
+  float OldDensity, NewDensity, factor;
+  float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
 
   /* Subtract accreted mass from the grids, and calculate new densities */
   
@@ -123,35 +118,32 @@ int Star::SubtractAccretedMass(void)
     pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / DensityUnits;    
   factor = NewDensity / OldDensity;
 
+  denssink  = (this->Mass - this->DeltaMass) / MassConversion; //check below
+  usink     = vel[0];
+  vsink     = vel[1];
+  wsink     = vel[2];
   densgrid  = OldDensity;
   ugrid     = CurrentGrid->BaryonField[Vel1Num][index];
   vgrid     = CurrentGrid->BaryonField[Vel2Num][index];
   wgrid     = CurrentGrid->BaryonField[Vel3Num][index];
-  denssink  = (this->Mass - this->DeltaMass) / MassConversion;
-  usink     = vel[1];
-  vsink     = vel[2];
-  wsink     = vel[3];
   drho      = this->DeltaMass / MassConversion;
 
 
-  CurrentGrid->BaryonField[DensNum][index] *= factor;
-  CurrentGrid->BaryonField[Vel1Num][index] = 
-    (densgrid*ugrid - drho*ugrid) / (densgrid - drho);
-  CurrentGrid->BaryonField[Vel2Num][index] = 
-    (densgrid*vgrid - drho*vgrid) / (densgrid - drho);
-  CurrentGrid->BaryonField[Vel3Num][index] = 
-    (densgrid*wgrid - drho*wgrid) / (densgrid - drho);
+  /* Modify density and velocity fields, for both the particle and the grid */
 
-  //this->Mass += this->DeltaMass;  // this is already done in Star_Accrete.C
-  vel[1] = (denssink*usink + drho*ugrid) / (denssink + drho);
-  vel[2] = (denssink*vsink + drho*vgrid) / (denssink + drho);
-  vel[3] = (denssink*wsink + drho*wgrid) / (denssink + drho);
+  //this->Mass += this->DeltaMass;//this is already done in Star_Accrete.C
+  vel[0] = (denssink*usink + drho*ugrid) / (denssink + drho);
+  vel[1] = (denssink*vsink + drho*vgrid) / (denssink + drho);
+  vel[2] = (denssink*wsink + drho*wgrid) / (denssink + drho);
+
+  CurrentGrid->BaryonField[DensNum][index] *= factor;
+  //CurrentGrid->BaryonField[Vel1Num][index] = (densgrid*ugrid - drho*ugrid) / (densgrid - drho);
+  //                                         = ugrid; //velocity of the grids will be unchanged!
 
   /*
-  fprintf(stderr, "star::SubtractAccretedMass:  OldDensity =%g, NewDensity =%g, factor =%g\n", 
-	  OldDensity, NewDensity, factor);
-  fprintf(stderr, "star::SubtractAccretedMass:  vel_g[1] = %g -> %g, vel_p[1] = %g -> %g\n", 
-	  ugrid, CurrentGrid->BaryonField[Vel1Num][index], usink, vel[1]);
+  fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %g, OldDensity =%g, NewDensity =%g, factor =%g\n", 
+	  this->DeltaMass, OldDensity, NewDensity, factor); 
+  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);//#####
   */
 
   if (MultiSpecies) {
@@ -174,10 +166,8 @@ int Star::SubtractAccretedMass(void)
     CurrentGrid->BaryonField[HDINum][index] *= factor;
   }
 
-  /*  
   if (ZField == TRUE)
     CurrentGrid->BaryonField[ZNum][index] *= factor;
-  */
 
   return SUCCESS;
 

@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             September, 2009
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -57,9 +58,8 @@ int Star::Accrete(void)
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
-  /* Now this is done in Star_SubtractAccretedMass.C 
-     Ji-hoon Kim in Sep.2009 */
-
+  /* Below was an approximation for DetalMass <<1; 
+     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim in Sep.2009 */
   /*
   ratio2 = DeltaMass / Mass;
   ratio1 = 1.0 - ratio2;
@@ -72,6 +72,12 @@ int Star::Accrete(void)
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     delta_vel[dim] = 0.0;
   }
+
+  /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
+
+  last_accretion_rate = accretion_rate[n-1]; 
+  //fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
+  //	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
 
   /* Remove these entries in the accretion table */
 

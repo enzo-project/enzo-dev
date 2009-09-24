@@ -63,6 +63,7 @@ SPEXTERN float  MBHFeedbackRadius;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
 SPEXTERN float  MBHFeedbackThermalCoupling;
 SPEXTERN float  MBHFeedbackMassEjectionFraction;
+SPEXTERN float  MBHFeedbackMetalYield;
 SPEXTERN float  MBHCombineRadius;
 
 SPEXTERN float minStarLifetime;
