@@ -206,7 +206,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     if (SelfGravity)
       if (fscanf(fptr, "GravityBoundaryType = %"ISYM"\n",&GravityBoundaryType) != 1) {
-		ENZO_FAIL("Error reading GravityBoundaryType.");
+1		ENZO_FAIL("Error reading GravityBoundaryType.");
       }
 
     // If HierarchyFile has different Ghostzones 

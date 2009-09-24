@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  GRID CLASS (SEND PHOTONS FROM REAL GRID TO 'FAKE' (REPLICATED) GRID)

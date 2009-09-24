@@ -76,8 +76,8 @@ int Star::Accrete(void)
   /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
 
   last_accretion_rate = accretion_rate[n-1]; 
-  //fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
-  //	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
+  	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
 
   /* Remove these entries in the accretion table */
 
