@@ -315,6 +315,8 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
 	SecondOrderA : SecondOrderC;
 
+    //    fprintf(stdout, "grid:: InterpolateBoundaryFromParent[1]\n"); 
+
     if( AccelerationHack != TRUE ) 
     FORTRAN_NAME(interpolate)(&GridRank,
 			      ParentTemp[densfield], ParentTempDim,
@@ -331,6 +333,8 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       if (HydroMethod == Zeus_Hydro)
 	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
 	  SecondOrderA : SecondOrderC;
+      
+      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[2]\n");
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.

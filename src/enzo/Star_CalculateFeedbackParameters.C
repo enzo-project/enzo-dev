@@ -233,11 +233,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
        with zero momentum, increase the particle's velocity accordingly.
        As of now, this is only for MBH_THERMAL, 
        but probably should also be done for SUPERNOVA and CONT_SUPERNOVA. - Ji-hoon Kim Sep.2009 */
-    float OldMass = this->Mass;
     this->Mass -= EjectaDensity * DensityUnits * EjectaVolume / Msun;  
-    this->vel[0] *= this->Mass / OldMass; 
-    this->vel[1] *= this->Mass / OldMass; 
-    this->vel[2] *= this->Mass / OldMass; 
+    this->vel[0] *= old_mass / this->Mass; 
+    this->vel[1] *= old_mass / this->Mass;
+    this->vel[2] *= old_mass / this->Mass; 
 
 
 #define NOT_SEDOV_TEST
