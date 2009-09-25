@@ -403,6 +403,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     CommunicationSyncNumberOfPhotons(LevelArray);
 
+#ifdef DEBUG
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	Temp->GridData->ErrorCheckPhotonNumber(lvl);
+#endif
+
     if (!LoopTime)
       break;
     
