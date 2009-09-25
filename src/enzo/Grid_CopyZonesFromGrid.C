@@ -328,7 +328,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   //  PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
   
- 
+  /*  should not be needed ???? (TA 2009)
    
   if (isShearing){
 
@@ -378,7 +378,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  
 	}}}
  
-
+  */
 
   /* Clean up if we have transfered data. */
   

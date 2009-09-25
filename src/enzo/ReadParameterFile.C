@@ -95,6 +95,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
+    ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
+		  &MetaData.MaximumTopGridTimeStep);
+
     ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
     ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
@@ -1111,7 +1114,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     }
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"CWD %s\n", cwd_buffer);
-    //    MetaData.GlobalDir = cwd_buffer;
+    MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }

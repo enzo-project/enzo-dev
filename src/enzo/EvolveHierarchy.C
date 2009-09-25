@@ -340,7 +340,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Compute minimum timestep on the top level. */
  
-    float dtProc   = huge_number;
+    float dtProc   = MetaData.MaximumTopGridTimeStep;
     Temp = LevelArray[0];
  
     while (Temp != NULL) {
@@ -376,7 +376,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
      dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
 		       MetaData.Time), dt);
     }
- 
+
     /* Set the time step.  If it will cause Time += dt > StopTime, then
        set dt = StopTime - Time */
  

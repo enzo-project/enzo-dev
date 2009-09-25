@@ -54,6 +54,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   const float Pi = 3.14159;
   int dim, i;
  
+  huge_number               = 1.0e+20;
+  tiny_number               = 1.0e-20;
+
   /* set the default MetaData values. */
  
   MetaData.CycleNumber     = 0;
@@ -68,6 +71,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
  
+  MetaData.MaximumTopGridTimeStep = huge_number;
+
   MetaData.TimeLastRestartDump = 0.0;
   MetaData.dtRestartDump       = FLOAT_UNDEFINED;
   MetaData.TimeLastDataDump    = FLOAT_UNDEFINED;
@@ -154,8 +159,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                  // Debug flag set in main
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
-  huge_number               = 1.0e+20;
-  tiny_number               = 1.0e-20;
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
   RefineBy                  = 4;                 // Refinement factor
