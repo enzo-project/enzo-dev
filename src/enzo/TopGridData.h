@@ -38,6 +38,9 @@ struct TopGridData
   int   StopSteps;           // stop after N steps (for heap fragmentation fix)
   float StopCPUTime;         // Maximum CPU time to be used
 
+  /* Time step limit */
+  float MaximumTopGridTimeStep; // limit the topgrid time step to be smaller than this
+
   /* Parameters governing when output is done. */
 
   float TimeLastRestartDump;  // CPU time of the last restart dump (seconds)

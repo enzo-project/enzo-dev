@@ -236,6 +236,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
     for (level = MaximumRefinementLevel; level > 0; level--) {
       LevelHierarchyEntry *Temp = LevelArray[level];
       while (Temp != NULL) {
+	printf("Project solution back to parent:\n");
 	if (Temp->GridData->ProjectSolutionToParentGrid(
 				   *LevelArray[level-1]->GridData) == FAIL) {
 	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");

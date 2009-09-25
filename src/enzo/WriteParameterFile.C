@@ -85,6 +85,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
  
+  fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
+
   fprintf(fptr, "TimeLastRestartDump = %"GOUTSYM"\n", MetaData.TimeLastRestartDump);
   fprintf(fptr, "dtRestartDump       = %"GOUTSYM"\n", MetaData.dtRestartDump);
   fprintf(fptr, "TimeLastDataDump    = %"GOUTSYM"\n", MetaData.TimeLastDataDump);

@@ -965,7 +965,7 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
   Flux[tx*NEQ_MHD+iBz  ] = 0.5*(Fl_Bz+Fr_Bz-lp_l*(Ur_Bz-Ul_Bz));
 
   Flux[tx*NEQ_MHD+iBx  ] += Ul_Phi + 0.5*(Ur_Phi-Ul_Phi) - 0.5*C_h*(Ur_Bx-Ul_Bx);
-  Flux[tx*NEQ_MHD+iPhi ] = Ul_Bx + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
+  Flux[tx*NEQ_MHD+iPhi ] =  Ul_Bx  + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
   Flux[tx*NEQ_MHD+iPhi ] *= (C_h*C_h);
 
 }
