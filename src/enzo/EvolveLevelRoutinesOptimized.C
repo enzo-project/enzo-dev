@@ -224,8 +224,6 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
     } // end loop over batchs of grids
 
-  CommunicationBarrier();
-
   } // ENDFOR loop (for ShearinBox)
  
     /* c) Apply external reflecting boundary conditions, if needed.  */
