@@ -87,12 +87,17 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   if ( MyProcessorNumber == 0 )
     fprintf(stderr, "Task map assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, TaskMap[GridID-1]);
-
-    Grid->GridData->SetProcessorNumber(TaskMap[GridID-1]);
-
+  
+  Grid->GridData->SetProcessorNumber(TaskMap[GridID-1]);
+  
 #else
 
 // Use grid-to-processor mapping from last dump
+
+  if (Task > NumberOfProcessors-1) {
+    Task = NewProc;
+    fptr = ptr_task_check;
+  }
 
   if ( MyProcessorNumber == 0 )
     fprintf(stderr, "Using dumped task assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, Task);
