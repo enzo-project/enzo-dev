@@ -1,4 +1,4 @@
-#define DEBUG 1  //#####
+#define DEBUG 0
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
@@ -175,7 +175,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       // DEBUG fudge
       for (j=0; j<BasePackages; j++) {
 	//      for (j=0; j<1; j++) {
-//	if (photons_per_package>tiny_number) { //#####
+//	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
 	if (!isnan(photons_per_package)) { 
 	  PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	  NewPack->NextPackage = PhotonPackages->NextPackage;

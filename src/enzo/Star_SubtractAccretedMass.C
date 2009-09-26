@@ -43,7 +43,9 @@ int Star::SubtractAccretedMass(void)
 
   /* Check if the star type is correct */
 
-  if ((this->type != BlackHole && abs(this->type) != MBH) || (this->CurrentGrid == NULL))
+  if ((this->type != BlackHole && abs(this->type) != MBH) || 
+      (this->CurrentGrid == NULL) ||
+      (MBHAccretion != 1))
     return SUCCESS;
 
   int dim, igrid[MAX_DIMENSION], index, size;
@@ -139,9 +141,11 @@ int Star::SubtractAccretedMass(void)
   //CurrentGrid->BaryonField[Vel1Num][index] = (densgrid*ugrid - drho*ugrid) / (densgrid - drho);
   //                                         = ugrid; //velocity of the grids will be unchanged!
 
+  /*
   fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %g, OldDensity =%g, NewDensity =%g, factor =%g\n", 
 	  this->DeltaMass, OldDensity, NewDensity, factor); 
   fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);//#####
+  */
 
   if (MultiSpecies) {
     CurrentGrid->BaryonField[DeNum][index] *= factor;

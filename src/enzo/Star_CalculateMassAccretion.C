@@ -31,7 +31,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::CalculateMassAccretion(void)
 {
 
-  if ((this->type != BlackHole && abs(this->type) != MBH) || this->CurrentGrid == NULL)
+  if ((this->type != BlackHole && abs(this->type) != MBH) || 
+      (this->CurrentGrid == NULL) ||
+      (MBHAccretion != 1))
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;

@@ -610,6 +610,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %"ISYM, 
+		  &MBHAccretion);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
 		  &MBHAccretingMassRatio);
     ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 

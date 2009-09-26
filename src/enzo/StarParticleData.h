@@ -57,6 +57,7 @@ SPEXTERN float  StarClusterRegionRightEdge[3];
 
 SPEXTERN float  MBHMinDynamicalTime;
 SPEXTERN float  MBHMinimumMass;
+SPEXTERN int    MBHAccretion;
 SPEXTERN float  MBHAccretingMassRatio;
 SPEXTERN int    MBHFeedbackThermal;
 SPEXTERN float  MBHFeedbackRadius;

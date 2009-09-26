@@ -355,6 +355,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
+  MBHAccretion                     = TRUE;
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc

@@ -115,8 +115,10 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[0] = 1.0e45 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
 #endif
     
+    /*
     fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
-    	    this->last_accretion_rate, Q[0]); //#####
+    	    this->last_accretion_rate, Q[0]); 
+    */
     break;
 
   default:

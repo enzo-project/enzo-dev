@@ -554,6 +554,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHMinDynamicalTime);
   fprintf(fptr, "MBHMinimumMass                  = %"GSYM"\n",
           MBHMinimumMass);
+  fprintf(fptr, "MBHAccretion                    = %"ISYM"\n",
+	  MBHAccretion);
   fprintf(fptr, "MBHAccretingMassRatio           = %"GSYM"\n",
           MBHAccretingMassRatio);
   fprintf(fptr, "MBHFeedbackThermal              = %"ISYM"\n",

@@ -22,6 +22,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "StarParticleData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -30,7 +31,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
-  if ((this->type != BlackHole && abs(this->type) != MBH) || (CurrentGrid == NULL))
+  if ((this->type != BlackHole && abs(this->type) != MBH) || 
+      (this->CurrentGrid == NULL) ||
+      (MBHAccretion != 1))
     return SUCCESS;
 
   int dim, i, n, count;
@@ -76,8 +79,10 @@ int Star::Accrete(void)
   /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
 
   last_accretion_rate = accretion_rate[n-1]; 
+  /*
   fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
   	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
+  */
 
   /* Remove these entries in the accretion table */
 
