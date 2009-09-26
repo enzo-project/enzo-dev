@@ -340,7 +340,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Compute minimum timestep on the top level. */
  
-    float dtProc   = MetaData.MaximumTopGridTimeStep;
+    float dtProc   = huge_number;
     Temp = LevelArray[0];
  
     while (Temp != NULL) {
@@ -349,8 +349,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
- 
-    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
+
+    dt = min(MetaData.MaximumTopGridTimeStep, dt);
+
+    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, MetaData.MaximumTopGridTimeStep);
     if (Initialdt != 0) {
       
       dt = min(dt, Initialdt);

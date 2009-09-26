@@ -160,14 +160,17 @@ Eint32 main(Eint32 argc, char *argv[])
 
   CommunicationInitialize(&argc, &argv);
 
+  //#define DEBUG_MPI
 #ifdef DEBUG_MPI
-  int impi = 0;
-  char hostname[256];
-  gethostname(hostname, sizeof(hostname));
-  printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
-  fflush(stdout);
-  while (impi == 0)
-    sleep(5);
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    int impi = 0;
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
+    fflush(stdout);
+    while (impi == 0)
+      sleep(5);
+  }
 #endif
   
 
