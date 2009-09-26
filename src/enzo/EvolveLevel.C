@@ -303,16 +303,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
+    printf("here! [1]\n"); //#####
 
     /* Streaming movie output (write after all parent grids are
        updated) */
 
     WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
+    printf("here! [2]\n"); //#####
 
     /* Initialize the star particles */
 
     Star *AllStars = NULL;
     StarParticleInitialize(LevelArray, level, MetaData, AllStars);
+    printf("here! [3]\n"); //#####
 
     /* Initialize the radiative transfer */
 
@@ -339,6 +342,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+    printf("here! [4]\n"); //#####
 
     /* Solve the radiative transfer */
 	

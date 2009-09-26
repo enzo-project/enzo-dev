@@ -349,7 +349,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
-
     dt = min(MetaData.MaximumTopGridTimeStep, dt);
 
     if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
