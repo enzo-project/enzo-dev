@@ -352,7 +352,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     dt = min(MetaData.MaximumTopGridTimeStep, dt);
 
-    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, MetaData.MaximumTopGridTimeStep);
+    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
     if (Initialdt != 0) {
       
       dt = min(dt, Initialdt);

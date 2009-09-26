@@ -60,7 +60,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
   /* declarations */
 
@@ -85,7 +85,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
-    ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
+    ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
@@ -1137,7 +1137,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
-
+  printf("Initialdt in ReadParameterFiled %g\n", *Initialdt);
    CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }
