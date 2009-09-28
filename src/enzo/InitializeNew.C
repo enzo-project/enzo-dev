@@ -237,10 +237,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       RefineRegionLeftEdge[dim]   = DomainLeftEdge[dim];
     if (RefineRegionRightEdge[dim] == FLOAT_UNDEFINED)
       RefineRegionRightEdge[dim]  = DomainRightEdge[dim];
-    if (MetaData.MovieRegionLeftEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionLeftEdge[dim]   = DomainLeftEdge[dim];
-    if (MetaData.MovieRegionRightEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionRightEdge[dim]  = DomainRightEdge[dim];
   }
  
   // If the problem reads in a restart dump, then skip over the following

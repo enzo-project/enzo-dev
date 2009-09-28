@@ -58,9 +58,6 @@ struct TopGridData
   FLOAT TimeLastTracerParticleDump;   // Problem time of last tracer part dump
   FLOAT dtTracerParticleDump;         // Problem time between dumps (0 = never)
 
-  FLOAT MovieRegionLeftEdge[MAX_DIMENSION];  // region for movie output
-  FLOAT MovieRegionRightEdge[MAX_DIMENSION];
-
   FLOAT NewMovieLeftEdge[MAX_DIMENSION];  // region for seq. movie output
   FLOAT NewMovieRightEdge[MAX_DIMENSION];
 
