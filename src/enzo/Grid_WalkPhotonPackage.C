@@ -1,4 +1,4 @@
-#define DEBUG 2
+#define DEBUG 0
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
