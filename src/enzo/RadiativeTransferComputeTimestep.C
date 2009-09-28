@@ -33,6 +33,10 @@
 
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level)
@@ -68,9 +72,15 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   // Calculate timestep by limiting to a 50% max change in HII
   if (RadiativeTransferHIIRestrictedTimestep) {
 
+    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+      VelocityUnits = 1, TimeUnits = 1;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
+	     &VelocityUnits, LevelArray[level]->GridData->ReturnTime());
+
     for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
       for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
-	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep2();
+	ThisPhotonDT = Temp->GridData->
+	  ComputeRT_TimeStep2(DensityUnits, LengthUnits);
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
 	if (Temp->GridData->RadiationPresent() == TRUE)
 	  FoundRadiation = true;

@@ -59,6 +59,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
+
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
