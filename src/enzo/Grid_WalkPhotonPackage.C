@@ -344,7 +344,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	(*MoveToGrid) = Grids0[dummy];
 	DeltaLevel = 0;
 	(*PP)->Radius += ROUNDOFF;
-	return SUCCESS;
+	// Sometimes a photon can loiter on the grid boundary until kicked off
+	if (*MoveToGrid != this)
+	  return SUCCESS;
+	else
+	  *MoveToGrid = NULL;
       } else
 	// Wrap the photon around the boundary
 	if (RadiativeTransferPeriodicBoundary) {
@@ -375,7 +379,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  (*MoveToGrid) = Grids0[dummy];
 	  DeltaLevel = 0;
 	  (*PP)->Radius += ROUNDOFF;
-	  return SUCCESS;
+	  // Sometimes a photon can loiter on the grid boundary until kicked off
+	  if (*MoveToGrid != this)
+	    return SUCCESS;
+	  else
+	    *MoveToGrid = NULL;
 	} else {
 	  // PhotonPackage left the box
 	  (*PP)->Photons=-1;
@@ -393,7 +401,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	(*PP)->Photons=-1;
 	DeleteMe = TRUE;
       }
-      return SUCCESS;
+      if (*MoveToGrid != this)
+	return SUCCESS;
+      else
+	*MoveToGrid = NULL;
     case SubGridIsolated:
       (*MoveToGrid) = ParentGrid;
       DeltaLevel = -1;
@@ -794,7 +805,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  (*MoveToGrid) = Grids0[dummy];
 	  DeltaLevel = 0;
 	  (*PP)->Radius += ROUNDOFF;
-	  return SUCCESS;
+	  if (*MoveToGrid != this)
+	    return SUCCESS;
+	  else
+	    *MoveToGrid = NULL;
 	} else
 	  // Wrap the photon around the boundary
 	  if (RadiativeTransferPeriodicBoundary) {
@@ -825,7 +839,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	    (*MoveToGrid) = Grids0[dummy];
 	    DeltaLevel = 0;
 	    (*PP)->Radius += ROUNDOFF;
-	    return SUCCESS;
+	    if (*MoveToGrid != this)
+	      return SUCCESS;
+	    else
+	      *MoveToGrid = NULL;
 	  } else {
 	    // PhotonPackage left the box
 	    (*PP)->Photons=-1;
@@ -843,7 +860,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  (*PP)->Photons=-1;
 	  DeleteMe = TRUE;
 	}
-	return SUCCESS;
+	if (*MoveToGrid != this)
+	  return SUCCESS;
+	else
+	  *MoveToGrid = NULL;
       case SubGridIsolated:
 	(*MoveToGrid) = ParentGrid;
 	DeltaLevel = -1;
