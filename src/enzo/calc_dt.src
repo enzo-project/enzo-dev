@@ -126,6 +126,8 @@ c
      &                p(i,j,k) .ne. p(i,j,k))
      &               write(6,*) 'calc_dt',d(i,j,k),p(i,j,k),i,j,k
                   cs = max(sqrt(gamma*p(i,j,k)/d(i,j,k)), tiny)
+                  if (cs .gt. 1e20)
+     &               write(6,*) 'calc_dt',d(i,j,k),p(i,j,k),gamma,cs,i,j,k
                   if (ipfree .eq. 1) cs = tiny
                   if (ihydro .eq. 0) then
 c     
@@ -143,8 +145,12 @@ c
      &                    dz(k)*aye/(cs + abs(w(i,j,k)-vgz)))
                   endif
                   dt = min(dt, dt1)
-!                  if (dt1 .lt. 1.0e-5) write(6,1000) dt1,d(i,j,k),
-!    &                  p(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k)
+                  if (dt1 .lt. 1.0e-5) then
+                     write(6,*) d(i-1,j,k), d(i+1,j,k), d(i,j-1,k),
+     $                    d(i,j+1,k), d(i,j,k-1), d(i,j,k+1)
+                     write(6,1000) dt1,d(i,j,k),
+     &                    p(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k)
+                  end if
  1000             format('calc_dt (small dt): dt,d,p,uvw=',1p,6e12.3)
                enddo
 c
