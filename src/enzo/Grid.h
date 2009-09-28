@@ -209,7 +209,7 @@ class grid
    int FillFluxesFromStorage(int *ThisNumberOfSubgrids,
         fluxes ***fluxgroup) {
         *ThisNumberOfSubgrids = this->NumberOfSubgrids;
-        fluxgroup = &this->SubgridFluxStorage;
+        *fluxgroup = this->SubgridFluxStorage;
         this->SubgridFluxStorage = NULL;
     }
 
