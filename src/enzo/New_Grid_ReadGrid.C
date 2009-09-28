@@ -55,7 +55,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 			 int ReadText, int ReadData, int ReadEverything)
 {
  
-  int i, j, k, field, size, active_size;
+  int i, j, k, field, size, active_size, dim;
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
   char logname[MAX_LINE_LENGTH];
   char procfilename[MAX_LINE_LENGTH];
@@ -426,7 +426,33 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
        (NumberOfParticles > 0 || NumberOfBaryonFields > 0)
        && ReadData ){
  
-    if (ReadEverything == TRUE) this->ReadAllFluxes(group_id);
+    if (ReadEverything == TRUE) {
+      hid_t acc_node;
+      H5E_BEGIN_TRY{
+        acc_node = H5Gopen(group_id, "Acceleration");
+      }H5E_END_TRY
+      /* We just check for existence, because for SOME REASON grids don't
+         know their own level. */
+      if(acc_node != h5_error){
+        char acc_name[255];
+        size = 1;
+        for (dim = 0; dim < GridRank; dim++) size *= GridDimension[dim];
+        float *temp = new float[size];
+        for (dim = 0; dim < GridRank; dim++) {
+          if(this->AccelerationField[dim] != NULL) {
+            delete this->AccelerationField[dim];
+          }
+          snprintf(acc_name, 254, "AccelerationField%d", dim);
+          this->read_dataset(GridRank, OutDims, acc_name,
+              acc_node, HDF5_REAL, (VOIDP) temp,
+              TRUE, AccelerationField[dim], ActiveDim);
+        }
+        delete temp;
+        H5Gclose(acc_node);
+      }
+
+      this->ReadAllFluxes(group_id);
+    }
     h5_status = H5Gclose(group_id);
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
 
@@ -561,10 +587,10 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
     for (field = 0; field < NumberOfBaryonFields; field++) {
       /* For now our use case ensures these will always exist forever
          and if they don't, we need a hard failure. */
-	  if (fluxgroup->LeftFluxes[field][dim] == NULL)
-	    fluxgroup->LeftFluxes[field][dim]  = new float[size];
-	  if (fluxgroup->RightFluxes[field][dim] == NULL)
-	    fluxgroup->RightFluxes[field][dim] = new float[size];
+      /* Note also that if you pass a pre-initialized fluxgroup, this will leak
+         memory. */
+      fluxgroup->LeftFluxes[field][dim]  = new float[size];
+      fluxgroup->RightFluxes[field][dim]  = new float[size];
 
       this->read_dataset(1, &size, DataLabel[field], left_group,
           HDF5_REAL, (void *) fluxgroup->LeftFluxes[field][dim],

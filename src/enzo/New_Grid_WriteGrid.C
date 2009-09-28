@@ -66,7 +66,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   hid_t       float_type_id, FLOAT_type_id;
   hid_t       file_type_id, FILE_type_id;
   hid_t       file_dsp_id;
-  hid_t       old_fields;
+  hid_t       old_fields, acc_node;
  
   hsize_t     OutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[1];
@@ -75,6 +75,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   herr_t      h5_error = -1;
 
   file_type_id = HDF5_REAL;
+
+  char node_name[255];
 
   int CopyOnlyActive = TRUE;
   if(WriteEverything==TRUE)CopyOnlyActive = FALSE;
@@ -235,6 +237,33 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       }
  
     }   // end of loop over fields
+
+    
+    if (WriteEverything == TRUE) {
+        /* Clean up our reference here */
+
+        H5Gclose(old_fields);
+
+        if(AccelerationField[0] != NULL) {
+          acc_node = H5Gcreate(group_id, "Acceleration", 0);
+          if(acc_node == h5_error)ENZO_FAIL("Couldn't create Acceleration node!");
+
+          /* If we're to write everything, we must also write 
+             the AccelerationField */
+
+          size = 1;
+          for (dim = 0; dim < GridRank; dim++) size *= GridDimension[dim];
+
+          for(dim = 0; dim < GridRank; dim++) {
+            snprintf(node_name, 254, "AccelerationField%d", dim);
+            this->write_dataset(GridRank, OutDims, node_name,
+                acc_node, file_type_id, (VOIDP) AccelerationField[dim],
+                CopyOnlyActive, temp);
+          }
+
+          H5Gclose(acc_node);
+        }
+    }
 
     /* If this is cosmology, compute the temperature field as well since
        its such a pain to compute after the fact. */

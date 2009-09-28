@@ -206,6 +206,13 @@ class grid
    int ReadAllFluxes(hid_t grid_node);
    int ReadFluxGroup(hid_t top_group, fluxes *fluxgroup);
 
+   int FillFluxesFromStorage(int *ThisNumberOfSubgrids,
+        fluxes ***fluxgroup) {
+        *ThisNumberOfSubgrids = this->NumberOfSubgrids;
+        fluxgroup = &this->SubgridFluxStorage;
+        this->SubgridFluxStorage = NULL;
+    }
+
 /* Write grid data to separate files (returns: success/failure) */
 
    int WriteGridX(FILE *main_file_pointer, char *base_name, int grid_id);
