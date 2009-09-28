@@ -141,6 +141,9 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     CheckpointDump = TRUE;
       }
 
+    /* We also reset checkpoint state here */
+    if (CheckpointRestart == TRUE) CheckpointRestart = FALSE;
+
       /* Check to see if new subcycle information has been given to us */
       
       if ( subcycleCount != -1 ){

@@ -526,6 +526,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
      baryon fields. */
 
   fprintf(stderr, "Received NumberOfSubgrids = %d\n", this->NumberOfSubgrids);
+
   this->SubgridFluxStorage = new fluxes*[this->NumberOfSubgrids];
 
   flux_group = H5Gopen(grid_node, "Fluxes");
@@ -536,10 +537,15 @@ int grid::ReadAllFluxes(hid_t grid_node)
     subgrid_group = H5Gopen(flux_group, name);
     if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem opening %s", name)
 
-    this->SubgridFluxStorage[i] = new fluxes;
+      this->SubgridFluxStorage[i] = new fluxes;
     this->ReadFluxGroup(subgrid_group, this->SubgridFluxStorage[i]);
     H5Gclose(subgrid_group);
   }
+  subgrid_group = H5Gopen(flux_group, "BoundaryFluxes");
+  this->BoundaryFluxes = new fluxes;
+  this->ReadFluxGroup(subgrid_group, this->BoundaryFluxes);
+
+  H5Gclose(subgrid_group);
   H5Gclose(flux_group);
 
 }
