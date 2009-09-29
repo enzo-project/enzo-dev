@@ -54,6 +54,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   const float Pi = 3.14159;
   int dim, i;
  
+  huge_number               = 1.0e+20;
+  tiny_number               = 1.0e-20;
+
   /* set the default MetaData values. */
  
   MetaData.CycleNumber     = 0;
@@ -68,6 +71,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
  
+  MetaData.MaximumTopGridTimeStep = huge_number;
+
   MetaData.TimeLastRestartDump = 0.0;
   MetaData.dtRestartDump       = FLOAT_UNDEFINED;
   MetaData.TimeLastDataDump    = FLOAT_UNDEFINED;
@@ -158,8 +163,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
                                                  // Debug flag set in main
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
-  huge_number               = 1.0e+20;
-  tiny_number               = 1.0e-20;
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
   RefineBy                  = 4;                 // Refinement factor
@@ -356,12 +359,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
+  MBHAccretion                     = TRUE;
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackMetalYield            = 0.02;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHCombineRadius                 = 10;           // pc
 
   NumberOfParticleAttributes       = INT_UNDEFINED;

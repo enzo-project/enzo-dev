@@ -468,6 +468,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   } // ENDIF sibling grids and multi-processor
 
   delete [] NumberToMove;
+  delete [] StarsToMove;
 
   return SUCCESS;
 }

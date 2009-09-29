@@ -60,7 +60,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
   /* declarations */
 
@@ -85,7 +85,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
-    ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
+    ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
@@ -95,6 +95,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
+    ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
+		  &MetaData.MaximumTopGridTimeStep);
+
     ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
     ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
@@ -612,6 +615,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %"ISYM, 
+		  &MBHAccretion);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
 		  &MBHAccretingMassRatio);
     ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
@@ -621,6 +626,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
     ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
 		  &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, 
+		  &MBHFeedbackMetalYield);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
 
@@ -1137,7 +1144,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
-
+  printf("Initialdt in ReadParameterFiled %e\n", *Initialdt);
    CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

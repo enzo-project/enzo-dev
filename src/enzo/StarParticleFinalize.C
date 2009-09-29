@@ -127,7 +127,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
     ThisStar->ActivateNewStar(TimeNow);
-    ThisStar->ResetAccretion();
+    ThisStar->ResetAccretion(); 
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
   } // ENDFOR stars

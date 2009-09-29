@@ -85,6 +85,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
  
+  fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
+
   fprintf(fptr, "TimeLastRestartDump = %"GOUTSYM"\n", MetaData.TimeLastRestartDump);
   fprintf(fptr, "dtRestartDump       = %"GOUTSYM"\n", MetaData.dtRestartDump);
   fprintf(fptr, "TimeLastDataDump    = %"GOUTSYM"\n", MetaData.TimeLastDataDump);
@@ -557,6 +559,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHMinDynamicalTime);
   fprintf(fptr, "MBHMinimumMass                  = %"GSYM"\n",
           MBHMinimumMass);
+  fprintf(fptr, "MBHAccretion                    = %"ISYM"\n",
+	  MBHAccretion);
   fprintf(fptr, "MBHAccretingMassRatio           = %"GSYM"\n",
           MBHAccretingMassRatio);
   fprintf(fptr, "MBHFeedbackThermal              = %"ISYM"\n",
@@ -569,6 +573,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackThermalCoupling);
   fprintf(fptr, "MBHFeedbackMassEjectionFraction = %"GSYM"\n",
           MBHFeedbackMassEjectionFraction);
+  fprintf(fptr, "MBHFeedbackMetalYield           = %"GSYM"\n",
+          MBHFeedbackMetalYield);
   fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n",
           MBHCombineRadius);
 

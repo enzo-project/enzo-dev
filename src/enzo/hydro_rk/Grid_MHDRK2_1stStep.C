@@ -35,7 +35,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     SubgridFluxes[NumberOfSubgrids]
   */
 {
-  printf("NumberOfBaryonFields=%i\n", NumberOfBaryonFields);
+  //  printf("NumberOfBaryonFields=%i\n", NumberOfBaryonFields);
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }

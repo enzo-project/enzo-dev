@@ -129,7 +129,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
 	if (level == 0) {
-	  if (loop == 0)
+	  if (loop == 0) 
 	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
 	} else {
 	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
@@ -224,7 +224,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
     } // end loop over batchs of grids
 
-  } // ENDFOR loop
+  } // ENDFOR loop (for ShearinBox)
  
     /* c) Apply external reflecting boundary conditions, if needed.  */
 

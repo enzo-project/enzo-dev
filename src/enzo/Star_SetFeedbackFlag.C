@@ -100,7 +100,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
     if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
       this->FeedbackFlag = MBH_THERMAL;
     else
-      this->FeedbackFlag = NO_FEEDBACK;
+      this->FeedbackFlag = NO_FEEDBACK; //It could still be a Radiation Source. 
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST

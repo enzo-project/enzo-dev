@@ -52,7 +52,7 @@ Star::Star(void)
   NextStar = NULL;
   PrevStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = 0.0;
+  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
   AddedEmissivity = false;
 }
@@ -76,6 +76,7 @@ Star::Star(grid *_grid, int _id, int _level)
   CurrentGrid = _grid;
   DeltaMass = 0.0;
   AddedEmissivity = false;
+  last_accretion_rate = 0.0;
   level = _level;
   FeedbackFlag = NO_FEEDBACK;
 
@@ -114,6 +115,7 @@ Star::Star(StarBuffer *buffer, int n)
   DeltaMass = buffer[n].DeltaMass;
   BirthTime = buffer[n].BirthTime;
   LifeTime = buffer[n].LifeTime;
+  last_accretion_rate = buffer[n].last_accretion_rate;
   FeedbackFlag = buffer[n].FeedbackFlag;
   Identifier = buffer[n].Identifier;
   level = buffer[n].level;
@@ -150,6 +152,7 @@ Star::Star(StarBuffer buffer)
   DeltaMass = buffer.DeltaMass;
   BirthTime = buffer.BirthTime;
   LifeTime = buffer.LifeTime;
+  last_accretion_rate = buffer.last_accretion_rate;
   FeedbackFlag = buffer.FeedbackFlag;
   Identifier = buffer.Identifier;
   level = buffer.level;
@@ -189,6 +192,7 @@ void Star::operator=(Star a)
   DeltaMass = a.DeltaMass;
   BirthTime = a.BirthTime;
   LifeTime = a.LifeTime;
+  last_accretion_rate = a.last_accretion_rate;
   FeedbackFlag = a.FeedbackFlag;
   Identifier = a.Identifier;
   level = a.level;
@@ -250,6 +254,7 @@ Star *Star::copy(void)
   a->DeltaMass = DeltaMass;
   a->BirthTime = BirthTime;
   a->LifeTime = LifeTime;
+  a->last_accretion_rate = last_accretion_rate;
   a->FeedbackFlag = FeedbackFlag;
   a->Identifier = Identifier;
   a->level = level;
@@ -312,6 +317,7 @@ void Star::Merge(Star a)
   Mass += a.Mass;
   FinalMass += a.FinalMass;
   DeltaMass += a.DeltaMass;
+  last_accretion_rate += a.last_accretion_rate;
   return;
 }
 void Star::Merge(Star *a) { this->Merge(*a); };
@@ -479,6 +485,7 @@ StarBuffer* Star::StarListToBuffer(int n)
     result[count].DeltaMass = tmp->DeltaMass;
     result[count].BirthTime = tmp->BirthTime;
     result[count].LifeTime = tmp->LifeTime;
+    result[count].last_accretion_rate = tmp->last_accretion_rate;    
     result[count].FeedbackFlag = tmp->FeedbackFlag;
     result[count].Identifier = tmp->Identifier;
     result[count].level = tmp->level;

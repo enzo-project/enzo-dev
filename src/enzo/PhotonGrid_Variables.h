@@ -1,7 +1,7 @@
 #define MAX_SOURCES 1000
 // Photons
 int    NumberOfPhotonPackages;
-int    NumberOfRenderingPackages;
+//int    NumberOfRenderingPackages;
 
 //  start pointer for linked list of packages
 PhotonPackageEntry *PhotonPackages;
@@ -13,7 +13,7 @@ PhotonPackageEntry *FinishedPhotonPackages;
 PhotonPackageEntry *PausedPhotonPackages;
 
 // linked list of packages used for projections or volume renderings
-PhotonPackageEntry *RenderingPhotonPackages;
+//PhotonPackageEntry *RenderingPhotonPackages;
 
 // Sources
 //int    NumberOfRadiationSources;

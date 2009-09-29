@@ -59,16 +59,16 @@ int FinalizePythonInterface();
 // Function prototypes
  
 int InitializeNew(  char *filename, HierarchyEntry &TopGrid, TopGridData &tgd,
-		    ExternalBoundary &Exterior, float &Initialdt);
+		    ExternalBoundary &Exterior, float *Initialdt);
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 
 int InitializeLocal(int restart, HierarchyEntry &TopGrid, 
 		    TopGridData &MetaData);
 
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		      ExternalBoundary *Exterior, float *Initialdt);
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
@@ -168,14 +168,17 @@ Eint32 main(Eint32 argc, char *argv[])
 
   CommunicationInitialize(&argc, &argv);
 
+  //#define DEBUG_MPI
 #ifdef DEBUG_MPI
-  int impi = 0;
-  char hostname[256];
-  gethostname(hostname, sizeof(hostname));
-  printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
-  fflush(stdout);
-  while (impi == 0)
-    sleep(5);
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    int impi = 0;
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
+    fflush(stdout);
+    while (impi == 0)
+      sleep(5);
+  }
 #endif
   
 
@@ -265,7 +268,7 @@ Eint32 main(Eint32 argc, char *argv[])
   FLOAT RegionStartCoordinates[MAX_DIMENSION],
         RegionEndCoordinates[MAX_DIMENSION];
 
-  float Initialdt              = 0;
+  float Initialdt = 0;
  
 #ifdef FLOW_TRACE
   char pid[MAX_TASK_TAG_SIZE];
@@ -359,14 +362,14 @@ Eint32 main(Eint32 argc, char *argv[])
   // First expect to read in packed-HDF5
 
 #ifdef USE_HDF5_GROUPS
-    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
       }
 #endif
       // If not packed-HDF5, then try usual HDF5 or HDF4
-      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
 	if (MyProcessorNumber == ROOT_PROCESSOR)
 	  fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
 	my_exit(EXIT_FAILURE);
@@ -469,7 +472,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (!restart) {
 
-    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, Initialdt) == FAIL) {
+    if (InitializeNew(ParameterFile, TopGrid, MetaData, Exterior, &Initialdt) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Error in Parameter File %s.\n", ParameterFile);
       my_exit(EXIT_FAILURE);

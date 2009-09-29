@@ -47,9 +47,9 @@ bool Star::IsARadiationSource(FLOAT Time)
   // Living
   rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime);
 
-  // Non-zero BH accretion
+  // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)
-    rules[2] = (accretion_rate[0] > tiny_number);
+    rules[2] = (accretion_rate[0] > tiny_number); 
   else
     rules[2] = true;
 

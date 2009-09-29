@@ -380,7 +380,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
- 
+    dt = min(MetaData.MaximumTopGridTimeStep, dt);
+
     if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
     if (Initialdt != 0) {
       
@@ -407,7 +408,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
      dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
 		       MetaData.Time), dt);
     }
- 
+
     /* Set the time step.  If it will cause Time += dt > StopTime, then
        set dt = StopTime - Time */
  
