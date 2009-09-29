@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "h5utilities.h"
 
  
 #include "ErrorExceptions.h"
@@ -638,6 +639,17 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
             gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");
+
+  if(CheckpointDump == TRUE){
+    // Write our supplemental (global) data
+    hid_t metadata_group = H5Gcreate(file_id, "CheckpointMetadata", 0);
+    if(metadata_group == h5_error)ENZO_FAIL("Error writing metadata!");
+    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevel", dtThisLevel);
+    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevelSoFar", dtThisLevelSoFar);
+    H5Gclose(metadata_group);
+  }
 
   // At this point all the grid data has been written
 
