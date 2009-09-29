@@ -101,6 +101,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     for (int dim = GridRank; dim < 3; dim++) {
       for (int n = 0; n < activesize; n++) {
 	gradPhi[dim][n] = 0.0;
+	divB[n] = 0.0;
       }
     }
   }

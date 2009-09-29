@@ -35,7 +35,7 @@ int StarParticleAccretion(TopGridData *MetaData,
 {
 
 #define NOT_SEDOV_TEST
-#define HII_REGION_TEST
+#define NOT_HII_REGION_TEST
 
 #if defined(SEDOV_TEST) || defined(HII_REGION_TEST)
   return SUCCESS;
