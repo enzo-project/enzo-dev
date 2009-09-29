@@ -677,6 +677,9 @@ EXTERN RadiationSourceEntry *GlobalRadiationSources;
 EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
 
+EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
+
 /* [0]: Emitted photons
    [1]: escaped past 0.5 RadiativeTransferPhotonEscapeRadius
    [2]:              1.0           -"-

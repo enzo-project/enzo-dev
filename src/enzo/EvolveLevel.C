@@ -226,7 +226,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
-  float dtThisLevelSoFar = 0.0, dtThisLevel;
+  //float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
@@ -271,31 +271,42 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (FastSib)");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                             Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
 #endif
  
   if(ShearingBoundaryDirection !=-1){
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (FastSib)");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                             Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
 #endif
   }
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
-     current grid to correct the zones surrounding this subgrid (step #18). */
+     current grid to correct the zones surrounding this subgrid (step #18). 
+
+     If we're just coming in off a CheckpointRestart, instead we take the
+     fluxes that were stored in the file and then in the Grid object, and we 
+     put them into the SubgridFluxesEstimate array. */
  
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    Grids[grid1]->GridData->ClearBoundaryFluxes();
+  if(CheckpointRestart == TRUE) {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->FillFluxesFromStorage(
+        &NumberOfSubgrids[grid1],
+        &SubgridFluxesEstimate[grid1]);
+  } else {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->ClearBoundaryFluxes();
+  }
  
   /* After we calculate the ghost zones, we can initialize streaming
      data files (only on level 0) */
@@ -307,10 +318,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
  
-  while (dtThisLevelSoFar < dtLevelAbove) {
+  while (dtThisLevelSoFar[level] < dtLevelAbove) {
+    if(CheckpointRestart == FALSE) {
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
-        &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
+        &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
     /* Streaming movie output (write after all parent grids are
        updated) */
@@ -520,9 +532,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Evolve the next level down (recursively). */
  
     MetaData->FirstTimestepAfterRestart = FALSE;
+    } // CheckpointRestart == FALSE
+    else {
+        // Set dtThisLevelSoFar
+        // Set dtThisLevel
+        // Set dtFixed on each grid to dtThisLevel
+    }
 
     if (LevelArray[level+1] != NULL) {
-      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
+      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
 	ENZO_FAIL("");
       }
@@ -585,14 +603,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
 	level <= RadiationFieldLevelRecompute)
       if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in RecomputeRadiationField.\n");
       }
  
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    if (dtThisLevelSoFar < dtLevelAbove)
+    if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level);
 
     /* Count up number of grids on this level. */

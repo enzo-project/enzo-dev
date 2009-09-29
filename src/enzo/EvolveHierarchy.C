@@ -265,7 +265,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Do the first grid regeneration. */
  
-  RebuildHierarchy(&MetaData, LevelArray, 0);
+  if(CheckpointRestart == FALSE) {
+    RebuildHierarchy(&MetaData, LevelArray, 0);
+  }
 
 #ifdef MEM_TRACE
   MemInUse = mused();
@@ -336,6 +338,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     float dtProc   = huge_number;
     Temp = LevelArray[0];
  
+    // Start skipping
     while (Temp != NULL) {
       dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
       Temp = Temp->NextGridThisLevel;
@@ -372,7 +375,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     dt = min(MetaData.StopTime - MetaData.Time, dt);
     Temp = LevelArray[0];
+    // Stop skipping
  
+    // Set dt from stored in CheckpointRestart
     while (Temp != NULL) {
       Temp->GridData->SetTimeStep(dt);
       Temp = Temp->NextGridThisLevel;
