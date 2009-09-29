@@ -83,7 +83,7 @@ int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
   int ParentTempDim[MAX_DIMENSION], TempDim[MAX_DIMENSION];
   int ParentDim[MAX_DIMENSION];
   int ParentTempSize, WorkSize, TempSize, GridSize, One = 1, Zero = 0;
-  int dim, field;
+  int dim;
   float *TemporaryField, *Work, *ParentTemp;
 
   /* Compute refinement factors and set zero. */
@@ -235,9 +235,9 @@ int grid::InterpolateRadiationFromParent(grid *ParentGrid, int Field)
  
   /* Copy needed portion of temp field to current grid. */
  
-  if (BaryonField[field] == NULL)
-    BaryonField[field] = new float[GridSize];
-  if (BaryonField[field] == NULL)
+  if (BaryonField[Field] == NULL)
+    BaryonField[Field] = new float[GridSize];
+  if (BaryonField[Field] == NULL)
     ENZO_FAIL("malloc error (out of memory?)");
 
   FORTRAN_NAME(copy3d)(TemporaryField, BaryonField[FieldNum],
