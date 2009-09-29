@@ -140,7 +140,7 @@ int Star::CalculateMassAccretion(void)
     mdot = min(mdot, mdot_UpperLimit);
 
     // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
+    if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || MBHAccretion != 1)
       mdot = 0.0;
 
     if (this->type == MBH) { 
@@ -167,8 +167,6 @@ int Star::CalculateMassAccretion(void)
     }
     this->accretion_rate[0] = mdot;
     this->accretion_time[0] = time;
-
-    if (MBHAccretion !=0) this->ResetAccretion(); //#####
 
     fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" Msun/yr, "
 	    "M_BH = %"GSYM" Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
