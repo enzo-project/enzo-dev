@@ -32,8 +32,7 @@ int Star::Accrete(void)
 {
 
   if ((this->type != BlackHole && abs(this->type) != MBH) || 
-      (this->CurrentGrid == NULL) ||
-      (MBHAccretion != 1))
+      (this->CurrentGrid == NULL))
     return SUCCESS;
 
   int dim, i, n, count;

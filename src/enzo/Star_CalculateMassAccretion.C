@@ -32,8 +32,7 @@ int Star::CalculateMassAccretion(void)
 {
 
   if ((this->type != BlackHole && abs(this->type) != MBH) || 
-      (this->CurrentGrid == NULL) ||
-      (MBHAccretion != 1))
+      (this->CurrentGrid == NULL)) 
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
@@ -168,6 +167,8 @@ int Star::CalculateMassAccretion(void)
     }
     this->accretion_rate[0] = mdot;
     this->accretion_time[0] = time;
+
+    if (MBHAccretion !=0) this->ResetAccretion(); //#####
 
     fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" Msun/yr, "
 	    "M_BH = %"GSYM" Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
