@@ -8,7 +8,8 @@
 ! in the accompanying LICENSE file.
 !
 !=======================================================================
-subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa, a,   &
+subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on, &
+     kappa, kappa_c, a,                                              &
      adot, aUn, lUn, tUn, EUn, dx, dy, dz, Nx, Ny, Nz, NGxl, NGxr,   &
      NGyl, NGyr, NGzl, NGzr, ier)
 !=======================================================================
@@ -23,7 +24,9 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa, a,   &
 !     eta        - emissivity sources over domain
 !     iguess     - method to use in constructing initial guess
 !     dt         - time step size
-!     kappa      - background opacity
+!     kappa_h2on - use spatially-dependent opacity (1=on, 0=off)
+!     kappa      - spatially-dependent opacity
+!     kappa0     - background opacity
 !     a          - cosmological expansion parameter
 !     adot       - d(a)/dt
 !     *Un        - variable scaling constants
@@ -48,22 +51,24 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa, a,   &
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: iguess
+  integer, intent(in) :: iguess, kappa_h2on
   integer, intent(in) :: Nx, NGxl, NGxr
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   REALSUB,  intent(in) :: a, adot
-  REALSUB, intent(in) :: dt, kappa, dx, dy, dz
+  REALSUB, intent(in) :: dt, kappa_c, dx, dy, dz
   REALSUB, intent(in) :: aUn, lUn, tUn, EUn
   REALSUB, intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   REALSUB, intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  REALSUB, intent(in) :: kappa(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   REALSUB, intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals
   integer :: i, j, k
-  REALSUB :: P, c, pi
+  REALSUB :: c, pi, Pmean
+  REALSUB :: P(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
 !=======================================================================
 
@@ -79,12 +84,18 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa, a,   &
   !     use analytical solution locally in space
   if (iguess == 1) then
 
-     P = a/adot + c*kappa
+     if (kappa_h2on == 1) then
+        P = a/adot + c*kappa
+     else
+        P = a/adot + c*kappa_c
+     endif
 
-     if (P < 1.0d-14) then
+     Pmean = sum(P) / size(P)
+
+     if (Pmean < 1.0d-14) then
         Ef = Ef0 + dt*eta*4.d0*pi
 
-     elseif (P*dt > 7.0d2) then
+     elseif (Pmean*dt > 7.0d2) then
         Ef = eta*4.d0*pi/P
 
      else

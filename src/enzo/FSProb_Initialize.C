@@ -82,7 +82,8 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   theta   = 1.0;        // backwards euler implicit time discret.
   LimType = 4;          // Zeus limiter
   EScale = 1.0;         // no radiation equation scaling
-  kappa   = 1.0e-4;     // background opacity
+  kappa0   = 1.0e-4;    // background opacity
+  kappa_h2on = 0;       // no spatially dependent (use background) opacity
   for (dim=0; dim<rank; dim++)       // set default radiation boundaries to 
     for (face=0; face<2; face++)     // periodic in each direction
       BdryType[dim][face] = 0;
@@ -124,7 +125,8 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret = 0;
 	ret += sscanf(line, "FSRadiationScaling = %"FSYM, &EScale);
 	ret += sscanf(line, "FSRadiationTheta = %"FSYM, &theta);
-	ret += sscanf(line, "FSRadiationOpacity = %"FSYM, &kappa);
+	ret += sscanf(line, "FSRadiationOpacity = %"FSYM, &kappa0);
+	ret += sscanf(line, "FSRadiationH2OpacityOn = %"ISYM, &kappa_h2on);
 	ret += sscanf(line, "FSRadiationNGammaDot = %lf", &NGammaDot);
 	ret += sscanf(line, "FSRadiationEtaRadius = %"FSYM, &EtaRadius);
 	ret += sscanf(line, "FSRadiationEtaCenter = %"FSYM" %"FSYM" %"FSYM, 
@@ -231,11 +233,11 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   // kappa gives the background opacity
-  if (kappa <= 0.0) {
+  if (kappa0 <= 0.0) {
     fprintf(stderr,"FSProb Initialize: illegal FSRadiationOpacity = %g <= 0\n",
-	    kappa);
+	    kappa0);
     fprintf(stderr,"   re-setting 1e-4\n");
-    kappa = 1e-4;
+    kappa0 = 1e-4;
   }
 
   // set flags denoting if this processor is on the external boundary
@@ -328,7 +330,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set up vectors for temporary storage
   sol = U0->clone();        // linear system solution
   extsrc = U0->clone();     // emissivity sources
-
+  kappa = U0->clone();      // opacity
 
   // initialize HYPRE stuff
 #ifdef USE_HYPRE
@@ -543,7 +545,8 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     else {
       fprintf(outfptr, "FSRadiationScaling = %g\n", EScale);
       fprintf(outfptr, "FSRadiationTheta = %g\n", theta);
-      fprintf(outfptr, "FSRadiationOpacity = %g\n", kappa);
+      fprintf(outfptr, "FSRadiationOpacity = %g\n", kappa0);
+      fprintf(outfptr, "FSRadiationH2OpacityOn = %d\n", kappa_h2on);
       fprintf(outfptr, "FSRadiationNGammaDot = %g\n", NGammaDot);
       fprintf(outfptr, "FSRadiationEtaRadius = %g\n", EtaRadius);
       fprintf(outfptr, "FSRadiationEtaCenter = %g %g %g\n", 

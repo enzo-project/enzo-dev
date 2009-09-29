@@ -6,9 +6,11 @@
 ! in the accompanying LICENSE file.
 !
 !=======================================================================
-subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef, kappa, &
+subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
+     kappa_h2on, kappa_arr, kappa_c,                                      &
      eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn,    &
-     rUn0, rank, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl, BCValsYr,      &
+     rUn0, nUn, nUn0, rank, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl,     &
+     BCValsYr,                                                            &
      BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e,    &
      x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr,  &
      xlface, xrface, ylface, yrface, zlface, zrface, ier)
@@ -52,7 +54,11 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef, kappa, &
 !
 !  INPUTS:
 !     Ef         - Free-streaming radiation energy density (prev time step)
-!     kappa      - opacity (constant)
+!     kappa_h2on - 0 -> use constant opacity
+!                  1 -> use spatially dependent opacity
+!     kappa_c    - opacity (constant)
+!     kappa_arr  - opacity (spatially dependent)
+!     kappa
 !     eta        - spatially-dependent emissivity source
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
@@ -104,14 +110,14 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef, kappa, &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, rank
+  integer,  intent(in) :: LimType, rank, kappa_h2on
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa, dt, theta, dx, dy, dz
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUB, intent(in) :: Ef(*), eta(*)
+  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  REALSUB, intent(in) :: Ef(*), eta(*), kappa_arr(*)
   REALSUB, intent(in) :: BCValsXl(*), BCValsXr(*)
   REALSUB, intent(in) :: BCValsYl(*), BCValsYr(*)
   REALSUB, intent(in) :: BCValsZl(*), BCValsZr(*)
@@ -126,27 +132,32 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef, kappa, &
   ! call the apprpriate routine based on rank
   if (rank == 3) then
 
-     call FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef, kappa,  &
+     call FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,         &
+          kappa_h2on, kappa_arr, kappa_c,                                   &
           eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl, BCValsYr,         &
+          rUn0, nUn, nUn0, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl,        &
+          BCValsYr,                                                         &
           BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, &
           x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl,     &
           NGzr, xlface, xrface, ylface, yrface, zlface, zrface, ier)
 
   elseif (rank == 2) then
 
-     call FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef, kappa,  &
+     call FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,         &
+          kappa_h2on, kappa_arr, kappa_c,                                   &
           eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, dx, dy, BCValsXl, BCValsXr, BCValsYl, BCValsYr, BCXl, BCXr, &
+          rUn0, nUn, nUn0, dx, dy, BCValsXl, BCValsXr, BCValsYl, BCValsYr,  &
+          BCXl, BCXr,                                                       &
           BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr,   &
           xlface, xrface, ylface, yrface, ier)
 
   elseif (rank == 1) then
 
-     call FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef, kappa,  &
+     call FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,         &
+          kappa_h2on, kappa_arr, kappa_c,                                   &
           eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, dx, BCValsXl, BCValsXr, BCXl, BCXr, x0s, x0e, Nx, NGxl,     &
-          NGxr, xlface, xrface, ier)
+          rUn0, nUn, nUn0, dx, BCValsXl, BCValsXr, BCXl, BCXr, x0s, x0e,    &
+          Nx, NGxl, NGxr, xlface, xrface, ier)
 
   else
      write(0,*) 'FSProb_SetupSystem error: illegal rank =',rank
@@ -161,8 +172,9 @@ end subroutine FSProb_SetupSystem
 
 
 subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa, eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, &
-     rUn, rUn0, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl, BCValsYr,      &
+     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
+     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, dz,     &
+     BCValsXl, BCValsXr, BCValsYl, BCValsYr,                             &
      BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e,   &
      x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, &
      xlface, xrface, ylface, yrface, zlface, zrface, ier)
@@ -178,15 +190,15 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType
+  integer,  intent(in) :: LimType, kappa_h2on
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa, dt, theta, dx, dy, dz
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
+  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
   REALSUB, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
-       intent(in) :: Ef, eta
+       intent(in) :: Ef, eta, kappa
   REALSUB, intent(in) :: BCValsXl(Ny,Nz), BCValsXr(Ny,Nz)
   REALSUB, intent(in) :: BCValsYl(Nx,Nz), BCValsYr(Nx,Nz)
   REALSUB, intent(in) :: BCValsZl(Nx,Ny), BCValsZr(Nx,Ny)
@@ -200,11 +212,12 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   integer :: i, j, k
   real*8  :: dtfac, dtfac0
   real*8  :: c, pi, dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, R, R0, E0avg
+  real*8  :: afac, afac0, R, R0, E0avg, kap, kap0
   real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr
   real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr
   real*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr
-  real*8  :: Rmin, dscale
+  real*8  :: Rmin, dscale, delta_nU
+  real*8  :: maxk;
 
 !=======================================================================
   
@@ -230,6 +243,7 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
 !  Rmin = 1.d-20
   Rmin = dxi+dyi+dzi
 !  print *,'Rmin =',Rmin,',  lUn = ',lUn,',  dxi =',dxi
+  delta_nU = nUn0/nUn
 
   ! iterate over the active domain
   do k=1,Nz,1
@@ -242,26 +256,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_zl = (Ef(i,j,k) - Ef(i,j,k-1))
            E0avg  = (Ef(i,j,k) + Ef(i,j,k-1))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i,j,k-1))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dzi *abs(E0d_zl)/E0avg, Rmin)
            R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_zl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_zl = c*(2.d0*kap+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_zl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_zl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_zl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_zl = c/3.d0/kappa
-              D0_zl = c/3.d0/kappa
+              D_zl = c/3.d0/kap
+              D0_zl = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_zl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_zl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_zl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_zl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_zl = c*(cosh(R/kap0)/sinh(R/kap0)-kap0/R)/R
+              D0_zl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            !--------------
@@ -270,26 +291,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_yl = (Ef(i,j,k) - Ef(i,j-1,k))
            E0avg  = (Ef(i,j,k) + Ef(i,j-1,k))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i,j-1,k))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
            R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_yl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_yl = c/3.d0/kappa
-              D0_yl = c/3.d0/kappa
+              D_yl = c/3.d0/kap
+              D0_yl = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_yl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_yl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_yl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_yl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+              D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            !--------------
@@ -298,26 +326,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_xl = (Ef(i,j,k) - Ef(i-1,j,k))
            E0avg  = (Ef(i,j,k) + Ef(i-1,j,k))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i-1,j,k))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
            R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_xl = c/3.d0/kappa
-              D0_xl = c/3.d0/kappa
+              D_xl = c/3.d0/kap
+              D0_xl = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_xl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_xl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+              D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            !--------------
@@ -326,26 +361,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_xr = (Ef(i+1,j,k) - Ef(i,j,k))
            E0avg  = (Ef(i,j,k) + Ef(i+1,j,k))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i+1,j,k))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
            R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_xr = c/3.d0/kappa
-              D0_xr = c/3.d0/kappa
+              D_xr = c/3.d0/kap
+              D0_xr = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_xr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_xr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+              D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            !--------------
@@ -354,26 +396,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_yr = (Ef(i,j+1,k) - Ef(i,j,k))
            E0avg  = (Ef(i,j,k) + Ef(i,j+1,k))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i,j+1,k))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
            R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_yr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_yr = c/3.d0/kappa
-              D0_yr = c/3.d0/kappa
+              D_yr = c/3.d0/kap
+              D0_yr = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_yr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_yr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_yr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_yr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+              D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            !--------------
@@ -382,26 +431,33 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
            E0d_zr = (Ef(i,j,k+1) - Ef(i,j,k))
            E0avg  = (Ef(i,j,k) + Ef(i,j,k+1))*0.5d0
 
+           if (kappa_h2on == 1) then
+              kap = 0.5 * (kappa(i,j,k) + kappa(i,j,k+1))
+           else
+              kap = kappa_c
+           endif
+           kap0 = kap * delta_nU
+
            !    compute R for limiters
            R  = max(dzi *abs(E0d_zr)/E0avg, Rmin)
            R0 = max(dzi0*abs(E0d_zr)/E0avg, Rmin)
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_zr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-              D0_zr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+              D_zr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+              D0_zr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
            else if (LimType == 3) then  ! no limiter
-              D_zr = c/3.d0/kappa
-              D0_zr = c/3.d0/kappa
+              D_zr = c/3.d0/kap
+              D0_zr = c/3.d0/kap0
            else if (LimType == 4) then  ! Zeus limiter
-              D_zr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-              D0_zr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            else                         ! standard LP lim (LP, 1981)
-              D_zr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-              D0_zr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+              D_zr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+              D0_zr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
            endif
 
            ! set the diagonal value
@@ -607,8 +663,9 @@ end subroutine FSProb_SetupSystem3D
 
 
 subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa, eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, &
-     rUn, rUn0, dx, dy, BCValsXl, BCValsXr, BCValsYl, BCValsYr, BCXl,    &
+     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
+     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy,         &
+     BCValsXl, BCValsXr, BCValsYl, BCValsYr, BCXl,                       &
      BCXr, BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl,     &
      NGyr, xlface, xrface, ylface, yrface, ier)
 !=======================================================================
@@ -623,13 +680,14 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType
+  integer,  intent(in) :: LimType, kappa_h2on
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa, dt, theta, dx, dy
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: Ef, eta
+  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: &
+       Ef, eta, kappa
   REALSUB, intent(in) :: BCValsXl(Ny), BCValsXr(Ny)
   REALSUB, intent(in) :: BCValsYl(Nx), BCValsYr(Nx)
   real*8,  intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
@@ -645,7 +703,7 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   real*8  :: afac, afac0, R, R0, E0avg
   real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr
   real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr
-  real*8  :: Rmin, dscale
+  real*8  :: Rmin, dscale, delta_nU, kap, kap0
 
 !=======================================================================
   
@@ -666,6 +724,7 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   c  = 2.99792458d10        ! speed of light [cm/s]
   pi = 4.d0*atan(1.d0)
   Rmin = (dxi+dyi)*1.5d0
+  delta_nU = nUn0/nUn
 
   ! iterate over the active domain
   do j=1,Ny,1
@@ -677,26 +736,33 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
         E0d_yl = (Ef(i,j) - Ef(i,j-1))
         E0avg  = (Ef(i,j) + Ef(i,j-1))/2.d0
 
+        if (kappa_h2on == 1) then
+           kap = 0.5 * (kappa(i,j) + kappa(i,j-1))
+        else
+           kap = kappa_c
+        endif
+        kap0 = kap * delta_nU
+
         !    compute R for limiters
         R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
         R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
 
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_yl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-           D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+           D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+           D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
         else if (LimType == 3) then  ! no limiter
-           D_yl = c/3.d0/kappa
-           D0_yl = c/3.d0/kappa
+           D_yl = c/3.d0/kap
+           D0_yl = c/3.d0/kap0
         else if (LimType == 4) then  ! Zeus limiter
-           D_yl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_yl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else                         ! standard LP lim (LP, 1981)
-           D_yl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-           D0_yl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+           D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+           D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
         endif
 
         !--------------
@@ -705,26 +771,33 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
         E0d_xl = (Ef(i,j) - Ef(i-1,j))
         E0avg  = (Ef(i,j) + Ef(i-1,j))/2.d0
 
+        if (kappa_h2on == 1) then
+           kap = 0.5 * (kappa(i,j) + kappa(i-1,j))
+        else
+           kap = kappa_c
+        endif
+        kap0 = kap * delta_nU
+
         !    compute R for limiters
         R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
         R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-           D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+           D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+           D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
         else if (LimType == 3) then  ! no limiter
-           D_xl = c/3.d0/kappa
-           D0_xl = c/3.d0/kappa
+           D_xl = c/3.d0/kap
+           D0_xl = c/3.d0/kap0
         else if (LimType == 4) then  ! Zeus limiter
-           D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else                         ! standard LP lim (LP, 1981)
-           D_xl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-           D0_xl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+           D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+           D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
         endif
 
         !--------------
@@ -733,26 +806,33 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
         E0d_xr = (Ef(i+1,j) - Ef(i,j))
         E0avg  = (Ef(i+1,j) + Ef(i,j))/2.d0
 
+        if (kappa_h2on == 1) then
+           kap = 0.5 * (kappa(i+1,j) + kappa(i,j))
+        else
+           kap = kappa_c
+        endif
+        kap0 = kap * delta_nU
+
         !    compute R for limiters
         R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
         R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-           D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+           D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+           D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
         else if (LimType == 3) then  ! no limiter
-           D_xr = c/3.d0/kappa
-           D0_xr = c/3.d0/kappa
+           D_xr = c/3.d0/kap
+           D0_xr = c/3.d0/kap0
         else if (LimType == 4) then  ! Zeus limiter
-           D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else                         ! standard LP lim (LP, 1981)
-           D_xr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-           D0_xr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+           D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+           D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
         endif
 
         !--------------
@@ -761,26 +841,33 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
         E0d_yr = (Ef(i,j+1) - Ef(i,j))
         E0avg  = (Ef(i,j+1) + Ef(i,j))/2.d0
 
+        if (kappa_h2on == 1) then
+           kap = 0.5 * (kappa(i,j+1) + kappa(i,j))
+        else
+           kap = kappa_c
+        endif
+        kap0 = kap * delta_nU
+
         !    compute R for limiters
         R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
         R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
 
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_yr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-           D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+           D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+           D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
         else if (LimType == 3) then  ! no limiter
-           D_yr = c/3.d0/kappa
-           D0_yr = c/3.d0/kappa
+           D_yr = c/3.d0/kap
+           D0_yr = c/3.d0/kap0
         else if (LimType == 4) then  ! Zeus limiter
-           D_yr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-           D0_yr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
         else                         ! standard LP lim (LP, 1981)
-           D_yr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-           D0_yr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+           D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+           D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
         endif
 
         ! set the diagonal value
@@ -913,9 +1000,9 @@ end subroutine FSProb_SetupSystem2D
 
 
 subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa, eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, &
-     rUn, rUn0, dx, BCValsXl, BCValsXr, BCXl, BCXr, x0s, x0e, Nx, NGxl,  &
-     NGxr, xlface, xrface, ier)
+     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
+     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, BCValsXl,   &
+     BCValsXr, BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       June 2009
@@ -928,12 +1015,12 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType
+  integer,  intent(in) :: LimType, kappa_h2on
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa, dt, theta, dx
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0
-  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr) :: Ef, eta
+  REALSUB, intent(in) :: kappa_c, dt, theta, dx
+  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr) :: Ef, eta, kappa
   REALSUB, intent(in) :: BCValsXl(1), BCValsXr(1)
   real*8,  intent(out) :: matentries(3,x0s:x0e)
   real*8,  intent(out) :: rhsentries(x0s:x0e)
@@ -946,8 +1033,8 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   real*8  :: dtfac, dtfac0
   real*8  :: c, pi, dxi, dxi0
   real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr
-  real*8  :: Rmin, dscale
+  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, delta_nU
+  real*8  :: Rmin, dscale, kap, kap0
 
 !=======================================================================
   
@@ -966,6 +1053,7 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   c  = 2.99792458d10        ! speed of light [cm/s]
   pi = 4.d0*atan(1.d0)
   Rmin = dxi*3.d0
+  delta_nU = nUn0/nUn
 
   ! iterate over the active domain
   do i=1,Nx,1
@@ -976,26 +1064,33 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
      E0d_xl = (Ef(i) - Ef(i-1))
      E0avg  = (Ef(i) + Ef(i-1))/2.d0
 
+     if (kappa_h2on == 1) then
+        kap = 0.5 * (kappa(i) + kappa(i+1))
+     else
+        kap = kappa_c
+     endif
+     kap0 = kap * delta_nU
+
      !    compute R for limiters
      R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
      R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
      !    compute limiter
      if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-        D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
      else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-        D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+        D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+        D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
      else if (LimType == 3) then  ! no limiter
-        D_xl = c/3.d0/kappa
-        D0_xl = c/3.d0/kappa
+        D_xl = c/3.d0/kap
+        D0_xl = c/3.d0/kap0
      else if (LimType == 4) then  ! Zeus limiter
-        D_xl = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-        D0_xl = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
      else                         ! standard LP lim (LP, 1981)
-        D_xl = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-        D0_xl = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+        D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+        D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
      endif
 
      !--------------
@@ -1004,26 +1099,33 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
      E0d_xr = (Ef(i+1) - Ef(i))
      E0avg  = (Ef(i+1) + Ef(i))/2.d0
 
+     if (kappa_h2on == 1) then
+        kap = 0.5 * (kappa(i) + kappa(i+1))
+     else
+        kap = kappa_c
+     endif
+     kap0 = kap * delta_nU
+
      !    compute R for limiters
      R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
      R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
      !    compute limiter
      if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-        D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
      else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kappa)/R
-        D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kappa)/R0
+        D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
+        D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
      else if (LimType == 3) then  ! no limiter
-        D_xr = c/3.d0/kappa
-        D0_xr = c/3.d0/kappa
+        D_xr = c/3.d0/kap
+        D0_xr = c/3.d0/kap0
      else if (LimType == 4) then  ! Zeus limiter
-        D_xr = c*(2.d0*kappa+R)/(6.d0*kappa*kappa+3.d0*kappa*R+R*R)
-        D0_xr = c*(2.d0*kappa+R0)/(6.d0*kappa*kappa+3.d0*kappa*R0+R0*R0)
+        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
      else                         ! standard LP lim (LP, 1981)
-        D_xr = c*(cosh(R/kappa)/sinh(R/kappa)-kappa/R)/R
-        D0_xr = c*(cosh(R0/kappa)/sinh(R0/kappa)-kappa/R0)/R0
+        D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
+        D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
      endif
 
      ! set the diagonal value

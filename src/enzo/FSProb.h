@@ -105,7 +105,8 @@ class FSProb : public virtual ImplicitProblemABC {
   float dt;            // time step size
   float dt_suggest;    // suggested time step size for next iteration
   float theta;         // implicitness parameter (1->BE, 0.5->CN, 0->FE)
-  float kappa;         // background opacity
+  float kappa0;        // background opacity
+  int kappa_h2on;      // spatially dependent opacity (1=on, 0=off)
   int LimType;         // flux limiter formulation:
                        //    0 -> standard Levermore-Pomraning limiter (LP, 1981)
                        //    1 -> rational approx. to LP limiter (LP, 1981)
@@ -115,6 +116,7 @@ class FSProb : public virtual ImplicitProblemABC {
   EnzoVector *U0;      // old time-level state
   EnzoVector *extsrc;  // temporary vector holding external forcing sources
   EnzoVector *sol;     // linear system solution
+  EnzoVector *kappa;   // Spatially dependent opacity
 
   // cosmology and scaling constants
   FLOAT a;             // cosmology expansion coefficient (new time)
@@ -129,6 +131,8 @@ class FSProb : public virtual ImplicitProblemABC {
   float LenUnits0;     // length scaling factor (old)
   float TimeUnits;     // time scaling factor (new)
   float TimeUnits0;    // time scaling factor (old)
+  float DenUnits;      // density scaling factor (new)
+  float DenUnits0;     // density scaling factor (old)
 
   // ionization parameters
   Eflt64 NGammaDot;     // ionization strength (photons/sec)
@@ -137,7 +141,7 @@ class FSProb : public virtual ImplicitProblemABC {
 
   // private computation routines
   int SetupSystem(Eflt64 *matentries, Eflt64 *rhs, float *rhsnorm, 
-		  float *Ef, float *eta);
+		  float *Ef, float *eta, float *opacity);
   int RadiationSource(float *Efsrc);
   int InitialGuess(EnzoVector *Ef, EnzoVector *Ef0, EnzoVector *Efsrc);
 
@@ -174,6 +178,8 @@ class FSProb : public virtual ImplicitProblemABC {
   // Problem Boundary Condition setup (called once or at each time step, 
   //    must be called for each locally-owned external face separately)
   int SetupBoundary(int Dimension, int Face, int BdryConst, float *BdryData);
+
+  int ComputeOpacityLW(float *H2Density);
 
 };
 

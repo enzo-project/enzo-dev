@@ -180,6 +180,7 @@ OBJS_CONFIG_LIB = \
 	FreeRealMem.o \
 	FreeExpansionInitialize.o \
 	FSMultiSourceInitialize.o \
+	FSProb_ComputeOpacityLW.o \
 	FSProb_constructor.o \
 	FSProb_destructor.o \
 	FSProb_FInterface.o \

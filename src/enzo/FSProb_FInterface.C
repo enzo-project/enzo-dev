@@ -25,9 +25,11 @@
 /* Fortran function prototypes */
 extern "C" void FORTRAN_NAME(fsprob_setupsystem)(
    Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, float *Ef, 
-   float *kappa, float *eta, int *LimType, float *dt, FLOAT *a, FLOAT *a0, 
+   int *kappa_h2on, float *kappa_arr, float *kappa_c, 
+   float *eta, int *LimType, float *dt, FLOAT *a, FLOAT *a0, 
    FLOAT *adot, FLOAT *adot0, float *theta, float *aUnits, float *LenUnits, 
-   float *LenUnits0, float *EUnits, float *EUnits0, int *rank, float *dx, 
+   float *LenUnits0, float *EUnits, float *EUnits0, float *DUnits, 
+   float *Dunits0, int *rank, float *dx, 
    float *dy, float *dz, float *BCValsXl, float *BCValsXr, float *BCValsYl, 
    float *BCValsYr, float *BCValsZl, float *BCValsZr, int *BCTypeXl, 
    int *BCTypeXr, int *BCTypeYl, int *BCTypeYr, int *BCTypeZl, int *BCTypeZr, 
@@ -44,7 +46,8 @@ extern "C" void FORTRAN_NAME(fsprob_radiationsource)(
    float *x0R, float *x1L, float *x1R, float *x2L, float *x2R, int *ier);
 
 extern "C" void FORTRAN_NAME(fsprob_initialguess)(
-   float *Ef, float *Ef0, float *src_Ef, int *iguess, float *dt, float *kappa, 
+   float *Ef, float *Ef0, float *src_Ef, int *iguess, float *dt, 
+   int *kappa_h2on, float *kappa, float *kappa_c,
    FLOAT *a, FLOAT *adot, float *aUnits, float *LenUnits, float *TimeUnits, 
    float *EUnits, float *dx, float *dy, float *dz, int *Nx, int *Ny, int *Nz, 
    int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *ier);
@@ -59,7 +62,7 @@ extern "C" void FORTRAN_NAME(fsprob_initialguess)(
 
 /********/
 int FSProb::SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, 
-			float *Ef, float *eta) 
+			float *Ef, float *eta, float *opacity)
 {
   int xlface = (OnBdry[0][0]) ? 1 : 0;
   int xrface = (OnBdry[0][1]) ? 1 : 0;
@@ -76,8 +79,10 @@ int FSProb::SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm,
   x2e += (OnBdry[2][1] && (BdryType[2][1]==1)) ? 1 : 0;
   int ier;
   FORTRAN_NAME(fsprob_setupsystem)
-    (mat, rhs, rhsnorm, Ef, &kappa, eta, &LimType, &dt, &a, &a0, &adot, 
-     &adot0, &theta, &aUnits, &LenUnits, &LenUnits0, &EUnits, &EUnits0, &rank, 
+    (mat, rhs, rhsnorm, Ef, &kappa_h2on, opacity, &kappa0, eta, &LimType, &dt, 
+     &a, &a0, &adot, 
+     &adot0, &theta, &aUnits, &LenUnits, &LenUnits0, &EUnits, &EUnits0, 
+     &DenUnits, &DenUnits0, &rank, 
      &dx[0], &dx[1], &dx[2], BdryVals[0][0], BdryVals[0][1], BdryVals[1][0], 
      BdryVals[1][1], BdryVals[2][0], BdryVals[2][1], &BdryType[0][0], 
      &BdryType[0][1], &BdryType[1][0], &BdryType[1][1], &BdryType[2][0], 
@@ -125,8 +130,10 @@ int FSProb::InitialGuess(EnzoVector *Ef, EnzoVector *Ef0, EnzoVector *Efsrc)
   float *Efptr = Ef->GetData(0);
   float *Ef0ptr = Ef0->GetData(0);
   float *Efsrcptr = Efsrc->GetData(0);
+  float *kappaptr = kappa->GetData(0);
   FORTRAN_NAME(fsprob_initialguess)
-    (Efptr, Ef0ptr, Efsrcptr, &initial_guess, &dt, &kappa, &a, &adot, &aUnits, 
+    (Efptr, Ef0ptr, Efsrcptr, &initial_guess, &dt, &kappa_h2on, kappaptr, 
+     &kappa0, &a, &adot, &aUnits, 
      &LenUnits, &TimeUnits, &EUnits, &dx[0], &dx[1], &dx[2], &LocDims[0], 
      &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
      &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);

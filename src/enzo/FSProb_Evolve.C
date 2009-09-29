@@ -88,13 +88,13 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
     ENZO_FAIL("FSProb Solve: vector exchange_start error");
 
   // get internal Enzo units (old and new time steps)
-  float DenUnits, TempUnits, VelUnits, RadUnits;
+  float TempUnits, VelUnits, RadUnits;
   LenUnits0 = TimeUnits0 = LenUnits = TimeUnits = 1.0;
-  DenUnits = TempUnits = VelUnits = RadUnits = 1.0;
-  if (GetUnits(&DenUnits, &LenUnits0, &TempUnits, 
+  DenUnits0 = TempUnits = VelUnits = RadUnits = 1.0;
+  if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
 	       &TimeUnits0, &VelUnits, told) == FAIL) 
     ENZO_FAIL("FSProb Solve: Error in GetUnits.");
-  RadUnits = DenUnits*VelUnits*VelUnits;
+  RadUnits = DenUnits0*VelUnits*VelUnits;
   EUnits0 = RadUnits*EScale;
   DenUnits = TempUnits = VelUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
@@ -179,11 +179,18 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) 
     ENZO_FAIL("FSProb Solve: Error in InitialGuess routine");
 
+  // Calculate the spatially-dependent opacity.
+  float *H2 = ThisGrid->GridData->AccessH2IDensity();
+  this->ComputeOpacityLW(H2);
+  printf("max(kappa) = %13.7e, min(kappa) = %13.7e, mean(kappa) = %13.7e\n",
+	 kappa->infnorm(), kappa->minval(), kappa->rmsnorm());
+
   // set up the linear system matrix & rhs
   float *Efnew = sol->GetData(0);
+  float *opacity = kappa->GetData(0);
   float rhsnorm;
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, 
-			Efold, RadSrc) != SUCCESS)
+			Efold, RadSrc, opacity) != SUCCESS)
     ENZO_FAIL("FSProb Solve: Error in SetupSystem routine");
   
   // solve the free-streaming radiation problem to obtain the 

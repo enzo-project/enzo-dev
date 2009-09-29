@@ -84,7 +84,7 @@ FSProb::FSProb()
   U0 = NULL;
   sol = NULL;
   extsrc = NULL;
-  
+  kappa = NULL;
 
   // initialize problem defining data 
   a = 1.0;
@@ -99,7 +99,10 @@ FSProb::FSProb()
   LenUnits0 = 1.0;
   TimeUnits = 1.0;
   TimeUnits0 = 1.0;
-  kappa = -1.0;
+  DenUnits = 1.0;
+  DenUnits0 = 1.0;
+  kappa0 = -1.0;
+  kappa_h2on = 0;
 
   // initialize ionization parameters
   NGammaDot = -1.0;
