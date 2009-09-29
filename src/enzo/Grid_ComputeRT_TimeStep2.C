@@ -7,7 +7,9 @@
 /  modified1:
 /
 /  PURPOSE: Calculates the photon timestep by restricting the change in
-/           ionizing hydrogen to 10% in cells with radiation.
+/           ionizing hydrogen to 50% in cells with radiation and optical
+/           depths greater than 0.5, so we capture the I-front evolution
+/           correctly.
 /
 /  RETURNS:
 /    dt   - photon timestep
@@ -29,10 +31,11 @@
 #include "RadiativeTransferParameters.h"
 
 #define MAX_CHANGE 0.5
+#define MAX_TAU 0.5
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-float grid::ComputeRT_TimeStep2(void)
+float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
 {
 
   /* Return if this doesn't concern us. */
@@ -44,7 +47,8 @@ float grid::ComputeRT_TimeStep2(void)
 //    return huge_number;
 
   int i, j, k, dim, index, size;
-  float dt, *temperature;
+  float dt, sigma_dx, *temperature;
+  const double sigmaHI = 6.345e-18, mh = 1.673e-24;
 
   dt = huge_number;
   
@@ -78,7 +82,7 @@ float grid::ComputeRT_TimeStep2(void)
   this->ComputeTemperatureField(temperature);  
 
   int tidx;
-  float HIIdot, a3inv, a6inv, k1, k2;
+  float HIIdot, a3inv, a6inv, k1, k2, tau;
   float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef;
 
   a3inv = 1.0/(a*a*a);
@@ -88,14 +92,22 @@ float grid::ComputeRT_TimeStep2(void)
   logtem9 = log(RateData.TemperatureEnd);
   dlogtem = (logtem9 - logtem0) / float(RateData.NumberOfTemperatureBins-1);
 
+  // Absorb all unit conversions into this factor, so we only have to
+  // multiple by density.
+  sigma_dx = float(sigmaHI * double(LengthUnits) * double(DensityUnits)/mh * 
+		   double(CellWidth[0][0]));
+
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 
-	/* Remember to convert densities from comoving to proper */
+	/* Remember to convert densities from comoving to proper.  We
+	   also only consider cells with optical depths > 0.5,
+	   i.e. near the I-front. */
 	
-	if (BaryonField[kphHINum][index] > 0) {
+	tau = sigma_dx * BaryonField[HINum][index];
+	if (BaryonField[kphHINum][index] > 0 && tau > MAX_TAU) {
 
 	  logtem = min( max( log(temperature[index]), logtem0 ), logtem9 );
 	  tidx = min( RateData.NumberOfTemperatureBins-1,
@@ -117,7 +129,7 @@ float grid::ComputeRT_TimeStep2(void)
 	  if (HIIdot > 0)
 	    dt = min(dt, MAX_CHANGE * BaryonField[HIINum][index] / HIIdot);
 
-	}
+	} // ENDIF radiation and tau > MAX_TAU
 
       } // ENDFOR i
     } // ENDFOR j
