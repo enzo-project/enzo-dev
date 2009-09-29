@@ -196,7 +196,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     mdot = min(mdot, mdot_UpperLimit);
 
     // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
+    if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || MBHAccretion != 1)
       mdot = 0.0;
 
     if (this->type == MBH) { 
@@ -258,7 +258,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     /*
     fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
             Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); //#####
+	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
     */
     
     break;

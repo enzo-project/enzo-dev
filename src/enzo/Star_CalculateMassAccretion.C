@@ -32,8 +32,7 @@ int Star::CalculateMassAccretion(void)
 {
 
   if ((this->type != BlackHole && abs(this->type) != MBH) || 
-      (this->CurrentGrid == NULL) ||
-      (MBHAccretion != 1))
+      (this->CurrentGrid == NULL)) 
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
@@ -141,7 +140,7 @@ int Star::CalculateMassAccretion(void)
     mdot = min(mdot, mdot_UpperLimit);
 
     // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot))
+    if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || MBHAccretion != 1)
       mdot = 0.0;
 
     if (this->type == MBH) { 
