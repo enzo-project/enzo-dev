@@ -303,12 +303,21 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     if (ConservativeInterpolation)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE)
+	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
+	    FieldType[field] != Bfield1 &&
+	    FieldType[field] != Bfield2 &&
+	    FieldType[field] != Bfield3 &&
+	    FieldType[field] != PhiField &&
+	    FieldType[field] != DrivingField1 &&
+	    FieldType[field] != DrivingField2 &&
+	    FieldType[field] != DrivingField3 &&
+	    FieldType[field] != GravPotential) {
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
 			       &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
 			       &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
- 
+	}
+    
     /* Do the interpolation for the density field. */
  
     if (HydroMethod == Zeus_Hydro)

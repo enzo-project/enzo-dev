@@ -1139,7 +1139,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
-  printf("Initialdt in ReadParameterFiled %g\n", *Initialdt);
+  printf("Initialdt in ReadParameterFiled %e\n", *Initialdt);
    CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }
