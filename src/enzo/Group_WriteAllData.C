@@ -640,18 +640,18 @@ int Group_WriteAllData(char *basename, int filenumber,
             gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");
 
+    hid_t metadata_group = H5Gcreate(file_id, "Metadata", 0);
+    if(metadata_group == h5_error)ENZO_FAIL("Error writing metadata!");
+    writeArrayAttribute(metadata_group, HDF5_INT, MAX_DEPTH_OF_HIERARCHY,
+                        "LevelCycleCount", LevelCycleCount);
   if(CheckpointDump == TRUE){
     // Write our supplemental (global) data
-    hid_t metadata_group = H5Gcreate(file_id, "CheckpointMetadata", 0);
-    if(metadata_group == h5_error)ENZO_FAIL("Error writing metadata!");
     writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
                         "dtThisLevel", dtThisLevel);
     writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
                         "dtThisLevelSoFar", dtThisLevelSoFar);
-    writeArrayAttribute(metadata_group, HDF5_INT, MAX_DEPTH_OF_HIERARCHY,
-                        "LevelCycleCount", LevelCycleCount);
-    H5Gclose(metadata_group);
   }
+    H5Gclose(metadata_group);
 
   // At this point all the grid data has been written
 

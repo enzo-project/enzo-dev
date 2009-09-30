@@ -301,21 +301,23 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #endif
       // Now we load our metadata back in
-      hid_t metadata_group = H5Gopen(file_id, "CheckpointMetadata");
-      if(metadata_group == h5_error)
-        ENZO_FAIL("Could not open CheckpointMetadata");
-      readAttribute(metadata_group, HDF5_REAL, "dtThisLevel",
-                    dtThisLevel, TRUE);
-      readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
-                    dtThisLevelSoFar, TRUE);
+      hid_t metadata_group;
+    H5E_BEGIN_TRY{
+      metadata_group = H5Gopen(file_id, "Metadata");
+    }H5E_END_TRY
+    if(metadata_group != h5_error) {
       readAttribute(metadata_group, HDF5_INT, "LevelCycleCount",
-                    LevelCycleCount, TRUE);
-      int level;
-      /*
-      for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-        fprintf(stderr, "Level: %"ISYM" dtThisLevel: %"FSYM" dtThisLevelSoFar: %"FSYM"\n",
-                level, dtThisLevel[level], dtThisLevelSoFar[level]);
-      */
+          LevelCycleCount, TRUE);
+      if(CheckpointRestart == TRUE) { // We only need these in a checkpoint
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevel",
+            dtThisLevel, TRUE);
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
+            dtThisLevelSoFar, TRUE);
+      }
+    } else if(CheckpointRestart == TRUE) {
+      ENZO_FAIL("Couldn't open Metadata!");
+    }
+    H5Gclose(metadata_group);
 
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT
       H5Fclose(file_id);

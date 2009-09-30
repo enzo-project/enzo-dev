@@ -539,8 +539,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Evolve the next level down (recursively). */
  
     MetaData->FirstTimestepAfterRestart = FALSE;
-    } // CheckpointRestart == FALSE
-    else {
+    } 
+    else { // CheckpointRestart == FALSE
         // dtThisLevelSoFar set during restart
         // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel

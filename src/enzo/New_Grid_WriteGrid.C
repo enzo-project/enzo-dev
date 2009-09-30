@@ -196,6 +196,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
   if(WriteEverything == TRUE) {
     old_fields = H5Gcreate(group_id, "OldFields", 0);
+    writeScalarAttribute(old_fields, HDF5_REAL, "Time", &this->Time);
+    writeScalarAttribute(old_fields, HDF5_REAL, "OldTime", &this->OldTime);
   }
  
   /* ------------------------------------------------------------------- */

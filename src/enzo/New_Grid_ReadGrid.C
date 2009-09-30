@@ -248,6 +248,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if(ReadEverything == TRUE) {
       old_fields = H5Gopen(group_id, "OldFields");
+      readAttribute(old_fields, HDF5_REAL, "Time", &this->Time, TRUE);
+      readAttribute(old_fields, HDF5_REAL, "OldTime", &this->OldTime, TRUE);
     }
  
     /* loop over fields, reading each one */
