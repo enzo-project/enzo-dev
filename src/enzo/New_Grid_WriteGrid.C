@@ -79,7 +79,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char node_name[255];
 
   int CopyOnlyActive = TRUE;
-  if(WriteEverything==TRUE)CopyOnlyActive = FALSE;
+  //if(WriteEverything==TRUE)CopyOnlyActive = FALSE;
  
   char *ParticlePositionLabel[] =
      {"particle_position_x", "particle_position_y", "particle_position_z"};
@@ -666,9 +666,9 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
     H5Gclose(left_group);
 
     writeArrayAttribute(right_group, HDF5_INT, dims, "StartIndex",
-            fluxgroup->LeftFluxStartGlobalIndex[dim]);
+            fluxgroup->RightFluxStartGlobalIndex[dim]);
     writeArrayAttribute(right_group, HDF5_INT, dims, "EndIndex",
-            fluxgroup->LeftFluxEndGlobalIndex[dim]);
+            fluxgroup->RightFluxEndGlobalIndex[dim]);
 
     H5Gclose(right_group);
 

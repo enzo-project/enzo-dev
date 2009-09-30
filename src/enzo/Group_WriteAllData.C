@@ -50,7 +50,7 @@ void my_exit(int status);
  
 // HDF5 function prototypes
  
-
+extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
  
 // function prototypes
  
@@ -648,6 +648,8 @@ int Group_WriteAllData(char *basename, int filenumber,
                         "dtThisLevel", dtThisLevel);
     writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
                         "dtThisLevelSoFar", dtThisLevelSoFar);
+    writeArrayAttribute(metadata_group, HDF5_INT, MAX_DEPTH_OF_HIERARCHY,
+                        "LevelCycleCount", LevelCycleCount);
     H5Gclose(metadata_group);
   }
 

@@ -134,6 +134,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.OutputFirstTimeAtLevel);
   fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
+
+  fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);

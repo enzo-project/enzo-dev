@@ -48,6 +48,7 @@ void my_exit(int status);
 // HDF5 function prototypes
 
 
+extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
  
 /* function prototypes */
  
@@ -307,6 +308,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
                     dtThisLevel, TRUE);
       readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
                     dtThisLevelSoFar, TRUE);
+      readAttribute(metadata_group, HDF5_INT, "LevelCycleCount",
+                    LevelCycleCount, TRUE);
       int level;
       /*
       for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)

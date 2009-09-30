@@ -211,6 +211,8 @@ class grid
         *ThisNumberOfSubgrids = this->NumberOfSubgrids;
         *fluxgroup = this->SubgridFluxStorage;
         this->SubgridFluxStorage = NULL;
+        if(ProcessorNumber != MyProcessorNumber) return -1;
+        return 0;
     }
 
 /* Write grid data to separate files (returns: success/failure) */

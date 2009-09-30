@@ -230,6 +230,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
+    fprintf(stderr, "Entering EvolveLevel (proc = %"ISYM" level = %"ISYM")\n",
+            MyProcessorNumber, level);
  
   // Update lcaperf "level" attribute
 
@@ -299,10 +301,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      put them into the SubgridFluxesEstimate array. */
  
   if(CheckpointRestart == TRUE) {
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->FillFluxesFromStorage(
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
-        &SubgridFluxesEstimate[grid1]);
+        &SubgridFluxesEstimate[grid1]) != -1) {
+        /*fprintf(stderr, "Level: %"ISYM" Grid: %"ISYM" NS: %"ISYM"\n",
+            level, grid1, NumberOfSubgrids[grid1]);*/
+      }
+    }
   } else {
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->ClearBoundaryFluxes();
@@ -318,7 +324,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
  
-  while (dtThisLevelSoFar[level] < dtLevelAbove) {
+  while ((CheckpointRestart == TRUE)
+        || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
@@ -534,9 +541,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     MetaData->FirstTimestepAfterRestart = FALSE;
     } // CheckpointRestart == FALSE
     else {
-        // Set dtThisLevelSoFar
-        // Set dtThisLevel
+        // dtThisLevelSoFar set during restart
+        // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel
+        for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+          Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
     }
 
     if (LevelArray[level+1] != NULL) {
@@ -655,6 +664,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   delete [] NumberOfSubgrids;
   delete [] Grids;
   delete [] SubgridFluxesEstimate;
+
+  dtThisLevel[level] = dtThisLevelSoFar[level] = 0.0;
  
   /* Clean up the sibling list. */
 
