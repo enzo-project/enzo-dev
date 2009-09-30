@@ -116,6 +116,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
+    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %"PSYM,
+		  &MetaData.TimeLastInterpolatedDataDump);
+    ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM, 
+		  &MetaData.dtInterpolatedDataDump);
  
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,

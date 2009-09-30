@@ -99,6 +99,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MetaData.TimeLastTracerParticleDump);
   fprintf(fptr, "dtTracerParticleDump       = %"GOUTSYM"\n",
           MetaData.dtTracerParticleDump);
+  fprintf(fptr, "TimeLastInterpolatedDataDump    = %"GOUTSYM"\n", 
+	  MetaData.TimeLastInterpolatedDataDump);
+  fprintf(fptr, "dtInterpolatedDataDump          = %"GOUTSYM"\n", 
+	  MetaData.dtInterpolatedDataDump);
  
   fprintf(fptr, "NewMovieLeftEdge     = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);

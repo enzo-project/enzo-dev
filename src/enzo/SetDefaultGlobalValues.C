@@ -81,6 +81,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtHistoryDump       = 0.0;
   MetaData.TimeLastTracerParticleDump = FLOAT_UNDEFINED;
   MetaData.dtTracerParticleDump       = 0.0;
+  MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
+  MetaData.dtInterpolatedDataDump          = 0.0;
  
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
@@ -107,7 +109,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.TracerParticleDumpNumber = 0;
   MetaData.TracerParticleDumpName   = DefaultTracerParticleName;
   MetaData.TracerParticleDumpDir    = DefaultTracerParticleDir;
-//MetaData.RedshiftDumpNumber  = 0;
+  //MetaData.RedshiftDumpNumber  = 0;
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
  
@@ -156,7 +158,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.FirstTimestepAfterRestart = TRUE;
  
   /* set the default global data. */
-                                                 // Debug flag set in main
+  // Debug flag set in main
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
