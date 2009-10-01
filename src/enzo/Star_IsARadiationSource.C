@@ -45,7 +45,7 @@ bool Star::IsARadiationSource(FLOAT Time)
 	      FeedbackFlag == MBH_THERMAL);
   
   // Living
-  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime);
+  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)
