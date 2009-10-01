@@ -33,6 +33,9 @@ bool Star::IsARadiationSource(FLOAT Time)
   const int NumberOfRules = 4;
   rules = new bool[NumberOfRules];
 
+  for (i = 0; i < NumberOfRules; i++) 
+    rules[i] = false; 
+
   /*******************************************************************
      Below are the multiple definitions for a radiation source.  If
      all of the rules are met, the star particle is a radiation
