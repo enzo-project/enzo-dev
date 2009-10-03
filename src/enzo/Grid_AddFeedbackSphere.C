@@ -48,12 +48,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 {
 
   const float WhalenMaxVelocity = 35;		// km/s
+  const double Msun = 1.989e33;
 
   int dim, i, j, k, index;
   int sx, sy, sz;
   FLOAT delx, dely, delz, radius2, Radius, DomainWidth[MAX_DIMENSION];
   float coef, speed, maxVelocity;
-  float OldDensity;
+  float OldDensity, old_mass;
   float r1, norm, ramp, factor, newGE, increase, fh;
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -148,6 +149,21 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //    EjectaMetalDensity *= 0.1;
 //    EjectaThermalEnergy *= 0.1;
 //  }
+
+  /* Remove mass from the star that will now be added to grids. 
+     Also, because EjectaDensity will be injected with zero momentum, 
+     increase the particle's velocity accordingly.
+     As of now, this is only for MBH_THERMAL, 
+     but probably should also be done for SUPERNOVA or CONT_SUPERNOVA. 
+     - Ji-hoon Kim Sep.2009 */
+
+  if (cstar->FeedbackFlag == MBH_THERMAL) {
+    old_mass = cstar->Mass;
+    cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+    cstar->vel[0] *= old_mass / cstar->Mass; 
+    cstar->vel[1] *= old_mass / cstar->Mass;
+    cstar->vel[2] *= old_mass / cstar->Mass; 
+  }
 
   // Correct for smaller enrichment radius
   EjectaMetalDensity *= pow(MetalRadius, -3.0);

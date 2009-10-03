@@ -228,16 +228,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
       mdot * Msun * c * c * dtForThisStar * TimeUnits / 
       (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
     
-    /* Remove mass which will be added to grids later in Grid_AddFeedbackSphere.C 
-       from Star particle mass.  Also, because EjectaDensity will be injected 
-       with zero momentum, increase the particle's velocity accordingly.
-       As of now, this is only for MBH_THERMAL, 
-       but probably should also be done for SUPERNOVA and CONT_SUPERNOVA. - Ji-hoon Kim Sep.2009 */
-    this->Mass -= EjectaDensity * DensityUnits * EjectaVolume / Msun;  
-    this->vel[0] *= old_mass / this->Mass; 
-    this->vel[1] *= old_mass / this->Mass;
-    this->vel[2] *= old_mass / this->Mass; 
-
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST

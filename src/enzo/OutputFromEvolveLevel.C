@@ -177,7 +177,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	     MetaData->SubcycleNumber, MetaData->SubcycleLastDataDump,
 	     MetaData->SubcycleSkipDataDump);
       MetaData->SubcycleLastDataDump += MetaData->SubcycleSkipDataDump;
-      Write= TRUE;
+      Write = TRUE;
     } 
     
     if (MetaData->StopFirstTimeAtLevel > 0 &&
