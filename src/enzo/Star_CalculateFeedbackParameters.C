@@ -245,11 +245,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
 #endif
 
-    /*
     fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
             Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
-    */
+	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); //#####
     
     break;
 

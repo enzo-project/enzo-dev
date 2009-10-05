@@ -79,6 +79,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     For star formation, we need to find a sphere with enough mass to
     accrete.  We step out by a cell width when searching. 
+    This is only for FeedbackFlag = FORMATION. 
 
   ***********************************************************************/
 

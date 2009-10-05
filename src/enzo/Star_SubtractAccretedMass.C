@@ -109,8 +109,8 @@ int Star::SubtractAccretedMass(void)
 
   float MassConversion = (float) (pow(LengthUnits * CurrentGrid->CellWidth[0][0], 3.0)
 				  * double(DensityUnits) / Msun);
-  float OldDensity, NewDensity, factor;
   float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
+  double OldDensity, NewDensity, factor;
 
   /* Subtract accreted mass from the grids, and calculate new densities */
   
@@ -141,11 +141,9 @@ int Star::SubtractAccretedMass(void)
   //                                         = ugrid;
   //velocity of the grids will be unchanged! 
 
-  /*
-  fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %g, OldDensity =%g, NewDensity =%g, factor =%g\n", 
+  fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
 	  this->DeltaMass, OldDensity, NewDensity, factor); 
   fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);//#####
-  */
 
   if (MultiSpecies) {
     CurrentGrid->BaryonField[DeNum][index] *= factor;

@@ -79,11 +79,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-    if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
-      if (!cstar->ApplyFeedbackTrue(SNe_dt))
-	continue;
+    if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
+	(!cstar->ApplyFeedbackTrue(SNe_dt)))
+      continue;
 
-    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+    float dtForThisStar = Temp->GridData->ReturnTimeStep();
 	  
     /* Compute some parameters */
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
@@ -96,17 +96,15 @@ int StarParticleAddFeedback(TopGridData *MetaData,
        for SNe) is enclosed within grids on this level */
 
     if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, EjectaThermalEnergy, SphereContained, SkipMassRemoval,	DensityUnits, 
+	       EjectaDensity, EjectaThermalEnergy, SphereContained, SkipMassRemoval, DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
 	       VelocityUnits) == FAIL) {
       fprintf(stderr, "Error in star::FindFeedbackSphere\n");
       ENZO_FAIL("");
     }
 
-    /*
-    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-    fprintf(stderr, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
-    */
+    fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); //#####
+    fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
 
     if (SphereContained == FALSE)
       continue;
@@ -134,7 +132,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
       cstar->SetFeedbackFlag(DEATH);
 
-#ifdef UNUSED
+    //#ifdef UNUSED  //#####
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
 	       MPI_COMM_WORLD);
@@ -154,7 +152,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	      "changed %"ISYM" cells.\n", 
 	      cstar->ReturnID(), level, CellsModified);
     }
-#endif
+    //#endif
     
   } // ENDFOR stars
 
