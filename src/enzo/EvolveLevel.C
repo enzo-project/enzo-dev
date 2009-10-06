@@ -203,7 +203,6 @@ void my_exit(int status);
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level);
  
-int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];

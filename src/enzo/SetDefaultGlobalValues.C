@@ -574,9 +574,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Some stateful variables for EvolveLevel */
+  for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+    LevelCycleCount[i] = 0;
+    dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
+  }
+
   /* Shearing Boundary Conditions variables */
 
-  
   AngularVelocity=0.001;
   VelocityGradient=1.0;
   ShearingBoundaryDirection=-1;

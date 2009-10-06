@@ -50,8 +50,6 @@ void my_exit(int status);
  
 // HDF5 function prototypes
  
-extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
- 
 // function prototypes
  
 int SysMkdir(char *startdir, char *directory);

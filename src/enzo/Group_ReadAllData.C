@@ -48,8 +48,6 @@ void my_exit(int status);
 // HDF5 function prototypes
 
 
-extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
- 
 /* function prototypes */
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
