@@ -60,7 +60,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
   /* declarations */
 
@@ -85,7 +85,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
-    ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
+    ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
@@ -95,6 +95,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
+    ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
+		  &MetaData.MaximumTopGridTimeStep);
+
     ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
     ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
@@ -113,6 +116,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
+    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %"PSYM,
+		  &MetaData.TimeLastInterpolatedDataDump);
+    ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM, 
+		  &MetaData.dtInterpolatedDataDump);
  
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,
@@ -351,7 +358,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "IncludeCloudyHeating = %"ISYM, &CloudyCoolingData.IncludeCloudyHeating);
     ret += sscanf(line, "IncludeCloudyMMW = %"ISYM, &CloudyCoolingData.IncludeCloudyMMW);
     ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
-    ret += sscanf(line, "ConstantTemperatureFloor = %"FSYM, &CloudyCoolingData.ConstantTemperatureFloor);
     ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
     ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
@@ -608,6 +614,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %"ISYM, 
+		  &MBHAccretion);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
 		  &MBHAccretingMassRatio);
     ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
@@ -617,6 +625,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
     ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
 		  &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, 
+		  &MBHFeedbackMetalYield);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
 
@@ -878,10 +888,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
 
   /* If set, initialize the RadiativeCooling and RateEquations data. */
 
-  if (MultiSpecies > 0)
+  if (MultiSpecies > 0) {
     if (InitializeRateData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeRateData.");
     }
+    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in InitializeCloudyCooling.");
+    }
+  }
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
@@ -889,14 +903,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialize CloudyCooling. */
-
-  if (MetalCooling == CLOUDY_METAL_COOLING) {
-    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
 
@@ -1137,7 +1143,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
-
-   CheckShearingBoundaryConsistency(MetaData);
+  printf("Initialdt in ReadParameterFiled %e\n", *Initialdt);
+  CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

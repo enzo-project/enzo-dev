@@ -198,8 +198,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE &&
-		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-		 			 FieldType[field] != InternalEnergy)))
+		FieldType[field] != Bfield1 &&
+		FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
+		FieldType[field] != PhiField &&
+		FieldType[field] != DrivingField1 &&
+		FieldType[field] != DrivingField2 &&
+		FieldType[field] != DrivingField3 &&
+		FieldType[field] != GravPotential)  
+	      //		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+	      //	 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
 		  index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -332,8 +339,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE &&
-		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-		 			 FieldType[field] != InternalEnergy)))
+		FieldType[field] != Bfield1 &&
+		FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
+		FieldType[field] != PhiField &&
+		FieldType[field] != DrivingField1 &&
+		FieldType[field] != DrivingField2 &&
+		FieldType[field] != DrivingField3 &&
+		FieldType[field] != GravPotential)
+	      //		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+	      //	 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
 		  index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -343,7 +357,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      BaryonField[DensNum][index+Offset];
 		  }
 		}
- 
+	 
 	/* If appropriate, restore consistency between total and internal
 	   energy in corrected faces. */
  

@@ -85,6 +85,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
  
+  fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
+
   fprintf(fptr, "TimeLastRestartDump = %"GOUTSYM"\n", MetaData.TimeLastRestartDump);
   fprintf(fptr, "dtRestartDump       = %"GOUTSYM"\n", MetaData.dtRestartDump);
   fprintf(fptr, "TimeLastDataDump    = %"GOUTSYM"\n", MetaData.TimeLastDataDump);
@@ -97,6 +99,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MetaData.TimeLastTracerParticleDump);
   fprintf(fptr, "dtTracerParticleDump       = %"GOUTSYM"\n",
           MetaData.dtTracerParticleDump);
+  fprintf(fptr, "TimeLastInterpolatedDataDump    = %"GOUTSYM"\n", 
+	  MetaData.TimeLastInterpolatedDataDump);
+  fprintf(fptr, "dtInterpolatedDataDump          = %"GOUTSYM"\n", 
+	  MetaData.dtInterpolatedDataDump);
  
   fprintf(fptr, "NewMovieLeftEdge     = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);
@@ -324,7 +330,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
   fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
   fprintf(fptr, "CMBTemperatureFloor            = %"ISYM"\n", CloudyCoolingData.CMBTemperatureFloor);
-  fprintf(fptr, "ConstantTemperatureFloor       = %"FSYM"\n", CloudyCoolingData.ConstantTemperatureFloor);
   fprintf(fptr, "CloudyMetallicityNormalization = %"FSYM"\n", CloudyCoolingData.CloudyMetallicityNormalization);
   fprintf(fptr, "CloudyElectronFractionFactor   = %"FSYM"\n", CloudyCoolingData.CloudyElectronFractionFactor);
   fprintf(fptr, "MetalCooling                   = %"ISYM"\n", MetalCooling);
@@ -553,6 +558,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHMinDynamicalTime);
   fprintf(fptr, "MBHMinimumMass                  = %"GSYM"\n",
           MBHMinimumMass);
+  fprintf(fptr, "MBHAccretion                    = %"ISYM"\n",
+	  MBHAccretion);
   fprintf(fptr, "MBHAccretingMassRatio           = %"GSYM"\n",
           MBHAccretingMassRatio);
   fprintf(fptr, "MBHFeedbackThermal              = %"ISYM"\n",
@@ -565,6 +572,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackThermalCoupling);
   fprintf(fptr, "MBHFeedbackMassEjectionFraction = %"GSYM"\n",
           MBHFeedbackMassEjectionFraction);
+  fprintf(fptr, "MBHFeedbackMetalYield           = %"GSYM"\n",
+          MBHFeedbackMetalYield);
   fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n",
           MBHCombineRadius);
 

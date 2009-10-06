@@ -87,6 +87,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   // MBHFeedbackToConstantMass is implemented 
   // to apply your feedback energy always to a constant mass, not to a constant volume.
+  // Search MBH from here and below.
   // For now, this is for future use and not tested, and shouldn't be used.  Ji-hoon Kim Sep.2009
   int MBHFeedbackToConstantMass = FALSE; //#####
   MBHFeedbackRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
@@ -183,7 +184,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     }  // ENDSWITCH FeedbackFlag
 
-    if (type != MBH)  //#####
+    if (type != MBH)  
       // Remove the stellar mass from the sphere and distribute the
       // gas evenly in the sphere since this is what will happen once
       // the I-front passes through it.

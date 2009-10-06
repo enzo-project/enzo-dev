@@ -60,8 +60,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     /* Check for tracer particle output */
     
     if (LevelArray[level]->GridData->ReturnTime() >=
-	MetaData->TimeLastTracerParticleDump +
-	MetaData->dtTracerParticleDump &&
+	MetaData->TimeLastTracerParticleDump + MetaData->dtTracerParticleDump &&
 	MetaData->dtTracerParticleDump > 0.0) {
       MetaData->TimeLastTracerParticleDump += MetaData->dtTracerParticleDump;
       if (WriteTracerParticleData(MetaData->TracerParticleDumpName,
@@ -80,7 +79,8 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       MetaData->OutputFirstTimeAtLevel = level+1;
       Write = TRUE;
     }
- 
+
+
     // File directed output:
     // Existence of the file outputNow will cause enzo to output the next time the bottom
     //    of the hierarchy is reached.
@@ -151,6 +151,22 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       
     }//File Directed Output
     
+
+    /* Check to see if we should start outputting interpolated data based on
+       the time passed (dtInterpolatedDataDump < dtDataDump).
+       This is mostly for making movies or looking at the interim data where TopGrid dt is too long.
+       In principle, this output shouldn't be used for restart. */
+
+    if (LevelArray[level]->GridData->ReturnTime() >= 
+	MetaData->TimeLastInterpolatedDataDump + MetaData->dtInterpolatedDataDump   && 
+	MetaData->dtInterpolatedDataDump > 0.0) {
+      printf("Writing data based on dtInterpolatedDataDump (%"FSYM" %"FSYM" %"FSYM")\n",
+	     LevelArray[level]->GridData->ReturnTime(), MetaData->TimeLastInterpolatedDataDump,
+	     MetaData->dtInterpolatedDataDump);
+      MetaData->TimeLastInterpolatedDataDump += MetaData->dtInterpolatedDataDump;
+      Write = TRUE;
+    }
+
     /* Check to see if we should start outputting interpolated data based on
        the cycles of the highest level */
     
@@ -169,6 +185,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       ExitEnzo = TRUE;
       Write = TRUE;
     }
+
   }//Finest Level
 
   FILE *Exit_fptr;

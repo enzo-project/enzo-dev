@@ -58,7 +58,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	    NumberOfNewPhotonPackages);
 
   if (MyProcessorNumber != ProcessorNumber) {
-    NumberOfPhotonPackages += NumberOfNewPhotonPackages;
+    NumberOfPhotonPackages += NumberOfNewPhotonPackages; 
     return SUCCESS;
   }
 
@@ -175,7 +175,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       // DEBUG fudge
       for (j=0; j<BasePackages; j++) {
 	//      for (j=0; j<1; j++) {
-	if (photons_per_package>tiny_number) {
+//	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
+	if (!isnan(photons_per_package)) { 
 	  PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	  NewPack->NextPackage = PhotonPackages->NextPackage;
 	  PhotonPackages->NextPackage = NewPack;
@@ -187,13 +188,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  /*
-	  if (DEBUG){
-	    fprintf(stdout, "MBH = %d\n", MBH);  
-	    fprintf(stdout, "RS->Type = %d\n", RS->Type);  
-	    fprintf(stdout, "NewPack->Type = %d\n", NewPack->Type);  
-	  }
-	  */
+	  //fprintf(stdout, "MBH = %d, RS->Type = %d, NewPack->Type = %d\n", MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

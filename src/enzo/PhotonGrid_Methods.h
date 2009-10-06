@@ -16,7 +16,7 @@
 
 //   float ComputePhotonTimestep(void);
    float ComputeRT_TimeStep(void);
-   float ComputeRT_TimeStep2(void);
+   float ComputeRT_TimeStep2(float DensityUnits, float LengthUnits);
 
 /* Photons: return number of PhotonPackages. */
 
@@ -99,20 +99,22 @@ void ResetPhotonPackagePointer(void) {
 
 int MoveFinishedPhotonsBack(void) {
 
-  if (FinishedPhotonPackages != NULL) {
+  PhotonPackageEntry *FPP = FinishedPhotonPackages->NextPackage;
+
+  if (FPP != NULL) {
 
     // Find the end of the PhotonPackages list
     PhotonPackageEntry *PP = PhotonPackages;
     while (PP->NextPackage != NULL)
       PP = PP->NextPackage;
 
-    if (FinishedPhotonPackages->NextPackage != NULL)
-      FinishedPhotonPackages->NextPackage->PreviousPackage = PP;
-    PP->NextPackage = FinishedPhotonPackages->NextPackage;
+    FPP->PreviousPackage = PP;
+    PP->NextPackage = FPP;
 
-    FinishedPhotonPackages->PreviousPackage = NULL;
-    FinishedPhotonPackages->NextPackage = NULL;
   }
+
+  FinishedPhotonPackages->PreviousPackage = NULL;
+  FinishedPhotonPackages->NextPackage = NULL;
 
   return SUCCESS;
 }
@@ -121,7 +123,7 @@ int MoveFinishedPhotonsBack(void) {
    UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
 ************************************************************************/
 
-#ifdef UNUSED
+//#ifdef UNUSED
 int ErrorCheckPhotonNumber(int level) {
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -131,7 +133,7 @@ int ErrorCheckPhotonNumber(int level) {
     count++;
   for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
     fcount++;
-  if (count != NumberOfPhotonPackages) {
+  if (count+fcount != NumberOfPhotonPackages) {
     printf("level %"ISYM", grid %"ISYM" (%x)\n", level, this->ID, this);
     printf("-> Mismatch between photon count (%"ISYM", %"ISYM") and "
 	   "NumberOfPhotonPackages (%"ISYM")\n", 
@@ -169,7 +171,7 @@ int ReturnRealPhotonCount(void) {
   }
   return result;
 }
-#endif /* UNUSED */
+//#endif /* UNUSED */
 /************************************************************************
    END -- UNUSED FUNCTIONS
 ************************************************************************/

@@ -55,7 +55,9 @@ int grid::MHDSourceTerms(float **dU)
     dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0] : 0.0;  
   float Bx, By, Bz;
   float coeff = 1.;
-  //  if (Gamma < 1.01)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal
+
+  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
+
   int n = 0, igrid, igridyp1, igridym1, igridzp1, igridzm1;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -77,10 +79,10 @@ int grid::MHDSourceTerms(float **dU)
 	gradPhi[1][n] = 0.5*(BaryonField[PhiNum][igridyp1]-BaryonField[PhiNum][igridym1])*dtdy;
 	gradPhi[2][n] = 0.5*(BaryonField[PhiNum][igridzp1]-BaryonField[PhiNum][igridzm1])*dtdz;
 	*/ 
-	dU[iS1  ][n] -= divB[n]*Bx;
-	dU[iS2  ][n] -= divB[n]*By;
-	dU[iS3  ][n] -= divB[n]*Bz;
-	dU[iEtot][n] -= coeff*(Bx*gradPhi[0][n] + By*gradPhi[1][n] + Bz*gradPhi[2][n]);
+	dU[iS1  ][n] -= divB[n]*Bx * coeff;
+	dU[iS2  ][n] -= divB[n]*By * coeff;
+	dU[iS3  ][n] -= divB[n]*Bz * coeff;
+	dU[iEtot][n] -= coeff * (Bx*gradPhi[0][n] + By*gradPhi[1][n] + Bz*gradPhi[2][n]);
 
 
       }

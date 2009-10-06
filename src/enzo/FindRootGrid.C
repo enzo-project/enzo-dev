@@ -38,9 +38,9 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
 		 FLOAT rx, FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz)
 {
 
-  if (rx < DomainLeftEdge[0] || rx > DomainRightEdge[0] ||
-      ry < DomainLeftEdge[1] || ry > DomainRightEdge[1] ||
-      rz < DomainLeftEdge[2] || rz > DomainRightEdge[2]) {
+  if (rx <= DomainLeftEdge[0] || rx >= DomainRightEdge[0] ||
+      ry <= DomainLeftEdge[1] || ry >= DomainRightEdge[1] ||
+      rz <= DomainLeftEdge[2] || rz >= DomainRightEdge[2]) {
     dummy = INT_UNDEFINED;
     return SUCCESS;
   }

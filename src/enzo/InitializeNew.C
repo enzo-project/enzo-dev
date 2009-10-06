@@ -40,7 +40,7 @@
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
-int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float &Initialdt);
+int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -177,7 +177,7 @@ char outfilename[] = "amr.out";
  
 int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		  TopGridData &MetaData, ExternalBoundary &Exterior,
-		  float &Initialdt)
+		  float *Initialdt)
 {
 
   
@@ -237,10 +237,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       RefineRegionLeftEdge[dim]   = DomainLeftEdge[dim];
     if (RefineRegionRightEdge[dim] == FLOAT_UNDEFINED)
       RefineRegionRightEdge[dim]  = DomainRightEdge[dim];
-    if (MetaData.MovieRegionLeftEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionLeftEdge[dim]   = DomainLeftEdge[dim];
-    if (MetaData.MovieRegionRightEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionRightEdge[dim]  = DomainRightEdge[dim];
   }
  
   // If the problem reads in a restart dump, then skip over the following
