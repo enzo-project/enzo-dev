@@ -511,7 +511,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
 
-  
 
 #ifdef USE_JBPERF
     // Update lcaperf "level" attribute

@@ -85,9 +85,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     ENZO_FAIL("");
   }
   
-    /* Update star particles for any accretion */
+  /* Update star particles for any accretion */
 
-  if (LevelArray[level+1] == NULL) //#####
+  if (LevelArray[level+1] == NULL) 
     if (StarParticleAccretion(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
       fprintf(stderr, "Error in StarParticleAccretion.\n");

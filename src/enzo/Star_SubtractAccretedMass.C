@@ -141,9 +141,11 @@ int Star::SubtractAccretedMass(void)
   //                                         = ugrid;
   //velocity of the grids will be unchanged! 
 
+  /*
   fprintf(stdout, "star::SubtractAccretedMass:  DeltaMass = %e, OldDensity =%e, NewDensity =%e, factor =%e\n", 
 	  this->DeltaMass, OldDensity, NewDensity, factor); 
-  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);//#####
+  fprintf(stdout, "star::SubtractAccretedMass:  vel_p[1] = %g -> %g\n", usink, vel[1]);
+  */
 
   if (MultiSpecies) {
     CurrentGrid->BaryonField[DeNum][index] *= factor;
