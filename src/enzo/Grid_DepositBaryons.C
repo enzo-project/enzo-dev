@@ -145,6 +145,8 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     if (RegionDim[dim] < 2) {
       fprintf(stderr, "RegionDim[%"ISYM"] = %"ISYM" < 2\n", dim, RegionDim[dim]);
+      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
       ENZO_FAIL("");
     }
  

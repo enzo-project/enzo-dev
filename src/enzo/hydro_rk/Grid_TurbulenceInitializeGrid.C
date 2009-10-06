@@ -32,7 +32,7 @@ void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind,
 
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 				   float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level,
+				   int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, int level,
 				   int SetBaryonFields)
 {
 
@@ -100,16 +100,17 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
         FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
       }
     }
+    
+    if (RadiationPressure) {
+      FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
+      FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
+      FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
+    }
+    
+    NumberOfPhotonPackages = 0;
+    PhotonPackages-> NextPackage= NULL;
+    
   }
-
-  if (RadiationPressure && RadiativeTransfer) {
-    FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
-    FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
-    FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
-  }
-
-  NumberOfPhotonPackages = 0;
-  PhotonPackages-> NextPackage= NULL;
 #endif
 
   int idrivex, idrivey, idrivez;
@@ -551,9 +552,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* Put a sink particle if we are studying massive star formation */
 
-  int PutSink = 0;
   if (PutSink == 1 && level == MaximumRefinementLevel) {
-
+      NumberOfParticleAttributes = 6;
     double mass_p = 20.0*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
@@ -562,6 +562,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     t_dyn /= TimeUnits;
 
     double dxm = dx / pow(2.0, MaximumRefinementLevel);
+
+    printf("Adding a Sink Particle. \n");
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
@@ -580,6 +582,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleAttribute[0][0] = 0.0; // creation time             
     ParticleAttribute[1][0] = 0;
     ParticleAttribute[2][0] = mass_p;
+
+    if (StellarWindFeedback) {
+      ParticleAttribute[3][0] = 1.0;  
+      ParticleAttribute[4][0] = 0.0;
+      ParticleAttribute[5][0] = 0.0;
+    }
   }
 
   /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);

@@ -61,7 +61,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = TRUE;
   int RandomSeed = 1;
-  FLOAT rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
+  float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
 
   /* read input from file */
   rewind(fptr);
@@ -139,6 +139,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
+
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
       if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
