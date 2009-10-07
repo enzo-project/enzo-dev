@@ -199,8 +199,8 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	if (etot < 0 && EOSType == 0) {
 	  float v2_old = vx_old*vx_old + vy_old*vy_old + vz_old*vz_old;
 	  float B2_old = Bx_old*vx_old + By_old*By_old + Bz_old*Bz_old;
-	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g\n", 
-		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
+	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g, dtFixed = %g\n", 
+		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed, dtFixed);
 	  printf("rho_new=%g, rho=%g, rho_old=%g, B2_old/rho_old=%g\n", D_new, rho, rho_old, B2_old/rho_old);
 	  //return FAIL;
 	}

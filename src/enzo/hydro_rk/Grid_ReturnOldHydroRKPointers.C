@@ -112,7 +112,7 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[nfield++] = OldBaryonField[MetalNum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = OldBaryonField[MetalNum+1];
-      Prim[nfield++] = OldBaryonField[MetalNum+1];
+      Prim[nfield++] = OldBaryonField[MetalNum+2];
     }
   }
 
@@ -121,21 +121,6 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (Galaxy1ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy2ColourNum];
 
-  /*  //#####
-  int MetalNum, SNColourNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1) {
-    Prim[nfield++] = OldBaryonField[MetalNum];
-    if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = OldBaryonField[MetalNum+1];
-      Prim[nfield++] = OldBaryonField[MetalNum+2];
-    }
-  }
-
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    Prim[nfield++] = OldBaryonField[SNColourNum];
-  */
 
   /* Convert the species and color fields into mass fractions */
 

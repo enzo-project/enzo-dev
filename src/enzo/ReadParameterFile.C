@@ -936,11 +936,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // Don't include free electron field
   switch (MultiSpecies) {
-  case 0:  NSpecies = 0; break;
-  case 1:  NSpecies = 5; break;
-  case 2:  NSpecies = 8; break;
+  case 0:  NSpecies = 0;  break;
+  case 1:  NSpecies = 5;  break;
+  case 2:  NSpecies = 8;  break;
   case 3:  NSpecies = 11; break;
-  default: NSpecies = 0; break;
+  default: NSpecies = 0;  break;
   }
 
   // Determine color fields (NColor) later inside a grid object.

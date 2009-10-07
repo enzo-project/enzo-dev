@@ -114,7 +114,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[nfield++] = BaryonField[MetalNum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = BaryonField[MetalNum+1];
-      Prim[nfield++] = BaryonField[MetalNum+1];
+      Prim[nfield++] = BaryonField[MetalNum+2];
     }
   }
 
@@ -122,6 +122,8 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (MBHColourNum     != -1) Prim[nfield++] = BaryonField[MBHColourNum];
   if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
+
+  //fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield); 
 
   /*  //#####
   int MetalNum, SNColourNum;
