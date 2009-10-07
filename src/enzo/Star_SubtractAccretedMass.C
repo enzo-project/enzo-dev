@@ -90,24 +90,6 @@ int Star::SubtractAccretedMass(void)
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
 
-  /*  //#####
-  int MetallicityField = FALSE, UseColour = FALSE;
-  if ((MetalNum = FindField(Metallicity, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
-      != -1)
-    MetallicityField = TRUE;
-  else
-    MetalNum = 0;
-
-  if ((SNColourNum = FindField(SNColour, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
-      != -1)
-    UseColour = TRUE;
-  else
-    SNColourNum = 0;
-
-  MetalNum = max(MetalNum, SNColourNum);
-  MetallicityField = max(MetallicityField, UseColour);
-  */
-
 
   /* Now let's start working! */
 

@@ -354,7 +354,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   int MetallicityField = FALSE;
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     ENZO_FAIL("");
   }

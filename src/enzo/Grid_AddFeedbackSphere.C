@@ -70,28 +70,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   for (dim = 0; dim < GridRank; dim++)
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
 
-  /* Find metallicity field and set flag. */
-
-  int ZNum, ZField;
-  int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    MetallicityField = TRUE;
-  else
-    MetalNum = 0;
-
-  /* Find SN colour field */
-
-  int UseColour = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    UseColour = TRUE;
-  else
-    SNColourNum = 0;
-
-  ZNum = max(MetalNum, SNColourNum);
-  ZField = max(MetallicityField, UseColour);
-
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -112,6 +90,21 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
       ENZO_FAIL("");
     }
+
+  /* Find Metallicity or SNColour field and set flag. */
+
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int MetallicityField = FALSE;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    ENZO_FAIL("");
+  }
+
+  MetalNum = max(MetalNum, SNColourNum);
+  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+
 
   /***********************************************************************
                                  SUPERNOVAE
@@ -155,7 +148,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
      increase the particle's velocity accordingly.
      As of now, this is only for MBH_THERMAL, 
      but probably should also be done for SUPERNOVA or CONT_SUPERNOVA. 
-     - Ji-hoon Kim Sep.2009 */
+     - Ji-hoon Kim, Sep.2009 */
 
   if (cstar->FeedbackFlag == MBH_THERMAL) {
     old_mass = cstar->Mass;
@@ -210,10 +203,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
 	    //	     ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
 
-	    // 1/1.2^3 factor to dilute the density since we're
-	    // depositing a uniform ejecta in a sphere of 1.2*radius
-	    // without a ramp.  The ramp is only applied to the
-	    // energy*density factor.
+	    /* 1/1.2^3 factor to dilute the density since we're
+	       depositing a uniform ejecta in a sphere of 1.2*radius
+	       without a ramp.  The ramp is only applied to the
+	       energy*density factor. */
 	    factor = 0.578704;
 
 	    OldDensity = BaryonField[DensNum][index];
@@ -259,12 +252,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	      /*
 	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
-		fprintf(stderr, "grid::AddFeedbackSphere:  Time = %g\n", Time);
-		fprintf(stderr, "dtFixed in G_AFS.C = %g\n", dtFixed);
-		fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
-		fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);} 
-
-	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
 	      fprintf(stderr, "AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
 		     OldDensity, BaryonField[DensNum][index], 
 		     BaryonField[TENum][index], newGE, EjectaDensity,
@@ -276,12 +263,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    } //end if(GENum >= 0 && DualEnergyFormalism)
 
 	    //increase = BaryonField[DensNum][index] / OldDensity;
-	    if (ZField == TRUE) {
+	    if (MetallicityField == TRUE) {
 	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[ZNum][index] + EjectaMetalDensity) /
+		metallicity = (BaryonField[MetalNum][index] + EjectaMetalDensity) /
 		  BaryonField[DensNum][index];
 	      } else {
-		metallicity = BaryonField[ZNum][index] / BaryonField[DensNum][index];
+		metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
 	      }
 	    } else
 	      metallicity = 0;
@@ -319,8 +306,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		tiny_number * BaryonField[DensNum][index];
 	    }
 
-	    if (ZField == TRUE)
-	      BaryonField[ZNum][index] = metallicity * BaryonField[DensNum][index];
+	    if (MetallicityField == TRUE)
+	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
+
+	    /* MBHColour injected - Ji-hoon Kim, Oct.2009 */
+	    if (cstar->FeedbackFlag == MBH_THERMAL && MBHColourNum > 0)
+	      BaryonField[MBHColourNum][index] += factor*EjectaDensity;
 
 	    CellsModified++;
 
@@ -462,8 +453,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] *= factor;
 	    }
 
-	    if (ZField == TRUE)
-	      BaryonField[ZNum][index] *= factor;
+	    if (MetallicityField == TRUE)
+	      BaryonField[MetalNum][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star
