@@ -193,7 +193,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   /* assume isothermal initially */
 
   CloudPressure = CloudDensity * pow(CloudSoundSpeed,2);
-  CloudInternalEnergy = pow(CloudSoundSpeed,2) / (Gamma - 1.0);
+  //  CloudInternalEnergy = pow(CloudSoundSpeed,2) / (Gamma - 1.0);
+  float h, cs, dpdrho, dpde;
+  EOS(CloudPressure, CloudDensity, CloudInternalEnergy, h, cs, dpdrho, dpde, EOSType, 1);
 
   float InitialFractionHII = 1.2e-5;
   float InitialFractionHeII = 1.0e-14;
@@ -293,7 +295,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	  if (CloudType == 0) {
 	    Density = CloudDensity/10.0;
-	    eint = CloudInternalEnergy;
+	    eint = CloudInternalEnergy*10.;
 	  }
 
 	  if (CloudType == 1) {
@@ -553,7 +555,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   /* Put a sink particle if we are studying massive star formation */
 
   if (PutSink == 1 && level == MaximumRefinementLevel) {
-      NumberOfParticleAttributes = 6;
+
     double mass_p = 20.0*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
@@ -561,14 +563,16 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
-    double dxm = dx / pow(2.0, MaximumRefinementLevel);
+    double dxm = dx / pow(RefineBy, MaximumRefinementLevel);
 
     printf("Adding a Sink Particle. \n");
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
     //    MaximumParticleNumber = 1;
+    if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
+
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
@@ -588,6 +592,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       ParticleAttribute[4][0] = 0.0;
       ParticleAttribute[5][0] = 0.0;
     }
+
+    for (i = 0; i< MAX_DIMENSION+1; i++){
+      ParticleAcceleration[i] = NULL;
+    }
+    this->ClearParticleAccelerations();
+
   }
 
   /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
