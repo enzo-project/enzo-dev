@@ -238,7 +238,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
   
-  /* Count the number of colours in the first grid (to define Ncolor) */
+  /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
 

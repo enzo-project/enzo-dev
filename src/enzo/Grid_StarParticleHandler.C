@@ -343,7 +343,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
   }
 
-
   if (MultiSpecies > 1) {
     H2INum   = FindField(H2IDensity, FieldType, NumberOfBaryonFields);
     H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
@@ -351,6 +350,19 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   /* Find metallicity field and set flag. */
  
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int MetallicityField = FALSE;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    ENZO_FAIL("");
+  }
+
+  MetalNum = max(MetalNum, SNColourNum);
+  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+
+  /*  //#####
   int MetallicityField = FALSE, MetalNum;
   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
       != -1)
@@ -367,6 +379,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = max(MetallicityField, UseColour);
+  */
 
   /* Set variables to type defines to pass to FORTRAN routines */
 

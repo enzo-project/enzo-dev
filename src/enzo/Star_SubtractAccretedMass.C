@@ -55,26 +55,6 @@ int Star::SubtractAccretedMass(void)
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, time);
 
-  /* Find metallicity or SN Color field and set flag. */
-
-  int ZNum, ZField;
-  int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
-      != -1)
-    MetallicityField = TRUE;
-  else
-    MetalNum = 0;
-
-  int UseColour = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
-      != -1)
-    UseColour = TRUE;
-  else
-    SNColourNum = 0;
-
-  ZNum = max(MetalNum, SNColourNum);
-  ZField = max(MetallicityField, UseColour);
-
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -96,6 +76,41 @@ int Star::SubtractAccretedMass(void)
       ENZO_FAIL("");
     }
 
+  /* Find Metallicity or SNColour field and set flag. */
+
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int MetallicityField = FALSE;
+
+  if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    ENZO_FAIL("");
+  }
+
+  MetalNum = max(MetalNum, SNColourNum);
+  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+
+  /*  //#####
+  int MetallicityField = FALSE, UseColour = FALSE;
+  if ((MetalNum = FindField(Metallicity, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
+      != -1)
+    MetallicityField = TRUE;
+  else
+    MetalNum = 0;
+
+  if ((SNColourNum = FindField(SNColour, CurrentGrid->FieldType, CurrentGrid->NumberOfBaryonFields)) 
+      != -1)
+    UseColour = TRUE;
+  else
+    SNColourNum = 0;
+
+  MetalNum = max(MetalNum, SNColourNum);
+  MetallicityField = max(MetallicityField, UseColour);
+  */
+
+
+  /* Now let's start working! */
+
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
     igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
@@ -111,6 +126,7 @@ int Star::SubtractAccretedMass(void)
 				  * double(DensityUnits) / Msun);
   float densgrid, ugrid, vgrid, wgrid, denssink, usink, vsink, wsink, drho;
   double OldDensity, NewDensity, factor;
+
 
   /* Subtract accreted mass from the grids, and calculate new densities */
   
@@ -167,8 +183,11 @@ int Star::SubtractAccretedMass(void)
     CurrentGrid->BaryonField[HDINum][index] *= factor;
   }
 
-  if (ZField == TRUE)
-    CurrentGrid->BaryonField[ZNum][index] *= factor;
+  if (MetallicityField == TRUE)
+    CurrentGrid->BaryonField[MetalNum][index] *= factor;
+
+  if (MBHColourNum > 0)
+    CurrentGrid->BaryonField[MBHColourNum][index] *= factor;    
 
   return SUCCESS;
 

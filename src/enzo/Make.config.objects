@@ -318,6 +318,7 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
+	Grid_IdentifyColourFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \

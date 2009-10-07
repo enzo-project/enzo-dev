@@ -101,10 +101,31 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     }
 
-    /* Add metallicity as a colour variable. */
+    /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
+    int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+
+    if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+      fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+      ENZO_FAIL("");
+    }
+
+    if (MetalNum != -1) {
+      colnum[NumberOfColours++] = MetalNum;
+      if (MultiMetals || TestProblemData.MultiMetals) {
+	colnum[NumberOfColours++] = MetalNum+1; //ExtraType0
+	colnum[NumberOfColours++] = MetalNum+2; //ExtraType1
+      }
+    }
+
+    if (SNColourNum      != -1) colnum[NumberOfColours++] = SNColourNum;
+    if (MBHColourNum     != -1) colnum[NumberOfColours++] = MBHColourNum;
+    if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
+    if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
+
+    /*  //#####
     int MetalNum;
-
     if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) != -1) {
       colnum[NumberOfColours++] = MetalNum;
       if (MultiMetals || TestProblemData.MultiMetals) {
@@ -113,13 +134,13 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       }
     }
 
-    /* Add SN colour */
-
     int SNColourNum;
     if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields))
 	!= -1) {
       colnum[NumberOfColours++] = SNColourNum;
     }
+    */
+
 
     /* Add Simon Glover's chemistry species as color fields */
 

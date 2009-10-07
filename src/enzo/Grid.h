@@ -1304,8 +1304,12 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   int IdentifyPotentialField(int &PotenNum, int &Acce1Num, int &Acce2Num, int &Acce3Num);
 
+  /* Identify colour field */
 
-/* Identify Multi-species fields. */
+  int IdentifyColourFields(int &SNColourNum, int &MetalNum, int &MBHColourNum,
+			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
+
+  /* Identify Multi-species fields. */
 
   int IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum, 
 			    int &HeINum, int &HeIINum, int &HeIIINum,
