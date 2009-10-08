@@ -1160,7 +1160,7 @@ c -------------------------------------------------------------------
 #endif /* RADIATION */
             if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
             HIp(i)  = (scoef*dtit(i) + HI(i,j,k))/(1.0 + acoef*dtit(i))
-            if (HIp(i) .gt. huge) then
+            if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
      $              HII(i,j,k), de(i,j,k), kphHI(i,j,k)
                ERROR_MESSAGE
@@ -1282,7 +1282,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
             if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
             HIp(i)  = ( scoef*dtit(i) + HI(i,j,k) ) / 
      &                      ( 1. + acoef*dtit(i) )
-            if (HIp(i) .gt. huge) then
+            if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
      $              HII(i,j,k), de(i,j,k), H2I(i,j,k), kdissH2I(i,j,k),
      $              kphHI(i,j,k)
@@ -1467,7 +1467,7 @@ c
       endif                     ! itmask
 !     
 
-      if (HI(i,j,k) .gt. huge) then
+      if (HI(i,j,k) .ne. HI(i,j,k)) then
          write(*,*) 'HUGE HI! :: ', i, j, k, HI(i,j,k)
       endif
 

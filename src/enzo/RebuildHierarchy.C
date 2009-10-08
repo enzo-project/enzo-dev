@@ -50,6 +50,8 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE);
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
+int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
+					  TopGridData *MetaData, int level);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
@@ -224,6 +226,19 @@ int RebuildHierarchy(TopGridData *MetaData,
   }
   tt1 = ReturnWallTime();
   RHperf[2] += tt1-tt0;
+
+  /* --------------------------------------------------------------------- */
+  /* Transfer particle between grids on this level to make sure that
+     each grid contains all of the particles that it should (in case
+     some particles have moved outside of this grid's boundaries).
+     (This does the same as the previous routine but is not optimized
+     for level 0 and does not make sure that all particles have been
+     transfered).  This must be done after CommunicationCollectParticles.
+  */
+
+  if (MoveParticlesBetweenSiblings && 
+      level > max(MaximumStaticSubgridLevel,0))
+    CommunicationTransferSubgridParticles(LevelArray, MetaData, level);
 
   /* --------------------------------------------------------------------- */
   /* For dynamic hierarchies, rebuild the grid structure. */

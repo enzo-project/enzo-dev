@@ -701,4 +701,6 @@ EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 
 EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
 
+EXTERN int MoveParticlesBetweenSiblings;
+
 #endif

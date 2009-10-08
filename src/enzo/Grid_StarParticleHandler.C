@@ -620,7 +620,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       //---- RADIATIVE STELLAR CLUSTERS
 
       // Convert into a parameter!
-      float StarClusterLifeTime = 10e6;  // yr
+      float StarClusterLifeTime = 20e6;  // yr
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
