@@ -1,17 +1,12 @@
 #
-# PROBLEM DEFINITION FILE: Sedov Blast (2D AMR version)
+# PROBLEM DEFINITION FILE: Free Expansion Blastwave (2D AMR version)
 #
 #  A 2D explosion test problem.
 #
-#  Since this is a 2D problem you may want to redefine
-#  the maximum size of subgrids defined in ProtoSubgrid_AcceptableGrid.C
-#  as "#define MAXIMUM_SIZE 2000" and recompile the code.
-#  2000^(2/3) would be a better value. Also note that this restriction would
-#  be in effect ONLY in multiprocessor runs.
 #
 #  problem setup
 #
-ProblemType               =  12       // Sedov blast wave
+ProblemType               =  12       // Free expansion blastwave
 Gamma                     =  1.6667
 #
 #  grid setup

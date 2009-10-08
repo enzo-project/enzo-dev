@@ -738,6 +738,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
+    ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
+		  &MoveParticlesBetweenSiblings);
+
     /* If the dummy char space was used, then make another. */
  
     if (*dummy != 0) {

@@ -59,19 +59,19 @@ int HydroLine(float **Prim, float **priml, float **primr,
   }
   else if (RiemannSolver == LLF && ReconstructionMethod == PLM) {
     if (LLF_PLM(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {
-      printf("HydroLine: HLL_PLM failed\n");
+      printf("HydroLine: LLF_PLM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == HLLC && ReconstructionMethod == PLM) {
     if (HLLC_PLM(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {
-      printf("HydroLine: HLL_PLM failed\n");
+      printf("HydroLine: HLLC_PLM failed\n");
       return FAIL;
     }
   }
   else if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
     if (HLL_PPM(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, ij, ik) == FAIL) {
-      printf("HydroLine: HLL_PLM failed\n");
+      printf("HydroLine: HLL_PPM failed\n");
       return FAIL;
     }
   }

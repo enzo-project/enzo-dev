@@ -572,5 +572,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+
+  MoveParticlesBetweenSiblings = FALSE;
+
   return SUCCESS;
 }
