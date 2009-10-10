@@ -544,6 +544,7 @@ OBJS_CONFIG_LIB = \
         s90_st1.o \
         SedovBlastInitialize.o \
         select_fft.o \
+	SetBoundaryConditions.o \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \

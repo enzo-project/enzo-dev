@@ -1,3 +1,26 @@
+/***********************************************************************
+/
+/  PREPARE DENSITY FIELD (CALLED BY EVOLVE LEVEL)
+/
+/  written by: Greg Bryan
+/  date:       June, 1999
+/  modifiedN:  Robert Harkness
+/  date:       February, 2008
+/
+/ ======================================================================= 
+/ This routine prepares the density field for all the grids on this level,
+/ both particle and baryonic densities.  It also calculates the potential
+/ field if this is level 0 (since this involves communication). 
+/
+/   This is part of a collection of routines called by EvolveLevel.
+/   These have been optimized for enhanced message passing
+/   performance by performing two passes -- one which generates
+/   sends and the second which receives them.
+/
+/  modified: Robert Harkness, December 2007
+/
+************************************************************************/
+
 #ifdef USE_MPI
 #include <mpi.h>
 #endif /* USE_MPI */
@@ -58,11 +81,6 @@ extern int CopyPotentialFieldAverage;
  
 #define GRIDS_PER_LOOP 20000
 
- 
-  /* ======================================================================= */
-  /* This routine prepares the density field for all the grids on this level,
-     both particle and baryonic densities.  It also calculates the potential
-     field if this is level 0 (since this involves communication). */
  
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
