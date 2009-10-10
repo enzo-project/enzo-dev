@@ -99,6 +99,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MetaData.TimeLastTracerParticleDump);
   fprintf(fptr, "dtTracerParticleDump       = %"GOUTSYM"\n",
           MetaData.dtTracerParticleDump);
+  fprintf(fptr, "TimeLastInterpolatedDataDump    = %"GOUTSYM"\n", 
+	  MetaData.TimeLastInterpolatedDataDump);
+  fprintf(fptr, "dtInterpolatedDataDump          = %"GOUTSYM"\n", 
+	  MetaData.dtInterpolatedDataDump);
  
   fprintf(fptr, "NewMovieLeftEdge     = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MetaData.NewMovieLeftEdge);
@@ -259,10 +263,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (DataUnits[dim])
       fprintf(fptr, "DataUnits[%"ISYM"]              = %s\n", dim, DataUnits[dim]);
     if (DataLabel[dim]) {
-      if (strstr(DataLabel[dim], "Density") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim,DensityUnits);
+      if ((strstr(DataLabel[dim], "Density") != NULL) ||
+	  (strstr(DataLabel[dim], "Colour") != NULL))
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, DensityUnits);
       if (strstr(DataLabel[dim], "velocity") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n",dim,VelocityUnits);
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, VelocityUnits);
     }
   }
   fprintf(fptr, "#TimeUnits                 = %"GSYM"\n", TimeUnits);
@@ -367,7 +372,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
- 
+  fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
+	  MoveParticlesBetweenSiblings);
+
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
       fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,

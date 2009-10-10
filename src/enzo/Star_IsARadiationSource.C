@@ -33,6 +33,9 @@ bool Star::IsARadiationSource(FLOAT Time)
   const int NumberOfRules = 4;
   rules = new bool[NumberOfRules];
 
+  for (i = 0; i < NumberOfRules; i++) 
+    rules[i] = false; 
+
   /*******************************************************************
      Below are the multiple definitions for a radiation source.  If
      all of the rules are met, the star particle is a radiation
@@ -45,7 +48,7 @@ bool Star::IsARadiationSource(FLOAT Time)
 	      FeedbackFlag == MBH_THERMAL);
   
   // Living
-  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime);
+  rules[1] = (Time >= BirthTime && Time <= BirthTime+LifeTime && type > 0);
 
   // Non-zero BH accretion (usually accretion_rate[] here is NULL - Ji-hoon Kim Sep.2009)
   if ((type == BlackHole || type == MBH) && naccretions > 0)

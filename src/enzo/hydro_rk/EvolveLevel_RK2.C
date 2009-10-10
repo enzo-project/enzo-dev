@@ -69,6 +69,10 @@ float CommunicationMaxValue(float Value);
 int CommunicationBarrier();
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
+				int GridNum, float *norm, float TopGridTimeStep, 
+				int level, int LevelCycleCount[]);  //moo
+
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
@@ -130,8 +134,8 @@ int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
 		 int NumberOfGrids,int NumberOfSubgrids[]);		 
 int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 			 TopGridData *MetaData);
-//int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
-//                    TopGridData *MetaData, int *CycleCount, int open=FALSE);
+int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
+                    TopGridData *MetaData, int *CycleCount, int open=FALSE);
 //int WriteMovieData(char *basename, int filenumber, 
 //		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData, 
 //		   FLOAT WriteTime);
@@ -238,9 +242,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
   
-  /* Count the number of colours in the first grid (to define Ncolor) */
+  /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
+  //fprintf(stdout, "EvolveLevel_RK2: NColor =%d, NSpecies = %d\n", NColor, NSpecies);
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
@@ -359,14 +364,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		h_min, dt0, C_h, C_p);
     }
 
-//     if (SelfGravity && MetaData->TopGridRank == 3) {
-//       if (PrepareDensityField(LevelArray, SiblingList, level, MetaData) == FAIL) {
-//       //      if (PrepareDensityField(LevelArray, level, MetaData) == FAIL) {
-// 	fprintf(stderr, "Error in PrepareDensityField.\n");
-// 	ENZO_FAIL("");
-//       }
-//     }
-
     When = 0.5;
     if (SelfGravity) {
 #ifdef FAST_SIB
@@ -385,9 +382,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Compute particle-particle acceleration */
 
-    if (NBodyDirectSummation == TRUE) 
+    /*    if (NBodyDirectSummation == TRUE) 
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-	Grids[grid1]->GridData->ComputeParticleParticleAcceleration(level);
+      Grids[grid1]->GridData->ComputeParticleParticleAcceleration(level); */
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. Predictor Step*/

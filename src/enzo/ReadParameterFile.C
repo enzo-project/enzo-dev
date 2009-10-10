@@ -116,6 +116,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
+    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %"PSYM,
+		  &MetaData.TimeLastInterpolatedDataDump);
+    ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM, 
+		  &MetaData.dtInterpolatedDataDump);
  
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,
@@ -734,6 +738,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
+    ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
+		  &MoveParticlesBetweenSiblings);
+
     /* If the dummy char space was used, then make another. */
  
     if (*dummy != 0) {
@@ -935,11 +942,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // Don't include free electron field
   switch (MultiSpecies) {
-  case 0:  NSpecies = 0; break;
-  case 1:  NSpecies = 5; break;
-  case 2:  NSpecies = 8; break;
+  case 0:  NSpecies = 0;  break;
+  case 1:  NSpecies = 5;  break;
+  case 2:  NSpecies = 8;  break;
   case 3:  NSpecies = 11; break;
-  default: NSpecies = 0; break;
+  default: NSpecies = 0;  break;
   }
 
   // Determine color fields (NColor) later inside a grid object.
@@ -1143,6 +1150,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
   printf("Initialdt in ReadParameterFiled %e\n", *Initialdt);
-   CheckShearingBoundaryConsistency(MetaData);
+  CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

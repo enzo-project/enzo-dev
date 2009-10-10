@@ -343,7 +343,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
 	  SecondOrderA : SecondOrderC;
       
-      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[2]\n");
+      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[2], field = %d\n", field);
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.

@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             October, 2009
 /
 / PURPOSE: To apply feedback effects, we must consider multiple grids
 /          since sometimes the feedback radius often exceeds the grid
@@ -50,7 +51,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
-  int i, l, dim, temp_int, SkipMassRemoval, SphereContained;
+  int i, l, dim, temp_int, SkipMassRemoval, SphereContained, SphereContainedNextLevel, dummy;
   float influenceRadius, RootCellWidth, SNe_dt;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
@@ -79,11 +80,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
-    if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
-      if (!cstar->ApplyFeedbackTrue(SNe_dt))
-	continue;
+    if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
+	(!cstar->ApplyFeedbackTrue(SNe_dt)))
+      continue;
 
-    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+    float dtForThisStar = Temp->GridData->ReturnTimeStep();
 	  
     /* Compute some parameters */
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
@@ -96,19 +97,53 @@ int StarParticleAddFeedback(TopGridData *MetaData,
        for SNe) is enclosed within grids on this level */
 
     if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, EjectaThermalEnergy, SphereContained, SkipMassRemoval,	DensityUnits, 
+	       EjectaDensity, EjectaThermalEnergy, 
+	       SphereContained, SkipMassRemoval, DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
-	       VelocityUnits) == FAIL) {
+	       VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in star::FindFeedbackSphere\n");
       ENZO_FAIL("");
     }
 
+    /* If there's no feedback or something weird happens, don't bother. */
+
+    if ((influenceRadius <= tiny_number) || 
+	(influenceRadius >= RootCellWidth/2) ||
+	(EjectaThermalEnergy <= tiny_number))
+      continue;
+
+    /* Determine if a sphere is enclosed within the grids on next level
+       If that is the case, we perform AddFeedbackSphere not here, 
+       but in the EvolveLevel of the next level. */
+
+    SphereContainedNextLevel = FALSE;
+
+    if (cstar->ReturnFeedbackFlag() == MBH_THERMAL &&
+	LevelArray[level+1] != NULL) {
+      if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+				    EjectaDensity, EjectaThermalEnergy, 
+				    SphereContainedNextLevel, dummy, DensityUnits, 
+				    LengthUnits, TemperatureUnits, TimeUnits, 
+				    VelocityUnits, Time) == FAIL) {
+	fprintf(stderr, "Error in star::FindFeedbackSphere\n");
+	ENZO_FAIL("");
+      }
+    }
+
     /*
-    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-    fprintf(stderr, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
+    if (debug) {
+      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
+    }
     */
 
-    if (SphereContained == FALSE)
+    /* Quit this routine when 
+       (1) sphere is not contained, or 
+       (2) sphere is contained, but the next level can contain the sphere, too. */ 
+
+    if ((SphereContained == FALSE) ||
+	(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
       continue;
     
     /* Now set cells within the radius to their values after feedback.
@@ -129,12 +164,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	    ENZO_FAIL("");
 	  }
 
+    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
+	    "Radius = %e pc, changed %"ISYM" cells.\n", 
+	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); //#####
+
     /* Only kill a Pop III star after it has gone SN */
 
     if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
       cstar->SetFeedbackFlag(DEATH);
 
-#ifdef UNUSED
+#ifdef UNUSED  
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
 	       MPI_COMM_WORLD);
