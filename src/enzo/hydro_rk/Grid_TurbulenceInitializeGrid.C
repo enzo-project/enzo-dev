@@ -231,6 +231,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	Velx = Vely = Velz = 0.0;
 
+	// default values:
+	Density = CloudDensity;
+	eint = CloudInternalEnergy;
+
+
 	if (r < CloudRadius) {
 
 	  /* Type 0: uniform cloud */
@@ -294,8 +299,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	} else {
 
 	  if (CloudType == 0) {
-	    Density = CloudDensity/10.0;
-	    eint = CloudInternalEnergy*10.;
+	    Density = CloudDensity/100.0;
+	    eint = CloudInternalEnergy*100.;
 	  }
 
 	  if (CloudType == 1) {
@@ -554,9 +559,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* Put a sink particle if we are studying massive star formation */
 
-  if (PutSink == 1 && level == MaximumRefinementLevel) {
+  //  if (PutSink == 1 && level == MaximumRefinementLevel) {
+  if (PutSink == 1 && level == 0) {  // set it up on level zero and make it mustrefine
 
-    double mass_p = 20.0*1.989e33;
+    //    double mass_p = 20.0*1.989e33;
+    double mass_p = 0.01*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -576,9 +583,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5+0.5*dx;
-    ParticlePosition[1][0] = 0.5+0.5*dx;
-    ParticlePosition[2][0] = 0.5+0.5*dx;
+    ParticlePosition[0][0] = 0.5;//+0.5*dx;
+    ParticlePosition[1][0] = 0.5;//+0.5*dx;
+    ParticlePosition[2][0] = 0.5;//+0.5*dx;
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;

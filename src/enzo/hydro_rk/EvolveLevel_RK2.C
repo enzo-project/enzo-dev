@@ -368,85 +368,63 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //     }
 
     When = 0.5;
-
+    if (SelfGravity) {
 #ifdef FAST_SIB
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, SiblingList,
-			      level, MetaData, When) == FAIL) {
-	fprintf(stderr, "Error in PrepareDensityField.\n");
-	ENZO_FAIL("");
-      }
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
-    if (SelfGravity)
-      if (PrepareDensityField(LevelArray, level, MetaData, When) == FAIL) {
-        fprintf(stderr, "Error in PrepareDensityField.\n");
-        ENZO_FAIL("");
-      }
+      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
+    }
 
     /* Solve the radiative transfer */
 
 #ifdef TRANSFER
-    //Grids[grid1]->GridData->SetTimePreviousTimestep();
     FLOAT GridTime = Grids[0]->GridData->ReturnTime();
     EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
-    //Grids[grid1]->GridData->SetTimeNextTimestep();
 #endif /* TRANSFER */
 
     /* Compute particle-particle acceleration */
 
-    //if (NBodyDirectSummation == TRUE) 
-    //for (grid = 0; grid < NumberOfGrids; grid++)
-    //Grids[grid1]->GridData->ComputeParticleParticleAcceleration(level);
+    if (NBodyDirectSummation == TRUE) 
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+	Grids[grid1]->GridData->ComputeParticleParticleAcceleration(level);
 
     /* ------------------------------------------------------- */
-    /* Evolve all grids by timestep dtThisLevel. */
+    /* Evolve all grids by timestep dtThisLevel. Predictor Step*/
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      
+      CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
+				  TopGridTimeStep, level, LevelCycleCount);
 
       /* Gravity: compute acceleration field for grid and particles. */
-
       if (SelfGravity) {
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) 
 	    Grids[grid1]->GridData->SolveForPotential(level) ;
-
 	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
 	}
-	// otherwise, interpolate potential from coarser grid, which is
-	//   now done in PrepareDensity.
+	// otherwise, use interpolated potential from coarser grid, which is
+	// done in PrepareDensity.
       } // end: if (SelfGravity)
 
       Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
 
-
 #ifdef TRANSFER
-
       /* Radiation Pressure: add to acceleration field */
-
-      if (RadiativeTransfer && RadiationPressure)
-	if (Grids[grid1]->GridData->AddRadiationPressureAcceleration() == FAIL) {
-	  fprintf(stderr,"Error in grid->AddRadiationPressureAcceleration.\n");
-	  ENZO_FAIL("");
-	}
-
+      Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
-
 
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       if (UseHydro) {
-
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_1stStep
-	    (SubgridFluxesEstimate[grid1], 
-	     NumberOfSubgrids[grid1], level, Exterior);
-
+	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	else if (HydroMethod == MHD_RK) {
 	  Grids[grid1]->GridData->MHDRK2_1stStep
-	    (SubgridFluxesEstimate[grid1], 
-	     NumberOfSubgrids[grid1], level, Exterior);
+	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	}
       } // ENDIF UseHydro
 	
@@ -461,34 +439,30 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ENZO_FAIL("");
       }*/
 #ifdef FAST_SIB
-  SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			level, MetaData, Exterior, LevelArray[level]);
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
 #else
-  SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-			Exterior, LevelArray[level]);
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
+
+
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_2ndStep
-	    (SubgridFluxesEstimate[grid1], 
-	     NumberOfSubgrids[grid1], level, Exterior);
+	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
 
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
-	    (SubgridFluxesEstimate[grid1], 
-	     NumberOfSubgrids[grid1], level, Exterior);
+	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	  
-	  if (UseAmbipolarDiffusion) {
+	  if (UseAmbipolarDiffusion) 
 	    Grids[grid1]->GridData->AddAmbipolarDiffusion();
-	  }
-
-	  if (UseResistivity) {
+	  
+	  if (UseResistivity) 
 	    Grids[grid1]->GridData->AddResistivity();
-	  }
 	
 	 
 	  time1 = ReturnWallTime();
@@ -551,6 +525,32 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars);
+
+    /* Reompute potential if output is requested */
+    if (SelfGravity && WritePotential) {
+      CopyGravPotential = TRUE;
+      When = 0.0;
+ 
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else   // !FAST_SIB
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
+ 
+      //      CopyGravPotential = FALSE;
+ 
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        if (level <= MaximumGravityRefinementLevel) {
+ 
+          /* Compute the potential. */
+ 
+          if (level > 0)
+            Grids[grid1]->GridData->SolveForPotential(level);
+          Grids[grid1]->GridData->CopyPotentialToBaryonField();
+        }
+      } //  end loop over grids
+    } // if WritePotential
+
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

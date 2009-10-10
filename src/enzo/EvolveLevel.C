@@ -461,7 +461,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     //dcc cut second potential cut: Duplicate?
  
-    if (ComovingCoordinates && SelfGravity && WritePotential) {
+    if (SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
       When = 0.0;
  
@@ -471,7 +471,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
  
-      CopyGravPotential = FALSE;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
         if (level <= MaximumGravityRefinementLevel) {
@@ -483,6 +482,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
         }
       } //  end loop over grids
+      CopyGravPotential = FALSE;
+
     } // if WritePotential
  
 
