@@ -182,6 +182,7 @@ OBJS_CONFIG_LIB = \
 	GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
+	GenerateGridArray.o \
         GetNodeFreeMemory.o \
         GetUnits.o \
         GravityBdryExchange.o \
@@ -606,6 +607,7 @@ OBJS_CONFIG_LIB = \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
         twoshock.o \
+	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
         utilities.o \
         wall_clock.o \

@@ -1,16 +1,21 @@
 /***********************************************************************
 /
-/  EVOLVE LEVEL ROUTINES (CALLED BY EVOLVE LEVEL)
+/  UPDATE FROM FINER GRIDS (CALLED BY EVOLVE LEVEL)
 /
 /  written by: Greg Bryan
 /  date:       June, 1999
 /  modifiedN:  Robert Harkness
 /  date:       February, 2008
 /
-/  PURPOSE:  This is a collection of routines called by EvolveLevel.
-/            These have been optimized for enhanced message passing
-/            performance by performing two passes -- one which generates
-/            sends and the second which receives them.
+/  PURPOSE:  
+/  ======================================================================= 
+/  This routines does the flux correction and project for all grids on this
+/  level from the list of subgrids. 
+/
+/  This is part of a collection of routines called by EvolveLevel.
+/  These have been optimized for enhanced message passing
+/  performance by performing two passes -- one which generates
+/  sends and the second which receives them.
 /
 /  modified: Robert Harkness, December 2007
 /
@@ -45,10 +50,6 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 
 #define GRIDS_PER_LOOP 20000
  
- 
-  /* ======================================================================= */
-  /* This routines does the flux correction and project for all grids on this
-     level from the list of subgrids. */
  
 #ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
@@ -325,36 +326,3 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
   return SUCCESS;
 }
  
- 
- 
-/* ======================================================================= */
-/* This routine simply converts a linked list of grids into an array of
-   pointers. */
- 
-int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
-		      HierarchyEntry **Grids[])
-{
- 
-  /* Count the number of grids on this level. */
- 
-  int NumberOfGrids = 0, counter = 0;
-  LevelHierarchyEntry *Temp = LevelArray[level];
-  while (Temp != NULL) {
-    NumberOfGrids++;
-    Temp             = Temp->NextGridThisLevel;
-  }
- 
-  /* Create a list of pointers and number of subgrids (and fill it out). */
- 
-  typedef HierarchyEntry* HierarchyEntryPointer;
-  *Grids = new HierarchyEntryPointer[NumberOfGrids];
-  Temp = LevelArray[level];
-  while (Temp != NULL) {
-    (*Grids)[counter++] = Temp->GridHierarchyEntry;
-    Temp              = Temp->NextGridThisLevel;
-  }
- 
-  return NumberOfGrids;
-}
- 
-  
