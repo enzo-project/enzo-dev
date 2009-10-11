@@ -365,16 +365,14 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
 	  dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
 	
-	  //adding Omega cross v term; given Omega in z direction
+
 	  dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
 	  
 	  
 	  dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
 	
 
-	  if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0){
-	  printf("Sterm new %g  old %g \n", dU[indexNumbers[1]][n], temp )  ;
-	}
+
 	  
  	}
       }
