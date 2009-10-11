@@ -42,7 +42,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int level, Star *&AllStars);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
-
+int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
+			    int level, FLOAT dt0);
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
@@ -161,9 +162,6 @@ int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
 int FastSiblingLocatorInitializeStaticChainingMesh(ChainingMeshStructure *Mesh, int Rank,
 						   int TopGridDims[]); 
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
 double ReturnWallTime();
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level);
@@ -223,12 +221,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   FLOAT When;
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
-  double MassUnits;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	   &TimeUnits, &VelocityUnits, 1.0);
-  MassUnits = DensityUnits*pow(LengthUnits,3);
   
   /* Create an array (Grids) of all the grids. */
 
@@ -366,40 +358,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     } // end loop over grids (create Subgrid list)
 
-    /* compute wave speed
-       Reference: Matsumoto, PASJ, 2007, 59, 905 */
+    /* compute wave speed Reference: Matsumoto, PASJ, 2007, 59, 905 */
 
-    if (HydroMethod == MHD_RK) {
-      int lmax;
-      LevelHierarchyEntry *Temp;
-      for (lmax = MAX_DEPTH_OF_HIERARCHY-1; lmax >= 0; lmax--) {
-	Temp = LevelArray[lmax];
-	if (Temp != NULL) {
-	  break;
-	} 
-      }
-      //      lmax = 0; // <- Pengs version had lmax = 6
-      //      lmax = 1;
-      FLOAT dx0, dy0, dz0, h_min, DivBDampingLength = 1.0;
+    if (HydroMethod == MHD_RK) 
+      ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
+	
+    if (debug && HydroMethod == MHD_RK) 
+      fprintf(stderr, "wave speeds: timestep: %g  C_h: %g  C_p: %g\n ", 
+	       dt0, C_h, C_p);
 
-      dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
-      dy0 = (MetaData->TopGridRank > 1) ? 
-	(DomainRightEdge[1] - DomainLeftEdge[1]) / MetaData->TopGridDims[1] : 1e8;
-      dz0 = (MetaData->TopGridRank > 2) ? 
-	(DomainRightEdge[2] - DomainLeftEdge[2]) / MetaData->TopGridDims[2] : 1e8;
-      h_min = my_MIN(dx0, dy0, dz0);
-      h_min /= pow(RefineBy, lmax);
-      C_h = 0.5*MetaData->CourantSafetyNumber*(h_min/dt0);
-      C_h = min( C_h, 1e6/VelocityUnits); // never faster than __ cm/s (for very small dt0 a problems)
-      if (EOSType == 3)  // for isothermal runs just use the constant sound speed
-	C_h = EOSSoundSpeed;
-
-      C_p = sqrt(0.18*DivBDampingLength*C_h);
-      //      C_p = sqrt(0.18*DivBDampingLength)*C_h;
-      if (debug) 
-	fprintf(stderr, "lengthscale %g timestep: %g  C_h: %g  C_p: %g\n ", 
-		h_min, dt0, C_h, C_p);
-    }
 
     When = 0.5;
     RK2SecondStepBaryonDeposit = 0;

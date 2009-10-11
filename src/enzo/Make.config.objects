@@ -701,6 +701,7 @@ OBJS_HYDRO_RK = \
       	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
+        hydro_rk/ComputeDednerWaveSpeeds.o \
         hydro_rk/EvolveLevel_RK2.o \
         hydro_rk/GalaxyDiskInitialize.o \
         hydro_rk/Grid_AddSelfGravity.o \
