@@ -40,6 +40,8 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars);
+int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
+		       TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -220,6 +222,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
   FLOAT When;
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, MagneticUnits;
   double MassUnits;
@@ -235,14 +238,23 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
 
+  /* Initialize the chaining mesh used in the FastSiblingLocator. */
+
+
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero, 
 		    MetaData, level);
 
-  /*if (SetBoundaryConditions(Grids, NumberOfGrids,SiblingList,level, MetaData,
-			      Exterior) == FAIL) {
-    ENZO_FAIL("");
-    }*/
+  /* On the top grid, adjust the refine region so that only the finest
+     particles are included.  We don't want the more massive particles
+     to contaminate the high-resolution region. */
+
+  AdjustRefineRegion(LevelArray, MetaData, level);
+
+  /* ================================================================== */
+  /* For each grid: a) interpolate boundaries from its parent.
+                    b) copy any overlapping zones.  */
+ 
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
@@ -252,13 +264,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                             Exterior, LevelArray[level]) == FAIL)
     ENZO_FAIL("");
 #endif
-
-
-  
+ 
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
   //fprintf(stdout, "EvolveLevel_RK2: NColor =%d, NSpecies = %d\n", NColor, NSpecies);
+
+  /* Clear the boundary fluxes for all Grids (this will be accumulated over
+     the subcycles below (i.e. during one current grid step) and used to by the
+     current grid to correct the zones surrounding this subgrid (step #18). */
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
@@ -439,15 +453,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
-      if (UseHydro) {
+      if (UseHydro) 
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-	else if (HydroMethod == MHD_RK) {
+	else if (HydroMethod == MHD_RK) 
 	  Grids[grid1]->GridData->MHDRK2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-	}
-      } // ENDIF UseHydro
 	
       /* Do this here so that we can get the correct time interpolated boundary condition */
       Grids[grid1]->GridData->SetTimeNextTimestep();
