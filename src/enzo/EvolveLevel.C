@@ -219,6 +219,8 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
+extern int RK2SecondStepBaryonDeposit;
+
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)
 {
@@ -252,7 +254,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
 #endif
-
 
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
@@ -493,13 +494,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
 
-    /* Run the Divergence Cleaing                */
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->PoissonSolver(level);
-    
-
- 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  

@@ -2,7 +2,7 @@
 /
 /  EVOLVE LEVEL USING RUNGE-KUTTA2 METHOD
 /
-/  written by: Peng Wang
+/  written by: Peng Wang & Tom Abel 
 /  date:       May, 2007
 /  modified1:
 /
@@ -77,9 +77,20 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			SiblingGridList SiblingList[],
 			int level, TopGridData *MetaData, FLOAT When);
+int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
+			    SiblingGridList SiblingList[],
+			    int level, TopGridData *MetaData,
+			    ExternalBoundary *Exterior,
+			    LevelHierarchyEntry * Level,
+			    int CycleNumber);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
+int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
+			    int level, TopGridData *MetaData, 
+			    ExternalBoundary *Exterior,
+			    LevelHierarchyEntry * Level,
+			    int CycleNumber);
 #endif  // end FAST_SIB
 
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
@@ -181,6 +192,8 @@ static int StaticLevelZero = 1;
 #else
 static int StaticLevelZero = 0;
 #endif
+
+extern int RK2SecondStepBaryonDeposit;
 
 /* EvolveGrid function */
 
@@ -365,6 +378,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     When = 0.5;
+    RK2SecondStepBaryonDeposit = 0;
     if (SelfGravity) {
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -425,25 +439,44 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       } // ENDIF UseHydro
 	
-      /* Do this here so that we can get the correct
-	 time interpolated boundary condition */
+      /* Do this here so that we can get the correct time interpolated boundary condition */
       Grids[grid1]->GridData->SetTimeNextTimestep();
       
     }  // end loop over grids
       
-    /*if (SetBoundaryConditions(Grids, NumberOfGrids,SiblingList,level, MetaData,
-      Exterior) == FAIL) {
-      ENZO_FAIL("");
-      }*/
+
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
 
+    // Recompute potential and accelerations with time centered baryon Field
+    // this also does the particles again at the moment so could be made more efficient.
 
+    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
+    printf("SECOND STEP\n");
+    if (RK2SecondStepBaryonDeposit & SelfGravity && UseHydro) {
+      When = 0.5;
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else  
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
+    }
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+      /* Gravity: compute acceleration field for grid and particles. */
+      if (RK2SecondStepBaryonDeposit) {
+	int Dummy;
+	if (level <= MaximumGravityRefinementLevel) {
+	  if (level > 0) 
+	    Grids[grid1]->GridData->SolveForPotential(level) ;
+	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
+	}
+	Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
+      } // end: if (SelfGravity)
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK)
@@ -451,7 +484,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
-
+	  
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	  
@@ -461,7 +494,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (UseResistivity) 
 	    Grids[grid1]->GridData->AddResistivity();
 	
-	 
 	  time1 = ReturnWallTime();
 	  
 	  Grids[grid1]->GridData->PoissonSolver(level);
@@ -471,9 +503,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Add viscosity */
 
-      if (UseViscosity) {
+      if (UseViscosity) 
 	Grids[grid1]->GridData->AddViscosity();
-      }
 
       /* Solve the cooling and species rate equations. */
  
@@ -522,32 +553,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars);
-
-    /* Reompute potential if output is requested */
-    if (SelfGravity && WritePotential) {
-      CopyGravPotential = TRUE;
-      When = 0.0;
- 
-#ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
-#else   // !FAST_SIB
-      PrepareDensityField(LevelArray, level, MetaData, When);
-#endif  // end FAST_SIB
- 
-      //      CopyGravPotential = FALSE;
- 
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (level <= MaximumGravityRefinementLevel) {
- 
-          /* Compute the potential. */
- 
-          if (level > 0)
-            Grids[grid1]->GridData->SolveForPotential(level);
-          Grids[grid1]->GridData->CopyPotentialToBaryonField();
-        }
-      } //  end loop over grids
-    } // if WritePotential
-
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

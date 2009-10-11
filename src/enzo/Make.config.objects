@@ -135,7 +135,6 @@ OBJS_CONFIG_LIB = \
         FastFourierTransformPrepareComplex.o \
         FastFourierTransformSGIMATH.o \
         EvolveLevel.o \
-        EvolveLevelRoutinesOptimized.o \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \

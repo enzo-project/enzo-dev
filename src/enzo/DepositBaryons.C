@@ -77,8 +77,6 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
 }
  
  
-/* this doesn't quite work yet (subgrid zeroing needs to be worked out). */
- 
 int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
 			   HierarchyEntry *Grid, FLOAT DepositTime)
 {
