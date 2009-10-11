@@ -217,7 +217,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       input_density = av_dens;
     }
 
-    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
+    //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
     
     FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
 			       input_velx, input_vely, input_velz,

@@ -299,7 +299,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, dtLevelAbove);
 #endif /* TRANSFER */
 
-
     /* For each grid, compute the number of it's subgrids. */
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -444,7 +443,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // this also does the particles again at the moment so could be made more efficient.
 
     RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
-    printf("SECOND STEP\n");
+    //    printf("SECOND STEP\n");
     if (RK2SecondStepBaryonDeposit & SelfGravity && UseHydro) {
       When = 0.5;
 #ifdef FAST_SIB
