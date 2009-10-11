@@ -559,12 +559,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
  
-    if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
-	level <= RadiationFieldLevelRecompute)
-      if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	ENZO_FAIL("");
-      }
+    RadiationFieldUpdate(LevelArray, level, MetaData);
  
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
@@ -584,8 +579,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
-    
-
     cycle++;
     LevelCycleCount[level]++;
  
@@ -604,12 +597,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
   /* Clean up. */
- 
-#ifdef UNUSED
-  if (level > MaximumGravityRefinementLevel &&
-      level == MaximumRefinementLevel)
-    ZEUSQuadraticArtificialViscosity /= 1;
-#endif
  
   delete [] NumberOfSubgrids;
   delete [] Grids;

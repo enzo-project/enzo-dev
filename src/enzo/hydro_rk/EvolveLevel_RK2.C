@@ -177,9 +177,9 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
 static int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
-//double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
-//double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
-//double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
+static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
+static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
+static double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
  
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
@@ -263,6 +263,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->ClearBoundaryFluxes();
 
+  /* After we calculate the ghost zones, we can initialize streaming
+     data files (only on level 0) */
+
+  if (MetaData->FirstTimestepAfterRestart == TRUE && level == 0)
+    WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
 
   /* ================================================================== */
   /* Loop over grid timesteps until the elapsed time equals the timestep 
@@ -272,6 +277,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
+
+    /* Streaming movie output (write after all parent grids are
+       updated) */
+
+    WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
 
    /* Initialize the star particles */
 
@@ -529,7 +539,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       if (UseFloor) 
 	Grids[grid1]->GridData->SetFloor();
-      
 
       /* If using comoving co-ordinates, do the expansion terms now. */
 
@@ -580,7 +589,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_JBPERF
     // Update lcaperf "level" attribute
-
     jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
@@ -651,9 +659,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
-      //      LevelZoneCycleCount[level] += NumberOfCells;
-      //if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
-      //	LevelZoneCycleCountPerProc[level] += NumberOfCells;
+      LevelZoneCycleCount[level] += NumberOfCells;
+      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
+      	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
 #endif
 
@@ -672,12 +680,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   ReportMemoryUsage("Memory usage report: Evolve Level");
 
   /* Clean up. */
-
-#ifdef UNUSED
-  if (level > MaximumGravityRefinementLevel &&
-      level == MaximumRefinementLevel)
-    ZEUSQuadraticArtificialViscosity /= 1;
-#endif
 
   delete [] NumberOfSubgrids;
   delete [] Grids;
