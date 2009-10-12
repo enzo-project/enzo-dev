@@ -22,7 +22,6 @@
 
 int RadiativeTransferReadParameters(FILE *fptr)
 {
-
   int i;
 
   char line[MAX_LINE_LENGTH], *dummy = new char[MAX_LINE_LENGTH];
@@ -69,7 +68,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
     /* read parameters */
     
-    ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, \
+    ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, 
 		  &RadiationPressure);
     ret += sscanf(line, "RadiativeTransferSourceRadius = %"FSYM, 
 		  &RadiativeTransferSourceRadius);
@@ -103,8 +102,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferHIIRestrictedTimestep);
     ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
 		  &RadiativeTransferAdaptiveTimestep);
-
-    ret += sscanf(line, "dtPhoton = %"FSYM, dtPhoton);
+    ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
 
     /* if the line is suspicious, issue a warning */
 

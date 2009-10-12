@@ -269,30 +269,30 @@ float grid::ComputeRT_TimeStep()
 
   /* Debugging info. */
 
-//  if (debug || NumberOfProcessors > 1) {
+  if (debug || NumberOfProcessors > 1) {
 //  if (debug) {
-//    printf("ComputeTimeStep = %"FSYM" (", dt);
-//    if (NumberOfBaryonFields > 0)
-//      printf("Bar = %"GSYM" ", dtBaryons);
-//    if (HydroMethod == Zeus_Hydro)
-//      printf("Vis = %"FSYM" ", dtViscous);
-//    if (ComovingCoordinates)
-//      printf("Exp = %"FSYM" ", dtExpansion);
-//    if (dtAcceleration != huge_number)
-//      printf("Acc = %"FSYM" ", dtAcceleration);
-//    if (NumberOfParticles)
-//      printf("Part = %"FSYM" ", dtParticles);
+    printf("ComputeTimeStep = %"FSYM" (", dt);
+    if (NumberOfBaryonFields > 0)
+      printf("Bar = %"GSYM" ", dtBaryons);
+    if (HydroMethod == Zeus_Hydro)
+      printf("Vis = %"FSYM" ", dtViscous);
+    if (ComovingCoordinates)
+      printf("Exp = %"FSYM" ", dtExpansion);
+    if (dtAcceleration != huge_number)
+      printf("Acc = %"FSYM" ", dtAcceleration);
+    if (NumberOfParticles)
+      printf("Part = %"FSYM" ", dtParticles);
 //    if (StarParticleFeedback >> POP3_STAR & 1 ||
 //	StarParticleFeedback >> STAR_CLUSTER & 1)
 //      printf("Star = %"FSYM" ", dtStar);
-//#ifdef TRANSFER
-//    if (RadiationPressure && RadiativeTransfer && dtRadPressure < 100)
-//      printf("Rad = %"GSYM" ", dtRadPressure);
-//    if (dtSafetyVelocity != huge_number)
-//      printf("Saf = %"GSYM" ", dtSafetyVelocity); 
-//#endif /* TRANSFER */
-//    printf(")\n");
-//  }
+#ifdef TRANSFER
+    if (RadiationPressure && RadiativeTransfer && dtRadPressure < 100)
+      printf("Rad = %"GSYM" ", dtRadPressure);
+    if (dtSafetyVelocity != huge_number)
+      printf("Saf = %"GSYM" ", dtSafetyVelocity); 
+#endif /* TRANSFER */
+    printf(")\n");
+  }
 
   return dt;
 }

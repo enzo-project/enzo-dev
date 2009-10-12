@@ -152,9 +152,11 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
        StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
 
+    /*
     Grids[grid1]->GridData->TransferSubgridParticles
       (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
        SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
+    */  //#####
 
     delete [] SiblingList.GridList;
 
