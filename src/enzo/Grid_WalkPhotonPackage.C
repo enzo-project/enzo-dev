@@ -57,7 +57,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int gammaHeINum, int kphHeIINum, int gammaHeIINum, 
 			    int kdissH2INum, int RPresNum1, int RPresNum2, 
 			    int RPresNum3, int &DeleteMe, int &PauseMe, 
-			    int &DeltaLevel,
+			    int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
 			    float TimeUnits) {
@@ -248,7 +248,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT nH, nHI, nHeI, nHeII, fH, nH2I, nHI_inv, nHeI_inv, nHeII_inv, xe;
   FLOAT thisDensity, inverse_rho;
   float shield1, shield2, solid_angle, filling_factor, midpoint, nearest_edge;
-  EndTime = PhotonTime+dtPhoton;
+
+  if (RadiativeTransferAdaptiveTimestep)
+    EndTime = PhotonTime + LightCrossingTime;
+  else
+    EndTime = PhotonTime + dtPhoton;
 
   int dummy;
   FLOAT dr;
@@ -789,6 +793,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     
     // are we done ? 
     if (((*PP)->CurrentTime) >= EndTime) {
+      (*PP)->Photons = -1;
+      DeleteMe = TRUE;
       return SUCCESS;
     }
 
