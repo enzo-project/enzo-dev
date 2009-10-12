@@ -830,32 +830,35 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, 
 	     &MassUnits, MetaData.Time);
     PressureUnits = DensityUnits*pow(VelocityUnits,2);
-  }
 
-  /* Change input physical parameters into code units */
 
-  double mh = 1.6726e-24;
-  double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
-  PhotoelectricHeating /= uheat;
-  StarMakerOverDensityThreshold /= DensityUnits;
-  //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
-
-  if (SinkMergeDistance > 1.0)
-    SinkMergeDistance /= LengthUnits;
-  //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
-  SmallRho /= DensityUnits;
-  SmallP /= PressureUnits;
-  SmallT /= TemperatureUnits;
-  MaximumAlvenSpeed /= VelocityUnits;
-  float h, cs, dpdrho, dpde;
-  EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
-  if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
-    printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
-	   SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
-  for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-    if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-      MinimumMassForRefinement[i] /= MassUnits;
+    /* Change input physical parameters into code units */
+    
+    double mh = 1.6726e-24;
+    double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
+    PhotoelectricHeating /= uheat;
+    StarMakerOverDensityThreshold /= DensityUnits;
+    //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
+    
+    if (SinkMergeDistance > 1.0)
+      SinkMergeDistance /= LengthUnits;
+    //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
+    SmallRho /= DensityUnits;
+    SmallP /= PressureUnits;
+    SmallT /= TemperatureUnits;
+    MaximumAlvenSpeed /= VelocityUnits;
+    EOSSoundSpeed /=  VelocityUnits;
+    float h, cs, dpdrho, dpde;
+    EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
+    if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
+      printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
+	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumMassForRefinement[i] /= MassUnits;
+      }
     }
+    
   }
 
   if (!ComovingCoordinates && UsePhysicalUnit) {

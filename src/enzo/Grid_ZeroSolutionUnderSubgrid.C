@@ -31,7 +31,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
 {
  
   /* Return if this grid is not on this processor. */
- 
+  //  printf("Valeu:%f\n", Value); 
   if (AllProcessors == FALSE)
     if (MyProcessorNumber != ProcessorNumber)
       return SUCCESS;

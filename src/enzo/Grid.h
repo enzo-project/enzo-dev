@@ -1955,8 +1955,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level, 
-			       int SetBaryonFields);
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
+			       int level, int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
 			       FLOAT r_sphere[MAX_SPHERES],
 			       FLOAT rc_sphere[MAX_SPHERES],

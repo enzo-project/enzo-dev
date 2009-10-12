@@ -42,7 +42,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     GetUnits(&denu, &lenu, &tempu, &tu, &velu, 1);
     double c_s = EOSSoundSpeed;
     double rho_cr = EOSCriticalDensity;
-    c_s /= velu;
+    //    c_s /= velu;
     rho_cr /= denu;
 
     cs = c_s*sqrt(1.0 + EOSGamma*pow(rho/rho_cr, EOSGamma-1.0));
@@ -59,7 +59,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     GetUnits(&denu, &lenu, &tempu, &tu, &velu, 1);
     double c_s = EOSSoundSpeed;
     double rho_cr = EOSCriticalDensity;
-    c_s /= velu;
+    //    c_s /= velu;
     rho_cr /= denu;
     
     if (rho <= rho_cr) {

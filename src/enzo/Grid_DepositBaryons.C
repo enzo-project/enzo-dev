@@ -51,6 +51,8 @@ extern "C" void FORTRAN_NAME(dep_grid_cic)(
 			       int *ddim1, int *ddim2, int *ddim3,
 			       int *refine1, int *refine2, int *refine3);
  
+int RK2SecondStepBaryonDeposit = 0;
+
 /* InterpolateBoundaryFromParent function */
  
 int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
@@ -145,6 +147,8 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     if (RegionDim[dim] < 2) {
       fprintf(stderr, "RegionDim[%"ISYM"] = %"ISYM" < 2\n", dim, RegionDim[dim]);
+      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
       ENZO_FAIL("");
     }
  
@@ -172,8 +176,9 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       ENZO_FAIL("");
     }
     float dt = (DepositTime - Time)/a;
+    //    if (HydroMethod < 3) dt = 0;
     dt = 0;
- 
+
     /* Set up a float version of cell size to pass to fortran. */
  
     float dxfloat[MAX_DIMENSION] = {0,0,0};
@@ -188,21 +193,50 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
        velocity field. */
  
 //  fprintf(stderr, "Grid_DepositBaryons - call dep_grid_cic\n");
- 
-    FORTRAN_NAME(dep_grid_cic)(BaryonField[DensNum], dens_field, vel_field,
-			 BaryonField[Vel1Num], BaryonField[Vel2Num],
-			     BaryonField[Vel3Num], &dt,
-			 BaryonField[NumberOfBaryonFields], &GridRank,
-                             &HydroMethod,
-			 dxfloat, dxfloat+1, dxfloat+2,
-			 GridDimension, GridDimension+1, GridDimension+2,
-			 GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-			 GridEndIndex, GridEndIndex+1, GridEndIndex+2,
-			 GridStart, GridStart+1, GridStart+2,
-			 RegionDim, RegionDim+1, RegionDim+2,
-			 Refinement, Refinement+1, Refinement+2);
+
+    float *input_density = BaryonField[DensNum];
+    float *input_velx    = BaryonField[Vel1Num];
+    float *input_vely    = BaryonField[Vel2Num];
+    float *input_velz    = BaryonField[Vel3Num];
+  
+    float *av_dens = NULL;
+    // supply zero velocity field and the time averaged density to the deposit routine for second step
+    if (RK2SecondStepBaryonDeposit == 1) { 
+      int current_size = 1;
+      dt = 0;
+      for (dim = 0; dim < GridRank; dim++)
+	current_size *= GridDimension[dim];
+
+      if (OldBaryonField[DensNum] != NULL) {
+	av_dens = new float[current_size];
+	for (int i=0; i<current_size; i++) 
+	  av_dens[i] = (BaryonField[DensNum][i] + OldBaryonField[DensNum][i]) / 2.;
+      } else 	
+	av_dens = BaryonField[DensNum];
+
+      input_density = av_dens;
+    }
+
+    //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
+    
+    FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
+			       input_velx, input_vely, input_velz,
+			       &dt,
+			       BaryonField[NumberOfBaryonFields], &GridRank,
+			       &HydroMethod,
+			       dxfloat, dxfloat+1, dxfloat+2,
+			       GridDimension, GridDimension+1, GridDimension+2,
+			       GridStartIndex, GridStartIndex+1, GridStartIndex+2,
+			       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+			       GridStart, GridStart+1, GridStart+2,
+			       RegionDim, RegionDim+1, RegionDim+2,
+			       Refinement, Refinement+1, Refinement+2);
  
     delete [] vel_field;
+    if ( RK2SecondStepBaryonDeposit ) 
+      if (OldBaryonField[DensNum] != NULL) 
+	delete [] av_dens;
+    
  
   } // end: if (ProcessorNumber == MyProcessorNumber)
  
