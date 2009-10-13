@@ -480,7 +480,8 @@ class grid
 /* Set the fields to zero under the active region of the specified subgrid. */
 
    int ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero, 
-                                float Value = 1.0, int AllProcessors = FALSE);
+                                float Value = 1.0, int AllProcessors = FALSE,
+				int IncludeGhostZones = FALSE);
 
 /* Convert the grid data to particle data for output. */
 
@@ -1231,13 +1232,15 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			       int* &NumberToMove, int StartIndex, 
 			       int EndIndex, particle_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
-			       int CopyDirection);
+			       int CopyDirection,
+			       int IncludeGhostZones = FALSE);
 
   int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
 			   int* &NumberToMove, int StartIndex, 
 			   int EndIndex, star_data* &List, 
 			   bool KeepLocal, bool ParticlesAreLocal,
-			   int CopyDirection);
+			   int CopyDirection,
+			   int IncludeGhostZones = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1304,8 +1307,12 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   int IdentifyPotentialField(int &PotenNum, int &Acce1Num, int &Acce2Num, int &Acce3Num);
 
+  /* Identify colour field */
 
-/* Identify Multi-species fields. */
+  int IdentifyColourFields(int &SNColourNum, int &MetalNum, int &MBHColourNum,
+			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
+
+  /* Identify Multi-species fields. */
 
   int IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum, 
 			    int &HeINum, int &HeIINum, int &HeIIINum,
@@ -1948,8 +1955,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level, 
-			       int SetBaryonFields);
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
+			       int level, int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
 			       FLOAT r_sphere[MAX_SPHERES],
 			       FLOAT rc_sphere[MAX_SPHERES],

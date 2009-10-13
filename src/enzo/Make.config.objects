@@ -66,6 +66,7 @@ OBJS_CONFIG_LIB = \
         CommunicationTransferParticlesOpt.o \
         CommunicationTransferStars.o \
         CommunicationTransferStarsOpt.o \
+	CommunicationTransferSubgridParticles.o \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
@@ -134,7 +135,6 @@ OBJS_CONFIG_LIB = \
         FastFourierTransformPrepareComplex.o \
         FastFourierTransformSGIMATH.o \
         EvolveLevel.o \
-        EvolveLevelRoutinesOptimized.o \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \
@@ -181,6 +181,7 @@ OBJS_CONFIG_LIB = \
 	GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
+	GenerateGridArray.o \
         GetNodeFreeMemory.o \
         GetUnits.o \
         GravityBdryExchange.o \
@@ -318,6 +319,7 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
+	Grid_IdentifyColourFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \
@@ -489,6 +491,7 @@ OBJS_CONFIG_LIB = \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
+	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
         PressurelessCollapseInitialize.o \
@@ -541,6 +544,7 @@ OBJS_CONFIG_LIB = \
         s90_st1.o \
         SedovBlastInitialize.o \
         select_fft.o \
+	SetBoundaryConditions.o \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \
@@ -602,6 +606,7 @@ OBJS_CONFIG_LIB = \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
         twoshock.o \
+	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
         utilities.o \
         wall_clock.o \
@@ -696,6 +701,7 @@ OBJS_HYDRO_RK = \
       	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
+        hydro_rk/ComputeDednerWaveSpeeds.o \
         hydro_rk/EvolveLevel_RK2.o \
         hydro_rk/GalaxyDiskInitialize.o \
         hydro_rk/Grid_AddSelfGravity.o \

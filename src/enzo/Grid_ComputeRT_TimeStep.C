@@ -260,7 +260,7 @@ float grid::ComputeRT_TimeStep()
      affect hydro dt). */
 
   // parameter in km/s
-  float dtPhotonSafety = huge_number;
+  float dtPhotonSafety = tiny_number;
 
   if (RadiativeTransferTimestepVelocityLimit > 0)
     dtPhotonSafety = CellWidth[0][0] / 
@@ -289,7 +289,7 @@ float grid::ComputeRT_TimeStep()
 //    if (RadiationPressure && RadiativeTransfer && dtRadPressure < 100)
 //      printf("Rad = %"GSYM" ", dtRadPressure);
 //    if (dtSafetyVelocity != huge_number)
-//      printf("Saf = %"GSYM" ", dtSafetyVelocity);
+//      printf("Saf = %"GSYM" ", dtSafetyVelocity); 
 //#endif /* TRANSFER */
 //    printf(")\n");
 //  }

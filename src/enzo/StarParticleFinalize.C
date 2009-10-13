@@ -85,9 +85,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     ENZO_FAIL("");
   }
   
-    /* Update star particles for any accretion */
+  /* Update star particles for any accretion */
 
-  if (LevelArray[level+1] == NULL) //#####
+  if (LevelArray[level+1] == NULL) 
     if (StarParticleAccretion(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
       fprintf(stderr, "Error in StarParticleAccretion.\n");
@@ -132,6 +132,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     ThisStar->ResetAccretion(); 
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
+
+    // The pointers have been copied to the grid copy above, so we can
+    // set the pointers in the global copy to NULL before deleting the
+    // stars.
+    ThisStar->ResetAccretionPointers();
+
   } // ENDFOR stars
 
 

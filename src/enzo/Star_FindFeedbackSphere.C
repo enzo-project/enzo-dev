@@ -37,7 +37,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     int &SphereContained, int &SkipMassRemoval,
 			     float DensityUnits, float LengthUnits, 
 			     float TemperatureUnits, float TimeUnits,
-			     float VelocityUnits)
+			     float VelocityUnits, FLOAT Time)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
@@ -79,6 +79,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     For star formation, we need to find a sphere with enough mass to
     accrete.  We step out by a cell width when searching. 
+    This is only for FeedbackFlag = FORMATION. 
 
   ***********************************************************************/
 
@@ -196,7 +197,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
       EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
 
-      //      fprintf(stderr, "EjectaThermalEnergy = %g in S_FFS.C\n", EjectaThermalEnergy); 
+    //fprintf(stderr, "Star::FFS: EjectaThermalEnergy = %g\n", EjectaThermalEnergy); 
 
       //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
       //      EjectaDensity = Shine[p].Mass / MassEnclosed;
@@ -296,7 +297,25 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
-    DeltaMass = AccretedMass;
+
+    /* We store the accretion rate of the newly formed star in the
+       accretion rate arrays.  Set accretion_time[0] to zero, so the
+       initial "accretion" is easily calculated.  Be sure not
+       overwrite any previous accretion rates, although this should
+       never happen! */
+
+    if (this->accretion_rate == NULL && this->accretion_time == NULL) {
+      this->naccretions = 2;
+      this->accretion_rate = new float[2];
+      this->accretion_rate[0] = AccretedMass / (Time * TimeUnits);
+      this->accretion_rate[1] = 0.0;
+
+      this->accretion_time = new FLOAT[2];
+      this->accretion_time[0] = 0.0;
+      this->accretion_time[1] = Time;
+    }
+
+    //DeltaMass = AccretedMass;
     //type = abs(type);  // Unmark as unborn (i.e. negative type)
 
   } // ENDIF formation

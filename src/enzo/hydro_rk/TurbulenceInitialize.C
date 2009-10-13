@@ -89,6 +89,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters */
 
   int RefineAtStart   = TRUE;
+  int PutSink         = FALSE;
   int SetTurbulence = TRUE;
   int RandomSeed = 52761;
   float CloudDensity=1.0, CloudSoundSpeed=1.0, CloudMachNumber=1.0, CloudAngularVelocity = 0.0, InitialBField = 0.0;
@@ -102,6 +103,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
+    ret += sscanf(line, "PutSink = %"ISYM, &PutSink);
     ret += sscanf(line, "Density = %"FSYM, &CloudDensity);
     ret += sscanf(line, "SoundVelocity = %"FSYM, &CloudSoundSpeed);
     ret += sscanf(line, "MachNumber = %"FSYM, &CloudMachNumber);
@@ -143,7 +145,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
   while (CurrentGrid != NULL) {
     if (CurrentGrid->GridData->TurbulenceInitializeGrid(
                 CloudDensity, CloudSoundSpeed, CloudRadius, CloudMachNumber, CloudAngularVelocity, InitialBField, 
-		SetTurbulence, CloudType, RandomSeed, 0, SetBaryonFields) == FAIL) {
+		SetTurbulence, CloudType, RandomSeed, PutSink, 0, SetBaryonFields) == FAIL) {
       fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
       return FAIL;
     }
@@ -223,7 +225,7 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
       while (Temp != NULL) {
 	if (Temp->GridData->TurbulenceInitializeGrid(
 		  CloudDensity, CloudSoundSpeed, CloudRadius, fac, CloudAngularVelocity, InitialBField,
-		  SetTurbulence, CloudType, RandomSeed, level+1, SetBaryonFields) == FAIL) {
+		  SetTurbulence, CloudType, RandomSeed, PutSink, level+1, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in TurbulenceInitializeGrid.\n");
 	  return FAIL;
 	}

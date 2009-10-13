@@ -391,8 +391,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
-  NSpecies		     = 0;
-  NColor		     = 0;
+  NSpecies		     = INT_UNDEFINED;
+  NColor		     = INT_UNDEFINED;
   Theta_Limiter		     = 1.5;
   RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
@@ -572,5 +572,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+
+  MoveParticlesBetweenSiblings = FALSE;
+
   return SUCCESS;
 }

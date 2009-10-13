@@ -27,6 +27,13 @@
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
 
+    char *ParticlePositionLabel[] =
+       {"particle_position_x", "particle_position_y", "particle_position_z"};
+    char *ParticleVelocityLabel[] =
+       {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
+    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+                      "metallicity_fraction", "alpha_fraction"};
+
     this->DebugCheck("Converting to NumPy arrays");
 
     PyObject *grid_data, *old_grid_data, *field_name, *grid_id;
@@ -40,7 +47,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
         int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
         int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
             DINum, DIINum, HDINum;
-        int field;
+        int field, dim;
         FLOAT a = 1.0, dadt;
 
         /* Find fields: density, total energy, velocity1-3. */
@@ -83,6 +90,46 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
+        }
+
+        /* Now we do our particle fields */
+
+        if(this->NumberOfParticles > 0) {
+          dims[0] = this->NumberOfParticles;
+          for(dim = 0; dim < this->GridRank; dim++) {
+            /* Position */
+            dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                    1, dims, ENPY_FLOAT, ParticlePosition[dim]);
+            dataset->flags &= ~NPY_OWNDATA;
+            PyDict_SetItemString(grid_data, ParticlePositionLabel[dim],
+                (PyObject*) dataset);
+            Py_DECREF(dataset);
+
+            /* Velocity */
+            dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                    1, dims, ENPY_FLOAT, ParticleVelocity[dim]);
+            dataset->flags &= ~NPY_OWNDATA;
+            PyDict_SetItemString(grid_data, ParticleVelocityLabel[dim],
+                (PyObject*) dataset);
+            Py_DECREF(dataset);
+
+          }
+          /* Mass */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_FLOAT, ParticleMass);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_mass",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
+          /* Number */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_INT, ParticleNumber);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_index",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
         }
 
         grid_id = PyLong_FromLong((long) GridID);

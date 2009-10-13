@@ -101,7 +101,7 @@ int grid::CopyPotentialToBaryonField()
  
       for (i = 0; i < GridDimension[0]; i++, index++)
       {
-	//	BaryonField[field+1][jj] = GravitatingMassField[index]; // use this for debugging 
+		BaryonField[field+1][jj] = GravitatingMassField[index]; // use this for debugging 
 	BaryonField[field][jj++] = PotentialField[index];
 	// debuggin:
 	maxPot = max(maxPot,PotentialField[index]);

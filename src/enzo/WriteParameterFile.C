@@ -263,10 +263,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     if (DataUnits[dim])
       fprintf(fptr, "DataUnits[%"ISYM"]              = %s\n", dim, DataUnits[dim]);
     if (DataLabel[dim]) {
-      if (strstr(DataLabel[dim], "Density") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim,DensityUnits);
+      if ((strstr(DataLabel[dim], "Density") != NULL) ||
+	  (strstr(DataLabel[dim], "Colour") != NULL))
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, DensityUnits);
       if (strstr(DataLabel[dim], "velocity") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n",dim,VelocityUnits);
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GSYM"\n", dim, VelocityUnits);
     }
   }
   fprintf(fptr, "#TimeUnits                 = %"GSYM"\n", TimeUnits);
@@ -371,7 +372,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
- 
+  fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
+	  MoveParticlesBetweenSiblings);
+
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
       fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
@@ -580,39 +583,38 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   /* Most Stanford additions: */
 
 
-  fprintf(fptr, "Theta_Limiter = %f\n", Theta_Limiter);
-  fprintf(fptr, "RiemannSolver = %d\n", RiemannSolver);
-  fprintf(fptr, "ReconstructionMethod = %d\n", ReconstructionMethod);
-  fprintf(fptr, "RKOrder = %d\n", RKOrder);
-  fprintf(fptr, "UsePhysicalUnit = %d\n", UsePhysicalUnit);
-  fprintf(fptr, "UseFloor = %d\n", UseFloor);
-  fprintf(fptr, "UseViscosity = %d\n", UseViscosity);
-  fprintf(fptr, "UseAmbipolarDiffusion = %d\n", UseAmbipolarDiffusion);
-  fprintf(fptr, "UseResistivity = %d\n", UseResistivity);
-  fprintf(fptr, "SmallRho = %g\n", SmallRho*rhou);
-  fprintf(fptr, "SmallP = %g\n", SmallP*presu);
-  fprintf(fptr, "SmallT = %g\n", SmallT*tempu);
-  fprintf(fptr, "MaximumAlvenSpeed = %g\n", MaximumAlvenSpeed*velu);
-  fprintf(fptr, "Coordinate = %d\n", Coordinate);
-  fprintf(fptr, "EOSType = %d\n", EOSType);
-  fprintf(fptr, "EOSSoundSpeed = %g\n", EOSSoundSpeed);
-  fprintf(fptr, "EOSCriticalDensity = %g\n", EOSCriticalDensity);
-  fprintf(fptr, "EOSGamma = %g\n", EOSGamma); 
-  fprintf(fptr, "Mu = %g\n", Mu);
-  fprintf(fptr, "CoolingCutOffDensity1 = %g\n", CoolingCutOffDensity1);
-  fprintf(fptr, "CoolingCutOffDensity2 = %g\n", CoolingCutOffDensity2);
-  fprintf(fptr, "CoolingCutOffTemperature = %g\n", CoolingCutOffTemperature);
+  fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
+  fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
+  fprintf(fptr, "RKOrder                    = %d\n", RKOrder);
+  fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);
+  fprintf(fptr, "UseFloor                   = %d\n", UseFloor);
+  fprintf(fptr, "UseViscosity               = %d\n", UseViscosity);
+  fprintf(fptr, "UseAmbipolarDiffusion      = %d\n", UseAmbipolarDiffusion);
+  fprintf(fptr, "UseResistivity             = %d\n", UseResistivity);
+  fprintf(fptr, "SmallRho                   = %g\n", SmallRho*rhou);
+  fprintf(fptr, "SmallP                     = %g\n", SmallP*presu);
+  fprintf(fptr, "SmallT                     = %g\n", SmallT*tempu);
+  fprintf(fptr, "MaximumAlvenSpeed          = %g\n", MaximumAlvenSpeed*velu);
+  fprintf(fptr, "Coordinate                 = %d\n", Coordinate);
+  fprintf(fptr, "EOSType                    = %d\n", EOSType);
+  fprintf(fptr, "EOSSoundSpeed              = %g\n", EOSSoundSpeed);
+  fprintf(fptr, "EOSCriticalDensity         = %g\n", EOSCriticalDensity);
+  fprintf(fptr, "EOSGamma                   = %g\n", EOSGamma); 
+  fprintf(fptr, "Mu                         = %g\n", Mu);
+  fprintf(fptr, "CoolingCutOffDensity1      = %g\n", CoolingCutOffDensity1);
+  fprintf(fptr, "CoolingCutOffDensity2      = %g\n", CoolingCutOffDensity2);
+  fprintf(fptr, "CoolingCutOffTemperature   = %g\n", CoolingCutOffTemperature);
   fprintf(fptr, "CoolingPowerCutOffDensity1 = %g\n", CoolingPowerCutOffDensity1);
   fprintf(fptr, "CoolingPowerCutOffDensity2 = %g\n", CoolingPowerCutOffDensity2);
-  fprintf(fptr, "UseConstantAcceleration = %d\n", UseConstantAcceleration);
-  fprintf(fptr, "ConstantAcceleration = %g %g %g\n", ConstantAcceleration[0],
+  fprintf(fptr, "UseConstantAcceleration    = %d\n", UseConstantAcceleration);
+  fprintf(fptr, "ConstantAcceleration       = %g %g %g\n", ConstantAcceleration[0],
 	  ConstantAcceleration[1], ConstantAcceleration[2]);
 
-
-  fprintf(fptr, "AngularVelocity = %g\n", AngularVelocity);
-  fprintf(fptr, "VelocityGradient = %g\n", VelocityGradient);
-  fprintf(fptr, "UseDrivingField = %d\n", UseDrivingField);
-  fprintf(fptr, "DrivingEfficiency = %f\n", DrivingEfficiency);
+  fprintf(fptr, "AngularVelocity            = %g\n", AngularVelocity);
+  fprintf(fptr, "VelocityGradient           = %g\n", VelocityGradient);
+  fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
+  fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
 #ifdef ECUDA
   fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
 #endif

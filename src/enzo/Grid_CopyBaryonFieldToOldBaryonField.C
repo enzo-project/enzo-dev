@@ -48,11 +48,6 @@ int grid::CopyBaryonFieldToOldBaryonField()
  
   int size = 1;
 
-/* BUG reported 4th June 2006
-  for (int dim = 0; dim < GridDimension[dim]; dim++)
-    size *= GridDimension[dim];
-*/
-
   for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }

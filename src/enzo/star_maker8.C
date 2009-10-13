@@ -324,8 +324,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       if (mpold[bb]*pow(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7) continue;
 
       int first = 0;
-      if (dmold[bb] > 0.99*mpold[bb]*pow(*dx,3)) first = 1;
-      
+      //      if (dmold[bb] > 0.99*mpold[bb]*pow(*dx,3)) first = 1;
+      if (nx_jet[bb]+ny_jet[bb]+nz_jet[bb] < 0.1) first = 1;
 
       /* Decide whether the current grid contains the whole supercell */
 
