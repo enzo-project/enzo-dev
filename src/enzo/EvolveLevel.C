@@ -219,6 +219,8 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
+extern int RK2SecondStepBaryonDeposit;
+
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)
 {
@@ -253,7 +255,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   LevelHierarchyEntry **SUBlingList;
 #endif
 
-
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
@@ -280,8 +281,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ENZO_FAIL("");
 #endif
  
-
-
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
      current grid to correct the zones surrounding this subgrid (step #18). */
@@ -461,7 +460,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     //dcc cut second potential cut: Duplicate?
  
-    if (ComovingCoordinates && SelfGravity && WritePotential) {
+    if (SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
       When = 0.0;
  
@@ -471,7 +470,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
  
-      CopyGravPotential = FALSE;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
         if (level <= MaximumGravityRefinementLevel) {
@@ -483,6 +481,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
         }
       } //  end loop over grids
+      CopyGravPotential = FALSE;
+
     } // if WritePotential
  
 
@@ -492,13 +492,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
 
-    /* Run the Divergence Cleaing                */
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->PoissonSolver(level);
-    
-
- 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  
@@ -564,12 +557,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
  
-    if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
-	level <= RadiationFieldLevelRecompute)
-      if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	ENZO_FAIL("");
-      }
+    RadiationFieldUpdate(LevelArray, level, MetaData);
  
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
@@ -589,8 +577,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
-    
-
     cycle++;
     LevelCycleCount[level]++;
  
@@ -609,12 +595,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
   /* Clean up. */
- 
-#ifdef UNUSED
-  if (level > MaximumGravityRefinementLevel &&
-      level == MaximumRefinementLevel)
-    ZEUSQuadraticArtificialViscosity /= 1;
-#endif
  
   delete [] NumberOfSubgrids;
   delete [] Grids;

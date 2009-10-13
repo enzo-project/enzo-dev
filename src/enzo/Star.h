@@ -55,7 +55,7 @@ public:
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
   Star(StarBuffer buffer) ;
-  ~Star();
+  //~Star();
 
   // Operators
   void operator=(Star a);
@@ -81,6 +81,8 @@ public:
   void  AddMass(float dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  ResetAccretionPointers(void) 
+  { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   FLOAT *ReturnPosition(void) { return pos; }
@@ -132,7 +134,7 @@ public:
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits);
+			 float VelocityUnits, FLOAT Time);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

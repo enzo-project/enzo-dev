@@ -132,6 +132,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     ThisStar->ResetAccretion(); 
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
+
+    // The pointers have been copied to the grid copy above, so we can
+    // set the pointers in the global copy to NULL before deleting the
+    // stars.
+    ThisStar->ResetAccretionPointers();
+
   } // ENDFOR stars
 
 

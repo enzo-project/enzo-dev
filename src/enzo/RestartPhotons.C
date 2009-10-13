@@ -73,6 +73,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   float LightCrossingTime = VelocityUnits / 
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
+  FLOAT SavedPhotonTimestep = dtPhoton;
   PhotonTime -= LightCrossingTime;
 
   if (debug)

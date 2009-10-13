@@ -83,6 +83,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
+  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
 
   /* Compute Units. */
   
@@ -323,8 +324,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       if (mpold[bb]*pow(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7) continue;
 
       int first = 0;
-      if (dmold[bb] > 0.99*mpold[bb]*pow(*dx,3)) first = 1;
-      
+      //      if (dmold[bb] > 0.99*mpold[bb]*pow(*dx,3)) first = 1;
+      if (nx_jet[bb]+ny_jet[bb]+nz_jet[bb] < 0.1) first = 1;
 
       /* Decide whether the current grid contains the whole supercell */
 
@@ -673,6 +674,11 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	  
 	  if (*jlrefine > 0)
 	    jeansthresh = jlsquared * temp[index] / d[index];
+	  /*printf("jeansthresh = %g \n",jeansthresh);
+	  printf("jlsquared = %g \n",jlsquared);
+	  printf("temp[index] = %g \n",temp[index]);
+	  printf("d[index] = %g \n",d[index]);*/
+
 
 
 	  if (r[index] == 0 && (d[index] > densthresh ||

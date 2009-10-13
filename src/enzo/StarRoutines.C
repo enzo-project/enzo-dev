@@ -159,13 +159,16 @@ Star::Star(StarBuffer buffer)
   PrevStar = NULL;
 }
 
-Star::~Star(void)
-{
-  if (accretion_rate != NULL)
-    delete [] accretion_rate;
-  if (accretion_time != NULL)
-    delete [] accretion_time;
-}
+/* No need to delete the accretion arrays because the pointers are
+   stored in the copies located in the grid class. */
+
+//Star::~Star(void)
+//{
+//  if (accretion_rate != NULL)
+//    delete [] accretion_rate;
+//  if (accretion_time != NULL)
+//    delete [] accretion_time;
+//}
 
 /***************
 
@@ -207,8 +210,8 @@ void Star::operator=(Star a)
       accretion_time[i] = a.accretion_time[i];
     }
   } else {
-    a.accretion_rate = NULL;
-    a.accretion_time = NULL;
+    accretion_rate = NULL;
+    accretion_time = NULL;
   }
   return;
 }
@@ -346,7 +349,7 @@ float Star::Separation2(Star *a) { return this->Separation2(*a); };
 float Star::Separation(Star a)  { return sqrt(this->Separation2(a)); }
 float Star::Separation(Star *a) { return this->Separation(*a); };
 
-void Star::CopyToGrid(void)
+void Star::CopyToGrid()
 {
   Star *cstar;
   if (CurrentGrid != NULL)   // NULL => On another processor

@@ -100,7 +100,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	       EjectaDensity, EjectaThermalEnergy, 
 	       SphereContained, SkipMassRemoval, DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
-	       VelocityUnits) == FAIL) {
+	       VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in star::FindFeedbackSphere\n");
       ENZO_FAIL("");
     }
@@ -124,7 +124,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 				    EjectaDensity, EjectaThermalEnergy, 
 				    SphereContainedNextLevel, dummy, DensityUnits, 
 				    LengthUnits, TemperatureUnits, TimeUnits, 
-				    VelocityUnits) == FAIL) {
+				    VelocityUnits, Time) == FAIL) {
 	fprintf(stderr, "Error in star::FindFeedbackSphere\n");
 	ENZO_FAIL("");
       }

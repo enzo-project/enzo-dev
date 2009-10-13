@@ -42,6 +42,9 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     int level)
 {
 
+  if (!RadiativeTransferAdaptiveTimestep && dtPhoton != FLOAT_UNDEFINED)
+    return SUCCESS;
+
   const int MaxStepsPerHydroStep = 8;
   const float PhotonCourantFactor = 1.0;
 
@@ -69,13 +72,13 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   dtPhoton = 10*huge_number;
 
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
+	   &VelocityUnits, LevelArray[level]->GridData->ReturnTime());
+
   // Calculate timestep by limiting to a 50% max change in HII
   if (RadiativeTransferHIIRestrictedTimestep) {
-
-    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-      VelocityUnits = 1, TimeUnits = 1;
-    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
-	     &VelocityUnits, LevelArray[level]->GridData->ReturnTime());
 
     for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
       for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
@@ -119,6 +122,10 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   if (InitialTimestep && !MetaData->FirstTimestepAfterRestart)
     dtPhoton = min(dtPhoton, dtLevelAbove);
+
+  if (!RadiativeTransferAdaptiveTimestep && debug)
+    printf("RadiativeTransfer: Setting dtPhoton = %g = %g years\n",
+	   dtPhoton, dtPhoton*TimeUnits/3.1557e7);
   
   return SUCCESS;
 

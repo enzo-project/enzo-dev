@@ -32,7 +32,7 @@ void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind,
 
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 				   float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-				   int SetTurbulence, int CloudType, int TurbulenceSeed, int level,
+				   int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, int level,
 				   int SetBaryonFields)
 {
 
@@ -100,16 +100,17 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
         FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
       }
     }
+    
+    if (RadiationPressure) {
+      FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
+      FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
+      FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
+    }
+    
+    NumberOfPhotonPackages = 0;
+    PhotonPackages-> NextPackage= NULL;
+    
   }
-
-  if (RadiationPressure && RadiativeTransfer) {
-    FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
-    FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
-    FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
-  }
-
-  NumberOfPhotonPackages = 0;
-  PhotonPackages-> NextPackage= NULL;
 #endif
 
   int idrivex, idrivey, idrivez;
@@ -192,7 +193,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   /* assume isothermal initially */
 
   CloudPressure = CloudDensity * pow(CloudSoundSpeed,2);
-  CloudInternalEnergy = pow(CloudSoundSpeed,2) / (Gamma - 1.0);
+  //  CloudInternalEnergy = pow(CloudSoundSpeed,2) / (Gamma - 1.0);
+  float h, cs, dpdrho, dpde;
+  EOS(CloudPressure, CloudDensity, CloudInternalEnergy, h, cs, dpdrho, dpde, EOSType, 1);
 
   float InitialFractionHII = 1.2e-5;
   float InitialFractionHeII = 1.0e-14;
@@ -227,6 +230,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	sinphi = ypos/sqrt(xpos*xpos+ypos*ypos);
 
 	Velx = Vely = Velz = 0.0;
+
+	// default values:
+	Density = CloudDensity;
+	eint = CloudInternalEnergy;
+
 
 	if (r < CloudRadius) {
 
@@ -288,16 +296,29 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    eint = CloudInternalEnergy/(1.0+0.1*drho);
 	  }
 
+	  /* Type 6: flattened 1/r^2 profile with large core and with ambient medium. */
+
+	  if (CloudType == 6) {
+	    Density = CloudDensity / (1.0 + 6.0*pow(r/CloudRadius,2));
+	    eint = CloudInternalEnergy;
+	  }
+
+
 	} else {
 
 	  if (CloudType == 0) {
-	    Density = CloudDensity/10.0;
-	    eint = CloudInternalEnergy;
+	    Density = CloudDensity/100.0;
+	    eint = CloudInternalEnergy*100.;
 	  }
 
 	  if (CloudType == 1) {
 	    Density = CloudDensity/20.0;
 	    eint = CloudInternalEnergy;
+	  }
+
+	  if (CloudType == 2) {
+	    Density = CloudDensity / 10.0;
+	    eint = CloudInternalEnergy * 10.0;
 	  }
 
           if (CloudType ==3) {
@@ -310,10 +331,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    eint = CloudInternalEnergy;
 	  }
 
-	  if (CloudType == 2) {
-	    Density = CloudDensity / 10.0;
-	    eint = CloudInternalEnergy * 10.0;
+
+          if (CloudType ==6) {
+	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
+	    eint = CloudInternalEnergy;
 	  }
+
 	}
 
 	BaryonField[iden ][n] = Density;
@@ -407,6 +430,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       dk = 5;
     }
     if (CloudType == 3) {
+      k1 = 2.0;
+      k2 = 10.0;
+      dk = 1.0;
+    }
+
+    if (CloudType == 6) {
       k1 = 2.0;
       k2 = 10.0;
       dk = 1.0;
@@ -551,28 +580,33 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* Put a sink particle if we are studying massive star formation */
 
-  int PutSink = 0;
-  if (PutSink == 1 && level == MaximumRefinementLevel) {
+  //  if (PutSink == 1 && level == MaximumRefinementLevel) {
+  if (PutSink == 1 && level == 0) {  // set it up on level zero and make it mustrefine
 
-    double mass_p = 20.0*1.989e33;
+    //    double mass_p = 20.0*1.989e33;
+    double mass_p = 0.01*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
     double t_dyn = sqrt(3*M_PI/(6.672e-8*den_p*DensityUnits));
     t_dyn /= TimeUnits;
 
-    double dxm = dx / pow(2.0, MaximumRefinementLevel);
+    double dxm = dx / pow(RefineBy, MaximumRefinementLevel);
+
+    printf("Adding a Sink Particle. \n");
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
     //    MaximumParticleNumber = 1;
+    if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
+
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5+0.5*dx;
-    ParticlePosition[1][0] = 0.5+0.5*dx;
-    ParticlePosition[2][0] = 0.5+0.5*dx;
+    ParticlePosition[0][0] = 0.5;//+0.5*dx;
+    ParticlePosition[1][0] = 0.5;//+0.5*dx;
+    ParticlePosition[2][0] = 0.5;//+0.5*dx;
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
@@ -580,6 +614,18 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleAttribute[0][0] = 0.0; // creation time             
     ParticleAttribute[1][0] = 0;
     ParticleAttribute[2][0] = mass_p;
+
+    if (StellarWindFeedback) {
+      ParticleAttribute[3][0] = 1.0;  
+      ParticleAttribute[4][0] = 0.0;
+      ParticleAttribute[5][0] = 0.0;
+    }
+
+    for (i = 0; i< MAX_DIMENSION+1; i++){
+      ParticleAcceleration[i] = NULL;
+    }
+    this->ClearParticleAccelerations();
+
   }
 
   /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);

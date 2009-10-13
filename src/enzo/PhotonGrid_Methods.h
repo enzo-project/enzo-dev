@@ -260,61 +260,62 @@ int MergePausedPhotonPackages(void);
 
 /* Trace a line thorugh the grid */
 
-   int TraceRay(int NumberOfSegments,
-		FLOAT r,
-		FLOAT x, FLOAT y, FLOAT z,
-		FLOAT ux, FLOAT uy, FLOAT uz,
-		FLOAT dr[],
-		long cindex[], int ci[], int cj[], int ck[]);
+int TraceRay(int NumberOfSegments,
+	     FLOAT r,
+	     FLOAT x, FLOAT y, FLOAT z,
+	     FLOAT ux, FLOAT uy, FLOAT uz,
+	     FLOAT dr[],
+	     long cindex[], int ci[], int cj[], int ck[]);
 
 /* Walk Photon Package one by one */ 
 
-   int WalkPhotonPackage(PhotonPackageEntry **PP, 
-			 grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
-			 grid **Grids0, int nGrids0,
-			 int DensNum, int HINum, int HeINum,
-			 int HeIINum, int H2INum,
-			 int kphHINum, int gammaHINum,
-			 int kphHeINum, int gammaHeINum,
-			 int kphHeIINum, int gammaHeIINum,
-			 int kdissH2INum, int RPresNum1, int RPresNum2, 
-			 int RPresNum3, int &DeleteMe, int &PauseMe,
-			 int &DeltaLevel, float DensityUnits, 
-			 float TemperatureUnits, float VelocityUnits, 
-			 float LengthUnits, float TimeUnits);
+int WalkPhotonPackage(PhotonPackageEntry **PP, 
+		      grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
+		      grid **Grids0, int nGrids0,
+		      int DensNum, int HINum, int HeINum,
+		      int HeIINum, int H2INum,
+		      int kphHINum, int gammaHINum,
+		      int kphHeINum, int gammaHeINum,
+		      int kphHeIINum, int gammaHeIINum,
+		      int kdissH2INum, int RPresNum1, int RPresNum2, 
+		      int RPresNum3, int &DeleteMe, int &PauseMe,
+		      int &DeltaLevel, float LightCrossingTime,
+		      float DensityUnits, 
+		      float TemperatureUnits, float VelocityUnits, 
+		      float LengthUnits, float TimeUnits);
 
 /* Create PhotonPackages for a given radiation sources   */
 
-   int Shine(RadiationSourceEntry *RadiationSource);
+int Shine(RadiationSourceEntry *RadiationSource);
 
 /* PhotonTest: Initialize grid allowing for up to ten sources  */
 
 #define MAX_SPHERES 10
-   int PhotonTestInitializeGrid(int NumberOfSpheres,
-				float SphereRadius[MAX_SPHERES],
-				float SphereCoreRadius[MAX_SPHERES],
-				float SphereDensity[MAX_SPHERES],
-				float SphereTemperature[MAX_SPHERES],
-				FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
-				float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-                                float SphereFracKeplarianRot[MAX_SPHERES],
-                                float SphereTurbulence[MAX_SPHERES],
-                                float SphereCutOff[MAX_SPHERES],
-                                float SphereAng1[MAX_SPHERES],
-                                float SphereAng2[MAX_SPHERES],
-                                int   SphereNumShells[MAX_SPHERES],
-				int   SphereType[MAX_SPHERES],
-				int   SphereUseParticles,
-				float UniformVelocity[MAX_DIMENSION],
-				int   SphereUseColour,
-				float InitialTemperature, int level, 
-				float PhotonTestInitialFractionHII, 
-				float PhotonTestInitialFractionHeII,
-				float PhotonTestInitialFractionHeIII, 
-				float PhotonTestInitialFractionHM,
-				float PhotonTestInitialFractionH2I, 
-				float PhotonTestInitialFractionH2II,
-				int RefineByOpticalDepth);
+int PhotonTestInitializeGrid(int NumberOfSpheres,
+			     float SphereRadius[MAX_SPHERES],
+			     float SphereCoreRadius[MAX_SPHERES],
+			     float SphereDensity[MAX_SPHERES],
+			     float SphereTemperature[MAX_SPHERES],
+			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereFracKeplarianRot[MAX_SPHERES],
+			     float SphereTurbulence[MAX_SPHERES],
+			     float SphereCutOff[MAX_SPHERES],
+			     float SphereAng1[MAX_SPHERES],
+			     float SphereAng2[MAX_SPHERES],
+			     int   SphereNumShells[MAX_SPHERES],
+			     int   SphereType[MAX_SPHERES],
+			     int   SphereUseParticles,
+			     float UniformVelocity[MAX_DIMENSION],
+			     int   SphereUseColour,
+			     float InitialTemperature, int level, 
+			     float PhotonTestInitialFractionHII, 
+			     float PhotonTestInitialFractionHeII,
+			     float PhotonTestInitialFractionHeIII, 
+			     float PhotonTestInitialFractionHM,
+			     float PhotonTestInitialFractionH2I, 
+			     float PhotonTestInitialFractionH2II,
+			     int RefineByOpticalDepth);
 
 /************************************************************************/
 

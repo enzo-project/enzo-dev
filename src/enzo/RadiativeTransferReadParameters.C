@@ -32,7 +32,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   RadiationPressure           = FALSE;             // off
   PhotonTime                  = 0; 
-  dtPhoton                    = 0.1;
+  dtPhoton                    = FLOAT_UNDEFINED;
   for (i = 0; i < 4; i++) {
     EscapedPhotonCount[i] = 0.0;
     TotalEscapedPhotonCount[i] = 0.0;
@@ -59,6 +59,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
+  RadiativeTransferAdaptiveTimestep           = FALSE;
 
   /* read input from file */
 
@@ -100,6 +101,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
 		  &RadiativeTransferHIIRestrictedTimestep);
+    ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
+		  &RadiativeTransferAdaptiveTimestep);
+
+    ret += sscanf(line, "dtPhoton = %"FSYM, dtPhoton);
 
     /* if the line is suspicious, issue a warning */
 

@@ -62,3 +62,9 @@ EXTERN int RadiativeTransferPeriodicBoundary;
 /* Flag to use timestepping to restrict HII fraction change to 50% */
 
 EXTERN int RadiativeTransferHIIRestrictedTimestep;
+
+/* Flag to use adaptive timestepping for ray tracing.  However this
+   removes the time-derivative from the radiative transfer
+   equation. */
+
+EXTERN int RadiativeTransferAdaptiveTimestep;
