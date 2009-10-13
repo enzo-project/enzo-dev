@@ -164,9 +164,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	    ENZO_FAIL("");
 	  }
 
+    /*
     fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 	    "Radius = %e pc, changed %"ISYM" cells.\n", 
 	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); //#####
+    */
 
     /* Only kill a Pop III star after it has gone SN */
 

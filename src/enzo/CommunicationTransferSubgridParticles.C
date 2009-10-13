@@ -152,11 +152,9 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       (GridPointers, NumberOfGrids, StarsToMove, Zero, Zero, 
        StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
 
-    /*
     Grids[grid1]->GridData->TransferSubgridParticles
       (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
        SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
-    */  //#####
 
     delete [] SiblingList.GridList;
 
@@ -198,6 +196,13 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 	jend++;
 	if (jend == NumberOfReceives) break;
       }
+
+      /*
+      printf("j =%d, jstart =%d, jend =%d, NumberOfGrids =%d, " 
+             "NumberToMove[] =%d/%d, NumberOfReceives =%d\n", 
+	     j, jstart, jend, NumberOfGrids, 
+	     NumberToMove[0], NumberToMove[1], NumberOfReceives); //#####
+      */
 
       GridPointers[j]->TransferSubgridParticles
 	(GridPointers, NumberOfGrids, NumberToMove, jstart, jend, 

@@ -124,23 +124,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
     if (Galaxy2ColourNum != -1) colnum[NumberOfColours++] = Galaxy2ColourNum;
 
-    /*  //#####
-    int MetalNum;
-    if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) != -1) {
-      colnum[NumberOfColours++] = MetalNum;
-      if (MultiMetals || TestProblemData.MultiMetals) {
-	colnum[NumberOfColours++] = MetalNum+1;
-	colnum[NumberOfColours++] = MetalNum+2;
-      }
-    }
-
-    int SNColourNum;
-    if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields))
-	!= -1) {
-      colnum[NumberOfColours++] = SNColourNum;
-    }
-    */
-
 
     /* Add Simon Glover's chemistry species as color fields */
 

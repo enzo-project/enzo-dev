@@ -44,8 +44,6 @@ int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 void my_exit(int status);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int  RebuildHierarchy(TopGridData *MetaData,
-		      LevelHierarchyEntry *LevelArray[], int level); //#####
 
 #define TIME_MESSAGING 
 
@@ -205,16 +203,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     my_exit(EXIT_SUCCESS);
   }
   
-  if( Write == TRUE ){
-
-// Following ifdef is implemented to catch and redistribute all the particles/stars
-// out of the grid boundary before outputing the data hierarchy
-// Purely for test purpose, and not for public consumption yet.  Ji-hoon Kim in Oct.2009
-#ifndef CATCH_PARTICLES  //#####
-    fprintf(stdout, "*** Rebuilding hierarchy before WriteAllData. ***\n");
-    RebuildHierarchy(MetaData, LevelArray, level);
-#endif
-    
+  if( Write == TRUE ){    
     LevelHierarchyEntry *Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
       Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */

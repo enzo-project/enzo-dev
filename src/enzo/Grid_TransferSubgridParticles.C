@@ -187,13 +187,19 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
  
   else {
 
+    /* If particles aren't distributed over several processors, exit
+       if this isn't the host processor. */
+
+    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber)
+      return SUCCESS;
+
     /* Count up total number. */
  
     int TotalNumberOfParticles;
     int NumberOfNewParticles = EndIndex - StartIndex;
 
     TotalNumberOfParticles = NumberOfParticles + NumberOfNewParticles;
- 
+
     /* Allocate space for the particles. */
 
     FLOAT *Position[MAX_DIMENSION];
@@ -215,9 +221,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
       fprintf(stderr, "malloc error (out of memory?)\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in Grid_TransferSubgridParticles.C");
     }
- 
+
     /* Copy this grid's particles to the new space. */
 
     for (i = 0; i < NumberOfParticles; i++) {
@@ -265,7 +271,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     }
       
     } // ENDIF TotalNumberOfParticles > 0
- 
+
     /* Set new number of particles in this grid. */
  
     NumberOfParticles = TotalNumberOfParticles;
