@@ -83,6 +83,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
+  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
 
   /* Compute Units. */
   
@@ -673,6 +674,11 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	  
 	  if (*jlrefine > 0)
 	    jeansthresh = jlsquared * temp[index] / d[index];
+	  /*printf("jeansthresh = %g \n",jeansthresh);
+	  printf("jlsquared = %g \n",jlsquared);
+	  printf("temp[index] = %g \n",temp[index]);
+	  printf("d[index] = %g \n",d[index]);*/
+
 
 
 	  if (r[index] == 0 && (d[index] > densthresh ||

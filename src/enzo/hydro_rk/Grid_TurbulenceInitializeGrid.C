@@ -288,6 +288,14 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    eint = CloudInternalEnergy/(1.0+0.1*drho);
 	  }
 
+	  /* Type 6: flattened 1/r^2 profile with large core and with ambient medium. */
+
+	  if (CloudType == 6) {
+	    Density = CloudDensity / (1.0 + 6.0*pow(r/CloudRadius,2));
+	    eint = CloudInternalEnergy;
+	  }
+
+
 	} else {
 
 	  if (CloudType == 0) {
@@ -300,6 +308,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    eint = CloudInternalEnergy;
 	  }
 
+	  if (CloudType == 2) {
+	    Density = CloudDensity / 10.0;
+	    eint = CloudInternalEnergy * 10.0;
+	  }
+
           if (CloudType ==3) {
 	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
 	    eint = CloudInternalEnergy;
@@ -310,10 +323,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    eint = CloudInternalEnergy;
 	  }
 
-	  if (CloudType == 2) {
-	    Density = CloudDensity / 10.0;
-	    eint = CloudInternalEnergy * 10.0;
+
+          if (CloudType ==6) {
+	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
+	    eint = CloudInternalEnergy;
 	  }
+
 	}
 
 	BaryonField[iden ][n] = Density;
@@ -407,6 +422,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       dk = 5;
     }
     if (CloudType == 3) {
+      k1 = 2.0;
+      k2 = 10.0;
+      dk = 1.0;
+    }
+
+    if (CloudType == 6) {
       k1 = 2.0;
       k2 = 10.0;
       dk = 1.0;
