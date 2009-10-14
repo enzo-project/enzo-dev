@@ -188,7 +188,7 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
   }
   
 
-  printf("rhou=%g,velu=%g,lenu=%g,tu=%g,tempu=%g,presu=%g\n", rhou, velu,lenu,tu,tempu,presu);
+  printf("Collapse3D: rhou=%g,velu=%g,lenu=%g,tu=%g,tempu=%g,presu=%g\n", rhou, velu,lenu,tu,tempu,presu);
 
   // Bonnor-Ebert sphere: only the sound velocity and sphere radius are free parameters
   if (SphereType[0] == 3) { 

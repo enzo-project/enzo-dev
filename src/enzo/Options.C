@@ -48,7 +48,7 @@ int ENZO_OptionsinEffect(void)
     if (ENZO_SVN_REVISION != 0) {
       fprintf(opf,"=========================\n");
       fprintf(opf,"Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-      fprintf(opf,"Enzo SVN Revision %"ISYM"\n",ENZO_SVN_REVISION);
+      fprintf(opf,"Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
       fprintf(opf,"=========================\n");
     }
 

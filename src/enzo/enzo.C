@@ -181,7 +181,7 @@ Eint32 main(Eint32 argc, char *argv[])
       ENZO_SVN_REVISION != 0) {
     printf("=========================\n");
     printf("Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-    printf("Enzo SVN Revision %d\n",ENZO_SVN_REVISION);
+    printf("Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
     printf("=========================\n");
     fflush(stdout);
   }
