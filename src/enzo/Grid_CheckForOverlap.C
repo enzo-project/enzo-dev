@@ -107,6 +107,11 @@ int grid::CheckForOverlap(grid *OtherGrid,
 
   //PrintToScreenBoundaries(BaryonField[2], "Vy");
 
+  PrintToScreenBoundaries(BaryonField[ivy], "iVy before a copy");
+  PrintToScreenBoundaries(BaryonField[ieint], "Eint before a copy");
+  PrintToScreenBoundaries(BaryonField[ietot], "Etot before a copy");
+
+
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
   for (k = -kdim; k <= +kdim; k++) {
@@ -182,7 +187,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
 		  ENZO_FAIL("CopyFunctionFail(2)");
 		}
 	  }
-	
+	  
+	  printf("--------------------EdgeOffset = %g %g %g \n", EdgeOffset[0], EdgeOffset[1], EdgeOffset[2]);
 	
 		
 	      
@@ -201,7 +207,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      ENZO_FAIL("");
 	    }
 	  }
- 
+	  
 
 	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
 	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
@@ -213,6 +219,11 @@ int grid::CheckForOverlap(grid *OtherGrid,
 
     } // end: loop of j
   } // end: loop of k
+
+
+ PrintToScreenBoundaries(BaryonField[ivy], "iVy after a copy");
+  PrintToScreenBoundaries(BaryonField[ieint], "Eint after a copy");
+  PrintToScreenBoundaries(BaryonField[ietot], "Etot after a copy");
 
 
   return SUCCESS;

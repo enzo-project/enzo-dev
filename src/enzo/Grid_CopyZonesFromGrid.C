@@ -278,6 +278,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     
 
 
+//   PrintToScreenBoundaries(BaryonField[ieint], "Eint before a copy");
+//   PrintToScreenBoundaries(BaryonField[ietot], "Etot before a copy");
 
   /* Copy zones */
 
@@ -306,36 +308,37 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	    val1=OtherGrid->BaryonField[field][otherindex];
 	    val2=OtherGrid->BaryonField[field][otherindexB];
 	    
-	    if (DualEnergyFormalism!=1 && field==ietot) {
-	      for (int loop=0; loop<=1; loop++){
-		int iLoop=otherindex;
-		if (loop==1) iLoop= otherindexB;
+	 //    if (DualEnergyFormalism==0 && FieldType[field]==TotalEnergy) {
+// 	      for (int loop=0; loop<=1; loop++){
+// 		int iLoop=otherindex;
+// 		if (loop==1) iLoop= otherindexB;
 
-		float vx, vy, vz, v2, rho;
+// 		float vx, vy, vz, v2, rho;
+// 		v2=0.0;
+// 		rho= OtherGrid->BaryonField[iden][iLoop];
+// 		vx= OtherGrid->BaryonField[ivx][iLoop];
+// 		vy= OtherGrid->BaryonField[ivy][iLoop];  
+// 		if (GridRank==3) vz=OtherGrid->BaryonField[ivz][iLoop];  
+// 		else vz=0.0;
+// 		v2=vx*vx+vy*vy+vz*vz;
 		
-		rho= OtherGrid->BaryonField[iden][iLoop];
-		vx= OtherGrid->BaryonField[ivx][iLoop];
-		vy= OtherGrid->BaryonField[ivy][iLoop];  
-		if (GridRank==3) vz=OtherGrid->BaryonField[ivz][iLoop];  
-		else vz=0.0;
-		v2=vx*vx+vy*vy+vz*vz;
+// 		float bx, by, bz, b2;
+// 		b2=0.0;
+// 		if (useMHD) {
+// 		  bx= OtherGrid->BaryonField[iBx][iLoop];
+// 		  by= OtherGrid->BaryonField[iBy][iLoop];  
+// 		  if (GridRank==3) bz= OtherGrid->BaryonField[iBz][iLoop];  
+// 		  else
+// 		    bz=0.0;
+// 		  b2=bx*bx+by*by+bz*bz;
+// 		}
 		
-		float bx, by, bz, b2;
-		b2=0.0;
-		if (useMHD) {
-		  bx= OtherGrid->BaryonField[iBx][iLoop];
-		  by= OtherGrid->BaryonField[iBy][iLoop];  
-		  if (GridRank==3) bz= OtherGrid->BaryonField[iBz][iLoop];  
-		  else
-		    bz=0.0;
-		  b2=bx*bx+by*by+bz*bz;
-		}
-		
-		
-		if (loop==0) val1=val1- 0.5*v2 - 0.5*b2/rho;
-		else if (loop==1) val2=val2- 0.5*v2 - 0.5*b2/rho;
-	      }  
-	    }
+// 		if (loop==0) val1=val1- 0.5*v2 - 0.5*b2/rho;
+// 		else if (loop==1) val2=val2- 0.5*v2 - 0.5*b2/rho;
+
+// 		if (k==0 && j==10 && i==2) printf("DE0 %g %g \n", val1, val2);
+// 	      }  
+// 	    }
 	    
 	    BaryonField[field][thisindex] = (float) (b*val1+a*val2);
 		     
@@ -346,18 +349,16 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      }
 	      else if (shiftPos){
 		BaryonField[field][thisindex] +=delta;
-	      }
+	      }}}}}
 	      
-	    }
-	  }
 
 
-	}}
+	
 
 
   //Update the energys due to sheared boundaries
   if (isShearing){
-
+    
     for (int k = 0; k < Dim[2]; k++)
       for (int j = 0; j < Dim[1]; j++) {
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
@@ -381,13 +382,15 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	    b2=bx*bx+by*by+bz*bz;
 	  }
 	  
-	  if (DualEnergyFormalism!=1)
-	    BaryonField[ietot][thisindex] = BaryonField[ietot][thisindex] + 0.5*v2 +0.5*b2/rho;
-	  else
-	    BaryonField[ietot][thisindex] = BaryonField[ieint][thisindex] + 0.5*v2 +0.5*b2/rho;
-	   
-	}}
-  } 
+	  if (DualEnergyFormalism==1){
+	    	if (k==0 && j==10 && i==2) printf("DE1 %g,  %g %g %g \n", BaryonField[ieint][thisindex] + 0.5*v2 +0.5*b2/rho, BaryonField[ieint][thisindex], 0.5*v2, 0.5*b2/rho);
+		BaryonField[ietot][thisindex] = BaryonField[ieint][thisindex] + 0.5*v2 +0.5*b2/rho;
+	  }
+	  else if  (DualEnergyFormalism==0){
+	   	if (k==0 && j==10 && i==2)  printf("DE0 %g,  %g %g %g \n", BaryonField[ietot][thisindex] + 0.5*v2 +0.5*b2/rho, BaryonField[ietot][thisindex], 0.5*v2, 0.5*b2/rho);
+		BaryonField[ietot][thisindex] = BaryonField[ietot][thisindex] + 0.5*v2 +0.5*b2/rho;
+	  }}}}
+
 
 
   /* Clean up if we have transfered data. */
@@ -398,8 +401,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
  
   this->DebugCheck("CopyZonesFromGrid (after)");
-  
-  //  PrintToScreenBoundaries(BaryonField[0], "Density after a copy");
+ //  PrintToScreenBoundaries(BaryonField[ieint], "Eint after a copy");
+//   PrintToScreenBoundaries(BaryonField[ietot], "Etot after a copy");
   //  printf("***Labels copy %d \n", FieldType[ivy]);
 
    

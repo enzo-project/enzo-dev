@@ -132,22 +132,23 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
 	  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
-	  if (level == 0) {
-	    if (loop==0){
-	    if (Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior)
-		== FAIL) {
-	      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-	      ENZO_FAIL("");}	      
+	  if (loop==0){
+	    if (level == 0) {
+	      
+	      if (Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior)
+		  == FAIL) {
+		fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
+		ENZO_FAIL("");}	      
 	    }
-	  }
-	  else {
-	    if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
-		 (Grids[grid1]->ParentGrid->GridData)) == FAIL) {
-	      fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
-	      ENZO_FAIL("");
-	    }
-	  }
-
+	    
+	    else {
+	      if ((Grids[grid1]->GridData->InterpolateBoundaryFromParent
+		   (Grids[grid1]->ParentGrid->GridData)) == FAIL) {
+		fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
+		ENZO_FAIL("");
+	      }
+	    }}
+	  
 	} // ENDFOR grids
 
 	/* -------------- SECOND PASS ----------------- */

@@ -284,7 +284,6 @@ int grid::SourceTerms(float **dU)
 
 
 	  //Omega cross V
-	  FLOAT temp= dU[indexNumbers[1]][n];
 
 	  dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
 	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
