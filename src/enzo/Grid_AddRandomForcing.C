@@ -39,7 +39,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
 
   int i, dim;
 
-  JBPERF_START("grid_AddRandomForcing");
+  LCAPERF_START("grid_AddRandomForcing");
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
@@ -88,7 +88,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
     for (i = 0; i < size; i++)
 	BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
  
-  JBPERF_STOP("grid_AddRandomForcing");
+  LCAPERF_STOP("grid_AddRandomForcing");
   return SUCCESS;
  
 }

@@ -896,7 +896,7 @@ main(int argc, char *argv[])
 
       /* Save disk image. */
 
-      int32 OutDims[2];
+      Eint32 OutDims[2];
       OutDims[0] = OutDims[1] = parameters.DiskImageSize;
       if (DFSDsetdims(2, OutDims) == HDF_FAIL) {
 	fprintf(stderr, "Error in DFSDsetdims.\n");

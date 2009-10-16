@@ -86,12 +86,12 @@ help-config:
 	@echo "      gmake packed-mem-yes"
 	@echo "      gmake packed-mem-no"
 	@echo
-	@echo "   Set whether to call jbPerf performance tool"
+	@echo "   Set whether to call lcaperf performance tool"
 	@echo
-	@echo "      gmake jbperf-yes"
-	@echo "      gmake jbperf-no"
+	@echo "      gmake lcaperf-yes"
+	@echo "      gmake lcaperf-no"
 	@echo
-	@echo "   Set whether to use the PAPI library with jbPerf"
+	@echo "   Set whether to use the PAPI library with lcaperf"
 	@echo
 	@echo "      gmake papi-yes"
 	@echo "      gmake papi-no"
@@ -210,7 +210,7 @@ show-config:
 	@echo "   CONFIG_TASKMAP:               $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR:            $(CONFIG_PACKED_AMR)"
 	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
-	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
+	@echo "   CONFIG_LCAPERF:               $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
 	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
@@ -477,19 +477,19 @@ CONFIG_PACKED-MEM-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_JBPERF = jbperf-yes jbperf-no
-.PHONY: $(VALID_JBPERF)
+VALID_LCAPERF = lcaperf-yes lcaperf-no
+.PHONY: $(VALID_LCAPERF)
 
-jbperf-yes: CONFIG_JBPERF-yes
-jbperf-no: CONFIG_JBPERF-no
-jbperf-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_JBPERF)]\n\n"
-CONFIG_JBPERF-%: suggest-clean
+lcaperf-yes: CONFIG_LCAPERF-yes
+lcaperf-no: CONFIG_LCAPERF-no
+lcaperf-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LCAPERF)]\n\n"
+CONFIG_LCAPERF-%: suggest-clean
 	@tmp=.config.temp; \
-        grep -v CONFIG_JBPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        grep -v CONFIG_LCAPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_JBPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_JBPERF:
+        echo "CONFIG_LCAPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LCAPERF:
 	@echo
 
 #-----------------------------------------------------------------------

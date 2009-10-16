@@ -63,7 +63,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   if (ProcessorNumber != MyProcessorNumber || !UseHydro)
     return SUCCESS;
 
-  JBPERF_START("grid_SolveHydroEquations");
+  LCAPERF_START("grid_SolveHydroEquations");
 
   this->DebugCheck("SolveHydroEquations");
 
@@ -377,7 +377,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
   this->DebugCheck("SolveHydroEquations (after)");
 
-  JBPERF_STOP("grid_SolveHydroEquations");
+  LCAPERF_STOP("grid_SolveHydroEquations");
   return SUCCESS;
 
 }

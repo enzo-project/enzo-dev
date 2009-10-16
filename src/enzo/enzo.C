@@ -131,8 +131,8 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
-#ifdef USE_JBPERF
-void jbPerfInitialize (int max_level);
+#ifdef USE_LCAPERF
+void lcaperfInitialize (int max_level);
 #endif
 
 void my_exit(int status);
@@ -193,11 +193,11 @@ Eint32 main(Eint32 argc, char *argv[])
   t_init0 = MPI_Wtime();
 #endif /* USE_MPI */
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-    // Initialize jbPerf performance collecting
+    // Initialize lcaperf performance collecting
 
-  jbPerfInitialize(MaximumRefinementLevel);
+  lcaperfInitialize(MaximumRefinementLevel);
 
 #endif
 

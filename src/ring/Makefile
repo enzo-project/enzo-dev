@@ -73,6 +73,13 @@ include $(MAKE_CONFIG_OVERRIDE)
 #
 # include $(ENZO_DIR)/Make.config.override
 
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+# OVERRIDE ENZO CONFIGURE SETTINGS FOR NON-ENZO EXECUTABLES
+
+CONFIG_LCAPERF   = no
+
+#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 #-----------------------------------------------------------------------
 # Make.config.assemble takes the settings in the Make.config.settings
 # and Make.config.override, and generates the appropriate make variables

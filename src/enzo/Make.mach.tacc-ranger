@@ -47,7 +47,6 @@ LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_SPRNG_INSTALL = /share/home/00332/tg456084/enzo/Enzo/opt/sprng
 LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = 
-LOCAL_JBPERF_INSTALL = 
 LOCAL_ACML_INSTALL   = /share/apps/intel10_1/acml/4.1.0/ifort64
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -121,7 +120,6 @@ LDR_OPT      = -Mdaz -Mflushz -fastsse -Mnontemporal -Mnofprelaxed -Mvect=altcod
 LOCAL_INCLUDES_MPI    = -I/opt/apps/intel10_1/mvapich/1.0.1/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_JBPERF = 
 LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
 LOCAL_INCLUDES_PNG    =
 
@@ -130,7 +128,6 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -145,7 +142,6 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_JBPERF = 
 LOCAL_LIBS_SPRNG = -L$(LOCAL_SPRNG_INSTALL)/lib -llcg64
 LOCAL_LIBS_PNG    = 
 
@@ -159,4 +155,3 @@ LOCAL_LIBS_MACH   = -L/share/apps/intel10_1/acml/4.1.0/ifort64/lib -lacml_mv -la
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_SPRNG)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
-MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)

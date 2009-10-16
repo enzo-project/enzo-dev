@@ -42,7 +42,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  JBPERF_START("grid_CopyBaryonFieldToOldBaryonField");
+  LCAPERF_START("grid_CopyBaryonFieldToOldBaryonField");
 
   /* compute the field size */
  
@@ -107,7 +107,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
 #endif /* SAB */
  
-  JBPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
+  LCAPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
   return SUCCESS;
  
 }

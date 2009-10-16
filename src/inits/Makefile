@@ -73,6 +73,8 @@ include $(MAKE_CONFIG_OVERRIDE)
 # INITS ONLY: override the override, since we don't want to compile with MPI
 
 CONFIG_USE_MPI = no
+CONFIG_LCAPERF = no
+
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------

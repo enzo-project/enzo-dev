@@ -125,8 +125,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
 
-  JBPERF_BEGIN("EL");
-  JBPERF_START("EvolveHierarchy");
+  LCAPERF_BEGIN("EL");
+  LCAPERF_START("EvolveHierarchy");
 
 #ifdef USE_MPI
   tentry = MPI_Wtime();
@@ -289,25 +289,25 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   StarParticleCountOnly(LevelArray);
  
-#ifdef USE_JBPERF
-  Eint32 jb_iter;
+#ifdef USE_LCAPERF
+  Eint32 lcaperf_iter;
 #endif
 
-  JBPERF_STOP("EvolveHierarchy");
-  JBPERF_END("EH");
+  LCAPERF_STOP("EvolveHierarchy");
+  LCAPERF_END("EH");
 
   /* ====== MAIN LOOP ===== */
 
   bool FirstLoop = true;
   while (!Stop) {
 
-#ifdef USE_JBPERF
-    jb_iter = MetaData.CycleNumber;
+#ifdef USE_LCAPERF
+    lcaperf_iter = MetaData.CycleNumber;
     static bool isFirstCall = true;
-    if ((jb_iter % JB_ITER_PER_SEGMENT)==0 || isFirstCall) jbPerf.begin("EL");
+    if ((lcaperf_iter % LCAPERF_DUMP_FREQUENCY)==0 || isFirstCall) lcaperf.begin("EL");
     isFirstCall = false;
-    jbPerf.attribute ("timestep",&jb_iter, JB_INT);
-    jbPerf.start("EL");
+    lcaperf.attribute ("timestep",&lcaperf_iter, LCAPERF_INT);
+    lcaperf.start("EL");
 #endif
 
 #ifdef USE_MPI
@@ -331,7 +331,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
 
     // OutputLevelInformation() only needs to be called by all processors
-    // when jbPerf is enabled.
+    // when lcaperf is enabled.
 
     OutputLevelInformation(LevelInfofptr, MetaData, LevelArray);
 
@@ -544,9 +544,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
 #endif /* REDUCE_FRAGMENTATION */
 
-#ifdef USE_JBPERF
-    jbPerf.stop("EL");
-    if (((jb_iter+1) % JB_ITER_PER_SEGMENT)==0) jbPerf.end("EL");
+#ifdef USE_LCAPERF
+    lcaperf.stop("EL");
+    if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)==0) lcaperf.end("EL");
 #endif
 
 #ifdef MEM_TRACE
@@ -605,9 +605,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   } // ===== end of main loop ====
  
-#ifdef USE_JBPERF
-  if (((jb_iter+1) % JB_ITER_PER_SEGMENT)!=0) jbPerf.end("EL");
-  jbPerf.attribute ("timestep",0, JB_NULL);
+#ifdef USE_LCAPERF
+  if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
+  lcaperf.attribute ("timestep",0, LCAPERF_NULL);
 #endif
 
 #ifdef USE_MPI

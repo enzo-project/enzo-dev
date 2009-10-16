@@ -309,7 +309,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  StarClusterRegionRightEdge[dim] <= GridLeftEdge[dim])
 	return SUCCESS;
 
-  JBPERF_START("grid_StarParticleHandler");
+  LCAPERF_START("grid_StarParticleHandler");
 
   /* Compute size (in floats) of the current grid. */
  
@@ -1097,6 +1097,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
   //if (debug) printf("StarParticle: end\n");
 
-  JBPERF_STOP("grid_StarParticleHandler");
+  LCAPERF_STOP("grid_StarParticleHandler");
   return SUCCESS;
 }

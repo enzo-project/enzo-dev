@@ -112,7 +112,6 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) #$(LOCAL_I
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 #-----------------------------------------------------------------------
 # Libraries

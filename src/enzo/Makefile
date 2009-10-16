@@ -45,6 +45,7 @@ OUTPUT   = out.compile
 ENZO_DIR = .
 MODULES  = 
 
+# please remove this
 SVN      = /u/ki/mturk/Research/local/yt-x86_64/bin/hg
 
 #-----------------------------------------------------------------------

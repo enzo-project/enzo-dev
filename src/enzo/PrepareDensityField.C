@@ -95,7 +95,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /* Return if this does not concern us */
   if (!SelfGravity) return SUCCESS;
  
-  JBPERF_START("PrepareDensityField");
+  LCAPERF_START("PrepareDensityField");
 
   int grid1, grid2, StartGrid, EndGrid;
  
@@ -537,7 +537,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
   // --------------------------------------------------
 
-  JBPERF_STOP("PrepareDensityField");
+  LCAPERF_STOP("PrepareDensityField");
   return SUCCESS;
 
 }

@@ -88,7 +88,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   int dbx = 0;
  
-  JBPERF_START("RebuildHierarchy");
+  LCAPERF_START("RebuildHierarchy");
 
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");
@@ -604,7 +604,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   if (debug) fpcol(RHperf, 16, 16, stdout);
 #endif /* RH_PERF */
   ReportMemoryUsage("Rebuild pos 4");
-  JBPERF_STOP("RebuildHierarchy");
+  LCAPERF_STOP("RebuildHierarchy");
   return SUCCESS;
  
 }
