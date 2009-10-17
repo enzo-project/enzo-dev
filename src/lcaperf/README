@@ -1,0 +1,14 @@
+This directory contains utilities for post-processing lcaperf output files.
+
+jb-attribute  Filters records according to attribute values
+jb-columns    Output data in columns; useful for plotting with gnuplot
+jb-counter    Filters counters from all regions
+jb-delete     Deletes the attribute, global, or counter
+jb-derive     Declares a new derived type.  Can reduce along attributes
+jb-global     Defines new global variables (e.g. plotting parameters)
+jb-header     Re-prints header
+jb-merge      Merges multiple data files into one
+jb-print      Display data in data files in a human-readable format
+jb-promote    Converts the listed global variables to attributes
+jb-region     Filters records according to region names
+jb-rename     Renames globals, attributes, and counters.
