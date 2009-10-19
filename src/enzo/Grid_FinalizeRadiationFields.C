@@ -90,6 +90,9 @@ int grid::FinalizeRadiationFields(void)
       } // ENDFOR i
     } // ENDFOR j
   
+  if (RadiativeTransferHIIRestrictedTimestep &&
+      this->IndexOfMaximumkph >= 0)
+    this->MaximumkphIfront /= (factor * BaryonField[HINum][IndexOfMaximumkph]);
 
 #endif /* TRANSFER */  
   

@@ -30,8 +30,7 @@
 #include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 
-#define MAX_CHANGE 0.5
-#define MAX_TAU 0.5
+#define MAX_CHANGE 0.1
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
@@ -47,7 +46,7 @@ float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
 //    return huge_number;
 
   int i, j, k, dim, index, size;
-  float dt, sigma_dx, *temperature;
+  float dt, this_dt, sigma_dx, *temperature;
   const double sigmaHI = 6.345e-18, mh = 1.673e-24;
 
   dt = huge_number;
@@ -94,8 +93,8 @@ float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
 
   // Absorb all unit conversions into this factor, so we only have to
   // multiple by density.
-  sigma_dx = float(sigmaHI * double(LengthUnits) * double(DensityUnits)/mh * 
-		   double(CellWidth[0][0]));
+//  sigma_dx = float(sigmaHI * double(LengthUnits) * double(DensityUnits)/mh * 
+//		   double(CellWidth[0][0]));
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -103,11 +102,14 @@ float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 
 	/* Remember to convert densities from comoving to proper.  We
-	   also only consider cells with optical depths > 0.5,
-	   i.e. near the I-front. */
+	   also only consider cells with cumulative optical depths >
+	   0.1, i.e. near the I-front.  This is quantified by a
+	   maximum kph in the grid and is calculated in
+	   WalkPhotonPackage. */
 	
-	tau = sigma_dx * BaryonField[HINum][index];
-	if (BaryonField[kphHINum][index] > 0 && tau > MAX_TAU) {
+	//tau = sigma_dx * BaryonField[HINum][index];
+	if (BaryonField[kphHINum][index] < this->MaximumkphIfront &&
+	    BaryonField[kphHINum][index] > 0) {
 
 	  logtem = min( max( log(temperature[index]), logtem0 ), logtem9 );
 	  tidx = min( RateData.NumberOfTemperatureBins-1,
@@ -126,14 +128,21 @@ float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
 	     k2 * BaryonField[HIINum][index] * BaryonField[DeNum][index]) +
 	    a3inv * BaryonField[HINum][index] * BaryonField[kphHINum][index];
 
-	  if (HIIdot > 0)
-	    dt = min(dt, MAX_CHANGE * BaryonField[HIINum][index] / HIIdot);
+	  if (HIIdot > 0) {
+	    this_dt = MAX_CHANGE * BaryonField[HIINum][index] / HIIdot;
+//	    printf("kph=%g/%g, dt=%g, T=%g, HI=%g, HII=%g, k1=%g, k2=%g\n",
+//		   BaryonField[kphHINum][index], MaximumkphIfront,
+//		   this_dt, temperature[index], 
+//		   BaryonField[HINum][index] / BaryonField[0][index],
+//		   BaryonField[HIINum][index] / BaryonField[0][index],
+//		   k1, k2);
+	    dt = min(dt, this_dt);
+	  }
 
-	} // ENDIF radiation and tau > MAX_TAU
+	} // ENDIF radiation > max(kph) in I-front (tau>~0.1)
 
       } // ENDFOR i
     } // ENDFOR j
-
 
   return dt;
 }

@@ -104,7 +104,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
     ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
 		  &RadiativeTransferAdaptiveTimestep);
 
-    ret += sscanf(line, "dtPhoton = %"FSYM, dtPhoton);
+    ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
 
     /* if the line is suspicious, issue a warning */
 
