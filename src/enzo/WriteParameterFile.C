@@ -577,7 +577,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackMassEjectionFraction);
   fprintf(fptr, "MBHFeedbackMetalYield           = %"GSYM"\n",
           MBHFeedbackMetalYield);
-  fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n",
+  fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n\n",
           MBHCombineRadius);
 
   /* Most Stanford additions: */

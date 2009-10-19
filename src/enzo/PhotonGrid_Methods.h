@@ -14,9 +14,8 @@
 
 /* Photons: Computes photon timestep */
 
-//   float ComputePhotonTimestep(void);
-   float ComputeRT_TimeStep(void);
-   float ComputeRT_TimeStep2(float DensityUnits, float LengthUnits);
+   float ComputePhotonTimestep(void);
+   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits);
 
 /* Photons: return number of PhotonPackages. */
 
@@ -241,10 +240,42 @@ float Max_kph(int &ncells) {
     size *= GridDimension[dim];
   for (i = 0; i < size; i++) {
     if (BaryonField[kphHINum][i] > 0) ncells++;
-    max_kph = max(max_kph, BaryonField[kdissH2INum][i]);
+    max_kph = max(max_kph, BaryonField[kphHINum][i]);
   }
 
   return max_kph;
+
+};
+
+float Min_kph(int &ncells) {
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return 0;
+
+  int i, dim, size = 1;
+  float min_kph = 1e20;
+
+  ncells = 0;
+
+  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
+    kdissH2INum;
+  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
+				      gammaHeINum, kphHeIINum, gammaHeIINum, 
+				      kdissH2INum) == FAIL) {
+    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
+    return 0;
+  }
+  
+  for (dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  for (i = 0; i < size; i++) {
+    if (BaryonField[kphHINum][i] > 0) {
+      ncells++;
+      min_kph = min(min_kph, BaryonField[kphHINum][i]);
+    }
+  }
+
+  return min_kph;
 
 };
 

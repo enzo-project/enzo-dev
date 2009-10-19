@@ -83,6 +83,7 @@ int grid::InitializeRadiativeTransferFields()
   }  /* ENDIF RadiationPressure */
 
   HasRadiation = FALSE;
+  MaximumkphIfront = 0;
 
   return SUCCESS;
 }

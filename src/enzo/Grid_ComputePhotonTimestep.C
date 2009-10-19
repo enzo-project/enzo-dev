@@ -49,7 +49,7 @@ extern "C" void FORTRAN_NAME(calc_dt)(
 			     float *dt, float *dtviscous);
 
 
-float grid::ComputeRT_TimeStep()
+float grid::ComputePhotonTimestep()
 {
 
   /* Return if this doesn't concern us. */

@@ -146,7 +146,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (NumberOfSources == 0) {
       PhotonTime += dtPhoton;
-      return SUCCESS;
+      continue;
     }    
 
     /* Create tree that clusters the sources if requested.  While
