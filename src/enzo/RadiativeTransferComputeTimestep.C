@@ -83,7 +83,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
     for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
       for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
 	ThisPhotonDT = Temp->GridData->
-	  ComputeRT_TimeStep2(DensityUnits, LengthUnits);
+	  ComputePhotonTimestepHII(DensityUnits, LengthUnits);
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
       }
     CommunicationMinValue(dtPhoton);
@@ -102,7 +102,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   if (dtPhoton >= huge_number) {
     if (maxLevel > 0) {
       for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
-	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
+	ThisPhotonDT = Temp->GridData->ComputePhotonTimestep();
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
       } // ENDFOR grids
       dtPhoton = CommunicationMinValue(dtPhoton);

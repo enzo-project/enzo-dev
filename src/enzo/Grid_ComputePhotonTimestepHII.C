@@ -34,7 +34,7 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-float grid::ComputeRT_TimeStep2(float DensityUnits, float LengthUnits)
+float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits)
 {
 
   /* Return if this doesn't concern us. */

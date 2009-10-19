@@ -14,9 +14,8 @@
 
 /* Photons: Computes photon timestep */
 
-//   float ComputePhotonTimestep(void);
-   float ComputeRT_TimeStep(void);
-   float ComputeRT_TimeStep2(float DensityUnits, float LengthUnits);
+   float ComputePhotonTimestep(void);
+   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits);
 
 /* Photons: return number of PhotonPackages. */
 
