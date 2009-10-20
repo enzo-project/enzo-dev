@@ -49,7 +49,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  JBPERF_START("grid_SolveForPotential");
+  LCAPERF_START("grid_SolveForPotential");
  
   /* declarations */
  
@@ -162,7 +162,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   if (debug1) printf("SolvedPotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
 #endif
  
-  JBPERF_STOP("grid_SolveForPotential");
+  LCAPERF_STOP("grid_SolveForPotential");
   return SUCCESS;
 }
  

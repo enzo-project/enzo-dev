@@ -27,7 +27,7 @@ int UpdateParticlePositions(grid *Grid)
 
   float dt = Grid->ReturnTimeStep();
 
-  JBPERF_START("UpdateParticlePositions");
+  LCAPERF_START("UpdateParticlePositions");
 
   /* 1) v(n) --> v(n+1/2) with a(n+1/2) */
  
@@ -62,6 +62,6 @@ int UpdateParticlePositions(grid *Grid)
   }
  
  
-  JBPERF_STOP("UpdateParticlePositions");
+  LCAPERF_STOP("UpdateParticlePositions");
   return SUCCESS;
 }

@@ -47,7 +47,8 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   dt = LevelArray[level]->GridData->ReturnTimeStep();
 
   //if (dtPhoton >= 0.0 && GridTime+dt >= PhotonTime) {
-  if (GridTime+dt >= PhotonTime || MetaData->FirstTimestepAfterRestart) {
+  //if (GridTime+dt > PhotonTime || MetaData->FirstTimestepAfterRestart) {
+  if (GridTime > PhotonTime || MetaData->FirstTimestepAfterRestart) {
 
     /* Determine the photon timestep */
 

@@ -67,7 +67,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   
   int grid1, grid2, StartGrid, EndGrid, loop;
   
-  JBPERF_START("SetBoundaryConditions");
+  LCAPERF_START("SetBoundaryConditions");
     
   for (loop = 0; loop < loopEnd; loop++){
     
@@ -208,7 +208,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  
-  JBPERF_STOP("SetBoundaryConditions");
+  LCAPERF_STOP("SetBoundaryConditions");
 
   return SUCCESS;
   

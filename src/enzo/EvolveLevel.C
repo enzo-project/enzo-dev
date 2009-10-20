@@ -237,9 +237,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   // Update lcaperf "level" attribute
 
-  Eint32 jb_level = level;
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",&jb_level,JB_INT);
+  Eint32 lcaperf_level = level;
+#ifdef USE_LCAPERF
+  lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
 
   /* Create an array (Grids) of all the grids. */
@@ -505,10 +505,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
 
-    jbPerf.attribute ("level",&jb_level,JB_INT);
+    lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
@@ -590,8 +590,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",0,JB_NULL);
+#ifdef USE_LCAPERF
+  lcaperf.attribute ("level",0,LCAPERF_NULL);
 #endif
 
   /* Clean up. */

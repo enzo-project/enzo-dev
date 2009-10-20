@@ -59,7 +59,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow;
 
-  JBPERF_START("StarParticleFinalize");
+  LCAPERF_START("StarParticleFinalize");
 
   /* Update the star particle counters. */
 
@@ -145,7 +145,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   DeleteStarList(AllStars);
 
-  JBPERF_STOP("StarParticleFinalize");
+  LCAPERF_STOP("StarParticleFinalize");
   return SUCCESS;
 
 }

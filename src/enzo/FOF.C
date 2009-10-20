@@ -75,7 +75,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   } // ENDIF force run
 
-  JBPERF_START("InlineHaloFinder");
+  LCAPERF_START("InlineHaloFinder");
 
   if (!ComovingCoordinates)
     fprintf(stdout, "FOF: Warning -- you're running the halo finder on a"
@@ -133,7 +133,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   HaloFinderLastTime = MetaData->Time;
 
-  JBPERF_STOP("InlineHaloFinder");
+  LCAPERF_STOP("InlineHaloFinder");
 
 }
 

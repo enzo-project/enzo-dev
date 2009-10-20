@@ -29,7 +29,6 @@ LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_SPRNG_INSTALL  = /usr/local/packages/sprng2.0
 LOCAL_PNG_INSTALL    =
 LOCAL_HYPRE_INSTALL  = 
-LOCAL_JBPERF_INSTALL = 
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -97,7 +96,6 @@ MACH_OPT_AGGRESSIVE  = -O3 -Mflushz -Mdaz  -Mnontemporal -Mfprelaxed -Mvect=altc
 LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_JBPERF = 
 LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
 LOCAL_INCLUDES_PNG    = -I/usr/include
 
@@ -108,7 +106,6 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -118,7 +115,6 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_JBPERF = 
 LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
 LOCAL_LIBS_PNG    = -L/usr/lib64 -lpng
 
@@ -134,4 +130,3 @@ LOCAL_LIBS_MACH   = $(LOCAL_LIBS_SPRNG) \
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
-MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)
