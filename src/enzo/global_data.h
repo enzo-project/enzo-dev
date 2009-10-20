@@ -371,6 +371,7 @@ EXTERN int HaloFinderSubfind;
 EXTERN int HaloFinderOutputParticleList;
 EXTERN int HaloFinderMinimumSize;
 EXTERN int HaloFinderCycleSkip;
+EXTERN int HaloFinderRunAfterOutput;
 EXTERN float HaloFinderLinkingLength;
 EXTERN float HaloFinderTimestep;
 EXTERN FLOAT HaloFinderLastTime;
@@ -700,5 +701,7 @@ EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 
 
 EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
+
+EXTERN int MoveParticlesBetweenSiblings;
 
 #endif

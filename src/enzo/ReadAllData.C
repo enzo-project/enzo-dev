@@ -57,7 +57,7 @@ extern char MemoryMapSuffix[];
 
 
 int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior)
+		ExternalBoundary *Exterior, float *Initialdt)
  
 {
  
@@ -100,7 +100,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  

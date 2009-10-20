@@ -26,11 +26,12 @@
  
  
 int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
-				   float Value, int AllProcessors)
+				   float Value, int AllProcessors,
+				   int IncludeGhostZones)
 {
  
   /* Return if this grid is not on this processor. */
- 
+  //  printf("Valeu:%f\n", Value); 
   if (AllProcessors == FALSE)
     if (MyProcessorNumber != ProcessorNumber)
       return SUCCESS;
@@ -88,22 +89,53 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
   /* Compute start and stop indices of the active region of the subgrid
      within this grid (and check to make sure subgrid is within this grid). */
+
+  FLOAT Left, Right, SubLeft, SubRight;
+  int NumberOfGhostZones;
  
   for (dim = 0; dim < GridRank; dim++) {
- 
-    if (Subgrid->GridRightEdge[dim] <= GridLeftEdge[dim] ||
-	Subgrid->GridLeftEdge[dim]  >= GridRightEdge[dim])
-      return SUCCESS;
- 
-    SubgridStart[dim] = nint(
-        (Subgrid->GridLeftEdge[dim] - GridLeftEdge[dim])/CellWidth[dim][0]
-			       ) + GridStartIndex[dim];
-    SubgridEnd[dim] = nint(
-	(Subgrid->GridRightEdge[dim] - GridLeftEdge[dim])/CellWidth[dim][0]
-			       ) + GridStartIndex[dim] - 1;
- 
-    SubgridStart[dim] = max(SubgridStart[dim], GridStartIndex[dim]);
-    SubgridEnd[dim]   = min(SubgridEnd[dim], GridEndIndex[dim]);
+
+    if (IncludeGhostZones == FALSE) {
+
+      if (Subgrid->GridRightEdge[dim] <= GridLeftEdge[dim] ||
+	  Subgrid->GridLeftEdge[dim]  >= GridRightEdge[dim])
+	return SUCCESS;
+      
+      SubgridStart[dim] = 
+	nint((Subgrid->GridLeftEdge[dim] - GridLeftEdge[dim]) / 
+	     CellWidth[dim][0]) + GridStartIndex[dim];
+      SubgridEnd[dim] = 
+	nint((Subgrid->GridRightEdge[dim] - GridLeftEdge[dim]) / 
+	     CellWidth[dim][0]) + GridStartIndex[dim] - 1;
+
+      SubgridStart[dim] = max(SubgridStart[dim], GridStartIndex[dim]);
+      SubgridEnd[dim]   = min(SubgridEnd[dim], GridEndIndex[dim]);
+
+    } 
+    
+    // Include ghost zones
+    else {
+
+      NumberOfGhostZones = GridStartIndex[dim];
+      Left = GridLeftEdge[dim] - CellWidth[dim][0] * NumberOfGhostZones;
+      Right = GridRightEdge[dim] + CellWidth[dim][GridDimension[dim]-1]
+	* NumberOfGhostZones;
+
+      // We only want to mark where the other grids (no ghost zones)
+      // overlap with this grid (including the ghost zones).
+      
+      if (Subgrid->GridRightEdge[dim] <= Left || 
+	  Subgrid->GridLeftEdge[dim] >= Right)
+	return SUCCESS;
+
+      SubgridStart[dim] = nint((Subgrid->GridLeftEdge[dim] - Left) / 
+			       CellWidth[dim][0]);
+      SubgridEnd[dim] = nint((Subgrid->GridRightEdge[dim] - Left) / 
+			     CellWidth[dim][0]) - 1;
+
+      SubgridStart[dim] = max(SubgridStart[dim], 0);
+      SubgridEnd[dim]   = min(SubgridEnd[dim], GridDimension[dim]-1);
+    }
  
 //    printf("  ZeroSUS: %"ISYM", %"ISYM", %"ISYM"\n", dim, SubgridStart[dim], SubgridEnd[dim]);
   }
@@ -133,10 +165,8 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
 //    printf("  ZeroSUS = ZERO_UNDER_SUBGRID_FIELD\n");
  
-    if (BaryonField[NumberOfBaryonFields] == NULL) {
-      fprintf(stderr, "UNDER_SUBGRID_FIELD not allocated.\n");
-      ENZO_FAIL("");
-    }
+    if (BaryonField[NumberOfBaryonFields] == NULL)
+      ENZO_FAIL("UNDER_SUBGRID_FIELD not allocated.");
  
     /* Set points under this subgrid to Value (typically 1). */
  

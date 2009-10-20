@@ -27,7 +27,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			int GridStartIndex[], int GridEndIndex[], int GridRank,
 		       float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter);
 
-int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[], 
 			 int NumberOfSubgrids, int level,
 			 ExternalBoundary *Exterior)
   /*
@@ -35,7 +35,7 @@ int grid::MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     SubgridFluxes[NumberOfSubgrids]
   */
 {
-
+  //  printf("NumberOfBaryonFields=%i\n", NumberOfBaryonFields);
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }

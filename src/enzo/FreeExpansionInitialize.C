@@ -133,6 +133,11 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     FreeExpansionBField[dim] /= MagneticUnits;
 
+  if (debug) 
+    printf("Bunits = %"GSYM" G, Bfield(code) = %"GSYM" %"GSYM" %"GSYM"\n",
+	   MagneticUnits, FreeExpansionBField[0], FreeExpansionBField[1],
+	   FreeExpansionBField[2]);
+
   /* Set up current problem time, ambient total energy. */
 
   MetaData.Time         = 0.0;

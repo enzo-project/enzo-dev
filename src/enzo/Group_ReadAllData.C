@@ -70,7 +70,7 @@ extern char CPUSuffix[];
 
  
 int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
-		      ExternalBoundary *Exterior)
+		      ExternalBoundary *Exterior, float *Initialdt)
  
 {
  
@@ -126,7 +126,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  
@@ -240,6 +240,9 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* If we're load balancing only within nodes, count level-1 cells in
      each level-0 grid and load balance the entire nodes. */
 
+  if (ResetLoadBalancing)
+    LoadBalancing = 1;
+
   int *RootGridProcessors = NULL, NumberOfRootGrids = 1;
   InitialLoadBalanceRootGrids(fptr, MetaData.TopGridRank, MetaData.TopGridDims[0], 
 			      NumberOfRootGrids, RootGridProcessors);
@@ -276,6 +279,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 #else
 
     if (debug) fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
+    //printf("P%d: OPEN data hierarchy %s\n", MyProcessorNumber, hierarchyname);
     file_id = h5_error;
 
 #endif /* SINGLE OPEN */
@@ -287,6 +291,9 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     return FAIL;
   }
+
+  //printf("P%d: out of Group_RDH\n", MyProcessorNumber);
+  //CommunicationBarrier();
   
   if(LoadGridDataAtStart){
     // can close HDF5 file here
@@ -356,6 +363,13 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
      this parameter to later data. */
 
   AddParticleAttributes = FALSE;
+
+  /* If we're reseting load balancing (i.e. the host processors), turn
+     off the reset flag because we've already done this and don't want
+     it to propagate to later datadumps. */
+
+  if (ResetLoadBalancing)
+    ResetLoadBalancing = FALSE;
 
 //  Stop I/O timing
 

@@ -47,17 +47,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     PhotonTestSourceLifeTime[source] = 0.;
     PhotonTestSourceCreationTime[source] = CurrentTime;
     PhotonTestSourceRampTime[source] = 0.;
-    PhotonTestSourceEnergyBins[source] = 4;
-    PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]];
-    PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]];
-    PhotonTestSourceSED[source][0] = 1;
-    PhotonTestSourceSED[source][1] = 0;
-    PhotonTestSourceSED[source][2] = 0;
-    PhotonTestSourceSED[source][3] = 0;
-    PhotonTestSourceEnergy[source][0] = 14.6;
-    PhotonTestSourceEnergy[source][1] = 25.6;
-    PhotonTestSourceEnergy[source][2] = 56.4;
-    PhotonTestSourceEnergy[source][3] = 12.0;
+    PhotonTestSourceEnergyBins[source] = 1;
+    PhotonTestSourceSED[source] = NULL;
+    PhotonTestSourceEnergy[source] = NULL;
     for (dim=0; dim < MAX_DIMENSION; dim++){
       PhotonTestSourcePosition[source][dim] =
 	0.5*(DomainLeftEdge[dim] + DomainRightEdge[dim]);
@@ -77,6 +69,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   char *delims = (char*) " ";
   char *value;
   int count;
+  bool EnergyBinsDefined = false;
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -98,31 +91,44 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"] = %lf", &source,
 		    &PhotonTestSourceLuminosity[source]);
+    if (sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"] = %"FSYM, &source,
+		    &PhotonTestSourceCreationTime[source]);
     if (sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceLifeTime[source]);
     if (sscanf(line, "PhotonTestSourceRampTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceRampTime[source]);
-    if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0)
-      ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
+    if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0) {
+      ret += sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceEnergyBins[source]);
+      EnergyBinsDefined = true;
+    }
     if (sscanf(line, "PhotonTestSourceSED[%"ISYM"]", &source) > 0) {
+      if (!EnergyBinsDefined)
+	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before SED!");
+      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
       while (value != NULL) {
 	PhotonTestSourceSED[source][count++] = atof(value);
 	value = strtok(NULL, delims);
+	ret++;
       }
     }
     if (sscanf(line, "PhotonTestSourceEnergy[%"ISYM"]", &source) > 0) {
+      if (!EnergyBinsDefined)
+	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before Energies!");
+      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
       while (value != NULL) {
 	PhotonTestSourceEnergy[source][count++] = atof(value);
 	value = strtok(NULL, delims);
+	ret++;
       }
     }
 
@@ -136,6 +142,22 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     
   } // ENDWHILE line
 
+  // Set default SED and energies if not user-defined
+
+  for (source = 0; source < PhotonTestNumberOfSources; source++) {
+    if (PhotonTestSourceSED[source] == NULL) {
+      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceSED[source][0] = 1;
+      for (i = 1; i < PhotonTestSourceEnergyBins[source]; i++)
+	PhotonTestSourceSED[source][i] = 0;
+    }
+    if (PhotonTestSourceEnergy[source] == NULL) {
+      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceEnergy[source][0] = 14.6;
+      for (i = 1; i < PhotonTestSourceEnergyBins[source]; i++)
+	PhotonTestSourceEnergy[source][i] = 0;
+    }
+  }
 
   // normalize SED
 
@@ -180,6 +202,13 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     }
     GlobalRadiationSources->NextSource = RadSources;
   }  
+
+  /* Delete allocated memory for temporary (for I/O) photon sources */
+
+  for (source = 0; source < PhotonTestNumberOfSources; source++) {
+    delete [] PhotonTestSourceEnergy[source];
+    delete [] PhotonTestSourceSED[source];
+  }
 
   /* Create tree that clusters the sources if requested */
 

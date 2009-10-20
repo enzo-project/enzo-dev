@@ -46,7 +46,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
   float MaxDensity = -1e20;
   float root_dx = 1.0 / MetaData->TopGridDims[0];
-  FLOAT *pos = new FLOAT[MAX_DIMENSION];
+  FLOAT *pos;
   FLOAT lbbox[] = { huge_number,  huge_number,  huge_number};
   FLOAT rbbox[] = {-huge_number, -huge_number, -huge_number};
   FLOAT Left[3], Right[3];
@@ -73,6 +73,8 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
       return SUCCESS;
     }
+
+  pos = new FLOAT[MAX_DIMENSION];
 
   // Set flag to FALSE if no radiative transfer.  If RT, then it'll
   // get reset in RestartPhotons.

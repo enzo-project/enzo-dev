@@ -38,7 +38,9 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars);
-int StarParticleAccretion(Star *&AllStars);
+int StarParticleAccretion(TopGridData *MetaData, 
+			    LevelHierarchyEntry *LevelArray[], int level, 
+			    Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
 void DeleteStarList(Star * &Node);
@@ -73,21 +75,24 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
     ThisStar->UpdatePositionVelocity();
 
+
   /* Apply any stellar feedback onto the grids and add any gas to the
      accretion rates of the star particles */
-
+  
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleAddFeedback.\n");
     ENZO_FAIL("");
   }
-
+  
   /* Update star particles for any accretion */
 
-  if (StarParticleAccretion(AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleAccretion.\n");
-    ENZO_FAIL("");
-  }
+  if (LevelArray[level+1] == NULL) 
+    if (StarParticleAccretion(MetaData, LevelArray, level, 
+			      AllStars) == FAIL) {
+      fprintf(stderr, "Error in StarParticleAccretion.\n");
+      ENZO_FAIL("");
+    }
 
   /* Collect all sink particles and report the total mass to STDOUT */
   
@@ -124,9 +129,15 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
     ThisStar->ActivateNewStar(TimeNow);
-    ThisStar->ResetAccretion();
+    ThisStar->ResetAccretion(); 
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
+
+    // The pointers have been copied to the grid copy above, so we can
+    // set the pointers in the global copy to NULL before deleting the
+    // stars.
+    ThisStar->ResetAccretionPointers();
+
   } // ENDFOR stars
 
 

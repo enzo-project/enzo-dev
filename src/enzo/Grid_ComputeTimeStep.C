@@ -288,7 +288,7 @@ float grid::ComputeTimeStep()
     //    v_dt*VelocityUnits/1e5, ca/1e5, LengthUnits/(dxinv*ca)/yr*CourantSafetyNumber);
     // }
 
-  }
+  } // HydroMethod = MHD_RK
 
  
   /* 2) Calculate dt from particles. */
@@ -420,7 +420,7 @@ float grid::ComputeTimeStep()
     if (HydroMethod != MHD_RK && NumberOfBaryonFields > 0)
       printf("Bar = %"FSYM" ", dtBaryons);
     if (HydroMethod == MHD_RK)
-      printf("dtMHD = %"FSYM" ", dtMHD);
+      printf("dtMHD = %e ", dtMHD);
     if (HydroMethod == Zeus_Hydro)
       printf("Vis = %"FSYM" ", dtViscous);
     if (ComovingCoordinates)

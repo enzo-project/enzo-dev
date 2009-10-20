@@ -136,7 +136,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -222,8 +222,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("");
   }
 
-  if (debug) fprintf(stderr, "INITIALDT ------------- %e \n", Initialdt);
- 
   // Set the number of particle attributes, if left unset
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)
@@ -239,10 +237,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       RefineRegionLeftEdge[dim]   = DomainLeftEdge[dim];
     if (RefineRegionRightEdge[dim] == FLOAT_UNDEFINED)
       RefineRegionRightEdge[dim]  = DomainRightEdge[dim];
-    if (MetaData.MovieRegionLeftEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionLeftEdge[dim]   = DomainLeftEdge[dim];
-    if (MetaData.MovieRegionRightEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionRightEdge[dim]  = DomainRightEdge[dim];
   }
  
   // If the problem reads in a restart dump, then skip over the following
@@ -493,9 +487,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-
+  /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
-    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 200) 1D MHD Test */
@@ -553,10 +547,16 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   InitializeMovieFile(MetaData, TopGrid);
  
-  // Do some error checking
+  /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED) {
-    fprintf(stderr, "StopTime never set.\n");
+  if (MetaData.StopTime == FLOAT_UNDEFINED)
+    ENZO_FAIL("StopTime never set.");
+
+  int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
+  if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
   }
 
@@ -785,12 +785,19 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("");
     }
  
+ if (ProblemType == 106)
+   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
-  // once the topgrid hsa been split.
+  // once the topgrid has been split.
  if (ProblemType == 203)
    if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     fprintf(stderr, "Error in MHDTurbulenceReInitialize.\n");
      ENZO_FAIL("");
    }
    

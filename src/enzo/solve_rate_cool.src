@@ -30,7 +30,12 @@
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, iradcoupled, iradstep, ierr,
      &                kphHI, kphHeI, kphHeII, kdissH2I, 
-     &                gammaHI, gammaHeI, gammaHeII)
+     &                gammaHI, gammaHeI, gammaHeII,
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW)
+
 !
 !  SOLVE MULTI-SPECIES RATE EQUATIONS AND RADIATIVE COOLING
 !
@@ -41,6 +46,7 @@
 !  modified3:  May,     1999 by GB and Tom Abel, 3bodyH2, solver, HD
 !  modified4:  June,    2005 by GB to solve rate & cool at same time
 !  modified5:  April,   2009 by JHW to include radiative transfer
+!  modified6:  September, 2009 by BDS to include cloudy cooling
 !
 !  PURPOSE:
 !    Solve the multi-species rate and cool equations.
@@ -89,6 +95,19 @@
 !
 !    temstart, temend - start and end of temperature range for rate table
 !    nratec   - dimensions of chemical rate arrays (functions of temperature)
+!
+!    icmbTfloor - flag to include temperature floor from cmb
+!    iClHeat    - flag to include cloudy heating
+!    iClMMW     - flag to include addition to mean molecular weight from metals
+!    clMetNorm  - parameter to convert metal density to metallicty (see CloudyCoolingData.h)
+!    clEleFra   - parameter to account for additional electrons from metals 
+!    clGridRank - rank of cloudy cooling data grid
+!    clGridDim  - array containing dimensions of cloudy data
+!    clPar1, clPar2, clPar3, clPar4, clPar5 - arrays containing cloudy grid parameter values
+!    clDataSize - total size of flattened 1D cooling data array
+!    clCooling  - cloudy cooling data
+!    clHeating  - cloudy heating data
+!    clMMW      - cloudy mean molecular weight data
 !
 !  OUTPUTS:
 !    update chemical rate densities (HI, HII, etc)
@@ -153,6 +172,17 @@
      &     k13dda(nratec, 7),
      &     k24, k25, k26, k27, k28, k29, k30, k31
 
+!  Cloudy cooling data
+
+      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer clGridDim(clGridRank)
+      real clMetNorm, clEleFra
+      real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
+     &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
+     &     clPar5(clGridDim(5))
+      real clCooling(clDataSize), clHeating(clDataSize), 
+     &     clMMW(clDataSize)
+
 !  Parameters
 
       integer itmax, ijk
@@ -174,6 +204,7 @@
 !  Locals
 
       integer i, j, k, iter
+      integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
       real ttmin, dom, energy, comp1, comp2
       double precision coolunit, dbase1, tbase1, xbase1
 
@@ -311,8 +342,11 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, gammaHI, gammaHeI, gammaHeII,
-     &                itmask
-     &                     )
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW,
+     &                itmask)
 
 !        Look-up rates as a function of temperature for 1D set of zones
 !         (maybe should add itmask to this call)
@@ -541,6 +575,7 @@
 !       Abort if iteration count exceeds maximum
 
          if (iter .gt. itmax) then
+	    write(0,*) 'inside if statement solve rate cool:',is,ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin
@@ -1125,7 +1160,7 @@ c -------------------------------------------------------------------
 #endif /* RADIATION */
             if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
             HIp(i)  = (scoef*dtit(i) + HI(i,j,k))/(1.0 + acoef*dtit(i))
-            if (HIp(i) .gt. huge) then
+            if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
      $              HII(i,j,k), de(i,j,k), kphHI(i,j,k)
                ERROR_MESSAGE
@@ -1247,7 +1282,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
             if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
             HIp(i)  = ( scoef*dtit(i) + HI(i,j,k) ) / 
      &                      ( 1. + acoef*dtit(i) )
-            if (HIp(i) .gt. huge) then
+            if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
      $              HII(i,j,k), de(i,j,k), H2I(i,j,k), kdissH2I(i,j,k),
      $              kphHI(i,j,k)
@@ -1432,7 +1467,7 @@ c
       endif                     ! itmask
 !     
 
-      if (HI(i,j,k) .gt. huge) then
+      if (HI(i,j,k) .ne. HI(i,j,k)) then
          write(*,*) 'HUGE HI! :: ', i, j, k, HI(i,j,k)
       endif
 

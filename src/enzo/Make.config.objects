@@ -40,7 +40,6 @@ OBJS_CONFIG_LIB = \
         cic_flag.o \
         cic_interp.o \
         cicinterp.o \
-        CloudyCoolingInterpolate.o \
         cluster_maker.o \
         c_message.o \
         colh2diss.o \
@@ -62,10 +61,12 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
+        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
         CommunicationTransferStars.o \
         CommunicationTransferStarsOpt.o \
+	CommunicationTransferSubgridParticles.o \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
@@ -74,6 +75,7 @@ OBJS_CONFIG_LIB = \
         ComputeRandomForcingNormalization.o \
         ComputeTable.o \
         Continue.o \
+	cool1d_cloudy.o \
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -133,7 +135,6 @@ OBJS_CONFIG_LIB = \
         FastFourierTransformPrepareComplex.o \
         FastFourierTransformSGIMATH.o \
         EvolveLevel.o \
-        EvolveLevelRoutinesOptimized.o \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \
@@ -180,6 +181,7 @@ OBJS_CONFIG_LIB = \
 	GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
+	GenerateGridArray.o \
         GetNodeFreeMemory.o \
         GetUnits.o \
         GravityBdryExchange.o \
@@ -218,6 +220,9 @@ OBJS_CONFIG_LIB = \
         Grid_CollectParticleMassFlaggingField.o \
         Grid_CollectStars.o \
         Grid_CommunicationMoveGrid.o \
+        Grid_CommunicationReceiveRegion.o \
+        Grid_CommunicationSendParticles.o \
+        Grid_CommunicationSendRegion.o \
         Grid_CommunicationTransferParticles.o \
         Grid_CommunicationTransferParticlesOpt.o \
         Grid_CommunicationTransferStars.o \
@@ -235,6 +240,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeExternalNohBoundary.o \
         Grid_ComputeGammaField.o \
         Grid_ComputeLuminosity.o \
+        Grid_ComputeMetalLineLuminosity.o \
         Grid_ComputePressureDualEnergyFormalism.o \
         Grid_ComputePressure.o \
         Grid_ComputeTemperatureField.o \
@@ -265,6 +271,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+        Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
         Grid_DepositPositions.o \
@@ -312,6 +319,7 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
+	Grid_IdentifyColourFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \
@@ -323,10 +331,6 @@ OBJS_CONFIG_LIB = \
         Grid_InterpolateParticlePositions.o \
         Grid_InterpolateParticlesToGrid.o \
         Grid_InterpolatePositions.o \
-        Grid_Irecv_CommunicationReceiveRegion.o \
-        Grid_Irecv_CommunicationSendParticles.o \
-        Grid_Irecv_CommunicationSendRegion.o \
-        Grid_Irecv_DepositBaryons.o \
         Grid_KHInitializeGrid.o \
         Grid_MirrorStarParticles.o \
         Grid_MoveAllParticles.o \
@@ -355,6 +359,7 @@ OBJS_CONFIG_LIB = \
         Grid_PressurelessCollapseInitialize.o \
         Grid_ProjectSolutionToParentGrid.o \
         Grid_ProjectToPlane.o \
+        Grid_ProjectToPlane2.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
         Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
@@ -463,8 +468,6 @@ OBJS_CONFIG_LIB = \
         mg_restrict.o \
         mkl_st1.o \
         Mpich_V1_Dims_create.o \
-        multi_CloudyCooling.o \
-        multi_CloudyCooling_time.o \
         multi_cool.o \
         MultigridSolver.o \
         mused.o \
@@ -488,6 +491,7 @@ OBJS_CONFIG_LIB = \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
+	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
         PressurelessCollapseInitialize.o \
@@ -495,6 +499,7 @@ OBJS_CONFIG_LIB = \
         project.o \
         projectbool.o \
         ProjectToPlane.o \
+        ProjectToPlane2.o \
         projplane.o \
         prolong.o \
         prolong_tsc.o \
@@ -539,6 +544,7 @@ OBJS_CONFIG_LIB = \
         s90_st1.o \
         SedovBlastInitialize.o \
         select_fft.o \
+	SetBoundaryConditions.o \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \
@@ -549,7 +555,6 @@ OBJS_CONFIG_LIB = \
         sink_maker.o \
         smooth_deposit.o \
         smooth.o \
-        SolveCloudyCooling.o \
         solve_cool.o \
         solve_rate.o \
         solve_rate_cool.o \
@@ -579,6 +584,7 @@ OBJS_CONFIG_LIB = \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
         Star_SetFeedbackFlag.o \
+	Star_SubtractAccretedMass.o \
         star_maker1.o \
         star_maker2.o \
         star_maker3.o \
@@ -600,6 +606,7 @@ OBJS_CONFIG_LIB = \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
         twoshock.o \
+	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
         utilities.o \
         wall_clock.o \
@@ -653,6 +660,7 @@ POBJS_CONFIG_LIB = \
         Grid_AllocateInterpolatedRadiation.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputeRT_TimeStep.o \
+        Grid_ComputeRT_TimeStep2.o \
         Grid_ConvertToCellCenteredRadiation.o \
         Grid_CorrectRadiationIncompleteness.o \
         Grid_DeletePhotonPackages.o \
@@ -693,6 +701,7 @@ OBJS_HYDRO_RK = \
       	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
+        hydro_rk/ComputeDednerWaveSpeeds.o \
         hydro_rk/EvolveLevel_RK2.o \
         hydro_rk/GalaxyDiskInitialize.o \
         hydro_rk/Grid_AddSelfGravity.o \

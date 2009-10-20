@@ -559,7 +559,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Set MetaData.BoundaryConditionName
  
   if (MetaData.BoundaryConditionName != NULL)
-    delete MetaData.BoundaryConditionName;
+    delete [] MetaData.BoundaryConditionName;
   MetaData.BoundaryConditionName = new char[MAX_LINE_LENGTH];
   strcpy(MetaData.BoundaryConditionName, name);
   strcat(MetaData.BoundaryConditionName, BCSuffix);

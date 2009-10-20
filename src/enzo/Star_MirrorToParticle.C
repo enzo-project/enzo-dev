@@ -45,6 +45,8 @@ void Star::MirrorToParticle(void)
   double dx = LengthUnits * CurrentGrid->CellWidth[0][0];
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
 
+  //  printf("CurrentGrid->NumberOfParticles = %d\n", CurrentGrid->NumberOfParticles); 
+
   // Find where this star particle is stored in main arrays
   for (i = 0; i < CurrentGrid->NumberOfParticles; i++) 
     if (CurrentGrid->ParticleNumber[i] == this->Identifier) {

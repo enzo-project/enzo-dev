@@ -26,9 +26,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			int GridStartIndex[], int GridEndIndex[], int GridRank,
 		        float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter);
 
-int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
-			      int NumberOfSubgrids, int level,
-			      ExternalBoundary *Exterior)
+int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[], 
+			 int NumberOfSubgrids, int level,
+			 ExternalBoundary *Exterior)
   /*
     NumberOfSubgrids: the actual number of subgrids + 1
     SubgridFluxes[NumberOfSubgrids]
@@ -46,8 +46,8 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   double time1 = ReturnWallTime();
 
-  float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
+  float *Prim[NEQ_MHD+NSpecies+NColor];
+  float *OldPrim[NEQ_MHD+NSpecies+NColor];
 
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
@@ -57,13 +57,6 @@ int grid::MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim, false);
   this->ReturnOldHydroRKPointers(OldPrim, false);
-
-  // ok. this line should absolutely not be needed.
-  // however there is one piece of hardware i've compiled on where it will not work 
-  // without. There is absoltuely no reasons I can see how this can happen ... argh.
-  // this same line is in ReturnHydroRKPointers but for some reason n the kolob cluster
-  // in Heidlberg that is not enough. On my laptop no problem.
-  Prim[0] = BaryonField[0];
 
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");

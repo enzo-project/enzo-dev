@@ -44,7 +44,7 @@ int grid::SourceTerms(float **dU)
     return FAIL;
   }
 
-  if (DualEnergyFormalism) {
+  if (DualEnergyFormalism) {   
     if (Coordinate == Cartesian) {
       int igrid, ip1, im1, jp1, jm1, kp1, km1;
       FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0],

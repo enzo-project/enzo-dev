@@ -33,17 +33,27 @@
 
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
-				     TopGridData *MetaData, float dtLevelAbove)
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level)
 {
 
+  if (!RadiativeTransferAdaptiveTimestep && dtPhoton != FLOAT_UNDEFINED)
+    return SUCCESS;
+
   const int MaxStepsPerHydroStep = 8;
+  const float PhotonCourantFactor = 1.0;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
-  int l, level, maxLevel;
-  FLOAT HydroTime;
+  int l, maxLevel;
+  FLOAT OldTime, HydroTime;
   float ThisPhotonDT;
+  bool FoundRadiation = false;
 
   // Search for the maximum level
   for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
@@ -60,20 +70,62 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       break;
     }
 
-  // Now calculate the timestep on the max. level
-  dtPhoton = 1e20;
-  for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
-    ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
-    dtPhoton = min(dtPhoton, ThisPhotonDT);
-  } // ENDFOR grids
-  dtPhoton = CommunicationMinValue(dtPhoton);
+  dtPhoton = 10*huge_number;
 
-  // Ensure that not too many photon timesteps are taken per hydro step
-  HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
-  dtPhoton = max(dtPhoton, 
-		 (HydroTime - PhotonTime) / MaxStepsPerHydroStep);
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
+	   &VelocityUnits, LevelArray[level]->GridData->ReturnTime());
+
+  // Calculate timestep by limiting to a 50% max change in HII
+  if (RadiativeTransferHIIRestrictedTimestep) {
+
+    for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
+      for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
+	ThisPhotonDT = Temp->GridData->
+	  ComputeRT_TimeStep2(DensityUnits, LengthUnits);
+	dtPhoton = min(dtPhoton, ThisPhotonDT);
+	if (Temp->GridData->RadiationPresent() == TRUE)
+	  FoundRadiation = true;
+      }
+    CommunicationMinValue(dtPhoton);
+
+  } // ENDIF
+
+  // if not (FoundRadiation will always be false if the
+  // RTUseHIIRestricted parameter isn't set) or no radiation, use
+  // hydro timestep on finest level
+  if (!FoundRadiation) {
+    if (maxLevel > 0) {
+      for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
+	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
+	dtPhoton = min(dtPhoton, ThisPhotonDT);
+      } // ENDFOR grids
+      dtPhoton = CommunicationMinValue(dtPhoton);
+    } else
+      dtPhoton = dtLevelAbove;
+    dtPhoton *= PhotonCourantFactor;
+
+    // Ensure that not too many photon timesteps are taken per hydro step
+    HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
+    dtPhoton = max(dtPhoton, 
+		   (HydroTime - PhotonTime) / MaxStepsPerHydroStep);
+
+  } // ENDELSE
+
+  /* Do not go past the level-0 time (+timestep) */
+
+  HydroTime = LevelArray[0]->GridData->ReturnTime();
+  if (level == 0)
+    HydroTime += LevelArray[0]->GridData->ReturnTimeStep();
+  dtPhoton = min(HydroTime - PhotonTime, dtPhoton);
+
   if (InitialTimestep && !MetaData->FirstTimestepAfterRestart)
     dtPhoton = min(dtPhoton, dtLevelAbove);
+
+  if (!RadiativeTransferAdaptiveTimestep && debug)
+    printf("RadiativeTransfer: Setting dtPhoton = %g = %g years\n",
+	   dtPhoton, dtPhoton*TimeUnits/3.1557e7);
   
   return SUCCESS;
 

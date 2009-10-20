@@ -18,11 +18,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
- 
-
-
- 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -53,7 +48,6 @@ int  CopyOverlappingParticleMassFields(grid* CurrentGrid,
 				      int level);
  
 #define NUMBER_OF_PROJECTED_FIELDS 9
- 
  
  
  

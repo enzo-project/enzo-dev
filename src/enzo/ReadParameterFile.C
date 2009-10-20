@@ -85,7 +85,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "InitialCycleNumber = %"ISYM, &MetaData.CycleNumber);
     ret += sscanf(line, "InitialTime        = %"PSYM, &MetaData.Time);
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
-    ret += sscanf(line, "Initialdt          = %"FSYM, &Initialdt);
+    ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
  
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
@@ -95,6 +95,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
  
+    ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
+		  &MetaData.MaximumTopGridTimeStep);
+
     ret += sscanf(line, "TimeLastRestartDump = %"FSYM,
 		  &MetaData.TimeLastRestartDump);
     ret += sscanf(line, "dtRestartDump       = %"FSYM, &MetaData.dtRestartDump);
@@ -113,6 +116,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MetaData.TimeLastTracerParticleDump);
     ret += sscanf(line, "dtTracerParticleDump       = %"PSYM,
                   &MetaData.dtTracerParticleDump);
+    ret += sscanf(line, "TimeLastInterpolatedDataDump    = %"PSYM,
+		  &MetaData.TimeLastInterpolatedDataDump);
+    ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM, 
+		  &MetaData.dtInterpolatedDataDump);
  
     ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
 		  MetaData.NewMovieLeftEdge,
@@ -351,7 +358,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IncludeCloudyHeating = %"ISYM, &CloudyCoolingData.IncludeCloudyHeating);
     ret += sscanf(line, "IncludeCloudyMMW = %"ISYM, &CloudyCoolingData.IncludeCloudyMMW);
     ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
-    ret += sscanf(line, "ConstantTemperatureFloor = %"FSYM, &CloudyCoolingData.ConstantTemperatureFloor);
     ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
     ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
@@ -608,15 +614,21 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
 		  &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %"ISYM, 
+		  &MBHAccretion);
+    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
+		  &MBHAccretingMassRatio);
     ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
 		  &MBHFeedbackThermal);
     ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
+    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
+		  &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, 
+		  &MBHFeedbackMetalYield);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM,
 		  &MBHCombineRadius);
-    ret += sscanf(line, "MBHIonizingLuminosity = %lf", 
-		  &MBHIonizingLuminosity);
 
     /* Read Movie Dump parameters */
 
@@ -661,6 +673,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "HaloFinderSubfind = %"ISYM, &HaloFinderSubfind);
     ret += sscanf(line, "HaloFinderOutputParticleList = %"ISYM, 
 		  &HaloFinderOutputParticleList);
+    ret += sscanf(line, "HaloFinderRunAfterOutput = %"ISYM, 
+		  &HaloFinderRunAfterOutput);
     ret += sscanf(line, "HaloFinderLinkingLength = %"FSYM, 
 		  &HaloFinderLinkingLength);
     ret += sscanf(line, "HaloFinderMinimumSize = %"ISYM, &HaloFinderMinimumSize);
@@ -685,16 +699,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Read MHD Paramters */
     ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
     ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %d", &DivergenceCleaningBoundaryBuffer);
-    ret += sscanf(line, "DivergenceCleaningThreshold = %f", &DivergenceCleaningThreshold);
-    ret += sscanf(line, "PoissonApproximationThreshold = %f", &PoissonApproximationThreshold);
-    ret += sscanf(line, "AngularVelocity = %f", &AngularVelocity);
-    ret += sscanf(line, "VelocityGradient = %f", &VelocityGradient);
+    ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
+    ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
+    ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
+    ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
     ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
-    ret += sscanf(line, "DrivingEfficiency = %f", &DrivingEfficiency);
+    ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
 
     ret += sscanf(line, "StringKick = %d", &StringKick);
     ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
-    ret += sscanf(line, "Theta_Limiter = %f", &Theta_Limiter);
+    ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
     ret += sscanf(line, "RKOrder = %d", &RKOrder);
     ret += sscanf(line, "UseFloor = %d", &UseFloor);
     ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
@@ -723,6 +737,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
     ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
+
+    ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
+		  &MoveParticlesBetweenSiblings);
 
     /* If the dummy char space was used, then make another. */
  
@@ -777,7 +794,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s", line);
  
   }
- 
+
   /* clean up */
  
   delete [] dummy;
@@ -813,32 +830,35 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, 
 	     &MassUnits, MetaData.Time);
     PressureUnits = DensityUnits*pow(VelocityUnits,2);
-  }
 
-  /* Change input physical parameters into code units */
 
-  double mh = 1.6726e-24;
-  double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
-  PhotoelectricHeating /= uheat;
-  StarMakerOverDensityThreshold /= DensityUnits;
-  //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
-
-  if (SinkMergeDistance > 1.0)
-    SinkMergeDistance /= LengthUnits;
-  //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
-  SmallRho /= DensityUnits;
-  SmallP /= PressureUnits;
-  SmallT /= TemperatureUnits;
-  MaximumAlvenSpeed /= VelocityUnits;
-  float h, cs, dpdrho, dpde;
-  EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
-  if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
-    printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
-	   SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
-  for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-    if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-      MinimumMassForRefinement[i] /= MassUnits;
+    /* Change input physical parameters into code units */
+    
+    double mh = 1.6726e-24;
+    double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
+    PhotoelectricHeating /= uheat;
+    StarMakerOverDensityThreshold /= DensityUnits;
+    //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
+    
+    if (SinkMergeDistance > 1.0)
+      SinkMergeDistance /= LengthUnits;
+    //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
+    SmallRho /= DensityUnits;
+    SmallP /= PressureUnits;
+    SmallT /= TemperatureUnits;
+    MaximumAlvenSpeed /= VelocityUnits;
+    EOSSoundSpeed /=  VelocityUnits;
+    float h, cs, dpdrho, dpde;
+    EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
+    if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
+      printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
+	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumMassForRefinement[i] /= MassUnits;
+      }
     }
+    
   }
 
   if (!ComovingCoordinates && UsePhysicalUnit) {
@@ -874,10 +894,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* If set, initialize the RadiativeCooling and RateEquations data. */
 
-  if (MultiSpecies > 0)
+  if (MultiSpecies > 0) {
     if (InitializeRateData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeRateData.");
     }
+    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in InitializeCloudyCooling.");
+    }
+  }
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
@@ -885,14 +909,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialize CloudyCooling. */
-
-  if (MetalCooling == CLOUDY_METAL_COOLING) {
-    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
 
@@ -926,11 +942,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // Don't include free electron field
   switch (MultiSpecies) {
-  case 0:  NSpecies = 0; break;
-  case 1:  NSpecies = 5; break;
-  case 2:  NSpecies = 8; break;
+  case 0:  NSpecies = 0;  break;
+  case 1:  NSpecies = 5;  break;
+  case 2:  NSpecies = 8;  break;
   case 3:  NSpecies = 11; break;
-  default: NSpecies = 0; break;
+  default: NSpecies = 0;  break;
   }
 
   // Determine color fields (NColor) later inside a grid object.
@@ -1118,15 +1134,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
    for (int i=0; i<MetaData.TopGridRank;i++)
     TopGridDx[i]=(DomainRightEdge[i]-DomainLeftEdge[i])/MetaData.TopGridDims[i];
 
-  if (debug) 
-    fprintf(stderr, "ReadParameter INITIALDT ::::::::::: %16.8e\n", Initialdt);
-
  //  for (int i=0; i<MetaData.TopGridRank; i++)
 //      fprintf (stderr, "read  %"ISYM"  %"ISYM" \n", 
 // 	      MetaData.LeftFaceBoundaryCondition[i], 
 // 	      MetaData.RightFaceBoundaryCondition[i]);
 
   if (UseCUDA) {
+    LoadBalancing = 0; // Should explore how LoadBalancing = 1 gives problems with CUDA
 #ifndef ECUDA
     printf("This executable was compiled without CUDA support.\n");
     printf("use \n");
@@ -1135,7 +1149,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
-
-   CheckShearingBoundaryConsistency(MetaData);
+  if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
+  CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

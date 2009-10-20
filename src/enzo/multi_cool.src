@@ -25,7 +25,11 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, kphHI, kphHeI, kphHeII, kdissH2I,
-     &                gammaHI, gammaHeI, gammaHeII)
+     &                gammaHI, gammaHeI, gammaHeII,
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW)
 
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
@@ -80,6 +84,17 @@
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
+
+!  Cloudy cooling data
+
+      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer clGridDim(clGridRank)
+      real clMetNorm, clEleFra
+      real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
+     &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
+     &     clPar5(clGridDim(5))
+      real clCooling(clDataSize), clHeating(clDataSize), 
+     &     clMMW(clDataSize)
 
 !  Parameters
 
@@ -219,6 +234,10 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, gammaHI, gammaHeI, gammaHeII,
+     &                icmbTfloor, iClHeat, iClMMW,
+     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                clPar1, clPar2, clPar3, clPar4, clPar5,
+     &                clDataSize, clCooling, clHeating, clMMW,
      &                itmask
      &                     )
 
@@ -229,7 +248,8 @@
 
           dt2 = dt/2.0
           ttmin = huge
-
+	  write(0,*) 'is=',is, ie
+	  write(81,*) 'is=',is, ie
           do i = is+1, ie+1
 
 !            Set energy of this cell (the gamma used here is the right
@@ -383,8 +403,9 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
  8888    continue
       
 !       Abort if iteration count exceeds maximum
-
+	  write(0,*) 'is=',is, ie
          if (iter .gt. itmax) then
+	    write(0,*) 'inside if statement is=',is, ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin

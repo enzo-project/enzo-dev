@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       November, 1994
-/  modified1:  Robert Harkness / Biran O'Shea
+/  modified1:  Robert Harkness / Brian O'Shea
 /  date:       4th June 2006
 /
 /  PURPOSE:
@@ -47,11 +47,6 @@ int grid::CopyBaryonFieldToOldBaryonField()
   /* compute the field size */
  
   int size = 1;
-
-/* BUG reported 4th June 2006
-  for (int dim = 0; dim < GridDimension[dim]; dim++)
-    size *= GridDimension[dim];
-*/
 
   for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
