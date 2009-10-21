@@ -710,7 +710,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (MHD2DProblemType == 9) {
     FLOAT x,y;
     int n=0;
-    float omega=0.1;
+    //    float omega=0.1;
+    float omega=0.05;
     float ramp,eint;
     float delx=0.05; // range in y over which to apply the ramp
 

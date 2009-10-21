@@ -97,7 +97,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   
   if (DualEnergyFormalism > 0) NEQ_MHD = 10;
 
-
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
   this->ReturnHydroRKPointers(Prim, false);

@@ -195,7 +195,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     double rhoc = ksi_e*ksi_e*f*cs*cs/(re*re*4*M_PI*G);
 
     SphereDensity[0] = rhoc;
-    MediumDensity = rhoc/14.0;
+    //    MediumDensity = rhoc/14.0;
     MediumPressure = rhoc*cs*cs/14.0;
     double m_be = pow(f,1.5)*1.18*pow(cs,4)/pow(G,1.5)/sqrt(MediumPressure);
     double msun = 1.989e33;
