@@ -1777,7 +1777,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt32 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;
@@ -1785,7 +1785,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt64 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;
@@ -1793,7 +1793,33 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt128 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
+  // Check to see if a FLOAT point is in the grid (excluding boundaries)
+  inline int PointInGridNB( Eflt32 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+  inline int PointInGridNB( Eflt64 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+  inline int PointInGridNB( Eflt128 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;

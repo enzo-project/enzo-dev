@@ -64,7 +64,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    float TimeUnits) {
 
   double dN;
-  float mx, my, mz, slice_factor, slice_factor2;
+  float mx, my, mz, slice_factor, slice_factor2, sangle_inv;
   FLOAT rx, ry, rz, r, oldr, drx, dry, drz, prev_radius;
   FLOAT CellVolume=1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
@@ -81,13 +81,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 //  FLOAT	sigmaH2I  = 3.71e-18 * LengthUnits;
 
   FLOAT sigma, sigmaHI, sigmaHeI, sigmaHeII;
+  float MinTauIfront;
   /* find relevant crossection */
-  if ((*PP)->Type >= 0 && (*PP)->Type <= 2)
+  if ((*PP)->Type >= 0 && (*PP)->Type <= 2) {
     sigma = (*PP)->CrossSection * LengthUnits;
+    MinTauIfront = MIN_TAU_IFRONT / sigma;  // absorb sigma
+  }
   else if ((*PP)->Type == 4) {
     sigmaHI   = FindCrossSection(0, (*PP)->Energy) * LengthUnits;
     sigmaHeI  = FindCrossSection(1, (*PP)->Energy) * LengthUnits;
     sigmaHeII = FindCrossSection(2, (*PP)->Energy) * LengthUnits;
+    MinTauIfront = MIN_TAU_IFRONT / sigmaHI;  // absorb sigma
   }
   const float erg_eV = 1.602176e-12;
 
@@ -246,7 +250,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   // Do the computations
 
   int keep_walking=1;
-  FLOAT ddr, dP, EndTime;
+  FLOAT ddr, dP, dP1, EndTime, point[3];
   FLOAT nH, nHI, nHeI, nHeII, fH, nH2I, nHI_inv, nHeI_inv, nHeII_inv, xe;
   FLOAT thisDensity, inverse_rho;
   float shield1, shield2, solid_angle, filling_factor, midpoint, nearest_edge;
@@ -339,9 +343,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   ry = sy + (*PP)->Radius * uy;
   rz = sz + (*PP)->Radius * uz;
 
-  if ((rx <= GridLeftEdge[0]) || (GridRightEdge[0] <= rx)  ||
-      (ry <= GridLeftEdge[1]) || (GridRightEdge[1] <= ry)  ||
-      (rz <= GridLeftEdge[2]) || (GridRightEdge[2] <= rz)) {
+//  if ((rx <= GridLeftEdge[0]) || (GridRightEdge[0] <= rx)  ||
+//      (ry <= GridLeftEdge[1]) || (GridRightEdge[1] <= ry)  ||
+//      (rz <= GridLeftEdge[2]) || (GridRightEdge[2] <= rz)) {
+  point[0] = rx;  point[1] = ry;  point[2] = rz;
+  if (this->PointInGridNB(point) == FALSE) {
 
     switch (GravityBoundaryType) {
     case TopGridPeriodic: 
@@ -454,21 +460,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     min_dr = 1e20;
        
     // next cell edge crossing radii:
-    drx = dr_temp[0] = 
-      (GridLeftEdge[0] + 
-       ((FLOAT) (gi + ux_dir)) * CellWidth[0][0] - sx) * ux_inv;
-    dry = dr_temp[1] = 
-      (GridLeftEdge[1] + 
-       ((FLOAT) (gj + uy_dir)) * CellWidth[1][0] - sy) * uy_inv;
-    drz = dr_temp[2] = 
-      (GridLeftEdge[2] + 
-       ((FLOAT) (gk + uz_dir)) * CellWidth[2][0] - sz) * uz_inv;
+    drx = dr_temp[0] = (CellLeftEdge[0][gi+ux_dir+GridStartIndex[0]]-sx) * ux_inv;
+    dry = dr_temp[1] = (CellLeftEdge[1][gj+uy_dir+GridStartIndex[1]]-sy) * uy_inv;
+    drz = dr_temp[2] = (CellLeftEdge[2][gk+uz_dir+GridStartIndex[2]]-sz) * uz_inv;
 
     // the closest one is the one we want
-//    if (drx <= min(dry, drz))  r = drx;
-//    if (dry <= min(drx, drz))  r = dry;
-//    if (drz <= min(drx, dry))  r = drz;
-
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       if (dr_temp[dim] < min_dr) {
 	direction = dim;
@@ -626,14 +622,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 //    //filling_factor = 0.5*(oldr*oldr + r*r) * ddr * omega_package * Volume_inv;
 //    //filling_factor = r*r * ddr * omega_package * Volume_inv;
     midpoint = oldr + 0.5f*ddr - ROUNDOFF;
-    mx = fabs(sx + midpoint * ux -
-	      (GridLeftEdge[0] + (gi+0.5f)*CellWidth[0][0]));
-    my = fabs(sy + midpoint * uy -
-	      (GridLeftEdge[1] + (gj+0.5f)*CellWidth[1][0]));
-    mz = fabs(sz + midpoint * uz -
-	      (GridLeftEdge[2] + (gk+0.5f)*CellWidth[2][0]));
+    mx = fabs(sx + midpoint * ux - CellLeftEdge[0][gi+GridStartIndex[0]] - dxhalf);
+    my = fabs(sy + midpoint * uy - CellLeftEdge[1][gj+GridStartIndex[1]] - dxhalf);
+    mz = fabs(sz + midpoint * uz - CellLeftEdge[2][gk+GridStartIndex[2]] - dxhalf);
     nearest_edge = max(max(mx, my), mz);
-    slice_factor = min(0.5f + (dxhalf-nearest_edge) / (dtheta*r), 1.0f);
+    sangle_inv = 1.0 / (dtheta*r);
+    slice_factor = min(0.5f + (dxhalf-nearest_edge) * sangle_inv, 1.0f);
     slice_factor2 = slice_factor * slice_factor;
 //    printf("mx, my, mz = %g %g %g, dtheta = %g, dtheta*r = %g, slice_factor = %g\n",
 //	   mx, my, mz, dtheta, dtheta*r, slice_factor);
@@ -701,24 +695,27 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else
 	dP = min((*PP)->Photons*tau, (*PP)->Photons);
 
+      dP1 = dP * slice_factor2;
+
       // contributions to the photoionization rate is over whole timestep
-      BaryonField[kphNum][index] += dP*factor1*slice_factor2;
+      BaryonField[kphNum][index] += dP1*factor1;
 	
       // the heating rate is just the number of photo ionizations times
       // the excess energy units here are  eV/s/cm^3 *TimeUnits. 
-      BaryonField[gammaNum][index] += dP*factor2*slice_factor2;
+      BaryonField[gammaNum][index] += dP1*factor2;
       
       if (RadiativeTransferHIIRestrictedTimestep) {
 	(*PP)->ColumnDensity += dN;
-	if ((*PP)->ColumnDensity * sigma > MIN_TAU_IFRONT) {
+	if ((*PP)->ColumnDensity > MinTauIfront) {
 	  if (BaryonField[kphHINum][index] > this->MaximumkphIfront) {
+//	    printf("P%d: tau=%g, N=%g, dN=%g, kph=%g/%g, pos=%f %f %f\n",
+//		   MyProcessorNumber, (*PP)->ColumnDensity*sigma,
+//		   (*PP)->ColumnDensity*LengthUnits, dN*LengthUnits,
+//		   BaryonField[kphNum][index], this->MaximumkphIfront,
+//		   rx, ry, rz);
 	    this->MaximumkphIfront = BaryonField[kphHINum][index];
 	    this->IndexOfMaximumkph = index;
 	  }
-//	  printf("tau=%g, N=%g, dN=%g, kph=%g, pos=%f %f %f\n",
-//		 (*PP)->ColumnDensity*sigma,
-//		 (*PP)->ColumnDensity*LengthUnits, dN*LengthUnits,
-//		 BaryonField[kphNum][index], rx, ry, rz);
 		 
 	}
       } // ENDIF
@@ -755,8 +752,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else if (tauHI > 1.e-3) dP = min((*PP)->Photons*(1-expf(-tauHI)), 
 				       (*PP)->Photons);
       else dP = min((*PP)->Photons*tauHI, (*PP)->Photons);
-      BaryonField[kphHINum][index] += kphHI_factor*dP*factor1;
-      BaryonField[gammaHINum][index] += heat_factor*dP*factor2_HI;
+      dP1 = dP * slice_factor2;
+      BaryonField[kphHINum][index] += kphHI_factor*dP1*factor1;
+      BaryonField[gammaHINum][index] += heat_factor*dP1*factor2_HI;
       (*PP)->Photons -= dP;
 
       // HeI
@@ -764,8 +762,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else if (tauHeI > 1.e-3) dP = min((*PP)->Photons*(1-expf(-tauHeI)), 
 				       (*PP)->Photons);
       else dP = min((*PP)->Photons*tauHeI, (*PP)->Photons);
-      BaryonField[kphHeINum][index] += dP*factor1;
-      BaryonField[gammaHeINum][index] += heat_factor*dP*factor2_HeI;
+      dP1 = dP * slice_factor2;
+      BaryonField[kphHeINum][index] += dP1*factor1;
+      BaryonField[gammaHeINum][index] += heat_factor*dP1*factor2_HeI;
       (*PP)->Photons -= dP;
 
       // HeII
@@ -773,12 +772,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else if (tauHeII > 1.e-3) dP = min((*PP)->Photons*(1-expf(-tauHeII)), 
 				       (*PP)->Photons);
       else dP = min((*PP)->Photons*tauHeII, (*PP)->Photons);
-      BaryonField[kphHeIINum][index] += kphHeII_factor*dP*factor1;
-      BaryonField[gammaHeIINum][index] += heat_factor*dP*factor2_HeII;
+      dP1 = dP * slice_factor2;
+      BaryonField[kphHeIINum][index] += kphHeII_factor*dP1*factor1;
+      BaryonField[gammaHeIINum][index] += heat_factor*dP1*factor2_HeII;
 
       if (RadiativeTransferHIIRestrictedTimestep) {
 	(*PP)->ColumnDensity += dN * LengthUnits;
-	if ((*PP)->ColumnDensity * sigma > MIN_TAU_IFRONT)
+	if ((*PP)->ColumnDensity > MinTauIfront)
 	  if (BaryonField[kphHINum][index] > this->MaximumkphIfront) {
 	    this->MaximumkphIfront = BaryonField[kphHINum][index];
 	    this->IndexOfMaximumkph = index;
@@ -831,9 +831,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     //   if ((gi < 0) || ((GridEndIndex[0]-GridStartIndex[0]) < gi) ||
     //	(gj < 0) || ((GridEndIndex[1]-GridStartIndex[1]) < gj) ||
     //	(gk < 0) || ((GridEndIndex[2]-GridStartIndex[2]) < gk)) {
-    if ((rx <= GridLeftEdge[0]) || (GridRightEdge[0] <= rx)  ||
-	(ry <= GridLeftEdge[1]) || (GridRightEdge[1] <= ry)  ||
-	(rz <= GridLeftEdge[2]) || (GridRightEdge[2] <= rz)) {
+//    if ((rx <= GridLeftEdge[0]) || (GridRightEdge[0] <= rx)  ||
+//	(ry <= GridLeftEdge[1]) || (GridRightEdge[1] <= ry)  ||
+//	(rz <= GridLeftEdge[2]) || (GridRightEdge[2] <= rz)) {
+    point[0] = rx;  point[1] = ry;  point[2] = rz;
+    if (this->PointInGridNB(point) == FALSE) {
       switch (GravityBoundaryType) {
       case TopGridPeriodic: 
 	FindRootGrid(dummy, Grids0, nGrids0, rx, ry, rz, ux, uy, uz);

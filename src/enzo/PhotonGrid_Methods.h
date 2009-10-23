@@ -15,7 +15,9 @@
 /* Photons: Computes photon timestep */
 
    float ComputePhotonTimestep(void);
-   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits);
+   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
+				  float VelocityUnits, float aye, 
+				  float Ifront_kph);
 
 /* Photons: return number of PhotonPackages. */
 
@@ -279,6 +281,13 @@ float Min_kph(int &ncells) {
 
 };
 
+float ReturnMaximumkphIfront(void) { 
+  if (MyProcessorNumber == ProcessorNumber)
+    return MaximumkphIfront;
+  else
+    return 0;
+};
+
 /* Compares min/max radiation field to estimate if there is an
    ionization front present in this grid. */
 
@@ -336,6 +345,10 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float SphereAng2[MAX_SPHERES],
 			     int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,

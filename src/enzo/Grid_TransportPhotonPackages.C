@@ -164,7 +164,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int DeleteMe, DeltaLevel, PauseMe;
 
   const float clight = 2.9979e10;
-  float LightCrossingTime = VelocityUnits / 
+  float LightCrossingTime = 1.7320508 * VelocityUnits /  // sqrt(3)=1.73
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT EndTime;
   if (RadiativeTransferAdaptiveTimestep)
