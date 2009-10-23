@@ -105,6 +105,7 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
  */
