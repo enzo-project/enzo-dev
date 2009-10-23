@@ -97,13 +97,14 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
-	if (level == 0) {
-	  if (loop == 0) 
-	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
-	} else {
-	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
-	    (Grids[grid1]->ParentGrid->GridData);
-	}
+	if (loop == 0) {
+	  if (level == 0) {
+    	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
+	  } else {
+	    Grids[grid1]->GridData->InterpolateBoundaryFromParent
+	      (Grids[grid1]->ParentGrid->GridData);
+	  }
+	} // ENDIF loop == 0
 
       } // ENDFOR grids
 
