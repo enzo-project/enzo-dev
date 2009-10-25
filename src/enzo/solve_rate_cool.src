@@ -612,6 +612,71 @@
       return
       end
 
+c -----------------------------------------------------------
+!   This routine scales the density fields from comoving to
+!     proper densities (and back again).
+
+      subroutine scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
+     &                        HM, H2I, H2II, DI, DII, HDI, metal,
+     &                        is, ie, js, je, ks, ke,
+     &                        in, jn, kn, ispecies, imetal, factor)
+c -------------------------------------------------------------------
+
+      implicit NONE
+
+!     Arguments
+
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+     &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
+      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      real     d(in,jn,kn),metal(in,jn,kn)
+      real    factor
+
+!     locals
+
+      integer i, j, k
+
+!     Multiply all fields by factor (1/a^3 or a^3)
+
+      do k = ks+1, ke+1
+         do j = js+1, je+1
+            do i = is+1, ie+1
+               d(i,j,k)     = d(i,j,k)*factor
+               de(i,j,k)    = de(i,j,k)*factor
+               HI(i,j,k)    = HI(i,j,k)*factor
+               HII(i,j,k)   = HII(i,j,k)*factor
+               HeI(i,j,k)   = HeI(i,j,k)*factor
+               HeII(i,j,k)  = HeII(i,j,k)*factor
+               HeIII(i,j,k) = HeIII(i,j,k)*factor
+            enddo
+            if (ispecies .gt. 1) then
+               do i = is+1, ie+1
+                  HM(i,j,k)   = HM(i,j,k)*factor
+                  H2I(i,j,k)  = H2I(i,j,k)*factor
+                  H2II(i,j,k) = H2II(i,j,k)*factor
+               enddo
+            endif
+            if (ispecies .gt. 2) then
+               do i = is+1, ie+1
+                  DI(i,j,k)  = DI(i,j,k)*factor
+                  DII(i,j,k) = DII(i,j,k)*factor
+                  HDI(i,j,k) = HDI(i,j,k)*factor
+               enddo
+            endif
+            if (imetal .eq. 1) then
+               do i = is+1, ie+1
+                  metal(i,j,k) = metal(i,j,k)*factor
+               enddo
+            endif
+         enddo
+      enddo
+
+      return
+      end
+
+
 ! -----------------------------------------------------------
 ! This routine uses the temperature to look up the chemical
 !   rates which are tabulated in a log table as a function
