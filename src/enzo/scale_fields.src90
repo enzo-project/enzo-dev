@@ -1,0 +1,52 @@
+!-----------------------------------------------------------
+!   This routine scales the density fields from comoving to
+!     proper densities (and back again).
+
+subroutine scale_fields(d, de, HI, HII, HeI, HeII, HeIII, &
+     HM, H2I, H2II, DI, DII, HDI, metal, &
+     is, ie, js, je, ks, ke, &
+     in, jn, kn, ispecies, imetal, factor)
+  !-------------------------------------------------------------------
+
+  implicit NONE
+
+  !     Arguments
+
+  integer, intent(in) :: in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+  real, intent(in)    :: factor
+  
+  real, intent(inout) ::  de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn)
+  real, intent(inout) :: HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
+  real, intent(inout) ::  HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+  real, intent(inout) ::  DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+  real, intent(inout) ::   d(in,jn,kn),metal(in,jn,kn)
+
+  !     Multiply all fields by factor (1/a^3 or a^3)
+
+  d = d*factor
+  de = de*factor
+  HI = HI*factor
+  HII = HII*factor
+  HeI = HeI*factor
+  HeII = HeII*factor
+  HeIII = HeIII*factor
+
+  if (ispecies .gt. 1) then
+     HM = HM*factor
+     H2I = H2I*factor
+     H2II = H2II*factor
+  endif
+
+  if (ispecies .gt. 2) then
+     DI = DI*factor
+     DII = DII*factor
+     HDI = HDI*factor
+  endif
+
+  if (imetal .eq. 1) then
+     metal = metal*factor
+  endif
+  
+end subroutine scale_fields
+
+
