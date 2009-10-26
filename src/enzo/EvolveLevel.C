@@ -233,8 +233,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
-    fprintf(stderr, "Entering EvolveLevel (proc = %"ISYM" level = %"ISYM")\n",
-            MyProcessorNumber, level);
  
   // Update lcaperf "level" attribute
 
