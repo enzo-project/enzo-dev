@@ -27,7 +27,8 @@
 #include "Star.h"
 
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
-				     TopGridData *MetaData, float dtLevelAbove);
+				     TopGridData *MetaData, float dtLevelAbove,
+				     int level);
 int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 			    Star *AllStars);
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -41,33 +42,45 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
   /* Return if this does not concern us */
   if (!(RadiativeTransfer)) return SUCCESS;
 
-  /* Determine the photon timestep */
+  FLOAT GridTime, dt;
+  GridTime = LevelArray[level]->GridData->ReturnTime();
+  dt = LevelArray[level]->GridData->ReturnTimeStep();
 
-  if (RadiativeTransferComputeTimestep(LevelArray, MetaData, 
-				       dtLevelAbove) == FAIL) {
-    fprintf(stderr, "Error in RadiativeTransferComputeTimestep.\n");
-    ENZO_FAIL("");
-  }
+  //if (dtPhoton >= 0.0 && GridTime+dt >= PhotonTime) {
+  //if (GridTime+dt > PhotonTime || MetaData->FirstTimestepAfterRestart) {
 
-  /* Convert star particles into radiation sources only if we're going
-     into EvolvePhotons */
+  /* Only prepare if this is a restart or we're on the finest level */
 
-  if (dtPhoton > 0.0 && LevelArray[level]->GridData->ReturnTime() >= PhotonTime)
-    if (StarParticleRadTransfer(LevelArray, level, AllStars) == FAIL) {
-      fprintf(stderr, "Error in StarParticleRadTransfer.\n");
-      ENZO_FAIL("");
-    }
+  if ((GridTime+dt > PhotonTime && LevelArray[level+1] == NULL)
+      || MetaData->FirstTimestepAfterRestart) {
+
+    /* Determine the photon timestep */
+
+    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
+
+    /* Convert star particles into radiation sources only if we're going
+       into EvolvePhotons */
+
+    StarParticleRadTransfer(LevelArray, level, AllStars);
+
+  } // ENDIF
   
   /* If the first timestep after restart and we have radiation
      sources, go back a light crossing time of the box and run
      EvolvePhotons to populate the grids with the proper rates. */
 
-  if (MetaData->FirstTimestepAfterRestart == TRUE)
+  if (MetaData->FirstTimestepAfterRestart == TRUE) {
     if (RestartPhotons(MetaData, LevelArray, AllStars) == FAIL) {
       fprintf(stderr, "Error in RestartPhotons.\n");
       ENZO_FAIL("");
     }
 
+    /* With the radiation field in place, we recalculate the timestep
+       if requested */
+
+    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
+
+  }
 
   return SUCCESS;
 

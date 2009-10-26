@@ -39,9 +39,9 @@ void enzoLoadPositions (char *fname, int files)
   int           *Nslab_recv, *disp_recv, TotalRecv;
 
   ptype_size = sizeof(struct particle_data);
-  Nslab_recv = malloc(sizeof(int) * NTask);
-  disp_local = malloc(sizeof(int) * NTask);
-  disp_recv = malloc(sizeof(int) * NTask);
+  Nslab_recv = (int *) malloc(sizeof(int) * NTask);
+  disp_local = (int *) malloc(sizeof(int) * NTask);
+  disp_recv = (int *) malloc(sizeof(int) * NTask);
 
   allocate_memory();
   TotalLocal = 0;
@@ -277,18 +277,18 @@ void enzoCountLocalParticles (char *fname, int files)
     if (i % NTask == ThisTask)
       TotalLocal += NpartInGrids[i];
 
-  Nslab=   malloc(sizeof(int)*NTask);
-  Nshadow= malloc(sizeof(int)*NTask);
-  Noffset= malloc(sizeof(int)*NTask);
-  NtoLeft= malloc(sizeof(int)*NTask);
-  NtoRight=malloc(sizeof(int)*NTask);
+  Nslab=   (int *) malloc(sizeof(int)*NTask);
+  Nshadow= (int *) malloc(sizeof(int)*NTask);
+  Noffset= (int *) malloc(sizeof(int)*NTask);
+  NtoLeft= (int *) malloc(sizeof(int)*NTask);
+  NtoRight=(int *) malloc(sizeof(int)*NTask);
 
   Pbuf_local = malloc(ptype_size*TotalLocal);
-  Nslab_local =   malloc(sizeof(int)*NTask);
-  NtoLeft_local = malloc(sizeof(int)*NTask);
-  NtoRight_local =malloc(sizeof(int)*NTask);
-  level = malloc(sizeof(int)*files);
-  inside = malloc(sizeof(int)*files);
+  Nslab_local =   (int *) malloc(sizeof(int)*NTask);
+  NtoLeft_local = (int *) malloc(sizeof(int)*NTask);
+  NtoRight_local =(int *) malloc(sizeof(int)*NTask);
+  level = (int *) malloc(sizeof(int)*files);
+  inside = (int *) malloc(sizeof(int)*files);
 #ifdef USE_HDF5
   for (i = 0; i < files; i++)
     filename[i] = (char*) malloc(MAX_FILE_LENGTH);

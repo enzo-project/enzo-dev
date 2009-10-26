@@ -330,8 +330,10 @@ main(int argc, char *argv[])
       debug = FALSE;
       printf("Computing center %d\n", center);
     }
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
       Center[dim] = CenterList[dim][center];
+      //fprintf(stderr, "Center[dim] = %g, CenterList[dim][0] = %g", Center[dim], CenterList[dim][center]);
+    }
 
     /* Set base name. */
 
@@ -894,7 +896,7 @@ main(int argc, char *argv[])
 
       /* Save disk image. */
 
-      int32 OutDims[2];
+      Eint32 OutDims[2];
       OutDims[0] = OutDims[1] = parameters.DiskImageSize;
       if (DFSDsetdims(2, OutDims) == HDF_FAIL) {
 	fprintf(stderr, "Error in DFSDsetdims.\n");

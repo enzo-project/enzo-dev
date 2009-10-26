@@ -38,6 +38,9 @@ RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS)
 	(RS->PreviousSource)->NextSource = RS->NextSource;
 	(RS->NextSource)->PreviousSource = RS->PreviousSource;
 	dummy = RS->NextSource;
+	delete [] RS->Position;
+	delete [] RS->SED;
+	delete [] RS->Energy;
 	delete RS;
       }
     };

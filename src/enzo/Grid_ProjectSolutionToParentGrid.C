@@ -122,7 +122,15 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
     for (field = 0; field < NumberOfBaryonFields; field++)
       if (FieldTypeIsDensity(FieldType[field]) == FALSE && (
 	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro      )       )
+          || HydroMethod != Zeus_Hydro) &&
+	  FieldType[field] != Bfield1 &&
+	  FieldType[field] != Bfield2 &&
+	  FieldType[field] != Bfield3 &&
+	  FieldType[field] != PhiField &&
+	  FieldType[field] != DrivingField1 &&
+	  FieldType[field] != DrivingField2 &&
+	  FieldType[field] != DrivingField3 &&
+	  FieldType[field] != GravPotential)
       FORTRAN_NAME(mult3d)(BaryonField[DensNum], BaryonField[field],
 			   &Size, &One, &One, &Size, &One, &One,
 			   &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
@@ -224,7 +232,15 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (FieldTypeIsDensity(FieldType[field]) == FALSE && (
 	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro      )       ) {
+          || HydroMethod != Zeus_Hydro) &&
+	FieldType[field] != Bfield1 &&
+	FieldType[field] != Bfield2 &&
+	FieldType[field] != Bfield3 &&
+	FieldType[field] != PhiField &&
+	FieldType[field] != DrivingField1 &&
+	FieldType[field] != DrivingField2 &&
+	FieldType[field] != DrivingField3 &&
+	FieldType[field] != GravPotential ) {
       if (ProcessorNumber == MyProcessorNumber)
 	FORTRAN_NAME(div3d)(BaryonField[DensNum], BaryonField[field],
 			    &Size, &One, &One, &Size, &One, &One,

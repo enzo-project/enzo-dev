@@ -30,6 +30,7 @@ class Star
   float		 delta_vel[MAX_DIMENSION];
   int		 naccretions;
   float		*accretion_rate;	// prescribed Mdot(t) [Msun / s]
+  float          last_accretion_rate;
   FLOAT	*accretion_time;	// corresponding time for Mdot(t)
   float		 Mass;		// Msun
   float		 FinalMass;	// Msun
@@ -54,7 +55,7 @@ public:
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
   Star(StarBuffer buffer) ;
-  ~Star();
+  //~Star();
 
   // Operators
   void operator=(Star a);
@@ -79,7 +80,9 @@ public:
   void  MarkForDeletion(void) { type = TO_DELETE; };
   void  AddMass(float dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
-  void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
+  void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  ResetAccretionPointers(void) 
+  { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   FLOAT *ReturnPosition(void) { return pos; }
@@ -93,6 +96,7 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
+  int	SubtractAccretedMass(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);
@@ -123,14 +127,14 @@ public:
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
-				    float VelocityUnits);
+				    float VelocityUnits, float dtForThisStar);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
-			 float &Radius, double &EjectaDensity, 
+			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits);
+			 float VelocityUnits, FLOAT Time);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

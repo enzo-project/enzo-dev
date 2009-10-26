@@ -29,6 +29,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int FindField(int field, int farray[], int numfields);
+
 
 int grid::MHDSourceTerms(float **dU)
 {
@@ -43,6 +45,8 @@ int grid::MHDSourceTerms(float **dU)
 				   TENum, B1Num, B2Num, B3Num, PhiNum);
 
 
+
+
 #ifdef USE
   /* Dedner MHD formulation source terms */
 
@@ -51,7 +55,9 @@ int grid::MHDSourceTerms(float **dU)
     dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0] : 0.0;  
   float Bx, By, Bz;
   float coeff = 1.;
-  //  if (Gamma < 1.01)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal
+
+  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
+
   int n = 0, igrid, igridyp1, igridym1, igridzp1, igridzm1;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -73,10 +79,12 @@ int grid::MHDSourceTerms(float **dU)
 	gradPhi[1][n] = 0.5*(BaryonField[PhiNum][igridyp1]-BaryonField[PhiNum][igridym1])*dtdy;
 	gradPhi[2][n] = 0.5*(BaryonField[PhiNum][igridzp1]-BaryonField[PhiNum][igridzm1])*dtdz;
 	*/ 
-	dU[iS1  ][n] -= divB[n]*Bx;
-	dU[iS2  ][n] -= divB[n]*By;
-	dU[iS3  ][n] -= divB[n]*Bz;
-	dU[iEtot][n] -= coeff*(Bx*gradPhi[0][n] + By*gradPhi[1][n] + Bz*gradPhi[2][n]);
+	dU[iS1  ][n] -= divB[n]*Bx * coeff;
+	dU[iS2  ][n] -= divB[n]*By * coeff;
+	dU[iS3  ][n] -= divB[n]*Bz * coeff;
+	dU[iEtot][n] -= coeff * (Bx*gradPhi[0][n] + By*gradPhi[1][n] + Bz*gradPhi[2][n]);
+
+
       }
     }
   }
@@ -112,6 +120,7 @@ int grid::MHDSourceTerms(float **dU)
 	  eint = max(eint, min_coeff*rho);
 	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 2);
 	  dU[iEint][n] -= p*divVdt;
+
 	}
       }
     }
@@ -150,10 +159,14 @@ int grid::MHDSourceTerms(float **dU)
           dtxinv = dtFixed/x;
           dU[iS1][n]  += dtxinv*(p + rho*vz*vz);
           dU[iS3][n]  += -dtxinv*rho*vx*vz;
+
+	
         }
       }
     }
   }
+
+
 
 
   if (UseConstantAcceleration) {
@@ -178,6 +191,9 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iS2][n] += dtFixed*gy*rho;
 	  dU[iS3][n] += dtFixed*gz*rho;
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+
+	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
+	  printf("StermStart4 old %g \n", dU[iS2][n])  ;
 	}
       }
     }
@@ -206,6 +222,8 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iS2  ][n] += dtFixed*gy*rho;
 	  dU[iS3  ][n] += dtFixed*gz*rho;
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+
+	
 	}
       }
     }
@@ -233,6 +251,8 @@ int grid::MHDSourceTerms(float **dU)
 					BaryonField[B2Num][n]*BaryonField[B2Num][n]+
 					BaryonField[B3Num][n]*BaryonField[B3Num][n]);
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
+
+
 	}
       }
     }
@@ -247,7 +267,7 @@ int grid::MHDSourceTerms(float **dU)
 
     int Drive1Num, Drive2Num, Drive3Num;
     if (IdentifyDrivingFields(Drive1Num, Drive2Num, Drive3Num) == FAIL) {
-      printf("grid::SourceTerms: cannot identify driving fields.\n");
+      printf("grid::SourceTerms: canot identify driving fields.\n");
       return FAIL;
     }
     int igrid;
@@ -289,15 +309,19 @@ int grid::MHDSourceTerms(float **dU)
 	    dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
 	    dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
 	    dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz)*DrivingEfficiency;
+
+
 	    //}
 	}
       }
     }
   }
+
+
   
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 31 && ShearingBoxProblemType !=0) {
+  if (ProblemType == 35 && ShearingBoxProblemType !=0) {
     
     int igrid;
     float rho, gx, gy, gz;
@@ -305,25 +329,52 @@ int grid::MHDSourceTerms(float **dU)
     float vels[3]; 
     int n = 0;
 
+    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
+    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+ 
+    int indexNumbers[3]={iS1,iS2,iS3};
+
+    float A[3]={0,0,0};//Omega
+    A[ShearingOtherDirection]=AngularVelocity;
+    
+    float lengthx=DomainRightEdge[0]-DomainLeftEdge[0]; 
+    float lengthy=DomainRightEdge[1]-DomainLeftEdge[1];
+    float lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
+
+
+
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i];
-	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i];
-	 
-	  vels[0] = BaryonField[Vel1Num][igrid];
-	  vels[1] = BaryonField[Vel2Num][igrid];
-	  vels[2] = BaryonField[Vel3Num][igrid];
 
-	  //adding Omega cross v term; given Omega in z direction
-	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*
-	    (vels[ShearingVelocityDirection]+VelocityGradient*AngularVelocity*xPos[ShearingBoundaryDirection])*rho;
-	  dU[iS2][n] += -dtFixed*2.0*rho*AngularVelocity*vels[ShearingVelocityDirection]*rho;
+	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+	  rho = BaryonField[iden][igrid];
+	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0;
+	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i]-lengthy/2.0;
+	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
+	 
+	  vels[0] = BaryonField[ivx][igrid];
+	  vels[1] = BaryonField[ivy][igrid];
+	  vels[2] = BaryonField[ivz][igrid];
+
+
+	  //Omega cross V
+	  FLOAT temp= dU[indexNumbers[1]][n];
+
+	  dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
+	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
+	  dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
+	
+
+	  dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
 	  
-	  dU[iEtot][n] += dtFixed*2*AngularVelocity*AngularVelocity*VelocityGradient*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection]*rho;
+	  
+	  dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
+	
+
+
 	  
  	}
       }

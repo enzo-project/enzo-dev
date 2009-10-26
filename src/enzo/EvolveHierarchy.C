@@ -84,7 +84,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 			   LevelHierarchyEntry *LevelArray[]);
 int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
 				LevelHierarchyEntry *LevelArray[], int level);
-float CommunicationMinValue(float Value);
 int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			ExternalBoundary *Exterior,
 			LevelHierarchyEntry *LevelArray[]);
@@ -94,7 +93,9 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				TopGridData* MetaData = NULL);
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[]);
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData);
+int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
 #ifdef USE_PYTHON
@@ -124,8 +125,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
 
-  JBPERF_BEGIN("EL");
-  JBPERF_START("EvolveHierarchy");
+  LCAPERF_BEGIN("EL");
+  LCAPERF_START("EvolveHierarchy");
 
 #ifdef USE_MPI
   tentry = MPI_Wtime();
@@ -262,6 +263,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     TopGrid.GridData->ComputeAccelerationField(GRIDS);
   }
 */
+
  
   /* Do the first grid regeneration. */
  
@@ -283,26 +285,31 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     LevelInfofptr = fopen("OutputLevelInformation.out", "w");
     fclose(LevelInfofptr);
   }
+
+  /* For top-level timestepping with radiative star particles, we want
+     to restrict the timesteps.  Collect info here. */
+
+  StarParticleCountOnly(LevelArray);
  
-#ifdef USE_JBPERF
-  Eint32 jb_iter;
+#ifdef USE_LCAPERF
+  Eint32 lcaperf_iter;
 #endif
 
-  JBPERF_STOP("EvolveHierarchy");
-  JBPERF_END("EH");
+  LCAPERF_STOP("EvolveHierarchy");
+  LCAPERF_END("EH");
 
   /* ====== MAIN LOOP ===== */
 
   bool FirstLoop = true;
   while (!Stop) {
 
-#ifdef USE_JBPERF
-    jb_iter = MetaData.CycleNumber;
+#ifdef USE_LCAPERF
+    lcaperf_iter = MetaData.CycleNumber;
     static bool isFirstCall = true;
-    if ((jb_iter % JB_ITER_PER_SEGMENT)==0 || isFirstCall) jbPerf.begin("EL");
+    if ((lcaperf_iter % LCAPERF_DUMP_FREQUENCY)==0 || isFirstCall) lcaperf.begin("EL");
     isFirstCall = false;
-    jbPerf.attribute ("timestep",&jb_iter, JB_INT);
-    jbPerf.start("EL");
+    lcaperf.attribute ("timestep",&lcaperf_iter, LCAPERF_INT);
+    lcaperf.start("EL");
 #endif
 
 #ifdef USE_MPI
@@ -326,7 +333,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
 
     // OutputLevelInformation() only needs to be called by all processors
-    // when jbPerf is enabled.
+    // when lcaperf is enabled.
 
     OutputLevelInformation(LevelInfofptr, MetaData, LevelArray);
 
@@ -347,8 +354,14 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
       dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
 
-      if (Initialdt != 0) {
-        dt = min(dt, Initialdt);
+    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
+    dt = min(MetaData.MaximumTopGridTimeStep, dt);
+
+    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
+    if (Initialdt != 0) {
+      
+      dt = min(dt, Initialdt);
+      if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
         dtPhoton = dt;
 #endif
@@ -378,6 +391,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     } else { 
       dt = dtThisLevel[0]; 
     }
+
+    /* Set the time step.  If it will cause Time += dt > StopTime, then
+       set dt = StopTime - Time */
+ 
+    dt = min(MetaData.StopTime - MetaData.Time, dt);
     Temp = LevelArray[0];
     // Stop skipping
 
@@ -411,7 +429,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Inline halo finder */
 
-    FOF(&MetaData, LevelArray);
+    FOF(&MetaData, LevelArray, WroteData);
 
     /* Evolve the top grid (and hence the entire hierarchy). */
 
@@ -531,8 +549,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* If stopping, inline halo finder one more time */
 
     if (Stop && !Restart)
-      FOF(&MetaData, LevelArray);
-
+      FOF(&MetaData, LevelArray, TRUE);
 
     /* Try to cut down on memory fragmentation. */
  
@@ -543,9 +560,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
 #endif /* REDUCE_FRAGMENTATION */
 
-#ifdef USE_JBPERF
-    jbPerf.stop("EL");
-    if (((jb_iter+1) % JB_ITER_PER_SEGMENT)==0) jbPerf.end("EL");
+#ifdef USE_LCAPERF
+    lcaperf.stop("EL");
+    if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)==0) lcaperf.end("EL");
 #endif
 
 #ifdef MEM_TRACE
@@ -604,9 +621,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   } // ===== end of main loop ====
  
-#ifdef USE_JBPERF
-  if (((jb_iter+1) % JB_ITER_PER_SEGMENT)!=0) jbPerf.end("EL");
-  jbPerf.attribute ("timestep",0, JB_NULL);
+#ifdef USE_LCAPERF
+  if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
+  lcaperf.attribute ("timestep",0, LCAPERF_NULL);
 #endif
 
 #ifdef USE_MPI

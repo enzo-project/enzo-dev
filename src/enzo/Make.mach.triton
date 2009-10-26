@@ -22,6 +22,7 @@ MACH_FILE  = Make.mach.triton
 
 MACH_CPP       = cpp # C preprocessor command
 LOCAL_MPI_INSTALL = /opt/openmpi
+LOCAL_PYTHON_INSTALL = /projects/lca-group/local-dev/
 
 # With MPI
 
@@ -80,16 +81,16 @@ MACH_OPT_AGGRESSIVE  = # Flags for aggressive optimization
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = -I/opt/openmpi/include# MPI includes
-LOCAL_INCLUDES_HDF5   = -I/home/mjturk/local/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/projects/lca-group/local-dev/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
-LOCAL_INCLUDES_JBPERF = # jbPerf includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
-
+MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 
 #-----------------------------------------------------------------------
@@ -97,15 +98,16 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = -L/opt/openmpi/lib -lmpi # MPI libraries
-LOCAL_LIBS_HDF5   = -L/home/mjturk/local/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L/projects/lca-group/local-dev/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
-LOCAL_LIBS_JBPERF = # jbPerf libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
+LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a \
+                     -lreadline -ltermcap
 
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
-MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)

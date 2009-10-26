@@ -37,7 +37,6 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
   int B1Num, B2Num, B3Num, PhiNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  int MetalNum, SNColourNum;
 
   /* Add the physical quantities */
 
@@ -68,6 +67,7 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBx] = OldBaryonField[B1Num];
     Prim[iBy] = OldBaryonField[B2Num];
     Prim[iBz] = OldBaryonField[B3Num];
+    Prim[iPhi] = OldBaryonField[PhiNum];
   }
 
   /* Add the species */
@@ -100,8 +100,15 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   /* Add the colours (treat them as species) */
 
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1) {
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    return FAIL;
+  }
+  
+  if (MetalNum != -1) {
     Prim[nfield++] = OldBaryonField[MetalNum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = OldBaryonField[MetalNum+1];
@@ -109,9 +116,11 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     }
   }
 
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    Prim[nfield++] = OldBaryonField[SNColourNum];
+  if (SNColourNum      != -1) Prim[nfield++] = OldBaryonField[SNColourNum];
+  if (MBHColourNum     != -1) Prim[nfield++] = OldBaryonField[MBHColourNum];
+  if (Galaxy1ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy1ColourNum];
+  if (Galaxy2ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy2ColourNum];
+
 
   /* Convert the species and color fields into mass fractions */
 

@@ -34,6 +34,7 @@
 */
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;
+EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 
@@ -105,6 +106,7 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
  */
@@ -360,6 +362,7 @@ EXTERN int PartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
+EXTERN int NumberOfRootGridTilesPerDimensionPerProcessor;
 
 /* Parameters that control density dex output */
 
@@ -379,6 +382,7 @@ EXTERN int HaloFinderSubfind;
 EXTERN int HaloFinderOutputParticleList;
 EXTERN int HaloFinderMinimumSize;
 EXTERN int HaloFinderCycleSkip;
+EXTERN int HaloFinderRunAfterOutput;
 EXTERN float HaloFinderLinkingLength;
 EXTERN float HaloFinderTimestep;
 EXTERN FLOAT HaloFinderLastTime;
@@ -712,5 +716,7 @@ EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 
 
 EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
+
+EXTERN int MoveParticlesBetweenSiblings;
 
 #endif

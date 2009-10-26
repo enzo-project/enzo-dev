@@ -32,8 +32,6 @@
 void my_exit(int status);
  
  
- 
- 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor)
 {
  

@@ -42,24 +42,35 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int InitializeCloudyCooling(FLOAT Time)
 {
 
+  FLOAT a = 1, dadt;
+  int q, w;
+  float64 *temp_data;
+  long_int temp_int;
+  long_int *temp_int_arr;
+  char parameter_name[MAX_LINE_LENGTH];
+
+  // Initialize things needed even if cloudy cooling is not used.
+
+    CloudyCoolingData.CloudyCoolingGridParameters = new float*[CLOUDY_COOLING_MAX_DIMENSION];
+    CloudyCoolingData.CloudyCoolingGridDimension = new int[CLOUDY_COOLING_MAX_DIMENSION];
+    for (q = 0;q < CLOUDY_COOLING_MAX_DIMENSION;q++) {
+      CloudyCoolingData.CloudyCoolingGridDimension[q] = 0; 
+    }
+
+  // Zero arrays if cloudy cooling not used.
+
+  if (MetalCooling != CLOUDY_METAL_COOLING) {
+    CloudyCoolingData.CloudyCoolingGridRank = 0;
+    return SUCCESS;
+  }
+
   if (debug) {
     fprintf(stderr,"Initializing Cloudy cooling.\n");
     fprintf(stderr,"CloudyCoolingGridFile: %s.\n",CloudyCoolingData.CloudyCoolingGridFile);
     fprintf(stderr,"IncludingCloudyHeating: %"ISYM".\n",CloudyCoolingData.IncludeCloudyHeating);
     fprintf(stderr,"IncludingCloudyMMW: %"ISYM".\n",CloudyCoolingData.IncludeCloudyMMW);
     fprintf(stderr,"CMBTemperatureFloor: %"ISYM".\n",CloudyCoolingData.CMBTemperatureFloor);
-    fprintf(stderr,"ConstantTemperatureFloor: %"GSYM" K (unused if CMBTemperatureFloor = 1 and T_floor < T_CMB).\n\n",
-	    CloudyCoolingData.ConstantTemperatureFloor);
   }
-
-  CoolData.HydrogenFractionByMass = 0.76;
-
-  FLOAT a = 1, dadt;
-  int q, w, dataset_size;
-  float64 *temp_data;
-  long_int temp_int;
-  long_int *temp_int_arr;
-  char parameter_name[MAX_LINE_LENGTH];
 
   /* If using cosmology, compute the expansion factor and get units. */
 
@@ -129,7 +140,6 @@ int InitializeCloudyCooling(FLOAT Time)
   }
 
   // Grid dimension.
-  CloudyCoolingData.CloudyCoolingGridDimension = new int[CloudyCoolingData.CloudyCoolingGridRank];
   temp_int_arr = new long_int[CloudyCoolingData.CloudyCoolingGridRank];
   attr_id = H5Aopen_name(dset_id, "Dimension");
   if (attr_id == h5_error) {
@@ -154,11 +164,11 @@ int InitializeCloudyCooling(FLOAT Time)
   }
 
   // Read Cooling data.
-  dataset_size = 1;
+  CloudyCoolingData.CloudyDataSize = 1;
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
-    dataset_size *= CloudyCoolingData.CloudyCoolingGridDimension[q];
+    CloudyCoolingData.CloudyDataSize *= CloudyCoolingData.CloudyCoolingGridDimension[q];
   }
-  temp_data = new float64[dataset_size];
+  temp_data = new float64[CloudyCoolingData.CloudyDataSize];
 
   status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
   if (debug) fprintf(stderr,"Reading Cloudy Cooling dataset.\n");
@@ -167,8 +177,8 @@ int InitializeCloudyCooling(FLOAT Time)
     return FAIL;
   }
 
-  CloudyCoolingData.CloudyCooling = new float[dataset_size];
-  for (q = 0;q < dataset_size;q++) {
+  CloudyCoolingData.CloudyCooling = new float[CloudyCoolingData.CloudyDataSize];
+  for (q = 0;q < CloudyCoolingData.CloudyDataSize;q++) {
     CloudyCoolingData.CloudyCooling[q] = temp_data[q] > 0 ? (float) log10(temp_data[q]) : (float) SMALL_LOG_VALUE;
 
     // Convert to code units.
@@ -185,7 +195,7 @@ int InitializeCloudyCooling(FLOAT Time)
   // Read Heating data.
   if (CloudyCoolingData.IncludeCloudyHeating > 0) {
 
-    temp_data = new float64[dataset_size];
+    temp_data = new float64[CloudyCoolingData.CloudyDataSize];
 
     dset_id =  H5Dopen(file_id, "/Heating");
     if (dset_id == h5_error) {
@@ -200,8 +210,8 @@ int InitializeCloudyCooling(FLOAT Time)
       return FAIL;
     }
 
-    CloudyCoolingData.CloudyHeating = new float[dataset_size];
-    for (q = 0;q < dataset_size;q++) {
+    CloudyCoolingData.CloudyHeating = new float[CloudyCoolingData.CloudyDataSize];
+    for (q = 0;q < CloudyCoolingData.CloudyDataSize;q++) {
       CloudyCoolingData.CloudyHeating[q] = temp_data[q] > 0 ? (float) log10(temp_data[q]) : (float) SMALL_LOG_VALUE;
 
       // Convert to code units.
@@ -219,7 +229,7 @@ int InitializeCloudyCooling(FLOAT Time)
   // Read Mean Molecular Weight data.
   if (CloudyCoolingData.IncludeCloudyMMW > 0) {
 
-    temp_data = new float64[dataset_size];
+    temp_data = new float64[CloudyCoolingData.CloudyDataSize];
 
     dset_id =  H5Dopen(file_id, "/MMW");
     if (dset_id == h5_error) {
@@ -234,8 +244,8 @@ int InitializeCloudyCooling(FLOAT Time)
       return FAIL;
     }
 
-    CloudyCoolingData.CloudyMeanMolecularWeight = new float[dataset_size];
-    for (q = 0;q < dataset_size;q++) {
+    CloudyCoolingData.CloudyMeanMolecularWeight = new float[CloudyCoolingData.CloudyDataSize];
+    for (q = 0;q < CloudyCoolingData.CloudyDataSize;q++) {
       CloudyCoolingData.CloudyMeanMolecularWeight[q] = (float) temp_data[q];
     }
     delete [] temp_data;
@@ -248,7 +258,7 @@ int InitializeCloudyCooling(FLOAT Time)
   }
 
   // Read in grid parameters.
-  CloudyCoolingData.CloudyCoolingGridParameters = new float*[CloudyCoolingData.CloudyCoolingGridRank];
+  //CloudyCoolingData.CloudyCoolingGridParameters = new float*[CloudyCoolingData.CloudyCoolingGridRank];
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
 
     if (q < CloudyCoolingData.CloudyCoolingGridRank - 1) {
@@ -275,7 +285,13 @@ int InitializeCloudyCooling(FLOAT Time)
 
     CloudyCoolingData.CloudyCoolingGridParameters[q] = new float[CloudyCoolingData.CloudyCoolingGridDimension[q]];
     for (w = 0;w < CloudyCoolingData.CloudyCoolingGridDimension[q];w++) {
-      CloudyCoolingData.CloudyCoolingGridParameters[q][w] = (float) temp_data[w];
+      if (q < CloudyCoolingData.CloudyCoolingGridRank - 1) {
+	CloudyCoolingData.CloudyCoolingGridParameters[q][w] = (float) temp_data[w];
+      }
+      else {
+	// convert temeperature to log
+	CloudyCoolingData.CloudyCoolingGridParameters[q][w] = (float) log10(temp_data[w]);
+      }
     }
     delete [] temp_data;
 

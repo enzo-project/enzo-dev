@@ -171,10 +171,29 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	}
 	else {
 	  if (MyProcessorNumber == ROOT_PROCESSOR)
-	    fprintf(stderr, "%s: Need to specify level.\n", myname);
+	    fprintf(stderr, "%s: Need to specify dimension.\n", myname);
 	  ENZO_FAIL("");
 	}
-	project = TRUE;
+	project = 1;
+	break;
+
+      case 'P':
+	if (--argc > 0) {
+	  if (sscanf((*++argv), "%"ISYM, &ProjectionDimension) != 1) {
+	    if (MyProcessorNumber == ROOT_PROCESSOR)
+	      fprintf(stderr, "%s: error reading ProjectionDimension.\n",
+		      myname);
+	    ENZO_FAIL("");
+	  }
+	  while (*(argv[0]+1))
+	    ++argv[0];
+	}
+	else {
+	  if (MyProcessorNumber == ROOT_PROCESSOR)
+	    fprintf(stderr, "%s: Need to specify dimension.\n", myname);
+	  ENZO_FAIL("");
+	}
+	project = 2;
 	break;
  
 	/* restart file. */
@@ -219,7 +238,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
   if (argc != 1) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       PrintUsage(myname);
-    ENZO_FAIL("");
+    my_exit(EXIT_SUCCESS);
   }
   *ParameterFile = argv[0];
  
@@ -238,6 +257,7 @@ void PrintUsage(char *myname)
 	          "      -x(extract)\n"
 	          "         -l(evel_of_extract) level\n"
 	          "      -p(roject_to_plane) dimension\n"
+	          "      -P(roject_to_plane version 2) dimension\n"
                   "         -m(smooth projection)\n"
 	          "      -o(utput as particle data)\n"
                   "      -h(elp)\n"

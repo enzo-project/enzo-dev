@@ -112,6 +112,17 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 //  if ( MyProcessorNumber == 0 )
 //    fprintf(stderr, "Using dumped task assignment: GridID = %"ISYM"  MPI Task = %"ISYM"\n", GridID, Task);
 
+  /* If requested, reset the grid processors. */
+
+  if (ResetLoadBalancing) 
+    if (GridID <= NumberOfRootGrids)
+      if (LoadBalancing == 2 && PreviousMaxTask < NumberOfProcessors-1)
+	Task = (GridID-1) * NumberOfProcessors / (PreviousMaxTask+1);
+      else
+	Task = (GridID-1) % NumberOfProcessors;
+    else
+      Task = ParentGrid->GridData->ReturnProcessorNumber();
+
   // Assign tasks in a round-robin fashion if we're increasing the
   // processor count, but processors are grouped together
   // (0000111122223333).  Only used if LoadBalancing == 2.
@@ -126,7 +137,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
     else
       // Load the child on the same processor as its parent
       Task = ParentGrid->GridData->ReturnProcessorNumber();
-
+  
   Grid->GridData->SetProcessorNumber(Task);
 
 #endif
@@ -169,10 +180,13 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   /* We pass in the global here as a parameter to the function */
   if(LoadGridDataAtStart){ 
-    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, TRUE,
-                CheckpointRestart) == FAIL) {
+    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, TRUE
+#ifdef NEW_GRID_IO
+                , CheckpointRestart
+#endif
+        ) == FAIL) {
       fprintf(stderr, "Error in grid->Group_ReadGrid (grid %"ISYM").\n", GridID);
-      return FAIL;
+      ENZO_FAIL("");
     }
   }else{
     if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, FALSE) == FAIL) {

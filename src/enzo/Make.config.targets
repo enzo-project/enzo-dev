@@ -86,12 +86,12 @@ help-config:
 	@echo "      gmake packed-mem-yes"
 	@echo "      gmake packed-mem-no"
 	@echo
-	@echo "   Set whether to call jbPerf performance tool"
+	@echo "   Set whether to call lcaperf performance tool"
 	@echo
-	@echo "      gmake jbperf-yes"
-	@echo "      gmake jbperf-no"
+	@echo "      gmake lcaperf-yes"
+	@echo "      gmake lcaperf-no"
 	@echo
-	@echo "   Set whether to use the PAPI library with jbPerf"
+	@echo "   Set whether to use the PAPI library with lcaperf"
 	@echo
 	@echo "      gmake papi-yes"
 	@echo "      gmake papi-no"
@@ -115,6 +115,7 @@ help-config:
 	@echo
 	@echo "      gmake opt-warn"
 	@echo "      gmake opt-debug"
+	@echo "      gmake opt-cudadebug  (cuda device software emulation)"
 	@echo "      gmake opt-high"
 	@echo "      gmake opt-aggressive"
 	@echo
@@ -137,6 +138,11 @@ help-config:
 	@echo
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
+	@echo 
+	@echo "   Use the new Grid IO routines"
+	@echo
+	@echo "      gmake newgridio-yes"
+	@echo "      gmake newgridio-no"
 	@echo 
 	@echo "   Include fast sibling search"
 	@echo
@@ -210,7 +216,7 @@ show-config:
 	@echo "   CONFIG_TASKMAP:               $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR:            $(CONFIG_PACKED_AMR)"
 	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
-	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
+	@echo "   CONFIG_LCAPERF:               $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
 	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
@@ -220,6 +226,7 @@ show-config:
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
+	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
 	@echo
@@ -478,19 +485,19 @@ CONFIG_PACKED-MEM-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_JBPERF = jbperf-yes jbperf-no
-.PHONY: $(VALID_JBPERF)
+VALID_LCAPERF = lcaperf-yes lcaperf-no
+.PHONY: $(VALID_LCAPERF)
 
-jbperf-yes: CONFIG_JBPERF-yes
-jbperf-no: CONFIG_JBPERF-no
-jbperf-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_JBPERF)]\n\n"
-CONFIG_JBPERF-%: suggest-clean
+lcaperf-yes: CONFIG_LCAPERF-yes
+lcaperf-no: CONFIG_LCAPERF-no
+lcaperf-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LCAPERF)]\n\n"
+CONFIG_LCAPERF-%: suggest-clean
 	@tmp=.config.temp; \
-        grep -v CONFIG_JBPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        grep -v CONFIG_LCAPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_JBPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_JBPERF:
+        echo "CONFIG_LCAPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LCAPERF:
 	@echo
 
 #-----------------------------------------------------------------------
@@ -536,7 +543,7 @@ cuda-yes: CONFIG_ECUDA-yes
 cuda-no: CONFIG_ECUDA-no
 cuda-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ECUDA)]\n\n"
-CONFIG_ECUDA-%: 
+CONFIG_ECUDA-%: suggest-clean
 	@tmp=.config.temp; \
         echo ""; \
         grep -v CONFIG_ECUDA $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
@@ -564,11 +571,12 @@ CONFIG_OOC-BOUNDARY-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_OPT = opt-warn opt-debug opt-high opt-aggressive
+VALID_OPT = opt-warn opt-debug opt-cudadebug opt-high opt-aggressive
 .PHONY: $(VALID_OPT)
 
 opt-warn:       CONFIG_OPT-warn
 opt-debug:      CONFIG_OPT-debug
+opt-cudadebug:  CONFIG_OPT-cudadebug
 opt-high:       CONFIG_OPT-high
 opt-aggressive: CONFIG_OPT-aggressive
 opt-%:
@@ -607,7 +615,7 @@ tpvel-yes: CONFIG_TPVEL-yes
 tpvel-no: CONFIG_TPVEL-no
 tpvel-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TPVEL)]\n\n"
-CONFIG_TPVEL-%:
+CONFIG_TPVEL-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
@@ -624,12 +632,29 @@ photon-yes: CONFIG_PHOTON-yes
 photon-no: CONFIG_PHOTON-no
 photon-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PHOTON)]\n\n"
-CONFIG_PHOTON-%:
+CONFIG_PHOTON-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE) show-config | grep CONFIG_PHOTON:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_NEW_GRID_IO = newgridio-yes newgridio-no
+.PHONY: $(VALID_NEW_GRID_IO)
+
+newgridio-yes: CONFIG_NEW_GRID_IO-yes
+newgridio-no: CONFIG_NEW_GRID_IO-no
+newgridio-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_NEW_GRID_IO)]\n\n"
+CONFIG_NEW_GRID_IO-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_NEW_GRID_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_NEW_GRID_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_NEW_GRID_IO:
 	@echo
 
 #-----------------------------------------------------------------------

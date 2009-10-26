@@ -190,6 +190,10 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   for (cstar = AllStars; cstar; cstar = cstar->NextStar)
     minStarLifetime = min(minStarLifetime, cstar->ReturnLifetime());
 
+  /* Store in global variable */
+  
+  G_TotalNumberOfStars = TotalNumberOfStars;
+
   return SUCCESS;
 
 }

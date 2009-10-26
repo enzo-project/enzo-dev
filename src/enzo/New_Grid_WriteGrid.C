@@ -50,6 +50,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+#ifdef NEW_GRID_IO
 int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id,
                           int WriteEverything)
 {
@@ -519,6 +520,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   return SUCCESS;
  
 }
+#endif
 
 int grid::write_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
                   hid_t data_type, void *data, int active_only,

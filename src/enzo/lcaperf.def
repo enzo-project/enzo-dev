@@ -1,0 +1,218 @@
+/* External defines: 
+ *
+ * CHECK_PAPI
+ * F77_ADD_UNDERSCORE
+ * OVERHEAD
+ * PAPI3
+ * TRACE_COUNTERS_STACK
+ * TRACE_LCAPERF
+ * TRACE_PAPI
+ * TRACE_STACK
+ * TRACE_STATE
+ * USE_PAPI
+ */
+
+#ifndef LCAPERF_DEF
+#define LCAPERF_DEF
+
+#define LCAPERF_VERSION_MAJOR 1
+#define LCAPERF_VERSION_MINOR 0
+
+#define LCAPERF_MAX_PATH_LENGTH  100
+#define LCAPERF_MAX_STRING       100
+#define LCAPERF_MAX_DIR_TRIES    20
+
+#define LCAPERF_DIR "LCAPERF"
+
+#define LCAPERF_COUNTER_TYPE_BASIC    0
+#define LCAPERF_COUNTER_TYPE_USER_REL 1
+#define LCAPERF_COUNTER_TYPE_PAPI     2
+#define LCAPERF_COUNTER_TYPE_USER_ABS 3
+
+#define LCAPERF_COUNTER_TYPE_USER     1  /* OBSOLETE: for backward-compatibility only */
+
+/* #define LCAPERF_USER_TYPE_UNKNOWN 0 */
+/* #define LCAPERF_USER_TYPE_ABSOLUTE 1 */
+/* #define LCAPERF_USER_TYPE_RELATIVE 2 */
+
+#define LCAPERF_STATE_NEW     0
+#define LCAPERF_STATE_STARTED 1
+#define LCAPERF_STATE_STOPPED 2
+
+#define LCAPERF_RETURN_UNKNOWN -1
+#define LCAPERF_RETURN_OK       0
+#define LCAPERF_RETURN_ERROR    1
+
+/* struct Counter indices */
+
+/* BASIC */
+
+#define IND_TIME_BEGIN        0
+#define IND_TIME_END          1
+#define IND_TIME_ACTIVE_INCL  2
+#define IND_TIME_ACTIVE_EXCL  3
+#define IND_CALL_COUNT        4
+
+/* PAPI */
+
+#define IND_VTIME_BEGIN       5
+#define IND_VTIME_END         6
+#define IND_VTIME_ACTIVE_INCL 7
+#define IND_VTIME_ACTIVE_EXCL 8
+
+/* MPI */
+
+#define IND_MPI_GLOBAL_CALLS       9
+#define IND_MPI_GLOBAL_RECV_BYTES 10
+#define IND_MPI_GLOBAL_SEND_BYTES 11
+#define IND_MPI_GLOBAL_SYNCH      12
+#define IND_MPI_RECV_BYTES        13
+#define IND_MPI_RECV_CALLS        14
+#define IND_MPI_SEND_BYTES        15
+#define IND_MPI_SEND_CALLS        16
+#define IND_MPI_TIME              17
+
+/* lcamem */
+
+#define IND_LCAMEM_BYTES_CURR      18
+#define IND_LCAMEM_BYTES_HIGH      19
+#define IND_LCAMEM_DELETE_BYTES    20
+#define IND_LCAMEM_DELETE_CALLS    21
+#define IND_LCAMEM_NEW_BYTES       22
+#define IND_LCAMEM_NEW_CALLS       23
+
+#define MAX_NUM_COUNTERS          (2*50)
+
+#define LCAPERF_NULL   0
+#define LCAPERF_STRING 1
+#define LCAPERF_INT    2
+#define LCAPERF_FLOAT  3
+#define LCAPERF_DOUBLE 4
+
+#define LCAPERF_NULL_CHAR         "*"
+#define LCAPERF_CONFLICT_CHAR     '#'
+#define LCAPERF_NULL_STRING       "*"
+#define LCAPERF_CONFLICT_STRING   "#"
+#define LCAPERF_NULL_CONST        0x7fffffffffffffff
+#define LCAPERF_CONFLICT_CONST    0x7ffffffffffffffe
+
+
+/* Fortran functions */
+
+#ifdef F77_ADD_UNDERSCORE
+#   define LCAPERF_FORTRAN(NAME) NAME##_
+#else
+#   define LCAPERF_FORTRAN(NAME) NAME
+#endif
+
+
+#define _ERROR "*** lcaperf ERROR *** %s:%d: "
+#define _DEBUG "*** lcaperf DEBUG *** %s:%d: "
+
+#ifdef TRACE_LCAPERF
+#  define _TRACE_LCAPERF(X) \
+    printf ("TRACE_LCAPERF %s:%d " X "()\n",__FILE__,__LINE__); \
+    _LCAMEM_TRACE_; \
+    fflush(stdout);
+#  define _TRACE_LCAPERF1(X,A) \
+    if (A) printf ("TRACE_LCAPERF %s:%d " X "(%s)\n",__FILE__,__LINE__,A); \
+    _LCAMEM_TRACE_; \
+    fflush(stdout);
+#else
+#  define _TRACE_LCAPERF(X) ;
+#  define _TRACE_LCAPERF1(X,A) ;
+#endif
+
+#ifdef TRACE_STATE
+#  define _TRACE_STATE \
+  printf ("TRACE_STATE: %s:%d %s %s\n",__FILE__,__LINE__,region.c_str(), \
+        state_[region] == LCAPERF_STATE_NEW ? "new" : \
+             (state_[region] == LCAPERF_STATE_STARTED ? "started" : \
+                (state_[region] == LCAPERF_STATE_STOPPED ? "stopped" : "illegal")));
+#else
+#  define _TRACE_STATE ;
+#endif
+
+#ifdef TRACE_PAPI
+#  define _TRACE_PAPI(DESCRIPTION) \
+    printf ("TRACE_PAPI %s:%d PAPI_" DESCRIPTION "()\n",__FILE__,__LINE__); \
+    fflush(stdout);
+#else
+#  define _TRACE_PAPI(DESCRIPTION) ;
+#endif
+
+#ifdef TRACE_STACK
+#  define _TRACE_STACK_PUSH(REGION) \
+     printf ("TRACE_STACK: push(%s)\n",REGION); \
+     fflush(stdout);
+#  define _TRACE_STACK_POP \
+     printf ("TRACE_STACK: pop(%s)\n",frame_.top().c_str()); \
+     fflush(stdout);
+#else
+#  define _TRACE_STACK_PUSH(REGION)
+#  define _TRACE_STACK_POP 
+#endif
+
+#ifdef TRACE_COUNTERS_STACK
+#  define _TRACE_COUNTERS_STACK_PUSH(REGION,POINTER) \
+     printf ("TRACE_COUNTERS_STACK: counters push(%s)=%p\n",REGION.c_str(),POINTER); \
+     fflush(stdout);
+#  define _TRACE_COUNTERS_STACK_POP \
+     printf ("TRACE_COUNTERS_STACK: counters pop(%p)\n",counters_stack_.top()); \
+     fflush(stdout);
+#else
+#  define _TRACE_COUNTERS_STACK_PUSH(REGION,POINTER)
+#  define _TRACE_COUNTERS_STACK_POP 
+#endif
+
+#ifdef CHECK_PAPI
+#  define _CHECK_PAPI(RETVAL,DESCRIPTION,EXPECTED_VAL) \
+    if (RETVAL != EXPECTED_VAL && ip_ == 0) { \
+      fprintf (stderr,"LCAPERF ERROR: %s:%d PAPI_%s() ERROR:%s\n", \
+   	     __FILE__,__LINE__,DESCRIPTION,PAPI_strerror(RETVAL)); \
+      fflush(stderr); \
+    }
+#else
+#  define _CHECK_PAPI(RETVAL,DESCRIPTION,EXPECTED_VAL) ;
+#endif
+
+#ifdef USE_PAPI
+#  define _CALL_PAPI(CALL,DESCRIPTION,EXPECTED,RETURNED) \
+  RETURNED = CALL; \
+  _TRACE_PAPI(DESCRIPTION); \
+  _CHECK_PAPI(RETURNED,DESCRIPTION,EXPECTED);
+#else
+#  define _CALL_PAPI(CALL,DESCRIPTION,EXPECTED,RETURNED) \
+   RETURNED = 0;
+#  define PAPI_OK 0
+#endif
+
+#ifdef PAPI3
+#  define PAPI3_ARG_ADJUST 
+#  define PAPI3_remove_event PAPI_remove_event
+#else
+#  define PAPI3_ARG_ADJUST &
+#  define PAPI3_remove_event PAPI_rem_event
+#endif
+
+
+
+#ifdef OVERHEAD
+
+#  define _OVERHEAD_INIT         overhead_init_();
+#  define _OVERHEAD_START(INDEX) overhead_start_(INDEX);
+#  define _OVERHEAD_STOP(INDEX)  overhead_stop_(INDEX);
+#  define _OVERHEAD_WRITE        overhead_write_();
+#  define _OVERHEAD_SUMMARY      overhead_summary_();
+
+#else
+
+#  define _OVERHEAD_INIT ;
+#  define _OVERHEAD_START(INDEX) ;
+#  define _OVERHEAD_STOP(INDEX) ;
+#  define _OVERHEAD_WRITE ;
+#  define _OVERHEAD_SUMMARY ;
+
+#endif
+
+#endif

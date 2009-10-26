@@ -36,18 +36,17 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
  
 int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
 {
+   /* Get the time and dt for this grid.  Compute time+1/2 dt. */
  
-  /* Get the time and dt for this grid.  Compute time+1/2 dt. */
- 
-  FLOAT TimeMidStep =     Grid->GridData->ReturnTime() +
-                      When*Grid->GridData->ReturnTimeStep();
- 
+  FLOAT TimeMidStep =     Grid->GridData->ReturnTime() 
+    + When*Grid->GridData->ReturnTimeStep();
+
   if (CommunicationDirection == COMMUNICATION_SEND ||
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
  
     /* Set the under_subgrid field (indicating if a cell is refined or not)
        on this grid. */
- 
+    //  printf("DepositBaryons:\n");
     HierarchyEntry *Temp = Grid->NextGridNextLevel;
     Grid->GridData->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
     while (Temp != NULL) {
@@ -77,8 +76,6 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
   return SUCCESS;
 }
  
- 
-/* this doesn't quite work yet (subgrid zeroing needs to be worked out). */
  
 int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
 			   HierarchyEntry *Grid, FLOAT DepositTime)

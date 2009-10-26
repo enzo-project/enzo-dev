@@ -37,12 +37,13 @@
 // hack for making things compile
 #define CUDA_BLOCK_SIZE 64
 #define CUDA_GRID_SIZE 640
-#define GHOST_SIZE 4
-#define PRINT_CUDA_TIMING 1
+
+//#define GHOST_SIZE 4
+#define PRINT_CUDA_TIMING 0
 //#define Gamma 2.0
-#define Theta_Limiter 1.5
+//#define Theta_Limiter 1.5
 #define EOSType 3
-#define EOSSoundSpeed 1
+#define EOSSoundSpeed 1.
 #define NEQ_MHD 9
 #define iD 0
 #define iS1 1
@@ -67,19 +68,19 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, float Gamma, int size);
+				       float *FluxPhi, float C_h, float Gamma, int size, float cTheta_Limiter);
 __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *Vz, float *Etot,
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
 				       float *FluxPhi, float C_h, float Gamma, 
-				       int size, int dim0, int dim1, int dim2);
+				       int size, int dim0, int dim1, int dim2, float cTheta_Limiter);
 __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *Vz, float *Etot,
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
 				       float *FluxPhi, float C_h, float Gamma,
-				       int size, int dim0, int dim1, int dim2);
+				       int size, int dim0, int dim1, int dim2, float cTheta_Limiter);
 __global__ void MHDComputedUx_CUDA3_kernel(float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				           float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz, float *FluxPhi, 
 					   float *dUD, float *dUS1, float *dUS2, float *dUS3,
@@ -101,8 +102,9 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
 				           float *dUTau, float *dUBx, float *dUBy, float *dUBz, float *dUPhi, 
 					   float dt, float C_h, float C_p, int size);
 
-__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, const float &C_h, const float &cGamma);
-__device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm);
+__device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx, 
+				  const float &C_h, const float &cGamma, const float &cTheta_Limiter);
+__device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm, const float &cTheta_Limiter);
 __device__ void EOS(float &p, float &rho, float &e, float &cs, 
 		    const float &cGamma, const int &eostype, const int &mode);
 __device__ float minmod(const float &a, const float &b, const float &c);
@@ -127,7 +129,7 @@ double ReturnWallTime();
 *******************************************************************************/
 
 int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], int GridEndIndex[], int GridRank,
-		        float dtdx, float dt, float C_h, float C_p)
+		       float dtdx, float dt, float C_h, float C_p, float cTheta_Limiter)
 {
 
   // compute grid size
@@ -149,9 +151,20 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   if (PRINT_CUDA_TIMING) fprintf(stderr, "minimal measurable time:     %g \n" , elapsedTime/1e3);
   cudaEventRecord(start, 0);
 
+#ifdef ECUDADEBUG
+  printf("Theta_Limiter sent to device: %g\n", cTheta_Limiter);
+  printf("Gridsize: %i\n", size);
+  printf("NEQ_MHD: %i\n", NEQ_MHD);
+  printf("Gridsize: %i %i %i\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+#endif
+
+
   float *PrimDevice = 0;
-  if (cudaMalloc((void**)&PrimDevice, sizeof(float)*(NEQ_MHD+1)*size) != cudaSuccess) {
-    printf("cudaMalloc for PrimDevice with size %d failed.\n", sizeof(float)*(NEQ_MHD+1)*size);
+  int totalsize=sizeof(float)*(NEQ_MHD+1)*size;
+  if (cudaMalloc((void**)&PrimDevice, totalsize) != cudaSuccess) {
+    printf("cudaMalloc for PrimDevice with size %d failed.\n", totalsize);
     return FAIL;
   }
 
@@ -223,7 +236,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 
@@ -251,32 +263,8 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					       Eint_Device, Bx_Device, By_Device, Bz_Device, Phi_Device,
 					       FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					       FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
-					       FluxPhi_Device, C_h, Gamma, size);
+					       FluxPhi_Device, C_h, Gamma, size, cTheta_Limiter);
 
-  /*
-  float *flux = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(flux, FluxD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  for (int i = 0; i < size; i++)
-    printf("%g ", flux[i]);
-  printf("\n");
-  free(flux);
-  */
-  
-  /*
-  float *flux1 = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(flux1, FluxD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  printf("flux:\n");
-  //for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-  //for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-  int j = 47, k = 120;
-  for (int i = 2; i < GridDimension[0]-1; i++)
-    printf("%g ", flux1[i+(j+k*GridDimension[1])*GridDimension[0]]);
-  //printf("\n");
-  //}
-  printf("\n");
-  //}
-  free(flux1);
-  */
 
   // compute dU for x direction
   MHDComputedUx_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
@@ -284,22 +272,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 					           dUD_Device, dUS1_Device, dUS2_Device, dUS3_Device,
 				                   dUTau_Device, dUBx_Device, dUBy_Device, dUBz_Device, dUPhi_Device, 
 					           dtdx, size);
-  /*
-  float *dU = (float*)malloc(sizeof(float)*size);
-  cudaMemcpy(dU, dUD_Device, sizeof(float)*size, cudaMemcpyDeviceToHost);
-  printf("dU:\n");
-  //for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-  //for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-
-  for (int i = 2; i < GridDimension[0]-1; i++)
-    //if (isnan(dU[i+(j+k*GridDimension[1])*GridDimension[0]]))
-    //printf("nan %d %d %d", i,j,k);
-    printf("%g ", dU[i+(j+k*GridDimension[1])*GridDimension[0]]);
-  //}
-  //}
-  printf("\n");
-  free(dU);
-  */
 
   if (GridRank > 1) {
     MHDSweepY_CUDA3_kernel<<<dimGrid,dimBlock>>>(Rho_Device, Vx_Device, Vy_Device, Vz_Device, Etot_Device, 
@@ -307,7 +279,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 		 			         FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					         FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
 					         FluxPhi_Device, C_h, Gamma,
-						 size, GridDimension[0], GridDimension[1], GridDimension[2]);
+						 size, GridDimension[0], GridDimension[1], GridDimension[2], cTheta_Limiter);
 
     MHDComputedUy_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
   						     FluxBx_Device, FluxBy_Device, FluxBz_Device, FluxPhi_Device, 
@@ -322,7 +294,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 		 			         FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device,
 					         FluxTau_Device, FluxBx_Device, FluxBy_Device, FluxBz_Device,
 					         FluxPhi_Device, C_h, Gamma, 
-						 size, GridDimension[0], GridDimension[1], GridDimension[2]);
+						 size, GridDimension[0], GridDimension[1], GridDimension[2], cTheta_Limiter);
   
     MHDComputedUz_CUDA3_kernel<<<dimGrid,dimBlock>>>(FluxD_Device, FluxS1_Device, FluxS2_Device, FluxS3_Device, FluxTau_Device,
   						     FluxBx_Device, FluxBy_Device, FluxBz_Device, FluxPhi_Device, 
@@ -339,6 +311,7 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 						   dt, C_h, C_p, size);
 
   cudaEventRecord(stop, 0);
+  cudaThreadSynchronize();
   cudaEventSynchronize(stop);
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "running kernel on GPU took:  %g \n" , elapsedTime/1e3);
@@ -346,6 +319,10 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   // copy prim back to cpu
   cudaEventRecord(start, 0);
+
+#ifdef ECUDADEBUG
+  printf("SIZE: %i\n", size);
+#endif
 
   CUDA_SAFE_CALL(cudaMemcpy(Prim[0], PrimDevice,        sizeof(float)*size, cudaMemcpyDeviceToHost));
   CUDA_SAFE_CALL(cudaMemcpy(Prim[1], PrimDevice+size,   sizeof(float)*size, cudaMemcpyDeviceToHost));
@@ -376,6 +353,15 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   if (PRINT_CUDA_TIMING) fprintf(stderr, "freeing memory on GPU took:  %g \n" , elapsedTime/1e3);
   //  PerformanceTimers[38] += elapsedTime/1e3;
 
+#ifdef ECUDADEBUG
+  printf("After update.\n");
+  for (int j=30; j < 33; j++) 
+    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+#endif
+
+cudaEventDestroy( start ); 
+cudaEventDestroy( stop ); 
+
   return SUCCESS;
 
 }
@@ -405,7 +391,7 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 	    		               float *Eneint, float *Bx, float *By, float *Bz, float *Phi,
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
-				       float *FluxPhi, float C_h, float Gamma, int size)
+				       float *FluxPhi, float C_h, float Gamma, int size, float cTheta_Limiter)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -472,7 +458,7 @@ __global__ void MHDSweepX_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igrid >= 2 && igrid <= size - 2) {
   // the main computation: calculating the flux at tx
-    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma, cTheta_Limiter);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -494,7 +480,7 @@ __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
 				       float *FluxPhi, float C_h, float Gamma, 
-				       int size, int dim0, int dim1, int dim2)
+				       int size, int dim0, int dim1, int dim2, float cTheta_Limiter)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -576,7 +562,7 @@ __global__ void MHDSweepY_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igridy >= 2 && igridy <= size - 2) {
   // the main computation: calculating the flux at tx
-    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma, cTheta_Limiter);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -599,7 +585,7 @@ __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 				       float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3,
 				       float *FluxTau, float *FluxBx, float *FluxBy, float *FluxBz,
 				       float *FluxPhi, float C_h, float Gamma, 
-				       int size, int dim0, int dim1, int dim2)
+				       int size, int dim0, int dim1, int dim2, float cTheta_Limiter)
 {
   // get thread and block index
   const long tx = threadIdx.x;
@@ -682,7 +668,7 @@ __global__ void MHDSweepZ_CUDA3_kernel(float *Rho, float *Vx, float *Vy, float *
 
   if (igridz >= 2 && igridz <= size - 2) {
   // the main computation: calculating the flux at tx
-    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma);
+    LLF_PLM_MHD_CUDA3(PrimLine, FluxLine, tx, C_h, Gamma, cTheta_Limiter);
 
   // copy 1D Flux back to Flux
   int idx_prim1 = tx*NEQ_MHD;
@@ -847,12 +833,12 @@ __global__ void MHDUpdatePrim_CUDA3_kernel(float *Rho, float *Vx, float *Vy, flo
   By[igrid] += dUBy[igrid];
   Bz[igrid] += dUBz[igrid];
   Phi[igrid] += dUPhi[igrid];  
-  Phi[igrid] *= expf(-dt*pow(C_h/C_p,2));
+  Phi[igrid] *= expf(-dt*(C_h/C_p)*(C_h/C_p));
 }
 
 // the main computation routine: compute Flux at the left cell interface given Prim at the center
 __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, 
-				  const int &tx, const float &C_h, const float &cGamma)
+				  const int &tx, const float &C_h, const float &cGamma, const float &cTheta_Limiter)
 {
   // those crazily many fields are defined in stead of using arrays
   // to avoid letting the compiler putting arrays in local memory
@@ -866,32 +852,32 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
 
   // 1. do PLM reconstruction for all primitive fields
 
-  plm_point(Prim[tx*NEQ_MHD+irho], Prim[(tx+1)*NEQ_MHD+irho], Prim[(tx+2)*NEQ_MHD+irho], Priml_rho);
-  plm_point(Prim[(tx+3)*NEQ_MHD+irho], Prim[(tx+2)*NEQ_MHD+irho], Prim[(tx+1)*NEQ_MHD+irho], Primr_rho);
+  plm_point(Prim[tx*NEQ_MHD+irho], Prim[(tx+1)*NEQ_MHD+irho], Prim[(tx+2)*NEQ_MHD+irho], Priml_rho, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+irho], Prim[(tx+2)*NEQ_MHD+irho], Prim[(tx+1)*NEQ_MHD+irho], Primr_rho, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+ieint], Prim[(tx+1)*NEQ_MHD+ieint], Prim[(tx+2)*NEQ_MHD+ieint], Priml_eint);
-  plm_point(Prim[(tx+3)*NEQ_MHD+ieint], Prim[(tx+2)*NEQ_MHD+ieint], Prim[(tx+1)*NEQ_MHD+ieint], Primr_eint);
+  plm_point(Prim[tx*NEQ_MHD+ieint], Prim[(tx+1)*NEQ_MHD+ieint], Prim[(tx+2)*NEQ_MHD+ieint], Priml_eint, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+ieint], Prim[(tx+2)*NEQ_MHD+ieint], Prim[(tx+1)*NEQ_MHD+ieint], Primr_eint, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+ivx], Prim[(tx+1)*NEQ_MHD+ivx], Prim[(tx+2)*NEQ_MHD+ivx], Priml_vx);
-  plm_point(Prim[(tx+3)*NEQ_MHD+ivx], Prim[(tx+2)*NEQ_MHD+ivx], Prim[(tx+1)*NEQ_MHD+ivx], Primr_vx);
+  plm_point(Prim[tx*NEQ_MHD+ivx], Prim[(tx+1)*NEQ_MHD+ivx], Prim[(tx+2)*NEQ_MHD+ivx], Priml_vx, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+ivx], Prim[(tx+2)*NEQ_MHD+ivx], Prim[(tx+1)*NEQ_MHD+ivx], Primr_vx, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+ivy], Prim[(tx+1)*NEQ_MHD+ivy], Prim[(tx+2)*NEQ_MHD+ivy], Priml_vy);
-  plm_point(Prim[(tx+3)*NEQ_MHD+ivy], Prim[(tx+2)*NEQ_MHD+ivy], Prim[(tx+1)*NEQ_MHD+ivy], Primr_vy);
+  plm_point(Prim[tx*NEQ_MHD+ivy], Prim[(tx+1)*NEQ_MHD+ivy], Prim[(tx+2)*NEQ_MHD+ivy], Priml_vy, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+ivy], Prim[(tx+2)*NEQ_MHD+ivy], Prim[(tx+1)*NEQ_MHD+ivy], Primr_vy, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+ivz], Prim[(tx+1)*NEQ_MHD+ivz], Prim[(tx+2)*NEQ_MHD+ivz], Priml_vz);
-  plm_point(Prim[(tx+3)*NEQ_MHD+ivz], Prim[(tx+2)*NEQ_MHD+ivz], Prim[(tx+1)*NEQ_MHD+ivz], Primr_vz);
+  plm_point(Prim[tx*NEQ_MHD+ivz], Prim[(tx+1)*NEQ_MHD+ivz], Prim[(tx+2)*NEQ_MHD+ivz], Priml_vz, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+ivz], Prim[(tx+2)*NEQ_MHD+ivz], Prim[(tx+1)*NEQ_MHD+ivz], Primr_vz, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+iBx], Prim[(tx+1)*NEQ_MHD+iBx], Prim[(tx+2)*NEQ_MHD+iBx], Priml_Bx);
-  plm_point(Prim[(tx+3)*NEQ_MHD+iBx], Prim[(tx+2)*NEQ_MHD+iBx], Prim[(tx+1)*NEQ_MHD+iBx], Primr_Bx);
+  plm_point(Prim[tx*NEQ_MHD+iBx], Prim[(tx+1)*NEQ_MHD+iBx], Prim[(tx+2)*NEQ_MHD+iBx], Priml_Bx, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+iBx], Prim[(tx+2)*NEQ_MHD+iBx], Prim[(tx+1)*NEQ_MHD+iBx], Primr_Bx, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+iBy], Prim[(tx+1)*NEQ_MHD+iBy], Prim[(tx+2)*NEQ_MHD+iBy], Priml_By);
-  plm_point(Prim[(tx+3)*NEQ_MHD+iBy], Prim[(tx+2)*NEQ_MHD+iBy], Prim[(tx+1)*NEQ_MHD+iBy], Primr_By);
+  plm_point(Prim[tx*NEQ_MHD+iBy], Prim[(tx+1)*NEQ_MHD+iBy], Prim[(tx+2)*NEQ_MHD+iBy], Priml_By, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+iBy], Prim[(tx+2)*NEQ_MHD+iBy], Prim[(tx+1)*NEQ_MHD+iBy], Primr_By, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+iBz], Prim[(tx+1)*NEQ_MHD+iBz], Prim[(tx+2)*NEQ_MHD+iBz], Priml_Bz);
-  plm_point(Prim[(tx+3)*NEQ_MHD+iBz], Prim[(tx+2)*NEQ_MHD+iBz], Prim[(tx+1)*NEQ_MHD+iBz], Primr_Bz);
+  plm_point(Prim[tx*NEQ_MHD+iBz], Prim[(tx+1)*NEQ_MHD+iBz], Prim[(tx+2)*NEQ_MHD+iBz], Priml_Bz, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+iBz], Prim[(tx+2)*NEQ_MHD+iBz], Prim[(tx+1)*NEQ_MHD+iBz], Primr_Bz, cTheta_Limiter);
 
-  plm_point(Prim[tx*NEQ_MHD+iPhi], Prim[(tx+1)*NEQ_MHD+iPhi], Prim[(tx+2)*NEQ_MHD+iPhi], Priml_Phi);
-  plm_point(Prim[(tx+3)*NEQ_MHD+iPhi], Prim[(tx+2)*NEQ_MHD+iPhi], Prim[(tx+1)*NEQ_MHD+iPhi], Primr_Phi);
+  plm_point(Prim[tx*NEQ_MHD+iPhi], Prim[(tx+1)*NEQ_MHD+iPhi], Prim[(tx+2)*NEQ_MHD+iPhi], Priml_Phi, cTheta_Limiter);
+  plm_point(Prim[(tx+3)*NEQ_MHD+iPhi], Prim[(tx+2)*NEQ_MHD+iPhi], Prim[(tx+1)*NEQ_MHD+iPhi], Primr_Phi, cTheta_Limiter);
 
   // 2. use LLF Riemann solver to compute flux  
 
@@ -979,7 +965,7 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
   Flux[tx*NEQ_MHD+iBz  ] = 0.5*(Fl_Bz+Fr_Bz-lp_l*(Ur_Bz-Ul_Bz));
 
   Flux[tx*NEQ_MHD+iBx  ] += Ul_Phi + 0.5*(Ur_Phi-Ul_Phi) - 0.5*C_h*(Ur_Bx-Ul_Bx);
-  Flux[tx*NEQ_MHD+iPhi ] = Ul_Bx + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
+  Flux[tx*NEQ_MHD+iPhi ] =  Ul_Bx  + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
   Flux[tx*NEQ_MHD+iPhi ] *= (C_h*C_h);
 
 }
@@ -991,11 +977,10 @@ __device__ float minmod(const float &a, const float &b, const float &c)
 }
 
 // do PLM reconstruction for a point
-__device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm)
+__device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm, const float &cTheta_Limiter)
 {
-
-  float dv_l = (v-vm1) * Theta_Limiter;
-  float dv_r = (vp1-v) * Theta_Limiter;
+  float dv_l = (v-vm1) * cTheta_Limiter;
+  float dv_r = (vp1-v) * cTheta_Limiter;
   float dv_m = 0.5*(vp1-vm1);
   
   float dv = minmod(dv_l, dv_r, dv_m);
@@ -1064,8 +1049,8 @@ __device__ void EOS(float &p, float &rho, float &e, float &cs, const float &cGam
   }
 
   if (eostype == 3) { // straight isothermal
-    double c_s = EOSSoundSpeed;
-    p = rho*c_s*c_s;
+    cs = EOSSoundSpeed;
+    p = rho*cs*cs;
     e = p / ((cGamma-1.0)*rho);
   }
 

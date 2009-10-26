@@ -43,7 +43,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   Star *ThisStar, *OtherStar, *PrevStar;
   LevelHierarchyEntry *Temp;
-  float rmerge2;
+  float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
   int dim, level;
   const float pc = 3.086e18;
@@ -65,11 +65,18 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
   /* Merge all yet-to-be born stars within r_merge */
 
-  rmerge2 = powf(StarClusterCombineRadius * pc / LengthUnits, 2.0f);
+  rmerge2o = powf(StarClusterCombineRadius * pc / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
     if (ThisStar->IsActive() || ThisStar->MarkedToDelete())
       continue;
+
+    // Merge stars with separations less than a
+    // StarClusterCombineRadius or a cell width
+    dx = TopGridDx[0] * POW(RefineBy, -ThisStar->ReturnLevel());
+    dx2 = dx*dx;
+    rmerge2 = max(rmerge2o, dx2);
+
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
@@ -77,13 +84,12 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	ENZO_FAIL("");
       }
       if (ThisStar->Mergable(OtherStar))
-	if (ThisStar->Separation2(OtherStar) < rmerge2) {
+	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
 	  ThisStar->Merge(OtherStar);
 	  OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
 //		 OtherStar->ReturnID());
 	} // ENDIF radius2 < rmerge2
-
     } // ENDFOR OtherStar
   } // ENDFOR ThisStar
 

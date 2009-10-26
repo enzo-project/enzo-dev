@@ -20,17 +20,19 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "StarParticleData.h"
 #include "EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-void Turbulence_Generator(float **vel, int size, int ind, float sigma, float kmin, float kmax, float dk,
-			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed, int level);
+void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
 
 int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				      float Bnaught, int seed, int level)
+				      float Bnaught, int seed, int level, int SetBaryonFields)
 {
 
   NumberOfBaryonFields = 0;
@@ -59,14 +61,17 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     FieldType[NumberOfBaryonFields++] = DrivingField3;
   }
 
-  if (ProcessorNumber != MyProcessorNumber) {
+  if (ProcessorNumber != MyProcessorNumber) 
     return SUCCESS;
-  }
-
-  float rhou, lenu, tempu, tu,
-    velu, CriticalDensity = 1, BoxLength = 1;
   
-  GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
+  if (SetBaryonFields == 0) 
+    return SUCCESS;
+  
+
+  float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0,
+    velu = 1.0, CriticalDensity = 1, BoxLength = 1;
+  if (UsePhysicalUnit)
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   
   int size = 1;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -104,11 +109,29 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
   }
 
-  printf("Begin generating turbulent velocity spectrum... %i\n", GridDimension[0]-2*DEFAULT_GHOST_ZONES);
-  
-  Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, cs_medium*mach, 1, 5, 1,
-		       CellLeftEdge, CellWidth, seed, level);
+  if (debug) 
+    printf("Begin generating turbulent velocity spectrum... %i %i %i\n", 
+	   GridDimension[0]-2*DEFAULT_GHOST_ZONES,
+	   GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+	   GridDimension[2]-2*DEFAULT_GHOST_ZONES);
+
+  Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES,
+		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+		       GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+		       4.0, 1, 5, 1,
+		       CellLeftEdge, CellWidth, seed);
   printf("Turbulent spectrum generated\n");
+
+  float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+  if (level > 0) VelocityNormalization = mach; 
+
+  for (int i = 0; i < 3; i++) {
+    for (n = 0; n < activesize; n++) {
+      TurbulenceVelocity[i][n] *= VelocityNormalization;
+    }
+  }
+
 
   // assume isothermal initially
   float p_medium = rho_medium*cs_medium*cs_medium;
@@ -120,7 +143,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   float eint, h, dpdrho, dpde, cs;
   eint = cs_medium*cs_medium/(Gamma-1.0);
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
-  FLOAT rs = 2.0;
+  FLOAT rs = 1.; // 0.3;
   n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
@@ -178,12 +201,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 
   // Set the turbulent velocity field
   float v2;
-  n = 0;
+
   int igrid;
+  n = 0;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-
 	igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
         x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
         y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
@@ -204,23 +227,25 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
       } 
     }
   }
-
+  // printf("Grid_MHDTurb: line 218\n");
   for (int i = 0; i < 3; i++) {
-    delete TurbulenceVelocity[i];
-  }
-
+    delete [] TurbulenceVelocity[i];
+    }
+	  // printf("Grid_MHDTurb: line 222\n");
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
-
+  printf("UseDrivingField =%d\n",UseDrivingField);
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
     k2 = 4.0;
     dk = 1.0;
     printf("Begin generating driving force field ...\n");
-    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 4.0, 
-			 cs_medium*mach, k1, k2, dk,
-			 CellLeftEdge, CellWidth, seed, level);
+    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+		       GridDimension[2]-2*DEFAULT_GHOST_ZONES, 
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, seed);
     printf("Driving force field generated\n");
 
 
@@ -236,7 +261,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     Fx /= activesize;
     Fy /= activesize;
     Fz /= activesize;
-    
+
     for (n = 0; n < activesize; n++) {
       DrivingField[0][n] -= Fx;
       DrivingField[1][n] -= Fy;
@@ -264,12 +289,12 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
 
 
-    for (int dim = 0; dim < GridRank; dim++) {
+     for (int dim = 0; dim < GridRank; dim++) {
       delete [] DrivingField[dim];
-    }
+      }
   }    
 
-
+  //printf("Grid_MHDTurb: COMPLETED\n");
   return SUCCESS;
 }
 

@@ -77,7 +77,6 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   int CollapseTestUseMetals       = FALSE;
   float CollapseTestInitialTemperature = 1000;
   float CollapseTestInitialDensity     = 1.0;
-  int   CollapseTestSphereType[MAX_SPHERES];
   float CollapseTestSphereDensity[MAX_SPHERES],
     CollapseTestSphereTemperature[MAX_SPHERES],
     CollapseTestSphereVelocity[MAX_SPHERES][MAX_DIMENSION],
@@ -90,7 +89,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereAng2[MAX_SPHERES],
     CollapseTestSphereMetallicity[MAX_SPHERES];
   int CollapseTestSphereNumShells[MAX_SPHERES],
-    CollapseTestSphereInitialLevel[MAX_SPHERES];
+    CollapseTestSphereInitialLevel[MAX_SPHERES],
+    CollapseTestSphereType[MAX_SPHERES];
   FLOAT CollapseTestSphereRadius[MAX_SPHERES],
     CollapseTestSphereCoreRadius[MAX_SPHERES],
     CollapseTestSpherePosition[MAX_SPHERES][MAX_DIMENSION];

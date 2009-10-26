@@ -28,8 +28,6 @@
 #include "Grid.h"
  
  
- 
- 
 int grid::CheckForOverlap(grid *OtherGrid,
 			  boundary_type LeftFaceBoundaryCondition[],
 			  boundary_type RightFaceBoundaryCondition[],
@@ -43,7 +41,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
     return SUCCESS;
  
   int i, j, k;
-  FLOAT EdgeOffset[MAX_DIMENSION] = {0,0,0};
+  FLOAT EdgeOffset[MAX_DIMENSION] = {0.0,0.0,0.0};
  
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
@@ -58,7 +56,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   //  Mod by RH - always check full periodic
  
-   FullPeriod = TRUE;
+  FullPeriod = TRUE;
  
   /*
     if (CopyFunction == &grid::AddOverlappingParticleMassField) {
@@ -89,12 +87,10 @@ int grid::CheckForOverlap(grid *OtherGrid,
     Lx = (DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
     Ly = (DomainRightEdge[ShearingVelocityDirection]-DomainLeftEdge[ShearingVelocityDirection]);
     ShearingOffset = AngularVelocity*VelocityGradient*Time*Lx;
-    while (ShearingOffset > Ly) {
+    while (ShearingOffset >= Ly) {
       ShearingOffset -= Ly;
     }  
   }
-
-
 
   /* For periodic boundary conditions, do some extra checks.  This insures
      that grids which overlap along periodic boundaries are handled correctly;
@@ -103,11 +99,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
      (Here we use EdgeOffset to tell Grid_CopyZonesFromGrid that we have
      moved the base location of the grid). */
  
- 
- 
 
-
-
+  //PrintToScreenBoundaries(BaryonField[2], "Vy");
 
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
@@ -122,61 +115,53 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	   applying periodic bc's in this direction. */
  
 
-
 	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][0] < DomainLeftEdge[0])    ) &&
+			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingVelocityDirection==0 ))    ) &&
 	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-			 CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0])                        ) &&
+			 (CellLeftEdge[0][GridDimension[0]-1] >
+			 DomainRightEdge[0] ||  ShearingVelocityDirection==0 ))                        ) &&
 	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][0] < DomainLeftEdge[1])    ) &&
+			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingVelocityDirection==1 ))    ) &&
 	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-			 CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1])                        ) &&
+			 (CellLeftEdge[1][GridDimension[1]-1] >
+			 DomainRightEdge[1]  || ShearingVelocityDirection==1 ))                        ) &&
 	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][0] < DomainLeftEdge[2])    ) &&
+			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingVelocityDirection==2))    ) &&
 	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-			 CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])                        )   ) {
- 
+			 (CellLeftEdge[2][GridDimension[2]-1] >
+			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
 
-	  if (ShearingBoundaryDirection!=-1){
-	      if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
-		  (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
-		  (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
-	      }
-	      if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
-		  (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
-		  (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
-		 EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
-	      }
-	    }
-
-
-	
 	  // Full periodic case (26 checks)
 	    
 	  if ((GridRank > 2 || k == 0) && 
 	      (GridRank > 1 || j == 0) &&
 	      (i != 0 || j != 0 || k != 0) && 
 	      (FullPeriod == TRUE || ShearingBoundaryDirection!=-1)) {
+	    	    
+		if (ShearingBoundaryDirection!=-1){
+		  if ((i== +1 && LeftFaceBoundaryCondition[0] == shearing) ||
+		      (j== +1 && LeftFaceBoundaryCondition[1] == shearing) ||
+		      (k== +1 && LeftFaceBoundaryCondition[2] == shearing)){
+		    EdgeOffset[ShearingVelocityDirection] -= ShearingOffset;
+		  }
+		  if ((i== -1 && RightFaceBoundaryCondition[0] == shearing) ||
+		      (j== -1 && RightFaceBoundaryCondition[1] == shearing) ||
+		      (k== -1 && RightFaceBoundaryCondition[2] == shearing)){
+		    EdgeOffset[ShearingVelocityDirection] += ShearingOffset;
+		  }
+		}
+
 	    
-	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-	      printf("Error in grid->*CopyFunction (2)\n");
-	      ENZO_FAIL("CopyFunctionFail(2)");}
-	    
-	  
+		if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
+		  printf("Error in grid->*CopyFunction (2)\n");
+		  ENZO_FAIL("CopyFunctionFail(2)");
+		}
 	  }
-	    
-	    
-	    
+
 	  // partial periodic case (6 checks)
 	    
 	  if ((GridRank > 2 || k == 0) && (GridRank > 1 || j == 0) &&
 	      (FullPeriod==FALSE && ShearingBoundaryDirection==-1) && (ABS(i)+ABS(j)+ABS(k) == 1)) {
-
-  
 
 	    
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
@@ -184,7 +169,6 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	      ENZO_FAIL("");
 	    }
 	  }
- 
 
 	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
 	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
@@ -197,12 +181,12 @@ int grid::CheckForOverlap(grid *OtherGrid,
     } // end: loop of j
   } // end: loop of k
 
-//   PrintToScreenBoundaries(	BaryonField[iden  ], "Density");
-//  PrintToScreenBoundaries(	BaryonField[ivx  ], "Vx2");
-//    PrintToScreenBoundaries(	BaryonField[ivy  ], "Vy2");
-//    PrintToScreenBoundaries(	BaryonField[ivz  ], "Vz2");
- 
- 
+
   return SUCCESS;
  
 }
+
+
+
+
+ 

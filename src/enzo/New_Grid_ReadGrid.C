@@ -51,6 +51,7 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 static int GridReadDataGridCounter = 0;
  
  
+#ifdef NEW_GRID_IO
 int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
 			 int ReadText, int ReadData, int ReadEverything)
 {
@@ -469,6 +470,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   return SUCCESS;
  
 }
+#endif
 
 int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
                   hid_t data_type, void *read_to, int copy_back_active,

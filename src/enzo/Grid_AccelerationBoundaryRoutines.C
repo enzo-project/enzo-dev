@@ -28,6 +28,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
 
+
+
 // Begin the pointer juggle to set the boundary on the acceleration field.
 // Save all BaryonField pointers in temporary array, and set them to be Acceleration Field
 // pointers.  This lets the SetBoundary condition machenery operate without heft code rewrite.
@@ -120,29 +122,28 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    int CycleNumber)
 {
 
-  if ( ! (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 )
+  if ( ! ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 ))
     return SUCCESS;
 
   //Set the boundary on the Acceleration field.  Reuse SetBoundaryConditions.  
   //Juggle pointers around.
 
-  int grid, ConservativeTruth;
+  int grid1, ConservativeTruth;
   char basename[30];  
 
   //We don't want conservative interpolation actually being done for the acceleration field.
   ConservativeTruth = ConservativeInterpolation;
   ConservativeInterpolation = FALSE;
 
-  for (grid = 0; grid < NumberOfGrids; grid++) {
-    if( Grids[grid]->GridData->AttachAcceleration() == FAIL ) {
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+    if( Grids[grid1]->GridData->AttachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in AttachAcceleration \n");
       ENZO_FAIL("");
     }
-    if( Grids[grid]->ParentGrid->GridData->AttachAcceleration() ==FAIL ){
+    if( Grids[grid1]->ParentGrid->GridData->AttachAcceleration() ==FAIL ){
       fprintf(stderr,"Error in AttachAcceleration, Parent \n");
       ENZO_FAIL("");
     }
-
   }
 
 #ifdef FAST_SIB
@@ -155,14 +156,15 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
     ENZO_FAIL("");
 #endif
   
-  
-  for (grid = 0; grid < NumberOfGrids; grid++) {
 
-    if( Grids[grid]->GridData->DetachAcceleration() == FAIL ) {
+  
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+    if( Grids[grid1]->GridData->DetachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in DetachAcceleration\n");
       ENZO_FAIL("");
     }
-    if( Grids[grid]->ParentGrid->GridData->DetachAcceleration() == FAIL ) {
+    if( Grids[grid1]->ParentGrid->GridData->DetachAcceleration() == FAIL ) {
       fprintf(stderr,"Error in DetachAcceleration, parent\n");
       ENZO_FAIL("");
     }

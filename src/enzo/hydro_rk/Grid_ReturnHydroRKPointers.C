@@ -37,7 +37,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   int B1Num, B2Num, B3Num, PhiNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  int MetalNum, SNColourNum;
 
   /* Add the physical quantities */
 
@@ -52,13 +51,13 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 				     Vel3Num, TENum, B1Num, B2Num, B3Num, 
 				     PhiNum);
     nfield = n0 = NEQ_MHD;
-  }
-  
+  };
+
   Prim[iden] = BaryonField[DensNum];
-  Prim[ivx] = BaryonField[Vel1Num];
-  Prim[ivy] = BaryonField[Vel2Num];
-  Prim[ivz] = BaryonField[Vel3Num];
-  Prim[ietot] = BaryonField[TENum];
+  Prim[ivx]  = BaryonField[Vel1Num];
+  Prim[ivy]  = BaryonField[Vel2Num];
+  Prim[ivz]  = BaryonField[Vel3Num];
+  Prim[ietot]= BaryonField[TENum];
   if (DualEnergyFormalism)
     Prim[ieint] = BaryonField[GENum];
 
@@ -66,14 +65,17 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iBx] = BaryonField[B1Num];
     Prim[iBy] = BaryonField[B2Num];
     Prim[iBz] = BaryonField[B3Num];
-    Prim[iPhi] = BaryonField[PhiNum];
+    Prim[iPhi]= BaryonField[PhiNum];
   }
-
-
+  /*
+  printf("Physical Quantities: %i %i  %i %i %i  %i  %i %i %i %i\n", 
+	 DensNum, GENum, Vel1Num, Vel2Num, 
+	 Vel3Num, TENum, B1Num, B2Num, B3Num, 
+	 PhiNum);
+  */
   /* Add the species */
 
   if (MultiSpecies) {
-
     this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
 				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
@@ -100,6 +102,31 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   /* Add the colours (NColor is determined in EvolveLevel_RK2) */  
 
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    return FAIL;
+  }
+  
+  if (MetalNum != -1) {
+    Prim[nfield++] = BaryonField[MetalNum];
+    if (MultiMetals || TestProblemData.MultiMetals) {
+      Prim[nfield++] = BaryonField[MetalNum+1];
+      Prim[nfield++] = BaryonField[MetalNum+2];
+    }
+  }
+
+  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];
+  if (MBHColourNum     != -1) Prim[nfield++] = BaryonField[MBHColourNum];
+  if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
+  if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
+
+  //fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield); 
+
+  /*  //#####
+  int MetalNum, SNColourNum;
   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
       != -1) {
     Prim[nfield++] = BaryonField[MetalNum];
@@ -112,6 +139,8 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
       != -1)
     Prim[nfield++] = BaryonField[SNColourNum];
+  */
+
 
   /* Convert the species and color fields into mass fractions */
 

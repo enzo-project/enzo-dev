@@ -30,7 +30,7 @@
  
 /* Set the mean molecular mass. */
  
-#define DEFAULT_MU 0.6
+//#define DEFAULT_MU 0.6
 #define MU_METAL 16.0
  
 /* This is minimum returned temperature. (K) */
@@ -122,7 +122,9 @@ int grid::ComputeTemperatureField(float *temperature)
 
   /* For Sedov Explosion compute temperature without floor */
 
-  float mol_weight = DEFAULT_MU, min_temperature = 1.0;
+  float mol_weight = Mu, min_temperature = 1.0;   // Mu is now read from parameter file
+
+  // this : would not be needed as we can specify it in parameter file:
   if (ProblemType == 7) {//AK for Sedov explosion test
     mol_weight = 1.0;
     min_temperature = tiny_number;
@@ -131,7 +133,7 @@ int grid::ComputeTemperatureField(float *temperature)
   if (MultiSpecies == FALSE)
  
     /* If the multi-species flag is not set,
-       Compute temperature T = p/d and assume mu = DEFAULT_MU. */
+       Compute temperature T = p/d and assume mu = Mu (global data). */
  
     for (i = 0; i < size; i++)
       temperature[i] = max((TemperatureUnits*temperature[i]*mol_weight

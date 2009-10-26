@@ -25,7 +25,7 @@ int HydroTimeUpdate_CUDA(float **Prim, int GridDimension[],
 			 int GridStartIndex[], int GridEndIndex[], int GridRank,
 			 float dtdx, float dt);
 
-int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[], 
 			      int NumberOfSubgrids, int level,
 			      ExternalBoundary *Exterior)  {
   /*
@@ -89,18 +89,8 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
   } // end of loop over subgrids
 
 
-
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
-  int activesize = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
-
-  this->ReturnHydroRKPointers(Prim);
+  this->ReturnHydroRKPointers(Prim,false);
 
   // RK2 first step
 #ifdef ECUDA 
@@ -115,6 +105,14 @@ int grid::RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 #endif
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  
+  int activesize = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
 
   float *dU[NEQ_HYDRO+NSpecies+NColor];
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {

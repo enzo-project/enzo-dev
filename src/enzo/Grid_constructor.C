@@ -143,6 +143,8 @@ grid::grid()
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
+  MaximumkphIfront                = 0;
+  IndexOfMaximumkph               = INT_UNDEFINED;
 #endif
 
   /* Star particles */

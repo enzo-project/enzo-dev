@@ -59,11 +59,11 @@
 
 #define GRAVITY_BUFFER_SIZE                 3
 
-#define MAX_FLAGGING_METHODS                7
+#define MAX_FLAGGING_METHODS                9
 
 #define MAX_STATIC_REGIONS               1000
 
-#ifdef WINDS
+#ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
 #else
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  3
@@ -184,6 +184,7 @@ typedef int            HDF5_hid_t;
 #define nint(A) ( (int) ((A) + 0.5*sign(A)) )
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) abs((int) (A))
+#define ENPY_INT NPY_INT
 #endif
 
 #ifdef LARGE_INTS
@@ -197,6 +198,7 @@ typedef int            HDF5_hid_t;
 #define nint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) labs((long_int) (A))
+#define ENPY_INT NPY_LONG
 #endif
 
 #ifdef CONFIG_BFLOAT_4

@@ -79,6 +79,7 @@ include $(MAKE_CONFIG_OVERRIDE)
 #CONFIG_PRECISION = 32
 CONFIG_INTEGERS  = 32
 CONFIG_USE_MPI   = yes
+CONFIG_LCAPERF   = no
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------
@@ -93,8 +94,8 @@ include $(ENZO_DIR)/Make.config.assemble
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
+-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
 # Override previous defines
 DEFINES = -DUSE_HDF5

@@ -79,7 +79,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 	level <= RadiationFieldLevelRecompute)) return SUCCESS;
  
  
-  JBPERF_START("RadiationFieldUpdate");
+  LCAPERF_START("RadiationFieldUpdate");
 
   /* Compute mean density signatures from this level (and all below
      if this is the level on which the radiation field is updated). */
@@ -132,7 +132,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
      (if this is the bottom, then do the calc anyway) . */
  
   if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL) {
-    JBPERF_STOP("RadiationFieldUpdate");
+    LCAPERF_STOP("RadiationFieldUpdate");
     return SUCCESS;
   }
  
@@ -339,6 +339,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   delete [] buffer;
  
-  JBPERF_STOP("RadiationFieldUpdate");
+  LCAPERF_STOP("RadiationFieldUpdate");
   return SUCCESS;
 }

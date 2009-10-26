@@ -65,8 +65,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     /* Check for tracer particle output */
     
     if (LevelArray[level]->GridData->ReturnTime() >=
-	MetaData->TimeLastTracerParticleDump +
-	MetaData->dtTracerParticleDump &&
+	MetaData->TimeLastTracerParticleDump + MetaData->dtTracerParticleDump &&
 	MetaData->dtTracerParticleDump > 0.0) {
       MetaData->TimeLastTracerParticleDump += MetaData->dtTracerParticleDump;
       if (WriteTracerParticleData(MetaData->TracerParticleDumpName,
@@ -191,6 +190,22 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       
     }//File Directed Output
     
+
+    /* Check to see if we should start outputting interpolated data based on
+       the time passed (dtInterpolatedDataDump < dtDataDump).
+       This is mostly for making movies or looking at the interim data where TopGrid dt is too long.
+       In principle, this output shouldn't be used for restart. */
+
+    if (LevelArray[level]->GridData->ReturnTime() >= 
+	MetaData->TimeLastInterpolatedDataDump + MetaData->dtInterpolatedDataDump   && 
+	MetaData->dtInterpolatedDataDump > 0.0) {
+      printf("Writing data based on dtInterpolatedDataDump (%"FSYM" %"FSYM" %"FSYM")\n",
+	     LevelArray[level]->GridData->ReturnTime(), MetaData->TimeLastInterpolatedDataDump,
+	     MetaData->dtInterpolatedDataDump);
+      MetaData->TimeLastInterpolatedDataDump += MetaData->dtInterpolatedDataDump;
+      WriteOutput = TRUE;
+    }
+
     /* Check to see if we should start outputting interpolated data based on
        the cycles of the highest level */
     
@@ -209,12 +224,25 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       ExitEnzo = TRUE;
       WriteOutput = TRUE;
     }
+
   }//Finest Level
 
   FILE *Exit_fptr;
 
-  if( WriteOutput == TRUE ){
-    
+  if( ExitEnzo == TRUE ){
+    if (MovieSkipTimestep != INT_UNDEFINED) {
+      fprintf(stderr, "Closing movie file.\n");
+      MetaData->AmiraGrid.AMRHDF5Close();
+    }
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
+      Exit_fptr = fopen("RunFinished", "w");
+      fclose(Exit_fptr);
+    }
+    my_exit(EXIT_SUCCESS);
+  }
+  
+  if( WriteOutput == TRUE ){    
     LevelHierarchyEntry *Temp2 = LevelArray[0];
     while (Temp2->NextGridThisLevel != NULL)
       Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */

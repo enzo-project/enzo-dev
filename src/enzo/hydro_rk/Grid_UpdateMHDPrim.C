@@ -123,12 +123,16 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 
   n = 0;
   FLOAT x, y, z, r;
+
+ 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	// first convert to conserved variables to do the update
 	igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
 	r = sqrt(x*x + y*y + z*z);
+	
+
 
 	rho_old  = OldBaryonField[DensNum][igrid];
 	vx_old   = OldBaryonField[Vel1Num][igrid];
@@ -173,6 +177,8 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	}
 
 	if (D_new < 0 || isnan(D_new)) {
+
+
 	  printf("UpdateMHDPrim: rho <0 at %"ISYM" %"ISYM" %"ISYM": rho_old=%"FSYM", rho=%"FSYM", rho_new=%"FSYM", dU[iD]=%"FSYM"\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  D_new = max(rho, SmallRho);
@@ -187,12 +193,14 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	vy = S2_new/D_new;
 	vz = S3_new/D_new;
 	etot = Tau_new/D_new;
+
+	
 	
 	if (etot < 0 && EOSType == 0) {
 	  float v2_old = vx_old*vx_old + vy_old*vy_old + vz_old*vz_old;
 	  float B2_old = Bx_old*vx_old + By_old*By_old + Bz_old*Bz_old;
-	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g\n", 
-		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
+	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g, dtFixed = %g\n", 
+		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed, dtFixed);
 	  printf("rho_new=%g, rho=%g, rho_old=%g, B2_old/rho_old=%g\n", D_new, rho, rho_old, B2_old/rho_old);
 	  //return FAIL;
 	}
@@ -206,7 +214,11 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  etot = eint + 0.5*v2 + 0.5*B2/D_new;
 	}
 	
+
+
 	BaryonField[DensNum][igrid] = D_new;
+
+	
 	BaryonField[Vel1Num][igrid] = vx;
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;
@@ -215,6 +227,13 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	BaryonField[B2Num][igrid] = By_new;
 	BaryonField[B3Num][igrid] = Bz_new;
 	BaryonField[PhiNum][igrid] = Phi_new*exp(-c1*dtFixed*pow(C_h/C_p,2));
+
+
+
+
+
+
+
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  B2 = Bx_new*Bx_new + By_new*By_new + Bz_new*Bz_new;

@@ -22,6 +22,7 @@ MACH_FILE  = Make.mach.orange
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
+INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1/
 
 LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI/
 LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
@@ -114,7 +115,6 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 #-----------------------------------------------------------------------
 # Libraries
