@@ -48,8 +48,10 @@ int ReadUnits(FILE *fptr)
 
   /* If both mass and density units specified, use only mass and print warning */
 
-  if (GlobalDensityUnits != 1.0 && GlobalMassUnits != 1.0){
-    fprintf(stderr, "Warning! Density and Mass units are both defined. Using only MassUnits. \n");
+  if (GlobalDensityUnits != 1.0 && GlobalMassUnits != 1.0) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning! Density and Mass units are both defined. "
+	      "Using only MassUnits.\n");
     GlobalDensityUnits = 1.0;
   }
 
@@ -66,15 +68,22 @@ int ReadUnits(FILE *fptr)
   if (GlobalTimeUnits == 1 && GlobalDensityUnits != 1) {
     if(SelfGravity) {
       GlobalTimeUnits =  1/sqrt(6.67428e-8*GlobalDensityUnits);
-      fprintf(stderr, "****** ReadUnits: Set Time Units based on Density Units u_t = 1./sqrt(G u_rho).\n");
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stderr, "****** ReadUnits: Set Time Units based on Density Units "
+		"u_t = 1./sqrt(G u_rho).\n");
     }
     else {
-      fprintf(stderr, "****** Warning! TimeUnits = 1.0 at the moment! \n");      
-      fprintf(stderr, "****** You have to choose your own TimeUnits when SelfGravity = 0.\n");      
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	fprintf(stderr, "****** Warning! TimeUnits = 1.0 at the moment! \n");      
+	fprintf(stderr, "****** You have to choose your own TimeUnits when SelfGravity = 0.\n");      
+      }
     }
   }
 
-  fprintf(stderr,"****** ReadUnits:  %e %e %e %e *******\n",GlobalMassUnits,GlobalDensityUnits,GlobalLengthUnits,GlobalTimeUnits);
+  if (debug)
+    fprintf(stderr,"****** ReadUnits:  %e %e %e %e *******\n",
+	    GlobalMassUnits, GlobalDensityUnits, GlobalLengthUnits,
+	    GlobalTimeUnits);
 
   return SUCCESS;
 }

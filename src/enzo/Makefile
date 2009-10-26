@@ -46,7 +46,7 @@ ENZO_DIR = .
 MODULES  = 
 
 # please remove this
-SVN      = /u/ki/mturk/Research/local/yt-x86_64/bin/hg
+SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 

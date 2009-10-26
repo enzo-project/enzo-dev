@@ -108,8 +108,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     /* If there's no feedback or something weird happens, don't bother. */
 
     if ((influenceRadius <= tiny_number) || 
-	(influenceRadius >= RootCellWidth/2) ||
-	(EjectaThermalEnergy <= tiny_number))
+	(cstar->ReturnFeedbackFlag() == MBH_THERMAL &&
+	 (influenceRadius >= RootCellWidth/2 || 
+	  EjectaThermalEnergy <= tiny_number)))
       continue;
 
     /* Determine if a sphere is enclosed within the grids on next level
@@ -164,7 +165,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	    ENZO_FAIL("");
 	  }
 
-    /*
+    /*    
     fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 	    "Radius = %e pc, changed %"ISYM" cells.\n", 
 	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); //#####

@@ -65,7 +65,6 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
-        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
         CommunicationTransferStars.o \
@@ -650,6 +649,7 @@ POBJS_CONFIG_LIB = \
         CommunicationLoadBalancePhotonGrids.o \
         CommunicationNonblockingRoutines.o \
         CommunicationReceiverPhotons.o \
+        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferPhotons.o \
         CreateSourceClusteringTree.o \
         DeletePhotonPackage.o \
@@ -662,6 +662,7 @@ POBJS_CONFIG_LIB = \
         Grid_AddH2Dissociation.o \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
+	Grid_FindPhotonNewGrid.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \

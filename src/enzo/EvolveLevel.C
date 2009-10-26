@@ -342,7 +342,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Solve the radiative transfer */
 	
 #ifdef TRANSFER
-    GridTime = Grids[0]->GridData->ReturnTime();// + dtThisLevel;
+    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel;
     EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
 #endif /* TRANSFER */
  

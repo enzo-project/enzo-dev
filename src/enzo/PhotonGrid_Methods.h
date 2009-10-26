@@ -15,7 +15,9 @@
 /* Photons: Computes photon timestep */
 
    float ComputePhotonTimestep(void);
-   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits);
+   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
+				  float VelocityUnits, float aye, 
+				  float Ifront_kph);
 
 /* Photons: return number of PhotonPackages. */
 
@@ -122,7 +124,7 @@ int MoveFinishedPhotonsBack(void) {
    UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
 ************************************************************************/
 
-//#ifdef UNUSED
+#ifdef UNUSED
 int ErrorCheckPhotonNumber(int level) {
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -170,7 +172,7 @@ int ReturnRealPhotonCount(void) {
   }
   return result;
 }
-//#endif /* UNUSED */
+#endif /* UNUSED */
 /************************************************************************
    END -- UNUSED FUNCTIONS
 ************************************************************************/
@@ -279,6 +281,13 @@ float Min_kph(int &ncells) {
 
 };
 
+float ReturnMaximumkphIfront(void) { 
+  if (MyProcessorNumber == ProcessorNumber)
+    return MaximumkphIfront;
+  else
+    return 0;
+};
+
 /* Compares min/max radiation field to estimate if there is an
    ionization front present in this grid. */
 
@@ -315,6 +324,12 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
 
+int FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r, 
+		      const FLOAT *u, PhotonPackageEntry* &PP,
+		      grid* &MoveToGrid, int &DeltaLevel,
+		      const float *DomainWidth, int &DeleteMe,
+		      grid *ParentGrid);
+
 /* Create PhotonPackages for a given radiation sources   */
 
 int Shine(RadiationSourceEntry *RadiationSource);
@@ -336,6 +351,10 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float SphereAng2[MAX_SPHERES],
 			     int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,

@@ -43,7 +43,7 @@ int Star::SubtractAccretedMass(void)
 
   /* Check if the star type is correct */
 
-  if ((this->type != BlackHole && abs(this->type) != MBH) || 
+  if ((this->type != BlackHole && ABS(this->type) != MBH) || 
       (this->CurrentGrid == NULL))
     return SUCCESS;
 

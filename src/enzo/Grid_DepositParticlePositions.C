@@ -264,7 +264,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
     /* Deposit particles. */
 
-    if (DepositPositionsParticleSmoothRadius < CellSize) {
+    if (DepositPositionsParticleSmoothRadius <= CellSize) {
 
     /* Deposit to field using CIC. */
  

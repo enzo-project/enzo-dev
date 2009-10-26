@@ -83,7 +83,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 			   LevelHierarchyEntry *LevelArray[]);
 int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
 				LevelHierarchyEntry *LevelArray[], int level);
-float CommunicationMinValue(float Value);
 int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			ExternalBoundary *Exterior,
 			LevelHierarchyEntry *LevelArray[]);
