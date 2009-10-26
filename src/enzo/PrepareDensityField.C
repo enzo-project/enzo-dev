@@ -223,10 +223,10 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationReceiveIndex = 0;
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-#ifndef BITWISE_IDENTICALITY
-    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
-#else
+#ifdef BITWISE_IDENTICALITY
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+#else
+    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
 #endif
       
 #ifdef FAST_SIB
@@ -377,8 +377,6 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /************************************************************************/
   /* Compute a first iteration of the potential and share BV's. */
  
-#define NO_ITERATE_POTENTIAL
-#ifdef ITERATE_POTENTIAL
   int iterate;
   if (level > 0) {
     CopyPotentialFieldAverage = 1;
@@ -490,7 +488,6 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     } // ENDFOR iterations
     CopyPotentialFieldAverage = 0;
   } // ENDIF level > 0
-#endif /* ITERATE_POTENTIAL */
   
   /* if level > MaximumGravityRefinementLevel, then do final potential
      solve (and acceleration interpolation) here rather than in the main
