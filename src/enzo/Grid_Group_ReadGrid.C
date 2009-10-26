@@ -299,7 +299,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (io_log) fprintf(log_fptr, "H5Gopen with Name %s\n", name);
 
     group_id = H5Gopen(file_id, name);
-    if( group_id == h5_error ){ENZO_FAIL("Error in IO");}
+    if( group_id == h5_error )
+        ENZO_VFAIL("Error in IO (%s)", name)
  
     /* fill in ActiveDim for dims up to 3d */
  
