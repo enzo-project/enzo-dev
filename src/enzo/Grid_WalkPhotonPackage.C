@@ -41,6 +41,7 @@
 
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
+#define MIN_TAU_IFRONT 0.1
 
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, 
 		 FLOAT rx, FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
@@ -62,6 +63,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    float VelocityUnits, float LengthUnits,
 			    float TimeUnits) {
 
+  double dN;
   float mx, my, mz, slice_factor, slice_factor2;
   FLOAT rx, ry, rz, r, oldr, drx, dry, drz, prev_radius;
   FLOAT CellVolume=1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
@@ -688,8 +690,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	
       /* HI/HeI/HeII ionization and heating */
       
+      dN = thisDensity * ddr;
+      
       // optical depth of ray segment
-      tau = thisDensity*sigma*ddr;
+      tau = dN*sigma;
       // at most use all photons for photo-ionizations
       if (tau > 2.e1) dP = (1.0+ROUNDOFF) * (*PP)->Photons;
       else if (tau > 1.e-4) 
@@ -703,6 +707,22 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       // the heating rate is just the number of photo ionizations times
       // the excess energy units here are  eV/s/cm^3 *TimeUnits. 
       BaryonField[gammaNum][index] += dP*factor2*slice_factor2;
+      
+      if (RadiativeTransferHIIRestrictedTimestep) {
+	(*PP)->ColumnDensity += dN;
+	if ((*PP)->ColumnDensity * sigma > MIN_TAU_IFRONT) {
+	  if (BaryonField[kphHINum][index] > this->MaximumkphIfront) {
+	    this->MaximumkphIfront = BaryonField[kphHINum][index];
+	    this->IndexOfMaximumkph = index;
+	  }
+//	  printf("tau=%g, N=%g, dN=%g, kph=%g, pos=%f %f %f\n",
+//		 (*PP)->ColumnDensity*sigma,
+//		 (*PP)->ColumnDensity*LengthUnits, dN*LengthUnits,
+//		 BaryonField[kphNum][index], rx, ry, rz);
+		 
+	}
+      } // ENDIF
+      
 
     }
     else if ((*PP)->Type == 4) {
@@ -710,7 +730,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /* X-rays (HI/HeI/HeII all in one!) */
 
       // optical depth of ray segment
-      tauHI = nHI*sigmaHI*ddr;
+      dN = nHI * ddr;
+      tauHI = dN*sigmaHI;
       tauHeI = nHeI*sigmaHeI*ddr;
       tauHeII = nHeII*sigmaHeII*ddr;
 
@@ -754,6 +775,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       else dP = min((*PP)->Photons*tauHeII, (*PP)->Photons);
       BaryonField[kphHeIINum][index] += kphHeII_factor*dP*factor1;
       BaryonField[gammaHeIINum][index] += heat_factor*dP*factor2_HeII;
+
+      if (RadiativeTransferHIIRestrictedTimestep) {
+	(*PP)->ColumnDensity += dN * LengthUnits;
+	if ((*PP)->ColumnDensity * sigma > MIN_TAU_IFRONT)
+	  if (BaryonField[kphHINum][index] > this->MaximumkphIfront) {
+	    this->MaximumkphIfront = BaryonField[kphHINum][index];
+	    this->IndexOfMaximumkph = index;
+	  }
+      } // ENDIF
 
     } else
       dP = 0;

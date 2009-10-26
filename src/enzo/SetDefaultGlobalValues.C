@@ -65,7 +65,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CPUTime         = 0.0;
  
   MetaData.StopTime        = FLOAT_UNDEFINED;  // This must be set be the user
-  MetaData.StopCycle       = 10000;            // 10000 timesteps
+  MetaData.StopCycle       = 100000;            // 10000 timesteps
   MetaData.StopSteps       = 10000;            // 10000 timesteps
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
@@ -405,6 +405,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = HLL;
   ReconstructionMethod	     = PLM;
+  ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;
   EOSCriticalDensity	     = 1e-13;

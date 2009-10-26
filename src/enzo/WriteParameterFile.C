@@ -577,7 +577,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MBHFeedbackMassEjectionFraction);
   fprintf(fptr, "MBHFeedbackMetalYield           = %"GSYM"\n",
           MBHFeedbackMetalYield);
-  fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n",
+  fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n\n",
           MBHCombineRadius);
 
   /* Most Stanford additions: */
@@ -585,6 +585,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
   fprintf(fptr, "RKOrder                    = %d\n", RKOrder);
   fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);

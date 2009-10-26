@@ -663,8 +663,8 @@ POBJS_CONFIG_LIB = \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
         Grid_CommunicationSendPhotonPackages.o \
-        Grid_ComputeRT_TimeStep.o \
-        Grid_ComputeRT_TimeStep2.o \
+        Grid_ComputePhotonTimestep.o \
+        Grid_ComputePhotonTimestepHII.o \
         Grid_ConvertToCellCenteredRadiation.o \
         Grid_CorrectRadiationIncompleteness.o \
         Grid_DeletePhotonPackages.o \
@@ -742,6 +742,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/LLF_PLM.o \
         hydro_rk/LLF_Zero.o \
         hydro_rk/Rec_PLM.o \
+        hydro_rk/Rec_ConsPLM.o \
         hydro_rk/Rec_PPM.o \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \

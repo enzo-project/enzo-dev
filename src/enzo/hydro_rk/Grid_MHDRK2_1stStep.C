@@ -93,8 +93,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     
   } // end of loop over subgrids
 
-  // Dual Energy Formalism not fully implemented with MHD yet ... 
-  
   if (DualEnergyFormalism > 0) NEQ_MHD = 10;
 
   float *Prim[NEQ_MHD+NSpecies+NColor];

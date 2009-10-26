@@ -111,11 +111,16 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif /* USE_MPI */    
 
     if (LastPhotonCount > 0)
-      if (float(PhotonCount-LastPhotonCount)/float(LastPhotonCount) < CONVERGE)
+      if (float(PhotonCount-LastPhotonCount)/float(LastPhotonCount) < CONVERGE) {
 	PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+	break;
+      }
 
-    if (PhotonCount == 0 && LastPhotonCount == 0)
+    if ((PhotonCount == 0 && LastPhotonCount == 0) ||
+	RadiativeTransferAdaptiveTimestep == TRUE) {
       PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+      break;
+    }
 
     LastPhotonCount = PhotonCount;
 

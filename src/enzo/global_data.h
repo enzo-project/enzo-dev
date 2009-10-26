@@ -105,6 +105,7 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
  */
@@ -553,6 +554,7 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
+EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;
 EXTERN float EOSCriticalDensity;
