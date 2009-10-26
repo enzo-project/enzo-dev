@@ -53,15 +53,17 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
  
 int PrepareGravitatingMassField1(HierarchyEntry *Grid);
 #ifdef FAST_SIB
-int PrepareGravitatingMassField2(HierarchyEntry *Grid, int grid1,
+int PrepareGravitatingMassField2a(HierarchyEntry *Grid, int grid1,
 				 SiblingGridList SiblingList[],
 				 TopGridData *MetaData, int level,
 				 FLOAT When);
 #else
-int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
+int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 				 LevelHierarchyEntry *LevelArray[], int level,
 				 FLOAT When);
 #endif
+
+int PrepareGravitatingMassField2b(HierarchyEntry *Grid, int level);
  
 #ifdef FAST_SIB
 int ComputePotentialFieldLevelZero(TopGridData *MetaData,
@@ -212,6 +214,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", 
 	    MyProcessorNumber);
  
+#define _NONBLOCK
   TIME_MSG("PrepareGravitatingMassField2");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
@@ -221,32 +224,38 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationReceiveIndex = 0;
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+#ifdef NONBLOCK
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+#else
+    CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+#endif
       
 #ifdef FAST_SIB
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
-				   MetaData, level, When);
+      PrepareGravitatingMassField2a(Grids[grid1], grid1, SiblingList,
+				    MetaData, level, When);
 #else
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
-				   level, When);
+      PrepareGravitatingMassField2a(Grids[grid1], MetaData, LevelArray,
+				    level, When);
 #endif
 
+#ifdef NONBLOCK
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
 #ifdef FAST_SIB
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      PrepareGravitatingMassField2(Grids[grid1], grid1, SiblingList,
+      PrepareGravitatingMassField2a(Grids[grid1], grid1, SiblingList,
 				   MetaData, level, When);
 #else
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-      PrepareGravitatingMassField2(Grids[grid1], MetaData, LevelArray,
+      PrepareGravitatingMassField2a(Grids[grid1], MetaData, LevelArray,
 				   level, When);
 #endif
 
     CommunicationReceiveHandler();
+#endif /* NONBLOCK */
 
   } // ENDFOR grid batches
 
@@ -258,6 +267,30 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   CommunicationBarrier();
 #endif
  
+  /************************************************************************/
+  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
+    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+
+    /* ----- section 2 ---- */
+    /* First, generate the receive calls. */
+
+    CommunicationReceiveIndex = 0;
+    CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+      
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2b(Grids[grid1], level);
+
+    /* Next, send data and process grids on the same processor. */
+
+    CommunicationDirection = COMMUNICATION_SEND;
+    for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
+      PrepareGravitatingMassField2b(Grids[grid1], level);
+
+    CommunicationReceiveHandler();
+
+  } // ENDFOR grid batches
+
   /************************************************************************/
   /* Copy overlapping mass fields to ensure consistency and B.C.'s. */
  
@@ -345,7 +378,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   /************************************************************************/
   /* Compute a first iteration of the potential and share BV's. */
  
-#define ITERATE_POTENTIAL
+#define NO_ITERATE_POTENTIAL
 #ifdef ITERATE_POTENTIAL
   int iterate;
   if (level > 0) {
@@ -372,7 +405,11 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	   StartGrid += GRIDS_PER_LOOP) {
 	EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
   
-	CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+#ifdef BITWISE_IDENTICALITY
+	CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+#else
+    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+#endif
 	CommunicationReceiveIndex = 0;
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 #ifdef FAST_SIB
@@ -406,6 +443,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			      &grid::CopyPotentialField);
 #endif
 
+#ifndef BITWISE_IDENTICALITY
 #ifdef FORCE_MSG_PROGRESS 
 	CommunicationBarrier();
 #endif
@@ -447,6 +485,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
 
 	CommunicationReceiveHandler();
+#endif
 
       } // ENDFOR grid batches
     } // ENDFOR iterations
