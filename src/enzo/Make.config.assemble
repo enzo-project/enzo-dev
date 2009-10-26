@@ -309,8 +309,8 @@
     ifeq ($(CONFIG_PACKED_AMR),yes)
         ERROR_PACKED_AMR = 0
         ASSEMBLE_PACKED_AMR_DEFINES = \
-                 -DUSE_HDF5_GROUPS \
-                 -DSINGLE_HDF5_OPEN_ON_INPUT
+                 -DUSE_HDF5_GROUPS
+#                 -DSINGLE_HDF5_OPEN_ON_INPUT
     endif
 
     # Settings for not using PACKED_AMR mods
