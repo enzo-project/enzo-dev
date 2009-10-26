@@ -545,7 +545,6 @@ OBJS_CONFIG_LIB = \
         RotatingCylinderInitialize.o \
         s66_st1.o \
         s90_st1.o \
-	scale_fields.o \
         SedovBlastInitialize.o \
         select_fft.o \
 	SetBoundaryConditions.o \
