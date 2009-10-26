@@ -149,6 +149,11 @@ help-config:
 	@echo "      gmake fastsib-yes"
 	@echo "      gmake fastsib-no"
 	@echo 
+	@echo "   Turn on blocking-gravity for bitwise identical runs"
+	@echo
+	@echo "      gmake bitwise-yes"
+	@echo "      gmake bitwise-no"
+	@echo 
 	@echo "   Include sibling subgrid boundary fix"
 	@echo
 	@echo "      gmake fluxfix-yes"
@@ -227,6 +232,7 @@ show-config:
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
 	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
+	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
 	@echo
@@ -672,6 +678,24 @@ CONFIG_FAST_SIB-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_FAST_SIB = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_FAST_SIB:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_BITWISE_IDENTICALITY = bitwise-yes bitwise-no
+.PHONY: $(VALID_BITWISE_IDENTICALITY)
+
+bitwise-yes: CONFIG_BITWISE_IDENTICALITY-yes
+bitwise-no: CONFIG_BITWISE_IDENTICALITY-no
+BITWISE_IDETICALITY-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_BITWISE_IDENTICALITY)]\n\n"
+CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_BITWISE_IDENTICALITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_BITWISE_IDENTICALITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY:
 	@echo
 
 

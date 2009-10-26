@@ -243,6 +243,15 @@
      CONFIG_USE_HDF4 = no
 
 #======================================================================= 
+# CONFIG_BITWISE_IDENTICALITY
+#======================================================================= 
+#    yes           Use blocking potential solves in the gravity solver
+#    no            Allow non-blocking, potentially divergent summations
+#----------------------------------------------------------------------- 
+ 
+     CONFIG_BITWISE_IDENTICALITY = no
+
+#======================================================================= 
 # CONFIG_ECUDA
 #======================================================================= 
 #    yes           For some architectures (CUDA-GPU computing)

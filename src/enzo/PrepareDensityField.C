@@ -214,7 +214,6 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", 
 	    MyProcessorNumber);
  
-#define _NONBLOCK
   TIME_MSG("PrepareGravitatingMassField2");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
@@ -224,7 +223,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 
     CommunicationReceiveIndex = 0;
     CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-#ifdef NONBLOCK
+#ifndef BITWISE_IDENTICALITY
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
 #else
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -240,7 +239,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 				    level, When);
 #endif
 
-#ifdef NONBLOCK
+#ifndef BITWISE_IDENTICALITY
     /* Next, send data and process grids on the same processor. */
 
     CommunicationDirection = COMMUNICATION_SEND;
@@ -255,7 +254,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
 
     CommunicationReceiveHandler();
-#endif /* NONBLOCK */
+#endif /* BITWISE_IDENTICALITY */
 
   } // ENDFOR grid batches
 

@@ -668,6 +668,35 @@
 
 
 #-----------------------------------------------------------------------
+# DETERMINE BITWISE IDENTICALITY SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_BITWISE_IDENTICALITY = 1
+
+    # Settings to turn blocking gravity ON
+
+    ifeq ($(CONFIG_BITWISE_IDENTICALITY),yes)
+        ERROR_BITWISE_IDENTICALITY = 0
+        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES = -DBITWISE_IDENTICALITY
+    endif
+
+    # Settings to turn blocking gravity OFF
+
+    ifeq ($(CONFIG_BITWISE_IDENTICALITY),no)
+        ERROR_BITWISE_IDENTICALITY = 0
+        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES =
+    endif
+
+    # error if CONFIG_BITWISE_IDENTICALITYis incorrect
+
+    ifeq ($(ERROR_BITWISE_IDENTICALITY),1)
+       .PHONY: error_BITWISE_IDENTICALITY
+       error_BITWISE_IDENTICALITY:
+	$(error Illegal value '$(CONFIG_BITWISE_IDENTICALITY)' for $$(CONFIG_BITWISE_IDENTICALITY))
+    endif
+
+
+#-----------------------------------------------------------------------
 # DETERMINE CUDA (GPU computing) Settings
 # When compiling with CUDA support it just compiles the necessary routines. 
 # but only uses it if you set UseCUDA = 1 in your parameter files.
@@ -807,7 +836,9 @@
               $(ASSEMBLE_TESTING_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_NEW_GRID_IO_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
+              $(ASSEMBLE_BITWISE_IDENTICALITY_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
