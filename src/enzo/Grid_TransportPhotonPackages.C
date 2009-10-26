@@ -276,14 +276,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   } // ENDWHILE photons
 
-  if (DEBUG) {
+  if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM"\n",
 	    tcount, dcount, pcount);
-    printf("L%d/G%d (%x): tr %d, del %d, move %d (NumberOfPhotons = %d/%d/%d)\n",
-	   level, this->ID, this, tcount, dcount, trcount, NumberOfPhotonPackages,
-	   this->ReturnRealPhotonCount(), NumberOfPhotonPackages-dcount);
-  }
   NumberOfPhotonPackages -= dcount;
 
   /* For safety, clean up paused photon list */

@@ -545,6 +545,7 @@ OBJS_CONFIG_LIB = \
         RotatingCylinderInitialize.o \
         s66_st1.o \
         s90_st1.o \
+	scale_fields.o \
         SedovBlastInitialize.o \
         select_fft.o \
 	SetBoundaryConditions.o \
@@ -662,6 +663,7 @@ POBJS_CONFIG_LIB = \
         Grid_AddH2Dissociation.o \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
+	Grid_FindPhotonNewGrid.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \
