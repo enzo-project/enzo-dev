@@ -681,10 +681,6 @@ EXTERN RadiationSourceEntry *GlobalRadiationSources;
 EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
 
-EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
-EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
-EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
-
 /* [0]: Emitted photons
    [1]: escaped past 0.5 RadiativeTransferPhotonEscapeRadius
    [2]:              1.0           -"-
@@ -696,6 +692,10 @@ EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 
 #endif /* TRANSFER  */
+
+EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
 
 /* Coupled radiative transfer, cooling, and rate solver */
 
