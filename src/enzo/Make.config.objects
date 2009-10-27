@@ -394,6 +394,7 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
         Grid_SolveForPotential.o \
+        Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -698,7 +699,6 @@ POBJS_CONFIG_LIB = \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SolveCoupledRateEquations.o \
-        Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
