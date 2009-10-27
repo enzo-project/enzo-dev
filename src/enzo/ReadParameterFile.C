@@ -740,6 +740,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
+    ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
+		  &ParticleSplitterIterations);
 
     /* If the dummy char space was used, then make another. */
  

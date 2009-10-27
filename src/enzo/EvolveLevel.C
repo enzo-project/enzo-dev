@@ -34,6 +34,8 @@
 /                Optional StaticSiblingList for root grid
 /  modified8:  April, 2009 by John Wise
 /                Added star particle class and radiative transfer
+/  modified9:  October, 2009 by Ji-hoon Kim
+/                Added particle splitter routine
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -186,6 +188,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int level, Star *&AllStars);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
+int ParticleSplitter(HierarchyEntry *Grids[], LevelHierarchyEntry *LevelArray[], int ThisLevel,
+		     TopGridData *MetaData, int NumberOfGrids);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -294,6 +298,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (MetaData->FirstTimestepAfterRestart == TRUE && level == 0)
     WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
 
+
   /* ================================================================== */
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
@@ -307,6 +312,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        updated) */
 
     WriteStreamData(LevelArray, level, MetaData, MovieCycleCount);
+
+    /* Particle Splitter. Split the particles into 13 (=1+12) children 
+       particles */
+
+    if (MetaData->FirstTimestepAfterRestart == TRUE && level ==0 &&
+	ParticleSplitterIterations > 0)
+      ParticleSplitter(Grids, LevelArray, level, MetaData, NumberOfGrids);
 
     /* Initialize the star particles */
 
@@ -423,9 +435,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       /* Gravity: clean up AccelerationField. */
 
-	 if (level != MaximumGravityRefinementLevel ||
-	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
-	     Grids[grid1]->GridData->DeleteAccelerationField();
+      if (level != MaximumGravityRefinementLevel ||
+	  MaximumGravityRefinementLevel == MaximumRefinementLevel)
+	Grids[grid1]->GridData->DeleteAccelerationField();
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  

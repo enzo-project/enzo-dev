@@ -374,6 +374,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           ParticleTypeInFile);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
+  fprintf(fptr, "ParticleSplitterIterations     = %"ISYM"\n",
+	  ParticleSplitterIterations);
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {

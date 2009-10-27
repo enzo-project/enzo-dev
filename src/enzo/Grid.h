@@ -1717,6 +1717,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level);
 
+/* Particle splitter routine. */
+
+  int ParticleSplitter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);

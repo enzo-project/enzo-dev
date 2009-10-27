@@ -347,6 +347,7 @@ OBJS_CONFIG_LIB = \
         Grid_NohInitializeGrid.o \
         Grid_OutputAsParticleData.o \
         Grid_OutputStarParticleInformation.o \
+        Grid_ParticleSplitter.o \
         Grid_PoissonSolver.o                    \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
@@ -486,6 +487,7 @@ OBJS_CONFIG_LIB = \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
         P_ColumnFormat.o \
+        ParticleSplitter.o \
         performance.o \
         pgas2d_dual.o \
         pgas2d.o \
@@ -595,6 +597,7 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
+	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
