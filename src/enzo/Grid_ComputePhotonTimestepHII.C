@@ -88,12 +88,17 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   this->ComputeTemperatureField(temperature);  
 
   int tidx;
+  float dxinv, dyinv, dzinv;
   float HIIdot, a3inv, a6inv, kr1, kr2, cs;
-  float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef;
+  float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef, cs_factor;
   float *alldt = new float[size];
 
   a3inv = 1.0/(a*a*a);
   a6inv = a3inv * a3inv;
+  dxinv = 1.0 / CellWidth[0][0];
+  dyinv = 1.0 / CellWidth[1][0];
+  dzinv = 1.0 / CellWidth[2][0];
+  cs_factor = 9.082e3 / VelocityUnits / Mu;
 
   logtem0 = log(RateData.TemperatureStart);
   logtem9 = log(RateData.TemperatureEnd);
@@ -142,11 +147,11 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 
 	/* If not in the I-front, use the normal Godunov formula */
 	else {
-	  cs = (9.082e3 / VelocityUnits / Mu) * sqrt(Gamma * temperature[index]);
+	  cs = cs_factor * sqrt(Gamma * temperature[index]);
 	  alldt[index] = CourantSafetyNumber * aye / 
-	    ((cs + fabs(BaryonField[Vel1Num][index])) / CellWidth[0][0] +
-	     (cs + fabs(BaryonField[Vel2Num][index])) / CellWidth[1][0] +
-	     (cs + fabs(BaryonField[Vel3Num][index])) / CellWidth[2][0]);
+	    ((cs + fabs(BaryonField[Vel1Num][index])) * dxinv +
+	     (cs + fabs(BaryonField[Vel2Num][index])) * dyinv + 
+	     (cs + fabs(BaryonField[Vel3Num][index])) * dzinv);
 	}
 
       } // ENDFOR i

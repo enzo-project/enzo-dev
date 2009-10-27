@@ -124,7 +124,7 @@ int MoveFinishedPhotonsBack(void) {
    UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
 ************************************************************************/
 
-//#ifdef UNUSED
+#ifdef UNUSED
 int ErrorCheckPhotonNumber(int level) {
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -172,7 +172,7 @@ int ReturnRealPhotonCount(void) {
   }
   return result;
 }
-//#endif /* UNUSED */
+#endif /* UNUSED */
 /************************************************************************
    END -- UNUSED FUNCTIONS
 ************************************************************************/
@@ -323,6 +323,12 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
+
+int FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r, 
+		      const FLOAT *u, PhotonPackageEntry* &PP,
+		      grid* &MoveToGrid, int &DeltaLevel,
+		      const float *DomainWidth, int &DeleteMe,
+		      grid *ParentGrid);
 
 /* Create PhotonPackages for a given radiation sources   */
 

@@ -677,6 +677,7 @@ POBJS_CONFIG_LIB = \
         Grid_AddH2Dissociation.o \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
+	Grid_FindPhotonNewGrid.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \
