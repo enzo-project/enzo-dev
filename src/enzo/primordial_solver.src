@@ -389,7 +389,7 @@ c
             endif
             dtit(i) = dt(i,j,k)/5.0
 #else
-            dtit(i) = dt
+            dtit(i) = dt/5.0
             subgridmask = 1
             itmask(i) = .true.
 #endif
@@ -502,12 +502,11 @@ c               dtit(i) = dt(i,j,k)/10.0
 
             do i = is+1, ie+1
             if ((itmask(i).eqv..true.))then!.and.(eqmask(i).eqv..false.))then
-              rejected(i) = .false.
               if(iter.eq.1e6)then
 #ifdef PYFORT
                 write(0,*) 't',i,j,k,dtit(i)/dt(i,j,k),mins(i)
 #else
-                write(0,*) 't',i,j,k,dtit(i)/dt,mins(i)
+                write(0,*) 't',i,j,k,dtit(i)/dt,mins(i),ttot(i)/dt
 #endif
                 if(mins(i).gt.0)then
 #ifdef PYFORT
@@ -518,13 +517,15 @@ c               dtit(i) = dt(i,j,k)/10.0
                   write(0,*)'q',dsp(i,mins(i)),dsq(i,mins(i)),
      & (dsq(i,mins(i))-dsp(i,mins(i)))/(dsq(i,mins(i))+dsp(i,mins(i)))
                   write(0,*)'p',tgas(i),gamma2(i),eqmask(i),s(i,mins(i))/d(i,j,k)
-                  write(0,*)'r',s(i,iH2I)/d(i,j,k)
+                  write(0,*)'r',s(i,iH2I)/d(i,j,k),rejected(i),correctH(i),correctHe(i)
+                  write(0,*)'x',esterr(i)
+                  do n = 1, ncspecies
+                    write(0,*) 'aa',n,s(i,n)/d(i,j,k),dsq(i,n),dsp(i,n),
+     &                        (dsq(i,n)-dsp(i,n))*dtit(i)/sp(i,n)
+                  enddo
                 endif
-c                do n = 1, ncspecies
-c                  write(0,*) 'aa',n,s(i,n)/d(i,j,k),dsq(i,n),dsp(i,n),
-c     &                      (dsq(i,n)-dsp(i,n))*dtit(i)/sp(i,n)
-c                enddo
               endif
+              rejected(i) = .false.
               if(iter.gt.1)then
                 tsc(i) = olddtit(i)/dtit(i) ! c
                 tsgamma(i) = (tsc(i)+1.0d0)/(tsc(i)+2.0d0) ! gamma
@@ -641,12 +642,9 @@ c           Guess stepsize for next iteration.
 #ifdef PYFORT
               dtit(i) = min(dt(i,j,k)-ttot(i),max(
      &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
-              dtit(i) = min(dt(i,j,k)/5.0, dtit(i))
-              dtit(i) = min(dt/5.0, dtit(i))
 #else
               dtit(i) = min(dt-ttot(i),max(
      &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
-              dtit(i) = min(dt/5.0, dtit(i))
 #endif
             endif
             enddo

@@ -200,7 +200,9 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               endif
               rejected(i) = .false.
               if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.1)then
-                rejected(i)=.true.
+                if((mins(i).eq.6).or.(mins(i).eq.1).or.(mins(i).eq.7))
+     &            rejected(i)=.true.
+                if(abs(1.0d0-correctH(i)).gt.0.3)rejected(i)=.true.
               endif
 c              if(rejected(i).eqv..true.)then
 c                esterr(i) = max(esterr(i), 1.1)
