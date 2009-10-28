@@ -28,7 +28,7 @@
  
 int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
-			      FLOAT WriteTime)
+			      FLOAT WriteTime, int RestartDump = FALSE)
 {
  
   /* If there is only one proc, then just point the new one at the old one. */
@@ -97,6 +97,8 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
  
     /* Copy grid region. */
  
+    int RecvType = ((WriteTime < 0) && (RestartDump == FALSE)) ? 
+                     NEW_ONLY : NEW_AND_OLD;
     int OldProc = OldGrid->ReturnProcessorNumber(),
         NewProc = NewGrid->ReturnProcessorNumber();
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;

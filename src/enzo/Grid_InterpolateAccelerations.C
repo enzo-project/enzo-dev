@@ -128,8 +128,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
     return SUCCESS;
  
   if (FromGrid->AccelerationField[0] == NULL) {
-    fprintf(stderr, "FromGrid->AccelerationField is NULL.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("FromGrid->AccelerationField is NULL.");
   }
  
   /* Allocate acceleration fields. */

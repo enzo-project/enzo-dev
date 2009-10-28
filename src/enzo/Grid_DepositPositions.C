@@ -25,12 +25,12 @@
  
 /* function prototypes */
  
-extern "C" void FORTRAN_NAME(cic_deposit)(FLOAT *posx, FLOAT *posy,
+extern "C" void PFORTRAN_NAME(cic_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         float *densfield, float *field, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, float *cellsize);
  
-extern "C" void FORTRAN_NAME(smooth_deposit)(FLOAT *posx, FLOAT *posy,
+extern "C" void PFORTRAN_NAME(smooth_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         float *densfield, float *field, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, float *cellsize,
@@ -119,7 +119,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
  
 //  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
  
-    FORTRAN_NAME(cic_deposit)(Position[0], Position[1], Position[2], &GridRank,
+    PFORTRAN_NAME(cic_deposit)(Position[0], Position[1], Position[2], &GridRank,
 			      &Number, Mass, DepositFieldPointer, LeftEdge,
 			      Dimension, Dimension+1, Dimension+2,
 			      &CellSize);
@@ -131,7 +131,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
  
 //  fprintf(stderr, "------DP Call Fortran smooth_deposit with DPPSmoothRadius = %"GSYM"\n", DepositPositionsParticleSmoothRadius);
  
-    FORTRAN_NAME(smooth_deposit)(
+    PFORTRAN_NAME(smooth_deposit)(
 			  Position[0], Position[1], Position[2], &GridRank,
 			  &Number, Mass, DepositFieldPointer, LeftEdge,
 			  Dimension, Dimension+1, Dimension+2,

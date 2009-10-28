@@ -175,7 +175,6 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
 /* Counters for performance and cycle counting. */
 
-static int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];

@@ -310,8 +310,8 @@
         ERROR_PACKED_AMR = 0
         ASSEMBLE_PACKED_AMR_DEFINES = \
                  -DUSE_HDF5_GROUPS
-    endif
 #                 -DSINGLE_HDF5_OPEN_ON_INPUT
+    endif
 
     # Settings for not using PACKED_AMR mods
 
@@ -610,6 +610,33 @@
 	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
     endif
 
+#-----------------------------------------------------------------------
+# DETERMINE GRID IO SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_NEW_GRID_IO = 1
+
+    # Settings to turn fast sibling search ON
+
+    ifeq ($(CONFIG_NEW_GRID_IO),yes)
+        ERROR_NEW_GRID_IO = 0
+        ASSEMBLE_NEW_GRID_IO_DEFINES = -DNEW_GRID_IO
+    endif
+
+    # Settings to turn new grid IO OFF
+
+    ifeq ($(CONFIG_NEW_GRID_IO),no)
+        ERROR_NEW_GRID_IO = 0
+        ASSEMBLE_NEW_GRID_IO_DEFINES =
+    endif
+
+    # error if CONFIG_NEW_GRID_IO is incorrect
+
+    ifeq ($(ERROR_NEW_GRID_IO),1)
+       .PHONY: error_NEW_GRID_IO
+       error_NEW_GRID_IO:
+	$(error Illegal value '$(CONFIG_NEW_GRID_IO)' for $$(CONFIG_NEW_GRID_IO))
+    endif
 
 #-----------------------------------------------------------------------
 # DETERMINE FAST SIBLING SETTINGS
@@ -637,6 +664,35 @@
        .PHONY: error_fast_sib
        error_fast_sib:
 	$(error Illegal value '$(CONFIG_FAST_SIB)' for $$(CONFIG_FAST_SIB))
+    endif
+
+
+#-----------------------------------------------------------------------
+# DETERMINE BITWISE IDENTICALITY SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_BITWISE_IDENTICALITY = 1
+
+    # Settings to turn blocking gravity ON
+
+    ifeq ($(CONFIG_BITWISE_IDENTICALITY),yes)
+        ERROR_BITWISE_IDENTICALITY = 0
+        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES = -DBITWISE_IDENTICALITY
+    endif
+
+    # Settings to turn blocking gravity OFF
+
+    ifeq ($(CONFIG_BITWISE_IDENTICALITY),no)
+        ERROR_BITWISE_IDENTICALITY = 0
+        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES =
+    endif
+
+    # error if CONFIG_BITWISE_IDENTICALITYis incorrect
+
+    ifeq ($(ERROR_BITWISE_IDENTICALITY),1)
+       .PHONY: error_BITWISE_IDENTICALITY
+       error_BITWISE_IDENTICALITY:
+	$(error Illegal value '$(CONFIG_BITWISE_IDENTICALITY)' for $$(CONFIG_BITWISE_IDENTICALITY))
     endif
 
 
@@ -780,7 +836,9 @@
               $(ASSEMBLE_TESTING_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_NEW_GRID_IO_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
+              $(ASSEMBLE_BITWISE_IDENTICALITY_DEFINES) \
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
