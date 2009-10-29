@@ -7,7 +7,8 @@
 /  modifiedN:  Robert Harkness
 /  date:       February, 2008
 /
-/  PURPOSE:   ======================================================================= 
+/  PURPOSE:
+/======================================================================= 
 /  This routine sets all the boundary conditions for Grids by either
 /   interpolating from their parents or copying from sibling grids. 
 /
@@ -63,7 +64,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 {
  
-  int loopEnd = (ShearingBoundaryDirection != 1) ? 2 : 1;
+  int loopEnd = (ShearingBoundaryDirection != -1) ? 2 : 1;
   
   int grid1, grid2, StartGrid, EndGrid, loop;
   
@@ -97,13 +98,14 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
-	if (level == 0) {
-	  if (loop == 0) 
-	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
-	} else {
-	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
-	    (Grids[grid1]->ParentGrid->GridData);
-	}
+	if (loop == 0) {
+	  if (level == 0) {
+    	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
+	  } else {
+	    Grids[grid1]->GridData->InterpolateBoundaryFromParent
+	      (Grids[grid1]->ParentGrid->GridData);
+	  }
+	} // ENDIF loop == 0
 
       } // ENDFOR grids
 

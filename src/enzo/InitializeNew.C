@@ -202,8 +202,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Open parameter file
  
   if ((fptr = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Error opening parameter file.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error opening parameter file.");
   }
  
   // Open output file
@@ -221,8 +220,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Read the MetaData/global values from the Parameter file
  
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
 
   // Set the number of particle attributes, if left unset
@@ -301,8 +299,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #endif
  
   if (ProblemType == 0) {
-    fprintf(stderr, "No problem specified.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("No problem specified.");
   }
  
   int ret = INT_UNDEFINED;
@@ -543,8 +540,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
  
   if (ret == FAIL) {
-    fprintf(stderr, "Error in problem initialization.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in problem initialization.");
   }
  
   if (debug)
@@ -593,8 +589,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       fprintf(stderr, "Opened BC file mode r\n");
 
       if (Exterior.ReadExternalBoundary(BCfptr) == FAIL) {
-	fprintf(stderr, "Error in ReadExternalBoundary.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ReadExternalBoundary.");
       }
       fclose(BCfptr);
     } else 
@@ -625,8 +620,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 				    MetaData.RightFaceBoundaryCondition[dim],
 				    Dummy, Dummy)
 	    == FAIL) {
-	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in InitializeExternalBoundaryFace.");
 	}
  
       // Initialize particle boundary conditions
@@ -703,16 +697,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Tracer particles will not be created at this point if ||rgio in ON
  
   if (TracerParticleCreation(fptr, TopGrid, MetaData) == FAIL) {
-    fprintf(stderr, "Error in TracerParticleCreation\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in TracerParticleCreation");
   }
  
   // Write the MetaData/global values to the Parameter file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (WriteParameterFile(Outfptr, MetaData) == FAIL) {
-      fprintf(stderr, "Error in WriteParameterFile.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in WriteParameterFile.");
     }
  
   if (debug)
@@ -767,13 +759,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ParallelRootGridIO == TRUE && ProblemType == 30) {
     if (PartitionNestedGrids) {
       if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in NestedCosmologySimulationReInitialize.");
       }
     } else {
       if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in CosmologySimulationReInitialize.");
       }
     }
   }
@@ -788,8 +778,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ParallelRootGridIO == TRUE && ProblemType == 60)
     if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-      fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
  if (ProblemType == 106)

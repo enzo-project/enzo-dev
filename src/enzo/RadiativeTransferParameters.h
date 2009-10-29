@@ -68,3 +68,5 @@ EXTERN int RadiativeTransferHIIRestrictedTimestep;
    equation. */
 
 EXTERN int RadiativeTransferAdaptiveTimestep;
+
+EXTERN float GlobalMaximumkphIfront;

@@ -73,8 +73,9 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   float LightCrossingTime = VelocityUnits / 
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
-  FLOAT SavedPhotonTimestep = dtPhoton;
+  float SavedPhotonTimestep = dtPhoton;
   PhotonTime -= LightCrossingTime;
+  dtPhoton = 0.1*LightCrossingTime;
 
   if (debug)
     printf("Restarting radiative transfer.  Light-crossing time = %"GSYM"\n", 

@@ -29,6 +29,7 @@ OBJS_CONFIG_LIB = \
         auto_show_version.o \
         calcdiss.o \
         calc_dt.o \
+        calc_dt_c.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -41,9 +42,13 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_c.o \
         cic_flag.o \
+        cic_flag_c.o \
         cic_interp.o \
+        cic_interp_c.o \
         cicinterp.o \
+        cie_thin_cooling_rate.o \
         cluster_maker.o \
         c_message.o \
         colh2diss.o \
@@ -65,7 +70,6 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
-        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
         CommunicationTransferStars.o \
@@ -290,6 +294,7 @@ OBJS_CONFIG_LIB = \
         Grid_FindNewStarParticles.o \
         Grid_FinishFFT.o \
         Grid_FlagBufferZones.o \
+        Grid_FlagCellsToAvoidRefinement.o \
         Grid_FlagCellsToBeRefinedByCoolingTime.o \
         Grid_FlagCellsToBeRefinedByJeansLength.o \
         Grid_FlagCellsToBeRefinedByMass.o \
@@ -314,9 +319,11 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
-        Grid_Group_ReadGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
+        Grid_Group_ReadGrid.o \
+        New_Grid_WriteGrid.o \
+        New_Grid_ReadGrid.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
@@ -389,6 +396,7 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
         Grid_SolveForPotential.o \
+        Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -493,10 +501,16 @@ OBJS_CONFIG_LIB = \
         pgas2d_dual.o \
         pgas2d.o \
         PoissonSolverTestInitialize.o \
+        pop3_color_maker.o \
+        pop3_color_maker_c.o \
         pop3_maker.o \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
+        primordial_calc_derivs.o \
+        primordial_cool.o \
+        primordial_lookup_rates.o \
+        primordial_solver.o \
 	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
@@ -562,6 +576,7 @@ OBJS_CONFIG_LIB = \
         ShockTubeInitialize.o \
         sink_maker.o \
         smooth_deposit.o \
+        smooth_deposit_c.o \
         smooth.o \
         solve_cool.o \
         solve_rate.o \
@@ -654,6 +669,7 @@ POBJS_CONFIG_LIB = \
         CommunicationLoadBalancePhotonGrids.o \
         CommunicationNonblockingRoutines.o \
         CommunicationReceiverPhotons.o \
+        CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferPhotons.o \
         CreateSourceClusteringTree.o \
         DeletePhotonPackage.o \
@@ -666,6 +682,7 @@ POBJS_CONFIG_LIB = \
         Grid_AddH2Dissociation.o \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
+	Grid_FindPhotonNewGrid.o \
         Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \

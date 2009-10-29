@@ -69,14 +69,19 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (!RadiativeTransfer)
     return SUCCESS;
 
+  /* Only call on the finest level */
+
+  if (LevelArray[level+1] != NULL)
+    return SUCCESS;
+
 //  printf("GridTime = %f, PhotonTime = %f, dtPhoton = %g (Loop = %d)\n",
 //	 GridTime, PhotonTime, dtPhoton, (GridTime >= PhotonTime));
 
   //if (dtPhoton < 0)
   //  return SUCCESS;
 
-  //while (GridTime > PhotonTime) {
-  while (GridTime >= PhotonTime) {
+  //while (GridTime >= PhotonTime) {
+  while (GridTime > PhotonTime) {
 
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */
@@ -180,13 +185,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	/* For MPI, communicate to minimum value of Continue to ensure
 	   that the source's host grid was found. */
-#ifdef USE_MPI
-	value = Continue;
-	MPI_Allreduce(&value, &Continue, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
-#endif /* USE_MPI */    
+
+	Continue = CommunicationMinValue(Continue);
 
 	if (lvl == 0 && Continue) {  // this should never happen ... 
-	  fprintf(stderr, "Could not find grid for source %x: Pos: %"FSYM" %"FSYM" %"FSYM"\n",
+	  fprintf(stderr, "Could not find grid for source %x: "
+		  "Pos: %"FSYM" %"FSYM" %"FSYM"\n",
 		  RS, RS->Position[0], RS->Position[1], RS->Position[2]);
 	  ENZO_FAIL("");
 	}
@@ -276,11 +280,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       InitiateKeepTransportingCheck(keep_transporting);
       KeepTransportingCheck(keep_transporting);
 #else /* NON_BLOCKING */
-#ifdef USE_MPI
-      value = keep_transporting;
-      MPI_Allreduce(&value, &keep_transporting, 1, MPI_INT, MPI_MAX, 
-		    MPI_COMM_WORLD);
-#endif /* USE_MPI */    
+      keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
 
     }                           //  end while keep_transporting
@@ -300,9 +300,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     FILE *fptr;
 
     if (RadiativeTransferPhotonEscapeRadius > 0) {
-#ifdef USE_MPI
-      CommunicationReduceValues(EscapedPhotonCount, 4, MPI_SUM);
-#endif /* USE_MPI */
+      CommunicationSumValues(EscapedPhotonCount, 4);
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 
 	/* Open f_esc file for writing */
@@ -402,6 +400,19 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        this number is needed.  Synchronize them now. */
 
     CommunicationSyncNumberOfPhotons(LevelArray);
+
+    /* If we're using the HII restricted timestep, get the global
+       maximum kph in I-fronts. */
+
+    if (RadiativeTransferHIIRestrictedTimestep) {
+      float LocalMaximumkph = -1e20;
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  LocalMaximumkph = max(LocalMaximumkph,
+				Temp->GridData->ReturnMaximumkphIfront());
+      LocalMaximumkph = CommunicationMaxValue(LocalMaximumkph);
+      MetaData->GlobalMaximumkphIfront = LocalMaximumkph;
+    }
 
 #ifdef DEBUG
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)

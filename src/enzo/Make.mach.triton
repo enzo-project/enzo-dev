@@ -22,7 +22,7 @@ MACH_FILE  = Make.mach.triton
 
 MACH_CPP       = cpp # C preprocessor command
 LOCAL_MPI_INSTALL = /opt/openmpi
-LOCAL_PYTHON_INSTALL = /home/mjturk/local/
+LOCAL_PYTHON_INSTALL = /projects/lca-group/local-dev/
 
 # With MPI
 
@@ -71,17 +71,17 @@ MACH_FFLAGS_REAL_64    = -fdefault-real-8
 # Optimization flags
 #-----------------------------------------------------------------------
 
-MACH_OPT_WARN        = # Flags for verbose compiler warnings
-MACH_OPT_DEBUG       = -g # Flags for debugging
-MACH_OPT_HIGH        = # Flags for high conservative optimization
-MACH_OPT_AGGRESSIVE  = # Flags for aggressive optimization
+MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
+MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
+MACH_OPT_HIGH        = -O2 # Flags for high conservative optimization
+MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
 
 #-----------------------------------------------------------------------
 # Includes
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = -I/opt/openmpi/include# MPI includes
-LOCAL_INCLUDES_HDF5   = -I/home/mjturk/local/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/projects/lca-group/local-dev/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
@@ -98,10 +98,11 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = -L/opt/openmpi/lib -lmpi # MPI libraries
-LOCAL_LIBS_HDF5   = -L/home/mjturk/local/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L/projects/lca-group/local-dev/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
+LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a \
+                     -lreadline -ltermcap
 
 LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
 

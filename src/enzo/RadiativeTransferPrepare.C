@@ -48,7 +48,11 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 
   //if (dtPhoton >= 0.0 && GridTime+dt >= PhotonTime) {
   //if (GridTime+dt > PhotonTime || MetaData->FirstTimestepAfterRestart) {
-  if (GridTime > PhotonTime || MetaData->FirstTimestepAfterRestart) {
+
+  /* Only prepare if this is a restart or we're on the finest level */
+
+  if ((GridTime+dt > PhotonTime && LevelArray[level+1] == NULL)
+      || MetaData->FirstTimestepAfterRestart) {
 
     /* Determine the photon timestep */
 
@@ -65,11 +69,18 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
      sources, go back a light crossing time of the box and run
      EvolvePhotons to populate the grids with the proper rates. */
 
-  if (MetaData->FirstTimestepAfterRestart == TRUE)
+  if (MetaData->FirstTimestepAfterRestart == TRUE) {
     if (RestartPhotons(MetaData, LevelArray, AllStars) == FAIL) {
       fprintf(stderr, "Error in RestartPhotons.\n");
       ENZO_FAIL("");
     }
+
+    /* With the radiation field in place, we recalculate the timestep
+       if requested */
+
+    RadiativeTransferComputeTimestep(LevelArray, MetaData, dtLevelAbove, level);
+
+  }
 
   return SUCCESS;
 

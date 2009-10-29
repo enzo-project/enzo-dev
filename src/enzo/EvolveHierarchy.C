@@ -67,7 +67,8 @@ int WriteAllData(char *basename, int filenumber,
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
+         int RestartDump = FALSE);
 
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
@@ -83,7 +84,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 			   LevelHierarchyEntry *LevelArray[]);
 int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
 				LevelHierarchyEntry *LevelArray[], int level);
-float CommunicationMinValue(float Value);
 int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			ExternalBoundary *Exterior,
 			LevelHierarchyEntry *LevelArray[]);
@@ -267,7 +267,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Do the first grid regeneration. */
  
-  RebuildHierarchy(&MetaData, LevelArray, 0);
+  if(CheckpointRestart == FALSE) {
+    RebuildHierarchy(&MetaData, LevelArray, 0);
+  }
 
 #ifdef MEM_TRACE
   MemInUse = mused();
@@ -321,7 +323,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Load balance the root grids if this isn't the initial call */
 
-    if (!FirstLoop)
+    if ((CheckpointRestart == FALSE) && (!FirstLoop))
       CommunicationLoadBalanceRootGrids(LevelArray, MetaData.TopGridRank, 
 					MetaData.CycleNumber);
 
@@ -343,10 +345,14 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     float dtProc   = huge_number;
     Temp = LevelArray[0];
  
-    while (Temp != NULL) {
-      dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
-      Temp = Temp->NextGridThisLevel;
-    }
+    // Start skipping
+    if(CheckpointRestart == FALSE) {
+      while (Temp != NULL) {
+        dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
+        Temp = Temp->NextGridThisLevel;
+      }
+
+      dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
     dt = min(MetaData.MaximumTopGridTimeStep, dt);
@@ -357,25 +363,33 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       dt = min(dt, Initialdt);
       if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
-      dtPhoton = dt;
+        dtPhoton = dt;
 #endif
-      Initialdt = 0;
-    }
- 
-    /* Make sure timestep doesn't go past an output. */
- 
-    if (ComovingCoordinates)
-      for (i = 0; i < MAX_NUMBER_OF_OUTPUT_REDSHIFTS; i++)
-	if (CosmologyOutputRedshift[i] != -1)
-	  dt = min(1.0001*(CosmologyOutputRedshiftTime[i]-MetaData.Time), dt);
-    for (i = 0; i < MAX_TIME_ACTIONS; i++)
-      if (TimeActionTime[i] > 0 && TimeActionType[i] > 0)
-	dt = min(1.0001*(TimeActionTime[i] - MetaData.Time), dt);
-    if (MetaData.dtDataDump > 0.0) {
-      while (MetaData.TimeLastDataDump+MetaData.dtDataDump < MetaData.Time)
-	MetaData.TimeLastDataDump += MetaData.dtDataDump;
-     dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
-		       MetaData.Time), dt);
+        Initialdt = 0;
+      }
+
+      /* Make sure timestep doesn't go past an output. */
+
+      if (ComovingCoordinates)
+        for (i = 0; i < MAX_NUMBER_OF_OUTPUT_REDSHIFTS; i++)
+          if (CosmologyOutputRedshift[i] != -1)
+            dt = min(1.0001*(CosmologyOutputRedshiftTime[i]-MetaData.Time), dt);
+      for (i = 0; i < MAX_TIME_ACTIONS; i++)
+        if (TimeActionTime[i] > 0 && TimeActionType[i] > 0)
+          dt = min(1.0001*(TimeActionTime[i] - MetaData.Time), dt);
+      if (MetaData.dtDataDump > 0.0) {
+        while (MetaData.TimeLastDataDump+MetaData.dtDataDump < MetaData.Time)
+          MetaData.TimeLastDataDump += MetaData.dtDataDump;
+        dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
+              MetaData.Time), dt);
+      }
+
+      /* Set the time step.  If it will cause Time += dt > StopTime, then
+         set dt = StopTime - Time */
+
+      dt = min(MetaData.StopTime - MetaData.Time, dt);
+    } else { 
+      dt = dtThisLevel[0]; 
     }
 
     /* Set the time step.  If it will cause Time += dt > StopTime, then
@@ -383,7 +397,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     dt = min(MetaData.StopTime - MetaData.Time, dt);
     Temp = LevelArray[0];
- 
+    // Stop skipping
+
+    // Set dt from stored in CheckpointRestart
     while (Temp != NULL) {
       Temp->GridData->SetTimeStep(dt);
       Temp = Temp->NextGridThisLevel;

@@ -83,7 +83,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   ***********************************************************************/
 
-  SphereTooSmall = (FeedbackFlag == FORMATION);
+  SphereTooSmall = ((FeedbackFlag == FORMATION) 
+                 || (FeedbackFlag == COLOR_FIELD));
   initialRadius = Radius;
 
   // MBHFeedbackToConstantMass is implemented 
@@ -122,8 +123,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity) == FAIL) {
-	  fprintf(stderr, "Error in GetEnclosedMass.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in GetEnclosedMass.");
 	}
 
 	Temp = Temp->NextGridThisLevel;
@@ -168,6 +168,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
       SphereTooSmall = DynamicalTime < 
 	StarClusterMinDynamicalTime/(TimeUnits/yr);
+      break;
+
+    case PopIII_CF:
+      SphereTooSmall = (MassEnclosed < PopIIIColorMass);
       break;
 
     case MBH:  

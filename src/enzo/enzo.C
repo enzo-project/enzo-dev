@@ -24,12 +24,12 @@
 #include <string.h>
 #include <unistd.h>
  
+#define DEFINE_STORAGE
 #include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
-#define DEFINE_STORAGE
 #include "global_data.h"
 #include "units.h"
 #include "flowdefs.h"
@@ -721,6 +721,7 @@ void my_exit(int status)
     fprintf (stderr,"%s:%d %"ISYM" ABORT ON EXIT_FAILURE!\n",
 	     __FILE__,__LINE__,MyProcessorNumber);
 
+    ENZO_FAIL("my_exit has been called.");
     CommunicationAbort(status);
 
   } else {
@@ -728,6 +729,7 @@ void my_exit(int status)
     fprintf (stderr,"%s:%d %"ISYM" ABORT ON UNKNOWN EXIT VALUE %"ISYM"!\n",
 	     __FILE__,__LINE__,MyProcessorNumber,status);
 
+    ENZO_FAIL("my_exit has been called without a known exit value.");
     CommunicationAbort(status);
 
   }

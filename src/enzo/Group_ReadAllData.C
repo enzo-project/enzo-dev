@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "h5utilities.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -47,7 +48,6 @@ void my_exit(int status);
 // HDF5 function prototypes
 
 
- 
 /* function prototypes */
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
@@ -298,6 +298,36 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   if(LoadGridDataAtStart){
     // can close HDF5 file here
 
+    if(CheckpointRestart == TRUE) {
+#ifndef SINGLE_HDF5_OPEN_ON_INPUT
+
+    file_id = H5Fopen(groupfilename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(file_id == h5_error)ENZO_VFAIL("Could not open %s", groupfilename)
+
+#endif
+      // Now we load our metadata back in
+      hid_t metadata_group;
+    H5E_BEGIN_TRY{
+      metadata_group = H5Gopen(file_id, "Metadata");
+    }H5E_END_TRY
+    if(metadata_group != h5_error) {
+      readAttribute(metadata_group, HDF5_INT, "LevelCycleCount",
+          LevelCycleCount, TRUE);
+      if(CheckpointRestart == TRUE) { // We only need these in a checkpoint
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevel",
+            dtThisLevel, TRUE);
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
+            dtThisLevelSoFar, TRUE);
+      }
+    } else if(CheckpointRestart == TRUE) {
+      ENZO_FAIL("Couldn't open Metadata!");
+    }
+    H5Gclose(metadata_group);
+
+#ifndef SINGLE_HDF5_OPEN_ON_INPUT
+      H5Fclose(file_id);
+#endif
+    }
 #ifdef SINGLE_HDF5_OPEN_ON_INPUT
 
     h5_status = H5Fclose(file_id);
