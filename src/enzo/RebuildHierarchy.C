@@ -237,8 +237,10 @@ int RebuildHierarchy(TopGridData *MetaData,
   */
 
   if (MoveParticlesBetweenSiblings && 
-      level > max(MaximumStaticSubgridLevel,0))
+      level > MaximumStaticSubgridLevel)  //#####
+    //      level > max(MaximumStaticSubgridLevel,0))
     CommunicationTransferSubgridParticles(LevelArray, MetaData, level);
+
 
   /* --------------------------------------------------------------------- */
   /* For dynamic hierarchies, rebuild the grid structure. */
@@ -374,6 +376,10 @@ int RebuildHierarchy(TopGridData *MetaData,
       tt1 = ReturnWallTime();
       RHperf[7] += tt1-tt0;
 
+
+      CommunicationShareGrids(GridHierarchyPointer, grids, MoveParticles);//#####
+
+
       /* 3d) Create an array of the new subgrids. */
  
       subgrids = 0;
@@ -492,11 +498,13 @@ int RebuildHierarchy(TopGridData *MetaData,
 	delete TempLevelArray[i+1];
 	TempLevelArray[i+1] = Temp;
       }
- 
+
     } // end: loop over levels
 
   } // end: if (StaticHierarchy == FALSE)
  
+
+
   /* --------------------------------------------------------------------- */
   /* Redistribute particles: for each grid, move the particles that belong in
      it's subgrids (this only has to be done if we didn't just do a rebuild
@@ -574,6 +582,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     } // end: loop over levels
  
   } // end: if (StaticHierarchy == TRUE)
+
 
   /* update all SubgridMarkers */
 

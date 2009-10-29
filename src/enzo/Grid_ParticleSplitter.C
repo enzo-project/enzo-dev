@@ -60,7 +60,7 @@ int grid::ParticleSplitter(int level)
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
- 
+
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
@@ -141,9 +141,8 @@ int grid::ParticleSplitter(int level)
   /*                       NOW SPLIT THE PARTICLES                       */
   /* ------------------------------------------------------------------- */
 
-  if(debug)
-    fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles before splitting = %d\n", 
-	    NumberOfParticles);
+  fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles before splitting = %d, MyProcessorNumber = %d\n", 
+	  NumberOfParticles, MyProcessorNumber); //#####
  
   if (NumberOfParticles > 0)
     FORTRAN_NAME(particle_splitter)(
@@ -185,8 +184,8 @@ int grid::ParticleSplitter(int level)
  
   if (NumberOfNewParticles > 0) {
     
-    if (debug) 
-      fprintf(stdout, "grid::ParticleSplitter:  NumberOfNewParticles = %"ISYM"\n", NumberOfNewParticles);    
+    fprintf(stdout, "grid::ParticleSplitter:  NumberOfNewParticles = %d, MyProcessorNumber = %d\n", 
+	    NumberOfNewParticles, MyProcessorNumber);    
 
     /* Move Particles into this grid (set cell size) using the fake grid. */
     
@@ -197,8 +196,8 @@ int grid::ParticleSplitter(int level)
     }
     this->MoveAllParticles(1, &tg);
 
-    if (debug)
-      fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles (New) = %"ISYM"\n", NumberOfParticles);    
+    fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles(New) = %d, MyProcessorNumber = %d\n", 
+	    NumberOfParticles, MyProcessorNumber);    
     
   } // end: if (NumberOfNewParticles > 0)
 

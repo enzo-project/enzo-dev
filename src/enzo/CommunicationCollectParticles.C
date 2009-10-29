@@ -47,7 +47,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
 
-#define NO_DEBUG_CCP
+#define DEBUG_CCP
 #define GRIDS_PER_LOOP 20000
 #define PARTICLES_PER_LOOP 10000000
  
@@ -223,7 +223,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     /*******************************************************************/
 
     jstart = 0;
-    jend = 0;
+   jend = 0;
 
     // Copy shared stars to grids, if any
 

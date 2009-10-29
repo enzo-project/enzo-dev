@@ -268,6 +268,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   RebuildHierarchy(&MetaData, LevelArray, 0);
 
+
+
 #ifdef MEM_TRACE
   MemInUse = mused();
   fprintf(memtracePtr, "1st rebuild %8"ISYM"  %16"ISYM" \n", 

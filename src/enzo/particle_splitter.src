@@ -130,7 +130,8 @@ c           then exit and give a warning.
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then
-               write(6,*) 'warning: parent particle out of grid',i,j,k
+               write(6,*) 'parent particle out of grid; i,j,k,level,',
+     &                     i,j,k, level
                goto 100
             endif
 c

@@ -640,13 +640,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     }
 
-    if (STARMAKE_METHOD(MBH_PARTICLE)) {
+    if (STARMAKE_METHOD(MBH_PARTICLE) && level == MaximumRefinementLevel) {
 
       //---- MASSIVE BLACK HOLE PARTICLE using the usual sink_maker
 
       /* At the moment MBH particle is not meant to be created like this;
-	 rather, it is supposed to be put by hand.  
-	 So this is rather for the consistency of the code.  - Ji-hoon Kim */
+	 Rather, it is supposed to be put by hand.  
+	 So this is really for the consistency of the code.  - Ji-hoon Kim */
 
       int ihydro = (int) HydroMethod;
       float SinkParticleMassThreshold = huge_number;
@@ -688,9 +688,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       
     }
 
-    if (STARMAKE_METHOD(INSTANT_STAR)) {
+    if (STARMAKE_METHOD(INSTANT_STAR) && level == MaximumRefinementLevel) {
 
-      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO stochastic SF)
+      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
+      //                            only at MaximumRefinementLevel)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -880,7 +881,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       if (debug)
 	printf("StarParticle: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
  
-      /* Set the particle numbers. */
+      /* Set the particle numbers.  The correct indices will be assigned in 
+	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
  
       for (i = 0; i < NumberOfNewParticles; i++)
 	tg->ParticleNumber[i] = INT_UNDEFINED;
@@ -1018,7 +1020,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (STARFEED_METHOD(INSTANT_STAR)) {
 
-    //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE)
+    //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,

@@ -54,14 +54,17 @@ int ParticleSplitter(HierarchyEntry *Grids[], LevelHierarchyEntry *LevelArray[],
   /* Initialize all star particles if this is a restart */
 
   for (i = 0; i < ParticleSplitterIterations; i++)
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) 
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
+      fprintf(stdout, "ParticleSplitter [level=%d] starts. \n", level);
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
-	fprintf(stdout, "ParticleSplitter [level=%d] starts. \n", level);
+	fprintf(stdout, "ParticleSplitter [grid->NumberOfParticles=%d] starts. \n", 
+		Temp->GridData->ReturnNumberOfParticles());
 	if (Temp->GridData->ParticleSplitter(level) == FAIL) {
 	  fprintf(stderr, "Error in grid::ParticleSplitter.\n");
 	  ENZO_FAIL("");
 	}
       }
+    }
 
   /* Now redistribute the particles as the newly created particles 
      might have crossed the grid boundaries */

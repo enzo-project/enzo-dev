@@ -34,7 +34,8 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 {
 
   /* Return if this does not concern us */
-  if (!(StarParticleCreation || StarParticleFeedback)) return SUCCESS;
+  if (!(StarParticleCreation || StarParticleFeedback)) 
+    return SUCCESS;
 
   int level, grids;
   Star *cstar;
