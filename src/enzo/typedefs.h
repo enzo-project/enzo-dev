@@ -131,8 +131,9 @@ const field_type
   O2IDensity      = 78,
 
   MBHColour       = 79,
+  ForbiddenRefinement = 80,
 
-  FieldUndefined  = 80;
+  FieldUndefined  = 81;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -210,6 +211,7 @@ const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
 
 /* Define a float/int union. */

@@ -36,13 +36,13 @@ int grid::ReturnFluxDims(fluxes &Flux, int RefinementFactors[])
   for (int i = 0; i < GridRank; i++)
     for (int j = 0; j < GridRank; j++) {
       Flux.LeftFluxStartGlobalIndex[i][j] =
-	BoundaryFluxes->LeftFluxStartGlobalIndex[i][j]/RefinementFactors[j];
+	nlongint(BoundaryFluxes->LeftFluxStartGlobalIndex[i][j]/RefinementFactors[j]);
       Flux.LeftFluxEndGlobalIndex[i][j] =
-	BoundaryFluxes->LeftFluxEndGlobalIndex[i][j]/RefinementFactors[j];
+	nlongint(BoundaryFluxes->LeftFluxEndGlobalIndex[i][j]/RefinementFactors[j]);
       Flux.RightFluxStartGlobalIndex[i][j] =
-	BoundaryFluxes->RightFluxStartGlobalIndex[i][j]/RefinementFactors[j];
+	nlongint(BoundaryFluxes->RightFluxStartGlobalIndex[i][j]/RefinementFactors[j]);
       Flux.RightFluxEndGlobalIndex[i][j] =
-	BoundaryFluxes->RightFluxEndGlobalIndex[i][j]/RefinementFactors[j];
+	nlongint(BoundaryFluxes->RightFluxEndGlobalIndex[i][j]/RefinementFactors[j]);
     }
  
   /* set all to NULL for easier clean-up. */

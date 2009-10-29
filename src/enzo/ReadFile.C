@@ -144,13 +144,13 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   if (debug1)
     fprintf(stderr, "RHDF H5Fopen %s on CPU %"ISYM"\n", name, MyProcessorNumber);
     if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-    if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( file_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", name);
  
   dset_id =  H5Dopen(file_id, name);
     if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-    if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( dset_id == h5_error ){ENZO_FAIL("IO Problem");}
  
  
  
@@ -159,15 +159,15 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   attr_id = H5Aopen_name(dset_id, "Component_Rank");
     if (io_log) fprintf(log_fptr, "H5Aopen_name id: %"ISYM"\n", attr_id);
-    if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( attr_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aread(attr_id, HDF5_INT, &component_rank_attr);
     if (io_log) fprintf(log_fptr, "H5Aread: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aclose(attr_id);
     if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   if (io_log) fprintf(log_fptr, "COMPONENT_RANK %"ISYM"\n", component_rank_attr);
  
@@ -178,15 +178,15 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   attr_id = H5Aopen_name(dset_id, "Component_Size");
     if (io_log) fprintf(log_fptr, "H5Aopen_name id: %"ISYM"\n", attr_id);
-    if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( attr_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aread(attr_id, HDF5_INT, &component_size_attr);
     if (io_log) fprintf(log_fptr, "H5Aread: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aclose(attr_id);
     if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   if (io_log) fprintf(log_fptr, "COMPONENT_SIZE %"ISYM"\n", component_size_attr);
  
@@ -197,15 +197,15 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   attr_id = H5Aopen_name(dset_id, "Rank");
     if (io_log) fprintf(log_fptr, "H5Aopen_name id: %"ISYM"\n", attr_id);
-    if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( attr_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aread(attr_id, HDF5_INT, &field_rank_attr);
     if (io_log) fprintf(log_fptr, "H5Aread: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aclose(attr_id);
     if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   if (io_log) fprintf(log_fptr, "RANK %"ISYM"\n", field_rank_attr);
  
@@ -216,21 +216,21 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   attr_id = H5Aopen_name(dset_id, "Dimensions");
     if (io_log) fprintf(log_fptr, "H5Aopen_name id: %"ISYM"\n", attr_id);
-    if( attr_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( attr_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   attr_count = field_rank_attr;
  
   attr_dsp_id = H5Screate_simple((Eint32) 1, &attr_count, NULL);
     if (io_log) fprintf(log_fptr, "H5Screate_simple %"ISYM"\n", attr_dsp_id);
-    if( attr_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( attr_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aread(attr_id, HDF5_INT, field_dims_attr);
     if (io_log) fprintf(log_fptr, "H5Aread: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Aclose(attr_id);
     if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   for (dim = 0; dim < field_rank_attr; dim++)
   {
@@ -357,31 +357,31 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   mem_dsp_id = H5Screate_simple((Eint32) 1, &xfer_size, NULL);
     if (io_log) fprintf(log_fptr, "H5Screate mem_dsp_id: %"ISYM"\n", mem_dsp_id);
-    if( mem_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( mem_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status =  H5Sselect_hyperslab(mem_dsp_id,  H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, &mem_block);
     if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   file_dsp_id = H5Screate_simple((Eint32) Slab_Rank, Slab_Dims, NULL);
     if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-    if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+    if( file_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, slab_offset, slab_stride, slab_count, slab_block);
     if (io_log) fprintf(log_fptr, "H5Sselect file slab: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Dread(dset_id, mem_type_id, mem_dsp_id, file_dsp_id, H5P_DEFAULT, (VOIDP) (*tempbuffer));
     if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", (int) h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Sclose(mem_dsp_id);
     if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Sclose(file_dsp_id);
     if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   // Reset TempIntArray for parallel IO
  
@@ -430,11 +430,11 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
     mem_dsp_id = H5Screate_simple((Eint32) 1, &xfer_size, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate mem_dsp_id: %"ISYM"\n", mem_dsp_id);
-      if( mem_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( mem_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status =  H5Sselect_hyperslab(mem_dsp_id,  H5S_SELECT_SET, &mem_offset, &mem_stride, &mem_count, NULL);
       if (io_log) fprintf(log_fptr, "H5Sselect mem slab: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
     // Data in the file is (1+Rank)D with Npart components per grid point.
     // Offset[0] is the component Part of Npart components.  Data for each
@@ -455,33 +455,33 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
     file_dsp_id = H5Screate_simple((Eint32) Slab_Rank, Slab_Dims, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( file_dsp_id == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, file_offset, file_stride, file_count, NULL);
       if (io_log) fprintf(log_fptr, "H5Sselect file slab: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status = H5Dread(dset_id, mem_type_id, mem_dsp_id, file_dsp_id, H5P_DEFAULT, (VOIDP) (*tempbuffer));
       if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status = H5Sclose(mem_dsp_id);
       if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
     h5_status = H5Sclose(file_dsp_id);
       if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   }
  
   h5_status = H5Dclose(dset_id);
     if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   h5_status = H5Fclose(file_id);
     if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
-    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
  
   if (io_log) fprintf(log_fptr, "Dump *tempbuffer xfer_size = %"ISYM"\n", (int) xfer_size);
  

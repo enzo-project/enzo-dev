@@ -75,8 +75,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
   
   /* Find Multi-species fields. */
@@ -87,8 +86,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				    DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
   /* Find Metallicity or SNColour field and set flag. */
@@ -483,6 +481,51 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }  // END j-direction
     }  // END k-direction
   }  // END star birth
+
+  if (cstar->FeedbackFlag == COLOR_FIELD) {
+    int CellsModified2 = 0;
+
+    int ColorField = FindField(ForbiddenRefinement, FieldType, NumberOfBaryonFields); 
+    if (ColorField < 0) ENZO_FAIL("Couldn't Find Color Field!");
+    index = 0;
+
+    for (k = 0; k < GridDimension[2]; k++) {
+
+      delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2];
+      sz = sign(delz);
+      delz = fabs(delz);
+      delz = min(delz, DomainWidth[2]-delz);
+
+      for (j = 0; j < GridDimension[1]; j++) {
+
+	dely = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1];
+	sy = sign(dely);
+	dely = fabs(dely);
+	dely = min(dely, DomainWidth[1]-dely);
+
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+
+	  delx = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0];
+	  sx = sign(delx);
+	  delx = fabs(delx);
+	  delx = min(delx, DomainWidth[0]-delx);
+
+	  radius2 = delx*delx + dely*dely + delz*delz;
+	  if (radius2 <= radius*radius) {
+
+	    BaryonField[ColorField][index] =
+            BaryonField[DensNum][index];
+
+	    CellsModified++;
+	    CellsModified2++;
+
+	  }  // END if inside radius
+
+	}  // END i-direction
+      }  // END j-direction
+    }  // END k-direction
+    fprintf(stderr, "CellsModified: %"ISYM"\n", CellsModified2);
+  }
 
   /* Now it's done, unmark. */
 

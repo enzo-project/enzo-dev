@@ -77,6 +77,11 @@ class grid
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
 
+  // For restart dumps
+
+  int NumberOfSubgrids;
+  fluxes **SubgridFluxStorage;
+
   // MHD data
   float *divB;
   float *gradPhi[MAX_DIMENSION];
@@ -131,6 +136,8 @@ class grid
 //
   int TimestepsSinceCreation; 	// Not really since creation anymore... 
   				// resets everytime the grid outputs
+
+
 //
 // Friends
 //
@@ -163,8 +170,13 @@ class grid
 
 /* Read grid data from a group file (returns: success/failure) */
 
+#ifndef NEW_GRID_IO
+  int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
+			 int ReadText, int ReadData);
+#else
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
-		      int ReadText = TRUE, int ReadData = TRUE);
+		      int ReadText = TRUE, int ReadData = TRUE, int ReadEverything = FALSE);
+#endif
 
 /* Get field or particle data based on name or integer 
    defined in typedefs.h. Details are in Grid_CreateFieldArray.C. */
@@ -191,7 +203,26 @@ class grid
 
 /* Write grid data to a group file (returns: success/failure) */
 
-   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id);
+#ifndef NEW_GRID_IO
+   int Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id);
+#else
+   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id, int WriteEverything = FALSE);
+#endif
+
+   int WriteAllFluxes(hid_t grid_node);
+   int WriteFluxGroup(hid_t top_group, fluxes *fluxgroup);
+
+   int ReadAllFluxes(hid_t grid_node);
+   int ReadFluxGroup(hid_t top_group, fluxes *fluxgroup);
+
+   int FillFluxesFromStorage(int *ThisNumberOfSubgrids,
+        fluxes ***fluxgroup) {
+        *ThisNumberOfSubgrids = this->NumberOfSubgrids;
+        *fluxgroup = this->SubgridFluxStorage;
+        this->SubgridFluxStorage = NULL;
+        if(ProcessorNumber != MyProcessorNumber) return -1;
+        return 0;
+    }
 
 /* Write grid data to separate files (returns: success/failure) */
 
@@ -225,6 +256,15 @@ class grid
 
    int Group_WriteGridInterpolate(FLOAT WriteTime, FILE *main_file_pointer,
                             char *base_name, int grid_id, HDF5_hid_t file_id);
+
+private:
+   int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
+       hid_t data_type, void *data, int active_only = TRUE,
+       float *temp=NULL);
+   int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+       hid_t data_type, void *read_to, int copy_back_active=FALSE,
+       float *copy_to=NULL, int *active_dims=NULL);
+public:
 
 /* Compute the timestep constraint for this grid
     (for steps #3 and #4) */
@@ -542,6 +582,10 @@ class grid
 
    int SolveRateAndCoolEquations();
 
+/* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
+
+   int SolveHighDensityPrimordialChemistry();
+
 /* Compute densities of various species for RadiationFieldUpdate. */
 
    int RadiationComputeDensities(int level);
@@ -661,6 +705,10 @@ class grid
             (gg #3) */
 
    int AddFieldMassToMassFlaggingField();
+
+/* Flag all points where we are forbidding refinement from a color field */
+
+   int FlagCellsToAvoidRefinement();
 
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells

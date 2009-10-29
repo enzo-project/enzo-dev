@@ -71,7 +71,7 @@ int grid::GravityEquilibriumTestInitializeGrid(
  
     /* Set density for exponential atmosphere. */
  
-    density = 1.0*exp(CellLeftEdge[0][i]/ScaleHeight);
+    density = 1.0*PEXP(CellLeftEdge[0][i]/ScaleHeight);
     if (i == GridStartIndex[0])
       density_old = density;
  

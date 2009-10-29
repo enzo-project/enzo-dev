@@ -44,14 +44,15 @@ int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
 
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars)
+			    Star *&AllStars, bool* &AddedFeedback)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
-  int i, l, dim, temp_int, SkipMassRemoval, SphereContained, SphereContainedNextLevel, dummy;
+  int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
+      SphereContainedNextLevel, dummy, count;
   float influenceRadius, RootCellWidth, SNe_dt;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
@@ -78,7 +79,18 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+  /* Initialize the AddedFeedback flag array */
+  
+  int TotalNumberOfStars = 0;
+  for (cstar = AllStars; cstar; cstar = cstar->NextStar)
+    TotalNumberOfStars++;
+  if (TotalNumberOfStars > 0)
+    AddedFeedback = new bool[TotalNumberOfStars];
+
+  count = 0;
+  for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
+
+    AddedFeedback[count] = false;
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
 	(!cstar->ApplyFeedbackTrue(SNe_dt)))
@@ -101,8 +113,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	       SphereContained, SkipMassRemoval, DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
 	       VelocityUnits, Time) == FAIL) {
-      fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in star::FindFeedbackSphere");
     }
 
     /* If there's no feedback or something weird happens, don't bother. */
@@ -161,8 +172,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 				VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
 				EjectaMetalDensity, EjectaThermalEnergy, 
 				CellsModified) == FAIL) {
-	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
-	    ENZO_FAIL("");
+	    	    ENZO_FAIL("Error in AddFeedbackSphere.");
 	  }
 
     /*    
@@ -176,7 +186,12 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
       cstar->SetFeedbackFlag(DEATH);
 
-#ifdef UNUSED  
+    /* We only color the fields once */
+
+
+    AddedFeedback[count] = true;
+
+#ifdef UNUSED
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
 	       MPI_COMM_WORLD);

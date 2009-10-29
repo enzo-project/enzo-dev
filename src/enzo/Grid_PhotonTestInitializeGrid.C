@@ -446,7 +446,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    /* 4) Gaussian */
 	    if (SphereType[sphere] == 4) {
 	      dens1 = SphereDensity[sphere]*
-                      exp(-0.5*pow(r/SphereCoreRadius[sphere], 2));
+                      PEXP(-0.5*pow(r/SphereCoreRadius[sphere], 2));
 	    }
 
 	    /* 5) r^-2 power law with core radius */
@@ -503,7 +503,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		/* Compute density (Kruit & Searle 1982). */
 
 		if (dim == 0)
-		  dens1 = SphereDensity[sphere]*exp(-drad/ScaleHeightR)/
+		  dens1 = SphereDensity[sphere]*PEXP(-drad/ScaleHeightR)/
 		    pow(cosh(zheight/max(ScaleHeightz, CellWidth[0][0])), 2);
 
 		if (dens1 < density)

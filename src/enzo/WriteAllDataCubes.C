@@ -40,7 +40,7 @@ int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, in
  
 int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
-			      FLOAT WriteTime);
+			      FLOAT WriteTime, int RestartDump = FALSE);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
  
  

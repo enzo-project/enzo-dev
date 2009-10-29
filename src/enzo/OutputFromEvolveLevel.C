@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -35,7 +36,7 @@ int WriteTracerParticleData(char *basename, int filenumber,
 //#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		       TopGridData &MetaData, ExternalBoundary *Exterior,
-		       FLOAT WriteTime = -1);
+		       FLOAT WriteTime = -1, int CheckpointDump = FALSE);
 // #else
 // int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 //                  TopGridData &MetaData, ExternalBoundary *Exterior,
@@ -44,6 +45,9 @@ int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 void my_exit(int status);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
 #define TIME_MESSAGING 
 
@@ -52,7 +56,8 @@ EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
 			  int level, ExternalBoundary *Exterior){
 
-  int Write = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  int CheckpointDump = FALSE;
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -67,8 +72,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 				  MetaData->TracerParticleDumpNumber++,
 				  LevelArray, MetaData,
 				  LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-	fprintf(stderr, "Error in WriteTracerParticleData.\n");
-	return FAIL;
+		ENZO_FAIL("Error in WriteTracerParticleData.");
       }
     }
     
@@ -77,9 +81,31 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (MetaData->OutputFirstTimeAtLevel > 0 &&
 	level >= MetaData->OutputFirstTimeAtLevel){
       MetaData->OutputFirstTimeAtLevel = level+1;
-      Write = TRUE;
+      WriteOutput = TRUE;
     }
 
+    if(OutputOnDensity == 1) {
+
+      /* Get our units, but only if we need to. */
+      float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
+            TimeUnits = 1, VelocityUnits = 1;
+      FLOAT Time = LevelArray[level]->GridData->ReturnTime();
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+            &TimeUnits, &VelocityUnits, Time) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+      }
+
+      /* Make sure we are all synced up across processors. */
+      CurrentMaximumDensity = CommunicationMaxValue(CurrentMaximumDensity);
+      if(log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+        while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+          CurrentDensityOutput += IncrementDensityOutput;
+        }
+        fprintf(stderr, "Outputting based on DensMax == %0.3f (now set to %0.3f)\n",
+            log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
+        WriteOutput = TRUE;
+      }
+    }
 
     // File directed output:
     // Existence of the file outputNow will cause enzo to output the next time the bottom
@@ -87,24 +113,35 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     // a file subcycleCount will change the number of subcycle skip output
     // a file stopNow will output and then exit enzo.
     
-    int outputNow = -1, stopNow = -1, subcycleCount=-1;
+    int outputNow = -1, stopNow = -1, subcycleCount=-1, checkpointDumpNow=-1;
     if( FileDirectedOutput == TRUE){
       
       CommunicationBarrier();
       outputNow = access("outputNow", F_OK);
       subcycleCount = access("subcycleCount", F_OK);
       stopNow = access("stopNow", F_OK) ;
+      checkpointDumpNow = access("checkpointDump", F_OK);
 
       if ( outputNow != -1 ){
 	printf("Detected outputNow\n");
-	Write = TRUE;
+	WriteOutput = TRUE;
       }
 
       if( stopNow != -1 ) {
 	printf("Detected stopNow\n");
 	ExitEnzo = TRUE;
-	Write = TRUE;
+	WriteOutput = TRUE;
       }
+
+      if( checkpointDumpNow != -1 ) {
+	printf("Detected checkpointDump\n");
+	ExitEnzo = TRUE;
+	WriteOutput = TRUE;
+    CheckpointDump = TRUE;
+      }
+
+    /* We also reset checkpoint state here */
+    if (CheckpointRestart == TRUE) CheckpointRestart = FALSE;
 
       /* Check to see if new subcycle information has been given to us */
       
@@ -133,8 +170,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       if (MyProcessorNumber == ROOT_PROCESSOR){
 	if( outputNow != -1 )
 	  if (unlink("outputNow")) {
-	    fprintf(stderr, "Error deleting 'outputNow'\n");
-	    return FAIL;
+ 	    ENZO_FAIL("Error deleting 'outputNow'");
 	  }
 	if( subcycleCount != -1 )
 	  if (unlink("subcycleCount")) {
@@ -142,8 +178,11 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	  }
 	if( stopNow != -1 )
 	  if (unlink("stopNow")) {
-	    fprintf(stderr, "Error deleting stopNow\n");
-	    return FAIL;
+   	    ENZO_FAIL("Error deleting stopNow");
+	  } 
+	if( checkpointDumpNow != -1 )
+	  if (unlink("checkpointDump")) {
+   	    ENZO_FAIL("Error deleting checkpointDump");
 	  } 
       } 
       
@@ -164,7 +203,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	     LevelArray[level]->GridData->ReturnTime(), MetaData->TimeLastInterpolatedDataDump,
 	     MetaData->dtInterpolatedDataDump);
       MetaData->TimeLastInterpolatedDataDump += MetaData->dtInterpolatedDataDump;
-      Write = TRUE;
+      WriteOutput = TRUE;
     }
 
     /* Check to see if we should start outputting interpolated data based on
@@ -177,18 +216,38 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	     MetaData->SubcycleNumber, MetaData->SubcycleLastDataDump,
 	     MetaData->SubcycleSkipDataDump);
       MetaData->SubcycleLastDataDump += MetaData->SubcycleSkipDataDump;
-      Write = TRUE;
+      WriteOutput= TRUE;
     } 
     
     if (MetaData->StopFirstTimeAtLevel > 0 &&
 	level >= MetaData->StopFirstTimeAtLevel){
       ExitEnzo = TRUE;
-      Write = TRUE;
+      WriteOutput = TRUE;
     }
 
   }//Finest Level
 
   FILE *Exit_fptr;
+
+  if( WriteOutput == TRUE ){    
+    LevelHierarchyEntry *Temp2 = LevelArray[0];
+    while (Temp2->NextGridThisLevel != NULL)
+      Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
+    //#ifdef USE_HDF5_GROUPS
+    if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
+			   Temp2->GridHierarchyEntry, *MetaData, Exterior,
+			   LevelArray[level]->GridData->ReturnTime(), CheckpointDump) == FAIL) {
+            ENZO_FAIL("Error in Group_WriteAllData.");
+    }
+// #else
+//     if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
+// 		     Temp2->GridHierarchyEntry, *MetaData, Exterior, 
+// 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
+//       fprintf(stderr, "Error in WriteAllData.\n");
+//       ENZO_FAIL("");
+//     }
+// #endif
+  }//WriteOutput == TRUE
 
   if( ExitEnzo == TRUE ){
     if (MovieSkipTimestep != INT_UNDEFINED) {
@@ -202,28 +261,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
     my_exit(EXIT_SUCCESS);
   }
-  
-  if( Write == TRUE ){    
-    LevelHierarchyEntry *Temp2 = LevelArray[0];
-    while (Temp2->NextGridThisLevel != NULL)
-      Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
-    //#ifdef USE_HDF5_GROUPS
-    if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-			   Temp2->GridHierarchyEntry, *MetaData, Exterior,
-			   LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-      fprintf(stderr, "Error in Group_WriteAllData.\n");
-      return FAIL;
-    }
-// #else
-//     if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
-// 		     Temp2->GridHierarchyEntry, *MetaData, Exterior, 
-// 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-//       fprintf(stderr, "Error in WriteAllData.\n");
-//       return FAIL;
-//     }
-// #endif
-  }//Write == TRUE
-
   
   
   return SUCCESS;
