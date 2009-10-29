@@ -704,4 +704,9 @@ EXTERN int RefineByJeansLengthUnits;
 
 EXTERN int MoveParticlesBetweenSiblings;
 
+
+/* Vorticity Calculations */
+
+EXTERN int VelAnyl;
+
 #endif

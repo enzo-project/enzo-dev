@@ -385,6 +385,8 @@ OBJS_CONFIG_LIB = \
         Grid_SetMinimumSupport.o \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
+        Grid_ShearingBox2DInitializeGrid.o \
+        Grid_ShearingBoxStratifiedInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
         Grid_SolveForPotential.o \
         Grid_SolveHydroEquations.o \
@@ -553,6 +555,8 @@ OBJS_CONFIG_LIB = \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
+        ShearingBox2DInitialize.o \
+        ShearingBoxStratifiedInitialize.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
         ShockTubeInitialize.o \

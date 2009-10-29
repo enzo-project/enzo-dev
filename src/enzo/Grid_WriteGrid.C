@@ -171,6 +171,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     fprintf(stderr,"GPFS create: %s on CPU %"ISYM"\n", name, MyProcessorNumber);
   }
  
+
   /* ------------------------------------------------------------------- */
   /* 2) save baryon field quantities (including fields). */
  
@@ -324,6 +325,8 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
        compute the temperature field as well since
        its such a pain to compute after the fact. */
  
+
+   
     if (OutputTemperature) {
  
       /* Allocate field and compute temperature. */
@@ -383,6 +386,203 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       delete [] temperature;
  
     } // end: if (OutputTemperature)
+
+ 
+    if (VelAnyl) {
+
+     
+      int Vel1Num, Vel2Num, Vel3Num;
+      
+      for (int i=0; i< NumberOfBaryonFields; i++){
+
+
+	switch (FieldType[i]){
+	case Velocity1:
+	  Vel1Num=i; break;
+	case Velocity2:
+	  Vel2Num=i; break;
+	case Velocity3:
+	  Vel3Num=i; break;
+	}
+      }
+
+
+      io_type *curlx; io_type *curly;
+
+      
+      if(GridRank==3){
+      curlx = new io_type [size];
+      curly = new io_type [size];}
+
+
+      io_type *curlz = new io_type [size];
+      io_type *div   = new io_type [size];
+
+      FLOAT dx = CellWidth[0][0],
+	dy = CellWidth[1][0], dz;
+      if (GridRank>2)
+	dz = CellWidth[2][0];
+    
+      /* Copy active part of field into grid */
+      int igrid, igridyp1, igridym1, igridzp1, igridzm1;
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+	    igrid = (k*GridDimension[1] + j)*GridDimension[0] + i;
+	    igridyp1 = (k*GridDimension[1] + j + 1)*GridDimension[0] + i;
+	    igridym1 = (k*GridDimension[1] + j - 1)*GridDimension[0] + i;
+	    igridzp1 = ((k+1)*GridDimension[1]+j)*GridDimension[0] + i;
+	    igridzm1 = ((k-1)*GridDimension[1]+j)*GridDimension[0] + i;
+
+
+
+	    if (GridRank==3){
+	      
+	    div[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+              io_type(
+		      (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		      0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy +
+			  0.5*(BaryonField[Vel3Num][igridzp1]-BaryonField[Vel3Num][igridzm1])/dz)
+                     );
+	    curlx[(i-GridStartIndex[0])+
+	       (j-GridStartIndex[1])*ActiveDim[0]+ 
+	       (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	       io_type(
+		      (0.5*(BaryonField[Vel3Num][igridyp1]-BaryonField[Vel3Num][igridym1])/dy -		      
+			  0.5*(BaryonField[Vel2Num][igridzp1]-BaryonField[Vel2Num][igridzm1])/dz)
+		      );
+	    curly[(i-GridStartIndex[0])+
+	       (j-GridStartIndex[1])*ActiveDim[0]+ 
+	       (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		       (0.5*(BaryonField[Vel1Num][igridzp1]-BaryonField[Vel1Num][igridzm1])/dz -		      
+			   0.5*(BaryonField[Vel3Num][igrid+1]-BaryonField[Vel3Num][igrid-1])/dx)
+		       );
+	     curlz[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+ 
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		      (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+			  0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		      );
+	    }
+
+	    if (GridRank==2){
+	      
+	    div[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+              io_type(
+		      (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		       0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy 
+		       ));
+	     curlz[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+ 
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		      (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+			  0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		      );
+	    }
+
+	    
+
+	  }
+	}
+      }
+
+      /* output */
+      
+      char *DataLabelN[4];
+      if (GridRank==2) {
+	DataLabelN[0]="Velocity_Div";
+	DataLabelN[1]="Velocity_Vorticity";
+      }
+      if (GridRank==3) {
+	DataLabelN[0]="Velocity_Div";
+	DataLabelN[1]="Velocity_Vorticity1";
+	DataLabelN[2]="Velocity_Vorticity2";
+	DataLabelN[3]="Velocity_Vorticity3";
+      }
+
+      
+
+      int tFields=3;
+      if (GridRank==2) tFields=1;
+ fprintf(stderr,"Inside 0 \n");
+
+      for (int field=0; field<=tFields; field++){
+ fprintf(stderr,"Inside 1 %d \n", field);
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",DataLabelN[field]);
+ 
+      dset_id =  H5Dcreate(file_id, DataLabelN[field], file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      /* set datafield name and units, etc. */
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      fprintf(stderr,"Inside 2 %d \n", field);
+      fprintf(stderr,  DataLabelN[field]);
+
+      WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
+      fprintf(stderr,"Inside 3 %d \n", field);
+      WriteStringAttr(dset_id, "Units", "VortUnits", log_fptr);
+      fprintf(stderr,"Inside 4 %d \n", field);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      fprintf(stderr,"Inside 5 %d \n", field);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+      fprintf(stderr,"Inside 6 %d \n", field);
+
+      switch (field) {
+      case 0:
+	temp=div;
+      case 1:
+	temp=curlz;
+      case 2:
+	temp=curly;
+      case 3:
+	temp=curlx;
+
+      }
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+
+
+      }
+
+      fprintf(stderr,"Inside sorta \n");
+
+
+      if(GridRank==3){
+	delete curlx;
+	delete curly;}
+      delete curlz;
+      delete div;
+    }
+
+    fprintf(stderr,"Outside 10 \n");
 
     if (OutputCoolingTime) {
  
@@ -454,6 +654,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       delete [] cooling_time;
  
     } // if (OutputCoolingTime)
+    fprintf(stderr,"Outside 11 \n");
  
     /* Make sure that there is a copy of dark matter field to save
        (and at the right resolution). */
@@ -853,6 +1054,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     }
  
+ 
     /* clean up */
  
     delete [] temp;
@@ -860,22 +1062,31 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   } // end: if (MyProcessorNumber...)
   } // end: if (NumberOfParticles > 0)
+
+  fprintf(stderr,"Outside 11.5 \n");
  
   /* Close HDF file. */
  
   if (MyProcessorNumber == ProcessorNumber)
   {
+ 
      h5_status = H5Fclose(file_id);
-       if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
-       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+    fprintf(stderr,"Outside 11.51 %d %d\n", h5_status, h5_error);
+     if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+     if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+     fprintf(stderr,"Outside 11.52 \n");
   }
  
   if (MyProcessorNumber == ProcessorNumber)
-  {
+  {  fprintf(stderr,"Outside 11.53 \n");
     if (io_log) fclose(log_fptr);
+    fprintf(stderr,"Outside 11.54 \n");
   }
  
   /* 4) Save Gravity info. */
+
+ fprintf(stderr,"Outside 11.6 \n");
+ 
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
@@ -883,7 +1094,10 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   /* Clean up. */
  
+  fprintf(stderr,"Outside 12 \n");
   delete [] name;
+
+    fprintf(stderr,"Outside 13 \n");
  
   return SUCCESS;
  
