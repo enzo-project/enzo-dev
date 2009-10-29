@@ -5,7 +5,10 @@
 */
 
 #include "f2c.h"
+
+#define ENZO_PYTHON_IMPORTED
 #include "macros_and_parameters.h"
+#undef ENZO_PYTHON_IMPORTED
 
 /* ======================================================================= */
 /* //////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\c */

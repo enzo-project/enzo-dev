@@ -199,7 +199,7 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
                 mins(i) = n
               endif
               rejected(i) = .false.
-              if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.1)then
+              if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.3)then
                 if((mins(i).eq.6).or.(mins(i).eq.1).or.(mins(i).eq.7))
      &            rejected(i)=.true.
                 if(abs(1.0d0-correctH(i)).gt.0.3)rejected(i)=.true.

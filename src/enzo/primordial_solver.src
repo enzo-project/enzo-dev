@@ -516,8 +516,10 @@ c               dtit(i) = dt(i,j,k)/10.0
 #endif
                   write(0,*)'q',dsp(i,mins(i)),dsq(i,mins(i)),
      & (dsq(i,mins(i))-dsp(i,mins(i)))/(dsq(i,mins(i))+dsp(i,mins(i)))
-                  write(0,*)'p',tgas(i),gamma2(i),eqmask(i),s(i,mins(i))/d(i,j,k)
-                  write(0,*)'r',s(i,iH2I)/d(i,j,k),rejected(i),correctH(i),correctHe(i)
+                  write(0,*)'p',tgas(i),gamma2(i),eqmask(i),
+     & s(i,mins(i))/d(i,j,k)
+                  write(0,*)'r',s(i,iH2I)/d(i,j,k),rejected(i),
+     & correctH(i),correctHe(i)
                   write(0,*)'x',esterr(i)
                   do n = 1, ncspecies
                     write(0,*) 'aa',n,s(i,n)/d(i,j,k),dsq(i,n),dsp(i,n),

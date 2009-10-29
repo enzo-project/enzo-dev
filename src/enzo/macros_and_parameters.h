@@ -214,7 +214,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_FLOAT
+#define ENPY_BFLOAT NPY_FLOAT
 #endif
 #endif
 
@@ -234,7 +234,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_DOUBLE
+#define ENPY_BFLOAT NPY_DOUBLE
 #endif
 #endif
 
@@ -248,6 +248,9 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_FLOAT
 #define HDF5_PREC HDF5_R4
 #define HDF5_FILE_PREC HDF5_FILE_R4
+#ifdef USE_PYTHON
+#define ENPY_PFLOAT NPY_FLOAT
+#endif
 #endif
 
 #ifdef CONFIG_PFLOAT_8
@@ -261,7 +264,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_PREC HDF5_R8
 #define HDF5_FILE_PREC HDF5_R8
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_DOUBLE
+#define ENPY_PFLOAT NPY_DOUBLE
 #endif
 #endif
 
@@ -276,7 +279,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_PREC HDF5_R16
 #define HDF5_FILE_PREC HDF5_R16
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_LONGDOUBLE
+#define ENPY_PFLOAT NPY_LONGDOUBLE
 #endif
 #endif
 
