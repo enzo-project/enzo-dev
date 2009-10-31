@@ -113,6 +113,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData);
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
                  TopGridData &MetaData, ExternalBoundary *Exterior,
                  FLOAT WriteTime = -1);
+
+int Group_WriteAllData(char *basename, int filenumber,
+		 HierarchyEntry *TopGrid, TopGridData &MetaData,
+		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
+         int RestartDump = FALSE);
+
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
                                  int TopGridDims[]);
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
@@ -192,14 +198,14 @@ Eint32 main(Eint32 argc, char *argv[])
   int int_argc;
   int_argc = argc;
  
-  if (MyProcessorNumber == ROOT_PROCESSOR &&
-      ENZO_SVN_REVISION != 0) {
-    printf("=========================\n");
-    printf("Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-    printf("Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
-    printf("=========================\n");
-    fflush(stdout);
-  }
+ //  if (MyProcessorNumber == ROOT_PROCESSOR &&
+//       ENZO_SVN_REVISION != 0) {
+//     printf("=========================\n");
+//     printf("Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
+//     printf("Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
+//     printf("=========================\n");
+//     fflush(stdout);
+//   }
   // Performance Monitoring
 
 #ifdef USE_MPI
@@ -518,7 +524,7 @@ Eint32 main(Eint32 argc, char *argv[])
 	}
       }
     }
-    if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
+    if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
                      &TopGrid, MetaData, &Exterior) == FAIL) {
       fprintf(stderr, "Error in WriteAllData.\n");
       return FAIL;

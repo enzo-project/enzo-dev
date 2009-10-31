@@ -49,6 +49,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
+
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
  
@@ -512,10 +513,10 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 
       int tFields=3;
       if (GridRank==2) tFields=1;
- fprintf(stderr,"Inside 0 \n");
+
 
       for (int field=0; field<=tFields; field++){
- fprintf(stderr,"Inside 1 %d \n", field);
+
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
       if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
@@ -533,17 +534,17 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         DataUnits[field] = "none";
       }
  
-      fprintf(stderr,"Inside 2 %d \n", field);
+    
       fprintf(stderr,  DataLabelN[field]);
 
       WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
-      fprintf(stderr,"Inside 3 %d \n", field);
+    
       WriteStringAttr(dset_id, "Units", "VortUnits", log_fptr);
-      fprintf(stderr,"Inside 4 %d \n", field);
+    
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
-      fprintf(stderr,"Inside 5 %d \n", field);
+    
       WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
-      fprintf(stderr,"Inside 6 %d \n", field);
+    
 
       switch (field) {
       case 0:
@@ -582,7 +583,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       delete div;
     }
 
-    fprintf(stderr,"Outside 10 \n");
+
 
     if (OutputCoolingTime) {
  
@@ -654,7 +655,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       delete [] cooling_time;
  
     } // if (OutputCoolingTime)
-    fprintf(stderr,"Outside 11 \n");
+   
  
     /* Make sure that there is a copy of dark matter field to save
        (and at the right resolution). */
@@ -1063,7 +1064,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   } // end: if (MyProcessorNumber...)
   } // end: if (NumberOfParticles > 0)
 
-  fprintf(stderr,"Outside 11.5 \n");
+ 
  
   /* Close HDF file. */
  
@@ -1071,21 +1072,21 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   {
  
      h5_status = H5Fclose(file_id);
-    fprintf(stderr,"Outside 11.51 %d %d\n", h5_status, h5_error);
+   
      if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
-     fprintf(stderr,"Outside 11.52 \n");
+   
   }
  
   if (MyProcessorNumber == ProcessorNumber)
-  {  fprintf(stderr,"Outside 11.53 \n");
+  {  
     if (io_log) fclose(log_fptr);
-    fprintf(stderr,"Outside 11.54 \n");
+   
   }
  
   /* 4) Save Gravity info. */
 
- fprintf(stderr,"Outside 11.6 \n");
+
  
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -1094,11 +1095,13 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   /* Clean up. */
  
-  fprintf(stderr,"Outside 12 \n");
+  
   delete [] name;
 
-    fprintf(stderr,"Outside 13 \n");
+  
  
   return SUCCESS;
  
 }
+
+

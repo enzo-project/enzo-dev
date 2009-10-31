@@ -268,6 +268,120 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         }
     }
 
+    if (VelAnyl){
+
+      int Vel1Num, Vel2Num, Vel3Num;
+      Vel1Num=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+      Vel2Num=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+      Vel3Num=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+
+      float *curlx; float *curly;
+   
+      if(GridRank==3){
+	curlx = new float [size];
+	curly = new float [size];}
+
+      float *curlz = new float [size];
+      float *div   = new float [size];
+
+      FLOAT dx = CellWidth[0][0],
+	dy = CellWidth[1][0], dz;
+      if (GridRank>2)
+	dz = CellWidth[2][0];
+    
+      /* Copy active part of field into grid */
+      int igrid, igridyp1, igridym1, igridzp1, igridzm1;
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+	    igrid = (k*GridDimension[1] + j)*GridDimension[0] + i;
+	    igridyp1 = (k*GridDimension[1] + j + 1)*GridDimension[0] + i;
+	    igridym1 = (k*GridDimension[1] + j - 1)*GridDimension[0] + i;
+	    igridzp1 = ((k+1)*GridDimension[1]+j)*GridDimension[0] + i;
+	    igridzm1 = ((k-1)*GridDimension[1]+j)*GridDimension[0] + i;
+
+
+
+	    if (GridRank==3){
+	      
+	    div[igrid ] =
+              float(
+		    (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		     0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy +
+		     0.5*(BaryonField[Vel3Num][igridzp1]-BaryonField[Vel3Num][igridzm1])/dz)
+		    );
+	    curlx[igrid ] =
+	      float(
+		    (0.5*(BaryonField[Vel3Num][igridyp1]-BaryonField[Vel3Num][igridym1])/dy -		      
+		     0.5*(BaryonField[Vel2Num][igridzp1]-BaryonField[Vel2Num][igridzm1])/dz)
+		    );
+	    curly[igrid ] =
+	      float(
+		    (0.5*(BaryonField[Vel1Num][igridzp1]-BaryonField[Vel1Num][igridzm1])/dz -		      
+		     0.5*(BaryonField[Vel3Num][igrid+1]-BaryonField[Vel3Num][igrid-1])/dx)
+		    );
+	    curlz[igrid ] =
+	      float(
+		    (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+		     0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		    );
+	    }
+
+	    if (GridRank==2){
+	      
+	    div[igrid ] =
+              float(
+		      (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		       0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy 
+		       ));
+
+
+	     curlz[igrid] =
+	      float(
+		      (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+			  0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		      );
+	    }
+
+	    
+
+	  }
+	}
+      }
+
+
+      if (GridRank==3){
+
+	this->write_dataset(GridRank, OutDims, "Velocity_Div",
+			    group_id, file_type_id, (VOIDP) div, TRUE, temp);
+	this->write_dataset(GridRank, OutDims, "Velocity_Vorticity1",
+			    group_id, file_type_id, (VOIDP) curlx, TRUE, temp);
+	this->write_dataset(GridRank, OutDims, "Velocity_Vorticity2",
+			    group_id, file_type_id, (VOIDP) curly, TRUE, temp);
+	this->write_dataset(GridRank, OutDims, "Velocity_Vorticity3",
+			    group_id, file_type_id, (VOIDP) curlz, TRUE, temp);
+
+      }
+      
+     if (GridRank==2){
+
+	this->write_dataset(GridRank, OutDims, "Velocity_Div",
+			    group_id, file_type_id, (VOIDP) div, TRUE, temp);
+	this->write_dataset(GridRank, OutDims, "Velocity_Vorticity",
+			    group_id, file_type_id, (VOIDP) curlz, TRUE, temp);
+
+      }   
+
+     if(GridRank==3){
+       delete [] curlx;
+       delete [] curly;}
+     delete [] curlz;
+     delete [] div;
+ 
+ 
+    }
+
     /* If this is cosmology, compute the temperature field as well since
        its such a pain to compute after the fact. */
  
