@@ -84,6 +84,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
   printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
+  printf("Star Maker 8: time = %g\n", *t);
+
 
   /* Compute Units. */
   
