@@ -92,15 +92,19 @@ int Star::SetFeedbackFlag(FLOAT Time)
     this->FeedbackFlag = NO_FEEDBACK;
     break;
 
+  case PopIII_CF:
+    if (this->type < 0) this->FeedbackFlag = COLOR_FIELD;
+    else FeedbackFlag = NO_FEEDBACK;
+    break;
+
   /* For MBH particle. Even with the NO_FEEDBACK flag, 
      the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
-
   case MBH:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
     if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
       this->FeedbackFlag = MBH_THERMAL;
     else
-      this->FeedbackFlag = NO_FEEDBACK;
+      this->FeedbackFlag = NO_FEEDBACK; //It could still be a Radiation Source. 
 
 #define NOT_SEDOV_TEST
 #ifdef SEDOV_TEST

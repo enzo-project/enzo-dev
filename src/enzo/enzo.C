@@ -24,12 +24,12 @@
 #include <string.h>
 #include <unistd.h>
  
+#define DEFINE_STORAGE
 #include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
-#define DEFINE_STORAGE
 #include "global_data.h"
 #include "units.h"
 #include "flowdefs.h"
@@ -63,9 +63,9 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid,
 		    TopGridData &MetaData);
 
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		      ExternalBoundary *Exterior, float *Initialdt);
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
@@ -84,6 +84,12 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
+int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
+		    int ProjectStartTemp[], int ProjectEndTemp[], 
+		    FLOAT ProjectStartCoordinate[],
+		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
+		    int ProjectionDimension, char *ProjectionFileName,
+		    int ProjectionSmooth, ExternalBoundary *Exterior);
 int OutputAsParticleData(TopGridData &MetaData,
 			 LevelHierarchyEntry *LevelArray[],
 			 int RegionStart[], int RegionEnd[],
@@ -125,8 +131,8 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
-#ifdef USE_JBPERF
-void jbPerfInitialize (int max_level);
+#ifdef USE_LCAPERF
+void lcaperfInitialize (int max_level);
 #endif
 
 void my_exit(int status);
@@ -154,14 +160,17 @@ Eint32 main(Eint32 argc, char *argv[])
 
   CommunicationInitialize(&argc, &argv);
 
+  //#define DEBUG_MPI
 #ifdef DEBUG_MPI
-  int impi = 0;
-  char hostname[256];
-  gethostname(hostname, sizeof(hostname));
-  printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
-  fflush(stdout);
-  while (impi == 0)
-    sleep(5);
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    int impi = 0;
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    printf("PID %d on %s ready for debugger attach\n", getpid(), hostname);
+    fflush(stdout);
+    while (impi == 0)
+      sleep(5);
+  }
 #endif
   
 
@@ -172,7 +181,7 @@ Eint32 main(Eint32 argc, char *argv[])
       ENZO_SVN_REVISION != 0) {
     printf("=========================\n");
     printf("Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-    printf("Enzo SVN Revision %d\n",ENZO_SVN_REVISION);
+    printf("Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
     printf("=========================\n");
     fflush(stdout);
   }
@@ -184,11 +193,11 @@ Eint32 main(Eint32 argc, char *argv[])
   t_init0 = MPI_Wtime();
 #endif /* USE_MPI */
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-    // Initialize jbPerf performance collecting
+    // Initialize lcaperf performance collecting
 
-  jbPerfInitialize(MaximumRefinementLevel);
+  lcaperfInitialize(MaximumRefinementLevel);
 
 #endif
 
@@ -251,7 +260,7 @@ Eint32 main(Eint32 argc, char *argv[])
   FLOAT RegionStartCoordinates[MAX_DIMENSION],
         RegionEndCoordinates[MAX_DIMENSION];
 
-  float Initialdt              = 0;
+  float Initialdt = 0;
  
 #ifdef FLOW_TRACE
   char pid[MAX_TASK_TAG_SIZE];
@@ -345,14 +354,14 @@ Eint32 main(Eint32 argc, char *argv[])
   // First expect to read in packed-HDF5
 
 #ifdef USE_HDF5_GROUPS
-    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
       }
 #endif
       // If not packed-HDF5, then try usual HDF5 or HDF4
-      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior) == FAIL) {
+      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
 	if (MyProcessorNumber == ROOT_PROCESSOR)
 	  fprintf(stderr, "Error in ReadAllData %s.\n", ParameterFile);
 	my_exit(EXIT_FAILURE);
@@ -415,7 +424,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   // Project 3D field to 2D plane
  
-  if (project) {
+  if (project == 1) {
     if (ProjectToPlane(MetaData, LevelArray, RegionStart, RegionEnd,
 		     RegionStartCoordinates, RegionEndCoordinates,
 		     RegionLevel, ProjectionDimension, "amr.project",
@@ -425,6 +434,25 @@ Eint32 main(Eint32 argc, char *argv[])
       my_exit(EXIT_SUCCESS);
   } 
 
+  int dim, dim1, dim2;
+  char proj_name[100];
+  if (project == 2) {
+    dim1 = (ProjectionDimension == -1) ? 0 : ProjectionDimension;
+    dim2 = (ProjectionDimension == -1) ? 
+      MetaData.TopGridRank : ProjectionDimension+1;
+    for (dim = dim1; dim < dim2; dim++) {
+      sprintf(proj_name, "amr_%c.project", 120+dim);
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
+      if (ProjectToPlane2(MetaData, LevelArray, RegionStart, RegionEnd,
+			  RegionStartCoordinates, RegionEndCoordinates,
+			  RegionLevel, dim, proj_name,
+			  ProjectionSmooth, &Exterior) == FAIL)
+	my_exit(EXIT_FAILURE);
+      else
+	my_exit(EXIT_SUCCESS);
+    } // ENDFOR dim
+  } 
  
   // Normal start: Open and read parameter file
 
@@ -620,6 +648,7 @@ void my_exit(int status)
     fprintf (stderr,"%s:%d %"ISYM" ABORT ON EXIT_FAILURE!\n",
 	     __FILE__,__LINE__,MyProcessorNumber);
 
+    ENZO_FAIL("my_exit has been called.");
     CommunicationAbort(status);
 
   } else {
@@ -627,6 +656,7 @@ void my_exit(int status)
     fprintf (stderr,"%s:%d %"ISYM" ABORT ON UNKNOWN EXIT VALUE %"ISYM"!\n",
 	     __FILE__,__LINE__,MyProcessorNumber,status);
 
+    ENZO_FAIL("my_exit has been called without a known exit value.");
     CommunicationAbort(status);
 
   }

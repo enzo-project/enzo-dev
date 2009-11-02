@@ -77,6 +77,11 @@ class grid
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
 
+  // For restart dumps
+
+  int NumberOfSubgrids;
+  fluxes **SubgridFluxStorage;
+
   // MHD data
   float *divB;
   float *gradPhi[MAX_DIMENSION];
@@ -131,6 +136,8 @@ class grid
 //
   int TimestepsSinceCreation; 	// Not really since creation anymore... 
   				// resets everytime the grid outputs
+
+
 //
 // Friends
 //
@@ -163,8 +170,13 @@ class grid
 
 /* Read grid data from a group file (returns: success/failure) */
 
+#ifndef NEW_GRID_IO
+  int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
+			 int ReadText, int ReadData);
+#else
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
-		      int ReadText = TRUE, int ReadData = TRUE);
+		      int ReadText = TRUE, int ReadData = TRUE, int ReadEverything = FALSE);
+#endif
 
 /* Get field or particle data based on name or integer 
    defined in typedefs.h. Details are in Grid_CreateFieldArray.C. */
@@ -191,7 +203,26 @@ class grid
 
 /* Write grid data to a group file (returns: success/failure) */
 
-   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id);
+#ifndef NEW_GRID_IO
+   int Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id);
+#else
+   int Group_WriteGrid(FILE *main_file_pointer, char *base_name, int grid_id, HDF5_hid_t file_id, int WriteEverything = FALSE);
+#endif
+
+   int WriteAllFluxes(hid_t grid_node);
+   int WriteFluxGroup(hid_t top_group, fluxes *fluxgroup);
+
+   int ReadAllFluxes(hid_t grid_node);
+   int ReadFluxGroup(hid_t top_group, fluxes *fluxgroup);
+
+   int FillFluxesFromStorage(int *ThisNumberOfSubgrids,
+        fluxes ***fluxgroup) {
+        *ThisNumberOfSubgrids = this->NumberOfSubgrids;
+        *fluxgroup = this->SubgridFluxStorage;
+        this->SubgridFluxStorage = NULL;
+        if(ProcessorNumber != MyProcessorNumber) return -1;
+        return 0;
+    }
 
 /* Write grid data to separate files (returns: success/failure) */
 
@@ -225,6 +256,15 @@ class grid
 
    int Group_WriteGridInterpolate(FLOAT WriteTime, FILE *main_file_pointer,
                             char *base_name, int grid_id, HDF5_hid_t file_id);
+
+private:
+   int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
+       hid_t data_type, void *data, int active_only = TRUE,
+       float *temp=NULL);
+   int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+       hid_t data_type, void *read_to, int copy_back_active=FALSE,
+       float *copy_to=NULL, int *active_dims=NULL);
+public:
 
 /* Compute the timestep constraint for this grid
     (for steps #3 and #4) */
@@ -470,10 +510,18 @@ class grid
 		      int XrayUseLookupTable, float XrayLowerCutoffkeV,
 		      float XrayUpperCutoffkeV, char *XrayFileName);
 
+   int ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[], 
+		       FLOAT ProjectedFieldRightEdge[],
+		       int ProjectedFieldDims[], float *ProjectedField[], 
+		       int ProjectionDimension, int ProjectionSmooth,
+		       int NumberOfProjectedFields, int level,
+		       int MetalLinesUseLookupTable, char *MetalLinesFilename);
+
 /* Set the fields to zero under the active region of the specified subgrid. */
 
    int ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero, 
-                                float Value = 1.0, int AllProcessors = FALSE);
+                                float Value = 1.0, int AllProcessors = FALSE,
+				int IncludeGhostZones = FALSE);
 
 /* Convert the grid data to particle data for output. */
 
@@ -533,6 +581,10 @@ class grid
 /* Solve the joint rate and radiative cooling/heating equations  */
 
    int SolveRateAndCoolEquations();
+
+/* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
+
+   int SolveHighDensityPrimordialChemistry();
 
 /* Compute densities of various species for RadiationFieldUpdate. */
 
@@ -653,6 +705,10 @@ class grid
             (gg #3) */
 
    int AddFieldMassToMassFlaggingField();
+
+/* Flag all points where we are forbidding refinement from a color field */
+
+   int FlagCellsToAvoidRefinement();
 
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells
@@ -1224,13 +1280,15 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			       int* &NumberToMove, int StartIndex, 
 			       int EndIndex, particle_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
-			       int CopyDirection);
+			       int CopyDirection,
+			       int IncludeGhostZones = FALSE);
 
   int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
 			   int* &NumberToMove, int StartIndex, 
 			   int EndIndex, star_data* &List, 
 			   bool KeepLocal, bool ParticlesAreLocal,
-			   int CopyDirection);
+			   int CopyDirection,
+			   int IncludeGhostZones = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1297,8 +1355,12 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   int IdentifyPotentialField(int &PotenNum, int &Acce1Num, int &Acce2Num, int &Acce3Num);
 
+  /* Identify colour field */
 
-/* Identify Multi-species fields. */
+  int IdentifyColourFields(int &SNColourNum, int &MetalNum, int &MBHColourNum,
+			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
+
+  /* Identify Multi-species fields. */
 
   int IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum, 
 			    int &HeINum, int &HeIINum, int &HeIIINum,
@@ -1763,7 +1825,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt32 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;
@@ -1771,7 +1833,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt64 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;
@@ -1779,7 +1841,33 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   inline int PointInGrid( Eflt128 *point ){
     for( int i = 0; i < GridRank; i++ ){
       if( ((point[i] >= GridLeftEdge[i]) &&
-	  (point[i] <= GridRightEdge[i])) == FALSE )
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
+  // Check to see if a FLOAT point is in the grid (excluding boundaries)
+  inline int PointInGridNB( Eflt32 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+  inline int PointInGridNB( Eflt64 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+  inline int PointInGridNB( Eflt128 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] > GridLeftEdge[i]) &&
+	  (point[i] < GridRightEdge[i])) == FALSE )
 	return FALSE;
     }
     return TRUE;
@@ -1816,7 +1904,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int RemoveParticle(int ID);
 
-  int AddFeedbackSphere(Star *cstar, int level, float radius, float VelocityUnits, 
+  int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
+			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
@@ -1879,6 +1968,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 //-----------------------------------------------------------------------
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
+  int ComputeMetalLineLuminosity(float *total_luminosity, float *all_emis, 
+				 float *temperature);
 
 
 //------------------------------------------------------------------------
@@ -1923,10 +2014,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				float vxl,  float vxr,
 				float vyl,  float vyr,
 				float pl,   float pr);
-  int RungeKutta2_1stStep(int CycleNumber, fluxes *SubgridFluxes[],
+  int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
-  int RungeKutta2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[],
+  int RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
   int ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions = true);
@@ -1938,7 +2029,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-			       int SetTurbulence, int CloudType, int TurbulenceSeed, int level);
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
+			       int level, int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
 			       FLOAT r_sphere[MAX_SPHERES],
 			       FLOAT rc_sphere[MAX_SPHERES],
@@ -2023,10 +2115,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			    FLOAT DiskRadius,
 			    FLOAT DiskHeight, 
 			    int UseGas, int level);
-  int MHDRK2_1stStep(int CycleNumber, fluxes *SubgridFluxes[], 
+  int MHDRK2_1stStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
-  int MHDRK2_2ndStep(int CycleNumber, fluxes *SubgridFluxes[], 
+  int MHDRK2_2ndStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
   int MHD3D(float **Prim, float **dU, float dt,

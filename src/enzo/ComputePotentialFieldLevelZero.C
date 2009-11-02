@@ -277,7 +277,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
   float coef = GravitationalConstant/a;
 
   //  for (int dim = 0; dim < MetaData->TopGridRank; dim++)
-  //    coef *= (DomainRightEdge[dim] - DomainLeftEdge[dim])/float(DomainDim[dim]);
+  //     coef *= (DomainRightEdge[dim] - DomainLeftEdge[dim])/float(DomainDim[dim]);
 			
   /* Multiply density by Green's function to get potential. */
  

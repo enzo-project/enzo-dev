@@ -29,11 +29,13 @@ int grid::MultiSpeciesHandler()
   if ((!MultiSpecies) && (!RadiativeCooling)) return SUCCESS; 
   if (GadgetEquilibriumCooling != 0) return SUCCESS;
 
-  JBPERF_START("grid_MultiSpeciesHandler");
+  LCAPERF_START("grid_MultiSpeciesHandler");
 
-  if (MultiSpecies && RadiativeCooling && 
-      (MetalCooling != CLOUDY_METAL_COOLING)) {
-	  this->SolveRateAndCoolEquations();
+  if (MultiSpecies && RadiativeCooling ) {
+      if((MultiSpecies == 3) && (PrimordialChemistrySolver == 1))
+        this->SolveHighDensityPrimordialChemistry();
+      else
+	    this->SolveRateAndCoolEquations();
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();
@@ -44,6 +46,6 @@ int grid::MultiSpeciesHandler()
   if (ProblemType == 62)
     this->CoolingTestResetEnergies();
 
-  JBPERF_STOP("grid_MultiSpeciesHandler");
+  LCAPERF_STOP("grid_MultiSpeciesHandler");
   return SUCCESS;
 }

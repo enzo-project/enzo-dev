@@ -35,7 +35,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[],
 {
     float dtGrid, dtActual, dtLimit;
     int grid1;
-    JBPERF_START("SetLevelTimeStep"); // SetTimeStep()
+    LCAPERF_START("SetLevelTimeStep"); // SetTimeStep()
 
     if (level == 0) {
  
@@ -90,5 +90,5 @@ int SetLevelTimeStep(HierarchyEntry *Grids[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->SetTimeStep(*dtThisLevel);
  
-    JBPERF_STOP("SetLevelTimeStep"); // SetTimeStep()
+    LCAPERF_STOP("SetLevelTimeStep"); // SetTimeStep()
 }

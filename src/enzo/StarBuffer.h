@@ -20,6 +20,7 @@ struct StarBuffer {
   float		delta_vel[MAX_DIMENSION];
   int		naccretions;
   float		accretion_rate[MAX_ACCR];
+  float         last_accretion_rate;
   FLOAT	accretion_time[MAX_ACCR];
   float		Mass;
   float		FinalMass;

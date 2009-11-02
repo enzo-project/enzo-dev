@@ -40,6 +40,9 @@ grid::grid()
   GravitatingMassFieldParticlesCellSize = FLOAT_UNDEFINED;
   SubgridsAreStatic                     = FALSE;
   ProcessorNumber                       = ROOT_PROCESSOR;
+
+  SubgridFluxStorage = new fluxes* [1];
+  NumberOfSubgrids = 1;
  
   /* clear MAX_DIMENSION vectors */
  
@@ -140,6 +143,8 @@ grid::grid()
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
+  MaximumkphIfront                = 0;
+  IndexOfMaximumkph               = INT_UNDEFINED;
 #endif
 
   /* Star particles */

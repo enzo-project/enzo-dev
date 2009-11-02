@@ -98,8 +98,8 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
-MACH_OPT_AGGRESSIVE  = -O3
+MACH_OPT_HIGH        = -O2 -g
+MACH_OPT_AGGRESSIVE  = -O3 -g
 
 #-----------------------------------------------------------------------
 # Includes
@@ -115,7 +115,6 @@ MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 
 #-----------------------------------------------------------------------
 # Libraries

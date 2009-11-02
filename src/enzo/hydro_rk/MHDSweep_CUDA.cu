@@ -236,7 +236,6 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
 
   cudaEventRecord(stop, 0);
   cudaEventSynchronize(stop);
-
   cudaEventElapsedTime(&elapsedTime, start, stop);
   if (PRINT_CUDA_TIMING) fprintf(stderr, "alloc space on device took:  %g \n" , elapsedTime/1e3);
 
@@ -359,6 +358,9 @@ int MHDTimeUpdate_CUDA(float **Prim, int GridDimension[], int GridStartIndex[], 
   for (int j=30; j < 33; j++) 
     for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
 #endif
+
+cudaEventDestroy( start ); 
+cudaEventDestroy( stop ); 
 
   return SUCCESS;
 
@@ -963,7 +965,7 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
   Flux[tx*NEQ_MHD+iBz  ] = 0.5*(Fl_Bz+Fr_Bz-lp_l*(Ur_Bz-Ul_Bz));
 
   Flux[tx*NEQ_MHD+iBx  ] += Ul_Phi + 0.5*(Ur_Phi-Ul_Phi) - 0.5*C_h*(Ur_Bx-Ul_Bx);
-  Flux[tx*NEQ_MHD+iPhi ] = Ul_Bx + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
+  Flux[tx*NEQ_MHD+iPhi ] =  Ul_Bx  + 0.5*(Ur_Bx-Ul_Bx) - 0.5/C_h*(Ur_Phi-Ul_Phi);
   Flux[tx*NEQ_MHD+iPhi ] *= (C_h*C_h);
 
 }

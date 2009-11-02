@@ -25,18 +25,18 @@
  
 /* function prototypes */
  
-extern "C" void FORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
+extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch);
+			int *imatch1, int *imatch2);
  
  
 int grid::DepositMustRefineParticles(int pmethod, int level)
 {
   /* declarations */
  
-  int i, dim, ParticleTypeToMatch, size = 1;
+  int i, dim, size = 1, ParticleTypeToMatch1, ParticleTypeToMatch2;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
  
   /* error check */
@@ -52,7 +52,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
     LeftEdge[dim] = CellLeftEdge[dim][0];
     size *= GridDimension[dim];
   }
-  ParticleTypeToMatch = PARTICLE_TYPE_MUST_REFINE;
+
   CellSize = float(CellWidth[0][0]);
 
   /* Temporarily set the flagging field, then we will increase the
@@ -64,12 +64,15 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
 
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
+
+  ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
+  ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
  
-  FORTRAN_NAME(cic_flag)(
+  PFORTRAN_NAME(cic_flag)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-	   &CellSize, &ParticleTypeToMatch);
+	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2);
 
   /* Increase particle mass flagging field for definite refinement */
 

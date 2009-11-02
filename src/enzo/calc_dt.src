@@ -1,4 +1,3 @@
-#include "fortran.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE CALC_DT  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -7,6 +6,8 @@ c
      &                   i1, i2, j1, j2, k1, k2, ihydro, C2,
      &                   dx, dy, dz, vgx, vgy, vgz, gamma, ipfree, aye,
      &                   d, p, u, v, w, dt, dtviscous)
+#ifndef CONFIG_PFLOAT_16
+#include "fortran.def"
 c
 c  COMPUTES TIME STEP FOR NEXT CYCLE
 c
@@ -143,8 +144,12 @@ c
      &                    dz(k)*aye/(cs + abs(w(i,j,k)-vgz)))
                   endif
                   dt = min(dt, dt1)
-!                  if (dt1 .lt. 1.0e-5) write(6,1000) dt1,d(i,j,k),
-!    &                  p(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k)
+C                   if (dt1 .lt. 1.0e-5) then
+C                      write(6,*) d(i-1,j,k), d(i+1,j,k), d(i,j-1,k),
+C      $                    d(i,j+1,k), d(i,j,k-1), d(i,j,k+1)
+C                      write(6,1000) dt1,d(i,j,k),
+C      &                    p(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k)
+C                   end if
  1000             format('calc_dt (small dt): dt,d,p,uvw=',1p,6e12.3)
                enddo
 c
@@ -162,4 +167,5 @@ c
       endif
 c
       return
+#endif
       end

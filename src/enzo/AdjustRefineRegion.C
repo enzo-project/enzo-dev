@@ -62,7 +62,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 	fprintf(stderr, "Error in grid::FindMinimumParticleMass.\n");
 	ENZO_FAIL("");
       }
-  CommunicationMinValue(MinParticleMass);
+  MinParticleMass = CommunicationMinValue(MinParticleMass);
 
   /* 
      Now we look for the bounding box that contains ONLY these high

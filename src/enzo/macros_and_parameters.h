@@ -24,14 +24,6 @@
 #endif
 #endif
 
-#include "message.h"
-
-#ifdef CONFIG_THROW_ABORT
-#define ENZO_FAIL(A) raise(SIGABRT);
-#else
-#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
-#endif
-
 /* Modifiable Parameters */
 
 #define MAX_NUMBER_OF_TASKS             16384
@@ -44,7 +36,7 @@
 
 #define MAX_NUMBER_OF_SUBGRIDS               __max_subgrids
 
-#define MAX_DEPTH_OF_HIERARCHY             40
+#define MAX_DEPTH_OF_HIERARCHY             50
 
 #define MAX_LINE_LENGTH                   512
 
@@ -67,11 +59,11 @@
 
 #define GRAVITY_BUFFER_SIZE                 3
 
-#define MAX_FLAGGING_METHODS                7
+#define MAX_FLAGGING_METHODS                9
 
 #define MAX_STATIC_REGIONS               1000
 
-#ifdef WINDS
+#ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
 #else
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  3
@@ -95,6 +87,20 @@
 
 #define MAX_DIMENSION                       3  /* must be 3! */
 
+#include "message.h"
+
+/* We have two possibilities for throwing an exception.
+   You can throw ENZO_FAIL, which takes no arguments and is safe to use with a
+   semicolon, or you can throw ENZO_VFAIL which must NOT have a semicolon and
+   comes enclosed in brackets.  You can supply format strings to ENZO_VFAIL.  */
+#ifdef CONFIG_THROW_ABORT
+#define ENZO_FAIL(A) raise(SIGABRT);
+#define ENZO_VFAIL(A, ...) raise(SIGABRT);
+#else
+#define ENZO_FAIL(A) throw(EnzoFatalException(A, __FILE__, __LINE__));
+#define ENZO_VFAIL(format, ...) {snprintf(current_error, 254, format, ##__VA_ARGS__); throw(EnzoFatalException(current_error, __FILE__, __LINE__));}
+#endif
+
 /* Fortran name generator (cpp blues) */
 
 #if defined(SUN_OLD)
@@ -107,6 +113,12 @@
 
 #if defined(SPP) || defined(SP2) || defined(BGL)
 #define FORTRAN_NAME(NAME) NAME
+#endif
+
+#ifdef CONFIG_PFLOAT_16
+#define PFORTRAN_NAME(NAME) NAME##_c
+#else
+#define PFORTRAN_NAME(NAME) FORTRAN_NAME(NAME)
 #endif
 
 /* Precision-related definitions. */
@@ -172,6 +184,7 @@ typedef int            HDF5_hid_t;
 #define nint(A) ( (int) ((A) + 0.5*sign(A)) )
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) abs((int) (A))
+#define ENPY_INT NPY_INT
 #endif
 
 #ifdef LARGE_INTS
@@ -185,6 +198,7 @@ typedef int            HDF5_hid_t;
 #define nint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) labs((long_int) (A))
+#define ENPY_INT NPY_LONG
 #endif
 
 #ifdef CONFIG_BFLOAT_4
@@ -200,7 +214,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_FLOAT
+#define ENPY_BFLOAT NPY_FLOAT
 #endif
 #endif
 
@@ -220,12 +234,13 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_REAL HDF5_FILE_R8
 #endif
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_DOUBLE
+#define ENPY_BFLOAT NPY_DOUBLE
 #endif
 #endif
 
 #ifdef CONFIG_PFLOAT_4
 #define FLOAT Eflt32
+#define PEXP expf
 #define PSYM "f"
 #define GSYM "g"
 #define GOUTSYM ".8g"
@@ -233,33 +248,38 @@ typedef int            HDF5_hid_t;
 #define FLOATDataType MPI_FLOAT
 #define HDF5_PREC HDF5_R4
 #define HDF5_FILE_PREC HDF5_FILE_R4
+#ifdef USE_PYTHON
+#define ENPY_PFLOAT NPY_FLOAT
+#endif
 #endif
 
 #ifdef CONFIG_PFLOAT_8
 #define FLOAT double
+#define PEXP exp
 #define PSYM "lf"
 #define GSYM "g"
 #define GOUTSYM ".14g"
 #define MY_MPIFLOAT MPI_DOUBLE
 #define FLOATDataType MPI_DOUBLE
 #define HDF5_PREC HDF5_R8
-#define HDF5_FILE_PREC HDF5_FILE_R8
+#define HDF5_FILE_PREC HDF5_R8
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_DOUBLE
+#define ENPY_PFLOAT NPY_DOUBLE
 #endif
 #endif
 
 #ifdef CONFIG_PFLOAT_16
 #define FLOAT long_double
+#define PEXP expl
 #define PSYM "Lf"
 #define GSYM "g"
 #define GOUTSYM ".21Lg"
 #define MY_MPIFLOAT MPI_LONG_DOUBLE
 #define FLOATDataType MPI_LONG_DOUBLE
 #define HDF5_PREC HDF5_R16
-#define HDF5_FILE_PREC HDF5_FILE_R16
+#define HDF5_FILE_PREC HDF5_R16
 #ifdef USE_PYTHON
-#define ENPY_FLOAT NPY_LONGDOUBLE
+#define ENPY_PFLOAT NPY_LONGDOUBLE
 #endif
 #endif
 
@@ -409,6 +429,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_BLACK_HOLE   6
 #define PARTICLE_TYPE_CLUSTER      7
 #define PARTICLE_TYPE_MBH          8
+#define PARTICLE_TYPE_COLOR_STAR   9
 
 /* Star particle handling */
 
@@ -421,6 +442,7 @@ typedef int            HDF5_hid_t;
 #define INSTANT_STAR    7
 #define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9
+#define COLORED_POP3_STAR  10
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 
@@ -435,6 +457,8 @@ typedef int            HDF5_hid_t;
 #define STROEMGREN 5
 #define DEATH 6
 #define MBH_THERMAL 7
+#define MBH_RADIATIVE 8
+#define COLOR_FIELD 9
 
 /* Sink particle accretion modes */
 

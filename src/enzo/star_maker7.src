@@ -276,7 +276,7 @@ c
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, justburn)
+     &                      mp, tdp, tcp, metalf, type, justburn)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -344,6 +344,7 @@ c
       REALSUB xp(npart), yp(npart), zp(npart)
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      integer type(npart)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -359,7 +360,7 @@ c     Loop over particles
 c
 c      write(6,*) 'star_feedback7: start'
       do n=1, npart
-         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0) then
+         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
 
 

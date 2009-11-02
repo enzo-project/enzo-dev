@@ -14,9 +14,10 @@
 
 /* Photons: Computes photon timestep */
 
-//   float ComputePhotonTimestep(void);
-   float ComputeRT_TimeStep(void);
-   float ComputeRT_TimeStep2(void);
+   float ComputePhotonTimestep(void);
+   float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
+				  float VelocityUnits, float aye, 
+				  float Ifront_kph);
 
 /* Photons: return number of PhotonPackages. */
 
@@ -99,18 +100,82 @@ void ResetPhotonPackagePointer(void) {
 
 int MoveFinishedPhotonsBack(void) {
 
-  if (FinishedPhotonPackages != NULL) {
-    if (FinishedPhotonPackages->NextPackage != NULL)
-      FinishedPhotonPackages->NextPackage->PreviousPackage = PhotonPackages;
-    PhotonPackages->NextPackage = FinishedPhotonPackages->NextPackage;
+  PhotonPackageEntry *FPP = FinishedPhotonPackages->NextPackage;
 
-    FinishedPhotonPackages->PreviousPackage = NULL;
-    FinishedPhotonPackages->NextPackage = NULL;
+  if (FPP != NULL) {
+
+    // Find the end of the PhotonPackages list
+    PhotonPackageEntry *PP = PhotonPackages;
+    while (PP->NextPackage != NULL)
+      PP = PP->NextPackage;
+
+    FPP->PreviousPackage = PP;
+    PP->NextPackage = FPP;
+
   }
+
+  FinishedPhotonPackages->PreviousPackage = NULL;
+  FinishedPhotonPackages->NextPackage = NULL;
 
   return SUCCESS;
 }
 
+/************************************************************************
+   UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
+************************************************************************/
+
+#ifdef UNUSED
+int ErrorCheckPhotonNumber(int level) {
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+  int count = 0, fcount = 0;
+  PhotonPackageEntry *PP;
+  for (PP = PhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    count++;
+  for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    fcount++;
+  if (count+fcount != NumberOfPhotonPackages) {
+    printf("level %"ISYM", grid %"ISYM" (%x)\n", level, this->ID, this);
+    printf("-> Mismatch between photon count (%"ISYM", %"ISYM") and "
+	   "NumberOfPhotonPackages (%"ISYM")\n", 
+	   count, fcount, NumberOfPhotonPackages);
+    return FAIL;
+  }
+  return SUCCESS;
+}
+
+int ReturnFinishedPhotonCount(void) {
+  int result = 0;
+  if (MyProcessorNumber != ProcessorNumber)
+    return result;
+  PhotonPackageEntry *PP = FinishedPhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  return result;
+}
+
+int ReturnRealPhotonCount(void) {
+  int result = 0;
+  if (MyProcessorNumber != ProcessorNumber)
+    return result;
+  PhotonPackageEntry *PP = PhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  PP = FinishedPhotonPackages->NextPackage;
+  while (PP != NULL) {
+    result++;
+    PP = PP->NextPackage;
+  }
+  return result;
+}
+#endif /* UNUSED */
+/************************************************************************
+   END -- UNUSED FUNCTIONS
+************************************************************************/
 
 int CountPhotonNumber(void) {
 
@@ -177,11 +242,50 @@ float Max_kph(int &ncells) {
     size *= GridDimension[dim];
   for (i = 0; i < size; i++) {
     if (BaryonField[kphHINum][i] > 0) ncells++;
-    max_kph = max(max_kph, BaryonField[kdissH2INum][i]);
+    max_kph = max(max_kph, BaryonField[kphHINum][i]);
   }
 
   return max_kph;
 
+};
+
+float Min_kph(int &ncells) {
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return 0;
+
+  int i, dim, size = 1;
+  float min_kph = 1e20;
+
+  ncells = 0;
+
+  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
+    kdissH2INum;
+  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
+				      gammaHeINum, kphHeIINum, gammaHeIINum, 
+				      kdissH2INum) == FAIL) {
+    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
+    return 0;
+  }
+  
+  for (dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  for (i = 0; i < size; i++) {
+    if (BaryonField[kphHINum][i] > 0) {
+      ncells++;
+      min_kph = min(min_kph, BaryonField[kphHINum][i]);
+    }
+  }
+
+  return min_kph;
+
+};
+
+float ReturnMaximumkphIfront(void) { 
+  if (MyProcessorNumber == ProcessorNumber)
+    return MaximumkphIfront;
+  else
+    return 0;
 };
 
 /* Compares min/max radiation field to estimate if there is an
@@ -196,61 +300,72 @@ int MergePausedPhotonPackages(void);
 
 /* Trace a line thorugh the grid */
 
-   int TraceRay(int NumberOfSegments,
-		FLOAT r,
-		FLOAT x, FLOAT y, FLOAT z,
-		FLOAT ux, FLOAT uy, FLOAT uz,
-		FLOAT dr[],
-		long cindex[], int ci[], int cj[], int ck[]);
+int TraceRay(int NumberOfSegments,
+	     FLOAT r,
+	     FLOAT x, FLOAT y, FLOAT z,
+	     FLOAT ux, FLOAT uy, FLOAT uz,
+	     FLOAT dr[],
+	     long cindex[], int ci[], int cj[], int ck[]);
 
 /* Walk Photon Package one by one */ 
 
-   int WalkPhotonPackage(PhotonPackageEntry **PP, 
-			 grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
-			 grid **Grids0, int nGrids0,
-			 int DensNum, int HINum, int HeINum,
-			 int HeIINum, int H2INum,
-			 int kphHINum, int gammaHINum,
-			 int kphHeINum, int gammaHeINum,
-			 int kphHeIINum, int gammaHeIINum,
-			 int kdissH2INum, int RPresNum1, int RPresNum2, 
-			 int RPresNum3, int &DeleteMe, int &PauseMe,
-			 int &DeltaLevel, float DensityUnits, 
-			 float TemperatureUnits, float VelocityUnits, 
-			 float LengthUnits, float TimeUnits);
+int WalkPhotonPackage(PhotonPackageEntry **PP, 
+		      grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
+		      grid **Grids0, int nGrids0,
+		      int DensNum, int HINum, int HeINum,
+		      int HeIINum, int H2INum,
+		      int kphHINum, int gammaHINum,
+		      int kphHeINum, int gammaHeINum,
+		      int kphHeIINum, int gammaHeIINum,
+		      int kdissH2INum, int RPresNum1, int RPresNum2, 
+		      int RPresNum3, int &DeleteMe, int &PauseMe,
+		      int &DeltaLevel, float LightCrossingTime,
+		      float DensityUnits, 
+		      float TemperatureUnits, float VelocityUnits, 
+		      float LengthUnits, float TimeUnits);
+
+int FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r, 
+		      const FLOAT *u, PhotonPackageEntry* &PP,
+		      grid* &MoveToGrid, int &DeltaLevel,
+		      const float *DomainWidth, int &DeleteMe,
+		      grid *ParentGrid);
 
 /* Create PhotonPackages for a given radiation sources   */
 
-   int Shine(RadiationSourceEntry *RadiationSource);
+int Shine(RadiationSourceEntry *RadiationSource);
 
 /* PhotonTest: Initialize grid allowing for up to ten sources  */
 
 #define MAX_SPHERES 10
-   int PhotonTestInitializeGrid(int NumberOfSpheres,
-				float SphereRadius[MAX_SPHERES],
-				float SphereCoreRadius[MAX_SPHERES],
-				float SphereDensity[MAX_SPHERES],
-				float SphereTemperature[MAX_SPHERES],
-				FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
-				float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-                                float SphereFracKeplarianRot[MAX_SPHERES],
-                                float SphereTurbulence[MAX_SPHERES],
-                                float SphereCutOff[MAX_SPHERES],
-                                float SphereAng1[MAX_SPHERES],
-                                float SphereAng2[MAX_SPHERES],
-                                int   SphereNumShells[MAX_SPHERES],
-				int   SphereType[MAX_SPHERES],
-				int   SphereUseParticles,
-				float UniformVelocity[MAX_DIMENSION],
-				int   SphereUseColour,
-				float InitialTemperature, int level, 
-				float PhotonTestInitialFractionHII, 
-				float PhotonTestInitialFractionHeII,
-				float PhotonTestInitialFractionHeIII, 
-				float PhotonTestInitialFractionHM,
-				float PhotonTestInitialFractionH2I, 
-				float PhotonTestInitialFractionH2II,
-				int RefineByOpticalDepth);
+int PhotonTestInitializeGrid(int NumberOfSpheres,
+			     float SphereRadius[MAX_SPHERES],
+			     float SphereCoreRadius[MAX_SPHERES],
+			     float SphereDensity[MAX_SPHERES],
+			     float SphereTemperature[MAX_SPHERES],
+			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereFracKeplarianRot[MAX_SPHERES],
+			     float SphereTurbulence[MAX_SPHERES],
+			     float SphereCutOff[MAX_SPHERES],
+			     float SphereAng1[MAX_SPHERES],
+			     float SphereAng2[MAX_SPHERES],
+			     int   SphereNumShells[MAX_SPHERES],
+			     int   SphereType[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
+			     int   SphereUseParticles,
+			     float UniformVelocity[MAX_DIMENSION],
+			     int   SphereUseColour,
+			     float InitialTemperature, int level, 
+			     float PhotonTestInitialFractionHII, 
+			     float PhotonTestInitialFractionHeII,
+			     float PhotonTestInitialFractionHeIII, 
+			     float PhotonTestInitialFractionHM,
+			     float PhotonTestInitialFractionH2I, 
+			     float PhotonTestInitialFractionH2II,
+			     int RefineByOpticalDepth);
 
 /************************************************************************/
 

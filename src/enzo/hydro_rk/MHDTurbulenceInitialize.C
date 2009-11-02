@@ -61,7 +61,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = TRUE;
   int RandomSeed = 1;
-  FLOAT rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
+  float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
 
   /* read input from file */
   rewind(fptr);
@@ -71,21 +71,24 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
+    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
     ret += sscanf(line, "Density = %"FSYM, &rho_medium);
     ret += sscanf(line, "SoundVelocity = %"FSYM, &cs);
     ret += sscanf(line, "MachNumber = %"FSYM, &mach);
     ret += sscanf(line, "InitialBfield = %"FSYM, &Bnaught);
-    ret += sscanf(line, "RandomSeed = %d", &RandomSeed);
+    ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
 
   } // end input from parameter file
 
-  printf("rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
+  /* Convert to code units */
+  
+  printf(" RAW:  rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
 
   
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
-  GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
+  if (UsePhysicalUnit) 
+    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, MetaData.Time);
   presu = rhou*lenu*lenu/tu/tu;
   bfieldu = sqrt(presu*4.0*M_PI);
     
@@ -115,7 +118,8 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     // Compute Normalization
     double v_rms  = 0;
     double Volume = 0;
-    
+    Eflt fac = 1;    
+
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
       if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
@@ -132,28 +136,20 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 #endif
     fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
     // Carry out the Normalization
-    Eflt fac;
+    
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
+
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
       if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
-	fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
+	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
 	return FAIL;
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
     }
- 
   
-  /*   } else { // only one grid:
-       if (TopGrid.GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
-       Bnaught, RandomSeed, 0, SetBaryonFields) == FAIL) {
-       fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
-       return FAIL;
-       }
-       //  }
-       */
-
+  
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
 
@@ -189,7 +185,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, mach, 
+	if (Temp->GridData->MHDTurbulenceInitializeGrid(rho_medium, cs, fac, 
 							Bnaught, RandomSeed, level, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in MHDTurbulenceInitializeGrid.\n");
 	  return FAIL;

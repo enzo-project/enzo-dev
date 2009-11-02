@@ -257,8 +257,33 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
 
 
+  // If DualEnergyFormalism is turned off, subtract v and b from Etotal to get Eint
+
+  int iden, ivx, ivy, ivz, ietot, ieint, iBx, iBy, iBz;
+  if (isShearing){
+
+    iden=FindField(Density, FieldType, NumberOfBaryonFields);
+    ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+    ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+    ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+    ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
+    if (DualEnergyFormalism) ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
+    
+    if (useMHD){
+      iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+      iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+      if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
+      }
+  }
+    
+
+
+//   PrintToScreenBoundaries(BaryonField[ieint], "Eint before a copy");
+//   PrintToScreenBoundaries(BaryonField[ietot], "Etot before a copy");
+
   /* Copy zones */
 
+ 
 
   int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
@@ -278,28 +303,44 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	    BaryonField[field][thisindex] = OtherGrid->BaryonField[field][otherindex];
 	  }
 	  else {
-	   
-	    val1=OtherGrid->BaryonField[field][otherindex];//This guaranteed to be in the active zone of the other grid
-	    val2=OtherGrid->BaryonField[field][otherindex+ addDim[ShearingVelocityDirection]];
-	    BaryonField[field][thisindex] = (float) (b*val1+a*val2);
-
-	  //   if ( BaryonField[field][thisindex]<0.0 && field==0)
-// 	      printf("# (%d, %d %d) Start: %d %d %d, End %d %d %d, StartOther %d %d %d, a b %"GOUTSYM" %"GOUTSYM", vals %"GOUTSYM" %"GOUTSYM", %"GOUTSYM", %g %g %g, %g, (upper term %g)    \n", 
-// 		     MyProcessorNumber, ProcessorNumber, OtherGrid->ProcessorNumber,
-// 		     Start[0], Start[1], Start[2], End[0], End[1], End[2], StartOther[0], StartOther[1], StartOther[2],
-// 		     a, b, val1, val2,  BaryonField[field][thisindex],
-// 		     CellLeftEdge[ShearingVelocityDirection][Start[ShearingVelocityDirection]],
-// 		     EdgeOffset[ShearingVelocityDirection],
-// 		     OtherGrid->CellLeftEdge[ShearingVelocityDirection][StartOther[ShearingVelocityDirection]],
-// 		     CellWidth[ShearingVelocityDirection][Start[ShearingVelocityDirection]],
-// 		     (CellLeftEdge[ShearingVelocityDirection][Start[ShearingVelocityDirection]] + 
-// 		      EdgeOffset[ShearingVelocityDirection]-
-// 		      OtherGrid->CellLeftEdge[ShearingVelocityDirection][StartOther[ShearingVelocityDirection]])
-// 		     );
+	    int otherindexB=otherindex+ addDim[ShearingVelocityDirection];
 	    
+	    val1=OtherGrid->BaryonField[field][otherindex];
+	    val2=OtherGrid->BaryonField[field][otherindexB];
+	    
+	    if (DualEnergyFormalism==0 && FieldType[field]==TotalEnergy) {
+	      for (int loop=0; loop<=1; loop++){
+		int iLoop=otherindex;
+		if (loop==1) iLoop= otherindexB;
 
+		float vx, vy, vz, v2, rho;
+		v2=0.0;
+		rho= OtherGrid->BaryonField[iden][iLoop];
+		vx= OtherGrid->BaryonField[ivx][iLoop];
+		vy= OtherGrid->BaryonField[ivy][iLoop];  
+		if (GridRank==3) vz=OtherGrid->BaryonField[ivz][iLoop];  
+		else vz=0.0;
+		v2=vx*vx+vy*vy+vz*vz;
+		
+		float bx, by, bz, b2;
+		b2=0.0;
+		if (useMHD) {
+		  bx= OtherGrid->BaryonField[iBx][iLoop];
+		  by= OtherGrid->BaryonField[iBy][iLoop];  
+		  if (GridRank==3) bz= OtherGrid->BaryonField[iBz][iLoop];  
+		  else
+		    bz=0.0;
+		  b2=bx*bx+by*by+bz*bz;
+		}
+		
+		if (loop==0) val1=val1- 0.5*v2 - 0.5*b2/rho;
+		else if (loop==1) val2=val2- 0.5*v2 - 0.5*b2/rho;
 
-
+	
+	      }  
+	    }
+	    
+	    BaryonField[field][thisindex] = (float) (b*val1+a*val2);
 		     
 
 	    if (FieldType[field]==velocityTypes[ShearingVelocityDirection]){ 
@@ -308,49 +349,26 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      }
 	      else if (shiftPos){
 		BaryonField[field][thisindex] +=delta;
-	      }
+	      }}}}}
 	      
-	    }
-	  }
 
-
-	}}
  
   //Update the energys due to sheared boundaries
 
 
-  //  PrintToScreenBoundaries(BaryonField[3], "Vz After\n");
-  
- 
-   
+	
+
+
+  //Update the energys due to sheared boundaries
   if (isShearing){
-
-    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
-    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
-    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
-    int ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
-    int ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
     
-    int iBx, iBy, iBz;
-    if (useMHD){
-      iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
-      iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
-      if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
-      
-    }
-    
- 
- 
-
     for (int k = 0; k < Dim[2]; k++)
       for (int j = 0; j < Dim[1]; j++) {
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
 	  (k + Start[2])*GridDimension[0]*GridDimension[1];
 	for (int i = 0; i < Dim[0]; i++, thisindex++){
+	  float vx, vy, vz, v2, rho, bx, by, bz, b2;
 	  rho= BaryonField[iden][thisindex];  
-	  
-	    
 	  vx= BaryonField[ivx][thisindex];
 	  vy= BaryonField[ivy][thisindex];  
 	  if (GridRank==3) vz=BaryonField[ivz][thisindex];  
@@ -367,11 +385,20 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	    b2=bx*bx+by*by+bz*bz;
 	  }
 	  
-	  BaryonField[ietot][thisindex] = BaryonField[ieint][thisindex]  + 0.5*v2 +0.5*b2/rho;
+
+
+	  if  (DualEnergyFormalism==0){
+	   
+		BaryonField[ietot][thisindex] = BaryonField[ietot][thisindex] + 0.5*v2 +0.5*b2/rho;
+	  }
+	  else{
+	
+		BaryonField[ietot][thisindex] = BaryonField[ieint][thisindex] + 0.5*v2 +0.5*b2/rho;
+	  }
 	  
 	}}}
  
-
+  
 
   /* Clean up if we have transfered data. */
   
@@ -381,8 +408,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
  
   this->DebugCheck("CopyZonesFromGrid (after)");
-  
-  //  PrintToScreenBoundaries(BaryonField[0], "Density after a copy");
+ //  PrintToScreenBoundaries(BaryonField[ieint], "Eint after a copy");
+//   PrintToScreenBoundaries(BaryonField[ietot], "Etot after a copy");
   //  printf("***Labels copy %d \n", FieldType[ivy]);
 
    

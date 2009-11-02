@@ -27,6 +27,7 @@
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
 
 int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 			   TopGridData *MetaData, Star *&AllStars)
@@ -35,9 +36,10 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   /* Return if this does not concern us */
   if (!(StarParticleCreation || StarParticleFeedback)) return SUCCESS;
 
-  int level;
+  int level, grids;
   Star *cstar;
   LevelHierarchyEntry *Temp;
+  grid *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
   FLOAT TimeNow = LevelArray[ThisLevel]->GridData->ReturnTime();
 
   /* Initialize all star particles if this is a restart */
@@ -46,26 +48,22 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->FindAllStarParticles(level) == FAIL) {
-	  fprintf(stderr, "Error in grid::FindAllStarParticles.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in grid::FindAllStarParticles.");
 	}
 
   /* Create a master list of all star particles */
 
   if (StarParticleFindAll(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleFindAll.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleFindAll.");
   }
 
   /* Merge any newly created, clustered particles */
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeNew.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleMergeNew.");
   }
 
-  /* Merge MBH particles that are close enough.  
-     This might slow things down for John's run... so I should find smarter way.  - Ji-hoon Kim */
+  /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
 
   if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
     fprintf(stderr, "Error in StarParticleMergeMBH.\n");

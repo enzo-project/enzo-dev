@@ -41,7 +41,9 @@ EXTERN int PreviousMaxTask;
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
 EXTERN int FileDirectedOutput;
-
+/* This governs whether or not we'll be writing out a supplemental binary
+   hierarchy file in HDF5. */
+EXTERN int WriteBinaryHierarchy;
 
 /* debugging, extraction flags */
 
@@ -65,6 +67,7 @@ EXTERN int extract;
 	    51 = ThermalPancake test
 	    60 = TurbulenceSimulation
 	                                                                  */
+EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:
@@ -105,6 +108,7 @@ EXTERN int MaximumParticleRefinementLevel;
                           7 = FlagCellsToBeRefinedByCoolingTime
                           8 = FlagCellsToBeRefinedByMustRefineParticles
                           9 = FlagCellsToBeRefinedByShear
+			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
  */
@@ -288,6 +292,8 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int PrimordialChemistrySolver;
+EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
 
 /* Glover chemistry/cooling network flags */
@@ -359,6 +365,14 @@ EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
 EXTERN int NumberOfRootGridTilesPerDimensionPerProcessor;
+
+/* Parameters that control density dex output */
+
+EXTERN int OutputOnDensity;
+EXTERN float StartDensityOutputs;
+EXTERN float CurrentDensityOutput;
+EXTERN float CurrentMaximumDensity;
+EXTERN float IncrementDensityOutput;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonSubcycleSkip;
@@ -681,6 +695,10 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 
 #endif /* TRANSFER  */
 
+EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
+
 /* Coupled radiative transfer, cooling, and rate solver */
 
 EXTERN int RadiativeTransferCoupledRateSolver;
@@ -700,5 +718,7 @@ EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 
 
 EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
+
+EXTERN int MoveParticlesBetweenSiblings;
 
 #endif

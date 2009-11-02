@@ -67,7 +67,8 @@ int WriteAllData(char *basename, int filenumber,
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
+         int RestartDump = FALSE);
 
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
@@ -83,7 +84,6 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 			   LevelHierarchyEntry *LevelArray[]);
 int PrepareGravitatingMassField(HierarchyEntry *Grid, TopGridData *MetaData,
 				LevelHierarchyEntry *LevelArray[], int level);
-float CommunicationMinValue(float Value);
 int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			ExternalBoundary *Exterior,
 			LevelHierarchyEntry *LevelArray[]);
@@ -125,8 +125,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
 
-  JBPERF_BEGIN("EL");
-  JBPERF_START("EvolveHierarchy");
+  LCAPERF_BEGIN("EL");
+  LCAPERF_START("EvolveHierarchy");
 
 #ifdef USE_MPI
   tentry = MPI_Wtime();
@@ -263,10 +263,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     TopGrid.GridData->ComputeAccelerationField(GRIDS);
   }
 */
+
  
   /* Do the first grid regeneration. */
  
-  RebuildHierarchy(&MetaData, LevelArray, 0);
+  if(CheckpointRestart == FALSE) {
+    RebuildHierarchy(&MetaData, LevelArray, 0);
+  }
 
 #ifdef MEM_TRACE
   MemInUse = mused();
@@ -288,25 +291,25 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   StarParticleCountOnly(LevelArray);
  
-#ifdef USE_JBPERF
-  Eint32 jb_iter;
+#ifdef USE_LCAPERF
+  Eint32 lcaperf_iter;
 #endif
 
-  JBPERF_STOP("EvolveHierarchy");
-  JBPERF_END("EH");
+  LCAPERF_STOP("EvolveHierarchy");
+  LCAPERF_END("EH");
 
   /* ====== MAIN LOOP ===== */
 
   bool FirstLoop = true;
   while (!Stop) {
 
-#ifdef USE_JBPERF
-    jb_iter = MetaData.CycleNumber;
+#ifdef USE_LCAPERF
+    lcaperf_iter = MetaData.CycleNumber;
     static bool isFirstCall = true;
-    if ((jb_iter % JB_ITER_PER_SEGMENT)==0 || isFirstCall) jbPerf.begin("EL");
+    if ((lcaperf_iter % LCAPERF_DUMP_FREQUENCY)==0 || isFirstCall) lcaperf.begin("EL");
     isFirstCall = false;
-    jbPerf.attribute ("timestep",&jb_iter, JB_INT);
-    jbPerf.start("EL");
+    lcaperf.attribute ("timestep",&lcaperf_iter, LCAPERF_INT);
+    lcaperf.start("EL");
 #endif
 
 #ifdef USE_MPI
@@ -320,7 +323,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Load balance the root grids if this isn't the initial call */
 
-    if (!FirstLoop)
+    if ((CheckpointRestart == FALSE) && (!FirstLoop))
       CommunicationLoadBalanceRootGrids(LevelArray, MetaData.TopGridRank, 
 					MetaData.CycleNumber);
 
@@ -330,7 +333,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
 
     // OutputLevelInformation() only needs to be called by all processors
-    // when jbPerf is enabled.
+    // when lcaperf is enabled.
 
     OutputLevelInformation(LevelInfofptr, MetaData, LevelArray);
 
@@ -342,46 +345,61 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     float dtProc   = huge_number;
     Temp = LevelArray[0];
  
-    while (Temp != NULL) {
-      dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
-      Temp = Temp->NextGridThisLevel;
-    }
+    // Start skipping
+    if(CheckpointRestart == FALSE) {
+      while (Temp != NULL) {
+        dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
+        Temp = Temp->NextGridThisLevel;
+      }
+
+      dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
 
     dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
- 
+    dt = min(MetaData.MaximumTopGridTimeStep, dt);
+
     if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
     if (Initialdt != 0) {
       
       dt = min(dt, Initialdt);
       if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
-      dtPhoton = dt;
+        dtPhoton = dt;
 #endif
-      Initialdt = 0;
+        Initialdt = 0;
+      }
+
+      /* Make sure timestep doesn't go past an output. */
+
+      if (ComovingCoordinates)
+        for (i = 0; i < MAX_NUMBER_OF_OUTPUT_REDSHIFTS; i++)
+          if (CosmologyOutputRedshift[i] != -1)
+            dt = min(1.0001*(CosmologyOutputRedshiftTime[i]-MetaData.Time), dt);
+      for (i = 0; i < MAX_TIME_ACTIONS; i++)
+        if (TimeActionTime[i] > 0 && TimeActionType[i] > 0)
+          dt = min(1.0001*(TimeActionTime[i] - MetaData.Time), dt);
+      if (MetaData.dtDataDump > 0.0) {
+        while (MetaData.TimeLastDataDump+MetaData.dtDataDump < MetaData.Time)
+          MetaData.TimeLastDataDump += MetaData.dtDataDump;
+        dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
+              MetaData.Time), dt);
+      }
+
+      /* Set the time step.  If it will cause Time += dt > StopTime, then
+         set dt = StopTime - Time */
+
+      dt = min(MetaData.StopTime - MetaData.Time, dt);
+    } else { 
+      dt = dtThisLevel[0]; 
     }
- 
-    /* Make sure timestep doesn't go past an output. */
- 
-    if (ComovingCoordinates)
-      for (i = 0; i < MAX_NUMBER_OF_OUTPUT_REDSHIFTS; i++)
-	if (CosmologyOutputRedshift[i] != -1)
-	  dt = min(1.0001*(CosmologyOutputRedshiftTime[i]-MetaData.Time), dt);
-    for (i = 0; i < MAX_TIME_ACTIONS; i++)
-      if (TimeActionTime[i] > 0 && TimeActionType[i] > 0)
-	dt = min(1.0001*(TimeActionTime[i] - MetaData.Time), dt);
-    if (MetaData.dtDataDump > 0.0) {
-      while (MetaData.TimeLastDataDump+MetaData.dtDataDump < MetaData.Time)
-	MetaData.TimeLastDataDump += MetaData.dtDataDump;
-     dt = min(1.0001*(MetaData.TimeLastDataDump + MetaData.dtDataDump -
-		       MetaData.Time), dt);
-    }
- 
+
     /* Set the time step.  If it will cause Time += dt > StopTime, then
        set dt = StopTime - Time */
  
     dt = min(MetaData.StopTime - MetaData.Time, dt);
     Temp = LevelArray[0];
- 
+    // Stop skipping
+
+    // Set dt from stored in CheckpointRestart
     while (Temp != NULL) {
       Temp->GridData->SetTimeStep(dt);
       Temp = Temp->NextGridThisLevel;
@@ -542,9 +560,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
 #endif /* REDUCE_FRAGMENTATION */
 
-#ifdef USE_JBPERF
-    jbPerf.stop("EL");
-    if (((jb_iter+1) % JB_ITER_PER_SEGMENT)==0) jbPerf.end("EL");
+#ifdef USE_LCAPERF
+    lcaperf.stop("EL");
+    if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)==0) lcaperf.end("EL");
 #endif
 
 #ifdef MEM_TRACE
@@ -603,9 +621,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   } // ===== end of main loop ====
  
-#ifdef USE_JBPERF
-  if (((jb_iter+1) % JB_ITER_PER_SEGMENT)!=0) jbPerf.end("EL");
-  jbPerf.attribute ("timestep",0, JB_NULL);
+#ifdef USE_LCAPERF
+  if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
+  lcaperf.attribute ("timestep",0, LCAPERF_NULL);
 #endif
 
 #ifdef USE_MPI

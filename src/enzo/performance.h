@@ -20,44 +20,44 @@ ERROR: need performance.h to be included before macros_and_parameters.h
 //
 // File:        performance.h
 //
-// Description: Interface layer between Enzo and jbPerf
+// Description: Interface layer between Enzo and lcaperf
 //
-// To use jbPerf, compile with -DUSE_JBPERF and link with -ljbperf
-// To use PAPI with jbPerf, compile also with -DUSE_PAPI and link with -lpapi
-// To instrument HDF5 read/writes with jbPerf, compile with -DUSE_JBPERF_HDF5
+// To use lcaperf, compile with -DUSE_LCAPERF and link with -llcaperf
+// To use PAPI with lcaperf, compile also with -DUSE_PAPI and link with -lpapi
+// To instrument HDF5 read/writes with lcaperf, compile with -DUSE_LCAPERF_HDF5
 // To instrument MPI send/recvs, link with -lpmpi
 //
 //----------------------------------------------------------------------
 //
-// James Bordner (jbordner@cosmos.ucsd.edu)
+// James Bordner (jobordner@ucsd.edu)
 // 2003-06-20
 //
 //======================================================================
 
 //----------------------------------------------------------------------
-// jbPerf
+// lcaperf
 //----------------------------------------------------------------------
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-#   include "jbPerf.h" // THIS MUST COME BEFORE int IS REDEFINED
+#   include "lcaperf.h" // THIS MUST COME BEFORE int IS REDEFINED
 
-#   define JB_ITER_PER_SEGMENT 1  /* How frequently to dump data to files. */
+#   define LCAPERF_DUMP_FREQUENCY 1  /* How frequently to dump data to files. */
 
-#endif /* USE_JBPERF */
+#endif /* USE_LCAPERF */
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-#  define JBPERF_BEGIN(segment)    jbPerf.begin (segment)
-#  define JBPERF_END(segment)      jbPerf.end (segment)
-#  define JBPERF_START(region)     jbPerf.start (region)
-#  define JBPERF_STOP(region)      jbPerf.stop (region)
+#  define LCAPERF_BEGIN(segment)    lcaperf.begin (segment)
+#  define LCAPERF_END(segment)      lcaperf.end (segment)
+#  define LCAPERF_START(region)     lcaperf.start (region)
+#  define LCAPERF_STOP(region)      lcaperf.stop (region)
 
 #else
 
-#  define JBPERF_BEGIN(segment)    /* This space intentionally left blank */ ;
-#  define JBPERF_END(segment)      /* This space intentionally left blank */ ;
-#  define JBPERF_START(region)     /* This space intentionally left blank */ ;
-#  define JBPERF_STOP(region)      /* This space intentionally left blank */ ;
+#  define LCAPERF_BEGIN(segment)    /* This space intentionally left blank */ ;
+#  define LCAPERF_END(segment)      /* This space intentionally left blank */ ;
+#  define LCAPERF_START(region)     /* This space intentionally left blank */ ;
+#  define LCAPERF_STOP(region)      /* This space intentionally left blank */ ;
 
 #endif
 

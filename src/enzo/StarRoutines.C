@@ -52,7 +52,7 @@ Star::Star(void)
   NextStar = NULL;
   PrevStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = 0.0;
+  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
 }
 
@@ -74,6 +74,7 @@ Star::Star(grid *_grid, int _id, int _level)
   PrevStar = NULL;
   CurrentGrid = _grid;
   DeltaMass = 0.0;
+  last_accretion_rate = 0.0;
   level = _level;
   FeedbackFlag = NO_FEEDBACK;
 
@@ -112,6 +113,7 @@ Star::Star(StarBuffer *buffer, int n)
   DeltaMass = buffer[n].DeltaMass;
   BirthTime = buffer[n].BirthTime;
   LifeTime = buffer[n].LifeTime;
+  last_accretion_rate = buffer[n].last_accretion_rate;
   FeedbackFlag = buffer[n].FeedbackFlag;
   Identifier = buffer[n].Identifier;
   level = buffer[n].level;
@@ -147,6 +149,7 @@ Star::Star(StarBuffer buffer)
   DeltaMass = buffer.DeltaMass;
   BirthTime = buffer.BirthTime;
   LifeTime = buffer.LifeTime;
+  last_accretion_rate = buffer.last_accretion_rate;
   FeedbackFlag = buffer.FeedbackFlag;
   Identifier = buffer.Identifier;
   level = buffer.level;
@@ -156,13 +159,16 @@ Star::Star(StarBuffer buffer)
   PrevStar = NULL;
 }
 
-Star::~Star(void)
-{
-  if (accretion_rate != NULL)
-    delete [] accretion_rate;
-  if (accretion_time != NULL)
-    delete [] accretion_time;
-}
+/* No need to delete the accretion arrays because the pointers are
+   stored in the copies located in the grid class. */
+
+//Star::~Star(void)
+//{
+//  if (accretion_rate != NULL)
+//    delete [] accretion_rate;
+//  if (accretion_time != NULL)
+//    delete [] accretion_time;
+//}
 
 /***************
 
@@ -186,6 +192,7 @@ void Star::operator=(Star a)
   DeltaMass = a.DeltaMass;
   BirthTime = a.BirthTime;
   LifeTime = a.LifeTime;
+  last_accretion_rate = a.last_accretion_rate;
   FeedbackFlag = a.FeedbackFlag;
   Identifier = a.Identifier;
   level = a.level;
@@ -203,8 +210,8 @@ void Star::operator=(Star a)
       accretion_time[i] = a.accretion_time[i];
     }
   } else {
-    a.accretion_rate = NULL;
-    a.accretion_time = NULL;
+    accretion_rate = NULL;
+    accretion_time = NULL;
   }
   return;
 }
@@ -246,6 +253,7 @@ Star *Star::copy(void)
   a->DeltaMass = DeltaMass;
   a->BirthTime = BirthTime;
   a->LifeTime = LifeTime;
+  a->last_accretion_rate = last_accretion_rate;
   a->FeedbackFlag = FeedbackFlag;
   a->Identifier = Identifier;
   a->level = level;
@@ -307,6 +315,7 @@ void Star::Merge(Star a)
   Mass += a.Mass;
   FinalMass += a.FinalMass;
   DeltaMass += a.DeltaMass;
+  last_accretion_rate += a.last_accretion_rate;
   return;
 }
 void Star::Merge(Star *a) { this->Merge(*a); };
@@ -337,10 +346,10 @@ float Star::Separation2(Star a)
 }
 float Star::Separation2(Star *a) { return this->Separation2(*a); };
 
-float Star::Separation(Star a)  { return sqrt(this->Separation(a)); }
+float Star::Separation(Star a)  { return sqrt(this->Separation2(a)); }
 float Star::Separation(Star *a) { return this->Separation(*a); };
 
-void Star::CopyToGrid(void)
+void Star::CopyToGrid()
 {
   Star *cstar;
   if (CurrentGrid != NULL)   // NULL => On another processor
@@ -473,6 +482,7 @@ StarBuffer* Star::StarListToBuffer(int n)
     result[count].DeltaMass = tmp->DeltaMass;
     result[count].BirthTime = tmp->BirthTime;
     result[count].LifeTime = tmp->LifeTime;
+    result[count].last_accretion_rate = tmp->last_accretion_rate;    
     result[count].FeedbackFlag = tmp->FeedbackFlag;
     result[count].Identifier = tmp->Identifier;
     result[count].level = tmp->level;

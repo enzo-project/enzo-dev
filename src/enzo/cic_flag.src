@@ -1,10 +1,11 @@
-#include "fortran.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cic_flag(posx, posy, posz, ndim, npositions, 
      &                    itype, ffield, leftedge, 
-     &                    dim1, dim2, dim3, cellsize, imatch)
+     &                    dim1, dim2, dim3, cellsize, imatch1, imatch2)
+#ifndef CONFIG_PFLOAT_16
+#include "fortran.def"
 c
 c  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD
 c
@@ -24,7 +25,7 @@ c     leftedge   - the left edge(s) of field
 c     npositions - number of particles
 c     posx,y,z   - particle positions
 c     itype      - 1D field (length npositions) of types
-c     imatch     - integer indicating type of particle to match
+c     imatch1,2  - integer(s) indicating type of particle to match
 c
 c  OUTPUT ARGUMENTS: 
 c     ffield      - field to be deposited to
@@ -41,7 +42,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dim1, dim2, dim3, npositions, ndim, imatch
+      integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
       REALSUB posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
       REALSUB cellsize
@@ -71,7 +72,9 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch) then
+            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
+c
+	    write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
 c
 c           Compute the position of the central cell
 c
@@ -100,7 +103,7 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch) then
+            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
 c           Compute the position of the central cell
 c
@@ -133,7 +136,7 @@ c
 c
 c           only do this for must-refine particles
 c
-            if (itype(n) .eq. imatch) then
+            if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
 c           Compute the position of the central cell
 c
@@ -165,4 +168,5 @@ c
       endif
 c
       return
+#endif
       end

@@ -33,7 +33,7 @@
 /* function prototypes */
  
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		ExternalBoundary *Exterior, float *Initialdt);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 char LastFileNameWritten[MAX_LINE_LENGTH];
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
@@ -52,7 +52,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   int level;
   LevelHierarchyEntry *Previous, *Temp;
- 
+  float dummy;
   /* Delete hierarchy, level array data and grids themselves. */
  
   fprintf(stderr, "Fragmentation reduction: deleting...");
@@ -84,7 +84,7 @@ int ReduceFragmentation(HierarchyEntry &TopGrid, TopGridData &MetaData,
   fprintf(stderr, "reading %s...", LastFileNameWritten);
   CommunicationBarrier();
   if (ReadAllData(LastFileNameWritten, &TopGrid,
-		  MetaData, Exterior) == FAIL) {
+		  MetaData, Exterior, &dummy) == FAIL) {
     fprintf(stderr, "Error reloading data: %s\n", LastFileNameWritten);
     ENZO_FAIL("");
   }

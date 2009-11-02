@@ -132,10 +132,10 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "SphereType[%d] = %d", &sphere,
 		    &SphereType[sphere]);
     if (sscanf(line, "SphereRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "SphereRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "SphereRadius[%d] = %"PSYM, &sphere,
 		    &SphereRadius[sphere]);
     if (sscanf(line, "SphereCoreRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "SphereCoreRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "SphereCoreRadius[%d] = %"PSYM, &sphere,
 		    &SphereCoreRadius[sphere]);
     if (sscanf(line, "SphereDensity[%d]", &sphere) > 0)
       ret += sscanf(line, "SphereDensity[%d] = %f", &sphere,
@@ -147,7 +147,7 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "SphereSoundVelocity[%d] = %f", &sphere,
 		    &SphereSoundVelocity[sphere]);
     if (sscanf(line, "SpherePosition[%d]", &sphere) > 0)
-      ret += sscanf(line, "SpherePosition[%d] = %"FSYM" %"FSYM" %"FSYM, 
+      ret += sscanf(line, "SpherePosition[%d] = %"PSYM" %"PSYM" %"PSYM, 
 		    &sphere, &SpherePosition[sphere][0],
 		    &SpherePosition[sphere][1],
 		    &SpherePosition[sphere][2]);
@@ -188,7 +188,7 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
   }
   
 
-  printf("rhou=%g,velu=%g,lenu=%g,tu=%g,tempu=%g,presu=%g\n", rhou, velu,lenu,tu,tempu,presu);
+  printf("Collapse3D: rhou=%g,velu=%g,lenu=%g,tu=%g,tempu=%g,presu=%g\n", rhou, velu,lenu,tu,tempu,presu);
 
   // Bonnor-Ebert sphere: only the sound velocity and sphere radius are free parameters
   if (SphereType[0] == 3) { 
@@ -354,25 +354,25 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 
   /* Write parameters to parameter output file */
 
-  /*if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(Outfptr, "NumberOfSpheres    = %d\n",
 	    n_sphere);
     fprintf(Outfptr, "RefineAtStart      = %d\n",
 	    RefineAtStart);
     fprintf(Outfptr, "UseParticles       = %d\n",
 	    UseParticles);
-    fprintf(Outfptr, "UseColour          = %d\n",
-	    UseColour);
-    fprintf(Outfptr, "InitialTemperature = %f\n",
-	    InitialTemperature);
+    //    fprintf(Outfptr, "UseColour          = %d\n",
+    //	    UseColour);
+    //    fprintf(Outfptr, "InitialTemperature = %f\n",
+    //	    InitialTemperature);
     fprintf(Outfptr, "UniformVelocity    = %f %f %f\n",
 	    UniformVelocity[0], UniformVelocity[1],
 	    UniformVelocity[2]);
     fprintf(Outfptr, "LengthUnit = %f\n",
-            LengthUnit);
+            lenu);
     fprintf(Outfptr, "DensityUnit = %f\n",
-            DensityUnit);
-    for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
+            rhou);
+    for (sphere = 0; sphere < n_sphere; sphere++) {
       fprintf(Outfptr, "SphereType[%d] = %d\n", sphere,
 	      SphereType[sphere]);
       fprintf(Outfptr, "SphereRadius[%d] = %"GOUTSYM"\n", sphere,
@@ -381,16 +381,16 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 	      SphereCoreRadius[sphere]);
       fprintf(Outfptr, "SphereDensity[%d] = %f\n", sphere,
 	      SphereDensity[sphere]);
-      fprintf(Outfptr, "SphereTemperature[%d] = %f\n", sphere,
-	      SphereTemperature[sphere]);
+      fprintf(Outfptr, "SphereSoundVelocity[%d] = %f\n", sphere,
+	      SphereSoundVelocity[sphere]);
       fprintf(Outfptr, "SpherePosition[%d] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			SpherePosition[sphere]);
       fprintf(Outfptr, "SphereVelocity[%d] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			SphereVelocity[sphere]);
-      fprintf(Outfptr, "FracKeplarianRot[%d] = %"GOUTSYM"\n", sphere,
-              FracKeplarianRot[sphere]);
+      //      fprintf(Outfptr, "FracKeplarianRot[%d] = %"GOUTSYM"\n", sphere,
+      //              FracKeplarianRot[sphere]);
       fprintf(Outfptr, "SphereTurbulence[%d] = %"GOUTSYM"\n", sphere,
               SphereTurbulence[sphere]);
       fprintf(Outfptr, "SphereCutOff[%d] = %"GOUTSYM"\n", sphere,
@@ -402,7 +402,7 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(Outfptr, "SphereNumShells[%d] = %d\n", sphere,
               SphereNumShells[sphere]);
     }
-    }*/
+    }
 
   return SUCCESS;
 

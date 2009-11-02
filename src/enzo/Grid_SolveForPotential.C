@@ -49,7 +49,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  JBPERF_START("grid_SolveForPotential");
+  LCAPERF_START("grid_SolveForPotential");
  
   /* declarations */
  
@@ -148,8 +148,21 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   /* Clean up. */
  
   delete [] rhs;
+
+#ifdef POTENTIALDEBUGOUTPUT
+  for (int i=0;i<GridDimension[0]; i++) {
+    int igrid = GRIDINDEX_NOGHOST(i,(GridEndIndex[0]+GridStartIndex[0])/2,(GridEndIndex[0]+GridStartIndex[0])/2);
+    printf("i: %i \t SolvedSub %g\n", i, PotentialField[igrid]);
+  }
+  float maxPot=-1e30, minPot=1e30;    
+  for (int i=0;i<size; i++) {
+    maxPot = max(maxPot,PotentialField[i]);
+    minPot = min(minPot,PotentialField[i]);
+  }
+  if (debug1) printf("SolvedPotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
+#endif
  
-  JBPERF_STOP("grid_SolveForPotential");
+  LCAPERF_STOP("grid_SolveForPotential");
   return SUCCESS;
 }
  

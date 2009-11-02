@@ -45,7 +45,8 @@ OUTPUT   = out.compile
 ENZO_DIR = .
 MODULES  = 
 
-SVN      = svn
+# please remove this
+SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
@@ -175,9 +176,9 @@ all: $(EXE).exe
 	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
           fi)
@@ -243,9 +244,9 @@ auto_show_version.C:
 # Force update of svn_version.def
 .PHONY: svn_version.def
 svn_version.def:
-	-@$(SVN) info -R $(TOP_DIR) | grep Revision | sort | uniq | tail -1 | \
-           awk '{print "#define ENZO_SVN_REVISION",$$2}' > svn_version.def
-	-@$(SVN) info $(TOP_DIR) | awk '/URL/{print "#define ENZO_SVN_BRANCH","\""$$2"\""};' >> svn_version.def 
+	-@$(SVN) identify -i | \
+           awk '{print "#define ENZO_SVN_REVISION","\""$$1"\""}' > svn_version.def
+	-@$(SVN) identify -b | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
 	-@if [ ! -s svn_version.def ]; then \
 	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
 	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \

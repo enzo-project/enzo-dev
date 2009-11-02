@@ -205,7 +205,6 @@ void my_exit(int status);
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level);
  
-int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -219,6 +218,8 @@ static int StaticLevelZero = 1;
 static int StaticLevelZero = 0;
 #endif
 
+extern int RK2SecondStepBaryonDeposit;
+
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior)
 {
@@ -228,16 +229,16 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
-  float dtThisLevelSoFar = 0.0, dtThisLevel;
+  //float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
  
   // Update lcaperf "level" attribute
 
-  Eint32 jb_level = level;
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",&jb_level,JB_INT);
+  Eint32 lcaperf_level = level;
+#ifdef USE_LCAPERF
+  lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
 
   /* Create an array (Grids) of all the grids. */
@@ -252,7 +253,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
 #endif
-
 
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
@@ -273,21 +273,34 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (FastSib)");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
                             Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
 #endif
  
-
-
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
-     current grid to correct the zones surrounding this subgrid (step #18). */
+     current grid to correct the zones surrounding this subgrid (step #18). 
+
+     If we're just coming in off a CheckpointRestart, instead we take the
+     fluxes that were stored in the file and then in the Grid object, and we 
+     put them into the SubgridFluxesEstimate array. */
  
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    Grids[grid1]->GridData->ClearBoundaryFluxes();
+  if(CheckpointRestart == TRUE) {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      if (Grids[grid1]->GridData->FillFluxesFromStorage(
+        &NumberOfSubgrids[grid1],
+        &SubgridFluxesEstimate[grid1]) != -1) {
+        /*fprintf(stderr, "Level: %"ISYM" Grid: %"ISYM" NS: %"ISYM"\n",
+            level, grid1, NumberOfSubgrids[grid1]);*/
+      }
+    }
+  } else {
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->ClearBoundaryFluxes();
+  }
  
   /* After we calculate the ghost zones, we can initialize streaming
      data files (only on level 0) */
@@ -299,10 +312,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
  
-  while (dtThisLevelSoFar < dtLevelAbove) {
+  while ((CheckpointRestart == TRUE)
+        || (dtThisLevelSoFar[level] < dtLevelAbove)) {
+    if(CheckpointRestart == FALSE) {
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
-        &dtThisLevelSoFar, &dtThisLevel, dtLevelAbove);
+        &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
     /* Streaming movie output (write after all parent grids are
        updated) */
@@ -318,7 +333,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef TRANSFER
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
-				   dtLevelAbove);
+			     dtLevelAbove);
 #endif /* TRANSFER */
  
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
@@ -339,6 +354,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+    /* Solve the radiative transfer */
+	
+#ifdef TRANSFER
+    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+#endif /* TRANSFER */
  
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
@@ -401,12 +423,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      /* Solve the radiative transfer */
-	
-#ifdef TRANSFER
-      GridTime = Grids[grid1]->GridData->ReturnTime();
-      EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, 0);
-#endif /* TRANSFER */
 
       /* Solve the cooling and species rate equations. */
  
@@ -451,10 +467,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  Exterior, LevelArray[level]);
 #endif
 
-
-
     /* Finalize (accretion, feedback, etc.) star particles */
- 
+
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars);
 
@@ -462,7 +476,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     //dcc cut second potential cut: Duplicate?
  
-    if (ComovingCoordinates && SelfGravity && WritePotential) {
+    if (SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
       When = 0.0;
  
@@ -472,7 +486,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
  
-      CopyGravPotential = FALSE;
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
         if (level <= MaximumGravityRefinementLevel) {
@@ -484,6 +497,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->CopyPotentialToBaryonField();
         }
       } //  end loop over grids
+      CopyGravPotential = FALSE;
+
     } // if WritePotential
  
 
@@ -493,31 +508,31 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
 
-    /* Run the Divergence Cleaing                */
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->PoissonSolver(level);
-    
-
- 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  
     MetaData->FirstTimestepAfterRestart = FALSE;
+    } 
+    else { // CheckpointRestart == FALSE
+        // dtThisLevelSoFar set during restart
+        // dtThisLevel set during restart
+        // Set dtFixed on each grid to dtThisLevel
+        for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+          Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
+    }
 
     if (LevelArray[level+1] != NULL) {
-      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior) == FAIL) {
+      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior) == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
 	ENZO_FAIL("");
       }
     }
 
-  
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
 
-    jbPerf.attribute ("level",&jb_level,JB_INT);
+    lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
@@ -566,17 +581,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Recompute radiation field, if requested. */
  
-    if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
-	level <= RadiationFieldLevelRecompute)
-      if (RadiationFieldUpdate(LevelArray, level, MetaData) == FAIL) {
-	fprintf(stderr, "Error in RecomputeRadiationField.\n");
-	ENZO_FAIL("");
-      }
+    RadiationFieldUpdate(LevelArray, level, MetaData);
  
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
-    if (dtThisLevelSoFar < dtLevelAbove)
+    if (dtThisLevelSoFar[level] < dtLevelAbove)
       RebuildHierarchy(MetaData, LevelArray, level);
 
     /* Count up number of grids on this level. */
@@ -591,8 +601,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
  
-    
-
     cycle++;
     LevelCycleCount[level]++;
  
@@ -604,24 +612,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* If possible & desired, report on memory usage. */
  
-
   ReportMemoryUsage("Memory usage report: Evolve Level");
  
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",0,JB_NULL);
+#ifdef USE_LCAPERF
+  lcaperf.attribute ("level",0,LCAPERF_NULL);
 #endif
 
   /* Clean up. */
  
-#ifdef UNUSED
-  if (level > MaximumGravityRefinementLevel &&
-      level == MaximumRefinementLevel)
-    ZEUSQuadraticArtificialViscosity /= 1;
-#endif
- 
   delete [] NumberOfSubgrids;
   delete [] Grids;
   delete [] SubgridFluxesEstimate;
+
+  dtThisLevel[level] = dtThisLevelSoFar[level] = 0.0;
  
   /* Clean up the sibling list. */
 
@@ -631,7 +634,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] SiblingList;
   }
 
- 
   return SUCCESS;
  
 }

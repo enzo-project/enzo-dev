@@ -76,13 +76,15 @@ int grid::FinalizeRadiationFields(void)
 
   float DensityConversion = DensityUnits / 1.673e-24;
   float factor = DensityConversion * CellVolume;
+  float invrho;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	BaryonField[kphHINum][index] /= (factor * BaryonField[HINum][index]);
-	BaryonField[gammaHINum][index] /= (factor * BaryonField[HINum][index]);
+	invrho = 1.0 / (factor * BaryonField[HINum][index]);
+	BaryonField[kphHINum][index] *= invrho;
+	BaryonField[gammaHINum][index] *= invrho;
 	BaryonField[kphHeINum][index] /= (factor * BaryonField[HeINum][index]);
 	BaryonField[gammaHeINum][index] /= (factor * BaryonField[HeINum][index]);
 	//BaryonField[kphHeIINum][index] /= (factor * BaryonField[HeIINum][index]);
@@ -90,6 +92,9 @@ int grid::FinalizeRadiationFields(void)
       } // ENDFOR i
     } // ENDFOR j
   
+  if (RadiativeTransferHIIRestrictedTimestep &&
+      this->IndexOfMaximumkph >= 0)
+    this->MaximumkphIfront /= (factor * BaryonField[HINum][IndexOfMaximumkph]);
 
 #endif /* TRANSFER */  
   

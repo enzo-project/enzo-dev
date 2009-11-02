@@ -33,19 +33,19 @@
 #include "CommunicationUtilities.h"
 
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
-			     float &Radius, double &EjectaDensity, 
+			     float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			     int &SphereContained, int &SkipMassRemoval,
 			     float DensityUnits, float LengthUnits, 
 			     float TemperatureUnits, float TimeUnits,
-			     float VelocityUnits)
+			     float VelocityUnits, FLOAT Time)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8];
-  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, ColdGasFraction;
+  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8], MBHFeedbackRadiusTooSmall;
+  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, ColdGasFraction, initialRadius; 
   FLOAT corners[MAX_DIMENSION][8];
   int direction;
   LevelHierarchyEntry *Temp, *Temp2;
@@ -55,7 +55,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   int Rank, Dims[MAX_DIMENSION];
   float CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
-
   LevelArray[level]->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
   CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*DEFAULT_GHOST_ZONES);
 
@@ -80,11 +79,22 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     For star formation, we need to find a sphere with enough mass to
     accrete.  We step out by a cell width when searching. 
+    This is only for FeedbackFlag = FORMATION. 
 
   ***********************************************************************/
 
-  SphereTooSmall = (FeedbackFlag == FORMATION);
-  while (SphereTooSmall) {
+  SphereTooSmall = ((FeedbackFlag == FORMATION) 
+                 || (FeedbackFlag == COLOR_FIELD));
+  initialRadius = Radius;
+
+  // MBHFeedbackToConstantMass is implemented 
+  // to apply your feedback energy always to a constant mass, not to a constant volume.
+  // Search MBH from here and below.
+  // For now, this is for future use and not tested, and shouldn't be used.  Ji-hoon Kim Sep.2009
+  int MBHFeedbackToConstantMass = FALSE; //#####
+  MBHFeedbackRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
+
+  while (SphereTooSmall || MBHFeedbackRadiusTooSmall) { 
     Radius += CellWidth;
     MassEnclosed = 0;
     Metallicity = 0;
@@ -113,8 +123,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity) == FAIL) {
-	  fprintf(stderr, "Error in GetEnclosedMass.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in GetEnclosedMass.");
 	}
 
 	Temp = Temp->NextGridThisLevel;
@@ -161,17 +170,41 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	StarClusterMinDynamicalTime/(TimeUnits/yr);
       break;
 
+    case PopIII_CF:
+      SphereTooSmall = (MassEnclosed < PopIIIColorMass);
+      break;
+
+    case MBH:  
+      // This is to enlarge the Radius so that the thermal feedback affects the constant mass 
+      // as the AGN bubble expands, not the constant radius.  Ji-hoon Kim in Sep./2009  
+      // MassEnclosed in Msun, 
+      // assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to the density in Ostriker & McKee test problem
+      // (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) 
+      MBHFeedbackRadiusTooSmall = MassEnclosed < 
+	4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0; 
+      fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
+      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0);
+      fprintf(stderr, "Radius = %g\n", Radius);
+      break;
+
     }  // ENDSWITCH FeedbackFlag
 
-    // Remove the stellar mass from the sphere and distribute the
-    // gas evenly in the sphere since this is what will happen once
-    // the I-front passes through it.
-    EjectaDensity = (float) 
-      (double(Msun * (MassEnclosed - AccretedMass)) / 
-       double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
-       DensityUnits);
-    //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
-    //      EjectaDensity = Shine[p].Mass / MassEnclosed;
+    if (type != MBH)  
+      // Remove the stellar mass from the sphere and distribute the
+      // gas evenly in the sphere since this is what will happen once
+      // the I-front passes through it.
+      EjectaDensity = (float) 
+	(double(Msun * (MassEnclosed - AccretedMass)) / 
+	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
+	 DensityUnits);
+    else 
+      // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
+      EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
+
+    //fprintf(stderr, "Star::FFS: EjectaThermalEnergy = %g\n", EjectaThermalEnergy); 
+
+      //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
+      //      EjectaDensity = Shine[p].Mass / MassEnclosed;
 
   }  // ENDWHILE (too little mass)
 
@@ -268,7 +301,25 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
-    DeltaMass = AccretedMass;
+
+    /* We store the accretion rate of the newly formed star in the
+       accretion rate arrays.  Set accretion_time[0] to zero, so the
+       initial "accretion" is easily calculated.  Be sure not
+       overwrite any previous accretion rates, although this should
+       never happen! */
+
+    if (this->accretion_rate == NULL && this->accretion_time == NULL) {
+      this->naccretions = 2;
+      this->accretion_rate = new float[2];
+      this->accretion_rate[0] = AccretedMass / (Time * TimeUnits);
+      this->accretion_rate[1] = 0.0;
+
+      this->accretion_time = new FLOAT[2];
+      this->accretion_time[0] = 0.0;
+      this->accretion_time[1] = Time;
+    }
+
+    //DeltaMass = AccretedMass;
     //type = abs(type);  // Unmark as unborn (i.e. negative type)
 
   } // ENDIF formation

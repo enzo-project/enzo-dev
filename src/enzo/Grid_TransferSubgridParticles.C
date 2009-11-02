@@ -30,7 +30,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 				   int* &NumberToMove, int StartIndex, 
 				   int EndIndex, particle_data* &List, 
 				   bool KeepLocal, bool ParticlesAreLocal,
-				   int CopyDirection)
+				   int CopyDirection, int IncludeGhostZones)
 {
  
   /* Declarations. */
@@ -62,6 +62,20 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     int PreviousTotalToMove = 0;
     for (i = 0; i < NumberOfProcessors; i++)
       PreviousTotalToMove += NumberToMove[i];
+
+    /* Set boundaries (with and without ghost zones) */
+
+    int StartIndex[] = {1,1,1}, EndIndex[] = {1,1,1};
+    if (IncludeGhostZones)
+      for (dim = 0; dim < GridRank; dim++) {
+	StartIndex[dim] = 0;
+	EndIndex[dim] = GridDimension[dim]-1;
+      }
+    else
+      for (dim = 0; dim < GridRank; dim++) {
+	StartIndex[dim] = GridStartIndex[dim];
+	EndIndex[dim] = GridEndIndex[dim];
+      }
  
     /* Count particles to move */
 
@@ -78,9 +92,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
       if (GridRank > 1)
        k0 = int((ParticlePosition[2][i] - CellLeftEdge[2][0])/CellWidth[2][0]);
  
-      i0 = max(min(GridEndIndex[0], i0), GridStartIndex[0]);
-      j0 = max(min(GridEndIndex[1], j0), GridStartIndex[1]);
-      k0 = max(min(GridEndIndex[2], k0), GridStartIndex[2]);
+      i0 = max(min(EndIndex[0], i0), StartIndex[0]);
+      j0 = max(min(EndIndex[1], j0), StartIndex[1]);
+      k0 = max(min(EndIndex[2], k0), StartIndex[2]);
  
       index = (k0*GridDimension[1] + j0)*GridDimension[0] + i0;
  
@@ -173,13 +187,19 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
  
   else {
 
+    /* If particles aren't distributed over several processors, exit
+       if this isn't the host processor. */
+
+    if (ParticlesAreLocal && MyProcessorNumber != ProcessorNumber)
+      return SUCCESS;
+
     /* Count up total number. */
  
     int TotalNumberOfParticles;
     int NumberOfNewParticles = EndIndex - StartIndex;
 
     TotalNumberOfParticles = NumberOfParticles + NumberOfNewParticles;
- 
+
     /* Allocate space for the particles. */
 
     FLOAT *Position[MAX_DIMENSION];
@@ -201,9 +221,9 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
     if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
       fprintf(stderr, "malloc error (out of memory?)\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in Grid_TransferSubgridParticles.C");
     }
- 
+
     /* Copy this grid's particles to the new space. */
 
     for (i = 0; i < NumberOfParticles; i++) {
@@ -251,7 +271,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     }
       
     } // ENDIF TotalNumberOfParticles > 0
- 
+
     /* Set new number of particles in this grid. */
  
     NumberOfParticles = TotalNumberOfParticles;

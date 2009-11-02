@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "h5utilities.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -47,7 +48,6 @@ void my_exit(int status);
 // HDF5 function prototypes
 
 
- 
 /* function prototypes */
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
@@ -70,7 +70,7 @@ extern char CPUSuffix[];
 
  
 int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
-		      ExternalBoundary *Exterior)
+		      ExternalBoundary *Exterior, float *Initialdt)
  
 {
  
@@ -126,7 +126,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fprintf(stderr, "Error opening input file %s.\n", name);
     ENZO_FAIL("");
   }
-  if (ReadParameterFile(fptr, MetaData, &dummy) == FAIL) {
+  if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
   }
  
@@ -240,6 +240,9 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* If we're load balancing only within nodes, count level-1 cells in
      each level-0 grid and load balance the entire nodes. */
 
+  if (ResetLoadBalancing)
+    LoadBalancing = 1;
+
   int *RootGridProcessors = NULL, NumberOfRootGrids = 1;
   InitialLoadBalanceRootGrids(fptr, MetaData.TopGridRank, MetaData.TopGridDims[0], 
 			      NumberOfRootGrids, RootGridProcessors);
@@ -276,6 +279,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 #else
 
     if (debug) fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
+    //printf("P%d: OPEN data hierarchy %s\n", MyProcessorNumber, hierarchyname);
     file_id = h5_error;
 
 #endif /* SINGLE OPEN */
@@ -287,10 +291,43 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     return FAIL;
   }
+
+  //printf("P%d: out of Group_RDH\n", MyProcessorNumber);
+  //CommunicationBarrier();
   
   if(LoadGridDataAtStart){
     // can close HDF5 file here
 
+    if(CheckpointRestart == TRUE) {
+#ifndef SINGLE_HDF5_OPEN_ON_INPUT
+
+    file_id = H5Fopen(groupfilename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if(file_id == h5_error)ENZO_VFAIL("Could not open %s", groupfilename)
+
+#endif
+      // Now we load our metadata back in
+      hid_t metadata_group;
+    H5E_BEGIN_TRY{
+      metadata_group = H5Gopen(file_id, "Metadata");
+    }H5E_END_TRY
+    if(metadata_group != h5_error) {
+      readAttribute(metadata_group, HDF5_INT, "LevelCycleCount",
+          LevelCycleCount, TRUE);
+      if(CheckpointRestart == TRUE) { // We only need these in a checkpoint
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevel",
+            dtThisLevel, TRUE);
+        readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
+            dtThisLevelSoFar, TRUE);
+      }
+    } else if(CheckpointRestart == TRUE) {
+      ENZO_FAIL("Couldn't open Metadata!");
+    }
+    H5Gclose(metadata_group);
+
+#ifndef SINGLE_HDF5_OPEN_ON_INPUT
+      H5Fclose(file_id);
+#endif
+    }
 #ifdef SINGLE_HDF5_OPEN_ON_INPUT
 
     h5_status = H5Fclose(file_id);
@@ -356,6 +393,13 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
      this parameter to later data. */
 
   AddParticleAttributes = FALSE;
+
+  /* If we're reseting load balancing (i.e. the host processors), turn
+     off the reset flag because we've already done this and don't want
+     it to propagate to later datadumps. */
+
+  if (ResetLoadBalancing)
+    ResetLoadBalancing = FALSE;
 
 //  Stop I/O timing
 

@@ -214,7 +214,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      vel[0] = -omega_sphere[sphere]*ypos;
 	      vel[1] = omega_sphere[sphere]*xpos;
-	      //printf("cs=%g, vel[0]=%g ", cs, vel[0]);
+	      printf("cs=%g, vel[0]=%g ", cs, vel[0]);
 	      double mach_turb = 0.0;
 	      vel[0] += mach_turb*Gaussian(cs);
 	      vel[1] += mach_turb*Gaussian(cs);

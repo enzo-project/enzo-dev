@@ -23,7 +23,7 @@
 #    CONFIG_TASKMAP
 #    CONFIG_PACKED_AMR
 #    CONFIG_PACKED_MEM
-#    CONFIG_JBPERF
+#    CONFIG_LCAPERF
 #    CONFIG_PYTHON
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -132,19 +132,19 @@
      CONFIG_PACKED_MEM = no
 
 #=======================================================================
-# CONFIG_JBPERF
+# CONFIG_LCAPERF
 #=======================================================================
-#    yes           use jbPerf performance profiling package
-#    no            don't use jbPerf performance profiling package
+#    yes           use lcaperf performance profiling package
+#    no            don't use lcaperf performance profiling package
 #-----------------------------------------------------------------------
 
-     CONFIG_JBPERF = no
+     CONFIG_LCAPERF = no
 
 #=======================================================================
 # CONFIG_PAPI
 #=======================================================================
-#    yes           use PAPI hardware counter package with jbPerf
-#    no            don't use PAPI hardware counter package with jbPerf
+#    yes           use PAPI hardware counter package with lcaperf
+#    no            don't use PAPI hardware counter package with lcaperf
 #-----------------------------------------------------------------------
 
      CONFIG_PAPI = no
@@ -207,6 +207,15 @@
      CONFIG_PHOTON = yes
 
 #=======================================================================
+# CONFIG_NEW_GRID_IO
+#=======================================================================
+#    yes           Use the new, simpler Grid IO routines
+#    no            Original (no checkpointing, more obtuse) Grid IO
+#-----------------------------------------------------------------------
+
+     CONFIG_NEW_GRID_IO = no
+
+#=======================================================================
 # CONFIG_FAST_SIB
 #=======================================================================
 #    yes           Include the Fast Sibling Locator
@@ -232,6 +241,15 @@
 #----------------------------------------------------------------------- 
  
      CONFIG_USE_HDF4 = no
+
+#======================================================================= 
+# CONFIG_BITWISE_IDENTICALITY
+#======================================================================= 
+#    yes           Use blocking potential solves in the gravity solver
+#    no            Allow non-blocking, potentially divergent summations
+#----------------------------------------------------------------------- 
+ 
+     CONFIG_BITWISE_IDENTICALITY = no
 
 #======================================================================= 
 # CONFIG_ECUDA

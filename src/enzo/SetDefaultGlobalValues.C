@@ -54,6 +54,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   const float Pi = 3.14159;
   int dim, i;
  
+  huge_number               = 1.0e+20;
+  tiny_number               = 1.0e-20;
+
   /* set the default MetaData values. */
  
   MetaData.CycleNumber     = 0;
@@ -62,12 +65,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CPUTime         = 0.0;
  
   MetaData.StopTime        = FLOAT_UNDEFINED;  // This must be set be the user
-  MetaData.StopCycle       = 10000;            // 10000 timesteps
+  MetaData.StopCycle       = 100000;            // 10000 timesteps
   MetaData.StopSteps       = 10000;            // 10000 timesteps
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
  
+  MetaData.MaximumTopGridTimeStep = huge_number;
+
   MetaData.TimeLastRestartDump = 0.0;
   MetaData.dtRestartDump       = FLOAT_UNDEFINED;
   MetaData.TimeLastDataDump    = FLOAT_UNDEFINED;
@@ -76,6 +81,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtHistoryDump       = 0.0;
   MetaData.TimeLastTracerParticleDump = FLOAT_UNDEFINED;
   MetaData.dtTracerParticleDump       = 0.0;
+  MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
+  MetaData.dtInterpolatedDataDump          = 0.0;
  
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
@@ -102,20 +109,21 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.TracerParticleDumpNumber = 0;
   MetaData.TracerParticleDumpName   = DefaultTracerParticleName;
   MetaData.TracerParticleDumpDir    = DefaultTracerParticleDir;
-//MetaData.RedshiftDumpNumber  = 0;
+  //MetaData.RedshiftDumpNumber  = 0;
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
  
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
-  LoadBalancing = 0;     //On, memory equalization method
+  LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
   ResetLoadBalancing = FALSE;
   CoresPerNode = 1;
   PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
+  WriteBinaryHierarchy = 0;
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
@@ -151,11 +159,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.FirstTimestepAfterRestart = TRUE;
  
   /* set the default global data. */
-                                                 // Debug flag set in main
+  CheckpointRestart         = 0;
+
+  // Debug flag set in main
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
-  huge_number               = 1.0e+20;
-  tiny_number               = 1.0e-20;
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
   RefineBy                  = 4;                 // Refinement factor
@@ -218,6 +226,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug2                      = 0;
 
   TracerParticleOn            = 0;
+
+  OutputOnDensity                  = 0;
+  StartDensityOutputs              = 999;
+  CurrentDensityOutput             = 999;
+  IncrementDensityOutput           = 999;
+  CurrentMaximumDensity            = -999;
  
   CubeDumpEnabled             = 0;
 
@@ -261,6 +275,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiativeCooling            = FALSE;             // off
   GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  PrimordialChemistrySolver   = 0;
+  ThreeBodyRate               = 0;                 // ABN02
+  CIECooling                  = 1;
+  H2OpticalDepthApproximation = 1;
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
@@ -278,7 +296,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.IncludeCloudyHeating           = 0;
   CloudyCoolingData.IncludeCloudyMMW               = 0;
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
-  CloudyCoolingData.ConstantTemperatureFloor       = 1.0;       // use if higher than T_CMB
   CloudyCoolingData.CloudyMetallicityNormalization = 0.018477;  // calculated using Cloudy 07.02 abundances
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
@@ -350,15 +367,20 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
+  PopIIIColorDensityThreshold      = 1e6;         // times mean total density
+  PopIIIColorMass                  = 1e6;         // total mass to color
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
+  MBHAccretion                     = TRUE;
+  MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHFeedbackThermal               = FALSE;
   MBHFeedbackRadius                = 10;           // pc
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackMetalYield            = 0.02;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHCombineRadius                 = 10;           // pc
-  MBHIonizingLuminosity            = 1e47;         // ph/s / Msun
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
@@ -384,8 +406,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
-  NSpecies		     = 0;
-  NColor		     = 0;
+  NSpecies		     = INT_UNDEFINED;
+  NColor		     = INT_UNDEFINED;
   Theta_Limiter		     = 1.5;
   RKOrder		     = 2;
   UsePhysicalUnit	     = 0;
@@ -556,14 +578,22 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Some stateful variables for EvolveLevel */
+  for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+    LevelCycleCount[i] = 0;
+    dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
+  }
+
   /* Shearing Boundary Conditions variables */
 
-  
   AngularVelocity=0.001;
   VelocityGradient=1.0;
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+
+  MoveParticlesBetweenSiblings = FALSE;
+
   return SUCCESS;
 }

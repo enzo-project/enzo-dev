@@ -59,6 +59,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
                              float SphereAng2[MAX_SPHERES],
                              int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
@@ -262,6 +266,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   /* Loop over the mesh. */
   float density, dens1, Velocity[MAX_DIMENSION],
     temperature, temp1, sigma, sigma1, colour;
+  float HII_Fraction, HeII_Fraction, HeIII_Fraction, H2I_Fraction;
   FLOAT r, x, y = 0, z = 0;
   int n = 0;
 
@@ -345,6 +350,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	colour = 1.0e-10;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
+	HII_Fraction = PhotonTestInitialFractionHII;
+	HeII_Fraction = PhotonTestInitialFractionHeII;
+	HeIII_Fraction = PhotonTestInitialFractionHeIII;
+	H2I_Fraction = PhotonTestInitialFractionH2I;
+
 	for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
 
 	  /* Find distance from center. */
@@ -436,7 +446,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    /* 4) Gaussian */
 	    if (SphereType[sphere] == 4) {
 	      dens1 = SphereDensity[sphere]*
-                      exp(-0.5*pow(r/SphereCoreRadius[sphere], 2));
+                      PEXP(-0.5*pow(r/SphereCoreRadius[sphere], 2));
 	    }
 
 	    /* 5) r^-2 power law with core radius */
@@ -493,7 +503,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		/* Compute density (Kruit & Searle 1982). */
 
 		if (dim == 0)
-		  dens1 = SphereDensity[sphere]*exp(-drad/ScaleHeightR)/
+		  dens1 = SphereDensity[sphere]*PEXP(-drad/ScaleHeightR)/
 		    pow(cosh(zheight/max(ScaleHeightz, CellWidth[0][0])), 2);
 
 		if (dens1 < density)
@@ -548,6 +558,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		  Velocity[dim] = SphereVelocity[sphere][dim];
 	      if (sphere == 0)
 		colour = dens1; /* only mark first sphere */
+	      HII_Fraction = SphereHII[sphere];
+	      HeII_Fraction = SphereHeII[sphere];
+	      HeIII_Fraction = SphereHeIII[sphere];
+	      H2I_Fraction = SphereH2I[sphere];
 	    }
 
 	  } // end: if (r < SphereRadius)
@@ -560,11 +574,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	/* If doing multi-species (HI, etc.), set these. */
 
 	if (MultiSpecies > 0) {
-	  BaryonField[HIINum][n] = PhotonTestInitialFractionHII *
+	  BaryonField[HIINum][n] = HII_Fraction *
 	    CoolData.HydrogenFractionByMass * BaryonField[0][n];
-	  BaryonField[HeIINum][n] = PhotonTestInitialFractionHeII*
+	  BaryonField[HeIINum][n] = HeII_Fraction *
 	    BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
-	  BaryonField[HeIIINum][n] = PhotonTestInitialFractionHeIII*
+	  BaryonField[HeIIINum][n] = HeIII_Fraction *
 	    BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
 	  BaryonField[HeINum][n] = 
 	    (1.0 - CoolData.HydrogenFractionByMass)*BaryonField[0][n] -
@@ -575,7 +589,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[HIINum][n]* pow(temperature,float(0.88));
 	  BaryonField[H2IINum][n] = PhotonTestInitialFractionH2II*
 	    2.0*BaryonField[HIINum][n]* pow(temperature,float(1.8));
-	  BaryonField[H2INum][n] = PhotonTestInitialFractionH2I*
+	  BaryonField[H2INum][n] = H2I_Fraction *
 	    BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
 	    pow(OmegaMatterNow, float(1.5))/
 	    (OmegaMatterNow*BaryonMeanDensity)/

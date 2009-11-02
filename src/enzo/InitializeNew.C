@@ -136,7 +136,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -199,8 +199,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Open parameter file
  
   if ((fptr = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Error opening parameter file.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error opening parameter file.");
   }
  
   // Open output file
@@ -218,12 +217,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Read the MetaData/global values from the Parameter file
  
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
 
-  if (debug) fprintf(stderr, "INITIALDT ------------- %e \n", Initialdt);
- 
   // Set the number of particle attributes, if left unset
  
   if (NumberOfParticleAttributes == INT_UNDEFINED)
@@ -239,10 +235,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       RefineRegionLeftEdge[dim]   = DomainLeftEdge[dim];
     if (RefineRegionRightEdge[dim] == FLOAT_UNDEFINED)
       RefineRegionRightEdge[dim]  = DomainRightEdge[dim];
-    if (MetaData.MovieRegionLeftEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionLeftEdge[dim]   = DomainLeftEdge[dim];
-    if (MetaData.MovieRegionRightEdge[dim] == FLOAT_UNDEFINED)
-      MetaData.MovieRegionRightEdge[dim]  = DomainRightEdge[dim];
   }
  
   // If the problem reads in a restart dump, then skip over the following
@@ -304,8 +296,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #endif
  
   if (ProblemType == 0) {
-    fprintf(stderr, "No problem specified.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("No problem specified.");
   }
  
   int ret = INT_UNDEFINED;
@@ -493,9 +484,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-
+  /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
-    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 200) 1D MHD Test */
@@ -542,8 +533,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
  
   if (ret == FAIL) {
-    fprintf(stderr, "Error in problem initialization.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in problem initialization.");
   }
  
   if (debug)
@@ -553,10 +543,16 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   InitializeMovieFile(MetaData, TopGrid);
  
-  // Do some error checking
+  /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED) {
-    fprintf(stderr, "StopTime never set.\n");
+  if (MetaData.StopTime == FLOAT_UNDEFINED)
+    ENZO_FAIL("StopTime never set.");
+
+  int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
+  if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
+    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
+	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
   }
 
@@ -586,8 +582,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       fprintf(stderr, "Opened BC file mode r\n");
 
       if (Exterior.ReadExternalBoundary(BCfptr) == FAIL) {
-	fprintf(stderr, "Error in ReadExternalBoundary.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ReadExternalBoundary.");
       }
       fclose(BCfptr);
     } else 
@@ -618,8 +613,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 				    MetaData.RightFaceBoundaryCondition[dim],
 				    Dummy, Dummy)
 	    == FAIL) {
-	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in InitializeExternalBoundaryFace.");
 	}
  
       // Initialize particle boundary conditions
@@ -696,16 +690,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Tracer particles will not be created at this point if ||rgio in ON
  
   if (TracerParticleCreation(fptr, TopGrid, MetaData) == FAIL) {
-    fprintf(stderr, "Error in TracerParticleCreation\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in TracerParticleCreation");
   }
  
   // Write the MetaData/global values to the Parameter file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (WriteParameterFile(Outfptr, MetaData) == FAIL) {
-      fprintf(stderr, "Error in WriteParameterFile.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in WriteParameterFile.");
     }
  
   if (debug)
@@ -760,13 +752,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ParallelRootGridIO == TRUE && ProblemType == 30) {
     if (PartitionNestedGrids) {
       if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in NestedCosmologySimulationReInitialize.");
       }
     } else {
       if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in CosmologySimulationReInitialize.");
       }
     }
   }
@@ -781,16 +771,22 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ParallelRootGridIO == TRUE && ProblemType == 60)
     if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-      fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
+ if (ProblemType == 106)
+   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+       == FAIL) {
+     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     ENZO_FAIL("");
+   }
+
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
-  // once the topgrid hsa been split.
+  // once the topgrid has been split.
  if (ProblemType == 203)
    if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+     fprintf(stderr, "Error in MHDTurbulenceReInitialize.\n");
      ENZO_FAIL("");
    }
    

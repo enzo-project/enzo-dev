@@ -26,7 +26,6 @@ LOCAL_INTEL_INSTALL  = /usr/local/intel/10.1.017
 
 # email jobordner@ucsd.edu if the following doesn't work:
 
-LOCAL_JBPERF_INSTALL = /u/ac/bordner/public/jbPerf
 
 LOCAL_PAPI_INSTALL   = /usr/apps/tools/papi3
 
@@ -94,14 +93,12 @@ MACH_OPT_AGGRESSIVE  = -O3
 LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_JBPERF = -I$(LOCAL_JBPERF_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = -I$(LOCAL_PAPI_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
-MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
 MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 
 #-----------------------------------------------------------------------
@@ -112,7 +109,6 @@ LOCAL_LIBS_MPI    = -lmpi
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg -lz
 LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_JBPERF = -L$(LOCAL_JBPERF_INSTALL)/lib -ljbperf
 LOCAL_LIBS_PAPI   = -L$(LOCAL_PAPI_INSTALL)/lib -lpapi
 
 LOCAL_LIBS_MACH   = # Machine-dependent libraries
@@ -120,5 +116,4 @@ LOCAL_LIBS_MACH   = # Machine-dependent libraries
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
-MACH_LIBS_JBPERF  = $(LOCAL_LIBS_JBPERF)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)

@@ -716,7 +716,7 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 
 
 int grid::PrintToScreenBoundaries(float *field, char *display){
- //if (!debug) return SUCCESS;
+ if (!debug) return SUCCESS;
 
   //return SUCCESS;
 
@@ -758,7 +758,7 @@ int grid::PrintToScreenBoundaries(int field){
 
   PrintToScreenBoundaries(BaryonField[i], "Density");
 
- 
+
  return SUCCESS;
   
 }

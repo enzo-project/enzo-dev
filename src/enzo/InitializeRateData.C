@@ -32,20 +32,20 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 			  float aye);
 extern "C" void FORTRAN_NAME(calc_rates)(
      int *nratec, float *aye, float *temstart, float *temend, float *alpha0,
-        float *f3, int *iradtype,
+        float *f3, int *iradtype, int *threebody,
      float *utem, float *uxyz, float *uaye, float *urho, float *utim,
      float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
      float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a,
      float *reHeII2a, float *reHeIIIa, float *brema, float *compa,
      float *piHI, float *piHeI, float *piHeII,
      float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
-     float *gpldl, float *gphdl, float *hdlte, float *hdlow,
+     float *gpldl, float *gphdl, float *hdlte, float *hdlow, float *hdcool, float *cieco,
      float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
      float *k1a, float *k2a, float *k3a, float *k4a, float *k5a, float *k6a,
         float *k7a, float *k8a, float *k9a, float *k10a,
      float *k11a, float *k12a, float *k13a, float *k13dda, float *k14a,
         float *k15a, float *k16a, float *k17a, float *k18a,
-     float *k19a, float *k20a, float *k21a, float *k22,
+     float *k19a, float *k20a, float *k21a, float *k22, float *k23,
      float *k24, float *k25, float *k26, float *k27, float *k28, float *k29,
         float *k30, float *k31,
      float *k50, float *k51, float *k52, float *k53, float *k54, float *k55,
@@ -170,6 +170,8 @@ int InitializeRateData(FLOAT Time)
   CoolData.GP99HighDensityLimit = new float[CoolData.NumberOfTemperatureBins];
   CoolData.HDlte   = new float[CoolData.NumberOfTemperatureBins];
   CoolData.HDlow   = new float[CoolData.NumberOfTemperatureBins];
+  CoolData.HDcool  = new float[CoolData.NumberOfTemperatureBins*5];
+  CoolData.cieco   = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAHI    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAH2    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAHe    = new float[CoolData.NumberOfTemperatureBins];
@@ -210,6 +212,7 @@ int InitializeRateData(FLOAT Time)
   RateData.k20 = new float[RateData.NumberOfTemperatureBins];
   RateData.k21 = new float[RateData.NumberOfTemperatureBins];
   RateData.k22 = new float[RateData.NumberOfTemperatureBins];
+  RateData.k23 = new float[RateData.NumberOfTemperatureBins];
   RateData.k50 = new float[RateData.NumberOfTemperatureBins];
   RateData.k51 = new float[RateData.NumberOfTemperatureBins];
   RateData.k52 = new float[RateData.NumberOfTemperatureBins];
@@ -248,7 +251,7 @@ int InitializeRateData(FLOAT Time)
   FORTRAN_NAME(calc_rates)(
      &CoolData.NumberOfTemperatureBins, &afloat, &CoolData.TemperatureStart,
         &CoolData.TemperatureEnd, &CoolData.alpha0, &CoolData.f3,
-        &RadiationFieldType,
+        &RadiationFieldType, &ThreeBodyRate,
      &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
      CoolData.ceHI, CoolData.ceHeI, CoolData.ceHeII, CoolData.ciHI,
         CoolData.ciHeI,
@@ -259,14 +262,14 @@ int InitializeRateData(FLOAT Time)
      CoolData.hyd01k, CoolData.h2k01, CoolData.vibh, CoolData.roth,
         CoolData.rotl,
      CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit,
-        CoolData.HDlte, CoolData.HDlow,
+        CoolData.HDlte, CoolData.HDlow, CoolData.HDcool, CoolData.cieco,
      CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp,
         CoolData.GAel,
      RateData.k1, RateData.k2, RateData.k3, RateData.k4, RateData.k5,
         RateData.k6, RateData.k7, RateData.k8, RateData.k9, RateData.k10,
      RateData.k11, RateData.k12, RateData.k13, RateData.k13dd, RateData.k14,
         RateData.k15, RateData.k16, RateData.k17, RateData.k18,
-     RateData.k19, RateData.k20, RateData.k21, RateData.k22,
+     RateData.k19, RateData.k20, RateData.k21, RateData.k22, RateData.k23,
      &RateData.k24, &RateData.k25, &RateData.k26, &RateData.k27, &RateData.k28,
         &RateData.k29, &RateData.k30, &RateData.k31,
      RateData.k50, RateData.k51, RateData.k52, RateData.k53, RateData.k54,

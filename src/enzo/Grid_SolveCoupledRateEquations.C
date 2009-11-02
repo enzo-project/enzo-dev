@@ -77,7 +77,11 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
 	int *iradtrans, int *iradcoupled, int *iradstep, int *ierr,
 	float *kphHI, float *kphHeI, float *kphHeII, 
-	float *kdissH2I, float *gammaHI, float *gammaHeI, float *gammaHeII);
+	float *kdissH2I, float *gammaHI, float *gammaHeI, float *gammaHeII,
+ 	int *icmbTfloor, int *iClHeat, int *iClMMW,
+ 	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
+ 	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
+ 	int *clDataSize, float *clCooling, float *clHeating, float *clMMW);
 
 int grid::SolveCoupledRateEquations()
 {
@@ -265,7 +269,21 @@ int grid::SolveCoupledRateEquations()
     &RTCoupledSolverIntermediateStep, &ierr,
     BaryonField[kphHINum], BaryonField[kphHeINum], BaryonField[kphHeIINum], 
     BaryonField[kdissH2INum], BaryonField[gammaHINum], BaryonField[gammaHeINum], 
-    BaryonField[gammaHeIINum]);
+    BaryonField[gammaHeIINum],
+    &CloudyCoolingData.CMBTemperatureFloor,
+    &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
+    &CloudyCoolingData.CloudyMetallicityNormalization,
+    &CloudyCoolingData.CloudyElectronFractionFactor,
+    &CloudyCoolingData.CloudyCoolingGridRank,
+    CloudyCoolingData.CloudyCoolingGridDimension,
+    CloudyCoolingData.CloudyCoolingGridParameters[0],
+    CloudyCoolingData.CloudyCoolingGridParameters[1],
+    CloudyCoolingData.CloudyCoolingGridParameters[2],
+    CloudyCoolingData.CloudyCoolingGridParameters[3],
+    CloudyCoolingData.CloudyCoolingGridParameters[4],
+    &CloudyCoolingData.CloudyDataSize,
+    CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating,
+    CloudyCoolingData.CloudyMeanMolecularWeight);
 
   if (ierr) {
       fprintf(stdout, "Error in FORTRAN rate/cool solver\n");
