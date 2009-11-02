@@ -51,6 +51,13 @@ int writeArrayAttribute( hid_t         loc_id,
 			 const char*   attrName,
 			 const void*   buffer  );
 
+int writeArrayDataset( hid_t         loc_id, 
+			 hid_t         type_id, 
+             int ndims,
+			 hsize_t *dims, 
+			 const char*   attrName,
+			 const void*   buffer  );
+
 
 int writeStringAttribute( hid_t loc_id, 
                           const char* datasetname, 

@@ -41,7 +41,9 @@ EXTERN int PreviousMaxTask;
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
 EXTERN int FileDirectedOutput;
-
+/* This governs whether or not we'll be writing out a supplemental binary
+   hierarchy file in HDF5. */
+EXTERN int WriteBinaryHierarchy;
 
 /* debugging, extraction flags */
 

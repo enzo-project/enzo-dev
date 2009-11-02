@@ -170,6 +170,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"FileDirectedOutput = %"ISYM,
 		  &FileDirectedOutput);
+    ret += sscanf(line,"WriteBinaryHierarchy = %"ISYM,
+		  &WriteBinaryHierarchy);
 
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);

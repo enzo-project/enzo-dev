@@ -123,6 +123,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
+  WriteBinaryHierarchy = 0;
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
