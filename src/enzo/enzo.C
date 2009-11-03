@@ -119,13 +119,35 @@ int Group_WriteAllData(char *basename, int filenumber,
 		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
          int RestartDump = FALSE);
 
+
+
+#ifdef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  SiblingGridList SiblingList[],
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
+#else
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+			  int level, TopGridData *MetaData,
+			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
+#endif
+
 int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
                                  int TopGridDims[]);
 int FastSiblingLocatorFinalize(ChainingMeshStructure *Mesh);
-int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
-			  SiblingGridList SiblingList[],
-			  int level, TopGridData *MetaData, 
-			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
+
+int RebuildHierarchy(TopGridData *MetaData,
+		     LevelHierarchyEntry *LevelArray[], int level);
+int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
+			 LevelHierarchyEntry *LevelArray[], int level);
+int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
+				int NumberOfSubgrids[] = NULL,
+				int FluxFlag = FALSE,
+				TopGridData* MetaData = NULL);
+int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
+		      int StaticLevelZero,TopGridData * MetaData,int level);
+
+
 
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
@@ -482,6 +504,8 @@ Eint32 main(Eint32 argc, char *argv[])
   
   if (velanyl) {
     VelAnyl = TRUE;
+    RebuildHierarchy(&MetaData, LevelArray, 0);
+    
 
     for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
       HierarchyEntry **Grids;
@@ -518,12 +542,13 @@ Eint32 main(Eint32 argc, char *argv[])
 	
 	FastSiblingLocatorFinalize(&ChainingMesh);
 	
-	if (SetBoundaryConditions(Grids,  NumberOfGrids, SiblingList,  level, &MetaData, 
+	if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, &MetaData, 
 				  &Exterior, LevelArray[level]) == FAIL) {
 	  printf("error setboundary");
 	}
       }
     }
+    
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
                      &TopGrid, MetaData, &Exterior) == FAIL) {
       fprintf(stderr, "Error in WriteAllData.\n");
