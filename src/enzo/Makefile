@@ -243,9 +243,9 @@ auto_show_version.C:
 # Force update of svn_version.def
 .PHONY: svn_version.def
 svn_version.def:
-	-@$(SVN) identify -i $(TOP_DIR) | \
+	-@$(SVN) identify -i | \
            awk '{print "#define ENZO_SVN_REVISION","\""$$1"\""}' > svn_version.def
-	-@$(SVN) identify -b $(TOP_DIR) | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
+	-@$(SVN) identify -b | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
 	-@if [ ! -s svn_version.def ]; then \
 	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
 	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \

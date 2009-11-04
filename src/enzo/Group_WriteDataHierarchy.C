@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "BinaryHierarchy.h"
  
 /* function prototypes */
  
@@ -97,6 +98,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
 	    NextGridNextLevelID);
  
   if (NextGridNextLevelID != 0) {
+    HierarchyArrays.current_parent = GridID;
     GridID++;
     if (Group_WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel,
                 base_name, GridID, WriteTime, file_id, CheckpointDump) == FAIL) {
