@@ -1054,6 +1054,8 @@ public:
 
    int MoveAllParticles(int NumberOfGrids, grid* TargetGrids[]);
 
+   int MoveAllParticlesOld(int NumberOfGrids, grid* TargetGrids[]);
+
 /* Particles: Move particles that lie within this grid from the TargetGrid
               to this grid. */
 
@@ -1158,11 +1160,23 @@ public:
 
 /* Particles: Set new star particle index. */
 
+   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2, int BaseNumber) {
+     for (int n = 0; n < NumberOfParticles; n++) 
+       if (ParticleNumber[n] == INT_UNDEFINED) {
+	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
+	   ParticleNumber[n] = BaseNumber + (NumberCount1++ + NumberCount2);
+	 else
+	   ParticleNumber[n] = BaseNumber + (NumberCount1 + NumberCount2++);
+       }
+   };
+
+/*
    void SetNewParticleIndex(int &NumberCount, int BaseNumber) {
-    for (int n = 0; n < NumberOfParticles; n++)
+     for (int n = 0; n < NumberOfParticles; n++) 
       if (ParticleNumber[n] == INT_UNDEFINED)
 	ParticleNumber[n] = BaseNumber + NumberCount++;
    };
+*/
 
 /* Particles: Add given number to particle index. */
 
@@ -1915,6 +1929,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
+
+  int MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
   int CommunicationSendStars(grid *ToGrid, int ToProcessor);
 

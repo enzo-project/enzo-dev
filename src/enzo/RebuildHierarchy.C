@@ -43,11 +43,11 @@ void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
 int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
 		 int &FlaggedGrids);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int  ReportMemoryUsage(char *header = NULL);
+int ReportMemoryUsage(char *header = NULL);
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 				     int level, bool AllLocal);
 int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
-			    int ShareParticles = TRUE);
+			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
@@ -75,6 +75,8 @@ bool _first = true;
 static double RHperf[16];
 
 #define NO_RH_PERF
+
+#define NO_PARTICLE_GRID_TEST_1   
 
 /* RebuildHierarchy function */
  
@@ -124,6 +126,10 @@ int RebuildHierarchy(TopGridData *MetaData,
   grid           *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
   grid           *ContigiousGridList[MAX_NUMBER_OF_SUBGRIDS];
 
+
+#ifdef PARTICLE_GRID_TEST_1
+
+#else
   /* Because we're storing particles in "empty" grids that are local
      to the subgrid, keep track of the number of particles stored
      locally.  Zero out NumberOfParticles on other processors, then
@@ -135,6 +141,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	Temp->GridData->SetNumberOfParticles(0);
 	Temp->GridData->SetNumberOfStars(0);
       }
+#endif
 
   /* The dynamic grids should be distributed enough to store the
      particles on each grid, so we'll collect the particles at the
@@ -174,10 +181,15 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    GridPointer[k] = NULL;
 	  }
 
+#ifdef PARTICLE_GRID_TEST_1
+	GridParent[j]->GridData->MoveAllStarsOld(grids2, ContigiousGridList, 
+						 MetaData->TopGridDims[0]);
+	GridParent[j]->GridData->MoveAllParticlesOld(grids2, ContigiousGridList);
+#else
 	GridParent[j]->GridData->MoveAllStars(grids2, ContigiousGridList, 
 					      MetaData->TopGridDims[0]);
-
 	GridParent[j]->GridData->MoveAllParticles(grids2, ContigiousGridList);
+#endif
 
 #ifdef TRANSFER   
 	/* Rescue all PhotonPackages before the subgrids are deleted. */
@@ -189,6 +201,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   } // end: loop over levels
   tt1 = ReturnWallTime();
   RHperf[0] += tt1-tt0;
+
  
   /* --------------------------------------------------------------------- */
   /* if this is level 0 then transfer particles between grids. */
@@ -212,6 +225,10 @@ int RebuildHierarchy(TopGridData *MetaData,
   tt1 = ReturnWallTime();
   RHperf[1] += tt1-tt0;
 
+
+#ifdef PARTICLE_GRID_TEST_1
+
+#else
   /* If the initial level is finer than the finest level with static
      subgrids, we must collect all of the particles on the grids' host
      processor before rebuilding.  Before MoveAllParticles did
@@ -226,6 +243,8 @@ int RebuildHierarchy(TopGridData *MetaData,
   }
   tt1 = ReturnWallTime();
   RHperf[2] += tt1-tt0;
+#endif
+
 
   /* --------------------------------------------------------------------- */
   /* Transfer particle between grids on this level to make sure that
@@ -237,9 +256,9 @@ int RebuildHierarchy(TopGridData *MetaData,
   */
 
   if (MoveParticlesBetweenSiblings && 
-      level > MaximumStaticSubgridLevel)  //#####
-    //      level > max(MaximumStaticSubgridLevel,0))
+      level > max(MaximumStaticSubgridLevel,0))
     CommunicationTransferSubgridParticles(LevelArray, MetaData, level);
+
 
 
   /* --------------------------------------------------------------------- */
@@ -329,9 +348,9 @@ int RebuildHierarchy(TopGridData *MetaData,
       tt1 = ReturnWallTime();
       RHperf[4] += tt1-tt0;
 
-      /* Create a temporary array of the new subgrids (which are on this
+      /* Create a temporary array of the new subgrids (which are on this 
 	 processor) for the next step. */
- 
+
       HierarchyEntry *Temp2;
       HierarchyEntry *SubgridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
       subgrids = 0;
@@ -342,11 +361,11 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  Temp2 = Temp2->NextGridThisLevel;
 	}
       }
- 
-      /* Share the new grids amoung processors. */
+
+      /* Share the new grids among processors. */
 
       tt0 = ReturnWallTime();
-      CommunicationShareGrids(GridHierarchyPointer, grids, MoveParticles);
+      CommunicationShareGrids(GridHierarchyPointer, grids, MoveParticles); 
       tt1 = ReturnWallTime();
       RHperf[5] += tt1-tt0;
 
@@ -359,7 +378,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  AddLevel(LevelArray, GridHierarchyPointer[j]->NextGridNextLevel,i+1);
       tt1 = ReturnWallTime();
       RHperf[6] += tt1-tt0;
- 
+
       /* 3g) loop over parent, and copy particles to new grids
 	     (all local to this processor) . */
 
@@ -375,10 +394,6 @@ int RebuildHierarchy(TopGridData *MetaData,
 				    SUBGRIDS_LOCAL);
       tt1 = ReturnWallTime();
       RHperf[7] += tt1-tt0;
-
-
-      CommunicationShareGrids(GridHierarchyPointer, grids, MoveParticles);//#####
-
 
       /* 3d) Create an array of the new subgrids. */
  
@@ -471,6 +486,9 @@ int RebuildHierarchy(TopGridData *MetaData,
       tt1 = ReturnWallTime();
       RHperf[13] += tt1-tt0;
 
+#ifdef PARTICLE_GRID_TEST_1
+
+#else
       /* If this is the finest level with static subgrids, the grids
 	 should be distributed enough to collect the particles on each
 	 host processor. */
@@ -483,6 +501,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 					  SIBLINGS_ONLY);
       tt1 = ReturnWallTime();
       RHperf[14] += tt1-tt0;
+#endif
 
       /* 3h) Clean up the LevelHierarchy entries for the old subgrids.
 	     Also, we can check to see if any old subgrids were missed. */

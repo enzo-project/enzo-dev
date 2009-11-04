@@ -17,6 +17,8 @@
 /              Fast Sibling Locator to remedy Ncpu^2 scaling
 /  modified6:  February, 2008 by Robert Harkness
 /              Conditional calls to MPI_Barrier to force MPICH progress
+/  modified7:  October, 2009 by Ji-hoon Kim
+/              Added particle splitter routine
 /
 /  PURPOSE:
 /    This routine is responsible for the evolution of the grid hierarchy.
@@ -98,6 +100,9 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
+int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+		     TopGridData *MetaData); 
+
 #ifdef USE_PYTHON
 int CallPython();
 #endif
@@ -264,12 +269,21 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 */
 
- 
+
   /* Do the first grid regeneration. */
  
   if(CheckpointRestart == FALSE) {
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
+
+  /* Particle Splitter. Split the particles into 13 (=1+12) children 
+     particles */
+  
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ParticleSplitterIterations > 0)
+    ParticleSplitter(LevelArray, 0, &MetaData);
+ 
+  
 
 
 

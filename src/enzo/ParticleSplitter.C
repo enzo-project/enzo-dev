@@ -31,53 +31,93 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "StarParticleData.h"
+
+#define DEBUG_PS
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
 					 int NumberOfGrids);
 
-int ParticleSplitter(HierarchyEntry *Grids[], LevelHierarchyEntry *LevelArray[], int ThisLevel,
-		     TopGridData *MetaData, int NumberOfGrids)
+int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+		     TopGridData *MetaData)
 {
 
   /* Return if this does not concern us */
-  if (ParticleSplitterIterations == 0 || !(MetaData->FirstTimestepAfterRestart)) 
+
+  if (ParticleSplitterIterations <= 0 || !(MetaData->FirstTimestepAfterRestart)) 
     return SUCCESS;
 
-  int level, i;
-  LevelHierarchyEntry *Temp;
-  grid *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
-  FLOAT TimeNow = LevelArray[ThisLevel]->GridData->ReturnTime();
+  int level, i, grid1;
+  HierarchyEntry **Grids;
+  int NumberOfGrids;
+
+  /* Set MetaData->NumberOfParticles; this is needed in 
+     CommunicationUpdateStarParticleCount below */
+
+  MetaData->NumberOfParticles = 0;
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
+      NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
+	MetaData->NumberOfParticles += Grids[grid1]->GridData->ReturnNumberOfParticles();
+  }
+	
+#ifdef DEBUG_PS
+  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles);
+#endif
 
   /* Initialize all star particles if this is a restart */
 
-  for (i = 0; i < ParticleSplitterIterations; i++)
+  for (i = 0; i < ParticleSplitterIterations; i++) {
+
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
+
+#ifdef DEBUG_PS
       fprintf(stdout, "ParticleSplitter [level=%d] starts. \n", level);
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
+#endif
+      NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+#ifdef DEBUG_PS
 	fprintf(stdout, "ParticleSplitter [grid->NumberOfParticles=%d] starts. \n", 
-		Temp->GridData->ReturnNumberOfParticles());
-	if (Temp->GridData->ParticleSplitter(level) == FAIL) {
+		Grids[grid1]->GridData->ReturnNumberOfParticles());
+#endif
+	
+	if (Grids[grid1]->GridData->ParticleSplitter(level) == FAIL) {
 	  fprintf(stderr, "Error in grid::ParticleSplitter.\n");
 	  ENZO_FAIL("");
 	}
+
+      }  // loop for grid1
+
+      /* Update the star particle counters using the same routine 
+      in StarParticleFinalize */
+      
+      if (CommunicationUpdateStarParticleCount(Grids, MetaData,
+					       NumberOfGrids) == FAIL) {
+	fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
+	ENZO_FAIL("");
       }
-    }
 
-  /* Now redistribute the particles as the newly created particles 
-     might have crossed the grid boundaries */
+    }  // loop for level
+
+    /* Redistribute the particles as the newly created particles 
+       might have crossed the grid boundaries */
   
-  RebuildHierarchy(MetaData, LevelArray, 0);
+    RebuildHierarchy(MetaData, LevelArray, 0);
+    
+    
+#ifdef DEBUG_PS
+    fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
+#endif
 
-  /* Update the star particle counters using the same routine in StarParticleFinalize */
-
-  if (CommunicationUpdateStarParticleCount(Grids, MetaData,
-					   NumberOfGrids) == FAIL) {
-    fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
-    ENZO_FAIL("");
-  }
+  }  // loop for i
 
   return SUCCESS;
 

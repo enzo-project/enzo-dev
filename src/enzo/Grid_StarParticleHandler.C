@@ -218,7 +218,7 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
-		       int *ibuff,
+		       int *ibuff, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
 			float *justburn);
@@ -914,7 +914,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
  
       for (i = 0; i < NumberOfNewParticles; i++)
-	tg->ParticleNumber[i] = INT_UNDEFINED;
+ 	tg->ParticleNumber[i] = INT_UNDEFINED;
  
       /* Move Particles into this grid (set cell size) using the fake grid. */
  
@@ -1049,6 +1049,25 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (STARFEED_METHOD(INSTANT_STAR)) {
 
+    // check whether the particles are correctly located in grids 
+    // Ji-hoon Kim in Nov.2009
+
+#ifdef PARTICLE_GRID_TEST
+    int xindex, yindex, zindex;
+    for (i = 0; i < NumberOfParticles; i++) {
+      
+      xindex = (int)((ParticlePosition[0][i] - CellLeftEdge[0][0]) / CellWidthTemp);
+      yindex = (int)((ParticlePosition[1][i] - CellLeftEdge[1][0]) / CellWidthTemp); 
+      zindex = (int)((ParticlePosition[2][i] - CellLeftEdge[2][0]) / CellWidthTemp); 
+
+      if (xindex < 0 || xindex > GridDimension[0] || 
+	  yindex < 0 || yindex > GridDimension[1] || 
+	  zindex < 0 || zindex > GridDimension[2])
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+		xindex, yindex, zindex, level); 
+    }
+#endif
+
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
  
       FORTRAN_NAME(star_feedback7)(
@@ -1063,11 +1082,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
           &StarMetalYield,
        &NumberOfParticles,
-          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, &level,
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
        ParticleVelocity[0], ParticleVelocity[1],
-          ParticleVelocity[2],
+          ParticleVelocity[2], 
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
           ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  

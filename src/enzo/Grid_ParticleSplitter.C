@@ -31,6 +31,9 @@
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
 
+#define DEBUG_PS
+#define PARTICLE_GRID_TEST
+
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -132,7 +135,7 @@ int grid::ParticleSplitter(int level)
   /* Allocate space for new particles. */
   
   int ChildrenPerParent = 12;  //12+1 = 13 will be the final number of particles per parent
-  int MaximumNumberOfNewParticles = (ChildrenPerParent+1)*NumberOfParticles;
+  int MaximumNumberOfNewParticles = ChildrenPerParent*NumberOfParticles+1;
   tg->AllocateNewParticles(MaximumNumberOfNewParticles);
 
   int NumberOfNewParticles = 0;
@@ -141,10 +144,29 @@ int grid::ParticleSplitter(int level)
   /*                       NOW SPLIT THE PARTICLES                       */
   /* ------------------------------------------------------------------- */
 
+#ifdef DEBUG_PS
   fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles before splitting = %d, MyProcessorNumber = %d\n", 
-	  NumberOfParticles, MyProcessorNumber); //#####
+	  NumberOfParticles, MyProcessorNumber); 
+#endif DEBUG_PS
  
-  if (NumberOfParticles > 0)
+  if (NumberOfParticles > 0) {
+
+#ifdef PARTICLE_GRID_TEST
+    int xindex, yindex, zindex;
+    for (i = 0; i < NumberOfParticles; i++) {
+      
+      xindex = (int)((ParticlePosition[0][i] - CellLeftEdge[0][0]) / CellWidthTemp);
+      yindex = (int)((ParticlePosition[1][i] - CellLeftEdge[1][0]) / CellWidthTemp); 
+      zindex = (int)((ParticlePosition[2][i] - CellLeftEdge[2][0]) / CellWidthTemp); 
+
+      if (xindex < 0 || xindex > GridDimension[0] || 
+	  yindex < 0 || yindex > GridDimension[1] || 
+	  zindex < 0 || zindex > GridDimension[2])
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+		xindex, yindex, zindex, level); 
+    }
+#endif
+
     FORTRAN_NAME(particle_splitter)(
        GridDimension, GridDimension+1, GridDimension+2,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
@@ -167,26 +189,30 @@ int grid::ParticleSplitter(int level)
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2], tg->ParticleType, &ran1_init);
 
-  /* If not set in the above routine, then set the metal fraction to zero. */
-  
-  if (MetallicityField == FALSE)
-    for (i = 0; i < NumberOfNewParticles; i++)
-      tg->ParticleAttribute[2][i] = 0.0;
-
-  /* Set the particle numbers (=indices). Following the convention in Grid_StarParticleHandler, 
-     particles won't get *meaningful* indices here;  instead this will be done in 
-     CommunicationUpdateStarParticleCount in ParticleSplitter. */
-    
-  for (i = 0; i < NumberOfNewParticles; i++)
-    tg->ParticleNumber[i] = INT_UNDEFINED;
+  }
 
   /* Move any new particles into their new homes. */
  
   if (NumberOfNewParticles > 0) {
-    
+
+#ifdef DEBUG_PS
     fprintf(stdout, "grid::ParticleSplitter:  NumberOfNewParticles = %d, MyProcessorNumber = %d\n", 
 	    NumberOfNewParticles, MyProcessorNumber);    
+#endif
 
+    /* If not set in the above routine, then set the metal fraction to zero. */
+    
+    if (MetallicityField == FALSE)
+      for (i = 0; i < NumberOfNewParticles; i++)
+	tg->ParticleAttribute[2][i] = 0.0;
+    
+    /* Set the particle numbers (=indices). Following the convention 
+       in Grid_StarParticleHandler, particles won't get indices here;  
+       instead this will be done in CommunicationUpdateStarParticleCount in ParticleSplitter. */
+    
+    for (i = 0; i < NumberOfNewParticles; i++)
+      tg->ParticleNumber[i] = INT_UNDEFINED;
+    
     /* Move Particles into this grid (set cell size) using the fake grid. */
     
     tg->NumberOfParticles = NumberOfNewParticles;
@@ -196,8 +222,10 @@ int grid::ParticleSplitter(int level)
     }
     this->MoveAllParticles(1, &tg);
 
+#ifdef DEBUG_PS
     fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles(New) = %d, MyProcessorNumber = %d\n", 
 	    NumberOfParticles, MyProcessorNumber);    
+#endif
     
   } // end: if (NumberOfNewParticles > 0)
 
@@ -205,8 +233,6 @@ int grid::ParticleSplitter(int level)
   /* Clean up. */
   
   delete tg; // temporary grid
-  delete [] BaryonField[NumberOfBaryonFields];   // refinement flag field
-  BaryonField[NumberOfBaryonFields] = NULL;
 
   LCAPERF_STOP("grid_ParticleSplitter");
   return SUCCESS;

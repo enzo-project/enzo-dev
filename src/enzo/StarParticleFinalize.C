@@ -43,6 +43,8 @@ int StarParticleAccretion(TopGridData *MetaData,
 			    Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -53,7 +55,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
 
-  int l;
+  int l, grid1;
   float TotalMass;
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
@@ -61,6 +63,17 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   bool *AddedFeedback = NULL;
 
   LCAPERF_START("StarParticleFinalize");
+
+  /* Set MetaData->NumberOfParticles; this is needed in 
+     CommunicationUpdateStarParticleCount below */
+
+  MetaData->NumberOfParticles = 0;
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
+      NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
+	MetaData->NumberOfParticles += Grids[grid1]->GridData->ReturnNumberOfParticles();
+  }
 
   /* Update the star particle counters. */
 

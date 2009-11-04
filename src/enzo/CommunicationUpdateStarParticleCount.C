@@ -42,6 +42,7 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
  
   int grid, *TotalParticleCount = new int[NumberOfGrids],
           *PartialParticleCount = new int[NumberOfGrids];
+  int NumberOfStarParticlesThisGrid, NumberOfOtherParticlesThisGrid;
  
   /* Set ParticleCount to zero and record number of particles for grids
      on this processor. */
@@ -84,14 +85,27 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
  
   for (grid = 0; grid < NumberOfGrids; grid++) {
  
-    if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber)
- 
+    if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+
       /* If this grid is on this processor, then call routine to set the
 	 particle index numbers.  This also updates NumberOfStarParticles. */
- 
+
+      /*
       Grids[grid]->GridData->SetNewParticleIndex(NumberOfStarParticles,
 						 MetaData->NumberOfParticles);
- 
+      */
+      
+      NumberOfStarParticlesThisGrid = 0;
+      NumberOfOtherParticlesThisGrid = 0;
+
+      Grids[grid]->GridData->SetNewParticleIndex(NumberOfStarParticlesThisGrid,
+						 NumberOfOtherParticlesThisGrid,
+						 MetaData->NumberOfParticles);
+      
+      NumberOfStarParticles += NumberOfStarParticlesThisGrid;
+
+    }
+
     else {
  
       /* If not on this processor, then keep track of the number of new
@@ -103,12 +117,12 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
                        Grids[grid]->GridData->ReturnNumberOfParticles();
       Grids[grid]->GridData->SetNumberOfParticles(TotalParticleCount[grid]);
  
- 
     }
+
+    //  printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles); 
  
   }
  
-  //  printf("NumberOfStarParticles = %"ISYM"\n", NumberOfStarParticles);
  
   /* Clean up. */
  
