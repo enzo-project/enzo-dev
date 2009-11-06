@@ -17,8 +17,6 @@
 /              Total(Star)ParticleCountPrevious, which can be achieved
 /              by RecordTotalParticleCount. (check StarParticleInitialize)
 /
-/
-/
 /  PURPOSE:
 /    This routines keeps track of the number of new star particles.
 /
@@ -43,8 +41,6 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
-
-#define NEW_INDEXING  //##### 
 
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
@@ -95,15 +91,12 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
   /*
   if (MyProcessorNumber == ROOT_PROCESSOR)
     for (grid = 0; grid < NumberOfGrids; grid++) {
-      fprintf(stdout, "\n");
       fprintf(stdout, "PartialParticleCount[%d] = %d\n", grid, PartialParticleCount[grid]); 
       fprintf(stdout, "TotalParticleCount[%d]   = %d\n", grid, TotalParticleCount[grid]);
       fprintf(stdout, "PartialStarParticleCount[%d] = %d\n", grid, PartialStarParticleCount[grid]); 
       fprintf(stdout, "TotalStarParticleCount[%d]   = %d\n", grid, TotalStarParticleCount[grid]);
-      fprintf(stdout, "--\n");
       fprintf(stdout, "TotalParticleCountPrevious[%d]   = %d\n", grid, TotalParticleCountPrevious[grid]);
-      fprintf(stdout, "TotalStarParticleCountPrevious[%d]   = %d\n", grid, TotalStarParticleCountPrevious[grid]);
-      fprintf(stdout, "\n");
+      fprintf(stdout, "TotalStarParticleCountPrevious[%d]   = %d\n\n", grid, TotalStarParticleCountPrevious[grid]);
     }
   */
 
@@ -126,13 +119,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
       /* If this grid is on this processor, then call routine to set the
 	 particle index numbers.  This also updates NumberOfStarParticles. */
 
-#ifdef NEW_INDEXING
-      Grids[grid]->GridData->SetNewParticleIndexNew(NumberOfStarParticles,
-						    NumberOfOtherParticles);
-#else
       Grids[grid]->GridData->SetNewParticleIndex(NumberOfStarParticles,
-						 MetaData->NumberOfParticles);
-#endif 
+						 NumberOfOtherParticles);
 
     else {
  
@@ -141,18 +129,12 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 	 got from the communication and what is currently stored).
 	 Finally, correct the number of particles in our record. */
 
-#ifdef NEW_INDEXING
       NumberOfStarParticles += TotalStarParticleCount[grid] - 
 	                       TotalStarParticleCountPrevious[grid];
       NumberOfOtherParticles += (TotalParticleCount[grid] - TotalStarParticleCount[grid]) - 
 	                        (Grids[grid]->GridData->ReturnNumberOfParticles()
 	                         - TotalStarParticleCountPrevious[grid]);
       Grids[grid]->GridData->SetNumberOfParticles(TotalParticleCount[grid]);
-#else
-      NumberOfStarParticles += TotalParticleCount[grid] - 
-	                       Grids[grid]->GridData->ReturnNumberOfParticles();
-      Grids[grid]->GridData->SetNumberOfParticles(TotalParticleCount[grid]);
-#endif
 
     }
 
@@ -160,11 +142,12 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 
   }
 
-  fprintf(stdout, "\n");
-  fprintf(stdout, "in CUSPC.C \n", MetaData->NumberOfParticles); 
+  /*
+  fprintf(stdout, "\nin CUSPC.C \n", MetaData->NumberOfParticles); 
   fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
   fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
   fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
+  */
 
   /* Clean up. */
  
@@ -252,8 +235,8 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
       /* If this grid is on this processor, then call routine to set the
 	 particle index numbers.  This also updates NumberOfStarParticles. */
 
-      Grids[grid]->GridData->SetNewParticleIndex(NumberOfStarParticles,
-						 MetaData->NumberOfParticles);
+      Grids[grid]->GridData->SetNewParticleIndexOld(NumberOfStarParticles,
+						    MetaData->NumberOfParticles);
 
     else {
  

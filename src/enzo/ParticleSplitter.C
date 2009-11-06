@@ -94,10 +94,10 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
       RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 				   TotalStarParticleCountPrevious);
 
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%d] = %d\n", grid1, 
-		TotalStarParticleCountPrevious[grid1]);
-      }
+      //      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
+      //	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%d] = %d\n", grid1, 
+      //		TotalStarParticleCountPrevious[grid1]);
+      
 
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
@@ -178,6 +178,8 @@ int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[])
   return TotalNumberOfParticles;
 
 }
+
+
 
 
 

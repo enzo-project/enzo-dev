@@ -1168,7 +1168,7 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndexNew(int &NumberCount1, int &NumberCount2) {
+   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2) {
      for (int n = 0; n < NumberOfParticles; n++) 
        if (ParticleNumber[n] == INT_UNDEFINED) {
 	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
@@ -1178,7 +1178,9 @@ public:
        }
    };
 
-   void SetNewParticleIndex(int &NumberCount, int BaseNumber) {
+/* Particles: Set new star particle index. - Old version */
+
+   void SetNewParticleIndexOld(int &NumberCount, int BaseNumber) {
      for (int n = 0; n < NumberOfParticles; n++) 
       if (ParticleNumber[n] == INT_UNDEFINED)
 	ParticleNumber[n] = BaseNumber + NumberCount++;

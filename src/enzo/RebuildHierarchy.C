@@ -76,7 +76,7 @@ static double RHperf[16];
 
 #define NO_RH_PERF
 
-#define PARTICLE_GRID_TEST_1   
+#define PARTICLE_GRID_TEST_1
 
 /* RebuildHierarchy function */
  
