@@ -223,7 +223,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     /*******************************************************************/
 
     jstart = 0;
-   jend = 0;
+    jend = 0;
 
     // Copy shared stars to grids, if any
 

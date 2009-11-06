@@ -104,10 +104,12 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 			       TotalStarParticleCountPrevious);
 
-  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); //#####
+  /*
+  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
   fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
   fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
   fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
+  */
 
   return SUCCESS;
 

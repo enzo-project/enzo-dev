@@ -31,8 +31,8 @@
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
 
-#define DEBUG_PS //#####
-#define PARTICLE_GRID_TEST //#####
+#define NO_DEBUG_PS 
+#define NO_PARTICLE_IN_GRID_CHECK 
 
 /* function prototypes */
  
@@ -151,7 +151,7 @@ int grid::ParticleSplitter(int level)
  
   if (NumberOfParticles > 0) {
 
-#ifdef PARTICLE_GRID_TEST
+#ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;
     for (i = 0; i < NumberOfParticles; i++) {
       
