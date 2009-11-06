@@ -292,7 +292,7 @@ c
             l33 = cos(alpha(2))
 c
 c
-c           Step[II-3]: Use [xyz]p0 and Euler angles to generate xp, yp, zp.
+c           Step[II-3]: Use [xyz]p0 and Euler angles to generate [xyz]p.
 c                       Here we add the initial position of the parent [xyz]pold.
 c            
             do m = 1, children

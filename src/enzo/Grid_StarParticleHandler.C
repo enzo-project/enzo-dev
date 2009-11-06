@@ -1052,6 +1052,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     // check whether the particles are correctly located in grids 
     // Ji-hoon Kim in Nov.2009
 
+#define PARTICLE_GRID_TEST  //#####
+
 #ifdef PARTICLE_GRID_TEST
     int xindex, yindex, zindex;
     for (i = 0; i < NumberOfParticles; i++) {

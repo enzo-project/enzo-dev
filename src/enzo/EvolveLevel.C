@@ -179,11 +179,14 @@ int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
 #endif
 
-int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
-			   TopGridData *MetaData, Star *&AllStars);
+int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
+			   int ThisLevel, Star *&AllStars,
+			   int TotalStarParticleCountPrevious[]);
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-			 int level, Star *&AllStars);
+			 int level, Star *&AllStars,
+			 int TotalStarParticleCountPrevious[]);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 
@@ -248,6 +251,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
+  int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
@@ -328,7 +332,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Initialize the star particles */
 
     Star *AllStars = NULL;
-    StarParticleInitialize(LevelArray, level, MetaData, AllStars);
+    StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
+			   level, AllStars, TotalStarParticleCountPrevious);
 
     /* Initialize the radiative transfer */
 
@@ -471,7 +476,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
 
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars);
+			 level, AllStars, TotalStarParticleCountPrevious);
 
     /* If cosmology, then compute grav. potential for output if needed. */
 

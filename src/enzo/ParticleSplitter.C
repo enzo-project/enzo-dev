@@ -18,6 +18,10 @@
 /
 ************************************************************************/
 
+#ifdef USE_MPI
+#include "mpi.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -32,8 +36,10 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
+#include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
 
-#define DEBUG_PS
+#define DEBUG_PS //#####
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
@@ -41,7 +47,11 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
-					 int NumberOfGrids);
+					 int NumberOfGrids,
+					 int TotalStarParticleCountPrevious[]);
+int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
+void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
+				  int TotalStarParticleCountPrevious[]);
 
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData)
@@ -56,20 +66,13 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   HierarchyEntry **Grids;
   int NumberOfGrids;
 
-  /* Set MetaData->NumberOfParticles; this is needed in 
+
+  /* Find total NumberOfParticles in all grids; this is needed in 
      CommunicationUpdateStarParticleCount below */
 
-  MetaData->NumberOfParticles = 0;
+  MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
+  NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
 
-  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
-      NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
-	MetaData->NumberOfParticles += Grids[grid1]->GridData->ReturnNumberOfParticles();
-  }
-	
-#ifdef DEBUG_PS
-  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles);
-#endif
 
   /* Initialize all star particles if this is a restart */
 
@@ -78,9 +81,23 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
 
 #ifdef DEBUG_PS
-      fprintf(stdout, "ParticleSplitter [level=%d] starts. \n", level);
+      fprintf(stdout, "MetaData->NumberOfParticles when ParticleSplitter [level=%d] starts = %d\n", 
+	      level, MetaData->NumberOfParticles);
 #endif
+
       NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+
+      /* Record the star particle number on each grid,
+	 will be used in CommunicationUpdateStarParticleCount */
+
+      RecordTotalStarParticleCount(Grids, NumberOfGrids, 
+				   TotalStarParticleCountPrevious);
+
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+	fprintf(stdout, "TotalStarParticleCountPrevious[grid=%d] = %d\n", grid1, 
+		TotalStarParticleCountPrevious[grid1]);
+      }
 
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
@@ -96,14 +113,18 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
       }  // loop for grid1
 
-      /* Update the star particle counters using the same routine 
-      in StarParticleFinalize */
+      CommunicationBarrier(); 
+
+      /* Assign indices for star particles and update the star particle counters 
+	 using the same routine in StarParticleFinalize */
       
       if (CommunicationUpdateStarParticleCount(Grids, MetaData,
-					       NumberOfGrids) == FAIL) {
+					       NumberOfGrids, 
+					       TotalStarParticleCountPrevious) == FAIL) {
 	fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
 	ENZO_FAIL("");
       }
+
 
     }  // loop for level
 
@@ -112,13 +133,93 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   
     RebuildHierarchy(MetaData, LevelArray, 0);
     
-    
+    /* Set MetaData->NumberOfParticles again; might be needed somewhere */
+
+    MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
+
 #ifdef DEBUG_PS
+    fprintf(stdout, "ParticleSplitter 1 cycle done!\n");
+    fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles);
     fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
 #endif
 
   }  // loop for i
 
+  /* Set splitter parameter zero; otherwise it will split particles again at next restart */
+
+  ParticleSplitterIterations = 0;
+
   return SUCCESS;
+
+}
+
+
+
+
+
+
+
+
+
+
+/* Find the total number of particles in all grids
+   to update MetaData->NumberOfParticles */
+
+int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[])
+{
+
+  int level, TotalNumberOfParticles = 0;
+  LevelHierarchyEntry *Temp;
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) 
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      TotalNumberOfParticles += Temp->GridData->ReturnNumberOfParticles();
+
+  return TotalNumberOfParticles;
+
+}
+
+
+
+
+
+
+
+/* Record the star particle number on each grid; 
+   mostly used in CommunicationUpdateStarParticleCount */
+
+void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
+				  int TotalStarParticleCountPrevious[])
+{
+
+  int grid, *PartialStarParticleCountPrevious = new int[NumberOfGrids];
+
+  for (grid = 0; grid < NumberOfGrids; grid++) {
+    TotalStarParticleCountPrevious[grid] = 0;
+    if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+      PartialStarParticleCountPrevious[grid] =
+	Grids[grid]->GridData->ReturnNumberOfStarParticles();
+    }
+    else {
+      PartialStarParticleCountPrevious[grid] = 0;
+    }
+
+}
+
+ 
+#ifdef USE_MPI
+ 
+  /* Get counts from each processor to get total list of new particles. */
+ 
+  MPI_Datatype DataTypeInt = (sizeof(int) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
+
+  MPI_Arg GridCount = NumberOfGrids;
+   
+  MPI_Allreduce(PartialStarParticleCountPrevious, TotalStarParticleCountPrevious, GridCount,
+		DataTypeInt, MPI_SUM, MPI_COMM_WORLD);
+
+#endif
+
+  delete [] PartialStarParticleCountPrevious;
 
 }

@@ -1103,6 +1103,14 @@ public:
 
    int ReturnNumberOfParticles() {return NumberOfParticles;};
 
+   int ReturnNumberOfStarParticles() {
+     int np = 0;
+     if (MyProcessorNumber == ProcessorNumber)
+       for (int n = 0; n < NumberOfParticles; n++) 
+	 if (ParticleType[n] == PARTICLE_TYPE_STAR) np++;
+     return np;
+   };
+
 /* Particles: set number of particles. */
 
    void SetNumberOfParticles(int num) {NumberOfParticles = num;};
@@ -1160,23 +1168,21 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2, int BaseNumber) {
+   void SetNewParticleIndexNew(int &NumberCount1, int &NumberCount2) {
      for (int n = 0; n < NumberOfParticles; n++) 
        if (ParticleNumber[n] == INT_UNDEFINED) {
 	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
-	   ParticleNumber[n] = BaseNumber + (NumberCount1++ + NumberCount2);
-	 else
-	   ParticleNumber[n] = BaseNumber + (NumberCount1 + NumberCount2++);
+	   ParticleNumber[n] = NumberCount1++ + NumberCount2;
+	 else 
+	   ParticleNumber[n] = NumberCount1 + NumberCount2++;
        }
    };
 
-/*
    void SetNewParticleIndex(int &NumberCount, int BaseNumber) {
      for (int n = 0; n < NumberOfParticles; n++) 
       if (ParticleNumber[n] == INT_UNDEFINED)
 	ParticleNumber[n] = BaseNumber + NumberCount++;
    };
-*/
 
 /* Particles: Add given number to particle index. */
 
@@ -2148,9 +2154,6 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 			   float *Flux3D[], int flux, float fluxcoef, float dt);
-  int Get_NumberOfParticles() {
-    return NumberOfParticles;
-  }
   int SetFloor();
 
 
@@ -2202,7 +2205,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     for (int n = 0; n < NumberOfParticles; n++)
       if (ParticleNumber[n] < 0) np++;
     return np;
-  }
+  };
   
   /* Non-ideal effects */
 

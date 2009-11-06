@@ -31,8 +31,8 @@
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
 
-#define DEBUG_PS
-#define PARTICLE_GRID_TEST
+#define DEBUG_PS //#####
+#define PARTICLE_GRID_TEST //#####
 
 /* function prototypes */
  
@@ -208,10 +208,12 @@ int grid::ParticleSplitter(int level)
     
     /* Set the particle numbers (=indices). Following the convention 
        in Grid_StarParticleHandler, particles won't get indices here;  
-       instead this will be done in CommunicationUpdateStarParticleCount in ParticleSplitter. */
+       instead it will be done in CommunicationUpdateStarParticleCount in ParticleSplitter. 
+       Plus, because we create different types of particles, 
+       here we set ParticleNumber differently so that they can be dealt with later. */
     
     for (i = 0; i < NumberOfNewParticles; i++)
-      tg->ParticleNumber[i] = INT_UNDEFINED;
+	tg->ParticleNumber[i] = INT_UNDEFINED;
     
     /* Move Particles into this grid (set cell size) using the fake grid. */
     

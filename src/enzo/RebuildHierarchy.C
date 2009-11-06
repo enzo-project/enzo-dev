@@ -76,7 +76,7 @@ static double RHperf[16];
 
 #define NO_RH_PERF
 
-#define NO_PARTICLE_GRID_TEST_1   
+#define PARTICLE_GRID_TEST_1   
 
 /* RebuildHierarchy function */
  
@@ -182,8 +182,8 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  }
 
 #ifdef PARTICLE_GRID_TEST_1
-	GridParent[j]->GridData->MoveAllStarsOld(grids2, ContigiousGridList, 
-						 MetaData->TopGridDims[0]);
+	GridParent[j]->GridData->MoveAllStars(grids2, ContigiousGridList, 
+					 MetaData->TopGridDims[0]);
 	GridParent[j]->GridData->MoveAllParticlesOld(grids2, ContigiousGridList);
 #else
 	GridParent[j]->GridData->MoveAllStars(grids2, ContigiousGridList, 

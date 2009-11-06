@@ -34,7 +34,8 @@
 
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
-					 int NumberOfGrids);
+					 int NumberOfGrids,
+					 int TotalStarParticleCountPrevious[]);
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars, bool* &AddedFeedback);
@@ -43,19 +44,18 @@ int StarParticleAccretion(TopGridData *MetaData,
 			    Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
-int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
-		      HierarchyEntry **Grids[]);
 void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-			 int level, Star *&AllStars)
+			 int level, Star *&AllStars,
+			 int TotalStarParticleCountPrevious[])
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
 
-  int l, grid1;
+  int l;
   float TotalMass;
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
@@ -64,22 +64,12 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   LCAPERF_START("StarParticleFinalize");
 
-  /* Set MetaData->NumberOfParticles; this is needed in 
-     CommunicationUpdateStarParticleCount below */
-
-  MetaData->NumberOfParticles = 0;
-
-  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {
-      NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
-	MetaData->NumberOfParticles += Grids[grid1]->GridData->ReturnNumberOfParticles();
-  }
-
   /* Update the star particle counters. */
 
   if (CommunicationUpdateStarParticleCount(Grids, MetaData,
-					   NumberOfGrids) == FAIL) {
-        ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
+					   NumberOfGrids,
+					   TotalStarParticleCountPrevious) == FAIL) {
+    ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
   }
 
   /* Update position and velocity of star particles from the actual
