@@ -312,7 +312,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       while (TotalNumberToMove < PARTICLES_PER_LOOP && 
 	     EndGrid < NumberOfGrids) {
 	if (GridHierarchyPointer[EndGrid]->GridData->ReturnProcessorNumber() != 
-	    MyProcessorNumber)
+	    MyProcessorNumber) 
 	  TotalNumberToMove += GridHierarchyPointer[EndGrid]->GridData->
 	    ReturnNumberOfParticles();
 	EndGrid++;
@@ -345,7 +345,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("CCP: Collecting a total of %"ISYM" particles over"
 	       " grids %"ISYM"->%"ISYM".\n", 
-	       AllMovedParticles, StartGrid, EndGrid); 
+	       AllMovedParticles, StartGrid, EndGrid-1);  
       */
 
       //EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);

@@ -76,6 +76,7 @@ static double RHperf[16];
 
 #define NO_RH_PERF
 
+
 /* RebuildHierarchy function */
  
 int RebuildHierarchy(TopGridData *MetaData,
@@ -190,6 +191,22 @@ int RebuildHierarchy(TopGridData *MetaData,
   tt1 = ReturnWallTime();
   RHperf[0] += tt1-tt0;
 
+
+  /* If the initial level is finer than the finest level with static
+     subgrids, we must collect all of the particles on the grids' host
+     processor before rebuilding.  Before MoveAllParticles did
+     this. */
+
+  tt0 = ReturnWallTime();
+  if (level > MaximumStaticSubgridLevel) {
+    ParticlesAreLocal = false;
+    CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal, 
+				  SIBLINGS_ONLY);
+    ParticlesAreLocal = true;
+  }
+  tt1 = ReturnWallTime();
+  RHperf[2] += tt1-tt0;
+
  
   /* --------------------------------------------------------------------- */
   /* if this is level 0 then transfer particles between grids. */
@@ -212,22 +229,6 @@ int RebuildHierarchy(TopGridData *MetaData,
   } // ENDIF level 0
   tt1 = ReturnWallTime();
   RHperf[1] += tt1-tt0;
-
-
-  /* If the initial level is finer than the finest level with static
-     subgrids, we must collect all of the particles on the grids' host
-     processor before rebuilding.  Before MoveAllParticles did
-     this. */
-
-  tt0 = ReturnWallTime();
-  if (level > MaximumStaticSubgridLevel) {
-    ParticlesAreLocal = false;
-    CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal, 
-				  SIBLINGS_ONLY);
-    ParticlesAreLocal = true;
-  }
-  tt1 = ReturnWallTime();
-  RHperf[2] += tt1-tt0;
 
 
   /* --------------------------------------------------------------------- */

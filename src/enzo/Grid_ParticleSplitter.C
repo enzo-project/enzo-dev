@@ -8,8 +8,8 @@
 
 /  PURPOSE: This routine splits particles into 13 (=12+1) children particles 
 /           when requested.  See Kitsionas & Whitworth (2002) for the
-/           technical details which was already implemented and used 
-/           in the partilce splitting technique of the SPH scheme.
+/           technical details of particle splitting,  which was already 
+/           implemented and used in SPH/Gadget.
 /
 /  RETURNS:
 /    SUCCESS or FAIL
@@ -52,7 +52,8 @@ extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
 	     float *mpold, float *tdpold, float *tcpold, float *metalfold, int *typeold,
 	     int *nmax, int *npartnew, int *children, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-	     float *mp, float *tdp, float *tcp, float *metalf, int *type, int *ran1_init); 
+	     float *mp, float *tdp, float *tcp, float *metalf, int *type, 
+             int *iterations, int *ran1_init); 
 
   
 int grid::ParticleSplitter(int level)
@@ -187,7 +188,8 @@ int grid::ParticleSplitter(int level)
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-       tg->ParticleAttribute[2], tg->ParticleType, &ran1_init);
+       tg->ParticleAttribute[2], tg->ParticleType, 
+       &ParticleSplitterIterations, &ran1_init);
 
   }
 

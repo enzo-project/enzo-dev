@@ -13,7 +13,8 @@ c
      &                      mpold, tdpold, tcpold, metalfold, typeold,
      &                      nmax, npartnew, children, level,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, ran1_init)
+     &                      mp, tdp, tcp, metalf, type, 
+     &                      iterations, ran1_init)
 c
 c  SPLIT STAR PARTICLES INTO CHILDREN PARTICLES WHEN REQUESTED
 c
@@ -49,6 +50,7 @@ c    nmax     - the maximum number of particles to be created
 c    npartnew - particle array size that will be created here, initially 0
 c    children - number of children particle per parent = 12
 c    level    - current level of refinement
+c    iterations - ParticleSplitterIterations
 c
 c    xp,yp,zp - positions of particles created
 c    up,vp,wp - velocities of particles created
@@ -65,7 +67,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      integer nx, ny, nz, ibuff, npart
+      integer  idual, imetal, imethod, iterations
       real    dt, dx, z
       real    d1, x1, v1, t1
       REALSUB xstart, ystart, zstart, t
@@ -104,9 +107,9 @@ c
 c
 c
 c     The distance to the children particles r is the same for all. It is 
-c     currently set to be 0.1 of dx (=CellWidth), but can be changed.
+c     currently set to be 0.2 of dx (=CellWidth), but can be changed.
 c
-      r = 0.1*dx
+      r = dx * (0.2)**float(iterations)
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 
 c     only DM and conventional star particles  get splitted.  Other 
@@ -354,7 +357,7 @@ c
 c
 c
       if (npartnew .ne. 0) then
-         write(6,*) 'particles created:', npartnew, t, level
+         write(6,*) 'particles created in splitter:', npartnew, level
       endif
 c
 c     write(6,*) 'particle_splitter: end'

@@ -137,7 +137,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	printf("Detected checkpointDump\n");
 	ExitEnzo = TRUE;
 	WriteOutput = TRUE;
-    CheckpointDump = TRUE;
+	CheckpointDump = TRUE;
       }
 
     /* We also reset checkpoint state here */

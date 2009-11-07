@@ -166,11 +166,10 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 
 
 
-
-
 /* Old version: not only it doesn't work when the new particles are not stars, 
    but it has assigned indices incorrectly */
 
+#ifdef UNUSED
 int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
 					    TopGridData *MetaData,
 					    int NumberOfGrids)
@@ -262,3 +261,4 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
  
   return SUCCESS;
 }
+#endif //UNUSED

@@ -1,3 +1,4 @@
+
 /***********************************************************************
 /
 /  GRID CLASS (MOVE ALL PARTICLES FROM SPECIFIED GRID TO THIS GRID)
@@ -44,9 +45,9 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
       NumberOfSubgridParticles += FromGrid[grid]->NumberOfParticles;
-  if (NumberOfSubgridParticles == 0)
+  if (NumberOfSubgridParticles == 0) 
     return SUCCESS;
-
+  
   TotalNumberOfParticles += NumberOfSubgridParticles;
  
   /* Debugging info. */
