@@ -513,14 +513,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
 
-  TestProblemData.MinimumHNumberDensity = 1;
-  TestProblemData.MaximumHNumberDensity = 1e6;
-  TestProblemData.MinimumMetallicity    = 1e-6;
-  TestProblemData.MaximumMetallicity    = 1;
-  TestProblemData.MinimumTemperature    = 10;
-  TestProblemData.MaximumTemperature    = 1e7;
-  TestProblemData.ResetEnergies         = 1;
-
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.
   TestProblemData.CI_Fraction = tiny_number;
@@ -557,6 +549,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.OHI_Fraction_Inner = tiny_number;
   TestProblemData.H2OI_Fraction_Inner = tiny_number;
   TestProblemData.O2I_Fraction_Inner = tiny_number;
+
+  TestProblemData.MinimumHNumberDensity = 1;
+  TestProblemData.MaximumHNumberDensity = 1e6;
+  TestProblemData.MinimumMetallicity    = 1e-6;
+  TestProblemData.MaximumMetallicity    = 1;
+  TestProblemData.MinimumTemperature    = 10;
+  TestProblemData.MaximumTemperature    = 1e7;
+  TestProblemData.ResetEnergies         = 1;
 
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
