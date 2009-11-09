@@ -47,7 +47,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
 
-#define NO_DEBUG_CCP
+#define NO_DEBUG_CCP 
 #define GRIDS_PER_LOOP 20000
 #define PARTICLES_PER_LOOP 10000000
  
@@ -155,11 +155,11 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
  
 	GridHierarchyPointer[j]->GridData->TransferSubgridStars
 	  (SubgridPointers, NumberOfSubgrids, StarsToMove, Zero, Zero, 
-	   StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT);
+	   StarSendList, KeepLocal, ParticlesAreLocal, COPY_OUT); 
 
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
-	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT);
+	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT);  
  
       } // ENDIF subgrids exist
 
@@ -312,7 +312,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       while (TotalNumberToMove < PARTICLES_PER_LOOP && 
 	     EndGrid < NumberOfGrids) {
 	if (GridHierarchyPointer[EndGrid]->GridData->ReturnProcessorNumber() != 
-	    MyProcessorNumber)
+	    MyProcessorNumber) 
 	  TotalNumberToMove += GridHierarchyPointer[EndGrid]->GridData->
 	    ReturnNumberOfParticles();
 	EndGrid++;
@@ -341,10 +341,12 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
       CommunicationAllReduceValues(&AllMovedStars, 1, MPI_SUM);
 #endif
-//      if (MyProcessorNumber == ROOT_PROCESSOR)
-//	printf("CCP: Collecting a total of %"ISYM" particles over"
-//	       " grids %"ISYM"->%"ISYM".\n", 
-//	       AllMovedParticles, StartGrid, EndGrid);
+      /*
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("CCP: Collecting a total of %"ISYM" particles over"
+	       " grids %"ISYM"->%"ISYM".\n", 
+	       AllMovedParticles, StartGrid, EndGrid-1);  
+      */
 
       //EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 

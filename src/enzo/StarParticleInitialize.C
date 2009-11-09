@@ -23,18 +23,24 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "StarParticleData.h"
 
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
-int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
+int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
+void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
+				  int TotalStarParticleCountPrevious[]);
 
-int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
-			   TopGridData *MetaData, Star *&AllStars)
+int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
+			   int ThisLevel, Star *&AllStars,
+			   int TotalStarParticleCountPrevious[])
 {
 
   /* Return if this does not concern us */
-  if (!(StarParticleCreation || StarParticleFeedback)) return SUCCESS;
+  if (!(StarParticleCreation || StarParticleFeedback)) 
+    return SUCCESS;
 
   int level, grids;
   Star *cstar;
@@ -48,22 +54,19 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->FindAllStarParticles(level) == FAIL) {
-	  fprintf(stderr, "Error in grid::FindAllStarParticles.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in grid::FindAllStarParticles.");
 	}
 
   /* Create a master list of all star particles */
 
   if (StarParticleFindAll(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleFindAll.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleFindAll.");
   }
 
   /* Merge any newly created, clustered particles */
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeNew.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleMergeNew.");
   }
 
   /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
@@ -91,6 +94,22 @@ int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     cstar->CopyToGrid();
     cstar->MirrorToParticle();
   }
+
+  /* Set MetaData->NumberOfParticles and prepare TotalStarParticleCountPrevious
+     these are to be used in CommunicationUpdateStarParticleCount 
+     in StarParticleFinalize */  
+
+  MetaData->NumberOfParticles = FindTotalNumberOfParticles(LevelArray);
+  NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
+  RecordTotalStarParticleCount(Grids, NumberOfGrids, 
+			       TotalStarParticleCountPrevious);
+
+  /*
+  fprintf(stdout, "\nin StarParticleInitialize.C \n", MetaData->NumberOfParticles); 
+  fprintf(stdout, "MetaData->NumberOfParticles = %d\n", MetaData->NumberOfParticles); 
+  fprintf(stdout, "NumberOfStarParticles now = %d\n", NumberOfStarParticles);
+  fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
+  */
 
   return SUCCESS;
 

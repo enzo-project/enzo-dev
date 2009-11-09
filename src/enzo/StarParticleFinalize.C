@@ -34,10 +34,11 @@
 
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
-					 int NumberOfGrids);
+					 int NumberOfGrids,
+					 int TotalStarParticleCountPrevious[]);
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars);
+			    Star *&AllStars, bool* &AddedFeedback);
 int StarParticleAccretion(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars);
@@ -47,7 +48,8 @@ void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-			 int level, Star *&AllStars)
+			 int level, Star *&AllStars,
+			 int TotalStarParticleCountPrevious[])
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
@@ -58,15 +60,16 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow;
+  bool *AddedFeedback = NULL;
 
   LCAPERF_START("StarParticleFinalize");
 
   /* Update the star particle counters. */
 
   if (CommunicationUpdateStarParticleCount(Grids, MetaData,
-					   NumberOfGrids) == FAIL) {
-    fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
-    ENZO_FAIL("");
+					   NumberOfGrids,
+					   TotalStarParticleCountPrevious) == FAIL) {
+    ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
   }
 
   /* Update position and velocity of star particles from the actual
@@ -80,9 +83,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
      accretion rates of the star particles */
   
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
-			      AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleAddFeedback.\n");
-    ENZO_FAIL("");
+			      AllStars, AddedFeedback) == FAIL) {
+        ENZO_FAIL("Error in StarParticleAddFeedback.");
   }
   
   /* Update star particles for any accretion */
@@ -90,8 +92,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (LevelArray[level+1] == NULL) 
     if (StarParticleAccretion(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
-      fprintf(stderr, "Error in StarParticleAccretion.\n");
-      ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleAccretion.");
     }
 
   /* Collect all sink particles and report the total mass to STDOUT */
@@ -112,8 +113,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Check for any stellar deaths */
 
   if (StarParticleDeath(LevelArray, level, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleDeath.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in StarParticleDeath.");
   }
 
   /* 
@@ -125,11 +125,13 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
      there. 
   */
 
-  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
+  int count = 0;
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
-    ThisStar->ActivateNewStar(TimeNow);
-    ThisStar->ResetAccretion(); 
+    if (AddedFeedback[count])
+      ThisStar->ActivateNewStar(TimeNow);
+    ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
 
@@ -144,6 +146,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Delete the global star particle list, AllStars */
 
   DeleteStarList(AllStars);
+  delete [] AddedFeedback;
 
   LCAPERF_STOP("StarParticleFinalize");
   return SUCCESS;

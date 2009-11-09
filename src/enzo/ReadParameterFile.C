@@ -87,6 +87,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "InitialCPUTime     = %lf", &MetaData.CPUTime);
     ret += sscanf(line, "Initialdt          = %"FSYM, Initialdt);
  
+    ret += sscanf(line, "CheckpointRestart = %"ISYM, &CheckpointRestart);
     ret += sscanf(line, "StopTime    = %"PSYM, &MetaData.StopTime);
     ret += sscanf(line, "StopCycle   = %"ISYM, &MetaData.StopCycle);
     ret += sscanf(line, "StopSteps   = %"ISYM, &MetaData.StopSteps);
@@ -149,6 +150,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
  
+    /* Maximum density directed output */
+    ret += sscanf(line, "OutputOnDensity = %"ISYM,
+           &OutputOnDensity);
+    ret += sscanf(line, "StartDensityOutputs = %"FSYM,
+           &StartDensityOutputs);
+    ret += sscanf(line, "CurrentDensityOutput = %"FSYM,
+           &CurrentDensityOutput);
+    ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
+           &IncrementDensityOutput);
+
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
                   &MetaData.SubcycleSkipDataDump);
@@ -159,6 +170,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"FileDirectedOutput = %"ISYM,
 		  &FileDirectedOutput);
+    ret += sscanf(line,"WriteBinaryHierarchy = %"ISYM,
+		  &WriteBinaryHierarchy);
 
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
@@ -351,6 +364,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
+    ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
+    ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
+    ret += sscanf(line, "H2OpticalDepthApproximation = %"ISYM, &H2OpticalDepthApproximation);
+    ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
     if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
       CloudyCoolingData.CloudyCoolingGridFile = dummy;
       ret++;
@@ -610,6 +627,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIISupernovaUseColour = %"ISYM, 
 		  &PopIIISupernovaUseColour);
 
+    ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
+		  &PopIIIColorDensityThreshold);
+    ret += sscanf(line, "PopIIIColorMass = %"FSYM,
+		  &PopIIIColorMass);
+
     ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
 		  &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
@@ -742,6 +764,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
+    ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
+		  &ParticleSplitterIterations);
 
     /* If the dummy char space was used, then make another. */
  

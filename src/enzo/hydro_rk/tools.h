@@ -19,6 +19,14 @@ inline Eflt64 my_MIN(Eflt64 a, Eflt64 b, Eflt64 c)
   return r;
 }
 
+inline Eflt128 my_MIN(Eflt128 a, Eflt128 b, Eflt128 c)
+{
+  Eflt128 r;
+  r = (a < b) ? a : b;
+  r = (r < c) ? r : c;
+  return r;
+}
+
 inline float my_MAX(float a, float b, float c)
 {
   float r;

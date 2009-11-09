@@ -152,6 +152,27 @@ int writeArrayAttribute( hid_t         loc_id,
 
 }
 
+int writeArrayDataset( hid_t         loc_id, 
+			 hid_t         type_id, 
+             int ndims,
+			 hsize_t *dims, 
+			 const char*   attrName,
+			 const void*   buffer  )
+{
+
+  hid_t dataspace_id, dataset_id;
+  int   err = 0;
+
+  err |= checkErr ( dataspace_id = H5Screate_simple(ndims, dims, NULL), attrName );
+  err |= checkErr ( dataset_id = H5Dcreate(loc_id, attrName, type_id, dataspace_id, H5P_DEFAULT), attrName );
+  err |= checkErr ( H5Dwrite(dataset_id, type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, buffer), attrName );
+  err |= checkErr ( H5Dclose(dataset_id), attrName );
+  err |= checkErr ( H5Sclose(dataspace_id), attrName );
+
+  return err;
+
+}
+
 
 int writeStringAttribute(hid_t loc_id, const char* name, const char* data)
 {

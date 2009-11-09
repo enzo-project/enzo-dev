@@ -78,6 +78,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "InitialTime         = %"GOUTSYM"\n", MetaData.Time);
   fprintf(fptr, "InitialCPUTime      = %"GSYM"\n\n", MetaData.CPUTime);
  
+  fprintf(fptr, "CheckpointRestart   = %"ISYM"\n", CheckpointRestart);
   fprintf(fptr, "StopTime            = %"GOUTSYM"\n", MetaData.StopTime);
   fprintf(fptr, "StopCycle           = %"ISYM"\n", MetaData.StopCycle);
   fprintf(fptr, "StopSteps           = %"ISYM"\n", MetaData.StopSteps);
@@ -139,6 +140,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.OutputFirstTimeAtLevel);
   fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
+
+  fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
+  fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);
@@ -327,6 +331,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
+  fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
+  fprintf(fptr, "CIECooling                     = %"ISYM"\n", CIECooling);
+  fprintf(fptr, "H2OpticalDepthApproximation    = %"ISYM"\n", H2OpticalDepthApproximation);
+  fprintf(fptr, "ThreeBodyRate                  = %"ISYM"\n", ThreeBodyRate);
   fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
   fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
@@ -374,6 +382,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           ParticleTypeInFile);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
+  fprintf(fptr, "ParticleSplitterIterations     = %"ISYM"\n",
+	  ParticleSplitterIterations);
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
@@ -580,8 +590,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHCombineRadius                = %"GSYM"\n\n",
           MBHCombineRadius);
 
-  /* Most Stanford additions: */
+  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
+          PopIIIColorDensityThreshold);
+  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n",
+          PopIIIColorMass);
 
+  /* Most Stanford additions: */
 
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);

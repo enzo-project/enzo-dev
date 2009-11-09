@@ -21,6 +21,7 @@
 /* Number of Star particles. */
 
 SPEXTERN int NumberOfStarParticles;
+SPEXTERN int NumberOfOtherParticles; //all the particles other than type=2
 SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */
@@ -43,6 +44,8 @@ SPEXTERN float PopIIIH2CriticalFraction;
 SPEXTERN float PopIIIMetalCriticalFraction;
 SPEXTERN float PopIIISupernovaRadius;
 SPEXTERN int   PopIIISupernovaUseColour;
+SPEXTERN float PopIIIColorDensityThreshold;
+SPEXTERN float PopIIIColorMass;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN float  StarClusterMinDynamicalTime;

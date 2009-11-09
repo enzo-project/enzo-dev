@@ -79,14 +79,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             /* This gives back a new reference 
                So we need to decref it after we add it to the dict */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    3, dims, ENPY_FLOAT, BaryonField[field]);
+                    3, dims, ENPY_BFLOAT, BaryonField[field]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
 
 			/* Now the old grid data */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    3, dims, ENPY_FLOAT, OldBaryonField[field]);
+                    3, dims, ENPY_BFLOAT, OldBaryonField[field]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
@@ -99,7 +99,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
           for(dim = 0; dim < this->GridRank; dim++) {
             /* Position */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    1, dims, ENPY_FLOAT, ParticlePosition[dim]);
+                    1, dims, ENPY_PFLOAT, ParticlePosition[dim]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, ParticlePositionLabel[dim],
                 (PyObject*) dataset);
@@ -107,7 +107,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 
             /* Velocity */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    1, dims, ENPY_FLOAT, ParticleVelocity[dim]);
+                    1, dims, ENPY_BFLOAT, ParticleVelocity[dim]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, ParticleVelocityLabel[dim],
                 (PyObject*) dataset);
@@ -116,7 +116,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
           }
           /* Mass */
           dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                  1, dims, ENPY_FLOAT, ParticleMass);
+                  1, dims, ENPY_BFLOAT, ParticleMass);
           dataset->flags &= ~NPY_OWNDATA;
           PyDict_SetItemString(grid_data, "particle_mass",
               (PyObject*) dataset);

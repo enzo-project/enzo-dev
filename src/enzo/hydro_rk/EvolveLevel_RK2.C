@@ -35,11 +35,14 @@
 
 /* function prototypes */
 
-int StarParticleInitialize(LevelHierarchyEntry *LevelArray[], int ThisLevel,
-			   TopGridData *MetaData, Star *&AllStars);
+int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
+			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
+			   int ThisLevel, Star *&AllStars,
+			   int TotalStarParticleCountPrevious[]);
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-			 int level, Star *&AllStars);
+			 int level, Star *&AllStars,
+			 int TotalStarParticleCountPrevious[]);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 int ComputeDednerWaveSpeeds(TopGridData *MetaData,LevelHierarchyEntry *LevelArray[], 
@@ -175,7 +178,6 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
 
 /* Counters for performance and cycle counting. */
 
-static int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -229,6 +231,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
+  int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
 
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
@@ -292,7 +295,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
    /* Initialize the star particles */
 
     Star *AllStars = NULL;
-    StarParticleInitialize(LevelArray, level, MetaData, AllStars);
+    StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
+			   level, AllStars, TotalStarParticleCountPrevious);
 
  
 #ifdef TRANSFER
@@ -539,7 +543,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars);
+			 level, AllStars, TotalStarParticleCountPrevious);
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

@@ -27,8 +27,10 @@ OBJS_CONFIG_LIB = \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
+        BinaryHierarchy.o \
         calcdiss.o \
         calc_dt.o \
+        calc_dt_c.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -41,9 +43,13 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_c.o \
         cic_flag.o \
+        cic_flag_c.o \
         cic_interp.o \
+        cic_interp_c.o \
         cicinterp.o \
+        cie_thin_cooling_rate.o \
         cluster_maker.o \
         c_message.o \
         colh2diss.o \
@@ -289,6 +295,7 @@ OBJS_CONFIG_LIB = \
         Grid_FindNewStarParticles.o \
         Grid_FinishFFT.o \
         Grid_FlagBufferZones.o \
+        Grid_FlagCellsToAvoidRefinement.o \
         Grid_FlagCellsToBeRefinedByCoolingTime.o \
         Grid_FlagCellsToBeRefinedByJeansLength.o \
         Grid_FlagCellsToBeRefinedByMass.o \
@@ -313,9 +320,11 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
-        Grid_Group_ReadGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
+        Grid_Group_ReadGrid.o \
+        New_Grid_WriteGrid.o \
+        New_Grid_ReadGrid.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
@@ -347,6 +356,7 @@ OBJS_CONFIG_LIB = \
         Grid_NohInitializeGrid.o \
         Grid_OutputAsParticleData.o \
         Grid_OutputStarParticleInformation.o \
+        Grid_ParticleSplitter.o \
         Grid_PoissonSolver.o                    \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
@@ -386,6 +396,7 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
         Grid_SolveForPotential.o \
+        Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -486,14 +497,21 @@ OBJS_CONFIG_LIB = \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
         P_ColumnFormat.o \
+        ParticleSplitter.o \
         performance.o \
         pgas2d_dual.o \
         pgas2d.o \
         PoissonSolverTestInitialize.o \
+        pop3_color_maker.o \
+        pop3_color_maker_c.o \
         pop3_maker.o \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
+        primordial_calc_derivs.o \
+        primordial_cool.o \
+        primordial_lookup_rates.o \
+        primordial_solver.o \
 	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
@@ -557,6 +575,7 @@ OBJS_CONFIG_LIB = \
         ShockTubeInitialize.o \
         sink_maker.o \
         smooth_deposit.o \
+        smooth_deposit_c.o \
         smooth.o \
         solve_cool.o \
         solve_rate.o \
@@ -595,6 +614,7 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
+	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \

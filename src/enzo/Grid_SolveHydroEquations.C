@@ -219,6 +219,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* allocate space for fluxes */
 
+    /* Set up our restart dump fluxes container */
+    this->SubgridFluxStorage = SubgridFluxes;
+    this->NumberOfSubgrids = NumberOfSubgrids;
+
     for (i = 0; i < NumberOfSubgrids; i++) {
       for (dim = 0; dim < GridRank; dim++)  {
 
@@ -274,7 +278,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        (including boundary zones) */
 
     for (dim = 0; dim < GridRank; dim++)
-      GridGlobalStart[dim] = nint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
+      GridGlobalStart[dim] = nlongint((GridLeftEdge[dim]-DomainLeftEdge[dim])/(*(CellWidth[dim]))) -
 	GridStartIndex[dim];
 
     /* fix grid quantities so they are defined to at least 3 dims */
@@ -372,6 +376,15 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];
+
+  /* If we're supposed to be outputting on Density, we need to update
+     the current maximum value of that Density. */
+
+    if(OutputOnDensity == 1){
+      int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+      for(i = 0; i < size; i++)
+        max(BaryonField[DensNum][size], CurrentMaximumDensity);
+    }
 
   }  // end: if (NumberOfBaryonFields > 0)
 

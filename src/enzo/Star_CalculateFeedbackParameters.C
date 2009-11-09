@@ -46,6 +46,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
   float StarLevelCellWidth;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
 
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+    DINum, DIINum, HDINum;
+
   int igrid[MAX_DIMENSION], dim, index;
   int size=1;
   float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_Edd, mdot_UpperLimit, v_rel, dvel;

@@ -123,6 +123,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
+  WriteBinaryHierarchy = 0;
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
@@ -158,6 +159,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.FirstTimestepAfterRestart = TRUE;
  
   /* set the default global data. */
+  CheckpointRestart         = 0;
+
   // Debug flag set in main
   ProblemType               = 0;                 // None
   HydroMethod               = PPM_DirectEuler;   //
@@ -223,6 +226,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug2                      = 0;
 
   TracerParticleOn            = 0;
+
+  OutputOnDensity                  = 0;
+  StartDensityOutputs              = 999;
+  CurrentDensityOutput             = 999;
+  IncrementDensityOutput           = 999;
+  CurrentMaximumDensity            = -999;
  
   CubeDumpEnabled             = 0;
 
@@ -266,6 +275,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiativeCooling            = FALSE;             // off
   GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
+  PrimordialChemistrySolver   = 0;
+  ThreeBodyRate               = 0;                 // ABN02
+  CIECooling                  = 1;
+  H2OpticalDepthApproximation = 1;
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
@@ -354,6 +367,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
+  PopIIIColorDensityThreshold      = 1e6;         // times mean total density
+  PopIIIColorMass                  = 1e6;         // total mass to color
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
@@ -500,14 +515,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
 
-  TestProblemData.MinimumHNumberDensity = 1;
-  TestProblemData.MaximumHNumberDensity = 1e6;
-  TestProblemData.MinimumMetallicity    = 1e-6;
-  TestProblemData.MaximumMetallicity    = 1;
-  TestProblemData.MinimumTemperature    = 10;
-  TestProblemData.MaximumTemperature    = 1e7;
-  TestProblemData.ResetEnergies         = 1;
-
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.
   TestProblemData.CI_Fraction = tiny_number;
@@ -545,6 +552,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.H2OI_Fraction_Inner = tiny_number;
   TestProblemData.O2I_Fraction_Inner = tiny_number;
 
+  TestProblemData.MinimumHNumberDensity = 1;
+  TestProblemData.MaximumHNumberDensity = 1e6;
+  TestProblemData.MinimumMetallicity    = 1e-6;
+  TestProblemData.MaximumMetallicity    = 1;
+  TestProblemData.MinimumTemperature    = 10;
+  TestProblemData.MaximumTemperature    = 1e7;
+  TestProblemData.ResetEnergies         = 1;
+
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
@@ -565,9 +580,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   my_processor = PyLong_FromLong((Eint) MyProcessorNumber);
 #endif
 
+  /* Some stateful variables for EvolveLevel */
+  for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+    LevelCycleCount[i] = 0;
+    dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
+  }
+
   /* Shearing Boundary Conditions variables */
 
-  
   AngularVelocity=0.001;
   VelocityGradient=1.0;
   ShearingBoundaryDirection=-1;
@@ -576,6 +596,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 
   MoveParticlesBetweenSiblings = FALSE;
+  ParticleSplitterIterations = FALSE;
 
   return SUCCESS;
 }

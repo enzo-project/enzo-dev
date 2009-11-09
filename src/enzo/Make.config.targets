@@ -139,10 +139,20 @@ help-config:
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
 	@echo 
+	@echo "   Use the new Grid IO routines"
+	@echo
+	@echo "      gmake newgridio-yes"
+	@echo "      gmake newgridio-no"
+	@echo 
 	@echo "   Include fast sibling search"
 	@echo
 	@echo "      gmake fastsib-yes"
 	@echo "      gmake fastsib-no"
+	@echo 
+	@echo "   Turn on blocking-gravity for bitwise identical runs"
+	@echo
+	@echo "      gmake bitwise-yes"
+	@echo "      gmake bitwise-no"
 	@echo 
 	@echo "   Include sibling subgrid boundary fix"
 	@echo
@@ -195,6 +205,7 @@ show-flags:
 show-config:
 	@echo
 	@echo "   MACHINE: $(MACH_TEXT)"
+	@echo "   MACHINE-NAME: $(CONFIG_MACHINE)"
 	@echo
 	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
 	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
@@ -220,6 +231,8 @@ show-config:
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
+	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
+	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
 	@echo
@@ -346,6 +359,7 @@ VALID_PARTICLES = particles-32 particles-64 particles-128
 particles-32:  CONFIG_PARTICLES-32
 particles-64:  CONFIG_PARTICLES-64
 particles-128: CONFIG_PARTICLES-128
+	@printf "\nNote that star formation does not work with this option.\n\n"
 particles-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PARTICLES)]\n\n"
 CONFIG_PARTICLES-%: suggest-clean
@@ -634,6 +648,23 @@ CONFIG_PHOTON-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+VALID_NEW_GRID_IO = newgridio-yes newgridio-no
+.PHONY: $(VALID_NEW_GRID_IO)
+
+newgridio-yes: CONFIG_NEW_GRID_IO-yes
+newgridio-no: CONFIG_NEW_GRID_IO-no
+newgridio-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_NEW_GRID_IO)]\n\n"
+CONFIG_NEW_GRID_IO-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_NEW_GRID_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_NEW_GRID_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_NEW_GRID_IO:
+	@echo
+
+#-----------------------------------------------------------------------
+
 VALID_FAST_SIB = fastsib-yes fastsib-no
 .PHONY: $(VALID_FAST_SIB)
 
@@ -647,6 +678,24 @@ CONFIG_FAST_SIB-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_FAST_SIB = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_FAST_SIB:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_BITWISE_IDENTICALITY = bitwise-yes bitwise-no
+.PHONY: $(VALID_BITWISE_IDENTICALITY)
+
+bitwise-yes: CONFIG_BITWISE_IDENTICALITY-yes
+bitwise-no: CONFIG_BITWISE_IDENTICALITY-no
+BITWISE_IDETICALITY-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_BITWISE_IDENTICALITY)]\n\n"
+CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_BITWISE_IDENTICALITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_BITWISE_IDENTICALITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY:
 	@echo
 
 
