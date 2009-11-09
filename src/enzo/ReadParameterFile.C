@@ -712,6 +712,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RKOrder = %d", &RKOrder);
     ret += sscanf(line, "UseFloor = %d", &UseFloor);
     ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
+    ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
     ret += sscanf(line, "UseAmbipolarDiffusion = %d", &UseAmbipolarDiffusion);
     ret += sscanf(line, "UseResistivity = %d", &UseResistivity);
     ret += sscanf(line, "SmallRho = %g", &SmallRho);

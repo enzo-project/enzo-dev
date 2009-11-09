@@ -568,6 +568,7 @@ EXTERN int ExternalGravity;
 EXTERN int StringKick;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
+EXTERN float ViscosityCoefficient;
 EXTERN int UseAmbipolarDiffusion;
 EXTERN int UseResistivity;
 

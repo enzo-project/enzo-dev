@@ -421,6 +421,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
+  ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
 

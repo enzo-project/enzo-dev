@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       July, 2008
-/  modified1:
+/  modified1:  11/09  Tom Abel, added ViscosityCoefficient
 /
 /  PURPOSE:
 /
@@ -158,7 +158,6 @@ int grid::AddViscosity()
     
     dt_total += dt_vis;
     if (dt_total + dt_vis > dtFixed) dt_vis = dtFixed - dt_total;
-    
   }
 
   for (int i = 0; i < 5; i++) {
@@ -179,44 +178,52 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int grid::ComputeViscosity(float *viscosity, int DensNum)
 {
-
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
     TimeUnits = 1.0, VelocityUnits = 1.0;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  double alpha = 0.1;
-  double Msun = 1.989e33;
-  double GravConst = 6.672e-8;
-  double M;
-  if (ExternalGravity == 4) M = 2.0*ExternalGravityDensity*Msun;
-  if (ExternalGravity == 5) M = ExternalGravityDensity*Msun;
-
-  int n = 0, igrid;
-  float Omega, rho, p, eint, h, cs, dpdrho, dpde;
-  FLOAT x, y, R;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-	
-	igrid = i + (j+k*GridDimension[1])*GridDimension[0];
-	
-	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];	
-	R = sqrt(pow(x-0.5,2) + pow(y-0.5,2));
-	R = max(R, 0.5*CellWidth[0][0]);
-
-	rho = BaryonField[DensNum][igrid];
-	EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1);
-	
-	Omega = sqrt(GravConst*M/pow(R*LengthUnits,3))*TimeUnits;
-
-	viscosity[n] = alpha*cs*cs/Omega;
-	
+  int n = 0, igrid;  
+  if (UseViscosity == 1) {
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) 
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) 
+	  viscosity[n] = ViscosityCoefficient;
+    printf("VISC: %f\n", ViscosityCoefficient);
+  }
+  else if (UseViscosity == 2)   {
+    double alpha = 0.1;
+    double Msun = 1.989e33;
+    double GravConst = 6.672e-8;
+    double M;
+    if (ExternalGravity == 4) M = 2.0*ExternalGravityDensity*Msun;
+    if (ExternalGravity == 5) M = ExternalGravityDensity*Msun;
+    
+    float Omega, rho, p, eint, h, cs, dpdrho, dpde;
+    FLOAT x, y, R;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+	  
+	  igrid = i + (j+k*GridDimension[1])*GridDimension[0];
+	  
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];	
+	  R = sqrt(pow(x-0.5,2) + pow(y-0.5,2));
+	  R = max(R, 0.5*CellWidth[0][0]);
+	  
+	  rho = BaryonField[DensNum][igrid];
+	  EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1);
+	  
+	  Omega = sqrt(GravConst*M/pow(R*LengthUnits,3))*TimeUnits;
+	  
+	  viscosity[n] = alpha*cs*cs/Omega;
+	  
+	}
       }
     }
   }
-
+  
   return SUCCESS;
-
+  
 }

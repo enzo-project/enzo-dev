@@ -591,6 +591,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);
   fprintf(fptr, "UseFloor                   = %d\n", UseFloor);
   fprintf(fptr, "UseViscosity               = %d\n", UseViscosity);
+  fprintf(fptr, "ViscosityCoefficient       = %g\n", ViscosityCoefficient);  
   fprintf(fptr, "UseAmbipolarDiffusion      = %d\n", UseAmbipolarDiffusion);
   fprintf(fptr, "UseResistivity             = %d\n", UseResistivity);
   fprintf(fptr, "SmallRho                   = %g\n", SmallRho*rhou);
