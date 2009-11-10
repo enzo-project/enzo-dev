@@ -170,6 +170,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"FileDirectedOutput = %"ISYM,
 		  &FileDirectedOutput);
+    ret += sscanf(line,"WriteBinaryHierarchy = %"ISYM,
+		  &WriteBinaryHierarchy);
 
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
@@ -713,7 +715,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
 
-    //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
 
 
     /* Read MHD Paramters */

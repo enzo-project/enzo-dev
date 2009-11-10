@@ -123,6 +123,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PreviousMaxTask = 0;
 
   FileDirectedOutput = 1;
+  WriteBinaryHierarchy = 0;
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
@@ -593,6 +594,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 
   MoveParticlesBetweenSiblings = FALSE;
-  VelAnyl                     = FALSE;
+  VelAnyl                     = 0;
+  BAnyl                     = 0;
   return SUCCESS;
 }

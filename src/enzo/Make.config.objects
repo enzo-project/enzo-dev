@@ -27,6 +27,7 @@ OBJS_CONFIG_LIB = \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
+        BinaryHierarchy.o \
         calcdiss.o \
         calc_dt.o \
         calc_dt_c.o \

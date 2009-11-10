@@ -52,6 +52,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
+  printf("In WriteGrid**");
  
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;

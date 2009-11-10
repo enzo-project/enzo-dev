@@ -142,6 +142,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.StopFirstTimeAtLevel);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
+  fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);
@@ -356,6 +357,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (CoolData.ParameterFilename != NULL)
     fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
 
+  
+  fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
+  fprintf(fptr, "BAnyl                        = %"ISYM"\n", BAnyl);
+  
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
   fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 

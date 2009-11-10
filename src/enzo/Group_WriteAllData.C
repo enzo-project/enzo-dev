@@ -45,15 +45,20 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "CommunicationUtilities.h"
+#include "BinaryHierarchy.h"
 
 void my_exit(int status);
  
 // HDF5 function prototypes
  
 // function prototypes
- 
+
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
+
 int SysMkdir(char *startdir, char *directory);
  
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
 int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *TopGrid,
 		       char *gridbasename, int &GridID, FLOAT WriteTime, hid_t file_id,
@@ -75,7 +80,18 @@ void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
- 
+
+void InitializeHierarchyArrayStorage(int grid_count);
+void WriteHierarchyArrayStorage(const char* name);
+void FinalizeHierarchyArrayStorage();
+
+#ifndef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
+#endif 
+
+
 extern char BCSuffix[];
 extern char GridSuffix[];
 extern char HierarchySuffix[];
@@ -86,6 +102,7 @@ extern char MemoryMapSuffix[];
 extern char ConfigureSuffix[];
 
 char CPUSuffix[]       = ".cpu";
+char BHierarchySuffix[] = ".harrays";
  
 extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
@@ -104,6 +121,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   char unixcommand[MAX_LINE_LENGTH];
   char gridbasename[MAX_LINE_LENGTH];
   char hierarchyname[MAX_LINE_LENGTH];
+  char bhierarchyname[MAX_LINE_LENGTH];
   char radiationname[MAX_LINE_LENGTH];
   char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
@@ -629,11 +647,45 @@ int Group_WriteAllData(char *basename, int filenumber,
   CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime, CheckpointDump);
  
   // Output Data Hierarchy
+
+  if (WriteBinaryHierarchy == TRUE  || VelAnyl==1 || BAnyl==1){
+    /* If this is true, we have to count up the number of grids. */
+    int level;
+    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+        LevelArray[level] = NULL;
+    AddLevel(LevelArray, TempTopGrid, 0);
+    int num_grids = 0;
+    LevelHierarchyEntry *Temp;
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
+        Temp = LevelArray[level];
+        while (Temp!=NULL) {
+          num_grids++;
+          Temp = Temp->NextGridThisLevel; 
+        }
+    }
+    InitializeHierarchyArrayStorage(num_grids);
+    
+#ifndef FAST_SIB
+    if(VelAnyl==1||BAnyl==1){
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+      HierarchyEntry **Grids;
+      int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      if (LevelArray[level] != NULL) {
+	
+	if (SetBoundaryConditions(Grids, NumberOfGrids, level, &MetaData, 
+				  Exterior, LevelArray[level]) == FAIL) {
+	  printf("error setboundary");
+	}}}}
+#endif
+  }
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) 
-      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
+  
  
+	
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
             gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");
@@ -704,6 +756,16 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (CubeDumpEnabled == 1)
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL)
       ENZO_FAIL("Error in WriteDataCubes");
+
+  // Write the binary hierarchy if we want it
+
+  if (WriteBinaryHierarchy == TRUE)
+  {
+    strcpy(bhierarchyname, name);
+    strcat(bhierarchyname, BHierarchySuffix);
+    WriteHierarchyArrayStorage(bhierarchyname);
+    FinalizeHierarchyArrayStorage();
+  }
  
   // Clean up combined top level grid, and first two levels of hierarchy
  

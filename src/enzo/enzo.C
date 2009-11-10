@@ -503,58 +503,58 @@ Eint32 main(Eint32 argc, char *argv[])
   /* Do vector analysis */
   
   if (velanyl) {
-    VelAnyl = TRUE;
-    RebuildHierarchy(&MetaData, LevelArray, 0);
+    VelAnyl = 1;
+  //   RebuildHierarchy(&MetaData, LevelArray, 0);
     
 
-    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-      HierarchyEntry **Grids;
-      int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
-      if (LevelArray[level] != NULL) {
-	/* Initialize the chaining mesh used in the FastSiblingLocator. */
+//     for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+//       HierarchyEntry **Grids;
+//       int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+//       if (LevelArray[level] != NULL) {
+// 	/* Initialize the chaining mesh used in the FastSiblingLocator. */
 	
-	ChainingMeshStructure ChainingMesh;
-	FastSiblingLocatorInitialize(&ChainingMesh, MetaData.TopGridRank,
-				     MetaData.TopGridDims);
-	SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
-	if (SiblingList == NULL) {
-	  fprintf(stderr, "Error allocating SiblingList\n");
-	  return FAIL;
-	}
+// 	ChainingMeshStructure ChainingMesh;
+// 	FastSiblingLocatorInitialize(&ChainingMesh, MetaData.TopGridRank,
+// 				     MetaData.TopGridDims);
+// 	SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
+// 	if (SiblingList == NULL) {
+// 	  fprintf(stderr, "Error allocating SiblingList\n");
+// 	  return FAIL;
+// 	}
 	
-	/* Add all the grids to the chaining mesh. */
+// 	/* Add all the grids to the chaining mesh. */
 	
-	for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
-	  Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
+// 	for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
+// 	  Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
 	
-	/* For each grid, get a list of possible siblings from the chaining mesh. */
+// 	/* For each grid, get a list of possible siblings from the chaining mesh. */
 	
-	for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
-	  if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
-					   &ChainingMesh, &SiblingList[grid1],
-					   MetaData.LeftFaceBoundaryCondition,
-					   MetaData.RightFaceBoundaryCondition) == FAIL) {
-	    fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
-	    return FAIL;
-	  }
+// 	for (int grid1 = 0; grid1 < NumberOfGrids; grid1++)
+// 	  if (Grids[grid1]->GridData->FastSiblingLocatorFindSiblings(
+// 					   &ChainingMesh, &SiblingList[grid1],
+// 					   MetaData.LeftFaceBoundaryCondition,
+// 					   MetaData.RightFaceBoundaryCondition) == FAIL) {
+// 	    fprintf(stderr, "Error in grid->FastSiblingLocatorFindSiblings.\n");
+// 	    return FAIL;
+// 	  }
 
-	/* Clean up the chaining mesh. */
+// 	/* Clean up the chaining mesh. */
 	
-	FastSiblingLocatorFinalize(&ChainingMesh);
+// 	FastSiblingLocatorFinalize(&ChainingMesh);
 	
-	if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, &MetaData, 
-				  &Exterior, LevelArray[level]) == FAIL) {
-	  printf("error setboundary");
-	}
-      }
-    }
+// 	if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, &MetaData, 
+// 				  &Exterior, LevelArray[level]) == FAIL) {
+// 	  printf("error setboundary");
+// 	}
+//       }
+//     }
     
-    if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
-                     &TopGrid, MetaData, &Exterior) == FAIL) {
-      fprintf(stderr, "Error in WriteAllData.\n");
-      return FAIL;
-    }
-    my_exit(EXIT_SUCCESS);
+//     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
+//                      &TopGrid, MetaData, &Exterior) == FAIL) {
+//       fprintf(stderr, "Error in WriteAllData.\n");
+//       return FAIL;
+//     }
+//     my_exit(EXIT_SUCCESS);
   }
 
 

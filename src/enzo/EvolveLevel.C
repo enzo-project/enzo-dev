@@ -618,6 +618,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   lcaperf.attribute ("level",0,LCAPERF_NULL);
 #endif
 
+
+
+
+  
   /* Clean up. */
  
   delete [] NumberOfSubgrids;

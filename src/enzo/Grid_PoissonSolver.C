@@ -88,8 +88,10 @@ int grid::PoissonSolver(int level)
 	
 	divB_p[igrid] =
 	  (BaryonField[iBx][igrid + diff[0]] - BaryonField[iBx][igrid - diff[0]]) / 2.0 +
-	  (BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]]) / 2.0 +
-	  (BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]]) / 2.0;
+	  (BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]]) / 2.0;
+
+	if (GridRank > 2)
+	  divB_p[igrid] += (BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]]) / 2.0;
 	
       }
     }
@@ -175,7 +177,7 @@ int grid::PoissonCleanStep(int level)
 
 	Bx  = BaryonField[iBx][igrid];
 	By  = BaryonField[iBx][igrid];
-	Bz  = BaryonField[iBz][igrid];
+	Bz  = (GridRank > 2) ? BaryonField[iBz][igrid]:0;
 	B2  = Bx * Bx + By * By + Bz * Bz;
 	rho = BaryonField[iden][igrid];
 	BaryonField[ietot][igrid] -= 0.5 * B2 / rho;
@@ -198,8 +200,10 @@ int grid::PoissonCleanStep(int level)
 	  ( Phi_p[igrid + diff[0]] - Phi_p[igrid - diff[0]] ) / (2.0 * dx[0]);
 	BaryonField[iBy][igrid] -= 
 	  ( Phi_p[igrid + diff[1]] - Phi_p[igrid - diff[1]] ) / (2.0 * dx[1]);
-	BaryonField[iBz][igrid] -= 
-	  ( Phi_p[igrid + diff[2]] - Phi_p[igrid - diff[2]] ) / (2.0 * dx[2]);
+
+	if (GridRank > 2)
+	  BaryonField[iBz][igrid] -= 
+	    ( Phi_p[igrid + diff[2]] - Phi_p[igrid - diff[2]] ) / (2.0 * dx[2]);
 
       }
     }
@@ -215,7 +219,7 @@ int grid::PoissonCleanStep(int level)
 
 	Bx = BaryonField[iBx][igrid];
 	By = BaryonField[iBx][igrid];
-	Bz = BaryonField[iBz][igrid];
+	Bz = (GridRank > 2) ? BaryonField[iBz][igrid]:0;
 	B2 = Bx * Bx + By * By + Bz * Bz;
 	rho = BaryonField[iden][igrid];
 	BaryonField[ietot][igrid] += 0.5 * B2 / rho;
@@ -238,8 +242,10 @@ int grid::PoissonCleanStep(int level)
 
 	divB_p[igrid] =
 	  ( BaryonField[iBx][igrid + diff[0]] - BaryonField[iBx][igrid - diff[0]] ) / 2.0 +
-	  ( BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]] ) / 2.0 +
-	  ( BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]] ) / 2.0;
+	  ( BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]] ) / 2.0;
+	
+	if (GridRank > 2)
+	  divB_p[igrid] +=( BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]] ) / 2.0;
 
 	divSum += fabs(divB_p[igrid]/dx[0]);
 
