@@ -31,8 +31,10 @@ int WriteStarParticleData(FILE *fptr)
  
   /* Write out number data. */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(fptr, "NumberOfStarParticles      = %"ISYM"\n", NumberOfStarParticles);
- 
+    fprintf(fptr, "NumberOfOtherParticles      = %"ISYM"\n", NumberOfOtherParticles); 
+  }
+
   return SUCCESS;
 }

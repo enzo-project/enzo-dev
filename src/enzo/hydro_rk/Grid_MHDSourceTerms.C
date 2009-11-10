@@ -56,7 +56,7 @@ int grid::MHDSourceTerms(float **dU)
   float Bx, By, Bz;
   float coeff = 1.;
 
-  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
+  //  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
 
   int n = 0, igrid, igridyp1, igridym1, igridzp1, igridzm1;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {

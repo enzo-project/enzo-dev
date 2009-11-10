@@ -64,7 +64,6 @@ inline void plm_point(float &vm1, float &v, float &vp1, float &vl_plm)
 
 int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
 {
-
   int iprim;
 
   for (int i = 0; i < ActiveSize+1; i++) {
@@ -80,11 +79,9 @@ int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
     //priml[1][i] = max(priml[1][i], SmallEint);
     primr[0][i] = max(primr[0][i], SmallRho);
     //primr[1][i] = max(primr[1][i], SmallEint);
-
   }
 
   return SUCCESS;
-
 }
 
 int plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize)

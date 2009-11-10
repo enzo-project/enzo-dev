@@ -107,6 +107,8 @@ public:
   float Separation(Star *a);
   float Separation2(Star a);
   float Separation2(Star *a);
+  float RelativeVelocity2(Star a);
+  float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
   void	DeleteCopyInGrid(void);

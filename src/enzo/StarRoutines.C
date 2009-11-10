@@ -349,6 +349,18 @@ float Star::Separation2(Star *a) { return this->Separation2(*a); };
 float Star::Separation(Star a)  { return sqrt(this->Separation2(a)); }
 float Star::Separation(Star *a) { return this->Separation(*a); };
 
+float Star::RelativeVelocity2(Star a)
+{
+  int dim;
+  float dv, result = 0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    dv = vel[dim] - a.vel[dim];
+    result += dv*dv;
+  }
+  return result;
+}
+float Star::RelativeVelocity2(Star *a) { return this->RelativeVelocity2(*a); };
+
 void Star::CopyToGrid()
 {
   Star *cstar;

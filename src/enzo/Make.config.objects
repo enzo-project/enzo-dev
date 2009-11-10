@@ -27,6 +27,7 @@ OBJS_CONFIG_LIB = \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
+        BinaryHierarchy.o \
         calcdiss.o \
         calc_dt.o \
         calc_dt_c.o \
@@ -355,6 +356,7 @@ OBJS_CONFIG_LIB = \
         Grid_NohInitializeGrid.o \
         Grid_OutputAsParticleData.o \
         Grid_OutputStarParticleInformation.o \
+        Grid_ParticleSplitter.o \
         Grid_PoissonSolver.o                    \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
@@ -495,6 +497,7 @@ OBJS_CONFIG_LIB = \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
         P_ColumnFormat.o \
+        ParticleSplitter.o \
         performance.o \
         pgas2d_dual.o \
         pgas2d.o \
@@ -611,6 +614,7 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
+	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
@@ -759,6 +763,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/LLF_PLM.o \
         hydro_rk/LLF_Zero.o \
         hydro_rk/Rec_PLM.o \
+        hydro_rk/Rec_ConsPLM.o \
         hydro_rk/Rec_PPM.o \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \

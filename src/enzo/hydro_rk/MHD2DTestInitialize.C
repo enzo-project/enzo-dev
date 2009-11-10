@@ -62,6 +62,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = FALSE;
   int MHD2DProblemType = 0;
+  float RampWidth = 0.05;
   float  LowerDensity, UpperDensity = 1.0,
     LowerVelocityX = 0, UpperVelocityX = 0, 
     LowerVelocityY = 0, UpperVelocityY = 0, 
@@ -105,6 +106,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &UpperBy);
     ret += sscanf(line, "MHD2DProblemType = %d",
 		  &MHD2DProblemType);
+    ret += sscanf(line, "RampWidth = %f",
+		  &RampWidth);
 
     //        fprintf(stderr, "%i MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
@@ -123,9 +126,10 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     return FAIL;
   }
 
+
   /* set up grid */
 
-  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType,
+  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
 						LowerDensity, UpperDensity,
 						LowerVelocityX,  UpperVelocityX,
 						LowerVelocityY,  UpperVelocityY,
@@ -170,7 +174,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType,
+	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
 						    LowerDensity, UpperDensity,
 						    LowerVelocityX,  UpperVelocityX,
 						    LowerVelocityY,  UpperVelocityY,
@@ -216,13 +220,15 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  DataLabel[count++] = BxName;
-  DataLabel[count++] = ByName;
-  DataLabel[count++] = BzName;
-  DataLabel[count++] = PhiName;
-  if(UseDivergenceCleaning){
-    DataLabel[count++] = Phi_pName;
-    DataLabel[count++] = DebugName;
+  if (HydroMethod == MHD_RK) {
+    DataLabel[count++] = BxName;
+    DataLabel[count++] = ByName;
+    DataLabel[count++] = BzName;
+    DataLabel[count++] = PhiName;
+    if(UseDivergenceCleaning){
+      DataLabel[count++] = Phi_pName;
+      DataLabel[count++] = DebugName;
+    }
   }
 
   for (i = 0; i < count; i++)
