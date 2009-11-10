@@ -913,7 +913,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   } // if MHD2DProblemType == 12
 
 
-  /* MHD2DProblemType == 13: The Blob Test */
+  /* MHD2DProblemType == 13: A Blob Test */
   /* Spherical Cloud gets overrun by Mch 10 shock */
   /* Domain goes from 0 0 to 2 1 */
   if (MHD2DProblemType == 13) { 
