@@ -126,7 +126,10 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
 
 int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
-
+int ShearingBox2DInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
+int ShearingBoxStratifiedInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -432,7 +435,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 // 35) Shearing Box Simulation
   if (ProblemType == 35) 
       ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
-  
+  if (ProblemType == 36) 
+      ret = ShearingBox2DInitialize(fptr, Outfptr, TopGrid, MetaData);
+  if (ProblemType == 37) 
+      ret = ShearingBoxStratifiedInitialize(fptr, Outfptr, TopGrid, MetaData);
+ 
    
   // 40) Supernova Explosion from restart
  

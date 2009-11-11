@@ -716,7 +716,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
     ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
 
-    //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
 
 
     /* Read MHD Paramters */
