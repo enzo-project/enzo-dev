@@ -206,8 +206,10 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
           ParentStartIndex[dim]+ParentTempDim[dim] >
           ParentGrid->GridDimension[dim]) {
         fprintf(stderr, "Parent grid not big enough for interpolation.\n");
-        fprintf(stderr, " ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM"\n",
-                dim, ParentStartIndex[dim], ParentTempDim[dim]);
+        fprintf(stderr, " ParentStartIndex[%"ISYM"] = %"ISYM"  ParentTempDim = %"ISYM
+		"ParentGrid->GridDimension = %"ISYM"\n",
+                dim, ParentStartIndex[dim], ParentTempDim[dim], 
+		ParentGrid->GridDimension[dim]);
         ENZO_FAIL("");
       }
  

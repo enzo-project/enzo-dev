@@ -37,8 +37,10 @@ int ReadStarParticleData(FILE *fptr)
       fprintf(stderr, "Error reading NumberOfStarParticles.\n");
       ENZO_FAIL("");
     }
-  } else
+  } else 
     NumberOfStarParticles = 0;
- 
+
+  NumberOfOtherParticles = 0; 
+
   return SUCCESS;
 }

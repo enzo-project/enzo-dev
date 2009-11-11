@@ -386,6 +386,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           ParticleTypeInFile);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
+  fprintf(fptr, "ParticleSplitterIterations     = %"ISYM"\n",
+	  ParticleSplitterIterations);
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
@@ -601,11 +603,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
   fprintf(fptr, "RKOrder                    = %d\n", RKOrder);
   fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);
   fprintf(fptr, "UseFloor                   = %d\n", UseFloor);
   fprintf(fptr, "UseViscosity               = %d\n", UseViscosity);
+  fprintf(fptr, "ViscosityCoefficient       = %g\n", ViscosityCoefficient);  
   fprintf(fptr, "UseAmbipolarDiffusion      = %d\n", UseAmbipolarDiffusion);
   fprintf(fptr, "UseResistivity             = %d\n", UseResistivity);
   fprintf(fptr, "SmallRho                   = %g\n", SmallRho*rhou);

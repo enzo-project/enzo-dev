@@ -17,6 +17,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "ErrorExceptions.h"
 
 int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
@@ -57,7 +58,7 @@ int MHDLine(float **Prim, float **priml, float **primr,
   }
   else {
     printf("MHD solver undefined\n");
-    return FAIL;
+    throw(EnzoFatalException("MHD solver undefined.: "__FILE__));
   }
 
   return SUCCESS;

@@ -44,9 +44,9 @@ OUTPUT   = out.compile
 
 ENZO_DIR = .
 MODULES  = 
+VERBOSE  = 0
 
 # please remove this
-SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
@@ -105,13 +105,18 @@ include Make.config.objects
 all: $(EXE).exe
 
 #-----------------------------------------------------------------------
-# MAIN AN EXECUTABLE
+# MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
 	@rm -f $@
 	@echo "Linking"
-	-@$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
+	else \
+	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
+	    2>&1 ; \
+	fi)
 	@(if [ -e $@ ]; then \
 	   echo "Success!"; \
 	else \
@@ -121,6 +126,17 @@ all: $(EXE).exe
 	   mv -f temp2 $(OUTPUT); \
 	   echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
+
+#-----------------------------------------------------------------------
+# WRITE ALL COMPILER OUTPUT TO FILE
+#-----------------------------------------------------------------------
+
+.PHONY: verbose
+verbose: VERBOSE = 1
+#verbose:
+#	@rm -fv $(OUTPUT)
+#	@echo "Writing all compiler output to $(OUTPUT)"
+verbose: $(EXE).exe
 
 #-----------------------------------------------------------------------
 # Implicit rules
@@ -137,7 +153,11 @@ all: $(EXE).exe
 .f.o:
 	@echo "Compiling $<"
 	@rm -f $@
-	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(FC) -c -o $@ $(FFLAGS) $*.f >& $(OUTPUT) ; \
+	else \
+	  $(FC) -c -o $@ $(FFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	fi)
 	@(if [ -e $@ ]; then \
              rm -f $*.f; \
           else \
@@ -156,7 +176,11 @@ all: $(EXE).exe
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
 .f90.o:
 	@rm -f $@
-	-@($(F90) -c -o $@ $(F90FLAGS) $*.f90) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >& $(OUTPUT) ; \
+	else \
+	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >> $(OUTPUT) 2>&1 ; \
+	fi)
 	@(if [ -e $@ ]; then \
              rm -f $*.f90; \
           else \
@@ -173,7 +197,13 @@ all: $(EXE).exe
 .c.o:
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c \
+	    >& $(OUTPUT) ; \
+	else \
+	  $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c \
+	    >> $(OUTPUT) 2>&1 ; \
+	fi)
 	@(if [ ! -e $@ ]; then \
              echo; \
              echo "$(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c"; \
@@ -186,7 +216,13 @@ all: $(EXE).exe
 .C.o:
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C \
+	    >& $(OUTPUT) ; \
+	else \
+	  $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C \
+	    >> $(OUTPUT) 2>&1 ; \
+	fi)
 	@(if [ ! -e $@ ]; then \
              echo; \
              echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C"; \
@@ -199,7 +235,13 @@ all: $(EXE).exe
 .cu.o: 
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) \
+	    $(INCLUDES) $*.cu >& $(OUTPUT) ; \
+	else \
+	  $(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) \
+	    $(INCLUDES) $*.cu >> $(OUTPUT) 2>&1 ; \
+	fi)
 	@(if [ ! -e $@ ]; then \
 	     echo; \
              echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu"; \

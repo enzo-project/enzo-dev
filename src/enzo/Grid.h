@@ -1054,6 +1054,8 @@ public:
 
    int MoveAllParticles(int NumberOfGrids, grid* TargetGrids[]);
 
+   int MoveAllParticlesOld(int NumberOfGrids, grid* TargetGrids[]);
+
 /* Particles: Move particles that lie within this grid from the TargetGrid
               to this grid. */
 
@@ -1100,6 +1102,14 @@ public:
 /* Particles: return number of particles. */
 
    int ReturnNumberOfParticles() {return NumberOfParticles;};
+
+   int ReturnNumberOfStarParticles() {
+     int np = 0;
+     if (MyProcessorNumber == ProcessorNumber)
+       for (int n = 0; n < NumberOfParticles; n++) 
+	 if (ParticleType[n] == PARTICLE_TYPE_STAR) np++;
+     return np;
+   };
 
 /* Particles: set number of particles. */
 
@@ -1158,8 +1168,20 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount, int BaseNumber) {
-    for (int n = 0; n < NumberOfParticles; n++)
+   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2) {
+     for (int n = 0; n < NumberOfParticles; n++) 
+       if (ParticleNumber[n] == INT_UNDEFINED) {
+	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
+	   ParticleNumber[n] = NumberCount1++ + NumberCount2;
+	 else 
+	   ParticleNumber[n] = NumberCount1 + NumberCount2++;
+       }
+   };
+
+/* Particles: Set new star particle index. - Old version */
+
+   void SetNewParticleIndexOld(int &NumberCount, int BaseNumber) {
+     for (int n = 0; n < NumberOfParticles; n++) 
       if (ParticleNumber[n] == INT_UNDEFINED)
 	ParticleNumber[n] = BaseNumber + NumberCount++;
    };
@@ -1765,6 +1787,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level);
 
+/* Particle splitter routine. */
+
+  int ParticleSplitter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);
@@ -1920,6 +1946,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
+  int MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
+
   int CommunicationSendStars(grid *ToGrid, int ToProcessor);
 
   int TransferSubgridStars(int NumberOfSubgrids, grid* ToGrids[], int AllLocal);
@@ -2067,7 +2095,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			      float Bxl,  float Bxr,
 			      float Byl,  float Byr,
 			      float Bzl,  float Bzr);
-  int MHD2DTestInitializeGrid(int MHD2DProblemType,
+  int MHD2DTestInitializeGrid(int MHD2DProblemType, 
+			      float RampWidth,
 			      float rhol, float rhou,
 			      float vxl,  float vxu,
 			      float vyl,  float vyu,
@@ -2136,9 +2165,6 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
 			   float *Flux3D[], int flux, float fluxcoef, float dt);
-  int Get_NumberOfParticles() {
-    return NumberOfParticles;
-  }
   int SetFloor();
 
 
@@ -2190,7 +2216,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
     for (int n = 0; n < NumberOfParticles; n++)
       if (ParticleNumber[n] < 0) np++;
     return np;
-  }
+  };
   
   /* Non-ideal effects */
 

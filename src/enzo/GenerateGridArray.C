@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  EVOLVE LEVEL ROUTINES (CALLED BY EVOLVE LEVEL)
+/  GENERATE GRID ARRAY
 /
 /  written by: Greg Bryan
 /  date:       June, 1999

@@ -567,6 +567,7 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
+EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;
 EXTERN float EOSCriticalDensity;
@@ -580,6 +581,7 @@ EXTERN int ExternalGravity;
 EXTERN int StringKick;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
+EXTERN float ViscosityCoefficient;
 EXTERN int UseAmbipolarDiffusion;
 EXTERN int UseResistivity;
 
@@ -720,6 +722,7 @@ EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
 
 EXTERN int MoveParticlesBetweenSiblings;
+EXTERN int ParticleSplitterIterations;
 
 
 /* Vorticity Calculations */
