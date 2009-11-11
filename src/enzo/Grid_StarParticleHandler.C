@@ -448,7 +448,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
-       printf("Star type \n");
+  //printf("Star type \n");
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -465,7 +465,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
   //  if (StarParticleCreation > 0 && level == MaximumRefinementLevel) {
   if (StarParticleCreation > 0) {
- 
+    
     /* Generate a fake grid to keep the particles in. */
  
     grid *tg = new grid;
@@ -797,6 +797,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     /* This creates sink particles which suck up mass off the grid. */
 
+    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
+    if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
@@ -822,7 +824,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
-
+	printf("      test line\n");
 	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
 			BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],

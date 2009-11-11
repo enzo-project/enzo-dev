@@ -584,7 +584,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (PutSink == 1 && level == 0) {  // set it up on level zero and make it mustrefine
 
     //    double mass_p = 20.0*1.989e33;
-    double mass_p = 30.0*1.989e33;
+    double mass_p = 20.0*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -604,9 +604,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5+0.5*dx;
-    ParticlePosition[1][0] = 0.5+0.5*dx;
-    ParticlePosition[2][0] = 0.5+0.5*dx;
+    ParticlePosition[0][0] = 0.5; //+0.5*dx;
+    ParticlePosition[1][0] = 0.5; //+0.5*dx;
+    ParticlePosition[2][0] = 0.5; //+0.5*dx;
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
