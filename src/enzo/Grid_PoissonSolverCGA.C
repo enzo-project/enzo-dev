@@ -235,14 +235,18 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
      matrix multiplication significantly. */
 
   int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
-  /*for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++)
-    for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++)
-      for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
+//   for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++)
+//     for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++)
+//       for (int i = MatrixStartIndex[0]; i <= MatrixEndIndex[0]; i++) {
+
+  for (int k = 0; k < GridDimension[2]; k++)
+    for (int j = 0; j < GridDimension[1]; j++)
+      for (int i = 0; i < GridDimension[0]; i++) {
 
 	igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
 	x[igrid] = BaryonField[Phi_pNum][igrid];
 
-	}*/
+	}
 
   //Solve on the complete grid, only change the cleaning step so different boundaries
 
