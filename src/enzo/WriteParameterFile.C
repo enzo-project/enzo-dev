@@ -503,6 +503,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StellarWindFeedback);
   fprintf(fptr, "StellarWindTurnOnMass                 = %"FSYM"\n", 
 	  StellarWindTurnOnMass);
+  fprintf(fptr, "MSStellarWindTurnOnMass                 = %"FSYM"\n", 
+	  MSStellarWindTurnOnMass);
 
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",

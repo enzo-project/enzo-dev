@@ -11,6 +11,7 @@
              SW = 1 - magnetic field protostellar jets
              SW = 2 - random direction protostellar jets
              SW = 3 - isotropic main sequence stellar wind
+             SW = 4 - protostellar and main sequence winds with an accretion disc (in progress)
   INPUTS:
     d     - density field
     u,v,w - velocity fields
@@ -83,7 +84,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
-  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
+  // printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
   printf("Star Maker 8: time = %g\n", *t);
 
 
@@ -547,18 +548,30 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   /* StellarWindFeedback 3: Isotropic wind */
 
   float mdot_wind = 1e-5*(*dt)*(*t1)/(3.1557e7*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
-  v_wind = 2.0e6/(*v1);
-  mdot_wind = mdot_wind/(4.0*Pi); /* mass Per solid angle */
   //printf("Adding Stellar wind 3: dt =%e, mdot =%e, Vwind =%e, rho_wind =%e \n",dt,mdot_wind*umass/(*t1),v_wind*(*v1),rho_wind*(*d1));
   FLOAT radius_cell[MAX_SUPERCELL_NUMBER]; 
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   float SolidAngle;
+  FLOAT mdot_wind1, mdot_wind2;
   if (StellarWindFeedback == 3) {
-  printf("mdotwind = %e\n",mdot_wind);
+    //printf("mdotwind = %e\n",mdot_wind);
     // printf("STELLAR WIND FEEDBACK = 3\n");
     for (n = 0; n < nsinks; n++) {
       
       bb = sink_index[n];
+
+      if (mpold[bb]*pow(*dx,3)*umass < MSStellarWindTurnOnMass) {
+	continue;
+      }
+      
+      v_wind = 1.e5*(-355.554+892.32*log10(mpold[bb]*pow(*dx,3)*umass - 5.24765))/(*v1);
+      mdot_wind1 = (pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(3.1557e7*umass);
+      mdot_wind2 = (pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(3.1557e7*umass);
+      mdot_wind = max(mdot_wind1,mdot_wind2);
+      //(pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427)) - mass loss in Msun/yr (from N. Smith 2006 table 1)
+      mdot_wind = mdot_wind/(4.0*Pi);/* mass Per solid angle */
+
+      printf("\n Mass star = %e Msun, Mdot_wind = %e Msun/yr, and v_wind = %e cm/s \n \n",mpold[bb]*pow(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(3.1557e7*umass)), v_wind*(*v1));
       
       i = (xpold[bb] - *xstart)/(*dx);
       j = (ypold[bb] - *ystart)/(*dx);
@@ -576,7 +589,6 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       m_cell = 0;
       
       /* Caclualte the total mass of the supercell */
-
       for (int kk = -3; kk <= 3; kk++) {
 	for (int jj = -3; jj <= 3; jj++) {
 	  for (int ii = -3; ii <= 3; ii++) {
@@ -610,6 +622,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 
       /* Do the feedback */
+
+      //printf("n_cell = %i \n", n_cell);
       float m_wind = 0.0;
       float cells_volume = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
@@ -631,7 +645,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
 	 else { 
 	   SolidAngle = 4.*3.1415926/n_cell; 
-	   //printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
+	   printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(pow((*dx),3));
 	cells_volume += pow((*dx),3);
@@ -646,6 +660,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	te[ind_cell[ic]] += 0.5*v_wind*v_wind;
       }
 
+      if (m_wind > 0.0) printf("  density in cells changed, dt = %e, t = %e\n",(*dt),(*t));
       /* Substract the ejected mass and set dm to be zero */
       /*printf("Iso-wind injected: dt = %e s, vwind=%g, n_cell=%"ISYM", xp=(%g, %g, %g),m_star = %e, m_cell=%e, m_wind=%e, rho=%e, umass = %e\n", 
 	     (*dt)*(*t1),v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb],mpold[bb]*umass , m_cell*umass,m_wind*umass, rho_wind*(*d1),umass);
@@ -659,6 +674,12 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
     }
   }
+
+
+  if (StellarWindFeedback == 4 && bx == NULL) { /*protostellar jets and MS stellar wind*/
+
+  }
+
 
 
   /* Loop over grid looking for a cell with mass larger than massthres */

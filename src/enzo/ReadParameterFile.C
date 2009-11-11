@@ -714,6 +714,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
     ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
+    ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
 
     //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
 

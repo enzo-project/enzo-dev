@@ -623,6 +623,7 @@ EXTERN float SinkMergeMass;
 EXTERN float TotalSinkMass;
 EXTERN int StellarWindFeedback;
 EXTERN float StellarWindTurnOnMass;
+EXTERN float MSStellarWindTurnOnMass;
 EXTERN int NBodyDirectSummation;
 
 /* Turbulence simulation parameters */

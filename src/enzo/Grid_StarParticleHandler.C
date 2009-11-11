@@ -293,6 +293,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
+  //printf("\n XXXX StarParticleHandler Called XXXX \n \n");
+
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -446,7 +448,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
- 
+       printf("Star type \n");
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -847,7 +849,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ENZO_FAIL("Error in star_maker8.\n");
 	}
       } else {
-	  printf("Grid_StarParticleHandler 784 - sink maker called\n");
+	  printf("Grid_StarParticleHandler 784 - sink maker called (NOT STAR_MAKER8)\n");
 	if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
 		       BaryonField[DensNum], BaryonField[Vel1Num],
 		       BaryonField[Vel2Num], BaryonField[Vel3Num],
