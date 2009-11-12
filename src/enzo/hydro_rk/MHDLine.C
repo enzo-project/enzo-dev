@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -57,7 +58,7 @@ int MHDLine(float **Prim, float **priml, float **primr,
   }
   else {
     printf("MHD solver undefined\n");
-    return FAIL;
+    throw(EnzoFatalException("MHD solver undefined.: "__FILE__));
   }
 
   return SUCCESS;

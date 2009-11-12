@@ -403,6 +403,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TotalSinkMass         = 0.0;
   StellarWindFeedback   = 0;
   StellarWindTurnOnMass = 0.1;
+  MSStellarWindTurnOnMass = 10.0;
 
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
@@ -420,6 +421,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = HLL;
   ReconstructionMethod	     = PLM;
+  ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;
   EOSCriticalDensity	     = 1e-13;
@@ -435,6 +437,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
+  ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
 
@@ -513,14 +516,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
 
-  TestProblemData.MinimumHNumberDensity = 1;
-  TestProblemData.MaximumHNumberDensity = 1e6;
-  TestProblemData.MinimumMetallicity    = 1e-6;
-  TestProblemData.MaximumMetallicity    = 1;
-  TestProblemData.MinimumTemperature    = 10;
-  TestProblemData.MaximumTemperature    = 1e7;
-  TestProblemData.ResetEnergies         = 1;
-
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.
   TestProblemData.CI_Fraction = tiny_number;
@@ -558,6 +553,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.H2OI_Fraction_Inner = tiny_number;
   TestProblemData.O2I_Fraction_Inner = tiny_number;
 
+  TestProblemData.MinimumHNumberDensity = 1;
+  TestProblemData.MaximumHNumberDensity = 1e6;
+  TestProblemData.MinimumMetallicity    = 1e-6;
+  TestProblemData.MaximumMetallicity    = 1;
+  TestProblemData.MinimumTemperature    = 10;
+  TestProblemData.MaximumTemperature    = 1e7;
+  TestProblemData.ResetEnergies         = 1;
+
   // This should only be false for analysis.
   // It could also be used (cautiously) for other purposes.
   LoadGridDataAtStart = TRUE;
@@ -594,6 +597,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 
   MoveParticlesBetweenSiblings = FALSE;
+
+  VelAnyl                     = 0;
+  BAnyl                     = 0;
+
+  ParticleSplitterIterations = FALSE;
+
 
   return SUCCESS;
 }

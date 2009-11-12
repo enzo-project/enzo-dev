@@ -714,8 +714,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
     ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
+    ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
 
-    //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
 
 
     /* Read MHD Paramters */
@@ -734,6 +736,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RKOrder = %d", &RKOrder);
     ret += sscanf(line, "UseFloor = %d", &UseFloor);
     ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
+    ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
     ret += sscanf(line, "UseAmbipolarDiffusion = %d", &UseAmbipolarDiffusion);
     ret += sscanf(line, "UseResistivity = %d", &UseResistivity);
     ret += sscanf(line, "SmallRho = %g", &SmallRho);
@@ -742,6 +745,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
+    ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
@@ -762,6 +766,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
+    ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
+		  &ParticleSplitterIterations);
 
     /* If the dummy char space was used, then make another. */
  

@@ -21,6 +21,7 @@
 /* Number of Star particles. */
 
 SPEXTERN int NumberOfStarParticles;
+SPEXTERN int NumberOfOtherParticles; //all the particles other than type=2
 SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */

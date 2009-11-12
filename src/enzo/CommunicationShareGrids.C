@@ -36,9 +36,7 @@ static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_PackedGrid;
 #endif
  
- 
- 
- 
+  
 int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int ShareParticles)
 {

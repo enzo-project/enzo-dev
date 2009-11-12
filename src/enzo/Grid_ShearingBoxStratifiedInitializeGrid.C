@@ -31,10 +31,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 double Gaussian(double cs);
 
-int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int InitialMagneticFieldConfiguration)
+int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int InitialMagneticFieldConfiguration)
 {
-
-  //
 
   
   /* declarations */
@@ -155,15 +153,9 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*3.14156);
 	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*3.14156);
 	  BaryonField[iden ][n] = rho;
-	}
-	else if (ShearingBoxProblemType == 2){
 
-	    BaryonField[iden ][n]=50.0*rho*xPos[ShearingVelocityDirection];
-	    
-	
+	  
 	}
-	
-	
 
 	float rhoActual=BaryonField[iden ][n];
 	pressure=c_s*c_s*rhoActual/Gamma;

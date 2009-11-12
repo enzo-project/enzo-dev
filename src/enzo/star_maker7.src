@@ -274,7 +274,7 @@ c
      &                      d, dm, te, ge, u, v, w, metal,
      &                      idual, imetal, imethod, dt, r, dx, t, z,
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
-     &                      npart, xstart, ystart, zstart, ibuff,
+     &                      npart, xstart, ystart, zstart, ibuff, level,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn)
 c
@@ -310,6 +310,7 @@ c    ibuff    - number of buffer zones at each end of grid
 c    idual    - dual energy flag
 c    imetal   - metallicity flag (0 - none, 1 - yes)
 c    imethod  - hydro method (0 - PPMDE, 1 - PPMLR, 2 - ZEUS)
+c    level - current level of refinement
 c
 c    x/y/z start - starting position of grid origin
 c    xp,yp,zp - positions of created particles
@@ -334,7 +335,7 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod, level
       real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
@@ -404,7 +405,8 @@ c         then exit and give a warning.
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then
-               write(6,*) 'warning: star particle out of grid',i,j,k
+               write(6,*) 'star particle out of grid; i,j,k,level,',
+     &                     i,j,k,level
                goto 100
             endif
 c

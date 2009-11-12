@@ -34,7 +34,8 @@
 
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
-					 int NumberOfGrids);
+					 int NumberOfGrids,
+					 int TotalStarParticleCountPrevious[]);
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars, bool* &AddedFeedback);
@@ -47,7 +48,8 @@ void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
-			 int level, Star *&AllStars)
+			 int level, Star *&AllStars,
+			 int TotalStarParticleCountPrevious[])
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
@@ -65,8 +67,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Update the star particle counters. */
 
   if (CommunicationUpdateStarParticleCount(Grids, MetaData,
-					   NumberOfGrids) == FAIL) {
-        ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
+					   NumberOfGrids,
+					   TotalStarParticleCountPrevious) == FAIL) {
+    ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.");
   }
 
   /* Update position and velocity of star particles from the actual

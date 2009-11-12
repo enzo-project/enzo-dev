@@ -31,6 +31,8 @@
 
 #define  PROTONMASS  1.6726e-24
 
+#define NO_PARTICLE_IN_GRID_CHECK  
+
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -218,7 +220,7 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
-		       int *ibuff,
+		       int *ibuff, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
 			float *justburn);
@@ -291,6 +293,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
+  //printf("\n XXXX StarParticleHandler Called XXXX \n \n");
+
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -444,7 +448,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
- 
+  //printf("Star type \n");
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -461,7 +465,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
   //  if (StarParticleCreation > 0 && level == MaximumRefinementLevel) {
   if (StarParticleCreation > 0) {
- 
+    
     /* Generate a fake grid to keep the particles in. */
  
     grid *tg = new grid;
@@ -669,13 +673,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     }
 
-    if (STARMAKE_METHOD(MBH_PARTICLE)) {
+    if (STARMAKE_METHOD(MBH_PARTICLE) && level == MaximumRefinementLevel) {
 
       //---- MASSIVE BLACK HOLE PARTICLE using the usual sink_maker
 
       /* At the moment MBH particle is not meant to be created like this;
-	 rather, it is supposed to be put by hand.  
-	 So this is rather for the consistency of the code.  - Ji-hoon Kim */
+	 Rather, it is supposed to be put by hand.  
+	 So this is really for the consistency of the code.  - Ji-hoon Kim */
 
       int ihydro = (int) HydroMethod;
       float SinkParticleMassThreshold = huge_number;
@@ -717,9 +721,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       
     }
 
-    if (STARMAKE_METHOD(INSTANT_STAR)) {
+    if (STARMAKE_METHOD(INSTANT_STAR) && level == MaximumRefinementLevel) {
 
-      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO stochastic SF)
+      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
+      //                            only at MaximumRefinementLevel)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -792,6 +797,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     /* This creates sink particles which suck up mass off the grid. */
 
+    //if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
+    //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
@@ -817,7 +824,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ny_jet = ParticleAttribute[4];
 	  nz_jet = ParticleAttribute[5];
 	}
-
+	//printf("      test line\n");
 	if (star_maker8(GridDimension, GridDimension+1, GridDimension+2, &size, 
 			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
 			BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
@@ -844,7 +851,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  ENZO_FAIL("Error in star_maker8.\n");
 	}
       } else {
-	  printf("Grid_StarParticleHandler 784 - sink maker called\n");
+	  printf("Grid_StarParticleHandler 784 - sink maker called (NOT STAR_MAKER8)\n");
 	if (sink_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
 		       BaryonField[DensNum], BaryonField[Vel1Num],
 		       BaryonField[Vel2Num], BaryonField[Vel3Num],
@@ -909,10 +916,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       if (debug)
 	printf("StarParticle: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
  
-      /* Set the particle numbers. */
+      /* Set the particle numbers.  The correct indices will be assigned in 
+	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
  
       for (i = 0; i < NumberOfNewParticles; i++)
-	tg->ParticleNumber[i] = INT_UNDEFINED;
+ 	tg->ParticleNumber[i] = INT_UNDEFINED;
  
       /* Move Particles into this grid (set cell size) using the fake grid. */
  
@@ -1047,7 +1055,26 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (STARFEED_METHOD(INSTANT_STAR)) {
 
-    //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE)
+    // check whether the particles are correctly located in grids 
+    // Ji-hoon Kim in Nov.2009
+
+#ifdef PARTICLE_IN_GRID_CHECK
+    int xindex, yindex, zindex;
+    for (i = 0; i < NumberOfParticles; i++) {
+      
+      xindex = (int)((ParticlePosition[0][i] - CellLeftEdge[0][0]) / CellWidthTemp);
+      yindex = (int)((ParticlePosition[1][i] - CellLeftEdge[1][0]) / CellWidthTemp); 
+      zindex = (int)((ParticlePosition[2][i] - CellLeftEdge[2][0]) / CellWidthTemp); 
+
+      if (xindex < 0 || xindex > GridDimension[0] || 
+	  yindex < 0 || yindex > GridDimension[1] || 
+	  zindex < 0 || zindex > GridDimension[2])
+	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+		xindex, yindex, zindex, level); 
+    }
+#endif
+
+    //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -1061,11 +1088,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
           &StarMetalYield,
        &NumberOfParticles,
-          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, &level,
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
        ParticleVelocity[0], ParticleVelocity[1],
-          ParticleVelocity[2],
+          ParticleVelocity[2], 
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
           ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  

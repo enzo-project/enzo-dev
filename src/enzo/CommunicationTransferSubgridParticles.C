@@ -201,7 +201,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       printf("j =%d, jstart =%d, jend =%d, NumberOfGrids =%d, " 
              "NumberToMove[] =%d/%d, NumberOfReceives =%d\n", 
 	     j, jstart, jend, NumberOfGrids, 
-	     NumberToMove[0], NumberToMove[1], NumberOfReceives); //#####
+	     NumberToMove[0], NumberToMove[1], NumberOfReceives); 
       */
 
       GridPointers[j]->TransferSubgridParticles

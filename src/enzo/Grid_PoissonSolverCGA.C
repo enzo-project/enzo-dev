@@ -51,12 +51,17 @@ int grid::multA(T *input, T *output, int *MatrixStartIndex, int *MatrixEndIndex 
 	output[igrid] += input[igrid - diff[0]] * dx_inv[0]; 
 	output[igrid] += input[igrid + diff[1]] * dx_inv[1];
 	output[igrid] += input[igrid - diff[1]] * dx_inv[1];
-	output[igrid] += input[igrid + diff[2]] * dx_inv[2];
-	output[igrid] += input[igrid - diff[2]] * dx_inv[2];
+
 	output[igrid] -= 2.0 * input[igrid] * dx_inv[0];
 	output[igrid] -= 2.0 * input[igrid] * dx_inv[1];
+
+	if (GridRank > 2){
+	output[igrid] += input[igrid + diff[2]] * dx_inv[2];
+	output[igrid] += input[igrid - diff[2]] * dx_inv[2];
 	output[igrid] -= 2.0 * input[igrid] * dx_inv[2];
-	
+	}
+
+
       }
     }
   }
@@ -91,11 +96,16 @@ int grid::multA2(T* input,T* output,  int *MatrixStartIndex, int *MatrixEndIndex
 	output[igrid] += input[igrid - 2*diff[0]] * dx_inv[0]; 
 	output[igrid] += input[igrid + 2*diff[1]] * dx_inv[1];
 	output[igrid] += input[igrid - 2*diff[1]] * dx_inv[1];
-	output[igrid] += input[igrid + 2*diff[2]] * dx_inv[2];
-	output[igrid] += input[igrid - 2*diff[2]] * dx_inv[2];
 	output[igrid] -= 2.0 * input[igrid] * dx_inv[0];
 	output[igrid] -= 2.0 * input[igrid] * dx_inv[1];
-	output[igrid] -= 2.0 * input[igrid] * dx_inv[2];
+
+	if (GridRank > 2){
+	output[igrid] += input[igrid + 2*diff[2]] * dx_inv[2];
+	output[igrid] += input[igrid - 2*diff[2]] * dx_inv[2];
+	output[igrid] -= 2.0 * input[igrid] * dx_inv[2];}
+
+
+
 	output[igrid] /= 4.0;
 	
       }
@@ -160,12 +170,15 @@ int grid::setNeumannBC(float* x,  int* MatrixStartIndex, int *MatrixEndIndex)
 	 x[index+2*diff[1]] = x[index+1*diff[1]];
        }
        
+
+       if (GridRank > 2){
        if (ijk[2] == MatrixStartIndex[2]) {
 	 x[index-3*diff[2]] = x[index-diff[2]]; 
 	 x[index-2*diff[2]] = x[index-1*diff[2]];
        } else if (ijk[2] == MatrixEndIndex[2]) {
 	 x[index+3*diff[2]] = x[index+diff[2]]; 
 	 x[index+2*diff[2]] = x[index+1*diff[2]];
+       }
        }
        
       }
