@@ -723,5 +723,6 @@ EXTERN int RefineByJeansLengthUnits;
 
 EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
+EXTERN float ParticleSplitterChildrenParticleSeparation;
 
 #endif

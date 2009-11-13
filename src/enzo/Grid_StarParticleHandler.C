@@ -31,7 +31,7 @@
 
 #define  PROTONMASS  1.6726e-24
 
-#define NO_PARTICLE_IN_GRID_CHECK  
+#define PARTICLE_IN_GRID_CHECK  
 
 /* function prototypes */
  

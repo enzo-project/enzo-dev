@@ -597,6 +597,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MoveParticlesBetweenSiblings = FALSE;
   ParticleSplitterIterations = FALSE;
+  ParticleSplitterChildrenParticleSeparation = 1.0;
 
   return SUCCESS;
 }
