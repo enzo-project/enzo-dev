@@ -1,9 +1,9 @@
 /***********************************************************************
 /
-/  EXTERNAL BOUNDARY CLASS (READ THE EXTERNAL BOUNDARY VALUES)
+/  EXTERNAL BOUNDARY CLASS (ADD EXTERNAL BOUNDARY VALUES FOR A NEW FIELD)
 /
-/  written by: Greg Bryan
-/  date:       November, 1994
+/  written by: John Wise
+/  date:       March, 2009
 /  modified1:
 /
 /  PURPOSE:

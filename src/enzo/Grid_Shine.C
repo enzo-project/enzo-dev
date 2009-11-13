@@ -48,6 +48,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   stype = 1;
 #endif
   if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
+  if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
 
   /* At most how many new Photon Packages should be allocated and
      created?  */
