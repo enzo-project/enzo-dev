@@ -456,6 +456,14 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
     if (SyncNumberOfParticles)
       CommunicationSyncNumberOfParticles(GridHierarchyPointer, NumberOfGrids);
+    else {
+      for (i = StartGrid; i < EndGrid; i++)
+	if (MyProcessorNumber != 
+	    GridHierarchyPointer[i]->GridData->ReturnProcessorNumber()) {
+	  GridHierarchyPointer[i]->GridData->SetNumberOfParticles(0);
+	  GridHierarchyPointer[i]->GridData->SetNumberOfStars(0);
+	}
+    }
 
 #ifdef DEBUG_CCP
     for (i = StartGrid; i < EndGrid; i++)
