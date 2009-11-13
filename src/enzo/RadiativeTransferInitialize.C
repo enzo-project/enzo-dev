@@ -38,11 +38,9 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 {
 
   const char	*kphHIName     = "HI_kph";
-  const char	*gammaHIName   = "HI_gamma";
+  const char	*gammaName     = "PhotoGamma";
   const char	*kphHeIName    = "HeI_kph";
-  const char	*gammaHeIName  = "HeI_gamma";
   const char	*kphHeIIName   = "HeII_kph";
-  const char	*gammaHeIIName = "HeII_gamma";
   const char	*kdissH2IName  = "H2I_kdiss";
   const char	*RadAccel1Name = "RadAccel1";
   const char	*RadAccel2Name = "RadAccel2";
@@ -101,8 +99,12 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     ExistingTypes[i] = FieldUndefined;
 
   if (RadiativeTransfer) {
-    for (i = kphHI; i <= gammaHeII; i++)
-      TypesToAdd[FieldsToAdd++] = i;
+    TypesToAdd[FieldsToAdd++] = kphHI;
+    TypesToAdd[FieldsToAdd++] = PhotoGamma;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      TypesToAdd[FieldsToAdd++] = kphHeI;
+      TypesToAdd[FieldsToAdd++] = kphHeII;
+    }
     if (MultiSpecies > 1)
       TypesToAdd[FieldsToAdd++] = kdissH2I;
     if (RadiationPressure)
@@ -146,16 +148,34 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-      if (Temp->GridData->AddFields(TypesToAdd, FieldsToAdd) == FAIL) {
-	fprintf(stderr, "Error in grid::AddFields\n");
-	ENZO_FAIL("");
-      }
+      Temp->GridData->AddFields(TypesToAdd, FieldsToAdd);
 
   /* Add external boundaries */
 
   for (i = 0; i < FieldsToAdd; i++) {
     Exterior.AddField(TypesToAdd[i]);
   } // ENDFOR fields
+
+  /* Check for old gammaHeI and gammaHeII fields.  Delete if they
+     exist. */
+
+  int NumberOfObsoleteFields = 2;
+  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
+
+  ObsoleteFields[0] = gammaHeI;
+  ObsoleteFields[1] = gammaHeII;
+  if (RadiativeTransferHydrogenOnly == TRUE) {
+    NumberOfObsoleteFields += 2;
+    ObsoleteFields[2] = kphHeI;
+    ObsoleteFields[3] = kphHeII;
+  }
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      Temp->GridData->DeleteObsoleteFields(ObsoleteFields, 
+					   NumberOfObsoleteFields);
+
+  Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
 
   /* Assign the radiation field DataLabels */
 
@@ -164,20 +184,14 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     case kphHI:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHIName;
       break;
-    case gammaHI:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHIName;
+    case PhotoGamma:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaName;
       break;
     case kphHeI:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHeIName;
       break;
-    case gammaHeI:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHeIName;
-      break;
     case kphHeII:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHeIIName;
-      break;
-    case gammaHeII:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHeIIName;
       break;
     case kdissH2I:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2IName;
@@ -217,4 +231,4 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
 
   return SUCCESS;
 
-    }
+}

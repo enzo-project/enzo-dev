@@ -76,8 +76,9 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 	float *inutot, int *iradtype, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
 	int *iradtrans, int *iradcoupled, int *iradstep, int *ierr,
+	int *irt_honly,
 	float *kphHI, float *kphHeI, float *kphHeII, 
-	float *kdissH2I, float *gammaHI, float *gammaHeI, float *gammaHeII,
+	float *kdissH2I, float *photogamma,
  	int *icmbTfloor, int *iClHeat, int *iClMMW,
  	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
@@ -123,13 +124,9 @@ int grid::SolveCoupledRateEquations()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get easy to handle pointers for each variable. */
 
@@ -267,9 +264,9 @@ int grid::SolveCoupledRateEquations()
     &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
     &RadiativeTransfer, &RadiativeTransferCoupledRateSolver,
     &RTCoupledSolverIntermediateStep, &ierr,
+    &RadiativeTransferHydrogenOnly,
     BaryonField[kphHINum], BaryonField[kphHeINum], BaryonField[kphHeIINum], 
-    BaryonField[kdissH2INum], BaryonField[gammaHINum], BaryonField[gammaHeINum], 
-    BaryonField[gammaHeIINum],
+    BaryonField[kdissH2INum], BaryonField[gammaNum],
     &CloudyCoolingData.CMBTemperatureFloor,
     &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
     &CloudyCoolingData.CloudyMetallicityNormalization,

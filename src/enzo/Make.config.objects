@@ -128,6 +128,7 @@ OBJS_CONFIG_LIB = \
         ExposeGridHierarchy.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
+	ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
         ExternalBoundary_IdentifyPhysicalQuantities.o \
         ExternalBoundary_InitializeExternalBoundaryFaceIO.o \
@@ -280,6 +281,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+	Grid_DeleteObsoleteFields.o \
         Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \

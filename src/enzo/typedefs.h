@@ -63,7 +63,7 @@ const field_type
   ExtraType0      = 21,
   ExtraType1      = 22,
   kphHI           = 23,
-  gammaHI         = 24,
+  PhotoGamma      = 24,
   kphHeI          = 25,
   gammaHeI        = 26,
   kphHeII         = 27,

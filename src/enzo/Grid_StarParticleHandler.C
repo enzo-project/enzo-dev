@@ -448,7 +448,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
-       printf("Star type \n");
+  //printf("Star type \n");
   /* Set the units. */
  
   float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
