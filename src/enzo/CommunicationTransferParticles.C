@@ -344,25 +344,27 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     } // end: if grid is on my processor
  
   /* Set number of particles so everybody agrees. */
- 
-//  if (NumberOfProcessors > 1) {
-//    int *Changes = new int[NumberOfGrids];
-//    for (j = 0; j < NumberOfGrids; j++)
-//      Changes[j] = 0;
-//    for (j = 0; j < NumberOfGrids; j++)
-//      for (i = 0; i < 6; i++)
-//	if (SharedList[j].ToGrid[i] != -1) {
-//	  Changes[SharedList[j].FromGrid] -= SharedList[j].NumberToMove[i];
-//	  Changes[SharedList[j].ToGrid[i]] += SharedList[j].NumberToMove[i];
-//	}
-//    for (j = 0; j < NumberOfGrids; j++) {
-//      if (GridPointer[j]->ReturnProcessorNumber() != MyProcessorNumber)
-//	GridPointer[j]->SetNumberOfParticles(
-//		         GridPointer[j]->ReturnNumberOfParticles()+Changes[j]);
-//      //      printf("Pb(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n", MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfParticles());
-//    }
-//    delete [] Changes;
-//  }
+
+#ifdef UNUSED 
+  if (NumberOfProcessors > 1) {
+    int *Changes = new int[NumberOfGrids];
+    for (j = 0; j < NumberOfGrids; j++)
+      Changes[j] = 0;
+    for (j = 0; j < NumberOfGrids; j++)
+      for (i = 0; i < 6; i++)
+	if (SharedList[j].ToGrid[i] != -1) {
+	  Changes[SharedList[j].FromGrid] -= SharedList[j].NumberToMove[i];
+	  Changes[SharedList[j].ToGrid[i]] += SharedList[j].NumberToMove[i];
+	}
+    for (j = 0; j < NumberOfGrids; j++) {
+      if (GridPointer[j]->ReturnProcessorNumber() != MyProcessorNumber)
+	GridPointer[j]->SetNumberOfParticles(
+		         GridPointer[j]->ReturnNumberOfParticles()+Changes[j]);
+      //      printf("Pb(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n", MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfParticles());
+    }
+    delete [] Changes;
+  }
+#endif
  
   /* CleanUp. */
  

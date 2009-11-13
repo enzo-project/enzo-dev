@@ -32,13 +32,13 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
  
 Eint32 compare_star_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
 
 // Remove define.  This method will always be used.
 //#define KEEP_PARTICLES_LOCAL
@@ -137,6 +137,26 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
     } // ENDFOR grids
   } // ENDIF NumberOfRecieves > 0
 
+
+  /* Set number of stars so everybody agrees. */
+
+#ifdef UNUSED
+  if (NumberOfProcessors > 1) {
+    int *AllNumberOfStars = new int[NumberOfGrids];
+    for (j = 0; j < NumberOfGrids; j++)
+      if (GridPointer[j]->ReturnProcessorNumber() == MyProcessorNumber)
+	AllNumberOfStars[j] = GridPointer[j]->ReturnNumberOfStars();
+      else
+	AllNumberOfStars[j] = 0;
+
+    CommunicationAllSumValues(AllNumberOfStars, NumberOfGrids);
+    for (j = 0; j < NumberOfGrids; j++)
+      GridPointer[j]->SetNumberOfStars(AllNumberOfStars[j]);
+
+    delete [] AllNumberOfStars;
+  }
+#endif
+
   /* Cleanup. */
 
   if (SendList != SharedList)
@@ -145,11 +165,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
   delete [] NumberToMove;
   delete [] GridMap;
 
-#ifdef USE_MPI
-  int temp_int = TotalNumberToMove;
-  MPI_Reduce(&temp_int, &TotalNumberToMove, 1, IntDataType, MPI_SUM, 
-	     ROOT_PROCESSOR, MPI_COMM_WORLD);
-#endif
+  CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)
     printf("CommunicationTransferStars: moved = %"ISYM"\n",
   	   TotalNumberToMove);
