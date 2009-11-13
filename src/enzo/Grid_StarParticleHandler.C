@@ -914,7 +914,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     if (NumberOfNewParticles > 0) {
  
       if (debug)
-	printf("StarParticle: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
+	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
  
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
