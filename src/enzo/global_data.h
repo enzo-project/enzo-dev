@@ -623,6 +623,7 @@ EXTERN float SinkMergeMass;
 EXTERN float TotalSinkMass;
 EXTERN int StellarWindFeedback;
 EXTERN float StellarWindTurnOnMass;
+EXTERN float MSStellarWindTurnOnMass;
 EXTERN int NBodyDirectSummation;
 
 /* Turbulence simulation parameters */
@@ -724,5 +725,11 @@ EXTERN int RefineByJeansLengthUnits;
 EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
+
+
+/* Vorticity Calculations */
+
+EXTERN int VelAnyl;
+EXTERN int BAnyl;
 
 #endif

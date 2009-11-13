@@ -52,8 +52,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
  
   /* Debugging info. */
 
-  if (debug) printf("MoveAllParticles: %"ISYM" (before: ThisGrid = %"ISYM").\n",
-		    TotalNumberOfParticles, NumberOfParticles);
+  if (debug1) printf("MoveAllParticles: %"ISYM" (before: ThisGrid = %"ISYM").\n",
+		     TotalNumberOfParticles, NumberOfParticles);
  
   /* Allocate space for the particles. */
  

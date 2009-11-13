@@ -128,6 +128,7 @@ OBJS_CONFIG_LIB = \
         ExposeGridHierarchy.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
+	ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
         ExternalBoundary_IdentifyPhysicalQuantities.o \
         ExternalBoundary_InitializeExternalBoundaryFaceIO.o \
@@ -280,6 +281,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+	Grid_DeleteObsoleteFields.o \
         Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
@@ -394,6 +396,8 @@ OBJS_CONFIG_LIB = \
         Grid_SetMinimumSupport.o \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
+        Grid_ShearingBox2DInitializeGrid.o \
+        Grid_ShearingBoxStratifiedInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
@@ -570,6 +574,8 @@ OBJS_CONFIG_LIB = \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
+        ShearingBox2DInitialize.o \
+        ShearingBoxStratifiedInitialize.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
         ShockTubeInitialize.o \

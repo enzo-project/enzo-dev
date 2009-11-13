@@ -40,8 +40,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   int dim, i, j, k, m, n, field, sphere, size, igrid, activesize;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum,  kphHINum, gammaHINum, kphHeINum, gammaHeINum,
-    kphHeIINum, gammaHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
+    DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
+    kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
 
 
   NumberOfBaryonFields = 0;
@@ -91,11 +91,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (RadiativeTransfer) {
     if (MultiSpecies) {
       FieldType[kphHINum    = NumberOfBaryonFields++] = kphHI;
-      FieldType[gammaHINum  = NumberOfBaryonFields++] = gammaHI;
+      FieldType[gammaNum    = NumberOfBaryonFields++] = PhotoGamma;
       FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
-      FieldType[gammaHeINum = NumberOfBaryonFields++] = gammaHeI;
       FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
-      FieldType[gammaHeIINum= NumberOfBaryonFields++] = gammaHeII;
       if (MultiSpecies > 1) {
         FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
       }
@@ -584,7 +582,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (PutSink == 1 && level == 0) {  // set it up on level zero and make it mustrefine
 
     //    double mass_p = 20.0*1.989e33;
-    double mass_p = 0.01*1.989e33;
+    double mass_p = 20.0*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -604,15 +602,15 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5;//+0.5*dx;
-    ParticlePosition[1][0] = 0.5;//+0.5*dx;
-    ParticlePosition[2][0] = 0.5;//+0.5*dx;
+    ParticlePosition[0][0] = 0.5; //+0.5*dx;
+    ParticlePosition[1][0] = 0.5; //+0.5*dx;
+    ParticlePosition[2][0] = 0.5; //+0.5*dx;
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
     ParticleVelocity[2][0] = 0.0;
     ParticleAttribute[0][0] = 0.0; // creation time             
-    ParticleAttribute[1][0] = 0;
+    ParticleAttribute[1][0] = 0.0;
     ParticleAttribute[2][0] = mass_p;
 
     if (StellarWindFeedback) {

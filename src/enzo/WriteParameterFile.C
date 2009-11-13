@@ -357,6 +357,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (CoolData.ParameterFilename != NULL)
     fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
 
+  
+  fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
+  fprintf(fptr, "BAnyl                        = %"ISYM"\n", BAnyl);
+  
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
   fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
@@ -505,6 +509,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StellarWindFeedback);
   fprintf(fptr, "StellarWindTurnOnMass                 = %"FSYM"\n", 
 	  StellarWindTurnOnMass);
+  fprintf(fptr, "MSStellarWindTurnOnMass                 = %"FSYM"\n", 
+	  MSStellarWindTurnOnMass);
 
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",

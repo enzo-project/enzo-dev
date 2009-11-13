@@ -76,7 +76,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	float *metala, int *n_xe, float *xe_start, float *xe_end,
 	float *inutot, int *iradtype, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
-	int *iradtrans, float *gammaHI, float *gammaHeI, float *gammaHeII,
+	int *iradtrans, float *photogamma,
  	int *icmbTfloor, int *iClHeat, int *iClMMW,
  	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
@@ -145,13 +145,9 @@ int grid::SolveRadiativeCooling()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get easy to handle pointers for each variable. */
  
@@ -287,8 +283,7 @@ int grid::SolveRadiativeCooling()
           &RadiationData.NumberOfFrequencyBins,
           &RadiationFieldRecomputeMetalRates,
        &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
-       &RadiativeTransfer, BaryonField[gammaHINum], BaryonField[gammaHeINum], 
-       BaryonField[gammaHeIINum],
+       &RadiativeTransfer, BaryonField[gammaNum],
        &CloudyCoolingData.CMBTemperatureFloor,
        &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
        &CloudyCoolingData.CloudyMetallicityNormalization,

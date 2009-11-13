@@ -1732,6 +1732,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int ReadRandomForcingFields(FILE *main_file_pointer);
 
   int AddFields(int TypesToAdd[], int NumberOfFields);
+  int DeleteObsoleteFields(int *ObsoleteFields, 
+			   int NumberOfObsoleteFields);
  
   inline bool isLocal () {return MyProcessorNumber == ProcessorNumber; };
 
@@ -1808,6 +1810,14 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 /* ShearingBox: initialize grid. */
 
   int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, 
+				int InitialMagneticFieldConfiguration);
+
+  int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, 
+			       int InitialMagneticFieldConfiguration);
+
+  int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
 // -------------------------------------------------------------------------
@@ -1960,9 +1970,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 // Radiative transfer methods that don't fit in the TRANSFER define
 //------------------------------------------------------------------------
 
-  int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaHINum,
-				      int &kphHeINum, int &gammaHeINum,
-				      int &kphHeIINum, int &gammaHeIINum,
+  int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
+				      int &kphHeINum, int &kphHeIINum, 
 				      int &kdissH2INum);
 
 #ifdef TRANSFER

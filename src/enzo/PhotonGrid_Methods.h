@@ -202,11 +202,9 @@ int CountRadiationCells(void) {
 
   ncells = 0;
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				      kphHeIINum, kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -229,11 +227,9 @@ float Max_kph(int &ncells) {
 
   ncells = 0;
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				      kphHeIINum, kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -259,11 +255,9 @@ float Min_kph(int &ncells) {
 
   ncells = 0;
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  if (IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				      kphHeIINum, kdissH2INum) == FAIL) {
     fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
     return 0;
   }
@@ -314,9 +308,9 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      grid **Grids0, int nGrids0,
 		      int DensNum, int HINum, int HeINum,
 		      int HeIINum, int H2INum,
-		      int kphHINum, int gammaHINum,
-		      int kphHeINum, int gammaHeINum,
-		      int kphHeIINum, int gammaHeIINum,
+		      int kphHINum, int gammaNum,
+		      int kphHeINum,
+		      int kphHeIINum,
 		      int kdissH2INum, int RPresNum1, int RPresNum2, 
 		      int RPresNum3, int &DeleteMe, int &PauseMe,
 		      int &DeltaLevel, float LightCrossingTime,

@@ -71,11 +71,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *DIIName   = "DII_Density";
   const char *HDIName   = "HDI_Density";
   const char *kphHIName    = "HI_kph";
-  const char *gammaHIName  = "HI_gamma";  
+  const char *gammaName  = "PhotoGamma";
   const char *kphHeIName   = "HeI_kph";   
-  const char *gammaHeIName = "HeI_gamma"; 
   const char *kphHeIIName  = "HeII_kph";
-  const char *gammaHeIIName= "HeII_gamma";
   const char *kdissH2IName = "H2I_kdiss"; 
   const char *RadAccel1Name = "x-RadPressure";
   const char *RadAccel2Name = "y-RadPressure";
@@ -453,11 +451,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   if (RadiativeTransfer)
     if (MultiSpecies) {
       DataLabel[count++]  = (char*) kphHIName;
-      DataLabel[count++]  = (char*) gammaHIName;
+      DataLabel[count++]  = (char*) gammaName;
       DataLabel[count++]  = (char*) kphHeIName;
-      DataLabel[count++]  = (char*) gammaHeIName;
       DataLabel[count++]  = (char*) kphHeIIName;
-      DataLabel[count++]  = (char*) gammaHeIIName;
       if (MultiSpecies > 1) 
 	DataLabel[count++]= (char*) kdissH2IName; 
     } // if RadiativeTransfer

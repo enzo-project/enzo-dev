@@ -403,6 +403,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TotalSinkMass         = 0.0;
   StellarWindFeedback   = 0;
   StellarWindTurnOnMass = 0.1;
+  MSStellarWindTurnOnMass = 10.0;
 
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
@@ -596,8 +597,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 
   MoveParticlesBetweenSiblings = FALSE;
+
+  VelAnyl                     = 0;
+  BAnyl                     = 0;
+
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
+
 
   return SUCCESS;
 }
