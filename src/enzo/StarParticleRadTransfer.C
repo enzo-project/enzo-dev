@@ -77,6 +77,9 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
   // Convert from #/s to RT units
   double LConv = (double) TimeUnits / pow(LengthUnits,3);
 
+  // Convert to years
+  float TimeInYears = 3.1557e7 / TimeUnits;
+
   for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
 
     // Check the rules if this star particle is radiative
@@ -107,6 +110,8 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       /* (TODO) If requested, calculate ramping time for the luminosity */
 
       float ramptime = 0.0;   // zero for no ramp
+      if (cstar->ReturnType() == PopII)
+	ramptime = TimeInYears * StarClusterMinDynamicalTime;
 
       /* Transfer the shining particle properties to the radiative
 	 transfer source particle */
