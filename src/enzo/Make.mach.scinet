@@ -66,7 +66,7 @@ MACH_LD_NOMPI  = icc
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
-MACH_DEFINES = -DLINUX -DH5_USE_16_API -DTRANSFER -DWINDS -DIO_LOG -DOMPI_SKIP_MPICXX
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DWINDS -DIO_LOG -DOMPI_SKIP_MPICXX
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -141,8 +141,10 @@ LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 #LOCAL_LIBS_MACH   = -limf -lifcore -lifport -lstdc++ -lg2c 
 LOCAL_LIBS_MACH   =  -L$(INT_DIR)/lib/intel64 \
                      -limf -lifcore -lifport \
-                     -lstdc++ -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/libg2c.a
+                     -lstdc++ -lgfortran \
+		     -L/usr/lib64/ -lgpfs
 
+#-L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/libg2c.a \
 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
