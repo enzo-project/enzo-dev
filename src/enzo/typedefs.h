@@ -17,6 +17,7 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+#include "CosmicRayData.h"
 
 /* These are the different types of baryon fields. */
 
@@ -110,30 +111,35 @@ const field_type
 
   Galaxy1Colour          = 61,
   Galaxy2Colour          = 62,
+/* these are required for Sam Skillman's Shock/Cosmic ray models. */
+  Mach            = 63,
+  PreShockTemperature = 64,
+  PreShockDensity = 65,  
+  CRDensity       = 66,
 
 /* these are required for Simon Glover's chemistry (which also needs some of the
    other fields, which are used for MultiSpecies) */
-  CIDensity       = 63,
-  CIIDensity      = 64, 
-  OIDensity       = 65, 
-  OIIDensity      = 66,
-  SiIDensity      = 67,
-  SiIIDensity     = 68,
-  SiIIIDensity    = 69,
-  CHIDensity      = 70,
-  CH2IDensity     = 71,
-  CH3IIDensity    = 72,
-  C2IDensity      = 73,
-  COIDensity      = 74,
-  HCOIIDensity    = 75,
-  OHIDensity      = 76,
-  H2OIDensity     = 77,
-  O2IDensity      = 78,
+  CIDensity       = 67,
+  CIIDensity      = 68, 
+  OIDensity       = 69, 
+  OIIDensity      = 70,
+  SiIDensity      = 71,
+  SiIIDensity     = 72,
+  SiIIIDensity    = 73,
+  CHIDensity      = 74,
+  CH2IDensity     = 75,
+  CH3IIDensity    = 76,
+  C2IDensity      = 77,
+  COIDensity      = 78,
+  HCOIIDensity    = 79,
+  OHIDensity      = 80,
+  H2OIDensity     = 81,
+  O2IDensity      = 82,
 
-  MBHColour       = 79,
-  ForbiddenRefinement = 80,
+  MBHColour       = 83,
+  ForbiddenRefinement = 84,
 
-  FieldUndefined  = 81;
+  FieldUndefined  = 85;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -148,6 +154,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) (((A) >= kphHI && (A) <= kdissH2I) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE) 
 
 /* These are the different types of fluid boundary conditions. */
 
