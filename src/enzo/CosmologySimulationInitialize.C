@@ -112,6 +112,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalName = "Metal_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
+  char *MachName   = "Mach";
+  char *CRName     = "CR_Density";
+  char *PSTempName = "PreShock_Temperature";
+  char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
  
@@ -590,7 +594,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = HDIName;
     }
   }
- 
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
     if(MultiMetals){
@@ -604,6 +607,15 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (WritePotential)
     DataLabel[i++] = GPotName;
+
+  if (CRModel) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+    DataLabel[i++] = CRName;
+  } 
  
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;

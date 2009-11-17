@@ -59,8 +59,10 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferPhotonMergeRadius);
   fprintf(fptr, "RadiativeTransferHIIRestrictedTimestep    = %"ISYM"\n", 
 	  RadiativeTransferHIIRestrictedTimestep);
-  fprintf(fptr, "RadiativeTransferAdaptiveTimestep         = %"ISYM"\n\n", 
+  fprintf(fptr, "RadiativeTransferAdaptiveTimestep         = %"ISYM"\n",
 	  RadiativeTransferAdaptiveTimestep);
+  fprintf(fptr, "RadiativeTransferHydrogenOnly             = %"ISYM"\n\n", 
+	  RadiativeTransferHydrogenOnly);
   
   return SUCCESS;
 }

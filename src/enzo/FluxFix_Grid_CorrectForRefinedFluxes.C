@@ -393,7 +393,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  if (Coordinate == Cartesian) {
 	  for (field = 0; field < NumberOfBaryonFields; field++){
-	    if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+	    if ((FieldTypeNoInterpolate(FieldType[field]) == FALSE) &&
+		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					   FieldType[field] != InternalEnergy))
 		&& (FieldType[field] < ElectronDensity) && 
 		FieldType[field] != DrivingField1 &&
