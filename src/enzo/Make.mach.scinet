@@ -34,7 +34,8 @@ LOCAL_PYTHON_INSTALL = /scinet/gpc/tools/Python/Python262/
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = cpp
+#MACH_CPP       = $(LOCAL_MPI_INSTALL)/bin/mpicc 
+MACH_CPP        = /usr/bin/cpp
 
 # With MPI
 
@@ -65,7 +66,7 @@ MACH_LD_NOMPI  = icc
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
-MACH_DEFINES = -DLINUX -DH5_USE_16_API -DTRANSFER -DWINDS -DIO_LOG
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DTRANSFER -DWINDS -DIO_LOG -DOMPI_SKIP_MPICXX
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -114,7 +115,7 @@ MACH_OPT_AGGRESSIVE  = -O3
 # Includes
 #-----------------------------------------------------------------------
 
-LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
@@ -133,17 +134,20 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # variables will be properly set
 #
 
-LOCAL_LIBS_MPI    = $(LOCAL_MPI_INSTALL)/lib -lmyriexpress
-LOCAL_LIBS_HDF5   = $(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_MPI    =  
+LOCAL_LIBS_HDF5   = $(LOCAL_HDF5_INSTALL)/lib/libhdf5.a -lz #-lhdf5 -lz 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
 #LOCAL_LIBS_MACH   = -limf -lifcore -lifport -lstdc++ -lg2c 
 LOCAL_LIBS_MACH   =  -L$(INT_DIR)/lib/intel64 \
                      -limf -lifcore -lifport \
-                     -lstdc++ -lg2c
+                     -lstdc++ -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/libg2c.a
 
 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
+
+
+
