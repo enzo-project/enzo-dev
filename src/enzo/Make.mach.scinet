@@ -144,9 +144,6 @@ LOCAL_LIBS_MACH   =  -L$(INT_DIR)/lib/intel64 \
                      -lstdc++ -lgfortran \
 		     -L/usr/lib64/ -lgpfs
 
-#-L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/libg2c.a \
-
-
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
