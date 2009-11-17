@@ -243,7 +243,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	FieldType[field] != DrivingField1 &&
 	FieldType[field] != DrivingField2 &&
 	FieldType[field] != DrivingField3 &&
-	FieldType[field] != GravPotential ) {
+	 FieldType[field] != GravPotential )) {
       if (ProcessorNumber == MyProcessorNumber)
 	FORTRAN_NAME(div3d)(BaryonField[DensNum], BaryonField[field],
 			    &Size, &One, &One, &Size, &One, &One,

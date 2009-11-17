@@ -594,14 +594,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = HDIName;
     }
   }
-  if (CRModel) {
-    DataLabel[i++] = MachName;
-    if(StorePreShockFields){
-      DataLabel[i++] = PSTempName;
-      DataLabel[i++] = PSDenName;
-    }
-    DataLabel[i++] = CRName;
-  } 
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
     if(MultiMetals){
@@ -615,6 +607,15 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (WritePotential)
     DataLabel[i++] = GPotName;
+
+  if (CRModel) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+    DataLabel[i++] = CRName;
+  } 
  
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;

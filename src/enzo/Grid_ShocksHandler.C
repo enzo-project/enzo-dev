@@ -28,7 +28,6 @@ int grid::ShocksHandler()
 {
   if (!CRModel) return SUCCESS; 
   int shock_status;
-  JBPERF_START("grid_ShocksHandler");
 
   switch(ShockMethod){
   case 0:
@@ -46,7 +45,6 @@ int grid::ShocksHandler()
   default:
     shock_status = this->FindShocks();
   }
-  JBPERF_STOP("grid_ShocksHandler");
 
   if(shock_status == FAIL){
     ENZO_FAIL("Error in grid->ShocksHandler.");

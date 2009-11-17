@@ -263,14 +263,7 @@ int grid::CosmologySimulationInitializeGrid(
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
       FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
-    }
-    if (UseMetallicityField) {
-      FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
-      if(MultiMetals){
-	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
-	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
-      }
-    }
+    }    
   }
  
   // Set the subgrid static flag

@@ -423,7 +423,6 @@ OBJS_CONFIG_LIB = \
         Grid_TracerParticleCreateParticles.o \
         Grid_TracerParticleOutputData.o \
         Grid_TracerParticleSetVelocity.o \
-	Grid_TestProblemInitializeGrid.o \
         Grid_TransferSubgridParticles.o \
         Grid_TransferSubgridStars.o \
         Grid_TurbulenceSimulationInitialize.o \
