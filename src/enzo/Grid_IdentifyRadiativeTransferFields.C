@@ -27,33 +27,31 @@
 
 int FindField(int f, int farray[], int n);
 
-int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaHINum,
-					  int &kphHeINum, int &gammaHeINum,
-					  int &kphHeIINum, int &gammaHeIINum,
+int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
+					  int &kphHeINum, 
+					  int &kphHeIINum,
 					  int &kdissH2INum) 
 {
   
-  kphHINum = gammaHINum = kphHeINum = gammaHeINum = kphHeIINum = gammaHeIINum = kdissH2INum = 0;
+  kphHINum = gammaNum = kphHeINum = kphHeIINum = kdissH2INum = 0;
 
   if (RadiativeTransfer) {
 
     kphHINum    = FindField(kphHI, FieldType, NumberOfBaryonFields); 
-    gammaHINum  = FindField(gammaHI, FieldType, NumberOfBaryonFields);	  
-    kphHeINum   = FindField(kphHeI, FieldType, NumberOfBaryonFields);	  
-    gammaHeINum = FindField(gammaHeI, FieldType, NumberOfBaryonFields);	  
-    kphHeIINum  = FindField(kphHeII, FieldType, NumberOfBaryonFields);	  
-    gammaHeIINum= FindField(gammaHeII, FieldType,  NumberOfBaryonFields);     
+    gammaNum    = FindField(PhotoGamma, FieldType, NumberOfBaryonFields);	  
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      kphHeINum   = FindField(kphHeI, FieldType, NumberOfBaryonFields);	  
+      kphHeIINum  = FindField(kphHeII, FieldType, NumberOfBaryonFields);	  
+    }
     if (MultiSpecies > 1) 
       kdissH2INum = FindField(kdissH2I, FieldType, NumberOfBaryonFields);     
 
-
-    if (kphHINum<0 || gammaHINum<0 || kphHeINum<0 || gammaHeINum<0 ||
-	kphHeIINum<0 || gammaHeIINum<0 || kdissH2INum<0) {
+    if (kphHINum<0 || gammaNum<0 || kphHeINum<0 || kphHeIINum<0 || 
+	kdissH2INum<0) {
       fprintf(stderr, "Grid_IdentifyRadiativeTransferFields: failed\n");
-      fprintf(stderr, "kphHI=%"ISYM", gammaHI=%"ISYM", kphHeI=%"ISYM", gammaHeI=%"ISYM", "
-	      "kphHeII=%"ISYM", gammaHeII=%"ISYM", kdissH2I=%"ISYM"\n",
-	      kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, 
-	      gammaHeIINum, kdissH2INum);
+      fprintf(stderr, "kphHI=%"ISYM", gamma=%"ISYM", kphHeI=%"ISYM", "
+	      "kphHeII=%"ISYM", kdissH2I=%"ISYM"\n",
+	      kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum);
       ENZO_FAIL("");
     }
   }

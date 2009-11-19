@@ -185,6 +185,7 @@ typedef int            HDF5_hid_t;
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) abs((int) (A))
 #define ENPY_INT NPY_INT
+#define enpy_int npy_int
 #endif
 
 #ifdef LARGE_INTS
@@ -199,6 +200,7 @@ typedef int            HDF5_hid_t;
 #define nlongint(A) ( (long_int) ((A) + 0.5*sign(A)) )
 #define ABS(A) labs((long_int) (A))
 #define ENPY_INT NPY_LONG
+#define enpy_int npy_long
 #endif
 
 #ifdef CONFIG_BFLOAT_4
@@ -215,6 +217,7 @@ typedef int            HDF5_hid_t;
 #endif
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_FLOAT
+#define enpy_bfloat npy_float
 #endif
 #endif
 
@@ -235,6 +238,7 @@ typedef int            HDF5_hid_t;
 #endif
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
+#define enpy_bfloat npy_double
 #endif
 #endif
 
@@ -250,6 +254,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_FILE_R4
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_FLOAT
+#define enpy_pfloat npy_float
 #endif
 #endif
 
@@ -265,6 +270,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_R8
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_DOUBLE
+#define enpy_pfloat npy_double
 #endif
 #endif
 
@@ -280,6 +286,7 @@ typedef int            HDF5_hid_t;
 #define HDF5_FILE_PREC HDF5_R16
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_LONGDOUBLE
+#define enpy_pfloat npy_longdouble
 #endif
 #endif
 

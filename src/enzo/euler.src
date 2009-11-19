@@ -527,7 +527,7 @@ c
 c             colslice(i,j,n) = (colslice(i,j,n)*dslice(i,j) +
 c     &         (colf(i,j,n)-colf(i+1,j,n))/dx(i)      )/dnu(i) ! c*d conserved
              if (colslice(i,j,n)              +
-     &         (colf(i,j,n)-colf(i+1,j,n))/dx(i) .le. 0.0) write(6,*)
+     &         (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0.0) write(6,*)
      &         'euler_c:',i,j,n,dx(i),
      &          colf(i-1,j,n),colf(i,j,n),colf(i+1,j,n),
      &          colslice(i-1,j,n),colslice(i,j,n),colslice(i+1,j,n),

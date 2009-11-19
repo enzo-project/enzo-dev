@@ -570,6 +570,10 @@ public:
 
    int MultiSpeciesHandler();
 
+/* Handle the selection of shock finding algorithm */
+
+   int ShocksHandler();
+
 /* Solve the radiative cooling/heating equations  */
 
    int SolveRadiativeCooling();
@@ -645,6 +649,13 @@ public:
 
    float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
 				float redshift);
+
+// Functions for shock finding and cosmic ray acceleration
+//
+   int FindShocks();
+   int FindTempSplitShocks();
+   int FindVelShocks();
+   int FindVelSplitShocks();
 
 // -------------------------------------------------------------------------
 // Functions for grid (re)generation.
@@ -1389,8 +1400,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
+/* Identify shock/cosmic ray fields. */
+  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
+			      int &PSTempNum, int &PSDenNum);
   // Identify Simon Glover Species Fields
-
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,
 				  int &HeINum,int &HeIINum,int &HeIIINum,
@@ -1442,6 +1455,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 // -------------------------------------------------------------------------
 // Functions for Specific problems (usually problem generator functions).
 //
+
+/* Generalized Extra Field Grid Initializer (returns NumberOfBaryonFields) */
+  int InitializeTestProblemGrid(int field_counter);
 
 /* Protostellar Collapse problem: initialize grid (returns SUCCESS or FAIL) */
   int ProtostellarCollapseInitializeGrid(float CoreDensity,
@@ -1732,6 +1748,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int ReadRandomForcingFields(FILE *main_file_pointer);
 
   int AddFields(int TypesToAdd[], int NumberOfFields);
+  int DeleteObsoleteFields(int *ObsoleteFields, 
+			   int NumberOfObsoleteFields);
  
   inline bool isLocal () {return MyProcessorNumber == ProcessorNumber; };
 
@@ -1808,6 +1826,14 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 /* ShearingBox: initialize grid. */
 
   int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, 
+				int InitialMagneticFieldConfiguration);
+
+  int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
+				float ShearingGeometry, 
+			       int InitialMagneticFieldConfiguration);
+
+  int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
 				int InitialMagneticFieldConfiguration);
 // -------------------------------------------------------------------------
@@ -1960,9 +1986,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 // Radiative transfer methods that don't fit in the TRANSFER define
 //------------------------------------------------------------------------
 
-  int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaHINum,
-				      int &kphHeINum, int &gammaHeINum,
-				      int &kphHeIINum, int &gammaHeIINum,
+  int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
+				      int &kphHeINum, int &kphHeIINum, 
 				      int &kdissH2INum);
 
 #ifdef TRANSFER

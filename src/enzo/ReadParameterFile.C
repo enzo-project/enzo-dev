@@ -49,6 +49,7 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
+int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeGadgetEquilibriumCoolData(FLOAT Time);
@@ -380,6 +381,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
     if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) 
       MetalCoolingTable = dummy;
+
+    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
+    ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
+    ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
+    ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
+
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
@@ -714,8 +721,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
     ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
+    ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
 
-    //    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
+    ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
 
 
     /* Read MHD Paramters */
@@ -935,6 +944,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+    }
+  }
+
+  /* If set, initialze Cosmic Ray Efficiency Models */
+
+  if(CRModel){
+    if(InitializeCosmicRayData() == FAIL){
+      ENZO_FAIL("Error in Initialize CosmicRayData.");
+      return FAIL;
     }
   }
 

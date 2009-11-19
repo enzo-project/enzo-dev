@@ -347,8 +347,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
       if (FieldType[field] == Density)
 	FieldPointer = TemporaryDensityField;
-      else
-	FieldPointer = TemporaryField;
+      else if (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
+	  FieldPointer = TemporaryField;
  
       /* Copy needed portion of temp field to current grid. */
  

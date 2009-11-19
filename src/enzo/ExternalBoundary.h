@@ -126,6 +126,8 @@ class ExternalBoundary
   int DetachForcingFromBaryonFields();
 
   int AddField(int FieldType);
+  int DeleteObsoleteFields(int *ObsoleteFields, 
+			   int NumberOfObsoleteFields);
 
 };
 

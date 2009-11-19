@@ -67,7 +67,7 @@ extern "C" void FORTRAN_NAME(cool_multi_lum)(
 	float *metala, int *n_xe, float *xe_start, float *xe_end,
 	float *inutot, int *iradfield, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
-	int *iradtrans, float *gammaHI, float *gammaHeI, float *gammaHeII);
+	int *iradtrans, float *photogamma);
 extern "C" void FORTRAN_NAME(cool_time)(
 	float *d, float *e, float *ge, float *u, float *v, float *w,
            float *cooltime,
@@ -115,14 +115,9 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
 
   /* Find photo-ionization fields */
 
-  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get easy to handle pointers for each variable. */
 
@@ -239,8 +234,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
           &RadiationData.NumberOfFrequencyBins, 
           &RadiationFieldRecomputeMetalRates,
        &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
-       &RadiativeTransfer, BaryonField[gammaHINum], 
-       BaryonField[gammaHeINum], BaryonField[gammaHeIINum]);
+       &RadiativeTransfer, BaryonField[gammaNum]);
   else {
 #ifdef UNUSED
     FORTRAN_NAME(cool_time)(

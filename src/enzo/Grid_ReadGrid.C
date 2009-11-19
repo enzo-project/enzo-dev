@@ -78,7 +78,9 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-                                    "metallicity_fraction", "alpha_fraction"};
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction"};*/
 
 #ifdef USE_HDF4
   Eint32 TempIntArray2[MAX_DIMENSION];

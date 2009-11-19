@@ -31,17 +31,18 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
  
 Eint32 compare_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
 int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 				int &NumberOfReceives,
 				particle_data* &SharedList);
 
+#define NO_DEBUG_CTP
 #define KEEP_PARTICLES_LOCAL
  
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
@@ -190,23 +191,26 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
  
   /* Set number of particles so everybody agrees. */
 
-  // (JHW, May 2009) No longer needed because we synchronize in
-  // CommunicationCollectParticles now.
- 
-//  if (NumberOfProcessors > 1) {
-//    int *AllNumberOfParticles = new int[NumberOfGrids];
-//    for (j = 0; j < NumberOfGrids; j++)
-//      if (GridPointer[j]->ReturnProcessorNumber() == MyProcessorNumber)
-//	AllNumberOfParticles[j] = GridPointer[j]->ReturnNumberOfParticles();
-//      else
-//	AllNumberOfParticles[j] = 0;
-//
-//    CommunicationAllSumIntegerValues(AllNumberOfParticles, NumberOfGrids);
-//    for (j = 0; j < NumberOfGrids; j++)
-//      GridPointer[j]->SetNumberOfParticles(AllNumberOfParticles[j]);
-//
-//    delete [] AllNumberOfParticles;
-//  }
+#ifdef UNUSED
+  if (NumberOfProcessors > 1) {
+    int *AllNumberOfParticles = new int[NumberOfGrids];
+    for (j = 0; j < NumberOfGrids; j++)
+      if (GridPointer[j]->ReturnProcessorNumber() == MyProcessorNumber)
+	AllNumberOfParticles[j] = GridPointer[j]->ReturnNumberOfParticles();
+      else
+	AllNumberOfParticles[j] = 0;
+
+    CommunicationAllSumValues(AllNumberOfParticles, NumberOfGrids);
+    printf("P%d: npart = %d %d (%d %d)\n", MyProcessorNumber,
+	   GridPointer[0]->ReturnNumberOfParticles(),
+	   GridPointer[1]->ReturnNumberOfParticles(),
+	   AllNumberOfParticles[0], AllNumberOfParticles[1]);
+    for (j = 0; j < NumberOfGrids; j++)
+      GridPointer[j]->SetNumberOfParticles(AllNumberOfParticles[j]);
+
+    delete [] AllNumberOfParticles;
+  }
+#endif /* UNUSED */
 
   /* Cleanup. */
 
@@ -216,11 +220,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   delete [] NumberToMove;
   delete [] GridMap;
 
-#ifdef USE_MPI
-  int temp_int = TotalNumberToMove;
-  MPI_Reduce(&temp_int, &TotalNumberToMove, 1, IntDataType, MPI_SUM, 
-	     ROOT_PROCESSOR, MPI_COMM_WORLD);
-#endif
+  CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)
     printf("CommunicationTransferParticles: moved = %"ISYM"\n",
   	   TotalNumberToMove);

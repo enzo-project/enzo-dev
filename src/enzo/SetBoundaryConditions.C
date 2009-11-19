@@ -64,8 +64,10 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 {
  
+ 
   int loopEnd = (ShearingBoundaryDirection != -1) ? 2 : 1;
   
+ 
   int grid1, grid2, StartGrid, EndGrid, loop;
   
   LCAPERF_START("SetBoundaryConditions");
@@ -76,8 +78,12 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationBarrier();
 #endif
   
-    TIME_MSG("Interpolating boundaries from parent");
-      
+   
+
+    if (loop == 0) {   
+
+      TIME_MSG("Interpolating boundaries from parent");
+  
     for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
 	
       if (traceMPI) fprintf(tracePtr, "SBC loop\n");
@@ -88,9 +94,11 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       /* Here, we just generate the calls to generate the receive buffers,
 	 without actually doing anything. */
       
+   
+	
       CommunicationDirection = COMMUNICATION_POST_RECEIVE;
       CommunicationReceiveIndex = 0;
-      
+     
       for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
 	
 	/* a) Interpolate boundaries from the parent grid or set external
@@ -98,16 +106,17 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
-	if (loop == 0) {
+
 	  if (level == 0) {
     	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
 	  } else {
 	    Grids[grid1]->GridData->InterpolateBoundaryFromParent
 	      (Grids[grid1]->ParentGrid->GridData);
 	  }
-	} // ENDIF loop == 0
+	
 
       } // ENDFOR grids
+      
 
 	/* -------------- SECOND PASS ----------------- */
 	/* Now we generate all the sends, and do all the computation
@@ -122,9 +131,10 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	if (level > 0)
 	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
 	    (Grids[grid1]->ParentGrid->GridData);
-     
       
-      } // ENDFOR grids
+      
+      }
+      // ENDFOR grids
 
 	//Grids[StartGrid]->GridData->PrintToScreenBoundaries(0);
 
@@ -137,7 +147,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	ENZO_FAIL("");
 
     } // ENDFOR grid batches
-
+     }
     TIME_MSG("Copying zones in SetBoundaryConditions");
     for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
       EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
@@ -195,7 +205,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 
     } // end loop over batchs of grids
 
-  } // ENDFOR loop (for ShearinBox)
+   // ENDFOR loop (for ShearingBox)
  
     /* c) Apply external reflecting boundary conditions, if needed.  */
 
@@ -203,12 +213,15 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
     Grids[grid1]->GridData->CheckForExternalReflections
       (MetaData->LeftFaceBoundaryCondition,
        MetaData->RightFaceBoundaryCondition);
+
+  
   
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
 #endif
  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+  }
  
   LCAPERF_STOP("SetBoundaryConditions");
 

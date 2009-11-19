@@ -52,7 +52,10 @@ void my_exit(int status);
 // HDF5 function prototypes
  
 // function prototypes
- 
+
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
+
 int SysMkdir(char *startdir, char *directory);
  
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
@@ -81,7 +84,14 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
 void InitializeHierarchyArrayStorage(int grid_count);
 void WriteHierarchyArrayStorage(const char* name);
 void FinalizeHierarchyArrayStorage();
- 
+
+#ifndef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
+#endif 
+
+
 extern char BCSuffix[];
 extern char GridSuffix[];
 extern char HierarchySuffix[];
@@ -638,7 +648,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
   // Output Data Hierarchy
 
-  if (WriteBinaryHierarchy == TRUE){
+  if (WriteBinaryHierarchy == TRUE  || VelAnyl==1 || BAnyl==1){
     /* If this is true, we have to count up the number of grids. */
     int level;
     LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
@@ -655,12 +665,27 @@ int Group_WriteAllData(char *basename, int filenumber,
         }
     }
     InitializeHierarchyArrayStorage(num_grids);
+    
+#ifndef FAST_SIB
+    if(VelAnyl==1||BAnyl==1){
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+      HierarchyEntry **Grids;
+      int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      if (LevelArray[level] != NULL) {
+	
+	if (SetBoundaryConditions(Grids, NumberOfGrids, level, &MetaData, 
+				  Exterior, LevelArray[level]) == FAIL) {
+	  printf("error setboundary");
+	}}}}
+#endif
   }
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) 
-      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
+  
  
+	
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
             gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");

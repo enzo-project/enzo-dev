@@ -70,3 +70,5 @@ EXTERN int RadiativeTransferHIIRestrictedTimestep;
 EXTERN int RadiativeTransferAdaptiveTimestep;
 
 EXTERN float GlobalMaximumkphIfront;
+
+EXTERN int RadiativeTransferHydrogenOnly;
