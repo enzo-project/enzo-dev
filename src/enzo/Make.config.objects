@@ -129,6 +129,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
+        ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_IdentifyPhysicalQuantities.o \
         ExternalBoundary_InitializeExternalBoundaryFaceIO.o \
         ExternalBoundary_Prepare.o \
@@ -277,6 +278,7 @@ OBJS_CONFIG_LIB = \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
         Grid_DeleteFlaggingField.o \
+        Grid_DeleteObsoleteFields.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\

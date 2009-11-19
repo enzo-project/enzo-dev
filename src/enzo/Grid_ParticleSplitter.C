@@ -32,7 +32,7 @@
 #include "StarParticleData.h"
 
 #define NO_DEBUG_PS 
-#define PARTICLE_IN_GRID_CHECK 
+#define PARTICLE_IN_GRID_CHECK //#####
 
 /* function prototypes */
  

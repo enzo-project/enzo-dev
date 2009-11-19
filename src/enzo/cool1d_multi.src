@@ -684,13 +684,34 @@ c
      $          metala(indixe(i),   xe_idx+1) * (1-dlogxe) * (dlogT)   +
      $          metala(indixe(i)+1, xe_idx+1) * (dlogxe  ) * (dlogT)
 c
+c---------------------------------------------------------------------
+c #####
+c
+c               write(*,*) "------------"
+c               write(*,*) "tgas(i) = ", tgas(i)
+c               write(*,*) "tgasold(i) = ", tgasold(i)
+c               write(*,*) "logtem(i) = ", logtem(i)
+c               write(*,*) "dlogT = ", dlogT
+c               write(*,*) "indixe(i) = ", indixe(i)
+c               write(*,*) "--"
+c               write(*,*) "xe = ", xe
+c               write(*,*) "log_xe = ", log_xe
+c               write(*,*) "dlogxe = ", dlogxe
+c               write(*,*) "xe_idx = ", xe_idx
+c               write(*,*) "--"
+c               write(*,*) "metala(indixe(i), xe_idx) = ", 
+c     $                     metala(indixe(i), xe_idx)
+c
+c
+c---------------------------------------------------------------------
+c
 c  Subtract metal cooling at T_cmb
 c
             metalc_cmb = 
      $        metala(tcmb_idx,   xe_idx  ) * (1-dlogxe) * (1-dlogTcmb) +
      $        metala(tcmb_idx+1, xe_idx  ) * (dlogxe  ) * (1-dlogTcmb) +
      $        metala(tcmb_idx,   xe_idx+1) * (1-dlogxe) * (dlogTcmb)   +
-     $          metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
+     $        metala(tcmb_idx+1, xe_idx+1) * (dlogxe  ) * (dlogTcmb)
                metalc(i) = metalc(i) - metalc_cmb
 
                xi = min(3.0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))

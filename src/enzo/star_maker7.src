@@ -10,9 +10,10 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np,
+     &                      odthresh, masseff, smthresh, level, 
+     &                      np, npart,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf, type, ctype)
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -34,8 +35,9 @@ C    imported star_maker2.src as of 12 June 2009 and changed the followings:
 c    [1] removed Jeans mass criteria (just like star_maker3.src)
 c    [2] removed stochastic star formation (unlike star_maker3.src)
 c    [3] removed dt dependence in stellar mass created 
-c    
-cc
+c    [4] prevents star formation when there is a MBH particle in the cell
+c        MBH particle will suck out the gas later in StarParticleFinalize
+c
 c
 c  INPUTS:
 c
@@ -63,7 +65,8 @@ c    procnum - processor number (for output)
 c
 c  OUTPUTS:
 c
-c    np   - number of particles created
+c    np   - number of particles created (=NumberOfNewParticles)
+c    npart   - number of particles already in here (=NumberOfParticles)
 c    x/y/z start - starting position of grid origin
 c    xp,yp,zp - positions of created particles
 c    up,vp,wp - velocities of created particles
@@ -80,8 +83,9 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
+      integer procnum, ctype
+      integer type(npart)
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -99,7 +103,7 @@ c
 c
 c  Locals:
 c
-      integer  i, j, k, ii
+      integer  i, j, k, ii, n
       real   div, tdyn, dtot
       real   pi, G, sndspdC
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
@@ -108,6 +112,16 @@ c
      &           msolar=1.989e33)
 c
       ii = np
+c
+c  check whether we have MBH particle here, in which case we skip the
+c  star formation routine
+c
+      do n=1, npart
+         if (type(n) .eq. ctype) then
+c            write(6,*) 'star_maker7: the cell has a MBH particle; move on'
+            goto 20
+         endif
+      enddo
 c
 c  for each zone, : "star" particle is created if answers to all the
 c  following questions are affirmative:
@@ -263,7 +277,7 @@ c
 c      if (np .ne. 0) then
 c         write(6,*) 'Stars created: number,time,level: ', np, t, level
 c      endif
-cc
+c
       return
       end
 c
