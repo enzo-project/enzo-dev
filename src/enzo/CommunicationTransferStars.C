@@ -310,7 +310,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
     SharedList = SendList;  // if there is only one processor
     for (grid = 0; grid < NumberOfGrids; grid++)
       for (i = 0; i < 6; i++)
-	NumberOfParticlesMoved += SharedList[grid].NumberToMove[i];
+	NumberOfStarsMoved += SharedList[grid].NumberToMove[i];
   }
  
   /* Copy stars back to grids. */
