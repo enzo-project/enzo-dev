@@ -80,49 +80,36 @@ int grid::MoveParticlesFOF(int level, FOF_particle_data* &P,
 
     }
 
-    //this->DeleteParticles();
-    for (dim = 0; dim < GridRank; dim++) {
-      delete [] ParticlePosition[dim];
-      ParticlePosition[dim] = NULL;
-      //printf("ParticleVelocity[%d] = %x\n", dim, ParticleVelocity[dim]);
-      //delete [] ParticleVelocity[dim];
-      ParticleVelocity[dim] = NULL;
-    }
-    for (j = 0; j < NumberOfParticleAttributes; j++) {
-      delete [] ParticleAttribute[j];
-      ParticleAttribute[j] = NULL;
-    }
-
-    delete [] ParticleMass;
-    delete [] ParticleType;
-    delete [] ParticleNumber;
-    ParticleMass = NULL;
-    ParticleType = NULL;
-    ParticleNumber = NULL;
+    this->DeleteParticles();
 
   } // ENDIF (COPY_OUT)
 
   else {
 
-    this->AllocateNewParticles(AllVars.Nlocal);
+    /* Only move particles in this slab -- exclude the shadows. */
+
+    this->AllocateNewParticles(AllVars.Nslab[MyProcessorNumber]);
 
     for (dim = 0; dim < GridRank; dim++)
-      for (i = 0; i < AllVars.Nlocal; i++) {
-	ParticlePosition[dim][i] = P[i].Pos[dim] * BoxSizeInv;
-	ParticleVelocity[dim][i] = P[i].Vel[dim] * VelConvInv;
-      }
+      for (i = 0; i < AllVars.Nlocal; i++)
+	if (P[i].slab == MyProcessorNumber) {
+	  ParticlePosition[dim][i] = P[i].Pos[dim] * BoxSizeInv;
+	  ParticleVelocity[dim][i] = P[i].Vel[dim] * VelConvInv;
+	}
 
     for (j = 0; j < NumberOfParticleAttributes; j++)
       for (i = 0; i < AllVars.Nlocal; i++)
-	ParticleAttribute[j][i] = P[i].Attr[j];
+	if (P[i].slab == MyProcessorNumber)
+	  ParticleAttribute[j][i] = P[i].Attr[j];
 
-    for (i = 0; i < AllVars.Nlocal; i++) {
-      ParticleMass[i] = P[i].Mass * MassConvInv;
-      ParticleType[i] = P[i].Type;
-      ParticleNumber[i] = P[i].PartID;
-    }
+    for (i = 0; i < AllVars.Nlocal; i++) 
+      if (P[i].slab == MyProcessorNumber) {
+	ParticleMass[i] = P[i].Mass * MassConvInv;
+	ParticleType[i] = P[i].Type;
+	ParticleNumber[i] = P[i].PartID;
+      }
 
-    NumberOfParticles = AllVars.Nlocal;
+    NumberOfParticles = AllVars.Nslab[MyProcessorNumber];
 
   } // ENDELSE (COPY_IN)
 

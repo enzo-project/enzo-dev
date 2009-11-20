@@ -250,10 +250,10 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	sr = D.SearchRadius;
 
       // Left and right "shadows"
-      if (Plocal[i].Pos[0] < (slab * D.BoxSize / NumberOfProcessors + sr))
+      if (Plocal[i].Pos[0] < (slab*(D.BoxSize / NumberOfProcessors) + sr))
 	NtoLeft_local[slab]++;
 
-      if (Plocal[i].Pos[0] > ((slab+1) * D.BoxSize / NumberOfProcessors - sr))
+      if (Plocal[i].Pos[0] > ((slab+1)*(D.BoxSize / NumberOfProcessors) - sr))
 	NtoRight_local[slab]++;
 
     } // ENDFOR particles

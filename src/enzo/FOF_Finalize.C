@@ -92,7 +92,8 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
 
   delete [] D.P;
 
-  /* Move the particles into their correct grids */
+  /* Move the particles into their correct grids.  Just like
+     RebuildHierarchy. */
 
   int level, n, ngrids = 0;
   grid *GridPointer[MAX_NUMBER_OF_TASKS];
@@ -107,17 +108,25 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
     n++;
   }
 
+  bool ParticlesAreLocal, SyncNumberOfParticles;
+
   // Root grids (sync number of particles first)
-  CommunicationSyncNumberOfParticles(GridHierarchyPointer, ngrids);
+  ParticlesAreLocal = false;
+  SyncNumberOfParticles = false;
+  CommunicationCollectParticles(LevelArray, 0, ParticlesAreLocal,
+				SyncNumberOfParticles, SIBLINGS_ONLY);
+
   CommunicationTransferParticles(GridPointer, ngrids);
-#ifndef OPTIMIZED_CTP
-  CommunicationSyncNumberOfParticles(GridHierarchyPointer, ngrids);
-#endif
+
+  ParticlesAreLocal = false;
+  SyncNumberOfParticles = true;
+  CommunicationCollectParticles(LevelArray, 0, ParticlesAreLocal, 
+				SyncNumberOfParticles, SIBLINGS_ONLY);
 
   // Move to subgrids.  SUBGRIDS_GLOBAL because subgrids could be
   // distributed across many processors.
-  bool ParticlesAreLocal = true;
-  bool SyncNumberOfParticles = true;
+  ParticlesAreLocal = true;
+  SyncNumberOfParticles = true;
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     if (LevelArray[level] != NULL)
       CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal,
