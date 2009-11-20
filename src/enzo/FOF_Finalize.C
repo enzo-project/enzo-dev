@@ -42,8 +42,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
-int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
-				  bool ParticlesAreLocal, int CollectMode);
+int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
+				  int level, bool ParticlesAreLocal, 
+				  bool SyncNumberOfParticles, int CollectMode);
 int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 				       int NumberOfGrids);
 
@@ -116,9 +117,10 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
   // Move to subgrids.  SUBGRIDS_GLOBAL because subgrids could be
   // distributed across many processors.
   bool ParticlesAreLocal = true;
+  bool SyncNumberOfParticles = true;
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     if (LevelArray[level] != NULL)
       CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal,
-				    SUBGRIDS_GLOBAL);
+				    SyncNumberOfParticles, SUBGRIDS_GLOBAL);
 
 }
