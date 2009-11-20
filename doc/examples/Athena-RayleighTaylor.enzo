@@ -1,0 +1,71 @@
+#
+# AMR PROBLEM DEFINITION FILE: Rayleigh Taylor  (Tom Abel 09)
+# 
+# classic Raleigh Taylor setup with sharp contact 
+# this file should work with all hydro methods
+#
+# compare to 
+# http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
+#  
+#  
+# 
+
+ProblemType                = 201
+MHD2DProblemType = 0
+TopGridRank                = 2     
+TopGridDimensions          = 50 150
+DomainLeftEdge = -0.25 -0.75
+DomainRightEdge = 0.25  0.75
+SelfGravity                = 0
+LeftFaceBoundaryCondition  = 3 0
+RightFaceBoundaryCondition = 3 0
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 12.75
+dtDataDump             = .25
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1
+FluxCorrection            = 0
+CellFlaggingMethod        = 1
+MaximumRefinementLevel    = 2
+RefineBy                  = 2
+#
+#  set hydro parameters
+#
+Gamma                       = 1.4
+CourantSafetyNumber         = 0.4
+HydroMethod                 = 0
+Initialdt                   = 0.00001
+RKOrder                     = 2
+DualEnergyFormalism         = 0
+Theta_Limiter               = 2.0
+RiemannSolver               = 4
+UseConstantAcceleration     = 1
+ConstantAcceleration        = 0 -0.1 0
+UniformGravity              = 1      # turn on acceleration  (HM=0..2)
+UniformGravityDirection     = 1      # does the same as ConstantAcceleration
+UniformGravityConstant      = -0.1   # but for ZEUS and PPM solvers
+#
+# problem parameters
+#
+LengthUnit = 1.0
+LowerDensity = 1.0
+LowerPressure = 2.5
+LowerVelocityX = 0.0
+LowerVelocityY = 0.0
+LowerVelocityZ = 0.0
+LowerBx = 0.0
+LowerBy = 0.0
+
+UpperDensity = 2.0
+UpperPressure = 2.5
+UpperVelocityX = 0.0
+UpperVelocityY = 0.0
+UpperVelocityZ = 0.0
+UpperBx = 0.0
+UpperBy = 0.0

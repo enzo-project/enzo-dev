@@ -32,13 +32,13 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
 void my_exit(int status);
  
 // function prototypes
  
 Eint32 compare_star_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int CommunicationAllSumIntegerValues(int *Values, int Number);
 
 // Remove define.  This method will always be used.
 //#define KEEP_PARTICLES_LOCAL
@@ -139,6 +139,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
 
   /* Set number of stars so everybody agrees. */
 
+#ifdef UNUSED
   if (NumberOfProcessors > 1) {
     int *AllNumberOfStars = new int[NumberOfGrids];
     for (j = 0; j < NumberOfGrids; j++)
@@ -153,6 +154,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
 
     delete [] AllNumberOfStars;
   }
+#endif
 
   /* Cleanup. */
 

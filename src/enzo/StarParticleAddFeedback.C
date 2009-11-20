@@ -96,7 +96,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	(!cstar->ApplyFeedbackTrue(SNe_dt)))
       continue;
 
-    float dtForThisStar = Temp->GridData->ReturnTimeStep();
+    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 	  
     /* Compute some parameters */
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 

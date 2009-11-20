@@ -38,12 +38,11 @@ void my_exit(int status);
  
 Eint32 compare_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
-int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
-				       int NumberOfGrids);
 int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 				int &NumberOfReceives,
 				particle_data* &SharedList);
 
+#define NO_DEBUG_CTP
 #define KEEP_PARTICLES_LOCAL
  
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
@@ -192,6 +191,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
  
   /* Set number of particles so everybody agrees. */
 
+#ifdef UNUSED
   if (NumberOfProcessors > 1) {
     int *AllNumberOfParticles = new int[NumberOfGrids];
     for (j = 0; j < NumberOfGrids; j++)
@@ -206,6 +206,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 
     delete [] AllNumberOfParticles;
   }
+#endif /* UNUSED */
 
   /* Cleanup. */
 

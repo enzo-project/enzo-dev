@@ -53,8 +53,8 @@ extern "C" void FORTRAN_NAME(solve_rate)(
 	float *HM, float *H2I, float *H2II, float *DI, float *DII, float *HDI,
 	int *iradshield, float *avgsigh, float *avgsighe, float *avgsighe2,
 	int *iradfield, float *piHI, float *piHeI,
-	int *iradtrans, float *kphHI, float *kphHeI, float *kphHeII, 
-	float *kdissH2I);
+	int *iradtrans, int *irt_honly, float *kphHI, float *kphHeI, 
+	float *kphHeII, float *kdissH2I);
  
  
 int grid::SolveRateEquations()
@@ -91,13 +91,9 @@ int grid::SolveRateEquations()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Find the density field. */
  
@@ -197,7 +193,8 @@ int grid::SolveRateEquations()
           BaryonField[DINum], BaryonField[DIINum], BaryonField[HDINum],
        &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiationFieldType, &CoolData.piHI, &CoolData.piHeI,
-       &RadiativeTransfer, BaryonField[kphHINum], BaryonField[kphHeINum], 
+       &RadiativeTransfer, &RadiativeTransferHydrogenOnly,
+       BaryonField[kphHINum], BaryonField[kphHeINum], 
        BaryonField[kphHeIINum], BaryonField[kdissH2INum]);
  
   /* deallocate temporary space for solver */

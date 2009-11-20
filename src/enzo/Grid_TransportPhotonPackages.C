@@ -93,23 +93,13 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   int RPresNum1, RPresNum2, RPresNum3;
-  if (RadiationPressure) {
-    if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3)
-	== FAIL) {
-      fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("");
-    }
-  }
+  if (RadiationPressure)
+    IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
 
   /* Get units. */
 
@@ -183,8 +173,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       WalkPhotonPackage(&PP,
 			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
 			DensNum, HINum, HeINum, HeIINum, H2INum,
-			kphHINum, gammaHINum, kphHeINum, gammaHeINum,
-			kphHeIINum, gammaHeIINum, kdissH2INum, RPresNum1,
+			kphHINum, gammaNum, kphHeINum, 
+			kphHeIINum, kdissH2INum, RPresNum1,
 			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 
 			LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 

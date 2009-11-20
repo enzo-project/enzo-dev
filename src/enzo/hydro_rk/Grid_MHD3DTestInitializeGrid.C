@@ -81,7 +81,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 
   
   int igrid;
-  FLOAT x, y;
+  FLOAT x, y, z;
   if (MHD3DProblemType == 0) { // Planar shock
   float pres, eintl, eintu, h, cs, dpdrho, dpde;
   for (int k = 0; k < GridDimension[2]; k++) {
@@ -131,6 +131,49 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   }
   }
 
-
+  if (MHD3DProblemType == 1) { // Uniform Density with a Shear
+    float pres, eintl, eintu, h, cs, dpdrho, dpde;
+    for (int k = 0; k < GridDimension[2]; k++) {
+      for (int j = 0; j < GridDimension[1]; j++) {
+	for (int i = 0; i < GridDimension[0]; i++) {
+	  /* Compute position */
+	  igrid = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+	  
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	  z = CellLeftEdge[2][j] + 0.5*CellWidth[2][j];
+	  
+	  float rho;
+	  rho = 1.;
+	  pres = rho/Gamma; // sound speed = 1
+	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
+	  // impose mode perturbation
+	  vxl = 0.5*cos(2.0*M_PI*y);
+	  vyl = 0.;
+	  etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
+	  BaryonField[iden ][igrid] = rho;
+	  BaryonField[ivx  ][igrid] = vxl;
+	  BaryonField[ivy  ][igrid] = vyl;
+	  BaryonField[ivz  ][igrid] = 0.0;
+	  
+	  BaryonField[ietot][igrid] = etotl;
+	  if (DualEnergyFormalism) {
+	    BaryonField[ieint][igrid] = pl / ((Gamma-1.0)*rho);
+	  }
+	  if (HydroMethod == MHD_RK) {
+	    BaryonField[iBx  ][igrid] = Bxl;
+	    BaryonField[iBy  ][igrid] = Byl;
+	    BaryonField[iBz  ][igrid] = 0.0;
+	    BaryonField[iPhi ][igrid] = 0.0;
+	  }
+	  
+	}
+      }  
+    }
+  }
+  
+  
+  
+  
   return SUCCESS;
 }

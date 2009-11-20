@@ -196,9 +196,11 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
     double pi = 4.0*atan(1.0);
 
     double f=1.0; // BE sphere overdensity parameter
+    f = 1.14405;
     double re = SphereRadius[0] * lenu;
     double cs = SphereSoundVelocity[0];
     double ksi_e = 6.451; // critical radius of BE sphere
+   
     double rhoc = ksi_e*ksi_e*f*cs*cs/(re*re*4*pi*G);
     printf("rhoc=%g, cs=%g, re=%g\n", rhoc, cs, re);
     SphereDensity[0] = rhoc;

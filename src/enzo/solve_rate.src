@@ -18,7 +18,8 @@ c
      &                HM, H2I, H2II, DI, DII, HDI,
      &                iradshield, avgsigh, avgsighe, avgsighe2,
      &                iradtype, piHI, piHeI,
-     &                iradtrans, kphHI, kphHeI, kphHeII, kdissH2I)
+     &                iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
+     &                kdissH2I)
 c
 c  SOLVE MULTI-SPECIES RATE EQUATIONS
 c
@@ -44,7 +45,7 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, ispecies,
-     &        iradshield, iradtype, iradtrans
+     &        iradshield, iradtype, iradtrans, irt_honly
       real    dt, aye, temstart, temend, utim, uaye, urho, uxyz,
      &        fh, dtoh
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
@@ -414,12 +415,19 @@ c
 c     Add photo-ionization rates if necessary
 c
             if (iradtrans.eq.1) then
-               do i = is+1, ie+1
-                  HIdot(i) = HIdot(i) - kphHI(i,j,k)*HI(i,j,k)
-                  dedot(i) = dedot(i) + kphHI(i,j,k)*HI(i,j,k)
-     $                 + kphHeI(i,j,k) * HeI(i,j,k) / 4.0
-     $                 + kphHeII(i,j,k) *HeII(i,j,k) / 4.0
-               enddo
+               if (irt_honly.eq.0) then
+                  do i = is+1, ie+1
+                     HIdot(i) = HIdot(i) - kphHI(i,j,k)*HI(i,j,k)
+                     dedot(i) = dedot(i) + kphHI(i,j,k)*HI(i,j,k)
+     $                    + kphHeI(i,j,k) * HeI(i,j,k) / 4.0
+     $                    + kphHeII(i,j,k) *HeII(i,j,k) / 4.0
+                  enddo
+               else
+                  do i = is+1, ie+1
+                     HIdot(i) = HIdot(i) - kphHI(i,j,k)*HI(i,j,k)
+                     dedot(i) = dedot(i) + kphHI(i,j,k)*HI(i,j,k)
+                  enddo
+               endif
             endif
 c
 c           Find timestep that keeps relative changes below 10%
@@ -519,10 +527,12 @@ c
      &                 + k25shield(i)*HeII(i,j,k)/4.
      &                 + k26shield(i)*HeI(i,j,k)/4.
 #endif /* RADIATION */
-                  if (iradtrans .eq. 1) 
+                  if (iradtrans .eq. 1 .and. irt_honly.eq.0) 
      $                 scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
      $                 + kphHeI(i,j,k)  * HeI(i,j,k)/4.
      $                 + kphHeII(i,j,k) * HeII(i,j,k)/4.
+                  if (iradtrans .eq. 1 .and. irt_honly.eq.1) 
+     $                 scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
                   acoef = -(k1(i)*HI(i,j,k)      - k2(i)*HII(i,j,k)
      &                    + k3(i)*HeI(i,j,k)/4.  - k6(i)*HeIII(i,j,k)/4.
      &                    + k5(i)*HeII(i,j,k)/4. - k4(i)*HeII(i,j,k)/4.
@@ -545,7 +555,8 @@ c
 #ifdef RADIATION
      &                + k26shield(i)
 #endif /* RADIATION */
-               if (iradtrans.eq.1) acoef = acoef + kphHeI(i,j,k)
+               if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+     $              acoef = acoef + kphHeI(i,j,k)
                HeIp(i)   = ( scoef*dtit(i) + HeI(i,j,k) ) 
      &              / ( 1. + acoef*dtit(i) )
 c
@@ -556,12 +567,14 @@ c
 #ifdef RADIATION
      &                + k26shield(i)*HeIp(i)
 #endif /* RADIATION */
-               if (iradtrans.eq.1) scoef = scoef + kphHeI(i,j,k)*HeIp(i)
+               if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+     $              scoef = scoef + kphHeI(i,j,k)*HeIp(i)
                acoef  = k4(i)*de(i,j,k) + k5(i)*de(i,j,k)
 #ifdef RADIATION
      &                + k25shield(i)
 #endif /* RADIATION */
-               if (iradtrans.eq.1) acoef = acoef + kphHeII(i,j,k)
+               if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+     $              acoef = acoef + kphHeII(i,j,k)
                HeIIp(i)  = ( scoef*dtit(i) + HeII(i,j,k) )
      &              / ( 1. + acoef*dtit(i) )
 c
@@ -571,7 +584,7 @@ c
 #ifdef RADIATION
      &                 + k25shield(i)*HeIIp(i)
 #endif /* RADIATION */
-               if (iradtrans.eq.1) 
+               if (iradtrans.eq.1 .and. irt_honly.eq.0)
      $              scoef = scoef + kphHeII(i,j,k) * HeIIp(i)
                acoef   = k6(i)*de(i,j,k)
                HeIIIp(i)  = ( scoef*dtit(i) + HeIII(i,j,k) )
@@ -643,10 +656,12 @@ c
      &                   + k25shield(i)*HeIIp(i)/4.
      &                   + k26shield(i)*HeIp(i)/4.
 #endif /* RADIATION */
-                  if (iradtrans .eq. 1) 
+                  if (iradtrans .eq. 1 .and. irt_honly.eq.0) 
      $                 scoef = scoef + kphHI(i,j,k)   * HIp(i)
      $                 + kphHeI(i,j,k)  * HeIp(i)/4.
      $                 + kphHeII(i,j,k) * HeIIp(i)/4.
+                  if (iradtrans .eq. 1 .and. irt_honly.eq.1) 
+     $                 scoef = scoef + kphHI(i,j,k)   * HIp(i)
                   acoef = - (k1(i) *HI(i,j,k)    - k2(i)*HII(i,j,k)
      &                   +  k3(i) *HeI(i,j,k)/4. - k6(i)*HeIII(i,j,k)/4.
      &                   +  k5(i) *HeII(i,j,k)/4.- k4(i)*HeII(i,j,k)/4.

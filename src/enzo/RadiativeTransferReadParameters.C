@@ -59,6 +59,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
   RadiativeTransferAdaptiveTimestep           = FALSE;
+  RadiativeTransferHydrogenOnly               = FALSE;
 
   /* read input from file */
 
@@ -102,6 +103,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferHIIRestrictedTimestep);
     ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
 		  &RadiativeTransferAdaptiveTimestep);
+    ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
+		  &RadiativeTransferHydrogenOnly);
     ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
 
     /* if the line is suspicious, issue a warning */

@@ -57,8 +57,11 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   const char *ParticleOtherLabel[] =
     {"particle_type", "particle_number", "particle_mass"};
-  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+
   int i;
     
   for (i=0; i<3; i++) { 
@@ -422,8 +425,11 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+
+  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
 
   sprintf(gridDataName, "/grid-%d", gridId);
   if (nBaryonFields > 0) 

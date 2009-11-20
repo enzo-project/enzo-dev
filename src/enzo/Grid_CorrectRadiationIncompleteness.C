@@ -40,14 +40,9 @@ int grid::CorrectRadiationIncompleteness(void)
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   int nsrc;
 
@@ -55,7 +50,7 @@ int grid::CorrectRadiationIncompleteness(void)
     if (BaryonField[kphHeIINum][i] > 0) {
       nsrc = max(int(BaryonField[kphHeIINum][i]-0.1), 1);
       BaryonField[kphHINum][i] /= BaryonField[kphHeIINum][i] / nsrc;
-      BaryonField[gammaHINum][i] /= BaryonField[kphHeIINum][i] / nsrc;
+      BaryonField[gammaNum][i] /= BaryonField[kphHeIINum][i] / nsrc;
     }
 
 #endif /* TRANSFER */  

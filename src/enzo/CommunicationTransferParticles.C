@@ -348,7 +348,8 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     } // end: if grid is on my processor
  
   /* Set number of particles so everybody agrees. */
- 
+
+#ifdef UNUSED 
   if (NumberOfProcessors > 1) {
     int *Changes = new int[NumberOfGrids];
     for (j = 0; j < NumberOfGrids; j++)
@@ -367,6 +368,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     }
     delete [] Changes;
   }
+#endif
  
   /* CleanUp. */
  

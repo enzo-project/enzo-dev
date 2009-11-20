@@ -28,7 +28,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &InformationOutput,
 			 int &OutputAsParticleData,
 			 int &project, int &ProjectionDimension,
-			 int &ProjectionSmooth,
+			 int &ProjectionSmooth, int &velanyl,
 			 char *ParameterFile[],
 			 int RegionStart[], int RegionEnd[],
 			 FLOAT RegionStartCoordinate[],
@@ -224,6 +224,10 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	extract = TRUE;
 	break;
  
+      case 'v':
+	velanyl = TRUE;
+	break;
+
 	/* Unknown */
  
       default:

@@ -128,6 +128,7 @@ OBJS_CONFIG_LIB = \
         ExposeGridHierarchy.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
+	ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
         ExternalBoundary_IdentifyPhysicalQuantities.o \
         ExternalBoundary_InitializeExternalBoundaryFaceIO.o \
@@ -281,6 +282,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
+	Grid_DeleteObsoleteFields.o \
         Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
@@ -288,6 +290,7 @@ OBJS_CONFIG_LIB = \
         Grid_destructor.o \
         Grid_DetachForcingFromBaryonFields.o \
         Grid_DoubleMachInitializeGrid.o \
+	Grid_FindShocks.o \
         Grid_FastSiblingLocatorAddGrid.o \
         Grid_FastSiblingLocatorFindSiblings.o \
         Grid_FindAllStarParticles.o \
@@ -326,6 +329,7 @@ OBJS_CONFIG_LIB = \
         Grid_Group_ReadGrid.o \
         New_Grid_WriteGrid.o \
         New_Grid_ReadGrid.o \
+	Grid_IdentifyCRSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
@@ -395,7 +399,10 @@ OBJS_CONFIG_LIB = \
         Grid_SetMinimumSupport.o \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
+        Grid_ShearingBox2DInitializeGrid.o \
+        Grid_ShearingBoxStratifiedInitializeGrid.o \
         Grid_ShockTubeInitializeGrid.o \
+	Grid_ShocksHandler.o \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
@@ -447,6 +454,7 @@ OBJS_CONFIG_LIB = \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
+	InitializeCosmicRayData.o \
         InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
@@ -571,6 +579,8 @@ OBJS_CONFIG_LIB = \
         SetLevelTimeStep.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
+        ShearingBox2DInitialize.o \
+        ShearingBoxStratifiedInitialize.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
         ShockTubeInitialize.o \
@@ -764,6 +774,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/LLF_PLM.o \
         hydro_rk/LLF_Zero.o \
         hydro_rk/Rec_PLM.o \
+        hydro_rk/Rec_ConsPLM.o \
         hydro_rk/Rec_PPM.o \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \

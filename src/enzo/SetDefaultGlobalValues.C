@@ -282,6 +282,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
+  CRModel                     = 0;                 // off
+  ShockMethod                 = 0;                 // temperature unsplit
+  ShockTemperatureFloor       = 1.0;               // Set to 1K
+  StorePreShockFields         = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   AdjustUVBackground          = 1;
@@ -403,6 +407,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TotalSinkMass         = 0.0;
   StellarWindFeedback   = 0;
   StellarWindTurnOnMass = 0.1;
+  MSStellarWindTurnOnMass = 10.0;
 
   UseHydro		     = 1;
   Coordinate		     = Cartesian;
@@ -420,6 +425,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = HLL;
   ReconstructionMethod	     = PLM;
+  ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;
   EOSCriticalDensity	     = 1e-13;
@@ -435,6 +441,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
+  ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
 
@@ -594,7 +601,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   useMHD=0;
 
   MoveParticlesBetweenSiblings = FALSE;
+
+  VelAnyl                     = 0;
+  BAnyl                     = 0;
+
   ParticleSplitterIterations = FALSE;
+
 
   return SUCCESS;
 }
