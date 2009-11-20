@@ -137,6 +137,23 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
     } // ENDFOR grids
   } // ENDIF NumberOfRecieves > 0
 
+  /* Set number of stars so everybody agrees. */
+
+  if (NumberOfProcessors > 1) {
+    int *AllNumberOfStars = new int[NumberOfGrids];
+    for (j = 0; j < NumberOfGrids; j++)
+      if (GridPointer[j]->ReturnProcessorNumber() == MyProcessorNumber)
+	AllNumberOfStars[j] = GridPointer[j]->ReturnNumberOfStars();
+      else
+	AllNumberOfStars[j] = 0;
+
+    CommunicationAllSumValues(AllNumberOfStars, NumberOfGrids);
+    for (j = 0; j < NumberOfGrids; j++)
+      GridPointer[j]->SetNumberOfStars(AllNumberOfStars[j]);
+
+    delete [] AllNumberOfStars;
+  }
+
   /* Cleanup. */
 
   if (SendList != SharedList)
@@ -145,11 +162,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
   delete [] NumberToMove;
   delete [] GridMap;
 
-#ifdef USE_MPI
-  int temp_int = TotalNumberToMove;
-  MPI_Reduce(&temp_int, &TotalNumberToMove, 1, IntDataType, MPI_SUM, 
-	     ROOT_PROCESSOR, MPI_COMM_WORLD);
-#endif
+  CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)
     printf("CommunicationTransferStars: moved = %"ISYM"\n",
   	   TotalNumberToMove);

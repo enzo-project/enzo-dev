@@ -54,7 +54,6 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Check if the FOF directory exists */
 
-  int unixresult;
   char FOF_dir[MAX_LINE_LENGTH];
 
   if (MyProcessorNumber == ROOT_PROCESSOR && !SmoothData) {
@@ -74,7 +73,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	   &TimeUnits, &VelocityUnits, &MassUnits, MetaData->Time);
   
   // Time = a = 1/(1+z).  In enzo, the scale factor is in units of (1+z0).
-  FLOAT CurrentRedshift = 0.0, a = 1, dadt;
+  FLOAT a = 1, dadt;
   if (ComovingCoordinates) {
     // Mpc/h -> kpc
     D.BoxSize = 1e3 * ComovingBoxSize / HubbleConstantNow;
@@ -149,7 +148,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   bool inside;
   int dim, j, proc, slab, region;
-  int GridNum, Index, NumberOfLocalParticles, ptype_size;
+  int Index, NumberOfLocalParticles, ptype_size;
   double sr;
   FOF_particle_data *Plocal;
   int *Nslab_local, *NtoLeft_local, *NtoRight_local;
@@ -170,11 +169,10 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   // Move particles
   Index = 0;
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    for (Temp = LevelArray[level], GridNum = 0; Temp; 
-	 Temp = Temp->NextGridThisLevel, GridNum++) {
-      Temp->GridData->MoveParticlesFOF(level, GridNum, Plocal, Index, D,
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
+      Temp->GridData->MoveParticlesFOF(level, Plocal, Index, D,
 				       VelocityUnits, MassUnits, COPY_OUT);
-      //Temp->GridData->SetNumberOfParticles(0);
+      Temp->GridData->SetNumberOfParticles(0);
     }
 
   /************* Count particles in each slab and shadow ****************/
