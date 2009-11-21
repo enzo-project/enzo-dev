@@ -43,6 +43,8 @@
 void FOF_Initialize(TopGridData *MetaData, 
 		    LevelHierarchyEntry *LevelArray[], 
 		    FOFData &D, bool SmoothData);
+void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[], 
+		  TopGridData *MetaData);
 /************************************************************************/
 
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
@@ -129,6 +131,7 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (HaloFinderSubfind)
     subfind(AllVars, MetaData->CycleNumber, MetaData->Time);
 
+  FOF_Finalize(AllVars, LevelArray, MetaData);
   deallocate_all_memory(AllVars);
 
   HaloFinderLastTime = MetaData->Time;

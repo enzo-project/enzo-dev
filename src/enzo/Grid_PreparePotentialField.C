@@ -206,7 +206,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
   /* Clean up parent. */
  
   if (MyProcessorNumber != ParentGrid->ProcessorNumber) {
-    delete ParentGrid->PotentialField;
+    delete [] ParentGrid->PotentialField;
     ParentGrid->PotentialField = NULL;
   }
  

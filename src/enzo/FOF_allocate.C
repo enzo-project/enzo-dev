@@ -55,8 +55,10 @@ void deallocate_all_memory(FOFData &D)
   free_i3tensor(D.GridLast,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
   free_i3tensor(D.GridFlag,  0, D.Grid-1, 0, D.Grid-1, 0, D.Grid-1);
 
-  D.P++;
-  delete [] D.P;
+  /* Now we do this after copying back to grids in FOF_Finalize */
+
+//  D.P++;
+//  delete [] D.P;
 
   return;
 

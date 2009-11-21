@@ -201,10 +201,6 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	AllNumberOfParticles[j] = 0;
 
     CommunicationAllSumValues(AllNumberOfParticles, NumberOfGrids);
-    printf("P%d: npart = %d %d (%d %d)\n", MyProcessorNumber,
-	   GridPointer[0]->ReturnNumberOfParticles(),
-	   GridPointer[1]->ReturnNumberOfParticles(),
-	   AllNumberOfParticles[0], AllNumberOfParticles[1]);
     for (j = 0; j < NumberOfGrids; j++)
       GridPointer[j]->SetNumberOfParticles(AllNumberOfParticles[j]);
 
