@@ -310,8 +310,12 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
       } // end: loop over i (directions)
     } // end: loop over j (grids)
  
-  } else
+  } else {
     SharedList = SendList;  // if there is only one processor
+    for (grid = 0; grid < NumberOfGrids; grid++)
+      for (i = 0; i < 6; i++)
+	NumberOfParticlesMoved += SharedList[grid].NumberToMove[i];
+  }
  
   /* Copy particles back to grids. */
  
@@ -333,7 +337,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	  }
  
       /* Copy particles back (SharedList[grid].ToGrid is a dummy, not used). */
- 
+
       if (GridPointer[grid]->CommunicationTransferParticles(GridPointer,
 	      NumberOfGrids, SharedList[grid].ToGrid, LocalNumberToMove,
 	      LocalPointer, COPY_IN) == FAIL) {

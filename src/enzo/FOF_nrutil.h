@@ -8,6 +8,7 @@
 #ifndef _NR_UTILS_H_
 #define _NR_UTILS_H_
 
+#ifdef UNUSED
 static float sqrarg;
 #define SQR(a) ((sqrarg=(a)) == 0.0 ? 0.0 : sqrarg*sqrarg)
 
@@ -47,6 +48,7 @@ static int iminarg1,iminarg2;
         (iminarg1) : (iminarg2))
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+#endif /* UNUSED */
 
 void nrerror(char error_text[]);
 float *vector(long nl, long nh);

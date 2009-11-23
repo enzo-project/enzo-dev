@@ -98,7 +98,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
 	    NextGridNextLevelID);
  
   if (NextGridNextLevelID != 0) {
-    HierarchyArrays.current_parent = GridID;
+    HierarchyArrays.current_parent = OriginalID;
     GridID++;
     if (Group_WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel,
                 base_name, GridID, WriteTime, file_id, CheckpointDump) == FAIL) {

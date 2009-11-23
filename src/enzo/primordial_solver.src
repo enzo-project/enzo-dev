@@ -352,12 +352,14 @@ c
 c  Correct for flaws in flavor conservation and
 c  convert densities from comoving to proper
 c
-      call make_consistent(de, HI, HII, HeI, HeII, HeIII,
+      call primordial_make_consistent(
+     &                     de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, d,
      &                     is, ie, js, je, ks, ke,
      &                     in, jn, kn, ispecies, fh, dtoh, iter,
      &                     correctH, correctHe )
-      call scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
+      call primordial_scale_fields(
+     &                  d, de, HI, HII, HeI, HeII, HeIII,
      &                  HM, H2I, H2II, DI, DII, HDI, 
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, aye**(-3))
@@ -696,14 +698,15 @@ c        totaliter = 0
 c
 c     Convert densities back to comoving from proper
 c
-      call scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
+      call primordial_scale_fields(d, de, HI, HII, HeI, HeII, HeIII,
      &                  HM, H2I, H2II, DI, DII, HDI, 
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, aye**3)
 c
 c     Correct the species to ensure consistency (i.e. type conservation)
 c
-      call make_consistent(de, HI, HII, HeI, HeII, HeIII,
+      call primordial_make_consistent(
+     &                     de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, d,
      &                     is, ie, js, je, ks, ke,
      &                     in, jn, kn, ispecies, fh, dtoh, iter,
