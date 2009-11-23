@@ -37,9 +37,9 @@ c  OUTPUTS:
 c    PHTH     - HI photoionization rate, in s^-1
 c    PHTHE    - HeI photoionization rate
 c    PHTHE2   - HeII photoionization rate
-c    PHLAMTH     - HI photo-heating rate, in 1e-30 erg/s
-c    PHLAMTHE    - HeI photo-heating rate
-c    PHLAMTHE2   - HeII photo-heating rate
+c    PHTLAMTH     - HI photo-heating rate, in 1e-30 erg/s
+c    PHTLAMTHE    - HeI photo-heating rate
+c    PHTLAMTHE2   - HeII photo-heating rate
 c    EXRY     - X-ray backgroun radiation energy density, in erg/cm^3
 c    TXRY     - X-ray background temperature, in K
 c    AVGSIGH  - intensity weighted average cross section

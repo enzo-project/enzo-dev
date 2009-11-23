@@ -384,12 +384,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
     ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
-
     ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM,
 		  &RadiationFieldLevelRecompute);
     ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM,
 		  &CoolData.f3);
     ret += sscanf(line, "RadiationSpectrumSlope = %"FSYM, &CoolData.alpha0);
+    ret += sscanf(line, "PhotoelectricHeating  = %"ISYM, &PhotoelectricHeating);
 
     if (sscanf(line, "CoolDataParameterFile = %s", dummy) == 1)
       CoolData.ParameterFilename = dummy;
@@ -761,7 +761,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity1 = %"GSYM, &CoolingPowerCutOffDensity1);
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
-    ret += sscanf(line, "PhotoelectricHeating  = %lf", &PhotoelectricHeating);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
@@ -863,10 +862,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Change input physical parameters into code units */
-    
+
+    /*    
     double mh = 1.6726e-24;
     double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
-    PhotoelectricHeating /= uheat;
+    PhotoelectricHeating /= uheat;  //#####
+    */ 
     StarMakerOverDensityThreshold /= DensityUnits;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     

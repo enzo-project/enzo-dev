@@ -290,6 +290,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.alpha0             = 1.5;               // radiation spectral slope
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
+  PhotoelectricHeating	      = 0;
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";
@@ -433,7 +434,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolingPowerCutOffDensity1 = 0;
   CoolingPowerCutOffDensity2 = 1e10;
   UseH2OnDust		     = 0;
-  PhotoelectricHeating	     = 0;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;

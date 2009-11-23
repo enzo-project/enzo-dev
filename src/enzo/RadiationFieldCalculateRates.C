@@ -14,7 +14,8 @@
 /  date:       March, 2006
 /  modified5:  Robert Harkness - removed C++ I/O
 /  date:       February 29th, 2008
-/  PURPOSE:
+/
+/  PURPOSE:    
 /
 /  RETURNS: SUCCESS or FAIL
 /
@@ -65,16 +66,17 @@ int RadiationFieldCalculateRates(FLOAT Time)
   output<<"RadiationFieldType = "<<RadiationFieldType<<'\n';
 */
 
-  FLOAT a = 1.0, dadt;
-  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
-
+  /*
   if (!ComovingCoordinates) {
     fprintf(stderr, "RadiationField only defined for cosmology.\n");
     ENZO_FAIL("");
   }
+  */
 
-  CosmologyComputeExpansionFactor(Time, &a, &dadt);
+  FLOAT a = 1.0, dadt;
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
+    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+  float Redshift;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -82,9 +84,15 @@ int RadiationFieldCalculateRates(FLOAT Time)
     ENZO_FAIL("");    
   }
 
-  aUnits = 1.0/(1.0 + InitialRedshift);
-  float Redshift = 1.0/(a*aUnits) - 1;
+  if (ComovingCoordinates) {
+    CosmologyComputeExpansionFactor(Time, &a, &dadt);
 
+    aUnits = 1.0/(1.0 + InitialRedshift);
+    Redshift = 1.0/(a*aUnits) - 1;
+  } else {
+    Redshift = 0.0;   //##### tried to make it work with non-cosmological simulation 
+  }
+    
   double tbase1 = TimeUnits;
   double xbase1 = LengthUnits/(a*aUnits);
   double dbase1 = DensityUnits*POW(a*aUnits, 3);
@@ -100,7 +108,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
   float Ramp = 0;
 
   if (Redshift < CoolData.RadiationRedshiftOn && 
-      Redshift > CoolData.RadiationRedshiftOff) {
+      Redshift >= CoolData.RadiationRedshiftOff) {
 
     if (Redshift > CoolData.RadiationRedshiftFullOn)
       Ramp = 0.5 - 0.5*tanh(15.0*(Redshift - 0.5*
@@ -123,7 +131,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
     float XRadRedShiftf0to3 = 0.1 ;
 
     if (Redshift < XRadRedShiftOn &&
-      Redshift > XRadRedShiftOff) {
+      Redshift >= XRadRedShiftOff) {
 
     if (Redshift > XRadRedShiftFullOn)
       RampX = 0.5 - 0.5*tanh(15.0*(Redshift - 0.5*
@@ -145,17 +153,17 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   if (RadiationFieldType == 1) {
 
- RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
+    RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
                      * TimeUnits * Ramp;
- RateData.k25 = 6.3e-15 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
+    RateData.k25 = 6.3e-15 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      * TimeUnits * Ramp;
- RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
+    RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
                      * TimeUnits * Ramp;
- CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95) 
+    CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95) 
                      / CoolingUnits * Ramp;
- CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
+    CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
                      / CoolingUnits * Ramp;
- CoolData.piHeII = 1.6e-25 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
+    CoolData.piHeII = 1.6e-25 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      / CoolingUnits * Ramp;
   }   
     

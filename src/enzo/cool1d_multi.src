@@ -7,14 +7,14 @@
       subroutine cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim,
-     &                is, ie, j, k, ih2co, ipiht, iter,
+     &                iexpand, ispecies, imetal, imcool, idim, 
+     &                is, ie, j, k, ih2co, ipiht, iter, igammah,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &                reHeII2a, reHeIIIa, brema, compa, 
+     &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
@@ -64,7 +64,7 @@
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
      &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
-     &        n_xe, imetal
+     &        n_xe, imetal, igammah
       real    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
@@ -88,7 +88,7 @@
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real    xe_start, xe_end
+      real    gammaha, xe_start, xe_end
 
 !  Cloudy cooling data
 
@@ -378,13 +378,18 @@
 
 !                    X-ray compton heating
 
-     &             - comp_xraya * (tgas(i)-comp_temp)*de(i,j,k)/dom
+     &             - comp_xraya*(tgas(i)-comp_temp)*de(i,j,k)/dom
 
 !                    Bremsstrahlung
 
      &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4.0+HeIII(i,j,k))
      &                        *de(i,j,k)
-     &                 )
+
+!                    Photoelectric heating  #####
+
+     &             + float(igammah)*gammaha*d(i,j,k)
+     &             )
+
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
      &           HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 
@@ -683,27 +688,6 @@ c
      $          metala(indixe(i)+1, xe_idx  ) * (dlogxe  ) * (1-dlogT) +
      $          metala(indixe(i),   xe_idx+1) * (1-dlogxe) * (dlogT)   +
      $          metala(indixe(i)+1, xe_idx+1) * (dlogxe  ) * (dlogT)
-c
-c---------------------------------------------------------------------
-c #####
-c
-c               write(*,*) "------------"
-c               write(*,*) "tgas(i) = ", tgas(i)
-c               write(*,*) "tgasold(i) = ", tgasold(i)
-c               write(*,*) "logtem(i) = ", logtem(i)
-c               write(*,*) "dlogT = ", dlogT
-c               write(*,*) "indixe(i) = ", indixe(i)
-c               write(*,*) "--"
-c               write(*,*) "xe = ", xe
-c               write(*,*) "log_xe = ", log_xe
-c               write(*,*) "dlogxe = ", dlogxe
-c               write(*,*) "xe_idx = ", xe_idx
-c               write(*,*) "--"
-c               write(*,*) "metala(indixe(i), xe_idx) = ", 
-c     $                     metala(indixe(i), xe_idx)
-c
-c
-c---------------------------------------------------------------------
 c
 c  Subtract metal cooling at T_cmb
 c

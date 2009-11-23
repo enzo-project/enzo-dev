@@ -223,7 +223,7 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
 		       int *ibuff, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+			float *justburn, int *ctype, float *mbhradius);
 
 extern "C" void FORTRAN_NAME(pop3_maker)
   (int *nx, int *ny, int *nz, 
@@ -730,7 +730,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     if (STARMAKE_METHOD(INSTANT_STAR) && level == MaximumRefinementLevel) {
 
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
-      //                            only at MaximumRefinementLevel, avoids SF when MBH exists)
+      //                            only at MaximumRefinementLevel, 
+      //                            reconsiders star formation or feedback when MBH exists)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -1081,6 +1082,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 #endif
 
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
+
+      double pc = 3.086e18;
+      float mbhradius = MBHFeedbackRadius * pc / LengthUnits; 
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -1100,7 +1104,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2], 
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
+       &MBHParticleType, &mbhradius);
  
   } 
 

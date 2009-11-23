@@ -318,6 +318,10 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 
+/* Photoelectric cooling turn on/off */
+
+EXTERN int PhotoelectricHeating;
+
 /* Output cooling time with grid data. */
 
 EXTERN int OutputCoolingTime;
@@ -588,7 +592,6 @@ EXTERN int UseResistivity;
 /* Chemistry & cooling parameters */
 
 EXTERN int UseH2OnDust;
-EXTERN double PhotoelectricHeating;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
