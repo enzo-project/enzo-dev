@@ -128,10 +128,10 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "SphereType[%d] = %d", &sphere,
 		    &SphereType[sphere]);
     if (sscanf(line, "SphereRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "SphereRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "SphereRadius[%d] = %"PSYM, &sphere,
 		    &SphereRadius[sphere]);
     if (sscanf(line, "SphereCoreRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "SphereCoreRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "SphereCoreRadius[%d] = %"PSYM, &sphere,
 		    &SphereCoreRadius[sphere]);
     if (sscanf(line, "SphereDensity[%d]", &sphere) > 0)
       ret += sscanf(line, "SphereDensity[%d] = %f", &sphere,
@@ -143,7 +143,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "SphereSoundVelocity[%d] = %f", &sphere,
 		    &SphereSoundVelocity[sphere]);
     if (sscanf(line, "SpherePosition[%d]", &sphere) > 0)
-      ret += sscanf(line, "SpherePosition[%d] = %"FSYM" %"FSYM" %"FSYM, 
+      ret += sscanf(line, "SpherePosition[%d] = %"PSYM" %"PSYM" %"PSYM, 
 		    &sphere, &SpherePosition[sphere][0],
 		    &SpherePosition[sphere][1],
 		    &SpherePosition[sphere][2]);
@@ -226,7 +226,8 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->CollapseMHD3DInitializeGrid(
 	     n_sphere, SphereRadius,
 	     SphereCoreRadius, SphereDensity,
-	     SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, Bnaught, theta_B,
+	     SpherePressure, SphereSoundVelocity, SpherePosition, 
+	     SphereAngVel, Bnaught, theta_B, 
 	     SphereType,
              MediumDensity, MediumPressure, 0) == FAIL) {
     fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");

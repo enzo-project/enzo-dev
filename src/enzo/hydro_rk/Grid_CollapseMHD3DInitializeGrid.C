@@ -93,15 +93,18 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     size *= GridDimension[dim];
   }
 
+  int count=0;
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if (BaryonField[field] == NULL) {
       BaryonField[field] = new float[size];
+      count++;
     }
   }
+  printf("Allocated %i Baryonfields\n", count);
 
   printf("rho_sphere=%g, cs_sphere=%g, rho_medium=%g, p_medium=%g\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
-
+  printf("r_sphere: %g\n", r_sphere[0]);
   // if use BE sphere, read in the BE sphere density profile
 
   char *filename = "be.dat";
@@ -167,6 +170,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	By = 0.0;
 	Bz = Bnaught;
 
+	if (sphere_type[sphere] == 0) { // set field along x for this problem
+	  Bx = Bnaught;
+	  By = 0.0;
+	  Bz = 0.0;
+	};
+
 	/* Loop over spheres. */
 	for (sphere = 0; sphere < n_sphere; sphere++) {
           
@@ -207,8 +216,18 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	    if (sphere_type[sphere] == 0) {
 	      rho  = rho_sphere[sphere];
 	      FLOAT cos2phi = cosphi*cosphi -sinphi*sinphi;
-	      rho *= (1.0 + 0.2*cos2phi);
-	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
+	      //	      rho *= (1.0 + 0.2*cos2phi);
+	      // Burkert & Bodenheimer (1993) m=2 perturbation: 	      
+	      float m2mode = 1. + 0.5*cos(2.*phi);
+	      rho *= m2mode;
+	      // BUT keep the pressure constant everywhere
+	      // to avoid discontinuities at the sphere boundaries
+	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0)/m2mode;
+	      // for the B-field we put it along x to slow the 
+	      // collapse along the z direction
+	      Bx = Bnaught;
+	      By = 0;
+	      Bz = 0;
               vel[0] = -omega_sphere[sphere]*ypos;
               vel[1] = omega_sphere[sphere]*xpos;
 	    }
