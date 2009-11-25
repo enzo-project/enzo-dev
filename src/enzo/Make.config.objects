@@ -256,6 +256,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputePressure.o \
         Grid_ComputeTemperatureField.o \
         Grid_ComputeTimeStep.o \
+        Grid_ComputeVectorAnalysisFields.o \
         Grid_ComputeVertexCenteredField.o \
         Grid_ComputeXrayEmissivity.o \
         Grid_constructor.o \
