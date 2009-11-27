@@ -383,6 +383,7 @@ EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
 EXTERN int NumberOfRootGridTilesPerDimensionPerProcessor;
+EXTERN int CosmologySimulationNumberOfInitialGrids;
 
 /* Parameters that control density dex output */
 

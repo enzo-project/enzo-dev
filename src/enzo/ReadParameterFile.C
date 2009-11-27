@@ -836,6 +836,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   rewind(fptr);
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
+
+  /* Even if this is not cosmology, due to a check for nested grid cosmology
+     in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
+  CosmologySimulationNumberOfInitialGrids = 1;
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
