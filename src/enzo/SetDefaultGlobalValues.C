@@ -284,6 +284,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverOpticalDepth          = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
+  RadiationData.RadiationShield = 0;
   AdjustUVBackground          = 1;
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;

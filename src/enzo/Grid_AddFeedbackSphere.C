@@ -144,11 +144,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Remove mass from the star that will now be added to grids. 
      Also, because EjectaDensity will be injected with zero momentum, 
      increase the particle's velocity accordingly.
-     As of now, this is only for MBH_THERMAL, 
-     but probably should also be done for SUPERNOVA or CONT_SUPERNOVA. 
      - Ji-hoon Kim, Sep.2009 */
 
-  if (cstar->FeedbackFlag == MBH_THERMAL) {
+  if (cstar->FeedbackFlag == SUPERNOVA || 
+      cstar->FeedbackFlag == CONT_SUPERNOVA || 
+      cstar->FeedbackFlag == MBH_THERMAL) {
     old_mass = cstar->Mass;
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 

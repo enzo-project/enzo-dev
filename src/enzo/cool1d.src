@@ -149,7 +149,7 @@ c              (rate of change of specific energy)
 c
          edot(i) = -cool(i)*(0.4*(fh+1)*d(i,j,k))
 c
-c        Photoelectric heating  #####
+c        Photoelectric heating  
 c
          edot(i) = edot(i) + float(igammah)*gammaha*d(i,j,k)
 c

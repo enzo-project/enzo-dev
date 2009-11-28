@@ -67,10 +67,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     GetUnits(&rhou, &lenu, &tempu, &tu, &velu, &massu, MetaData.Time);
     presu = rhou*lenu*lenu/tu/tu;
   }
-  /*
-  double mh = 1.6726e-24;
-  double uheat = VelocityUnits*VelocityUnits*2.0*mh/TimeUnits;  //#####
-  */
 
   /* write data to Parameter output file */
  
@@ -353,6 +349,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
   fprintf(fptr, "SetHeIIHeatingScale            = %"GSYM"\n", SetHeIIHeatingScale);
   fprintf(fptr, "RadiationFieldLevelRecompute   = %"ISYM"\n", RadiationFieldLevelRecompute);
+  fprintf(fptr, "RadiationShield                = %"ISYM"\n", RadiationData.RadiationShield);
   fprintf(fptr, "RadiationSpectrumNormalization = %"GSYM"\n", CoolData.f3);
   fprintf(fptr, "RadiationSpectrumSlope         = %"GSYM"\n", CoolData.alpha0);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);

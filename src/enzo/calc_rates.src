@@ -865,7 +865,7 @@ c
 c
 c     h) Compton cooling (Peebles 1971)
 c
-      compa   = 5.65d-36 / coolunit
+      compa     = 5.65d-36 / coolunit
 c
 c     i) Photoelectric heating on dust (Tasker & Bryan 2007)
 c        rate in erg s^-1 cm^3 

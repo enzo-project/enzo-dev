@@ -67,10 +67,10 @@ int RadiationFieldCalculateRates(FLOAT Time)
 */
 
   /*
-  if (!ComovingCoordinates) {
+  if (!ComovingCoordinates) {   
     fprintf(stderr, "RadiationField only defined for cosmology.\n");
     ENZO_FAIL("");
-  }
+  }  
   */
 
   FLOAT a = 1.0, dadt;
@@ -89,8 +89,12 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
-  } else {
-    Redshift = 0.0;   //##### tried to make it work with non-cosmological simulation 
+  } else {  //##### tried to make it work with non-cosmological simulation 
+    Redshift = 0.0;   
+    CoolData.RadiationRedshiftOn = 0.1;
+    CoolData.RadiationRedshiftOff = 0.0;
+    CoolData.RadiationRedshiftFullOn = 0.0;
+    CoolData.RadiationRedshiftDropOff = 0.0;
   }
     
   double tbase1 = TimeUnits;
@@ -123,28 +127,28 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   }
 
-    float RampX = 0.0;
-    float XRadRedShiftOn = 7.0;
-    float XRadRedShiftOff = 0.0 ;
-    float XRadRedShiftFullOn = 6.0 ;
-    float XRadRedShiftDropOff = 0.0 ;
-    float XRadRedShiftf0to3 = 0.1 ;
-
-    if (Redshift < XRadRedShiftOn &&
+  float RampX = 0.0;  // this is unused below
+  float XRadRedShiftOn = 7.0;
+  float XRadRedShiftOff = 0.0 ;
+  float XRadRedShiftFullOn = 6.0 ;
+  float XRadRedShiftDropOff = 0.0 ;
+  float XRadRedShiftf0to3 = 0.1 ;
+  
+  if (Redshift < XRadRedShiftOn &&
       Redshift >= XRadRedShiftOff) {
-
+    
     if (Redshift > XRadRedShiftFullOn)
       RampX = 0.5 - 0.5*tanh(15.0*(Redshift - 0.5*
-            (XRadRedShiftOn + XRadRedShiftFullOn)));
+				   (XRadRedShiftOn + XRadRedShiftFullOn)));
     else if (Redshift < XRadRedShiftDropOff)
       RampX = (Redshift - XRadRedShiftOff + XRadRedShiftf0to3*
-                         (XRadRedShiftDropOff - Redshift)) /
-             (XRadRedShiftDropOff -
-              XRadRedShiftOff);
+	       (XRadRedShiftDropOff - Redshift)) /
+	(XRadRedShiftDropOff -
+	 XRadRedShiftOff);
     else
       RampX = 1.0;
-
-     }
+    
+  }
 
   float exp_arg = -1.0 * POW(Redshift-2.3, 2);
 
@@ -270,7 +274,8 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
     /* This is sigma_thompson * c * (effective <h \mu>/<m_e c^2>) *
        U_xray * 1eV.  U_xray is the energy density of XRB in , <h \mu> is the
-       average photon energy in keV, corrected for relativistic effects. */
+       average photon energy in keV, corrected for relativistic effects. 
+       Eq.(4) and Eq.(11) of Madau & Efstathiou (1999) */
 
     float RedshiftXrayCutoff = 5.0;
     
@@ -289,10 +294,18 @@ int RadiationFieldCalculateRates(FLOAT Time)
                         exp(-POW(Redshift/RedshiftXrayCutoff, 2)) / 
                         CoolingUnits; */
 
-    /* The effective temperature (in K). */
+    /* The effective temperature (in K).  Eq.(10) of Madau & Efstathiou (1999) 
+       with U_xray(z=0) = 6.3e-5 and U_cmb(z=0) = 0.256 eV/cm3  */
 
     CoolData.temp_xray = 31.8e3*POW(1.0+Redshift, 0.3333)*1.6e-12/
-                         (4.0*1.38e-16);
+                         (4.0*1.38e-16) *
+                         6.3e-5 * POW(1.0 + Redshift, 4) * 
+                         exp(-POW(Redshift/RedshiftXrayCutoff, 2)) /
+                         (0.256 * (1+Redshift));  //#####
+
+    /*
+    CoolData.temp_xray = 31.8e3*POW(1.0+Redshift, 0.3333)*1.6e-12/
+                         (4.0*1.38e-16); */
   }
 
 

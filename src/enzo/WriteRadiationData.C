@@ -33,11 +33,15 @@ int WriteRadiationData(FILE *fptr)
 	  RadiationData.TimeFieldLastUpdated);
  
   /* write field. */
- 
-  for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
-    fprintf(fptr, "%"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
-	       RadiationData.Spectrum[0][i], RadiationData.Spectrum[1][i],
-	       RadiationData.Spectrum[2][i], RadiationData.Spectrum[3][i]);
+
+  if (RadiationFieldType >= 10 && RadiationFieldType <= 11) {
+
+    for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
+      fprintf(fptr, "%"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	      RadiationData.Spectrum[0][i], RadiationData.Spectrum[1][i],
+	      RadiationData.Spectrum[2][i], RadiationData.Spectrum[3][i]);
+    
+  }
  
   return SUCCESS;
 }

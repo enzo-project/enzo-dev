@@ -76,8 +76,10 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Return if this does not concern us */
   if (!(RadiationFieldType >= 10 && RadiationFieldType <= 11 && 
-	level <= RadiationFieldLevelRecompute)) return SUCCESS;
- 
+	level <= RadiationFieldLevelRecompute) &&
+      !(RadiationData.RadiationShield == TRUE &&
+	level <= RadiationFieldLevelRecompute)) 
+    return SUCCESS;
  
   LCAPERF_START("RadiationFieldUpdate");
 
@@ -254,7 +256,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   /* Compute the new radiation field given the densities of HI, etc. */
  
-  int RadiationShield = (RadiationFieldType == 10) ? FALSE : TRUE;
   FORTRAN_NAME(calc_rad)(
        &RadiationData.NumberOfFrequencyBins, &RadiationData.FrequencyBinWidth,
        &aaa, &aaanew, &OmegaMatterNow, &HubbleConstantNow, &dt, &TimeUnits,
@@ -277,7 +278,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   FORTRAN_NAME(calc_photo_rates)(
                 &RadiationData.NumberOfFrequencyBins,
-		   &RadiationData.FrequencyBinWidth, &RadiationShield, &afloat,
+		   &RadiationData.FrequencyBinWidth, &RadiationData.RadiationShield, &afloat,
 		RadiationData.HICrossSection,
 		   RadiationData.HeICrossSection,
 		   RadiationData.HeIICrossSection,
@@ -293,6 +294,9 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 		   &RadiationData.HeIAveragePhotoHeatingCrossSection,
 		   &RadiationData.HeIIAveragePhotoHeatingCrossSection,
 		&TimeUnits, &LengthUnits, &DensityUnits, &aUnits);
+
+  //  fprintf(stdout, "RadiationFieldUpdate: RadiationData.HIAPHCS = %e \n",
+  //	  RadiationData.HIAveragePhotoHeatingCrossSection); 
  
   /* Output spectrum. */
  

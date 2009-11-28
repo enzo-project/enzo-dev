@@ -570,9 +570,10 @@ int WriteAllData(char *basename, int filenumber,
  
   // Create radiation name and write radiation data
  
-  if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
+  if (((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+       RadiationData.RadiationShield == TRUE) &&
       MyProcessorNumber == ROOT_PROCESSOR) {
- 
+    
     FILE *Radfptr;
  
     strcpy(radiationname, name);

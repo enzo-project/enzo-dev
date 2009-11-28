@@ -76,7 +76,7 @@ int InitializeRadiationFieldData(FLOAT Time)
       RadiationData.Emissivity[i][j] = 0;
     }
  
-  RadiationData.HIAveragePhotoionizationCrossSection = 0;
+  RadiationData.HIAveragePhotoionizationCrossSection = 0; 
   RadiationData.HeIAveragePhotoionizationCrossSection = 0;
   RadiationData.HeIIAveragePhotoionizationCrossSection = 0;
   RadiationData.HIAveragePhotoHeatingCrossSection = 0;
@@ -89,7 +89,6 @@ int InitializeRadiationFieldData(FLOAT Time)
   RadiationData.ComptonXrayEnergyDensity = 0;
  
   /* Call fortran routine to generate tables. */
-
  
    FORTRAN_NAME(chtable)(&RadiationData.NumberOfFrequencyBins,
  			&RadiationData.FrequencyBinWidth,

@@ -188,7 +188,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     /* We only color the fields once */
 
-
     AddedFeedback[count] = true;
 
 #ifdef UNUSED

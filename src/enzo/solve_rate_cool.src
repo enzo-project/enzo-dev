@@ -72,7 +72,7 @@
 !    iexpand  - comoving coordinates flag (0 = off, 1 = on)
 !    idim     - dimensionality (rank) of problem
 !    ispecies - chemistry module (1 - H/He only, 2 - molecular H, 3 - D) 
-!    iradshield - flag for crude radiative shielding correction (rad type 12)
+!    iradshield - flag for crude radiative shielding correction 
 !    iradtype - type of radiative field (only used if = 8)
 !    imetal   - flag if metal field is active (0 = no, 1 = yes)
 !    imcool   - flag if there is metal cooling
@@ -680,6 +680,7 @@ c -------------------------------------------------------------------
       end
 
 
+
 ! -----------------------------------------------------------
 ! This routine uses the temperature to look up the chemical
 !   rates which are tabulated in a log table as a function
@@ -1174,7 +1175,8 @@ c -------------------------------------------------------------------
             HIp(i)  = (scoef*dtit(i) + HI(i,j,k))/(1.0 + acoef*dtit(i))
             if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
-     $              HII(i,j,k), de(i,j,k), kphHI(i,j,k)
+     $              HII(i,j,k), de(i,j,k), kphHI(i,j,k), 
+     $              scoef, acoef, dtit(i)
                ERROR_MESSAGE
             endif
 
@@ -1188,7 +1190,7 @@ c
             acoef  = k2(i)*de (i,j,k)
             HIIp(i) = (scoef*dtit(i) + HII(i,j,k))/(1.0 + acoef*dtit(i))
 
-!                 3) Electron density
+!        3) Electron density
 
             scoef = 0.0
 #ifdef RADIATION

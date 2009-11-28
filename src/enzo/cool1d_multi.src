@@ -385,10 +385,12 @@
      &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4.0+HeIII(i,j,k))
      &                        *de(i,j,k)
 
-!                    Photoelectric heating  #####
+!                    Photoelectric heating on dust
 
      &             + float(igammah)*gammaha*d(i,j,k)
      &             )
+        
+!      write(6,*) 'cool1d_multi: edot(i) after 6 species: ', edot(i)
 
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
@@ -615,6 +617,7 @@ c  new (correct) way: (april 4, 2007)
 
          do i = is+1, ie+1
             if ( itmask(i) ) then
+
             edot(i) = edot(i) + float(ipiht)*(
      &                + piHI  *HI  (i,j,k)*
      &                   exp(-avgsighp*HI(i,j,k)*dom)
@@ -623,6 +626,10 @@ c  new (correct) way: (april 4, 2007)
      &                + piHeII*HeII(i,j,k)*0.25*
      &                   exp(-avgsighe2p*0.25*HeII(i,j,k)*dom)
      &           )/dom
+
+!            write(6,*) 'cool1d_multi: after PI heating', edot(i),
+!     &           piHI, HI(i,j,k), avgsighp, dom
+
             end if
          enddo
 

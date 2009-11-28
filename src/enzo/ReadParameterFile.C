@@ -385,7 +385,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
     ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
     ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM,
-		  &RadiationFieldLevelRecompute);
+		  &RadiationFieldLevelRecompute);    
+    ret += sscanf(line, "RadiationShield = %"ISYM,
+		  &RadiationData.RadiationShield);
     ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM,
 		  &CoolData.f3);
     ret += sscanf(line, "RadiationSpectrumSlope = %"FSYM, &CoolData.alpha0);
@@ -863,11 +865,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     /* Change input physical parameters into code units */
 
-    /*    
-    double mh = 1.6726e-24;
-    double uheat = pow(VelocityUnits,2)*2.0*mh/TimeUnits;
-    PhotoelectricHeating /= uheat;  //#####
-    */ 
     StarMakerOverDensityThreshold /= DensityUnits;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     
@@ -945,7 +942,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* If using the internal radiation field, initialize it. */
  
-  if (RadiationFieldType >= 10 && RadiationFieldType <= 11)
+  if (RadiationFieldType == 11) 
+    RadiationData.RadiationShield = TRUE; 
+  else if (RadiationFieldType == 10)
+    RadiationData.RadiationShield = FALSE; 
+
+  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+      RadiationData.RadiationShield == TRUE)
     if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
