@@ -457,7 +457,7 @@ typedef int            HDF5_hid_t;
 #define STROEMGREN 5
 #define DEATH 6
 #define MBH_THERMAL 7
-#define MBH_RADIATIVE 8
+#define MBH_JETS 8
 #define COLOR_FIELD 9
 
 /* Sink particle accretion modes */

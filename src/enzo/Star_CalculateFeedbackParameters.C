@@ -37,7 +37,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
   const float	BirthRadius	  = 50;		// pc
   const float	WhalenTemperature = 20000;	// K
-  const float	WhalenDensity	  = 1;	// cm^-3
+  const float	WhalenDensity	  = 1;	        // cm^-3
   const float	WhalenMaxVelocity = 35;		// km/s
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
@@ -107,6 +107,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
+  case MBH_JETS:
     if (this->type != MBH || this->CurrentGrid ==  NULL) break;
 
     /**********************************************
@@ -116,15 +117,12 @@ void Star::CalculateFeedbackParameters(float &Radius,
     /* [1] Method 1
        Use DeltaMass calculated in the previous timestep in Star_CalculateMassAccretion.C
        This turned out to be unsuccessful, however. */
+
     // mdot = this->DeltaMass / CurrentGrid->dtFixed / TimeUnits; // in Msun/sec
 
     /* [2] Method 2
        Use code snippets from Star_CalculateMassAccretion.C. (many comments omitted) 
        This is redundant, but for now, works great!  */
-
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
 
     /* Find fields: density, total energy, velocity1-3. */    
     if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
@@ -215,6 +213,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     /* End of the code snippets from Star_CalculateMassAccretion.C */
 
 
+
     // Inject energy into a sphere
     Radius = MBHFeedbackRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
@@ -249,12 +248,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
 #endif
 
-    /*
-    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
-            Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
-    */
-    
+    //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
+    //            Radius = %g, mdot = %g, dtForThisStar = %g\n", 
+    //	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
     break;
 
   } // ENDSWITCH FeedbackFlag
