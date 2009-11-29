@@ -103,10 +103,10 @@ int Star::SetFeedbackFlag(FLOAT Time)
      the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
   case MBH:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
-    if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal > 0) {
-      if (MBHFeedbackThermal == 1) 
+    if (this->type > 0 && AgeInMyr > 0 && MBHFeedback > 0) {
+      if (MBHFeedback == 1) 
 	this->FeedbackFlag = MBH_THERMAL;
-      if (MBHFeedbackThermal == 2) 
+      if (MBHFeedback == 2) 
 	this->FeedbackFlag = MBH_JETS;
     }
     else

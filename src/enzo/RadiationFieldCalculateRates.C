@@ -14,6 +14,8 @@
 /  date:       March, 2006
 /  modified5:  Robert Harkness - removed C++ I/O
 /  date:       February 29th, 2008
+/  modified6:  Ji-hoon Kim - changes to work with non-cosmological runs
+/  date:       November, 2009
 /
 /  PURPOSE:    
 /
@@ -89,7 +91,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
-  } else {  //##### tried to make it work with non-cosmological simulation 
+  } else {  
     Redshift = 0.0;   
     CoolData.RadiationRedshiftOn = 0.1;
     CoolData.RadiationRedshiftOff = 0.0;
@@ -301,11 +303,11 @@ int RadiationFieldCalculateRates(FLOAT Time)
                          (4.0*1.38e-16) *
                          6.3e-5 * POW(1.0 + Redshift, 4) * 
                          exp(-POW(Redshift/RedshiftXrayCutoff, 2)) /
-                         (0.256 * (1+Redshift));  //#####
+                         (0.256 * (1+Redshift));  
 
     /*
     CoolData.temp_xray = 31.8e3*POW(1.0+Redshift, 0.3333)*1.6e-12/
-                         (4.0*1.38e-16); */
+       (4.0*1.38e-16); */  // <-- this seems to be wrong, Ji-hoon Kim
   }
 
 

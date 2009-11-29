@@ -46,7 +46,7 @@ int grid::FindAllStarParticles(int level)
     if (ParticleType[i] == PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
-    ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
+        ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH) {
 #ifdef RESET_BH_LIFETIMES // Make BH lifetimes "infinite"
       if (ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE &&

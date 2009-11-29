@@ -215,7 +215,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
 
     // Inject energy into a sphere
-    Radius = MBHFeedbackRadius * pc / LengthUnits;
+    Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
     /* Release MBH-AGN thermal energy constantly. 

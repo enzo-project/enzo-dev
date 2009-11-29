@@ -57,7 +57,7 @@
 /* function prototypes */
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float *ge, 
 		float *u, float *v, float *w, float *bx, float *by, float *bz,

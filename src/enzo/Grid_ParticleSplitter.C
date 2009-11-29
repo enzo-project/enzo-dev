@@ -32,7 +32,6 @@
 #include "StarParticleData.h"
 
 #define NO_DEBUG_PS 
-#define PARTICLE_IN_GRID_CHECK //#####
 
 /* function prototypes */
  
@@ -151,6 +150,8 @@ int grid::ParticleSplitter(int level)
 #endif DEBUG_PS
  
   if (NumberOfParticles > 0) {
+
+#define PARTICLE_IN_GRID_CHECK 
 
 #ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;

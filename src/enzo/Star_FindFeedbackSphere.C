@@ -44,7 +44,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8], MBHFeedbackRadiusTooSmall;
+  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8], MBHFeedbackThermalRadiusTooSmall;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, ColdGasFraction, initialRadius; 
   FLOAT corners[MAX_DIMENSION][8];
   int direction;
@@ -92,9 +92,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   // Search MBH from here and below.
   // For now, this is for future use and not tested, and shouldn't be used.  Ji-hoon Kim Sep.2009
   int MBHFeedbackToConstantMass = FALSE; //#####
-  MBHFeedbackRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
+  MBHFeedbackThermalRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
 
-  while (SphereTooSmall || MBHFeedbackRadiusTooSmall) { 
+  while (SphereTooSmall || MBHFeedbackThermalRadiusTooSmall) { 
     Radius += CellWidth;
     MassEnclosed = 0;
     Metallicity = 0;
@@ -180,10 +180,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // MassEnclosed in Msun, 
       // assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to the density in Ostriker & McKee test problem
       // (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) 
-      MBHFeedbackRadiusTooSmall = MassEnclosed < 
-	4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0; 
+      MBHFeedbackThermalRadiusTooSmall = MassEnclosed < 
+	4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
-      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackRadius, 3) * 1.0);
+      fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
       fprintf(stderr, "Radius = %g\n", Radius);
       break;
 

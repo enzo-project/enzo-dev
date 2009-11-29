@@ -369,20 +369,21 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
-  PopIIIColorDensityThreshold      = 1e6;         // times mean total density
-  PopIIIColorMass                  = 1e6;         // total mass to color
+  PopIIIColorDensityThreshold      = 1e6;          // times mean total density
+  PopIIIColorMass                  = 1e6;          // total mass to color
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
   MBHAccretion                     = TRUE;
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
-  MBHFeedbackThermal               = FALSE;
-  MBHFeedbackRadius                = 10;           // pc
+  MBHFeedback                      = FALSE;        // 1: isotropic thermal feedback, 2: bipolar kinetic jets
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHFeedbackThermalRadius         = 50;           // pc
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackMetalYield            = 0.02;          // 10%, check Star_CalculateFeedbackParameters.C
-  MBHCombineRadius                 = 10;           // pc
+  MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackJetsMassLoadingFactor = 100;          // eta, check Star_AddFeedbackSphere.C
+  MBHCombineRadius                 = 50;           // pc
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

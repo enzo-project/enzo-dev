@@ -62,12 +62,13 @@ SPEXTERN float  MBHMinDynamicalTime;
 SPEXTERN float  MBHMinimumMass;
 SPEXTERN int    MBHAccretion;
 SPEXTERN float  MBHAccretingMassRatio;
-SPEXTERN int    MBHFeedbackThermal;
-SPEXTERN float  MBHFeedbackRadius;
+SPEXTERN int    MBHFeedback;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
 SPEXTERN float  MBHFeedbackThermalCoupling;
+SPEXTERN float  MBHFeedbackThermalRadius;
 SPEXTERN float  MBHFeedbackMassEjectionFraction;
 SPEXTERN float  MBHFeedbackMetalYield;
+SPEXTERN float  MBHFeedbackJetsMassLoadingFactor;
 SPEXTERN float  MBHCombineRadius;
 
 SPEXTERN float minStarLifetime;

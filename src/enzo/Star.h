@@ -42,6 +42,7 @@ class Star
   int		 level;
   int		 GridID;
   star_type	 type;
+  float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
 
   friend class grid;
 

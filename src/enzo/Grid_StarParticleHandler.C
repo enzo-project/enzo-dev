@@ -31,8 +31,6 @@
 
 #define  PROTONMASS  1.6726e-24
 
-#define PARTICLE_IN_GRID_CHECK   //#####
-
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -1065,6 +1063,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     // check whether the particles are correctly located in grids 
     // Ji-hoon Kim in Nov.2009
 
+#define NO_PARTICLE_IN_GRID_CHECK   
+
 #ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;
     for (i = 0; i < NumberOfParticles; i++) {
@@ -1084,7 +1084,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
 
       double pc = 3.086e18;
-      float mbhradius = MBHFeedbackRadius * pc / LengthUnits; 
+      float mbhradius = MBHFeedbackThermalRadius * pc / LengthUnits; 
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,

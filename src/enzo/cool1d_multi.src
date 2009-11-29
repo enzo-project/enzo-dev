@@ -390,8 +390,6 @@
      &             + float(igammah)*gammaha*d(i,j,k)
      &             )
         
-!      write(6,*) 'cool1d_multi: edot(i) after 6 species: ', edot(i)
-
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
      &           HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 

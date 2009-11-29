@@ -634,25 +634,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
 
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, 
-		  &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, 
-		  &MBHMinimumMass);
-    ret += sscanf(line, "MBHAccretion = %"ISYM, 
-		  &MBHAccretion);
-    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, 
-		  &MBHAccretingMassRatio);
-    ret += sscanf(line, "MBHFeedbackThermal = %"ISYM, 
-		  &MBHFeedbackThermal);
-    ret += sscanf(line, "MBHFeedbackRadius = %"FSYM, &MBHFeedbackRadius);
+    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
+    ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
+    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
+    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
     ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
-    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, 
-		  &MBHFeedbackMassEjectionFraction);
-    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, 
-		  &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHCombineRadius = %"FSYM,
-		  &MBHCombineRadius);
+    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
+    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
+    ret += sscanf(line, "MBHFeedbackJetsMassLoadingFactor = %"FSYM, &MBHFeedbackJetsMassLoadingFactor);
+    ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
 
     /* Read Movie Dump parameters */
 
@@ -769,7 +762,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
 		  &ParticleSplitterIterations);
-    ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"GSYM,
+    ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
 
     /* If the dummy char space was used, then make another. */
