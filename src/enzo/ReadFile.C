@@ -296,6 +296,14 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
     for (dim = 0; dim < Rank; dim++)
       if (TempIntArray[dim] != (EndIndex[dim]-StartIndex[dim]+1)) {
 	fprintf(stderr, "Dimension mismatch in %s.\n", name);
+	fprintf(stderr, "dim: %i:  %i %i %i | %i %i %i\n", 
+	       dim,
+	       TempIntArray[0],
+	       TempIntArray[1],
+	       TempIntArray[2],
+	       EndIndex[0]-StartIndex[0]+1, 
+	       EndIndex[1]-StartIndex[1]+1, 
+	       EndIndex[2]-StartIndex[2]+1);
 	ENZO_FAIL("");
       }
  

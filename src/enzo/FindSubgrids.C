@@ -101,6 +101,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
     int NumberOfSubgrids = 1;
     SubgridList[0] = new ProtoSubgrid;
+    
+    SubgridList[0]->SetLevel(level+1);
  
     /* Copy the flagged zones into the ProtoSubgrid. */
  

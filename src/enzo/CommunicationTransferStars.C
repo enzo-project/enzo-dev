@@ -306,8 +306,12 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
       } // end: loop over i (directions)
     } // end: loop over j (grids)
  
-  } else
+  } else {
     SharedList = SendList;  // if there is only one processor
+    for (grid = 0; grid < NumberOfGrids; grid++)
+      for (i = 0; i < 6; i++)
+	NumberOfStarsMoved += SharedList[grid].NumberToMove[i];
+  }
  
   /* Copy stars back to grids. */
  
@@ -359,6 +363,27 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
   }
 #endif /* UNUSED */
  
+  /* Set number of stars so everybody agrees. */
+ 
+  if (NumberOfProcessors > 1) {
+    int *Changes = new int[NumberOfGrids];
+    for (j = 0; j < NumberOfGrids; j++)
+      Changes[j] = 0;
+    for (j = 0; j < NumberOfGrids; j++)
+      for (i = 0; i < 6; i++)
+	if (SharedList[j].ToGrid[i] != -1) {
+	  Changes[SharedList[j].FromGrid] -= SharedList[j].NumberToMove[i];
+	  Changes[SharedList[j].ToGrid[i]] += SharedList[j].NumberToMove[i];
+	}
+    for (j = 0; j < NumberOfGrids; j++) {
+      if (GridPointer[j]->ReturnProcessorNumber() != MyProcessorNumber)
+	GridPointer[j]->SetNumberOfStars(
+		         GridPointer[j]->ReturnNumberOfStars()+Changes[j]);
+      //      printf("Pb(%"ISYM") CTP grid[%"ISYM"] = %"ISYM"\n", MyProcessorNumber, j, GridPointer[j]->ReturnNumberOfParticles());
+    }
+    delete [] Changes;
+  }
+
   /* CleanUp. */
  
   for (j = 0; j < NumberOfGrids; j++)

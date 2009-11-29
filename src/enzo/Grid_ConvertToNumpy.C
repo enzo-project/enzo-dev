@@ -146,52 +146,52 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
     int j = 0;
     /* Fill our hierarchy information */
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridDimension[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridDimension[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridStartIndex[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridStartIndex[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridEndIndex[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridEndIndex[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (FLOAT) this->GridLeftEdge[i];
+        *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_pfloat) this->GridLeftEdge[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (FLOAT) this->GridRightEdge[i];
+        *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_pfloat) this->GridRightEdge[i];
     }
     j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) level; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) level; j++;
 
-    *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (FLOAT) this->Time; j++;
+    *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_pfloat) this->Time; j++;
 
-    *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (FLOAT) this->OldTime; j++;
+    *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_pfloat) this->OldTime; j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) this->ProcessorNumber; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) this->ProcessorNumber; j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) this->ReturnNumberOfParticles(); j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) this->ReturnNumberOfParticles(); j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) ParentID; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) ParentID; j++;
 
 }
 #endif

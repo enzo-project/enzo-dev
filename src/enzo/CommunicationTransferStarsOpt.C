@@ -137,7 +137,6 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
     } // ENDFOR grids
   } // ENDIF NumberOfRecieves > 0
 
-
   /* Set number of stars so everybody agrees. */
 
 #ifdef UNUSED
