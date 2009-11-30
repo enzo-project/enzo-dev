@@ -12,6 +12,8 @@
              SW = 2 - random direction protostellar jets
              SW = 3 - isotropic main sequence stellar wind
              SW = 4 - protostellar and main sequence winds with an accretion disc (in progress)
+             SW = 5 - protostellar and main sequence winds with mag field (not implimented)
+             SW = 6 - protostellar and main sequence winds without mag field
   INPUTS:
     d     - density field
     u,v,w - velocity fields
@@ -425,7 +427,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     }
   }
 
-  if (StellarWindFeedback == 2 && bx == NULL) { /*protostellar jets by random direction*/
+  if ((StellarWindFeedback == 2 || StellarWindFeedback == 6 )&& bx == NULL) { /*protostellar jets by random direction*/
     for (n = 0; n < nsinks; n++) {
       //printf("StellarWindFeedback = 2 running\n");
       bb = sink_index[n];
@@ -553,7 +555,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   float SolidAngle;
   FLOAT mdot_wind1, mdot_wind2;
-  if (StellarWindFeedback == 3) {
+  if (StellarWindFeedback == 3 || StellarWindFeedback == 6 ) {
     //printf("mdotwind = %e\n",mdot_wind);
     // printf("STELLAR WIND FEEDBACK = 3\n");
     for (n = 0; n < nsinks; n++) {
