@@ -358,13 +358,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     /* Find the the direction of angular momentum L accreted thus far */
 
-    L_x = 0.0;
-    L_y = 0.0;
-    L_z = 1.0;  //##### fix this!
+    L_x = cstar->accreted_angmom[0];
+    L_y = cstar->accreted_angmom[1];
+    L_z = cstar->accreted_angmom[2]; 
     L_s = sqrt(pow(L_x,2) + pow(L_y,2) + pow(L_z,2));
     nx_L = L_x/L_s;  //directional vector
     ny_L = L_y/L_s;
     nz_L = L_z/L_s;
+//  fprintf(stdout, "grid::AddFS: n_L = (%g, %g, %g)\n", nx_L, ny_L, nz_L);
 
     /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
        but only the edges), and record the cells eligible for jet injection */

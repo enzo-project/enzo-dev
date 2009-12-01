@@ -23,10 +23,6 @@
 #include "LevelHierarchy.h"
 #include "StarParticleData.h"
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
-
 void Star::AssignAccretedAngularMomentum(void)
 {
 

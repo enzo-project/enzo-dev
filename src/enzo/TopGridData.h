@@ -137,7 +137,7 @@ struct TopGridData
 
   AMRHDF5Writer AmiraGrid;
   int FirstTimestepAfterRestart;
-  int TimestepCounter;
+  int MovieTimestepCounter;
   float GlobalMaximumkphIfront;
 
 };

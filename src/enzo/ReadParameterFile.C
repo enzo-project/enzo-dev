@@ -671,7 +671,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NewMovieDumpNumber = %"ISYM, &NewMovieDumpNumber);
     if (sscanf(line, "NewMovieName = %s", dummy) == 1)
       NewMovieName = dummy;
-    ret += sscanf(line, "MovieTimestepCounter = %"ISYM, &MetaData.TimestepCounter);
+    ret += sscanf(line, "MovieTimestepCounter = %"ISYM, &MetaData.MovieTimestepCounter);
 
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
 

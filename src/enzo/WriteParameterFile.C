@@ -115,7 +115,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfInts(fptr, MAX_MOVIE_FIELDS, MovieDataField);
   fprintf(fptr, "NewMovieDumpNumber   = %"ISYM"\n", NewMovieDumpNumber);
   fprintf(fptr, "NewMovieName         = %s\n", NewMovieName);
-  fprintf(fptr, "MovieTimestepCounter = %"ISYM"\n", MetaData.TimestepCounter);
+  fprintf(fptr, "MovieTimestepCounter = %"ISYM"\n", MetaData.MovieTimestepCounter);
   fprintf(fptr, "\n");
 
   fprintf(fptr, "CycleLastRestartDump = %"ISYM"\n", MetaData.CycleLastRestartDump);

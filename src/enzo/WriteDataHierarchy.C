@@ -65,7 +65,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
     Grid->GridData->WriteNewMovieData
       (MetaData.NewMovieLeftEdge, MetaData.NewMovieRightEdge,
        MetaData.TopGridDims[0], MetaData.StopTime, MetaData.AmiraGrid, 
-       1, MetaData.CycleNumber, TRUE, MetaData.TimestepCounter, Zero, 
+       1, MetaData.CycleNumber, TRUE, MetaData.MovieTimestepCounter, Zero, 
        WriteTime);
 
   /* Write out pointer information for the next grid this level */

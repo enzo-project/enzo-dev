@@ -557,7 +557,7 @@ public:
 			 int RootResolution, FLOAT StopTime, 
 			 AMRHDF5Writer &AmiraGrid,
 			 int lastMovieStep, int TopGridCycle, 
-			 int WriteMe, int TimestepCounter, int open, 
+			 int WriteMe, int MovieTimestepCounter, int open, 
 			 FLOAT WriteTime);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };

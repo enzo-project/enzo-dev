@@ -405,7 +405,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NewMovieParticleOn = FALSE;
   Movie3DVolumes  = FALSE;
   MovieVertexCentered = FALSE;
-  MetaData.TimestepCounter      = 0;
+  MetaData.MovieTimestepCounter      = 0;
 
   ran1_init = 0;
 
