@@ -175,7 +175,7 @@ int grid::CopyParentToGravitatingFieldBoundary(grid *ParentGrid)
   /* Clean up parent. */
  
   if (MyProcessorNumber != ParentGrid->ProcessorNumber) {
-    delete ParentGrid->GravitatingMassField;
+    delete [] ParentGrid->GravitatingMassField;
     ParentGrid->GravitatingMassField = NULL;
   }
  

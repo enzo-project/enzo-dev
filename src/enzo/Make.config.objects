@@ -164,6 +164,7 @@ OBJS_CONFIG_LIB = \
         FOF_allocate.o \
         FOF_cmpfunc.o \
         FOF_density.o \
+	FOF_Finalize.o \
         FOF_forcetree.o \
         FOF_iindexx.o \
         FOF_indexx.o \
@@ -255,6 +256,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputePressure.o \
         Grid_ComputeTemperatureField.o \
         Grid_ComputeTimeStep.o \
+        Grid_ComputeVectorAnalysisFields.o \
         Grid_ComputeVertexCenteredField.o \
         Grid_ComputeXrayEmissivity.o \
         Grid_constructor.o \
