@@ -463,6 +463,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DivergenceCleaningBoundaryBuffer = 0;
   DivergenceCleaningThreshold	   = 0.001;
   PoissonApproximationThreshold	   = 0.001;
+  PoissonBoundaryType	   = 0;
 
   UseDrivingField   = 0;
   DrivingEfficiency = 1.0;

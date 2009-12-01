@@ -497,7 +497,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (UseViscosity) 
 	Grids[grid1]->GridData->AddViscosity();
-    printf("VISC: %f\n", ViscosityCoefficient);
+      // printf("VISC: %f\n", ViscosityCoefficient);
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
@@ -529,20 +529,22 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }  // end loop over grids
 
-
-    if (UseDivergenceCleaning==1){
-#ifdef FAST_SIB
-    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
-			  MetaData, Exterior, LevelArray[level]);
-#else
-    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
-			  Exterior, LevelArray[level]);
-#endif
-
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-      Grids[grid1]->GridData->PoissonSolver(level);
-    }
     
+    if (UseDivergenceCleaning!=0){
+
+#ifdef FAST_SIB
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
+			    MetaData, Exterior, LevelArray[level]);
+#else
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			    Exterior, LevelArray[level]);
+#endif
+      
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+	Grids[grid1]->GridData->PoissonSolver(level);
+      }
+      
     }
 
 #ifdef FAST_SIB

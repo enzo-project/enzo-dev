@@ -648,6 +648,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  DivergenceCleaningThreshold);
   fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
 	  PoissonApproximationThreshold);
+  fprintf(fptr, "PoissonBoundaryType    = %d\n", 
+	  PoissonBoundaryType);
+
 
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);

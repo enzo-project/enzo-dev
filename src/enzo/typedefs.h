@@ -201,6 +201,10 @@ enum {Cartesian, Spherical, Cylindrical};
 enum {PLM, PPM, CENO, WENO3, WENO5};
 enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
 
+/* These are the different types of poisson cleaining boundary conditions. */
+enum{Neumann, Dirichlet};
+
+
 
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};

@@ -2180,9 +2180,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int PoissonSolverCGA(int difftype, double *divB_p);
   template <typename T> int multA(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
   template <typename T> int multA2(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
-  template <typename T> T dot(T *a, T *b,  int *MatrixStartIndex, int *MatrixEndIndex);
-  int setNeumannBC(float* x, int *MatrixStartIndex, int *MatrixEndIndex);
-  int PoissonSolverDirichletBC(double *divB_p);
+  template <typename T> T dot(T *a, T *b,  int size);
+  template <typename T> int setNeumannBC(T* x, int *MatrixStartIndex, int *MatrixEndIndex,int type);
+  template <typename T> int setDirichletBC(T* x, int *MatrixStartIndex, int *MatrixEndIndex);
 
   int PoissonCleanStep(int level);
 
