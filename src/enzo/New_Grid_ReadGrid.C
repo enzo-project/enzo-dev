@@ -431,33 +431,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
        (NumberOfParticles > 0 || NumberOfBaryonFields > 0)
        && ReadData ){
  
-    if (ReadEverything == TRUE) {
-      hid_t acc_node;
-      H5E_BEGIN_TRY{
-        acc_node = H5Gopen(group_id, "Acceleration");
-      }H5E_END_TRY
-      /* We just check for existence, because for SOME REASON grids don't
-         know their own level. */
-      if(acc_node != h5_error){
-        char acc_name[255];
-        size = 1;
-        for (dim = 0; dim < GridRank; dim++) size *= GridDimension[dim];
-        float *temp = new float[size];
-        for (dim = 0; dim < GridRank; dim++) {
-          if(this->AccelerationField[dim] != NULL) {
-            delete this->AccelerationField[dim];
-          }
-          snprintf(acc_name, 254, "AccelerationField%d", dim);
-          this->read_dataset(GridRank, OutDims, acc_name,
-              acc_node, HDF5_REAL, (VOIDP) temp,
-              TRUE, AccelerationField[dim], ActiveDim);
-        }
-        delete temp;
-        H5Gclose(acc_node);
-      }
-
-      this->ReadAllFluxes(group_id);
-    }
+    if (ReadEverything == TRUE) this->ReadExtraFields(group_id);
     h5_status = H5Gclose(group_id);
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
 
@@ -531,7 +505,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
   /* Now for every subgrid, we read a flux group, and all of its associated
      baryon fields. */
 
-  fprintf(stderr, "Received NumberOfSubgrids = %d\n", this->NumberOfSubgrids);
+  //fprintf(stderr, "Received NumberOfSubgrids = %d\n", this->NumberOfSubgrids);
 
   this->SubgridFluxStorage = new fluxes*[this->NumberOfSubgrids];
 
@@ -553,6 +527,8 @@ int grid::ReadAllFluxes(hid_t grid_node)
 
   H5Gclose(subgrid_group);
   H5Gclose(flux_group);
+
+  return SUCCESS;
 
 }
 
@@ -623,4 +599,85 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
     H5Gclose(right_group);
     H5Gclose(axis_group);
   }
+
+  return SUCCESS;
+}
+
+int grid::ReadExtraFields(hid_t group_id)
+{
+  hid_t acc_node;
+  hid_t h5_error = -1;
+  int size, dim;
+  int ActiveDim[MAX_DIMENSION];
+  hsize_t     OutDims[MAX_DIMENSION];
+  hsize_t     GMFOutDims[MAX_DIMENSION];
+
+  for (dim = 0; dim < 3; dim++)
+    ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
+
+  for (dim = 0; dim < GridRank; dim++) {
+    OutDims[GridRank-dim-1] = ActiveDim[dim];
+  }
+
+  H5E_BEGIN_TRY{
+    acc_node = H5Gopen(group_id, "Acceleration");
+  }H5E_END_TRY
+  /* We just check for existence, because for SOME REASON grids don't
+     know their own level. */
+  if(acc_node != h5_error){
+    char acc_name[255];
+    size = 1;
+    for (dim = 0; dim < GridRank; dim++) size *= GridDimension[dim];
+    float *temp = new float[size];
+    for (dim = 0; dim < GridRank; dim++) {
+      if(this->AccelerationField[dim] != NULL) {
+        delete this->AccelerationField[dim];
+      }
+      snprintf(acc_name, 254, "AccelerationField%d", dim);
+      this->read_dataset(GridRank, OutDims, acc_name,
+          acc_node, HDF5_REAL, (VOIDP) temp,
+          TRUE, AccelerationField[dim], ActiveDim);
+    }
+    delete temp;
+    H5Gclose(acc_node);
+  }
+  H5E_BEGIN_TRY{
+    acc_node = H5Dopen(group_id, "GravitatingMassField");
+  }H5E_END_TRY
+  if(acc_node != h5_error){
+    H5Dclose(acc_node);
+    this->InitializeGravitatingMassField(RefineBy);
+    size = 1;
+    for (dim = 0; dim < GridRank; dim++) {
+        size *= GravitatingMassFieldDimension[dim];
+        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+    }
+      if(this->GravitatingMassField != NULL)
+        delete this->GravitatingMassField;
+      fprintf(stderr, "ALLOCATING %"ISYM" for GMF\n", size);
+      this->GravitatingMassField = new float[size];
+      this->read_dataset(GridRank, GMFOutDims, "GravitatingMassField",
+          group_id, HDF5_REAL, (VOIDP) this->GravitatingMassField, FALSE);
+  }
+
+  H5E_BEGIN_TRY{
+    acc_node = H5Dopen(group_id, "PotentialField");
+  }H5E_END_TRY
+  if(acc_node != h5_error){
+    H5Dclose(acc_node);
+    size = 1;
+    for (dim = 0; dim < GridRank; dim++) {
+        size *= GravitatingMassFieldDimension[dim];
+        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+    }
+      if(this->PotentialField != NULL)
+        delete this->PotentialField;
+      fprintf(stderr, "ALLOCATING %"ISYM" for PF\n", size);
+      this->PotentialField = new float[size];
+      this->read_dataset(GridRank, GMFOutDims, "PotentialField",
+          group_id, HDF5_REAL, (VOIDP) this->PotentialField, FALSE);
+  }
+
+  this->ReadAllFluxes(group_id);
+  return SUCCESS;
 }

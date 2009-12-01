@@ -70,6 +70,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   hid_t       file_dsp_id;
   hid_t       old_fields, acc_node;
  
+  hsize_t     GMFOutDims[MAX_DIMENSION];
   hsize_t     OutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[1];
  
@@ -288,6 +289,26 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           }
 
           H5Gclose(acc_node);
+        }
+        if(GravitatingMassField != NULL) {
+          size = 1;
+          for (dim = 0; dim < GridRank; dim++) {
+            size *= GravitatingMassFieldDimension[dim];
+            GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+          }
+          this->write_dataset(GridRank, GMFOutDims, "GravitatingMassField",
+              group_id, file_type_id, (VOIDP) GravitatingMassField,
+              FALSE);
+        }
+        if(PotentialField != NULL) {
+          size = 1;
+          for (dim = 0; dim < GridRank; dim++) {
+            size *= GravitatingMassFieldDimension[dim];
+            GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+          }
+          this->write_dataset(GridRank, GMFOutDims, "PotentialField",
+              group_id, file_type_id, (VOIDP) PotentialField,
+              FALSE);
         }
     }
 
