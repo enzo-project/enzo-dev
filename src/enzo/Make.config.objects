@@ -608,6 +608,7 @@ OBJS_CONFIG_LIB = \
         Star_Accrete.o \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
+        Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_ComputePhotonRates.o \

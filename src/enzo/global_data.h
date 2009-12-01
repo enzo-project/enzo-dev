@@ -651,6 +651,7 @@ EXTERN int NBodyDirectSummation;
 /* Turbulence simulation parameters */
 EXTERN int UseDrivingField;
 EXTERN float DrivingEfficiency;
+
 /* Parameters to use CUDA extensions */ 
 EXTERN int UseCUDA;
 
@@ -744,10 +745,20 @@ EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 
 EXTERN float IsothermalSoundSpeed;
 EXTERN int RefineByJeansLengthUnits;
 
+
+
 EXTERN int MoveParticlesBetweenSiblings;
+
+/* Particle Splitter */
+
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
 
+/* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
+
+EXTERN int MBHParticleIO;
+EXTERN char *MBHParticleIOFilename;
+EXTERN float MBHParticleIOTemp[30][5+MAX_DIMENSION];
 
 /* Vorticity Calculations */
 

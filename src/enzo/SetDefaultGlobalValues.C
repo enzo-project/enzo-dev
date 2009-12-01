@@ -389,6 +389,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHFeedbackJetsMassLoadingFactor = 100;          // eta, check Star_AddFeedbackSphere.C
   MBHCombineRadius                 = 50;           // pc
 
+  /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
+  MBHParticleIO                    = FALSE;
+  MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
@@ -604,12 +608,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MoveParticlesBetweenSiblings = FALSE;
 
-  VelAnyl                     = 0;
-  BAnyl                     = 0;
+  /* Particle Splitter */
 
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
 
+  VelAnyl                     = 0;
+  BAnyl                     = 0;
 
   return SUCCESS;
 }

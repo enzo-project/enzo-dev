@@ -87,6 +87,8 @@ public:
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   FLOAT *ReturnPosition(void) { return pos; }
+  float *ReturnVelocity(void) { return vel; }
+  float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -112,6 +114,7 @@ public:
   float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
+  void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   void	CopyToGrid(void);

@@ -424,9 +424,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     
     float EjectaMass = EjectaDensity * BubbleVolume;
     float EjectaMetalMass = EjectaMetalDensity * BubbleVolume;
-
     float AccretedMass = EjectaMass / MBHFeedbackMassEjectionFraction;
-    float JetsLoadedMass = AccretedMass * MBHFeedbackJetsMassLoadingFactor;
+
+    // Don't take out too much mass suddenly; should leave at least 75% of the gas in the inner cells.
+    float JetsLoadedMass = min(AccretedMass * MBHFeedbackJetsMassLoadingFactor, 0.25 * m_cell_inside);
     float JetsLoadedMetalMass;
 
     if (MetallicityField == TRUE) {

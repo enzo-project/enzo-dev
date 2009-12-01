@@ -192,6 +192,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
+    // Don't take out too much mass suddenly; mdot should leave at least 75% of the gas in the grids.
     mdot_UpperLimit = 0.25 * density * DensityUnits * 
       pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
       (CurrentGrid->dtFixed) / TimeUnits;

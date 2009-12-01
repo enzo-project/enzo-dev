@@ -654,6 +654,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MBHFeedbackJetsMassLoadingFactor = %"FSYM, &MBHFeedbackJetsMassLoadingFactor);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
 
+    ret += sscanf(line, "MBHParticleIO = %"ISYM,
+		  &MBHParticleIO);
+    if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
+      MBHParticleIOFilename = dummy;
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -966,6 +971,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
+  /* If using MBHFeedback = 2 (Star->FeedbackFlag = MBH_JETS), 
+     you need MBHParticleIO for angular momentum */
+
+  if (MBHFeedback == 2) 
+    MBHParticleIO = TRUE;
+
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */
  
   if (HydroMethod == Zeus_Hydro) {

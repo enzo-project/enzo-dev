@@ -396,6 +396,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
 
+
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
       fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
@@ -581,6 +582,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
           PopIIISupernovaUseColour);
 
+  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
+          PopIIIColorDensityThreshold);
+  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n\n",
+          PopIIIColorMass);
+
   fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
   fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n", MBHMinimumMass);
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
@@ -594,10 +600,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHFeedbackJetsMassLoadingFactor      = %"GSYM"\n", MBHFeedbackJetsMassLoadingFactor);
   fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
 
-  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
-          PopIIIColorDensityThreshold);
-  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n",
-          PopIIIColorMass);
+  fprintf(fptr, "MBHParticleIO     = %"ISYM"\n",
+	  MBHParticleIO);
+  if (MBHParticleIOFilename != NULL)
+    fprintf(fptr, "MBHParticleIOFilename = %s\n\n", MBHParticleIOFilename);
 
   /* Most Stanford additions: */
 
