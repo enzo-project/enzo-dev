@@ -505,7 +505,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
   /* Now for every subgrid, we read a flux group, and all of its associated
      baryon fields. */
 
-  //fprintf(stderr, "Received NumberOfSubgrids = %d\n", this->NumberOfSubgrids);
+  //fprintf(stderr, "Received NumberOfSubgrids = %"ISYM"\n", this->NumberOfSubgrids);
 
   this->SubgridFluxStorage = new fluxes*[this->NumberOfSubgrids];
 
@@ -513,7 +513,7 @@ int grid::ReadAllFluxes(hid_t grid_node)
   if(flux_group == h5_error) ENZO_FAIL("Can't open Fluxes group");
 
   for(i = 0; i < this->NumberOfSubgrids; i++) {
-    snprintf(name, 254, "Subgrid%08d", i);
+    snprintf(name, 254, "Subgrid%08"ISYM, i);
     subgrid_group = H5Gopen(flux_group, name);
     if(subgrid_group == h5_error)ENZO_VFAIL("IO Problem opening %s", name)
 
@@ -545,7 +545,7 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
   for (dim = 0; dim < GridRank; dim++) {
     /* compute size (in floats) of flux storage */
 
-    snprintf(name, 254, "Axis%d", dim);
+    snprintf(name, 254, "Axis%"ISYM, dim);
     axis_group = H5Gopen(flux_group, name);
     if(axis_group == h5_error)ENZO_VFAIL("Can't open %s", name)
 
@@ -557,14 +557,14 @@ int grid::ReadFluxGroup(hid_t flux_group, fluxes *fluxgroup)
     right_group = H5Gopen(axis_group, "Right");
     if(right_group == h5_error){ENZO_FAIL("IO Problem with Right");}
 
-    readAttribute(left_group, HDF5_INT, "StartIndex",
+    readAttribute(left_group, HDF5_I8, "StartIndex",
         fluxgroup->LeftFluxStartGlobalIndex[dim], TRUE);
-    readAttribute(left_group, HDF5_INT, "EndIndex",
+    readAttribute(left_group, HDF5_I8, "EndIndex",
         fluxgroup->LeftFluxEndGlobalIndex[dim], TRUE);
 
-    readAttribute(right_group, HDF5_INT, "StartIndex",
+    readAttribute(right_group, HDF5_I8, "StartIndex",
         fluxgroup->RightFluxStartGlobalIndex[dim], TRUE);
-    readAttribute(right_group, HDF5_INT, "EndIndex",
+    readAttribute(right_group, HDF5_I8, "EndIndex",
         fluxgroup->RightFluxEndGlobalIndex[dim], TRUE);
 
     for (j = 0; j < GridRank; j++) {
@@ -633,7 +633,7 @@ int grid::ReadExtraFields(hid_t group_id)
       if(this->AccelerationField[dim] != NULL) {
         delete this->AccelerationField[dim];
       }
-      snprintf(acc_name, 254, "AccelerationField%d", dim);
+      snprintf(acc_name, 254, "AccelerationField%"ISYM, dim);
       this->read_dataset(GridRank, OutDims, acc_name,
           acc_node, HDF5_REAL, (VOIDP) temp,
           TRUE, AccelerationField[dim], ActiveDim);
@@ -654,7 +654,7 @@ int grid::ReadExtraFields(hid_t group_id)
     }
       if(this->GravitatingMassField != NULL)
         delete this->GravitatingMassField;
-      fprintf(stderr, "ALLOCATING %"ISYM" for GMF\n", size);
+      //fprintf(stderr, "ALLOCATING %"ISYM" for GMF\n", size);
       this->GravitatingMassField = new float[size];
       this->read_dataset(GridRank, GMFOutDims, "GravitatingMassField",
           group_id, HDF5_REAL, (VOIDP) this->GravitatingMassField, FALSE);
