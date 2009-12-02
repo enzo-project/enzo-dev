@@ -37,8 +37,8 @@
  
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
- 
-#define USE_NEW_CPU_DISTRIBUTION
+
+#define USE_OLD_CPU_DISTRIBUTION
 
 /* This option code ensures that in nested grid sims, the children grids are not split between two grids at level-1.
    It is off by default. */

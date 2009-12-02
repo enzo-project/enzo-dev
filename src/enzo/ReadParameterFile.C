@@ -49,6 +49,7 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
+int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeGadgetEquilibriumCoolData(FLOAT Time);
@@ -380,6 +381,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
     if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) 
       MetalCoolingTable = dummy;
+
+    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
+    ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
+    ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
+    ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
+
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
@@ -714,6 +721,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SinkMergeMass         = %"FSYM, &SinkMergeMass);
     ret += sscanf(line, "StellarWindFeedback   = %"ISYM, &StellarWindFeedback);
     ret += sscanf(line, "StellarWindTurnOnMass = %"FSYM, &StellarWindTurnOnMass);
+    ret += sscanf(line, "MSStellarWindTurnOnMass = %"FSYM, &MSStellarWindTurnOnMass);
 
     ret += sscanf(line, "VelAnyl = %"ISYM, &VelAnyl);
     ret += sscanf(line, "BAnyl = %"ISYM, &BAnyl);
@@ -831,6 +839,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   rewind(fptr);
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
+
+  /* Even if this is not cosmology, due to a check for nested grid cosmology
+     in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
+  CosmologySimulationNumberOfInitialGrids = 1;
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
@@ -939,6 +951,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+    }
+  }
+
+  /* If set, initialze Cosmic Ray Efficiency Models */
+
+  if(CRModel){
+    if(InitializeCosmicRayData() == FAIL){
+      ENZO_FAIL("Error in Initialize CosmicRayData.");
+      return FAIL;
     }
   }
 
@@ -1151,11 +1172,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   size_t cwd_buffer_len = MAX_LINE_LENGTH;
  
   if ( (MetaData.GlobalDir == NULL) && (MetaData.LocalDir == NULL) ) {
-    if(getcwd(cwd_buffer, cwd_buffer_len) == NULL) {
+    /*if(getcwd(cwd_buffer, cwd_buffer_len) == NULL) {
       fprintf(stderr, "GETCWD call FAILED\n");
     }
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"CWD %s\n", cwd_buffer);
+    */
+    /* No one seems to want GlobalDir to default to abspath(CWD).  I'm leaving
+       the code here in case you do. MJT */ 
+    strcpy(cwd_buffer, ".");
     MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);

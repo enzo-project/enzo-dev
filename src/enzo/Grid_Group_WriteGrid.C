@@ -333,7 +333,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         DataUnits[field] = "none";
       }
  
-      printf("OutPut Field2: %d \n", field);
+      //printf("OutPut Field2: %d \n", field);
       WriteStringAttr(dset_id, "Label", DataLabel[field], log_fptr);
       WriteStringAttr(dset_id, "Units", DataUnits[field], log_fptr);
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);

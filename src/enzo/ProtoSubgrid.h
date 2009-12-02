@@ -19,6 +19,8 @@ class ProtoSubgrid
 
   int GridRank;
   int GridDimension[MAX_DIMENSION];
+  
+  int Level;
 
   FLOAT GridLeftEdge[MAX_DIMENSION];
   FLOAT GridRightEdge[MAX_DIMENSION];
@@ -53,6 +55,11 @@ class ProtoSubgrid
   int *ReturnGridDimension() {return GridDimension;};
   FLOAT *ReturnGridLeftEdge() {return GridLeftEdge;};
   FLOAT *ReturnGridRightEdge() {return GridRightEdge;};
+  
+  /* Return, set level */
+
+  void SetLevel(int level) { Level = level; };
+  int GetLevel(void) { return Level; };
 
 };
 

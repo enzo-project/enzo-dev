@@ -51,8 +51,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
 			    grid **Grids0, int nGrids0, int DensNum, 
 			    int HINum, int HeINum, int HeIINum, int H2INum, 
-			    int kphHINum, int gammaHINum, int kphHeINum, 
-			    int gammaHeINum, int kphHeIINum, int gammaHeIINum, 
+			    int kphHINum, int gammaNum, int kphHeINum, 
+			    int kphHeIINum, 
 			    int kdissH2INum, int RPresNum1, int RPresNum2, 
 			    int RPresNum3, int &DeleteMe, int &PauseMe, 
 			    int &DeltaLevel, float LightCrossingTime,
@@ -66,7 +66,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0};
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};
-  const int gammaNum[] = {gammaHINum, gammaHeINum, gammaHeIINum};
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
@@ -492,9 +491,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       // contributions to the photoionization rate is over whole timestep
       BaryonField[kphNum[type]][index] += dP1*factor1;
 	
-      // the heating rate is just the number of photo ionizations times
-      // the excess energy units here are  eV/s/cm^3 *TimeUnits. 
-      BaryonField[gammaNum[type]][index] += dP1*factor2[0];
+      // the heating rate is just the number of photo ionizations
+      // times the excess energy units here are eV/s *TimeUnits.
+      BaryonField[gammaNum][index] += dP1*factor2[0];
 
       break;
 
@@ -571,8 +570,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[kphNum[i]][index] += dP1 * factor1 * ion2_factor[i];
 	
 	// the heating rate is just the number of photo ionizations times
-	// the excess energy units here are  eV/s/cm^3 *TimeUnits. 
-	BaryonField[gammaNum[i]][index] += dP1 * factor2[i] * heat_factor;
+	// the excess energy units here are  eV/s/cm^3 *TimeUnits.  
+	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber
 

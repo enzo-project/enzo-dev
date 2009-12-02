@@ -30,7 +30,7 @@
      &                tgas, tgasold, p2d,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
-     &                iradtrans, gammaHI, gammaHeI, gammaHeII,
+     &                iradtrans, photogamma,
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -75,7 +75,7 @@
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    gammaHI(in,jn,kn), gammaHeI(in,jn,kn), gammaHeII(in,jn,kn)
+      real    photogamma(in,jn,kn)
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
@@ -630,14 +630,11 @@ c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
          rtunits = 1.60217646e-12/utim/coolunit
          do i = is+1, ie+1
             if (itmask(i)) then
-               edot(i) = edot(i) + float(ipiht)*(
-     &              + gammaHI  (i,j,k) * rtunits * HI  (i,j,k)
-     &              + gammaHeI (i,j,k) * rtunits * HeI (i,j,k)*0.25
-     &              + gammaHeII(i,j,k) * rtunits * HeII(i,j,k)*0.25
-     &              )/dom
+               edot(i) = edot(i) + float(ipiht) * photogamma(i,j,k) * 
+     &              rtunits
                if (edot(i) .ne. edot(i)) then
                   write(6,*) 'NaN in edot[2]: ', i, j, k, edot(i), 
-     &                 gammaHI(i,j,k), HI(i,j,k), de(i,j,k), d(i,j,k), 
+     &                 photogamma(i,j,k),HI(i,j,k), de(i,j,k), d(i,j,k), 
      &                 ge(i,j,k), p2d(i), tgas(i), dom, urho, aye, mh
                   ERROR_MESSAGE
                endif

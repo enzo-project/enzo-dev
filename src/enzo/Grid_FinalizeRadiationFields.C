@@ -55,14 +55,9 @@ int grid::FinalizeRadiationFields(void)
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get units. */
 
@@ -76,21 +71,23 @@ int grid::FinalizeRadiationFields(void)
 
   float DensityConversion = DensityUnits / 1.673e-24;
   float factor = DensityConversion * CellVolume;
-  float invrho;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	invrho = 1.0 / (factor * BaryonField[HINum][index]);
-	BaryonField[kphHINum][index] *= invrho;
-	BaryonField[gammaHINum][index] *= invrho;
-	BaryonField[kphHeINum][index] /= (factor * BaryonField[HeINum][index]);
-	BaryonField[gammaHeINum][index] /= (factor * BaryonField[HeINum][index]);
-	//BaryonField[kphHeIINum][index] /= (factor * BaryonField[HeIINum][index]);
-	BaryonField[gammaHeIINum][index] /= (factor * BaryonField[HeIINum][index]);
-      } // ENDFOR i
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	BaryonField[kphHINum][index] /= (factor * BaryonField[HINum][index]);
     } // ENDFOR j
+
+  if (RadiativeTransferHydrogenOnly == FALSE)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	  BaryonField[kphHeINum][index] /= (factor * BaryonField[HeINum][index]);
+	  BaryonField[kphHeIINum][index] /= (factor * BaryonField[HeIINum][index]);
+	} // ENDFOR i
+      } // ENDFOR j
   
   if (RadiativeTransferHIIRestrictedTimestep &&
       this->IndexOfMaximumkph >= 0)

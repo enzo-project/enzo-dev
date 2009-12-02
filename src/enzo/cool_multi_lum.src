@@ -21,7 +21,7 @@ c
      &                metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
-     &                iradtrans, gammaHI, gammaHeI, gammaHeII)
+     &                iradtrans, photogamma)
 c
 c  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
 c
@@ -69,7 +69,7 @@ c
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real gammaHI(in,jn,kn), gammaHeI(in,jn,kn), gammaHeII(in,jn,kn)
+      real photogamma(in,jn,kn)
 c
 c  Parameters
 c
@@ -189,7 +189,7 @@ c
      &                tgas, tgasold, p2d,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
-     &                iradtrans, gammaHI, gammaHeI, gammaHeII, itmask)
+     &                iradtrans, photogamma, itmask)
 c
 c        Compute the cooling luminosity on the slice.  Multiply by
 c        density because edot is specific energy (erg/s), not per unit

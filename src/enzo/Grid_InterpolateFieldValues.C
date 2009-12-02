@@ -271,14 +271,15 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     if (ConservativeInterpolation)
       for (field = 0; field < NumberOfBaryonFields; field++)
 	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	      FieldType[field] != Bfield1 &&
-	      FieldType[field] != Bfield2 &&
-	      FieldType[field] != Bfield3 &&
-	      FieldType[field] != PhiField &&
-	      FieldType[field] != DrivingField1 &&
-	      FieldType[field] != DrivingField2 &&
-	      FieldType[field] != DrivingField3 &&
-	      FieldType[field] != GravPotential)
+	    FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
+	    FieldType[field] != Bfield1 &&
+	    FieldType[field] != Bfield2 &&
+	    FieldType[field] != Bfield3 &&
+	    FieldType[field] != PhiField &&
+	    FieldType[field] != DrivingField1 &&
+	    FieldType[field] != DrivingField2 &&
+	    FieldType[field] != DrivingField3 &&
+	    FieldType[field] != GravPotential)
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -314,7 +315,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
-      if (FieldType[field] != Density)
+      if (FieldType[field] != Density && 
+	  FieldTypeNoInterpolate(FieldType[field]) == FALSE)
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,
 				  ParentTempStartIndex, ParentTempEndIndex,
@@ -328,6 +330,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
       if (ConservativeInterpolation)
 	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
+	    FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 	    FieldType[field] != Bfield1 &&
 	    FieldType[field] != Bfield2 &&
 	    FieldType[field] != Bfield3 &&
@@ -347,8 +350,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
       if (FieldType[field] == Density)
 	FieldPointer = TemporaryDensityField;
-      else
-	FieldPointer = TemporaryField;
+      else if (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
+	  FieldPointer = TemporaryField;
  
       /* Copy needed portion of temp field to current grid. */
  

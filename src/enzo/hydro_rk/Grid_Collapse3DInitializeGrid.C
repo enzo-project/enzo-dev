@@ -37,8 +37,8 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 
   int dim, i, j, k, m, field, sphere, size;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum,  kphHINum, gammaHINum, kphHeINum, gammaHeINum,
-    kphHeIINum, gammaHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
+    DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum, 
+    kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
 
 
   NumberOfBaryonFields = 0;
@@ -84,11 +84,9 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
   if (RadiativeTransfer)
     if (MultiSpecies) {
       FieldType[kphHINum    = NumberOfBaryonFields++] = kphHI;
-      FieldType[gammaHINum  = NumberOfBaryonFields++] = gammaHI;
+      FieldType[gammaNum    = NumberOfBaryonFields++] = PhotoGamma;
       FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
-      FieldType[gammaHeINum = NumberOfBaryonFields++] = gammaHeI;
       FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
-      FieldType[gammaHeIINum= NumberOfBaryonFields++] = gammaHeII;
       if (MultiSpecies > 1) {
         FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
       }

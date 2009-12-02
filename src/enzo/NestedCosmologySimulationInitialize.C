@@ -67,7 +67,6 @@ static char *CosmologySimulationVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticleVelocityNames[MAX_DIMENSION];
  
 static int   CosmologySimulationSubgridsAreStatic    = TRUE;
-static int   CosmologySimulationNumberOfInitialGrids = 1;
  
 static float CosmologySimulationInitialFractionHII   = 1.2e-5;
 static float CosmologySimulationInitialFractionHeII  = 1.0e-14;

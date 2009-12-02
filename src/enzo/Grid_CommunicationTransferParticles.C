@@ -71,7 +71,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
       if (NumberToMove[i] > 0) {
 //	fprintf(stdout, "P%"ISYM", grid %x: side %"ISYM", NumberToMove = %"ISYM"\n",
 //	       ProcessorNumber, this, i, NumberToMove[i]);
-//	fflush(stdout);
+	fflush(stdout);
 	ParticleData[i] = new float_int[NumberToMove[i]*
 				        NumberOfParticleFields];
       } else

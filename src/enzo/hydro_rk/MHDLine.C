@@ -14,10 +14,10 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-//#include "ErrorExceptions.h"
 
 int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,

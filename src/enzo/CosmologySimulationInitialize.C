@@ -68,7 +68,6 @@ static char *CosmologySimulationVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticleVelocityNames[MAX_DIMENSION];
 
 static int   CosmologySimulationSubgridsAreStatic    = TRUE;
-static int   CosmologySimulationNumberOfInitialGrids = 1;
  
 static float CosmologySimulationInitialFractionHII   = 1.2e-5;
 static float CosmologySimulationInitialFractionHeII  = 1.0e-14;
@@ -112,6 +111,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalName = "Metal_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
+  char *MachName   = "Mach";
+  char *CRName     = "CR_Density";
+  char *PSTempName = "PreShock_Temperature";
+  char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
  
@@ -205,7 +208,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       CosmologySimulationParticleVelocityNames[1] = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocity3Name = %s", dummy) == 1)
       CosmologySimulationParticleVelocityNames[2] = dummy;    
- 
+
     ret += sscanf(line, "CosmologySimulationNumberOfInitialGrids = %"ISYM,
 		  &CosmologySimulationNumberOfInitialGrids);
     ret += sscanf(line, "CosmologySimulationSubgridsAreStatic = %"ISYM,
@@ -590,7 +593,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = HDIName;
     }
   }
- 
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
     if(MultiMetals){
@@ -604,6 +606,15 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (WritePotential)
     DataLabel[i++] = GPotName;
+
+  if (CRModel) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+    DataLabel[i++] = CRName;
+  } 
  
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;

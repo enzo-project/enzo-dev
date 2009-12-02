@@ -776,7 +776,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	if (y <= 0.5) {
 	  // Rayleigh-Taylor problem, calculate pressure from hydro equilibrium
 	  float g = ConstantAcceleration[1];
-	  pres = pl+g*rhol*(y-0.5);
+	  pres = pl+g*rho*(y-0.5);
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
 	  // impose mode perturbation
 	  vyl = 0.7 * (1.0+cos(4.0*M_PI*(x+.25))) * (1.0+cos(2.0/.8*M_PI*(y-0.5))) * 0.25;
