@@ -120,30 +120,30 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   } 
 
   // Try to read external boundaries. If they don't fit grid data we'll set them later below
+  int ReadHDF4B = 0;
 #ifdef USE_HDF4
-  if (BRerr == 0)
-    if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
-      fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",           
-	      MetaData.BoundaryConditionName);                  
-      fprintf(stderr, "Will try HDF5 instead.\n");
-#else
-      if(LoadGridDataAtStart){    
-	if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
-	  fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-		  MetaData.BoundaryConditionName);
-	  BRerr = 1;
-	}
-      }else{
-	if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
-	  fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
-		  MetaData.BoundaryConditionName);
-	  BRerr = 1;
-	}
+  if (Exterior->ReadExternalBoundaryHDF4(fptr) == FAIL) {  
+    fprintf(stderr, "Error in ReadExternalBoundary using HDF4  (%s).\n",           
+	    MetaData.BoundaryConditionName);                  
+    fprintf(stderr, "Will try HDF5 instead.\n");
+    BRerr = 1;
+  } else ReadHDF4B = 1;
+#endif // HDF4
+  if (ReadHDF4B != 1) 
+    if(LoadGridDataAtStart){    
+      if (Exterior->ReadExternalBoundary(fptr) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
       }
-#endif
-#ifdef USE_HDF4
+    }else{
+      if (Exterior->ReadExternalBoundary(fptr, TRUE, FALSE) == FAIL) {
+	fprintf(stderr, "Error in ReadExternalBoundary (%s).\n",
+		MetaData.BoundaryConditionName);
+	BRerr = 1;
+      }
     }
-#endif
+
 
   if (BRerr ==0) strcat(MetaData.BoundaryConditionName, hdfsuffix);
   if ((fptr != NULL) && (BRerr == 0)) fclose(fptr);
