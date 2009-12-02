@@ -18,14 +18,26 @@
 
 #define STAR_PARTICLE_NUMBER_START 1000000000
 
+struct ParticleEntry {
+  FLOAT Position[3];
+  float Mass;
+  float Velocity[3];
+  float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+  int Number;
+  int Type;
+};
+
+
 /* Number of Star particles. */
 
 SPEXTERN int NumberOfStarParticles;
+SPEXTERN int NumberOfDeletedParticles;
 SPEXTERN int NumberOfOtherParticles; //all the particles other than type=2
 SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */
 
+SPEXTERN int StarFeedbackType;
 SPEXTERN float StarMakerOverDensityThreshold;
 SPEXTERN float StarMakerMassEfficiency;
 SPEXTERN float StarMakerMinimumMass;
@@ -33,6 +45,7 @@ SPEXTERN float StarMakerMinimumDynamicalTime;
 SPEXTERN float StarMassEjectionFraction;
 SPEXTERN float StarMetalYield;
 SPEXTERN float StarEnergyToThermalFeedback;
+SPEXTERN float StarEnergyFeedbackRate;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
 

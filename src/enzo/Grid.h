@@ -18,6 +18,7 @@
 #include "ListOfParticles.h"
 #include "region.h"
 #include "FastSiblingLocator.h"
+#include "StarParticleData.h"
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
@@ -1229,6 +1230,19 @@ public:
          return PARTICLE_TYPE_STAR;
      return PARTICLE_TYPE_DARK_MATTER;
    }
+
+/* Particles: return particle information in structure array */
+
+   int ReturnParticleEntry(ParticleEntry *ParticleList);
+
+/* Particles: set mass of merged particles to be -1 */
+
+   void RemoveMergedParticles(ParticleEntry *List, const int &Size, int *Flag);
+
+/* Particles: append particles belonging to this grid from a list */
+
+   int AddParticlesFromList(ParticleEntry *List, const int &Size, int *AddedNewParticleNumber);
+   int CheckGridBoundaries(FLOAT *Position);
 
 /* Particles: sort particle data in ascending order by number (id) or type. */
 

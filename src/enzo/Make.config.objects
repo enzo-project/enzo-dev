@@ -62,6 +62,7 @@ OBJS_CONFIG_LIB = \
         CommunicationInitialize.o \
         CommunicationLoadBalanceRootGrids.o \
         CommunicationLoadBalanceGrids.o \
+	CommunicationMergeStarParticle.o \
         CommunicationParallelFFT.o \
         CommunicationPartitionGrid.o \
         CommunicationReceiveFluxes.o \
@@ -507,6 +508,7 @@ OBJS_CONFIG_LIB = \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
         P_ColumnFormat.o \
+	ParticleMergeRoutines.o \
         ParticleSplitter.o \
         performance.o \
         pgas2d_dual.o \
