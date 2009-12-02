@@ -14,7 +14,7 @@ c
      &                      nmax, npartnew, children, level,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, 
-     &                      iterations, ran1_init)
+     &                      iterations, separation, ran1_init)
 c
 c  SPLIT STAR PARTICLES INTO CHILDREN PARTICLES WHEN REQUESTED
 c
@@ -50,14 +50,15 @@ c    nmax     - the maximum number of particles to be created
 c    npartnew - particle array size that will be created here, initially 0
 c    children - number of children particle per parent = 12
 c    level    - current level of refinement
-c    iterations - ParticleSplitterIterations
+c    iterations - ParticleSplitterIterations (> 1 not recommended)
+c    separation - ParticleSplitterChildrenParticleSeparation (= 1 by default)
 c
 c    xp,yp,zp - positions of particles created
 c    up,vp,wp - velocities of particles created
 c    mp       - mass of particles created
 c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle created (-1 if not a star particle)
-c    metalf   - metal fraction of particle created (star particle)
+c    metalf   - metal fraction of particle created 
 c    *old     - array of particle properties that already exist
 c
 c
@@ -69,7 +70,7 @@ c  Arguments
 c
       integer nx, ny, nz, ibuff, npart
       integer  idual, imetal, imethod, iterations
-      real    dt, dx, z
+      real    dt, dx, z, separation
       real    d1, x1, v1, t1
       REALSUB xstart, ystart, zstart, t
       REALSUB xpold(npart), ypold(npart), zpold(npart)
@@ -107,9 +108,10 @@ c
 c
 c
 c     The distance to the children particles r is the same for all. It is 
-c     currently set to be 0.2 of dx (=CellWidth), but can be changed.
+c     currently set to be dx (=CellWidth), but can be changed. 
+c     (i.e. ParticleSplitterChildrenParticleSeparation = 1 by default)
 c
-      r = dx * (0.2)**float(iterations)
+      r = dx * separation**float(iterations)
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 
 c     only DM and conventional star particles  get splitted.  Other 

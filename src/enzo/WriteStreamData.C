@@ -234,7 +234,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
   if (debug)
     printf("WriteStreamData: level = %d, StartLevel = %d, timestep = %d\n", 
-	   level, StartLevel, MetaData->TimestepCounter);
+	   level, StartLevel, MetaData->MovieTimestepCounter);
   for (ilvl = StartLevel; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
 
     Temp = LevelArray[ilvl];
@@ -246,7 +246,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 	(MetaData->NewMovieLeftEdge, MetaData->NewMovieRightEdge, 
 	 MetaData->TopGridDims[0], MetaData->StopTime, MetaData->AmiraGrid, 
 	 Zero, MetaData->CycleNumber, WriteMe, 
-	 MetaData->TimestepCounter, open, WriteTime);
+	 MetaData->MovieTimestepCounter, open, WriteTime);
 
 #define NOFIND_DENSEST
 #ifdef FIND_DENSEST

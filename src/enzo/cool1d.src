@@ -4,10 +4,11 @@ c////////////////////////  SUBROUTINE COOL2D  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cool1d(
      &                d, e, ge, u, v, w,
-     &                in, jn, kn, nratec, idual, idim, imethod, iter,
+     &                in, jn, kn, nratec, idual, idim, imethod, 
+     &                iter, igammah,
      &                is, ie, j, k, 
      &                temstart, temend, fh, utem,
-     &                eta1, eta2, gamma, coola,
+     &                eta1, eta2, gamma, coola, gammaha,
      &                indixe, t1, t2, logtem, tdef, edot,
      &                tgas, tgasold, p2d, cool
      &                     )
@@ -34,8 +35,8 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, ie, j, k,
-     &        idual, nratec, idim, imethod, iter
-      real    temstart, temend, fh, utem,
+     &        idual, nratec, idim, imethod, iter, igammah
+      real    temstart, temend, fh, utem, gammaha,
      &        eta1, eta2, gamma, coola(nratec)
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
@@ -147,6 +148,10 @@ c              (the factors of mh have been incorporated into coolinit).
 c              (rate of change of specific energy)
 c
          edot(i) = -cool(i)*(0.4*(fh+1)*d(i,j,k))
+c
+c        Photoelectric heating  
+c
+         edot(i) = edot(i) + float(igammah)*gammaha*d(i,j,k)
 c
       enddo
 c

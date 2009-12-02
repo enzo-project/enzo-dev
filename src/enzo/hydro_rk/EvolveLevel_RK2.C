@@ -495,9 +495,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Add viscosity */
 
-      if (UseViscosity) 
+      if (UseViscosity) {
 	Grids[grid1]->GridData->AddViscosity();
-      //    printf("VISC: %f\n", ViscosityCoefficient);
+	//	printf("VISC: %f\n", ViscosityCoefficient);
+      }
+
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
@@ -584,7 +586,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (LevelArray[level+1] == NULL) {
       MetaData->SubcycleNumber++;
-      MetaData->TimestepCounter++;
+      MetaData->MovieTimestepCounter++;
     }
 
     /* ------------------------------------------------------- */

@@ -59,7 +59,7 @@ include $(ENZO_DIR)/Make.config.settings
 # Make.config.machine is used for setting which Make.mach.* file to use
 #-----------------------------------------------------------------------
 
-MAKE_CONFIG_MACHINE  = $(ENZO_DIR)/Make.config.machine
+#MAKE_CONFIG_MACHINE  = $(ENZO_DIR)/Make.config.machine
 include $(ENZO_DIR)/Make.config.machine
 
 #-----------------------------------------------------------------------
@@ -98,6 +98,7 @@ include $(ENZO_DIR)/Make.config.assemble
 #-----------------------------------------------------------------------
 
 include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
 #=======================================================================
 # OBJECT FILES

@@ -363,7 +363,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	nz_b = nz_jet[bb];
       }
 
-      /* Find the supercell and caclualte its total mass */
+      /* Find the supercell and caclulate its total mass */
 
       for (int kk = -2; kk <= 2; kk++) {
 	for (int jj = -2; jj <= 2; jj++) {

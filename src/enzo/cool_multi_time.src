@@ -7,13 +7,13 @@
      &                  cooltime,
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idim,
-     &                is, js, ks, ie, je, ke, ih2co, ipiht,
+     &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &                reHeII2a, reHeIIIa, brema, compa,
+     &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp, piHI, piHeI, piHeII,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
      &                hyd01ka, h2k01a, vibha, rotha, rotla,
@@ -53,7 +53,7 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        n_xe, imcool
+     &        n_xe, imcool, igammah
       real    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end
@@ -78,6 +78,7 @@
       real    metala(nratec, n_xe)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
+      real    gammaha
 
 !  Cloudy cooling data
 
@@ -173,13 +174,13 @@
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idim,
-     &                is, ie, j, k, ih2co, ipiht, 1,
+     &                is, ie, j, k, ih2co, ipiht, 1, igammah,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &                reHeII2a, reHeIIIa, brema, compa, 
+     &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,

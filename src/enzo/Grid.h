@@ -269,6 +269,7 @@ private:
    int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
        hid_t data_type, void *read_to, int copy_back_active=FALSE,
        float *copy_to=NULL, int *active_dims=NULL);
+   int ReadExtraFields(hid_t group_id);
 public:
 
 /* Compute the timestep constraint for this grid
@@ -558,7 +559,7 @@ public:
 			 int RootResolution, FLOAT StopTime, 
 			 AMRHDF5Writer &AmiraGrid,
 			 int lastMovieStep, int TopGridCycle, 
-			 int WriteMe, int TimestepCounter, int open, 
+			 int WriteMe, int MovieTimestepCounter, int open, 
 			 FLOAT WriteTime);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };

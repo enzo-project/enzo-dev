@@ -180,11 +180,8 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
     ENZO_FAIL("");
   }
 
-  /* Set up information for rates which depend on the radiation field. */
-
-  int RadiationShield = (RadiationFieldType == 11) ? TRUE : FALSE;
-
-  /* Precompute factors for self shielding (this is the cross section * dx). */
+  /* Set up information for rates which depend on the radiation field. 
+     Precompute factors for self shielding (this is the cross section * dx). */
 
   float HIShieldFactor = RadiationData.HIAveragePhotoHeatingCrossSection * 
                          double(LengthUnits) * CellWidth[0][0];
@@ -233,7 +230,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
        RadiationData.Spectrum[0], &RadiationFieldType, 
           &RadiationData.NumberOfFrequencyBins, 
           &RadiationFieldRecomputeMetalRates,
-       &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
+       &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiativeTransfer, BaryonField[gammaNum]);
   else {
 #ifdef UNUSED

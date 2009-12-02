@@ -129,8 +129,8 @@ OBJS_CONFIG_LIB = \
         ExposeGridHierarchy.o \
         ExternalBoundary_AppendForcingToBaryonFields.o \
         ExternalBoundary_constructor.o \
-	ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_DetachForcingFromBaryonFields.o \
+        ExternalBoundary_DeleteObsoleteFields.o \
         ExternalBoundary_IdentifyPhysicalQuantities.o \
         ExternalBoundary_InitializeExternalBoundaryFaceIO.o \
         ExternalBoundary_Prepare.o \
@@ -281,10 +281,10 @@ OBJS_CONFIG_LIB = \
         Grid_DeleteAllButParticles.o \
         Grid_DeleteAllFields.o \
         Grid_DeleteFlaggingField.o \
+        Grid_DeleteObsoleteFields.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o	\
         Grid_DepositMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o	\
-	Grid_DeleteObsoleteFields.o \
         Grid_DepositBaryons.o \
         Grid_DepositParticlePositions.o \
         Grid_DepositParticlePositionsLocal.o \
@@ -608,8 +608,10 @@ OBJS_CONFIG_LIB = \
         StarParticleMergeMBH.o \
         StarRoutines.o \
         Star_Accrete.o \
+        Star_AccreteAngularMomentum.o \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
+        Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_ComputePhotonRates.o \

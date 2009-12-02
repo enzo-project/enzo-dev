@@ -373,7 +373,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   /* Create radiation name and read radiation data. */
  
-  if (RadiationFieldType >= 10 && RadiationFieldType <= 11) {
+  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
+      RadiationData.RadiationShield == TRUE) {
     FILE *Radfptr;
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);
