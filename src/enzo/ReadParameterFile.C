@@ -1179,11 +1179,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   size_t cwd_buffer_len = MAX_LINE_LENGTH;
  
   if ( (MetaData.GlobalDir == NULL) && (MetaData.LocalDir == NULL) ) {
-    if(getcwd(cwd_buffer, cwd_buffer_len) == NULL) {
+    /*if(getcwd(cwd_buffer, cwd_buffer_len) == NULL) {
       fprintf(stderr, "GETCWD call FAILED\n");
     }
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"CWD %s\n", cwd_buffer);
+    */
+    /* No one seems to want GlobalDir to default to abspath(CWD).  I'm leaving
+       the code here in case you do. MJT */ 
+    strcpy(cwd_buffer, ".");
     MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
