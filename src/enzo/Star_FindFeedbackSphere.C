@@ -87,14 +87,16 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
                  || (FeedbackFlag == COLOR_FIELD));
   initialRadius = Radius;
 
-  // MBHFeedbackToConstantMass is implemented 
-  // to apply your feedback energy always to a constant mass, not to a constant volume.
-  // Search MBH from here and below.
-  // For now, this is for future use and not tested, and shouldn't be used.  Ji-hoon Kim Sep.2009
-  int MBHFeedbackToConstantMass = FALSE; //#####
+#ifdef UNUSED
+  /* MBHFeedbackToConstantMass is implemented to apply your feedback energy 
+     always to a constant mass, not to a constant volume.  For now, this is 
+     for future use and not tested, and shouldn't be used.  -Ji-hoon Kim, Sep.2009 */
+  int MBHFeedbackToConstantMass = FALSE; 
   MBHFeedbackThermalRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
 
   while (SphereTooSmall || MBHFeedbackThermalRadiusTooSmall) { 
+#endif
+  while (SphereTooSmall) { 
     Radius += CellWidth;
     MassEnclosed = 0;
     Metallicity = 0;
@@ -175,16 +177,17 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       break;
 
     case MBH:  
-      // This is to enlarge the Radius so that the thermal feedback affects the constant mass 
-      // as the AGN bubble expands, not the constant radius.  Ji-hoon Kim in Sep./2009  
-      // MassEnclosed in Msun, 
-      // assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to the density in Ostriker & McKee test problem
-      // (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) 
+#ifdef UNUSED
+      /* This is to enlarge Radius so that the thermal feedback affects the constant mass 
+	 as the AGN bubble expands, not the constant radius.  MassEnclosed in Msun. 
+	 assuming initial density around MBH ~ 1 Msun/pc^3 = 40/cm3, which is close to 
+	 the density in Ostriker & McKee test problem (1 Msun/pc^3 = 6.77e-23 g/cm3 = 40/cm3) */
       MBHFeedbackThermalRadiusTooSmall = MassEnclosed < 
 	4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0; 
       fprintf(stderr, "MassEnclosed = %g\n", MassEnclosed);
       fprintf(stderr, "MassEnclosed_ought_to_be = %g\n", 4*M_PI/3.0 * pow(MBHFeedbackThermalRadius, 3) * 1.0);
       fprintf(stderr, "Radius = %g\n", Radius);
+#endif
       break;
 
     }  // ENDSWITCH FeedbackFlag

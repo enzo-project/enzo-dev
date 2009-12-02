@@ -143,10 +143,10 @@ int Star::CalculateMassAccretion(void)
       mdot = 0.0;
 
     if (this->type == MBH) { 
-      // For MBH, MBHAccretingMassRatio is implemented because
-      // since we already resolve Bondi radius, the local density we used to calculate mdot 
-      // could be higher than what you are supposed to use for mdot, thus overestimating mdot.
-      // So MBHAccretingMassRatio < 1 can be used to fix this.  Ji-hoon Kim Sep.2009
+      /* For MBH, MBHAccretingMassRatio is implemented; when we resolve Bondi radius, 
+	 the local density used to calculate mdot can be higher than what was supposed 
+	 to be used, resulting in the overestimation of mdot. MBHAccretingMassRatio 
+	 (=< 1) can be used to fix this.  -Ji-hoon Kim, Sep.2009 */
       mdot *= MBHAccretingMassRatio;
 
       // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
@@ -174,6 +174,8 @@ int Star::CalculateMassAccretion(void)
 	      temperature[index], v_rel);
 
   } // ENDIF LOCAL_ACCRETION  
+
+
   
   if (AccretionType == BONDI_ACCRETION ||
       AccretionType == RADIAL_ACCRETION) {

@@ -606,6 +606,7 @@ OBJS_CONFIG_LIB = \
         StarParticleMergeMBH.o \
         StarRoutines.o \
         Star_Accrete.o \
+        Star_AccreteAngularMomentum.o \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
         Star_AssignAccretedAngularMomentum.o \

@@ -123,11 +123,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtInterpolatedDataDump          = %"PSYM, 
 		  &MetaData.dtInterpolatedDataDump);
  
-    ret += sscanf(line, "NewMovieLeftEdge  = %"FSYM" %"FSYM" %"FSYM, 
+    ret += sscanf(line, "NewMovieLeftEdge  = %"PSYM" %"PSYM" %"PSYM, 
 		  MetaData.NewMovieLeftEdge,
 		  MetaData.NewMovieLeftEdge+1, 
 		  MetaData.NewMovieLeftEdge+2);
-    ret += sscanf(line, "NewMovieRightEdge = %"FSYM" %"FSYM" %"FSYM, 
+    ret += sscanf(line, "NewMovieRightEdge = %"PSYM" %"PSYM" %"PSYM, 
 		  MetaData.NewMovieRightEdge, 
 		  MetaData.NewMovieRightEdge+1,
 		  MetaData.NewMovieRightEdge+2);
