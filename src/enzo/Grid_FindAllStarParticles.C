@@ -66,7 +66,7 @@ int grid::FindAllStarParticles(int level)
 
       if(MBHFeedback == 2 && ParticleType[i] == PARTICLE_TYPE_MBH) {
 	NewStar->AssignAccretedAngularMomentum();
-      	printf("MBH particle info (check angular momentum): \n"); 
+      	printf("MBH particle info (for MBHFedback=2, check angular momentum): \n"); 
 	NewStar->PrintInfo();
       }
  

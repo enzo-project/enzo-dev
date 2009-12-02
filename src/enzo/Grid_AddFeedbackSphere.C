@@ -456,8 +456,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       rho_colour_inside = ( (m_cell_inside - JetsLoadedMass) * colour_inside + EjectaMass) / 
 	(n_cell_inside * pow(CellWidth[0][0], 3));
       JetsLoadedColourMass = JetsLoadedMass * colour_inside;
-    } else 
+    } else {
       rho_colour_inside = 0.0;
+      JetsLoadedColourMass = 0.0;
+    }
       
     fhz = fh * (1-metallicity_inside);
     fhez = (1-fh) * (1-metallicity_inside);
@@ -535,8 +537,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       
     fprintf(stdout, "grid::AddFS: jets injected (MBHJetsVelocity = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
 	    MBHJetsVelocity, rho_jet, nx_L, ny_L, nz_L); 
-//    fprintf(stdout, "grid::AddFS: L = (%g, %g, %g), n_L = (%g, %g, %g)\n", 
-//	    L_x, L_y, L_z, nx_L, ny_L, nz_L); 
+    fprintf(stdout, "grid::AddFS: L = (%g, %g, %g), n_L = (%g, %g, %g)\n", 
+	    L_x, L_y, L_z, nx_L, ny_L, nz_L); //#####
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
 
@@ -582,9 +584,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
 	BaryonField[HeIIINum][index] =
 	  BaryonField[DensNum][index] * fhez * ionizedFraction;
-//	fprintf(stdout, "grid::AddFS: d= %g, de= %g, HI= %g, HII= %g, Z= %g, MBHJetsVelocity= %g\n\n", 
-//		BaryonField[DensNum][index], BaryonField[DeNum][index], BaryonField[HINum][index], 
-//		BaryonField[HIINum][index], metallicity_edge, BaryonField[Vel3Num][index]);
       }
       if (MultiSpecies > 1) {
 	BaryonField[HMNum][index] = tiny_number * BaryonField[DensNum][index];
