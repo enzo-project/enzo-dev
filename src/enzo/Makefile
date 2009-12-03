@@ -46,8 +46,7 @@ ENZO_DIR = .
 MODULES  = 
 VERBOSE  = 0
 
-# please remove this
-#SVN      = hg
+SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
