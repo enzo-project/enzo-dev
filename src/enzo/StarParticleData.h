@@ -18,6 +18,8 @@
 
 #define STAR_PARTICLE_NUMBER_START 1000000000
 
+/* #include "macros_and_parameters.h" */
+
 struct ParticleEntry {
   FLOAT Position[3];
   float Mass;

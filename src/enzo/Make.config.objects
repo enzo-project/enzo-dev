@@ -205,6 +205,7 @@ OBJS_CONFIG_LIB = \
         Grid_AddFieldMassToMassFlaggingField.o \
         Grid_AddFields.o \
         Grid_AddOverlappingParticleMassField.o \
+	Grid_AddParticlesFromList.o \
         Grid_AddRandomForcing.o \
         Grid_AddToBoundaryFluxes.o \
         Grid_AllocateGrids.o \
@@ -390,6 +391,7 @@ OBJS_CONFIG_LIB = \
         Grid_RestoreEnergyConsistency.o \
         Grid_ReturnFluxDims.o \
         Grid_ReturnGridInfo.o \
+	Grid_ReturnParticleEntry.o \
 	Grid_ReturnStarStatistics.o \
         Grid_RotatingCylinderInitialize.o \
         Grid_SedovBlastInitializeGrid3D.o \

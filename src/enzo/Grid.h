@@ -42,6 +42,8 @@ struct HierarchyEntry;
 
 //extern int CommunicationDirection;
 
+
+
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);
 struct LevelHierarchyEntry;
