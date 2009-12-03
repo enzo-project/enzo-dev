@@ -32,7 +32,6 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 /* function prototypes */
 

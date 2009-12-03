@@ -30,7 +30,6 @@
 #include "CosmologyParameters.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 int FindField(int field, int farray[], int numfields);
 

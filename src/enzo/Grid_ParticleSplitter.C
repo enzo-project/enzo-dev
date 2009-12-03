@@ -29,7 +29,6 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 
 #define NO_DEBUG_PS 
 

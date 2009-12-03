@@ -185,6 +185,7 @@ OBJS_CONFIG_LIB = \
         fourn.o \
 	FreeExpansionInitialize.o \
         FreeRealMem.o \
+        FriendOfFriend.o \
 	GadgetInitCoolMemory.o \
 	GadgetIonizeParamsTable.o \
 	GadgetMakeCoolingTable.o \

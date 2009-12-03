@@ -30,7 +30,6 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #undef DEFINE_STORAGE
  
 // Function prototypes

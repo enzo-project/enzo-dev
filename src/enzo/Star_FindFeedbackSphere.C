@@ -29,7 +29,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "CommunicationUtilities.h"
 
 int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,

@@ -27,7 +27,6 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 
 #define  PROTONMASS  1.6726e-24
 

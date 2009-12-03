@@ -23,7 +23,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 

@@ -20,7 +20,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,

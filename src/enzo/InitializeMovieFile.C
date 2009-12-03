@@ -25,7 +25,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "fortran.def"
 #include "AMRH5writer.h"
 

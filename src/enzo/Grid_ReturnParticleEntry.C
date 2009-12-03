@@ -20,7 +20,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
 
 
 int grid::ReturnParticleEntry(ParticleEntry *List)

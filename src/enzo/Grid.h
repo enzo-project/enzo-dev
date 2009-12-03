@@ -42,7 +42,14 @@ struct HierarchyEntry;
 
 //extern int CommunicationDirection;
 
-
+//struct ParticleEntry {
+//  FLOAT Position[3];
+//  float Mass;
+//  float Velocity[3];
+//  float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+//  int Number;
+// int Type;
+//};
 
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);

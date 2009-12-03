@@ -31,7 +31,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define MAX_TEMPERATURE 1e8
 

@@ -20,7 +20,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define NO_DEATH 0
 #define KILL_STAR 1

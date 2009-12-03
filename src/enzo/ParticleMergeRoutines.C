@@ -25,15 +25,11 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "StarParticleData.h"
-//#include "Grid.h"
-
-
 
 void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size, 
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize)
 {
-
   int *Center = new int[Size];
   for (int i = 0; i < Size; i++)
     Center[i] = -1;

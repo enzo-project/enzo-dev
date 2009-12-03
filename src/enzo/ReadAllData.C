@@ -36,7 +36,6 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
-#include "StarParticleData.h"
 #include "CommunicationUtilities.h"
 void my_exit(int status);
  
