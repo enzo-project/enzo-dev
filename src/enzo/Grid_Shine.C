@@ -118,11 +118,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	       RS->Luminosity);
       break;
     case BlackHole:
-      if (RadiativeTransferInterpolateField) {
-	FieldsToInterpolate[HINum] = TRUE;
-	FieldsToInterpolate[HeINum] = TRUE;
-	FieldsToInterpolate[HeIINum] = TRUE;
-      } // ENDIF interpolate fields
+//      if (RadiativeTransferInterpolateField) {
+//	FieldsToInterpolate[HINum] = TRUE;
+//	FieldsToInterpolate[HeINum] = TRUE;
+//	FieldsToInterpolate[HeIINum] = TRUE;
+//      } // ENDIF interpolate fields
 //      if (MyProcessorNumber == ProcessorNumber)
 //	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
 //	       PhotonTime-RS->CreationTime+dtPhoton);
