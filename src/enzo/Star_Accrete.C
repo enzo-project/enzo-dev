@@ -60,7 +60,7 @@ int Star::Accrete(void)
   /* Conserve momentum: change star particle velocity due to accreted
      material */
   /* Below was an approximation for DetalMass <<1; 
-     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim in Sep.2009 */
+     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim, Sep.2009 */
   /*
   ratio2 = DeltaMass / Mass;
   ratio1 = 1.0 - ratio2;
@@ -78,10 +78,8 @@ int Star::Accrete(void)
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-  /*
-  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
-  	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); 
-  */
+//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, 
+//          DeltaMass = %g\n", last_accretion_rate, accretion_time[0], this_dt, DeltaMass); 
 
   /* Remove these entries in the accretion table */
 

@@ -121,7 +121,8 @@ int grid::RadiationComputeDensities(int level)
 	  /* mean HI, etc. densities.  If RadiationFieldType == 11 then
 	     use an approximate self-shielding. */
  
-	  if (RadiationFieldType == 11) {
+	  if (RadiationData.RadiationShield == TRUE) {
+	  //	  if (RadiationFieldType == 11) {
 	    RadiationData.HIMeanDensity[level] += nHI*Volume*
 	      exp(-RadiationData.HIAveragePhotoionizationCrossSection*
 		   nHI*factor);

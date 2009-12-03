@@ -60,7 +60,7 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 //  --JHK notes--
 //  import RootResolution from TopGridDimension[0] to calculate levelIdx
 //  also had to change : WriteStreamData.C, WriteDataHierarchy.C, Grid.h
-//  import TimestepCounter to calculate the timeStep
+//  import MovieTimestepCounter to calculate the timeStep
 //  also had to look at : TopGridData.C, WriteStreamData.C,
 //  WriteDataHierarchy.C, EvolveLevel.C, SetDefaultGlobalValues.C,
 //  Grid.h
@@ -69,7 +69,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			    int RootResolution, FLOAT StopTime, 
 			    AMRHDF5Writer &AmiraGrid,
 			    int lastMovieStep, int TopGridCycle, 
-			    int WriteMe, int TimestepCounter, int open, 
+			    int WriteMe, int MovieTimestepCounter, int open, 
 			    FLOAT WriteTime)
 {
 
@@ -329,7 +329,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 	  if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER)
 	    NumberOfWrittenParticles++;
 
-      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+      if (AmiraGrid.WriteFlat(MovieTimestepCounter, doubleTime, doubleRedshift, 
 			      thislevel, delta, doubleGridLeftEdge, 
 			      integerOrigin, ghostzoneFlags, numGhostzones, 
 			      AmiraDims, field, nFields, NumberOfWrittenParticles, 
@@ -347,7 +347,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
     // If no baryon data exists, just write the index file
     if (nFields == 0)
-      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+      if (AmiraGrid.WriteFlat(MovieTimestepCounter, doubleTime, doubleRedshift, 
 			      thislevel, delta, doubleGridLeftEdge, 
 			      integerOrigin, ghostzoneFlags, numGhostzones, 
 			      AmiraDims, field, nFields, NumberOfParticles, 

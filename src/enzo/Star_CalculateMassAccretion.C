@@ -133,7 +133,6 @@ int Star::CalculateMassAccretion(void)
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
     // Don't take out too much mass suddenly; mdot should leave at least 75% of the gas in the grids.
-    // following star_maker8.C by Peng Wang  - Ji-hoon Kim in Sep.2009
     mdot_UpperLimit = 0.25 * density * DensityUnits * 
       pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
       (CurrentGrid->dtFixed) / TimeUnits;
@@ -144,10 +143,10 @@ int Star::CalculateMassAccretion(void)
       mdot = 0.0;
 
     if (this->type == MBH) { 
-      // For MBH, MBHAccretingMassRatio is implemented because
-      // since we already resolve Bondi radius, the local density we used to calculate mdot 
-      // could be higher than what you are supposed to use for mdot, thus overestimating mdot.
-      // So MBHAccretingMassRatio < 1 can be used to fix this.  Ji-hoon Kim Sep.2009
+      /* For MBH, MBHAccretingMassRatio is implemented; when we resolve Bondi radius, 
+	 the local density used to calculate mdot can be higher than what was supposed 
+	 to be used, resulting in the overestimation of mdot. MBHAccretingMassRatio 
+	 (=< 1) can be used to fix this.  -Ji-hoon Kim, Sep.2009 */
       mdot *= MBHAccretingMassRatio;
 
       // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
@@ -155,7 +154,7 @@ int Star::CalculateMassAccretion(void)
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
       mdot = min(mdot, mdot_Edd); 
-      //fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot); 
+//    fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot); 
     }
 
     //this->DeltaMass += mdot * (CurrentGrid->dtFixed * TimeUnits);
@@ -175,6 +174,8 @@ int Star::CalculateMassAccretion(void)
 	      temperature[index], v_rel);
 
   } // ENDIF LOCAL_ACCRETION  
+
+
   
   if (AccretionType == BONDI_ACCRETION ||
       AccretionType == RADIAL_ACCRETION) {

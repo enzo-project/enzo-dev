@@ -81,7 +81,6 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   int prev_pos;
   int ixe, itemp, index, nbins;
-
   nbins = CoolData.NumberOfTemperatureBins * CoolData.NumberOfElectronFracBins;
   CoolData.metals = new float[nbins];
 
@@ -121,6 +120,28 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 
   for (i = 0; i < nbins; i++)
     CoolData.metals[i] /= coolunit;
+
+#define OUTPUT_METAL_COOLING
+
+#ifdef OUTPUT_METAL_COOLING
+  /* Output cooling rate in code units. */
+
+  FILE *fptr2;
+
+  fptr2 = fopen("metal_cool_rates.out", "w");
+  for (itemp = 0; itemp < CoolData.NumberOfTemperatureBins; itemp++) {
+    fprintf(fptr2, "%"GSYM"\t", log10(CoolData.TemperatureStart) +
+	   (log10(CoolData.TemperatureEnd)-
+	    log10(CoolData.TemperatureStart)) * float(itemp)/
+	    float(CoolData.NumberOfTemperatureBins-1));
+    for (ixe = 0; ixe < CoolData.NumberOfElectronFracBins; ixe++) {
+      index = ixe*CoolData.NumberOfTemperatureBins + itemp;
+      fprintf(fptr2, "%"GSYM"\t", CoolData.metals[index]);
+    }
+    fprintf(fptr2, "\n");
+  }
+  fclose(fptr2);
+#endif
 
   return SUCCESS;
 

@@ -69,7 +69,7 @@ int WriteConfigure(FILE *optr);
 int WriteTaskMap(FILE *fptr, HierarchyEntry *TopGrid,
 		 char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
-int WriteStarParticleData(FILE *fptr);
+int WriteStarParticleData(FILE *fptr, TopGridData &MetaData);
 int WriteRadiationData(FILE *fptr);
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -776,14 +776,15 @@ int Group_WriteAllData(char *basename, int filenumber,
     delete TempTopGrid;
   }
  
-  // Output StarParticle data (actually just number of stars)
+  // Output star particle data 
  
-  if (WriteStarParticleData(fptr) == FAIL)
+  if (WriteStarParticleData(fptr, MetaData) == FAIL)
     ENZO_FAIL("Error in WriteStarParticleData");
  
   // Create radiation name and write radiation data
  
-  if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
+  if (((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+       RadiationData.RadiationShield == TRUE) &&
       MyProcessorNumber == ROOT_PROCESSOR) {
  
     FILE *Radfptr;

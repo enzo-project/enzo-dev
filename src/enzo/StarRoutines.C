@@ -46,7 +46,7 @@ Star::Star(void)
 {
   int dim;
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    pos[dim] = vel[dim] = delta_vel[dim] = 0.0;
+    pos[dim] = vel[dim] = delta_vel[dim] = accreted_angmom[dim] = 0.0;
   accretion_rate = NULL;
   accretion_time = NULL;
   NextStar = NULL;
@@ -66,6 +66,7 @@ Star::Star(grid *_grid, int _id, int _level)
     pos[dim] = _grid->ParticlePosition[dim][_id];
     vel[dim] = _grid->ParticleVelocity[dim][_id];
     delta_vel[dim] = 0.0;
+    accreted_angmom[dim] = 0.0;
   }
   naccretions = 0;
   accretion_rate = NULL;
@@ -95,6 +96,7 @@ Star::Star(StarBuffer *buffer, int n)
     pos[i] = buffer[n].pos[i];
     vel[i] = buffer[n].vel[i];
     delta_vel[i] = buffer[n].delta_vel[i];
+    accreted_angmom[i] = buffer[n].accreted_angmom[i];
   }
   naccretions = min(buffer[n].naccretions, MAX_ACCR);
   if (naccretions > 0) {
@@ -131,6 +133,7 @@ Star::Star(StarBuffer buffer)
     pos[i] = buffer.pos[i];
     vel[i] = buffer.vel[i];
     delta_vel[i] = buffer.delta_vel[i];
+    accreted_angmom[i] = buffer.accreted_angmom[i];
   }
   naccretions = min(buffer.naccretions, MAX_ACCR);
   if (naccretions > 0) {
@@ -185,6 +188,7 @@ void Star::operator=(Star a)
     pos[dim] = a.pos[dim];
     vel[dim] = a.vel[dim];
     delta_vel[dim] = a.delta_vel[dim];
+    accreted_angmom[dim] = a.accreted_angmom[dim];
   }
   naccretions = a.naccretions;
   Mass = a.Mass;
@@ -246,6 +250,7 @@ Star *Star::copy(void)
     a->pos[dim] = pos[dim];
     a->vel[dim] = vel[dim];
     a->delta_vel[dim] = delta_vel[dim];
+    a->accreted_angmom[dim] = accreted_angmom[dim];
   }
   a->naccretions = naccretions;
   a->Mass = Mass;
@@ -311,6 +316,7 @@ void Star::Merge(Star a)
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     pos[dim] = ratio1 * pos[dim] + ratio2 * a.pos[dim];
     vel[dim] = ratio1 * vel[dim] + ratio2 * a.vel[dim];
+    accreted_angmom[dim] = ratio1 * accreted_angmom[dim] + ratio2 * a.accreted_angmom[dim];
   }
   Mass += a.Mass;
   FinalMass += a.FinalMass;
@@ -444,6 +450,8 @@ void Star::PrintInfo(void)
   printf("\t mass = %"GSYM", dmass = %"GSYM", type = %"ISYM", grid %"ISYM","
 	 " lvl %"ISYM"\n", Mass, DeltaMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
+  printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
+	 accreted_angmom[1], accreted_angmom[2]);
   return;
 }
 
@@ -479,6 +487,7 @@ StarBuffer* Star::StarListToBuffer(int n)
       result[count].pos[i] = tmp->pos[i];
       result[count].vel[i] = tmp->vel[i];
       result[count].delta_vel[i] = tmp->delta_vel[i];
+      result[count].accreted_angmom[i] = tmp->accreted_angmom[i];
     }
     result[count].naccretions = tmp->naccretions;
     for (i = 0; i < tmp->naccretions; i++) {

@@ -20,7 +20,7 @@ StarParticle::StarParticle(void)
 {
   int dim;
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    pos[dim] = vel[dim] = delta_vel[dim] = 0.0;
+    pos[dim] = vel[dim] = delta_vel[dim] = accreted_angmom[dim] = 0.0;
   accretion_rate = NULL;
   accretion_time = NULL;
   NextStar = NULL;
@@ -39,6 +39,7 @@ StarParticle::StarParticle(grid *_grid, int ParticleID)
     pos[dim] = _grid->ParticlePosition[dim][ParticleID];
     vel[dim] = _grid->ParticleVelocity[dim][ParticleID];
     delta_vel[dim] = 0.0;
+    accreted_angmom[dim] = 0.0;
   }
   accretion_rate = NULL;
   accretion_time = NULL;

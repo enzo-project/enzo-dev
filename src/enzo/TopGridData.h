@@ -19,7 +19,7 @@ struct TopGridData
   /* Counters for the TopGrid. */
 
   int   CycleNumber;         // Number of top grid timestep performed
-  int   SubcycleNumber;         // Number of top grid timestep performed
+  int   SubcycleNumber;         // Number of top grid tximestep performed
   FLOAT Time;                // Current problem time
   double CPUTime;            // Current CPU time used
   double StartCPUTime;
@@ -137,7 +137,7 @@ struct TopGridData
 
   AMRHDF5Writer AmiraGrid;
   int FirstTimestepAfterRestart;
-  int TimestepCounter;
+  int MovieTimestepCounter;
   float GlobalMaximumkphIfront;
 
 };

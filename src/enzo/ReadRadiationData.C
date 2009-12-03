@@ -43,6 +43,7 @@ extern "C" void FORTRAN_NAME(calc_photo_rates)(
 int ReadRadiationData(FILE *fptr)
 {
   int i;
+
  
   /* read in scalar data. */
  
@@ -51,17 +52,21 @@ int ReadRadiationData(FILE *fptr)
     fprintf(stderr, "Error reading TimeFieldLastUpdated.\n");
     ENZO_FAIL("");
   }
- 
+    
   /* read in field. */
- 
-  for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
-    if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM,
-	       RadiationData.Spectrum[0]+i, RadiationData.Spectrum[1]+i,
-	       RadiationData.Spectrum[2]+i, RadiationData.Spectrum[3]+i)
-	!= 4) {
-      fprintf(stderr, "Error reading RadiationData line %"ISYM"\n", i);
-      ENZO_FAIL("");
-    }
+
+  if (RadiationFieldType >= 10 && RadiationFieldType <= 11) { 
+    
+    for (i = 0; i < RadiationData.NumberOfFrequencyBins; i++)
+      if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM,
+		 RadiationData.Spectrum[0]+i, RadiationData.Spectrum[1]+i,
+		 RadiationData.Spectrum[2]+i, RadiationData.Spectrum[3]+i)
+	  != 4) {
+	fprintf(stderr, "Error reading RadiationData line %"ISYM"\n", i);
+	ENZO_FAIL("");
+      }
+
+  }
  
   /* Compute the units. */
  
@@ -87,11 +92,10 @@ int ReadRadiationData(FILE *fptr)
   float afloat = float(a);
  
   /* Given the field, compute the new radiation-dependant rates. */
- 
-  int RadiationShield = (RadiationFieldType == 10) ? FALSE : TRUE;
+
   FORTRAN_NAME(calc_photo_rates)(
                 &RadiationData.NumberOfFrequencyBins,
-		   &RadiationData.FrequencyBinWidth, &RadiationShield, &afloat,
+		   &RadiationData.FrequencyBinWidth, &RadiationData.RadiationShield, &afloat,
 		RadiationData.HICrossSection,
 		   RadiationData.HeICrossSection,
 		   RadiationData.HeIICrossSection,
@@ -107,6 +111,6 @@ int ReadRadiationData(FILE *fptr)
 		   &RadiationData.HeIAveragePhotoHeatingCrossSection,
 		   &RadiationData.HeIIAveragePhotoHeatingCrossSection,
 		&TimeUnits, &LengthUnits, &DensityUnits, &aUnits);
- 
+
   return SUCCESS;
 }

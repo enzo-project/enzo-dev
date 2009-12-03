@@ -37,9 +37,9 @@ c  OUTPUTS:
 c    PHTH     - HI photoionization rate, in s^-1
 c    PHTHE    - HeI photoionization rate
 c    PHTHE2   - HeII photoionization rate
-c    PHLAMTH     - HI photo-heating rate, in 1e-30 erg/s
-c    PHLAMTHE    - HeI photo-heating rate
-c    PHLAMTHE2   - HeII photo-heating rate
+c    PHTLAMTH     - HI photo-heating rate, in 1e-30 erg/s
+c    PHTLAMTHE    - HeI photo-heating rate
+c    PHTLAMTHE2   - HeII photo-heating rate
 c    EXRY     - X-ray backgroun radiation energy density, in erg/cm^3
 c    TXRY     - X-ray background temperature, in K
 c    AVGSIGH  - intensity weighted average cross section
@@ -176,7 +176,7 @@ c
 c        If using approximate radiation-shielding, compute the
 c          mean optical depth
 c
-         if (iradshield .gt. 0) then
+         if (iradshield .eq. 1) then
 c     
             IF(FNUMNUH0.GE.0.0) THEN
                FJXRY11  = FJXRY11 + 4.*PI*INUTOT(N11)/AVGNU*FNUDEL
@@ -218,7 +218,7 @@ c
 c     For the approximate radiative shield, compute the
 c        AVERAGE CROSS SECTION
 c
-      if (iradshield .gt. 0) then
+      if (iradshield .eq. 1) then
 c
          AVGSIGH   = PHTH/(1.E-20+FJXRY11)
          AVGSIGHE  = PHTHE/(1.E-20+FJXRY12)

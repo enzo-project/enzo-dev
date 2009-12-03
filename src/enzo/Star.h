@@ -42,6 +42,7 @@ class Star
   int		 level;
   int		 GridID;
   star_type	 type;
+  float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
 
   friend class grid;
 
@@ -86,6 +87,8 @@ public:
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
   FLOAT *ReturnPosition(void) { return pos; }
+  float *ReturnVelocity(void) { return vel; }
+  float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -96,6 +99,7 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
+  int	AccreteAngularMomentum(void);
   int	SubtractAccretedMass(void);
   void	Merge(Star a);
   void	Merge(Star *a);
@@ -111,6 +115,7 @@ public:
   float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
+  void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   void	CopyToGrid(void);

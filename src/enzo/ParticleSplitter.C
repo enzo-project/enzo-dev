@@ -59,7 +59,9 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
   /* Return if this does not concern us */
 
-  if (ParticleSplitterIterations <= 0 || !(MetaData->FirstTimestepAfterRestart)) 
+  if (ParticleSplitterIterations <= 0 || 
+      ParticleSplitterChildrenParticleSeparation <=0 ||
+      !(MetaData->FirstTimestepAfterRestart)) 
     return SUCCESS;
 
   int level, i, grid1;
