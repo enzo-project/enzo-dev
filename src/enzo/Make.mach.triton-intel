@@ -74,7 +74,7 @@ MACH_FFLAGS_REAL_64    = -r8
 MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
 MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
 MACH_OPT_HIGH        = -O1 # Flags for high conservative optimization
-MACH_OPT_AGGRESSIVE  = -O3 -fp-precise # Flags for aggressive optimization
+MACH_OPT_AGGRESSIVE  = -O3 -fp-model strict -fp-speculation off # Flags for aggressive optimization
 
 #-----------------------------------------------------------------------
 # Includes
