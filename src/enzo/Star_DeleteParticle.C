@@ -24,7 +24,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "CommunicationUtilities.h"
 
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,

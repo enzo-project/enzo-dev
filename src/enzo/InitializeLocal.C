@@ -26,7 +26,6 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
-#include "StarParticleData.h"
  
 // Function prototypes
  

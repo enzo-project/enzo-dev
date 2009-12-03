@@ -25,7 +25,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferHealpixRoutines.h"
 
 int RadiativeTransferReadParameters(FILE *fptr);

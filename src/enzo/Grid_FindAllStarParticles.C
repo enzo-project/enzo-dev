@@ -20,7 +20,6 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
-#include "StarParticleData.h"
 #include "Grid.h"
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);

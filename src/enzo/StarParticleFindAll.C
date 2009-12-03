@@ -28,7 +28,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "CommunicationUtilities.h"
 
 #ifdef USE_MPI

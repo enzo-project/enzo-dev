@@ -26,7 +26,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define RT_ENERGY_BINS 4
 #define NO_MEAN_ENERGY

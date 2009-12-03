@@ -30,7 +30,6 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
  
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
