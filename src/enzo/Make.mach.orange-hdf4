@@ -131,7 +131,7 @@ LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
 LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
-                     -limf -lifcore -lifport \
+                     -limf -lifcore -lifport -lguide -lpthread \
                      -L$(INT_DIR)/cc/lib/ \
                      -lstdc++ -lg2c 
 
