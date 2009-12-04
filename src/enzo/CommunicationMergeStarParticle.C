@@ -65,7 +65,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* count particles on this processor */
 
-  int ParticlesToSend = 0;
+  Eint32 ParticlesToSend = 0;
   for (int grid = 0; grid < NumberOfGrids; grid++) {
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber)
       ParticlesToSend += Grids[grid]->GridData->ReturnNumberOfParticles();
@@ -107,7 +107,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* communicate to get particle counts on every processory */
 
-  int *SendListCount = new int[NumberOfProcessors];
+  Eint32 *SendListCount = new Eint32[NumberOfProcessors];
 
   MPI_Allgather(&ParticlesToSend, 1, MPI_INT, SendListCount, 1, MPI_INT, MPI_COMM_WORLD);
 
@@ -122,7 +122,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   
   /* calculate memory displacement */
 
-  int *SendListDisplacements = new int[NumberOfProcessors];
+  Eint32 *SendListDisplacements = new Eint32[NumberOfProcessors];
   SendListDisplacements[0] = 0;
   for (int i = 1; i < NumberOfProcessors; i++)
     SendListDisplacements[i] = SendListDisplacements[i-1] + SendListCount[i-1];
