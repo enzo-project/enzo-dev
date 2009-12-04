@@ -519,6 +519,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	     Grids[grid1]->GridData->DeleteAccelerationField();
 
+
+
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       if (UseFloor) 
@@ -546,6 +548,17 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
+
+
+// 	 /* Merge star particles */
+// 	 if (StarParticleCreation >> SINK_PARTICLE & 1 && level == MaximumRefinementLevel) {
+// 	   if (CommunicationMergeStarParticle(Grids, NumberOfGrids) == FAIL) {
+// 	     printf("CommunicationMergeStarParticle failed.\n");
+// 	     return FAIL;
+// 	   }
+// 	 }
+
+
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

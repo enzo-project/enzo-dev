@@ -30,6 +30,7 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize)
 {
+  printf("\n Particle Merge Small to big MergeDistance = %g\n \n",MergeDistance);
   int *Center = new int[Size];
   for (int i = 0; i < Size; i++)
     Center[i] = -1;
@@ -114,7 +115,7 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize)
 {
-
+  printf("\n Particle Merge Small group MergeDistance = %g\n \n",MergeDistance);
   /* count the number of remaining small particles */
 
   int NumberOfRemainingSmallParticles = 0;
@@ -185,7 +186,7 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
 void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag, 
 		    const int &NewSize, ParticleEntry *NewList)
 {
-
+  printf("\n Particle Merge to new list \n \n");
   for (int group = 0; group < NewSize; group++) {
 
     float mass = 0.0, maxmass = -1.0;

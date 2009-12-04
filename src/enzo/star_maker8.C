@@ -295,7 +295,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   //  double msun = 1.989e33;
   //  double umass = (*d1)*pow(*x1,3)/msun;
-  float StellarWindThresholdMass = 0.1;
+  float StellarWindThresholdMass = 22.1;
   float StellarWindMomentumPerStellarMass = 5e6;
   float StellarWindEjectionFraction = 0.2;
   float fe = StellarWindEjectionFraction;
