@@ -31,7 +31,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,

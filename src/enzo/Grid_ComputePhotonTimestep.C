@@ -29,7 +29,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 
 /* function prototypes */

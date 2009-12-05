@@ -27,7 +27,6 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 
 #ifdef CONFIG_BFLOAT_4
 #define TOLERANCE 1e-06

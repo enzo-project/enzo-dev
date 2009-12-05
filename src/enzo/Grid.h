@@ -18,6 +18,7 @@
 #include "ListOfParticles.h"
 #include "region.h"
 #include "FastSiblingLocator.h"
+#include "StarParticleData.h"
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
@@ -40,6 +41,15 @@ struct HierarchyEntry;
 #endif /* TRANSFER */
 
 //extern int CommunicationDirection;
+
+//struct ParticleEntry {
+//  FLOAT Position[3];
+//  float Mass;
+//  float Velocity[3];
+//  float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+//  int Number;
+// int Type;
+//};
 
 extern int CommunicationDirection;
 int FindField(int f, int farray[], int n);
@@ -1230,6 +1240,19 @@ public:
          return PARTICLE_TYPE_STAR;
      return PARTICLE_TYPE_DARK_MATTER;
    }
+
+/* Particles: return particle information in structure array */
+
+   int ReturnParticleEntry(ParticleEntry *ParticleList);
+
+/* Particles: set mass of merged particles to be -1 */
+
+   void RemoveMergedParticles(ParticleEntry *List, const int &Size, int *Flag);
+
+/* Particles: append particles belonging to this grid from a list */
+
+   int AddParticlesFromList(ParticleEntry *List, const int &Size, int *AddedNewParticleNumber);
+   int CheckGridBoundaries(FLOAT *Position);
 
 /* Particles: sort particle data in ascending order by number (id) or type. */
 

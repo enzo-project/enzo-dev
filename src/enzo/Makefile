@@ -46,7 +46,6 @@ ENZO_DIR = .
 MODULES  = 
 VERBOSE  = 0
 
-# please remove this
 SVN      = hg
 
 #-----------------------------------------------------------------------

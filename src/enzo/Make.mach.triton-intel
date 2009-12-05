@@ -21,16 +21,16 @@ MACH_FILE  = Make.mach.triton-intel
 #-----------------------------------------------------------------------
 
 MACH_CPP       = cpp # C preprocessor command
-LOCAL_MPI_INSTALL = /opt/openmpi_intelmx/
+LOCAL_MPI_INSTALL = /opt/intel/mpichmx_intel/
 LOCAL_PYTHON_INSTALL = /projects/lca-group/local-dev/
 
 # With MPI
 
 MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc # C compiler when using MPI
-MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpic++ # C++ compiler when using MPI
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx # C++ compiler when using MPI
 MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif77 # Fortran 77 compiler when using MPI
 MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90 # Fortran 90 compiler when using MPI
-MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpic++ # Linker when using MPI
+MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicxx # Linker when using MPI
 
 # Without MPI
 
@@ -73,8 +73,8 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
 MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
-MACH_OPT_HIGH        = -O2 # Flags for high conservative optimization
-MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
+MACH_OPT_HIGH        = -O1 # Flags for high conservative optimization
+MACH_OPT_AGGRESSIVE  = -O3 -fp-model strict -fp-speculation off # Flags for aggressive optimization
 
 #-----------------------------------------------------------------------
 # Includes
@@ -97,7 +97,7 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MPI    = -lmyriexpress
+LOCAL_LIBS_MPI    = 
 LOCAL_LIBS_HDF5   = -L/projects/lca-group/local-dev/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries

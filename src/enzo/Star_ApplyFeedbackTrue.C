@@ -21,7 +21,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 bool Star::ApplyFeedbackTrue(float dt)
 {

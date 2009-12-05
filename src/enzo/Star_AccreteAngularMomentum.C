@@ -25,7 +25,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "CosmologyParameters.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);

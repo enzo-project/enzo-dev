@@ -29,7 +29,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 #include "hydro_rk/EOS.h"
 #include "hydro_rk/tools.h"
