@@ -227,11 +227,10 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
       } 
     }
   }
-  // printf("Grid_MHDTurb: line 218\n");
+
   for (int i = 0; i < 3; i++) {
     delete [] TurbulenceVelocity[i];
     }
-	  // printf("Grid_MHDTurb: line 222\n");
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
   printf("UseDrivingField =%d\n",UseDrivingField);
