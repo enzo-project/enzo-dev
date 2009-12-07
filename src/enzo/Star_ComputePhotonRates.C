@@ -27,7 +27,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 int Star::ComputePhotonRates(float E[], double Q[])
 {

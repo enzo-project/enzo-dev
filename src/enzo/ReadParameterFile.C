@@ -34,7 +34,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
-#include "StarParticleData.h"
 #include "hydro_rk/EOS.h" 
  
 /* This variable is declared here and only used in Grid_ReadGrid. */

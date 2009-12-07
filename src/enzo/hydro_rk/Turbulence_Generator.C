@@ -103,6 +103,7 @@ double Gaussian(double cs);
 	     }
 	   }
 	 }
+	   //	   printf("%g \n", CellWidth[0][0]);
 
        }
      }

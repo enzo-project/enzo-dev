@@ -22,7 +22,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 void Star::CalculateFeedbackParameters(float &Radius, 
 				       float RootCellWidth,

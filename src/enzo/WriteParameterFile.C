@@ -28,7 +28,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
-#include "StarParticleData.h"
  
 /* function prototypes */
  

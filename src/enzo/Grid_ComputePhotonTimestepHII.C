@@ -28,7 +28,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 
 #define MAX_CHANGE 0.1

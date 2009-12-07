@@ -25,7 +25,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #ifdef USE_MPI
 static int FirstTimeCalled = TRUE;

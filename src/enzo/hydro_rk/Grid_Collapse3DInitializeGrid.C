@@ -10,7 +10,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "EOS.h"
-#include "StarParticleData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
