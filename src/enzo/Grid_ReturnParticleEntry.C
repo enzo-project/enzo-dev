@@ -52,7 +52,7 @@ void grid::RemoveMergedParticles(ParticleEntry *List, const int &Size, int *Flag
     int id = ParticleNumber[i];
     for (int j = 0; j < Size; j++) {
       if (id == List[j].Number) {
-	if (Flag[j] >= 0) ParticleMass[i] = -1;
+	if (Flag[j] >= 0) ParticleMass[i] = FLOAT_UNDEFINED;
 	break;
       }
     }
