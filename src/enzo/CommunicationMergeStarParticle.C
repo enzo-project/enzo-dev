@@ -60,6 +60,7 @@ static MPI_Datatype MPI_ParticleEntry;
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[],				   
 				   int NumberOfGrids)
 {
+  printf("CommunicationMergeStarParticle running......................\n");
 #ifdef USE_MPI
   double time1 = ReturnWallTime();
 

@@ -550,15 +550,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			 level, AllStars, TotalStarParticleCountPrevious);
 
 
-// 	 /* Merge star particles */
-// 	 if (StarParticleCreation >> SINK_PARTICLE & 1 && level == MaximumRefinementLevel) {
-// 	   if (CommunicationMergeStarParticle(Grids, NumberOfGrids) == FAIL) {
-// 	     printf("CommunicationMergeStarParticle failed.\n");
-// 	     return FAIL;
-// 	   }
-// 	 }
-
-
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

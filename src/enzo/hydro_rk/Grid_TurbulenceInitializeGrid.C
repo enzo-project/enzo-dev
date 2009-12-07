@@ -642,7 +642,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     t_dyn_s /= TimeUnits;
     double dxm = dx / pow(RefineBy, MaximumRefinementLevel);
 
-    printf("Adding a Sink Particles. \n");
+    printf("Adding Sink Particles. \n");
 
     NumberOfParticles = 6;
     NumberOfStars = 6;
