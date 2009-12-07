@@ -10,8 +10,8 @@ struct AnalyzeClusterParameters {
 
   /* Radial profile parameters (in Mpc). */
 
-  float rinner; 
-  float router;
+  FLOAT rinner; 
+  FLOAT router;
   int npoints;
 
   /* Virial overdensity parameter (times critical density). */
