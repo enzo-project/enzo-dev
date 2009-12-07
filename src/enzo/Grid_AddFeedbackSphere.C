@@ -366,6 +366,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     nx_L = L_x/L_s;  //directional vector
     ny_L = L_y/L_s;
     nz_L = L_z/L_s;
+    if (MBHFeedback == 3) {
+      nx_L = 0.0;
+      ny_L = 0.0;
+      nz_L = 1.0;
+    }
 
     /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
        but only the edges), and record the cells eligible for jet injection */
@@ -424,13 +429,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       fprintf(stderr, "grid::AddFS: jet velocity in MBH_JETS is relativistic!\n");
       ENZO_FAIL("");
     }
-    
+
     float EjectaMass = EjectaDensity * BubbleVolume;
     float EjectaMetalMass = EjectaMetalDensity * BubbleVolume;
     float AccretedMass = EjectaMass / MBHFeedbackMassEjectionFraction;
 
     // Don't take out too much mass suddenly; should leave at least 75% of the gas in the inner cells.
-    float JetsLoadedMass = min(AccretedMass * MBHFeedbackJetsMassLoadingFactor, 0.25 * m_cell_inside);
+    float JetsLoadedMass = min(AccretedMass * MBHFeedbackJetsMassLoadingFactor, 0.05 * m_cell_inside); //#####
     float JetsLoadedMetalMass;
     float JetsLoadedColourMass;
 
@@ -536,8 +541,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       
     fprintf(stdout, "grid::AddFS: jets injected (MBHJetsVelocity = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
 	    MBHJetsVelocity, rho_jet, nx_L, ny_L, nz_L); 
-    fprintf(stdout, "grid::AddFS: L = (%g, %g, %g), n_L = (%g, %g, %g)\n", 
-	    L_x, L_y, L_z, nx_L, ny_L, nz_L); //#####
+//    fprintf(stdout, "grid::AddFS: L = (%g, %g, %g), n_L = (%g, %g, %g)\n", 
+//	    L_x, L_y, L_z, nx_L, ny_L, nz_L); 
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
 

@@ -973,7 +973,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* If using MBHFeedback = 2 (Star->FeedbackFlag = MBH_JETS), 
      you need MBHParticleIO for angular momentum */
 
-  if (MBHFeedback == 2) 
+  if (MBHFeedback == 2 || MBHFeedback == 3) 
     MBHParticleIO = TRUE;
 
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */

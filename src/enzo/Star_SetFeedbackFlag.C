@@ -105,7 +105,7 @@ int Star::SetFeedbackFlag(FLOAT Time)
     if (this->type > 0 && AgeInMyr > 0 && MBHFeedback > 0) {
       if (MBHFeedback == 1) 
 	this->FeedbackFlag = MBH_THERMAL;
-      if (MBHFeedback == 2) 
+      if (MBHFeedback == 2 or MBHFeedback == 3) 
 	this->FeedbackFlag = MBH_JETS;
     }
     else

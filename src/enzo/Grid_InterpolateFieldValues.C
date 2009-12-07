@@ -313,7 +313,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
 	  SecondOrderA : SecondOrderC;
  
-      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
+      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
       if (FieldType[field] != Density && 
 	  FieldTypeNoInterpolate(FieldType[field]) == FALSE)

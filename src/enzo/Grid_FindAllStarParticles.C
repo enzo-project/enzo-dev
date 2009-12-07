@@ -59,11 +59,12 @@ int grid::FindAllStarParticles(int level)
       InsertStarAfter(Stars, NewStar);
       NumberOfStars++;
 
-      /* For MBHFeedback=2 (FeedbackFlag=MBH_JETS), you need the angular 
+      /* For MBHFeedback=2 or 3 (FeedbackFlag=MBH_JETS), you need the angular 
 	 momentum;  if no file to read in, assume zero angular momentum 
 	 accreted so far.  -Ji-hoon Kim, Nov.2009 */
 
-      if(MBHFeedback == 2 && ParticleType[i] == PARTICLE_TYPE_MBH) {
+      if((MBHFeedback == 2 || MBHFeedback ==3) && 
+	 ParticleType[i] == PARTICLE_TYPE_MBH) {
 	NewStar->AssignAccretedAngularMomentum();
       	printf("MBH particle info (for MBHFedback=2, check angular momentum): \n"); 
 	NewStar->PrintInfo();
