@@ -127,6 +127,15 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   }
   printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
 
+  for (n=0; n<nsinks; n++){
+    printf("sink index = %"ISYM"\n", sink_index[n]);
+    printf("sink mass = %"FSYM"\n", dmold[n]);
+    printf("sink position = %"FSYM",%"FSYM", %"FSYM" \n", xpold[n], ypold[n],  zpold[n] );
+    printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" \n", upold[n], vpold[n],  wpold[n] );
+  }
+
+
+
   /* Merge any sink particles that are close enough to each other */
 
 //   double mfrac_b, mfrac_c, total_mass, mi, mj;
@@ -295,7 +304,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   //  double msun = 1.989e33;
   //  double umass = (*d1)*pow(*x1,3)/msun;
-  float StellarWindThresholdMass = 0.1;
+  float StellarWindThresholdMass = 22.1;
   float StellarWindMomentumPerStellarMass = 5e6;
   float StellarWindEjectionFraction = 0.2;
   float fe = StellarWindEjectionFraction;

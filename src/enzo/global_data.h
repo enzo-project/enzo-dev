@@ -640,7 +640,7 @@ EXTERN float PoissonApproximationThreshold;
 /* Star Particle paramters */
 
 EXTERN int ShiningParticleID;
-EXTERN double SinkMergeDistance;
+EXTERN float SinkMergeDistance;
 EXTERN float SinkMergeMass;
 EXTERN float TotalSinkMass;
 EXTERN int StellarWindFeedback;

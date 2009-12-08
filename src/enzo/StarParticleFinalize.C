@@ -44,6 +44,7 @@ int StarParticleAccretion(TopGridData *MetaData,
 			  Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -153,6 +154,14 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
+  /* Merge star particles */
+
+  if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
+    if (CommunicationMergeStarParticle(Grids, NumberOfGrids) == FAIL) {
+      printf("CommunicationMergeStarParticle failed.\n");
+      return FAIL;
+    }
+  }
 
   /* Delete the global star particle list, AllStars */
 

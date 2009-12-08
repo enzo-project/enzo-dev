@@ -35,7 +35,7 @@
 #include "../enzo/LevelHierarchy.h"
 #include "../enzo/TopGridData.h"
 #include "../enzo/CosmologyParameters.h"  
-//#include "../enzo/StarParticleData.h"
+//#include "../enzo/StarParticleData.h"  //#####
 #include "../enzo/communication.h"
 #include "../enzo/units.h"
 #include "../enzo/flowdefs.h"
