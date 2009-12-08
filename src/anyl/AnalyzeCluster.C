@@ -25,6 +25,7 @@
 #include "../enzo/macros_and_parameters.h"
 #include "../enzo/typedefs.h"
 #define DEFINE_STORAGE
+#include "../enzo/ErrorExceptions.h"
 #include "../enzo/global_data.h"
 #include "../enzo/Fluxes.h"
 #include "../enzo/GridList.h"
@@ -1125,9 +1126,11 @@ main(int argc, char *argv[])
 	fprintf(fptrs[i], "#");
 
     for (profile = 0; profile < MAX_PROFILES; profile++)
-      if (ProfileName[profile] != NULL)
+      if (ProfileName[profile] != NULL) {
+	fprintf(stderr,"point %i Rvir: %g \n ", profile, RvirValue[0]);
       	fprintf(fptrs[ProfileFile[profile]], "%"GOUTSYM" ", RvirValue[0][profile]); 
-
+      }
+    
     for (i = 0; i < NUMBER_OF_FILES; i++)
       if (fptrs[i] != NULL)
 	fprintf(fptrs[i], "\n#\n");
