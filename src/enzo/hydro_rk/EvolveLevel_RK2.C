@@ -497,11 +497,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (UseViscosity) 
 	Grids[grid1]->GridData->AddViscosity();
-<<<<<<< local
-      // printf("VISC: %f\n", ViscosityCoefficient);
-=======
-      //    printf("VISC: %f\n", ViscosityCoefficient);
->>>>>>> other
+
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
