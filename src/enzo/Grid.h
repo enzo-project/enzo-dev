@@ -1134,7 +1134,7 @@ public:
      if (MyProcessorNumber == ProcessorNumber)
        for (int n = 0; n < NumberOfParticles; n++) 
 	 if (ParticleType[n] == PARTICLE_TYPE_STAR) np++;
-     return np;
+     return np+NumberOfStars;
    };
 
 /* Particles: set number of particles. */

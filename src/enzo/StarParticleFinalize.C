@@ -153,7 +153,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
-
   /* Delete the global star particle list, AllStars */
 
   DeleteStarList(AllStars);

@@ -214,7 +214,8 @@ c
 c              Create a star particle
 c
                ii = ii + 1
-               mp(ii)   = efficiency*bmass
+c               mp(ii)   = efficiency*bmass
+               mp(ii)  = efficiency*d(i,j,k)
                tdp(ii) = lifetime*3.15e7/t1  ! yr -> code
 
                type(ii) = -ctype
@@ -321,10 +322,10 @@ c              Remove mass from grid
 
                d(i,j,k) = (1.0 - efficiency) * d(i,j,k)
 
-C                write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
-C                write(6,7777) i, j, k
-C                write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
-C                write(6,779) type(ii), tcp(ii), tdp(ii)
+               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
+               write(6,7777) i, j, k
+               write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
+               write(6,779) type(ii), tcp(ii), tdp(ii)
 
  777           format('pop3_maker: ', e10.3, 3(f12.6))
  7777          format('            ', 3(i5))
