@@ -642,10 +642,10 @@ c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
             if (itmask(i)) then
                edot(i) = edot(i) + float(ipiht) * photogamma(i,j,k) * 
      &              rtunits * HI(i,j,k)
-               if (photogamma(i,j,k).gt.0) then
-                  print*, i,j,k,edot(i), photogamma(i,j,k),rtunits,dom,
-     $                 aye,utim,coolunit,d(i,j,k),hi(i,j,k),tgas(i)
-               endif
+c               if (photogamma(i,j,k).gt.0) then
+c                  print*, i,j,k,edot(i), photogamma(i,j,k),rtunits,dom,
+c     $                 aye,utim,coolunit,d(i,j,k),hi(i,j,k),tgas(i)
+c               endif
                if (edot(i) .ne. edot(i)) then
                   write(6,*) 'NaN in edot[2]: ', i, j, k, edot(i), 
      &                 photogamma(i,j,k),HI(i,j,k), de(i,j,k), d(i,j,k), 
