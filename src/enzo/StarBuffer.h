@@ -32,6 +32,7 @@ struct StarBuffer {
   int		level;
   int		GridID;
   star_type	type;
+  float         accreted_angmom[MAX_DIMENSION];  
 };
 
 #endif

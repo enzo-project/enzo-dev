@@ -29,10 +29,8 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 
 #define NO_DEBUG_PS 
-#define NO_PARTICLE_IN_GRID_CHECK 
 
 /* function prototypes */
  
@@ -53,7 +51,7 @@ extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
 	     int *nmax, int *npartnew, int *children, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type, 
-             int *iterations, int *ran1_init); 
+             int *iterations, float *separation, int *ran1_init); 
 
   
 int grid::ParticleSplitter(int level)
@@ -152,6 +150,8 @@ int grid::ParticleSplitter(int level)
  
   if (NumberOfParticles > 0) {
 
+#define PARTICLE_IN_GRID_CHECK 
+
 #ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;
     for (i = 0; i < NumberOfParticles; i++) {
@@ -189,7 +189,8 @@ int grid::ParticleSplitter(int level)
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2], tg->ParticleType, 
-       &ParticleSplitterIterations, &ran1_init);
+       &ParticleSplitterIterations, &ParticleSplitterChildrenParticleSeparation, 
+       &ran1_init);
 
   }
 

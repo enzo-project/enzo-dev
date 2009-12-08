@@ -84,7 +84,6 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   
   printf(" RAW:  rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
 
-  
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
   if (UsePhysicalUnit) 
@@ -137,19 +136,6 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
     // Carry out the Normalization
     
-    v_rms = sqrt(v_rms/Volume); // actuall v_rms
-    fac = cs*mach/v_rms;
-
-    CurrentGrid = &TopGrid;
-    while (CurrentGrid != NULL) {
-      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
-	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
-	return FAIL;
-      }
-      CurrentGrid = CurrentGrid->NextGridThisLevel;
-    }
-  
-  
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
 
@@ -194,6 +180,22 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
       }
     } // end: loop over levels
 
+
+    // Normalize Velocities now
+    v_rms = sqrt(v_rms/Volume); // actuall v_rms
+    fac = cs*mach/v_rms;
+
+    for (level = MaximumRefinementLevel; level >= 0; level--) {
+      LevelHierarchyEntry *Temp = LevelArray[level];
+      while (Temp != NULL) {
+	if (Temp->GridData->NormalizeVelocities(fac) == FAIL) {
+	  fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	  return FAIL;
+	}
+	Temp = Temp->NextGridThisLevel;
+      }
+    }
+
     /* Loop back from the bottom, restoring the consistency among levels. */
 
     for (level = MaximumRefinementLevel; level > 0; level--) {
@@ -211,7 +213,6 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   } // end: if (RefineAtStart)
 
   /* set up field names and units */
-
   int count = 0;
   DataLabel[count++] = DensName;
   DataLabel[count++] = Vel1Name;

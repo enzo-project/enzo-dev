@@ -41,7 +41,6 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
 #ifdef TRANSFER

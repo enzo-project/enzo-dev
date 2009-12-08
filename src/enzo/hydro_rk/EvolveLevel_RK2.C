@@ -495,8 +495,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Add viscosity */
 
-      if (UseViscosity) 
+      if (UseViscosity) {
 	Grids[grid1]->GridData->AddViscosity();
+
+      }
+
 
       /* Solve the cooling and species rate equations. */
  
@@ -516,6 +519,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	 if (level != MaximumGravityRefinementLevel ||
 	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	     Grids[grid1]->GridData->DeleteAccelerationField();
+
+
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
@@ -560,6 +565,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
 
+
+
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);
 
@@ -599,7 +606,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (LevelArray[level+1] == NULL) {
       MetaData->SubcycleNumber++;
-      MetaData->TimestepCounter++;
+      MetaData->MovieTimestepCounter++;
     }
 
     /* ------------------------------------------------------- */

@@ -27,11 +27,8 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 
 #define  PROTONMASS  1.6726e-24
-
-#define NO_PARTICLE_IN_GRID_CHECK  
 
 /* function prototypes */
  
@@ -110,9 +107,9 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
      		 int *ibuff,
              int *imetal, hydro_method *imethod, float *mintdyn,
              float *odthresh, float *massff, float *smthrest, int *level,
-		 int *np,
+		 int *np, int *npart,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-             float *mp, float *tdp, float *tcp, float *metalf);
+             float *mp, float *tdp, float *tcp, float *metalf, int *type, int *ctype);
 
 extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *coolrate, float *u, float *v, float *w,
@@ -223,7 +220,7 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
 		       int *ibuff, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+			float *justburn, int *ctype, float *mbhradius);
 
 extern "C" void FORTRAN_NAME(pop3_maker)
   (int *nx, int *ny, int *nz, 
@@ -379,9 +376,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   /* Set variables to type defines to pass to FORTRAN routines */
 
   int NormalStarType = PARTICLE_TYPE_STAR;
+  int SinkParticleType = PARTICLE_TYPE_MUST_REFINE;
   int SingleStarType = PARTICLE_TYPE_SINGLE_STAR;
   int StarClusterType = PARTICLE_TYPE_CLUSTER;
-  int SinkParticleType = PARTICLE_TYPE_MUST_REFINE;
+  int MBHParticleType = PARTICLE_TYPE_MBH;
   int ColorStar = PARTICLE_TYPE_COLOR_STAR;
 
   /* Compute the redshift. */
@@ -625,6 +623,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     }
 
     if (STARMAKE_METHOD(COLORED_POP3_STAR)) {
+
+      //---- POPULATION III (SINGLE STAR)
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
       PFORTRAN_NAME(pop3_color_maker)
         (GridDimension, GridDimension+1, GridDimension+2, 
          BaryonField[DensNum], dmfield, 
@@ -637,7 +640,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
          &HydroMethod, &PopIIIColorDensityThreshold, 
            &level, &NumberOfNewParticles, 
          tg->ParticlePosition[0], tg->ParticlePosition[1], tg->ParticlePosition[2],
-          tg->ParticleVelocity[0], tg->ParticleVelocity[1], tg->ParticleVelocity[2],
+         tg->ParticleVelocity[0], tg->ParticleVelocity[1], tg->ParticleVelocity[2],
          tg->ParticleMass, tg->ParticleAttribute[2], tg->ParticleType, &ColorStar);
          
     }
@@ -692,7 +695,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      int MBHParticleType = -PARTICLE_TYPE_MBH; //minus sign needed for yet-to-be born Star particle
+      MBHParticleType = -PARTICLE_TYPE_MBH; //minus sign needed for yet-to-be born Star particle
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -724,7 +727,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     if (STARMAKE_METHOD(INSTANT_STAR) && level == MaximumRefinementLevel) {
 
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
-      //                            only at MaximumRefinementLevel)
+      //                            only at MaximumRefinementLevel, 
+      //                            reconsiders star formation or feedback when MBH exists)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
@@ -739,13 +743,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
        &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
-       &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles, &NumberOfParticles,
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2]);
+          tg->ParticleAttribute[2], ParticleType, &MBHParticleType);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -814,7 +818,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      if(HydroMethod == MHD_RK || HydroMethod == HD_RK ){
+      if(StellarWindFeedback|| HydroMethod == MHD_RK || HydroMethod == HD_RK ){
+      //if(HydroMethod == MHD_RK || HydroMethod == HD_RK ){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
@@ -914,7 +919,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     if (NumberOfNewParticles > 0) {
  
       if (debug)
-	printf("StarParticle: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
+	printf("Grid_StarParticleHandler: New StarParticles = %"ISYM"\n", NumberOfNewParticles);
  
       /* Set the particle numbers.  The correct indices will be assigned in 
 	 CommunicationUpdateStarParticleCount in StarParticleFinalize later.*/
@@ -1058,6 +1063,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     // check whether the particles are correctly located in grids 
     // Ji-hoon Kim in Nov.2009
 
+#define NO_PARTICLE_IN_GRID_CHECK   
+
 #ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;
     for (i = 0; i < NumberOfParticles; i++) {
@@ -1075,6 +1082,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 #endif
 
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
+
+      double pc = 3.086e18;
+      float mbhradius = MBHFeedbackThermalRadius * pc / LengthUnits; 
  
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -1094,7 +1104,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2], 
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
+       &MBHParticleType, &mbhradius);
  
   } 
 

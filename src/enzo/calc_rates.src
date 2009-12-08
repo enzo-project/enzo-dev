@@ -8,7 +8,7 @@ c
      &             utem, uxyz, uaye, urho, utim,
      &             ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &             ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &             reHeII2a, reHeIIIa, brema, compa,
+     &             reHeII2a, reHeIIIa, brema, compa, gammaha,
      &             piHI, piHeI, piHeII,
      &             hyd01ka, h2k01a, vibha, rotha, rotla, 
      &             gpldl, gphdl, hdltea, hdlowa, hdcool, ciecoa,
@@ -159,7 +159,7 @@ c
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
      &        gaHpa(nratec), gaela(nratec),
      &        ciecoa(nratec)
-      real    compa, piHI, piHeI, piHeII
+      real    compa, gammaha, piHI, piHeI, piHeII
       real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
@@ -863,9 +863,14 @@ c
 
       enddo
 c
-c     h) Compton cooling
+c     h) Compton cooling (Peebles 1971)
 c
-      compa   = 5.65d-36 / coolunit
+      compa     = 5.65d-36 / coolunit
+c
+c     i) Photoelectric heating on dust (Tasker & Bryan 2007)
+c        rate in erg s^-1 cm^3 
+c
+      gammaha   = 5.1d-26 / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes

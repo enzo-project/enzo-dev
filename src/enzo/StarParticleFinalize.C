@@ -40,10 +40,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 			    LevelHierarchyEntry *LevelArray[], int level, 
 			    Star *&AllStars, bool* &AddedFeedback);
 int StarParticleAccretion(TopGridData *MetaData, 
-			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars);
+			  LevelHierarchyEntry *LevelArray[], int level, 
+			  Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
+int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 void DeleteStarList(Star * &Node);
 
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
@@ -84,7 +85,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   
   if (StarParticleAddFeedback(MetaData, LevelArray, level, 
 			      AllStars, AddedFeedback) == FAIL) {
-        ENZO_FAIL("Error in StarParticleAddFeedback.");
+    ENZO_FAIL("Error in StarParticleAddFeedback.");
   }
   
   /* Update star particles for any accretion */
@@ -92,7 +93,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (LevelArray[level+1] == NULL) 
     if (StarParticleAccretion(MetaData, LevelArray, level, 
 			      AllStars) == FAIL) {
-        ENZO_FAIL("Error in StarParticleAccretion.");
+      ENZO_FAIL("Error in StarParticleAccretion.");
     }
 
   /* Collect all sink particles and report the total mass to STDOUT */
@@ -113,7 +114,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Check for any stellar deaths */
 
   if (StarParticleDeath(LevelArray, level, AllStars) == FAIL) {
-        ENZO_FAIL("Error in StarParticleDeath.");
+    ENZO_FAIL("Error in StarParticleDeath.");
   }
 
   /* 
@@ -126,7 +127,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   */
 
   int count = 0;
+  int mbh_particle_io_count = 0;
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
+
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
     if (AddedFeedback[count])
@@ -136,11 +139,31 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     ThisStar->MirrorToParticle();
 
     // The pointers have been copied to the grid copy above, so we can
-    // set the pointers in the global copy to NULL before deleting the
-    // stars.
+    // set the pointers in the global copy to NULL before deleting the stars.
     ThisStar->ResetAccretionPointers();
 
+    // If you use MBHParticleIO, copy some info to MBHParticleIOTemp[][]  
+    // for later use.  - Ji-hoon Kim, Nov.2009
+    if (MBHParticleIO == TRUE && ThisStar->ReturnType() == PARTICLE_TYPE_MBH) {
+      MBHParticleIOTemp[mbh_particle_io_count][0] = (float)(ThisStar->ReturnID());
+      MBHParticleIOTemp[mbh_particle_io_count][1] = ThisStar->ReturnMass();      
+      for (int dim = 0; dim < MAX_DIMENSION; dim++) 
+	MBHParticleIOTemp[mbh_particle_io_count][2+dim] = ThisStar->ReturnAccretedAngularMomentum()[dim];
+      mbh_particle_io_count++;
+    }
+
   } // ENDFOR stars
+
+
+
+  /* Merge star particles */
+  if (StarParticleCreation >> SINK_PARTICLE & 1 && level == MaximumRefinementLevel) {
+    if (CommunicationMergeStarParticle(Grids, NumberOfGrids) == FAIL) {
+      printf("CommunicationMergeStarParticle failed.\n");
+      return FAIL;
+    }
+  }
+
 
 
   /* Delete the global star particle list, AllStars */

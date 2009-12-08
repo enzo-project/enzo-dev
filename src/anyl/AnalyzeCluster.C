@@ -25,6 +25,7 @@
 #include "../enzo/macros_and_parameters.h"
 #include "../enzo/typedefs.h"
 #define DEFINE_STORAGE
+#include "../enzo/ErrorExceptions.h"
 #include "../enzo/global_data.h"
 #include "../enzo/Fluxes.h"
 #include "../enzo/GridList.h"
@@ -45,11 +46,10 @@
 #define MAX_BINS 200
 
 /* function prototypes */
-
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		    ExternalBoundary *Exterior);
+		      ExternalBoundary *Exterior, float *Initialdt);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData, 
@@ -126,16 +126,16 @@ main(int argc, char *argv[])
   SetDefaultGlobalValues(MetaData); 
 
   // First expect to read in packed-HDF5
-
+  float dummy;
 #ifdef USE_HDF5_GROUPS
-    if (Group_ReadAllData(argv[1], &TopGrid, MetaData, &Exterior) == FAIL) {
+  if (Group_ReadAllData(argv[1], &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", argv[1]);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
       }
 #endif
       // If not packed-HDF5, then try usual HDF5 or HDF4
-      if (ReadAllData(argv[1], &TopGrid, MetaData, &Exterior) == FAIL) {
+      if (ReadAllData(argv[1], &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
 	if (MyProcessorNumber == ROOT_PROCESSOR) {
 	  fprintf(stderr, "Error in ReadAllData %s.\n", argv[1]);
 	}
@@ -1126,9 +1126,11 @@ main(int argc, char *argv[])
 	fprintf(fptrs[i], "#");
 
     for (profile = 0; profile < MAX_PROFILES; profile++)
-      if (ProfileName[profile] != NULL)
+      if (ProfileName[profile] != NULL) {
+	fprintf(stderr,"point %i Rvir: %g \n ", profile, RvirValue[0]);
       	fprintf(fptrs[ProfileFile[profile]], "%"GOUTSYM" ", RvirValue[0][profile]); 
-
+      }
+    
     for (i = 0; i < NUMBER_OF_FILES; i++)
       if (fptrs[i] != NULL)
 	fprintf(fptrs[i], "\n#\n");

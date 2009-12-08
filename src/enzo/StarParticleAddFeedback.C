@@ -31,7 +31,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define MAX_TEMPERATURE 1e8
 
@@ -93,6 +92,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     AddedFeedback[count] = false;
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
+	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
 	(!cstar->ApplyFeedbackTrue(SNe_dt)))
       continue;
 
@@ -118,10 +118,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     /* If there's no feedback or something weird happens, don't bother. */
 
-    if ((influenceRadius <= tiny_number) || 
-	(cstar->ReturnFeedbackFlag() == MBH_THERMAL &&
+    if ( influenceRadius <= tiny_number || 
+	((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS) && 
 	 (influenceRadius >= RootCellWidth/2 || 
-	  EjectaThermalEnergy <= tiny_number)))
+	  EjectaThermalEnergy <= tiny_number)) )
       continue;
 
     /* Determine if a sphere is enclosed within the grids on next level
@@ -130,7 +131,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     SphereContainedNextLevel = FALSE;
 
-    if (cstar->ReturnFeedbackFlag() == MBH_THERMAL &&
+    if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	 cstar->ReturnFeedbackFlag() == MBH_JETS) &&
 	LevelArray[level+1] != NULL) {
       if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
 				    EjectaDensity, EjectaThermalEnergy, 
@@ -188,7 +190,6 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     /* We only color the fields once */
 
-
     AddedFeedback[count] = true;
 
 #ifdef UNUSED
@@ -203,7 +204,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
       if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
-	  cstar->ReturnFeedbackFlag() == MBH_THERMAL )
+	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS )
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Energy = %"GSYM"  , skip = %"ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);

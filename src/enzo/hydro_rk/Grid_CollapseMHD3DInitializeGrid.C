@@ -20,7 +20,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -170,12 +169,6 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	By = 0.0;
 	Bz = Bnaught;
 
-	if (sphere_type[sphere] == 0) { // set field along x for this problem
-	  Bx = Bnaught;
-	  By = 0.0;
-	  Bz = 0.0;
-	};
-
 	/* Loop over spheres. */
 	for (sphere = 0; sphere < n_sphere; sphere++) {
           
@@ -213,6 +206,13 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	    
 	    /* 0. uniform sphere */
 	    
+	    if (sphere_type[sphere] == 0) { // set field along x for this problem
+	      Bx = Bnaught;
+	      By = 0.0;
+	      Bz = 0.0;
+	    };
+
+
 	    if (sphere_type[sphere] == 0) {
 	      rho  = rho_sphere[sphere];
 	      FLOAT cos2phi = cosphi*cosphi -sinphi*sinphi;

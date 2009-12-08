@@ -728,7 +728,7 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
   for (dim = 0; dim < GridRank; dim++) {
     /* compute size (in floats) of flux storage */
 
-    snprintf(name, 254, "Axis%d", dim);
+    snprintf(name, 254, "Axis%"ISYM, dim);
     axis_group = H5Gcreate(top_group, name, 0);
     if(axis_group == h5_error)ENZO_VFAIL("Can't create %s", name)
 
@@ -762,16 +762,16 @@ int grid::WriteFluxGroup(hid_t top_group, fluxes *fluxgroup)
     /* The dims are always three long, even if zeros... */
     hsize_t dims = 3;
 
-    writeArrayAttribute(left_group, HDF5_INT, dims, "StartIndex",
+    writeArrayAttribute(left_group, HDF5_I8, dims, "StartIndex",
             fluxgroup->LeftFluxStartGlobalIndex[dim]);
-    writeArrayAttribute(left_group, HDF5_INT, dims, "EndIndex",
+    writeArrayAttribute(left_group, HDF5_I8, dims, "EndIndex",
             fluxgroup->LeftFluxEndGlobalIndex[dim]);
 
     H5Gclose(left_group);
 
-    writeArrayAttribute(right_group, HDF5_INT, dims, "StartIndex",
+    writeArrayAttribute(right_group, HDF5_I8, dims, "StartIndex",
             fluxgroup->RightFluxStartGlobalIndex[dim]);
-    writeArrayAttribute(right_group, HDF5_INT, dims, "EndIndex",
+    writeArrayAttribute(right_group, HDF5_I8, dims, "EndIndex",
             fluxgroup->RightFluxEndGlobalIndex[dim]);
 
     H5Gclose(right_group);
