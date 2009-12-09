@@ -76,7 +76,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     
     if (SinkMergeDistance > 1.0)
       SinkMergeDistance *= lenu;
-    //printf(" \n SinkMergeDistance = %"FSYM"\n \n", SinkMergeDistance);
     SmallRho *= rhou;
     SmallP *= presu;
     SmallT *= tempu;
@@ -729,6 +728,28 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
       ENZO_FAIL("");
     }
 #endif
+
+  if (UsePhysicalUnit) {
+    /* Change input physical parameters into code units */
+
+    StarMakerOverDensityThreshold /= rhou;
+ 
+    if (SinkMergeDistance > 1.0)
+      SinkMergeDistance /= lenu;
+    SmallRho /= rhou;
+    SmallP /= presu;
+    SmallT /= tempu;
+    MaximumAlvenSpeed /= velu;
+    EOSSoundSpeed /=  velu;
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumMassForRefinement[i] /= massu;
+      }
+    }
+    
+  }
+
+
 
   /* Output current time */
   time_t ID;
