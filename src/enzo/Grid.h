@@ -1197,7 +1197,9 @@ public:
    void SetNewParticleIndex(int &NumberCount1, int &NumberCount2) {
      for (int n = 0; n < NumberOfParticles; n++) 
        if (ParticleNumber[n] == INT_UNDEFINED) {
-	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
+	 if (ParticleType[n] == PARTICLE_TYPE_STAR ||
+	     (ParticleType[n] >= PARTICLE_TYPE_SINGLE_STAR &&
+	      ParticleType[n] != PARTICLE_TYPE_MBH))
 	   ParticleNumber[n] = NumberCount1++ + NumberCount2;
 	 else 
 	   ParticleNumber[n] = NumberCount1 + NumberCount2++;
