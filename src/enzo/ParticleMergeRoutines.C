@@ -33,7 +33,6 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize)
 {
-  //  printf("\n Particle Merge Small to big MergeDistance = %g\n \n",MergeDistance);
   int *Center = new int[Size];
   for (int i = 0; i < Size; i++)
     Center[i] = -1;

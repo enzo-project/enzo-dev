@@ -79,7 +79,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
   double dN;
   FLOAT radius, oldr, cdt, dr;
-  FLOAT CellVolume, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
+  FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
   FLOAT dir_vec[3], sigma[4];
   FLOAT ddr, dP, dP1, EndTime;

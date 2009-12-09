@@ -116,6 +116,12 @@ int StarParticleAddFeedback(TopGridData *MetaData,
             ENZO_FAIL("Error in star::FindFeedbackSphere");
     }
 
+    /* If the particle already had sufficient mass, we still want to
+       mark this particle to activate it. */
+
+    if (SkipMassRemoval == TRUE)
+      AddedFeedback[count] = true;
+
     /* If there's no feedback or something weird happens, don't bother. */
 
     if ( influenceRadius <= tiny_number || 
@@ -144,18 +150,17 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       }
     }
 
-    /*
-    if (debug) {
-      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
-	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
-    }
-    */
+
+//    if (debug) {
+//      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+//      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+//	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
+//    }
+
 
     /* Quit this routine when 
        (1) sphere is not contained, or 
        (2) sphere is contained, but the next level can contain the sphere, too. */ 
-
     if ((SphereContained == FALSE) ||
 	(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
       continue;
@@ -169,13 +174,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (SkipMassRemoval == FALSE)
       for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
-	  if (Temp->GridData->
-	      AddFeedbackSphere(cstar, l, influenceRadius, DensityUnits, LengthUnits, 
-				VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
-				EjectaMetalDensity, EjectaThermalEnergy, 
-				CellsModified) == FAIL) {
-	    	    ENZO_FAIL("Error in AddFeedbackSphere.");
-	  }
+	  Temp->GridData->AddFeedbackSphere
+	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
+	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
+	     EjectaMetalDensity, EjectaThermalEnergy, CellsModified);
 
     /*    
     fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "

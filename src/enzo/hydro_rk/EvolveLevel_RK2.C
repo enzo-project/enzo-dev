@@ -65,7 +65,6 @@ int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid, 
 			     int NumberOfGrids, int level, float dt);
-int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 #ifdef USE_MPI
 int CommunicationReduceValues(float *Values, int Number, MPI_Op ReduceOperation);
 #endif
