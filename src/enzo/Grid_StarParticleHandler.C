@@ -455,6 +455,16 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
+
+  /* If we're using physical units for the overdensity threshold,
+     convert it from /cm3 to overdensity.  Currently only for Pop
+     II (radiating clusters)/III star particles.  */
+
+  float OverDensityThreshold;
+  if (PopIIIOverDensityThreshold < 0)
+    OverDensityThreshold = -PopIIIOverDensityThreshold * 1.673e-24 / DensityUnits;
+  else
+    OverDensityThreshold = PopIIIOverDensityThreshold;
  
   float CellWidthTemp = float(CellWidth[0][0]);
  
@@ -611,7 +621,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
 	 &MetallicityField, &HydroMethod, &PopIIIH2CriticalFraction, 
-	 &PopIIIMetalCriticalFraction, &PopIIIOverDensityThreshold, 
+	 &PopIIIMetalCriticalFraction, &OverDensityThreshold, 
 	 &PopIIIStarMass, &level, &NumberOfNewParticles, 
 	 tg->ParticlePosition[0], tg->ParticlePosition[1],
 	 tg->ParticlePosition[2], tg->ParticleVelocity[0], 
@@ -665,7 +675,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
 	 &MetallicityField, &HydroMethod, &StarClusterFormEfficiency,
-	 &PopIIIMetalCriticalFraction, &PopIIIOverDensityThreshold, 
+	 &PopIIIMetalCriticalFraction, &OverDensityThreshold, 
 	 &StarClusterLifeTime, &level, &NumberOfNewParticles, 
 	 tg->ParticlePosition[0], tg->ParticlePosition[1],
 	 tg->ParticlePosition[2], tg->ParticleVelocity[0], 

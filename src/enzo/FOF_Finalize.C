@@ -44,7 +44,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 				  int level, bool ParticlesAreLocal, 
-				  bool SyncNumberOfParticles, int CollectMode);
+				  bool SyncNumberOfParticles, 
+				  bool MoveStars, int CollectMode);
 int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 				       int NumberOfGrids);
 
@@ -108,20 +109,23 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
     n++;
   }
 
-  bool ParticlesAreLocal, SyncNumberOfParticles;
+  bool ParticlesAreLocal, SyncNumberOfParticles, MoveStars;
 
   // Root grids (sync number of particles first)
   ParticlesAreLocal = false;
   SyncNumberOfParticles = false;
+  MoveStars = false;
   CommunicationCollectParticles(LevelArray, 0, ParticlesAreLocal,
-				SyncNumberOfParticles, SIBLINGS_ONLY);
+				SyncNumberOfParticles, MoveStars,
+				SIBLINGS_ONLY);
 
   CommunicationTransferParticles(GridPointer, ngrids);
 
   ParticlesAreLocal = false;
   SyncNumberOfParticles = true;
   CommunicationCollectParticles(LevelArray, 0, ParticlesAreLocal, 
-				SyncNumberOfParticles, SIBLINGS_ONLY);
+				SyncNumberOfParticles, MoveStars,
+				SIBLINGS_ONLY);
 
   // Move to subgrids.  SUBGRIDS_GLOBAL because subgrids could be
   // distributed across many processors.
@@ -130,6 +134,7 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     if (LevelArray[level] != NULL)
       CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal,
-				    SyncNumberOfParticles, SUBGRIDS_GLOBAL);
+				    SyncNumberOfParticles, MoveStars,
+				    SUBGRIDS_GLOBAL);
 
 }

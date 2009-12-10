@@ -34,7 +34,7 @@ int Star::HitEndpoint(FLOAT Time)
      constrains based on its star type */
 
   int result = NO_DEATH;
-  if (Time > this->BirthTime + this->LifeTime)
+  if ((Time > this->BirthTime + this->LifeTime) && this->type >=0)
     result = KILL_ALL;
   else
     return result;

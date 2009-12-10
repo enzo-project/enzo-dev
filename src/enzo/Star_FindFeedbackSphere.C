@@ -66,7 +66,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
   // grid::StarParticleHandler.
-  if (type == PopII && FeedbackFlag == FORMATION &&
+  if (StarType == PopII && FeedbackFlag == FORMATION &&
       Mass > StarClusterMinimumMass) {
     if (debug)
       printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);

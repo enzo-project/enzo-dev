@@ -448,7 +448,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     float VelocityNormalization = 1;
 // for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
   if (level > 0) VelocityNormalization = CloudMachNumber; 
-
+  printf("Cloud Mach Number = %g \n",CloudMachNumber);
   for (i = 0; i < 3; i++) {
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[i][n] *= VelocityNormalization;

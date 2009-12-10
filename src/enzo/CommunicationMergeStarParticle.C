@@ -38,7 +38,7 @@
 int CommunicationBarrier();
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size, 
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize);
@@ -136,11 +136,15 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 		 SharedList, SendListCount, SendListDisplacements, MPI_ParticleEntry,
 		 MPI_COMM_WORLD);
 
-  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, TimeUnits = 1.0, 
-    VelocityUnits = 1.0;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, 1.0);
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+  double MassUnits = 1.0;
+
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
+	   &VelocityUnits, &MassUnits, 1.0);
+
   double Msun = 1.989e33;
-  double MassUnits = DensityUnits*pow(LengthUnits,3)/Msun;
+  if(UsePhysicalUnit) MassUnits = DensityUnits*pow(LengthUnits,3)/Msun;
 
   /*
   if (debug) {
@@ -159,6 +163,9 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
     }
   }
   */
+  //  printf("\n CMSP: SinkMergeDistance = %g, SinkMergeMass = %g, MassUnits = %g\n \n",
+  //	 SinkMergeDistance, SinkMergeMass, MassUnits); 
+
 
   int *MergeFlagList = new int[NumberOfSharedParticles]; // group ID of every merged particle
   for (int i = 0; i < NumberOfSharedParticles; i++)
