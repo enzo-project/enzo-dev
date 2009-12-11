@@ -392,6 +392,7 @@ OBJS_CONFIG_LIB = \
         Grid_RestoreEnergyConsistency.o \
         Grid_ReturnFluxDims.o \
         Grid_ReturnGridInfo.o \
+	Grid_ReturnNumberOfStarParticles.o \
 	Grid_ReturnParticleEntry.o \
 	Grid_ReturnStarStatistics.o \
         Grid_RotatingCylinderInitialize.o \
@@ -402,6 +403,7 @@ OBJS_CONFIG_LIB = \
         Grid_SetFlaggingFieldStaticRegions.o \
         Grid_SetIsolatedPotentialBoundary.o \
         Grid_SetMinimumSupport.o \
+	Grid_SetNewParticleIndex.o \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShearingBox2DInitializeGrid.o \

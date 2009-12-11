@@ -13,7 +13,6 @@
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 
-
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -1129,13 +1128,7 @@ public:
 
    int ReturnNumberOfParticles() {return NumberOfParticles;};
 
-   int ReturnNumberOfStarParticles() {
-     int np = 0;
-     if (MyProcessorNumber == ProcessorNumber)
-       for (int n = 0; n < NumberOfParticles; n++) 
-	 if (ParticleType[n] == PARTICLE_TYPE_STAR) np++;
-     return np+NumberOfStars;
-   };
+   int ReturnNumberOfStarParticles(void);
 
 /* Particles: set number of particles. */
 
@@ -1194,17 +1187,7 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2) {
-     for (int n = 0; n < NumberOfParticles; n++) 
-       if (ParticleNumber[n] == INT_UNDEFINED) {
-	 if (ParticleType[n] == PARTICLE_TYPE_STAR ||
-	     (ParticleType[n] >= PARTICLE_TYPE_SINGLE_STAR &&
-	      ParticleType[n] != PARTICLE_TYPE_MBH))
-	   ParticleNumber[n] = NumberCount1++ + NumberCount2;
-	 else 
-	   ParticleNumber[n] = NumberCount1 + NumberCount2++;
-       }
-   };
+   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2);
 
 /* Particles: Set new star particle index. - Old version */
 
