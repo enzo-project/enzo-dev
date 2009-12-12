@@ -65,7 +65,6 @@ int Star::HitEndpoint(FLOAT Time)
     break;
     
   case PopII:
-    this->Mass = 1e-10;  // Needs to be non-zero
     break;
 
   case BlackHole:
