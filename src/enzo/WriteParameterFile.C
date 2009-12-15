@@ -47,6 +47,9 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 {
  
+
+
+
   int dim;
  
   /* Compute Units. */
@@ -65,6 +68,27 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (UsePhysicalUnit) {
     GetUnits(&rhou, &lenu, &tempu, &tu, &velu, &massu, MetaData.Time);
     presu = rhou*lenu*lenu/tu/tu;
+
+    /* Change input physical parameters into real units */
+
+    StarMakerOverDensityThreshold *= rhou;
+    //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
+    
+    if (SinkMergeDistance > 1.0)
+      SinkMergeDistance *= lenu;
+    SmallRho *= rhou;
+    SmallP *= presu;
+    SmallT *= tempu;
+    MaximumAlvenSpeed *= velu;
+    EOSSoundSpeed *=  velu;
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumMassForRefinement[i] *= massu;
+      }
+    }
+
+
+
   }
 
   /* write data to Parameter output file */
@@ -653,6 +677,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  DivergenceCleaningThreshold);
   fprintf(fptr, "PoissonApproximationThreshold    = %g\n", 
 	  PoissonApproximationThreshold);
+  fprintf(fptr, "PoissonBoundaryType    = %d\n", 
+	  PoissonBoundaryType);
+
 
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);
@@ -704,6 +731,28 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
       ENZO_FAIL("");
     }
 #endif
+
+  if (UsePhysicalUnit) {
+    /* Change input physical parameters into code units */
+
+    StarMakerOverDensityThreshold /= rhou;
+ 
+    if (SinkMergeDistance > 1.0)
+      SinkMergeDistance /= lenu;
+    SmallRho /= rhou;
+    SmallP /= presu;
+    SmallT /= tempu;
+    MaximumAlvenSpeed /= velu;
+    EOSSoundSpeed /=  velu;
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumMassForRefinement[i] /= massu;
+      }
+    }
+    
+  }
+
+
 
   /* Output current time */
   time_t ID;

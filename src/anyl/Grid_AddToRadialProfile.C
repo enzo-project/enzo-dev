@@ -23,7 +23,7 @@
 #include "../enzo/ExternalBoundary.h"
 #include "../enzo/Grid.h"
 #include "../enzo/CosmologyParameters.h"
-#include "../enzo/StarParticleData.h"
+//#include "../enzo/StarParticleData.h"
 #include "../enzo/units.h"
 
 /* function prototypes */

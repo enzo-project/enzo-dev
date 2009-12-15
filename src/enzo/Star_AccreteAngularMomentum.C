@@ -6,8 +6,8 @@
 /  date:       November, 2009
 /  modified1: 
 /
-/  purpose:  For MBHFeedback=2 (FeedbackFlag=MBH_JETS) calculate angular 
-/            momentum accreted onto MBH; this will not affect the acutal 
+/  purpose:  For MBHFeedback=2 or 3 (FeedbackFlag=MBH_JETS) calculate 
+/            angular momentum accreted onto MBH; this will not affect 
 /            Star_Accrete.  
 /
 ************************************************************************/
@@ -35,7 +35,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::AccreteAngularMomentum(void)
 {
 
-  if (CurrentGrid == NULL || type != MBH || MBHFeedback != 2)
+  if (CurrentGrid == NULL || type != MBH || (MBHFeedback != 2 && MBHFeedback != 3))
     return SUCCESS;
 
   if (CurrentGrid->GridRank != MAX_DIMENSION) {

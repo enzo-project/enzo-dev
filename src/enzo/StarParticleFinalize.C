@@ -155,7 +155,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   } // ENDFOR stars
 
   /* Merge star particles */
-  if (StarParticleCreation >> SINK_PARTICLE & 1 && level == MaximumRefinementLevel) {
+
+  if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
     if (CommunicationMergeStarParticle(Grids, NumberOfGrids) == FAIL) {
       printf("CommunicationMergeStarParticle failed.\n");
       return FAIL;

@@ -58,7 +58,8 @@ int MHDLine(float **Prim, float **priml, float **primr,
   }
   else {
     printf("MHD solver undefined\n");
-    throw(EnzoFatalException("MHD solver undefined.: "__FILE__));
+    return FAIL;
+    //throw(EnzoFatalException("MHD solver undefined.: "__FILE__));
   }
 
   return SUCCESS;

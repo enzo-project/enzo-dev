@@ -634,13 +634,14 @@ EXTERN int UseDivergenceCleaning;
 EXTERN int DivergenceCleaningBoundaryBuffer;
 EXTERN float DivergenceCleaningThreshold;
 EXTERN float PoissonApproximationThreshold;
+EXTERN int PoissonBoundaryType;
 
 
 
 /* Star Particle paramters */
 
 EXTERN int ShiningParticleID;
-EXTERN double SinkMergeDistance;
+EXTERN float SinkMergeDistance;
 EXTERN float SinkMergeMass;
 EXTERN float TotalSinkMass;
 EXTERN int StellarWindFeedback;
@@ -696,6 +697,7 @@ EXTERN int H2OpticalDepthApproximation;
 //   1 - Adaptive ray tacing transfer
 //   0 - none
 EXTERN int RadiativeTransfer;
+EXTERN int RadiativeTransferHydrogenOnly;
 #ifdef TRANSFER
 EXTERN long *pix2x;
 EXTERN long *pix2y;
