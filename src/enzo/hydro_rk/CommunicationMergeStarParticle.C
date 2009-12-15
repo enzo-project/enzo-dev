@@ -35,7 +35,6 @@
 
 /* function prototypes */
 
-int CommunicationBarrier();
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
