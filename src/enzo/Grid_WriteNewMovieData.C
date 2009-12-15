@@ -375,6 +375,8 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       fprintf(stderr, "Error in AMRHDF5Writer->writeParticles\n");
       return FAIL;
     }
+//  fprintf(stdout, "grid::WriteNewMovieData: NumberOfParticles = %d\n", NumberOfParticles); 
+//    fprintf(stdout, "ParticleNumber[j][0] = %d", ParticleNumber[j][0]);
   } /* ENDIF: output all particles */
 
   if (NewMovieParticleOn == NON_DM_PARTICLES) {
@@ -426,6 +428,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       TempType[i] = ParticleType[j];
       TempNumber[i] = ParticleNumber[j];
     } // ENDFOR non-DM particles
+
 
     if (AmiraGrid.writeParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
 				 NumberOfBaryonFields, GridRank, 

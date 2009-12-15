@@ -96,7 +96,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     break;
 
     /* Approximation to the multi-color disk and power law of an
-       accreting massive BH */
+       accreting massive BH (MBH) */
 
   case MBH:
     XrayLuminosityFraction = 0.43;
@@ -106,7 +106,6 @@ int Star::ComputePhotonRates(float E[], double Q[])
     E[1] = 0.0;
     E[2] = 0.0;
     E[3] = 12.8;
-    // Below assumes that accretion_rate[] has only one entry (true for BlackHole and MBH, as of Sep.2009)
     // 1.99e33g/Ms * (3e10cm/s)^2 * 6.24e11eV/ergs = 1.12e66 eV/Ms 
     Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
       this->last_accretion_rate / E[0]; 
@@ -119,10 +118,9 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[0] = 1.0e45 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
 #endif
     
-    /*
-    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
-    	    this->last_accretion_rate, Q[0]); 
-    */
+//    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
+//    	    this->last_accretion_rate, Q[0]); 
+
     break;
 
   default:

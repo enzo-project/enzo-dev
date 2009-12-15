@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  GRID CLASS (CREATES PHOTON PACKES AT RADIATION SOURCE POSITION)
@@ -189,7 +189,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  //fprintf(stdout, "MBH = %d, RS->Type = %d, NewPack->Type = %d\n", MBH, RS->Type, NewPack->Type);  
+	  if(DEBUG)
+	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+		   MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;
