@@ -809,12 +809,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     fprintf(memtracePtr, "Exit X_Init  %16"ISYM" \n", MemInUse);
 #endif
 
-#ifdef MISCOUNT
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Added the following line:
 
   CommunicationBroadcastValue(&MetaData.NumberOfParticles, ROOT_PROCESSOR);
-#endif
  
   MetaData.FirstTimestepAfterRestart = FALSE;
   

@@ -890,15 +890,11 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   if (debug)
     printf("FinalParticleCount = %"ISYM"\n", ParticleCount);
 
-#ifdef MISCOUNT
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Removed the following line:
   // MetaData.NumberOfParticles = 0;
   // Added the following line:
   MetaData.NumberOfParticles = ParticleCount;
-#else
-  MetaData.NumberOfParticles = 0;
-#endif
 
 #ifdef MEM_TRACE
     MemInUse = mused();
