@@ -321,6 +321,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
@@ -474,6 +475,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   DivergenceCleaningBoundaryBuffer = 0;
   DivergenceCleaningThreshold	   = 0.001;
   PoissonApproximationThreshold	   = 0.001;
+  PoissonBoundaryType	   = 0;
 
   UseDrivingField   = 0;
   DrivingEfficiency = 1.0;

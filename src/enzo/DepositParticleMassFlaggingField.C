@@ -89,7 +89,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
   }
 
   if (!ParticleFlaggingOn) {
-    fprintf(stdout, "DepositParticleMassFlaggingField not needed!\n"); 
+    //fprintf(stdout, "DepositParticleMassFlaggingField not needed!\n"); 
     return SUCCESS;
   }
 
