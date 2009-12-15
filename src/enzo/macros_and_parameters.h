@@ -425,7 +425,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 9
+#define NUM_PARTICLE_TYPES 10
 
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1

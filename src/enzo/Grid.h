@@ -13,7 +13,6 @@
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
 
-
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -1129,13 +1128,7 @@ public:
 
    int ReturnNumberOfParticles() {return NumberOfParticles;};
 
-   int ReturnNumberOfStarParticles() {
-     int np = 0;
-     if (MyProcessorNumber == ProcessorNumber)
-       for (int n = 0; n < NumberOfParticles; n++) 
-	 if (ParticleType[n] == PARTICLE_TYPE_STAR) np++;
-     return np;
-   };
+   int ReturnNumberOfStarParticles(void);
 
 /* Particles: set number of particles. */
 
@@ -1194,15 +1187,7 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2) {
-     for (int n = 0; n < NumberOfParticles; n++) 
-       if (ParticleNumber[n] == INT_UNDEFINED) {
-	 if (ParticleType[n] == PARTICLE_TYPE_STAR) 
-	   ParticleNumber[n] = NumberCount1++ + NumberCount2;
-	 else 
-	   ParticleNumber[n] = NumberCount1 + NumberCount2++;
-       }
-   };
+   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2);
 
 /* Particles: Set new star particle index. - Old version */
 
@@ -2225,9 +2210,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int PoissonSolverCGA(int difftype, double *divB_p);
   template <typename T> int multA(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
   template <typename T> int multA2(T* input, T* output,  int *MatrixStartIndex, int *MatrixEndIndex);
-  template <typename T> T dot(T *a, T *b,  int *MatrixStartIndex, int *MatrixEndIndex);
-  int setNeumannBC(float* x, int *MatrixStartIndex, int *MatrixEndIndex);
-  int PoissonSolverDirichletBC(double *divB_p);
+  template <typename T> T dot(T *a, T *b,  int size);
+  template <typename T> int setNeumannBC(T* x, int *MatrixStartIndex, int *MatrixEndIndex,int type);
+  template <typename T> int setDirichletBC(T* x, int *MatrixStartIndex, int *MatrixEndIndex);
 
   int PoissonCleanStep(int level);
 

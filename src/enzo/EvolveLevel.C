@@ -630,15 +630,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   lcaperf.attribute ("level",0,LCAPERF_NULL);
 #endif
 
-
-
-
-  
   /* Clean up. */
  
   delete [] NumberOfSubgrids;
   delete [] Grids;
   delete [] SubgridFluxesEstimate;
+  delete [] TotalStarParticleCountPrevious;
 
   dtThisLevel[level] = dtThisLevelSoFar[level] = 0.0;
  

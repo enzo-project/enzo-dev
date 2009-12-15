@@ -22,11 +22,12 @@ MACH_FILE  = Make.mach.orange
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
-INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1/
+#INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1/
 
 LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI/
 LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26/
-LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.6.6/amd64_linux26/
+#LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.6.6/amd64_linux26/
+LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64/
 LOCAL_HDF4_INSTALL   = /afs/slac/g/ki/software/hdf4/amd64_linux26
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-x86_64/
 
@@ -66,10 +67,10 @@ MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON
 #-----------------------------------------------------------------------
 
 MACH_CPPFLAGS = -P -traditional
-MACH_CFLAGS   = -fPIC
-MACH_CXXFLAGS = -fPIC
-MACH_FFLAGS   = -fPIC
-MACH_F90FLAGS = -fPIC
+MACH_CFLAGS   = -I/usr/local/include/
+MACH_CXXFLAGS = 
+MACH_FFLAGS   = -132
+MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl
 #,-static 
 
@@ -99,8 +100,8 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
-MACH_OPT_AGGRESSIVE  = -O3
+MACH_OPT_HIGH        = -O2 -g
+MACH_OPT_AGGRESSIVE  = -O3 -g
 
 #-----------------------------------------------------------------------
 # Includes
@@ -113,8 +114,8 @@ LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG) $(LOCAL_INCLUDES_PYTHON)
-
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG)
+MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
@@ -141,5 +142,6 @@ LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
                      -L$(INT_DIR)/cc/lib/ \
                      -lstdc++ -lg2c 
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_PYTHON)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)

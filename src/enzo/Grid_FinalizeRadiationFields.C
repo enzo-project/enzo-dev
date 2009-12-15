@@ -71,12 +71,15 @@ int grid::FinalizeRadiationFields(void)
 
   float DensityConversion = DensityUnits / 1.673e-24;
   float factor = DensityConversion * CellVolume;
+  float Volume_inv = 1.0 / CellVolume;
 
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
-	BaryonField[kphHINum][index] /= (factor * BaryonField[HINum][index]);
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	BaryonField[kphHINum][index] /= factor * BaryonField[HINum][index];
+	BaryonField[gammaNum][index] /= factor * BaryonField[HINum][index];
+      } // ENDFOR i
     } // ENDFOR j
 
   if (RadiativeTransferHydrogenOnly == FALSE)
@@ -84,8 +87,10 @@ int grid::FinalizeRadiationFields(void)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	  BaryonField[kphHeINum][index] /= (factor * BaryonField[HeINum][index]);
-	  BaryonField[kphHeIINum][index] /= (factor * BaryonField[HeIINum][index]);
+	  BaryonField[kphHeINum][index] /= 
+	    0.25 * factor * BaryonField[HeINum][index];
+	  BaryonField[kphHeIINum][index] /= 
+	    0.25 * factor * BaryonField[HeIINum][index];
 	} // ENDFOR i
       } // ENDFOR j
   
