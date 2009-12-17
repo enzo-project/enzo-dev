@@ -654,27 +654,39 @@ c -------------------------------------------------------------------
                HeII(i,j,k)  = HeII(i,j,k)*factor
                HeIII(i,j,k) = HeIII(i,j,k)*factor
             enddo
-            if (ispecies .gt. 1) then
+         enddo
+      enddo
+      if (ispecies .gt. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)*factor
                   H2I(i,j,k)  = H2I(i,j,k)*factor
                   H2II(i,j,k) = H2II(i,j,k)*factor
                enddo
-            endif
-            if (ispecies .gt. 2) then
+            enddo
+         enddo
+      endif
+      if (ispecies .gt. 2) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)*factor
                   DII(i,j,k) = DII(i,j,k)*factor
                   HDI(i,j,k) = HDI(i,j,k)*factor
                enddo
-            endif
-            if (imetal .eq. 1) then
+            enddo
+         enddo
+      endif
+      if (imetal .eq. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)*factor
                enddo
-            endif
+            enddo
          enddo
-      enddo
+      endif
 
       return
       end
