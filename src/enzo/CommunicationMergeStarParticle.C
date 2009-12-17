@@ -16,12 +16,12 @@
 /
 ************************************************************************/
 
-#include <stdio.h>
-#include <string>
-#include <math.h>
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
+#include <stdio.h>
+#include <string>
+#include <math.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
