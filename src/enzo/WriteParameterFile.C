@@ -406,6 +406,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureSupportParameter);
   fprintf(fptr, "RefineByJeansLengthSafetyFactor  = %"FSYM"\n",
 	  RefineByJeansLengthSafetyFactor);
+  fprintf(fptr, "JeansRefinementColdTemperature  = %"FSYM"\n",
+	  JeansRefinementColdTemperature);
   fprintf(fptr, "RefineByResistiveLengthSafetyFactor  = %"FSYM"\n", 
 	  RefineByResistiveLengthSafetyFactor);
   fprintf(fptr, "MustRefineParticlesRefineToLevel = %"ISYM"\n",

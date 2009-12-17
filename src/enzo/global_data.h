@@ -445,6 +445,10 @@ EXTERN float MinimumPressureJumpForRefinement, MinimumEnergyRatioForRefinement;
 
 EXTERN float RefineByJeansLengthSafetyFactor;
 
+/* If > 0, this will be used instead of the temperature at all locations */
+
+EXTERN float JeansRefinementColdTemperature;
+
 /* For CellFlaggingMethod = 8,
    The level to which the must refine particles apply */
 
