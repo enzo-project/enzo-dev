@@ -10,14 +10,14 @@ from math import *
 
 #-------------------- PARAMETERS --------------------
 #enzo         = True              # On for Enzo ICs
-nprocs       = 1                 # Number of processors
-boxsize      = 3               # Boxsize in comoving Mpc (not Mpc/h)
-resolution   = 64                # Topgrid resolution
+nprocs       = 16                 # Number of processors
+boxsize      = 17.831669               # Boxsize in comoving Mpc (not Mpc/h)
+resolution   = 512                # Topgrid resolution
 n_levels     = 0                 # Number of nested grids
 inner_width  = 0.4375            # If using nested grids, width of finest grid
 buffer_cells = 4                 # Number of cells between refined grids
 seed         = 200905130         # Random seed (MUST be 9-digits)
-name         = "DM64"
+name         = "LAE512"
 
 center = [0.5, 0.5, 0.5]         # Center of interest (no shift = 0.5,0.5,0.5)
 #center = [0.7717, 0.0405, 0.3435]   # Center of interest (no shift = 0.5,0.5,0.5)
@@ -26,12 +26,12 @@ LargeScaleFile = "200902187_64.dat" # That noise file
 OneDimPerFile = True             # Write one dimension per file
 
 #-------------------- COSMOLOGY PARAMETERS --------------------
-omega_m     = 0.258              # Omega matter
-omega_v     = 0.742              # Omega lambda
-omega_b     = 0.0441             # Omega baryon
-h0          = 71.9               # Hubble constant
-sigma8      = 0.796              # sigma_8
-n_plawslope = 0.963              # Slope of power spectrum
+omega_m     = 0.279              # Omega matter
+omega_v     = 0.721              # Omega lambda
+omega_b     = 0.0462             # Omega baryon
+h0          = 70.1               # Hubble constant
+sigma8      = 0.817              # sigma_8
+n_plawslope = 0.960              # Slope of power spectrum
 
 #-----------------------------------------------------------------------
 
