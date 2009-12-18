@@ -37,6 +37,7 @@ EXTERN int LoadBalancingCycleSkip;
 EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
+EXTERN int LoadBalancingMinLevel;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */

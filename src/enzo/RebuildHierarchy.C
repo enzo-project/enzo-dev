@@ -480,8 +480,9 @@ int RebuildHierarchy(TopGridData *MetaData,
       case 1:
       case 2:
       case 3:
-	CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
-				      MoveParticles);
+	if (i >= LoadBalancingMinLevel)
+	  CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
+					MoveParticles);
 	break;
       default:
 	
