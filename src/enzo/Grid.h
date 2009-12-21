@@ -1967,7 +1967,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[]);
 
-  int RemoveParticle(int ID);
+  int RemoveParticle(int ID, bool disable=false);
 
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 

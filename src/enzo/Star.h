@@ -122,6 +122,7 @@ public:
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);
   int   DeleteParticle(LevelHierarchyEntry *LevelArray[]);
+  int   DisableParticle(LevelHierarchyEntry *LevelArray[]);
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);

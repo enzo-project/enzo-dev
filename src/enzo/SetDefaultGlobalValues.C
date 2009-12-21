@@ -121,6 +121,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ResetLoadBalancing = FALSE;
   CoresPerNode = 1;
   PreviousMaxTask = 0;
+  LoadBalancingMinLevel = 0;     //All Levels
 
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;

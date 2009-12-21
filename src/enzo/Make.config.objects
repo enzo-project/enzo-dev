@@ -622,6 +622,7 @@ OBJS_CONFIG_LIB = \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
+	Star_DisableParticle.o \
         Star_FindFeedbackSphere.o \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
