@@ -49,7 +49,7 @@ FLOAT FindCrossSection(int type, float energy);
 enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
 			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
-			    grid **Grids0, int nGrids0, int DensNum, 
+			    grid **Grids0, int nGrids0, int DensNum, int DeNum,
 			    int HINum, int HeINum, int HeIINum, int H2INum, 
 			    int kphHINum, int gammaNum, int kphHeINum, 
 			    int kphHeIINum, 
@@ -81,8 +81,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[4];
-  FLOAT ddr, dP, dP1, EndTime;
+  FLOAT dir_vec[3], sigma[4], sigma_KN, xE;  //#####
+  FLOAT ddr, dP, dP1, EndTime, dP_KN, dP1_KN;  //#####
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
@@ -249,7 +249,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   Area_inv = 1.0 / dx2;
 
   FLOAT emission_dt_inv = 1.0 / (*PP)->EmissionTimeInterval;
-  FLOAT heat_energy;
   FLOAT factor1 = emission_dt_inv;
   FLOAT factor2[3];
   FLOAT factor3 = Area_inv*emission_dt_inv;
@@ -257,14 +256,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
      in one shot */
 
-  if ((*PP)->Type == 4) {
-    heat_energy = (*PP)->Energy - EnergyThresholds[0];
+  if ((*PP)->Type == 4) 
     for (i = 0; i < 3; i++)
       factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
-  } else {
-    heat_energy = (*PP)->Energy - EnergyThresholds[type];
-    factor2[0] = factor1 * heat_energy;
-  }
+  else 
+    factor2[0] = factor1 * ((*PP)->Energy - EnergyThresholds[type]);
 
 
   /* Calculate conversion factor for radiation pressure.  In cgs, we
@@ -574,6 +570,30 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber
+
+      // assume photon energy is much less than the electron rest mass energy 
+      if (RadiationXRayComptonHeating) {  //#####
+
+	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
+
+	// nonrelativistic Klein-Nishina cross section and optical depth
+	xE = (*PP)->Energy/5.11e5;  // mc^2 = 0.511 MeV
+	sigma_KN = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
+
+	dN = thisDensity * ddr;
+	tau = dN*sigma_KN;
+
+	// at most use all photons for Compton scattering
+	if (tau > 2.e1) dP_KN = (1.0+ROUNDOFF) * (*PP)->Photons;
+	else if (tau > 1.e-4) 
+	  dP_KN = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	else
+	  dP_KN = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1_KN = dP_KN * slice_factor2;
+
+	BaryonField[gammaNum][index] += dP1_KN * factor1 * (*PP)->Energy * xE;
+
+      }
 
       break;
 

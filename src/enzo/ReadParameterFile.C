@@ -677,9 +677,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
 
     ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
-    ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, 
-		  &RadiationXRaySecondaryIon);
-
+    ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, &RadiationXRaySecondaryIon);
+    ret += sscanf(line, "RadiationXRayComptonHeating = %"ISYM, &RadiationXRayComptonHeating);
 
     /* Shearing Box Boundary parameters */
 

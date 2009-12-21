@@ -296,6 +296,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
   PhotoelectricHeating	      = 0;
+  RadiationXRaySecondaryIon   = 0;
+  RadiationXRayComptonHeating = 0;
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";

@@ -335,6 +335,7 @@ EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
+EXTERN int RadiationXRayComptonHeating;
 
 /* Photoelectric cooling turn on/off */
 
