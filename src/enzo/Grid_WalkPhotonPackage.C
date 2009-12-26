@@ -81,8 +81,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[4], sigma_KN, xE;  //#####
-  FLOAT ddr, dP, dP1, EndTime, dP_KN, dP1_KN;  //#####
+  FLOAT dir_vec[3], sigma[4]; 
+  FLOAT ddr, dP, dP1, EndTime;
+  FLOAT xE, dPXray[4];  
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
@@ -544,6 +545,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  powf(1 - powf(xx, 0.4614f), 1.6660f);
       }
 
+      dP = 0.0; 
+      for (i = 0; i < 4; i++) dPXray[i] = 0.0; //#####
+
       /* Loop over absorbers */
       for (i = 0; i < 3; i++) {
 
@@ -555,12 +559,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	tau = dN*sigma[i];
 
 	// at most use all photons for photo-ionizations
-	if (tau > 2.e1) dP = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPXray[i] = (1.0+ROUNDOFF) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
-	  dP = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	  dPXray[i] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
-	  dP = min((*PP)->Photons*tau, (*PP)->Photons);
-	dP1 = dP * slice_factor2;
+	  dPXray[i] = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1 = dPXray[i] * slice_factor2;
 
 	// contributions to the photoionization rate is over whole timestep
 	BaryonField[kphNum[i]][index] += dP1 * factor1 * ion2_factor[i];
@@ -577,23 +581,27 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
 
 	// nonrelativistic Klein-Nishina cross section and optical depth
+	// Ribicki & Lightman (1979)
 	xE = (*PP)->Energy/5.11e5;  // mc^2 = 0.511 MeV
-	sigma_KN = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
+	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
 
 	dN = thisDensity * ddr;
-	tau = dN*sigma_KN;
+	tau = dN*sigma[3];
 
 	// at most use all photons for Compton scattering
-	if (tau > 2.e1) dP_KN = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPXray[3] = (1.0+ROUNDOFF) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
-	  dP_KN = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	  dPXray[3] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
-	  dP_KN = min((*PP)->Photons*tau, (*PP)->Photons);
-	dP1_KN = dP_KN * slice_factor2;
+	  dPXray[3] = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1 = dPXray[3] * slice_factor2;
 
-	BaryonField[gammaNum][index] += dP1_KN * factor1 * (*PP)->Energy * xE;
+	BaryonField[gammaNum][index] += dP1 * factor1 * (*PP)->Energy * xE;
 
       }
+      
+      // find the total absorbed number of photons including Compton heating
+      for (i = 0; i < 4; i++) dP += dPXray[i];
 
       break;
 

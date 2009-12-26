@@ -60,7 +60,7 @@ int StarParticleAccretion(TopGridData *MetaData,
 
     // Must be the finest level for any feedback except star formation
     if (ThisStar->ReturnFeedbackFlag() != FORMATION &&
-	LevelArray[level+1] == NULL)
+	LevelArray[level+1] != NULL)
       continue;
 
     if (ThisStar->CalculateMassAccretion() == FAIL) {

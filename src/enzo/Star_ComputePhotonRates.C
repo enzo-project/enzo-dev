@@ -99,7 +99,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
 
   case MBH:
     XrayLuminosityFraction = 1.0;
-    E[0] = 2000.0; //##### 2keV, 
+    E[0] = 2000.0; //2keV
     E[1] = 0.0;
     E[2] = 0.0;
     E[3] = 0.0;

@@ -390,7 +390,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHFeedbackThermalRadius         = 50;           // pc
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackJetsMassLoadingFactor = 100;          // eta, check Star_AddFeedbackSphere.C
+  MBHFeedbackJetsMassLoadingFactor = 300;          // eta, check Star_AddFeedbackSphere.C
   MBHCombineRadius                 = 50;           // pc
 
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
