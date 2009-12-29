@@ -362,16 +362,13 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
       CommunicationAllReduceValues(&AllMovedStars, 1, MPI_SUM);
 #endif
-      /*
-      if (MyProcessorNumber == ROOT_PROCESSOR)
-	printf("CCP: Collecting a total of %"ISYM" particles over"
-	       " grids %"ISYM"->%"ISYM".\n", 
-	       AllMovedParticles, StartGrid, EndGrid-1);  
-      */
-
-      //EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
 #ifdef DEBUG_CCP
+      printf("CCP[%d]: Collecting a total of %"ISYM" (%"ISYM" local) "
+	     "particles over grids %"ISYM"->%"ISYM".\n", 
+	     MyProcessorNumber, AllMovedParticles, TotalNumberToMove,
+	     StartGrid, EndGrid-1);  
+
     for (i = StartGrid; i < EndGrid; i++)
       printf("CCP[P%"ISYM"BB]: grid %"ISYM", %"ISYM" proc, %"ISYM" particles\n",
 	     MyProcessorNumber, i,
@@ -468,23 +465,6 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
     } // ENDIF MoveStars
 
-    /************************************************************************
-       If the particles and stars are only on the grid's host
-       processor, set number of particles so everybody agrees. 
-    ************************************************************************/
-
-    if (SyncNumberOfParticles)
-      CommunicationSyncNumberOfParticles(GridHierarchyPointer, NumberOfGrids);
-    else {
-      for (i = StartGrid; i < EndGrid; i++)
-	if (MyProcessorNumber != 
-	    GridHierarchyPointer[i]->GridData->ReturnProcessorNumber()) {
-	  GridHierarchyPointer[i]->GridData->SetNumberOfParticles(0);
-	  if (MoveStars)
-	    GridHierarchyPointer[i]->GridData->SetNumberOfStars(0);
-	}
-    }
-
 #ifdef DEBUG_CCP
     for (i = StartGrid; i < EndGrid; i++)
       printf("CCP[P%"ISYM"DD]: grid %"ISYM", %"ISYM" proc, %"ISYM" particles\n",
@@ -504,6 +484,23 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     delete [] StarSharedList;
 
     } // ENDFOR grid batches
+
+    /************************************************************************
+       If the particles and stars are only on the grid's host
+       processor, set number of particles so everybody agrees. 
+    ************************************************************************/
+
+    if (SyncNumberOfParticles)
+      CommunicationSyncNumberOfParticles(GridHierarchyPointer, NumberOfGrids);
+    else {
+      for (i = StartGrid; i < EndGrid; i++)
+	if (MyProcessorNumber != 
+	    GridHierarchyPointer[i]->GridData->ReturnProcessorNumber()) {
+	  GridHierarchyPointer[i]->GridData->SetNumberOfParticles(0);
+	  if (MoveStars)
+	    GridHierarchyPointer[i]->GridData->SetNumberOfStars(0);
+	}
+    }
 
   } // ENDIF sibling grids and multi-processor
 
