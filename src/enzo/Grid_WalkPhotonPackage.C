@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
@@ -66,6 +66,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0};
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};
+  const double k_b = 8.62e-5; // eV/K
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
@@ -77,13 +78,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
+  float *temperature;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
   FLOAT dir_vec[3], sigma[4]; 
   FLOAT ddr, dP, dP1, EndTime;
-  FLOAT xE, dPXray[4];  
+  FLOAT xE, dPXray[4], ratioE;  
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
@@ -216,6 +218,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     nSecondaryHII = (int) floor((*PP)->Energy / 13.6 - 1);
     nSecondaryHeII = (int) floor((*PP)->Energy / 24.6 - 1); //#####
     nSecondaryHeIII = (int) floor((*PP)->Energy / 54.4 - 1);
+
+    // retrieve temperature field for future use
+    int size = 1;
+    temperature = new float[size];
+    for (dim = 0; dim < MAX_DIMENSION; dim++) 
+      size *= GridDimension[dim];
+    if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+      fprintf(stderr, "Error in ComputeTemperatureField.\n");
+      ENZO_FAIL("");
+    }
   }
   
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma
@@ -252,7 +264,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   FLOAT emission_dt_inv = 1.0 / (*PP)->EmissionTimeInterval;
   FLOAT factor1 = emission_dt_inv;
-  FLOAT factor2[3];
+  FLOAT factor2[4];
   FLOAT factor3 = Area_inv*emission_dt_inv;
 
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
@@ -589,22 +601,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
 
-	// retrieve temperature field
-	int size = 1;
-	temperature = new float[size];
-
-	for (dim = 0; dim < MAX_DIMENSION; dim++) 
-	  size *= GridDimension[dim];
-	if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-	  fprintf(stderr, "Error in ComputeTemperatureField.\n");
-	  ENZO_FAIL("");
-	}
-
 	// assume photon energy is much less than the electron rest mass energy 
-	// then, nonrelativistic Klein-Nishina cross section and optical depth
+	// then, non-relativistic Klein-Nishina cross section and optical depth
 	// in Ribicki & Lightman (1979)
 	xE = (*PP)->Energy/5.11e5;  // mc^2 = 0.511 MeV
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
+
+	// non-relativistic energy transfer factor in Ciotti & Ostriker (2001)
+	factor2[3] = factor1 * 4 * k_b * temperature[index] * xE;
+	ratioE = 4 * k_b * temperature[index] * xE / (*PP)->Energy; 
 
 	dN = thisDensity * ddr;
 	tau = dN*sigma[3];
@@ -617,7 +622,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  dPXray[3] = min((*PP)->Photons*tau, (*PP)->Photons);
 	dP1 = dPXray[3] * slice_factor2;
 
-	BaryonField[gammaNum][index] += dP1 * factor1 * (*PP)->Energy; //#####
+	// the heating rate by energy transfer during Compton scattering
+	BaryonField[gammaNum][index] += dP1 * factor2[3]; //#####
+
+	// because not all the energy is absorbed by Compton scattering,
+	// we reduce the number of photons absorbed here to conserve the energy
+	// (photon energy used) = dPXray[3]     * (4*k_B*T*xE) 
+	//                      = dPXray[3]_new * (*PP)->Energy
+	dPXray[3] *= ratioE;
+	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature[index] = %g, 
+                sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
+	       xE, ratioE, temperature[index], sigma[3], factor2[3], dPXray[3]);
 
       }
       
