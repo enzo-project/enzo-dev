@@ -200,7 +200,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* find relevant cross-section and number of secondary ionizations
      for X-rays */
 
-  int nSecondaryHII = 1, nSecondaryHeIII = 1;
+  int nSecondaryHII = 1, nSecondaryHeII = 1, nSecondaryHeIII = 1;
   float xx, heat_factor = 1.0;
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
@@ -214,6 +214,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
     nSecondaryHII = (int) floor((*PP)->Energy / 13.6 - 1);
+    nSecondaryHeII = (int) floor((*PP)->Energy / 24.6 - 1); //#####
     nSecondaryHeIII = (int) floor((*PP)->Energy / 54.4 - 1);
   }
   
@@ -539,14 +540,23 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	xx = max(fields[iHII][index] / 
 		 (fields[iHI][index] + fields[iHII][index]), 1e-4);
 	heat_factor    = 0.9971 * (1 - powf(1 - powf(xx, 0.2663f), 1.3163));
+
+#define NEW_WAY  //#####
+#ifdef NEW_WAY
+	ion2_factor[0] = 0.3908 *  
+	  powf(1 - powf(xx, 0.4092f), 1.7592f);
+	ion2_factor[1] = 0.0554 * 
+	  powf(1 - powf(xx, 0.4614f), 1.6660f); 
+#else
 	ion2_factor[0] = 0.3908 * nSecondaryHII * 
 	  powf(1 - powf(xx, 0.4092f), 1.7592f);
 	ion2_factor[2] = 0.0554 * nSecondaryHeIII * 
 	  powf(1 - powf(xx, 0.4614f), 1.6660f);
+#endif
       }
 
       dP = 0.0; 
-      for (i = 0; i < 4; i++) dPXray[i] = 0.0; //#####
+      for (i = 0; i < 4; i++) dPXray[i] = 0.0; 
 
       /* Loop over absorbers */
       for (i = 0; i < 3; i++) {
@@ -575,13 +585,24 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
       } // ENDFOR absorber
 
-      // assume photon energy is much less than the electron rest mass energy 
-      if (RadiationXRayComptonHeating) {  //#####
+      if (RadiationXRayComptonHeating) {  
 
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
 
-	// nonrelativistic Klein-Nishina cross section and optical depth
-	// Ribicki & Lightman (1979)
+	// retrieve temperature field
+	int size = 1;
+	temperature = new float[size];
+
+	for (dim = 0; dim < MAX_DIMENSION; dim++) 
+	  size *= GridDimension[dim];
+	if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+	  fprintf(stderr, "Error in ComputeTemperatureField.\n");
+	  ENZO_FAIL("");
+	}
+
+	// assume photon energy is much less than the electron rest mass energy 
+	// then, nonrelativistic Klein-Nishina cross section and optical depth
+	// in Ribicki & Lightman (1979)
 	xE = (*PP)->Energy/5.11e5;  // mc^2 = 0.511 MeV
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
 
@@ -596,7 +617,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  dPXray[3] = min((*PP)->Photons*tau, (*PP)->Photons);
 	dP1 = dPXray[3] * slice_factor2;
 
-	BaryonField[gammaNum][index] += dP1 * factor1 * (*PP)->Energy * xE;
+	BaryonField[gammaNum][index] += dP1 * factor1 * (*PP)->Energy; //#####
 
       }
       

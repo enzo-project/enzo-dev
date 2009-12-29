@@ -766,7 +766,7 @@ EXTERN float ParticleSplitterChildrenParticleSeparation;
 
 EXTERN int MBHParticleIO;
 EXTERN char *MBHParticleIOFilename;
-EXTERN float MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 
 /* Vorticity Calculations */
 

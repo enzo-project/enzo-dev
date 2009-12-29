@@ -115,7 +115,7 @@ int Star::SubtractAccretedMass(void)
   NewDensity = OldDensity - this->DeltaMass / MassConversion;  
   factor = NewDensity / OldDensity;
 
-  denssink  = (this->Mass - this->DeltaMass) / MassConversion; //check below
+  denssink  = (float(this->Mass) - this->DeltaMass) / MassConversion; //check below
   usink     = vel[0];
   vsink     = vel[1];
   wsink     = vel[2];

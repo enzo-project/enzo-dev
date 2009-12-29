@@ -177,7 +177,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       mu = density / number_density;
     }
     c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = this->Mass;
+    old_mass = (float)(this->Mass);
 
     // Calculate gas relative velocity (cm/s)
     v_rel = 0.0;

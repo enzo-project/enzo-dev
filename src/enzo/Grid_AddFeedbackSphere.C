@@ -159,14 +159,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
 
-    old_mass = cstar->Mass;
+//    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
     cstar->vel[2] *= old_mass / cstar->Mass; 
 
-    //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-    //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
+//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -351,7 +353,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly.*/
 
-    old_mass = cstar->Mass;
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
