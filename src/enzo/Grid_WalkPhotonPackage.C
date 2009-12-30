@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 /***********************************************************************
 /
 /  GRID CLASS (WALK PHOTON PACKAGES ACROSS GRID)
@@ -71,7 +71,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
   int i, index, dim, splitMe, direction;
-  int keep_walking, count, H2Thin, type;
+  int keep_walking, count, H2Thin, type, size;
   int g[3], celli[3], u_dir[3], u_sign[3];
   long cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
@@ -202,7 +202,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* find relevant cross-section and number of secondary ionizations
      for X-rays */
 
-  int nSecondaryHII = 1, nSecondaryHeII = 1, nSecondaryHeIII = 1;
+  float nSecondaryHII = 1, nSecondaryHeII = 1;
   float xx, heat_factor = 1.0;
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
@@ -215,21 +215,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   else if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
-    nSecondaryHII = (int) floor((*PP)->Energy / 13.6 - 1);
-    nSecondaryHeII = (int) floor((*PP)->Energy / 24.6 - 1); //#####
-    nSecondaryHeIII = (int) floor((*PP)->Energy / 54.4 - 1);
-
-    // retrieve temperature field for future use
-    int size = 1;
-    temperature = new float[size];
-    for (dim = 0; dim < MAX_DIMENSION; dim++) 
-      size *= GridDimension[dim];
-    if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in ComputeTemperatureField.\n");
-      ENZO_FAIL("");
-    }
+    nSecondaryHII = (*PP)->Energy / 13.6;
+    nSecondaryHeII = (*PP)->Energy / 24.6; //#####
   }
-  
+
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma
 
   // solid angle associated with package (= 4 Pi/N_package[on this level]) 
@@ -268,11 +257,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT factor3 = Area_inv*emission_dt_inv;
 
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
-     in one shot */
+     in one shot; see Table 2 of Shull & van Steenberg (1985) */
 
   if ((*PP)->Type == 4) 
     for (i = 0; i < 3; i++)
-      factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
+      factor2[i] = factor1 * (*PP)->Energy;
   else 
     factor2[0] = factor1 * ((*PP)->Energy - EnergyThresholds[type]);
 
@@ -548,23 +537,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /************************************************************/
     case 4:
 
+      // Shull & van Steenberg (1985)
       if (RadiationXRaySecondaryIon) {
 	xx = max(fields[iHII][index] / 
 		 (fields[iHI][index] + fields[iHII][index]), 1e-4);
 	heat_factor    = 0.9971 * (1 - powf(1 - powf(xx, 0.2663f), 1.3163));
 
-#define NEW_WAY  //#####
-#ifdef NEW_WAY
-	ion2_factor[0] = 0.3908 *  
-	  powf(1 - powf(xx, 0.4092f), 1.7592f);
-	ion2_factor[1] = 0.0554 * 
-	  powf(1 - powf(xx, 0.4614f), 1.6660f); 
-#else
 	ion2_factor[0] = 0.3908 * nSecondaryHII * 
 	  powf(1 - powf(xx, 0.4092f), 1.7592f);
-	ion2_factor[2] = 0.0554 * nSecondaryHeIII * 
+	ion2_factor[1] = 0.0554 * nSecondaryHeII * 
 	  powf(1 - powf(xx, 0.4614f), 1.6660f);
-#endif
       }
 
       dP = 0.0; 
@@ -602,12 +584,19 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
 
 	// assume photon energy is much less than the electron rest mass energy 
-	// then, non-relativistic Klein-Nishina cross section and optical depth
-	// in Ribicki & Lightman (1979)
-	xE = (*PP)->Energy/5.11e5;  // mc^2 = 0.511 MeV
+	// nonrelativistic Klein-Nishina cross-section in Ribicki & Lightman (1979)
+	xE = (*PP)->Energy/5.11e5;  
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
 
-	// non-relativistic energy transfer factor in Ciotti & Ostriker (2001)
+	// retrieve temperature field 
+	size = GridDimension[0]*GridDimension[1]*GridDimension[2];
+	temperature = new float[size];
+	if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+	  fprintf(stderr, "Error in ComputeTemperatureField.\n");
+	  ENZO_FAIL("");
+	}
+
+	// nonrelativistic energy transfer in Ciotti & Ostriker (2001)
 	factor2[3] = factor1 * 4 * k_b * temperature[index] * xE;
 	ratioE = 4 * k_b * temperature[index] * xE / (*PP)->Energy; 
 
@@ -630,9 +619,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	// (photon energy used) = dPXray[3]     * (4*k_B*T*xE) 
 	//                      = dPXray[3]_new * (*PP)->Energy
 	dPXray[3] *= ratioE;
-	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature[index] = %g, 
-                sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
-	       xE, ratioE, temperature[index], sigma[3], factor2[3], dPXray[3]);
+
+	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature[index] = %g,"
+               "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
+	       xE, ratioE, temperature[index], sigma[3], factor2[3], dPXray[3]);  //#####
 
       }
       
