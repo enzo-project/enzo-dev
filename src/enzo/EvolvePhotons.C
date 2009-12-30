@@ -115,8 +115,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RS = GlobalRadiationSources->NextSource;
     int NumberOfSources = 0;
     while (RS != NULL) {
-      if ( (RS->CreationTime + RS->LifeTime) < PhotonTime ||
-	   (RS->CreationTime > PhotonTime + dtPhoton) ) {
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
+	    (RS->CreationTime > PhotonTime + dtPhoton)) &&
+	   LoopTime == TRUE) {
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
@@ -288,11 +289,17 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,
-       PhotonPackages */
+       PhotonPackages.  For the adaptive timestep, we don't carryover
+       any photons to the next timestep. */
 
-    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->MoveFinishedPhotonsBack();
+    if (RadiativeTransferAdaptiveTimestep)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->DeletePhotonPackages();
+    else
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->MoveFinishedPhotonsBack();
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
