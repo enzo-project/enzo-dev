@@ -40,7 +40,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   if (this->CommunicationMethodShouldExit(OtherGrid))
     return SUCCESS;
  
-  int i, j, k;
+  int i, j, k, dim;
   FLOAT EdgeOffset[MAX_DIMENSION] = {0.0,0.0,0.0};
  
   /* If the copy function is AddOverlappingParticleMassField, then
@@ -92,6 +92,28 @@ int grid::CheckForOverlap(grid *OtherGrid,
     }  
   }
 
+  /* Pre-compute boundary checks for periodic bc's */
+
+  bool BoundaryCheck[2*MAX_DIMENSION];
+  bool ycheck, zcheck;
+  FLOAT DomainWidth[MAX_DIMENSION];
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+
+    BoundaryCheck[2*dim] = 
+      ((LeftFaceBoundaryCondition[dim] == periodic || 
+	LeftFaceBoundaryCondition[dim] == shearing) &&
+       (CellLeftEdge[dim][0] < DomainLeftEdge[dim] || 
+	ShearingVelocityDirection==dim ));
+
+    BoundaryCheck[2*dim+1] = 
+      ((RightFaceBoundaryCondition[dim] == periodic || 
+	RightFaceBoundaryCondition[dim] == shearing) &&
+       (CellLeftEdge[dim][GridDimension[dim]-1] > DomainRightEdge[dim] ||
+	ShearingVelocityDirection==dim ));
+
+    DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+  }
+
   /* For periodic boundary conditions, do some extra checks.  This insures
      that grids which overlap along periodic boundaries are handled correctly;
      we do this by actually moving the grid to it's periodic location in the
@@ -105,31 +127,21 @@ int grid::CheckForOverlap(grid *OtherGrid,
   int kdim = (GridRank > 2) ? 1 : 0;
   int jdim = (GridRank > 1) ? 1 : 0;
   for (k = -kdim; k <= +kdim; k++) {
-    EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
+    EdgeOffset[2] = FLOAT(k) * DomainWidth[2];
+    zcheck = (k != +1 || BoundaryCheck[4]) && (k != -1 || BoundaryCheck[5]);
     for (j = -jdim; j <= +jdim; j++) {
-      EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
+      EdgeOffset[1] = FLOAT(j) * DomainWidth[1];
+      ycheck = (j != +1 || BoundaryCheck[2]) && (j != -1 || BoundaryCheck[3]);
       for (i = -1; i <= +1; i++) {
-	EdgeOffset[0] = FLOAT(i)*(DomainRightEdge[0] - DomainLeftEdge[0]);
+	EdgeOffset[0] = FLOAT(i) * DomainWidth[0];
  
-	/* This unfortunate bit of logic is to make sure we should be
-	   applying periodic bc's in this direction. */
+	/* This unfortunate bit of logic (JHW Dec09: moved outside the
+	   loop) is to make sure we should be applying periodic bc's
+	   in this direction. */
  
-
-	if ((i != +1 || ((LeftFaceBoundaryCondition[0] == periodic || LeftFaceBoundaryCondition[0] == shearing) &&
-			 (CellLeftEdge[0][0] < DomainLeftEdge[0] || ShearingVelocityDirection==0 ))    ) &&
-	    (i != -1 || ((RightFaceBoundaryCondition[0] == periodic || RightFaceBoundaryCondition[0] == shearing) &&
-			 (CellLeftEdge[0][GridDimension[0]-1] >
-			 DomainRightEdge[0] ||  ShearingVelocityDirection==0 ))                        ) &&
-	    (j != +1 || ((LeftFaceBoundaryCondition[1] == periodic || LeftFaceBoundaryCondition[1] == shearing) &&
-			 (CellLeftEdge[1][0] < DomainLeftEdge[1] || ShearingVelocityDirection==1 ))    ) &&
-	    (j != -1 || ((RightFaceBoundaryCondition[1] == periodic || RightFaceBoundaryCondition[1] == shearing) &&
-			 (CellLeftEdge[1][GridDimension[1]-1] >
-			 DomainRightEdge[1]  || ShearingVelocityDirection==1 ))                        ) &&
-	    (k != +1 || ((LeftFaceBoundaryCondition[2] == periodic || LeftFaceBoundaryCondition[2] == shearing) &&
-			 (CellLeftEdge[2][0] < DomainLeftEdge[2]  || ShearingVelocityDirection==2))    ) &&
-	    (k != -1 || ((RightFaceBoundaryCondition[2] == periodic || RightFaceBoundaryCondition[2] == shearing) &&
-			 (CellLeftEdge[2][GridDimension[2]-1] >
-			 DomainRightEdge[2])  || ShearingVelocityDirection==2 )  )   ){
+	if ((i != +1 || BoundaryCheck[0]) &&
+	    (i != -1 || BoundaryCheck[1]) &&
+	    ycheck && zcheck) {
 
 	  // Full periodic case (26 checks)
 	    
@@ -170,10 +182,12 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	    }
 	  }
 
-	  EdgeOffset[2] = FLOAT(k)*(DomainRightEdge[2] - DomainLeftEdge[2]);
-	  EdgeOffset[1] = FLOAT(j)*(DomainRightEdge[1] - DomainLeftEdge[1]);
-	  EdgeOffset[0] = FLOAT(i)*(DomainRightEdge[0] - DomainLeftEdge[0]);
-	    
+	  if (ShearingBoundaryDirection != -1) {
+	    EdgeOffset[2] = FLOAT(k)*DomainWidth[2];
+	    EdgeOffset[1] = FLOAT(j)*DomainWidth[1];
+	    EdgeOffset[0] = FLOAT(i)*DomainWidth[0];
+	  }
+
 	} // end: if (periodic bc's)
  
       } // end: loop of i
