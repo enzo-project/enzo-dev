@@ -874,7 +874,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, 
 	     &MassUnits, MetaData.Time);
     PressureUnits = DensityUnits*pow(VelocityUnits,2);
-
+    /*IMOPORTANT: If change anything here must change both equivilant parts in WriteParameterFile.C as well */
 
     /* Change input physical parameters into code units */
 
