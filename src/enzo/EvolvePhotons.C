@@ -110,7 +110,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int GridNum = 0, value, i, proc, lvl;
     int NumberOfGrids = 0;  
 
-    // delete source if we are passed (or before) their lifetime
+    // delete source if we are passed (or before) their lifetime (only
+    // if not restarting)
     RadiationSourceEntry *RS;
     RS = GlobalRadiationSources->NextSource;
     int NumberOfSources = 0;

@@ -414,6 +414,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // make r=PauseRadius and return.
     if ((*PP)->Radius+ddr > PauseRadius) {
       fraction = (PauseRadius-(*PP)->Radius) / ddr;
+      fraction = max(fraction, ROUNDOFF);
       //fraction = min(fraction,0.1);
       //fraction = 1.0;
       ddr *= fraction;
