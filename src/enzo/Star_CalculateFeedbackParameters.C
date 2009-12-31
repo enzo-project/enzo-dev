@@ -251,6 +251,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
     //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
     //            Radius = %g, mdot = %g, dtForThisStar = %g\n", 
     //	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
+
+    delete [] temperature;
+
     break;
 
   } // ENDSWITCH FeedbackFlag

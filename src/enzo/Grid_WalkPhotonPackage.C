@@ -71,14 +71,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
   int i, index, dim, splitMe, direction;
-  int keep_walking, count, H2Thin, type, size;
+  int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
   long cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
-  float *temperature;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
@@ -216,7 +215,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
     nSecondaryHII = (*PP)->Energy / 13.6;
-    nSecondaryHeII = (*PP)->Energy / 24.6; //#####
+    nSecondaryHeII = (*PP)->Energy / 24.6; 
   }
 
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma
@@ -582,23 +581,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       if (RadiationXRayComptonHeating) {  
 
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
+	TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
 
 	// assume photon energy is much less than the electron rest mass energy 
 	// nonrelativistic Klein-Nishina cross-section in Ribicki & Lightman (1979)
 	xE = (*PP)->Energy/5.11e5;  
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
 
-	// retrieve temperature field 
-	size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-	temperature = new float[size];
-	if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-	  fprintf(stderr, "Error in ComputeTemperatureField.\n");
-	  ENZO_FAIL("");
-	}
-
 	// nonrelativistic energy transfer in Ciotti & Ostriker (2001)
-	factor2[3] = factor1 * 4 * k_b * temperature[index] * xE;
-	ratioE = 4 * k_b * temperature[index] * xE / (*PP)->Energy; 
+	factor2[3] = factor1 * 4 * k_b * BaryonField[TemperatureField][index] * xE;
+	ratioE = 4 * k_b * BaryonField[TemperatureField][index] * xE / (*PP)->Energy; 
 
 	dN = thisDensity * ddr;
 	tau = dN*sigma[3];
@@ -614,15 +606,18 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	// the heating rate by energy transfer during Compton scattering
 	BaryonField[gammaNum][index] += dP1 * factor2[3]; //#####
 
-	// because not all the energy is absorbed by Compton scattering,
-	// we reduce the number of photons absorbed here to conserve the energy
-	// (photon energy used) = dPXray[3]     * (4*k_B*T*xE) 
-	//                      = dPXray[3]_new * (*PP)->Energy
+	// a photon loses only a fraction of photon energy in Compton scatering, 
+	// and keeps propagating; to model this with monochromatic energy,
+	// we instead subtract #photons (dPXray[3]_new) from PP
+	// (photon energy absorbed) = dPXray[3]     * (4*k_B*T*xE) 
+	//                          = dPXray[3]_new * (*PP)->Energy
 	dPXray[3] *= ratioE;
 
-	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature[index] = %g,"
+	/*
+	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature = %g,"
                "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
-	       xE, ratioE, temperature[index], sigma[3], factor2[3], dPXray[3]);  //#####
+	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]);  //#####
+	*/
 
       }
       

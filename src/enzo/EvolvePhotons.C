@@ -134,14 +134,24 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int Rank, Dims[MAX_DIMENSION];
     FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
   
-    /* Initialize radiation fields */  
+    /* Initialize radiation fields */
 
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
 	  ENZO_FAIL("");
 	}
+
+    /* create temperature fields for Compton heating */  
+
+    if (RadiationXRayComptonHeating)  //#####
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
+	    fprintf(stderr, "Error in InitializeTemperatureFieldForComptonHeating.\n");
+	    ENZO_FAIL("");
+	  }	
 
     for (i = 0; i < 4; i++)
       EscapedPhotonCount[i] = 0.0;
@@ -393,6 +403,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	      ENZO_FAIL("");
 	    }
 
+    /* Clean up temperature field */
+
+    if (RadiationXRayComptonHeating)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
+	    fprintf(stderr, "Error in FinalizeTemperatureFieldForComptonHeating.\n");
+	    ENZO_FAIL("");
+	  }	
+    
     debug = debug_store;
 
     /* We don't rely on the count NumberOfPhotonPackages here, so they

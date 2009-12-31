@@ -26,5 +26,3 @@ int HasRadiation;
 float MaximumkphIfront;
 int IndexOfMaximumkph;
 
-// For Compton heating, temperature field is needed
-float *temperatureForComptonHeating;    // pointers to arrays

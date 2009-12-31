@@ -639,6 +639,7 @@ OBJS_CONFIG_LIB = \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
+        TemperatureFieldToolsForComptonHeating.o \
         TestGravityCheckResults.o \
         TestGravityInitialize.o \
         TestGravityMotion.o \
