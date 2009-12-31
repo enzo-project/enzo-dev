@@ -710,7 +710,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 	  if (r[index] == 0 && (d[index] > densthresh ||
 				(*jlrefine > 0 && dx2 > jeansthresh))) {
-	    printf("star_maker8: density above thresh-hold - will now make a new star?!\n");
+	    //printf("star_maker8: density above thresh-hold - will now make a new star?!\n");
 	    
 	    xpos = *xstart + ((float) i - 0.5)*(*dx);
 	    ypos = *ystart + ((float) j - 0.5)*(*dx);
@@ -841,7 +841,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 // 	    } // ENDIF add to new particle
 
 	    /* Create a new sink particle if necessary and if there's room */
-	    printf("inew = %i\n",inew);
+	    //printf("inew = %i\n",inew);
 
 	    if (inew == 1 && ii < *nmax) {
 	      
