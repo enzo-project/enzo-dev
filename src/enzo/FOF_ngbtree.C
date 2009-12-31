@@ -221,9 +221,9 @@ void ngb_treebuild(FOFData &D, int Npart)
   float xmin[3],xmax[3],len,x;
   NODE *nfree,*th,*nn; 
 
-  /*
-  printf("Begin Ngb-tree construction.\n");
-  */
+
+  //printf("Begin Ngb-tree construction. Npart = %d\n", Npart);
+
   
   if (Npart < 2)
     ENZO_FAIL("FOF: must be at least two particles in tree.\n");
