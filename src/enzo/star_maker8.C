@@ -86,7 +86,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
-  // printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
+  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
   printf("Star Maker 8: time = %g\n", *t);
 
 
@@ -106,7 +106,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   densthresh = *massthresh / pow(*dx,3);
   //densthresh = 1e-12/(*d1);
   dx2 = (*dx)*(*dx);
-
+  printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / pow(*x1,2) / (*mu) / pow((*jlrefine),2);
@@ -705,8 +705,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	  
 	  if (*jlrefine > 0)
 	    jeansthresh = jlsquared * temp[index] / d[index];
-	  /*printf("jeansthresh = %g \n",jeansthresh);
-	  printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);*/
+	  //printf("jeansthresh = %g \n",jeansthresh);
+	  //printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);
 
 	  if (r[index] == 0 && (d[index] > densthresh ||
 				(*jlrefine > 0 && dx2 > jeansthresh))) {
@@ -761,7 +761,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 	    /* Look for a nearby OLD sink particle to add the mass to */
 	    
-// 	    inew = 1;
+	    inew = 1;
 // 	    nearestdx2 = 1e20;
 // 	    for (cc = 0; cc < nsinks; cc++) {
 	      
@@ -841,7 +841,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 // 	    } // ENDIF add to new particle
 
 	    /* Create a new sink particle if necessary and if there's room */
-	    
+	    //printf("inew = %i\n",inew);
+
 	    if (inew == 1 && ii < *nmax) {
 	      
 	      //printf("star_maker8: making new star\n" );

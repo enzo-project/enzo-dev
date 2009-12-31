@@ -52,6 +52,12 @@
   int InitializeRadiativeTransferFields(void);
   int AllocateInterpolatedRadiation(void);
 
+/* Tools for setting up temperature field for Compton heating */
+
+  int InitializeTemperatureFieldForComptonHeating(void);
+  int FinalizeTemperatureFieldForComptonHeating(void);
+  int GetTemperatureFieldNumberForComptonHeating(void);
+
 /* Flag cells to be refined by optical depth */
 
   int FlagCellsToBeRefinedByOpticalDepth(void);

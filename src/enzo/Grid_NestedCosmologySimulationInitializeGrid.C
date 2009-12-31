@@ -227,7 +227,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   if (ParallelRootGridIO == TRUE && TotalRefinement < 0)
   {
- 
+
+    if (CosmologySimulationDensityName != NULL) {
     file_id = H5Fopen(CosmologySimulationDensityName, H5F_ACC_RDONLY, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
       if( file_id == h5_error){ENZO_FAIL("IO Problem");}
@@ -235,6 +236,25 @@ int grid::NestedCosmologySimulationInitializeGrid(
     dset_id = H5Dopen(file_id, CosmologySimulationDensityName);
       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
       if( dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else if (CosmologySimulationParticleVelocityName != NULL) {
+      file_id = H5Fopen(CosmologySimulationParticleVelocityName, 
+			H5F_ACC_RDONLY, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+        if (file_id == h5_error){ENZO_FAIL("IO Problem");}
+      dset_id = H5Dopen(file_id, CosmologySimulationParticleVelocityName);
+       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+       if (dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else if (CosmologySimulationParticleVelocityNames[0] != NULL) {
+      file_id = H5Fopen(CosmologySimulationParticleVelocityNames[0], 
+			H5F_ACC_RDONLY, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+        if (file_id == h5_error){ENZO_FAIL("IO Problem");}
+      dset_id = H5Dopen(file_id, CosmologySimulationParticleVelocityNames[0]);
+        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+        if (dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else
+      ENZO_FAIL("Cannot find initial density or particle velocity datafile"
+		" for nested cosmology run.");
  
         if (io_log) fprintf(log_fptr, "H5Aopen_name with Name = Rank\n");
  

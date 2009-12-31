@@ -189,9 +189,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  if(DEBUG)
-	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
-		   MBH, RS->Type, NewPack->Type);  
+//	  if (DEBUG)
+//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+//		   MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

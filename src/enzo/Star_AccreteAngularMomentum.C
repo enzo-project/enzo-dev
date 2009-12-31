@@ -130,8 +130,8 @@ int Star::AccreteAngularMomentum(void)
   for (dim = 0; dim < MAX_DIMENSION; dim++) 
     this->accreted_angmom[dim] += (float)(this->DeltaMass * gas_angmom[dim]);
 
-  fprintf(stdout, "star::AAM: this->accreted_angmom = (%g, %g, %g)\n", 
-	  this->accreted_angmom[0], this->accreted_angmom[1], this->accreted_angmom[2]); //#####
+//  fprintf(stdout, "star::AAM: this->accreted_angmom = (%g, %g, %g)\n", 
+//	  this->accreted_angmom[0], this->accreted_angmom[1], this->accreted_angmom[2]); 
 
   return SUCCESS;
 }

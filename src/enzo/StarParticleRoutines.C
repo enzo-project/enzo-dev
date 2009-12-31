@@ -52,7 +52,7 @@ StarParticle::StarParticle(grid *_grid, int ParticleID)
   GridID = _grid->ID;
   type = _grid->ParticleType[ParticleID];
   Identifier = _grid->ParticleNumber[ParticleID];
-  Mass = FinalMass = _grid->ParticleMass[ParticleID];
+  Mass = FinalMass = (double)(_grid->ParticleMass[ParticleID]);
   BirthTime = _grid->ParticleAttribute[0][ParticleID];
   LifeTime = _grid->ParticleAttribute[1][ParticleID];
 }

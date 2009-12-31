@@ -663,8 +663,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ConstantAcceleration       = %g %g %g\n", ConstantAcceleration[0],
 	  ConstantAcceleration[1], ConstantAcceleration[2]);
 
-  fprintf(fptr, "AngularVelocity            = %g\n", AngularVelocity);
-  fprintf(fptr, "VelocityGradient           = %g\n", VelocityGradient);
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
 #ifdef ECUDA
@@ -687,7 +685,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);
   fprintf(fptr, "VelocityGradient             = %"FSYM"\n",VelocityGradient);
-  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n\n",ShearingVelocityDirection);
+  fprintf(fptr, "ShearingVelocityDirection    = %"ISYM"\n",ShearingVelocityDirection);
   fprintf(fptr, "ShearingBoxProblemType    = %"ISYM"\n\n", ShearingBoxProblemType);
 
   /* write data which defines the boundary conditions */
