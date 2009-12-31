@@ -7,6 +7,8 @@
 /  modified1:  May, 2009 by John Wise
 /                Works with local particle storage in RebuildHierarchy,
 /                which appropriately distributes memory usage.
+/  modified2:  Sep, 2009 by Ji-hoon Kim
+/                Now PARTICLE_TYPE_MBH also has the MUST_REFINE feature
 /
 /  PURPOSE:
 /

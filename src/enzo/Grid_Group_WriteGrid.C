@@ -816,7 +816,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
       WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
  
-      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) InterpolatedField[field]);
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			   (VOIDP) temp);
       if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  

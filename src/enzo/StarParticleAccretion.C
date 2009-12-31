@@ -58,6 +58,11 @@ int StarParticleAccretion(TopGridData *MetaData,
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
 
+    // Must be the finest level for any feedback except star formation
+    if (ThisStar->ReturnFeedbackFlag() != FORMATION &&
+	LevelArray[level+1] != NULL)
+      continue;
+
     if (ThisStar->CalculateMassAccretion() == FAIL) {
       fprintf(stderr, "Error in star::CalculateMassAccretion.\n");
       ENZO_FAIL("");

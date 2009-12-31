@@ -492,14 +492,14 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
   H5Dclose(dataset);
   H5Sclose(dataspace);
 
-
   // ID
   dataspace = H5Screate_simple(1, &hdims, &hdims);
   dataset = H5Dcreate(gridGrp, "particle_number", H5T_NATIVE_INT,
 		      dataspace, H5P_DEFAULT);
-  H5Dwrite(dataset, H5T_NATIVE_LONG, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
+  H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
   H5Dclose(dataset);
   H5Sclose(dataspace);
+
 
   // Mass
   dataspace = H5Screate_simple(1, &hdims, &hdims);

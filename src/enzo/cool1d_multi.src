@@ -385,9 +385,9 @@
      &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4.0+HeIII(i,j,k))
      &                        *de(i,j,k)
 
-!                    Photoelectric heating on dust
+!                    Photoelectric heating by UV-irradiated dust
 
-     &             + float(igammah)*gammaha*d(i,j,k)
+     &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))/dom
      &             )
         
          if (edot(i) .ne. edot(i)) then

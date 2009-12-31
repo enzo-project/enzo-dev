@@ -121,6 +121,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ResetLoadBalancing = FALSE;
   CoresPerNode = 1;
   PreviousMaxTask = 0;
+  LoadBalancingMinLevel = 0;     //All Levels
 
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;
@@ -296,6 +297,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.f3                 = 1.0e-21;           // radiation normalization
   CoolData.ParameterFilename  = NULL;
   PhotoelectricHeating	      = 0;
+  RadiationXRaySecondaryIon   = 0;
+  RadiationXRayComptonHeating = 0;
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";
@@ -321,6 +324,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
+  JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
@@ -386,7 +390,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHFeedbackThermalRadius         = 50;           // pc
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
   MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackJetsMassLoadingFactor = 100;          // eta, check Star_AddFeedbackSphere.C
+  MBHFeedbackJetsMassLoadingFactor = 300;          // eta, check Star_AddFeedbackSphere.C
   MBHCombineRadius                 = 50;           // pc
 
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
