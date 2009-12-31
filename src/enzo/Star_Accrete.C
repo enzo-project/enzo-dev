@@ -36,7 +36,7 @@ int Star::Accrete(void)
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
-  float this_dt, ratio1, ratio2, new_vel;
+  float this_dt;
   
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -53,14 +53,16 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
-  Mass += DeltaMass;
-  FinalMass += DeltaMass;
+  Mass += (double)(DeltaMass);
+  FinalMass += (double)(DeltaMass);
+//  printf("star::Accrete: Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass);
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
   /* Below was an approximation for DetalMass <<1; 
      Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim, Sep.2009 */
   /*
+  double ratio1, ratio2, new_vel;
   ratio2 = DeltaMass / Mass;
   ratio1 = 1.0 - ratio2;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -77,8 +79,8 @@ int Star::Accrete(void)
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, 
-//          DeltaMass = %g\n", last_accretion_rate, accretion_time[0], this_dt, DeltaMass); 
+//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, time = %g, accretion_time[0] = %g, this_dt = %e, 
+//          DeltaMass = %g, Mass = %lf\n", last_accretion_rate, time, accretion_time[0], this_dt, DeltaMass, Mass); 
 
   /* Remove these entries in the accretion table */
 

@@ -125,23 +125,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   //fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield); 
 
-  /*  //#####
-  int MetalNum, SNColourNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1) {
-    Prim[nfield++] = BaryonField[MetalNum];
-    if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = BaryonField[MetalNum+1];
-      Prim[nfield++] = BaryonField[MetalNum+2];
-    }
-  }
-
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    Prim[nfield++] = BaryonField[SNColourNum];
-  */
-
-
   /* Convert the species and color fields into mass fractions */
 
   for (dim = 0, size = 1; dim < GridRank; dim++)
