@@ -109,24 +109,6 @@ int Star::ComputePhotonRates(float E[], double Q[])
     Q[2] = 0.0;
     Q[3] = 0.0;  
 
-#define NOT_OLD_WAY
-#ifdef OLD_WAY
-    /* Approximation to the multi-color disk and power law of an
-       accreting massive BH */
-    XrayLuminosityFraction = 0.43;
-    EnergyFractionLW = 1.51e-3;
-    MeanEnergy = 93.0;  // eV
-    E[0] = 460.0;
-    E[1] = 0.0;
-    E[2] = 0.0;
-    E[3] = 12.8;
-    Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
-      this->last_accretion_rate / E[0]; 
-    Q[1] = 0.0;
-    Q[2] = 0.0;
-    Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
-#endif
-
 #define NOT_HII_REGION_TEST
 #ifdef HII_REGION_TEST
     Q[0] = 1.0e45 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
