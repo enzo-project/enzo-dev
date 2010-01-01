@@ -385,6 +385,7 @@ EXTERN int ParallelParticleIO;
 EXTERN int Unigrid;
 EXTERN int CubeDumpEnabled;
 EXTERN int PartitionNestedGrids;
+EXTERN int StaticPartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
