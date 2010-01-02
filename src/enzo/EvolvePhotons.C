@@ -145,7 +145,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* create temperature fields for Compton heating */  
 
-    if (RadiationXRayComptonHeating)  //#####
+    if (RadiationXRayComptonHeating)  
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  

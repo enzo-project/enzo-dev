@@ -258,9 +258,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
      in one shot; see Table 2 of Shull & van Steenberg (1985) */
 
-  if ((*PP)->Type == 4) 
+  if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
       factor2[i] = factor1 * (*PP)->Energy;
+    // nonrelativistic energy transfer in Ciotti & Ostriker (2001)
+    if (RadiationXRayComptonHeating) {
+      xE = (*PP)->Energy/5.11e5;  
+      TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
+      factor2[3] = factor1 * 4 * k_b * BaryonField[TemperatureField][index] * xE;
+      ratioE = 4 * k_b * BaryonField[TemperatureField][index] * xE / (*PP)->Energy; 
+    }
+  }
   else 
     factor2[0] = factor1 * ((*PP)->Energy - EnergyThresholds[type]);
 
@@ -581,16 +589,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       if (RadiationXRayComptonHeating) {  
 
 	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
-	TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
 
 	// assume photon energy is much less than the electron rest mass energy 
 	// nonrelativistic Klein-Nishina cross-section in Ribicki & Lightman (1979)
-	xE = (*PP)->Energy/5.11e5;  
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
-
-	// nonrelativistic energy transfer in Ciotti & Ostriker (2001)
-	factor2[3] = factor1 * 4 * k_b * BaryonField[TemperatureField][index] * xE;
-	ratioE = 4 * k_b * BaryonField[TemperatureField][index] * xE / (*PP)->Energy; 
 
 	dN = thisDensity * ddr;
 	tau = dN*sigma[3];
