@@ -639,7 +639,6 @@ OBJS_CONFIG_LIB = \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
-        TemperatureFieldToolsForComptonHeating.o \
         TestGravityCheckResults.o \
         TestGravityInitialize.o \
         TestGravityMotion.o \
@@ -743,6 +742,7 @@ POBJS_CONFIG_LIB = \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
+        TemperatureFieldToolsForComptonHeating.o \
         WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
