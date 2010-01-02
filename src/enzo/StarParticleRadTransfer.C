@@ -128,6 +128,8 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 	RadSource->SED[j]    = Q[j];
       }
 
+      if (GlobalRadiationSources->NextSource != NULL)
+	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
       
     } // ENDIF is a radiation source?

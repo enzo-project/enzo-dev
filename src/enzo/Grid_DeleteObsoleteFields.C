@@ -58,9 +58,12 @@ int grid::DeleteObsoleteFields(int *ObsoleteFields,
 	}
 
 	if (FirstTime) {
-	  for (j = i; j < MAX_NUMBER_OF_BARYON_FIELDS-1; j++)
+	  for (j = i; j < MAX_NUMBER_OF_BARYON_FIELDS-1; j++) {
 	    DataLabel[j] = DataLabel[j+1];
+	    DataUnits[j] = DataUnits[j+1];
+	  }
 	  DataLabel[MAX_NUMBER_OF_BARYON_FIELDS-1] = NULL;
+	  DataUnits[MAX_NUMBER_OF_BARYON_FIELDS-1] = NULL;
 	}
 
 	NumberOfDeletions++;

@@ -456,13 +456,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
         ENZO_FAIL("Error in GetUnits.");
   }
 
-  /* If we're using physical units for the overdensity threshold,
-     convert it from /cm3 to overdensity.  Currently only for Pop
-     II (radiating clusters)/III star particles.  */
+  /* If we're using physical units for the overdensity threshold and
+     it is more than 10 times the cosmic mean, convert it from /cm3 to
+     overdensity.  Currently only for Pop II (radiating clusters)/III
+     star particles.  */
 
   float OverDensityThreshold;
-  if (PopIIIOverDensityThreshold < 0)
+  if (PopIIIOverDensityThreshold < 0) {
     OverDensityThreshold = -PopIIIOverDensityThreshold * 1.673e-24 / DensityUnits;
+    if (OverDensityThreshold < 10)
+      OverDensityThreshold = huge_number;
+  }
   else
     OverDensityThreshold = PopIIIOverDensityThreshold;
  

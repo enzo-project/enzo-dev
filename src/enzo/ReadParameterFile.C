@@ -66,7 +66,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   
   char line[MAX_LINE_LENGTH];
-  int dim, ret, int_dummy;
+  int i, dim, ret, int_dummy;
   float TempFloat;
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
@@ -462,6 +462,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
  
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
+    ret += sscanf(line, "StaticPartitionNestedGrids = %"ISYM, 
+		  &StaticPartitionNestedGrids);
  
     ret += sscanf(line, "ExtractFieldsOnly = %"ISYM, &ExtractFieldsOnly);
  
@@ -845,6 +847,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   /* Even if this is not cosmology, due to a check for nested grid cosmology
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
   CosmologySimulationNumberOfInitialGrids = 1;
+
+  /* Count static nested grids since this isn't written in the
+     parameter file */
+
+  for (i = 0; i < MAX_STATIC_REGIONS; i++)
+    if (StaticRefineRegionLevel[i] != INT_UNDEFINED)
+      CosmologySimulationNumberOfInitialGrids++;
  
   /* If we have turned on Comoving coordinates, read cosmology parameters. */
  
