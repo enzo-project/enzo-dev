@@ -45,6 +45,9 @@ int grid::SetNumberOfColours(void)
     return FAIL;
   }
   
+  //  fprintf(stdout, "grid:SetNumberOfColours: %d %d %d %d %d, NSpecies = %d\n", 
+  //	  SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum, NSpecies); 
+
   if (MetalNum != -1) {
     _nc++;
     if (MultiMetals || TestProblemData.MultiMetals) {

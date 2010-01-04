@@ -40,6 +40,17 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
+  //#####                                                                                                                                                                                                                         
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+    DINum, DIINum, HDINum;
+  if (MultiSpecies)
+    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+      printf("Error in grid->IdentifySpeciesFields.");
+    }
+  printf("grid:RK_1stStep: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
+
+
   double time1 = ReturnWallTime();
   int igrid;
   /* allocate space for fluxes */

@@ -262,7 +262,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
-  //fprintf(stdout, "EvolveLevel_RK2: NColor =%d, NSpecies = %d\n", NColor, NSpecies);
+  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %d, NSpecies = %d\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -420,7 +420,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
 
-      Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
+      Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();  
 
       if (UseHydro) 
 	if (HydroMethod == HD_RK)
@@ -447,7 +447,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
     //    printf("SECOND STEP\n");
-    if (RK2SecondStepBaryonDeposit & SelfGravity && UseHydro) {
+    if (RK2SecondStepBaryonDeposit & SelfGravity && UseHydro) {  
       When = 0.5;
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
