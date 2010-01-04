@@ -40,7 +40,6 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
-  //#####                                                                                                                                                                                                                         
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum;
   if (MultiSpecies)
@@ -48,8 +47,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       printf("Error in grid->IdentifySpeciesFields.");
     }
-  printf("grid:RK_1stStep: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
-
+  //  printf("grid:RK_1stStep-1: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####
 
   double time1 = ReturnWallTime();
   int igrid;
@@ -101,7 +99,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim,false);
+  this->ReturnHydroRKPointers(Prim,true);  //##### originally false
 
   // RK2 first step
 #ifdef ECUDA 
@@ -142,6 +140,8 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
   this->SourceTerms(dU);
 
+  //  printf("grid:RK_1stStep-2 (before UpdatePrim): %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####  
+
   if (this->UpdatePrim(dU, 1.0, 1.0) == FAIL) {
     printf("Falling back to zero order at RK 1st step\n");
     // fall back to zero order scheme
@@ -164,6 +164,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
       return FAIL;
     }
   }
+  //  printf("grid:RK_1stStep-3 (after UpdatePrim): %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####  
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     delete [] dU[field];

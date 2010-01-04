@@ -97,7 +97,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
 
-  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnHydroRKPointers(Prim, true); //##### originally false
 
   /* RK2 first step */
 

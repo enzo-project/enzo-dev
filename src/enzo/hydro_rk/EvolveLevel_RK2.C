@@ -447,7 +447,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
     //    printf("SECOND STEP\n");
-    if (RK2SecondStepBaryonDeposit & SelfGravity && UseHydro) {  
+    if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);

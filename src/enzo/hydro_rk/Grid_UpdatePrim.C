@@ -54,10 +54,9 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim, false);
-  this->ReturnOldHydroRKPointers(OldPrim, false);
+  this->ReturnHydroRKPointers(Prim, false); 
+  this->ReturnOldHydroRKPointers(OldPrim, false);  
 
-  //#####                                                                                                                                                                                                                         
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum;
   if (MultiSpecies)
@@ -65,8 +64,6 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
       printf("Error in grid->IdentifySpeciesFields.");
     }
-  printf("grid:UP: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
-
 
   // update species and colours
 
@@ -111,8 +108,6 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-
-  printf("grid:UP-2: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
 
   // update conserved variables
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -254,15 +249,13 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  printf("grid:UP-3: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
+  //  printf("grid:UpdatePrim-1 (before normaliz.): %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####
 
   // convert species from mass fraction to density
-  
   for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
-    for (n = 0; n < size; n++)
+    for (n = 0; n < size; n++) 
       Prim[field][n] *= BaryonField[DensNum][n];
 
-  printf("grid:UP-4: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####                                                                                                                                   
   this->UpdateElectronDensity();
 
   if ( (NSpecies+NColor) > 0) {
@@ -270,6 +263,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     delete [] sum;
   }
 
+  //  printf("grid:UpdatePrim-2 (after normaliz.): %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //#####
   
   return SUCCESS;
 }

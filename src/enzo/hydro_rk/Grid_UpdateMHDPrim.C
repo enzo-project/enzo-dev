@@ -259,7 +259,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   /* Convert species from mass fraction to density */ 
 
   for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)
-    for (n = 0; n < size; n++)
+    for (n = 0; n < size; n++) 
       Prim[field][n] *= BaryonField[DensNum][n];
 
   this->UpdateElectronDensity();
