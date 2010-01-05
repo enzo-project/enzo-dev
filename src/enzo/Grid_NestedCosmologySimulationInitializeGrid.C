@@ -390,6 +390,9 @@ int grid::NestedCosmologySimulationInitializeGrid(
             TopGridStart[dim] = 0;
           if (TopGridEnd[dim] == INT_UNDEFINED)
             TopGridEnd[dim] = TopGridDims[dim] - 1;
+	  // Correct for a "feature" in mpgrafic
+	  if (CosmologySimulationCalculatePositions)
+	    TopGridEnd[dim] -= 1;
         }
  
 //        fprintf(stderr, "TopGridDims = %"ISYM" %"ISYM" %"ISYM"\n", TopGridDims[0], TopGridDims[1], TopGridDims[2]);
@@ -2852,7 +2855,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
     CurrentParticleNumber += NumberOfParticles;
  
   } // end: if (CosmologySimulationParticleName != NULL)
- 
+
   } // end: if (ProcessorNumber == MyProcessorNumber)
  
   // Share number of particles amoung processors
@@ -2867,7 +2870,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
   }
  
   OldTime = Time;
- 
+
   if (io_log) fclose(log_fptr);
  
   return SUCCESS;
