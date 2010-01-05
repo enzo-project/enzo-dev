@@ -432,16 +432,14 @@ int grid::CosmologySimulationInitializeGrid(
       }
  
       //Shock/Cosmic Ray Model
-      if(CRModel && ReadData)
-	for (i = 0; i < size; i++){
-	  BaryonField[MachNum][i] = tiny_number;
-	  BaryonField[CRNum][i] = tiny_number;
-	  if(StorePreShockFields){
-	    BaryonField[PSTempNum][i] = tiny_number;
-	    BaryonField[PSDenNum][i] = tiny_number;
-	  }
-	  
+      if (CRModel && ReadData) {
+	BaryonField[MachNum][i] = tiny_number;
+	BaryonField[CRNum][i] = tiny_number;
+	if (StorePreShockFields) {
+	  BaryonField[PSTempNum][i] = tiny_number;
+	  BaryonField[PSDenNum][i] = tiny_number;
 	}
+      }
       
     }
   
