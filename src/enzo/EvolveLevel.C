@@ -231,14 +231,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Declarations */
 
   int dbx = 0;
- 
+
   FLOAT When, GridTime;
   //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
   //float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
- 
+
   // Update lcaperf "level" attribute
 
   Eint32 lcaperf_level = level;
@@ -276,15 +276,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* For each grid: a) interpolate boundaries from its parent.
                     b) copy any overlapping zones.  */
  
+  if (CheckpointRestart == FALSE) {
 #ifdef FAST_SIB
-  if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
-			    level, MetaData, Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("Error in SetBoundaryConditions (FastSib)");
+    if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+                  level, MetaData, Exterior, LevelArray[level]) == FAIL)
+      ENZO_FAIL("Error in SetBoundaryConditions (FastSib)");
 #else
-  if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
-                            Exterior, LevelArray[level]) == FAIL)
-    ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
+    if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+                              Exterior, LevelArray[level]) == FAIL)
+      ENZO_FAIL("Error in SetBoundaryConditions (SlowSib)");
 #endif
+  }
  
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -524,8 +526,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Evolve the next level down (recursively). */
  
     MetaData->FirstTimestepAfterRestart = FALSE;
-    } 
-    else { // CheckpointRestart == FALSE
+
+    } else { // CheckpointRestart
         // dtThisLevelSoFar set during restart
         // dtThisLevel set during restart
         // Set dtFixed on each grid to dtThisLevel
@@ -539,7 +541,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	ENZO_FAIL("");
       }
     }
-
 
 #ifdef USE_LCAPERF
     // Update lcaperf "level" attribute
