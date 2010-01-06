@@ -337,10 +337,10 @@ OBJS_CONFIG_LIB = \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
-        Grid_IdentifyRadiativeTransferFields.o \
         Grid_IdentifySpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
 	Grid_IdentifyColourFields.o \
+        Grid_IdentifyRadiativeTransferFields.o \
         Grid_ImplosionInitializeGrid.o \
         Grid_InheritProperties.o \
         Grid_InitializeGravitatingMassField.o \
@@ -392,6 +392,7 @@ OBJS_CONFIG_LIB = \
         Grid_RestoreEnergyConsistency.o \
         Grid_ReturnFluxDims.o \
         Grid_ReturnGridInfo.o \
+	Grid_ReturnNumberOfStarParticles.o \
 	Grid_ReturnParticleEntry.o \
 	Grid_ReturnStarStatistics.o \
         Grid_RotatingCylinderInitialize.o \
@@ -402,6 +403,7 @@ OBJS_CONFIG_LIB = \
         Grid_SetFlaggingFieldStaticRegions.o \
         Grid_SetIsolatedPotentialBoundary.o \
         Grid_SetMinimumSupport.o \
+	Grid_SetNewParticleIndex.o \
         Grid_SetParticleMassFlaggingField.o \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShearingBox2DInitializeGrid.o \
@@ -620,6 +622,7 @@ OBJS_CONFIG_LIB = \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
+	Star_DisableParticle.o \
         Star_FindFeedbackSphere.o \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
@@ -739,6 +742,7 @@ POBJS_CONFIG_LIB = \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
+        TemperatureFieldToolsForComptonHeating.o \
         WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
@@ -823,7 +827,8 @@ OBJS_ECUDA_ALL = \
 	hydro_rk/CUDA_Rec_PLM.o \
 	hydro_rk/HydroSweep_CUDA.o \
 	hydro_rk/MHDSweep_CUDA.o
-
+#	hydro_rk/overlapping_MHDSweep_CUDA.o
+#
 
 
 

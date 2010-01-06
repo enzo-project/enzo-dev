@@ -159,14 +159,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
 
-    old_mass = cstar->Mass;
+//    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
     cstar->vel[2] *= old_mass / cstar->Mass; 
 
-    //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-    //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
+//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -351,7 +353,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly.*/
 
-    old_mass = cstar->Mass;
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
@@ -366,6 +368,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     nx_L = L_x/L_s;  //directional vector
     ny_L = L_y/L_s;
     nz_L = L_z/L_s;
+    if (MBHFeedback == 3) {
+      nx_L = 0.0;
+      ny_L = 0.0;
+      nz_L = 1.0;
+    }
 
     /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
        but only the edges), and record the cells eligible for jet injection */
@@ -424,13 +431,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       fprintf(stderr, "grid::AddFS: jet velocity in MBH_JETS is relativistic!\n");
       ENZO_FAIL("");
     }
-    
+
     float EjectaMass = EjectaDensity * BubbleVolume;
     float EjectaMetalMass = EjectaMetalDensity * BubbleVolume;
     float AccretedMass = EjectaMass / MBHFeedbackMassEjectionFraction;
 
-    // Don't take out too much mass suddenly; should leave at least 75% of the gas in the inner cells.
-    float JetsLoadedMass = min(AccretedMass * MBHFeedbackJetsMassLoadingFactor, 0.25 * m_cell_inside);
+    // Don't take out too much mass suddenly; should leave at least 90% of the gas in the inner cells.
+    float JetsLoadedMass = min(AccretedMass * MBHFeedbackJetsMassLoadingFactor, 0.10 * m_cell_inside); 
     float JetsLoadedMetalMass;
     float JetsLoadedColourMass;
 
@@ -455,8 +462,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       rho_colour_inside = ( (m_cell_inside - JetsLoadedMass) * colour_inside + EjectaMass) / 
 	(n_cell_inside * pow(CellWidth[0][0], 3));
       JetsLoadedColourMass = JetsLoadedMass * colour_inside;
-    } else 
+    } else {
       rho_colour_inside = 0.0;
+      JetsLoadedColourMass = 0.0;
+    }
       
     fhz = fh * (1-metallicity_inside);
     fhez = (1-fh) * (1-metallicity_inside);
@@ -581,9 +590,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
 	BaryonField[HeIIINum][index] =
 	  BaryonField[DensNum][index] * fhez * ionizedFraction;
-//	fprintf(stdout, "grid::AddFS: d= %g, de= %g, HI= %g, HII= %g, Z= %g, MBHJetsVelocity= %g\n\n", 
-//		BaryonField[DensNum][index], BaryonField[DeNum][index], BaryonField[HINum][index], 
-//		BaryonField[HIINum][index], metallicity_edge, BaryonField[Vel3Num][index]);
       }
       if (MultiSpecies > 1) {
 	BaryonField[HMNum][index] = tiny_number * BaryonField[DensNum][index];

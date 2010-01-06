@@ -86,30 +86,38 @@ int grid::MoveParticlesFOF(int level, FOF_particle_data* &P,
 
   else {
 
+    /* When we create the smoothed DM fields, we copy particles across
+       periodic boundaries.  Don't copy back these duplicated
+       particles. */
+
+    int npart = AllVars.Nlocal;//slab[MyProcessorNumber];
+    for (i = 0; i < AllVars.Nlocal; i++)
+      if (P[i].PartID < 0 || P[i].slab != MyProcessorNumber) npart--;
+
     /* Only move particles in this slab -- exclude the shadows. */
 
-    this->AllocateNewParticles(AllVars.Nslab[MyProcessorNumber]);
+    this->AllocateNewParticles(npart);
 
     for (dim = 0; dim < GridRank; dim++)
       for (i = 0; i < AllVars.Nlocal; i++)
-	if (P[i].slab == MyProcessorNumber) {
+	if (P[i].slab == MyProcessorNumber && P[i].PartID >= 0) {
 	  ParticlePosition[dim][i] = P[i].Pos[dim] * BoxSizeInv;
 	  ParticleVelocity[dim][i] = P[i].Vel[dim] * VelConvInv;
 	}
 
     for (j = 0; j < NumberOfParticleAttributes; j++)
       for (i = 0; i < AllVars.Nlocal; i++)
-	if (P[i].slab == MyProcessorNumber)
+	if (P[i].slab == MyProcessorNumber && P[i].PartID >= 0)
 	  ParticleAttribute[j][i] = P[i].Attr[j];
 
     for (i = 0; i < AllVars.Nlocal; i++) 
-      if (P[i].slab == MyProcessorNumber) {
+      if (P[i].slab == MyProcessorNumber && P[i].PartID >= 0) {
 	ParticleMass[i] = P[i].Mass * MassConvInv;
 	ParticleType[i] = P[i].Type;
 	ParticleNumber[i] = P[i].PartID;
       }
 
-    NumberOfParticles = AllVars.Nslab[MyProcessorNumber];
+    NumberOfParticles = npart;
 
   } // ENDELSE (COPY_IN)
 

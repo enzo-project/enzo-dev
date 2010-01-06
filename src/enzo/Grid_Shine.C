@@ -118,11 +118,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	       RS->Luminosity);
       break;
     case BlackHole:
-      if (RadiativeTransferInterpolateField) {
-	FieldsToInterpolate[HINum] = TRUE;
-	FieldsToInterpolate[HeINum] = TRUE;
-	FieldsToInterpolate[HeIINum] = TRUE;
-      } // ENDIF interpolate fields
+//      if (RadiativeTransferInterpolateField) {
+//	FieldsToInterpolate[HINum] = TRUE;
+//	FieldsToInterpolate[HeINum] = TRUE;
+//	FieldsToInterpolate[HeIINum] = TRUE;
+//      } // ENDIF interpolate fields
 //      if (MyProcessorNumber == ProcessorNumber)
 //	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
 //	       PhotonTime-RS->CreationTime+dtPhoton);
@@ -189,7 +189,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  //fprintf(stdout, "MBH = %d, RS->Type = %d, NewPack->Type = %d\n", MBH, RS->Type, NewPack->Type);  
+//	  if (DEBUG)
+//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+//		   MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

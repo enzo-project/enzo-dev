@@ -66,7 +66,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
   // grid::StarParticleHandler.
-  if (type == PopII && FeedbackFlag == FORMATION &&
+  if (StarType == PopII && FeedbackFlag == FORMATION &&
       Mass > StarClusterMinimumMass) {
     if (debug)
       printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
@@ -156,7 +156,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       SphereTooSmall = MassEnclosed < 2*PopIIIStarMass;
       ColdGasFraction = 1.0;
       // to make the total mass PopIIIStarMass
-      AccretedMass = PopIIIStarMass - Mass;
+      AccretedMass = PopIIIStarMass - float(Mass);
       break;
 
     case PopII:  // Star Cluster Formation
@@ -165,7 +165,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)));
       DynamicalTime = sqrt((3.0 * M_PI) / (32.0 * gravConst * AvgDensity)) /
 	TimeUnits;
-      ColdGasFraction = ColdGasMass / (MassEnclosed + Mass);
+      ColdGasFraction = ColdGasMass / (MassEnclosed + float(Mass));
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
       SphereTooSmall = DynamicalTime < 
 	StarClusterMinDynamicalTime/(TimeUnits/yr);
@@ -216,7 +216,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   float eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
   if (FeedbackFlag == FORMATION) {
     // single Pop III star
-    if (StarType == PopIII && MassEnclosed > (1.0+epsMass)*(AccretedMass+Mass)) {
+    if (StarType == PopIII && MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
       SphereContained = FALSE;
       return SUCCESS;
     }

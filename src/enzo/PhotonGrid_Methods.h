@@ -52,6 +52,12 @@
   int InitializeRadiativeTransferFields(void);
   int AllocateInterpolatedRadiation(void);
 
+/* Tools for setting up temperature field for Compton heating */
+
+  int InitializeTemperatureFieldForComptonHeating(void);
+  int FinalizeTemperatureFieldForComptonHeating(void);
+  int GetTemperatureFieldNumberForComptonHeating(void);
+
 /* Flag cells to be refined by optical depth */
 
   int FlagCellsToBeRefinedByOpticalDepth(void);
@@ -306,7 +312,7 @@ int TraceRay(int NumberOfSegments,
 int WalkPhotonPackage(PhotonPackageEntry **PP, 
 		      grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
 		      grid **Grids0, int nGrids0,
-		      int DensNum, int HINum, int HeINum,
+		      int DensNum, int DeNum, int HINum, int HeINum,
 		      int HeIINum, int H2INum,
 		      int kphHINum, int gammaNum,
 		      int kphHeINum,

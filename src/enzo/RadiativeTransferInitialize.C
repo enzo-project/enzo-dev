@@ -155,27 +155,6 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     Exterior.AddField(TypesToAdd[i]);
   } // ENDFOR fields
 
-  /* Check for old gammaHeI and gammaHeII fields.  Delete if they
-     exist. */
-
-  int NumberOfObsoleteFields = 2;
-  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
-
-  ObsoleteFields[0] = gammaHeI;
-  ObsoleteFields[1] = gammaHeII;
-  if (RadiativeTransferHydrogenOnly == TRUE) {
-    NumberOfObsoleteFields += 2;
-    ObsoleteFields[2] = kphHeI;
-    ObsoleteFields[3] = kphHeII;
-  }
-
-  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-      Temp->GridData->DeleteObsoleteFields(ObsoleteFields, 
-					   NumberOfObsoleteFields);
-
-  Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
-
   /* Assign the radiation field DataLabels */
 
   for (i = 0; i < FieldsToAdd; i++) {
@@ -212,6 +191,27 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
       break;
     } // ENDSWITCH
   } // ENDFOR fields
+
+  /* Check for old gammaHeI and gammaHeII fields.  Delete if they
+     exist. */
+
+  int NumberOfObsoleteFields = 2;
+  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
+
+  ObsoleteFields[0] = gammaHeI;
+  ObsoleteFields[1] = gammaHeII;
+  if (RadiativeTransferHydrogenOnly == TRUE) {
+    NumberOfObsoleteFields += 2;
+    ObsoleteFields[2] = kphHeI;
+    ObsoleteFields[3] = kphHeII;
+  }
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      Temp->GridData->DeleteObsoleteFields(ObsoleteFields, 
+					   NumberOfObsoleteFields);
+
+  Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
 
   /* Initialize SubgridMarker (do we need to do this?  it's already
      done in RebuildHierarchy) */

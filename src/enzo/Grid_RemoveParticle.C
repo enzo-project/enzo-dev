@@ -26,7 +26,7 @@
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
-int grid::RemoveParticle(int ID)
+int grid::RemoveParticle(int ID, bool disable)
 {
 
   int i, found = FALSE;
@@ -36,9 +36,11 @@ int grid::RemoveParticle(int ID)
 
   for (i = 0; i < NumberOfParticles; i++)
     if (ParticleNumber[i] == ID) {
-      //      ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-      //      ParticleMass[i] = tiny_number;
-      ParticleMass[i] = FLOAT_UNDEFINED;
+      if (disable) {
+	ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+	ParticleMass[i] = tiny_number;
+      } else
+	ParticleMass[i] = FLOAT_UNDEFINED;
       found = TRUE;
       break;
     }

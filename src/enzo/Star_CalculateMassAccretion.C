@@ -117,7 +117,7 @@ int Star::CalculateMassAccretion(void)
       mu = density / number_density;
     }
     c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = this->Mass;
+    old_mass = (float)(this->Mass);
 
     // Calculate gas relative velocity (cm/s)
     v_rel = 0.0;
@@ -168,7 +168,7 @@ int Star::CalculateMassAccretion(void)
 
     if (mdot > 0.0)
       fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" Msun/yr, "
-	      "M_BH = %"GSYM" Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
+	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
 	      Identifier, time, mdot*yr, Mass, density*DensityUnits,
 	      temperature[index], v_rel);
 

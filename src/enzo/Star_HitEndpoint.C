@@ -34,8 +34,8 @@ int Star::HitEndpoint(FLOAT Time)
      constrains based on its star type */
 
   int result = NO_DEATH;
-  if (Time > this->BirthTime + this->LifeTime)
-    result = KILL_ALL;
+  if ((Time > this->BirthTime + this->LifeTime) && this->type >=0)
+    result = KILL_STAR;
   else
     return result;
 
@@ -45,9 +45,10 @@ int Star::HitEndpoint(FLOAT Time)
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass)
-      if (this->FeedbackFlag == DEATH)
-	result = KILL_ALL;
-      else
+      if (this->FeedbackFlag == DEATH) {
+	this->Mass = 1e-10;  // Needs to be non-zero
+	result = KILL_STAR;
+      } else
 	result = NO_DEATH;
     else {
       // Turn particle into a black hole (either radiative or tracer)

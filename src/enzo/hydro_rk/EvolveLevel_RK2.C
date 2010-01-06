@@ -65,7 +65,6 @@ int  ReportMemoryUsage(char *header = NULL);
 int  UpdateParticlePositions(grid *Grid);
 int  CheckEnergyConservation(HierarchyEntry *Grids[], int grid, 
 			     int NumberOfGrids, int level, float dt);
-int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
 #ifdef USE_MPI
 int CommunicationReduceValues(float *Values, int Number, MPI_Op ReduceOperation);
 #endif
@@ -488,7 +487,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	
 	  time1 = ReturnWallTime();
 	  
-	  Grids[grid1]->GridData->PoissonSolver(level);
+	 
 	
 	} // ENDIF MHD_RK
       } // ENDIF UseHydro
@@ -497,8 +496,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (UseViscosity) {
 	Grids[grid1]->GridData->AddViscosity();
-	//	printf("VISC: %f\n", ViscosityCoefficient);
+
       }
+
 
       /* Solve the cooling and species rate equations. */
  
@@ -519,6 +519,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	     Grids[grid1]->GridData->DeleteAccelerationField();
 
+
+
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       if (UseFloor) 
@@ -531,6 +533,23 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }  // end loop over grids
 
+    
+    if (UseDivergenceCleaning!=0){
+
+#ifdef FAST_SIB
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
+			    MetaData, Exterior, LevelArray[level]);
+#else
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
+			    Exterior, LevelArray[level]);
+#endif
+      
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+	Grids[grid1]->GridData->PoissonSolver(level);
+      }
+      
+    }
 
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
@@ -540,12 +559,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  Exterior, LevelArray[level]);
 #endif
 
-
-
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
+
+
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
     CallPython(LevelArray, MetaData, level);

@@ -32,8 +32,8 @@ class Star
   float		*accretion_rate;	// prescribed Mdot(t) [Msun / s]
   float          last_accretion_rate;
   FLOAT	*accretion_time;	// corresponding time for Mdot(t)
-  float		 Mass;		// Msun
-  float		 FinalMass;	// Msun
+  double       	 Mass;		// Msun
+  double       	 FinalMass;	// Msun
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
@@ -67,7 +67,7 @@ public:
   // Routines
   star_type ReturnType(void) { return type; };
   int   ReturnID(void) { return Identifier; };
-  float ReturnMass(void) { return Mass; };
+  double ReturnMass(void) { return Mass; };
   float ReturnLifetime(void) { return LifeTime; };
   int   ReturnLevel(void) { return level; };
   void  ReduceLevel(void) { level--; };
@@ -79,7 +79,7 @@ public:
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
   bool  MarkedToDelete(void) { return type == TO_DELETE; };
   void  MarkForDeletion(void) { type = TO_DELETE; };
-  void  AddMass(float dM) { Mass += dM; };
+  void  AddMass(double dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
   void  ResetAccretionPointers(void) 
@@ -122,6 +122,7 @@ public:
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);
   int   DeleteParticle(LevelHierarchyEntry *LevelArray[]);
+  int   DisableParticle(LevelHierarchyEntry *LevelArray[]);
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);

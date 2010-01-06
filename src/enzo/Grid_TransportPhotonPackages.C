@@ -154,8 +154,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int DeleteMe, DeltaLevel, PauseMe;
 
   const float clight = 2.9979e10;
-  float LightCrossingTime = 1.7320508 * VelocityUnits /  // sqrt(3)=1.73
-    (clight * RadiativeTransferPropagationSpeedFraction);
+  float LightCrossingTime = 1.7320508 * (LengthUnits/TimeUnits) /
+    (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
   FLOAT EndTime;
   if (RadiativeTransferAdaptiveTimestep)
     EndTime = PhotonTime+LightCrossingTime;
@@ -172,7 +172,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if ((PP->CurrentTime) < EndTime) {
       WalkPhotonPackage(&PP,
 			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-			DensNum, HINum, HeINum, HeIINum, H2INum,
+			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
 			kphHINum, gammaNum, kphHeINum, 
 			kphHeIINum, kdissH2INum, RPresNum1,
 			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 

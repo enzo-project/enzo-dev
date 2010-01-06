@@ -1,11 +1,10 @@
 /***********************************************************************
 /
-/  REMOVE THE ASSOCIATED NORMAL PARTICLE
+/  DISABLE THE ASSOCIATED NORMAL PARTICLE (set mass to tiny)
 /
 /  written by: John Wise
-/  date:       March, 2009
-/  modified1: shouldn't be used any more in general, instead try 
-/             Star_DisableParticle
+/  date:       December, 2009
+/  modified1:
 /
 ************************************************************************/
 
@@ -30,7 +29,7 @@
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 
-int Star::DeleteParticle(LevelHierarchyEntry *LevelArray[])
+int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
 {
 
   int i, nPart, NumberOfGrids, changedGrid = INT_UNDEFINED, found = FALSE;
@@ -38,7 +37,7 @@ int Star::DeleteParticle(LevelHierarchyEntry *LevelArray[])
   
   NumberOfGrids = GenerateGridArray(LevelArray, this->level, &Grids);
   for (i = 0; i < NumberOfGrids; i++) {
-    found = Grids[i]->GridData->RemoveParticle(this->Identifier);
+    found = Grids[i]->GridData->RemoveParticle(this->Identifier, true);
     if (found) {
       changedGrid = i;
       break;
@@ -59,11 +58,6 @@ int Star::DeleteParticle(LevelHierarchyEntry *LevelArray[])
     delete [] Grids;
     return SUCCESS;
   }
-
-  if (found) // meaning that the grid is on this processor
-    Grids[changedGrid]->GridData->CleanUpMovedParticles();
-  else
-    Grids[changedGrid]->GridData->NumberOfParticles--;
 
   Grids[changedGrid]->GridData->NumberOfStars--;
 

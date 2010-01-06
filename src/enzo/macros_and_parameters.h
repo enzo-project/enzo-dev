@@ -425,7 +425,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 9
+#define NUM_PARTICLE_TYPES 10
 
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1
@@ -455,7 +455,7 @@ typedef int            HDF5_hid_t;
 
 /* Feedback modes */
 
-#define TO_DELETE -99999
+#define TO_DELETE -99999  // TO_DELETE is for "type", not for "FeedbackFlag"
 #define NO_FEEDBACK 0
 #define ACCRETION 1
 #define SUPERNOVA 2

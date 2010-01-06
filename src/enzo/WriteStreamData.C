@@ -65,12 +65,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
   if (!MetaData->FirstTimestepAfterRestart)
     if (CycleCount[level] != MovieSkipTimestep) {
-
-      // Increase movie cycle count
-      for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++)
-	CycleCount[i] = 0;
       CycleCount[level]++;
-
       return SUCCESS;
     }
 

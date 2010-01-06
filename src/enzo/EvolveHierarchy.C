@@ -490,33 +490,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
- 
-    /* Rebuild the grids from level 0. */
-
-#ifdef USE_MPI
-    treb0 = MPI_Wtime();
-#endif
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Pre loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
- 
-    if (ProblemType != 25)
-      if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
-      }
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Post loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
-
-#ifdef USE_MPI
-    treb1 = MPI_Wtime();
-#endif
- 
+  
     /* Add time and check stopping criteria (steps #21 & #22)
        (note the topgrid is also keeping its own time but this statement will
        keep the two in synch). */
@@ -551,6 +525,29 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       Stop = TRUE;
       Restart = TRUE;
     }
+
+    /* If not restarting, rebuild the grids from level 0. */
+
+#ifdef USE_MPI
+    treb0 = MPI_Wtime();
+#endif
+
+#ifdef MEM_TRACE
+    MemInUse = mused();
+    fprintf(memtracePtr, "Pre loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+#endif
+ 
+    if (ProblemType != 25 && Restart == FALSE)
+      RebuildHierarchy(&MetaData, LevelArray, 0);
+
+#ifdef MEM_TRACE
+    MemInUse = mused();
+    fprintf(memtracePtr, "Post loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
+#endif
+
+#ifdef USE_MPI
+    treb1 = MPI_Wtime();
+#endif
  
     /* Check for time-actions. */
  

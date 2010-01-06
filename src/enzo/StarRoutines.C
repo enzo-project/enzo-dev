@@ -81,7 +81,7 @@ Star::Star(grid *_grid, int _id, int _level)
   GridID = _grid->ID;
   type = _grid->ParticleType[_id];
   Identifier = _grid->ParticleNumber[_id];
-  Mass = FinalMass = _grid->ParticleMass[_id];
+  Mass = FinalMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
   this->ConvertAllMassesToSolar();
@@ -309,7 +309,7 @@ void Star::ConvertMassToSolar(void)
 void Star::Merge(Star a)
 {
   int dim;
-  float ratio1, ratio2;
+  double ratio1, ratio2;
   ratio1 = Mass / (Mass + a.Mass);
   ratio2 = 1.0 - ratio1;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -409,10 +409,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
   CurrentGrid = _grid;
   level = _level;
   GridID = _grid->ID;
-  Mass = _grid->ParticleMass[_id];
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
-  this->ConvertMassToSolar();
+
+  // below is removed because we want to keep Star->Mass as double 
+  // during the run - Ji-hoon Kim, Dec.2009
+//  Mass = (double)(_grid->ParticleMass[_id]); 
+//  this->ConvertMassToSolar();
   return;
 }
 

@@ -49,7 +49,7 @@ FLOAT FindCrossSection(int type, float energy);
 enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
 			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
-			    grid **Grids0, int nGrids0, int DensNum, 
+			    grid **Grids0, int nGrids0, int DensNum, int DeNum,
 			    int HINum, int HeINum, int HeIINum, int H2INum, 
 			    int kphHINum, int gammaNum, int kphHeINum, 
 			    int kphHeIINum, 
@@ -66,11 +66,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0};
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};
+  const double k_b = 8.62e-5; // eV/K
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
   int i, index, dim, splitMe, direction;
-  int keep_walking, count, H2Thin, type;
+  int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
   long cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
@@ -79,10 +80,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
   double dN;
   FLOAT radius, oldr, cdt, dr;
-  FLOAT CellVolume, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
+  FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
-  FLOAT dir_vec[3], sigma[4];
+  FLOAT dir_vec[3], sigma[4]; 
   FLOAT ddr, dP, dP1, EndTime;
+  FLOAT xE, dPXray[4], ratioE;  
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
@@ -199,7 +201,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* find relevant cross-section and number of secondary ionizations
      for X-rays */
 
-  int nSecondaryHII = 1, nSecondaryHeIII = 1;
+  float nSecondaryHII = 1, nSecondaryHeII = 1;
   float xx, heat_factor = 1.0;
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
@@ -212,10 +214,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   else if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
       sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
-    nSecondaryHII = (int) floor((*PP)->Energy / 13.6 - 1);
-    nSecondaryHeIII = (int) floor((*PP)->Energy / 54.4 - 1);
+    nSecondaryHII = (*PP)->Energy / 13.6;
+    nSecondaryHeII = (*PP)->Energy / 24.6; 
   }
-  
+
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma
 
   // solid angle associated with package (= 4 Pi/N_package[on this level]) 
@@ -249,22 +251,18 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   Area_inv = 1.0 / dx2;
 
   FLOAT emission_dt_inv = 1.0 / (*PP)->EmissionTimeInterval;
-  FLOAT heat_energy;
   FLOAT factor1 = emission_dt_inv;
-  FLOAT factor2[3];
+  FLOAT factor2[4];
   FLOAT factor3 = Area_inv*emission_dt_inv;
 
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
-     in one shot */
+     in one shot; see Table 2 of Shull & van Steenberg (1985) */
 
-  if ((*PP)->Type == 4) {
-    heat_energy = (*PP)->Energy - EnergyThresholds[0];
+  if ((*PP)->Type == 4) 
     for (i = 0; i < 3; i++)
-      factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
-  } else {
-    heat_energy = (*PP)->Energy - EnergyThresholds[type];
-    factor2[0] = factor1 * heat_energy;
-  }
+      factor2[i] = factor1 * (*PP)->Energy;
+  else 
+    factor2[0] = factor1 * ((*PP)->Energy - EnergyThresholds[type]);
 
 
   /* Calculate conversion factor for radiation pressure.  In cgs, we
@@ -417,6 +415,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // make r=PauseRadius and return.
     if ((*PP)->Radius+ddr > PauseRadius) {
       fraction = (PauseRadius-(*PP)->Radius) / ddr;
+      fraction = max(fraction, ROUNDOFF);
       //fraction = min(fraction,0.1);
       //fraction = 1.0;
       ddr *= fraction;
@@ -538,15 +537,20 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /************************************************************/
     case 4:
 
+      // Shull & van Steenberg (1985)
       if (RadiationXRaySecondaryIon) {
 	xx = max(fields[iHII][index] / 
 		 (fields[iHI][index] + fields[iHII][index]), 1e-4);
 	heat_factor    = 0.9971 * (1 - powf(1 - powf(xx, 0.2663f), 1.3163));
+
 	ion2_factor[0] = 0.3908 * nSecondaryHII * 
 	  powf(1 - powf(xx, 0.4092f), 1.7592f);
-	ion2_factor[2] = 0.0554 * nSecondaryHeIII * 
+	ion2_factor[1] = 0.0554 * nSecondaryHeII * 
 	  powf(1 - powf(xx, 0.4614f), 1.6660f);
       }
+
+      dP = 0.0; 
+      for (i = 0; i < 4; i++) dPXray[i] = 0.0; 
 
       /* Loop over absorbers */
       for (i = 0; i < 3; i++) {
@@ -559,12 +563,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	tau = dN*sigma[i];
 
 	// at most use all photons for photo-ionizations
-	if (tau > 2.e1) dP = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPXray[i] = (1.0+ROUNDOFF) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
-	  dP = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	  dPXray[i] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
-	  dP = min((*PP)->Photons*tau, (*PP)->Photons);
-	dP1 = dP * slice_factor2;
+	  dPXray[i] = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1 = dPXray[i] * slice_factor2;
 
 	// contributions to the photoionization rate is over whole timestep
 	BaryonField[kphNum[i]][index] += dP1 * factor1 * ion2_factor[i];
@@ -574,6 +578,52 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber
+
+      if (RadiationXRayComptonHeating) {  
+
+	thisDensity = BaryonField[DeNum][index] * ConvertToProperNumberDensity;
+	TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
+
+	// assume photon energy is much less than the electron rest mass energy 
+	// nonrelativistic Klein-Nishina cross-section in Ribicki & Lightman (1979)
+	xE = (*PP)->Energy/5.11e5;  
+	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
+
+	// nonrelativistic energy transfer in Ciotti & Ostriker (2001)
+	factor2[3] = factor1 * 4 * k_b * BaryonField[TemperatureField][index] * xE;
+	ratioE = 4 * k_b * BaryonField[TemperatureField][index] * xE / (*PP)->Energy; 
+
+	dN = thisDensity * ddr;
+	tau = dN*sigma[3];
+
+	// at most use all photons for Compton scattering
+	if (tau > 2.e1) dPXray[3] = (1.0+ROUNDOFF) * (*PP)->Photons;
+	else if (tau > 1.e-4) 
+	  dPXray[3] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	else
+	  dPXray[3] = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1 = dPXray[3] * slice_factor2;
+
+	// the heating rate by energy transfer during Compton scattering
+	BaryonField[gammaNum][index] += dP1 * factor2[3]; //#####
+
+	// a photon loses only a fraction of photon energy in Compton scatering, 
+	// and keeps propagating; to model this with monochromatic energy,
+	// we instead subtract #photons (dPXray[3]_new) from PP
+	// (photon energy absorbed) = dPXray[3]     * (4*k_B*T*xE) 
+	//                          = dPXray[3]_new * (*PP)->Energy
+	dPXray[3] *= ratioE;
+
+	/*
+	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature = %g,"
+               "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
+	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]);  //#####
+	*/
+
+      }
+      
+      // find the total absorbed number of photons including Compton heating
+      for (i = 0; i < 4; i++) dP += dPXray[i];
 
       break;
 

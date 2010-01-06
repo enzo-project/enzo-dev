@@ -6,8 +6,8 @@
 /  date:       November, 2009
 /  modified1: 
 /
-/  purpose:  For MBHFeedback=2 (FeedbackFlag=MBH_JETS) calculate angular 
-/            momentum accreted onto MBH; this will not affect the acutal 
+/  purpose:  For MBHFeedback=2 or 3 (FeedbackFlag=MBH_JETS) calculate 
+/            angular momentum accreted onto MBH; this will not affect 
 /            Star_Accrete.  
 /
 ************************************************************************/
@@ -35,7 +35,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::AccreteAngularMomentum(void)
 {
 
-  if (CurrentGrid == NULL || type != MBH || MBHFeedback != 2)
+  if (CurrentGrid == NULL || type != MBH || (MBHFeedback != 2 && MBHFeedback != 3))
     return SUCCESS;
 
   if (CurrentGrid->GridRank != MAX_DIMENSION) {
@@ -82,7 +82,7 @@ int Star::AccreteAngularMomentum(void)
   if (i < ibuff+1 || i > CurrentGrid->GridDimension[0]-ibuff-2 || 
       j < ibuff+1 || j > CurrentGrid->GridDimension[1]-ibuff-2 ||
       k < ibuff+1 || k > CurrentGrid->GridDimension[2]-ibuff-2) {
-//    fprintf(stdout, "star::AAM: 27 cells around MBH not contained; moving on.\n"); 
+    fprintf(stdout, "star::AAM: 27 cells around MBH not contained; moving on.\n"); 
     return SUCCESS;
   }
   
@@ -119,13 +119,19 @@ int Star::AccreteAngularMomentum(void)
     }
   }
 
+//  fprintf(stdout, "star::AAM: gas_angmom = (%g, %g, %g), total_gas_mass = %g, DeltaMass = %g\n", 
+//	  gas_angmom[0], gas_angmom[1], gas_angmom[2], total_gas_mass, DeltaMass); 
+
   // specific gas angular momentum in: Mpc * km/s
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     gas_angmom[dim] /= total_gas_mass;
 
   // finally store angular momentum onto MBH in: Msun * Mpc * km/s
   for (dim = 0; dim < MAX_DIMENSION; dim++) 
-    this->accreted_angmom[dim] += (float)(DeltaMass * gas_angmom[dim]);
+    this->accreted_angmom[dim] += (float)(this->DeltaMass * gas_angmom[dim]);
+
+//  fprintf(stdout, "star::AAM: this->accreted_angmom = (%g, %g, %g)\n", 
+//	  this->accreted_angmom[0], this->accreted_angmom[1], this->accreted_angmom[2]); 
 
   return SUCCESS;
 }

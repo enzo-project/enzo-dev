@@ -122,6 +122,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
       DINum, DIINum, HDINum, MetalNum;
  
   int ExtraField[2];
+  int ForbidNum;
+  int CRNum, MachNum, PSTempNum, PSDenNum;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -227,7 +229,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   if (ParallelRootGridIO == TRUE && TotalRefinement < 0)
   {
- 
+
+    if (CosmologySimulationDensityName != NULL) {
     file_id = H5Fopen(CosmologySimulationDensityName, H5F_ACC_RDONLY, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
       if( file_id == h5_error){ENZO_FAIL("IO Problem");}
@@ -235,6 +238,25 @@ int grid::NestedCosmologySimulationInitializeGrid(
     dset_id = H5Dopen(file_id, CosmologySimulationDensityName);
       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
       if( dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else if (CosmologySimulationParticleVelocityName != NULL) {
+      file_id = H5Fopen(CosmologySimulationParticleVelocityName, 
+			H5F_ACC_RDONLY, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+        if (file_id == h5_error){ENZO_FAIL("IO Problem");}
+      dset_id = H5Dopen(file_id, CosmologySimulationParticleVelocityName);
+       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+       if (dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else if (CosmologySimulationParticleVelocityNames[0] != NULL) {
+      file_id = H5Fopen(CosmologySimulationParticleVelocityNames[0], 
+			H5F_ACC_RDONLY, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
+        if (file_id == h5_error){ENZO_FAIL("IO Problem");}
+      dset_id = H5Dopen(file_id, CosmologySimulationParticleVelocityNames[0]);
+        if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
+        if (dset_id == h5_error){ENZO_FAIL("IO Problem");}
+    } else
+      ENZO_FAIL("Cannot find initial density or particle velocity datafile"
+		" for nested cosmology run.");
  
         if (io_log) fprintf(log_fptr, "H5Aopen_name with Name = Rank\n");
  
@@ -368,6 +390,9 @@ int grid::NestedCosmologySimulationInitializeGrid(
             TopGridStart[dim] = 0;
           if (TopGridEnd[dim] == INT_UNDEFINED)
             TopGridEnd[dim] = TopGridDims[dim] - 1;
+	  // Correct for a "feature" in mpgrafic
+	  if (CosmologySimulationCalculatePositions)
+	    TopGridEnd[dim] -= 1;
         }
  
 //        fprintf(stderr, "TopGridDims = %"ISYM" %"ISYM" %"ISYM"\n", TopGridDims[0], TopGridDims[1], TopGridDims[2]);
@@ -456,6 +481,18 @@ int grid::NestedCosmologySimulationInitializeGrid(
     }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
+    if(STARMAKE_METHOD(COLORED_POP3_STAR)){
+      fprintf(stderr, "Initializing Forbidden Refinement color field\n");
+      FieldType[ForbidNum = NumberOfBaryonFields++] = ForbiddenRefinement;
+    }
+    if(CRModel){
+      FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
+      if(StorePreShockFields){
+	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
+	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
+      }
+      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
+    }    
   }
  
 //  fprintf(stderr, "Total Baryon Fields in VVV: %"ISYM" on CPU %"ISYM"\n", NumberOfBaryonFields, MyProcessorNumber);
@@ -643,6 +680,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];
       }
     }
+
+  if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
+    for (i = 0; i < size; i++)
+      BaryonField[ForbidNum][i] = 0.0;
+  }
  
   // If they were not read in above, set the total & gas energy fields now
  
@@ -665,8 +707,19 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	for (i = 0; i < size; i++)
 	  BaryonField[1][i] +=
 	    0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-  }
+
+    //Shock/Cosmic Ray Model
+    if (CRModel && ReadData) {
+      BaryonField[MachNum][i] = tiny_number;
+      BaryonField[CRNum][i] = tiny_number;
+      if (StorePreShockFields) {
+	BaryonField[PSTempNum][i] = tiny_number;
+	BaryonField[PSDenNum][i] = tiny_number;
+      }
+    }
  
+  }
+
   } // end: if (NumberOfBaryonFields > 0)
  
  
@@ -2802,7 +2855,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
     CurrentParticleNumber += NumberOfParticles;
  
   } // end: if (CosmologySimulationParticleName != NULL)
- 
+
   } // end: if (ProcessorNumber == MyProcessorNumber)
  
   // Share number of particles amoung processors
@@ -2817,7 +2870,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
   }
  
   OldTime = Time;
- 
+
   if (io_log) fclose(log_fptr);
  
   return SUCCESS;
