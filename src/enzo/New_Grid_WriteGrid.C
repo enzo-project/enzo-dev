@@ -239,6 +239,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     for (dim = 0; dim < GridRank; dim++) {
       OutDims[GridRank-dim-1] = ActiveDim[dim];
       FullOutDims[GridRank-dim-1] = GridDimension[dim];
+      GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
     }
  
     /* 2b) Write out co-ordinate values.  Use the centre of each cell. */
