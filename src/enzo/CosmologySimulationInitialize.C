@@ -46,10 +46,8 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+void PrintMemoryUsage(char *str);
 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
 
 // Cosmology Parameters (that need to be shared)
  
@@ -719,10 +717,6 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
     *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];
   
-#ifdef MEM_TRACE
-  Eint64 MemInUse;
-#endif
- 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticleVelocityNames[dim] = NULL;
     VelocityNames[dim] = NULL;
@@ -793,10 +787,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   HierarchyEntry *Temp = TopGrid;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call G_CSIG");
  
   while (Temp != NULL) {
  
@@ -829,11 +820,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Called G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
- 
+  PrintMemoryUsage("Called G_CSIG");
  
     //  Create tracer particles
 
@@ -876,10 +863,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
  
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Local pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Local pc set");
  
  
   // Loop over grids and set particle ID number
@@ -896,10 +880,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   // Added the following line:
   MetaData.NumberOfParticles = ParticleCount;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Recursive pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Recursive pc set");
 
  
   return SUCCESS;
