@@ -311,7 +311,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
        never happen! */
 
     if (this->accretion_rate == NULL && this->accretion_time == NULL) {
-      this->naccretions = 2;
+      this->naccretions = 1;
       this->accretion_rate = new float[2];
       this->accretion_rate[0] = AccretedMass / (Time * TimeUnits);
       this->accretion_rate[1] = 0.0;
