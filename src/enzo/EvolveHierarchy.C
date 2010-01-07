@@ -102,14 +102,16 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 				      int TopGridRank, int CycleNumber);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
+void PrintMemoryUsage(char *str);
 
-#ifdef USE_PYTHON
-int CallPython();
-#endif
 
 #ifdef MEM_TRACE
 Eint64 mused(void);
 #endif
+#ifdef USE_PYTHON
+int CallPython();
+#endif
+
  
  
 #define NO_REDUCE_FRAGMENTATION
@@ -141,10 +143,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.CycleNumber >= MetaData.StopCycle) Stop = TRUE;
   MetaData.StartCPUTime = MetaData.CPUTime = LastCPUTime = ReturnWallTime();
   MetaData.LastCycleCPUTime = 0.0;
- 
-#ifdef MEM_TRACE
-  Eint64 MemInUse;
-#endif
  
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
@@ -185,10 +183,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   Temp = LevelArray[0];
 
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("Enter EH");
 
 #ifdef FORCE_MSG_PROGRESS
   CommunicationBarrier();
@@ -230,11 +225,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef FORCE_MSG_PROGRESS
   CommunicationBarrier();
 #endif
- 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Bdry set %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+
+  PrintMemoryUsage("Bdry set");
  
   /* Remove RandomForcingFields from BaryonFields when BCs are set. */
  
@@ -251,11 +243,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
 
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "Output %8"ISYM"  %16"ISYM" \n", 
-	  MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("Output");
  
   /* Compute the acceleration field so ComputeTimeStep can find dtAccel.
      (Actually, this is a huge pain-in-the-ass, so only do it if the
@@ -286,12 +274,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   
 
 
-
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "1st rebuild %8"ISYM"  %16"ISYM" \n", 
-	  MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("1st rebuild");
  
   /* Open the OutputLevelInformation file. */
  
@@ -333,9 +316,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Top %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    fprintf(memtracePtr, "==== CYCLE %"ISYM" ====\n", MetaData.CycleNumber);
+#endif    
+    PrintMemoryUsage("Top");
 
     /* Load balance the root grids if this isn't the initial call */
 
@@ -529,18 +512,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     treb0 = MPI_Wtime();
 #endif
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Pre loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    PrintMemoryUsage("Pre loop rebuild");
  
     if (ProblemType != 25 && Restart == FALSE)
       RebuildHierarchy(&MetaData, LevelArray, 0);
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Post loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    PrintMemoryUsage("Post loop rebuild");
 
 #ifdef USE_MPI
     treb1 = MPI_Wtime();
@@ -578,10 +555,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)==0) lcaperf.end("EL");
 #endif
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Bot %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    PrintMemoryUsage("Bot");
 
   for ( i = 0; i < MAX_NUMBER_OF_TASKS; i++ ) {
     TaskMemory[i] = -1;
@@ -589,6 +563,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
 #ifdef MEM_TRACE
 
+  /*
   MPI_Datatype DataTypeInt = (sizeof(Eint64) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
   MPI_Arg ThisTask;
   MPI_Arg TaskCount;
@@ -599,7 +574,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   stat = MPI_Comm_rank(MPI_COMM_WORLD, &ThisTask);
   stat = MPI_Allgather(&MemInUse, Count, DataTypeInt, TaskMemory, Count, DataTypeInt, MPI_COMM_WORLD);
 
-/*
   if (ThisTask == 0 ) {
     for ( i = 0; i < TaskCount; i++) {
       fprintf(stderr, "TaskMemory : Task %"ISYM"  Memory %"ISYM"\n", i, TaskMemory[i]);
@@ -621,7 +595,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
 #ifdef MEM_TRACE
+    Eint64 MemInUse;
     if (WroteData) {
+      MemInUse = mused();
+      MemInUse = CommunicationMaxValue(MemInUse);
       if (MemInUse > MemoryLimit) {
         if (MyProcessorNumber == ROOT_PROCESSOR)
           printf("Stopping due to memory limit.\n");

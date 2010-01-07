@@ -163,12 +163,10 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+void PrintMemoryUsage(char *str);
 
 
 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
  
 // Character strings
  
@@ -190,10 +188,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   float Dummy[MAX_DIMENSION];
   int dim, i;
 
-#ifdef MEM_TRACE
-    Eint64 MemInUse;
-#endif
- 
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Dummy[dim] = 0.0;
@@ -292,10 +286,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Call problem initializer
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call problem init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call problem init");
  
   if (ProblemType == 0) {
         ENZO_FAIL("No problem specified.");
@@ -562,10 +553,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("");
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "1st Initialization done %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("1st Initialization done");
 
  
   if (debug)
@@ -632,11 +620,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }  // end of set Exterior
 
 
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exterior set  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exterior set");
 
   if (debug) {
     fprintf(stderr, "End of set exterior\n");
@@ -750,10 +734,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       }
     }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Before 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Before 2nd pass");
  
   if (ParallelRootGridIO == TRUE && ProblemType == 30) {
     if (PartitionNestedGrids) {
@@ -766,12 +747,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       }
     }
   }
- 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "After 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
- 
+
+  PrintMemoryUsage("After 2nd pass");
+
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.
  
@@ -804,10 +782,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fclose(Outfptr);
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exit X_Init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exit X_Init");
 
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Added the following line:

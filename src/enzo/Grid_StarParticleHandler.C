@@ -464,7 +464,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   float OverDensityThreshold;
   if (PopIIIOverDensityThreshold < 0) {
     OverDensityThreshold = -PopIIIOverDensityThreshold * 1.673e-24 / DensityUnits;
-    if (OverDensityThreshold < 10)
+    if (OverDensityThreshold < 1)
       OverDensityThreshold = huge_number;
   }
   else

@@ -82,13 +82,20 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     MaximumAlvenSpeed *= velu;
     EOSSoundSpeed *=  velu;
 
-    /*
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    /*    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-	//	MinimumMassForRefinement[i] *= massu; //#####
+	printf("i = %i, MinMass = %g, massu = %g\n",i,MinimumMassForRefinement[i],massu);
+	MinimumMassForRefinement[i] *= massu;
+	printf("i = %i, MinMass = %g\n",i,MinimumMassForRefinement[i]);
+      }
+    }*/
+
+    if (!ComovingCoordinates && UsePhysicalUnit) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
-    */
 
   }
 
@@ -488,13 +495,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
-	  MinimumOverDensityForRefinement[0]*rhou,
-	  MinimumOverDensityForRefinement[1]*rhou,
-	  MinimumOverDensityForRefinement[2]*rhou,
-	  MinimumOverDensityForRefinement[3]*rhou,
-	  MinimumOverDensityForRefinement[4]*rhou,
-	  MinimumOverDensityForRefinement[5]*rhou,
-	  MinimumOverDensityForRefinement[6]*rhou);
+	  MinimumOverDensityForRefinement[0],
+	  MinimumOverDensityForRefinement[1],
+	  MinimumOverDensityForRefinement[2],
+	  MinimumOverDensityForRefinement[3],
+	  MinimumOverDensityForRefinement[4],
+	  MinimumOverDensityForRefinement[5],
+	  MinimumOverDensityForRefinement[6]);
 
   fprintf(fptr, "MinimumMassForRefinement ="
 	  " %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM"\n",
@@ -757,6 +764,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
   }
 
+  if (!ComovingCoordinates && UsePhysicalUnit) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumOverDensityForRefinement[i] /= rhou;
+      }
+    }
+  }
 
 
   /* Output current time */
