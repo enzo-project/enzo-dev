@@ -42,7 +42,7 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 
 /* This option code ensures that in nested grid sims, the children grids are not split between two grids at level-1.
    It is off by default. */
-#define CONTAINED_WITHIN_PARENT
+#define CONTAINED_WITHIN_PARENT_OFF
 
 #ifdef CONTAINED_WITHIN_PARENT
 int *AllStartIndex[MAX_STATIC_REGIONS][MAX_DIMENSION];

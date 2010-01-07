@@ -40,7 +40,7 @@
 #include "fortran.def"
 #include "CommunicationUtilities.h"
 
-#define CONTAINED_WITHIN_PARENT
+#define CONTAINED_WITHIN_PARENT_OFF
  
 // Function prototypes
  
