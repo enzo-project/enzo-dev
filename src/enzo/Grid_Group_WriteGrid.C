@@ -301,6 +301,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* 2c) Loop over fields, writing each one. */
  
     for (field = 0; field < NumberOfBaryonFields; field++) {
+
+      printf("grid::Group_WriteGrid:  DataLabel[field = %d] = %s\n", field, DataLabel[field]);  //#####
    
       /* copy active part of field into grid */
  

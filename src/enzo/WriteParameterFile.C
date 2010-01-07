@@ -81,13 +81,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT *= tempu;
     MaximumAlvenSpeed *= velu;
     EOSSoundSpeed *=  velu;
+
+    /*
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumMassForRefinement[i] *= massu;
+	//	MinimumMassForRefinement[i] *= massu; //#####
       }
     }
-
-
+    */
 
   }
 
@@ -487,23 +488,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
-	  MinimumOverDensityForRefinement[0],
-	  MinimumOverDensityForRefinement[1],
-	  MinimumOverDensityForRefinement[2],
-	  MinimumOverDensityForRefinement[3],
-	  MinimumOverDensityForRefinement[4],
-	  MinimumOverDensityForRefinement[5],
-	  MinimumOverDensityForRefinement[6]);
+	  MinimumOverDensityForRefinement[0]*rhou,
+	  MinimumOverDensityForRefinement[1]*rhou,
+	  MinimumOverDensityForRefinement[2]*rhou,
+	  MinimumOverDensityForRefinement[3]*rhou,
+	  MinimumOverDensityForRefinement[4]*rhou,
+	  MinimumOverDensityForRefinement[5]*rhou,
+	  MinimumOverDensityForRefinement[6]*rhou);
 
   fprintf(fptr, "MinimumMassForRefinement ="
 	  " %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM"\n",
-	  MinimumMassForRefinement[0],
-	  MinimumMassForRefinement[1],
-	  MinimumMassForRefinement[2],
-	  MinimumMassForRefinement[3],
-	  MinimumMassForRefinement[4],
-	  MinimumMassForRefinement[5],
-	  MinimumMassForRefinement[6]);
+	  MinimumMassForRefinement[0]*massu,
+	  MinimumMassForRefinement[1]*massu,
+	  MinimumMassForRefinement[2]*massu,
+	  MinimumMassForRefinement[3]*massu,
+	  MinimumMassForRefinement[4]*massu,
+	  MinimumMassForRefinement[5]*massu,
+	  MinimumMassForRefinement[6]*massu);
 
   fprintf(fptr, "MinimumMassForRefinementLevelExponent ="
 	  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
@@ -646,10 +647,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ViscosityCoefficient       = %g\n", ViscosityCoefficient);  
   fprintf(fptr, "UseAmbipolarDiffusion      = %d\n", UseAmbipolarDiffusion);
   fprintf(fptr, "UseResistivity             = %d\n", UseResistivity);
-  fprintf(fptr, "SmallRho                   = %g\n", SmallRho*rhou);
-  fprintf(fptr, "SmallP                     = %g\n", SmallP*presu);
-  fprintf(fptr, "SmallT                     = %g\n", SmallT*tempu);
-  fprintf(fptr, "MaximumAlvenSpeed          = %g\n", MaximumAlvenSpeed*velu);
+  fprintf(fptr, "SmallRho                   = %g\n", SmallRho);
+  fprintf(fptr, "SmallP                     = %g\n", SmallP);
+  fprintf(fptr, "SmallT                     = %g\n", SmallT);
+  fprintf(fptr, "MaximumAlvenSpeed          = %g\n", MaximumAlvenSpeed);
   fprintf(fptr, "Coordinate                 = %d\n", Coordinate);
   fprintf(fptr, "EOSType                    = %d\n", EOSType);
   fprintf(fptr, "EOSSoundSpeed              = %g\n", EOSSoundSpeed);
@@ -747,12 +748,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
+    /*
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= massu;
       }
     }
-    
+    */
   }
 
 

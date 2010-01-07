@@ -322,7 +322,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // self-consistently (see Cattaneo & Teyssier 2007) - Ji-hoon Kim, Nov.2009
 
 #define MAX_SUPERCELL_NUMBER 1000
-  int SUPERCELL = 5; //for supercell of 7 cells wide = 7^3
+  int SUPERCELL = 2; //3 for supercell of 7 cells wide = 7^3
   int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
   float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
     nz_cell_edge[MAX_SUPERCELL_NUMBER];
@@ -346,7 +346,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if (i < ibuff+SUPERCELL || i > GridDimension[0]-ibuff-SUPERCELL-1 || 
 	j < ibuff+SUPERCELL || j > GridDimension[1]-ibuff-SUPERCELL-1 ||
 	k < ibuff+SUPERCELL || k > GridDimension[2]-ibuff-SUPERCELL-1) {
-      fprintf(stdout, "grid::AddFS: supercell (7^3 cells) not contained; moving on.\n"); 
+      fprintf(stdout, "grid::AddFS: supercell not contained; moving on.\n"); 
       return SUCCESS;
     }
     

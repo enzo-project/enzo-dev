@@ -78,8 +78,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     
     double time2 = ReturnWallTime();
 
-    for (int field = ivx; field < NEQ_HYDRO; field++) {  //#####  <=ietot changed to <NEQ_HYDRO 
-      //    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field <= ietot; field++) {
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -102,8 +101,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
       }
     }
 
-    for (int field = ivx; field < NEQ_HYDRO; field++) {  
-      //    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field <= ietot; field++) {
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {

@@ -383,8 +383,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
 
     if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
-      // 
-
    
       int activesize = 1;
       for (int dim = 0; dim < GridRank; dim++)
@@ -393,21 +391,36 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (divB == NULL) 
 	divB = new float[activesize];
       
-      /* if we restart from a different solvers output without a Phi Field create here and set to zero */
-    int PhiNum; 
-    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
-      fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
-      fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
-      char *PhiName = "Phi";
-      PhiNum = NumberOfBaryonFields;
-      int PhiToAdd = PhiField;
-      this->AddFields(&PhiToAdd, 1);
-      DataLabel[PhiNum] = PhiName;
-    } else { 
-      if (0) 
-	for (int n = 0; n < size; n++)
-	  BaryonField[PhiNum][n] = 0.;
-    }
+      /* if we restart from a different solvers output without a PhiField create here and set to zero */
+      int PhiNum; 
+      if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+	fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
+	fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	char *PhiName = "Phi";
+	PhiNum = NumberOfBaryonFields;
+	int PhiToAdd = PhiField;
+	this->AddFields(&PhiToAdd, 1);
+	DataLabel[PhiNum] = PhiName;
+      } else { 
+	if (0) 
+	  for (int n = 0; n < size; n++)
+	    BaryonField[PhiNum][n] = 0.;
+      }
+
+      /* if we restart from a different solvers output without a Phi_pField 
+	 and yet want to use the divergence cleaning, create here and set to zero */
+      if (UseDivergenceCleaning) {
+	int Phi_pNum; 
+	if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
+	  fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
+	  fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	  char *Phi_pName = "Phi_p";
+	  Phi_pNum = NumberOfBaryonFields;
+	  int Phi_pToAdd = Phi_pField;
+	  this->AddFields(&Phi_pToAdd, 1);
+	  DataLabel[Phi_pNum] = Phi_pName;
+	}
+      }
 
       for (int dim = 0; dim < 3; dim++)
 	if (gradPhi[dim] == NULL)
