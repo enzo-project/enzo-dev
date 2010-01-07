@@ -117,8 +117,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int NumberOfSources = 0;
     while (RS != NULL) {
       if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
-	    (RS->CreationTime > PhotonTime + dtPhoton)) &&
-	   LoopTime == TRUE) {
+	    (RS->CreationTime > PhotonTime + dtPhoton)) && LoopTime == TRUE) {  
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
@@ -147,7 +146,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* create temperature fields for Compton heating */  
 
-    if (RadiationXRayComptonHeating)  //#####
+    if (RadiationXRayComptonHeating)  
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
@@ -303,10 +302,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        PhotonPackages.  For the adaptive timestep, we don't carryover
        any photons to the next timestep. */
 
-    if (RadiativeTransferAdaptiveTimestep)
+    if (RadiativeTransferAdaptiveTimestep)  
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  Temp->GridData->DeletePhotonPackages();
+	  Temp->GridData->DeletePhotonPackages();  
     else
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)

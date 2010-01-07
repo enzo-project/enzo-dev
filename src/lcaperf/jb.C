@@ -133,8 +133,8 @@ void jb_read_globals(FILE *fp, map<string,string> & Globals)
     }
     c = jb_read_line (fp,line,words);
   }
-  if (Globals.find("jbPerf-version") != Globals.end()) {
-    global_version[fp] = Globals["jbPerf-version"];
+  if (Globals.find("lcaperf-version") != Globals.end()) {
+    global_version[fp] = Globals["lcaperf-version"];
   } else {
     global_version[fp] = "0.0";
   }
@@ -256,7 +256,7 @@ void jb_print_globals (map<string,string> Globals)
   // Prints the global definitions
 
 
-  Globals["jbPerf-version"] = global_version_write;
+  Globals["lcaperf-version"] = global_version_write;
   for (map<string,string>::iterator pglobal=Globals.begin();
        pglobal != Globals.end();
        ++pglobal) {

@@ -23,7 +23,7 @@
 
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 
-int grid::DeletePhotonPackages() {
+int grid::DeletePhotonPackages() {  
 
   PhotonPackageEntry *PP;
 

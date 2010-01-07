@@ -178,11 +178,7 @@ void lcaperfInitialize (int max_level);
 #endif
 
 void my_exit(int status);
-
- 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif 
+void PrintMemoryUsage(char *str);
 
 
  
@@ -192,9 +188,6 @@ Eint64 mused(void);
 Eint32 main(Eint32 argc, char *argv[])
 {
 
-#ifdef MEM_TRACE
-    Eint64 MemInUse;
-#endif
 
   int i;
 
@@ -559,10 +552,7 @@ Eint32 main(Eint32 argc, char *argv[])
 
   // Normal start: Open and read parameter file
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call initialize %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call initialize");
 
  
   if (!restart) {
@@ -613,11 +603,7 @@ Eint32 main(Eint32 argc, char *argv[])
   }
 #endif
 
-
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "Call evolve hierarchy %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("Call evolve hierarchy");
 
 #ifdef USE_PYTHON
   // We initialize our Python interface now
