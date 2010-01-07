@@ -55,8 +55,8 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     for (int i=0; i < 9; i++) printf("BaryonField[%i][%i] = %g \n", i, j, BaryonField[i][j]);
 #endif
 
-  this->ReturnHydroRKPointers(Prim, false);
-  this->ReturnOldHydroRKPointers(OldPrim, false);
+  this->ReturnHydroRKPointers(Prim, true);  //##### originally false
+  this->ReturnOldHydroRKPointers(OldPrim, true);  //##### originally false
 
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
@@ -78,7 +78,8 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     
     double time2 = ReturnWallTime();
 
-    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field < NEQ_HYDRO; field++) {  //#####  <=ietot changed to <NEQ_HYDRO 
+      //    for (int field = ivx; field <= ietot; field++) {
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -101,7 +102,8 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
       }
     }
 
-    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field < NEQ_HYDRO; field++) {  
+      //    for (int field = ivx; field <= ietot; field++) {
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -147,6 +149,17 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
   if (this->UpdateMHDPrim(dU, 0.5, 0.5) == FAIL) {
     return FAIL;
   }
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  for (int field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)
+    for (int n = 0; n < size; n++) {
+      Prim[field][n] *= Prim[iden][n];  //##### added!
+      OldPrim[field][n] *= OldPrim[iden][n];  
+    }
+
+  this->UpdateElectronDensity();
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
     delete [] dU[field];

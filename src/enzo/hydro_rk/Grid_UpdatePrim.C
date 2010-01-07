@@ -52,14 +52,15 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
+  //##### BaryonField[] is already a fractionalized in Grid_RK2_[12]Step -> Grid_ReturnHydroRKPointer, so no need for ReturnMassFraction
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim, false);
-  this->ReturnOldHydroRKPointers(OldPrim, false);
+  this->ReturnHydroRKPointers(Prim, false);  
+  this->ReturnOldHydroRKPointers(OldPrim, false);  
 
-  // update species and colours
+  // update species
 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {  //##### changed NSpecies+Ncolor -> NSpecies
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -73,9 +74,9 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  // renormalize species and colours
+  // renormalize species
 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -89,7 +90,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++) {
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -99,7 +100,6 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
       }
     }
   }
-
 
 
   // update conserved variables
@@ -242,19 +242,18 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  // convert species from mass fraction to density
-  
+  /*  //##### below is now done in Grid_RungeKutta2_[12]Step
+  // convert species from mass fraction to density 
   for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
-    for (n = 0; n < size; n++)
+    for (n = 0; n < size; n++) 
       Prim[field][n] *= BaryonField[DensNum][n];
 
   this->UpdateElectronDensity();
+  */
 
   if ( (NSpecies+NColor) > 0) {
     delete [] D;
     delete [] sum;
   }
-
-  
   return SUCCESS;
 }
