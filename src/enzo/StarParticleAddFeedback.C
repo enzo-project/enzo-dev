@@ -91,8 +91,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     AddedFeedback[count] = false;
 
-    if (debug)
-      cstar->PrintInfo();
+//    if (debug)
+//      cstar->PrintInfo();
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
@@ -154,11 +154,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     }
 
 
-    if (debug) {
-      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
-	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
-    }
+//    if (debug) {
+//      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+//      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+//	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
+//    }
 
 
     /* Quit this routine when 
