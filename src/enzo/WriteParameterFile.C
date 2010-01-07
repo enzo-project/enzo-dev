@@ -496,7 +496,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumOverDensityForRefinement[6]);
 
   fprintf(fptr, "MinimumMassForRefinement ="
-	  " %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM"\n",
+	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumMassForRefinement[0],
 	  MinimumMassForRefinement[1],
 	  MinimumMassForRefinement[2],
@@ -646,10 +646,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ViscosityCoefficient       = %g\n", ViscosityCoefficient);  
   fprintf(fptr, "UseAmbipolarDiffusion      = %d\n", UseAmbipolarDiffusion);
   fprintf(fptr, "UseResistivity             = %d\n", UseResistivity);
-  fprintf(fptr, "SmallRho                   = %g\n", SmallRho*rhou);
-  fprintf(fptr, "SmallP                     = %g\n", SmallP*presu);
-  fprintf(fptr, "SmallT                     = %g\n", SmallT*tempu);
-  fprintf(fptr, "MaximumAlvenSpeed          = %g\n", MaximumAlvenSpeed*velu);
+  fprintf(fptr, "SmallRho                   = %g\n", SmallRho);
+  fprintf(fptr, "SmallP                     = %g\n", SmallP);
+  fprintf(fptr, "SmallT                     = %g\n", SmallT);
+  fprintf(fptr, "MaximumAlvenSpeed          = %g\n", MaximumAlvenSpeed);
   fprintf(fptr, "Coordinate                 = %d\n", Coordinate);
   fprintf(fptr, "EOSType                    = %d\n", EOSType);
   fprintf(fptr, "EOSSoundSpeed              = %g\n", EOSSoundSpeed);
