@@ -81,13 +81,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT *= tempu;
     MaximumAlvenSpeed *= velu;
     EOSSoundSpeed *=  velu;
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    /*    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
+	printf("i = %i, MinMass = %g, massu = %g\n",i,MinimumMassForRefinement[i],massu);
 	MinimumMassForRefinement[i] *= massu;
+	printf("i = %i, MinMass = %g\n",i,MinimumMassForRefinement[i]);
+      }
+    }*/
+
+  if (!ComovingCoordinates && UsePhysicalUnit) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
-
-
+  }
 
   }
 
@@ -497,13 +505,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "MinimumMassForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
-	  MinimumMassForRefinement[0],
-	  MinimumMassForRefinement[1],
-	  MinimumMassForRefinement[2],
-	  MinimumMassForRefinement[3],
-	  MinimumMassForRefinement[4],
-	  MinimumMassForRefinement[5],
-	  MinimumMassForRefinement[6]);
+	  MinimumMassForRefinement[0]*massu,
+	  MinimumMassForRefinement[1]*massu,
+	  MinimumMassForRefinement[2]*massu,
+	  MinimumMassForRefinement[3]*massu,
+	  MinimumMassForRefinement[4]*massu,
+	  MinimumMassForRefinement[5]*massu,
+	  MinimumMassForRefinement[6]*massu);
 
   fprintf(fptr, "MinimumMassForRefinementLevelExponent ="
 	  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",
@@ -747,14 +755,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    /*for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= massu;
       }
-    }
+      }*/
     
   }
 
+  if (!ComovingCoordinates && UsePhysicalUnit) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
+	MinimumOverDensityForRefinement[i] /= rhou;
+      }
+    }
+  }
 
 
   /* Output current time */
