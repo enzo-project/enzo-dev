@@ -45,6 +45,13 @@ int grid::SetNumberOfColours(void)
     return FAIL;
   }
   
+  /*
+  fprintf(stdout, "grid:SetNumberOfColours: %d %d %d %d %d \n", 
+  	  SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum); 
+  fprintf(stdout, "grid:SetNumberOfColours: NSpecies = %d, NEQ_HYDRO = %d, ieint = %d \n", 
+  	  NSpecies, NEQ_HYDRO, ieint); 
+  */
+
   if (MetalNum != -1) {
     _nc++;
     if (MultiMetals || TestProblemData.MultiMetals) {
@@ -60,8 +67,12 @@ int grid::SetNumberOfColours(void)
   /* Treat these colour (i.e. metal) fields as species fields in the
      MUSCL solvers. */
 
-  NColor = 0;
+  NColor = _nc;  //#####
+
+  /*
+  NColor = 0;  
   NSpecies += _nc;
+  */
 
   return SUCCESS;
 

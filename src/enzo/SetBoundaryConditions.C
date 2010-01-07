@@ -116,7 +116,6 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	
 
       } // ENDFOR grids
-      
 
 	/* -------------- SECOND PASS ----------------- */
 	/* Now we generate all the sends, and do all the computation
@@ -131,8 +130,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	if (level > 0)
 	  Grids[grid1]->GridData->InterpolateBoundaryFromParent
 	    (Grids[grid1]->ParentGrid->GridData);
-      
-      
+            
       }
       // ENDFOR grids
 

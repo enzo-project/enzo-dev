@@ -385,6 +385,7 @@ EXTERN int ParallelParticleIO;
 EXTERN int Unigrid;
 EXTERN int CubeDumpEnabled;
 EXTERN int PartitionNestedGrids;
+EXTERN int StaticPartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
@@ -766,7 +767,7 @@ EXTERN float ParticleSplitterChildrenParticleSeparation;
 
 EXTERN int MBHParticleIO;
 EXTERN char *MBHParticleIOFilename;
-EXTERN float MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 
 /* Vorticity Calculations */
 

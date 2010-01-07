@@ -134,10 +134,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     // If you use MBHParticleIO, copy some info to MBHParticleIOTemp[][]  
     // for later use.  - Ji-hoon Kim, Nov.2009
     if (MBHParticleIO == TRUE && ThisStar->ReturnType() == PARTICLE_TYPE_MBH) {
-      MBHParticleIOTemp[mbh_particle_io_count][0] = (float)(ThisStar->ReturnID());
+      MBHParticleIOTemp[mbh_particle_io_count][0] = (double)(ThisStar->ReturnID());
       MBHParticleIOTemp[mbh_particle_io_count][1] = ThisStar->ReturnMass();      
       for (int dim = 0; dim < MAX_DIMENSION; dim++) 
-	MBHParticleIOTemp[mbh_particle_io_count][2+dim] = ThisStar->ReturnAccretedAngularMomentum()[dim];
+	MBHParticleIOTemp[mbh_particle_io_count][2+dim] = (double)(ThisStar->ReturnAccretedAngularMomentum()[dim]);
       mbh_particle_io_count++;
     }
 

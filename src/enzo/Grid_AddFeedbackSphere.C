@@ -159,14 +159,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
 
-    old_mass = cstar->Mass;
+//    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
     cstar->vel[2] *= old_mass / cstar->Mass; 
 
-    //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-    //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
+//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -320,6 +322,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // self-consistently (see Cattaneo & Teyssier 2007) - Ji-hoon Kim, Nov.2009
 
 #define MAX_SUPERCELL_NUMBER 1000
+  int SUPERCELL = 5; //for supercell of 7 cells wide = 7^3
   int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
   float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
     nz_cell_edge[MAX_SUPERCELL_NUMBER];
@@ -340,10 +343,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     j = (int)((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidthTemp);
     k = (int)((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidthTemp);
     
-    if (i < ibuff+2 || i > GridDimension[0]-ibuff-3 || 
-	j < ibuff+2 || j > GridDimension[1]-ibuff-3 ||
-	k < ibuff+2 || k > GridDimension[2]-ibuff-3) {
-      fprintf(stdout, "grid::AddFS: supercell (125 cells) not contained; moving on.\n"); 
+    if (i < ibuff+SUPERCELL || i > GridDimension[0]-ibuff-SUPERCELL-1 || 
+	j < ibuff+SUPERCELL || j > GridDimension[1]-ibuff-SUPERCELL-1 ||
+	k < ibuff+SUPERCELL || k > GridDimension[2]-ibuff-SUPERCELL-1) {
+      fprintf(stdout, "grid::AddFS: supercell (7^3 cells) not contained; moving on.\n"); 
       return SUCCESS;
     }
     
@@ -351,7 +354,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
        Also, because EjectaDensity will be added with zero net momentum, 
        increase the particle's velocity accordingly.*/
 
-    old_mass = cstar->Mass;
+    old_mass = (float)(cstar->Mass);
     cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
@@ -375,11 +378,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
        but only the edges), and record the cells eligible for jet injection */
 
-    for (kk = -2; kk <= 2; kk++) {
-      for (jj = -2; jj <= 2; jj++) {
-	for (ii = -2; ii <= 2; ii++) {
+    for (kk = -SUPERCELL; kk <= SUPERCELL; kk++) {
+      for (jj = -SUPERCELL; jj <= SUPERCELL; jj++) {
+	for (ii = -SUPERCELL; ii <= SUPERCELL; ii++) {
 
-	  if (fabs(ii) != 2 && fabs(jj) != 2 && fabs(kk) != 2) {  //if not on edges
+	  if (fabs(ii) != SUPERCELL && fabs(jj) != SUPERCELL && fabs(kk) != SUPERCELL) {  //if not on edges
 
 	    ind_cell_inside[n_cell_inside] = i+ii+(j+jj+(k+kk)*GridDimension[1])*GridDimension[0];
 	    m_cell_inside += BaryonField[DensNum][ind_cell_inside[n_cell_inside]] * 
@@ -541,8 +544,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       
     fprintf(stdout, "grid::AddFS: jets injected (MBHJetsVelocity = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
 	    MBHJetsVelocity, rho_jet, nx_L, ny_L, nz_L); 
-//    fprintf(stdout, "grid::AddFS: L = (%g, %g, %g), n_L = (%g, %g, %g)\n", 
-//	    L_x, L_y, L_z, nx_L, ny_L, nz_L); 
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
 

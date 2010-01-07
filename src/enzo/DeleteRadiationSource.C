@@ -28,21 +28,23 @@ RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS)
   if (RS->NextSource == NULL) {
     RS->PreviousSource->NextSource = NULL;
     dummy = NULL;
+    delete [] RS->Position;
+    delete [] RS->SED;
+    delete [] RS->Energy;
     delete RS;
-  } else  // beginning
-    if (RS->PreviousSource == NULL) { 
-      fprintf(stderr,"delete head of list???\n");
-      return RS;
-    } else {
-      {
-	(RS->PreviousSource)->NextSource = RS->NextSource;
-	(RS->NextSource)->PreviousSource = RS->PreviousSource;
-	dummy = RS->NextSource;
-	delete [] RS->Position;
-	delete [] RS->SED;
-	delete [] RS->Energy;
-	delete RS;
-      }
-    };
+  } 
+  // beginning
+  else if (RS->PreviousSource == NULL) { 
+    fprintf(stderr,"delete head of list???\n");
+    return RS;
+  } else {
+    (RS->PreviousSource)->NextSource = RS->NextSource;
+    (RS->NextSource)->PreviousSource = RS->PreviousSource;
+    dummy = RS->NextSource;
+    delete [] RS->Position;
+    delete [] RS->SED;
+    delete [] RS->Energy;
+    delete RS;
+  }
   return dummy;
 }

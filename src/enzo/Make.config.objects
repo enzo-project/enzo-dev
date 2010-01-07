@@ -742,6 +742,7 @@ POBJS_CONFIG_LIB = \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
+        TemperatureFieldToolsForComptonHeating.o \
         WritePhotonSources.o
 
 OBJS_HYDRO_RK = \

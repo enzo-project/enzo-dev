@@ -110,13 +110,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int GridNum = 0, value, i, proc, lvl;
     int NumberOfGrids = 0;  
 
-    // delete source if we are passed (or before) their lifetime
+    // delete source if we are passed (or before) their lifetime (only
+    // if not restarting)
     RadiationSourceEntry *RS;
     RS = GlobalRadiationSources->NextSource;
     int NumberOfSources = 0;
     while (RS != NULL) {
-      if ( (RS->CreationTime + RS->LifeTime) < PhotonTime ||
-	   (RS->CreationTime > PhotonTime + dtPhoton) ) {
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
+	    (RS->CreationTime > PhotonTime + dtPhoton)) && LoopTime == TRUE) {  
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
@@ -134,14 +135,24 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int Rank, Dims[MAX_DIMENSION];
     FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
   
-    /* Initialize radiation fields */  
+    /* Initialize radiation fields */
 
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
 	  ENZO_FAIL("");
 	}
+
+    /* create temperature fields for Compton heating */  
+
+    if (RadiationXRayComptonHeating)  
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
+	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
+	    fprintf(stderr, "Error in InitializeTemperatureFieldForComptonHeating.\n");
+	    ENZO_FAIL("");
+	  }	
 
     for (i = 0; i < 4; i++)
       EscapedPhotonCount[i] = 0.0;
@@ -288,11 +299,17 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,
-       PhotonPackages */
+       PhotonPackages.  For the adaptive timestep, we don't carryover
+       any photons to the next timestep. */
 
-    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->MoveFinishedPhotonsBack();
+    if (RadiativeTransferAdaptiveTimestep)  
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->DeletePhotonPackages();  
+    else
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->MoveFinishedPhotonsBack();
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
@@ -393,6 +410,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	      ENZO_FAIL("");
 	    }
 
+    /* Clean up temperature field */
+
+    if (RadiationXRayComptonHeating)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
+	    fprintf(stderr, "Error in FinalizeTemperatureFieldForComptonHeating.\n");
+	    ENZO_FAIL("");
+	  }	
+    
     debug = debug_store;
 
     /* We don't rely on the count NumberOfPhotonPackages here, so they

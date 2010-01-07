@@ -911,6 +911,10 @@ public:
      FieldType[NumberOfBaryonFields++] = Density;
    };
 
+   void PrintBaryonFieldValues(int field, int index)
+     {fprintf(stdout, "Baryonfield[field = %d][index = %d] = %g\n", 
+	      field, index, BaryonField[field][index]);};
+
 // -------------------------------------------------------------------------
 // Functions for use with gravity.
 //
