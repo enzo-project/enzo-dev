@@ -35,7 +35,7 @@ int grid::MultiSpeciesHandler()
       if((MultiSpecies == 3) && (PrimordialChemistrySolver == 1))
         this->SolveHighDensityPrimordialChemistry();
       else
-	    this->SolveRateAndCoolEquations();
+	this->SolveRateAndCoolEquations();
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();

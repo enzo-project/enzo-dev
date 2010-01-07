@@ -123,7 +123,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
 
-  //fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield); 
+  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield);  
 
   /* Convert the species and color fields into mass fractions */
 
@@ -132,7 +132,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   if (ReturnMassFractions)
     for (n = n0; n < nfield; n++)
-      for (i = 0; i < size; i++)
+      for (i = 0; i < size; i++) 
 	Prim[n][i] /= Prim[iden][i];
 
   return SUCCESS;

@@ -67,9 +67,9 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   this->ReturnHydroRKPointers(Prim, false);
   this->ReturnOldHydroRKPointers(OldPrim, false);
 
-  // update species and colours
+  // update species
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {  //#####
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -83,9 +83,9 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     }
   }
 
-  // renormalize species and colours
+  // renormalize species 
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -99,7 +99,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     }
   }
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -255,14 +255,15 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
       }
     }
   }
-  
-  /* Convert species from mass fraction to density */ 
 
+  /*  //##### Below is now done in Grid_MHDRK2_[12]Step
+  // Convert species from mass fraction to density
   for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)
-    for (n = 0; n < size; n++)
+    for (n = 0; n < size; n++) 
       Prim[field][n] *= BaryonField[DensNum][n];
 
   this->UpdateElectronDensity();
+  */
 
   if ( (NSpecies+NColor) > 0) {
     delete [] D;

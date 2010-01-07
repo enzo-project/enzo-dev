@@ -62,7 +62,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       fprintf(stderr, "BaryonField missing.\n");
       ENZO_FAIL("");
     }
- 
+
     /* Create OldBaryonField if necessary. */
  
     if ((OldBaryonField[field] == NULL))
