@@ -1,11 +1,18 @@
+#ifdef USE_MPI
+#include "mpi.h"
+#endif
+
 #if defined(SP2)
 
 // Memory usage from getrusage
-
-#include<stdio.h>
-#include<sys/time.h>
-#include<sys/resource.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
 
 
 long long int mused(void)
@@ -37,6 +44,11 @@ long long int mused(void)
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
+
 void my_exit(int status);
 
 long long int mused(void)
@@ -54,8 +66,8 @@ long long int mused(void)
   ptr = fopen(procname, "r");
   fscanf(ptr, "%lld", &kb);
   fclose(ptr);
-  fprintf(stderr, "Proc statm Bytes: %lld\n", ((long long int) kb*ps));
-  return ((long long int) kb*ps);
+  //fprintf(stderr, "Proc statm Bytes: %lld\n", ((long long int) kb*ps));
+  return ((long long int) ps*kb);
 #else
   return ((long long int) 0);
 #endif
@@ -72,3 +84,21 @@ long long int mused(void)
 }
 
 #endif
+
+void PrintMemoryUsage(char *str)
+{
+#ifdef MEM_TRACE
+  Eint64 MemInUse, MinMem, MaxMem, MeanMem;
+  MemInUse = mused();
+  MinMem = CommunicationMinValue(MemInUse);
+  MaxMem = CommunicationMaxValue(MemInUse);
+  MeanMem = MemInUse;
+  CommunicationSumValues(&MeanMem, 1);
+  MeanMem /= NumberOfProcessors;
+  fprintf(memtracePtr, "%s  %16lld\n", str, MemInUse);
+  if (debug) 
+    printf("MEM %s :: mean/min/max = %lld/%lld/%lld\n", 
+	   str, MeanMem, MinMem, MaxMem);
+#endif
+  return;
+}
