@@ -434,12 +434,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->SetTimeNextTimestep();
       
     }  // end loop over grids
-      
 
 #ifdef FAST_SIB
-    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
 #else
-    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
 
     // Recompute potential and accelerations with time centered baryon Field
@@ -533,15 +532,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }  // end loop over grids
 
-    
-    if (UseDivergenceCleaning!=0){
+    if (UseDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
-      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
-			    MetaData, Exterior, LevelArray[level]);
+      SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
 #else
-      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
-			    Exterior, LevelArray[level]);
+      SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
       
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -550,20 +546,17 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       
     }
-
+    
 #ifdef FAST_SIB
-    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, 
-			  MetaData, Exterior, LevelArray[level]);
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData, Exterior, LevelArray[level]);
 #else
-    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
-			  Exterior, LevelArray[level]);
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
 
     /* Finalize (accretion, feedback, etc.) star particles */
  
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
-
 
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior);
@@ -672,7 +665,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     LevelCycleCount[level]++;
 
   } // while (dtThisLevelSoFar < dtLevelAbove)
-
 
   if (debug)
     printf("EvolveLevelRK2[%d]: NumberOfSubCycles = %d (%d total)\n", level, 

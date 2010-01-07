@@ -233,7 +233,7 @@ int grid::SolveRateAndCoolEquations()
   testarray[0] = 12.3;
   testarray[1] = 45.6;
   testarray[2] = 78.9;
-  //  printf("grid:SolveRateAndCool: %g %g\n", BaryonField[HIINum][0], BaryonField[HIINum][1]);  //##### 
+
   FORTRAN_NAME(solve_rate_cool)(
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
     BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum], 

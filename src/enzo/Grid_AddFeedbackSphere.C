@@ -322,7 +322,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // self-consistently (see Cattaneo & Teyssier 2007) - Ji-hoon Kim, Nov.2009
 
 #define MAX_SUPERCELL_NUMBER 1000
-  int SUPERCELL = 3; //for supercell of 7 cells wide = 7^3
+  int SUPERCELL = 5; //for supercell of 7 cells wide = 7^3
   int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
   float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
     nz_cell_edge[MAX_SUPERCELL_NUMBER];
