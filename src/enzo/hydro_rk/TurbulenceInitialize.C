@@ -194,10 +194,16 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 
   if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
     MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
-    for (int dim = 0; dim < MetaData.TopGridRank; dim++)
+    for (int dim = 0; dim < MetaData.TopGridRank; dim++){
       MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
 	float(MetaData.TopGridDims[dim]);
+    }
   }
+
+  if (UsePhysicalUnit){
+    MinimumMassForRefinement[0] /= DensityUnits * pow(LengthUnits,3);
+  }
+
 
   /* If requested, refine the grid to the desired level. */
 
