@@ -911,6 +911,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     
   }
 
+  
   if (!ComovingCoordinates && UsePhysicalUnit) {
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
