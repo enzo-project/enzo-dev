@@ -311,9 +311,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
        never happen! */
 
     if (this->accretion_rate == NULL && this->accretion_time == NULL) {
-      this->naccretions = 2;
+      this->naccretions = 1;
       this->accretion_rate = new float[2];
-      this->accretion_rate[0] = AccretedMass / (Time * TimeUnits);
+
+      // Add a bit of a cushion, so we exceed Pop III stellar mass in
+      // the accretion.  Mass > PopIIIMass is required for star
+      // activation.
+      this->accretion_rate[0] = (1.0001) * AccretedMass / (Time * TimeUnits);
       this->accretion_rate[1] = 0.0;
 
       this->accretion_time = new FLOAT[2];

@@ -31,7 +31,7 @@ void Star::ActivateNewStar(FLOAT Time)
     StarType = ABS(type);
     switch (StarType) {
     case PopII:
-      if (Mass > StarClusterMinimumMass) {
+      if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
 	BirthTime = Time;
       }

@@ -194,6 +194,7 @@ c
 c              Create a star particle
 c
                call pop3_properties(starmass, lum, lifetime)
+               lifetime = 0.1*lifetime
 
                ii = ii + 1
                if (iradtrans .eq. 0) then

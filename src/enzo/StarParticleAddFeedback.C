@@ -91,6 +91,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     AddedFeedback[count] = false;
 
+//    if (debug)
+//      cstar->PrintInfo();
+
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
 	(!cstar->ApplyFeedbackTrue(SNe_dt)))
@@ -194,7 +197,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     AddedFeedback[count] = true;
 
-#ifdef UNUSED
+    //#ifdef UNUSED
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
 	       MPI_COMM_WORLD);
@@ -215,7 +218,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	      "changed %"ISYM" cells.\n", 
 	      cstar->ReturnID(), level, CellsModified);
     }
-#endif
+    //#endif
     
   } // ENDFOR stars
 

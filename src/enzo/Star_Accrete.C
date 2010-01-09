@@ -59,23 +59,28 @@ int Star::Accrete(void)
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
-  /* Below was an approximation for DetalMass <<1; 
-     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim, Sep.2009 */
-  /*
+  /* Below was an approximation for DetalMass <<1; Now this is
+     accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim,
+     Sep.2009 */
+  /* We can still do this for star formation (JHW, Jan10) */
+
   double ratio1, ratio2, new_vel;
-  ratio2 = DeltaMass / Mass;
-  ratio1 = 1.0 - ratio2;
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
-    delta_vel[dim] = 0.0;
-  }
-  */
 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    delta_vel[dim] = 0.0;
+  if (type != MBH || type != BlackHole) {
+    ratio2 = DeltaMass / Mass;
+    ratio1 = 1.0 - ratio2;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
+      delta_vel[dim] = 0.0;
+    }
+  } else {
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      delta_vel[dim] = 0.0;
+    }
   }
 
-  /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
+  /* Keep the last accretion_rate for computing photon rates later on
+     (see Star_ComputePhotonRates.C) */
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 

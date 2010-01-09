@@ -15,23 +15,23 @@
 #include "CommunicationUtilities.h"
 
 
-long long int mused(void)
+Eint64 mused(void)
 {
 
 #ifdef MEM_TRACE
   struct rusage temp;
-  long long int bytes;
+  Eint64 bytes;
   int result;
 
   result = getrusage(RUSAGE_SELF, &temp);
   if( result == 0 ) {
-    bytes = ((long long int) (1024)) * ((long long int) temp.ru_maxrss);
+    bytes = ((Eint64) (1024)) * ((Eint64) temp.ru_maxrss);
   } else {
-    bytes = ((long long int) (0));
+    bytes = ((Eint64) (0));
   }
   return(bytes);
 #else
-  return((long long int) 0);
+  return((Eint64) 0);
 #endif
 
 }
@@ -51,7 +51,7 @@ long long int mused(void)
 
 void my_exit(int status);
 
-long long int mused(void)
+Eint64 mused(void)
 {
 
 #ifdef MEM_TRACE
@@ -59,17 +59,17 @@ long long int mused(void)
   int ps = getpagesize();
 
   char procname[120];
-  long long int kb;
+  Eint64 kb;
   FILE* ptr;
 
-  sprintf(procname, "/proc/%lld/statm", ((long long int) this_pid));
+  sprintf(procname, "/proc/%lld/statm", ((Eint64) this_pid));
   ptr = fopen(procname, "r");
   fscanf(ptr, "%lld", &kb);
   fclose(ptr);
-  //fprintf(stderr, "Proc statm Bytes: %lld\n", ((long long int) kb*ps));
-  return ((long long int) ps*kb);
+  //fprintf(stderr, "Proc statm Bytes: %lld\n", ((Eint64) kb*ps));
+  return ((Eint64) ps*kb);
 #else
-  return ((long long int) 0);
+  return ((Eint64) 0);
 #endif
 
 }
@@ -78,9 +78,9 @@ long long int mused(void)
 
 // Default case return zero bytes
 
-long long int mused(void)
+Eint64 mused(void)
 {
-  return((long long int) 0);
+  return((Eint64) 0);
 }
 
 #endif
