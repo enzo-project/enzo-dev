@@ -7,7 +7,6 @@ Output the TREECOOL file for Gadget equilibrium cooling. This is a pythonificati
 of an IDL script provided by Pascal Paschos.
 """
 
-import numpy as np
 import math
 
 ###############################
@@ -80,9 +79,6 @@ zcarr       = []
 for i in range(settings["bins"] + 1):
     ainvarr.append(float(i) / settings["bins"] * (ainvfinal-ainvinit))
     zcarr.append(10**ainvarr[i]-1.0)
-#ainvarr     = ainvinit + np.arange(settings["bins"]+1).astype('float64')/ \
-#    settings["bins"]*(ainvfinal-ainvinit)
-#zcarr       = 10**ainvarr-1.0
 
 fp = open("TREECOOL.mod", "w")
 
