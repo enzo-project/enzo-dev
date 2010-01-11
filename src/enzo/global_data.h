@@ -355,6 +355,10 @@ EXTERN int OutputTemperature;
 EXTERN int OutputSmoothedDarkMatter;
 EXTERN int SmoothedDarkMatterNeighbors;
 
+/* Output gridded star particle fields. */
+
+EXTERN int OutputGriddedStarParticle;
+
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 
 EXTERN float ZEUSLinearArtificialViscosity;

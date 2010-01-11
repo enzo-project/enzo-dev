@@ -410,6 +410,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &OutputSmoothedDarkMatter);
     ret += sscanf(line, "SmoothedDarkMatterNeighbors = %"ISYM, 
 		  &SmoothedDarkMatterNeighbors);
+    ret += sscanf(line, "OutputGriddedStarParticle = %"ISYM, 
+		  &OutputGriddedStarParticle);
 
     ret += sscanf(line, "ZEUSQuadraticArtificialViscosity = %"FSYM,
 		  &ZEUSQuadraticArtificialViscosity);

@@ -292,7 +292,7 @@ int grid::PoissonCleanStep(int level)
   }  
 
   
-  printf("End divB_p: %g (%g/%d) \n\n", divSum/size, divSum, size);
+  printf("End divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
   
   delete [] divB_p;
   }

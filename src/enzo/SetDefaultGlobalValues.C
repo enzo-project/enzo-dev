@@ -315,6 +315,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   OutputSmoothedDarkMatter = FALSE;
   SmoothedDarkMatterNeighbors = 32;
 
+  OutputGriddedStarParticle = FALSE;
+
   ZEUSLinearArtificialViscosity    = 0.0;
   ZEUSQuadraticArtificialViscosity = 2.0;
   UseMinimumPressureSupport        = FALSE;

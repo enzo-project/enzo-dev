@@ -339,8 +339,6 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       for (field = 0; field < NumberOfBaryonFields; field++) {
  
-	printf("grid::ReadGrid:  DataLabel[field = %d] = %s\n", field, DataLabel[field]);  //#####
-
 	/* get data into temporary array */
 #ifdef USE_HDF4
 	if (!TryHDF5) 

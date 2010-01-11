@@ -270,8 +270,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
       ParticleSplitterIterations > 0)
     ParticleSplitter(LevelArray, 0, &MetaData);
- 
-  
+
 
 
   PrintMemoryUsage("1st rebuild");

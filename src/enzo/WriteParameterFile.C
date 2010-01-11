@@ -82,18 +82,20 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     MaximumAlvenSpeed *= velu;
     EOSSoundSpeed *=  velu;
 
-    /*    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    /*
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	printf("i = %i, MinMass = %g, massu = %g\n",i,MinimumMassForRefinement[i],massu);
 	MinimumMassForRefinement[i] *= massu;
 	printf("i = %i, MinMass = %g\n",i,MinimumMassForRefinement[i]);
       }
-    }*/
+    }
+    */
 
     if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumOverDensityForRefinement[i] *= rhou;
+      for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
+	  MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
 
@@ -395,7 +397,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
-  fprintf(fptr, "BAnyl                        = %"ISYM"\n", BAnyl);
+  fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
   
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
@@ -404,6 +406,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  OutputSmoothedDarkMatter);
   fprintf(fptr, "SmoothedDarkMatterNeighbors    = %"ISYM"\n", 
 	  SmoothedDarkMatterNeighbors);
+  fprintf(fptr, "OutputGriddedStarParticle      = %"ISYM"\n", 
+	  OutputGriddedStarParticle);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);
@@ -762,16 +766,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
       }
     }
     */
-  }
 
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumOverDensityForRefinement[i] /= rhou;
+    if (!ComovingCoordinates && UsePhysicalUnit) {
+      for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
+	  MinimumOverDensityForRefinement[i] /= rhou;
       }
     }
-  }
 
+  }
 
   /* Output current time */
   time_t ID;
