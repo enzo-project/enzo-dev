@@ -472,7 +472,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  SlopeFlaggingFields[1],
 	  SlopeFlaggingFields[2], 
 	  SlopeFlaggingFields[3],
-	  SlopeFlaggingFields[4]);
+	  SlopeFlaggingFields[4],
+	  SlopeFlaggingFields[5],
+	  SlopeFlaggingFields[6]);
 
   fprintf(fptr, "MinimumSlopeForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
