@@ -50,24 +50,26 @@ extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
              int *iterations, float *separation, int *ran1_init); 
 
   
-int grid::InterpolateStarParticlesToGrid(void)
+int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 {
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (NumberOfBaryonFields == 0)
+  if (NumberOfBaryonFields == 0 || OutputGriddedStarParticle <= 0)
     return SUCCESS;
  
   /* initialize */
  
-  int dim, i, j, k, size, field, NumberOfFields;
+  int dim, i, j, k, size, field;
   int xindex, yindex, zindex, index;
-  int StarDensNum, FormingStarDensNum, SFRNum, CreationTimeNum;
+  int StarDensNum, FormingStarDensNum, SFRDensNum, CreationTimeNum;
   int ActiveDim[MAX_DIMENSION];
-  float CellWidthTemp = float(CellWidth[0][0]);
   int NumberOfStarParticlesInGrid = 0;
-  float xv1, xv2, minitial, mform;
+  double xv1 = 0.0, xv2 = 0.0, minitial = 0.0, mform = 0.0;
+  float CellWidthTemp = float(CellWidth[0][0]);
+  const double Msun = 1.989e33, yr = 3.15557e7, kpc = 3.086e21;
+  FLOAT dtForSFR; 
 
   /* Set the units. */
  
@@ -78,6 +80,8 @@ int grid::InterpolateStarParticlesToGrid(void)
         ENZO_FAIL("Error in GetUnits.");
   }
  
+  dtForSFR = StarMakerMinimumDynamicalTime * yr / TimeUnits;  // = 1.35e-5 in code unit
+
   /* Compute size (in floats) of the current grid. */
  
   size = 1;
@@ -86,42 +90,37 @@ int grid::InterpolateStarParticlesToGrid(void)
     size *= ActiveDim[dim];
   }
 
-  /* Assign number of fields */
-
-  switch (OutputGriddedStarParticle) {
-  case 1: NumberOfFields = 1; break;  // star particle density
-  case 2: NumberOfFields = 4; break;  // + forming stellar mass density + SFR + average creation time
-  default: 
-    fprintf(stdout, "Unrecognized value for OutputGriddedStarParticle = %"ISYM"\n",
-	    OutputGriddedStarParticle);
-    fprintf(stdout, "Setting to 1.  Outputting particle density only.\n");
-    OutputGriddedStarParticle = 1;
-    NumberOfFields = 1;
-    break;
-  } 
-
   /* Assign field numbers (0-4 is left out because it is used in Grid_InterpolateParticlesToGrid) */   
 
 #define NumberOfInterpolatedFieldsForDM 10
 
   StarDensNum        = NumberOfInterpolatedFieldsForDM;
   FormingStarDensNum = NumberOfInterpolatedFieldsForDM + 1;
-  SFRNum             = NumberOfInterpolatedFieldsForDM + 2;
+  SFRDensNum         = NumberOfInterpolatedFieldsForDM + 2;
   CreationTimeNum    = NumberOfInterpolatedFieldsForDM + 3;  
 
   /* Set up empty fields */
 
   if (MyProcessorNumber == ProcessorNumber)
     for (field = NumberOfInterpolatedFieldsForDM; 
-	 field < NumberOfInterpolatedFieldsForDM+NumberOfFields; field++) {
+	 field < NumberOfInterpolatedFieldsForDM+NumberOfSPFields; field++) {
       InterpolatedField[field] = new float[size];  
-      for (i = 0; i < size; i++)
-	InterpolatedField[field][i] = 1.0e-10;
+      if (field == CreationTimeNum) 
+	for (i = 0; i < size; i++)
+	  InterpolatedField[field][i] = 0.0;
+      else
+	for (i = 0; i < size; i++)
+	  InterpolatedField[field][i] = 1.0e-10;
     }
+
+  if (NumberOfParticles == 0)
+    return SUCCESS;
+
 
   /* ------------------------------------------------------------------- */
   /*                       NOW GRID STAR PARTICLES                       */
   /* ------------------------------------------------------------------- */
+
 
   if (NumberOfParticles > 0) {
 
@@ -158,46 +157,54 @@ int grid::InterpolateStarParticlesToGrid(void)
 	// (10) star particle density (in code density unit)
 	InterpolatedField[StarDensNum][index] += ParticleMass[i];  
 	
-	xv1 = (Time           - ParticleAttribute[0][i])/ParticleAttribute[1][i];
-	xv2 = (Time + dtFixed - ParticleAttribute[0][i])/ParticleAttribute[1][i];
+	if (OutputGriddedStarParticle > 1) { 
 
-	// For actively star-forming particles ( active if (t-t_cr)/t_dyn <= 12 )
-	if(xv1 <= 12) {
+	  xv1 = (Time            - ParticleAttribute[0][i])/ParticleAttribute[1][i];
+	  xv2 = (Time + dtForSFR - ParticleAttribute[0][i])/ParticleAttribute[1][i];
+	  
+	  // For actively star-forming particles ( active if (t-t_cr)/t_dyn <= 12 )
+	  if(xv1 <= 12.0) {
+	    
+	    minitial = ParticleMass[i] / (1.0 - StarMassEjectionFraction*(1.0 - (1.0 + xv1)*exp(-xv1)));	    
+	    mform = minitial * ((1.0 + xv1)*exp(-xv1) - (1.0 + xv2)*exp(-xv2));
+	    mform = max(min(mform, ParticleMass[i]), 0.0);
+	    
+	    // (11) forming stellar mass density (in code density unit)
+	    InterpolatedField[FormingStarDensNum][index] += (float) mform; 
+	    
+	    // (12) SFR density in current timestep 'dtFixed'
+	    InterpolatedField[SFRDensNum][index] += (float) mform; 
+	  }
 
-	  minitial = ParticleMass[i] /(1.0 - StarMassEjectionFraction*(1.0 - (1.0 + xv1)*exp(-xv1)));
+	  // (13) average creation time 
+	  InterpolatedField[CreationTimeNum][index] += ParticleAttribute[0][i]; 
 
-	  mform = minitial * ((1.0 + xv1)*exp(-xv1) - (1.0 + xv2)*exp(-xv2));
-	  mform = max(min(mform, ParticleMass[i]), 0.0);
-
-	  // (11) forming stellar mass density (in code density unit)
-	  InterpolatedField[FormingStarDensNum][index] += mform; 
-
-	}
-
-	// (13) average creation time
-	InterpolatedField[CreationTimeNum][index] += ParticleAttribute[0][i]; 
+	} //if OutputGriddedStarParticle > 1
 
       } //if PARTICLE_TYPE_STAR
 
       
     } //ENDFOR i in NumberOfParticles
 
-    // (12) SFR in current timestep 'dtFixed' (in Ms/yr)
-    InterpolatedField[SFRNum][index] *= 
-      DensityUnits*LengthUnits*LengthUnits*LengthUnits/dtFixed/TimeUnits; 
+    /* Divide certain fields to get the correct value */ 
 
-    // (13) average creation time (in code time unit)
-    InterpolatedField[CreationTimeNum][index] /= 
-      NumberOfStarParticlesInGrid;    
+    if (OutputGriddedStarParticle > 1 && NumberOfStarParticlesInGrid > 0) 
+      for (i = 0; i < size; i++) {
+	
+	// (12) (g/cm3  to  Ms/yr/kpc^3)
+	InterpolatedField[SFRDensNum][i] *= 
+	  DensityUnits / Msun * (kpc * kpc * kpc) / ( dtForSFR * TimeUnits / yr );
+	
+	// (13) (in code time unit)
+	InterpolatedField[CreationTimeNum][i] /= NumberOfStarParticlesInGrid;    
 
-  } //NumberOfParicles > 0
+      }
+
+  } //NumberOfParticles > 0
 
 
-  fprintf(stdout, "InterpolatedField[10][30] = %g\n", InterpolatedField[10][30]);  //#####
-  fprintf(stdout, "InterpolatedField[11][30] = %g\n", InterpolatedField[11][30]);  //#####
-  fprintf(stdout, "InterpolatedField[12][30] = %g\n", InterpolatedField[12][30]);  //#####
-  fprintf(stdout, "InterpolatedField[13][30] = %g\n", InterpolatedField[13][30]);  //#####
-
+//    printf("Time = %g, dtForSFR = %g, xv1 = %g, xv2 = %g, minitial = %g, mform = %g, ParticleAttribute[0][i-1] = %g\n", 
+//	   Time, dtForSFR, xv1, xv2, minitial, mform, ParticleAttribute[0][i-1]);  //#####
 
   return SUCCESS;
 

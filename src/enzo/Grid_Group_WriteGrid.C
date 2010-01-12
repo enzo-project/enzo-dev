@@ -88,7 +88,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
   char *GriddedSPLabel[] = {"Star_Particle_Density", "Forming_Stellar_Mass_Density",
-			    "Star_Formation_Rate", "Average_creation_time"};
+			    "SFR_Density", "Average_creation_time"};
 #ifdef IO_LOG
   int         io_log = 1;
 #else
@@ -778,7 +778,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   } // end: if (NumberOfBaryonFields > 0)
 
   /* ------------------------------------------------------------------- */
-  /* 3) Save particle quantities smoothed to the grid. */
+  /* 3) Save particle quantities smoothed (or gridded) to the grid. */
  
   if (OutputSmoothedDarkMatter > 0 && MyProcessorNumber == ProcessorNumber) {
 
@@ -853,14 +853,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     temp = new io_type[active_size];
 
+    // Assign number of fields 
+
     int NumberOfSPFields;
     switch (OutputGriddedStarParticle) {
     case 1: NumberOfSPFields = 1; break;  // particle density
     case 2: NumberOfSPFields = 4; break;  // + forming star particle density + SFR density, etc. 
+    default: 
+      fprintf(stdout, "Unrecognized value for OutputGriddedStarParticle = %"ISYM"\n",
+	      OutputGriddedStarParticle);
+      fprintf(stdout, "Setting to 1.  Outputting particle density only.\n");
+      OutputGriddedStarParticle = 1;
+      NumberOfSPFields = 1;
+      break;
     } 
 
     // Get gridded star particle field
-    if (this->InterpolateStarParticlesToGrid() == FAIL) {
+    if (this->InterpolateStarParticlesToGrid(NumberOfSPFields) == FAIL) {
       fprintf(stderr, "Error in grid->InterpolateStarParticlesToGrid.\n");
       ENZO_FAIL("");
     }
