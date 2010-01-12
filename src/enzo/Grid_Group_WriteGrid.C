@@ -87,8 +87,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
-  char *GriddedSPLabel[] = {"Star_Particle_Density", "Forming_Star_Particle_Density",
-			    "SFR_Density", "Averaged_Creation_Time"};
+  char *GriddedSPLabel[] = {"Star_Particle_Density", "Forming_Stellar_Mass_Density",
+			    "Star_Formation_Rate", "Average_creation_time"};
 #ifdef IO_LOG
   int         io_log = 1;
 #else
@@ -859,6 +859,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     case 2: NumberOfSPFields = 4; break;  // + forming star particle density + SFR density, etc. 
     } 
 
+    // Get gridded star particle field
     if (this->InterpolateStarParticlesToGrid() == FAIL) {
       fprintf(stderr, "Error in grid->InterpolateStarParticlesToGrid.\n");
       ENZO_FAIL("");
@@ -866,9 +867,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     for (field = NumberOfInterpolatedFieldsForDM; 
 	 field < NumberOfInterpolatedFieldsForDM+NumberOfSPFields; field++) {
-
-      fprintf(stdout, "1 - InterpolatedField[field=%d][30] = %g\n", 
-	      field, InterpolatedField[field][30]);  //#####
 
       // Only the active part was calculated, so just copy over.
       for (i = 0; i < active_size; i++)

@@ -84,6 +84,7 @@ SPEXTERN float  MBHFeedbackThermalRadius;
 SPEXTERN float  MBHFeedbackMassEjectionFraction;
 SPEXTERN float  MBHFeedbackMetalYield;
 SPEXTERN float  MBHFeedbackJetsMassLoadingFactor;
+SPEXTERN int    MBHTurnOffStarFormation;
 SPEXTERN float  MBHCombineRadius;
 
 SPEXTERN float minStarLifetime;

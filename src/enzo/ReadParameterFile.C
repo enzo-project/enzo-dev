@@ -658,6 +658,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
     ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
     ret += sscanf(line, "MBHFeedbackJetsMassLoadingFactor = %"FSYM, &MBHFeedbackJetsMassLoadingFactor);
+    ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
 
     ret += sscanf(line, "MBHParticleIO = %"ISYM,

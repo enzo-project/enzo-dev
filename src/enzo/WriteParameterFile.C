@@ -638,6 +638,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
   fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
   fprintf(fptr, "MBHFeedbackJetsMassLoadingFactor      = %"GSYM"\n", MBHFeedbackJetsMassLoadingFactor);
+  fprintf(fptr, "MBHTurnOffStarFormation               = %"ISYM"\n", MBHTurnOffStarFormation);
   fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
 
   fprintf(fptr, "MBHParticleIO     = %"ISYM"\n",
