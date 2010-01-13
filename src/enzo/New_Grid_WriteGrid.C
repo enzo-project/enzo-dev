@@ -224,9 +224,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   if( group_id == h5_error ){ENZO_FAIL("IO Problem creating Grid Group");}
 
   if(WriteEverything == TRUE) {
+    FLOAT dtFixedCopy = this->dtFixed;
     old_fields = H5Gcreate(group_id, "OldFields", 0);
     writeScalarAttribute(old_fields, HDF5_PREC, "Time", &this->Time);
     writeScalarAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime);
+    writeScalarAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy);
   }
  
   /* ------------------------------------------------------------------- */

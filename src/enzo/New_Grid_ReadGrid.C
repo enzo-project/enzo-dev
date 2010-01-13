@@ -257,8 +257,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if(ReadEverything == TRUE) {
       old_fields = H5Gopen(group_id, "OldFields");
+      FLOAT dtFixedCopy;
       readAttribute(old_fields, HDF5_PREC, "Time", &this->Time, TRUE);
       readAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime, TRUE);
+      readAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy, TRUE);
+      this->dtFixed = dtFixedCopy;
     }
  
     /* loop over fields, reading each one */
@@ -663,7 +666,7 @@ int grid::ReadExtraFields(hid_t group_id)
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
         size *= GravitatingMassFieldDimension[dim];
-        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+        GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
     }
       if(this->GravitatingMassField != NULL)
         delete this->GravitatingMassField;
@@ -681,7 +684,7 @@ int grid::ReadExtraFields(hid_t group_id)
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
         size *= GravitatingMassFieldDimension[dim];
-        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+        GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
     }
       if(this->PotentialField != NULL)
         delete this->PotentialField;
