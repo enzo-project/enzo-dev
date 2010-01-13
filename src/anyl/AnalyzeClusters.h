@@ -73,4 +73,9 @@ struct AnalyzeClusterParameters {
   float DiskRadiusCutoff;
   int LinearProfileRadiusForVertical;
 
+  /* For printing out global profile values (averaged gas surface densities 
+     on the disk, averaged SFR surface densities on the disk, etc.) */ 
+  
+  int PrintGlobalProfileValues;
+
 };

@@ -354,6 +354,7 @@ OBJS_CONFIG_LIB = \
         Grid_InterpolatePositions.o \
         Grid_InterpolateStarParticlesToGrid.o \
         Grid_KHInitializeGrid.o \
+        Grid_MagneticFieldResetter.o \
         Grid_MirrorStarParticles.o \
         Grid_MoveAllParticles.o \
         Grid_MoveAllStars.o \
@@ -489,6 +490,7 @@ OBJS_CONFIG_LIB = \
         lgrg.o \
         ListIO.o \
 	LoadBalanceSimulatedAnnealing.o \
+        MagneticFieldResetter.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \

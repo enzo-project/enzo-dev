@@ -102,6 +102,8 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 				      int TopGridRank, int CycleNumber);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
+int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+			  TopGridData *MetaData); 
 void PrintMemoryUsage(char *str);
 
 
@@ -264,14 +266,17 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
-  /* Particle Splitter. Split the particles into 13 (=1+12) children 
-     particles */
+  /* Particle Splitter. Split particles into 13 (=1+12) child particles */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
       ParticleSplitterIterations > 0)
     ParticleSplitter(LevelArray, 0, &MetaData);
 
-
+  /* Reset magnetic fields if requested. */
+  
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ResetMagneticField == TRUE && HydroMethod == MHD_RK)
+    MagneticFieldResetter(LevelArray, 0, &MetaData);
 
   PrintMemoryUsage("1st rebuild");
  

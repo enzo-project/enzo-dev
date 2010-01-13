@@ -622,6 +622,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
 
+  /* Magnetic Field Resetter */
+
+  ResetMagneticField = FALSE;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    ResetMagneticFieldAmplitude[dim] = 0.0;   // in Gauss
+  }  
+
   VelAnyl                     = 0;
   BAnyl                     = 0;
 

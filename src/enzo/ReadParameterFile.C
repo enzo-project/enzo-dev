@@ -785,6 +785,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterIterations);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
+    ret += sscanf(line, "ResetMagneticField = %"ISYM,
+		  &ResetMagneticField);
+    ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM, 
+		  ResetMagneticFieldAmplitude,
+		  ResetMagneticFieldAmplitude+1,
+		  ResetMagneticFieldAmplitude+2);
 
     /* If the dummy char space was used, then make another. */
  

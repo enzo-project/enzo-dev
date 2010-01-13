@@ -162,8 +162,10 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	  xv1 = (Time            - ParticleAttribute[0][i])/ParticleAttribute[1][i];
 	  xv2 = (Time + dtForSFR - ParticleAttribute[0][i])/ParticleAttribute[1][i];
 	  
-	  // For actively star-forming particles ( active if (t-t_cr)/t_dyn <= 12 )
-	  if(xv1 <= 12.0) {
+	  /* For actively star-forming particles ( active if (t-t_cr)/t_dyn <= 12 ).
+	     This assumes a particular star formation criteria in star_maker7.src */
+
+	  if (xv1 <= 12.0) {
 	    
 	    minitial = ParticleMass[i] / (1.0 - StarMassEjectionFraction*(1.0 - (1.0 + xv1)*exp(-xv1)));	    
 	    mform = minitial * ((1.0 + xv1)*exp(-xv1) - (1.0 + xv2)*exp(-xv2));
@@ -179,7 +181,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	  // (13) average creation time 
 	  InterpolatedField[CreationTimeNum][index] += ParticleAttribute[0][i]; 
 
-	} //if OutputGriddedStarParticle > 1
+	} 
 
       } //if PARTICLE_TYPE_STAR
 
@@ -191,9 +193,9 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
     if (OutputGriddedStarParticle > 1 && NumberOfStarParticlesInGrid > 0) 
       for (i = 0; i < size; i++) {
 	
-	// (12) (g/cm3  to  Ms/yr/kpc^3)
+	// (12) (code density unit  ->  Ms/yr/kpc^3)
 	InterpolatedField[SFRDensNum][i] *= 
-	  DensityUnits / Msun * (kpc * kpc * kpc) / ( dtForSFR * TimeUnits / yr );
+	  DensityUnits / Msun * pow(kpc, 3) / ( dtForSFR * TimeUnits / yr );
 	
 	// (13) (in code time unit)
 	InterpolatedField[CreationTimeNum][i] /= NumberOfStarParticlesInGrid;    

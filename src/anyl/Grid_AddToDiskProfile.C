@@ -55,10 +55,13 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
     return SUCCESS;
   
   int i, j, k, index, n, dim;
+  float StarMakerMinimumDynamicalTime, StarMassEjectionFraction;
+  double xv1 = 0.0, xv2 = 0.0, minitial = 0.0, mform = 0.0;
+  FLOAT dtForSFR;
   FLOAT radius2, radial_vel, vel[MAX_DIMENSION], circ_vel, phi_vel,
         height, dradius2, length, gas_dens,
         delx, dely, delz, xpos, ypos, zpos;
-  const double SolarMass = 1.989e33, Mpc = 3.086e24, mh = 1.67e-24;
+  const double SolarMass = 1.989e33, Mpc = 3.086e24, mh = 1.67e-24, yr = 3.15557e7;
 
   if (ComovingCoordinates != 1) { 
     InitialRedshift = 0; 
@@ -165,6 +168,7 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
   /* Find fields: density, total energy, velocity1-3. */
 
   if (NumberOfBaryonFields > 0) {
+
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				   Vel3Num, TENum);
@@ -309,7 +313,7 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 	      ProfileWeight[n][105] += gas_mass;
 	      if (ProfileName[105] == NULL) ProfileName[105] = "vcirc_gas (km/s)";
 
-	      /* 107) gas tangential velocity (v_phi).  Ji-hoon Kim in Feb./2008 
+	      /* 107) gas tangential velocity (v_phi).  JHK in Feb.2008 
 		 v_r^2 + v_phi^2 = v^2,  v_phi != v_circ  */
 		 
 	      phi_vel = sqrt(vel[0]*vel[0]+vel[1]*vel[1]+vel[2]*vel[2] - radial_vel*radial_vel);  
@@ -367,6 +371,11 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 
   dely = delz = 0;
   int StarParticle;
+
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				   Vel3Num, TENum);
+
  
   for (i = 0; i < NumberOfParticles; i++) {
 
@@ -389,7 +398,10 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
       for (n = 0; n < NumberOfBins; n++)
 	if (dradius2 <= ProfileRadius[n+1]*ProfileRadius[n+1]) {
 
-	  float part_mass = ParticleMass[i]*DensityConversion*CellVolume;
+	  float part_mass = 
+	    ParticleMass[i]*DensityConversion*CellVolume;
+	  float gas_mass =   
+	    BaryonField[DensNum][index]*CellVolume*DensityConversion;  
 
 	  if (part_mass == 0)
 	    break;
@@ -411,12 +423,12 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 
 	    /* 110) star density (in Msolar/Mpc^3). */
 
-	    /* The sign of the ProfileWeight below is changed by Ji-hoon Kim in Dec./2007
+	    /* The sign of the ProfileWeight below is changed by JHK in Dec.2007
 	       For those who wanted to have 'stellar surface density' by this trick, see 114 */
 
 	    ProfileValue[n][110] += part_mass;
 	 // ProfileWeight[n][110] -= CellVolume;  
-	    ProfileWeight[n][110] += CellVolume;  //Ji-hoon Kim
+	    ProfileWeight[n][110] += CellVolume;  //JHK
 
 	    if (ProfileName[110] == NULL) ProfileName[110] = "d_star (Ms/Mpc^3)";
 
@@ -455,7 +467,7 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 	    ProfileWeight[n][113] += part_mass;
 	    if (ProfileName[113] == NULL) ProfileName[113] = "vcirc_star (km/s)";
 
-	    /* 115) stellar tangential velocity.  Ji-hoon Kim in Feb./2008 
+	    /* 115) stellar tangential velocity.  JHK in Feb.2008 
 	       see 'gas tangential velocity' for the definition */
 
 	    radial_vel = (delx*vel[0] + dely*vel[1] + delz*vel[2]) / 
@@ -466,11 +478,37 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 	    ProfileWeight[n][115] += part_mass;
 	    if (ProfileName[115] == NULL) ProfileName[115] = "vphi_star (km/s)";
 
-	    /* 114) stellar surface density (in Msolar/Mpc^2).  Ji-hoon Kim in Dec./2007 */
+	    /* 114) stellar surface density (in Msolar/Mpc^2) as in 106.  
+	       JHK in Dec.2007 */
 
 	    ProfileValue[n][114] += part_mass;
 	    ProfileWeight[n][114] = -1;
 	    if (ProfileName[114] == NULL) ProfileName[114] = "dens_surf_star (Ms/Mpc^2)";
+
+	    /* 116) SFR surface density. First just sum the forming stellar masses, 
+	       then divide by the annulus area at the end.  This assumes stars were 
+	       created with Cen & Ostriker algorithm.  JHK in Jan.2010 */  //#####
+
+	    StarMakerMinimumDynamicalTime = 1e6; //yr
+	    StarMassEjectionFraction      = 0.8; 
+
+	    dtForSFR = StarMakerMinimumDynamicalTime * yr / TimeUnits;
+	    xv1 = (Time            - ParticleAttribute[0][i])/ParticleAttribute[1][i];
+	    xv2 = (Time + dtForSFR - ParticleAttribute[0][i])/ParticleAttribute[1][i];
+
+	    /* if the cell is not dense, then ignore. */
+
+	    if (xv1 < 12 || gas_mass/CellVolume > parameters->LowerDensityCutoff) {
+
+	      minitial = part_mass / (1.0 - StarMassEjectionFraction*(1.0 - (1.0 + xv1)*exp(-xv1)));
+	      mform = minitial * ((1.0 + xv1)*exp(-xv1) - (1.0 + xv2)*exp(-xv2));
+	      mform = max(min(mform, part_mass), 0.0);
+
+	      ProfileValue[n][116] += mform / ( dtForSFR * TimeUnits / yr );
+	      ProfileWeight[n][116] = -1;   
+	      if (ProfileName[116] == NULL) ProfileName[116] = "dens_surf_SFR (Ms/yr/Mpc^2)";
+
+	    }	      
 
 	    /* Add to image. */
 

@@ -767,6 +767,11 @@ EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
 
+/* Magnetic Field Resetter */
+
+EXTERN int ResetMagneticField;
+EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
+
 /* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
 
 EXTERN int MBHParticleIO;

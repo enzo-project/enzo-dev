@@ -429,10 +429,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           ParticleTypeInFile);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
-  fprintf(fptr, "ParticleSplitterIterations     = %"ISYM"\n",
+  fprintf(fptr, "ParticleSplitterIterations       = %"ISYM"\n",
 	  ParticleSplitterIterations);
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
+  fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",
+	  ResetMagneticField);
+  fprintf(fptr, "ResetMagneticFieldAmplitude      = %"GSYM" %"GSYM" %"GSYM"\n", 
+	  ResetMagneticFieldAmplitude[0],
+	  ResetMagneticFieldAmplitude[1],
+	  ResetMagneticFieldAmplitude[2]);
 
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)

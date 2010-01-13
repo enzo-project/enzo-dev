@@ -1826,6 +1826,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int ParticleSplitter(int level);
 
+/* Magnetic field resetting routine. */
+
+  int MagneticFieldResetter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);
