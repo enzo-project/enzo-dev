@@ -9,11 +9,11 @@
 #define MAXFILES 400000
 #define MAX_FILE_LENGTH 512
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <mpi.h>
 
 #ifdef USE_HDF4
 #include "hdf.h"

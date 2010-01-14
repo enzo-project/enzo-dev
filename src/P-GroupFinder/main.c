@@ -456,7 +456,8 @@ int link_accross(void)
   
   for(i=1; i<=Nslab[ThisTask]; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
@@ -717,7 +718,8 @@ void stitch_together(void)
   
   for(i=1; i<=Nslab[ThisTask]; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 		  
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
@@ -837,7 +839,8 @@ void exchange_shadow(void)
   
   for(i=1; i<=Nlocal; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 
       if(slab!=ThisTask)
 	MPI_Abort(MPI_COMM_WORLD, 11);
