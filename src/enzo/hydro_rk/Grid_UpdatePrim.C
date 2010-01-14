@@ -52,15 +52,28 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  //##### BaryonField[] is already a fractionalized in Grid_RK2_[12]Step -> Grid_ReturnHydroRKPointer, so no need for ReturnMassFraction
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim, false);  
-  this->ReturnOldHydroRKPointers(OldPrim, false);  
+  this->ReturnHydroRKPointers(Prim, false);         //##### species in Prim[] are already fractions fractionalized in Grid_RK2_[12]Step -> ReturnHydroRKPointer, thus no need for ReturnMassFraction
+  this->ReturnOldHydroRKPointers(OldPrim, false);   //##### whereas species in OldPrim[] are not
 
+  //##### Want to mix species and colors for renormalization?  Normally you don't
+  int MixSpeciesAndColors = 0; 
+  int NSpecies_renorm;
+
+  if (MixSpeciesAndColors) 
+    NSpecies_renorm = NSpecies+NColor;
+  else
+    switch (MultiSpecies) {
+    case 0:  NSpecies_renorm = 0;  break;
+    case 1:  NSpecies_renorm = 5;  break;
+    case 2:  NSpecies_renorm = 8;  break;
+    case 3:  NSpecies_renorm = 11; break;
+    default: NSpecies_renorm = 0;  break;
+    }
+  
   // update species
-
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {  //##### changed NSpecies+Ncolor -> NSpecies
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) { 
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -76,7 +89,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
   // renormalize species
 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -90,7 +103,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies; field++) {
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -100,7 +113,6 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
       }
     }
   }
-
 
   // update conserved variables
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -242,18 +254,17 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
     }
   }
 
-  /*  //##### below is now done in Grid_RungeKutta2_[12]Step
-  // convert species from mass fraction to density 
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
+  // convert species from mass fraction to density (this reverts what Grid_ReturnHydroRKPointers did in Grid_RungeKutta_[12]Step)
+  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)   
     for (n = 0; n < size; n++) 
-      Prim[field][n] *= BaryonField[DensNum][n];
+      Prim[field][n] *= Prim[iden][n];
 
   this->UpdateElectronDensity();
-  */
 
   if ( (NSpecies+NColor) > 0) {
     delete [] D;
     delete [] sum;
   }
+
   return SUCCESS;
 }

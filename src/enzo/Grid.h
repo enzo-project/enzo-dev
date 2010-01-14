@@ -2073,6 +2073,12 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int InterpolateParticlesToGrid(FOFData *D);
 
 //------------------------------------------------------------------------
+//  Grid star particles onto the AMR mesh
+//------------------------------------------------------------------------
+
+  int InterpolateStarParticlesToGrid(int NumberOfSPFields);  
+
+//------------------------------------------------------------------------
 // new hydro & MHD routines
 //------------------------------------------------------------------------
 

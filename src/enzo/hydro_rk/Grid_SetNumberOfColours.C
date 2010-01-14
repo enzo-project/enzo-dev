@@ -48,8 +48,6 @@ int grid::SetNumberOfColours(void)
   /*
   fprintf(stdout, "grid:SetNumberOfColours: %d %d %d %d %d \n", 
   	  SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum); 
-  fprintf(stdout, "grid:SetNumberOfColours: NSpecies = %d, NEQ_HYDRO = %d, ieint = %d \n", 
-  	  NSpecies, NEQ_HYDRO, ieint); 
   */
 
   if (MetalNum != -1) {
@@ -60,18 +58,22 @@ int grid::SetNumberOfColours(void)
   }
 
   if (SNColourNum      != -1) _nc++;
+  /*   //##### These fields are currently not being used and only causing interpolation problems
   if (MBHColourNum     != -1) _nc++;
   if (Galaxy1ColourNum != -1) _nc++;
   if (Galaxy2ColourNum != -1) _nc++;
+  */
+
 
   /* Treat these colour (i.e. metal) fields as species fields in the
      MUSCL solvers. */
 
-  NColor = _nc;  //#####
-
-  /*
   NColor = 0;  
   NSpecies += _nc;
+
+  /*
+  fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %d, NSpecies = %d, NColor = %d\n", 
+  	  NEQ_HYDRO, NSpecies, NColor); 
   */
 
   return SUCCESS;

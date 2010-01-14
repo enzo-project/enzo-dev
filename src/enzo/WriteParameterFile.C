@@ -81,21 +81,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT *= tempu;
     MaximumAlvenSpeed *= velu;
     EOSSoundSpeed *=  velu;
-    /*    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+
+    /*
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	printf("i = %i, MinMass = %g, massu = %g\n",i,MinimumMassForRefinement[i],massu);
 	MinimumMassForRefinement[i] *= massu;
 	printf("i = %i, MinMass = %g\n",i,MinimumMassForRefinement[i]);
       }
-    }*/
+    }
+    */
 
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumOverDensityForRefinement[i] *= rhou;
+    if (!ComovingCoordinates && UsePhysicalUnit) {
+      for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
+	  MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
-  }
 
   }
 
@@ -395,7 +397,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
-  fprintf(fptr, "BAnyl                        = %"ISYM"\n", BAnyl);
+  fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
   
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
@@ -404,6 +406,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  OutputSmoothedDarkMatter);
   fprintf(fptr, "SmoothedDarkMatterNeighbors    = %"ISYM"\n", 
 	  SmoothedDarkMatterNeighbors);
+  fprintf(fptr, "OutputGriddedStarParticle      = %"ISYM"\n", 
+	  OutputGriddedStarParticle);
  
   fprintf(fptr, "ZEUSLinearArtificialViscosity    = %"GSYM"\n",
 	  ZEUSLinearArtificialViscosity);
@@ -504,7 +508,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumOverDensityForRefinement[6]);
 
   fprintf(fptr, "MinimumMassForRefinement ="
-	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	  " %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM" %.9"GSYM"\n",
 	  MinimumMassForRefinement[0]*massu,
 	  MinimumMassForRefinement[1]*massu,
 	  MinimumMassForRefinement[2]*massu,
@@ -634,6 +638,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
   fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
   fprintf(fptr, "MBHFeedbackJetsMassLoadingFactor      = %"GSYM"\n", MBHFeedbackJetsMassLoadingFactor);
+  fprintf(fptr, "MBHTurnOffStarFormation               = %"ISYM"\n", MBHTurnOffStarFormation);
   fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
 
   fprintf(fptr, "MBHParticleIO     = %"ISYM"\n",
@@ -755,22 +760,22 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
-    /*for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    /*
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= massu;
       }
-      }*/
-    
-  }
+    }
+    */
 
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
-      if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumOverDensityForRefinement[i] /= rhou;
+    if (!ComovingCoordinates && UsePhysicalUnit) {
+      for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
+	  MinimumOverDensityForRefinement[i] /= rhou;
       }
     }
-  }
 
+  }
 
   /* Output current time */
   time_t ID;

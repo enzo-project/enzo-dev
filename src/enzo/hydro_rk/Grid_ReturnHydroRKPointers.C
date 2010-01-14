@@ -118,22 +118,24 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     }
   }
 
-  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];
+  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];  
+  /*   //##### These fields are currently not being used and only causing interpolation problems
   if (MBHColourNum     != -1) Prim[nfield++] = BaryonField[MBHColourNum];
   if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
-
-  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield);  
+  */
 
   /* Convert the species and color fields into mass fractions */
 
   for (dim = 0, size = 1; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  if (ReturnMassFractions)
+  if (ReturnMassFractions)  
     for (n = n0; n < nfield; n++)
       for (i = 0; i < size; i++) 
 	Prim[n][i] /= Prim[iden][i];
+
+  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield);  
 
   return SUCCESS;
 

@@ -90,7 +90,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim,true);  //##### originally false
+  this->ReturnHydroRKPointers(Prim, false);  
 
   // RK2 first step
 #ifdef ECUDA 
@@ -121,6 +121,8 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
       dU[field][i] = 0.0;
     }
   }
+
+  this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
   // compute dU
   int fallback = 0;
@@ -153,13 +155,6 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
       return FAIL;
     }
   }
-
-  // convert species from mass fraction to density  
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
-    for (int n = 0; n < size; n++) 
-      Prim[field][n] *= Prim[iden][n];  //##### added!
-
-  this->UpdateElectronDensity();
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     delete [] dU[field];

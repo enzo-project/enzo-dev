@@ -77,6 +77,9 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 
   /* Initialize all star particles if this is a restart */
 
+  if (ParticleSplitterIterations > 1)
+    fprintf(stderr, "WARNING: ParticleSplitterIterations > 1 is not properly tested yet.\n");
+
   for (i = 0; i < ParticleSplitterIterations; i++) {
 
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY-1; level++) {

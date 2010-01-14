@@ -1222,8 +1222,8 @@ main(int argc, char *argv[])
     }//end of j
 
     /* Printing disk-averaged gas surface density.  This is useful for Global Kennicutt-Schmidt law of multiple epochs. 
-       This will create unwanted files, so again, caveat emptor!  Ji-hoon Kim in Nov./2007 */
-    /* As a bonus, this also prints the evolution of m_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
+       This will create unwanted files, so again, caveat emptor!  Ji-hoon Kim in Nov.2007
+       As a bonus, this also prints the evolution of m_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
 
 #ifdef PRINT_SURFACE_PROFILE
     FILE *fpAveGasSurfDen;

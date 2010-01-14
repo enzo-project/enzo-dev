@@ -48,9 +48,8 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
-
-  this->ReturnHydroRKPointers(Prim, true); //##### originally false
-  this->ReturnOldHydroRKPointers(OldPrim, true); //##### originally false
+  this->ReturnHydroRKPointers(Prim, false); 
+  this->ReturnOldHydroRKPointers(OldPrim, false); 
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -65,8 +64,7 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     
     double time2 = ReturnWallTime();
 
-    for (int field = ivx; field < NEQ_HYDRO; field++) {  //##### <=ietot changed to <NEQ_HYDRO 
-      //    for (int field = ivx; field <= ietot; field++) {   
+    for (int field = ivx; field <= ietot; field++) {   
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -89,8 +87,7 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
       }
     }
 
-    for (int field = ivx; field < NEQ_HYDRO; field++) {  //#####
-      //    for (int field = ivx; field <= ietot; field++) {   
+    for (int field = ivx; field <= ietot; field++) {   
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -101,7 +98,6 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
 	}
       }
     }
-
 
     return SUCCESS;
 
@@ -124,8 +120,10 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     }
   }
 
-  int fallback = 0;
+  this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
+  // compute dU
+  int fallback = 0;
   if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
 		    0.5, fallback) == FAIL) {
     return FAIL;
@@ -158,15 +156,6 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     }
     return FAIL;
   }
-
-  // convert species from mass fraction to density (this reverts what Grid_ReturnHydroRKPointers did in Grid_RungeKutta_[12]Step)
-  for (int field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)
-    for (int n = 0; n < size; n++) {
-      Prim[field][n] *= Prim[iden][n];       
-      OldPrim[field][n] *= OldPrim[iden][n];  //##### added!
-    }
-
-  this->UpdateElectronDensity();
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     delete [] dU[field];

@@ -249,8 +249,8 @@ suggest-clean:
 
 show-version:
 	@echo
-	@echo "SVN Branch   `$(SVN) info $(TOP_DIR) | awk '/URL/{print $$2}'`"
-	@echo "SVN Revision `$(SVN) info $(TOP_DIR) | awk '/Revision/{print $$2}'`"
+	@echo "Mercurial Branch   `$(SVN) identify -i`"
+	@echo "Mercurial Revision `$(SVN) identify -b`"
 	@echo
 
 #-----------------------------------------------------------------------

@@ -109,7 +109,9 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              float *odthresh, float *massff, float *smthrest, int *level,
 		 int *np, int *npart,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-             float *mp, float *tdp, float *tcp, float *metalf, int *type, int *ctype);
+             float *mp, float *tdp, float *tcp, float *metalf, 
+	     FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, 
+		 int *type, int *ctype, int *option);
 
 extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *coolrate, float *u, float *v, float *w,
@@ -763,7 +765,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2], ParticleType, &MBHParticleType);
+          tg->ParticleAttribute[2], 
+       ParticlePosition[0], ParticlePosition[1],
+          ParticlePosition[2],
+       ParticleType, &MBHParticleType, &MBHTurnOffStarFormation);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
