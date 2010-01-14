@@ -10,7 +10,7 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np,
+     &                      odthresh, shdens, masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, ran1_init)
 c
@@ -37,6 +37,7 @@ c    coolrate - cooling rate of gas in cgs [note - positive is heading, neg. is 
 c    u,v,w - velocity fields
 c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
+c    metal - metallicity field
 c    dt    - current timestep
 c    dx    - zone size (code units)
 c    t     - current time
@@ -45,7 +46,8 @@ c    d1,x1,v1,t1 - factors to convert d,dx,v,t to physical units
 c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
-c    odthresh - Physical Density Threshold, see S&H for values
+c    odthresh - Overdensity of the cell required to turn on star formation.
+c    shdesn   - Critical density (rho_crit) for star formation, see Springel & Hernquist
 c    masseff(not used) - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - mass of all stars that are created ~= 7.6e4 (msolar)
 c    mintdyn  - timescale for star formation ~= 2.1e9 (yrs)
@@ -72,7 +74,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer procnum, ran1_init
       real    d(nx,ny,nz), dm(nx,ny,nz)
       real    temp(nx,ny,nz), coolrate(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
@@ -83,7 +85,7 @@ c
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real    odthresh, masseff, smthresh, mintdyn
+      real    odthresh, shdens, masseff, smthresh, mintdyn
 c
       real   sformsum
       save   sformsum
@@ -91,8 +93,8 @@ c
 c
 c  Locals:
 c
-      integer  i, j, k, ii, ran1_init
-      real   div, tdyn, dtot, dummy1
+      integer  i, j, k, ii
+      real   div, tdyn, dtot, dummy1, exp_value
       real   usn, tstar, pstar, sqrtepssn, timeconstant
       real   mproton, RandomSeed, beta,x ,y, kb
       real   starfraction, bmass, densthresh 
@@ -117,32 +119,31 @@ c     Define the energy output from supernovae
       usn=(1.0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
-c     Calculate density threshold in correct units!
-      densthresh = odthresh * 2.165e-8
-
-c     Calculate timeconstant t0 in code units, assuming input is years
-      timeconstant = mintdyn * 3.156e7 / t1
+c     Calculate timeconstant assuming input is years
+      timeconstant = mintdyn * 3.1556926e7
 
 c     Loop over all grids
       do k=1+ibuff,nz-ibuff   
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
-c	       Only at the lowest refinement!              
-	       if(r(i,j,k) .ne. 0.0) goto 10
-
-               if(d(i,j,k) .le. 100) goto 10
+c	       Only at the lowest refinement!  
+c          (This is now done in Grid_StarParticleHandler)
+c	       if(r(i,j,k) .ne. 0.0) goto 10
+	       
+               if(d(i,j,k) .le. odthresh) goto 10
 
 
 c	       Calculate star formation timescale               
-               tstar = mintdyn*(d(i,j,k)*dble(d1)/  
-     &              mproton/densthresh)**(-0.5)			!Eq(21)
+               tstar = timeconstant*(d(i,j,k)*dble(d1)/  
+     &              shdens)**(-0.5)			!Eq(21)
+            
+            if (coolrate(i,j,k) .lt. 0) goto 10
+            
+               y = 1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
+     &       (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton)		!Eq(16)
 
-
-c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
-c		negative, gas is cooling (which is the opposite of how it's defined in springel
-c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
-               y = -1.0*tstar*t1*coolrate(i,j,k)*d(i,j,k)/dble(d1)/
-     &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton)		!Eq(16)
+c       If the sqrt down below presents a problem, skip it.
+               if ((1.0/y + 1.0/4.0/y/y) .le. 0) goto 10
 
 c	       Calculate the fraction of mass in cold clouds
                if (y .eq. 0) then
@@ -155,16 +156,16 @@ c              Calculate total baryon mass in the cell
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3/msolar	     
 
 c              Calculate a parameter which is compared to a random number
-               pstar=(bmass/smthresh)*(1.0-exp(-(1.0-beta)*x*dt/tstar)) !Eq(39)
+c               pstar=(bmass/smthresh)*(1.0-exp(-1.*(1.0-beta)*x*dt*t1/tstar)) !Eq(39)
+               exp_value = -1. * (1.0-beta)* x * dt * t1 / tstar
+               pstar=(bmass/smthresh)*(1.0-exp(exp_value))
 
 !              dummy1 = ran1(0)
                call random_number(dummy1)
 
 c ----------If a random number < pstar, create a star!----------------
-
                if(dummy1 .gt. pstar) goto 10
                starfraction = min(smthresh/bmass, 0.5)
-
                ii = ii + 1
 	       mp(ii)  = starfraction * d(i,j,k) 
                tcp(ii) = t
