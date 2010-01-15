@@ -790,7 +790,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       }
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
-      
+
       FORTRAN_NAME(star_maker5)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, coolingrate,

@@ -10,7 +10,8 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
-     &                      odthresh, shdens, masseff, smthresh, level, np,
+     &                      odthresh, shdens,
+     &                      masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, ran1_init)
 c
@@ -106,13 +107,15 @@ c
       real random
 !     real ran1
 
-      ii = np
+c      ii = np
+
 c     Initialize Random Number Generator Once
       if(ran1_init .eq. 0)then
 !       dummy1 = ran1(RandomSeed)
         call random_seed
         ran1_init = 1
       endif
+
 
 c     Define the energy output from supernovae
 
@@ -121,7 +124,7 @@ c     Define the energy output from supernovae
 
 c     Calculate timeconstant assuming input is years
       timeconstant = mintdyn * 3.1556926e7
-      write(6,*) 'there',np,nmax
+
 c     Loop over all grids
       do k=1+ibuff,nz-ibuff   
          do j=1+ibuff,ny-ibuff
@@ -143,10 +146,10 @@ c	       Calculate star formation timescale
      &       (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton)		!Eq(16)
 
 c       If the sqrt down below presents a problem, skip it.
-               if ((1.0/y + 1.0/4.0/y/y) .le. 0) goto 10
+c               if ((1.0/y + 1.0/4.0/y/y) .le. 0) goto 10
 
 c	       Calculate the fraction of mass in cold clouds
-               if (y .eq. 0) then
+               if (y .le. 0) then
                   x = 0
                else
                   x = 1.0 + 1.0/2.0/y - sqrt(1.0/y + 1.0/4.0/y/y)	!Eq(18)
@@ -164,39 +167,38 @@ c               pstar=(bmass/smthresh)*(1.0-exp(-1.*(1.0-beta)*x*dt*t1/tstar)) !
                call random_number(dummy1)
 
 c ----------If a random number < pstar, create a star!----------------
-               write (6,*) 'xty',dummy1,pstar,ii,nmax
                if(dummy1 .gt. pstar) goto 10
-               write (6,*) 'making star'
+
                starfraction = min(smthresh/bmass, 0.5)
-               ii = ii + 1
-	       mp(ii)  = starfraction * d(i,j,k) 
-               tcp(ii) = t
-               tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               np = np + 1
+	       mp(np)  = starfraction * d(i,j,k) 
+               tcp(np) = t
+               tdp(np) = tdyn
+               xp(np) = xstart + (float(i)-0.5)*dx
+               yp(np) = ystart + (float(j)-0.5)*dx
+               zp(np) = zstart + (float(k)-0.5)*dx
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(np) = 0.5*(u(i,j,k)+u(i+1,j,k))
+                  vp(np) = 0.5*(v(i,j,k)+v(i,j+1,k))
+                  wp(np) = 0.5*(w(i,j,k)+w(i,j,k+1))
                else
-                  up(ii) = u(i,j,k)
-                  vp(ii) = v(i,j,k)
-                  wp(ii) = w(i,j,k)
+                  up(np) = u(i,j,k)
+                  vp(np) = v(i,j,k)
+                  wp(np) = w(i,j,k)
                endif
 
 c	       Set metal Fraction
                if (imetal .eq. 1) then
-                  metalf(ii) = metal(i,j,k)
+                  metalf(np) = metal(i,j,k)
                else
-                  metalf(ii) = 0.0
+                  metalf(np) = 0.0
                endif
 c	       Remove mass from grid
                d(i,j,k) = (1.0 - starfraction)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
-               if (ii .eq. nmax) goto 20
+               if (np .eq. nmax) goto 20
 
  10            continue
             enddo
@@ -204,15 +206,15 @@ c
       enddo
  20   continue
 c
-      write(6,*) 'here',np,ii,nmax
-      if (ii .ge. nmax) then
+
+      if (np .ge. nmax) then
          write(6,*) 'star_maker5: reached max new particle count'
          ERROR_MESSAGE
       endif
 c
 c     Make sure to return the number of particles!
 c
-      np = ii
+c      np = ii
 c
       return
       end
