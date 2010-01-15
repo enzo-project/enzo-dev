@@ -121,7 +121,7 @@ c     Define the energy output from supernovae
 
 c     Calculate timeconstant assuming input is years
       timeconstant = mintdyn * 3.1556926e7
-
+      write(6,*) 'there',np,nmax
 c     Loop over all grids
       do k=1+ibuff,nz-ibuff   
          do j=1+ibuff,ny-ibuff
@@ -164,7 +164,9 @@ c               pstar=(bmass/smthresh)*(1.0-exp(-1.*(1.0-beta)*x*dt*t1/tstar)) !
                call random_number(dummy1)
 
 c ----------If a random number < pstar, create a star!----------------
+               write (6,*) 'xty',dummy1,pstar,ii,nmax
                if(dummy1 .gt. pstar) goto 10
+               write (6,*) 'making star'
                starfraction = min(smthresh/bmass, 0.5)
                ii = ii + 1
 	       mp(ii)  = starfraction * d(i,j,k) 
@@ -202,8 +204,9 @@ c
       enddo
  20   continue
 c
+      write(6,*) 'here',np,ii,nmax
       if (ii .ge. nmax) then
-         write(6,*) 'star_maker2: reached max new particle count'
+         write(6,*) 'star_maker5: reached max new particle count'
          ERROR_MESSAGE
       endif
 c
