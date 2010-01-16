@@ -63,6 +63,7 @@ SPEXTERN float PopIIIColorDensityThreshold;
 SPEXTERN float PopIIIColorMass;
 
 SPEXTERN int    StarClusterUseMetalField;
+SPEXTERN int    StarClusterHeliumIonization;
 SPEXTERN float  StarClusterMinDynamicalTime;
 SPEXTERN double StarClusterIonizingLuminosity;
 SPEXTERN double StarClusterSNEnergy;
