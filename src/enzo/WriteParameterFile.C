@@ -172,6 +172,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
 
+  fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
+  fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
+  fprintf(fptr, "CurrentDensityOutput = %"GSYM"\n", CurrentDensityOutput);
+  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
+
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
   fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
  
@@ -484,7 +489,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  SlopeFlaggingFields[1],
 	  SlopeFlaggingFields[2], 
 	  SlopeFlaggingFields[3],
-	  SlopeFlaggingFields[4]);
+	  SlopeFlaggingFields[4],
+	  SlopeFlaggingFields[5],
+	  SlopeFlaggingFields[6]);
 
   fprintf(fptr, "MinimumSlopeForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
