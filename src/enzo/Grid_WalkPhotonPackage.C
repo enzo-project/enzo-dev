@@ -327,7 +327,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // This and the next cell edge
     for (dim = 0; dim < 3; dim++) {
       ce[dim] = CellLeftEdge[dim][g[dim]];
-      nce[dim] = CellLeftEdge[dim][g[dim] + u_sign[dim]];
+      nce[dim] = CellLeftEdge[dim][g[dim] + u_dir[dim]];
     }
 
     // Radius of the next edge crossing in each dimension
