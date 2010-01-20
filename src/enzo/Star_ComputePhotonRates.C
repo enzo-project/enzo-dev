@@ -32,6 +32,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
 {
 
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
+  float EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
   x2 = x*x;
 
@@ -61,14 +62,21 @@ int Star::ComputePhotonRates(float E[], double Q[])
     /* Average energy from Schaerer (2003) */
 
   case PopII:
-    EnergyFractionLW = 0.01;
-    E[0] = 21.5; // eV (good for a standard, low-Z IMF)
-    E[1] = 0.0;
-    E[2] = 0.0;
+    EnergyFractionLW   = 0.01;
+    EnergyFractionHeI  = 0.32;
+    EnergyFractionHeII = 5.2e-4;
+    E[0] = 21.96; // eV (good for a standard, low-Z IMF)
+    E[1] = 25.0;
+    E[2] = 61.54;
     E[3] = 12.8;
     Q[0] = StarClusterIonizingLuminosity * this->Mass;
-    Q[1] = 0.0;
-    Q[2] = 0.0;
+    if (StarClusterHeliumIonization) {
+      Q[1] = EnergyFractionHeI * Q[0];
+      Q[2] = EnergyFractionHeII * Q[0];
+    } else {
+      Q[1] = 0.0;
+      Q[2] = 0.0;
+    }
     Q[3] = EnergyFractionLW * Q[0];
     break;
 

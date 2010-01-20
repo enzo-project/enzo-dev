@@ -589,6 +589,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
           StarClusterIonizingLuminosity);
+  fprintf(fptr, "StarClusterHeliumIonization           = %"ISYM"\n",
+	  StarClusterHeliumIonization);
   fprintf(fptr, "StarClusterSNEnergy                   = %lg\n",
           StarClusterSNEnergy);
   fprintf(fptr, "StarClusterSNRadius                   = %"GSYM"\n",

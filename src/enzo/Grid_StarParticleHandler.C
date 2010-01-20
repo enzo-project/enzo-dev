@@ -959,10 +959,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
     /* Clean up and keep it quiet. */
 
-    int oldDebug = debug;
-    if (debug) debug=0;
     delete tg; // temporary grid
-    debug = oldDebug;
 
     //    if (debug) printf("StarParticle: end\n");
  
