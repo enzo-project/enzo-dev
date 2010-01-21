@@ -63,16 +63,17 @@ int Star::ComputePhotonRates(float E[], double Q[])
 
   case PopII:
     EnergyFractionLW   = 0.01;
-    EnergyFractionHeI  = 0.32;
-    EnergyFractionHeII = 5.2e-4;
-    E[0] = 21.96; // eV (good for a standard, low-Z IMF)
-    E[1] = 25.0;
-    E[2] = 61.54;
+    EnergyFractionHeI  = 0.295;
+    EnergyFractionHeII = 2.81e-4;
+    E[0] = 21.62; // eV (good for a standard, low-Z IMF)
+    E[1] = 24.6;
+    E[2] = 54.4;
     E[3] = 12.8;
     Q[0] = StarClusterIonizingLuminosity * this->Mass;
     if (StarClusterHeliumIonization) {
       Q[1] = EnergyFractionHeI * Q[0];
       Q[2] = EnergyFractionHeII * Q[0];
+      Q[0] *= 1.0 - EnergyFractionHeI - EnergyFractionHeII;
     } else {
       Q[1] = 0.0;
       Q[2] = 0.0;
