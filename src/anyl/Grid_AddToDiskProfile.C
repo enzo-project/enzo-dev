@@ -487,27 +487,42 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
 
 	    /* 116) SFR surface density. First just sum the forming stellar masses, 
 	       then divide by the annulus area at the end.  This assumes stars were 
-	       created with Cen & Ostriker algorithm.  JHK in Jan.2010 */  //#####
+	       created with Cen & Ostriker algorithm (check star_maker7).  JHK in Jan.2010 */  
 
 	    StarMakerMinimumDynamicalTime = 1e6; //yr
-	    StarMassEjectionFraction      = 0.8; 
+	    StarMassEjectionFraction      = 0.8; //#####
 
 	    dtForSFR = StarMakerMinimumDynamicalTime * yr / TimeUnits;
 	    xv1 = (Time            - ParticleAttribute[0][i])/ParticleAttribute[1][i];
 	    xv2 = (Time + dtForSFR - ParticleAttribute[0][i])/ParticleAttribute[1][i];
 
-	    /* if the cell is not dense, then ignore. */
+	    /*
+	    if (xv1 < 1) {
+	      ProfileValue[n][116] += part_mass / ( dtForSFR * TimeUnits / yr );
+	      ProfileWeight[n][116] = -1;   
+	      if (ProfileName[116] == NULL) ProfileName[116] = "dens_surf_SFR (Ms/yr/Mpc^2)";
+	    }	
+	    */
 
-	    if (xv1 < 12 || gas_mass/CellVolume > parameters->LowerDensityCutoff) {
+	    /* if the star is not active or if the gas is not dense, ignore. */
 
+	    if (xv2 < 12 && gas_mass/CellVolume > parameters->LowerDensityCutoff) {
 	      minitial = part_mass / (1.0 - StarMassEjectionFraction*(1.0 - (1.0 + xv1)*exp(-xv1)));
 	      mform = minitial * ((1.0 + xv1)*exp(-xv1) - (1.0 + xv2)*exp(-xv2));
 	      mform = max(min(mform, part_mass), 0.0);
 
-	      ProfileValue[n][116] += mform / ( dtForSFR * TimeUnits / yr );
-	      ProfileWeight[n][116] = -1;   
-	      if (ProfileName[116] == NULL) ProfileName[116] = "dens_surf_SFR (Ms/yr/Mpc^2)";
+	      /*
+	      if (i < 10000) {
+	      printf("ParticleAttribute[0][i] = %g, ParticleAttribute[1][i] = %g, dtForSFR = %g\n", 
+		     ParticleAttribute[0][i], ParticleAttribute[1][i], dtForSFR);
+	      printf("xv1 = %g, xv2 = %g, part_mass = %g, minitial = %g, mform = %g\n", 
+		     xv1, xv2, part_mass, minitial, mform);
+	      } 
+	      */
 
+	      ProfileValue[n][116] += (1.0 - StarMassEjectionFraction) * mform / ( dtForSFR * TimeUnits / yr );
+	      ProfileWeight[n][116] = -1; 
+	      if (ProfileName[116] == NULL) ProfileName[116] = "dens_surf_SFR (Ms/yr/Mpc^2)";
 	    }	      
 
 	    /* Add to image. */

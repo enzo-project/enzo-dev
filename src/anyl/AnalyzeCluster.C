@@ -1217,34 +1217,22 @@ main(int argc, char *argv[])
       FILE *fpLKS, *fpGKS, *fpMvirEv;
       double AverageGasSurfaceDensity = 0.0;  
       double AverageSFRSurfaceDensity = 0.0;  
-      float SFRThresholdForKS = 1e-5;  //in Msun/yr/kpc^2
       FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
 
-      fpLKS = fopen("Local_KS.txt","w");      
-      fpGKS = fopen("Global_KS.txt","a");
+      fpLKS = fopen("local_KS.dat","w");      
+      fpGKS = fopen("global_KS.dat","a");
 
       /* Print gas surface density and SFR surface density for local K-S law.  
 	 Msun/pc^2 vs. Msun/yr/kpc^2 */
 
       for (j = 1; j < NumberOfPoints; j++) {
 
-	if (ProfileValue[j][116]/POW(1e3, 2) < SFRThresholdForKS) {
-	  ObservableDiskRadiusForKS = ProfileRadius[j];
-	  break;
-	}
-
 	fprintf(fpLKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM" \n", ProfileRadius[j],
-		(ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2),
-		(ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2)); 
+		log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) )); 
 
-	AverageGasSurfaceDensity += ProfileValue[j][106]*ProfileWeight[j][106];
+	AverageGasSurfaceDensity += ProfileValue[j][106]*ProfileWeight[j][106];//weights are annuli
 	AverageSFRSurfaceDensity += ProfileValue[j][116]*ProfileWeight[j][116];
-	/*
-	AverageGasSurfaceDensity += ProfileValue[j][106]*(2*pi*ProfileRadius[j]*BoxSize)
-	  *(ProfileRadius[j]-ProfileRadius[j-1])*BoxSize;
-	AverageSFRSurfaceDensity += ProfileValue[j][116]*(2*pi*ProfileRadius[j]*BoxSize)
-	  *(ProfileRadius[j]-ProfileRadius[j-1])*BoxSize;
-	  */
 
       }
 
@@ -1252,21 +1240,19 @@ main(int argc, char *argv[])
 	 density for global K-S law.  Msun/pc^2 vs. Msun/yr/kpc^2  */
 
       fprintf(fpGKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", LevelArray[0]->GridData->ReturnTime(),
-	      AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2),
-	      AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2)); 
+	      log10( AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2) ),
+	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) )); 
 
       fclose(fpLKS);
       fclose(fpGKS);
       
       /* Print the evolution of M_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
 
-      /*
-      fpMvirEv = fopen("VirialMassEvolution.txt","a");
+      fpMvirEv = fopen("MvirEvolution.dat","a");
       fprintf(fpMvirEv, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
 	      CurrentRedshift, MetaData.Time, rvir*BoxSize, 
 	      mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);         
       fclose(fpMvirEv);
-      */
 
     } // end: if (parameters.PrintGlobalProfileValues)
 

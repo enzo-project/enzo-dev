@@ -203,7 +203,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
       EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
 
-    //fprintf(stderr, "Star::FFS: EjectaThermalEnergy = %g\n", EjectaThermalEnergy); 
+      //fprintf(stderr, "Star::FFS: EjectaThermalEnergy = %g\n", EjectaThermalEnergy); 
 
       //      printf("AddFeedback: EjectaDensity = %"GSYM"\n", EjectaDensity);
       //      EjectaDensity = Shine[p].Mass / MassEnclosed;

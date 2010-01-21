@@ -266,6 +266,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
+  PrintMemoryUsage("1st rebuild");
+ 
   /* Particle Splitter. Split particles into 13 (=1+12) child particles */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
@@ -275,11 +277,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Reset magnetic fields if requested. */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
-      ResetMagneticField == TRUE && HydroMethod == MHD_RK)
+      ResetMagneticField == TRUE)
     MagneticFieldResetter(LevelArray, 0, &MetaData);
 
-  PrintMemoryUsage("1st rebuild");
- 
   /* Open the OutputLevelInformation file. */
  
   FILE *LevelInfofptr;

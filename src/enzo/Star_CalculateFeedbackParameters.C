@@ -123,14 +123,13 @@ void Star::CalculateFeedbackParameters(float &Radius,
        Use code snippets from Star_CalculateMassAccretion.C. (many comments omitted) 
        This is redundant, but for now, works great!  */
 
-    /* Find fields: density, total energy, velocity1-3. */    
+    /*
     if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 						Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
       ENZO_FAIL("");
     }
 
-    /* Find Multi-species fields. */
     if (MultiSpecies)
       if (CurrentGrid->
 	  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
@@ -176,6 +175,11 @@ void Star::CalculateFeedbackParameters(float &Radius,
 		 CurrentGrid->BaryonField[H2IINum][index]);
       mu = density / number_density;
     }
+
+    // if requested, fix the temperature (e.g. to 3e5 K) so you don't get overpowered by high T SN bubble
+    if (this->type == MBH && MBHAccretion == 2) 
+      temperature[index] = MBHAccretionFixedTemperature;  
+
     c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
     old_mass = (float)(this->Mass);
 
@@ -191,27 +195,34 @@ void Star::CalculateFeedbackParameters(float &Radius,
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
       (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
 
-    // Don't take out too much mass suddenly; mdot should leave at least 75% of the gas in the grids.
-    mdot_UpperLimit = 0.25 * density * DensityUnits * 
-      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
-      (CurrentGrid->dtFixed) / TimeUnits;
-    mdot = min(mdot, mdot_UpperLimit);
-
-    // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || MBHAccretion != 1)
-      mdot = 0.0;
-
     if (this->type == MBH) { 
+
+      // if requested, just fix mdot (e.g. to 1e-4 Msun/yr)
+      if (MBHAccretion == 3)
+	mdot = MBHAccretionFixedRate / yr; 
+
       mdot *= MBHAccretingMassRatio;
 
+      mdot_UpperLimit = 0.10 * density * DensityUnits * 
+	pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
+	(CurrentGrid->dtFixed) / TimeUnits;
+      mdot = min(mdot, mdot_UpperLimit);
+      
       mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
       mdot = min(mdot, mdot_Edd); 
+
+      if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || !(MBHAccretion > 0))
+	mdot = 0.0;
+
     }
 
+    */
     /* End of the code snippets from Star_CalculateMassAccretion.C */
 
+
+    mdot = this->last_accretion_rate;
 
 
     // Inject energy into a sphere
@@ -248,9 +259,9 @@ void Star::CalculateFeedbackParameters(float &Radius,
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
 #endif
 
-    //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
-    //            Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-    //	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
+    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
+                Radius = %g, mdot = %g, dtForThisStar = %g\n", 
+    	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar);  //####
 
     delete [] temperature;
 

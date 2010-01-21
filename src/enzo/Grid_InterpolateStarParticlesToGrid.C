@@ -172,10 +172,10 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 	    mform = max(min(mform, ParticleMass[i]), 0.0);
 	    
 	    // (11) forming stellar mass density (in code density unit)
-	    InterpolatedField[FormingStarDensNum][index] += (float) mform; 
+	    InterpolatedField[FormingStarDensNum][index] += (float)((1.0 - StarMassEjectionFraction)*mform); 
 	    
 	    // (12) SFR density in current timestep 'dtFixed'
-	    InterpolatedField[SFRDensNum][index] += (float) mform; 
+	    InterpolatedField[SFRDensNum][index] += (float)((1.0 - StarMassEjectionFraction)*mform);
 	  }
 
 	  // (13) average creation time 
@@ -206,7 +206,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
 
 
 //    printf("Time = %g, dtForSFR = %g, xv1 = %g, xv2 = %g, minitial = %g, mform = %g, ParticleAttribute[0][i-1] = %g\n", 
-//	   Time, dtForSFR, xv1, xv2, minitial, mform, ParticleAttribute[0][i-1]);  //#####
+//	   Time, dtForSFR, xv1, xv2, minitial, mform, ParticleAttribute[0][i-1]);  
 
   return SUCCESS;
 

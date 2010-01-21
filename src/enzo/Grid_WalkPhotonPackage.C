@@ -588,10 +588,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 	// assume photon energy is much less than the electron rest mass energy 
 	// nonrelativistic Klein-Nishina cross-section in Ribicki & Lightman (1979)
+	xE = (*PP)->Energy/5.11e5;  
 	sigma[3] = 6.65e-25 * (1 - 2.*xE + 26./5.*xE*xE) * LengthUnits;
 
 	// also, nonrelativistic energy transfer in Ciotti & Ostriker (2001)
-	xE = (*PP)->Energy/5.11e5;  
 	factor2[3] = factor1 * 4 * k_b * BaryonField[TemperatureField][index] * xE;
 	ratioE = 4 * k_b * BaryonField[TemperatureField][index] * xE / (*PP)->Energy; 
 
@@ -607,7 +607,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dP1 = dPXray[3] * slice_factor2;
 
 	// the heating rate by energy transfer during Compton scattering
-	BaryonField[gammaNum][index] += dP1 * factor2[3]; //#####
+	BaryonField[gammaNum][index] += dP1 * factor2[3]; 
 
 	// a photon loses only a fraction of photon energy in Compton scatering, 
 	// and keeps propagating; to model this with monochromatic energy,
@@ -619,7 +619,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	/*
 	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature = %g,"
                "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
-	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]);  //#####
+	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]); 
 	*/
 
       }

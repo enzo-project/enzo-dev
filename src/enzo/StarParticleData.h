@@ -77,6 +77,8 @@ SPEXTERN float  MBHMinDynamicalTime;
 SPEXTERN float  MBHMinimumMass;
 SPEXTERN int    MBHAccretion;
 SPEXTERN float  MBHAccretingMassRatio;
+SPEXTERN float  MBHAccretionFixedTemperature;
+SPEXTERN float  MBHAccretionFixedRate;
 SPEXTERN int    MBHFeedback;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
 SPEXTERN float  MBHFeedbackThermalCoupling;

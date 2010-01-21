@@ -637,6 +637,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n", MBHMinimumMass);
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretingMassRatio                 = %"GSYM"\n", MBHAccretingMassRatio);
+  fprintf(fptr, "MBHAccretionFixedTemperature          = %"GSYM"\n", MBHAccretionFixedTemperature);
+  fprintf(fptr, "MBHAccretionFixedRate                 = %"GSYM"\n", MBHAccretionFixedRate);
   fprintf(fptr, "MBHFeedback                           = %"ISYM"\n", MBHFeedback);
   fprintf(fptr, "MBHFeedbackRadiativeEfficiency        = %"GSYM"\n", MBHFeedbackRadiativeEfficiency);
   fprintf(fptr, "MBHFeedbackThermalCoupling            = %"GSYM"\n", MBHFeedbackThermalCoupling);
