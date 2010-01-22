@@ -89,6 +89,7 @@ public:
   FLOAT *ReturnPosition(void) { return pos; }
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
+  float ReturnLastAccretionRate(void) { return last_accretion_rate; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -100,7 +101,7 @@ public:
 #endif
   int	Accrete(void);
   int	AccreteAngularMomentum(void);
-  int	SubtractAccretedMass(void);
+  int	SubtractAccretedMassFromCell(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);

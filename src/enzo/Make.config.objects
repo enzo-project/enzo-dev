@@ -424,6 +424,7 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
         Grid_SupernovaRestartInitialize.o \
+        Grid_SubtractAccretedMassFromSphere.o \
         Grid_TestGravityCheckResults.o \
         Grid_TestGravityInitializeGrid.o \
         Grid_TestGravityMotionInitializeGrid.o \
@@ -614,6 +615,7 @@ OBJS_CONFIG_LIB = \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
+        StarParticleSubtractAccretedMass.o \
         StarRoutines.o \
         Star_Accrete.o \
         Star_AccreteAngularMomentum.o \
@@ -631,7 +633,7 @@ OBJS_CONFIG_LIB = \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
         Star_SetFeedbackFlag.o \
-	Star_SubtractAccretedMass.o \
+	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \
         star_maker2.o \
         star_maker3.o \

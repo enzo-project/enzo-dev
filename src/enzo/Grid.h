@@ -1983,6 +1983,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
 
+  int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
+				     float LengthUnits, float VelocityUnits, 
+				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+				     int &CellsModified);
+
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
   int MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);

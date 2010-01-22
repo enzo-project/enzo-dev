@@ -53,9 +53,11 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
+
+//  printf("star::Accrete: old_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
   Mass += (double)(DeltaMass);
   FinalMass += (double)(DeltaMass);
-//  printf("star::Accrete: Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass);
+//  printf("star::Accrete: new_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
 
   /* Conserve momentum: change star particle velocity due to accreted
      material */
