@@ -659,11 +659,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
-    ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
-    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
+    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %"FSYM, &MBHFeedbackEnergyCoupling);
     ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
     ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHFeedbackJetsMassLoadingFactor = %"FSYM, &MBHFeedbackJetsMassLoadingFactor);
 
     ret += sscanf(line, "MBHParticleIO = %"ISYM,
 		  &MBHParticleIO);

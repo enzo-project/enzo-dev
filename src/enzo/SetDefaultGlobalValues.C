@@ -385,21 +385,20 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
-  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: Fix temperature, 3: Fix rate
+  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
-  MBHAccretionFixedRate            = 1e-4;         // Msun/yr, for MBHAccretiob = 3
+  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretiob = 3
   MBHTurnOffStarFormation          = FALSE;        // check Grid_StarParticleHandler.C
   MBHCombineRadius                 = 50;           // pc
 
   MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
-  MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
-  MBHFeedbackThermalRadius         = 50;           // pc
+  MBHFeedbackEnergyCoupling        = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackThermalRadius         = 50;           // pc
   MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackJetsMassLoadingFactor = 250;          // eta, check Star_AddFeedbackSphere.C
 
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;

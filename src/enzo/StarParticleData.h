@@ -85,11 +85,10 @@ SPEXTERN float  MBHCombineRadius;
 
 SPEXTERN int    MBHFeedback;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
-SPEXTERN float  MBHFeedbackThermalCoupling;
-SPEXTERN float  MBHFeedbackThermalRadius;
+SPEXTERN float  MBHFeedbackEnergyCoupling;
 SPEXTERN float  MBHFeedbackMassEjectionFraction;
+SPEXTERN float  MBHFeedbackThermalRadius;
 SPEXTERN float  MBHFeedbackMetalYield;
-SPEXTERN float  MBHFeedbackJetsMassLoadingFactor;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
