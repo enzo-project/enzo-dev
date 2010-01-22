@@ -87,8 +87,9 @@ SPEXTERN int    MBHFeedback;
 SPEXTERN float  MBHFeedbackRadiativeEfficiency;
 SPEXTERN float  MBHFeedbackEnergyCoupling;
 SPEXTERN float  MBHFeedbackMassEjectionFraction;
-SPEXTERN float  MBHFeedbackThermalRadius;
 SPEXTERN float  MBHFeedbackMetalYield;
+SPEXTERN float  MBHFeedbackThermalRadius;
+SPEXTERN float  MBHFeedbackJetsThresholdMass;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;

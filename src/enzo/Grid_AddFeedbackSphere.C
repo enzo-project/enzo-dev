@@ -299,7 +299,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
 
 	    /* MBHColour injected - Ji-hoon Kim, Oct.2009 */
-	    if (cstar->FeedbackFlag == MBH_THERMAL && MBHColourNum > 0)
+	    if (MBHColourNum > 0)
 	      BaryonField[MBHColourNum][index] += factor*EjectaDensity;
 
 	    CellsModified++;
@@ -335,7 +335,17 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   if (cstar->FeedbackFlag == MBH_JETS) {
 
-    /* Check whether the current grid contains the whole supercell */
+    /* Calculate mass; since EjectaDensity is calculated for isotropic MBH_THERMAL, we use it 
+       only to compute EjectaMass, not to apply it directly  */
+
+    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+
+    /* if NotEjectedMass accumulated so far is smaller than the threshold, return */
+
+    if (cstar->NotEjectedMass <= MBHFeedbackJetsThresholdMass) 
+      return SUCCESS;
+
+    /* if the current grid cannot contain the whole supercell, return */
 
     float CellWidthTemp = float(CellWidth[0][0]);
     i = (int)((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidthTemp);
@@ -350,11 +360,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     }
     
     /* Remove mass from the star that will now be added to grids. 
-       Also, because EjectaDensity will be added with zero net momentum, 
+       Also, because EjectedMass will be added with zero net momentum, 
        increase the particle's velocity accordingly.*/
 
+    EjectaMass = cstar->NotEjectedMass;
+    EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
+
     old_mass = (float)(cstar->Mass);
-    cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+    cstar->Mass -= EjectaMass;  
     cstar->vel[0] *= old_mass / cstar->Mass; 
     cstar->vel[1] *= old_mass / cstar->Mass;
     cstar->vel[2] *= old_mass / cstar->Mass; 
@@ -421,15 +434,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       }  // END jj-direction
     }  // END kk-direction
 
-    /* Calculate Masses; since EjectaDensity is calculated for isotropic MBH_THERMAL, we use it 
-       only to compute EjectaMass and EjectaMetalMass, not to apply it directly  */
-
-    EjectaMass = EjectaDensity * BubbleVolume;
-    EjectaMetalMass = EjectaMetalDensity * BubbleVolume;
-
-    printf("EjectaM = %g, EjectaM in Msun = %g, EjectaMetalM = %g, m_cell_inside = %g, m_cell_edge = %g\n",
+    printf("EjectaM = %g, EjectaM in Msun = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
 	   EjectaMass, EjectaMass * DensityUnits * pow(LengthUnits,3.0) / Msun,
-	   EjectaMetalMass, m_cell_inside, m_cell_edge); //#####
+	   EjectaMetalMass, m_cell_edge, n_cell_edge); //#####
 
     /* Calculate the jet density */
 
@@ -443,7 +450,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     } else
       metallicity_edge = 0.0;
 
-    if (cstar->FeedbackFlag == MBH_JETS && MBHColourNum > 0) {
+    if (MBHColourNum > 0) {
       rho_colour_jet = (colour_cell_edge + EjectaMass) / 
 	(n_cell_edge * pow(CellWidth[0][0], 3));
       colour_edge = rho_colour_jet / rho_jet;
@@ -549,6 +556,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       CellsModified++;
 
     }  // END ic in n_cell_edge
+
+    /* since we injected the mass, set NotEjectedMass to zero */
+
+    cstar->NotEjectedMass = 0.0;
 
     fprintf(stdout, "grid::AddFS: jets injected (MBHJetsVelocity = %g, grid velocity = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
 	    MBHJetsVelocity, BaryonField[Vel3Num][n_cell_edge-1], rho_jet, nx_L, ny_L, nz_L); 

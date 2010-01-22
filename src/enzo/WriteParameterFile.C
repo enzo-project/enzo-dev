@@ -647,8 +647,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHFeedbackRadiativeEfficiency        = %"GSYM"\n", MBHFeedbackRadiativeEfficiency);
   fprintf(fptr, "MBHFeedbackEnergyCoupling             = %"GSYM"\n", MBHFeedbackEnergyCoupling);
   fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
+  fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
   fprintf(fptr, "MBHFeedbackThermalRadius              = %"GSYM"\n", MBHFeedbackThermalRadius);
-  fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n\n", MBHFeedbackMetalYield);
+  fprintf(fptr, "MBHFeedbackJetsThresholdMass          = %"GSYM"\n", MBHFeedbackJetsThresholdMass);
 
   fprintf(fptr, "MBHParticleIO     = %"ISYM"\n",
 	  MBHParticleIO);
