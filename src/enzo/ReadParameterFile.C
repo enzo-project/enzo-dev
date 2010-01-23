@@ -95,7 +95,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ResubmitOn  = %"ISYM, &MetaData.ResubmitOn);
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
- 
+
+    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) 
+      MetaDataIdentifier = dummy;
+
     ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
 		  &MetaData.MaximumTopGridTimeStep);
 
@@ -492,7 +495,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SimpleConstantBoundary = %"ISYM, &SimpleConstantBoundary);
 
 #endif
-
 
     ret += sscanf(line, "SlopeFlaggingFields = "
 		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
