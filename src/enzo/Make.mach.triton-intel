@@ -102,7 +102,7 @@ LOCAL_LIBS_HDF5   = -L/projects/lca-group/local-dev/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a \
-                     -lreadline -ltermcap
+                     -lreadline -ltermcap -lutil
 
 LOCAL_LIBS_MACH   = -limf -lifcore -lifport
 

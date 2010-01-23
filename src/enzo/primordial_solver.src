@@ -722,9 +722,9 @@ c
      &                     correctH, correctHe )
 
 
-      if (d(is,js,ks)*dom.gt.1e9)then
+      if (d(is,js,ks)*dom.gt.1e9.and.totaliter.gt.1e7)then
         write(6,*) "solve_chemeq2: itcounts",
-     &        totaliter,in*jn*kn,DBLE(totaliter)/(jn*kn),totaleq
+     &        totaliter,DBLE(totaliter)/(jn*kn)
       endif
       if (eqflag.eqv..true.) then
         write(6,*) "solve_chemeq2: total eqmask",totaleq,in*jn*kn
