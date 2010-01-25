@@ -125,7 +125,7 @@ extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
              float *odthresh, float *shdens, float *massff, float *smthrest, int *level,
                  int *np,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-	     float *mp, float *tdp, float *tcp, float *metalf, int *ran1_init);
+	     float *mp, float *tdp, float *tcp, float *metalf);
 
 int star_maker8(int *nx, int *ny, int *nz, int *size,
 		float *d, float *te, float *ge, float *u, float *v, float *w,
@@ -774,7 +774,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleType[i] = NormalStarType;
     } 
 
-    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
 
       //---- Springel & Hernquist 2003 SF algorithm
 
@@ -808,7 +808,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
           tg->ParticleVelocity[2], 
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2], &ran1_init);
+          tg->ParticleAttribute[2]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
