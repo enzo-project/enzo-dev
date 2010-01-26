@@ -151,7 +151,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int Index, NumberOfLocalParticles, ptype_size;
   double sr;
   FOF_particle_data *Plocal;
-  int *Nslab_local, *NtoLeft_local, *NtoRight_local;
+  PINT *Nslab_local, *NtoLeft_local, *NtoRight_local;
   MPI_Arg *MPI_Nslab_local, *MPI_Nslab_recv, *MPI_disp_local, *MPI_disp_recv;
 
   ptype_size = sizeof(FOF_particle_data);
@@ -200,9 +200,9 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   else {
 
-    Nslab_local = new int[NumberOfProcessors];
-    NtoLeft_local = new int[NumberOfProcessors];
-    NtoRight_local = new int[NumberOfProcessors];
+    Nslab_local = new PINT[NumberOfProcessors];
+    NtoLeft_local = new PINT[NumberOfProcessors];
+    NtoRight_local = new PINT[NumberOfProcessors];
 
     for (proc = 0; proc < NumberOfProcessors; proc++) {
       Nslab_local[proc] = 0;
@@ -260,11 +260,11 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef USE_MPI
     // Get counts over all processors
-    MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, IntDataType,
+    MPI_Allreduce(Nslab_local, D.Nslab, NumberOfProcessors, PINTDataType,
 		  MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, IntDataType,
+    MPI_Allreduce(NtoLeft_local, D.NtoLeft, NumberOfProcessors, PINTDataType,
 		  MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, IntDataType,
+    MPI_Allreduce(NtoRight_local, D.NtoRight, NumberOfProcessors, PINTDataType,
 		  MPI_SUM, MPI_COMM_WORLD);
 #endif
 
@@ -298,11 +298,11 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     *******************************************************************/
 
     int TotalLocal, TotalRecv;
-    int *disp_local, *disp_recv, *Nslab_recv;
+    PINT *disp_local, *disp_recv, *Nslab_recv;
 
-    disp_local = new int[NumberOfProcessors];
-    disp_recv  = new int[NumberOfProcessors];
-    Nslab_recv = new int[NumberOfProcessors];
+    disp_local = new PINT[NumberOfProcessors];
+    disp_recv  = new PINT[NumberOfProcessors];
+    Nslab_recv = new PINT[NumberOfProcessors];
 
     MPI_disp_local = new MPI_Arg[NumberOfProcessors];
     MPI_disp_recv  = new MPI_Arg[NumberOfProcessors];
@@ -318,7 +318,7 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     // First gather the number of local particles on each processor
 #ifdef USE_MPI
-    MPI_Alltoall(Nslab_local, 1, IntDataType, Nslab_recv, 1, IntDataType, 
+    MPI_Alltoall(Nslab_local, 1, PINTDataType, Nslab_recv, 1, PINTDataType,
 		 MPI_COMM_WORLD);
 #endif
 

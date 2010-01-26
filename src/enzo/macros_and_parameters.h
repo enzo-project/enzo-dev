@@ -295,6 +295,7 @@ typedef int            HDF5_hid_t;
 
 #ifdef CONFIG_PINT_4
 #define PINT Eint32
+#define PINTDataType MPI_INT
 #define HDF5_PINT HDF5_I4
 #define HDF5_FILE_PINT HDF5_FILE_I4
 #define PISYM "d"
@@ -303,6 +304,7 @@ typedef int            HDF5_hid_t;
 
 #ifdef CONFIG_PINT_8
 #define PINT Eint64
+#define PINTDataType MPI_LONG_LONG_INT
 #define HDF5_PINT HDF5_I8
 #define HDF5_FILE_PINT HDF5_FILE_I8
 #define PISYM "lld"
