@@ -40,6 +40,11 @@ help-config:
 	@echo "      gmake integers-32"
 	@echo "      gmake integers-64"
 	@echo
+	@echo "   Set integer size for particle IDs"
+	@echo
+	@echo "      gmake particle-id-32"
+	@echo "      gmake particle-id-64"
+	@echo
 	@echo "   Set floating-point precision"
 	@echo
 	@echo "      gmake precision-32"
@@ -214,6 +219,7 @@ show-config:
 	@echo "   CONFIG_PRECISION:             $(CONFIG_PRECISION)"
 	@echo "   CONFIG_PARTICLES:             $(CONFIG_PARTICLES)"
 	@echo "   CONFIG_INTEGERS:              $(CONFIG_INTEGERS)" 
+	@echo "   CONFIG_PARTICLE_IDS:          $(CONFIG_PARTICLE_IDS)"
 	@echo "   CONFIG_INITS:                 $(CONFIG_INITS)"
 	@echo "   CONFIG_IO:                    $(CONFIG_IO)"
 	@echo "   CONFIG_USE_MPI:               $(CONFIG_USE_MPI)"
@@ -331,6 +337,23 @@ CONFIG_INTEGERS-%: suggest-clean
 	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
 	echo "CONFIG_INTEGERS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_INTEGERS:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_IDS = particle-id-32 particle-id-64
+.PHONY: $(VALID_IDS)
+
+particle-id-32: CONFIG_PARTICLE_IDS-32
+particle-id-64: CONFIG_PARTICLE_IDS-64
+particle-id-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_IDS)]\n\n"
+CONFIG_PARTICLE_IDS-%: suggest-clean
+	@tmp=.config.temp; \
+	grep -v CONFIG_PARTICLE_IDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_PARTICLE_IDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PARTICLE_IDS:
 	@echo
 
 #-----------------------------------------------------------------------

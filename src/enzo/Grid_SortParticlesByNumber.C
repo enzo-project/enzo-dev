@@ -25,7 +25,7 @@
  
 /* function prototypes */
  
-void QuickSortAndDrag(int List[], int left, int right,
+void QuickSortAndDrag(PINT List[], int left, int right,
 		      int NumberToDrag1, float *DragList1[],
 		      int NumberToDrag2, FLOAT *DragList2[],
 		      int NumberToDrag3, int   *DragList3[]);

@@ -107,7 +107,7 @@ class grid
   float *ParticleVelocity[MAX_DIMENSION];  // pointers to velocity arrays
   float *ParticleAcceleration[MAX_DIMENSION+1];  // 
   float *ParticleMass;                     // pointer to mass array
-  int   *ParticleNumber;                   // unique identifier
+  PINT  *ParticleNumber;                   // unique identifier
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 //
@@ -201,6 +201,9 @@ class grid
   
    EnzoArrayFLOAT *CreateFieldArrayFLOAT(field_type field);
    EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
+
+   EnzoArrayPINT *CreateFieldArrayPINT(field_type field);
+   EnzoArrayPINT *CreateFieldArrayPINT(char *field_name);
 
 /* Write unigrid cubes to a file (returns: success/failure) */
 
@@ -1093,7 +1096,7 @@ public:
 
    int MoveSubgridParticles(grid *TargetGrid,
                             int *Counter,
-                            int *Number,
+                            PINT *Number,
                             int *Type,
                             float *Mass,
                             FLOAT *Position[],
@@ -1163,7 +1166,7 @@ public:
 
    void AllocateNewParticles(int NumberOfNewParticles) {
      ParticleMass = new float[NumberOfNewParticles];
-     ParticleNumber = new int[NumberOfNewParticles];
+     ParticleNumber = new PINT[NumberOfNewParticles];
      ParticleType = new int[NumberOfNewParticles];
      for (int dim = 0; dim < GridRank; dim++) {
        ParticlePosition[dim] = new FLOAT[NumberOfNewParticles];
@@ -1175,7 +1178,7 @@ public:
 
 /* Particles: Copy pointers passed into into grid. */
 
-   void SetParticlePointers(float *Mass, int *Number, int *Type,
+   void SetParticlePointers(float *Mass, PINT *Number, int *Type,
                             FLOAT *Position[], 
 			    float *Velocity[], float *Attribute[]) {
     ParticleMass   = Mass;
@@ -1191,7 +1194,7 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2);
+   void SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2);
 
 /* Particles: Set new star particle index. - Old version */
 
@@ -1203,7 +1206,7 @@ public:
 
 /* Particles: Add given number to particle index. */
 
-   void AddToParticleNumber(int *Count) {
+   void AddToParticleNumber(PINT *Count) {
      if (MyProcessorNumber == ProcessorNumber)
        for (int n = 0; n < NumberOfParticles; n++)
 	 ParticleNumber[n] += *Count;
@@ -1666,7 +1669,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			  float CosmologySimulationInitialFrctionH2I,
 			  float CosmologySimulationInitialFrctionH2II,
 			  int   CosmologySimulationUseMetallicityField,
-			  int  &CurrentNumberOfParticles,
+			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions);
@@ -1704,7 +1707,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			  float CosmologySimulationInitialFrctionH2I,
 			  float CosmologySimulationInitialFrctionH2II,
 			  int   CosmologySimulationUseMetallicityField,
-			  int  &CurrentNumberOfParticles,
+			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions);
@@ -1837,7 +1840,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 /* Creates tracer particles in this grid. */
 
   int TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
-                                    FLOAT Spacing, int &TotalParticleCount);
+                                    FLOAT Spacing, PINT &TotalParticleCount);
 
 
 /* ShearingBox: initialize grid. */

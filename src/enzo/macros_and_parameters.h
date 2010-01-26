@@ -290,6 +290,24 @@ typedef int            HDF5_hid_t;
 #endif
 #endif
 
+/* Definitions for controlling the integer type for particle IDs
+   (8-byte needed for >2 billion particle simulations) */
+
+#ifdef CONFIG_PINT_4
+#define PINT Eint32
+#define HDF5_PINT HDF5_I4
+#define HDF5_FILE_PINT HDF5_FILE_I4
+#define PISYM "d"
+#define ENPY_PINT NPY_INT
+#endif
+
+#ifdef CONFIG_PINT_8
+#define PINT Eint64
+#define HDF5_PINT HDF5_I8
+#define HDF5_FILE_PINT HDF5_FILE_I8
+#define PISYM "lld"
+#define ENPY_PINT NPY_LONG
+#endif
 
 /* Standard definitions (well, fairly standard) */
 

@@ -28,7 +28,7 @@
 void QuickSortAndDrag(int List[], int left, int right,
 		      int NumberToDrag1, float *DragList1[],
 		      int NumberToDrag2, FLOAT *DragList2[],
-		      int NumberToDrag3, int   *DragList3[]);
+		      int NumberToDrag3, PINT  *DragList3[]);
  
  
 void grid::SortParticlesByType()
@@ -46,7 +46,7 @@ void grid::SortParticlesByType()
  
   float **DragList1 = new float*[GridRank+1+NumberOfParticleAttributes];
   FLOAT **DragList2 = new FLOAT*[GridRank];
-  int   **DragList3 = new int*[1];
+  PINT   **DragList3 = new PINT*[1];
   for (dim = 0; dim < GridRank; dim++) {
     DragList2[dim] = ParticlePosition[dim];
     DragList1[dim] = ParticleVelocity[dim];

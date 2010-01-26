@@ -45,7 +45,6 @@
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 void PrintMemoryUsage(char *str);
 
 
@@ -700,7 +699,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 }
  
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count);
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
  
 // Re-call the initializer on level zero grids.
 // Used in case of ParallelRootGridIO.
@@ -824,7 +823,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
     //  Create tracer particles
 
-    int DummyNumberOfParticles = 0;
+    PINT DummyNumberOfParticles = 0;
  
     Temp = TopGrid;
  
@@ -869,7 +868,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   // Loop over grids and set particle ID number
  
   Temp = TopGrid;
-  int ParticleCount = 0;
+  PINT ParticleCount = 0;
   RecursivelySetParticleCount(Temp, &ParticleCount);
   if (debug)
     printf("FinalParticleCount = %"ISYM"\n", ParticleCount);
@@ -886,7 +885,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   return SUCCESS;
 }
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count)
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count)
 {
   // Add Count to the particle id's on this grid (which start from zero
   // since we are doing a parallel root grid i/o)

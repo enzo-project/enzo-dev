@@ -125,7 +125,7 @@ struct TopGridData
   /* Particle and Particle boundary data. (real one in ExternalBoundary). */
 
   boundary_type ParticleBoundaryType;
-  int           NumberOfParticles;
+  PINT          NumberOfParticles;
 
   /* Hydro Parameters.  
      These are here out of convenience, the real ones are in the grids. */

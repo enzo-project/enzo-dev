@@ -142,7 +142,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	      ParticleData[dim*2][n1++].fval = ParticleVelocity[j][i];
 	    }
 	    ParticleData[dim*2][n1++].fval = -ParticleMass[i];
-	    ParticleData[dim*2][n1++].ival = ParticleNumber[i];
+	    ParticleData[dim*2][n1++].IVAL = ParticleNumber[i];
 	    ParticleData[dim*2][n1++].ival = ParticleType[i];
 	    for (j = 0; j < NumberOfParticleAttributes; j++)
 	      ParticleData[dim*2][n1++].fval = ParticleAttribute[j][i];
@@ -157,7 +157,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	      ParticleData[dim*2+1][n2++].fval = ParticleVelocity[j][i];
 	    }
 	    ParticleData[dim*2+1][n2++].fval = -ParticleMass[i];
-	    ParticleData[dim*2+1][n2++].ival = ParticleNumber[i];
+	    ParticleData[dim*2+1][n2++].IVAL = ParticleNumber[i];
 	    ParticleData[dim*2+1][n2++].ival = ParticleType[i];
 	    for (j = 0; j < NumberOfParticleAttributes; j++)
 	      ParticleData[dim*2+1][n2++].fval = ParticleAttribute[j][i];
@@ -213,10 +213,11 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     FLOAT *Position[MAX_DIMENSION];
     float *Velocity[MAX_DIMENSION], *Mass,
           *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-    int *Number, *Type;
+    PINT *Number;
+    int *Type;
  
     Mass = new float[TotalNumberOfParticles];
-    Number = new int[TotalNumberOfParticles];
+    Number = new PINT[TotalNumberOfParticles];
     Type = new int[TotalNumberOfParticles];
     for (dim = 0; dim < GridRank; dim++) {
       Position[dim] = new FLOAT[TotalNumberOfParticles];
@@ -309,7 +310,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	  }
  
 	  Mass[n]   = ParticleData[j][n2++].fval;
-	  Number[n] = ParticleData[j][n2++].ival;
+	  Number[n] = ParticleData[j][n2++].IVAL;
 	  Type[n] = ParticleData[j][n2++].ival;
 	  for (k = 0; k < NumberOfParticleAttributes; k++)
 	    Attribute[k][n] = ParticleData[j][n2++].fval;

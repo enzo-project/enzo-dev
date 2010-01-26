@@ -33,7 +33,6 @@
 #include "CommunicationUtilities.h"
 
 /****************************** Prototypes ******************************/
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);

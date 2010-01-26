@@ -556,7 +556,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         group_id, HDF5_REAL, (VOIDP) ParticleMass, FALSE);
 
     this->write_dataset(1, TempIntArray, "particle_index",
-        group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
+        group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     /* Copy type to temp and write it. */
 

@@ -177,11 +177,11 @@ void FOF_Initialize(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /************* Count particles in each slab and shadow ****************/
 
-  D.Nslab = new int[NumberOfProcessors];
-  D.NtoLeft = new int[NumberOfProcessors];
-  D.NtoRight = new int[NumberOfProcessors];
-  D.Nshadow = new int[NumberOfProcessors];
-  D.Noffset = new int[NumberOfProcessors];
+  D.Nslab = new PINT[NumberOfProcessors];
+  D.NtoLeft = new PINT[NumberOfProcessors];
+  D.NtoRight = new PINT[NumberOfProcessors];
+  D.Nshadow = new PINT[NumberOfProcessors];
+  D.Noffset = new PINT[NumberOfProcessors];
 
   if (NumberOfProcessors == 1) {
 

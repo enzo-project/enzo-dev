@@ -142,7 +142,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size,
 		float *upold, float *vpold, float *wpold, float *mpold,
 		float *tcpold, float *tdpold, float *dmold, 
 		float *nx_jet, float *ny_jet, float *nz_jet,
-		int *typeold, int *idold, int *ctype,
+		int *typeold, PINT *idold, int *ctype,
 		float *jlrefine, float *temp, float *gamma, float *mu,
 		int *nproc, int *nstar);
 

@@ -44,7 +44,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int InitiateKeepTransportingCheck(int keep_transporting);
 int StopKeepTransportingCheck();
 int InitializePhotonCommunication();
