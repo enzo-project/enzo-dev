@@ -99,7 +99,9 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
 #else
   int         io_log = 0;
 #endif
- 
+
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    Dims[dim] = OutDims[dim] = 0;
  
   int ii = sizeof(float32);
  
