@@ -17,7 +17,7 @@ AM_FCFLAGS = -O3 -D@PRECISION@
 if ENZO
 degraf_FCFLAGS += -DENZO $(HDF_INCLUDEDIR)
 degraf_LDFLAGS += $(HDF_LIBDIR)
-degraf_LDADD += -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -lz -lm -lsz
+degraf_LDADD += -lhdf5hl_fortran -lhdf5_hl -lhdf5_fortran -lhdf5 -lz -lm
 endif
 
 if ONEDIM

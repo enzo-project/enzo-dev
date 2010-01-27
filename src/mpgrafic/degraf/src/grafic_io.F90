@@ -213,19 +213,11 @@ contains
     real(sp), allocatable, dimension(:) :: work
     logical, dimension(:,:,:), allocatable :: mmask
 
-    ! If there's no mask, create one with all .true.
-    allocate(mmask(nx,ny,local_nz))
-    if (.not.present(mask)) then
-       mmask = .true.
-    else
-       mmask = mask
-    endif
-
     padding=.false.
     white=.false.
     this_level=0
     if (present(padding_in)) padding = padding_in
-    if (present(padding_in)) write(*,*) 'padding is on'
+    if (present(padding_in) .and. myid.eq.0) write(*,*) 'padding is on'
     if (present(white_in)) white = white_in
     if (present(level)) this_level = level
     ! 2*4 for leading and trailing record sizes 
@@ -261,7 +253,7 @@ contains
     else
        CALL open_hdf5_dset(dset_name)
     endif
-
+    
     CALL write_phdf5_data(work, local_z_start, local_nz, local_dims(3), &
          local_dims(2), local_dims(1), dim, ndims, masked_in=.true.)
     CALL close_phdf5_file
@@ -333,7 +325,6 @@ contains
     enddo
     deallocate(tampon)
 #endif
-    deallocate(mmask)
     if (present(mask)) then
        if (allocated(mask)) deallocate(mask)
     endif
