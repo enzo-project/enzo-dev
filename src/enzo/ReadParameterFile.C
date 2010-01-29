@@ -246,7 +246,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "ParticleBoundaryType   = %"ISYM,
 		  &MetaData.ParticleBoundaryType);
-    ret += sscanf(line, "NumberOfParticles      = %"ISYM,
+    ret += sscanf(line, "NumberOfParticles      = %"PISYM,
 		  &MetaData.NumberOfParticles);
  
     ret += sscanf(line, "CourantSafetyNumber    = %"FSYM,
@@ -613,6 +613,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarClusterUseMetalField);
     ret += sscanf(line, "StarClusterMinDynamicalTime = %"FSYM, 
 		  &StarClusterMinDynamicalTime);
+    ret += sscanf(line, "StarClusterHeliumIonization = %"ISYM, 
+		  &StarClusterHeliumIonization);
     ret += sscanf(line, "StarClusterIonizingLuminosity = %lf", 
 		  &StarClusterIonizingLuminosity);
     ret += sscanf(line, "StarClusterSNEnergy = %lf", &StarClusterSNEnergy);

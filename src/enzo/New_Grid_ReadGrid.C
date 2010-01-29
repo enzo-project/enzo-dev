@@ -390,7 +390,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
     this->read_dataset(1, TempIntArray, "particle_index",
-          group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
+          group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     // Read ParticleType if present
  

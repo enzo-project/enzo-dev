@@ -55,7 +55,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
  
       if(ProblemType==29){
 	for(int i=0; i<NumberOfParticles; i++)
-	  printf("%"ISYM"  particle accelerations:  %e %e %e\n", ParticleNumber[i],
+	  printf("%"PISYM"  particle accelerations:  %e %e %e\n", ParticleNumber[i],
 		 ParticleAcceleration[0][i],
 		 ParticleAcceleration[1][i],
 		 ParticleAcceleration[2][i]);

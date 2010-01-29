@@ -202,7 +202,7 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
   float cm[3], cmv[3], AM[3], vrms, spin, mtot, mstars, redshift;
   float mvir, rvir;
   double *temp;
-  int   *TempInt;
+  PINT   *TempPINT;
 
   FOF_particle_data *Pbuf;
   char   *FOF_dirname = "FOF";
@@ -308,13 +308,13 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
       if (HaloFinderOutputParticleList && !HaloFinderSubfind) {
 
 	temp = new double[3*len];
-	TempInt = new int[len];
+	TempPINT = new PINT[len];
 	index = 0;
 	for (dim = 0; dim < 3; dim++)
 	  for (i = 0; i < len; i++, index++)
 	    temp[index] = Pbuf[i].Pos[dim] / AllVars.BoxSize;
 	for (i = 0; i < len; i++)
-	  TempInt[i] = Pbuf[i].PartID;
+	  TempPINT[i] = Pbuf[i].PartID;
 
 	sprintf(halo_name, "Halo%8.8d", AllVars.NgroupsAll-1-gr);
 	group_id = H5Gcreate(file_id, halo_name, 0);
@@ -338,16 +338,16 @@ void save_groups(FOFData &AllVars, int CycleNumber, FLOAT EnzoTime)
 	hdims[0] = (hsize_t) len;
 	hdims[1] = 1;
 	dspace_id = H5Screate_simple(1, hdims, NULL);
-	dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
+	dset_id = H5Dcreate(group_id, "Particle ID", HDF5_PINT, dspace_id,
 			    H5P_DEFAULT);
-	H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) TempInt);
+	H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) TempPINT);
 	H5Sclose(dspace_id);
 	H5Dclose(dset_id);
 
 	H5Gclose(group_id);
 
 	delete [] temp;
-	delete [] TempInt;
+	delete [] TempPINT;
 	
       } // ENDIF output particle list
 
@@ -756,7 +756,8 @@ void stitch_together(FOFData &AllVars)
   FOF_particle_data *buftoleft, *buftoright, *buffer;
   int    i, slab, nl, nr, nbuf, len;
   int    leftTask, rightTask;
-  int    pp, newid;
+  int    pp;
+  PINT newid;
   idmin_data *iddat;
 
 

@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Configure file for ranger (TACC) with Intel compilers
+# Use modules: intel/10.1 phdf5/1.8.2 mvapich2/1.2
+#
+FFTW_DIR=/share/home/00852/tg459019/local/fftw2
+./configure \
+    CFLAGS="-I ${FFTW_DIR}/include" \
+    FCFLAGS="-I ${FFTW_DIR}/include" \
+    LDFLAGS="-L ${FFTW_DIR}/lib -L/usr/lib64" \
+    LD=mpicc \
+    FC=mpif90 \
+    CC=mpicc \
+    --enable-enzo \
+    --enable-onedim \
+    --enable-double \
+    --with-hdf=/opt/apps/intel10_1/mvapich2_1_2/phdf5/1.8.2
+

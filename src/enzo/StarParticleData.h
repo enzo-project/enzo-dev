@@ -25,7 +25,7 @@ struct ParticleEntry {
   float Mass;
   float Velocity[3];
   float Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  int Number;
+  PINT Number;
   int Type;
 };
 
@@ -34,7 +34,7 @@ struct ParticleEntry {
 
 SPEXTERN int NumberOfStarParticles;
 SPEXTERN int NumberOfDeletedParticles;
-SPEXTERN int NumberOfOtherParticles; //all the particles other than type=2
+SPEXTERN PINT NumberOfOtherParticles; //all the particles other than type=2
 SPEXTERN int G_TotalNumberOfStars;
 
 /* Star particle parameters. */
@@ -64,6 +64,7 @@ SPEXTERN float PopIIIColorDensityThreshold;
 SPEXTERN float PopIIIColorMass;
 
 SPEXTERN int    StarClusterUseMetalField;
+SPEXTERN int    StarClusterHeliumIonization;
 SPEXTERN float  StarClusterMinDynamicalTime;
 SPEXTERN double StarClusterIonizingLuminosity;
 SPEXTERN double StarClusterSNEnergy;

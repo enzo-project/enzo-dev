@@ -36,7 +36,6 @@
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int InitiatePhotonNumberSend(int *nPhoton);

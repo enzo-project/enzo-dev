@@ -74,8 +74,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		FLOAT *ypold, FLOAT *zpold, float *upold, float *vpold, 
 		float *wpold, float *mpold, float *tcpold, float *tdpold, float *dmold,
 		float *nx_jet, float *ny_jet, float *nz_jet,
-		int *typeold, int *idold, int *ctype, float *jlrefine, float *temp,
-		float *gamma, float *mu, int *nproc, int *nstar)
+		int *typeold, PINT *idold, int *ctype, float *jlrefine, 
+		float *temp, float *gamma, float *mu, int *nproc, int *nstar)
 {
 
   int		i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
@@ -400,7 +400,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",
@@ -520,7 +520,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      /*printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      /*printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",

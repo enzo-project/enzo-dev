@@ -275,8 +275,8 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
       // grid.
       for (i = 0; i < Layout[dim]; i++)
 	CoarseEdges[i] = 2 * AllStartIndex[ParentGridNum][dim][i] -
-	  (Left[dim] - AllLeftEdge[ParentGridNum][dim]) * 
-	  AllDims[0][dim] * nint(POW(RefineBy, ThisLevel));
+	  nint((Left[dim] - AllLeftEdge[ParentGridNum][dim]) * 
+	       AllDims[0][dim] * POW(RefineBy, ThisLevel));
 
       // Count the number of coarse slabs that overlap with this grid
       NumberOfCoarseSlabs = 0;
@@ -331,10 +331,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 
 	for (i = 0; i < NumberOfSlabs; i++) {
 	  ExactCount += ThisExactDims;
-	  if (dim == 0)
-	    GridDims[dim][ThisSlab+i] = nint(0.5*ExactCount)*2 - DisplacementCount;
-	  else
-	    GridDims[dim][ThisSlab+i] = nint(ExactCount) - DisplacementCount;
+	  GridDims[dim][ThisSlab+i] = nint(0.5*ExactCount)*2 - DisplacementCount;
 	  StartIndex[dim][ThisSlab+i] = ThisStartIndex + DisplacementCount;
 	  DisplacementCount += GridDims[dim][ThisSlab+i];
 	} // ENDFOR split coarse slab

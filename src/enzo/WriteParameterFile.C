@@ -236,7 +236,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "TopGridGravityBoundary = %"ISYM"\n", MetaData.GravityBoundary);
 
   fprintf(fptr, "ParticleBoundaryType   = %"ISYM"\n",MetaData.ParticleBoundaryType);
-  fprintf(fptr, "NumberOfParticles      = %"ISYM" (do not modify)\n",
+  fprintf(fptr, "NumberOfParticles      = %"PISYM" (do not modify)\n",
 	  MetaData.NumberOfParticles);
  
   fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n",
@@ -427,9 +427,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
+  fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
+          OutputParticleTypeGrouping);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
-  fprintf(fptr, "ParticleSplitterIterations     = %"ISYM"\n",
+  fprintf(fptr, "ParticleSplitterIterations       = %"ISYM"\n",
 	  ParticleSplitterIterations);
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
@@ -591,6 +593,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
           StarClusterIonizingLuminosity);
+  fprintf(fptr, "StarClusterHeliumIonization           = %"ISYM"\n",
+	  StarClusterHeliumIonization);
   fprintf(fptr, "StarClusterSNEnergy                   = %lg\n",
           StarClusterSNEnergy);
   fprintf(fptr, "StarClusterSNRadius                   = %"GSYM"\n",

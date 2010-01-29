@@ -40,7 +40,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
 
   int NumberOfSubgridParticles = 0;
   int TotalNumberOfParticles = NumberOfParticles;
-  int i, j, grid, dim, *Number, *Type;
+  int i, j, grid, dim, *Type;
+  PINT *Number;
  
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
@@ -62,7 +63,7 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
  
   Mass = new float[TotalNumberOfParticles];
-  Number = new int[TotalNumberOfParticles];
+  Number = new PINT[TotalNumberOfParticles];
   Type = new int[TotalNumberOfParticles];
   for (int dim = 0; dim < GridRank; dim++) {
     Position[dim] = new FLOAT[TotalNumberOfParticles];
@@ -174,7 +175,8 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
   /* Determine total number of particles. */
 
   int TotalNumberOfParticles = NumberOfParticles;
-  int i, j, grid, dim, *Number, *Type;
+  int i, j, grid, dim, *Type;
+  PINT *Number;
 
   for (grid = 0; grid < NumberOfGrids; grid++)
     TotalNumberOfParticles += FromGrid[grid]->NumberOfParticles;
@@ -194,7 +196,7 @@ int grid::MoveAllParticlesOld(int NumberOfGrids, grid* FromGrid[])
 
   if (MyProcessorNumber == ProcessorNumber) {
      Mass = new float[TotalNumberOfParticles];
-     Number = new int[TotalNumberOfParticles]; 
+     Number = new PINT[TotalNumberOfParticles]; 
      Type = new int[TotalNumberOfParticles];
      for (int dim = 0; dim < GridRank; dim++) {
        Position[dim] = new FLOAT[TotalNumberOfParticles];

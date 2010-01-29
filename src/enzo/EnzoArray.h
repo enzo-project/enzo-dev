@@ -78,6 +78,7 @@ public:
 #define EnzoArrayFLOAT EnzoArray<FLOAT>
 #define EnzoArrayFloat EnzoArray<float>
 #define EnzoArrayInt   EnzoArray<int>
+#define EnzoArrayPINT  EnzoArray<PINT>
 #define EnzoArrayBool  EnzoArray<bool>
 
 #endif

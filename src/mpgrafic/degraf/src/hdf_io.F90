@@ -35,6 +35,10 @@ contains
     logical, optional :: overwrite_in  ! read (1) or write (0)
     logical, optional :: serial_in
     logical :: overwrite, serial
+    integer :: mdc_nelmts
+    integer(SIZE_T) :: rdcc_nelmts, rdcc_nbytes
+    integer(SIZE_T) :: new_cache_size, new_buf_size
+    real :: rdcc_w0
     
     include 'mpif.h'
     integer ierr
@@ -43,7 +47,10 @@ contains
     serial = .false.
     if (present(overwrite_in)) overwrite = overwrite_in
     if (present(serial_in)) serial = serial_in
-       
+
+    new_cache_size = 16*1024*1024
+    new_buf_size = 1*1024*1024
+
     ! Open HDF5 file for parallel I/O
     CALL h5open_f(ierr)
     if (serial) then
@@ -51,6 +58,12 @@ contains
     else
        CALL h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
        CALL h5pset_fapl_mpio_f(plist_id, MPI_COMM_WORLD, MPI_INFO_NULL, ierr)
+       CALL h5pset_sieve_buf_size_f(plist_id, new_buf_size, ierr)
+       CALL h5pget_cache_f(plist_id, mdc_nelmts, rdcc_nelmts, rdcc_nbytes, &
+            rdcc_w0, ierr)
+       rdcc_nbytes = new_cache_size
+       CALL h5pset_cache_f(plist_id, mdc_nelmts, rdcc_nelmts, rdcc_nbytes, &
+            rdcc_w0, ierr)
     endif
     
     ! Create/open the file
@@ -274,7 +287,6 @@ contains
        else
           n2x = 2*(nx/2+1)
        endif
-       n2x = 2*(nx/2+1)
        dims = (/nx, ny, local_nz, 1/)
        odims = (/nx, ny, nz, n_filepart/)
        offset = (/0, 0, zstart, filepart/)

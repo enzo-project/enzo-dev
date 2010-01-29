@@ -84,9 +84,10 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
  
   //  fprintf(stderr, "CT(%"ISYM"): start From=%"ISYM"  To=%"ISYM"\n", MyProcessorNumber,
   //	  NumberOfFromRegions, NumberOfToRegions);
-							
-  region *Sends = new region[NumberOfFromRegions];
-  region *Receives = new region[NumberOfToRegions];
+
+  int NumberOfRegions = max(NumberOfFromRegions, NumberOfToRegions);
+  region *Sends = new region[NumberOfRegions];
+  region *Receives = new region[NumberOfRegions];
 
   //  if (NumberOfProcessors == 1) return SUCCESS;
  

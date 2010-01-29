@@ -84,7 +84,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT SplitCriteronIonized, PauseRadius, r_merge, d_ss, d2_ss, u_dot_d, sqrt_term;
   FLOAT dir_vec[3], sigma[4]; 
   FLOAT ddr, dP, dP1, EndTime;
-  FLOAT xE, dPXray[4], ratioE;  
+  FLOAT xE, dPi[3], dPXray[4], ratioE;  
   FLOAT thisDensity, min_dr;
   FLOAT ce[3], nce[3];
   FLOAT s[3], u[3], f[3], u_inv[3], r[3], dri[3];
@@ -206,7 +206,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
   if ((*PP)->Type == iHI || (*PP)->Type == iHeI || (*PP)->Type == iHeII) {
-    sigma[0] = (*PP)->CrossSection * LengthUnits;
+    for (i = 0; i <= (*PP)->Type; i++)
+      if (i == (*PP)->Type)
+	sigma[i] = (*PP)->CrossSection * LengthUnits;
+      else
+	sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
   }
   else if ((*PP)->Type == iH2I) {
     sigma[0] = 3.71e-18 * LengthUnits; // H2I average cross-section
@@ -264,8 +268,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     if (RadiationXRayComptonHeating) 
       TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
   }
-  else 
-    factor2[0] = factor1 * ((*PP)->Energy - EnergyThresholds[type]);
+  else {
+    for (i = 0; i <= (*PP)->Type; i++)
+      factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
+  }
 
 
   /* Calculate conversion factor for radiation pressure.  In cgs, we
@@ -475,27 +481,45 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     case iHI:
     case iHeI:
     case iHeII:
-      thisDensity = PopulationFractions[type] * fields[type][index] * 
-	ConvertToProperNumberDensity; 
 
-      // optical depth of ray segment
-      dN = thisDensity * ddr;
-      tau = dN*sigma[0];
+      dP = dN = 0.0;
+      for (i = 0; i < 3; i++) dPi[i] = 0.0;
 
-      // at most use all photons for photo-ionizations
-      if (tau > 2.e1) dP = (1.0+ROUNDOFF) * (*PP)->Photons;
-      else if (tau > 1.e-4) 
-	dP = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
-      else
-	dP = min((*PP)->Photons*tau, (*PP)->Photons);
-      dP1 = dP * slice_factor2;
+      /* Loop over absorbers */
+      for (i = 0; i <= type; i++) {
 
-      // contributions to the photoionization rate is over whole timestep
-      BaryonField[kphNum[type]][index] += dP1*factor1;
+	thisDensity = PopulationFractions[i] * fields[i][index] * 
+	  ConvertToProperNumberDensity; 
+
+	// optical depth of ray segment (only for the main absorber)
+	if (i == type) {
+	  dN = thisDensity * ddr;
+	  tau = dN*sigma[i];
+	} else {
+	  tau = thisDensity*ddr*sigma[i];
+	}
+
+	// at most use all photons for photo-ionizations
+	if (tau > 2.e1) dPi[i] = (1.0+ROUNDOFF) * (*PP)->Photons;
+	else if (tau > 1.e-4) 
+	  dPi[i] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
+	else
+	  dPi[i] = min((*PP)->Photons*tau, (*PP)->Photons);
+	dP1 = dPi[i] * slice_factor2;
+
+	// contributions to the photoionization rate is over whole timestep
+	BaryonField[kphNum[i]][index] += dP1*factor1;
 	
-      // the heating rate is just the number of photo ionizations
-      // times the excess energy units here are eV/s *TimeUnits.
-      BaryonField[gammaNum][index] += dP1*factor2[0];
+	// the heating rate is just the number of photo ionizations
+	// times the excess energy units here are eV/s *TimeUnits.
+	BaryonField[gammaNum][index] += dP1*factor2[i];
+
+	// Exit the loop if everything's been absorbed
+	if (tau > 2.e1) break;
+
+      } // ENDFOR absorbers
+
+      for (i = 0; i <= type; i++) dP += dPi[i];
 
       break;
 

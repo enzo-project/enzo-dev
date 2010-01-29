@@ -263,11 +263,11 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
   float *Velocity[MAX_DIMENSION];
   float *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
   float *Mass;
-  int   *Number;
+  PINT  *Number;
   int   *Type;
  
   Mass = new float[RHC];
-  Number = new int[RHC];
+  Number = new PINT[RHC];
   Type = new int[RHC];
  
   for (dim = 0; dim < MetaData.TopGridRank; dim++)

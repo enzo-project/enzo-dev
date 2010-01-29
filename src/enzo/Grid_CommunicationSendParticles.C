@@ -115,7 +115,8 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
   FLOAT *TempPos[MAX_DIMENSION];
   float  *TempVel[MAX_DIMENSION], *TempMass,
         *TempAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  int *TempNumber, NewNumber = FromNumber, *TempType;
+  PINT *TempNumber;
+  int NewNumber = FromNumber, *TempType;
   if (ToStart == -1)
     NewNumber += ToGrid->NumberOfParticles;
  
