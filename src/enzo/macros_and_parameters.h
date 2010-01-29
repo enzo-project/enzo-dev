@@ -251,7 +251,7 @@ typedef int            HDF5_hid_t;
 #define MY_MPIFLOAT MPI_FLOAT
 #define FLOATDataType MPI_FLOAT
 #define HDF5_PREC HDF5_R4
-#define HDF5_FILE_PREC HDF5_FILE_R4
+#define HDF5_FILE_PREC HDF5_R4
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_FLOAT
 #define enpy_pfloat npy_float

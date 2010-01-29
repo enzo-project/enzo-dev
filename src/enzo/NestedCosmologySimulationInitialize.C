@@ -40,8 +40,6 @@
 #include "fortran.def"
 #include "CommunicationUtilities.h"
 
-#define CONTAINED_WITHIN_PARENT_OFF
- 
 // Function prototypes
  
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
@@ -944,6 +942,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
   bool match;
   int level, Rank, TempDims[MAX_DIMENSION];
+  FLOAT GridCenter[MAX_DIMENSION];
   LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
   LevelHierarchyEntry *CArray, *PArray;
   HierarchyEntry *Current, *Parent;  // For convenience
@@ -974,6 +973,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
       Current = CArray->GridHierarchyEntry;
       Current->GridData->ReturnGridInfo(&Rank, TempDims, LeftEdge, RightEdge);
+      for (dim = 0; dim < Rank; dim++)
+	GridCenter[dim] = 0.5*(LeftEdge[dim] + RightEdge[dim]);
 
       // Look for parents in level-1
       for (PArray = LevelArray[level-1]; PArray; 
@@ -989,13 +990,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-#ifdef CONTAINED_WITHIN_PARENT
-	  match &= LeftEdge[dim] >= LeftParent[dim] &&
-	    RightEdge[dim] <= RightParent[dim];
-#else
-	  match &= LeftEdge[dim] < RightParent[dim] && 
-	    RightEdge[dim] > LeftParent[dim];
-#endif
+	  match &= (GridCenter[dim] > LeftParent[dim]) &&
+	    (GridCenter[dim] < RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;
