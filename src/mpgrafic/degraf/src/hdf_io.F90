@@ -287,7 +287,6 @@ contains
        else
           n2x = 2*(nx/2+1)
        endif
-       n2x = 2*(nx/2+1)
        dims = (/nx, ny, local_nz, 1/)
        odims = (/nx, ny, nz, n_filepart/)
        offset = (/0, 0, zstart, filepart/)
