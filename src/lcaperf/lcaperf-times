@@ -1,0 +1,56 @@
+#/bin/csh -f
+#
+# Usage: lcaperf-times <lcaperf-directory>
+#
+# This utilility displays the total times in seconds for all known Enzo
+# regions in an LCAPERF.### dump.  It requires that the lcaperf utilities
+# jb-* be in the current path.
+#
+# Example: 
+#
+#   % lcaperf-times LCAPERF.001 | sort -rn
+#
+#   1308.11 EL
+#    643.72 RebuildHierarchy
+#    294.59 SetBoundaryConditions
+#    181.51 SetTimeStep
+#     69.94 SolveHydroEquations
+#     16.95 PrepareDensityField
+#     16.45 SolveRateAndCoolEquations
+#       .          .
+#       .          .
+#       .          .
+#----------------------------------------------------------------------
+
+if ($1 == "") then
+   echo "Usage: $0 <lcaperf-directory>"
+   exit 1
+endif
+
+set lcaperf = $1
+
+set file_root = $lcaperf/0/0/0/0/0.EL
+set region_list = `jb-print $file_root|awk '/Region/{print $2}'|sort|uniq`
+
+foreach region ($region_list)
+   if ($region != "EL") then
+      set seconds = `cat $file_root \
+      | jb-region $region \
+      | jb-derive sum time-level-sum time-real-incl level \
+      | jb-attribute level 0 \
+      | jb-derive scale time-scale 1e-6 time-level-sum \
+      | jb-derive I time-total time-scale timestep \
+      | jb-columns time-total \
+      | sort -n \
+      | tail -1`
+   else
+      set seconds = `cat $file_root \
+      | jb-region EL \
+      | jb-derive scale time-scale 1e-6 time-real-incl \
+      | jb-derive I time-total time-scale timestep \
+      | jb-columns time-total \
+      | sort -n \
+      | tail -1`
+   endif
+   printf "%7.2f %s\n" $seconds $region
+end
