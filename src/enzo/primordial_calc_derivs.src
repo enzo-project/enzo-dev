@@ -272,8 +272,10 @@ c
           endif
         endif
 #include "primordial_reactions.inc"
-        h2heatp(i) = 2.0d0 * (r21 + r22)
-        h2heatm(i) = 2.0d0 * (r13 + r23)
+        if(s(i,H2I)/fd(i).gt.1e-7)then
+          h2heatp(i) = 2.0d0 * (r21 + r22)
+          h2heatm(i) = 2.0d0 * (r13 + r23)
+        endif
 c        if((tgas(i).gt.8000).and.(rtot(i)*dom.gt.1e8))then
 c          h2heatp(i) = max((s(i,H2I)-sp(i,H2I))/dtit(i),0.0d0)
 c          h2heatm(i) = max((sp(i,H2I)-s(i,H2I))/dtit(i),0.0d0)

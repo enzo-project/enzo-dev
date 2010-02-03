@@ -247,7 +247,7 @@ c#define OLDGAMMA2
            oldgamma2(i) = gamma
            do inneriter=1,1
              x = log10(tgas(i))
-             if(nH2/nother.lt.1.0e-3.or.tgas(i).lt.50)then
+             if(nH2/nother.lt.-1.0e-3.or.tgas(i).lt.-50)then
                gamma2(i) = 2.5 !gamma
              else
                gamma2(i) = g2p(1)*exp(-(x-g2p(2))**2.0/g2p(3))
