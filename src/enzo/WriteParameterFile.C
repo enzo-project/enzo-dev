@@ -116,6 +116,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "StopCPUTime         = %lg\n", MetaData.StopCPUTime);
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
+  fprintf(fptr, "MetaDataIdentifier  = %s\n\n", MetaDataIdentifier);
  
   fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
 
@@ -171,6 +172,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.OutputFirstTimeAtLevel);
   fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
+
+  fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
+  fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
+  fprintf(fptr, "CurrentDensityOutput = %"GSYM"\n", CurrentDensityOutput);
+  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
   fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
