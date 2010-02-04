@@ -1256,6 +1256,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
                                hid_t parent_group,
                                hid_t file_id);
 
+ int ChangeParticleTypeBeforeSN(int _type, int level, 
+				int *ParticleBufferSize=NULL);
+
 // -------------------------------------------------------------------------
 // Communication functions
 //

@@ -214,6 +214,7 @@ OBJS_CONFIG_LIB = \
         Grid_AppendForcingToBaryonFields.o \
         Grid_ApplyTimeAction.o \
         Grid_CalculateAngularMomentum.o \
+	Grid_ChangeParticleTypeBeforeSN.o \
         Grid_CheckForExternalReflections.o \
         Grid_CheckForOverlap.o \
         Grid_CheckForPossibleOverlap.o \
