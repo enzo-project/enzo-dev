@@ -649,12 +649,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
   fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
   fprintf(fptr, "MBHFeedbackThermalRadius              = %"GSYM"\n", MBHFeedbackThermalRadius);
-  fprintf(fptr, "MBHFeedbackJetsThresholdMass          = %"GSYM"\n", MBHFeedbackJetsThresholdMass);
+  fprintf(fptr, "MBHFeedbackJetsThresholdMass          = %"GSYM"\n\n", MBHFeedbackJetsThresholdMass);
 
-  fprintf(fptr, "MBHParticleIO     = %"ISYM"\n",
+  fprintf(fptr, "MBHParticleIO                         = %"ISYM"\n",
 	  MBHParticleIO);
   if (MBHParticleIOFilename != NULL)
-    fprintf(fptr, "MBHParticleIOFilename = %s\n\n", MBHParticleIOFilename);
+    fprintf(fptr, "MBHParticleIOFilename               = %s\n\n", MBHParticleIOFilename);
 
   /* Most Stanford additions: */
 

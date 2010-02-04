@@ -105,8 +105,56 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
+    if (this->type != MBH) 
+      ENZO_FAIL("");
+
+    /* find mdot */
+    mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
+    
+    /* Inject energy into a sphere */
+    Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
+    Radius = max(Radius, 2*StarLevelCellWidth);
+
+    /* Only EjectaVolume is in physical units; all others are in code units. */
+    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
+    EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
+      EjectaVolume / DensityUnits; 
+    EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; 
+
+    /* When injected energy is uniform throughout the volume;
+       The unit of EjectaThermalEnergy is ergs/cm3 = (cm^2/s^2) * (g/cm3).
+       This value will be recalibrated in RecalibrateMFTR */
+    EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
+      mdot * Msun * c * c * dtForThisStar * TimeUnits / 
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits); 
+
+#ifdef CONSTANT_SPECIFIC
+    /* When injected energy is proportional to the cell mass;
+       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
+    EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
+      mdot * Msun * c * c * dtForThisStar * TimeUnits / 
+      (4.0/3.0 * PI * pow(-MBHFeedbackThermalRadius, 3) * Msun) / (VelocityUnits * VelocityUnits);
+#endif    
+
+    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
+
+#ifdef SEDOV_TEST
+    // For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
+//    EjectaDensity = 0.0;
+//    EjectaThermalEnergy = 1.0e50 /
+//      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
+    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
+    EjectaDensity = 0.0;
+    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+#endif
+
+    break;
+
   case MBH_JETS:
-    if (this->type != MBH || this->CurrentGrid ==  NULL) break;
+    if (this->type != MBH) 
+      ENZO_FAIL("");
 
     /* find mdot */
     mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
@@ -123,38 +171,20 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; 
 
     /* Now calculate the feedback parameter based on mdot estimated above.  
-       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2.  - Ji-hoon Kim  Aug.2009 */
+       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
     EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun * c * c * dtForThisStar * TimeUnits / 
-      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
-    if (EjectaDensity == 0) EjectaThermalEnergy = 0.0;
-
-#define NOT_SEDOV_TEST
-#ifdef SEDOV_TEST
-    /* For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
-       This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  */
-    /*
-    EjectaDensity = 0.0;
-    EjectaThermalEnergy = 1.0e50 /
-      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-    */
+      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits);
+    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
     
-    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
-    EjectaDensity = 0.0;
-    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
-      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-#endif
-
-    /*
-    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
-                Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-    	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar);  
-    */
-
     break;
 
   } // ENDSWITCH FeedbackFlag
   
+//    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
+//                Radius = %g, mdot = %g, dtForThisStar = %g\n", 
+//    	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar);  
+
   return;
 }
 

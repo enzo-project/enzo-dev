@@ -575,6 +575,7 @@ OBJS_CONFIG_LIB = \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
+        RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
@@ -624,6 +625,7 @@ OBJS_CONFIG_LIB = \
         Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
+        Star_CalculateSubtractionParameters.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -632,6 +634,7 @@ OBJS_CONFIG_LIB = \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
+        Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
 	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \

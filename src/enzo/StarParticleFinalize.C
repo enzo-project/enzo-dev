@@ -85,7 +85,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   
   StarParticleAddFeedback(MetaData, LevelArray, level, 
 			  AllStars, AddedFeedback);
-  
+
   /* Update star particles for any accretion */
 
   StarParticleAccretion(MetaData, LevelArray, level, AllStars);
@@ -105,12 +105,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 	      TimeNow, TotalMass);
   }
 
-  /* Apply any stellar feedback onto the grids and add any gas to the
-     accretion rates of the star particles */
-  
-  StarParticleSubtractAccretedMass(MetaData, LevelArray, level, 
-				   AllStars);  //#####
-  
+  /* Subtract gas from the grids that has accreted on to the star particles */
+
+  StarParticleSubtractAccretedMass(MetaData, LevelArray, level, AllStars);  
+
   /* Check for any stellar deaths */
 
   StarParticleDeath(LevelArray, level, AllStars);

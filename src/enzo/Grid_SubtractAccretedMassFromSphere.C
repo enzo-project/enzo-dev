@@ -1,13 +1,15 @@
 
 /***********************************************************************
 /
-/  GRID: SUBTRACT ACCRETED MASS FROM CELLS
+/  GRID: SUBTRACT ACCRETED MASS FROM NEARBY CELLS
 /
 /  written by: Ji-hoon Kim
 /  date:       January, 2010
 /  modified1: 
 /
-/  PURPOSE:
+/  PURPOSE: Subtract mass from gas grids after accreting onto MBH,
+/           For BlackHole, a different approach is used at the moment;
+/           see Star_SubtractAccretedMassFromCell.C
 /
 ************************************************************************/
 
@@ -40,8 +42,8 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
   FLOAT delx, dely, delz, radius2, Radius, DomainWidth[MAX_DIMENSION];
   float coef, speed, maxVelocity;
   float OldDensity;
-  float r1, norm, ramp, factor, newGE, increase;
-  double old_mass;
+  float r1, norm, ramp, factor, newGE;
+  double old_mass, increase;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -94,10 +96,8 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 
 
   /***********************************************************************
-                            START SUBTRACTION
+                  MASS SUBTRACTION AFTER ACCRETION ONTO MBH
   ************************************************************************/
-
-  float outerRadius2;
 
   // Correct if the volume with 27 cells is larger than the energy bubble volume
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
@@ -106,21 +106,6 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
     //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
     EjectaDensity *= BubbleVolume / BoxVolume;
   }
-
-  outerRadius2 = 1.2 * 1.2 * radius * radius;
-
-  /* Update velocity of the star.  Because EjectaDensity will be subtracted out 
-     with zero net momentum, increase the particle's velocity accordingly. 
-     Note that the gas mass is already added to the star in Star_Accrete.C */
-
-//  printf("grid::SAMFS: old_vel[1] = %g\n", cstar->vel[1]);
-  old_mass = cstar->Mass + 
-    EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
-  cstar->vel[0] *= old_mass / cstar->Mass; 
-  cstar->vel[1] *= old_mass / cstar->Mass;
-  cstar->vel[2] *= old_mass / cstar->Mass; 
-//  printf("grid::SAMFS: old_mass = %lf  ->  cstar->Mass = %lf\n", old_mass, cstar->Mass);  
-//  printf("grid::SAMFS: new_vel[1] = %g\n", cstar->vel[1]);
 
   for (k = 0; k < GridDimension[2]; k++) {
     
@@ -142,24 +127,39 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 	delx = min(delx, DomainWidth[0]-delx);
 	
 	radius2 = delx*delx + dely*dely + delz*delz;
-	if (radius2 <= outerRadius2) {
+	if (radius2 <= radius*radius) {
 	  
-	  r1 = sqrt(radius2) / radius;
-	  norm = 0.98;
-	  ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
-	  //	     ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
-	  
-	  /* 1/1.2^3 factor to dilute the density since we're
-	     depositing a uniform ejecta in a sphere of 1.2*radius
-	     without a ramp.  The ramp is only applied to the
-	     energy*density factor. */
-	  factor = 0.578704;
-	  
-	  OldDensity = BaryonField[DensNum][index];
-	  BaryonField[DensNum][index] += factor*EjectaDensity;
-	  increase = BaryonField[DensNum][index] / OldDensity;
-//	  printf("grid::SAMFS: increase = %g\n", increase);
+	  /* Update density */
 
+	  increase = max(BaryonField[DensNum][index] + EjectaDensity, 0.90*BaryonField[DensNum][index]) 
+	    / BaryonField[DensNum][index];
+
+#ifdef UNUSED  //failed attempt; see Star_CalculateSubtractionParameters.C
+	  increase = EjectaDensity / BaryonField[DensNum][index];
+#endif
+	  BaryonField[DensNum][index] *= increase;
+	  // this "increase" method could be potentially problematic when the accretion rate is too low
+//	  printf("grid::SAMFS: increase = %lf\n", increase); 
+
+	  /* Update velocities and TE; the grid lost some mass, increasing the velocity;
+	     for DualEnergyFormalism = 0 you don't have to update any energy field */
+
+	  if (GENum >= 0 && DualEnergyFormalism) 
+	    for (dim = 0; dim < GridRank; dim++)
+	      BaryonField[TENum][index] -= 
+		0.5 * BaryonField[Vel1Num+dim][index] * 
+		BaryonField[Vel1Num+dim][index];
+	  
+	  BaryonField[Vel1Num][index] /= increase;
+	  BaryonField[Vel2Num][index] /= increase;
+	  BaryonField[Vel3Num][index] /= increase;
+	  
+	  if (GENum >= 0 && DualEnergyFormalism) 
+	    for (dim = 0; dim < GridRank; dim++)
+	      BaryonField[TENum][index] += 
+		0.5 * BaryonField[Vel1Num+dim][index] * 
+		BaryonField[Vel1Num+dim][index];
+	  
 	  /* Update species and colour fields */
 	  
 	  if (MultiSpecies) {

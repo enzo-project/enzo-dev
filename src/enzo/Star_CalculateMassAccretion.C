@@ -119,7 +119,7 @@ int Star::CalculateMassAccretion(void)
 
     // if requested, fix the temperature (e.g. to 3e5 K) so you don't get overpowered by high T SN bubble
     if (this->type == MBH && MBHAccretion == 2) 
-      temperature[index] = MBHAccretionFixedTemperature;  //#####
+      temperature[index] = MBHAccretionFixedTemperature;  
 
     c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
     old_mass = (float)(this->Mass);
@@ -140,7 +140,7 @@ int Star::CalculateMassAccretion(void)
 
       // if requested, just fix mdot (e.g. to 1e-4 Msun/yr)
       if (MBHAccretion == 3)
-	mdot = MBHAccretionFixedRate / yr; //#####
+	mdot = MBHAccretionFixedRate / yr; 
 
       /* For MBH, MBHAccretingMassRatio is implemented; when we resolve Bondi radius, 
 	 the local density used to calculate mdot can be higher than what was supposed 
@@ -148,11 +148,14 @@ int Star::CalculateMassAccretion(void)
 	 (=< 1) can be used to fix this.  -Ji-hoon Kim, Sep.2009 */
       mdot *= MBHAccretingMassRatio;
 
-      // Don't take out too much mass suddenly; mdot should leave at least 90% of the gas in the grids.
+      /* Don't take out too much mass suddenly, mdot should leave at least 90% of the gas 
+	 in cells; now unused after StarParticleSubtractAccretedMass is introduced */
+      /*
       mdot_UpperLimit = 0.10 * density * DensityUnits * 
 	pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
 	(CurrentGrid->dtFixed) / TimeUnits;
       mdot = min(mdot, mdot_UpperLimit);
+      */
       
       // Calculate Eddington accretion rate in Msun/s; the Eddington limit for feedback
       mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /

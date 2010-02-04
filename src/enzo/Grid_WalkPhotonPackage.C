@@ -574,10 +574,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dP1 = dPXray[i] * slice_factor2;
 
 	// contributions to the photoionization rate is over whole timestep
+	// units are 1/s *TimeUnits
 	BaryonField[kphNum[i]][index] += dP1 * factor1 * ion2_factor[i];
 	
 	// the heating rate is just the number of photo ionizations times
-	// the excess energy units here are  eV/s/cm^3 *TimeUnits.  
+	// the excess energy; units are eV/s *TimeUnits; check Grid_FinalizeRadiationFields
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber

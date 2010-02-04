@@ -8,11 +8,11 @@
 /  modified1: 
 /
 /  PURPOSE: This routine subtracts the accreted gas mass out of the grid
-/           for Star particle type BlackHole and MBH.
+/           for Star particle type BlackHole..
 /           Note that accretion_rate is calculted in Star_CalculateMassAccretion.C
 /           but DeltaMass is calculated in Star_Accrete.C.
-/           At the moment, the mass is subtracted 
-/           only from the cell the Star particle resides in.
+/           At the moment, the mass is used only for BlackHole;
+/           for MBH, the job is done in Grid_SubtractAccretedMassFromSphere.C
 /
 ************************************************************************/
 #include <stdlib.h>

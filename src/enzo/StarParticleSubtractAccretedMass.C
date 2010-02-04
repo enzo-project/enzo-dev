@@ -15,6 +15,7 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -30,14 +31,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#define MAX_TEMPERATURE 1e8
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
-#ifdef USE_MPI
-#endif /* USE_MPI */
 
 int StarParticleSubtractAccretedMass(TopGridData *MetaData, 
 				     LevelHierarchyEntry *LevelArray[], int level, 
@@ -51,7 +47,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy;
   float influenceRadius, RootCellWidth, SNe_dt, mdot;
-  float StarLevelCellWidth, dtForThisStar;
+  float dtForThisStar;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity, EjectaVolume;
   FLOAT Time;
   LevelHierarchyEntry *Temp;
@@ -82,92 +78,93 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 //    if (debug)
 //      cstar->PrintInfo();
 
-    if ((cstar->ReturnType() != BlackHole && ABS(cstar->ReturnType()) != MBH) ||
-	cstar->ReturnCurrentGrid() == NULL)
+    if (cstar->ReturnType() != BlackHole && 
+	ABS(cstar->ReturnType()) != MBH)
       continue;
 
     if ((ABS(cstar->ReturnType()) == MBH && MBHAccretion <= 0) ||
 	cstar->ReturnLastAccretionRate() < tiny_number)
       continue;
 
-    /* If BlackHole, let us just do this in the old way and move on;
-       not to bother John or others at the moment! */ 
+    /* Now let us do the job! */
 
-    if (cstar->ReturnType() == BlackHole) {
+    switch (cstar->ReturnType()) {
+    case BlackHole:
+
+      /* If BlackHole, subtract mass from a single cell (old way) so as 
+	 not to bother John or others at the moment! */ 
+
       if (cstar->SubtractAccretedMassFromCell() == FAIL) {
 	fprintf(stderr, "Error in star::SubtractAccretedMass.\n");
 	ENZO_FAIL("");
       }
-      continue;
-    }
 
-    StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(cstar->ReturnLevel()));
-    dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+      break;
 
-    /* Compute some parameters, similar to Star_CalculateFeedbackParameters,
-       but here we impose negative EjectaDensity so we subtract the mass */
+    case MBH:
 
-    mdot = isnan(cstar->ReturnLastAccretionRate()) ? 0.0 : cstar->ReturnLastAccretionRate();  
+      /* If MBH, subtract mass from multiple cells 
+	 defined by MBHAccretionRadius */
 
-    influenceRadius = MBHAccretionRadius * pc / LengthUnits;
-    influenceRadius = max(influenceRadius, 2*StarLevelCellWidth);
+      dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 
-    EjectaVolume = 4.0/3.0 * PI * pow(influenceRadius*LengthUnits, 3);  
-    EjectaDensity = -mdot * Msun * dtForThisStar * TimeUnits / EjectaVolume / DensityUnits; 
-    EjectaMetalDensity = 0.0; 
-    EjectaThermalEnergy = 0.0;
+      /* Compute some parameters, similar to Star_CalculateFeedbackParameters */
 
-    /* Determine if a sphere with influenceRadius is enclosed within grids on this level */
+      cstar->CalculateSubtractionParameters(LevelArray, influenceRadius, RootCellWidth, 
+           EjectaDensity, DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
+	   VelocityUnits, dtForThisStar);
 
-    if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, EjectaThermalEnergy, 
-	       SphereContained, SkipMassRemoval, DensityUnits, 
-	       LengthUnits, TemperatureUnits, TimeUnits, 
-	       VelocityUnits, Time) == FAIL) {
-            ENZO_FAIL("Error in star::FindFeedbackSphere");
-    }
+//      fprintf(stdout, "SPSAM: EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
 
-    /* If something weird happens, don't bother. */
+      /* Determine if a sphere with influenceRadius is enclosed within grids on this level 
+	 we use FindFeedbackSphere function, but we are not doing any "feedback" here; 
+	 we simply subtract the mass */
 
-    if ( influenceRadius <= tiny_number || 
-	(MBHAccretion >= 0 && influenceRadius >= RootCellWidth/2) )
-      continue;
-
-    /* Determine if a sphere is enclosed within the grids on next level
-       If that is the case, we perform SubtractAccretedMass not here, 
-       but in the EvolveLevel of the next level. */
-
-    SphereContainedNextLevel = FALSE;
-
-    if (LevelArray[level+1] != NULL) {
-      if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+      if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
 				    EjectaDensity, EjectaThermalEnergy, 
-				    SphereContainedNextLevel, dummy, DensityUnits, 
+				    SphereContained, dummy, DensityUnits, 
 				    LengthUnits, TemperatureUnits, TimeUnits, 
 				    VelocityUnits, Time) == FAIL) {
-	fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in star::FindFeedbackSphere");
       }
-    }
 
+      /* If something weird happens, don't bother. */
 
-//    fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-//    fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+      if ( influenceRadius <= tiny_number || 
+	   influenceRadius >= RootCellWidth/2 )
+	break;
+
+      /* Determine if a sphere is enclosed within the grids on next level
+	 If that is the case, we perform SubtractAccretedMass not here, 
+	 but in the EvolveLevel of the next level. */
+      
+      SphereContainedNextLevel = FALSE;
+
+      if (LevelArray[level+1] != NULL) {
+	if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+				      EjectaDensity, EjectaThermalEnergy, 
+				      SphereContainedNextLevel, dummy, DensityUnits, 
+				      LengthUnits, TemperatureUnits, TimeUnits, 
+				      VelocityUnits, Time) == FAIL) {
+	  fprintf(stderr, "Error in star::FindFeedbackSphere\n");
+	  ENZO_FAIL("");
+	}
+      }
+
+//    fprintf(stdout, "SPSAM: SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
 //	    SkipMassRemoval, SphereContained, SphereContainedNextLevel);  
 
-
-    /* Quit this routine when 
-       (1) sphere is not contained, or 
-       (2) sphere is contained, but the next level can contain the sphere, too. */ 
-    if ((SphereContained == FALSE) ||
-	(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
-      continue;
+      /* Quit this routine when 
+	 (1) sphere is not contained, or 
+	 (2) sphere is contained, but the next level can contain the sphere, too. */ 
+      if ((SphereContained == FALSE) ||
+	  (SphereContained == TRUE && SphereContainedNextLevel == TRUE))
+	break;
     
-    /* Now set cells within the radius to their values after subtraction. */
-
-    int CellsModified = 0;
-
-    if (SkipMassRemoval == FALSE)
+      /* Now set cells within the radius to their values after subtraction. */
+      
+      int CellsModified = 0;
+      
       for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
 	  Temp->GridData->SubtractAccretedMassFromSphere
@@ -179,29 +176,26 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 //	    "Radius = %e pc, changed %"ISYM" cells.\n", 
 //	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
 
-    //#ifdef UNUSED
-    temp_int = CellsModified;
-    MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
-	       MPI_COMM_WORLD);
+#ifdef UNUSED
+      temp_int = CellsModified;
+      MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
+		 MPI_COMM_WORLD);
 
-    if (debug) {
-      if (cstar->ReturnFeedbackFlag() != FORMATION)
+      if (debug) {
+	if (cstar->ReturnFeedbackFlag() != FORMATION)
+	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
+		  "Radius = %"GSYM" pc\n",
+		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
 	fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-		"Radius = %"GSYM" pc\n",
-		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
-      if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
-	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
-	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
-	  cstar->ReturnFeedbackFlag() == MBH_JETS )
-	fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-		"Energy = %"GSYM"  , skip = %"ISYM"\n",
-		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);
-      fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-	      "changed %"ISYM" cells.\n", 
-	      cstar->ReturnID(), level, CellsModified);
-    }
-    //#endif
-    
+		"changed %"ISYM" cells.\n", 
+		cstar->ReturnID(), level, CellsModified);
+      }
+#endif      
+
+      break;
+
+    } // ENDSWITCH ReturnType()
+
   } // ENDFOR stars
 
   return SUCCESS;
