@@ -24,7 +24,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
 int grid::RemoveParticle(int ID, bool disable)
 {

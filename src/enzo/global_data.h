@@ -533,6 +533,9 @@ EXTERN int LoadGridDataAtStart;
 /* cpu and grid file names */
 EXTERN char PrevParameterFileName[MAX_NAME_LENGTH];
 
+/* MetaData identifier string */
+EXTERN char *MetaDataIdentifier;
+
 /* Zhiling Lan's modified code */
 
 #ifdef MPI_INSTRUMENTATION

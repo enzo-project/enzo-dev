@@ -240,7 +240,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       ParticleList[ntype]->ParticleRadius    = new float[size];
       ParticleList[ntype]->ParticleValue[0]  = new float[size];
       ParticleList[ntype]->ParticleValue[1]  = new float[size];
-      ParticleList[ntype]->ParticleIndex     = new int[size];
+      ParticleList[ntype]->ParticleIndex     = new PINT[size];
       ParticleList[ntype]->NumberOfParticles = size;
     } // end: if (size > 0)
  

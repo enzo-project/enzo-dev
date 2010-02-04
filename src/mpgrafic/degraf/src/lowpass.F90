@@ -66,9 +66,9 @@ contains
     n2xs=2*(nxs/2+1)
     dxs=real(htout%dx,kind=dp)
     xoffs=real(htout%lx,kind=dp)
-    xtrs=xoffs+shift(1) ! Add extra translation
-    ytrs=xoffs+shift(2) ! Add extra translation
-    ztrs=xoffs+shift(3) ! Add extra translation
+    xtrs=xoffs+0.5*dxs+shift(1) ! Add extra translation
+    ytrs=xoffs+0.5*dxs+shift(2) ! Add extra translation
+    ztrs=xoffs+0.5*dxs+shift(3) ! Add extra translation
 
     call rfftw3d_f77_mpi_create_plan(plan,mpi_comm_world,nxs,nys,nzs&
          &,fftw_complex_to_real,fftw_estimate)

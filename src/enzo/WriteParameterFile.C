@@ -116,6 +116,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "StopCPUTime         = %lg\n", MetaData.StopCPUTime);
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
+  fprintf(fptr, "MetaDataIdentifier  = %s\n\n", MetaDataIdentifier);
  
   fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
 
@@ -171,6 +172,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.OutputFirstTimeAtLevel);
   fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
 	  MetaData.StopFirstTimeAtLevel);
+
+  fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
+  fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
+  fprintf(fptr, "CurrentDensityOutput = %"GSYM"\n", CurrentDensityOutput);
+  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
   fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
@@ -236,7 +242,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "TopGridGravityBoundary = %"ISYM"\n", MetaData.GravityBoundary);
 
   fprintf(fptr, "ParticleBoundaryType   = %"ISYM"\n",MetaData.ParticleBoundaryType);
-  fprintf(fptr, "NumberOfParticles      = %"ISYM" (do not modify)\n",
+  fprintf(fptr, "NumberOfParticles      = %"PISYM" (do not modify)\n",
 	  MetaData.NumberOfParticles);
  
   fprintf(fptr, "CourantSafetyNumber    = %"FSYM"\n",
@@ -427,6 +433,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
+  fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
+          OutputParticleTypeGrouping);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
 	  MoveParticlesBetweenSiblings);
   fprintf(fptr, "ParticleSplitterIterations       = %"ISYM"\n",
@@ -490,7 +498,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  SlopeFlaggingFields[1],
 	  SlopeFlaggingFields[2], 
 	  SlopeFlaggingFields[3],
-	  SlopeFlaggingFields[4]);
+	  SlopeFlaggingFields[4],
+	  SlopeFlaggingFields[5],
+	  SlopeFlaggingFields[6]);
 
   fprintf(fptr, "MinimumSlopeForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
@@ -595,6 +605,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
           StarClusterIonizingLuminosity);
+  fprintf(fptr, "StarClusterHeliumIonization           = %"ISYM"\n",
+	  StarClusterHeliumIonization);
   fprintf(fptr, "StarClusterSNEnergy                   = %lg\n",
           StarClusterSNEnergy);
   fprintf(fptr, "StarClusterSNRadius                   = %"GSYM"\n",

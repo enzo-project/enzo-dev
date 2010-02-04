@@ -37,8 +37,8 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
   int dim, i, size = 1;
   for (dim = 0; dim < Rank; dim++) {
     Mesh->Rank = Rank;
-    //    Mesh->Dimension[dim] = 64;  // this should be tuned
-    Mesh->Dimension[dim] = TopGridDims[dim] / 4;
+    //Mesh->Dimension[dim] = 128;  // this should be tuned
+    Mesh->Dimension[dim] = min(TopGridDims[dim] / 4, 128);
  
     /* Set the chaining mesh size to be the same as the entire domain. */
  

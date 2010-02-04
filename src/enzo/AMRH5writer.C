@@ -494,9 +494,9 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   // ID
   dataspace = H5Screate_simple(1, &hdims, &hdims);
-  dataset = H5Dcreate(gridGrp, "particle_number", H5T_NATIVE_INT,
+  dataset = H5Dcreate(gridGrp, "particle_number", HDF5_FILE_PINT,
 		      dataspace, H5P_DEFAULT);
-  H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
+  H5Dwrite(dataset, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
   H5Dclose(dataset);
   H5Sclose(dataspace);
 

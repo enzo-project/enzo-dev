@@ -392,7 +392,8 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     FLOAT *TempPosition[3];
     float *TempVelocity[3], *TempMass;
     float *TempAttr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-    int *TempType, *TempNumber;
+    int *TempType;
+    PINT *TempNumber;
     
     for (i = 0; i < NumberOfParticles; i++)
       NonDMParticleIndices[i] = -1;
@@ -411,7 +412,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       for (i = 0; i < NumberOfParticleAttributes; i++)
 	TempAttr[i] = new float[NumberOfNonDMParticles];
       TempType = new int[NumberOfNonDMParticles];
-      TempNumber = new int[NumberOfNonDMParticles];
+      TempNumber = new PINT[NumberOfNonDMParticles];
     } // ENDIF non-DM particles > 0
 
     /* Move non-DM particles into temp arrays */

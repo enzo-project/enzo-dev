@@ -696,10 +696,17 @@ int Group_WriteAllData(char *basename, int filenumber,
                         "LevelCycleCount", LevelCycleCount);
   if(CheckpointDump == TRUE){
     // Write our supplemental (global) data
-    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
-                        "dtThisLevel", dtThisLevel);
-    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
-                        "dtThisLevelSoFar", dtThisLevelSoFar);
+    FLOAT dtThisLevelCopy[MAX_DEPTH_OF_HIERARCHY];
+    FLOAT dtThisLevelSoFarCopy[MAX_DEPTH_OF_HIERARCHY];
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+        dtThisLevelCopy[level] = dtThisLevel[level];
+        dtThisLevelSoFarCopy[level] = dtThisLevelSoFar[level];
+    }
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevel", dtThisLevelCopy);
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevelSoFar", dtThisLevelSoFarCopy);
+    writeScalarAttribute(metadata_group, HDF5_PREC, "Time", &MetaData.Time);
   }
     H5Gclose(metadata_group);
 

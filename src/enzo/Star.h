@@ -38,7 +38,7 @@ class Star
   float		 BirthTime;
   float		 LifeTime;
   int		 FeedbackFlag;
-  int		 Identifier;
+  PINT		 Identifier;
   int		 level;
   int		 GridID;
   star_type	 type;

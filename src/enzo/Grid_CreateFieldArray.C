@@ -384,17 +384,6 @@ EnzoArray<int> *grid::CreateFieldArrayInt(field_type field){
 
   switch (field){
     
-  case gParticleNumber:
-    if(this->NumberOfParticles > 0){
-      dims[0] = this->NumberOfParticles;
-      sindex[0] = 0;
-      eindex[0] = this->NumberOfParticles - 1;
-      
-      array = new EnzoArray<int>(1, dims, sindex, eindex);
-      array->Array = this->ParticleNumber;
-    }
-    break;
-    
   case gParticleType:
     if(this->NumberOfParticles > 0){
       dims[0] = this->NumberOfParticles;
@@ -418,6 +407,35 @@ EnzoArray<int> *grid::CreateFieldArrayInt(field_type field){
     }
     break;
 
+    
+  }
+  
+  return array;
+}
+
+EnzoArray<PINT> *grid::CreateFieldArrayPINT(field_type field){
+
+  int i, dims[MAX_DIMENSION], sindex[MAX_DIMENSION], eindex[MAX_DIMENSION];
+  EnzoArray<PINT> *array = NULL;
+  FLOAT cell_width[] = {0, 0, 0};
+  field_type field_index;
+  
+  for(i = 0; i < this->GridRank; i++){
+    cell_width[i] = this->CellWidth[i][0];
+  }
+
+  switch (field){
+    
+  case gParticleNumber:
+    if(this->NumberOfParticles > 0){
+      dims[0] = this->NumberOfParticles;
+      sindex[0] = 0;
+      eindex[0] = this->NumberOfParticles - 1;
+      
+      array = new EnzoArray<PINT>(1, dims, sindex, eindex);
+      array->Array = this->ParticleNumber;
+    }
+    break;
     
   }
   

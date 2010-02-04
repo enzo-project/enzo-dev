@@ -332,8 +332,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Output level information to log file. */
  
-    if (MyProcessorNumber == ROOT_PROCESSOR)
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
+      if (LevelInfofptr == NULL)
+        ENZO_FAIL("Can't open OutputLevelInformation.out!");
+    }
 
     // OutputLevelInformation() only needs to be called by all processors
     // when lcaperf is enabled.

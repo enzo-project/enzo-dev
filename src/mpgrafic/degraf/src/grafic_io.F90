@@ -213,19 +213,11 @@ contains
     real(sp), allocatable, dimension(:) :: work
     logical, dimension(:,:,:), allocatable :: mmask
 
-    ! If there's no mask, create one with all .true.
-    allocate(mmask(nx,ny,local_nz))
-    if (.not.present(mask)) then
-       mmask = .true.
-    else
-       mmask = mask
-    endif
-
     padding=.false.
     white=.false.
     this_level=0
     if (present(padding_in)) padding = padding_in
-    if (present(padding_in)) write(*,*) 'padding is on'
+    if (present(padding_in) .and. myid.eq.0) write(*,*) 'padding is on'
     if (present(white_in)) white = white_in
     if (present(level)) this_level = level
     ! 2*4 for leading and trailing record sizes 
@@ -261,7 +253,7 @@ contains
     else
        CALL open_hdf5_dset(dset_name)
     endif
-
+    
     CALL write_phdf5_data(work, local_z_start, local_nz, local_dims(3), &
          local_dims(2), local_dims(1), dim, ndims, masked_in=.true.)
     CALL close_phdf5_file
@@ -333,7 +325,6 @@ contains
     enddo
     deallocate(tampon)
 #endif
-    deallocate(mmask)
     if (present(mask)) then
        if (allocated(mask)) deallocate(mask)
     endif
@@ -472,7 +463,7 @@ contains
   end subroutine grafic_read_double
 
   subroutine grafic_read_single(buffer, local_nz, local_z_start, nz, ny, nx, &
-       filename, dim, padding_in, white_in)
+       filename, dim, padding_in, white_in, serial_in)
 
     ! Arguments
     implicit none
@@ -482,6 +473,8 @@ contains
     character(len=128), intent(in) :: filename
     logical, optional :: padding_in ! Read padded zone or not
     logical, optional :: white_in ! Different header for white noise file
+    logical, optional :: serial_in  ! Serial HDF5 
+
     ! Local variables
     real(sp), allocatable, dimension(:) :: tampon
     integer :: record_size
@@ -492,6 +485,7 @@ contains
     integer :: i,j,k
     logical :: padding
     logical :: white
+    logical :: serial
 
     ! Variables for Enzo I/O
     character(128) :: enzoname, dset_name
@@ -501,6 +495,7 @@ contains
     white = .false.
     if (present(padding_in)) padding = padding_in
     if (present(white_in)) white = white_in
+    if (present(serial_in)) serial = serial_in
     ! 2*4 for leading and trailing record sizes 
     n2x = 2*(nx/2+1)
 
@@ -512,7 +507,7 @@ contains
     else
        dset_name = get_dsetname(filename)
     endif
-    CALL init_phdf5(filename)
+    CALL init_phdf5(filename, serial_in=serial)
     CALL open_hdf5_dset(dset_name)
     CALL read_phdf5_data(buffer, local_z_start, local_nz, ny, nxx, dim, &
          padding_in=padding)

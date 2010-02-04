@@ -613,7 +613,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
-    int *tempint = new int[NumberOfParticles];
+    PINT *tempPINT = new PINT[NumberOfParticles];
  
     file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
     if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -625,7 +625,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
     if( dset_id == h5_error ){ENZO_FAIL("Error in IO");}
  
-    h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+    h5_status = H5Dread(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempPINT);
     if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
  
@@ -638,7 +638,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
  
     for (i = 0; i < NumberOfParticles; i++)
-      ParticleNumber[i] = tempint[i];
+      ParticleNumber[i] = tempPINT[i];
  
  
     // Read ParticleType if present
@@ -646,6 +646,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (ParticleTypeInFile == TRUE) {
  
       /* Read ParticleType into temporary buffer and Copy to ParticleType. */
+
+      int *tempint = new int[NumberOfParticles];
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -682,6 +684,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
           ENZO_FAIL("");
         }
       }
+
+      delete [] tempint;
  
     } else {
  
@@ -732,7 +736,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     } // ENDELSE add particle attributes
  
     delete [] temp;
-    delete [] tempint;
+    delete [] tempPINT;
  
 
   } // end: if (NumberOfParticles > 0) && ReadData && (MyProcessorNumber == ProcessorNumber)

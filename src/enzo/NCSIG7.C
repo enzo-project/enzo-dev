@@ -79,7 +79,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 
 int Enzo_Dims_create(int nnodes, int ndims, int *dims); 
  

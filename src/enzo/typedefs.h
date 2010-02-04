@@ -229,6 +229,7 @@ const star_type
 
 union float_int {
   long_int ival;
+  PINT IVAL;
   float fval;
   FLOAT FVAL;
 };
@@ -245,7 +246,7 @@ struct particle_data {
   float vel[MAX_DIMENSION];
   float mass;
   float attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  int   id;
+  PINT  id;
   int   type;
   int   grid;
   int   proc;

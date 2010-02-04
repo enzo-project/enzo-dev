@@ -76,6 +76,8 @@ Eint64 mused(void)
 
 #else
 
+#include "macros_and_parameters.h"
+
 // Default case return zero bytes
 
 Eint64 mused(void)

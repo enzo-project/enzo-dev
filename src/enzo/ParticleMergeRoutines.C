@@ -38,7 +38,7 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
     Center[i] = -1;
 
   FLOAT MergeDist2 = pow(MergeDistance, 2);
-  int MergeID, MergeIndex;
+  PINT MergeID, MergeIndex;
   
   for (int i = 0; i < Size; i++) {
     

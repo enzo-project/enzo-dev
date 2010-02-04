@@ -48,6 +48,34 @@
           -D__max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE)
 
 #-----------------------------------------------------------------------
+# DETERMINE INTEGER SIZE SETTINGS FOR PARTICLE INDICES
+#-----------------------------------------------------------------------
+
+    ERROR_IDS = 1
+
+    # Settings for 32-bit integers
+
+    ifeq ($(CONFIG_PARTICLE_IDS),32)
+        ERROR_IDS = 0
+        ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_4
+    endif
+
+    # Settings for 64-bit integers
+
+    ifeq ($(CONFIG_PARTICLE_IDS),64)
+        ERROR_IDS = 0
+        ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_8
+    endif
+
+    # error if CONFIG_INTEGERS is incorrect
+
+    ifeq ($(ERROR_IDS),1)
+       .PHONY: error_ids
+       error_ids:
+	$(error Illegal value '$(CONFIG_PARTICLE_IDS)' for $$(CONFIG_PARTICLE_IDS))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE INTEGER SIZE SETTINGS
 #-----------------------------------------------------------------------
 
@@ -822,6 +850,7 @@
               $(ASSEMBLE_PARAMETER_DEFINES) \
               $(ASSEMBLE_INITS_DEFINES) \
               $(ASSEMBLE_INTEGER_DEFINES) \
+	      $(ASSEMBLE_IDS_DEFINES) \
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_LCAPERF_DEFINES) \
               $(ASSEMBLE_PYTHON_DEFINES) \

@@ -44,8 +44,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   BasePackages = 12*(int)pow(4,min_level);
 
   int stype = 3;
+  bool HeliumPhotons = (StarClusterHeliumIonization == TRUE);
 #ifdef ONE_ENERGY
-  stype = 1;
+  stype = (HeliumPhotons) ? 3 : 1;
 #endif
   if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
   if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
