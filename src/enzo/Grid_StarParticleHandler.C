@@ -774,7 +774,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleType[i] = NormalStarType;
     } 
 
-    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
+    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR) && level == MaximumRefinementLevel) {
 
       //---- Springel & Hernquist 2003 SF algorithm
 

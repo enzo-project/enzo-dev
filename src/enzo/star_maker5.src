@@ -124,9 +124,9 @@ c     Loop over all grids
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 c	       Only at the lowest refinement!  
-	       if(r(i,j,k) .ne. 0.0) goto 10
+c	       if(r(i,j,k) .ne. 0.0) goto 10
 
-               if(d(i,j,k) .le. odthresh) goto 10
+              if(d(i,j,k) .le. odthresh) goto 10
 
 c	       Calculate star formation timescale               
                tstar = 31556926.0*mintdyn*(d(i,j,k)*dble(d1)/  
