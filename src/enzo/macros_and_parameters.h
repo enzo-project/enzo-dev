@@ -229,13 +229,7 @@ typedef int            HDF5_hid_t;
 #define float32 TEMP_HOLD_NAME
 #define float double
 #define TEMP_HOLD_NAME float32
-#ifdef COMPACT_IO
 #define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R4
-#else
-#define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R8
-#endif
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
 #define enpy_bfloat npy_double

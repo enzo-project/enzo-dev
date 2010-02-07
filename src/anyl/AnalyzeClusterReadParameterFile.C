@@ -75,6 +75,7 @@ int AnalyzeClusterReadParameterFile(char *filename, int &NumberOfCenters,
   parm->MetaData               = NULL;
   parm->DiskRadiusCutoff       = BoxSize;
   parm->LinearProfileRadiusForVertical = TRUE; 
+  parm->PrintGlobalProfileValues = FALSE; 
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     center[dim] = FLOAT_UNDEFINED;
@@ -124,6 +125,8 @@ int AnalyzeClusterReadParameterFile(char *filename, int &NumberOfCenters,
     ret += sscanf(line, "DiskRadiusCutoff = %f", &parm->DiskRadiusCutoff);
     ret += sscanf(line, "LinearProfileRadiusForVertical = %d", 
 		  &parm->LinearProfileRadiusForVertical);
+    ret += sscanf(line, "PrintGlobalProfileValues = %d", 
+		  &parm->PrintGlobalProfileValues);
 
     if (sscanf(line, "CenterListName = %s", char_dummy) == 1) 
       CenterListName = char_dummy;

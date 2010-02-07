@@ -1167,9 +1167,6 @@ main(int argc, char *argv[])
       if (fptrs[i] != NULL)
 	fprintf(fptrs[i], "\n");
 
-
-    double AverageGasSurfaceDensity = 0.0;  
-
     /* Loop over all radial bins, printing each. */
 
     for (j = 0; j < NumberOfPoints; j++) {
@@ -1192,7 +1189,7 @@ main(int argc, char *argv[])
 	      POW(BoxSize, 3) * 4.0*pi/3.0),
 	      ProfileWeight[j][30]);
 
-      /* Printing vertical profile using ProfileRadius2.  Ji-hoon Kim in Dec./2007 */
+      /* Print vertical profile using ProfileRadius2.  JHK in Dec.2007 */
 
       if ((fptrs[6] != NULL) && (parameters.LinearProfileRadiusForVertical)) {
 	FLOAT rmid = 0.5*(ProfileRadius2[j]+ProfileRadius2[j+1])*BoxSize;                   
@@ -1200,47 +1197,11 @@ main(int argc, char *argv[])
 		rmid, ProfileRadius2[j+1]*BoxSize); 
       }
 
-      /* Printing radially-averaged gas surface density.  This is useful for Local Kennicutt-Schmidt law.  
-	 This will create unwanted files, so caveat emptor!  Ji-hoon Kim in Nov./2007 */
-
-#define DO_NOT_PRINT_SURFACE_PROFILE
-#ifdef PRINT_SURFACE_PROFILE
-      FILE *fpGasSurfDen;
-      fpGasSurfDen = fopen("GasSurfDen.txt","a");      
-      fprintf(fpGasSurfDen, "%"GOUTSYM" \n", 
-	      (ProfileValue[j][106] == 0) ? 
-	      tiny_number : ProfileValue[j][106]/1e12); //in unit of Msun/pc^2
-      AverageGasSurfaceDensity += ProfileValue[j][106]*(2*pi*ProfileRadius[j]*BoxSize)
-	      *(ProfileRadius[j]-ProfileRadius[j-1])*BoxSize;
-      fclose(fpGasSurfDen);
-#endif 
-
       for (i = 0; i < NUMBER_OF_FILES; i++)
 	if (fptrs[i] != NULL)
 	  fprintf(fptrs[i], "\n");
 
     }//end of j
-
-    /* Printing disk-averaged gas surface density.  This is useful for Global Kennicutt-Schmidt law of multiple epochs. 
-       This will create unwanted files, so again, caveat emptor!  Ji-hoon Kim in Nov.2007
-       As a bonus, this also prints the evolution of m_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
-
-#ifdef PRINT_SURFACE_PROFILE
-    FILE *fpAveGasSurfDen;
-    FILE *fpVirialMassEvolution;
-
-    fpAveGasSurfDen = fopen("../AveGasSurfDen.txt","a");
-    fprintf(fpAveGasSurfDen, "%"GOUTSYM"\n", 
-	    AverageGasSurfaceDensity/pi/POW((ProfileRadius[j]*BoxSize),2)/1e12); //in unit of Msun/pc^2 
-    
-    fpVirialMassEvolution = fopen("../VirialMassEvolution.txt","a");
-    fprintf(fpVirialMassEvolution, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
-	    CurrentRedshift, MetaData.Time, rvir*BoxSize, 
-	    mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);   
-
-    fclose(fpAveGasSurfDen);
-    fclose(fpVirialMassEvolution);
-#endif
 
     /* close files */
 
@@ -1248,11 +1209,59 @@ main(int argc, char *argv[])
       if (fptrs[i] != NULL)
 	fclose(fptrs[i]);
 
+
+    /* Print additional info for Kennicutt-Schmidt relations, JHK in Nov.2007 */
+
+    if (parameters.PrintGlobalProfileValues) { 
+
+      FILE *fpLKS, *fpGKS, *fpMvirEv;
+      double AverageGasSurfaceDensity = 0.0;  
+      double AverageSFRSurfaceDensity = 0.0;  
+      FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
+
+      fpLKS = fopen("local_KS.dat","w");      
+      fpGKS = fopen("global_KS.dat","a");
+
+      /* Print gas surface density and SFR surface density for local K-S law.  
+	 Msun/pc^2 vs. Msun/yr/kpc^2 */
+
+      for (j = 1; j < NumberOfPoints; j++) {
+
+	fprintf(fpLKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM" \n", ProfileRadius[j],
+		log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) )); 
+
+	AverageGasSurfaceDensity += ProfileValue[j][106]*ProfileWeight[j][106];//weights are annuli
+	AverageSFRSurfaceDensity += ProfileValue[j][116]*ProfileWeight[j][116];
+
+      }
+
+      /* Print disk-averaged gas surface density and disk-averaged SFR surface
+	 density for global K-S law.  Msun/pc^2 vs. Msun/yr/kpc^2  */
+
+      fprintf(fpGKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", LevelArray[0]->GridData->ReturnTime(),
+	      log10( AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2) ),
+	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) )); 
+
+      fclose(fpLKS);
+      fclose(fpGKS);
+      
+      /* Print the evolution of M_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
+
+      fpMvirEv = fopen("MvirEvolution.dat","a");
+      fprintf(fpMvirEv, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
+	      CurrentRedshift, MetaData.Time, rvir*BoxSize, 
+	      mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);         
+      fclose(fpMvirEv);
+
+    } // end: if (parameters.PrintGlobalProfileValues)
+
     } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 
   } // end: loop over centers
 
   my_exit(EXIT_SUCCESS);
+
 }
 
 

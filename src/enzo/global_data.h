@@ -533,6 +533,9 @@ EXTERN int LoadGridDataAtStart;
 /* cpu and grid file names */
 EXTERN char PrevParameterFileName[MAX_NAME_LENGTH];
 
+/* MetaData identifier string */
+EXTERN char *MetaDataIdentifier;
+
 /* Zhiling Lan's modified code */
 
 #ifdef MPI_INSTRUMENTATION
@@ -766,6 +769,11 @@ EXTERN int MoveParticlesBetweenSiblings;
 
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
+
+/* Magnetic Field Resetter */
+
+EXTERN int ResetMagneticField;
+EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 
 /* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
 

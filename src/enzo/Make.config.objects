@@ -354,6 +354,7 @@ OBJS_CONFIG_LIB = \
         Grid_InterpolatePositions.o \
         Grid_InterpolateStarParticlesToGrid.o \
         Grid_KHInitializeGrid.o \
+        Grid_MagneticFieldResetter.o \
         Grid_MirrorStarParticles.o \
         Grid_MoveAllParticles.o \
         Grid_MoveAllStars.o \
@@ -423,6 +424,7 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
         Grid_SupernovaRestartInitialize.o \
+        Grid_SubtractAccretedMassFromSphere.o \
         Grid_TestGravityCheckResults.o \
         Grid_TestGravityInitializeGrid.o \
         Grid_TestGravityMotionInitializeGrid.o \
@@ -489,6 +491,7 @@ OBJS_CONFIG_LIB = \
         lgrg.o \
         ListIO.o \
 	LoadBalanceSimulatedAnnealing.o \
+        MagneticFieldResetter.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MersenneTwister.o \
@@ -572,6 +575,7 @@ OBJS_CONFIG_LIB = \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
+        RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
@@ -612,6 +616,7 @@ OBJS_CONFIG_LIB = \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
+        StarParticleSubtractAccretedMass.o \
         StarRoutines.o \
         Star_Accrete.o \
         Star_AccreteAngularMomentum.o \
@@ -620,6 +625,7 @@ OBJS_CONFIG_LIB = \
         Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
+        Star_CalculateSubtractionParameters.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -628,8 +634,9 @@ OBJS_CONFIG_LIB = \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
+        Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
-	Star_SubtractAccretedMass.o \
+	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \
         star_maker2.o \
         star_maker3.o \

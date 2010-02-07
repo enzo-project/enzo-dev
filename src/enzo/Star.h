@@ -43,6 +43,7 @@ class Star
   int		 GridID;
   star_type	 type;
   float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
+  double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
 
   friend class grid;
 
@@ -82,6 +83,7 @@ public:
   void  AddMass(double dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  ResetNotEjectedMass(void) { NotEjectedMass = 0.0; };
   void  ResetAccretionPointers(void) 
   { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
@@ -89,6 +91,7 @@ public:
   FLOAT *ReturnPosition(void) { return pos; }
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
+  float ReturnLastAccretionRate(void) { return last_accretion_rate; }
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -100,7 +103,7 @@ public:
 #endif
   int	Accrete(void);
   int	AccreteAngularMomentum(void);
-  int	SubtractAccretedMass(void);
+  int	SubtractAccretedMassFromCell(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);
@@ -128,14 +131,23 @@ public:
   int   HitEndpoint(FLOAT Time);
   void  PrintInfo(void);
 
-  void  CalculateFeedbackParameters(float &Radius, float SNe_dt, 
-				    float RootCellWidth,
+  void  CalculateFeedbackParameters(float &Radius, 
+				    float RootCellWidth, float SNe_dt, 
 				    double &EjectaDensity,
 				    double &EjectaThermalEnergy,
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar);
+  void  CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], float &Radius, 
+				       float RootCellWidth,
+				       double &EjectaDensity,
+				       float DensityUnits, float LengthUnits, 
+				       float TemperatureUnits, float TimeUnits,
+				       float VelocityUnits, float dtForThisStar);
+  int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
+				      float DensityUnits, float LengthUnits,
+				      int &CellsModified);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
