@@ -106,6 +106,22 @@ int Star::ComputePhotonRates(float E[], double Q[])
        spectral temperature is 2 keV, for accreting massive BH */
 
   case MBH:
+
+    if (RadiativeTransferTraceSpectrum) {
+      E[0] = 2000.0; //#####
+      E[1] = 0.0;
+      E[2] = 0.0;
+      E[3] = 0.0;
+
+      Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency *
+	this->last_accretion_rate / E[0]; 
+      Q[1] = 0.0;
+      Q[2] = 0.0;
+      Q[3] = 0.0;  
+
+      break;
+    }
+
     XrayLuminosityFraction = 1.0;
     E[0] = 2000.0; //2keV
     E[1] = 0.0;

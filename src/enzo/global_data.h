@@ -712,6 +712,7 @@ EXTERN int H2OpticalDepthApproximation;
 //   0 - none
 EXTERN int RadiativeTransfer;
 EXTERN int RadiativeTransferHydrogenOnly;
+EXTERN int RadiativeTransferTraceSpectrum;
 #ifdef TRANSFER
 EXTERN long *pix2x;
 EXTERN long *pix2y;

@@ -61,8 +61,10 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferHIIRestrictedTimestep);
   fprintf(fptr, "RadiativeTransferAdaptiveTimestep         = %"ISYM"\n",
 	  RadiativeTransferAdaptiveTimestep);
-  fprintf(fptr, "RadiativeTransferHydrogenOnly             = %"ISYM"\n\n", 
+  fprintf(fptr, "RadiativeTransferHydrogenOnly             = %"ISYM"\n", 
 	  RadiativeTransferHydrogenOnly);
+  fprintf(fptr, "RadiativeTransferTraceSpectrum            = %"ISYM"\n\n", 
+	  RadiativeTransferTraceSpectrum);
   
   return SUCCESS;
 }

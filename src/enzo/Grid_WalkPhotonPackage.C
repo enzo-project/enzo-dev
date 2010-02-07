@@ -45,6 +45,8 @@
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
+float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, 
+				     int type, int mode);
 
 enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
@@ -76,7 +78,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   long cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
-  float DomainWidth[3], dx, dx2, dxhalf, fraction;
+  float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
   double dN;
   FLOAT radius, oldr, cdt, dr;
@@ -580,7 +582,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       for (i = 0; i < 4; i++) dPXray[i] = 0.0; 
 
       /* Loop over absorbers */
-      for (i = 0; i < 3; i++) {
+      for (i = 0; i < 1; i++) {   //##### TraceSpectrum test 3 -> 1
 
 	thisDensity = PopulationFractions[i] * fields[i][index] *
 	  ConvertToProperNumberDensity;
@@ -641,15 +643,58 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	//                          = dPXray[3]_new * (*PP)->Energy
 	dPXray[3] *= ratioE;
 
-	/*
-	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature = %g,"
-               "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
-	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]); 
-	*/
+//	printf("grid:WalkPhotonPackage: xE = %g, ratioE = %g, temperature = %g,"
+//               "sigma[3] = %g, factor2[3] = %g, dPXray[3] = %g\n", 
+//	       xE, ratioE, BaryonField[TemperatureField][index], sigma[3], factor2[3], dPXray[3]); 
 
       }
       
       // find the total absorbed number of photons including Compton heating
+      for (i = 0; i < 4; i++) dP += dPXray[i];
+
+      break;
+
+      /************************************************************/
+      /* tracing spectrum (HI/HeI/HeII all in one!) */
+      /************************************************************/
+      // instead of calculating the optical depth (tau), ColumnDensity will 
+      // give all the necessary information of the photon spectrum: dP, min E
+      // at the moment, secondary ionization is ignored (Alvarez & Kim 2010)
+    case 5:
+
+      dP = dN = 0.0;
+      for (i = 0; i < 4; i++) dPXray[i] = 0.0;
+
+      // calculate dColumnDensity of this ray segment (only for the main absorber, HI)     
+      thisDensity = PopulationFractions[0] * fields[0][index] * 
+	ConvertToProperNumberDensity; 
+      dColumnDensity = thisDensity * ddr * LengthUnits;
+      
+      /* Loop over absorbers */
+      for (i = 0; i < 1; i++) {   //##### TraceSpectrum test 3 -> 1
+
+	// the spectrum table returns the fraction of photons absorbed at this column density
+	dPXray[i] = (*PP)->Photons * 
+	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i, 1);
+	dP1 = dPXray[i] * slice_factor2;
+
+	// contributions to the photoionization rate is over whole timestep
+	// units are 1/s *TimeUnits
+	BaryonField[kphNum[i]][index] += dP1 * factor1; 
+	
+	// the heating rate is just the number of photo ionizations times
+	// the excess energy; units are eV/s *TimeUnits;
+	// the spectrum table returns the mean energy of the spectrum at this column density
+	BaryonField[gammaNum][index] += dP1 * factor1 * 
+	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i, 2) - 
+	    EnergyThresholds[i] );
+
+      }
+
+      // update column density
+      (*PP)->ColumnDensity += dColumnDensity;
+
+      // find the total absorbed number of photons 
       for (i = 0; i < 4; i++) dP += dPXray[i];
 
       break;
