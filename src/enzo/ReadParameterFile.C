@@ -56,7 +56,7 @@ int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
- 
+int ReadEvolveRefineFile(void);
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
@@ -316,6 +316,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MustRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
 		  MustRefineRegionRightEdge, MustRefineRegionRightEdge+1,
 		  MustRefineRegionRightEdge+2);
+
+    /* Read evolving RefineRegion */
+
+    ret += sscanf(line, "RefineRegionTimeType = %"ISYM, &RefineRegionTimeType);
+    if (sscanf(line, "RefineRegionFile = %s", dummy) == 1) {
+      RefineRegionFile = dummy;
+      ret++;
+    }
 
     if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
@@ -937,6 +945,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	MinimumOverDensityForRefinement[i] /= DensityUnits;
       }
     }
+  }
+
+  /* If RefineRegionTimeType is 0 or 1, read in the input file. */
+  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
+      if (ReadEvolveRefineFile() == FAIL) {
+        ENZO_FAIL("Error in ReadEvolveRefineFile.");
+      }
   }
 
   /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies

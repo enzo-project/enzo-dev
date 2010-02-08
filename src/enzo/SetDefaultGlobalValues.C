@@ -52,7 +52,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* declarations */
  
   const float Pi = 3.14159;
-  int dim, i;
+  int dim, i, j;
  
   huge_number               = 1.0e+20;
   tiny_number               = 1.0e-20;
@@ -210,6 +210,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
+
+  /* For evolving refinement regions. */
+  RefineRegionFile = NULL;
+  RefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveRefineRegionTime[i] = FLOAT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
  
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
