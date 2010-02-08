@@ -130,7 +130,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
 //    	    this->last_accretion_rate, Q[0]); 
 
     if (RadiativeTransferTraceSpectrum == TRUE) {
-      E[0] = ReturnValuesFromSpectrumTable(0.0, 0.0, 3); //the mean energy when no column density yet
+      E[0] = ReturnValuesFromSpectrumTable(0.0, 0.0, 3); //##### mean energy if column density=0
       E[1] = 0.0;
       E[2] = 0.0;
       E[3] = 0.0;

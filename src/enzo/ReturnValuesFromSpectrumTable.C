@@ -96,19 +96,16 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
        using the same logic for tau in Grid_WalkPhotonPackage, if "change" is smaller 
        than float precision, try linear interpolation to get absorbed photon fraction */
 
-    /* expf(-tau) = frac_out / frac_in */
-
-    change = frac_out / frac_in;
-
     /* tau = dColumnDensity * FindCrossSection(0, mean_energy), but we cannot use this!
        instead, we find the proportionality constant near ColumnDensity using
        frac_in = exp(-pseudo_CrossSection * ColumnDensity) */
     
     pseudo_CrossSection = -log(frac_in) / 
-      min(ColumnDensity, RadiativeTransferSpectrumTable.columndensity_table[0]);
+      max(ColumnDensity, RadiativeTransferSpectrumTable.columndensity_table[0]);
 
-    /* below is to avoid cases such as frac_in = 0.0 */
+    /* expf(-tau) = frac_out / frac_in, below is to avoid cases such as frac_in = 0.0 */
 
+    change = frac_out / frac_in;
     tau = (isnan(change)) ? 
       dColumnDensity * pseudo_CrossSection : -log(frac_out / frac_in);   
 
@@ -121,9 +118,8 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
     else
       photon_fraction = min(dColumnDensity * pseudo_CrossSection, 1.0);  
 
-    if (tau > 1)
-      fprintf(stderr, "RVFST: id_in = %d, id_out = %d, f_in =%f, f_out = %f, tau = %f, photon_f = %f\n", 
-	      index_in, index_out, frac_in, frac_out, tau, photon_fraction); //#####
+//    fprintf(stderr, "RVFST: id_in = %d, id_out = %d, f_in =%f, f_out = %f, tau = %f, photon_f = %f\n", 
+//	    index_in, index_out, frac_in, frac_out, tau, photon_fraction); 
 
     return photon_fraction;
 

@@ -581,7 +581,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       for (i = 0; i < 4; i++) dPXray[i] = 0.0; 
 
       /* Loop over absorbers */
-      for (i = 0; i < 1; i++) {   //##### TraceSpectrum test 3 -> 1
+      for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1
 
 	thisDensity = PopulationFractions[i] * fields[i][index] *
 	  ConvertToProperNumberDensity;
@@ -670,7 +670,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       dColumnDensity = thisDensity * ddr * LengthUnits;
       
       /* Loop over absorbers */
-      for (i = 0; i < 1; i++) {   //##### TraceSpectrum test 3 -> 1
+      for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1
 
 	// the spectrum table returns the fraction of photons absorbed at this column density
 	dPXray[i] = (*PP)->Photons * 
