@@ -45,8 +45,7 @@
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
-float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, 
-				     int type, int mode);
+float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
@@ -675,7 +674,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
 	// the spectrum table returns the fraction of photons absorbed at this column density
 	dPXray[i] = (*PP)->Photons * 
-	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i, 1);
+	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
 	dP1 = dPXray[i] * slice_factor2;
 
 	// contributions to the photoionization rate is over whole timestep
@@ -686,7 +685,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	// the excess energy; units are eV/s *TimeUnits;
 	// the spectrum table returns the mean energy of the spectrum at this column density
 	BaryonField[gammaNum][index] += dP1 * factor1 * 
-	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i, 2) - 
+	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 
 	    EnergyThresholds[i] );
 
       }

@@ -712,7 +712,6 @@ EXTERN int H2OpticalDepthApproximation;
 //   0 - none
 EXTERN int RadiativeTransfer;
 EXTERN int RadiativeTransferHydrogenOnly;
-EXTERN int RadiativeTransferTraceSpectrum;
 #ifdef TRANSFER
 EXTERN long *pix2x;
 EXTERN long *pix2y;
@@ -735,6 +734,9 @@ EXTERN double EscapedPhotonCount[4];
 EXTERN double TotalEscapedPhotonCount[4];
 EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
+
+#include "RadiativeTransferSpectrumTable.h"
+EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 
 #endif /* TRANSFER  */
 
