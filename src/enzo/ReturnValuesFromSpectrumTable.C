@@ -33,16 +33,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6f
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 FLOAT FindCrossSection(int type, float energy);
 
 enum species {iHI, iHeI, iHeII};
@@ -112,7 +102,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
     /* return photon_fraction */
 
     if (tau > 2.e1) 
-      photon_fraction = (1.0+ROUNDOFF);
+      photon_fraction = (1.0+BFLOAT_EPSILON);
     else if (tau > 1.e-4) 
       photon_fraction = min(1 - frac_out / frac_in, 1.0);
     else
@@ -150,7 +140,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
   
     // calculate the fraction of photons absorbed at this column density
     if (tau > 2.e1) 
-      photon_fraction = (1.0+ROUNDOFF);
+      photon_fraction = (1.0+BFLOAT_EPSILON);
     else if (tau > 1.e-4) 
       photon_fraction = min((1-expf(-tau)), 1.0);
     else
