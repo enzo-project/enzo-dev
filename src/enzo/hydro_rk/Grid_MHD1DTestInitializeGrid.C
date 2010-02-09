@@ -21,7 +21,8 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 
-int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
+int grid::MHD1DTestInitializeGrid(float RampWidth,
+				  float rhol, float rhor,
 				  float vxl,  float vxr,
 				  float vyl,  float vyr,
 				  float vzl,  float vzr,
@@ -132,40 +133,25 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
 
 
   for (i = 0; i < GridDimension[0]; i++) {
-
     /* Compute position */
-
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];  // put inerface in the middle of the Domain
-    if (x <= DomainLeftEdge[0]+0.5*(DomainRightEdge[0]-DomainLeftEdge[0])) { 
-      BaryonField[iden ][i] = rhol;
-      BaryonField[ivx  ][i] = vxl;
-      BaryonField[ivy  ][i] = vyl;
-      BaryonField[ivz  ][i] = vzl;
-      BaryonField[ietot][i] = etotl;
-      if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = pl / ((Gamma-1.0)*rhol);
-      }
-      if (HydroMethod == MHD_RK) {
-	BaryonField[iBx  ][i] = Bxl;
-	BaryonField[iBy  ][i] = Byl;
-	BaryonField[iBz  ][i] = Bzl;
-	BaryonField[iPhi ][i] = 0.0;
-      }
-    } else {
-      BaryonField[iden ][i] = rhor;
-      BaryonField[ivx  ][i] = vxr;
-      BaryonField[ivy  ][i] = vyr;
-      BaryonField[ivz  ][i] = vzr;
-      BaryonField[ietot][i] = etotr;
-      if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = pr / ((Gamma-1.0)*rhor);
-      }
-      if (HydroMethod == MHD_RK) {
-	BaryonField[iBx  ][i] = Bxr;
-	BaryonField[iBy  ][i] = Byr;
-	BaryonField[iBz  ][i] = Bzr;
-	BaryonField[iPhi ][i] = 0.0;
-      }
+    //    if (x <= DomainLeftEdge[0]+0.5*(DomainRightEdge[0]-DomainLeftEdge[0])) { 
+    //    if (x <= DomainLeftEdge[0]+0.3*(DomainRightEdge[0]-DomainLeftEdge[0])) {  // hack for 0.3 of domain
+    float x0 = 3;
+    float ramp = 1./((1. + exp((2.*( x - x0)/RampWidth))));
+    BaryonField[iden ][i] = rhor + ramp*(rhol-rhor);
+    BaryonField[ivx  ][i] = vxr  + ramp*(vxl-vxr);
+    BaryonField[ivy  ][i] = vyr  + ramp*(vyl-vyr);
+    BaryonField[ivz  ][i] = vzr  + ramp*(vzl-vzr);
+    BaryonField[ietot][i] = etotr+ ramp*(etotl-etotr);
+    if (DualEnergyFormalism) {
+      BaryonField[ieint][i] = pr + ramp*(pl-pr) / ((Gamma-1.0)*BaryonField[iden ][i] );
+    }
+    if (HydroMethod == MHD_RK) {
+      BaryonField[iBx  ][i] = Bxr + ramp*(Bxl-Bxr);
+      BaryonField[iBy  ][i] = Byr + ramp*(Byl-Byr);
+      BaryonField[iBz  ][i] = Bzr + ramp*(Bzl-Bzr);
+      BaryonField[iPhi ][i] = 0.0;
     }
   }
 

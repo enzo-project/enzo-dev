@@ -59,7 +59,8 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters */
 
   int RefineAtStart   = FALSE;
-  float  LeftDensity = 1.0, RightDensity = 1.0, 
+  float  RampWidth,
+    LeftDensity = 1.0, RightDensity = 1.0, 
     LeftVelocityX = 0, RightVelocityX = 0, 
     LeftVelocityY = 0, RightVelocityY = 0, 
     LeftVelocityZ = 0, RightVelocityZ = 0,
@@ -76,6 +77,8 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
+    ret += sscanf(line, "RampWidth = %f",
+		  &RampWidth);
     ret += sscanf(line, "RefineAtStart = %d", 
 		  &RefineAtStart);
     ret += sscanf(line, "LeftVelocityX = %f",
@@ -133,6 +136,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
 
   if (UsePhysicalUnit) {
+    RampWidth /= LengthUnits;
     LeftDensity /= DensityUnits;
     RightDensity /= DensityUnits;
     LeftVelocityX  /= VelocityUnits;
@@ -153,7 +157,8 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->MHD1DTestInitializeGrid(LeftDensity, RightDensity,
+  if (TopGrid.GridData->MHD1DTestInitializeGrid(RampWidth,
+						LeftDensity, RightDensity,
 						LeftVelocityX,  RightVelocityX,
 						LeftVelocityY,  RightVelocityY,
 						LeftVelocityZ,  RightVelocityZ,
@@ -199,7 +204,8 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHD1DTestInitializeGrid(LeftDensity, RightDensity,
+	if (Temp->GridData->MHD1DTestInitializeGrid(RampWidth,
+						    LeftDensity, RightDensity,
 						    LeftVelocityX,  RightVelocityX,
 						    LeftVelocityY,  RightVelocityY,
 						    LeftVelocityZ,  RightVelocityZ, 
@@ -259,6 +265,8 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(Outfptr, "RefineAtStart      = %d\n",
 	    RefineAtStart);
+    fprintf(Outfptr, "RampWidth         = %f\n",
+	    RampWidth);
     fprintf(Outfptr, "LeftDensity       = %f\n",
 	    LeftDensity);
     fprintf(Outfptr, "RightDensity          = %f\n",

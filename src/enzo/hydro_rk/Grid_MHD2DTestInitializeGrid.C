@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1: Tom Abel 2009- added a variet of new tests
 /
 /
 ************************************************************************/
@@ -104,7 +104,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (MHD2DProblemType == 0) { 
 
     float pres, eintl, eintu, h, cs, dpdrho, dpde;
-    float delx=0.00005; // range in y over which to apply the ramp
+    float delx=RampWidth; // range in y over which to apply the ramp
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
 	/* Compute position */
@@ -121,7 +121,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  pres = pl+g*rhol*(y);
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
 	  // impose mode perturbation
-	  vyl = .01 * (1.0+cos(4.0*M_PI*(x))) * (1.0+cos(2.0/1.5*M_PI*(y))) * 0.25;
+	  vyl = 0.01 * (1.0+cos(4.0*M_PI*(x))) * (1.0+cos(2.0/1.5*M_PI*(y))) * 0.25;
 	  etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
 	  
 	  BaryonField[iden ][igrid] = rho;
@@ -758,10 +758,10 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   } // endif MHD2DProblemType == 9 
 
   /* MHD2DProblemType == 10: Modified Rayleigh-Taylor problem */
-  /* Domain goes from 0 0.1 to 0.5 0.9 */
+  /* Domain goes from 0 0 to 0.1 .9 */
   if (MHD2DProblemType == 10) { 
 
-    float pres, eintl, eintu, h, cs, dpdrho, dpde;
+    float pres, eintl, eintu, h, cs, dpdrho, dpde, vy;
     float delx=0.05; // range in y over which to apply the ramp
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
@@ -773,18 +773,19 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	float ramp,rho;
 	ramp =  1./((1.+exp(-2/delx*(y-0.5))));
 	rho = rhol + ramp*(rhou-rhol);
+	// impose mode perturbation (use LowerVelocityY in parameter file for amplitude)
+	vy = vyl * (1.0+cos(8.0*M_PI*(x+.25))) * (1.0+cos(2.0/0.4*M_PI*(y-0.5))) * 0.25;
 	if (y <= 0.5) {
 	  // Rayleigh-Taylor problem, calculate pressure from hydro equilibrium
 	  float g = ConstantAcceleration[1];
 	  pres = pl+g*rho*(y-0.5);
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
-	  // impose mode perturbation
-	  vyl = 0.7 * (1.0+cos(4.0*M_PI*(x+.25))) * (1.0+cos(2.0/.8*M_PI*(y-0.5))) * 0.25;
-	  etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
+	  if (y < 0.3) vy = 0.; // perturbation only at the lower half
+	  etotl = eintl + 0.5*(vxl*vxl + vy*vy) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
 	  
 	  BaryonField[iden ][igrid] = rho;
 	  BaryonField[ivx  ][igrid] = vxl;
-	  BaryonField[ivy  ][igrid] = vyl;
+	  BaryonField[ivy  ][igrid] = vy;
 	  BaryonField[ivz  ][igrid] = 0.0;
 	  
 	  BaryonField[ietot][igrid] = etotl;
@@ -797,17 +798,16 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
-	} else {  // endif y<0
+	} else {  // do top     (endif y<=0.5)
 	  /* calculate pressure from hydro equilibrium */
 	  float g = ConstantAcceleration[1];
 	  pres = pl+g*rho*(y-0.5);
 	  EOS(pres, rho, eintu, h, cs, dpdrho, dpde, 0, 1);
-	  /* impose mode perturbation */
-	  vyu = 0.7 * (1.0+cos(4.0*M_PI*(x+.25))) * (1.0+cos(2.0/.8*M_PI*(y-0.5))) * 0.25;
-	  etotu = eintu + 0.5*(vxu*vxu + vyu*vyu) + 0.5*(Bxu*Bxu+Byu*Byu)/rho;
+	  if (y > 0.7) vy = 0.; // perturbation only at the lower half
+	  etotu = eintu + 0.5*(vxu*vxu + vy*vy) + 0.5*(Bxu*Bxu+Byu*Byu)/rho;
 	  BaryonField[iden ][igrid] = rho;
 	  BaryonField[ivx  ][igrid] = vxu;
-	  BaryonField[ivy  ][igrid] = vyu;
+	  BaryonField[ivy  ][igrid] = vy;
 	  BaryonField[ivz  ][igrid] = 0.0;
 	  BaryonField[ietot][igrid] = etotu;
 	  if (DualEnergyFormalism) {
@@ -826,10 +826,11 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
   /* MHD2DProblemType == 11: Uniform density with a sinusoidal shear velocity */
   /* Domain goes from 0 0 to 1 1 */
-  // Absolutely nothing happens inthis test case. Compare to SPH ... 
+  // Absolutely nothing happens in this hydro version of this test case. Compare to SPH ... 
+  // Intersting however with a y component of the field.
   if (MHD2DProblemType == 11) { 
 
-    float pres, eintl, eintu, h, cs, dpdrho, dpde;
+    float pres, eintl, eintu, h, cs, dpdrho, dpde, rad,ramp,r0,amp;
 
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
@@ -843,8 +844,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	pres = rho/Gamma; // sound speed = 1
 	EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
 	// impose mode perturbation
-	vxl = 0.5*cos(2.0*M_PI*y);
-	vyl = 0.;
+	vxl = 0.5*cos(2.0*M_PI*y) ;
+	vyl = 0.                  ;
 	etotl = eintl + 0.5*(vxl*vxl + vyl*vyl) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
 	BaryonField[iden ][igrid] = rho;
 	BaryonField[ivx  ][igrid] = vxl;
@@ -866,7 +867,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   } // if MHD2DProblemType == 11
 
   /* MHD2DProblemType == 12: Uniform density with two spherical central
-   overpressured regions launching sound waves. Perioidc boundaries. */
+   overpressured regions launching sound waves. Periodic boundaries. */
   /* Domain goes from 0 0 to 1 1 */
   if (MHD2DProblemType == 12) { 
     float pres, eintl, eintu, h, cs, dpdrho, dpde;
