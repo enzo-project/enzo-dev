@@ -23,6 +23,7 @@ c
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow, 
      &                hdcoola, hdcool, ciecoa, cieco, 
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, dsq(1,ige),
@@ -31,12 +32,14 @@ c
      &                iradshield, avgsighp, avgsighep, 
      &                avgsighe2p,itmask, iciecool,ih2optical,ifedtgas,
      &                gamma2, omask )
+#ifdef UNUSED_TABULATED_EQ
             do i=is+1,ie+1
             if(itmask(i).eqv..true..and.eqmask(i).eqv..true.)then
               geprime(i) = log10((ge(i,j,k) +
      &                   (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.0))
             endif
             enddo
+#endif
 c
 c        Look-up rates as a function of temperature for 1D set of zones
 c
@@ -111,12 +114,11 @@ c                  write(0,*) H2Ifrac(i), 1.0-H2Ifrac(i)
             endif
 #endif
 #ifdef PYFORT
-c            write(0,*) iter,inneriter, itererror
+c            write(0,*) iter,inneriter
 #endif
             do i=is+1, ie+1
             if(itmask(i).eqv..true.)then
             if(doupdate.eqv..true.)then
-              itererror = d(i,j,k)
               correctHe(i) = (1.0-fh) * d(i,j,k)
      &                    / ( s(i,iHeI) + s(i,iHeII) + s(i,iHeIII) )
               s(i,iHeI) = s(i,iHeI) * correctHe(i)
@@ -201,10 +203,8 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               rejected(i) = .false.
               if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.1)then
                 rejected(i)=.true.
+                esterr(i) = max(esterr(i), 1.01)
               endif
-c              if(rejected(i).eqv..true.)then
-c                esterr(i) = max(esterr(i), 1.1)
-c              endif
             endif
             endif
             enddo
