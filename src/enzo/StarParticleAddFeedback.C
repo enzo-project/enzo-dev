@@ -43,7 +43,7 @@ int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
 
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars, bool* &AddedFeedback)
+			    Star* &AllStars, bool* &AddedFeedback)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
@@ -78,21 +78,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  /* Initialize the AddedFeedback flag array */
-  
-  int TotalNumberOfStars = 0;
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar)
-    TotalNumberOfStars++;
-  if (TotalNumberOfStars > 0)
-    AddedFeedback = new bool[TotalNumberOfStars];
-
   count = 0;
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 
     AddedFeedback[count] = false;
-
-//    if (debug)
-//      cstar->PrintInfo();
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
@@ -197,7 +186,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     AddedFeedback[count] = true;
 
-    //#ifdef UNUSED
+#ifdef UNUSED
     temp_int = CellsModified;
     MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
 	       MPI_COMM_WORLD);
@@ -215,10 +204,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 		"Energy = %"GSYM"  , skip = %"ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);
       fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-	      "changed %"ISYM" cells.\n", 
-	      cstar->ReturnID(), level, CellsModified);
+	      "changed %"ISYM" cells.  AddedFeedback[%d] = %d\n", 
+	      cstar->ReturnID(), level, CellsModified, 
+	      count, AddedFeedback[count]);
     }
-    //#endif
+#endif
     
   } // ENDFOR stars
 

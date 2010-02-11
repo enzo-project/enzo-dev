@@ -113,7 +113,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	   FractionalCPUTime, ReturnWallTime(), CurrentCPUTime, 
 	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
   if (CurrentCPUTime + MetaData.LastCycleCPUTime > 
-      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0) {
+      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
+      WroteData == FALSE) {
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     if (debug) printf("CPUtime-based output!\n");
 //#ifdef USE_HDF5_GROUPS
