@@ -126,7 +126,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 
           /* Number */
           dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                  1, dims, ENPY_INT, ParticleNumber);
+                  1, dims, ENPY_PINT, ParticleNumber);
           dataset->flags &= ~NPY_OWNDATA;
           PyDict_SetItemString(grid_data, "particle_index",
               (PyObject*) dataset);

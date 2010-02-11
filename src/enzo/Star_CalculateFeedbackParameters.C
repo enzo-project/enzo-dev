@@ -51,8 +51,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   int igrid[MAX_DIMENSION], dim, index;
   int size=1;
-  float c_s, mu, number_density, old_mass, delta_mass, mdot, mdot_Edd, mdot_UpperLimit, v_rel, dvel;
-  float *temperature, density;
+  float mdot;
 
   Radius = 0.0;
   EjectaDensity = 0.0;
@@ -97,7 +96,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     Radius = max(Radius, 2*StarLevelCellWidth);
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
-    Delta_SF = Mass * SNe_dt * TimeUnits / (16.0*Myr);
+    Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;
@@ -106,115 +105,61 @@ void Star::CalculateFeedbackParameters(float &Radius,
     break;
 
   case MBH_THERMAL:
+    if (this->type != MBH) 
+      ENZO_FAIL("");
+
+    /* find mdot */
+    mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
+    
+    /* Inject energy into a sphere */
+    Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
+    Radius = max(Radius, 2*StarLevelCellWidth);
+
+    /* Only EjectaVolume is in physical units; all others are in code units. */
+    EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
+    EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
+      EjectaVolume / DensityUnits; 
+    EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; 
+
+    /* When injected energy is uniform throughout the volume;
+       The unit of EjectaThermalEnergy is ergs/cm3 = (cm^2/s^2) * (g/cm3).
+       This value will be recalibrated in RecalibrateMFTR */
+    EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
+      mdot * Msun * c * c * dtForThisStar * TimeUnits / 
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits); 
+
+#ifdef CONSTANT_SPECIFIC
+    /* When injected energy is proportional to the cell mass;
+       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
+    EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
+      mdot * Msun * c * c * dtForThisStar * TimeUnits / 
+      (4.0/3.0 * PI * pow(-MBHFeedbackThermalRadius, 3) * Msun) / (VelocityUnits * VelocityUnits);
+#endif    
+
+    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
+
+#ifdef SEDOV_TEST
+    // For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
+//    EjectaDensity = 0.0;
+//    EjectaThermalEnergy = 1.0e50 /
+//      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+    
+    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
+    EjectaDensity = 0.0;
+    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
+      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
+#endif
+
+    break;
+
   case MBH_JETS:
-    if (this->type != MBH || this->CurrentGrid ==  NULL) break;
-
-    /**********************************************
-                     CALCULATE mdot
-    **********************************************/
-
-    /* [1] Method 1
-       Use DeltaMass calculated in the previous timestep in Star_CalculateMassAccretion.C
-       This turned out to be unsuccessful, however. */
-
-    // mdot = this->DeltaMass / CurrentGrid->dtFixed / TimeUnits; // in Msun/sec
-
-    /* [2] Method 2
-       Use code snippets from Star_CalculateMassAccretion.C. (many comments omitted) 
-       This is redundant, but for now, works great!  */
-
-    /* Find fields: density, total energy, velocity1-3. */    
-    if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-						Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    if (this->type != MBH) 
       ENZO_FAIL("");
-    }
 
-    /* Find Multi-species fields. */
-    if (MultiSpecies)
-      if (CurrentGrid->
-	  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
-				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
-	  == FAIL) {
-	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-	ENZO_FAIL("");
-      }
-
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      size *= CurrentGrid->GridDimension[dim];
-      igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-	CurrentGrid->CellWidth[0][0];
-    }
-
-    temperature = new float[size];
-    if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in ComputeTemperatureField.\n");
-      ENZO_FAIL("");
-    }
-
-    // Calculate gas density inside cell
-    index = 
-      ((igrid[2] + CurrentGrid->GridStartIndex[2]) * CurrentGrid->GridDimension[1] + 
-       igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
-      igrid[0] + CurrentGrid->GridStartIndex[0];
-    density = CurrentGrid->BaryonField[DensNum][index];
-    if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-      mu = DEFAULT_MU;
-    } else {
-      number_density = 
-	CurrentGrid->BaryonField[HINum][index] + 
-	CurrentGrid->BaryonField[HIINum][index] +
-	CurrentGrid->BaryonField[DeNum][index] +
-	0.25 * (CurrentGrid->BaryonField[HeINum][index] +
-		CurrentGrid->BaryonField[HeIINum][index] +
-		CurrentGrid->BaryonField[HeIIINum][index]);
-      if (MultiSpecies > 1)
-	number_density += 
-	  CurrentGrid->BaryonField[HMNum][index] +
-	  0.5 * (CurrentGrid->BaryonField[H2INum][index] +
-		 CurrentGrid->BaryonField[H2IINum][index]);
-      mu = density / number_density;
-    }
-    c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = (float)(this->Mass);
-
-    // Calculate gas relative velocity (cm/s)
-    v_rel = 0.0;
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      delta_vel[dim] = vel[dim] - CurrentGrid->BaryonField[Vel1Num+dim][index];
-      v_rel += delta_vel[dim] * delta_vel[dim];
-    }
-    v_rel = sqrt(v_rel) * VelocityUnits;
-
-    // Calculate accretion rate in Msun/s
-    mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 
-      (density * DensityUnits) / pow(c_s * c_s + v_rel * v_rel, 1.5);
-
-    // Don't take out too much mass suddenly; mdot should leave at least 75% of the gas in the grids.
-    mdot_UpperLimit = 0.25 * density * DensityUnits * 
-      pow(CurrentGrid->CellWidth[0][0]*LengthUnits, 3.0) / Msun / 
-      (CurrentGrid->dtFixed) / TimeUnits;
-    mdot = min(mdot, mdot_UpperLimit);
-
-    // No accretion if the BH is in some low-density and cold cell.
-    if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || MBHAccretion != 1)
-      mdot = 0.0;
-
-    if (this->type == MBH) { 
-      mdot *= MBHAccretingMassRatio;
-
-      mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
-	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
-
-      mdot = min(mdot, mdot_Edd); 
-    }
-
-    /* End of the code snippets from Star_CalculateMassAccretion.C */
-
-
-
-    // Inject energy into a sphere
+    /* find mdot */
+    mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
+    
+    /* Inject energy into a sphere */
     Radius = MBHFeedbackThermalRadius * pc / LengthUnits;
     Radius = max(Radius, 2*StarLevelCellWidth);
 
@@ -223,41 +168,23 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaVolume = 4.0/3.0 * PI * pow(Radius*LengthUnits, 3);  
     EjectaDensity = mdot * Msun * dtForThisStar * TimeUnits * MBHFeedbackMassEjectionFraction /
       EjectaVolume / DensityUnits; 
-    EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; //very fiducial
+    EjectaMetalDensity = EjectaDensity * MBHFeedbackMetalYield; 
 
     /* Now calculate the feedback parameter based on mdot estimated above.  
-       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2.  - Ji-hoon Kim  Aug.2009 */
-    EjectaThermalEnergy = MBHFeedbackThermalCoupling * MBHFeedbackRadiativeEfficiency * 
+       The unit of EjectaThermalEnergy is ergs/g = cm^2/s^2. */
+    EjectaThermalEnergy = MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * 
       mdot * Msun * c * c * dtForThisStar * TimeUnits / 
-      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits) ; //Eq.(34) in Springel (2005) 
+      (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits);
+    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
     
-
-#define NOT_SEDOV_TEST
-#ifdef SEDOV_TEST
-    /* For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
-       This is because EjectaDensity = 0 in this case; see Grid_AddFeedbackSphere.C  */
-    /*
-    EjectaDensity = 0.0;
-    EjectaThermalEnergy = 1.0e50 /
-      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-    */
-    
-    // For Ostriker & McKee test (the continuous energy injection case, variation of Sedov test)
-    EjectaDensity = 0.0;
-    EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
-      EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
-#endif
-
-    //    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
-    //            Radius = %g, mdot = %g, dtForThisStar = %g\n", 
-    //	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar); 
-
-    delete [] temperature;
-
     break;
 
   } // ENDSWITCH FeedbackFlag
   
+//    fprintf(stdout, "star::CFP:  EjectaThermalEnergy = %g, EjectaDensity = %g, 
+//                Radius = %g, mdot = %g, dtForThisStar = %g\n", 
+//    	    EjectaThermalEnergy, EjectaDensity, Radius, mdot, dtForThisStar);  
+
   return;
 }
 

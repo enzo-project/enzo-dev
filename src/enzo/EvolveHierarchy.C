@@ -102,6 +102,8 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 				      int TopGridRank, int CycleNumber);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
+int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+			  TopGridData *MetaData); 
 void PrintMemoryUsage(char *str);
 
 
@@ -264,17 +266,20 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
-  /* Particle Splitter. Split the particles into 13 (=1+12) children 
-     particles */
+  PrintMemoryUsage("1st rebuild");
+ 
+  /* Particle Splitter. Split particles into 13 (=1+12) child particles */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
       ParticleSplitterIterations > 0)
     ParticleSplitter(LevelArray, 0, &MetaData);
 
+  /* Reset magnetic fields if requested. */
+  
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ResetMagneticField == TRUE)
+    MagneticFieldResetter(LevelArray, 0, &MetaData);
 
-
-  PrintMemoryUsage("1st rebuild");
- 
   /* Open the OutputLevelInformation file. */
  
   FILE *LevelInfofptr;
@@ -327,8 +332,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Output level information to log file. */
  
-    if (MyProcessorNumber == ROOT_PROCESSOR)
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
+      if (LevelInfofptr == NULL)
+        ENZO_FAIL("Can't open OutputLevelInformation.out!");
+    }
 
     // OutputLevelInformation() only needs to be called by all processors
     // when lcaperf is enabled.
@@ -351,15 +359,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       }
 
       dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
+      dt = min(MetaData.MaximumTopGridTimeStep, dt);
 
-    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
-    dt = min(MetaData.MaximumTopGridTimeStep, dt);
-
-    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
-    if (Initialdt != 0) {
-      
-      dt = min(dt, Initialdt);
       if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
+      if (Initialdt != 0) {
+      
+	dt = min(dt, Initialdt);
+	if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
         dtPhoton = dt;
 #endif

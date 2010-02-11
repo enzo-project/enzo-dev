@@ -769,7 +769,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
 	/* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
 	
-	int *tempint = new int[NumberOfParticles];
+	PINT *tempPINT = new PINT[NumberOfParticles];
 	
 	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -781,7 +781,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
 	if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
 	
-	h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+	h5_status = H5Dread(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempPINT);
 	if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
 	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 	
@@ -794,11 +794,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 	
 	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleNumber[i] = tempint[i];
+	  ParticleNumber[i] = tempPINT[i];
 	
 	// Read ParticleType if present
 	
 	if (ParticleTypeInFile == TRUE) {
+
+	  int *tempint = new int[NumberOfParticles];
 	  
 	  /* Read ParticleType into temporary buffer and Copy to ParticleType. */
 	  
@@ -834,6 +836,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 		      name, i, ParticleType[i]);
 	      ENZO_FAIL("");
 	    }
+
+	  delete [] tempint;
 	  
 	} else {
  
@@ -883,7 +887,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	} // ENDELSE AddParticleAttributes 
 	
 	delete [] temp;
-	delete [] tempint;
+	delete [] tempPINT;
       } // (TryHDF5)
 
  

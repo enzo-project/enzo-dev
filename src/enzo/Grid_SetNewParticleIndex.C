@@ -23,7 +23,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-void grid::SetNewParticleIndex(int &NumberCount1, int &NumberCount2)
+void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
 {
   int n, abstype;
   for (n = 0; n < NumberOfParticles; n++) 

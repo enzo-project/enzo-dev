@@ -317,7 +317,7 @@ int OutputAsParticleData(TopGridData &MetaData,
       for (j = 0; j < FullList.NumberOfValues; j++)
 	FullList.ParticleValue[j] = new float[TotalNumberOfParticles[i]];
       if (i == 1)
-	FullList.ParticleIndex = new int[TotalNumberOfParticles[i]];
+	FullList.ParticleIndex = new PINT[TotalNumberOfParticles[i]];
  
       /* Copy grid lists into the full list. */
  
@@ -702,7 +702,7 @@ int OutputAsParticleData(TopGridData &MetaData,
  
       if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n", dset_name);
  
-      dset_id = H5Dcreate(file_id, dset_name, HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
+      dset_id = H5Dcreate(file_id, dset_name, HDF5_FILE_PINT, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
@@ -722,7 +722,7 @@ int OutputAsParticleData(TopGridData &MetaData,
         if (io_log) fprintf(log_fptr, "H5Sselect file slab: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      h5_status = H5Dwrite(dset_id, int_type_id, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) FullList.ParticleIndex);
+      h5_status = H5Dwrite(dset_id, HDF5_PINT, mem_dsp_id, file_dsp_id,  H5P_DEFAULT, (VOIDP) FullList.ParticleIndex);
         if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  

@@ -40,14 +40,12 @@
 #include "fortran.def"
 #include "CommunicationUtilities.h"
 
-#define CONTAINED_WITHIN_PARENT_OFF
- 
 // Function prototypes
  
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
  
 // Cosmology Parameters (that need to be shared)
@@ -738,7 +736,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
  
  
-void NestedRecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count);
+void NestedRecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
  
  
 // Re-call the initializer on level zero grids.
@@ -876,7 +874,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   // Create tracer particles
  
-  int DummyNumberOfParticles = 0;
+  PINT DummyNumberOfParticles = 0;
  
   Temp = TopGrid;
  
@@ -928,12 +926,12 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   // Loop over grids and set particle ID number
  
   Temp = TopGrid;
-  int ParticleCount = 0;
+  PINT ParticleCount = 0;
  
   NestedRecursivelySetParticleCount(Temp, &ParticleCount);
  
   if (debug)
-    printf("FinalParticleCount = %"ISYM"\n", ParticleCount);
+    printf("FinalParticleCount = %"PISYM"\n", ParticleCount);
  
   MetaData.NumberOfParticles = ParticleCount;
 
@@ -944,6 +942,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
   bool match;
   int level, Rank, TempDims[MAX_DIMENSION];
+  FLOAT GridCenter[MAX_DIMENSION];
   LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
   LevelHierarchyEntry *CArray, *PArray;
   HierarchyEntry *Current, *Parent;  // For convenience
@@ -974,6 +973,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
       Current = CArray->GridHierarchyEntry;
       Current->GridData->ReturnGridInfo(&Rank, TempDims, LeftEdge, RightEdge);
+      for (dim = 0; dim < Rank; dim++)
+	GridCenter[dim] = 0.5*(LeftEdge[dim] + RightEdge[dim]);
 
       // Look for parents in level-1
       for (PArray = LevelArray[level-1]; PArray; 
@@ -989,13 +990,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-#ifdef CONTAINED_WITHIN_PARENT
-	  match &= LeftEdge[dim] >= LeftParent[dim] &&
-	    RightEdge[dim] <= RightParent[dim];
-#else
-	  match &= LeftEdge[dim] < RightParent[dim] && 
-	    RightEdge[dim] > LeftParent[dim];
-#endif
+	  match &= (GridCenter[dim] > LeftParent[dim]) &&
+	    (GridCenter[dim] < RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;
@@ -1014,7 +1010,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
  
  
-void NestedRecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count)
+void NestedRecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count)
 {
   // Add Count to the particle id's on this grid (which start from zero
   // since we are doing a parallel root grid i/o)

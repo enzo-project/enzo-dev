@@ -108,7 +108,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionH2I,
 			  float CosmologySimulationInitialFractionH2II,
 			  int   UseMetallicityField,
-			  int  &CurrentParticleNumber,
+			  PINT &CurrentParticleNumber,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions)

@@ -60,6 +60,13 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, " 64 bit Integer version\n");
 #endif
 
+#ifdef CONFIG_PINT_4
+    fprintf(opf, " 32 bit Integers for particle indices\n");
+#endif
+#ifdef CONFIG_PINT_8
+    fprintf(opf, " 64 bit Integers for particle indices\n");
+#endif
+
 #ifdef INITS32
     fprintf(opf, " 32 bit Integer initial conditions\n");
 #endif
@@ -191,6 +198,12 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Flux fix for subgrid siblings enabled\n");
 #else
     fprintf(opf, "  Flux fix for subgrid siblings disabled\n");
+#endif
+
+#ifdef NEW_GRID_IO
+    fprintf(opf, "  New Grid I/O enabled\n");
+#else
+    fprintf(opf, "  New Grid I/O disabled\n");
 #endif
 
 

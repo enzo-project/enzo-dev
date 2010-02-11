@@ -34,7 +34,7 @@
  
  
 int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
-					FLOAT Spacing, int &TotalParticleCount)
+					FLOAT Spacing, PINT &TotalParticleCount)
 {
  
  
@@ -82,7 +82,8 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
   FLOAT *TempPos[MAX_DIMENSION];
   float *TempVel[MAX_DIMENSION], *TempMass,
         *TempAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  int *TempNumber, *TempType;
+  PINT *TempNumber;
+  int  *TempType;
  
   TempMass = ParticleMass;
   TempNumber = ParticleNumber;

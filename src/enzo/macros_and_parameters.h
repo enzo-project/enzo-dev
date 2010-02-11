@@ -204,6 +204,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_4
+#define BFLOAT_EPSILON 1e-6f
 #define Eflt float
 #define FSYM "f"
 #define ESYM "e"
@@ -219,9 +220,11 @@ typedef int            HDF5_hid_t;
 #define ENPY_BFLOAT NPY_FLOAT
 #define enpy_bfloat npy_float
 #endif
+#define 
 #endif
 
 #ifdef CONFIG_BFLOAT_8
+#define BFLOAT_EPSILON 1e-12f
 #define Eflt double
 #define FSYM "lf"
 #define ESYM "le"
@@ -229,13 +232,7 @@ typedef int            HDF5_hid_t;
 #define float32 TEMP_HOLD_NAME
 #define float double
 #define TEMP_HOLD_NAME float32
-#ifdef COMPACT_IO
 #define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R4
-#else
-#define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R8
-#endif
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
 #define enpy_bfloat npy_double
@@ -243,6 +240,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_4
+#define PFLOAT_EPSILON 1e-6f
 #define FLOAT Eflt32
 #define PEXP expf
 #define PSYM "f"
@@ -251,7 +249,7 @@ typedef int            HDF5_hid_t;
 #define MY_MPIFLOAT MPI_FLOAT
 #define FLOATDataType MPI_FLOAT
 #define HDF5_PREC HDF5_R4
-#define HDF5_FILE_PREC HDF5_FILE_R4
+#define HDF5_FILE_PREC HDF5_R4
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_FLOAT
 #define enpy_pfloat npy_float
@@ -259,6 +257,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_8
+#define PFLOAT_EPSILON 1e-12f
 #define FLOAT double
 #define PEXP exp
 #define PSYM "lf"
@@ -275,6 +274,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_16
+#define PFLOAT_EPSILON 1e-16f
 #define FLOAT long_double
 #define PEXP expl
 #define PSYM "Lf"
@@ -290,6 +290,26 @@ typedef int            HDF5_hid_t;
 #endif
 #endif
 
+/* Definitions for controlling the integer type for particle IDs
+   (8-byte needed for >2 billion particle simulations) */
+
+#ifdef CONFIG_PINT_4
+#define PINT Eint32
+#define PINTDataType MPI_INT
+#define HDF5_PINT HDF5_I4
+#define HDF5_FILE_PINT HDF5_FILE_I4
+#define PISYM "d"
+#define ENPY_PINT NPY_INT
+#endif
+
+#ifdef CONFIG_PINT_8
+#define PINT Eint64
+#define PINTDataType MPI_LONG_LONG_INT
+#define HDF5_PINT HDF5_I8
+#define HDF5_FILE_PINT HDF5_FILE_I8
+#define PISYM "lld"
+#define ENPY_PINT NPY_LONG
+#endif
 
 /* Standard definitions (well, fairly standard) */
 
