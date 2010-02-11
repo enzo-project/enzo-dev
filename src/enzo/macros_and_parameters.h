@@ -220,7 +220,6 @@ typedef int            HDF5_hid_t;
 #define ENPY_BFLOAT NPY_FLOAT
 #define enpy_bfloat npy_float
 #endif
-#define 
 #endif
 
 #ifdef CONFIG_BFLOAT_8
