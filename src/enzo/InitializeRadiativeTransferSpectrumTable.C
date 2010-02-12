@@ -12,6 +12,8 @@
 /  RETURNS: SUCCESS or FAIL
 /
 ************************************************************************/
+
+#ifdef TRANSFER
  
 #include <string.h>
 #include <stdio.h>
@@ -68,3 +70,5 @@ int InitializeRadiativeTransferSpectrumTable(FLOAT Time)
 
   return SUCCESS;
 }
+
+#endif

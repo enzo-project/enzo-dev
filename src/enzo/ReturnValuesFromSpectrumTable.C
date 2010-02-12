@@ -20,6 +20,8 @@
 /
 /************************************************************************/
 
+#ifdef TRANSFER
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -159,3 +161,5 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
 
 
 }
+
+#endif
