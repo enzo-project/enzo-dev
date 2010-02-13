@@ -70,6 +70,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
+  MetaDataIdentifier       = NULL;
  
   MetaData.MaximumTopGridTimeStep = huge_number;
 
@@ -385,17 +386,21 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun
-  MBHAccretion                     = TRUE;
+  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
+  MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
-  MBHFeedback                      = FALSE;        // 1: isotropic thermal feedback, 2: bipolar kinetic jets
-  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
-  MBHFeedbackThermalCoupling       = 0.05;         // Springel (2005), Di Matteo (2005)
-  MBHFeedbackThermalRadius         = 50;           // pc
-  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackJetsMassLoadingFactor = 250;          // eta, check Star_AddFeedbackSphere.C
+  MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
+  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretiob = 3
   MBHTurnOffStarFormation          = FALSE;        // check Grid_StarParticleHandler.C
   MBHCombineRadius                 = 50;           // pc
+
+  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
+  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
+  MBHFeedbackEnergyCoupling        = 0.05;         // Springel (2005), Di Matteo (2005)
+  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
+  MBHFeedbackThermalRadius         = 50;           // pc
+  MBHFeedbackJetsThresholdMass     = 10;           // Msun
 
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;
@@ -621,6 +626,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
+
+  /* Magnetic Field Resetter */
+
+  ResetMagneticField = FALSE;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    ResetMagneticFieldAmplitude[dim] = 0.0;   // in Gauss
+  }  
 
   VelAnyl                     = 0;
   BAnyl                     = 0;

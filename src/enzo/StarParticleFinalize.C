@@ -42,6 +42,9 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 int StarParticleAccretion(TopGridData *MetaData, 
 			  LevelHierarchyEntry *LevelArray[], int level, 
 			  Star *&AllStars);
+int StarParticleSubtractAccretedMass(TopGridData *MetaData, 
+				     LevelHierarchyEntry *LevelArray[], int level, 
+				     Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
@@ -86,7 +89,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   StarParticleAddFeedback(MetaData, LevelArray, level, 
 			  AllStars, AddedFeedback);
-  
+
   /* Update star particles for any accretion */
 
   StarParticleAccretion(MetaData, LevelArray, level, AllStars);
@@ -105,6 +108,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       fprintf(stdout, "SinkParticle: Time = %"GOUTSYM", TotalMass = %"GSYM"\n", 
 	      TimeNow, TotalMass);
   }
+
+  /* Subtract gas from the grids that has accreted on to the star particles */
+
+  StarParticleSubtractAccretedMass(MetaData, LevelArray, level, AllStars);  
 
   /* Check for any stellar deaths */
 

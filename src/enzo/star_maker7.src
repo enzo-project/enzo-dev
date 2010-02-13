@@ -152,7 +152,7 @@ c
 c
 c              0) is this containing a MBH particle?
                if (i .eq. i_c .and. j .eq. j_c .and. k .eq. k_c) then
-                  write(6,*) 'star_maker7: the cell has a MBH; move on'
+c                  write(6,*) 'star_maker7: the cell has a MBH; move on'
                   goto 10
                endif
 c

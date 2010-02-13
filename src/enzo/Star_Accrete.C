@@ -53,16 +53,21 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
+  
+//  printf("star::Accrete: old_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
+  double old_mass = Mass;
   Mass += (double)(DeltaMass);
   FinalMass += (double)(DeltaMass);
-//  printf("star::Accrete: Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass);
+//  printf("star::Accrete: new_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
 
-  /* Conserve momentum: change star particle velocity due to accreted
-     material */
-  /* Below was an approximation for DetalMass <<1; Now this is
-     accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim,
-     Sep.2009 */
-  /* We can still do this for star formation (JHW, Jan10) */
+
+  /* Conserve momentum: change star particle velocity due to accreted material */
+
+  /* [1] For BlackHole, 
+     it is now accurately done in Star_SubtractAccretedMassFromCell */
+
+  /* [2] For Star Formation, 
+     We can still do this in approximate way (JHW, Jan10) */
 
   double ratio1, ratio2, new_vel;
 
@@ -79,8 +84,21 @@ int Star::Accrete(void)
     }
   }
 
-  /* Keep the last accretion_rate for computing photon rates later on
-     (see Star_ComputePhotonRates.C) */
+  /* [3] For MBH, 
+     because gas mass is added to MBH from many cells with zero net momentum,
+     just decrease the particle's velocity accordingly. */
+
+  if (type == MBH) {
+//    printf("star::Accrete: old_vel[1] = %g\n", vel[1]);
+    vel[0] *= old_mass / Mass; 
+    vel[1] *= old_mass / Mass;
+    vel[2] *= old_mass / Mass; 
+//    printf("star::Accrete: old_mass = %lf  ->  Mass = %lf\n", old_mass, Mass); 
+//    printf("star::Accrete: new_vel[1] = %g\n", vel[1]);
+  }
+
+
+  /* Keep the last accretion_rate for future use */
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 

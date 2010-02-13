@@ -72,6 +72,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   hsize_t     GMFOutDims[MAX_DIMENSION];
   hsize_t     OutDims[MAX_DIMENSION];
+  hsize_t     FullOutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[1];
  
   herr_t      h5_status;
@@ -156,6 +157,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     WriteListOfFloats(fptr, GridRank, GridRightEdge);
  
     fprintf(fptr, "Time              = %"GOUTSYM"\n", Time);
+
+    if(WriteEverything == TRUE)
+    fprintf(fptr, "OldTime           = %"GOUTSYM"\n", OldTime);
  
     fprintf(fptr, "SubgridsAreStatic = %"ISYM"\n", SubgridsAreStatic);
  
@@ -220,9 +224,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   if( group_id == h5_error ){ENZO_FAIL("IO Problem creating Grid Group");}
 
   if(WriteEverything == TRUE) {
+    FLOAT dtFixedCopy = this->dtFixed;
     old_fields = H5Gcreate(group_id, "OldFields", 0);
-    writeScalarAttribute(old_fields, HDF5_REAL, "Time", &this->Time);
-    writeScalarAttribute(old_fields, HDF5_REAL, "OldTime", &this->OldTime);
+    writeScalarAttribute(old_fields, HDF5_PREC, "Time", &this->Time);
+    writeScalarAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime);
+    writeScalarAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy);
   }
  
   /* ------------------------------------------------------------------- */
@@ -232,8 +238,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     /* 2a) Set HDF file dimensions (use FORTRAN ordering). */
  
-    for (dim = 0; dim < GridRank; dim++)
+    for (dim = 0; dim < GridRank; dim++) {
       OutDims[GridRank-dim-1] = ActiveDim[dim];
+      FullOutDims[GridRank-dim-1] = GridDimension[dim];
+      GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
+    }
  
     /* 2b) Write out co-ordinate values.  Use the centre of each cell. */
  
@@ -249,17 +258,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     for (field = 0; field < NumberOfBaryonFields; field++) {
 
-      this->write_dataset(GridRank, OutDims, DataLabel[field],
-                    group_id, file_type_id, (VOIDP) BaryonField[field],
-                    CopyOnlyActive, temp);
+      if(WriteEverything == FALSE) {
 
-      if(WriteEverything == TRUE) {
+        this->write_dataset(GridRank, OutDims, DataLabel[field],
+            group_id, file_type_id, (VOIDP) BaryonField[field],
+            CopyOnlyActive, temp);
+
+      } else {
+
+        this->write_dataset(GridRank, FullOutDims, DataLabel[field],
+            group_id, file_type_id, (VOIDP) BaryonField[field],
+            FALSE);
 
         /* In this case, we write the OldBaryonField, too */
 
-        this->write_dataset(GridRank, OutDims, DataLabel[field],
-                      old_fields, file_type_id, (VOIDP) OldBaryonField[field],
-                      CopyOnlyActive, temp);
+        this->write_dataset(GridRank, FullOutDims, DataLabel[field],
+            old_fields, file_type_id, (VOIDP) OldBaryonField[field],
+            FALSE);
 
       }
  
@@ -278,34 +293,21 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           /* If we're to write everything, we must also write 
              the AccelerationField */
 
-          size = 1;
-          for (dim = 0; dim < GridRank; dim++) size *= GridDimension[dim];
-
           for(dim = 0; dim < GridRank; dim++) {
             snprintf(node_name, 254, "AccelerationField%"ISYM"", dim);
-            this->write_dataset(GridRank, OutDims, node_name,
+            this->write_dataset(GridRank, FullOutDims, node_name,
                 acc_node, file_type_id, (VOIDP) AccelerationField[dim],
-                CopyOnlyActive, temp);
+                FALSE);
           }
 
           H5Gclose(acc_node);
         }
         if(GravitatingMassField != NULL) {
-          size = 1;
-          for (dim = 0; dim < GridRank; dim++) {
-            size *= GravitatingMassFieldDimension[dim];
-            GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
-          }
           this->write_dataset(GridRank, GMFOutDims, "GravitatingMassField",
               group_id, file_type_id, (VOIDP) GravitatingMassField,
               FALSE);
         }
         if(PotentialField != NULL) {
-          size = 1;
-          for (dim = 0; dim < GridRank; dim++) {
-            size *= GravitatingMassFieldDimension[dim];
-            GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
-          }
           this->write_dataset(GridRank, GMFOutDims, "PotentialField",
               group_id, file_type_id, (VOIDP) PotentialField,
               FALSE);

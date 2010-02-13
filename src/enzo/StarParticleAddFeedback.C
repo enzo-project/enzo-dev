@@ -37,6 +37,10 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[], 
+					int level, float &Radius, 
+					double &EjectaDensity, double &EjectaMetalDensity,
+					double &EjectaThermalEnergy);
 int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
 #ifdef USE_MPI
 #endif /* USE_MPI */
@@ -52,7 +56,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   Star *cstar;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy, count;
-  float influenceRadius, RootCellWidth, SNe_dt;
+  float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
   LevelHierarchyEntry *Temp;
@@ -86,16 +90,22 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
 	(!cstar->ApplyFeedbackTrue(SNe_dt)))
-      continue;
+      continue;  
 
-    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+    dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 	  
     /* Compute some parameters */
+
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
            SNe_dt, EjectaDensity, EjectaThermalEnergy, EjectaMetalDensity, 
 	   DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
 	   VelocityUnits, dtForThisStar);
 
+    /* Recalibrate MBHFeedbackThermalRadius if requested */
+
+    if (cstar->ReturnFeedbackFlag() == MBH_THERMAL)    
+      RecalibrateMBHFeedbackThermalRadius(cstar->ReturnPosition(), LevelArray, level, influenceRadius, 
+					  EjectaDensity, EjectaMetalDensity, EjectaThermalEnergy);
 
     /* Determine if a sphere with enough mass (or equivalently radius
        for SNe) is enclosed within grids on this level */
@@ -142,13 +152,11 @@ int StarParticleAddFeedback(TopGridData *MetaData,
       }
     }
 
-
 //    if (debug) {
 //      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
 //      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
 //	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
 //    }
-
 
     /* Quit this routine when 
        (1) sphere is not contained, or 
@@ -171,10 +179,20 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
 	     EjectaMetalDensity, EjectaThermalEnergy, CellsModified);
 
-    /*    
-    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-	    "Radius = %e pc, changed %"ISYM" cells.\n", 
-	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
+//    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
+//	    "Radius = %e pc, changed %"ISYM" cells.\n", 
+//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
+
+    /* Remove mass from the star that is added to grids. Also, because EjectaDensity 
+       is added with zero net momentum, increase the particle's velocity accordingly. 
+       Only for MBH_JETS; currently this is done in Grid_AddFeedbackSphere.C */
+
+    /*
+    if (EjectaDensity != 0 && CellsModified > 0)
+      if (cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS)
+	cstar->RemoveMassFromStarAfterFeedback(influenceRadius, EjectaDensity, 
+					       DensityUnits, LengthUnits, CellsModified);
     */
 
     /* Only kill a Pop III star after it has gone SN */

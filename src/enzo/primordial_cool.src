@@ -247,7 +247,7 @@ c#define OLDGAMMA2
            oldgamma2(i) = gamma
            do inneriter=1,1
              x = log10(tgas(i))
-             if(nH2/nother.lt.-1.0e-3.or.tgas(i).lt.50)then
+             if(nH2/nother.lt.-1.0e-3.or.tgas(i).lt.-50)then
                gamma2(i) = 2.5 !gamma
              else
                gamma2(i) = g2p(1)*exp(-(x-g2p(2))**2.0/g2p(3))
@@ -445,6 +445,7 @@ c
          do i = is+1, ie+1
 
             if (itmask(i)) then
+            fudge = 1.0d0
             if (ih2optical.eq.1) then
 c
 c            nH2 = 0.5*H2I(i)
@@ -543,7 +544,7 @@ c     Only calculate if H2I(i) is a substantial fraction
                 tau = max(tau, 1.e-5)
                 ciefudge = min((1.-exp(-tau))/tau,1.0)
 c               Matt's attempt at a second exponentialier cutoff
-                tau = ((d(i,j,k)/2e18)*dom)**8.0  ! 2e16 is in units of cm^-3
+                tau = ((d(i,j,k)/2e18)*dom)**8.0d0  ! 2e16 is in units of cm^-3
                 tau = max(tau, 1.e-5)
                 ciefudge = ciefudge*min((1.-exp(-tau))/tau,1.0)
 c We apply the ciefudge factor at the end, because it should apply to the

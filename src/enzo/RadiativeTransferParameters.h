@@ -71,4 +71,8 @@ EXTERN int RadiativeTransferAdaptiveTimestep;
 
 EXTERN float GlobalMaximumkphIfront;
 
+/* Flag to trace the spectrum in ray tracing */
 
+EXTERN int RadiativeTransferTraceSpectrum;
+
+EXTERN char *RadiativeTransferTraceSpectrumTable;

@@ -72,7 +72,7 @@ EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:
-       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS        */
+       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
 
 EXTERN hydro_method HydroMethod;
 
@@ -533,6 +533,9 @@ EXTERN int LoadGridDataAtStart;
 /* cpu and grid file names */
 EXTERN char PrevParameterFileName[MAX_NAME_LENGTH];
 
+/* MetaData identifier string */
+EXTERN char *MetaDataIdentifier;
+
 /* Zhiling Lan's modified code */
 
 #ifdef MPI_INSTRUMENTATION
@@ -732,6 +735,9 @@ EXTERN double TotalEscapedPhotonCount[4];
 EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 
+#include "RadiativeTransferSpectrumTable.h"
+EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
+
 #endif /* TRANSFER  */
 
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -766,6 +772,11 @@ EXTERN int MoveParticlesBetweenSiblings;
 
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
+
+/* Magnetic Field Resetter */
+
+EXTERN int ResetMagneticField;
+EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 
 /* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
 

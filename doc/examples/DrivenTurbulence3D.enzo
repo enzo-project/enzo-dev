@@ -61,7 +61,7 @@ EOSType                     = 0
 #
 # problem parameters
 #
-
+UsePhysicalUnit = 1
 LengthUnits = 3.086e19           // 10 parsec box
 DensityUnits = 1.67e-22          // 100/cm^3 particles
 TimeUnits = 1.543e14             // 1 = crossing time at mach 10
