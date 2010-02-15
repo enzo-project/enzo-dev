@@ -302,7 +302,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     return SUCCESS;
  
   /* First, set under_subgrid field */
-
   HierarchyEntry *Subgrid;
   this->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
   for (Subgrid = SubgridPointer; Subgrid; Subgrid = Subgrid->NextGridThisLevel)
@@ -774,7 +773,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
           tg->ParticleType[i] = NormalStarType;
     } 
 
-    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
 
       //---- Springel & Hernquist 2003 SF algorithm
 
