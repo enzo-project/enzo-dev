@@ -43,10 +43,11 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 
   int death;
   FLOAT TimeNow;
-  Star *ThisStar, *MoveStar;
+  Star *ThisStar, *MoveStar, *LastStar;
 
   ThisStar = AllStars;
   AllStars = NULL;
+  LastStar = NULL;
   while (ThisStar) {
     TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     //TimeNow = LevelArray[level]->GridData->ReturnTime();
@@ -60,8 +61,15 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
       MoveStar->DeleteCopyInGrid();
       MoveStar->DeleteParticle(LevelArray);
       DeleteStar(MoveStar);
-    } else
-      InsertStarAfter(AllStars, MoveStar);
+    } else {
+      // Re-insert at the end of the list to keep the ordering the
+      // same (for AddedFeedback array)
+      if (LastStar == NULL)
+	InsertStarAfter(AllStars, MoveStar);
+      else
+	InsertStarAfter(LastStar, MoveStar);
+      LastStar = MoveStar;
+    }
 
   } // ENDWHILE stars
 

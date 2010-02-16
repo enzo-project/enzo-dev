@@ -29,16 +29,6 @@
 #include "CosmologyParameters.h"
 #include "RadiativeTransferHealpixRoutines.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6f
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
 #define MIN_TAU_IFRONT 0.1
@@ -153,8 +143,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     // Zeros in y&z directions possible
     if (dim > 0)
-      if (fabs(u[dim]) < ROUNDOFF)
-	u[dim] = u_sign[dim]*ROUNDOFF;
+      if (fabs(u[dim]) < PFLOAT_EPSILON)
+	u[dim] = u_sign[dim]*PFLOAT_EPSILON;
 
     u_inv[dim] = 1.0 / u[dim];
 
@@ -348,7 +338,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	min_dr = dri[dim];
       }
 
-    radius = min_dr + ROUNDOFF;
+    radius = min_dr + PFLOAT_EPSILON;
     dr = radius - oldr;
 
     if (dr < 0) {
@@ -378,7 +368,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       // move it at least a tiny fraction of the grid cell to not have
       // to worry about round off errors shifting photons back and
       // forth between two grids without doing anything.
-      (*PP)->Radius += ROUNDOFF;
+      (*PP)->Radius += PFLOAT_EPSILON;
       return SUCCESS;
     }
 
@@ -425,7 +415,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // make r=PauseRadius and return.
     if ((*PP)->Radius+ddr > PauseRadius) {
       fraction = (PauseRadius-(*PP)->Radius) / ddr;
-      fraction = max(fraction, ROUNDOFF);
+      fraction = max(fraction, PFLOAT_EPSILON);
       //fraction = min(fraction,0.1);
       //fraction = 1.0;
       ddr *= fraction;
@@ -449,7 +439,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     /* Geometric correction factor because the ray's solid angle could
        not completely cover the cell */
 
-    midpoint = oldr + 0.5f*ddr - ROUNDOFF;
+    midpoint = oldr + 0.5f*ddr - PFLOAT_EPSILON;
     nearest_edge = -1e20;
     for (dim = 0; dim < 3; dim++)
       m[dim] = fabs(s[dim] + midpoint * u[dim] - (ce[dim] + dxhalf));
@@ -501,7 +491,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	}
 
 	// at most use all photons for photo-ionizations
-	if (tau > 2.e1) dPi[i] = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPi[i] = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
 	  dPi[i] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
@@ -591,7 +581,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	tau = dN*sigma[i];
 
 	// at most use all photons for photo-ionizations
-	if (tau > 2.e1) dPXray[i] = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPXray[i] = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
 	  dPXray[i] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
@@ -625,7 +615,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	tau = dN*sigma[3];
 
 	// at most use all photons for Compton scattering
-	if (tau > 2.e1) dPXray[3] = (1.0+ROUNDOFF) * (*PP)->Photons;
+	if (tau > 2.e1) dPXray[3] = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
 	else if (tau > 1.e-4) 
 	  dPXray[3] = min((*PP)->Photons*(1-expf(-tau)), (*PP)->Photons);
 	else
