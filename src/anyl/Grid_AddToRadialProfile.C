@@ -540,19 +540,19 @@ int grid::AddToRadialProfile(FLOAT SphereCenter[MAX_DIMENSION],
 		ProfileName[45] = "I_zz_gas";
 	      }
 
-              /* 46) magnitude of vorticity */
+              /* 46) magnitude of vorticity */  
 
-              ip = GRIDINDEX(i+1,j,k);
-              im = GRIDINDEX(i-1,j,k);
-              jp = GRIDINDEX(i,j-1,k);
-              jm = GRIDINDEX(i,j+1,k);
-              kp = GRIDINDEX(i,j,k-1);
-              km = GRIDINDEX(i,j,k+1);
+              ip = GRIDINDEX_NOGHOST(i+1,j,k);
+              im = GRIDINDEX_NOGHOST(i-1,j,k);
+              jp = GRIDINDEX_NOGHOST(i,j+1,k); //#####
+              jm = GRIDINDEX_NOGHOST(i,j-1,k);
+              kp = GRIDINDEX_NOGHOST(i,j,k+1);
+              km = GRIDINDEX_NOGHOST(i,j,k-1);
 
               ProfileWeight[n][46] += gas_mass;
               if (ProfileName[46] == NULL) ProfileName[46] = "Vorticity (1/s)";
 
-              double vort_x, vort_y, vort_z;
+              double vort_x = 1.0, vort_y = 1.0, vort_z = 1.0;
 
               vort_x = BaryonField[Vel3Num][jp] - BaryonField[Vel3Num][jm] -
                 BaryonField[Vel2Num][kp] + BaryonField[Vel2Num][km];

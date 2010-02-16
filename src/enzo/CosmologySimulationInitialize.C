@@ -280,9 +280,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   if (CosmologySimulationDensityName != NULL && CellFlaggingMethod[0] != 2)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationDensityName == NULL && CellFlaggingMethod[0] != 4)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationNumberOfInitialGrids > MAX_INITIAL_GRIDS) {

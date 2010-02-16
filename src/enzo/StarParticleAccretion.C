@@ -82,13 +82,6 @@ int StarParticleAccretion(TopGridData *MetaData,
       ENZO_FAIL("");
     }
 
-    /* Subtract accreted mass from grids */
-    
-    if (ThisStar->SubtractAccretedMass() == FAIL) {
-      fprintf(stderr, "Error in star::SubtractAccretedMass.\n");
-      ENZO_FAIL("");
-    }
-    
   }
 
   return SUCCESS;

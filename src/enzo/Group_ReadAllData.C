@@ -314,10 +314,18 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
       readAttribute(metadata_group, HDF5_INT, "LevelCycleCount",
           LevelCycleCount, TRUE);
       if(CheckpointRestart == TRUE) { // We only need these in a checkpoint
-        readAttribute(metadata_group, HDF5_REAL, "dtThisLevel",
-            dtThisLevel, TRUE);
-        readAttribute(metadata_group, HDF5_REAL, "dtThisLevelSoFar",
-            dtThisLevelSoFar, TRUE);
+        FLOAT dtThisLevelCopy[MAX_DEPTH_OF_HIERARCHY];
+        FLOAT dtThisLevelSoFarCopy[MAX_DEPTH_OF_HIERARCHY];
+        readAttribute(metadata_group, HDF5_PREC, "dtThisLevel",
+            dtThisLevelCopy, TRUE);
+        readAttribute(metadata_group, HDF5_PREC, "dtThisLevelSoFar",
+            dtThisLevelSoFarCopy, TRUE);
+        for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+            dtThisLevel[level] = dtThisLevelCopy[level];
+            dtThisLevelSoFar[level] = dtThisLevelSoFarCopy[level];
+        }
+        readAttribute(metadata_group, HDF5_PREC, "Time",
+            &MetaData.Time, TRUE);
       }
     } else if(CheckpointRestart == TRUE) {
       ENZO_FAIL("Couldn't open Metadata!");

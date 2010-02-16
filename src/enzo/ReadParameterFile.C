@@ -95,7 +95,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ResubmitOn  = %"ISYM, &MetaData.ResubmitOn);
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
- 
+
+    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) 
+      MetaDataIdentifier = dummy;
+
     ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
 		  &MetaData.MaximumTopGridTimeStep);
 
@@ -379,8 +382,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
     ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
     ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
-    if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) 
+    if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) {
       MetalCoolingTable = dummy;
+      ret++;
+    }
 
     ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
@@ -492,7 +497,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SimpleConstantBoundary = %"ISYM, &SimpleConstantBoundary);
 
 #endif
-
 
     ret += sscanf(line, "SlopeFlaggingFields = "
 		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
@@ -656,16 +660,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
     ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
+    ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
-    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
-    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
-    ret += sscanf(line, "MBHFeedbackThermalCoupling = %"FSYM, &MBHFeedbackThermalCoupling);
-    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
-    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
-    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHFeedbackJetsMassLoadingFactor = %"FSYM, &MBHFeedbackJetsMassLoadingFactor);
+    ret += sscanf(line, "MBHAccretionFixedTemperature = %"FSYM, &MBHAccretionFixedTemperature);
+    ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
     ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
+
+    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
+    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
+    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %"FSYM, &MBHFeedbackEnergyCoupling);
+    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
+    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
+    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
+    ret += sscanf(line, "MBHFeedbackJetsThresholdMass = %"FSYM, &MBHFeedbackJetsThresholdMass);
 
     ret += sscanf(line, "MBHParticleIO = %"ISYM,
 		  &MBHParticleIO);
@@ -791,6 +799,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &ParticleSplitterIterations);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
+    ret += sscanf(line, "ResetMagneticField = %"ISYM,
+		  &ResetMagneticField);
+    ret += sscanf(line, "ResetMagneticFieldAmplitude  =  %"GSYM" %"GSYM" %"GSYM, 
+		  ResetMagneticFieldAmplitude,
+		  ResetMagneticFieldAmplitude+1,
+		  ResetMagneticFieldAmplitude+2);
 
     /* If the dummy char space was used, then make another. */
  
@@ -974,10 +988,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* If set, initialze Cosmic Ray Efficiency Models */
 
-  if(CRModel){
-    if(InitializeCosmicRayData() == FAIL){
+  if (CRModel){
+    if (InitializeCosmicRayData() == FAIL){
       ENZO_FAIL("Error in Initialize CosmicRayData.");
-      return FAIL;
     }
   }
 

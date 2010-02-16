@@ -204,6 +204,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_4
+#define BFLOAT_EPSILON 1e-6f
 #define Eflt float
 #define FSYM "f"
 #define ESYM "e"
@@ -222,6 +223,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_8
+#define BFLOAT_EPSILON 1e-12f
 #define Eflt double
 #define FSYM "lf"
 #define ESYM "le"
@@ -229,13 +231,7 @@ typedef int            HDF5_hid_t;
 #define float32 TEMP_HOLD_NAME
 #define float double
 #define TEMP_HOLD_NAME float32
-#ifdef COMPACT_IO
 #define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R4
-#else
-#define HDF5_REAL HDF5_R8
-#define HDF5_FILE_REAL HDF5_FILE_R8
-#endif
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
 #define enpy_bfloat npy_double
@@ -243,6 +239,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_4
+#define PFLOAT_EPSILON 1e-6f
 #define FLOAT Eflt32
 #define PEXP expf
 #define PSYM "f"
@@ -251,7 +248,7 @@ typedef int            HDF5_hid_t;
 #define MY_MPIFLOAT MPI_FLOAT
 #define FLOATDataType MPI_FLOAT
 #define HDF5_PREC HDF5_R4
-#define HDF5_FILE_PREC HDF5_FILE_R4
+#define HDF5_FILE_PREC HDF5_R4
 #ifdef USE_PYTHON
 #define ENPY_PFLOAT NPY_FLOAT
 #define enpy_pfloat npy_float
@@ -259,6 +256,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_8
+#define PFLOAT_EPSILON 1e-12f
 #define FLOAT double
 #define PEXP exp
 #define PSYM "lf"
@@ -275,6 +273,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_16
+#define PFLOAT_EPSILON 1e-16f
 #define FLOAT long_double
 #define PEXP expl
 #define PSYM "Lf"

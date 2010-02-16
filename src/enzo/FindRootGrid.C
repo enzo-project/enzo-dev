@@ -24,16 +24,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6f
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, 
 		 FLOAT rx, FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz)
 {
@@ -54,15 +44,15 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION], Bump[MAX_DIMENSION];
   FLOAT BumpPos[MAX_DIMENSION];
 
-  Bump[0] = ROUNDOFF * sign(ux);
-  Bump[1] = ROUNDOFF * sign(uy);
-  Bump[2] = ROUNDOFF * sign(uz);
+  Bump[0] = PFLOAT_EPSILON * sign(ux);
+  Bump[1] = PFLOAT_EPSILON * sign(uy);
+  Bump[2] = PFLOAT_EPSILON * sign(uz);
 
   // Make sure that bumped position is always within the domain
 
-  BumpPos[0] = max(min(rx+Bump[0],DomainRightEdge[0]-ROUNDOFF), ROUNDOFF);
-  BumpPos[1] = max(min(ry+Bump[1],DomainRightEdge[1]-ROUNDOFF), ROUNDOFF);
-  BumpPos[2] = max(min(rz+Bump[2],DomainRightEdge[2]-ROUNDOFF), ROUNDOFF);
+  BumpPos[0] = max(min(rx+Bump[0],DomainRightEdge[0]-PFLOAT_EPSILON), PFLOAT_EPSILON);
+  BumpPos[1] = max(min(ry+Bump[1],DomainRightEdge[1]-PFLOAT_EPSILON), PFLOAT_EPSILON);
+  BumpPos[2] = max(min(rz+Bump[2],DomainRightEdge[2]-PFLOAT_EPSILON), PFLOAT_EPSILON);
 
   for (i = 0; i < nGrids0; i++) {
     Grids0[i]->ReturnGridInfo(&Rank, Dims, Left, Right);

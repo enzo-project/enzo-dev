@@ -57,6 +57,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 			  int level, ExternalBoundary *Exterior){
 
   int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
+  int PackedStatus = 0;
   int CheckpointDump = FALSE;
 
   //Do all "bottom of hierarchy" checks
@@ -115,11 +116,13 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     
     int outputNow = -1, stopNow = -1, subcycleCount=-1, checkpointDumpNow=-1;
     if( FileDirectedOutput == TRUE){
+
+    if(MyProcessorNumber == ROOT_PROCESSOR) {
       
-      CommunicationBarrier();
       outputNow = access("outputNow", F_OK);
       subcycleCount = access("subcycleCount", F_OK);
       stopNow = access("stopNow", F_OK) ;
+      
       checkpointDumpNow = access("checkpointDump", F_OK);
 
       if ( outputNow != -1 ){
@@ -134,14 +137,10 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       }
 
       if( checkpointDumpNow != -1 ) {
-	printf("Detected checkpointDump\n");
-	ExitEnzo = TRUE;
+	//ExitEnzo = TRUE;
 	WriteOutput = TRUE;
 	CheckpointDump = TRUE;
       }
-
-    /* We also reset checkpoint state here */
-    if (CheckpointRestart == TRUE) CheckpointRestart = FALSE;
 
       /* Check to see if new subcycle information has been given to us */
       
@@ -165,8 +164,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	}
       }
       
-      
-      CommunicationBarrier();
       if (MyProcessorNumber == ROOT_PROCESSOR){
 	if( outputNow != -1 )
 	  if (unlink("outputNow")) {
@@ -185,11 +182,20 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
    	    ENZO_FAIL("Error deleting checkpointDump");
 	  } 
       } 
-      
-      CommunicationBarrier();
-      
+
+    }//Root Processor only
+
+    /* This should be packed up */
+
+    WriteOutput = CommunicationMaxValue(WriteOutput);
+    ExitEnzo = CommunicationMaxValue(ExitEnzo);
+    CheckpointDump = CommunicationMaxValue(CheckpointDump);
+
     }//File Directed Output
     
+    /* We also reset checkpoint state here */
+    if (CheckpointRestart == TRUE) CheckpointRestart = FALSE;
+
 
     /* Check to see if we should start outputting interpolated data based on
        the time passed (dtInterpolatedDataDump < dtDataDump).

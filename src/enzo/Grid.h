@@ -1832,6 +1832,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int ParticleSplitter(int level);
 
+/* Magnetic field resetting routine. */
+
+  int MagneticFieldResetter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);
@@ -1976,6 +1980,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int GetEnclosedMass(Star *star, float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[]);
+  int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
+		      float &metallicity, float &coldgas_mass, 
+		      float AvgVelocity[]);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -1984,6 +1991,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
+
+  int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
+				     float LengthUnits, float VelocityUnits, 
+				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+				     int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
