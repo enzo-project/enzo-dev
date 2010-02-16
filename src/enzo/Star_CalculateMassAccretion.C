@@ -117,13 +117,6 @@ int Star::CalculateMassAccretion(void)
       mu = density / number_density;
     }
 
-    // if requested, fix the temperature (e.g. to 3e5 K) so you don't get overpowered by high T SN bubble
-    if (this->type == MBH && MBHAccretion == 2) 
-      temperature[index] = MBHAccretionFixedTemperature;  
-
-    c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-    old_mass = (float)(this->Mass);
-
     // Calculate gas relative velocity (cm/s)
     v_rel = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -131,6 +124,16 @@ int Star::CalculateMassAccretion(void)
       v_rel += delta_vel[dim] * delta_vel[dim];
     }
     v_rel = sqrt(v_rel) * VelocityUnits;
+
+    // if requested, fix the temperature and zero v_rel 
+    // so you don't get overpowered by high T SN bubble
+    if (this->type == MBH && MBHAccretion == 2) {
+      v_rel = 0.0;
+      temperature[index] = MBHAccretionFixedTemperature;   
+    }
+
+    c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
+    old_mass = (float)(this->Mass);
 
     // Calculate accretion rate in Msun/s
     mdot = 4.0 * PI * Grav*Grav * (old_mass * old_mass * Msun) * 

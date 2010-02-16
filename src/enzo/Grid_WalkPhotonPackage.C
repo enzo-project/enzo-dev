@@ -677,12 +677,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
 	dP1 = dPXray[i] * slice_factor2;
 
-	// contributions to the photoionization rate is over whole timestep
 	// units are 1/s *TimeUnits
 	BaryonField[kphNum[i]][index] += dP1 * factor1; 
 	
-	// the heating rate is just the number of photo ionizations times
-	// the excess energy; units are eV/s *TimeUnits;
+	// units are eV/s *TimeUnits;
 	// the spectrum table returns the mean energy of the spectrum at this column density
 	BaryonField[gammaNum][index] += dP1 * factor1 * 
 	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 

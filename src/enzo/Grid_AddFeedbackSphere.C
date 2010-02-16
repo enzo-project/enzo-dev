@@ -1,4 +1,3 @@
-
 /***********************************************************************
 /
 /  GRID: ADD SPHERICAL STAR PARTICLE FEEDBACK TO CELLS
@@ -346,6 +345,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		       ramp * factor * EjectaThermalEnergy) /
 		BaryonField[DensNum][index];
 
+#ifdef USE_ONE_OVER_RSQUARED
+	      /* When injected energy is proportional to 1/R^2;
+		 EjectaThermalEnergy in ergs/cm3/(1/cm^2) */
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaThermalEnergy * 
+		       min(1.0/radius2, 1.0/(4.0*CellWidth[0][0]*CellWidth[0][0]))) /
+		BaryonField[DensNum][index];
+#endif
+
 #ifdef CONSTANT_SPECIFIC
 	      /* When injected energy is proportional to the cell mass;
 		 EjectaThermalEnergy in ergs/g = cm2/s2 */
@@ -368,14 +376,22 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      newGE = (OldDensity * BaryonField[TENum][index] +
 		       ramp * factor * EjectaThermalEnergy) /
 		BaryonField[DensNum][index];
+
+#ifdef USE_ONE_OVER_RSQUARED
+	      newGE = (OldDensity * BaryonField[TENum][index] +
+		       ramp * factor * EjectaThermalEnergy * 
+		       min(1.0/radius2, 1.0/(4.0*CellWidth[0][0]*CellWidth[0][0]))) /
+		BaryonField[DensNum][index];
+#endif
 	      
 #ifdef CONSTANT_SPECIFIC
 	      newGE = (BaryonField[TENum][index] + EjectaThermalEnergy) *
 		OldDensity / BaryonField[DensNum][index];
 #endif
+
 //	      printf("grid::AddFS: rho= %"GSYM"->%"GSYM", TE= %"GSYM"->%"GSYM", drho= %"GSYM", dE= %"GSYM"\n", 
 //		     OldDensity, BaryonField[DensNum][index], 
-//		     BaryonField[TENum][index], newGE, EjectaDensity, EjectaThermalEnergy); 
+//		     BaryonField[TENum][index], newGE, EjectaDensity, EjectaThermalEnergy * 1/radius2); 
 
 	      newGE = min(newGE, maxGE);  
 	      BaryonField[TENum][index] = newGE;

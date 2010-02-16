@@ -1979,7 +1979,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 		      float AvgVelocity[]);
   int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
-		      float AvgVelocity[]);
+		      float AvgVelocity[], float &OneOverRSquaredSum);
 
   int RemoveParticle(int ID, bool disable=false);
 

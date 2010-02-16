@@ -169,11 +169,11 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 
 
 
-// GetEnclosedMass when not using Star object
+// GetEnclosedMass when not using Star object - Ji-hoon Kim, Jan, 2010
 
 int grid::GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 			  float &metallicity, float &coldgas_mass, 
-			  float AvgVelocity[])
+			  float AvgVelocity[], float &OneOverRSquaredSum)
 {
 
   if (MyProcessorNumber != ProcessorNumber)
@@ -286,6 +286,9 @@ int grid::GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 	    metallicity += BaryonField[MetalNum][index] * MassConversion;
 	  if (UseColour)
 	    metallicity += BaryonField[SNColourNum][index] * MassConversion;
+	  //OneOverRSqauredSum used in Grid_AddFeedbackSphere for MBHFeedback=1
+	  //imposed upperbound of 1/(2*CellWidth)^2
+	  OneOverRSquaredSum += min(1.0/dr2, 1.0/(4.0*CellWidthTemp*CellWidthTemp));  
 	}
 	
       }

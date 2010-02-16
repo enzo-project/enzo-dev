@@ -47,7 +47,8 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
-  float AvgVelocity[MAX_DIMENSION], MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, initialRadius; 
+  float AvgVelocity[MAX_DIMENSION], MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0;
+  float OneOverRSquaredSum, initialRadius; 
   int i, l, dim, FirstLoop = TRUE, MBHFeedbackThermalRadiusTooSmall;
   LevelHierarchyEntry *Temp, *Temp2;
   FLOAT Time;
@@ -92,6 +93,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
     MassEnclosed = 0;
     Metallicity = 0;
     ColdGasMass = 0;
+    OneOverRSquaredSum = 0;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       AvgVelocity[dim] = 0.0;
     for (l = 0; l < MAX_DEPTH_OF_HIERARCHY; l++) {
@@ -115,7 +117,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 
 	if (Temp->GridData->GetEnclosedMass(star_pos, Radius, MassEnclosed, 
 					    Metallicity, ColdGasMass, 
-					    AvgVelocity) == FAIL) {
+					    AvgVelocity, OneOverRSquaredSum) == FAIL) {
 	  	  ENZO_FAIL("Error in GetEnclosedMass.");
 	}
 
@@ -131,6 +133,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
     CommunicationAllSumValues(&Metallicity, 1);
     CommunicationAllSumValues(&MassEnclosed, 1);
     CommunicationAllSumValues(&ColdGasMass, 1);
+    CommunicationAllSumValues(&OneOverRSquaredSum, 1);
     CommunicationAllSumValues(AvgVelocity, 3);
 
     if (MassEnclosed == 0) {
@@ -151,18 +154,25 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
   }  // ENDWHILE (too little mass)
 
 
-  /* Find EjectaThermalEnergy in a new expanded Radius. */
-
-  EjectaThermalEnergy *= pow(initialRadius/Radius, 3); 
-#ifdef CONSTANT_SPECIFIC
-  EjectaThermalEnergy *= 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
-#endif
-
-  /* Reduce EjectaDensity; density is always 0, so this is not needed! */
+  /* Reduce EjectaDensity */
 
   EjectaDensity *= pow(initialRadius/Radius, 3); 
   EjectaMetalDensity *= pow(initialRadius/Radius, 3); 
 
+  /* Find EjectaThermalEnergy in a new expanded Radius; 
+     check Grid_AddFeedbackSphere for different options */
+
+  EjectaThermalEnergy *= pow(initialRadius/Radius, 3); 
+
+#ifdef USE_ONE_OVER_RSQUARED
+  EjectaThermalEnergy *= pow(initialRadius/Radius, 3)/OneOverRSquaredSum; 
+#endif
+
+#ifdef CONSTANT_SPECIFIC
+  EjectaThermalEnergy *= 4*M_PI/3.0*pow(-MBHFeedbackThermalRadius, 3)/MassEnclosed;
+#endif
+
+//  fprintf(stdout, "RecalibrateMFTR: OneOverRSquaredSum = %g\n", OneOverRSquaredSum); 
 //  fprintf(stdout, "RecalibrateMFTR: Radius = %g -> %g, EjectaThermalEnergy = %g -> %g, MassEnclosed = %g Msun\n", 
 //	  initialRadius, Radius, EjectaThermalEnergy/pow(initialRadius/Radius,3), 
 //	  EjectaThermalEnergy, MassEnclosed); 

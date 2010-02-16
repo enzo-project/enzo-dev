@@ -1086,6 +1086,8 @@ main(int argc, char *argv[])
 	    RvirValue[0][17], RvirValue[0][18], RvirValue[0][19]);
     fprintf(fptrs[0], "# L (dm)             = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
 	    RvirValue[0][35], RvirValue[0][36], RvirValue[0][37]);
+    fprintf(fptrs[0], "# L (star)           = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
+	    RvirValue[0][65], RvirValue[0][66], RvirValue[0][67]);
     fprintf(fptrs[0], "# InnerEdge = %g Mpc  OuterEdge = %g Mpc\n\n",    
 	  InnerEdge*BoxSize, OuterEdge*BoxSize);
 
@@ -1216,13 +1218,14 @@ main(int argc, char *argv[])
 
     if (parameters.PrintGlobalProfileValues) { 
 
-      FILE *fpLKS, *fpGKS, *fpMvirEv;
+      FILE *fpLKS, *fpGKS;
       double AverageGasSurfaceDensity = 0.0;  
       double AverageSFRSurfaceDensity = 0.0;  
       FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
 
       fpLKS = fopen("local_KS.dat","w");      
       fpGKS = fopen("global_KS.dat","a");
+//      fprintf(fpGKS, "# time  Sigma_gas  Sigma_SFR  R_vir  M_vir  M_vir_star  M_vir_gas  M_vir_DM\n");
 
       /* Print gas surface density and SFR surface density for local K-S law.  
 	 Msun/pc^2 vs. Msun/yr/kpc^2 */
@@ -1241,21 +1244,15 @@ main(int argc, char *argv[])
       /* Print disk-averaged gas surface density and disk-averaged SFR surface
 	 density for global K-S law.  Msun/pc^2 vs. Msun/yr/kpc^2  */
 
-      fprintf(fpGKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", LevelArray[0]->GridData->ReturnTime(),
+      fprintf(fpGKS, "%g   %"GOUTSYM"   %"GOUTSYM"    %g    %g    %g    %g    %g\n", 
+	      MetaData.Time,
 	      log10( AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2) ),
-	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) )); 
+	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) ),
+	      rvir*BoxSize, mvir, mvir_star, mvir_gas, mvir - mvir_gas - mvir_star); 
 
       fclose(fpLKS);
       fclose(fpGKS);
       
-      /* Print the evolution of M_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
-
-      fpMvirEv = fopen("MvirEvolution.dat","a");
-      fprintf(fpMvirEv, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
-	      CurrentRedshift, MetaData.Time, rvir*BoxSize, 
-	      mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);         
-      fclose(fpMvirEv);
-
     } // end: if (parameters.PrintGlobalProfileValues)
 
     } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
