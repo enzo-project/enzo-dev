@@ -123,6 +123,12 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		 RefinedFluxes->LeftFluxStartGlobalIndex[dim][j])  ||
 		(InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 		 RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
+//	      printf("dim=%d / j=%d //// %d == %d :: %d == %d\n", 
+//		     dim, j, 
+//		     InitialFluxes->LeftFluxStartGlobalIndex[dim][j],
+//		     RefinedFluxes->LeftFluxStartGlobalIndex[dim][j],
+//		     InitialFluxes->LeftFluxEndGlobalIndex[dim][j],
+//		     RefinedFluxes->LeftFluxEndGlobalIndex[dim][j]);
 	      fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
 	      ENZO_FAIL("");
 	    }
