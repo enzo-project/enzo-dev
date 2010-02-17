@@ -191,54 +191,6 @@ c     &         / (1.0d0+dtit(i)*dsp(i,n)/s(i,n))
         endif
 
 c
-c-------------H2I----------------------------------------------------
-c
-        n = H2I
-        prevval = s(i,n)
-        dsq(i,n) = (
-     &       + r08
-     &       + r10
-     &       + r19
-     &       + r21
-     &       + r22
-     &       + r53 !
-     &       + r55 !
-     &       ) * 2.0d0
-        dsp(i,n) = (
-     &       + r11
-     &       + r12
-     &       + r13
-     &       + r23
-     &       + r52 !
-     &       + r54 !
-     &       ) * 2.0d0
-! With quantitiyes in number density:
-! H2_eq = (sqrt(k13)*sqrt(4*k22*rho+k13)-k13)/(2*k22)
-        if(doupdate.eqv..true..and.eqmask(i).eqv..false.)then
-          s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &            / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-          temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &         (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
-     &      /  (RTOL*dtcoef(n)*s(i,n))
-          itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
-          if(temp2.gt.temp3.and.s(i,H2I)/fd(i).gt.1e-15)then
-            temp3 = temp2
-            mins(i) = n
-          else if (s(i,H2I)/fd(i).lt.1e-15)then
-            s(i,H2I) = max(s(i,H2I),tiny)
-          endif
-        endif
-#include "primordial_reactions.inc"
-        if(s(i,H2I)/fd(i).gt.1e-7)then
-          h2heatp(i) = 2.0d0 * (r21 + r22)
-          h2heatm(i) = 2.0d0 * (r13 + r23)
-        endif
-c        if((tgas(i).gt.8000).and.(rtot(i)*dom.gt.1e8))then
-c          h2heatp(i) = max((s(i,H2I)-sp(i,H2I))/dtit(i),0.0d0)
-c          h2heatm(i) = max((sp(i,H2I)-s(i,H2I))/dtit(i),0.0d0)
-c        endif
-
-c
 c-------------HI-----------------------------------------------------
 c
         n = HI
@@ -282,6 +234,52 @@ c
 #include "primordial_reactions.inc"
         endif
         hiheatp(i) = 1.0d0 * (r01)
+
+c
+c-------------H2I----------------------------------------------------
+c
+        n = H2I
+        prevval = s(i,n)
+        dsq(i,n) = (
+     &       + r08
+     &       + r10
+     &       + r19
+     &       + r21
+     &       + r22
+     &       + r53 !
+     &       + r55 !
+     &       ) * 2.0d0
+        dsp(i,n) = (
+     &       + r11
+     &       + r12
+     &       + r13
+     &       + r23
+     &       + r52 !
+     &       + r54 !
+     &       ) * 2.0d0
+! With quantitiyes in number density:
+! H2_eq = (sqrt(k13)*sqrt(4*k22*rho+k13)-k13)/(2*k22)
+        if(doupdate.eqv..true..and.eqmask(i).eqv..false.)then
+          s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
+     &            / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+          temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
+     &         (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+     &      /  (RTOL*dtcoef(n)*s(i,n))
+          itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
+          if(temp2.gt.temp3)then
+            temp3 = temp2
+            mins(i) = n
+          endif
+        endif
+#include "primordial_reactions.inc"
+        if(s(i,H2I)/fd(i).gt.1e-7)then
+          h2heatp(i) = 2.0d0 * (r21 + r22)
+          h2heatm(i) = 2.0d0 * (r13 + r23)
+        endif
+c        if((tgas(i).gt.8000).and.(rtot(i)*dom.gt.1e8))then
+c          h2heatp(i) = max((s(i,H2I)-sp(i,H2I))/dtit(i),0.0d0)
+c          h2heatm(i) = max((sp(i,H2I)-s(i,H2I))/dtit(i),0.0d0)
+c        endif
 
 c
 c-------------HeI----------------------------------------------------

@@ -28,6 +28,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
+
 int Star::ComputePhotonRates(float E[], double Q[])
 {
 
@@ -106,6 +108,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
        spectral temperature is 2 keV, for accreting massive BH */
 
   case MBH:
+
     XrayLuminosityFraction = 1.0;
     E[0] = 2000.0; //2keV
     E[1] = 0.0;
@@ -125,6 +128,23 @@ int Star::ComputePhotonRates(float E[], double Q[])
     
 //    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
 //    	    this->last_accretion_rate, Q[0]); 
+
+    if (RadiativeTransferTraceSpectrum == TRUE) {
+      E[0] = ReturnValuesFromSpectrumTable(0.0, 0.0, 3); //##### mean energy if column density=0
+      E[1] = 0.0;
+      E[2] = 0.0;
+      E[3] = 0.0;
+
+      Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency *
+	this->last_accretion_rate / E[0]; 
+      Q[1] = 0.0;
+      Q[2] = 0.0;
+      Q[3] = 0.0;  
+
+      //better check the initial mean energy when tracing spectrum
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stdout, "star::CPP: check initial mean E of photon SED: E[0] = %g\n", E[0]); 
+    }
 
     break;
 

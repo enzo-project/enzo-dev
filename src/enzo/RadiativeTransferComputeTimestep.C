@@ -31,16 +31,6 @@
 #include "Star.h"
 #include "CommunicationUtilities.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6f
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 //int LastTimestepUseHII = FALSE;
 float LastPhotonDT = -1;
@@ -159,8 +149,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   HydroTime = LevelArray[0]->GridData->ReturnTime();
   if (level == 0)
     HydroTime += LevelArray[0]->GridData->ReturnTimeStep();
-  if ((HydroTime - PhotonTime + ROUNDOFF) < dtPhoton) {
-    dtPhoton = HydroTime - PhotonTime + ROUNDOFF;
+  if ((HydroTime - PhotonTime + PFLOAT_EPSILON) < dtPhoton) {
+    dtPhoton = HydroTime - PhotonTime + PFLOAT_EPSILON;
     //LastTimestepUseHII = FALSE;
   }
 

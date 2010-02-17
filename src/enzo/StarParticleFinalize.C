@@ -38,10 +38,13 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 int TotalStarParticleCountPrevious[]);
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars, bool* &AddedFeedback);
+			    Star* &AllStars, bool* &AddedFeedback);
 int StarParticleAccretion(TopGridData *MetaData, 
 			  LevelHierarchyEntry *LevelArray[], int level, 
 			  Star *&AllStars);
+int StarParticleSubtractAccretedMass(TopGridData *MetaData, 
+				     LevelHierarchyEntry *LevelArray[], int level, 
+				     Star *&AllStars);
 int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 		      Star *&AllStars);
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[], int NumberOfGrids);
@@ -56,12 +59,16 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
 
-  int l;
+  int l, NumberOfStars;
   float TotalMass;
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   FLOAT TimeNow;
-  bool *AddedFeedback = NULL;
+
+  NumberOfStars = 0;
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
+    NumberOfStars++;
+  bool *AddedFeedback = new bool[NumberOfStars];
 
   LCAPERF_START("StarParticleFinalize");
 
@@ -79,10 +86,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Apply any stellar feedback onto the grids and add any gas to the
      accretion rates of the star particles */
-  
+
   StarParticleAddFeedback(MetaData, LevelArray, level, 
 			  AllStars, AddedFeedback);
-  
+
   /* Update star particles for any accretion */
 
   StarParticleAccretion(MetaData, LevelArray, level, AllStars);
@@ -101,6 +108,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       fprintf(stdout, "SinkParticle: Time = %"GOUTSYM", TotalMass = %"GSYM"\n", 
 	      TimeNow, TotalMass);
   }
+
+  /* Subtract gas from the grids that has accreted on to the star particles */
+
+  StarParticleSubtractAccretedMass(MetaData, LevelArray, level, AllStars);  
 
   /* Check for any stellar deaths */
 
@@ -121,6 +132,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
     TimeNow = LevelArray[level]->GridData->ReturnTime();
+//    if (debug) {
+//      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
+//      ThisStar->PrintInfo();
+//    }
     if (AddedFeedback[count])
       ThisStar->ActivateNewStar(TimeNow);
     ThisStar->ResetAccretion();
