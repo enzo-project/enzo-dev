@@ -87,10 +87,10 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     AddedFeedback[count] = false;
 
-    if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) && 
-	(cstar->ReturnFeedbackFlag() != MBH_JETS) && 
-	(!cstar->ApplyFeedbackTrue(SNe_dt)))
-      continue;  
+    if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) &&
+	(cstar->ReturnFeedbackFlag() != MBH_JETS) &&
+	!cstar->ApplyFeedbackTrue(SNe_dt))
+      continue;
 
     dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 	  
@@ -128,7 +128,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     if ( influenceRadius <= tiny_number || 
 	((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
-	  cstar->ReturnFeedbackFlag() == MBH_JETS) && 
+	  cstar->ReturnFeedbackFlag() == MBH_JETS) &&
 	 (influenceRadius >= RootCellWidth/2 || 
 	  EjectaThermalEnergy <= tiny_number)) )
       continue;
@@ -140,7 +140,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     SphereContainedNextLevel = FALSE;
 
     if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
-	 cstar->ReturnFeedbackFlag() == MBH_JETS) &&
+	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
+	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA) &&
 	LevelArray[level+1] != NULL) {
       if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
 				    EjectaDensity, EjectaThermalEnergy, 
