@@ -21,6 +21,7 @@
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
+#include "MemoryPool.h"
 
 #ifdef FLUX_FIX
 #include "TopGridData.h"
