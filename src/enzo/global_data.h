@@ -21,6 +21,9 @@
 #define GLOBAL_DATA_DEFINED__
 
 #include <stdio.h>
+#ifdef MEMORY_POOL
+#include "MemoryPool.h"
+#endif
 #ifdef DEFINE_STORAGE
 # define EXTERN
 #else /* DEFINE_STORAGE */
@@ -724,6 +727,9 @@ EXTERN float dtPhoton;
 EXTERN RadiationSourceEntry *GlobalRadiationSources;
 EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
+#ifdef MEMORY_POOL
+EXTERN MPool::MemoryPool *PhotonMemoryPool;
+#endif
 
 /* [0]: Emitted photons
    [1]: escaped past 0.5 RadiativeTransferPhotonEscapeRadius
