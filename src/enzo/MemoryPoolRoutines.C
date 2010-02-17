@@ -54,7 +54,10 @@ namespace MPool
   MemoryPool::~MemoryPool(void)
   {
     FreeAllAllocatedMemory();
-    DeallocateAllChunks();
+
+    /* Chunks are allocated with the "Data" memory, so it's
+       deallocated with it, too. */
+    //DeallocateAllChunks();
     //assert(ObjectCount == 0);  // Check if everything was deallocated
   }
 
@@ -116,12 +119,16 @@ namespace MPool
     unsigned int NeededChunks = CalculateNeededChunks(MemorySize);
     size_t BestMemBlockSize = CalculateBestMemoryBlockSize(MemorySize);
     
-    // Allocate memory from the OS
-    TByte* NewMemBlock = (TByte*) malloc(BestMemBlockSize);
+    // Allocate memory from the OS for data and chunks
+    void* MemBlock = malloc(BestMemBlockSize +
+			    NeededChunks * sizeof(MemoryChunk));
+    //TByte* NewMemBlock = (TByte*) malloc(BestMemBlockSize);
+    TByte* NewMemBlock = (TByte*) MemBlock;
 
     // Allocate chunk array to manage the memory
-    MemoryChunk* NewChunks = 
-      (MemoryChunk*) malloc(NeededChunks * sizeof(MemoryChunk));
+    //MemoryChunk* NewChunks = 
+    //  (MemoryChunk*) malloc(NeededChunks * sizeof(MemoryChunk));
+    MemoryChunk* NewChunks = (MemoryChunk*) ((TByte*)(MemBlock)+BestMemBlockSize);
     assert(((NewMemBlock) && (NewChunks)) && "Error: out of memory?");
 
     printf("AllocateMemory:\n"
@@ -326,14 +333,56 @@ namespace MPool
 
   /**********************************************************************/
 
-  MemoryChunk* MemoryPool::FindChunkHoldingPointer(void* sMemoryBlock)
+  inline MemoryChunk* MemoryPool::FindChunkHoldingPointer(void* sMemoryBlock)
   {
+    /* Memory blocks and chunks were allocated together, so we can do
+       some pointer arithemtic to find the chunk. */
+    
+    unsigned int ThisDataSize, nChunks, ChunkNumber;
+    TByte *mFirstBlock, *mLastBlock, *mem;
+    MemoryChunk *FirstChunkInAlloc, *LastChunkInAlloc;
+    mem = (TByte*) sMemoryBlock;
+
+    // Find the memory allocation "big" block
+    mFirstBlock = FirstChunk->Data;
+    //ThisDataSize = FirstChunk->DataSize;
+    nChunks = FirstChunk->DataSize / MemoryChunkSize;
+    mLastBlock = mFirstBlock + FirstChunk->DataSize;
+
+    /* Go to the next allocation block.  First go directly to the last
+       MemoryChunk in the current allocation block.  Then use the Next
+       pointer.  Remember that the allocation blocks aren't contigious. */
+
+    while (mem < mFirstBlock || mem >= mLastBlock) {
+
+      LastChunkInAlloc = (MemoryChunk*) (mLastBlock + 
+					 (nChunks-1) * sizeof(MemoryChunk));
+      FirstChunkInAlloc = LastChunkInAlloc->Next;
+      assert((FirstChunkInAlloc) && "Cannot find chunk.");
+
+      mFirstBlock = FirstChunkInAlloc->Data;
+      //ThisDataSize = FirstChunkInAlloc->DataSize;
+      nChunks = FirstChunkInAlloc->DataSize / MemoryChunkSize;
+      mLastBlock = mFirstBlock + FirstChunkInAlloc->DataSize;
+      
+    } // ENDWHILE
+
+    /* Step 1: Find the MemoryChunk number of sMemoryBlock.
+       Step 2: Go to the address of that MemoryChunk */
+
+    ChunkNumber = (unsigned int) (mem - mFirstBlock) / MemoryChunkSize;
+    MemoryChunk* TempChunk = (MemoryChunk*)
+      (mLastBlock + ChunkNumber * sizeof(MemoryChunk));
+
+#ifdef OLD_WAY
     MemoryChunk* TempChunk = FirstChunk;
     while (TempChunk) {
       if (TempChunk->Data == ((TByte*) sMemoryBlock))
 	break;
       TempChunk = TempChunk->Next;
     }
+#endif /* OLD_WAY */
+
     return TempChunk;
   }
 
