@@ -57,6 +57,7 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
+void PrintMemoryUsage(char *str);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -168,6 +169,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        creating tree (type SuperSource), compute position of the super
        source in each leaf. */
 
+    PrintMemoryUsage("EvolvePhotons: Before Source Clustering Tree");
     if (RadiativeTransferSourceClustering == TRUE) {
       if (CreateSourceClusteringTree(NULL, NULL, LevelArray) == FAIL) {
 	fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
@@ -175,6 +177,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
       //PrintSourceClusteringTree(SourceClusteringTree);
     }
+    PrintMemoryUsage("EvolvePhotons: After Source Clustering Tree");
 
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
@@ -207,6 +210,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }    // Loop through levels 
       RS = RS->NextSource;
     }    // while still sources 
+    PrintMemoryUsage("EvolvePhotons: After Shine");
 
 #ifdef USE_MPI
     if (RadiativeTransferInterpolateField)
@@ -229,6 +233,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ListOfPhotonsToMove *PhotonsToMove = new ListOfPhotonsToMove;
     PhotonsToMove->NextPackageToMove = NULL;
 
+    int loop_count = 0;
     int keep_transporting = 1;
     int ThisProcessor;
 
@@ -245,8 +250,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Transport the rays! */
 
     while (keep_transporting) {
+      if (debug) printf("==================== keep_transporting loop %d ====================\n", loop_count++);
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
+      PrintMemoryUsage("EvolvePhotons1");
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
 	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
@@ -278,11 +285,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
+      PrintMemoryUsage("EvolvePhotons2");
       if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, 
 				       keep_transporting) == FAIL) {
 	fprintf(stderr, "Error in CommunicationTransferPhotons.\n");
 	ENZO_FAIL("");
       }
+      PrintMemoryUsage("EvolvePhotons3");
 
       /* Receive keep_transporting messages and take the MAX */
 
@@ -309,6 +318,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->MoveFinishedPhotonsBack();
+    PrintMemoryUsage("EvolvePhoton: After delete photons");
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
