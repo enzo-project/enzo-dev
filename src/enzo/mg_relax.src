@@ -7,7 +7,8 @@ c  MULTIGRID: RELAX SOLUTION WITH DIFFERENCED POISSON OPERATOR
 c
 c  written by: Greg Bryan
 c  date:       January, 1998
-c  modified1:
+c  modified1:  Oliver Hahn, 
+c  date:       February, 2010
 c
 c  PURPOSE:
 c
@@ -39,9 +40,102 @@ c  locals
 c
       integer i, j, k, ipass, istart, jstart, kstart
       real    h1, h2, h3, coef1, coef2, coef3
-c
+      
+#if defined(GRAVITY_4S)
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
+c     -- standard 4th order 13-point Laplacian --
+c
+
+c
+c     Precompute some things
+c
+      h1 = 1.0/real(dim1-1)
+      if (ndim .ge. 2) h2 = h1/real(dim2-1)
+      if (ndim .ge. 3) h3 = h2/real(dim3-1)
+      coef1 = 12.0/30.0
+      coef2 = 12.0/60.0
+      coef3 = 12.0/90.0
+c
+c     a) 1D
+c
+      if (ndim .eq. 1) then
+         do ipass=1, 2
+            do i=ipass+1, dim1-1, 2
+               solution(i,1,1) = coef1*((
+     &                  - 1.0 * (solution(i+2,1,1)+
+     &                           solution(i-2,1,1)) +
+     &                  +16.0 * (solution(i+1,1,1)+
+     &                           solution(i-1,1,1) ))
+     &                  /12.0-h1*rhs(i,1,1))
+            enddo
+         enddo
+      endif
+c
+c     b) 2D
+c
+      if (ndim .eq. 2) then
+         jstart = 1
+         do ipass=1, 2
+            istart = jstart
+            do j=2, dim2-1
+               do i=istart+1, dim1-1, 2
+                 solution(i,j,1) = coef2*((
+     &                     - 1.0 * (solution(i+2,j,1)+
+     &                              solution(i-2,j,1)+
+     &                              solution(i,j+2,1)+
+     &                              solution(i,j-2,1)) +
+     &                     +16.0 * (solution(i+1,j,1)+
+     &                              solution(i-1,j,1)+
+     &				    solution(i,j+1,1)+
+     &                              solution(i,j-1,1)))
+     &                     /12.0-h2*rhs(i,j,1))
+               enddo
+               istart = 3-istart
+            enddo
+            jstart = 3-jstart
+         enddo
+      endif
+c
+c     c) 3D
+c
+      if (ndim .eq. 3) then
+         kstart = 1
+         do ipass=1, 2
+            jstart = kstart
+            do k=2, dim3-1
+               istart = jstart
+               do j=2, dim2-1
+                  do i=istart+1, dim1-1, 2
+                    solution(i,j,k) = coef3*((
+     &                   - 1.0 * (solution(i+2,j,k)+
+     &                            solution(i-2,j,k)+
+     &                            solution(i,j+2,k)+
+     &                            solution(i,j-2,k)+
+     &                            solution(i,j,k+2)+
+     &                            solution(i,j,k-2))
+     &                   +16.0 * (solution(i+1,j,k)+
+     &                            solution(i-1,j,k)+
+     &				  solution(i,j+1,k)+
+     &                            solution(i,j-1,k)+
+     &                            solution(i,j,k+1)+
+     &                            solution(i,j,k-1)) )
+     &                    /12.0-h3*rhs(i,j,k))
+                  enddo
+                  istart = 3-istart
+               enddo
+               jstart = 3-jstart
+            enddo
+            kstart = 3-kstart
+         enddo
+      endif
+
+#else
+c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
+c=======================================================================
+c     -- standard 2nd order 7-point Laplacian --
+c
+
 c
 c     Precompute some things
 c
@@ -106,6 +200,7 @@ c
             kstart = 3-kstart
          enddo
       endif
+#endif
 c
       return
       end

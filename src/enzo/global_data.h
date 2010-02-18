@@ -72,7 +72,7 @@ EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:
-       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS        */
+       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
 
 EXTERN hydro_method HydroMethod;
 

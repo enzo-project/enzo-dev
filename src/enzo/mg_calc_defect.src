@@ -8,7 +8,8 @@ c  MULTIGRID: CALCULATE (NEGATIVE) DEFECT: -(Lu - f)
 c
 c  written by: Greg Bryan
 c  date:       January, 1998
-c  modified1:
+c  modified1:  Oliver Hahn, 
+c  date:       February, 2010
 c
 c  PURPOSE:
 c
@@ -43,9 +44,119 @@ c  locals
 c
       integer i, j, k
       real    h1, h2, h3
-c
+      
+#if defined(GRAVITY_4S)
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
+c     -- standard 4th order 13-point Laplacian --
+c
+
+c
+c     Precompute some things
+c
+      h1 = -real(dim1-1)/12.0
+      h2 = h1*real(dim2-1)
+      h3 = h2*real(dim3-1)
+c
+c     a) 1D
+c
+      if (ndim .eq. 1) then
+         do i=2, dim1-1
+            defect(i,1,1) = h1*(-1.0*(solution(i+2,1,1)+
+     &                                solution(i-2,1,1))+
+     &                          16.0*(solution(i+1,1,1) +
+     &                                solution(i-1,1,1))-
+     &                          30.0* solution(i,1,1)) + rhs(i,1,1)
+         enddo
+         defect(1,1,1) = 0
+         defect(dim1,1,1) = 0
+      endif
+c
+c     b) 2D
+c
+      if (ndim .eq. 2) then
+         do j=2, dim2-1
+            do i=2, dim1-1
+          	  defect(i,j,1) = h2*
+     &		     	   (-1.0*(solution(i+2,j,1)+
+     &                            solution(i-2,j,1)+
+     &                            solution(i,j+2,1)+
+     &                            solution(i,j-2,1))+
+     &                      16.0*(solution(i+1,j,1)+
+     &                            solution(i-1,j,1)+
+     &                            solution(i,j+1,1)+
+     &                            solution(i,j-1,1))-
+     &                      60.0* solution(i,j,1)) + rhs(i,j,1)
+      
+            enddo
+            defect(1,j,1) = 0
+            defect(dim1,j,1) = 0
+         enddo
+         do i=1,dim1
+            defect(i,1,1) = 0
+            defect(i,dim2,1) = 0
+         enddo
+      endif
+c
+c     c) 3D
+c
+      if (ndim .eq. 3) then
+         do k=2, dim3-1
+            do j=2, dim2-1
+               do i=2, dim1-1
+            	 defect(i,j,k) = h3*
+     &			   (-1.0*(solution(i+2,j,k)+
+     &                            solution(i-2,j,k)+
+     &                            solution(i,j+2,k)+
+     &                            solution(i,j-2,k)+
+     &			          solution(i,j,k+2)+
+     &                            solution(i,j,k-2))+
+     &                      16.0*(solution(i+1,j,k)+ 
+     &                            solution(i-1,j,k)+
+     &                            solution(i,j+1,k)+
+     &                            solution(i,j-1,k)+
+     &		                  solution(i,j,k+1)+
+     &                            solution(i,j,k-1))-
+     &                     90.0*solution(i,j,k)) + rhs(i,j,k)
+      
+  
+  			   enddo
+               defect(1,j,k) = 0
+               defect(dim1,j,k) = 0
+            enddo
+            do i=1, dim1
+               defect(i,1,k) = 0
+               defect(i,dim2,k) = 0
+            enddo
+         enddo
+         do j=1, dim2
+            do i=1, dim1
+               defect(i,j,1) = 0
+               defect(i,j,dim3) = 0
+            enddo
+         enddo
+      endif
+c
+c     Compute norm
+c
+      sum = 0.0
+      do k=1, dim3
+         do j=1, dim2
+            do i=1, dim1
+               sum = sum + defect(i,j,k)**2
+            enddo
+         enddo
+      enddo
+      norm = sqrt(sum)/(dim1*dim2*dim3)
+c
+
+#else
+c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
+c=======================================================================
+c     -- standard 2nd order 7-point Laplacian --
+c
+
+
 c
 c     Precompute some things
 c
@@ -123,5 +234,8 @@ c
       enddo
       norm = sqrt(sum)/(dim1*dim2*dim3)
 c
+
+#endif
+
       return
       end
