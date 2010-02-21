@@ -303,8 +303,8 @@ c to do this second-order BDF
       dtcoef(iHeI  )    =  0.1; capycare(iHeI  )    = .false. !
       dtcoef(iHeII)     =  0.1; capycare(iHeII)     = .false. !
       dtcoef(iHeIII)    =  0.1; capycare(iHeIII)    = .false.
-      dtcoef(iH2I)      =  0.1; capycare(iH2I)      = .true.
-      dtcoef(ige)       =  0.1; capycare(ige)       = .true.
+      dtcoef(iH2I)      =  0.01; capycare(iH2I)      = .true.
+      dtcoef(ige)       =  0.01; capycare(ige)       = .true.
       dtcoef(iDI)       =  1.0; capycare(iDI)       = .false.
       dtcoef(iDII)      =  1.0; capycare(iDII)      = .false.
       dtcoef(iHDI)      =  1.0; capycare(iHDI)      = .false. ! Off for now; should track H2 directly
@@ -730,8 +730,8 @@ c
 
 
 c      if (d(is,js,ks)*dom.gt.1e9.and.totaliter.gt.1e7)then
-        write(6,*) "solve_chemeq2: itcounts",
-     &        totaliter,DBLE(totaliter)/(jn*kn)
+c        write(6,*) "solve_chemeq2: itcounts",
+c     &        totaliter,DBLE(totaliter)/(jn*kn)
 c      endif
       if (eqflag.eqv..true.) then
         write(6,*) "solve_chemeq2: total eqmask",totaleq,in*jn*kn
