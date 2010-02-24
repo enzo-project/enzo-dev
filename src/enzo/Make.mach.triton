@@ -44,7 +44,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES   = -DIO_LOG -DLINUX -DH5_USE_16_API # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
