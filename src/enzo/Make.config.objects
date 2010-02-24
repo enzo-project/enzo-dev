@@ -472,6 +472,7 @@ OBJS_CONFIG_LIB = \
         InitializeNew.o \
         InitializePythonInterface.o \
         InitializeRadiationFieldData.o \
+        InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
         interp1d.o \
@@ -573,6 +574,7 @@ OBJS_CONFIG_LIB = \
         ReadMetalCoolingRatios.o \
         ReadParameterFile.o \
         ReadRadiationData.o \
+        ReadRadiativeTransferSpectrumTable.o \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
@@ -580,6 +582,7 @@ OBJS_CONFIG_LIB = \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
+        ReturnValuesFromSpectrumTable.o \
         ReturnWallTime.o \
         rotate2d.o \
         rotate3d.o \

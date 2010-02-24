@@ -29,6 +29,7 @@
 
 int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
+int InitializeRadiativeTransferSpectrumTable(FLOAT Time);
 
 
 int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
@@ -226,6 +227,18 @@ int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
     x2pix = new int[128];
     y2pix = new int[128];
     mk_xy2pix(&x2pix[0], &y2pix[0]);
+  }
+
+//  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 
+//	  RadiativeTransferTraceSpectrum, RadiativeTransferTraceSpectrumTable); 
+
+  /* If set, initialize spectrum table */
+
+  if (RadiativeTransfer == TRUE &&
+      RadiativeTransferTraceSpectrum == TRUE) {
+    if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
+      ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
+    }
   }
 
   return SUCCESS;

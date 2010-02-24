@@ -76,7 +76,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
     GridPointer[grid]->ReturnGridInfo(&Rank, Dims, Left, Right);
     for (dim = 0; dim < Rank; dim++)
       GridPosition[dim] = 
-	int(Layout[dim] * (Left[dim] - DomainLeftEdge[dim]) /
+	int(Layout[dim] * (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
 	    (DomainRightEdge[dim] - DomainLeftEdge[dim]));
     grid_num = GridPosition[0] + 
       Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);

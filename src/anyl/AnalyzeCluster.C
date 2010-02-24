@@ -1063,6 +1063,8 @@ main(int argc, char *argv[])
       ProfileFile[profile] = 2;
     for (profile = 150; profile < 190; profile++)  
       ProfileFile[profile] = 6;
+    for (profile = 191; profile < 194; profile++)  
+      ProfileFile[profile] = 0;
 
     /* Output global values. */
 

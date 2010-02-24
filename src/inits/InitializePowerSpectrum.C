@@ -44,9 +44,11 @@ int InitializePowerSpectrum()
   FLOAT Zero = 0.0, Huge = 1.0e2;
   FLOAT Pi = 3.14159265358979324;
   FLOAT s1, s2, kbreak;
- 
+
   if (debug) printf("Initializing power spectrum\n");
- 
+  
+  if (debug) printf("Redshift = %e\n",Redshift);
+
   // Set-up for integration
  
   Normalization = 1.0;
@@ -56,6 +58,7 @@ int InitializePowerSpectrum()
   // Integrate smoothed density field
  
   kbreak = 2.0*Pi/TophatRadius;
+
   FORTRAN_NAME(qromo)(&ps_tophat, &Zero, &kbreak, &s1, &FORTRAN_NAME(midpnt));
   FORTRAN_NAME(qromo)(&ps_tophat, &kbreak, &Huge, &s2, &FORTRAN_NAME(midinf));
  
@@ -71,7 +74,11 @@ int InitializePowerSpectrum()
  
  
  
-int MakePowerSpectrumLookUpTable()
+// mqk: Pass in the name of the power spectrum output file. This
+// allows separate outputs of initial and z=0 power spectra, which
+// differ by more than just the growth factor in the CMBFAST case.
+
+int MakePowerSpectrumLookUpTable(char *PowerSpectrumFilename)
 {
  
   int i, species;
@@ -80,10 +87,19 @@ int MakePowerSpectrumLookUpTable()
   if (debug) printf("Generating look-up table\n");
  
   /* Compute the linear growth rate from z=init to 0. */
- 
-  FORTRAN_NAME(set_common)(&OmegaLambdaNow, &OmegaMatterNow, &InitialRedshift,
+
+
+  // mqk: Allow arbitrary redshift (i.e. not necessarily equal to
+  // InitialRedshift).
+
+  // FORTRAN_NAME(set_common)(&OmegaLambdaNow, &OmegaMatterNow, &InitialRedshift,
+  // 			   &HubbleConstantNow);
+  // GrowthFactor = FORTRAN_NAME(calc_growth)(&InitialRedshift) /
+  //                FORTRAN_NAME(calc_growth)(&Zero);
+
+  FORTRAN_NAME(set_common)(&OmegaLambdaNow, &OmegaMatterNow, &Redshift,
 			   &HubbleConstantNow);
-  GrowthFactor = FORTRAN_NAME(calc_growth)(&InitialRedshift) /
+  GrowthFactor = FORTRAN_NAME(calc_growth)(&Redshift) /
                  FORTRAN_NAME(calc_growth)(&Zero);
   if (debug) printf("GrowthFactor = %"GSYM"\n", GrowthFactor);
  
@@ -121,8 +137,9 @@ int MakePowerSpectrumLookUpTable()
   /* Output power spectrum */
  
   FILE *fptr;
-  if ((fptr = fopen("PowerSpectrum.out", "w")) == NULL) {
-    fprintf(stderr, "Error opening PowerSpectrum.out\n");
+  //  if ((fptr = fopen("PowerSpectrum.out", "w")) == NULL) {
+  if ((fptr = fopen(PowerSpectrumFilename, "w")) == NULL) {
+    fprintf(stderr, "Error opening %s\n",PowerSpectrumFilename);
     return FAIL;
   }
   for (i = 0; i < NumberOfkPoints; i += 50) {
