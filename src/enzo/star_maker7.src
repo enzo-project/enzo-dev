@@ -185,7 +185,7 @@ c
                tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4) goto 10
+     &             temp(i,j,k) .gt. 1.1e4) goto 10   
 c
 c  NO JEANS MASS CRITERION IN THIS ALGORITHM!!!
 c  JHK, 12 JUN 09 (fix [1] jun 09)

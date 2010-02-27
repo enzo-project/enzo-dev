@@ -825,7 +825,7 @@
 
     ifeq ($(CONFIG_GRAVITY_4S),yes)
         ERROR_GRAVITY_4S = 0
-        ASSEMBLE_GRAVITY_4S_DEFINES  = -DGRAVITY_4S
+        ASSEMBLE_GRAVITY_4S_DEFINES  = -DGRAVITY_4S 
     endif
 
     # compilers and settings if GRAVITY_4S is no

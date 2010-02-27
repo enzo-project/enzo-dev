@@ -46,21 +46,21 @@ c  locals
 c
       integer i, j, k
       real    fact1, fact2, fact3
+
+
+#if defined(GRAVITY_4S) && !defined(GRAVITY_6S)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
-
-      
-#if defined(GRAVITY_4S)
 c     -- standard 4th order derivative operators --
 c
-      fact1 = -1.0/(real(iflag+1)*delx)/12.0
-      fact2 = -1.0/(real(iflag+1)*dely)/12.0
-      fact3 = -1.0/(real(iflag+1)*delz)/12.0
+      fact1 = -1.0/delx/12.0
+      fact2 = -1.0/dely/12.0
+      fact3 = -1.0/delz/12.0
       
       if (iflag.ne.1) then
       	write(*,*) 'Error: Need symmetric gravity for 4th order.'
-        write(*,*) '       Use PPM instead of ZEUS.'
+        write(*,*) '       Do not use ZEUS for hydro.'
       	return
       endif
 c
@@ -95,9 +95,9 @@ c
      
      
      		      dest2(i,j,k) = fact1*(
-     &	  		- 1.0 * source(i+start1,j+start2+2,k+start3)
+     &			- 1.0 * source(i+start1,j+start2+2,k+start3)
      &			+ 8.0 * source(i+start1,j+start2+1,k+start3)
-     &		        - 8.0 * source(i+start1,j+start2-1,k+start3)
+     &		       	- 8.0 * source(i+start1,j+start2-1,k+start3)
      &			+ 1.0 * source(i+start1,j+start2-2,k+start3))
      			  		
                enddo
@@ -136,8 +136,113 @@ c
             enddo
          enddo
       endif
+      
+      
+#elif defined(GRAVITY_6S)
+c
+c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
+c=======================================================================
+c     -- standard 6th order derivative operators --
+c
+      fact1 = -1.0/delx/60.0
+      fact2 = -1.0/dely/60.0
+      fact3 = -1.0/delz/60.0
+      
+      if (iflag.ne.1) then
+      	write(*,*) 'Error: Need symmetric gravity for 6th order.'
+        write(*,*) '       Do not use ZEUS for hydro.'
+      	return
+      endif
+c
+c     1) 1D
+c
+      if (ndim .eq. 1) then
+         do k=1, ddim3
+            do j=1, ddim2
+               do i=1, ddim1
+                  dest1(i,j,k) = fact1*(
+     &                    1.0 * source(i+start1+3,j+start2,k+start3) 
+     &			 -9.0 * source(i+start1+2,j+start2,k+start3)
+     &			+45.0 * source(i+start1+1,j+start2,k+start3)
+     &			-45.0 * source(i+start1-1,j+start2,k+start3)
+     &			 +9.0 * source(i+start1-2,j+start2,k+start3)
+     &                   -1.0 * source(i+start1-3,j+start2,k+start3))
+               enddo
+            enddo
+         enddo
+      endif
+c
+c     2) 2D
+c
+      if (ndim .eq. 2) then
+         do k=1, ddim3
+            do j=1, ddim2
+               do i=1, ddim1
+               
+	              dest1(i,j,k) = fact1*(
+     &                    1.0 * source(i+start1+3,j+start2,k+start3) 
+     &			 -9.0 * source(i+start1+2,j+start2,k+start3)
+     &			+45.0 * source(i+start1+1,j+start2,k+start3)
+     &			-45.0 * source(i+start1-1,j+start2,k+start3)
+     &			 +9.0 * source(i+start1-2,j+start2,k+start3)     
+     &                   -1.0 * source(i+start1-3,j+start2,k+start3))
+     
+     
+     		      dest2(i,j,k) = fact1*(
+     &	  		  1.0 * source(i+start1,j+start2+3,k+start3)
+     &			 -9.0 * source(i+start1,j+start2+2,k+start3)
+     &			+45.0 * source(i+start1,j+start2+1,k+start3)
+     &		 	-45.0 * source(i+start1,j+start2-1,k+start3)
+     &		 	 +9.0 * source(i+start1,j+start2-2,k+start3)
+     &			 -1.0 * source(i+start1,j+start2-3,k+start3))
+     			  		
+               enddo
+            enddo
+         enddo
+      endif
+c
+c     2) 3D
+c
+      if (ndim .eq. 3) then
+         do k=1, ddim3
+            do j=1, ddim2
+               do i=1, ddim1
+                         
+			dest1(i,j,k) = fact1*(
+     &                    1.0 * source(i+start1+3,j+start2,k+start3) 
+     &			 -9.0 * source(i+start1+2,j+start2,k+start3)
+     &			+45.0 * source(i+start1+1,j+start2,k+start3)
+     &			-45.0 * source(i+start1-1,j+start2,k+start3)
+     &			 +9.0 * source(i+start1-2,j+start2,k+start3)
+     &                   -1.0 * source(i+start1-3,j+start2,k+start3))
+     
+     
+     			dest2(i,j,k) = fact1*(
+     &			  1.0 * source(i+start1,j+start2+3,k+start3)
+     &			 -9.0 * source(i+start1,j+start2+2,k+start3)
+     &			+45.0 * source(i+start1,j+start2+1,k+start3)
+     &			-45.0 * source(i+start1,j+start2-1,k+start3)
+     &			 +9.0 * source(i+start1,j+start2-2,k+start3)
+     &			 -1.0 * source(i+start1,j+start2-3,k+start3))
+     
+     
+                        dest3(i,j,k) = fact1*(
+     &			  1.0 * source(i+start1,j+start2,k+start3+3) 
+     &                   -9.0 * source(i+start1,j+start2,k+start3+2)
+     &                  +45.0 * source(i+start1,j+start2,k+start3+1)
+     &			-45.0 * source(i+start1,j+start2,k+start3-1)
+     &			 +9.0 * source(i+start1,j+start2,k+start3-2)
+     &			 -1.0 * source(i+start1,j+start2,k+start3-3))
+     
+               enddo
+            enddo
+         enddo
+      endif
 
 #else
+c
+c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
+c=======================================================================
 c     -- standard 2nd order derivative operators --
 c
       fact1 = -1.0/(real(iflag+1)*delx)

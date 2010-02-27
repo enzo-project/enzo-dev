@@ -69,7 +69,8 @@ int grid::AddRadiationPressureAcceleration()
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
 	for (dim = 0; dim < GridRank; dim++) {
 	  AccelerationField[dim][index] += BaryonField[RPresNum1+dim][index];
-//	  if (BaryonField[RPresNum1+dim][index] > tiny_number)
+//	  if (fabs(BaryonField[RPresNum1+dim][index]) > 
+//	      fabs(0.01*AccelerationField[dim][index]))  
 //	    fprintf(stdout, "AddRPAccel[dim %"ISYM" :: %"ISYM" %"ISYM" %"ISYM"]: "
 //		    "Accel = %"GSYM", RPAccel = %"GSYM"\n", 
 //		    dim, i, j, k, AccelerationField[dim][index],

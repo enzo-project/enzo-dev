@@ -85,7 +85,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 #ifdef USE_HDF4
   Eint32 TempIntArray2[MAX_DIMENSION];
   Eint32 sds_id, num_type2, attributes, TempInt;  
-  sds_index = 0;  // start at first SDS                                                                            
+  sds_index = 0;  // start at first SDS
 #endif 
  
 #ifdef IO_LOG
@@ -331,9 +331,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       /* allocate temporary space */
  
 #ifdef USE_HDF4 // will use float also for HDF5 if USE_HDF4
-      float32 *temp = new float32[active_size];  // not general but good enough?
+      float *temp = NULL;
+      if (sizeof(Eflt) == 4)
+	temp = new float[active_size]; 
+      else
+	temp = new float[active_size*2];  	
 #else
-	io_type *temp = new io_type[active_size];
+      io_type *temp = new io_type[active_size];
 #endif
       /* loop over fields, reading each one */
  
@@ -531,15 +535,15 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
       /* Create a temporary buffer (32 bit or twice the size for 64). */
       
-      float32 *temp = NULL;
+      float *temp = NULL;
       if (num_type2 != HDFDataType) {
 	if (num_type2 == DFNT_FLOAT64)
-	  temp = new float32[NumberOfParticles*2];
+	  temp = new float[NumberOfParticles*2];
 	if (num_type2 == DFNT_FLOAT128)
-	  temp = new float32[NumberOfParticles*4];
+	  temp = new float[NumberOfParticles*4];
       }
       if (temp == NULL)
-	temp = new float32[NumberOfParticles];
+	temp = new float[NumberOfParticles];
 
 	/* Read ParticlePosition (use temporary buffer). */ 
 	
@@ -577,6 +581,10 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    if (num_type2 == DFNT_FLOAT128)
 	      for (i = 0; i < NumberOfParticles; i++)
 		ParticlePosition[dim][i] = FLOAT(temp128[i]);
+
+	    delete [] temp64;
+	    delete [] temp128;
+
 	  }
 	} // end: loop over dims
 	
@@ -649,7 +657,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    ParticleType[i] = ReturnParticleType(i);
       } // (!TryHDF5)
 
-#endif
+#endif  // USE_HDF4
 
       if (TryHDF5) {
 	/* Create a temporary buffer (32 bit or twice the size for 64). */
@@ -658,7 +666,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
 	switch(sizeof(FLOAT))
 	  {
-	  case 4: temp = new io_type[NumberOfParticles];	  break;
+	  case 4: temp = new io_type[NumberOfParticles];    break;
 	  case 8: temp = new io_type[NumberOfParticles*2];  break;
 	  case 16:temp = new io_type[NumberOfParticles*4];  break;
 	  default: printf("INCORRECT FLOAT DEFINITION\n");
