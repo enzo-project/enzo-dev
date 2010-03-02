@@ -161,7 +161,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 //    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
     if (cstar->FeedbackFlag != SUPERNOVA) {
-      old_mass = (float)(cstar->Mass);
+      float old_mass = (float)(cstar->Mass);
       cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
       cstar->vel[0] *= old_mass / cstar->Mass; 
       cstar->vel[1] *= old_mass / cstar->Mass;
