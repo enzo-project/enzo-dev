@@ -214,7 +214,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Radius = %"GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
-      if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
+      if (cstar->ReturnFeedbackFlag() == DEATH || 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
 	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	  cstar->ReturnFeedbackFlag() == MBH_JETS )

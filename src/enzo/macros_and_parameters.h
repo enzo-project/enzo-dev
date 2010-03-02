@@ -448,6 +448,7 @@ typedef int            HDF5_hid_t;
 
 #define NUM_PARTICLE_TYPES 10
 
+#define PARTICLE_TYPE_RESET       -1
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1
 #define PARTICLE_TYPE_STAR         2

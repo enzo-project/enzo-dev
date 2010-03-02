@@ -60,6 +60,8 @@ SPEXTERN float PopIIIH2CriticalFraction;
 SPEXTERN float PopIIIMetalCriticalFraction;
 SPEXTERN float PopIIISupernovaRadius;
 SPEXTERN int   PopIIISupernovaUseColour;
+SPEXTERN int   PopIIISupernovaMustRefine;
+SPEXTERN int   PopIIISupernovaMustRefineResolution;
 SPEXTERN float PopIIIColorDensityThreshold;
 SPEXTERN float PopIIIColorMass;
 
