@@ -129,6 +129,8 @@ int Star::ComputePhotonRates(float E[], double Q[])
 //    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
 //    	    this->last_accretion_rate, Q[0]); 
 
+#ifdef TRANSFER
+
     if (RadiativeTransferTraceSpectrum == TRUE) {
       E[0] = ReturnValuesFromSpectrumTable(0.0, 0.0, 3); //##### mean energy if column density=0
       E[1] = 0.0;
@@ -145,6 +147,8 @@ int Star::ComputePhotonRates(float E[], double Q[])
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stdout, "star::CPP: check initial mean E of photon SED: E[0] = %g\n", E[0]); 
     }
+
+#endif
 
     break;
 

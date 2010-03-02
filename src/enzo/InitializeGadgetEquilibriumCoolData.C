@@ -51,8 +51,7 @@ int InitializeGadgetEquilibriumCoolData(FLOAT Time)
   if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
     ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
   }
-
-  redshift = 1.0 / a - 1.0;
+  redshift = (1 + InitialRedshift)/a - 1;
 
   GadgetInitCoolMemory();
   GadgetMakeCoolingTable();  

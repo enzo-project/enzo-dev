@@ -41,6 +41,7 @@ SPEXTERN int G_TotalNumberOfStars;
 
 SPEXTERN int StarFeedbackType;
 SPEXTERN float StarMakerOverDensityThreshold;
+SPEXTERN float StarMakerSHDensityThreshold;
 SPEXTERN float StarMakerMassEfficiency;
 SPEXTERN float StarMakerMinimumMass;
 SPEXTERN float StarMakerMinimumDynamicalTime;

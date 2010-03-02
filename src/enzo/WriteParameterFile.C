@@ -297,6 +297,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionLeftEdge);
   fprintf(fptr, "MustRefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
+  fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
+  if (RefineRegionFile != NULL)
+    fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
+  fprintf(fptr, "\n");
   fprintf(fptr, "\n");
  
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
@@ -577,6 +581,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
+  fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
+      StarMakerSHDensityThreshold);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",
 	  StarMakerMassEfficiency);
   fprintf(fptr, "StarMakerMinimumMass                  = %"GSYM"\n",

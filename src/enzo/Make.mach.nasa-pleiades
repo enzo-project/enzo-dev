@@ -4,7 +4,7 @@
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/11.1.046 mpi/mpt.1.23.nas
+#    modules: comp-intel/11.1.046 mpi/mpt.1.23.nas hdf5/1.6.5
 #
 # AUTHOR:      John Wise
 #
@@ -26,7 +26,7 @@ MACH_FILE  = Make.mach.nasa-pleiades
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/1.23.nas
-LOCAL_HDF5_INSTALL   = /home1/jhwise/local/hdf5/1.8.4s
+LOCAL_HDF5_INSTALL   = /nasa/hdf5/1.6.5/serial
 LOCAL_PYTHON_INSTALL = /nasa/python/2.6.1
 LOCAL_INT_INSTALL    = /nasa/intel/Compiler/11.1/046
 
@@ -97,7 +97,8 @@ MACH_FFLAGS_REAL_64    = -r8
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
 MACH_OPT_HIGH        = -O2
-MACH_OPT_AGGRESSIVE  = -O3
+# use -xSSE4.2, if you're using Pleiades/Nehalem-EP cores
+MACH_OPT_AGGRESSIVE  = -O3 -xSSE4.1
 
 #-----------------------------------------------------------------------
 # Includes
