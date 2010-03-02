@@ -60,11 +60,17 @@ float grid::Gadgetconvert_u_to_temp(float u, float rho, float *ne_guess)
 
 
   temp = GAMMA_MINUS1 / BOLTZMANN * u * PROTONMASS * mu;
-
+  
   //if(debug) printf("GAMMA_MINUS1: %lf  BOLTZMANN:  %e  u:  %e\n",GAMMA_MINUS1, BOLTZMANN, u);
   //if(debug) printf("PROTONMASS:  %e  mu:  %e\n",PROTONMASS,mu);
   //if(debug) printf("temp:  %e log10(temp):  %lf\n",temp,log10(temp));
   //if(debug) printf("In Gadgetconvert_u_to_temp:2\n");
+
+  if ((log10(temp) < Tmin) || (log10(temp) > Tmax)) {
+     ne_old = *ne_guess;
+     Gadgetfind_abundances_and_rates(log10(temp), rho, ne_guess);
+     return temp;
+  }
 
   do
     {
@@ -72,6 +78,9 @@ float grid::Gadgetconvert_u_to_temp(float u, float rho, float *ne_guess)
 
       //if(debug) printf("In Gadgetconvert_u_to_temp:3\n");
       Gadgetfind_abundances_and_rates(log10(temp), rho, ne_guess);
+      if ((log10(temp) < Tmin) || (log10(temp) > Tmax)) {
+         return temp;
+      }
       temp_old = temp;
       //if(debug) printf("In Gadgetconvert_u_to_temp:4\n");
       mu = (1 + 4 * yhelium) / (1 + yhelium + *ne_guess);

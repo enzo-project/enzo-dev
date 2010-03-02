@@ -63,6 +63,8 @@
 
 #define MAX_STATIC_REGIONS               1000
 
+#define MAX_REFINE_REGIONS               150
+
 #ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
 #else

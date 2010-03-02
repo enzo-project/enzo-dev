@@ -564,6 +564,7 @@ OBJS_CONFIG_LIB = \
         RadiationFieldUpdate.o \
         ReadAllData.o \
         ReadAttr.o \
+        ReadEvolveRefineFile.o \
         read_bt.o \
         read_bv.o \
         ReadDataHierarchy.o \
@@ -594,6 +595,7 @@ OBJS_CONFIG_LIB = \
 	SetBoundaryConditions.o \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
+        SetEvolveRefineRegion.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \
