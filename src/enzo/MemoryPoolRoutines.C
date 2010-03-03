@@ -17,6 +17,7 @@
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
+#include "global_data.h"
 #include "MemoryPool.h"
 
 namespace MPool
@@ -131,16 +132,14 @@ namespace MPool
     MemoryChunk* NewChunks = (MemoryChunk*) ((TByte*)(MemBlock)+BestMemBlockSize);
     assert(((NewMemBlock) && (NewChunks)) && "Error: out of memory?");
 
-    printf("AllocateMemory:\n"
-	   "\tNeededChunks = %d\n"
-	   "\tBestMemBlockSize = %d\n"
-	   "\tNewChunks = %x\n",
-	   NeededChunks, BestMemBlockSize, NewChunks);
-
     // Adjust the internal values
     TotalMemoryPoolSize += BestMemBlockSize;
     FreeMemoryPoolSize += BestMemBlockSize;
     MemoryChunkCount += NeededChunks;
+
+    printf("P%d: AllocateMemory: %0.3f MB, (+%0.3f MB)\n",
+	   MyProcessorNumber, TotalMemoryPoolSize/1048576.0,
+	   BestMemBlockSize/1048576.0);
 
     if (SetMemoryData)
       memset( ((void*) NewMemBlock), NEW_ALLOCATED_MEMORY, BestMemBlockSize);
@@ -391,11 +390,17 @@ namespace MPool
   void MemoryPool::FreeAllAllocatedMemory(void)
   {
     MemoryChunk* Chunk = FirstChunk;
+    void* DataToDelete = NULL;
     while (Chunk) {
-      if (Chunk->IsAllocationChunk)
-	free((void*) Chunk->Data);
+      if (Chunk->IsAllocationChunk) {
+	if (DataToDelete != NULL)
+	  free(DataToDelete);
+	DataToDelete = (void*) Chunk->Data;
+      }
       Chunk = Chunk->Next;
     } // ENDWHILE
+    if (DataToDelete != NULL)
+      free(DataToDelete);
   }
 
   /**********************************************************************/

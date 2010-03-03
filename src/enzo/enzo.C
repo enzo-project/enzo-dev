@@ -248,15 +248,15 @@ Eint32 main(Eint32 argc, char *argv[])
 #endif
 
   /* The initial size of the memory pool in units of photon packages.
-     Increase the memory pool by 1/10th of the initial size as more
+     Increase the memory pool by 1/4th of the initial size as more
      memory is needed. */
 
 #ifdef MEMORY_POOL
-  const int PhotonMemorySize = 10000;
+  const int PhotonMemorySize = 500000;
   int PhotonSize = sizeof(PhotonPackageEntry);
   PhotonMemoryPool = new MPool::MemoryPool(PhotonMemorySize*PhotonSize,
 					   PhotonSize,
-					   PhotonMemorySize*PhotonSize/10);
+					   PhotonMemorySize*PhotonSize/4);
 #endif
 
   // Begin 

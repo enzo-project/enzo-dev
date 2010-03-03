@@ -42,6 +42,7 @@ int InitiatePhotonNumberSend(int *nPhoton);
 int InitializePhotonReceive(int group_size);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 #ifdef USE_MPI
+int CommunicationBufferPurge(void);
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
                               int Target, int Tag, MPI_Comm CommWorld, 
 			      int BufferSize);
@@ -324,6 +325,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       
   /* Clean up */
 
+  CommunicationBufferPurge();
   delete [] nPhoton;
   delete [] PhotonCounter;
 
