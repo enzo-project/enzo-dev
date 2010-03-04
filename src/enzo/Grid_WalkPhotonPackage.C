@@ -511,6 +511,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       } // ENDFOR absorbers
 
       for (i = 0; i <= type; i++) dP += dPi[i];
+      (*PP)->ColumnDensity += dN;
 
       break;
 
@@ -597,6 +598,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber
+
+      (*PP)->ColumnDensity += dN;
 
       if (RadiationXRayComptonHeating) {  
 
@@ -695,13 +698,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     } // ENDSWITCH type
 
+    if (type != iH2I && type != 5)
+
     /* Keep track of the maximum hydrogen photo-ionization rate in the
        I-front, so we can calculate the maximum ionization timescale
        for timestepping purposes. */
 
     if (RadiativeTransferHIIRestrictedTimestep)
       if (type == iHI || type == 4) {
-	(*PP)->ColumnDensity += dN;
 	if ((*PP)->ColumnDensity > MinTauIfront) {
 	  if (BaryonField[kphNum[iHI]][index] > this->MaximumkphIfront) {
 	    this->MaximumkphIfront = BaryonField[kphNum[iHI]][index];
