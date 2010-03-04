@@ -126,8 +126,8 @@ extern "C" void FORTRAN_NAME(star_maker5)(int *nx, int *ny, int *nz,
                  int *np,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf,
-         float *rr_left0, float *rr_left1, float *rr_left2, float *rr_right0,
-         float *rr_right1, float *rr_right2);
+         FLOAT *rr_left0, FLOAT *rr_left1, FLOAT *rr_left2, FLOAT *rr_right0,
+         FLOAT *rr_right1, FLOAT *rr_right2);
 
 int star_maker8(int *nx, int *ny, int *nz, int *size,
 		float *d, float *te, float *ge, float *u, float *v, float *w,
