@@ -441,7 +441,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     if (CloudType == 7) {
       k1 = 1.0;
       k2 = 2.0;
-      dk = 0.2;
+      dk = 0.5;
     }
 
 
