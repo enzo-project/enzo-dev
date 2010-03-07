@@ -47,10 +47,20 @@ int Star::HitEndpoint(FLOAT Time)
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass)
       if (this->FeedbackFlag == DEATH) {
 	this->Mass = 1e-10;  // Needs to be non-zero
-	result = KILL_STAR;
+
+	// Set lifetime so the time of death is exactly now.
+	this->LifeTime = Time - this->BirthTime;
+
+	this->FeedbackFlag = NO_FEEDBACK;
+	//result = KILL_STAR;
+	result = NO_DEATH;
       } else
 	result = NO_DEATH;
-    else {
+
+    // Check mass: Don't want to kill tracer SN particles formed
+    // (above) in the previous timesteps.
+
+    else if (this->Mass > 1e-9) {
       // Turn particle into a black hole (either radiative or tracer)
       if (PopIIIBlackHoles) {
 	this->type = BlackHole;
@@ -61,7 +71,8 @@ int Star::HitEndpoint(FLOAT Time)
 	this->type = PARTICLE_TYPE_DARK_MATTER;
 	result = KILL_STAR;
       }
-    }
+    } else // SN tracers (must refine)
+      result = NO_DEATH;
     break;
     
   case PopII:

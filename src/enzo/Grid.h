@@ -21,6 +21,7 @@
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
+#include "MemoryPool.h"
 
 #ifdef FLUX_FIX
 #include "TopGridData.h"
@@ -1255,6 +1256,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
                                hid_t ptype_dspace,
                                hid_t parent_group,
                                hid_t file_id);
+
+ int ChangeParticleTypeBeforeSN(int _type, int level, 
+				int *ParticleBufferSize=NULL);
 
 // -------------------------------------------------------------------------
 // Communication functions

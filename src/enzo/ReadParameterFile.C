@@ -56,7 +56,7 @@ int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
- 
+int ReadEvolveRefineFile(void);
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
 
@@ -317,6 +317,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MustRefineRegionRightEdge, MustRefineRegionRightEdge+1,
 		  MustRefineRegionRightEdge+2);
 
+    /* Read evolving RefineRegion */
+
+    ret += sscanf(line, "RefineRegionTimeType = %"ISYM, &RefineRegionTimeType);
+    if (sscanf(line, "RefineRegionFile = %s", dummy) == 1) {
+      RefineRegionFile = dummy;
+      ret++;
+    }
+
     if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
     if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
@@ -480,7 +488,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "Debug2 = %"ISYM, &debug2);
 
-    ret += sscanf(line, "MemoryLimit = %"ISYM, &MemoryLimit);
+    ret += sscanf(line, "MemoryLimit = %lld", &MemoryLimit);
 
 #ifdef STAGE_INPUT
     ret += sscanf(line, "StageInput = %"ISYM, &StageInput);
@@ -597,6 +605,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
+    ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
+		  &StarMakerSHDensityThreshold);
     ret += sscanf(line, "StarMakerMassEfficiency = %"FSYM,
 		  &StarMakerMassEfficiency);
     ret += sscanf(line, "StarMakerMinimumMass = %"FSYM, &StarMakerMinimumMass);
@@ -647,6 +657,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIISupernovaRadius = %"FSYM, &PopIIISupernovaRadius);
     ret += sscanf(line, "PopIIISupernovaUseColour = %"ISYM, 
 		  &PopIIISupernovaUseColour);
+    ret += sscanf(line, "PopIIISupernovaMustRefine = %"ISYM,
+		  &PopIIISupernovaMustRefine);
+    ret += sscanf(line, "PopIIISupernovaMustRefineResolution = %"ISYM,
+		  &PopIIISupernovaMustRefineResolution);
 
     ret += sscanf(line, "PopIIIColorDensityThreshold = %"FSYM,
 		  &PopIIIColorDensityThreshold);
@@ -939,6 +953,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
   }
 
+  /* If RefineRegionTimeType is 0 or 1, read in the input file. */
+  if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
+      if (ReadEvolveRefineFile() == FAIL) {
+        ENZO_FAIL("Error in ReadEvolveRefineFile.");
+      }
+  }
+
   /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
      or RadiationFieldType to be on - both are taken care of in
      the Gadget cooling routine.  Therefore, we turn them off!
@@ -1177,6 +1198,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       method++;
     CellFlaggingMethod[method] = 4;
   }
+
+
+  /* If we're refining the region around P3 supernovae,
+     MustRefineByParticles must be set.  Check this.  */
+
+  if (PopIIISupernovaMustRefine == TRUE) {
+    bool TurnOnParticleMustRefine = true;
+    for (method = 0; method < MAX_FLAGGING_METHODS; method++)
+      if (CellFlaggingMethod[method] == 8)
+	TurnOnParticleMustRefine = false;
+    if (TurnOnParticleMustRefine) {
+      method = 0;
+      while (CellFlaggingMethod[method] != INT_UNDEFINED)
+	method++;
+      CellFlaggingMethod[method] = 8;
+    }
+
+    /* Check if the must refine level is still at the default.  If so,
+       break because it's zero!  Won't do anything, and the user will
+       be disappointed to find that the simulation didn't refine
+       around the SN. */
+
+    if (MustRefineParticlesRefineToLevel == 0)
+      ENZO_FAIL("MustRefineParticlesRefineToLevel is still ZERO, and you set"
+		"PopIIISupernovaMustRefine.  Set the level or turn off"
+		"PopIIISupernovaMustRefine.");
+  } // ENDIF PopIIISupernovaMustRefine
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;

@@ -247,6 +247,17 @@ Eint32 main(Eint32 argc, char *argv[])
   GetNodeFreeMemory();
 #endif
 
+  /* The initial size of the memory pool in units of photon packages.
+     Increase the memory pool by 1/4th of the initial size as more
+     memory is needed. */
+
+#ifdef MEMORY_POOL
+  const int PhotonMemorySize = MEMORY_POOL_SIZE;
+  int PhotonSize = sizeof(PhotonPackageEntry);
+  PhotonMemoryPool = new MPool::MemoryPool(PhotonMemorySize*PhotonSize,
+					   PhotonSize,
+					   PhotonMemorySize*PhotonSize/4);
+#endif
 
   // Begin 
 

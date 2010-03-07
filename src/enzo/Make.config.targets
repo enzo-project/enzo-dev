@@ -32,6 +32,10 @@ help-config:
 	@echo
 	@echo "      gmake max-tasks-per-node-###"
 	@echo
+	@echo "   Set initial memory pool size (in number of photons)"
+	@echo
+	@echo "      gmake memory-pool-###"
+	@echo
 	@echo
 	@echo "CONFIGURATION SETTINGS"
 	@echo
@@ -220,6 +224,7 @@ show-config:
 	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
 	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
 	@echo "   PARAMETER_MAX_TASKS_PER_NODE: $(PARAMETER_MAX_TASKS_PER_NODE)"
+	@echo "   PARAMETER_MEMORY_POOL_SIZE:   $(PARAMETER_MEMORY_POOL_SIZE)"
 	@echo
 	@echo "   CONFIG_PRECISION:             $(CONFIG_PRECISION)"
 	@echo "   CONFIG_PARTICLES:             $(CONFIG_PARTICLES)"
@@ -309,6 +314,18 @@ max-tasks-per-node-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "PARAMETER_MAX_TASKS_PER_NODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep PARAMETER_MAX_TASKS_PER_NODE:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+memory-pool-%:
+	@tmp=.config.temp; \
+        grep -v PARAMETER_MEMORY_POOL_SIZE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "PARAMETER_MEMORY_POOL_SIZE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	touch $(TOP_DIR)/src/enzo/enzo.C $(TOP_DIR)/src/enzo/EvolvePhotons.C; \
+	$(MAKE)  show-config | grep PARAMETER_MEMORY_POOL_SIZE:
 	@echo
 
 

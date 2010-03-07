@@ -38,7 +38,7 @@
     PARAMETER_MAX_SUBGRIDS       = 100000
     PARAMETER_MAX_BARYONS        = 20
     PARAMETER_MAX_TASKS_PER_NODE = 8
-
+    PARAMETER_MEMORY_POOL_SIZE   = 100000
 
 #=======================================================================
 # CONFIG_INTEGERS

@@ -1,17 +1,22 @@
 /***********************************************************************
 /
-/  PHOTON PACKAGE STRUCTURE AND ROUTINES
+/  PHOTON PACKAGE CLASS
 /
 /  written by: Tom Abel & Greg Bryan
 /  date:       August, 2003
-/  modified1:
+/  modified1:  February, 2010 by JHW
+/                Converted into a poor man's class with everything 
+/                public.  I need a constructor/destructor to use the
+/                MemoryPool to avoid memory fragmentation.
 /
 /  PURPOSE: Constructs a Linked List of Photon Packages including data
 /
 ************************************************************************/
 #include "RadiationSource.h"
 
-struct PhotonPackageEntry  {
+class PhotonPackageEntry
+{
+public:
   PhotonPackageEntry *NextPackage; // Next Link
   PhotonPackageEntry *PreviousPackage; // Previous Link
   SuperSourceEntry *CurrentSource;  // Currently used (super)source  
@@ -28,4 +33,18 @@ struct PhotonPackageEntry  {
   int   level;                  // level in HEALPIX terminology
   FLOAT SourcePosition[3];      // Position where package was emitted
   float SourcePositionDiff;     // Radius at which it was radiated (0 = pt src)
+
+  /* CONSTRUCTOR AND DESTRUCTOR */
+
+  PhotonPackageEntry(void);
+
+  virtual ~PhotonPackageEntry(void) {};
+
+  /* Overloaded new/delete to use the memory pool, if requested */
+
+#ifdef MEMORY_POOL
+  void* operator new(size_t nobjects);
+  void operator delete(void* object);
+#endif
+
 };

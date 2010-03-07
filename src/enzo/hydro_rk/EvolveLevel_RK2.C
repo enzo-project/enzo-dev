@@ -132,10 +132,16 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
 #ifdef FLUX_FIX
+#ifdef FAST_SIB 
 int CreateSUBlingList(TopGridData *MetaData,
-		      HierarchyEntry *Grids[],
-		      int NumberOfGrids,
+		      LevelHierarchyEntry *LevelArray[], int level,
+		      SiblingGridList SiblingList[],
 		      LevelHierarchyEntry ***SUBlingList);
+#else
+int CreateSUBlingList(TopGridData *MetaData,
+		      LevelHierarchyEntry *LevelArray[], int level,
+		      LevelHierarchyEntry ***SUBlingList);
+#endif /* FAST_SIB */
 int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
 #endif
@@ -610,7 +616,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 #ifdef FLUX_FIX
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
-    CreateSUBlingList(MetaData, Grids,NumberOfGrids, &SUBlingList);
+#ifdef FAST_SIB
+    CreateSUBlingList(MetaData, LevelArray, level, SiblingList,
+		      &SUBlingList);
+#else
+    CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
+#endif /* FAST_SIB */
 #endif
 
 #ifdef FLUX_FIX

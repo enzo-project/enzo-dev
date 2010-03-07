@@ -297,6 +297,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionLeftEdge);
   fprintf(fptr, "MustRefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
+  fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
+  if (RefineRegionFile != NULL)
+    fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
+  fprintf(fptr, "\n");
   fprintf(fptr, "\n");
  
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
@@ -474,7 +478,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "Debug1                          = %"ISYM"\n", debug1);
   fprintf(fptr, "Debug2                          = %"ISYM"\n", debug2);
 
-  fprintf(fptr, "MemoryLimit                     = %"ISYM"\n", MemoryLimit);
+  fprintf(fptr, "MemoryLimit                     = %lld\n", MemoryLimit);
 
 #ifdef STAGE_INPUT
   fprintf(fptr, "StageInput                      = %"ISYM"\n", StageInput);
@@ -577,6 +581,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
+  fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
+      StarMakerSHDensityThreshold);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",
 	  StarMakerMassEfficiency);
   fprintf(fptr, "StarMakerMinimumMass                  = %"GSYM"\n",
@@ -637,12 +643,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIMetalCriticalFraction);
   fprintf(fptr, "PopIIISupernovaRadius                 = %"GSYM"\n",
           PopIIISupernovaRadius);
-  fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n",
           PopIIISupernovaUseColour);
+  fprintf(fptr, "PopIIISupernovaMustRefine             = %"ISYM"\n",
+          PopIIISupernovaMustRefine);
+  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n\n",
+          PopIIISupernovaMustRefineResolution);
 
-  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
+  fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
-  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n\n",
+  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
           PopIIIColorMass);
 
   fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
