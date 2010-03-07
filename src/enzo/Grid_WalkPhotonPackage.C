@@ -290,7 +290,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
      Since CellVolume is constant for the grid, incorporate it into [~].
      dA = [~] * dP * Energy / Density * r_hat
-
   */
 
   double RadiationPressureConversion =

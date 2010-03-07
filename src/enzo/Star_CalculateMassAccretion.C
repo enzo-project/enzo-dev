@@ -127,7 +127,7 @@ int Star::CalculateMassAccretion(void)
 
     // if requested, fix the temperature and zero v_rel 
     // so you don't get overpowered by high T SN bubble
-    if (this->type == MBH && MBHAccretion == 2) {
+    if (this->type == MBH && (MBHAccretion == 2 || MBHAccretion == 12)) {
       v_rel = 0.0;
       temperature[index] = MBHAccretionFixedTemperature;   
     }
@@ -142,7 +142,7 @@ int Star::CalculateMassAccretion(void)
     if (this->type == MBH) { 
 
       // if requested, just fix mdot (e.g. to 1e-4 Msun/yr)
-      if (MBHAccretion == 3)
+      if (MBHAccretion == 3 || MBHAccretion == 13)
 	mdot = MBHAccretionFixedRate / yr; 
 
       /* For MBH, MBHAccretingMassRatio is implemented; when we resolve Bondi radius, 
@@ -164,7 +164,8 @@ int Star::CalculateMassAccretion(void)
       mdot_Edd = 4.0 * PI * Grav * old_mass * m_h /
 	MBHFeedbackRadiativeEfficiency / sigma_T / c; 
 
-      mdot = min(mdot, mdot_Edd); 
+      if (MBHAccretion < 10)
+	mdot = min(mdot, mdot_Edd); 
 
       // No accretion if the BH is in some low-density and cold cell.
       if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || !(MBHAccretion > 0))
