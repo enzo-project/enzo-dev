@@ -137,9 +137,11 @@ namespace MPool
     FreeMemoryPoolSize += BestMemBlockSize;
     MemoryChunkCount += NeededChunks;
 
+#ifdef MEM_TRACE
     printf("P%d: AllocateMemory: %0.3f MB, (+%0.3f MB)\n",
 	   MyProcessorNumber, TotalMemoryPoolSize/1048576.0,
 	   BestMemBlockSize/1048576.0);
+#endif
 
     if (SetMemoryData)
       memset( ((void*) NewMemBlock), NEW_ALLOCATED_MEMORY, BestMemBlockSize);

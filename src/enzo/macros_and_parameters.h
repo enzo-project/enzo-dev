@@ -52,6 +52,7 @@
 #define CYCLE_TAG_FORMAT       "4.4"
 #define MAX_COUNTERS              40
 
+#define MEMORY_POOL_SIZE  __memory_pool_size
 
 #define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
 

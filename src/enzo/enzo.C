@@ -252,7 +252,7 @@ Eint32 main(Eint32 argc, char *argv[])
      memory is needed. */
 
 #ifdef MEMORY_POOL
-  const int PhotonMemorySize = 500000;
+  const int PhotonMemorySize = MEMORY_POOL_SIZE;
   int PhotonSize = sizeof(PhotonPackageEntry);
   PhotonMemoryPool = new MPool::MemoryPool(PhotonMemorySize*PhotonSize,
 					   PhotonSize,
