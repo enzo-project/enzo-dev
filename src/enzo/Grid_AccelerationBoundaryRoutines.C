@@ -122,8 +122,9 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    int CycleNumber)
 {
 
-  if ( ! (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 )
+  if ( !(SelfGravity || UniformGravity || PointSourceGravity) )  
     return SUCCESS;
+  if (level == 0)  return SUCCESS;
 
   //Set the boundary on the Acceleration field.  Reuse SetBoundaryConditions.  
   //Juggle pointers around.
