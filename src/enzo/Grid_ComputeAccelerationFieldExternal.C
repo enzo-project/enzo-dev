@@ -42,7 +42,7 @@ int grid::ComputeAccelerationFieldExternal()
 {
  
   /* Return if this does not concern us */
-  if (!(UniformGravity || PointSourceGravity || ExternalGravity)) return SUCCESS;
+  if (!(UniformGravity || PointSourceGravity)) return SUCCESS;
 
   /* Return if this grid is not on this processor. */
  

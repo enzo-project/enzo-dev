@@ -562,7 +562,6 @@ EXTERN float C_p;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
-EXTERN int ExternalGravity;
 EXTERN int StringKick;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
@@ -587,8 +586,6 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
-EXTERN float ExternalGravityDensity;
-EXTERN double ExternalGravityRadius;
 
 /* Poisson Clean */
 
