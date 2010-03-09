@@ -385,6 +385,7 @@ OBJS_CONFIG_LIB = \
         Grid_ProjectToPlane.o \
         Grid_ProjectToPlane2.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
+	Grid_PutSinkRestartInitialize.o \
         Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
         Grid_ReadGrid.o \
@@ -557,6 +558,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_FindGridsByZeroSignature.o \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
+	PutSinkRestartInitialize.o \
         QuickSortAndDrag.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \

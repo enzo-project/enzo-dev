@@ -1749,6 +1749,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
 
+/* Put Sink restart initialize grid. */
+
+  int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
+
+
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();
 
