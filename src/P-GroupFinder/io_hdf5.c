@@ -156,13 +156,13 @@ void ReadParticleFieldHDF5_FLOAT(hid_t group_id, char *label, int nPart, float *
 
 /************************************************************************/
 
-void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, int **data)
+void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, PINT **data)
 {
 
   int n;
   // HDF variables
   hid_t data_id, data_type_id;
-  int 	*temp  = NULL;
+  PINT 	*temp  = NULL;
 
   if ((data_id = H5Dopen(group_id, label, H5P_DEFAULT)) < 0) {
     fprintf(stderr, "ReadParticleField: cannot read %s\n", label);
@@ -171,8 +171,8 @@ void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, int **dat
     exit(1);
   }
   
-  data_type_id = H5T_NATIVE_INT;
-  temp = (int *) malloc(sizeof(int) * nPart);
+  data_type_id = HDF5_PINT;
+  temp = (PINT *) malloc(sizeof(PINT) * nPart);
 
   if (H5Dread(data_id, data_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
 	      (void*) temp) < 0) {
@@ -181,9 +181,9 @@ void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, int **dat
     exit(1);
   }
       
-  (*data) = (int *) malloc(sizeof(int) * nPart);
+  (*data) = (PINT *) malloc(sizeof(PINT) * nPart);
   for (n = 0; n < nPart; n++)
-    (*data)[n] = (int) temp[n];
+    (*data)[n] = (PINT) temp[n];
 
   free(temp);
   H5Dclose(data_id);
