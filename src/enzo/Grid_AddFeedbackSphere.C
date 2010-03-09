@@ -125,7 +125,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   // Correct for exaggerated influence radius for pair-instability supernovae
   if (cstar->FeedbackFlag == SUPERNOVA)
-    radius /= 8.0;
+    radius /= 1.0;
 
   // Correct if the volume with 27 cells is larger than the energy bubble volume
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
@@ -154,6 +154,23 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
       cstar->FeedbackFlag == CONT_SUPERNOVA) {
+
+    /* Remove mass from the star that will now be added to grids. 
+       Also, because EjectaDensity will be added with zero net momentum, 
+       increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
+
+//    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
+    if (cstar->FeedbackFlag != SUPERNOVA) {
+      float old_mass = (float)(cstar->Mass);
+      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+      cstar->vel[0] *= old_mass / cstar->Mass; 
+      cstar->vel[1] *= old_mass / cstar->Mass;
+      cstar->vel[2] *= old_mass / cstar->Mass;
+    } // ENDIF !Supernova
+
+//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
+//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
 
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 

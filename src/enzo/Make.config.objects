@@ -214,6 +214,7 @@ OBJS_CONFIG_LIB = \
         Grid_AppendForcingToBaryonFields.o \
         Grid_ApplyTimeAction.o \
         Grid_CalculateAngularMomentum.o \
+	Grid_ChangeParticleTypeBeforeSN.o \
         Grid_CheckForExternalReflections.o \
         Grid_CheckForOverlap.o \
         Grid_CheckForPossibleOverlap.o \
@@ -496,6 +497,7 @@ OBJS_CONFIG_LIB = \
         MagneticFieldResetter.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
+	MemoryPoolRoutines.o \
 	MersenneTwister.o \
         mg_calc_defect.o \
         mg_prolong2.o \
@@ -745,6 +747,7 @@ POBJS_CONFIG_LIB = \
         Grid_WalkPhotonPackage.o \
         LinkedListRoutines.o \
         PhotonTestInitialize.o \
+	PhotonPackageRoutines.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \
         RadiativeTransferInitialize.o \

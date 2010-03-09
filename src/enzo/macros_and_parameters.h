@@ -52,6 +52,7 @@
 #define CYCLE_TAG_FORMAT       "4.4"
 #define MAX_COUNTERS              40
 
+#define MEMORY_POOL_SIZE  __memory_pool_size
 
 #define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
 
@@ -448,6 +449,7 @@ typedef int            HDF5_hid_t;
 
 #define NUM_PARTICLE_TYPES 10
 
+#define PARTICLE_TYPE_RESET       -1
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1
 #define PARTICLE_TYPE_STAR         2

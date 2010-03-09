@@ -92,8 +92,8 @@ c
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       real    odthresh, shdens, masseff, smthresh, mintdyn
-      real    rr_left0, rr_left1, rr_left2
-      real    rr_right0, rr_right1, rr_right2
+      REALSUB rr_left0, rr_left1, rr_left2
+      REALSUB rr_right0, rr_right1, rr_right2
 c
       real   sformsum
       save   sformsum
