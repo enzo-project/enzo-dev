@@ -34,10 +34,10 @@ namespace MPool
     void FreeAllAllocatedMemory(void);
 
     // Returns number of memory chunks to hold MemorySize bytes
-    unsigned int CalculateNeededChunks(const size_t &MemorySize);
+    size_t CalculateNeededChunks(const size_t &MemorySize);
 
     // Returns the amount of memory that's best managed by the memory chunks
-    unsigned int CalculateBestMemoryBlockSize
+    size_t CalculateBestMemoryBlockSize
     (const size_t &RequestedMemoryBlockSize);
     
     // Returns a chunk that can hold MemorySize bytes
@@ -49,7 +49,7 @@ namespace MPool
 
     // Skip the given amount of chunks, starting at the given starting
     // pointer
-    MemoryChunk* SkipChunks(MemoryChunk* StartChunk, unsigned int ChunksToSkip);
+    MemoryChunk* SkipChunks(MemoryChunk* StartChunk, size_t ChunksToSkip);
     
     // Set default values to the Chunk
     MemoryChunk* SetChunkDefaults(MemoryChunk* Chunk);
@@ -61,7 +61,7 @@ namespace MPool
     void DeallocateAllChunks(void);
 
     // Link the given block to the linked list of memory chunks
-    bool LinkChunksToData(MemoryChunk* NewChunk, unsigned int ChunkCount,
+    bool LinkChunksToData(MemoryChunk* NewChunk, size_t ChunkCount,
 			  TByte* NewMemBlock);
 
     // Sets the UsedSize of this chunk pointer to MemBlockSize
@@ -70,7 +70,7 @@ namespace MPool
 
     // Recalculates the DataSize of all chunks when the memory pool
     // grows by AllocateMemory()
-    bool RecalcChunkMemorySize(MemoryChunk* Chunks, unsigned int ChunkCount);
+    bool RecalcChunkMemorySize(MemoryChunk* Chunks, size_t ChunkCount);
 
     // Pointer to the first and last chunk
     MemoryChunk* FirstChunk;
@@ -90,11 +90,11 @@ namespace MPool
     size_t MemoryChunkSize;
 
     // Total amount of memory chunks
-    unsigned int MemoryChunkCount;
+    size_t MemoryChunkCount;
     
     // Counter for GetMemory() and FreeMemory() calls.  Indirectly
     // counts the number of objects inside the memory pool.
-    unsigned int ObjectCount;
+    size_t ObjectCount;
 
     // Set to true, if all (de)allocated memory is set to a predefined
     // value through memset().  Useful for debugging.

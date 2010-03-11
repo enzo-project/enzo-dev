@@ -373,10 +373,16 @@ EXTERN int UseMinimumPressureSupport;
 EXTERN float MinimumPressureSupportParameter;
 
 /* Parameters for statically refined regions. */
-
 EXTERN FLOAT StaticRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN FLOAT StaticRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN int   StaticRefineRegionLevel[MAX_STATIC_REGIONS];
+
+/* Evolving refinement region. */
+EXTERN char *RefineRegionFile;
+EXTERN int RefineRegionTimeType; // 0=time 1=redshift
+EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
 
 /* Processor identifier for this thread/processor */
 
@@ -685,7 +691,7 @@ EXTERN TestProblemDataType TestProblemData;
 
 /* Memory Limit */
 
-EXTERN int MemoryLimit;
+EXTERN long_int MemoryLimit;
 
 /* Staged input */
 

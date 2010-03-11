@@ -32,6 +32,7 @@
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
 #define MIN_TAU_IFRONT 0.1
+#define TAU_DELETE_PHOTON 10.0
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
@@ -69,6 +70,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
+  float tau_delete;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
@@ -214,6 +216,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   }
 
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma
+  tau_delete = TAU_DELETE_PHOTON / sigma[0];
 
   // solid angle associated with package (= 4 Pi/N_package[on this level]) 
   float n_on_this_level = (float) (12 * (2 << (2*(*PP)->level-1)));
@@ -511,6 +514,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       } // ENDFOR absorbers
 
       for (i = 0; i <= type; i++) dP += dPi[i];
+      (*PP)->ColumnDensity += dN;
 
       break;
 
@@ -597,6 +601,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
 
       } // ENDFOR absorber
+
+      (*PP)->ColumnDensity += dN;
 
       if (RadiationXRayComptonHeating) {  
 
@@ -695,13 +701,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     } // ENDSWITCH type
 
+    if (type != iH2I && type != 5)
+
     /* Keep track of the maximum hydrogen photo-ionization rate in the
        I-front, so we can calculate the maximum ionization timescale
        for timestepping purposes. */
 
     if (RadiativeTransferHIIRestrictedTimestep)
       if (type == iHI || type == 4) {
-	(*PP)->ColumnDensity += dN;
 	if ((*PP)->ColumnDensity > MinTauIfront) {
 	  if (BaryonField[kphNum[iHI]][index] > this->MaximumkphIfront) {
 	    this->MaximumkphIfront = BaryonField[kphNum[iHI]][index];
@@ -731,14 +738,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < tiny_number) {
-      if (DEBUG>1) 
+    if ((*PP)->Photons < tiny_number || 
+	(*PP)->ColumnDensity > tau_delete) {
+      if (DEBUG>1) {
 	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
 		"PP->CurrentTime: %"FSYM"\n",
 		(*PP)->Photons, (*PP)->Radius, (*PP)->CurrentTime);
-      if (DEBUG>1) 
 	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n", 
 		dP, ddr, cdt, tau);
+      }
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
       return SUCCESS;

@@ -1,6 +1,24 @@
 #include "nrsrc/nrutil.h"
 #include "ngbtree.h"
 
+/* Definitions for controlling the integer type for particle IDs
+   (8-byte needed for >2 billion particle simulations) */
+
+#ifdef CONFIG_PINT_4
+#define PINT int
+#define PINTDataType MPI_INT
+#define HDF5_PINT H5T_NATIVE_INT
+#define HDF5_FILE_PINT HDF5_STD_I32BE
+#define PISYM "d"
+#endif
+
+#ifdef CONFIG_PINT_8
+#define PINT long long int
+#define PINTDataType MPI_LONG_LONG_INT
+#define HDF5_PINT H5T_NATIVE_LLONG
+#define HDF5_FILE_PINT HDF5_STD_I64BE
+#define PISYM "lld"
+#endif
 
 #define  KERNEL_TABLE 10000
 #define  PI               3.1415927
@@ -42,7 +60,7 @@ extern double  leftEdge[3], rightEdge[3];
 
 extern double  SearchRadius;
 
-extern int     NumPart;   /* total particle number */
+extern PINT     NumPart;   /* total particle number */
 extern int     *NpartInGrids;
 
 extern int     *Nslab, *Nshadow;
@@ -77,28 +95,28 @@ extern struct particle_data
   double  	Pos[3];
   float  	Vel[3];
   int    	Type;
-  int    	ID;
-  int    	MinID;
+  PINT    	ID;
+  PINT    	MinID;
   int    	GrLen;
   float  	Mass;
   float  	Mfs, Mclouds, Sfr;
   float  	Energy;
   float  	Rho;
-  int    	PartID;
+  PINT    	PartID;
   int           slab;
 } *P, *Pbuf_local;
 
 struct id_data 
 {
-  int    ID;
-  int    index;
+  PINT    ID;
+  PINT    index;
 };
  
 
 struct idmin_data 
 {
-  int    minID;
-  int    index;
+  PINT   minID;
+  PINT   index;
   int    len;
 };
  

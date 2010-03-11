@@ -16,6 +16,8 @@
 /
 ************************************************************************/
 
+#ifdef TRANSFER
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -99,3 +101,5 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
   return SUCCESS;
 
 }
+
+#endif

@@ -300,7 +300,7 @@ void save_groups(char *particles_fname, char *catalogue_fname,
 	    fwrite(&Pbuf[i].Pos[0], sizeof(double), 3, fd);
 
 	  for(i=0; i<len; i++)
-	    fwrite(&Pbuf[i].PartID, sizeof(int), 1, fdids);
+	    fwrite(&Pbuf[i].PartID, sizeof(PINT), 1, fdids);
 
 	  for(i=0; i<len; i++)
 	    {
@@ -706,7 +706,8 @@ void stitch_together(void)
   struct particle_data *buftoleft, *buftoright, *buffer;
   int    i, slab, nl, nr, nbuf, len;
   int    leftTask, rightTask;
-  int    pp, newid;
+  int    pp;
+  PINT   newid;
   struct idmin_data *iddat;
 
 

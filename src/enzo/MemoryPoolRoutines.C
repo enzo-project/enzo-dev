@@ -17,6 +17,7 @@
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
+#include "global_data.h"
 #include "MemoryPool.h"
 
 namespace MPool
@@ -116,7 +117,7 @@ namespace MPool
 
   bool MemoryPool::AllocateMemory(const size_t &MemorySize)
   {
-    unsigned int NeededChunks = CalculateNeededChunks(MemorySize);
+    size_t NeededChunks = CalculateNeededChunks(MemorySize);
     size_t BestMemBlockSize = CalculateBestMemoryBlockSize(MemorySize);
     
     // Allocate memory from the OS for data and chunks
@@ -131,16 +132,16 @@ namespace MPool
     MemoryChunk* NewChunks = (MemoryChunk*) ((TByte*)(MemBlock)+BestMemBlockSize);
     assert(((NewMemBlock) && (NewChunks)) && "Error: out of memory?");
 
-    printf("AllocateMemory:\n"
-	   "\tNeededChunks = %d\n"
-	   "\tBestMemBlockSize = %d\n"
-	   "\tNewChunks = %x\n",
-	   NeededChunks, BestMemBlockSize, NewChunks);
-
     // Adjust the internal values
     TotalMemoryPoolSize += BestMemBlockSize;
     FreeMemoryPoolSize += BestMemBlockSize;
     MemoryChunkCount += NeededChunks;
+
+#ifdef MEM_TRACE
+    printf("P%d: AllocateMemory: %0.3f MB, (+%0.3f MB)\n",
+	   MyProcessorNumber, TotalMemoryPoolSize/1048576.0,
+	   BestMemBlockSize/1048576.0);
+#endif
 
     if (SetMemoryData)
       memset( ((void*) NewMemBlock), NEW_ALLOCATED_MEMORY, BestMemBlockSize);
@@ -151,20 +152,20 @@ namespace MPool
 
   /**********************************************************************/
 
-  unsigned int MemoryPool::CalculateNeededChunks(const size_t &MemorySize)
+  size_t MemoryPool::CalculateNeededChunks(const size_t &MemorySize)
   {
     float f = ((float) MemorySize) / ((float) MemoryChunkSize);
-    return ((unsigned int) ceil(f));
+    return ((size_t) ceil(f));
   }
   
   /**********************************************************************/
   
-  unsigned int MemoryPool::CalculateBestMemoryBlockSize
+  size_t MemoryPool::CalculateBestMemoryBlockSize
   (const size_t &RequestedMemoryBlockSize)
   {
-    unsigned int NeededChunks =
+    size_t NeededChunks =
       CalculateNeededChunks(RequestedMemoryBlockSize);
-    return ((unsigned int)(NeededChunks * MemoryChunkSize));
+    return ((size_t)(NeededChunks * MemoryChunkSize));
   }
 
   /**********************************************************************/
@@ -172,8 +173,8 @@ namespace MPool
   void MemoryPool::FreeChunks(MemoryChunk* Chunk)
   {
     MemoryChunk* CurrentChunk = Chunk;
-    unsigned int ChunkCount = CalculateNeededChunks(CurrentChunk->UsedSize);
-    unsigned int i;
+    size_t ChunkCount = CalculateNeededChunks(CurrentChunk->UsedSize);
+    size_t i;
     for (i = 0; i < ChunkCount; i++)
       if (CurrentChunk) {
 	// Optional: set allocated memory to FREED_MEMORY
@@ -195,7 +196,7 @@ namespace MPool
   (const size_t &MemorySize)
   {
 
-    unsigned int i, j, NeededChunks, ChunksToSkip = 0;
+    size_t i, j, NeededChunks, ChunksToSkip = 0;
     bool EverythingFree = true;
     MemoryChunk* Chunk = CursorChunk;
     MemoryChunk* ThisChunk;
@@ -231,10 +232,10 @@ namespace MPool
   /**********************************************************************/
 
   MemoryChunk* MemoryPool::SkipChunks(MemoryChunk* StartChunk,
-				      unsigned int ChunksToSkip)
+				      size_t ChunksToSkip)
   {
 
-    unsigned int i;
+    size_t i;
     MemoryChunk* CurrentChunk = StartChunk;
     for (i = 0; i < ChunksToSkip; i++)
       if (CurrentChunk) {
@@ -265,11 +266,11 @@ namespace MPool
   /**********************************************************************/
 
   bool MemoryPool::LinkChunksToData(MemoryChunk* NewChunks,
-				    unsigned int ChunkCount,
+				    size_t ChunkCount,
 				    TByte* NewMemBlock)
   {
     MemoryChunk* NewChunk = NULL;
-    unsigned int i, MemOffset = 0;
+    size_t i, MemOffset = 0;
     bool AllocationChunkAssigned = false;
     for (i = 0; i < ChunkCount; i++) {
       if (!FirstChunk) {
@@ -282,7 +283,7 @@ namespace MPool
 	LastChunk = NewChunk;
       } // ENDELSE !FirstChunk
 
-      MemOffset = i * ((unsigned int) MemoryChunkSize);
+      MemOffset = i * ((size_t) MemoryChunkSize);
       LastChunk->Data = &(NewMemBlock[MemOffset]);
 
       /* The first chunk assigned to the new memory block will be an
@@ -301,13 +302,13 @@ namespace MPool
   /**********************************************************************/
 
   bool MemoryPool::RecalcChunkMemorySize(MemoryChunk* Chunk,
-					 unsigned int ChunkCount)
+					 size_t ChunkCount)
   {
-    unsigned int i, MemOffset = 0;
-    unsigned int TotalChunkMemory = ChunkCount * ((unsigned int) MemoryChunkSize);
+    size_t i, MemOffset = 0;
+    size_t TotalChunkMemory = ChunkCount * ((size_t) MemoryChunkSize);
     for (i = 0; i < ChunkCount; i++)
       if (Chunk) {
-	MemOffset = i * ((unsigned int) MemoryChunkSize);
+	MemOffset = i * ((size_t) MemoryChunkSize);
 	Chunk->DataSize = TotalChunkMemory - MemOffset;
 	Chunk = Chunk->Next;
       } else {
@@ -338,7 +339,7 @@ namespace MPool
     /* Memory blocks and chunks were allocated together, so we can do
        some pointer arithemtic to find the chunk. */
     
-    unsigned int ThisDataSize, nChunks, ChunkNumber;
+    size_t ThisDataSize, nChunks, ChunkNumber;
     TByte *mFirstBlock, *mLastBlock, *mem;
     MemoryChunk *FirstChunkInAlloc, *LastChunkInAlloc;
     mem = (TByte*) sMemoryBlock;
@@ -370,7 +371,7 @@ namespace MPool
     /* Step 1: Find the MemoryChunk number of sMemoryBlock.
        Step 2: Go to the address of that MemoryChunk */
 
-    ChunkNumber = (unsigned int) (mem - mFirstBlock) / MemoryChunkSize;
+    ChunkNumber = (size_t) (mem - mFirstBlock) / MemoryChunkSize;
     MemoryChunk* TempChunk = (MemoryChunk*)
       (mLastBlock + ChunkNumber * sizeof(MemoryChunk));
 
@@ -391,11 +392,17 @@ namespace MPool
   void MemoryPool::FreeAllAllocatedMemory(void)
   {
     MemoryChunk* Chunk = FirstChunk;
+    void* DataToDelete = NULL;
     while (Chunk) {
-      if (Chunk->IsAllocationChunk)
-	free((void*) Chunk->Data);
+      if (Chunk->IsAllocationChunk) {
+	if (DataToDelete != NULL)
+	  free(DataToDelete);
+	DataToDelete = (void*) Chunk->Data;
+      }
       Chunk = Chunk->Next;
     } // ENDWHILE
+    if (DataToDelete != NULL)
+      free(DataToDelete);
   }
 
   /**********************************************************************/

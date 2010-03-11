@@ -57,6 +57,7 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
+void PrintMemoryUsage(char *str);
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -79,6 +80,18 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   //if (dtPhoton < 0)
   //  return SUCCESS;
 
+  /* Declarations */
+
+  grid *Helper;
+  int lvl, RefinementFactors[MAX_DIMENSION];
+    
+  /* Create an array (Grids) of all the grids. */
+
+  typedef HierarchyEntry* HierarchyEntryPointer;
+  HierarchyEntry **Grids;
+  HierarchyEntry **Parents;
+  LevelHierarchyEntry *Temp;
+
   //while (GridTime >= PhotonTime) {
   while (GridTime > PhotonTime) {
 
@@ -95,18 +108,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
-    /* Declarations */
-
-    grid *Helper;
-    int RefinementFactors[MAX_DIMENSION];
-
-    /* Create an array (Grids) of all the grids. */
-
-    typedef HierarchyEntry* HierarchyEntryPointer;
-    HierarchyEntry **Grids;
-    HierarchyEntry **Parents;
-    LevelHierarchyEntry *Temp;
-    int GridNum = 0, value, i, proc, lvl;
+    int GridNum = 0, value, i, proc;
     int NumberOfGrids = 0;  
 
     // delete source if we are passed (or before) their lifetime (only
@@ -229,6 +231,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ListOfPhotonsToMove *PhotonsToMove = new ListOfPhotonsToMove;
     PhotonsToMove->NextPackageToMove = NULL;
 
+    int loop_count = 0;
     int keep_transporting = 1;
     int ThisProcessor;
 
@@ -247,6 +250,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     while (keep_transporting) {
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
+      PrintMemoryUsage("EvolvePhotons -- loop");
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
 	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
@@ -452,6 +456,26 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     FirstTime = false;
 
   } // ENDWHILE GridTime >= PhotonTime
+
+  /* Cleanup photon memory pool if we're deleting all photons between
+     timesteps, i.e. no need to save photons */
+
+#ifdef MEMORY_POOL
+  const int PhotonMemorySize = MEMORY_POOL_SIZE;
+  int PhotonSize = sizeof(PhotonPackageEntry);
+  if (RadiativeTransferAdaptiveTimestep) {
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	Temp->GridData->DeletePhotonPackages(TRUE);
+    delete PhotonMemoryPool;
+    PhotonMemoryPool = new MPool::MemoryPool(PhotonMemorySize*PhotonSize,
+					     PhotonSize,
+					     PhotonMemorySize*PhotonSize/4);
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	Temp->GridData->InitializePhotonPackages();
+  }
+#endif
 
   return SUCCESS;
 

@@ -75,7 +75,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // Exaggerate influence radius because the blastwave will enter
     // into some of the surrounding parent grids within the next
     // timestep if we inject the energy into a small radius.
-    Radius *= 8.0;
+    Radius *= 1.0;
     break;
 
   case STROEMGREN:
