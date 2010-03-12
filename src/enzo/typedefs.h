@@ -105,9 +105,9 @@ const field_type
   DrivingField2         = 56, 
   DrivingField3         = 57,
 
-  AccelerationField1         = 58, 
-  AccelerationField2         = 59, 
-  AccelerationField3         = 60,
+  AccelerationField1    = 58, 
+  AccelerationField2    = 59, 
+  AccelerationField3    = 60,
 
   Galaxy1Color          = 61,
   Galaxy2Color          = 62,
@@ -131,7 +131,19 @@ const field_type
   H2OIDensity     = 77,
   O2IDensity      = 78,
 
-  FieldUndefined  = 79;
+/* FLD radiation module stuff (Dan Reynolds) */ 
+  RadiationFreq0  = 79,
+  RadiationFreq1  = 80,
+  RadiationFreq2  = 81,
+  RadiationFreq3  = 82,
+  RadiationFreq4  = 83,
+  RadiationFreq5  = 84,
+  RadiationFreq6  = 85,
+  RadiationFreq7  = 86,
+  RadiationFreq8  = 87,
+  RadiationFreq9  = 88,
+
+  FieldUndefined  = 89;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -144,8 +156,8 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I)) ? FALSE : TRUE)
-#define FieldTypeIsRadiation(A) (((A) >= kphHI && (A) <= kdissH2I) ? TRUE : FALSE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? FALSE : TRUE)
+#define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 

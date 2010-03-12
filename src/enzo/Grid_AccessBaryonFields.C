@@ -321,6 +321,96 @@ float* grid::AccessRadPressure2() {
   return BaryonField[RadPressure2Num];
 }
 
+// Radiation Energy (Grey, or 0th group)
+float* grid::AccessRadiationFrequency0() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq0, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (1st group)
+float* grid::AccessRadiationFrequency1() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq1, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (2nd group)
+float* grid::AccessRadiationFrequency2() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq2, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (3rd group)
+float* grid::AccessRadiationFrequency3() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq3, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (4th group)
+float* grid::AccessRadiationFrequency4() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq4, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (5th group)
+float* grid::AccessRadiationFrequency5() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq5, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (6th group)
+float* grid::AccessRadiationFrequency6() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq6, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (7th group)
+float* grid::AccessRadiationFrequency7() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq7, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (8th group)
+float* grid::AccessRadiationFrequency8() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq8, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
+// Radiation Energy (9th group)
+float* grid::AccessRadiationFrequency9() {
+  int RadNum = -1;
+  if ((RadNum = FindField(RadiationFreq9, FieldType, 
+			  NumberOfBaryonFields))<0) 
+    return NULL;
+  return BaryonField[RadNum];
+}
+
 // Emissivity0 field 
 float* grid::AccessEmissivity0() {
   int EtaNum = -1;

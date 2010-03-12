@@ -1049,6 +1049,16 @@ class grid
    float* AccessRadPressure1();
    float* AccessRadPressure2();
    float* AccessEmissivity0();
+   float* AccessRadiationFrequency0();
+   float* AccessRadiationFrequency1();
+   float* AccessRadiationFrequency2();
+   float* AccessRadiationFrequency3();
+   float* AccessRadiationFrequency4();
+   float* AccessRadiationFrequency5();
+   float* AccessRadiationFrequency6();
+   float* AccessRadiationFrequency7();
+   float* AccessRadiationFrequency8();
+   float* AccessRadiationFrequency9();
 
 
 // -------------------------------------------------------------------------
