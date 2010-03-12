@@ -8,10 +8,9 @@
 ! in the accompanying LICENSE file.
 !
 !=======================================================================
-subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on, &
-     kappa, kappa_c, a,                                              &
-     adot, aUn, lUn, tUn, EUn, dx, dy, dz, Nx, Ny, Nz, NGxl, NGxr,   &
-     NGyl, NGyr, NGzl, NGzr, ier)
+subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
+     kappa, kappa_c, a, adot, aUn, lUn, tUn, EUn, dUn, dx, dy, dz, Nx, &
+     Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       June, 2009
@@ -49,28 +48,27 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on, &
   implicit none
 #include "fortran.def"
 
-!--------------
-! argument declarations
+  !--------------
+  ! argument declarations
   integer, intent(in) :: iguess, kappa_h2on
   integer, intent(in) :: Nx, NGxl, NGxr
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB,  intent(in) :: a, adot
-  REALSUB, intent(in) :: dt, kappa_c, dx, dy, dz
-  REALSUB, intent(in) :: aUn, lUn, tUn, EUn
-  REALSUB, intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  REALSUB, intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  REALSUB, intent(in) :: kappa(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  REALSUB, intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  REALSUB, intent(in) :: a, adot
+  real,    intent(in) :: dt, kappa_c, dx, dy, dz
+  real,    intent(in) :: aUn, lUn, tUn, EUn, dUn
+  real,    intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  real,    intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  real,    intent(in) :: kappa(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  real,    intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
-!--------------
-! locals
+  !--------------
+  ! locals
   integer :: i, j, k
-  REALSUB :: c, pi, Pmean
-  REALSUB :: P(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  real :: c, pi, P
 
-!=======================================================================
+  !=======================================================================
 
   ! initialize output flag to success
   ier = 1
@@ -79,37 +77,53 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on, &
   c  = 2.99792458d10           ! speed of light [cm/s]
   pi = 4.D0*datan(1.D0)
 
-
   ! compute initial guess based on input parameter
-  !     use analytical solution locally in space
+  !    use analytical solution locally in space
   if (iguess == 1) then
 
+     ! array-based opacity
      if (kappa_h2on == 1) then
-        P = a/adot + c*kappa
+        do k=1,Nz
+           do j=1,Ny
+              do i=1,Nx
+                 ! if attenuation is negligible, use simpler analytical 
+                 ! solution to avoid division by zero 
+                 P = adot/a + c*kappa(i,j,k)
+                 if (P < 1.d-14) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 ! otherwise use full analytical solution
+                 else
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4.d0*pi/P
+                 endif
+              enddo
+           enddo
+        enddo
+
+     ! constant opacity
      else
-        P = a/adot + c*kappa_c
+        do k=1,Nz
+           do j=1,Ny
+              do i=1,Nx
+                 ! if attenuation is negligible, use simpler analytical 
+                 ! solution to avoid division by zero 
+                 P = adot/a + c*kappa_c
+                 if (P < 1.d-14) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 ! otherwise use full analytical solution
+                 else
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4.d0*pi/P
+                 endif
+              enddo
+           enddo
+        enddo
      endif
 
-     Pmean = sum(P) / size(P)
-
-     if (Pmean < 1.0d-14) then
-        Ef = Ef0 + dt*eta*4.d0*pi
-
-     elseif (Pmean*dt > 7.0d2) then
-        Ef = eta*4.d0*pi/P
-
-     else
-        Ef = (Ef0 - eta*4.d0*pi/P)*exp(-P*dt) + eta*4.d0*pi/P
-
-     end if
-
-  !     default to using old-time solution as initial guess
+  !    otherwise use old-time solution as initial guess
   else 
-
      Ef = Ef0
-
   endif
-     
 
   return
 end subroutine FSProb_InitialGuess
