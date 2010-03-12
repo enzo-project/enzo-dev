@@ -140,8 +140,9 @@ class FSProb : public virtual ImplicitProblemABC {
   float EtaCenter[3];  // ionization source location
 
   // private computation routines
-  int SetupSystem(Eflt64 *matentries, Eflt64 *rhs, float *rhsnorm, 
-		  float *Ef, float *eta, float *opacity);
+  int EnforceBoundary(EnzoVector *vec);
+  int SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, 
+		  float *E, float *E0, float *eta, float *opacity);
   int RadiationSource(float *Efsrc);
   int InitialGuess(EnzoVector *Ef, EnzoVector *Ef0, EnzoVector *Efsrc);
 
@@ -165,6 +166,9 @@ class FSProb : public virtual ImplicitProblemABC {
 
   // Problem Initializer
   int Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData);
+  
+  // Re-sets emissivity source magnitude (look in FSProb_Initialize.C)
+  int SetEmissivity(float NGammaDot);
   
   // Problem setup/solver
   int Evolve(HierarchyEntry *ThisGrid, float deltat);

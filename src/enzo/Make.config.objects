@@ -98,7 +98,7 @@ OBJS_CONFIG_LIB = \
         CreateSiblingList.o \
         CreateSmoothedDarkMatterFields.o \
         CreateSUBlingList.o \
-        CreateFluxes.o\
+        CreateFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
         DepositBaryons.o \
@@ -184,6 +184,7 @@ OBJS_CONFIG_LIB = \
 	FSProb_constructor.o \
 	FSProb_destructor.o \
 	FSProb_FInterface.o \
+	FSProb_EnforceBoundary.o \
 	FSProb_Evolve.o \
 	FSProb_Initialize.o \
 	FSProb_Dump.o \
@@ -499,7 +500,7 @@ OBJS_CONFIG_LIB = \
 	NullProblem.o \
 	Options.o \
 	OutputAsParticleData.o \
-	OutputFromEvolveLevel.o\
+	OutputFromEvolveLevel.o \
 	OutputLevelInformation.o \
 	P_ColumnFormat.o \
 	performance.o \
