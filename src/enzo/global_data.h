@@ -562,6 +562,7 @@ EXTERN float C_p;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
+EXTERN int ExternalGravity;
 EXTERN int StringKick;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
@@ -586,6 +587,8 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityDensity;
+EXTERN double ExternalGravityRadius;
 
 /* Poisson Clean */
 
@@ -650,7 +653,7 @@ EXTERN char *MetalCoolingTable;
 EXTERN int CIECooling;
 EXTERN int H2OpticalDepthApproximation;
 
-//   1 - Adaptive ray tacing transfer
+//   1 - Adaptive ray tracing transfer
 //   0 - none
 EXTERN int RadiativeTransfer;
 #ifdef TRANSFER
@@ -679,9 +682,24 @@ EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
 #endif /* TRANSFER  */
 
 /* Coupled radiative transfer, cooling, and rate solver */
-
 EXTERN int RadiativeTransferCoupledRateSolver;
 
+
+//   2 - FLD radiation transfer only (no ray-tracing at all)
+//   1 - FLD radiation transfer (for optically-thin LW radiation)
+//   0 - none
+EXTERN int RadiativeTransferFLD;
+
+
+/* Implicit problem decision flag (only 0 and 2 work for now)
+      0 => do not use any implicit solver
+      1 => use the gFLDProblem module for single-group coupled FLD
+      2 => use the FSProb module for free-streaming FLD radiation 
+      3 => use the gFLDSplit module for single-group split FLD
+      4 => use the MFProb, multi-frequency fully implicit module
+      5 => use the MFSplit, multi-frequency split implicit module
+*/
+EXTERN int ImplicitProblem;
 
 
 /* Shearing Boundary Conditions */
