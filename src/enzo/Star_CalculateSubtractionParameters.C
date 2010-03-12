@@ -43,6 +43,7 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
 
   float StarLevelCellWidth, mdot, AccretedMass;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, AvgVelocity[MAX_DIMENSION];
+  float *temperature, density, old_mass, c_s, mu, number_density;
 
   int igrid[MAX_DIMENSION], dim, l, index;
   int size=1, FirstLoop = TRUE;
@@ -58,11 +59,101 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
   AccretedMass = 0.0;
   StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(this->level));
 
-  /* Find mdot and Radius */
+#ifdef ACCURATE_TEMPERATURE_AND_MU
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+      DINum, DIINum, HDINum;
 
+  /* Find fields: density, total energy, velocity1-3. */
+
+  if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+					      Vel3Num, TENum) == FAIL) {
+    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+    ENZO_FAIL("");
+  }
+
+  /* Find Multi-species fields. */
+
+  if (MultiSpecies)
+    if (CurrentGrid->
+	IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
+			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
+	== FAIL) {
+      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
+      ENZO_FAIL("");
+    }
+
+  /* Find temperature */
+
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    size *= CurrentGrid->GridDimension[dim];
+    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+      CurrentGrid->CellWidth[0][0];
+  }
+
+  temperature = new float[size];
+  if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+    fprintf(stderr, "Error in ComputeTemperatureField.\n");
+    ENZO_FAIL("");
+  }
+
+  /* Calculate mu inside cell */
+
+  index = 
+    ((igrid[2] + CurrentGrid->GridStartIndex[2]) * CurrentGrid->GridDimension[1] + 
+     igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
+    igrid[0] + CurrentGrid->GridStartIndex[0];
+  density = CurrentGrid->BaryonField[DensNum][index];
+
+  if (MultiSpecies == 0) {
+    number_density = density * DensityUnits / (DEFAULT_MU * m_h);
+    mu = DEFAULT_MU;
+  } else {
+    number_density = 
+      CurrentGrid->BaryonField[HINum][index] + 
+      CurrentGrid->BaryonField[HIINum][index] +
+      CurrentGrid->BaryonField[DeNum][index] +
+      0.25 * (CurrentGrid->BaryonField[HeINum][index] +
+	      CurrentGrid->BaryonField[HeIINum][index] +
+	      CurrentGrid->BaryonField[HeIIINum][index]);
+    if (MultiSpecies > 1)
+      number_density += 
+	CurrentGrid->BaryonField[HMNum][index] +
+	0.5 * (CurrentGrid->BaryonField[H2INum][index] +
+	       CurrentGrid->BaryonField[H2IINum][index]);
+    mu = density / number_density;
+  }
+
+  /* If requested, fix the temperature */
+
+  if (this->type == MBH && (MBHAccretion == 2 || MBHAccretion == 12)) {
+    temperature[index] = MBHAccretionFixedTemperature;   
+  }
+
+  /* Calculate c_s */
+
+  c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
+
+#endif
+
+
+  /* Find mdot and Radius;
+     for negative MBHAccretionRadius, then use Bondi accretion radius instead */
+
+  /* When calculating Bondi radius, let's not bother to get accurate temperature and mu 
+     just use the MBHAccretionFixedTemperature and default mu */
+
+  c_s = sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (DEFAULT_MU * m_h));
+  old_mass = (float)(this->Mass);
   mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
   
-  Radius = MBHAccretionRadius * pc / LengthUnits;
+  if (MBHAccretionRadius > 0) 
+    Radius = MBHAccretionRadius * pc / LengthUnits;
+  else {
+    float safetyfactor = 2.0;
+    Radius = safetyfactor * 2.0 * Grav * old_mass * Msun / (c_s * c_s) / LengthUnits;
+  }
+
   Radius = max(Radius, 2*StarLevelCellWidth);
 
   /* use negative EjectaDensity so the mass can be subtracted */
@@ -70,16 +161,17 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
   EjectaDensity = -mdot * Msun * dtForThisStar * TimeUnits /   
     (4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
 
-//  fprintf(stdout, "star::CSP: mdot = %g, EjectaDensity=%lf, Radius=%g\n", mdot, EjectaDensity, Radius); 
+//  fprintf(stdout, "star::CSP: mdot = %g, EjectaDensity=%lf, Radius=%g\n", 
+//	  mdot, EjectaDensity, Radius);  
 //  fprintf(stdout, "star::CSP: star - old_mass = %lf  ->  new_mass = %lf\n", 
-//          Mass, Mass + mdot * dtForThisStar * TimeUnits); 
+//          Mass - mdot * dtForThisStar * TimeUnits, Mass); 
 
 
+#ifdef UNUSED   
   /* Below method currently not working because of CommunicationAllSumValues;
      if you want to use this approach, you may want to accordingly change 
      Grid_SubtractAccretedMassFromSphere.C as well */ 
 
-#ifdef UNUSED   
   /* Find enclosed mass within Radius */
 
   MassEnclosed = 0;
@@ -147,6 +239,11 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
     ENZO_FAIL("");
   }
 #endif
+
+
+#ifdef ACCURATE_TEMPERATURE_AND_MU
+  delete [] temperature;
+#endif 
 
   return;
 }

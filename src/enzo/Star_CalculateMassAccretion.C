@@ -98,6 +98,7 @@ int Star::CalculateMassAccretion(void)
        igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
       igrid[0] + CurrentGrid->GridStartIndex[0];
     density = CurrentGrid->BaryonField[DensNum][index];
+
     if (MultiSpecies == 0) {
       number_density = density * DensityUnits / (DEFAULT_MU * m_h);
       mu = DEFAULT_MU;
