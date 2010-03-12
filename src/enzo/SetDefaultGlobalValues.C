@@ -236,6 +236,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MemoryLimit                 = 4000000000L;
  
+  ExternalGravity             = FALSE;             // off
+  ExternalGravityDensity      = 0.0;
+  ExternalGravityRadius       = 0.0;
+
   UniformGravity              = FALSE;             // off
   UniformGravityDirection     = 0;                 // x-direction
   UniformGravityConstant      = 1.0;
@@ -267,6 +271,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
   GadgetEquilibriumCooling    = FALSE;             // off
+  RadiativeTransfer           = 0;                 // off
+  RadiativeTransferFLD        = 0;                 // off
+  ImplicitProblem             = 0;                 // off
   MultiSpecies                = FALSE;             // off
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;

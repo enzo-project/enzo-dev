@@ -58,7 +58,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
-  RadiativeTransferFLD                        = FALSE;
   RadiativeTransferFLDCallOnLevel             = 0;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
 
@@ -100,8 +99,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferSourceClustering);
     ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
 		  &RadiativeTransferPhotonMergeRadius);
-    ret += sscanf(line, "RadiativeTransferFLD = %"ISYM, 
-		  &RadiativeTransferFLD);
     ret += sscanf(line, "RadiativeTransferFLDCallOnLevel = %"ISYM, 
 		  &RadiativeTransferFLDCallOnLevel);
     ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
@@ -111,7 +108,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
     if (ret == 0 && strstr(line, "=") != NULL && line[0] != '#' && 
 	MyProcessorNumber == ROOT_PROCESSOR &&
-	strstr(line, "RadiativeTransfer") && !strstr(line, "RadiativeTransfer "))
+	strstr(line, "RadiativeTransfer") && !strstr(line, "RadiativeTransfer ")
+	&& !strstr(line, "RadiativeTransferFLD "))
       fprintf(stderr, "warning: the following parameter line was not "
 	      "interpreted:\n%s\n", line);
   }
@@ -142,6 +140,16 @@ int RadiativeTransferReadParameters(FILE *fptr)
 	      " cannot be negative!  Setting to 0.\n");
     RadiativeTransferFLDCallOnLevel = 0;
   }
+
+
+  // If RadiativeTransferFLD > 1, turn off RadiativeTransfer
+  if (RadiativeTransferFLD > 1  &&  RadiativeTransfer) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: RadiativeTransferFLD > 1 cannot be used with "
+	      "RadiativeTransfer.  Turning ray-tracing solver OFF.\n");
+    RadiativeTransfer = FALSE;
+  }
+
 
   delete [] dummy;
   

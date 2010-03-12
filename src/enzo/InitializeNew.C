@@ -530,17 +530,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-  // 250) Multi-source free-streaming radiation test
+  // 250-252) Free-streaming radiation tests
 #ifdef TRANSFER
-  if (ProblemType == 250)
+  if ((ProblemType == 250) || (ProblemType == 251) || (ProblemType == 252))
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
 
-  // 250) Multi-source free-streaming radiation test
-#ifdef TRANSFER
-  if (ProblemType == 250)
-    ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
-#endif /* TRANSFER */
 
 
  

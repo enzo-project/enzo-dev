@@ -35,12 +35,23 @@
 EXTERN char outfilename[];
 
 
+
 // Problem initializer prototypes
-int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
+			    HierarchyEntry &TopGrid,
 			    TopGridData &MetaData, int local);
 
 
 
+// Short routine to reset emissivity source magnitude
+int FSProb::SetEmissivity(float NGammaDot_new)
+{
+  NGammaDot = NGammaDot_new;
+  return SUCCESS;
+}
+
+
+// Main initializer routine
 int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
 
@@ -56,7 +67,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     else {foundgrid=1; break;}
   }
   if (foundgrid == 0) {
-    printf("FLD Initialize ERROR: p%"ISYM" could not locate his grid\n",
+    printf("FSProb Initialize ERROR: p%"ISYM" could not locate his grid\n",
 	   MyProcessorNumber);
     return FAIL;
   }
@@ -81,8 +92,8 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set default module parameters
   theta   = 1.0;        // backwards euler implicit time discret.
   LimType = 4;          // Zeus limiter
-  EScale = 1.0;         // no radiation equation scaling
-  kappa0   = 1.0e-4;    // background opacity
+  EScale  = 1.0;        // no radiation equation scaling
+  kappa0  = 0.0;        // no background opacity
   kappa_h2on = 0;       // no spatially dependent (use background) opacity
   for (dim=0; dim<rank; dim++)       // set default radiation boundaries to 
     for (face=0; face<2; face++)     // periodic in each direction
@@ -90,13 +101,13 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // set default solver parameters
   initial_guess      = 0;         // previous time step
-  sol_tolerance      = 1e-7;      // solver tolerance
+  sol_tolerance      = 1e-5;      // solver tolerance
   sol_printl         = 0;         // HYPRE print level
   sol_log            = 0;         // HYPRE logging level
   sol_maxit          = 50;        // HYPRE max multigrid iters
-  sol_rlxtype        = 1;         // HYPRE relaxation type
-  sol_npre           = 2;         // HYPRE num pre-smoothing steps
-  sol_npost          = 2;         // HYPRE num post-smoothing steps
+  sol_rlxtype        = 2;         // HYPRE relaxation type
+  sol_npre           = 5;         // HYPRE num pre-smoothing steps
+  sol_npost          = 5;         // HYPRE num post-smoothing steps
 
   // set default ionization parameters
   NGammaDot          = 0.0;       // ionization strength
@@ -221,8 +232,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     EScale = 1.0;  // default is no scaling
   }
   if (debug)
-    printf("FSProb::Initialize p%"ISYM": EScale = %g\n",
-	   MyProcessorNumber,EScale);
+    printf("FSProb::Initialize: EScale = %g\n", EScale);
 
   // Theta gives the implicit time-stepping method (1->BE, 0.5->CN, 0->FE)
   if ((theta < 0.0) || (theta > 1.0)) {
@@ -233,13 +243,19 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   // kappa gives the background opacity
-  if (kappa0 <= 0.0) {
-    fprintf(stderr,"FSProb Initialize: illegal FSRadiationOpacity = %g <= 0\n",
+  if (kappa0 < 0.0) {
+    fprintf(stderr,"FSProb Initialize: illegal FSRadiationOpacity = %g < 0\n",
 	    kappa0);
-    fprintf(stderr,"   re-setting 1e-4\n");
-    kappa0 = 1e-4;
+    fprintf(stderr,"   re-setting to 0\n");
+    kappa0 = 0.0;
   }
 
+  // unless this is used for LW radiation, disable spatially-dependent opacity
+  if ((RadiativeTransferFLD > 1) && kappa_h2on) {
+    fprintf(stderr,"FSProb_Initialize Warning: kappa_h2on disabled for FLD-only problem\n");
+    kappa_h2on = 0;
+  }
+  
   // set flags denoting if this processor is on the external boundary
   for (dim=0; dim<rank; dim++) {
     if (layout[dim]==0) {
@@ -330,7 +346,13 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set up vectors for temporary storage
   sol = U0->clone();        // linear system solution
   extsrc = U0->clone();     // emissivity sources
-  kappa = U0->clone();      // opacity
+  if (kappa_h2on == 1)      // opacity (don't allocate if unused)
+    kappa = U0->clone();
+  else
+    kappa = new EnzoVector(LocDims[0], LocDims[1], LocDims[2], xghosts, 
+			   xghosts, yghosts, yghosts, zghosts, zghosts, 
+			   1, NBors[0][0], NBors[0][1], NBors[1][0], 
+			   NBors[1][1], NBors[2][0], NBors[2][1], empty);
 
   // initialize HYPRE stuff
 #ifdef USE_HYPRE
@@ -454,85 +476,114 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   ////////////////////////////////
   // set up any problem-specific local data initializers here, 
   // depending on the ProblemType
+  float ZERO = 0.0;
   fptr = NULL;
-
   switch (ProblemType) {
     
-  // ODE test problem, set BCs based on input.
-  // 0 implies periodic, otherwise set to zero-valued (type set by input param)
+  // FSMultiSource Test
   case 250:
 
     // first call local problem initializer (to allocate/setup local data)
-    if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in FSMultiSourceInitialize.\n");
-      return FAIL;
-    }
-    break;
+    if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("FSProb Initialize: Error in FSMultiSourceInitialize");
 
-  default:
-
-    // by default do not call any local problem initializer -- 
-    // assumes that the problem has been set up elsewhere
-    break;
-
-  }
-
-
-
-
-  ////////////////////////////////
-  // set up the boundary conditions on the radiation field:
-  // these default to periodic unless BdryType specifies otherwise (nonzero); 
-  // If non-zero Dirichlet/Neumann boundary condition values are desired, 
-  // they should be specified by ProblemType
-  float ZERO = 0.0;
-
-  // set boundary conditions based on problem type
-  // (default to periodic)
-  switch (ProblemType) {
-    
-
-  // Insert problem-specific BC initializers here...
-
-
-  // Default to homogeneous Dirichlet or Neumann values (if not periodic)
-  default:
-
+    // set BCs based on input, 0 implies periodic, otherwise set to zero-valued
     if (BdryType[0][0] != 0) {
-      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
-      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
-    }
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 left)");
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 right)");
+    }	
     if (BdryType[1][0] != 0) {
-      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
-      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
-    }
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 left)");
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 right)");
+    }	
     if (BdryType[2][0] != 0) {
-      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	return FAIL;
-      }
-      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	return FAIL;
-      }
-    }
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 left)");
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 right)");
+    }	
+
+    break;
+
+  // FSRadWave Test
+  case 251:
+
+    float ONE = 1.0e-15;
+    // first call local problem initializer (to allocate/setup local data)
+    // [call this other problem init because it sets a homogeneous field]
+    if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("FSProb Initialize: Error in FSMultiSourceInitialize");
+
+    // set x-left BC to Dirichlet, x-right to Neumann, leave others as periodic
+    if (this->SetupBoundary(0,0,1,&ONE) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 left)");
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 right)");
+
+    break;
+
+  // FSRadPoint Test
+  case 252:
+
+    // first call local problem initializer (to allocate/setup local data)
+    // [call this other problem init because it sets a homogeneous field]
+    if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("FSProb Initialize: Error in FSMultiSourceInitialize");
+
+    // set all boundaries to homogeneous Neumann
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 left)");
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 right)");
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 left)");
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 right)");
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 left)");
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL)
+      ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 right)");
+
+    break;
+
+  // running a multi-frequency problem, don't initialize data but do set up BCs
+  case 260:
+
+    // set BCs based on input, 0 implies periodic, otherwise set to zero-valued
+    if (BdryType[0][0] != 0) {
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 left)");
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x0 right)");
+    }	
+    if (BdryType[1][0] != 0) {
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 left)");
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x1 right)");
+    }	
+    if (BdryType[2][0] != 0) {
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 left)");
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL)
+	ENZO_FAIL("FSProb Initialize: Error in SetupBoundary (x2 right)");
+    }	
+
+    break;
+
+  default:
+
+    // by default do not call any local problem initializer -- assumes
+    // the problem has been set up elsewhere, and that BCs are periodic
     break;
 
   }
   ////////////////////////////////
-    
+
 
   // output FS problem solver parameters to output log file 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -546,7 +597,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "FSRadiationScaling = %g\n", EScale);
       fprintf(outfptr, "FSRadiationTheta = %g\n", theta);
       fprintf(outfptr, "FSRadiationOpacity = %g\n", kappa0);
-      fprintf(outfptr, "FSRadiationH2OpacityOn = %d\n", kappa_h2on);
+      fprintf(outfptr, "FSRadiationH2OpacityOn = %"ISYM"\n", kappa_h2on);
       fprintf(outfptr, "FSRadiationNGammaDot = %g\n", NGammaDot);
       fprintf(outfptr, "FSRadiationEtaRadius = %g\n", EtaRadius);
       fprintf(outfptr, "FSRadiationEtaCenter = %g %g %g\n", 

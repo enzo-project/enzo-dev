@@ -74,7 +74,7 @@ FSProb::FSProb()
   }
   
   // initialize time-stepping related data to -1/NULL
-  maxdt = -1.0;
+  maxdt = huge_number;
   tnew = -1.0;
   told = -1.0;
   dt = -1.0;

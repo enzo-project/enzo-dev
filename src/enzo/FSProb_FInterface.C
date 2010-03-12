@@ -24,17 +24,14 @@
 
 /* Fortran function prototypes */
 extern "C" void FORTRAN_NAME(fsprob_setupsystem)(
-   Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, float *Ef, 
-   int *kappa_h2on, float *kappa_arr, float *kappa_c, 
-   float *eta, int *LimType, float *dt, FLOAT *a, FLOAT *a0, 
-   FLOAT *adot, FLOAT *adot0, float *theta, float *aUnits, float *LenUnits, 
-   float *LenUnits0, float *EUnits, float *EUnits0, float *DUnits, 
-   float *Dunits0, int *rank, float *dx, 
-   float *dy, float *dz, float *BCValsXl, float *BCValsXr, float *BCValsYl, 
-   float *BCValsYr, float *BCValsZl, float *BCValsZr, int *BCTypeXl, 
-   int *BCTypeXr, int *BCTypeYl, int *BCTypeYr, int *BCTypeZl, int *BCTypeZr, 
-   int *x0s, int *x0e, int *x1s, int *x1e, int *x2s, int *x2e, int *Nx, 
-   int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
+   Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, float *E, float *E0,
+   int *kappa_h2on, float *kappa_arr, float *kappa_c, float *eta, float *dt, 
+   FLOAT *a, FLOAT *a0, FLOAT *adot, FLOAT *adot0, float *theta, 
+   float *LenUnits, float *LenUnits0, float *EUnits, float *EUnits0, 
+   float *DUnits, float *Dunits0, int *rank, float *dx, float *dy, float *dz, 
+   int *BCTypeXl, int *BCTypeXr, int *BCTypeYl, int *BCTypeYr, int *BCTypeZl, 
+   int *BCTypeZr, int *x0s, int *x0e, int *x1s, int *x1e, int *x2s, int *x2e, 
+   int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
    int *NGzl, int *NGzr, int *xlface, int *xrface, int *ylface, int *yrface, 
    int *zlface, int *zrface, int *ier);
 
@@ -49,8 +46,9 @@ extern "C" void FORTRAN_NAME(fsprob_initialguess)(
    float *Ef, float *Ef0, float *src_Ef, int *iguess, float *dt, 
    int *kappa_h2on, float *kappa, float *kappa_c,
    FLOAT *a, FLOAT *adot, float *aUnits, float *LenUnits, float *TimeUnits, 
-   float *EUnits, float *dx, float *dy, float *dz, int *Nx, int *Ny, int *Nz, 
-   int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *ier);
+   float *EUnits, float *DenUnits, float *dx, float *dy, float *dz, int *Nx, 
+   int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, 
+   int *NGzr, int *ier);
 
 
 
@@ -62,7 +60,7 @@ extern "C" void FORTRAN_NAME(fsprob_initialguess)(
 
 /********/
 int FSProb::SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, 
-			float *Ef, float *eta, float *opacity)
+			float *E, float *E0, float *eta, float *opacity)
 {
   int xlface = (OnBdry[0][0]) ? 1 : 0;
   int xrface = (OnBdry[0][1]) ? 1 : 0;
@@ -79,17 +77,14 @@ int FSProb::SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm,
   x2e += (OnBdry[2][1] && (BdryType[2][1]==1)) ? 1 : 0;
   int ier;
   FORTRAN_NAME(fsprob_setupsystem)
-    (mat, rhs, rhsnorm, Ef, &kappa_h2on, opacity, &kappa0, eta, &LimType, &dt, 
-     &a, &a0, &adot, 
-     &adot0, &theta, &aUnits, &LenUnits, &LenUnits0, &EUnits, &EUnits0, 
-     &DenUnits, &DenUnits0, &rank, 
-     &dx[0], &dx[1], &dx[2], BdryVals[0][0], BdryVals[0][1], BdryVals[1][0], 
-     BdryVals[1][1], BdryVals[2][0], BdryVals[2][1], &BdryType[0][0], 
-     &BdryType[0][1], &BdryType[1][0], &BdryType[1][1], &BdryType[2][0], 
-     &BdryType[2][1], &x0s, &x0e, &x1s, &x1e, &x2s, &x2e, &LocDims[0], 
-     &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
-     &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &xlface, &xrface, &ylface, 
-     &yrface, &zlface, &zrface, &ier);
+    (mat, rhs, rhsnorm, E, E0, &kappa_h2on, opacity, &kappa0, eta, &dt, 
+     &a, &a0, &adot, &adot0, &theta, &LenUnits, &LenUnits0, &EUnits, 
+     &EUnits0, &DenUnits, &DenUnits0, &rank, &dx[0], &dx[1], &dx[2], 
+     &BdryType[0][0], &BdryType[0][1], &BdryType[1][0], &BdryType[1][1], 
+     &BdryType[2][0], &BdryType[2][1], &x0s, &x0e, &x1s, &x1e, &x2s, &x2e, 
+     &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], 
+     &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &xlface, 
+     &xrface, &ylface, &yrface, &zlface, &zrface, &ier);
 
   // combine the processor-local rhsnorm values together before returning 
   // (since I perform no MPI in F90 modules)
@@ -133,10 +128,10 @@ int FSProb::InitialGuess(EnzoVector *Ef, EnzoVector *Ef0, EnzoVector *Efsrc)
   float *kappaptr = kappa->GetData(0);
   FORTRAN_NAME(fsprob_initialguess)
     (Efptr, Ef0ptr, Efsrcptr, &initial_guess, &dt, &kappa_h2on, kappaptr, 
-     &kappa0, &a, &adot, &aUnits, 
-     &LenUnits, &TimeUnits, &EUnits, &dx[0], &dx[1], &dx[2], &LocDims[0], 
-     &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
-     &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
+     &kappa0, &a, &adot, &aUnits, &LenUnits, &TimeUnits, &EUnits, &DenUnits, 
+     &dx[0], &dx[1], &dx[2], &LocDims[0], &LocDims[1], &LocDims[2], 
+     &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], 
+     &GhDims[2][0], &GhDims[2][1], &ier);
   return(ier);
 }
 

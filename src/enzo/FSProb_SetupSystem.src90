@@ -6,66 +6,43 @@
 ! in the accompanying LICENSE file.
 !
 !=======================================================================
-subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
-     kappa_h2on, kappa_arr, kappa_c,                                      &
-     eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn,    &
-     rUn0, nUn, nUn0, rank, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl,     &
-     BCValsYr,                                                            &
-     BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e,    &
-     x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr,  &
-     xlface, xrface, ylface, yrface, zlface, zrface, ier)
+subroutine FSProb_SetupSystem(mat, rhs, rhsnorm, E, E0, kappa_h2on,       &
+     kappa_arr, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn, lUn0,   &
+     rUn, rUn0, nUn, nUn0, rank, dx, dy, dz, BCXl, BCXr, BCYl, BCYr,      &
+     BCZl, BCZr, x0s, x0e, x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr,    &
+     NGyl, NGyr, NGzl, NGzr, xlface, xrface, ylface, yrface, zlface,      &
+     zrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
-!  date:       June 2009
+!  date:       January 2010
 !  modified:   
 !
 !  PURPOSE: Computes the array of matrix stencil elements and vector of 
 !           rhs entries for the free-streaming radiation problem,
-!              Div(Df(Ef)*Grad(Ef)) - adot/a*Ef + eta
-!           where Df(Ef) is a free-streaming nonlinear flux-limiter 
-!           depending on Ef (time lagged).  We define the values
-!              R_i = |Grad(Ef)_i|/Ef,
-!           The '_i' subscript implies the gradient in the ith 
-!           direction; these quantities are all required at cell faces, 
-!           as that is the location of the divergence calculations.
-!           With these components, we allow any of the following three 
-!           forms of the limiter, 
-!             [Levermore-Pomraning, 1981],
-!                 D_i(Ef) = c/kappa/R_i*[coth(R_i)-1/R_i],
-!             [rational approx. to above, Levermore-Pomraning, 1981],
-!                 D_i(Ef) = c/kappa*(2+R_i)/(6+3*R_i+R_i**2),
-!             [Reynolds approximation to LP],
-!                 D_i(Ef) = 2/pi*c*atan(R_i*pi/6/kappa)/R_i
-!             [Zeus form of rational approx. to LP],
-!                 D_i(Ef) = c*(2*kappa+R_i)/(6*kappa*kappa+3*kappa*R_i+R_i**2)
+!              dot(E) - Div(c*E*sign(grad(E))) + adot/a*E + kappa*E = eta
 !           where we have the [small] parameter
-!              kappa = absorption coefficient.
+!              kappa = absorption coefficient (can be array-valued).
 !           As the stencil has {7,5,3} non-zero elements per matrix row 
 !           (depending on whether the problem is 3D, 2D or 1D), we 
-!           set these entries over the computational domain, with the 
-!           proper adjustments due to the choice of limiter.
+!           set these entries over the computational domain.
 !
 !           We in fact solve a scaled version of the equation.  Since 
-!           the values of Ef are in fact in normalized units 
-!           (Ef_true = Ef*rUn), we must scale eta by rUn to achieve the
-!           correct equation.  Moreover, we rescale every equation again 
-!           by the diagonal value, giving the matrix a diagonal of ones, 
-!           with off-diagonals and rhs scaled appropriately.
+!           the values of E are in fact in normalized units 
+!           (E_true = E*rUn), we must scale eta by rUn to achieve the
+!           correct equation.  Moreover, we do not solve the equation 
+!           directly, and instead solve for a correction to the current 
+!           state such that the corrected solution satisfies the above 
+!           equations.  This helps with enforcement of boundary conditions, 
+!           since they may be directly placed into the current state, and 
+!           the corrections need only refrain from interfering.
 !
 !  INPUTS:
-!     Ef         - Free-streaming radiation energy density (prev time step)
+!     E,E0       - Free-streaming radiation energy density (new & old time steps)
 !     kappa_h2on - 0 -> use constant opacity
 !                  1 -> use spatially dependent opacity
 !     kappa_c    - opacity (constant)
 !     kappa_arr  - opacity (spatially dependent)
-!     kappa
 !     eta        - spatially-dependent emissivity source
-!     LimType    - integer flag denoting type of flux limiter:
-!                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
-!                       1 -> rational approx. to LP lim. (LP, 1981)
-!                       2 -> Reynolds approx to LP lim.
-!                       3 -> turns off the limiter (D = c/R)
-!                       4 -> Zeus limiter
 !     dt         - time step size
 !     a,a0       - cosmological expansion factor (new and old time steps)
 !     adot,adot0 - da/dt and da0/dt
@@ -73,7 +50,6 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
 !     *Un,*Un0   - variable scaling constants (new and old time steps)
 !     rank       - 1, 2 or 3; the dimensionality of the problem
 !     dx,dy,dz   - mesh spacing in each direction
-!     BCVals*    - boundary condition value arrays for each face
 !     BC*        - boundary condition type in each direction, face
 !                     0->periodic
 !                     1->Dirichlet
@@ -90,11 +66,11 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
 !     the x-direction, others are similar.
 !
 !  OUTPUT ARGUMENTS: 
-!     matentries - array of stencil values over the active domain.  
+!     mat - array of stencil values over the active domain.  
 !                  Since the stencil has 7 nonzero entries, and as 
 !                  this array should not include ghost cells, it 
 !                  has dimensions (7,x0s:x0e,x1s:x1e,x2s:x2e).
-!     rhsentries - array of rhs values over the active domain.  As 
+!     rhs - array of rhs values over the active domain.  As 
 !                  this array should not include ghost cells, it 
 !                  has dimensions (x0s:x0e,x1s:x1e,x2s:x2e)
 !     rhsnorm    - 2-norm of rhs array
@@ -110,20 +86,17 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, rank, kappa_h2on
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy, dz
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  REALSUB, intent(in) :: Ef(*), eta(*), kappa_arr(*)
-  REALSUB, intent(in) :: BCValsXl(*), BCValsXr(*)
-  REALSUB, intent(in) :: BCValsYl(*), BCValsYr(*)
-  REALSUB, intent(in) :: BCValsZl(*), BCValsZr(*)
-  real*8,  intent(out) :: matentries(*)
-  real*8,  intent(out) :: rhsentries(*)
-  REALSUB, intent(out) :: rhsnorm
+  integer, intent(in) :: rank, kappa_h2on
+  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  REALSUB, intent(in) :: a, a0, adot, adot0
+  real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  real,    intent(in) :: E(*), E0(*), eta(*), kappa_arr(*)
+  real*8,  intent(out) :: mat(*)
+  real*8,  intent(out) :: rhs(*)
+  real,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !=======================================================================
@@ -132,32 +105,27 @@ subroutine FSProb_SetupSystem(matentries, rhsentries, rhsnorm, Ef,        &
   ! call the apprpriate routine based on rank
   if (rank == 3) then
 
-     call FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,         &
-          kappa_h2on, kappa_arr, kappa_c,                                   &
-          eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, nUn, nUn0, dx, dy, dz, BCValsXl, BCValsXr, BCValsYl,        &
-          BCValsYr,                                                         &
-          BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, &
-          x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl,     &
-          NGzr, xlface, xrface, ylface, yrface, zlface, zrface, ier)
+     call FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,        &
+          kappa_arr, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn,      &
+          lUn0, rUn, rUn0, nUn, nUn0, dx, dy, dz, BCXl, BCXr, BCYl, BCYr,   &
+          BCZl, BCZr, x0s, x0e, x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, &
+          NGyl, NGyr, NGzl, NGzr, xlface, xrface, ylface, yrface, zlface,   &
+          zrface, ier)
 
   elseif (rank == 2) then
 
-     call FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,         &
-          kappa_h2on, kappa_arr, kappa_c,                                   &
-          eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, nUn, nUn0, dx, dy, BCValsXl, BCValsXr, BCValsYl, BCValsYr,  &
-          BCXl, BCXr,                                                       &
-          BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr,   &
-          xlface, xrface, ylface, yrface, ier)
+     call FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,        &
+          kappa_arr, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn,      &
+          lUn0, rUn, rUn0, nUn, nUn0, dx, dy, BCXl, BCXr, BCYl, BCYr, x0s,  &
+          x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr, xlface, xrface,    &
+          ylface, yrface, ier)
 
   elseif (rank == 1) then
 
-     call FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,         &
-          kappa_h2on, kappa_arr, kappa_c,                                   &
-          eta, LimType, dt, a, a0, adot, adot0, theta, aUn, lUn, lUn0, rUn, &
-          rUn0, nUn, nUn0, dx, BCValsXl, BCValsXr, BCXl, BCXr, x0s, x0e,    &
-          Nx, NGxl, NGxr, xlface, xrface, ier)
+     call FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,        &
+          kappa_arr, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn,      &
+          lUn0, rUn, rUn0, nUn, nUn0, dx, BCXl, BCXr, x0s, x0e, Nx, NGxl,   &
+          NGxr, xlface, xrface, ier)
 
   else
      write(0,*) 'FSProb_SetupSystem error: illegal rank =',rank
@@ -171,16 +139,14 @@ end subroutine FSProb_SetupSystem
 
 
 
-subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
-     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, dz,     &
-     BCValsXl, BCValsXr, BCValsYl, BCValsYr,                             &
-     BCValsZl, BCValsZr, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e,   &
-     x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, &
-     xlface, xrface, ylface, yrface, zlface, zrface, ier)
+subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
+     kappa, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn, lUn0, rUn, &
+     rUn0, nUn, nUn0, dx, dy, dz, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr,    &
+     x0s, x0e, x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr,   &
+     NGzl, NGzr, xlface, xrface, ylface, yrface, zlface, zrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
-!  date:       June 2009
+!  date:       January 2010
 !  modified:   
 !
 !  PURPOSE: 3D version of the routine
@@ -190,59 +156,49 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, kappa_h2on
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy, dz
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  REALSUB, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
-       intent(in) :: Ef, eta, kappa
-  REALSUB, intent(in) :: BCValsXl(Ny,Nz), BCValsXr(Ny,Nz)
-  REALSUB, intent(in) :: BCValsYl(Nx,Nz), BCValsYr(Nx,Nz)
-  REALSUB, intent(in) :: BCValsZl(Nx,Ny), BCValsZr(Nx,Ny)
-  real*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
-  REALSUB, intent(out) :: rhsnorm
+  integer, intent(in) :: kappa_h2on
+  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  REALSUB, intent(in) :: a, a0, adot, adot0
+  real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+                       :: E, E0, eta, kappa
+  real*8,  intent(out) :: mat(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  real*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e,x2s:x2e)
+  real,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i, j, k
-  real*8  :: dtfac, dtfac0
-  real*8  :: c, pi, dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, R, R0, E0avg, kap, kap0
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr
-  real*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr
-  real*8  :: Rmin, dscale, delta_nU
-  real*8  :: maxk;
+  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  real*8  :: c, dxi, dxi0, dyi, dyi0, dzi, dzi0
+  real*8  :: afac, afac0, Edir(3), Emax, delta_nU
+  real*8  :: E0d_x, Ed_x, E0d_y, Ed_y, E0d_z, Ed_z
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  mat = 0.d0
+  rhs = 0.d0
   ier = 1
 
   ! set shortcut values
-  dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
-  afac  = adot/a            ! expansion factor (new time)
-  afac0 = adot0/a0          ! expansion factor (old time)
-  dxi   = a/dx/lUn
-  dyi   = a/dy/lUn
-  dzi   = a/dz/lUn
-  dxi0  = a0/dx/lUn0
-  dyi0  = a0/dy/lUn0
-  dzi0  = a0/dz/lUn0
-  c  = 2.99792458d10        ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
-!  Rmin = 1.d1**(-precision(Rmin))/lUn
-!  Rmin = 1.d-20
-  Rmin = dxi+dyi+dzi
-!  print *,'Rmin =',Rmin,',  lUn = ',lUn,',  dxi =',dxi
+  dtfac  = dt*theta          ! time step conversion factor
+  dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
+  afac   = adot/a            ! expansion factor (new time)
+  afac0  = adot0/a0          ! expansion factor (old time)
+  c      = 2.99792458d10     ! speed of light [cm/s]
+  dxi    = a/dx/lUn
+  dyi    = a/dy/lUn
+  dzi    = a/dz/lUn
+  dxi0   = a0/dx/lUn0
+  dyi0   = a0/dy/lUn0
+  dzi0   = a0/dz/lUn0
+  eps    = 1.d-12
+  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
@@ -250,245 +206,108 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
      do j=1,Ny,1
         do i=1,Nx,1
 
-           !--------------
-           ! z-directional limiter, lower face
-           !    compute gradients of old Ef
-           E0d_zl = (Ef(i,j,k) - Ef(i,j,k-1))
-           E0avg  = (Ef(i,j,k) + Ef(i,j,k-1))*0.5d0
+           ! compute direction of radiation propagation, 
+           ! correcting for case of zero gradients (need at least 
+           ! a bit of diffusion in each direction for MG solver)
+           Edir = (/ (E0(i+1,j,k) - E0(i-1,j,k))*0.5d0*dxi, &
+                     (E0(i,j+1,k) - E0(i,j-1,k))*0.5d0*dyi, &
+                     (E0(i,j,k+1) - E0(i,j,k-1))*0.5d0*dzi /) / abs(E0(i,j,k))
+           Emax = max(maxval(abs(Edir)), eps*1.0e-3)
+           Edir(1) = sign(max(abs(Edir(1)), eps*Emax), Edir(1))
+           Edir(2) = sign(max(abs(Edir(2)), eps*Emax), Edir(2))
+           Edir(3) = sign(max(abs(Edir(3)), eps*Emax), Edir(3))
+           Edir = Edir / sqrt(Edir(1)**2 + Edir(2)**2 + Edir(3)**2)
 
+           !--------------
+           ! z-directional differencing
+           !    compute direction of radiation propagation
+           !    and gradients of old E and guess
+           if (Edir(3) < 0.d0) then     ! left
+              E0d_z = Edir(3)*(E0(i,j,k) - E0(i,j,k-1))*dzi0 
+              Ed_z  = Edir(3)*(E(i,j,k)  - E(i,j,k-1))*dzi 
+           else     ! right
+              E0d_z = Edir(3)*(E0(i,j,k+1) - E0(i,j,k))*dzi0
+              Ed_z  = Edir(3)*(E(i,j,k+1)  - E(i,j,k))*dzi
+           endif
+           E0d_z = E0d_z + mu*(E0(i,j,k+1) - 2.d0*E0(i,j,k) + E0(i,j,k-1))*dzi0*dzi0
+           Ed_z  = Ed_z  + mu*(E(i,j,k+1) - 2.d0*E(i,j,k) + E(i,j,k-1))*dzi*dzi
+
+           !--------------
+           ! y-directional differencing
+           !    compute direction of radiation propagation
+           !    and gradients of old E and guess
+           if (Edir(2) < 0.d0) then     ! left
+              E0d_y = Edir(2)*(E0(i,j,k) - E0(i,j-1,k))*dyi0
+              Ed_y  = Edir(2)*(E(i,j,k)  - E(i,j-1,k))*dyi
+           else     ! right
+              E0d_y = Edir(2)*(E0(i,j+1,k) - E0(i,j,k))*dyi0
+              Ed_y  = Edir(2)*(E(i,j+1,k)  - E(i,j,k))*dyi
+           endif
+           E0d_y = E0d_y + mu*(E0(i,j+1,k) - 2.d0*E0(i,j,k) + E0(i,j-1,k))*dyi0*dyi0
+           Ed_y  = Ed_y  + mu*(E(i,j+1,k) - 2.d0*E(i,j,k) + E(i,j-1,k))*dyi*dyi
+
+           !--------------
+           ! x-directional differencing
+           !    compute direction of radiation propagation
+           !    and gradients of old E and guess
+           if (Edir(1) < 0.d0) then     ! left
+              E0d_x = Edir(1)*(E0(i,j,k) - E0(i-1,j,k))*dxi0
+              Ed_x  = Edir(1)*(E(i,j,k)  - E(i-1,j,k))*dxi
+           else     ! right
+              E0d_x = Edir(1)*(E0(i+1,j,k) - E0(i,j,k))*dxi0
+              Ed_x  = Edir(1)*(E(i+1,j,k)  - E(i,j,k))*dxi
+           endif
+           E0d_x = E0d_x + mu*(E0(i+1,j,k) - 2.d0*E0(i,j,k) + E0(i-1,j,k))*dxi0*dxi0
+           Ed_x  = Ed_x  + mu*(E(i+1,j,k) - 2.d0*E(i,j,k) + E(i-1,j,k))*dxi*dxi
+
+
+           ! compute the cell-centered opacity
            if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i,j,k-1))
+              kap = kappa(i,j,k)
            else
               kap = kappa_c
            endif
            kap0 = kap * delta_nU
 
-           !    compute R for limiters
-           R  = max(dzi *abs(E0d_zl)/E0avg, Rmin)
-           R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin)
 
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zl = c*(2.d0*kap+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_zl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_zl = c/3.d0/kap
-              D0_zl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_zl = c*(cosh(R/kap0)/sinh(R/kap0)-kap0/R)/R
-              D0_zl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
+           ! set the matrix entries.  Note: the derivatives need
+           ! not be rescaled, since scaling and chain rule cancel 
+           !     center
+           mat(:,i,j,k) = 0.d0
+           mat(4,i,j,k) = 1.d0 + dtfac*(afac + kap + c*( &
+                abs(Edir(1))*dxi+abs(Edir(2))*dyi+abs(Edir(3))*dzi &
+                + mu*2.d0*(dxi*dxi + dyi*dyi + dzi*dzi)))
+           !     z direction
+           if (Edir(3) < 0.d0) then     ! left-differencing
+              mat(1,i,j,k) =  Edir(3)*dtfac*c*dzi         ! z-left
+           else  ! right-differencing
+              mat(7,i,j,k) = -Edir(3)*dtfac*c*dzi         ! z-right
            endif
-
-           !--------------
-           ! y-directional limiter, lower face
-           !    compute gradients of old Ef
-           E0d_yl = (Ef(i,j,k) - Ef(i,j-1,k))
-           E0avg  = (Ef(i,j,k) + Ef(i,j-1,k))*0.5d0
-
-           if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i,j-1,k))
-           else
-              kap = kappa_c
+           mat(1,i,j,k) = mat(1,i,j,k) - dtfac*c*mu*dzi*dzi
+           mat(7,i,j,k) = mat(7,i,j,k) - dtfac*c*mu*dzi*dzi
+           !     y direction
+           if (Edir(2) < 0.d0) then     ! left-differencing
+              mat(2,i,j,k) =  Edir(2)*dtfac*c*dyi         ! y-left
+           else  ! right-differencing
+              mat(6,i,j,k) = -Edir(2)*dtfac*c*dyi         ! y-right
            endif
-           kap0 = kap * delta_nU
-
-           !    compute R for limiters
-           R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
-           R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
-
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_yl = c/3.d0/kap
-              D0_yl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
+           mat(2,i,j,k) = mat(2,i,j,k) - dtfac*c*mu*dyi*dyi
+           mat(6,i,j,k) = mat(6,i,j,k) - dtfac*c*mu*dyi*dyi
+           !     x direction
+           if (Edir(1) < 0.d0) then     ! left-differencing
+              mat(3,i,j,k) =  Edir(1)*dtfac*c*dxi         ! x-left
+           else  ! right-differencing
+              mat(5,i,j,k) = -Edir(1)*dtfac*c*dxi         ! x-right
            endif
-
-           !--------------
-           ! x-directional limiter, lower face
-           !    compute gradients of old Ef
-           E0d_xl = (Ef(i,j,k) - Ef(i-1,j,k))
-           E0avg  = (Ef(i,j,k) + Ef(i-1,j,k))*0.5d0
-
-           if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i-1,j,k))
-           else
-              kap = kappa_c
-           endif
-           kap0 = kap * delta_nU
-
-           !    compute R for limiters
-           R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
-           R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
-
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_xl = c/3.d0/kap
-              D0_xl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
-
-           !--------------
-           ! x-directional limiter, upper face
-           !    compute gradients of old Ef
-           E0d_xr = (Ef(i+1,j,k) - Ef(i,j,k))
-           E0avg  = (Ef(i,j,k) + Ef(i+1,j,k))*0.5d0
-
-           if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i+1,j,k))
-           else
-              kap = kappa_c
-           endif
-           kap0 = kap * delta_nU
-
-           !    compute R for limiters
-           R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
-           R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
-
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_xr = c/3.d0/kap
-              D0_xr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
-
-           !--------------
-           ! y-directional limiter, upper face
-           !    compute gradients of old Ef
-           E0d_yr = (Ef(i,j+1,k) - Ef(i,j,k))
-           E0avg  = (Ef(i,j,k) + Ef(i,j+1,k))*0.5d0
-
-           if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i,j+1,k))
-           else
-              kap = kappa_c
-           endif
-           kap0 = kap * delta_nU
-
-           !    compute R for limiters
-           R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
-           R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
-
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_yr = c/3.d0/kap
-              D0_yr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
-
-           !--------------
-           ! z-directional limiter, upper face
-           !    compute gradients of old Ef
-           E0d_zr = (Ef(i,j,k+1) - Ef(i,j,k))
-           E0avg  = (Ef(i,j,k) + Ef(i,j,k+1))*0.5d0
-
-           if (kappa_h2on == 1) then
-              kap = 0.5 * (kappa(i,j,k) + kappa(i,j,k+1))
-           else
-              kap = kappa_c
-           endif
-           kap0 = kap * delta_nU
-
-           !    compute R for limiters
-           R  = max(dzi *abs(E0d_zr)/E0avg, Rmin)
-           R0 = max(dzi0*abs(E0d_zr)/E0avg, Rmin)
-
-           !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_zr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_zr = c/3.d0/kap
-              D0_zr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_zr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_zr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
-
-           ! set the diagonal value
-           ! (use this to rescale equation to have 1 on diagonal)
-!!$           dscale = 1.d0 + dtfac*(afac + c*kappa + dxi*dxi*(D_xl+D_xr)  &
-!!$                + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr))
-           dscale = 1.d0 + dtfac*(afac + dxi*dxi*(D_xl+D_xr)  &
-                + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr))
-
-           ! set the matrix entries.  Note: the diffusive component 
-           ! need not be rescaled, since scaling and chain rule cancel 
-           matentries(:,i,j,k) = (/  &
-                -dtfac*dzi*dzi*D_zl, &         ! z-left
-                -dtfac*dyi*dyi*D_yl, &         ! y-left
-                -dtfac*dxi*dxi*D_xl, &         ! x-left
-                 dscale,             &         ! self
-                -dtfac*dxi*dxi*D_xr, &         ! x-right
-                -dtfac*dyi*dyi*D_yr, &         ! y-right
-                -dtfac*dzi*dzi*D_zr /)/dscale  ! z-right
+           mat(3,i,j,k) = mat(3,i,j,k) - dtfac*c*mu*dxi*dxi
+           mat(5,i,j,k) = mat(5,i,j,k) - dtfac*c*mu*dxi*dxi
 
            ! set the rhs entries
-!!$           rhsentries(i,j,k) = ((1.d0-dtfac0*(afac0+c*kappa))*Ef(i,j,k)     &
-!!$                + dt*eta(i,j,k)/rUn                                         &
-!!$                + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)              &
-!!$                + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)              &
-!!$                + dtfac0*dzi0*dzi0*(D0_zr*E0d_zr-D0_zr*E0d_zl))/dscale
-           rhsentries(i,j,k) = ((1.d0 - dtfac0*afac0)*Ef(i,j,k)     &
-                + dt*eta(i,j,k)/rUn                                 &
-                + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)      &
-                + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)      &
-                + dtfac0*dzi0*dzi0*(D0_zr*E0d_zr-D0_zr*E0d_zl))/dscale
+           rhs(i,j,k) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j,k)        &
+                        + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j,k)    &
+                        - (1.d0 + dtfac*(afac+kap))*E(i,j,k)        &
+                        + c*dtfac0*(E0d_z + E0d_y + E0d_x)          &
+                        + c*dtfac *(Ed_z  + Ed_y  + Ed_x)
 
         enddo
      enddo
@@ -499,23 +318,21 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (zlface == 1) then
      ! Dirichlet
      if (BCZl==1) then
-        k = 0
+        k = x2s
         do j=1,Ny
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsZl(i,j)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCZl==2) then
-        k = 1
+        k = x2s
         do j=1,Ny
            do i=1,Nx
-              R = matentries(1,i,j,k)
-              matentries(1,i,j,k) = 0.d0
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsZl(i,j)/rUn/dzi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(1,i,j,k)
+              mat(1,i,j,k) = 0.d0
            enddo
         enddo
      endif
@@ -525,23 +342,21 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (ylface == 1) then
      ! Dirichlet
      if (BCYl==1) then
-        j = 0
+        j = x1s
         do k=1,Nz
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsYl(i,k)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCYl==2) then
-        j = 1
+        j = x1s
         do k=1,Nz
            do i=1,Nx
-              R = matentries(2,i,j,k)
-              matentries(2,i,j,k) = 0.d0
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsYl(i,k)/rUn/dyi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(2,i,j,k)
+              mat(2,i,j,k) = 0.d0
            enddo
         enddo
      endif
@@ -551,23 +366,21 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xlface == 1) then
      ! Dirichlet
      if (BCXl==1) then
-        i = 0
+        i = x0s
         do k=1,Nz
            do j=1,Ny
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsXl(j,k)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCXl==2) then
-        i = 1
+        i = x0s
         do k=1,Nz
            do j=1,Ny
-              R = matentries(3,i,j,k)
-              matentries(3,i,j,k) = 0.d0
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsXl(j,k)/rUn/dxi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(3,i,j,k)
+              mat(3,i,j,k) = 0.d0
            enddo
         enddo
      endif
@@ -577,23 +390,21 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xrface==1) then
      ! Dirichlet
      if (BCXr==1) then
-        i = Nx+1
+        i = x0e
         do k=1,Nz
            do j=1,Ny
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsXr(j,k)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCXr==2) then
-        i = Nx
+        i = x0e
         do k=1,Nz
            do j=1,Ny
-              R = matentries(5,i,j,k)
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              matentries(5,i,j,k) = 0.d0
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsXr(j,k)/rUn/dxi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(5,i,j,k)
+              mat(5,i,j,k) = 0.d0
            enddo
         enddo
      endif
@@ -603,23 +414,21 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (yrface==1) then
      ! Dirichlet
      if (BCYr==1) then
-        j = Ny+1
+        j = x1e
         do k=1,Nz
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsYr(i,k)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCYr==2) then
-        j = Ny
+        j = x1e
         do k=1,Nz
            do i=1,Nx
-              R = matentries(6,i,j,k)
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              matentries(6,i,j,k) = 0.d0
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsYr(i,k)/rUn/dyi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(6,i,j,k)
+              mat(6,i,j,k) = 0.d0
            enddo
         enddo
      endif
@@ -629,29 +438,27 @@ subroutine FSProb_SetupSystem3D(matentries, rhsentries, rhsnorm, Ef,     &
   if (zrface==1) then
      ! Dirichlet
      if (BCZr==1) then
-        k = Nz+1
+        k = x2e
         do j=1,Ny
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = BCvalsZr(i,j)/rUn
+              mat(:,i,j,k) = 0.d0
+              mat(4,i,j,k) = 1.d0
+              rhs(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCZr==2) then
-        k = Nz
+        k = x2e
         do j=1,Ny
            do i=1,Nx
-              R = matentries(7,i,j,k)
-              matentries(4,i,j,k) = matentries(4,i,j,k) + R
-              matentries(7,i,j,k) = 0.d0
-              rhsentries(i,j,k)   = rhsentries(i,j,k) - R*BCvalsZr(i,j)/rUn/dzi
+              mat(4,i,j,k) = mat(4,i,j,k) + mat(7,i,j,k)
+              mat(7,i,j,k) = 0.d0
            enddo
         enddo
      endif
   endif
 
-  rhsnorm = sum(rhsentries*rhsentries)
+  rhsnorm = sum(rhs*rhs)
 
   return
 end subroutine FSProb_SetupSystem3D
@@ -662,15 +469,13 @@ end subroutine FSProb_SetupSystem3D
 
 
 
-subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
-     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy,         &
-     BCValsXl, BCValsXr, BCValsYl, BCValsYr, BCXl,                       &
-     BCXr, BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl,     &
-     NGyr, xlface, xrface, ylface, yrface, ier)
+subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
+     kappa, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn, lUn0, rUn, &
+     rUn0, nUn, nUn0, dx, dy, BCXl, BCXr, BCYl, BCYr, x0s, x0e, x1s,     &
+     x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr, xlface, xrface, ylface, yrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
-!  date:       June 2009
+!  date:       January 2010
 !  modified:   
 !
 !  PURPOSE: 2D version of the routine
@@ -680,244 +485,150 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, kappa_h2on
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa_c, dt, theta, dx, dy
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: &
-       Ef, eta, kappa
-  REALSUB, intent(in) :: BCValsXl(Ny), BCValsXr(Ny)
-  REALSUB, intent(in) :: BCValsYl(Nx), BCValsYr(Nx)
-  real*8,  intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
-  real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
-  REALSUB, intent(out) :: rhsnorm
+  integer, intent(in) :: kappa_h2on
+  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  REALSUB, intent(in) :: a, a0, adot, adot0
+  real,    intent(in) :: kappa_c, dt, theta, dx, dy
+  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) :: E, E0, eta, kappa
+  real*8,  intent(out) :: mat(5,x0s:x0e,x1s:x1e)
+  real*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e)
+  real,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i, j
-  real*8  :: dtfac, dtfac0
-  real*8  :: c, pi, dxi, dxi0, dyi, dyi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr
-  real*8  :: Rmin, dscale, delta_nU, kap, kap0
+  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  real*8  :: c, dxi, dxi0, dyi, dyi0
+  real*8  :: afac, afac0, Edir(2), Emax, delta_nU
+  real*8  :: E0d_x, Ed_x, E0d_y, Ed_y
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  mat = 0.d0
+  rhs = 0.d0
   ier = 1
 
   ! set shortcut values
-  dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
-  afac  = adot/a            ! expansion factor (new time)
-  afac0 = adot0/a0          ! expansion factor (old time)
-  dxi   = a/dx/lUn
-  dyi   = a/dy/lUn
-  dxi0  = a0/dx/lUn0
-  dyi0  = a0/dy/lUn0
-  c  = 2.99792458d10        ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
-  Rmin = (dxi+dyi)*1.5d0
+  dtfac  = dt*theta          ! time step conversion factor
+  dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
+  afac   = adot/a            ! expansion factor (new time)
+  afac0  = adot0/a0          ! expansion factor (old time)
+  c      = 2.99792458d10     ! speed of light [cm/s]
+  dxi    = a/dx/lUn
+  dyi    = a/dy/lUn
+  dxi0   = a0/dx/lUn0
+  dyi0   = a0/dy/lUn0
+  eps    = 1.d-12
+  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
   do j=1,Ny,1
      do i=1,Nx,1
+        
+        ! compute direction of radiation propagation, 
+        ! correcting for case of zero gradients (need at least 
+        ! a bit of diffusion in each direction for MG solver)
+        Edir = (/ (E0(i+1,j) - E0(i-1,j))*0.5d0*dxi, &
+                  (E0(i,j+1) - E0(i,j-1))*0.5d0*dyi /) / abs(E0(i,j))
+        Emax = max(maxval(abs(Edir)), eps*1.0e-3)
+        Edir(1) = sign(max(abs(Edir(1)), eps*Emax), Edir(1))
+        Edir(2) = sign(max(abs(Edir(2)), eps*Emax), Edir(2))
+        Edir = Edir / sqrt(Edir(1)**2 + Edir(2)**2)
 
         !--------------
-        ! y-directional limiter, lower face
-        !    compute gradients of old Ef
-        E0d_yl = (Ef(i,j) - Ef(i,j-1))
-        E0avg  = (Ef(i,j) + Ef(i,j-1))/2.d0
+        ! y-directional differencing
+        !    compute direction of radiation propagation
+        !    and gradients of old E and guess
+        if (Edir(2) < 0.d0) then     ! left
+           E0d_y = Edir(2)*(E0(i,j) - E0(i,j-1))*dyi0
+           Ed_y  = Edir(2)*(E(i,j)  - E(i,j-1))*dyi
+        else     ! right
+           E0d_y = Edir(2)*(E0(i,j+1) - E0(i,j))*dyi0
+           Ed_y  = Edir(2)*(E(i,j+1)  - E(i,j))*dyi
+        endif
+        E0d_y = E0d_y + mu*(E0(i,j+1) - 2.d0*E0(i,j) + E0(i,j-1))*dyi0*dyi0
+        Ed_y  = Ed_y  + mu*(E(i,j+1) - 2.d0*E(i,j) + E(i,j-1))*dyi*dyi
 
+        !--------------
+        ! x-directional differencing
+        !    compute direction of radiation propagation
+        !    and gradients of old E and guess
+        if (Edir(1) < 0.d0) then     ! left
+           E0d_x = Edir(1)*(E0(i,j) - E0(i-1,j))*dxi0
+           Ed_x  = Edir(1)*(E(i,j)  - E(i-1,j))*dxi
+        else     ! right
+           E0d_x = Edir(1)*(E0(i+1,j) - E0(i,j))*dxi0
+           Ed_x  = Edir(1)*(E(i+1,j)  - E(i,j))*dxi
+        endif
+        E0d_x = E0d_x + mu*(E0(i+1,j) - 2.d0*E0(i,j) + E0(i-1,j))*dxi0*dxi0
+        Ed_x  = Ed_x  + mu*(E(i+1,j) - 2.d0*E(i,j) + E(i-1,j))*dxi*dxi
+
+
+        ! compute the cell-centered opacity
         if (kappa_h2on == 1) then
-           kap = 0.5 * (kappa(i,j) + kappa(i,j-1))
+           kap = kappa(i,j)
         else
            kap = kappa_c
         endif
         kap0 = kap * delta_nU
 
-        !    compute R for limiters
-        R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
-        R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
 
-        !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_yl = c/3.d0/kap
-           D0_yl = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
+        ! set the matrix entries.  Note: the derivatives need
+        ! not be rescaled, since scaling and chain rule cancel 
+        !     center
+        mat(:,i,j) = 0.d0
+        mat(3,i,j) = 1.d0 + dtfac*(afac + kap + c*( &
+                abs(Edir(1))*dxi+abs(Edir(2))*dyi     &
+                + mu*2.d0*(dxi*dxi + dyi*dyi)))
+        !     y direction
+        if (Edir(2) < 0.d0) then     ! left-differencing
+           mat(1,i,j) =  Edir(2)*dtfac*c*dyi         ! y-left
+        else  ! right-differencing
+           mat(5,i,j) = -Edir(2)*dtfac*c*dyi         ! y-right
         endif
-
-        !--------------
-        ! x-directional limiter, lower face
-        !    compute gradients of old Ef
-        E0d_xl = (Ef(i,j) - Ef(i-1,j))
-        E0avg  = (Ef(i,j) + Ef(i-1,j))/2.d0
-
-        if (kappa_h2on == 1) then
-           kap = 0.5 * (kappa(i,j) + kappa(i-1,j))
-        else
-           kap = kappa_c
+        mat(1,i,j) = mat(1,i,j) - dtfac*c*mu*dyi*dyi
+        mat(5,i,j) = mat(5,i,j) - dtfac*c*mu*dyi*dyi
+        !     x direction
+        if (Edir(1) < 0.d0) then     ! left-differencing
+           mat(2,i,j) =  Edir(1)*dtfac*c*dxi         ! x-left
+        else  ! right-differencing
+           mat(4,i,j) = -Edir(1)*dtfac*c*dxi         ! x-right
         endif
-        kap0 = kap * delta_nU
-
-        !    compute R for limiters
-        R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
-        R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
-
-        !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_xl = c/3.d0/kap
-           D0_xl = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
-
-        !--------------
-        ! x-directional limiter, upper face
-        !    compute gradients of old Ef
-        E0d_xr = (Ef(i+1,j) - Ef(i,j))
-        E0avg  = (Ef(i+1,j) + Ef(i,j))/2.d0
-
-        if (kappa_h2on == 1) then
-           kap = 0.5 * (kappa(i+1,j) + kappa(i,j))
-        else
-           kap = kappa_c
-        endif
-        kap0 = kap * delta_nU
-
-        !    compute R for limiters
-        R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
-        R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
-
-        !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_xr = c/3.d0/kap
-           D0_xr = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
-
-        !--------------
-        ! y-directional limiter, upper face
-        !    compute gradients of old Ef
-        E0d_yr = (Ef(i,j+1) - Ef(i,j))
-        E0avg  = (Ef(i,j+1) + Ef(i,j))/2.d0
-
-        if (kappa_h2on == 1) then
-           kap = 0.5 * (kappa(i,j+1) + kappa(i,j))
-        else
-           kap = kappa_c
-        endif
-        kap0 = kap * delta_nU
-
-        !    compute R for limiters
-        R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
-        R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
-
-        !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_yr = c/3.d0/kap
-           D0_yr = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
-
-        ! set the diagonal value
-        ! (use this to rescale equation to have 1 on diagonal)
-!!$        dscale = 1.d0 + dtfac*(afac + c*kappa + dxi*dxi*(D_xl+D_xr) &
-!!$             + dyi*dyi*(D_yl+D_yr))
-        dscale = 1.d0 + dtfac*(afac + dxi*dxi*(D_xl+D_xr) &
-             + dyi*dyi*(D_yl+D_yr))
-
-        ! set the matrix entries.  Note: the diffusive component 
-        ! need not be rescaled, since scaling and chain rule cancel 
-        matentries(:,i,j) = (/    &
-             -dtfac*dyi*dyi*D_yl, &         ! y-left
-             -dtfac*dxi*dxi*D_xl, &         ! x-left
-              dscale,             &         ! self
-             -dtfac*dxi*dxi*D_xr, &         ! x-right
-             -dtfac*dyi*dyi*D_yr /)/dscale  ! y-right
+        mat(2,i,j) = mat(2,i,j) - dtfac*c*mu*dxi*dxi
+        mat(4,i,j) = mat(4,i,j) - dtfac*c*mu*dxi*dxi
 
         ! set the rhs entries
-!!$        rhsentries(i,j) = ((1.d0 - dtfac0*(afac0+c*kappa))*Ef(i,j)    &
-!!$             + dt*eta(i,j)/rUn                                        &
-!!$             + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)           &
-!!$             + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl))/dscale
-        rhsentries(i,j) = ((1.d0 - dtfac0*afac0)*Ef(i,j)     &
-             + dt*eta(i,j)/rUn                               &
-             + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
-             + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl))/dscale
+        rhs(i,j) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j)        &
+                     + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j)    &
+                     - (1.d0 + dtfac*(afac+kap))*E(i,j)        &
+                     + c*dtfac0*(E0d_y + E0d_x)                  &
+                     + c*dtfac *(Ed_y  + Ed_x)
 
      enddo
   enddo
-  
+
   ! update matrix/rhs based on boundary conditions/location
   !    y-left face
   if (ylface == 1) then
      ! Dirichlet
      if (BCYl==1) then
-        j = 0
+        j = x1s
         do i=1,Nx
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = BCvalsYl(i)/rUn
+           mat(:,i,j) = 0.d0
+           mat(3,i,j) = 1.d0
+           rhs(i,j)   = 0.d0
         enddo
-        ! Neumann
+     ! Neumann
      else if (BCYl==2) then
-        j = 1
+        j = x1s
         do i=1,Nx
-           R = matentries(1,i,j)
-           matentries(1,i,j) = 0.d0
-           matentries(3,i,j) = matentries(3,i,j) + R
-           rhsentries(i,j)   = rhsentries(i,j) - R*BCvalsYl(i)/rUn/dyi
+           mat(3,i,j) = mat(3,i,j) + mat(1,i,j)
+           mat(1,i,j) = 0.d0
         enddo
      endif
   end if
@@ -926,20 +637,18 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xlface == 1) then
      ! Dirichlet
      if (BCXl==1) then
-        i = 0
+        i = x0s
         do j=1,Ny
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = BCvalsXl(j)/rUn
+           mat(:,i,j) = 0.d0
+           mat(3,i,j) = 1.d0
+           rhs(i,j)   = 0.d0
         enddo
-        ! Neumann
+     ! Neumann
      else if (BCXl==2) then
-        i = 1
+        i = x0s
         do j=1,Ny
-           R = matentries(2,i,j)
-           matentries(2,i,j) = 0.d0
-           matentries(3,i,j) = matentries(3,i,j) + R
-           rhsentries(i,j)   = rhsentries(i,j) - R*BCvalsXl(j)/rUn/dxi
+           mat(3,i,j) = mat(3,i,j) + mat(2,i,j)
+           mat(2,i,j) = 0.d0
         enddo
      endif
   end if
@@ -948,20 +657,18 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xrface==1) then
      ! Dirichlet
      if (BCXr==1) then
-        i = Nx+1
+        i = x0e
         do j=1,Ny
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = BCvalsXr(j)/rUn
+           mat(:,i,j) = 0.d0
+           mat(3,i,j) = 1.d0
+           rhs(i,j)   = 0.d0
         enddo
-        ! Neumann
+     ! Neumann
      else if (BCXr==2) then
-        i = Nx
+        i = x0e
         do j=1,Ny
-           R = matentries(4,i,j)
-           matentries(4,i,j) = 0.d0
-           matentries(3,i,j) = matentries(3,i,j) + R
-           rhsentries(i,j)   = rhsentries(i,j) - R*BCvalsXr(j)/rUn/dxi
+           mat(3,i,j) = mat(3,i,j) + mat(4,i,j)
+           mat(4,i,j) = 0.d0
         enddo
      endif
   endif
@@ -970,25 +677,23 @@ subroutine FSProb_SetupSystem2D(matentries, rhsentries, rhsnorm, Ef,     &
   if (yrface==1) then
      ! Dirichlet
      if (BCYr==1) then
-        j = Ny+1
+        j = x1e
         do i=1,Nx
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = BCvalsYr(i)/rUn
+           mat(:,i,j) = 0.d0
+           mat(3,i,j) = 1.d0
+           rhs(i,j)   = 0.d0
         enddo
-        ! Neumann
+     ! Neumann
      else if (BCYr==2) then
-        j = Ny
+        j = x1e
         do i=1,Nx
-           R = matentries(5,i,j)
-           matentries(5,i,j) = 0.d0
-           matentries(3,i,j) = matentries(3,i,j) + R
-           rhsentries(i,j)   = rhsentries(i,j) - R*BCvalsYr(i)/rUn/dyi
+           mat(3,i,j) = mat(3,i,j) + mat(5,i,j)
+           mat(5,i,j) = 0.d0
         enddo
      endif
   endif
 
-  rhsnorm = sum(rhsentries*rhsentries)
+  rhsnorm = sum(rhs*rhs)
 
   return
 end subroutine FSProb_SetupSystem2D
@@ -999,13 +704,13 @@ end subroutine FSProb_SetupSystem2D
 
 
 
-subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
-     kappa_h2on, kappa, kappa_c, eta, LimType, dt, a, a0, adot,      &
-     adot0, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, BCValsXl,   &
-     BCValsXr, BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
+subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
+     kappa, kappa_c, eta, dt, a, a0, adot, adot0, theta, lUn, lUn0, rUn, &
+     rUn0, nUn, nUn0, dx, BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface,  &
+     xrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
-!  date:       June 2009
+!  date:       January 2010
 !  modified:   
 !
 !  PURPOSE: 1D version of the routine
@@ -1015,137 +720,98 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, kappa_h2on
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  REALSUB, intent(in) :: kappa_c, dt, theta, dx
-  REALSUB, intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  REALSUB, intent(in), dimension(1-NGxl:Nx+NGxr) :: Ef, eta, kappa
-  REALSUB, intent(in) :: BCValsXl(1), BCValsXr(1)
-  real*8,  intent(out) :: matentries(3,x0s:x0e)
-  real*8,  intent(out) :: rhsentries(x0s:x0e)
-  REALSUB, intent(out) :: rhsnorm
+  integer, intent(in) :: kappa_h2on
+  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  REALSUB, intent(in) :: a, a0, adot, adot0
+  real,    intent(in) :: kappa_c, dt, theta, dx
+  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E, E0, eta, kappa
+  real*8,  intent(out) :: mat(3,x0s:x0e)
+  real*8,  intent(out) :: rhs(x0s:x0e)
+  real,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i
-  real*8  :: dtfac, dtfac0
-  real*8  :: c, pi, dxi, dxi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, delta_nU
-  real*8  :: Rmin, dscale, kap, kap0
+  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  real*8  :: c, dxi, dxi0
+  real*8  :: afac, afac0, Edir, Emax, delta_nU
+  real*8  :: E0d_x, Ed_x
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  mat = 0.d0
+  rhs = 0.d0
   ier = 1
 
   ! set shortcut values
-  dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
-  afac  = adot/a            ! expansion factor (new time)
-  afac0 = adot0/a0          ! expansion factor (old time)
-  dxi   = a/dx/lUn
-  dxi0  = a0/dx/lUn0
-  c  = 2.99792458d10        ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
-  Rmin = dxi*3.d0
+  dtfac  = dt*theta          ! time step conversion factor
+  dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
+  afac   = adot/a            ! expansion factor (new time)
+  afac0  = adot0/a0          ! expansion factor (old time)
+  c      = 2.99792458d10     ! speed of light [cm/s]
+  dxi    = a/dx/lUn
+  dxi0   = a0/dx/lUn0
+  eps    = 1.d-12
+  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
   do i=1,Nx,1
+        
+     ! compute direction of radiation propagation, 
+     ! correcting for case of zero gradients (need at least 
+     ! a bit of diffusion in each direction for MG solver)
+     Edir = (E0(i+1) - E0(i-1))*0.5d0*dxi / abs(E0(i))
+     Emax = max(abs(Edir), eps*1.0e-3)
+     Edir = sign(max(abs(Edir), eps*Emax), Edir)
+     Edir = Edir / abs(Edir)
 
      !--------------
-     ! x-directional limiter, lower face
-     !    compute gradients of old Ef
-     E0d_xl = (Ef(i) - Ef(i-1))
-     E0avg  = (Ef(i) + Ef(i-1))/2.d0
+     ! x-directional differencing
+     !    compute direction of radiation propagation
+     !    and gradients of old E and guess
+     if (Edir < 0.d0) then     ! left
+        E0d_x = Edir*(E0(i) - E0(i-1))*dxi0
+        Ed_x  = Edir*(E(i)  - E(i-1))*dxi
+     else     ! right
+        E0d_x = Edir*(E0(i+1) - E0(i))*dxi0
+        Ed_x  = Edir*(E(i+1)  - E(i))*dxi
+     endif
+     E0d_x = E0d_x + mu*(E0(i+1) - 2.d0*E0(i) + E0(i-1))*dxi0*dxi0
+     Ed_x  = Ed_x  + mu*(E(i+1) - 2.d0*E(i) + E(i-1))*dxi*dxi
 
+
+     ! compute the cell-centered opacity
      if (kappa_h2on == 1) then
-        kap = 0.5 * (kappa(i) + kappa(i+1))
+        kap = kappa(i)
      else
         kap = kappa_c
      endif
      kap0 = kap * delta_nU
 
-     !    compute R for limiters
-     R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
-     R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
-     !    compute limiter
-     if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-        D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-     else if (LimType == 3) then  ! no limiter
-        D_xl = c/3.d0/kap
-        D0_xl = c/3.d0/kap0
-     else if (LimType == 4) then  ! Zeus limiter
-        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else                         ! standard LP lim (LP, 1981)
-        D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-        D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
+     ! set the matrix entries.  Note: the derivatives need
+     ! not be rescaled, since scaling and chain rule cancel 
+     !     center
+     mat(:,i) = 0.d0
+     mat(2,i) = 1.d0 + dtfac*(afac + kap + c*dxi*(abs(Edir) + mu*2.d0*dxi))
+     !     x direction
+     if (Edir < 0.d0) then     ! left-differencing
+        mat(1,i) =  Edir*dtfac*c*dxi         ! x-left
+     else  ! right-differencing
+        mat(3,i) = -Edir*dtfac*c*dxi         ! x-right
      endif
-
-     !--------------
-     ! x-directional limiter, upper face
-     !    compute gradients of old Ef
-     E0d_xr = (Ef(i+1) - Ef(i))
-     E0avg  = (Ef(i+1) + Ef(i))/2.d0
-
-     if (kappa_h2on == 1) then
-        kap = 0.5 * (kappa(i) + kappa(i+1))
-     else
-        kap = kappa_c
-     endif
-     kap0 = kap * delta_nU
-
-     !    compute R for limiters
-     R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
-     R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
-
-     !    compute limiter
-     if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-        D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-     else if (LimType == 3) then  ! no limiter
-        D_xr = c/3.d0/kap
-        D0_xr = c/3.d0/kap0
-     else if (LimType == 4) then  ! Zeus limiter
-        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else                         ! standard LP lim (LP, 1981)
-        D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-        D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-     endif
-
-     ! set the diagonal value
-     ! (use this to rescale equation to have 1 on diagonal)
-!!$     dscale = 1.d0 + dtfac*(afac + c*kappa + dxi*dxi*(D_xl+D_xr))
-     dscale = 1.d0 + dtfac*(afac + dxi*dxi*(D_xl+D_xr))
-
-     ! set the matrix entries.  Note: the diffusive component 
-     ! need not be rescaled, since scaling and chain rule cancel 
-     matentries(:,i) = (/      &
-          -dtfac*dxi*dxi*D_xl, &          ! x-left
-           dscale,             &          ! self
-          -dtfac*dxi*dxi*D_xr /)/dscale   ! x-right
+     mat(1,i) = mat(1,i) - dtfac*c*mu*dxi*dxi
+     mat(3,i) = mat(3,i) - dtfac*c*mu*dxi*dxi
 
      ! set the rhs entries
-!!$     rhsentries(i) = ((1.d0 - dtfac0*(afac0 + c*kappa))*Ef(i)    &
-!!$          + dt*eta(i)/rUn                                        &
-!!$          + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl))/dscale
-     rhsentries(i) = ((1.d0 - dtfac0*afac0)*Ef(i) + dt*eta(i)/rUn &
-          + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl))/dscale
+     rhs(i) = (dtfac/rUn + dtfac0/rUn0)*eta(i)        &
+                + (1.d0 - dtfac0*(afac0+kap0))*E0(i)  &
+                - (1.d0 + dtfac*(afac+kap))*E(i)      &
+                + c*(dtfac0*E0d_x + dtfac*Ed_x)
 
   enddo
 
@@ -1154,17 +820,15 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xlface == 1) then
      ! Dirichlet
      if (BCXl==1) then
-        i = 0
-        matentries(:,i) = 0.d0
-        matentries(2,i) = 1.d0
-        rhsentries(i)   = BCvalsXl(1)/rUn
-        ! Neumann
+        i = x0s
+        mat(:,i) = 0.d0
+        mat(2,i) = 1.d0
+        rhs(i)   = 0.d0
+     ! Neumann
      else if (BCXl==2) then
-        i = 1
-        R = matentries(1,i)
-        matentries(1,i) = 0.d0
-        matentries(2,i) = matentries(2,i) + R
-        rhsentries(i)   = rhsentries(i) - R*BCvalsXl(1)/rUn/dxi
+        i = x0s
+        mat(2,i) = mat(2,i) + mat(1,i)
+        mat(1,i) = 0.d0
      endif
   end if
 
@@ -1172,21 +836,19 @@ subroutine FSProb_SetupSystem1D(matentries, rhsentries, rhsnorm, Ef,     &
   if (xrface==1) then
      ! Dirichlet
      if (BCXr==1) then
-        i = Nx+1
-        matentries(:,i) = 0.d0
-        matentries(2,i) = 1.d0
-        rhsentries(i)   = BCvalsXr(1)/rUn
-        ! Neumann
+        i = x0e
+        mat(:,i) = 0.d0
+        mat(2,i) = 1.d0
+        rhs(i)   = 0.d0
+     ! Neumann
      else if (BCXr==2) then
-        i = Nx
-        R = matentries(3,i)
-        matentries(3,i) = 0.d0
-        matentries(2,i) = matentries(2,i) + R
-        rhsentries(i)   = rhsentries(i) - R*BCvalsXr(1)/rUn/dxi
+        i = x0e
+        mat(2,i) = mat(2,i) + mat(3,i)
+        mat(3,i) = 0.d0
      endif
   endif
 
-  rhsnorm = sum(rhsentries*rhsentries)
+  rhsnorm = sum(rhs*rhs)
 
   return
 end subroutine FSProb_SetupSystem1D

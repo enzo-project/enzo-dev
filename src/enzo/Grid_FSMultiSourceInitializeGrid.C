@@ -58,7 +58,14 @@ int grid::FSMultiSourceInitializeGrid(float DensityConstant,
   FieldType[V0Num = NumberOfBaryonFields++]  = Velocity1;
   FieldType[V1Num = NumberOfBaryonFields++]  = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++]  = Velocity3;
-  FieldType[RadNum = NumberOfBaryonFields++] = kdissH2I;
+  if (RadiativeTransferFLD == 1)
+    FieldType[RadNum = NumberOfBaryonFields++] = kdissH2I;
+  else if (RadiativeTransferFLD > 1)
+    FieldType[RadNum = NumberOfBaryonFields++] = RadiationFreq0;
+  else {
+    fprintf(stderr,"Grid_FSMultiSourceInitializeGrid: FLD solver not enabled!\n");
+    return FAIL;
+  }
 
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids

@@ -68,10 +68,6 @@ EXTERN int RadiativeTransferOpticallyThinH2;
 
 EXTERN int RadiativeTransferPeriodicBoundary;
 
-/* Flag to activate the FLD solver for optically thin fields */
-
-EXTERN int RadiativeTransferFLD;
-
 /* Which level, i.e. the frequency it's called, we call the FLD
    solver */
 

@@ -44,7 +44,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat) 
 {
 #ifdef USE_JBPERF
-  JBPERF_START("fsprob_solve");
+  JBPERF_START("fsprob_evolve");
 #endif
   
   //  if (debug)  printf("Entering FSProb::Evolve routine\n");
@@ -79,13 +79,17 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   told = ThisGrid->GridData->ReturnTime();
   tnew = told+dt;
 
-  // attach radiation array to U0 vector
-  float *Efold = ThisGrid->GridData->AccessKDissH2I();
+  // attach radiation array to U0 vector (depends on how called)
+  float *Efold;
+  if (RadiativeTransferFLD == 1)
+    Efold = ThisGrid->GridData->AccessKDissH2I();
+  else
+    Efold = ThisGrid->GridData->AccessRadiationFrequency0();
   U0->SetData(0, Efold);
 
   // have U0 begin communication of neighbor information
   if (U0->exchange_start() == FAIL)
-    ENZO_FAIL("FSProb Solve: vector exchange_start error");
+    ENZO_FAIL("FSProb Evolve: vector exchange_start error");
 
   // get internal Enzo units (old and new time steps)
   float TempUnits, VelUnits, RadUnits;
@@ -93,22 +97,22 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   DenUnits0 = TempUnits = VelUnits = RadUnits = 1.0;
   if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
 	       &TimeUnits0, &VelUnits, told) == FAIL) 
-    ENZO_FAIL("FSProb Solve: Error in GetUnits.");
+    ENZO_FAIL("FSProb Evolve: Error in GetUnits.");
   RadUnits = DenUnits0*VelUnits*VelUnits;
   EUnits0 = RadUnits*EScale;
   DenUnits = TempUnits = VelUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
 	       &TimeUnits, &VelUnits, tnew) == FAIL) 
-    ENZO_FAIL("FSProb Solve: Error in GetUnits.");
+    ENZO_FAIL("FSProb Evolve: Error in GetUnits.");
   RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits = RadUnits*EScale;
 
   // set a, adot, unit scalings to correct time-level values
   if (ComovingCoordinates) {
     if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) 
-      ENZO_FAIL("FSProb Solve: CosmologyComputeExpansionFactor error.");
+      ENZO_FAIL("FSProb Evolve: CosmologyComputeExpansionFactor error.");
     if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) 
-      ENZO_FAIL("FSProb Solve: CosmologyComputeExpansionFactor error.");
+      ENZO_FAIL("FSProb Evolve: CosmologyComputeExpansionFactor error.");
     aUnits = 1.0/(1.0 + InitialRedshift);
   }
 
@@ -121,21 +125,21 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   // begin diagnostics
   if (debug) {
-    printf("\n ======================================================================\n");
-    printf(" Free-Streaming Radiation Solver:\n");
+    printf("\n  =====================================================================\n");
+    printf("  Free-Streaming Radiation Solver:\n");
   }
 
   // fill in the emissivity source array
   int src_set = 0;
   float *RadSrc = extsrc->GetData(0);
   if (RadSrc == NULL)
-    ENZO_FAIL("FSProb Solve: could not access Radiation source.");
+    ENZO_FAIL("FSProb Evolve: could not access Radiation source.");
   //   access emissivity field provided by RadiativeTransfer module (John Wise)
   if (RadiativeTransfer > 0) {
     // access external emissivity field 
     float *EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
     if (EmissivitySource == NULL) 
-      ENZO_FAIL("FSProb Solve: could not access emissivity field");
+      ENZO_FAIL("FSProb Evolve: could not access emissivity field");
     // copy data
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
       RadSrc[i] = EmissivitySource[i];
@@ -145,19 +149,19 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   //   (based on ProblemType)
   if (src_set == 0) {
     if (this->RadiationSource(RadSrc) != SUCCESS)
-      ENZO_FAIL("FSProb Solve: Error in RadiationSource routine");
+      ENZO_FAIL("FSProb Evolve: Error in RadiationSource routine");
     src_set = 1;
   }
 
   // have U0 finish communication of neighbor information
   if (U0->exchange_end() == FAIL) 
-    ENZO_FAIL("FSProb Solve: vector exchange_end error");
+    ENZO_FAIL("FSProb Evolve: vector exchange_end error");
 
   // output norm of radiation sources
   float srcNorm = extsrc->rmsnorm();
   float srcMax  = extsrc->infnorm();
   if (debug) 
-    printf("   emissivity norm = %g,  max = %g\n",srcNorm,srcMax);
+    printf("    emissivity norm = %g,  max = %g\n",srcNorm,srcMax);
 
   // rescale Enzo units with input scalings to non-dimensionalize within solver
   U0->scale_component(0,1.0/EScale);
@@ -166,10 +170,14 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   float Efs_rms = U0->rmsnorm();
   float Efs_max = U0->infnorm();
   if (debug) {
-    printf("   current internal (physical) values:\n");
-    printf("      Efs rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+    printf("    current internal (physical) values:\n");
+    printf("       Efs rms = %10.4e (%8.2e), max = %10.4e (%8.2e)\n",
 	   Efs_rms, Efs_rms*EUnits0, Efs_max, Efs_max*EUnits0);
   }
+
+  // enforce boundry conditions on the state U0
+  if (this->EnforceBoundary(U0) != SUCCESS) 
+      ENZO_FAIL("FSProb Evolve: Error in EnforceBoundary routine");
 
   // check whether solver even needs to be called
   if ((srcMax == 0.0) && (Efs_rms == Efs_max))
@@ -177,27 +185,43 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   // calculate initial guess at time-evolved solution
   if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) 
-    ENZO_FAIL("FSProb Solve: Error in InitialGuess routine");
+    ENZO_FAIL("FSProb Evolve: Error in InitialGuess routine");
 
-  // Calculate the spatially-dependent opacity.
-  float *H2 = ThisGrid->GridData->AccessH2IDensity();
-  this->ComputeOpacityLW(H2);
-  printf("max(kappa) = %13.7e, min(kappa) = %13.7e, mean(kappa) = %13.7e\n",
-	 kappa->infnorm(), kappa->minval(), kappa->rmsnorm());
+  // enforce boundry conditions on new time step initial guess
+  if (this->EnforceBoundary(sol) != SUCCESS) 
+      ENZO_FAIL("FSProb Evolve: Error in EnforceBoundary routine");
+
+  // Calculate the spatially-dependent opacity (if used as LW solver).
+  if (RadiativeTransferFLD == 1) {
+    float *H2 = ThisGrid->GridData->AccessH2IDensity();
+    this->ComputeOpacityLW(H2);
+    float kappa_max;
+    float kappa_min;
+    float kappa_rms;
+    if (kappa_h2on) {
+      kappa_max = kappa->infnorm();
+      kappa_min = kappa->minval();
+      kappa_rms = kappa->rmsnorm();
+    }
+    else  kappa_max = kappa_min = kappa_rms = kappa0;
+    if (debug) 
+      printf("    max(kappa) = %10.4e, min(kappa) = %10.4e, mean(kappa) = %10.4e\n",
+	     kappa_max, kappa_min, kappa_rms);
+  }
+  else
+    if (debug)  printf("    kappa = %10.4e\n", kappa0);
 
   // set up the linear system matrix & rhs
   float *Efnew = sol->GetData(0);
   float *opacity = kappa->GetData(0);
   float rhsnorm;
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, 
-			Efold, RadSrc, opacity) != SUCCESS)
-    ENZO_FAIL("FSProb Solve: Error in SetupSystem routine");
+			Efnew, Efold, RadSrc, opacity) != SUCCESS)
+    ENZO_FAIL("FSProb Evolve: Error in SetupSystem routine");
   
   // solve the free-streaming radiation problem to obtain the 
   // background propagation.
 #ifdef USE_HYPRE
-  Eint32 zed=0;
-  Eint32 one=1;
   Eint32 entries[7] = {0, 1, 2, 3, 4, 5, 6};
   Eint32 ilower[3] = {SolvIndices[0][0],SolvIndices[1][0],SolvIndices[2][0]};
   Eint32 iupper[3] = {SolvIndices[0][1],SolvIndices[1][1],SolvIndices[2][1]};
@@ -209,23 +233,16 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   //       insert rhs into HYPRE vector b
   HYPRE_StructVectorSetBoxValues(rhsvec, ilower, iupper, rhsentries);
 
-  //       insert sol initial guess into HYPRE vector x 
-  ilower[0] = SolvIndices[0][0];
-  iupper[0] = SolvIndices[0][1];
-  int xBuff, yBuff, zBuff;
-  xBuff = GhDims[0][0]-SolvOff[0];
-  yBuff = (GhDims[1][0]-SolvOff[1])-SolvIndices[1][0];
-  zBuff = (GhDims[2][0]-SolvOff[2])-SolvIndices[2][0];
-  int Zbl, Ybl, ix, iy, iz;
-  for (iz=SolvIndices[2][0]; iz<=SolvIndices[2][1]; iz++) {
-    Zbl = (iz+zBuff)*ArrDims[0]*ArrDims[1];  ilower[2] = iz;  iupper[2] = iz;
-    for (iy=SolvIndices[1][0]; iy<=SolvIndices[1][1]; iy++) {
-      Ybl = (iy+yBuff)*ArrDims[0];  ilower[1] = iy;  iupper[1] = iy;
-      for (ix=0; ix<=SolvIndices[0][1]-SolvIndices[0][0]; ix++) 
-	HYPREbuff[ix] = Efnew[Zbl+Ybl+xBuff+ix];
-      HYPRE_StructVectorSetBoxValues(solvec, ilower, iupper, HYPREbuff);
-    }
-  }
+  //       set the linear solver tolerance (rescale to relative residual and not actual)
+  Eflt64 delta = min(sol_tolerance/rhsnorm, 1.0e-8);
+
+  //       insert zero initial guess into HYPRE vector solvec
+  int ix, iy, iz, size;
+  size = (SolvIndices[0][1]-SolvIndices[0][0]+1)
+        *(SolvIndices[1][1]-SolvIndices[1][0]+1)
+        *(SolvIndices[2][1]-SolvIndices[2][0]+1);
+  for (ix=0; ix<size; ix++)  matentries[ix] = 0.0;
+  HYPRE_StructVectorSetBoxValues(solvec, ilower, iupper, matentries);
 
   //       assemble vectors
   HYPRE_StructVectorAssemble(solvec);
@@ -240,89 +257,104 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 //   if (debug)  printf("Writing out initial guess to file x.vec\n");
 //   HYPRE_StructVectorPrint("x.vec",solvec,0);
 
-  //       set up the solver [PCG] and preconditioner [PFMG]
+  //       set up the solver [BiCGStab] and preconditioner [PFMG]
   //          create the solver & preconditioner
   HYPRE_StructSolver solver;
   HYPRE_StructSolver preconditioner;
-  HYPRE_StructPCGCreate(MPI_COMM_WORLD, &solver);
+  HYPRE_StructBiCGSTABCreate(MPI_COMM_WORLD, &solver);
   HYPRE_StructPFMGCreate(MPI_COMM_WORLD, &preconditioner);
 
   //          set preconditioner options
-  HYPRE_StructPFMGSetMaxIter(preconditioner, sol_maxit/4);
+  HYPRE_StructPFMGSetMaxIter(preconditioner, sol_maxit);
   HYPRE_StructPFMGSetRelaxType(preconditioner, sol_rlxtype);
   HYPRE_StructPFMGSetNumPreRelax(preconditioner, sol_npre);
   HYPRE_StructPFMGSetNumPostRelax(preconditioner, sol_npost);
-  HYPRE_StructPCGSetPrintLevel(solver, sol_printl);
-  HYPRE_StructPCGSetLogging(solver, sol_log);
 
   //          set solver options
+  HYPRE_StructBiCGSTABSetPrintLevel(solver, sol_printl);
+  HYPRE_StructBiCGSTABSetLogging(solver, sol_log);
   if (rank > 1) {
-    HYPRE_StructPCGSetMaxIter(solver, sol_maxit);
-    HYPRE_StructPCGSetPrecond(solver, 
+    HYPRE_StructBiCGSTABSetMaxIter(solver, sol_maxit);
+    HYPRE_StructBiCGSTABSetPrecond(solver, 
 		     (HYPRE_PtrToStructSolverFcn) HYPRE_StructPFMGSolve,  
 		     (HYPRE_PtrToStructSolverFcn) HYPRE_StructPFMGSetup, 
 		      preconditioner);
   }
   else {    // ignore smg preconditioner for 1D tests (bug); increase CG its
-    HYPRE_StructPCGSetMaxIter(solver, sol_maxit*500);
+    HYPRE_StructBiCGSTABSetMaxIter(solver, sol_maxit*500);
   }
-  if (sol_tolerance != 0.0) {
-    HYPRE_StructPCGSetAbsoluteTol(solver, Eflt64(sol_tolerance));
-    HYPRE_StructPCGSetTol(solver, Eflt64(0.0));
-  }
-  HYPRE_StructPCGSetup(solver, J, rhsvec, solvec);
+  if (delta != 0.0)  HYPRE_StructBiCGSTABSetTol(solver, delta);
+  HYPRE_StructBiCGSTABSetup(solver, J, rhsvec, solvec);
 
   //       solve the linear system
-  HYPRE_StructPCGSolve(solver, J, rhsvec, solvec);
+  HYPRE_StructBiCGSTABSolve(solver, J, rhsvec, solvec);
 
   //       extract solver & preconditioner statistics
   Eflt64 finalresid=1.0;
   Eint32 Sits=0;
   Eint32 Pits=0;
-  HYPRE_StructPCGGetFinalRelativeResidualNorm(solver, &finalresid);
-  HYPRE_StructPCGGetNumIterations(solver, &Sits);
+  HYPRE_StructBiCGSTABGetFinalRelativeResidualNorm(solver, &finalresid);
+  HYPRE_StructBiCGSTABGetNumIterations(solver, &Sits);
   HYPRE_StructPFMGGetNumIterations(preconditioner, &Pits);
   totIters += Sits;
   if (debug)
-    printf("   lin resid = %.1e (tol = %.1e, initial = %.1e), its = (%i,%i)\n",
-	   finalresid*rhsnorm,sol_tolerance,rhsnorm,Sits,Pits);
-  if (finalresid*rhsnorm > sol_tolerance) {
-    fprintf(stderr," ----------------------------------------------------------------------\n");
-    fprintf(stderr,"   Error: could not achieve prescribed tolerance!\n");
-    fprintf(stderr," ======================================================================\n\n");
-    ENZO_FAIL(" ");
+    printf("    lin resid = %.1e (tol = %.1e, init = %.1e), its = (%i,%i)\n",
+	   finalresid*rhsnorm, sol_tolerance, rhsnorm, Sits, Pits);
+  if ((sol_tolerance != 0.0) || (finalresid != finalresid)) {
+    // if the final actual residual is too large, or is nan, quit
+    if ((finalresid*rhsnorm > sol_tolerance) || (finalresid != finalresid)) {
+      fprintf(stderr," ----------------------------------------------------------------------\n");
+      fprintf(stderr,"   Error: could not achieve prescribed tolerance!\n");
+      fprintf(stderr," ======================================================================\n\n");
+      ENZO_FAIL(" ");
+    }
   }
 
   //       extract values from solution vector 
+  int Zbl, Ybl, xBuff, yBuff, zBuff;
+  xBuff = GhDims[0][0]-SolvOff[0];
+  yBuff = (GhDims[1][0]-SolvOff[1])-SolvIndices[1][0];
+  zBuff = (GhDims[2][0]-SolvOff[2])-SolvIndices[2][0];
   for (iz=SolvIndices[2][0]; iz<=SolvIndices[2][1]; iz++) {
-    Zbl = (iz+zBuff)*ArrDims[0]*ArrDims[1];
-    ilower[2] = iz;  iupper[2] = iz;
+    Zbl = (iz+zBuff)*ArrDims[0]*ArrDims[1];  ilower[2] = iz;  iupper[2] = iz;
     for (iy=SolvIndices[1][0]; iy<=SolvIndices[1][1]; iy++) {
-      Ybl = (iy+yBuff)*ArrDims[0];
-      ilower[1] = iy;  iupper [1] = iy;
+      Ybl = (iy+yBuff)*ArrDims[0];  ilower[1] = iy;  iupper [1] = iy;
       HYPRE_StructVectorGetBoxValues(solvec, ilower, iupper, HYPREbuff);
       for (ix=0; ix<=SolvIndices[0][1]-SolvIndices[0][0]; ix++) 
-	Efnew[Zbl+Ybl+xBuff+ix] = HYPREbuff[ix];
+	Efnew[Zbl+Ybl+xBuff+ix] += HYPREbuff[ix];
     }
   }
 
   //       destroy HYPRE solver structures
-  HYPRE_StructPCGDestroy(solver);
+  HYPRE_StructBiCGSTABDestroy(solver);
   HYPRE_StructPFMGDestroy(preconditioner);
+#else
+
+  ENZO_FAIL("FSProb_Evolve ERROR: this module requires USE_HYPRE to be set!");
+  
 #endif
+
+  // enforce a solution floor on the radiation values
+  float Ef_floor = 1.0e-50;
+  for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
+    Efnew[i] = max(Efnew[i], Ef_floor);
+
+  // output status of resulting solution
+  Efs_rms = sol->rmsnorm();
+  Efs_max = sol->infnorm();
+  if (debug) {
+    printf("    resulting internal (physical) values:\n");
+    printf("       Efs rms = %10.4e (%8.2e), max = %10.4e (%8.2e)\n",
+	   Efs_rms, Efs_rms*EUnits, Efs_max, Efs_max*EUnits);
+  }
 
   // estimate the next time step size (in case it is asked)
   float diff, w, tmp;
   int x0len = LocDims[0] + GhDims[0][0] + GhDims[0][1];
   int x1len = LocDims[1] + GhDims[1][0] + GhDims[1][1];
 
-  // enforce a solution floor on radiation values
-  float Ef_floor = 1.0e-30;
-  for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
-    Efnew[i] = max(Efnew[i], Ef_floor);
-  
   // perform local estimates for the radiation energy relative change
-  float dtfac = 0.00;   //// change this to an input parameter ////
+  float dtfac = 0.0;    //// change this to an input parameter ////
   float dtnorm = 2.0;   //// change this to an input parameter ////
   float atol = 1.0;     //// change this to an input parameter ////
   float mindt = 0.0;    //// change this to an input parameter ////
@@ -387,16 +419,17 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
     // account for min/max time step size (according to user)
     dt_suggest = max(dt_suggest, mindt);
     dt_suggest = min(dt_suggest, maxdt);
-    
-    if (debug)  printf("   dt_suggest = %8.2e\n",dt_suggest);
-    ThisGrid->GridData->SetMaxRadiationDt(dt_suggest);
+
+    if (debug)  printf("    dt_suggest = %8.2e\n",dt_suggest);
+    if (dt_suggest > 0.0)
+      ThisGrid->GridData->SetMaxRadiationDt(dt_suggest);
 
   } // end if (dtfac > 0.0)
   else if (maxdt > 0.0) {
     dt_suggest = maxdt;
-    if (debug)  printf("   dt_suggest = %8.2e\n",dt_suggest);
-    ThisGrid->GridData->SetMaxRadiationDt(dt_suggest);
-    
+    if (debug)  printf("    dt_suggest = %8.2e\n",dt_suggest);
+    if (dt_suggest > 0.0)
+      ThisGrid->GridData->SetMaxRadiationDt(dt_suggest);
   }
 
   // rescale results back to Enzo units
@@ -419,17 +452,16 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   float ftime = 0.0;
 #endif
   FStime += ftime-stime;
-  if (debug)  printf("   FS cumulative wall time = %g\n",FStime);
+  if (debug)  printf("    FS cumulative wall time = %g\n",FStime);
 
   if (debug)
-    printf(" ======================================================================\n\n");
+    printf("  =====================================================================\n");
 
 #ifdef USE_JBPERF
-  JBPERF_STOP("fsprob_solve");
+  JBPERF_STOP("fsprob_evolve");
 #endif
 
   // return success
   return SUCCESS;
 }
 #endif
-
