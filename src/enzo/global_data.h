@@ -101,6 +101,7 @@ EXTERN int RefineBy;
 EXTERN int MaximumRefinementLevel;
 EXTERN int MaximumGravityRefinementLevel;
 EXTERN int MaximumParticleRefinementLevel;
+EXTERN int FastSiblingLocatorEntireDomain;
 
 /* Cell Flagging method:  0 = None
                           1 = FlagCellsToBeRefinedBySlope

@@ -139,6 +139,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
  
   MetaData.StaticHierarchy     = TRUE;
+  FastSiblingLocatorEntireDomain = TRUE;
  
   MetaData.TopGridRank = INT_UNDEFINED;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {

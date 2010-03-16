@@ -277,9 +277,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
   fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
   fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
-  fprintf(fptr, "MustRefineRegionMinRefinementLevel = %"ISYM"\n", MustRefineRegionMinRefinementLevel);
-  fprintf(fptr, "MetallicityRefinementMinLevel = %"ISYM"\n", MetallicityRefinementMinLevel);
-  fprintf(fptr, "MetallicityRefinementMinMetallicity      = %"GSYM"\n", 
+
+  fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
+	  FastSiblingLocatorEntireDomain);
+  fprintf(fptr, "MustRefineRegionMinRefinementLevel  = %"ISYM"\n", 
+	  MustRefineRegionMinRefinementLevel);
+  fprintf(fptr, "MetallicityRefinementMinLevel       = %"ISYM"\n", 
+	  MetallicityRefinementMinLevel);
+  fprintf(fptr, "MetallicityRefinementMinMetallicity = %"GSYM"\n", 
 	  MetallicityRefinementMinMetallicity);
  
   fprintf(fptr, "DomainLeftEdge         = ");

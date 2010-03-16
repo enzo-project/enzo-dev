@@ -290,6 +290,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
     ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
     ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
+    ret += sscanf(line, "FastSiblingLocatorEntireDomain = %"ISYM, &FastSiblingLocatorEntireDomain);
     ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
 		  &MustRefineRegionMinRefinementLevel);
     ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
