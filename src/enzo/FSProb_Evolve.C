@@ -328,7 +328,8 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   //       destroy HYPRE solver structures
   HYPRE_StructBiCGSTABDestroy(solver);
   HYPRE_StructPFMGDestroy(preconditioner);
-#else
+
+#else  // ifdef USE_HYPRE
 
   ENZO_FAIL("FSProb_Evolve ERROR: this module requires USE_HYPRE to be set!");
   
