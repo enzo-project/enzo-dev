@@ -83,7 +83,8 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
-int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
+int ProjectToPlane2(char *ParameterFile,
+		    TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		    int ProjectStartTemp[], int ProjectEndTemp[], 
 		    FLOAT ProjectStartCoordinate[],
 		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
@@ -491,7 +492,8 @@ Eint32 main(Eint32 argc, char *argv[])
       sprintf(proj_name, "amr_%c.project", 120+dim);
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
-      if (ProjectToPlane2(MetaData, LevelArray, RegionStart, RegionEnd,
+      if (ProjectToPlane2(ParameterFile, MetaData, LevelArray, 
+			  RegionStart, RegionEnd,
 			  RegionStartCoordinates, RegionEndCoordinates,
 			  RegionLevel, dim, proj_name,
 			  ProjectionSmooth, &Exterior) == FAIL)

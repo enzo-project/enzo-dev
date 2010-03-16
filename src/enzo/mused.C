@@ -76,7 +76,12 @@ Eint64 mused(void)
 
 #else
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
 
 // Default case return zero bytes
 
