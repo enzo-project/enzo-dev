@@ -691,7 +691,7 @@ EXTERN int RadiativeTransferCoupledRateSolver;
 EXTERN int RadiativeTransferFLD;
 
 
-/* Implicit problem decision flag (only 0 and 2 work for now)
+/* Implicit problem decision flag (only 0 through 3 work for now)
       0 => do not use any implicit solver
       1 => use the gFLDProblem module for single-group coupled FLD
       2 => use the FSProb module for free-streaming FLD radiation 

@@ -23,6 +23,7 @@ OBJS_CONFIG_LIB = \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
+        BlockSolve.o \
         calcdiss.o \
         calc_dt.o \
         calc_photo_rates.o \
@@ -86,6 +87,7 @@ OBJS_CONFIG_LIB = \
         CopyOverlappingParticleMassFields.o \
         CopyOverlappingZones.o \
 	CopyZonesFromOldGrids.o \
+	CosmoIonizationInitialize.o \
         CosmologyComputeExpansionFactor.o \
         CosmologyComputeExpansionTimestep.o \
         CosmologyComputeTimeFromRedshift.o \
@@ -202,6 +204,58 @@ OBJS_CONFIG_LIB = \
 	GadgetReadIonizeParams.o \
 	GetNodeFreeMemory.o \
 	GetUnits.o \
+	gFLDProblem_AnalyticalEqns.o \
+	gFLDProblem_ChemistrySource.o \
+	gFLDProblem_ComputeRHS.o \
+	gFLDProblem_ComputeRadiationIntegrals.o \
+	gFLDProblem_ComputeTemperature.o \
+	gFLDProblem_ComputeTimeStep.o \
+	gFLDProblem_constructor.o \
+	gFLDProblem_CrossSections.o \
+	gFLDProblem_destructor.o \
+	gFLDProblem_DiffRHS.o \
+	gFLDProblem_Dump.o \
+	gFLDProblem_EnforceBoundary.o \
+	gFLDProblem_Evolve.o \
+	gFLDProblem_FInterface.o \
+	gFLDProblem_GasEnergySource.o \
+	gFLDProblem_InitialGuess.o \
+	gFLDProblem_Initialize.o \
+	gFLDProblem_LocalJac.o \
+	gFLDProblem_LocalRHS.o \
+	gFLDProblem_LocRHS.o \
+	gFLDProblem_lsetup.o \
+	gFLDProblem_lsolve.o \
+	gFLDProblem_MatrixEntries.o \
+	gFLDProblem_nlresid.o \
+	gFLDProblem_Opacity.o \
+	gFLDProblem_RadiationSource.o \
+	gFLDProblem_RadiationSpectrum.o \
+	gFLDProblem_SetNewtonBCs.o \
+	gFLDProblem_SetupBoundary.o \
+	gFLDProblem_UpdateBoundary.o \
+	gFLDProblem_WriteParameters.o \
+	gFLDSplit_AnalyticChemistry.o \
+	gFLDSplit_ChemistrySource.o \
+	gFLDSplit_ComputeRadiationIntegrals.o \
+	gFLDSplit_ComputeTemperature.o \
+	gFLDSplit_ComputeTimeStep.o \
+	gFLDSplit_constructor.o \
+	gFLDSplit_CrossSections.o \
+	gFLDSplit_destructor.o \
+	gFLDSplit_Dump.o \
+	gFLDSplit_EnforceBoundary.o \
+	gFLDSplit_Evolve.o \
+	gFLDSplit_FInterface.o \
+	gFLDSplit_GasEnergySource.o \
+	gFLDSplit_InitialGuess.o \
+	gFLDSplit_Initialize.o \
+	gFLDSplit_Opacity.o \
+	gFLDSplit_RadiationSource.o \
+	gFLDSplit_RadiationSpectrum.o \
+	gFLDSplit_SetupBoundary.o \
+	gFLDSplit_SetupSystem.o \
+	gFLDSplit_WriteParameters.o \
 	GravityBdryExchange.o \
 	GravityEquilibriumTestInitialize.o \
 	Grid_AccelerationBoundaryRoutines.o \
@@ -279,6 +333,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CopyZonesFromGridCountOnly.o \
 	Grid_CopyZonesFromGrid.o \
 	Grid_CorrectForRefinedFluxes.o \
+	Grid_CosmoIonizationInitializeGrid.o \
 	Grid_CosmologyInitializeParticles.o \
 	Grid_CosmologySimulationInitializeGrid.o \
 	Grid_CreateParticleTypeGrouping.o \
@@ -380,6 +435,11 @@ OBJS_CONFIG_LIB = \
 	Grid_ProjectToPlane.o \
 	Grid_ProjectToPlane2.o \
 	Grid_ProtostellarCollapseInitializeGrid.o \
+	Grid_RadHydroConstTestInitializeGrid.o \
+	Grid_RadHydroGreyMarshakWaveInitializeGrid.o \
+	Grid_RadHydroPulseTestInitializeGrid.o \
+	Grid_RadHydroRadShockInitializeGrid.o \
+	Grid_RadHydroStreamTestInitializeGrid.o \
 	Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
 	Grid_ReadGrid.o \
@@ -390,6 +450,9 @@ OBJS_CONFIG_LIB = \
 	Grid_ReturnFluxDims.o \
 	Grid_ReturnGridInfo.o \
 	Grid_ReturnStarStatistics.o \
+	Grid_RHIonizationClumpInitializeGrid.o \
+	Grid_RHIonizationSteepInitializeGrid.o \
+	Grid_RHIonizationTestInitializeGrid.o \
 	Grid_RotatingCylinderInitialize.o \
 	Grid_SedovBlastInitializeGrid3D.o \
 	Grid_SedovBlastInitializeGrid.o \
@@ -450,6 +513,12 @@ OBJS_CONFIG_LIB = \
 	I_ColumnFormat.o \
 	IdentifyNewSubgridsBySignature.o \
 	ImplosionInitialize.o \
+	InexactNewton.o \
+	InexactNewton_constructor.o \
+	InexactNewton_destructor.o \
+	InexactNewton_InexactNewtonForce.o \
+	InexactNewton_LinesearchStepSize.o \
+	InexactNewton_Solve.o \
 	InitialLoadBalanceRootGrids.o \
 	InitializeCloudyCooling.o \
 	InitializeEquilibriumCoolData.o \
@@ -534,6 +603,12 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
         QuickSortAndDrag.o \
+	RadHydroConstTestInitialize.o \
+	RadHydroGreyMarshakWaveInitialize.o \
+	RadHydroPulseTestInitialize.o \
+	RadHydroRadShockInitialize.o \
+	RadHydroStreamTestInitialize.o \
+	RadiationGetUnits.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
         RadiationFieldUpdate.o \
@@ -556,6 +631,9 @@ OBJS_CONFIG_LIB = \
         remap.o \
         ReportMemoryUsage.o \
         ReturnWallTime.o \
+	RHIonizationClumpInitialize.o \
+	RHIonizationSteepInitialize.o \
+	RHIonizationTestInitialize.o \
         rotate2d.o \
         rotate3d.o \
         RotatingCylinderInitialize.o \

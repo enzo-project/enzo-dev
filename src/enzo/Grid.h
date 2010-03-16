@@ -1772,10 +1772,74 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
 
-/* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
+  /* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
   int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
 				  float V1Const, float V2Const, float TEConst, 
 				  float RadConst, int local);
+
+  /* FLD Radiation test problem: initialize grid (SUCCESS or FAIL) */
+  int RadHydroConstTestInitializeGrid(int NumChem, float DensityConst, 
+				      float V0Const, float V1Const, 
+				      float V2Const, float IEConst, 
+				      float EgConst, float HMassFrac, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, 
+				      float OmegaBaryonNow, int local);
+
+  /* FLD Radiation ionization test problem: initialize grid (SUCCESS or FAIL) */
+  int RHIonizationTestInitializeGrid(int NumChem, float DensityConst, 
+				     float V0Const, float V1Const, 
+				     float V2Const, float IEConst, 
+				     float EgConst, float HMassFrac, 
+				     float InitFracHII, float InitFracHeII, 
+				     float InitFracHeIII, 
+				     float OmegaBaryonNow, int local);
+
+  /* FLD Radiation clump ionization problem: initialize grid (SUCCESS or FAIL) */
+  int RHIonizationClumpInitializeGrid(int NumChem, float NumDensityIn, 
+				      float NumDensityOut, float V0Const,
+				      float V1Const, float V2Const,
+				      float IEConstIn, float IEConstOut, 
+				      float EgConst, float HMassFrac, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, float OmegaBaryonNow,
+				      float ClumpCenterX0, float ClumpCenterX1,
+				      float ClumpCenterX2, float ClumpRadius,
+				      int local);
+
+  /* FLD Rad r^{-2} density ionization problem: initialize grid (SUCCESS or FAIL) */
+  int RHIonizationSteepInitializeGrid(int NumChem, float NumDensity, 
+				      float DensityRadius, float DensityCenter0, 
+				      float DensityCenter1, float DensityCenter2, 
+				      float V0Const, float V1Const, 
+				      float V2Const, float IEConst, 
+				      float EgConst, float InitFracHII, 
+				      float OmegaBaryonNow, int local);
+
+  /* FLD Radiation test problem: cosmological HII ioniztion (SUCCESS or FAIL) */
+  int CosmoIonizationInitializeGrid(int NumChem, float VxConst, float VyConst, 
+				    float VzConst, float IEConst, 
+				    float EgConst, float InitFracHII, 
+				    float OmegaBaryonNow, int local);
+
+  /* FLD Radiation test problem: stream test (SUCCESS or FAIL) */
+  int RadHydroStreamTestInitializeGrid(float DensityConst, float EgConst,
+				       int RadStreamDim, int RadStreamDir,
+				       int local);
+
+  /* FLD Radiation test problem: pulse test (SUCCESS or FAIL) */
+  int RadHydroPulseTestInitializeGrid(float DensityConst, float EgConst,
+				      int RadPulseDim, int local);
+
+  /* FLD Radiation test problem: grey Marshak wave test (SUCCESS or FAIL) */
+  int RadHydroGreyMarshakWaveInitializeGrid(float DensityConst, float IEConst, 
+			      	            float EgConst, int GreyMarshDir,
+					    int local);
+
+  /* FLD Radiation test problem: radiating shock test (SUCCESS or FAIL) */
+  int RadHydroRadShockInitializeGrid(float DensityConst, float TEConst, 
+			      	     float REConst, float VelocityConst,
+                                     int ShockDir, int local);
 
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();

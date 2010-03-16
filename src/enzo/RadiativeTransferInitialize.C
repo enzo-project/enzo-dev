@@ -29,6 +29,8 @@
 #include "StarParticleData.h"
 #include "RadiativeTransferHealpixRoutines.h"
 #include "ImplicitProblemABC.h"
+#include "gFLDProblem.h"
+#include "gFLDSplit.h"
 #include "FSProb.h"
 #include "NullProblem.h"
 
@@ -260,20 +262,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   // if using an implicit RT solver, declare the appropriate object here
   if (RadiativeTransferFLD) {
-//     if (ImplicitProblem == 1)
-//       ImplicitSolver = new gFLDProblem; 
-//     else if (ImplicitProblem == 2)
-//       ImplicitSolver = new FSProb; 
-//     else if (ImplicitProblem == 3)
-//       ImplicitSolver = new gFLDSplit; 
+    if (ImplicitProblem == 1)
+      ImplicitSolver = new gFLDProblem; 
+    else if (ImplicitProblem == 2)
+      ImplicitSolver = new FSProb; 
+    else if (ImplicitProblem == 3)
+      ImplicitSolver = new gFLDSplit; 
 //     else if (ImplicitProblem == 4)
 //       ImplicitSolver = new MFProb; 
 //     else if (ImplicitProblem == 5)
 //       ImplicitSolver = new MFSplit; 
-//     else
-//       ImplicitSolver = new NullProblem;
-    if (ImplicitProblem == 2)
-      ImplicitSolver = new FSProb; 
     else
       ImplicitSolver = new NullProblem;
   }

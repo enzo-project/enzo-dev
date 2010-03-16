@@ -59,7 +59,7 @@
 #endif /* USE_MPI */
 #include <hdf5.h>
 
-#ifdef RAD_HYDRO
+#ifdef TRANSFER
 #include "preincludes.h"
 #endif
 #include "svn_version.def"
@@ -82,8 +82,6 @@
 #include "communication.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
-#endif
-#ifdef RAD_HYDRO
 #include "gFLDProblem.h"
 #endif
 #undef DEFINE_STORAGE

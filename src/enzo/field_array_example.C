@@ -8,7 +8,7 @@
 #include <math.h> 
 #include <hdf5.h>
 
-#ifdef RAD_HYDRO
+#ifdef TRANSFER
 #include "preincludes.h"
 #endif
 #include "svn_version.def"
@@ -29,7 +29,7 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
-#ifdef RAD_HYDRO
+#ifdef TRANSFER
 #include "gFLDProblem.h"
 #endif
 #undef DEFINE_STORAGE
