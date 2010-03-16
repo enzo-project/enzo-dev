@@ -477,6 +477,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set up any problem-specific local data initializers here, 
   // depending on the ProblemType
   float ZERO = 0.0;
+  float ONE = 1.0;
   fptr = NULL;
   switch (ProblemType) {
     
@@ -512,7 +513,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // FSRadWave Test
   case 251:
 
-    float ONE = 1.0e-15;
+    ONE = 1.0e-15;
     // first call local problem initializer (to allocate/setup local data)
     // [call this other problem init because it sets a homogeneous field]
     if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
