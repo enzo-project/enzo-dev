@@ -489,7 +489,7 @@ Eint32 main(Eint32 argc, char *argv[])
     dim2 = (ProjectionDimension == -1) ? 
       MetaData.TopGridRank : ProjectionDimension+1;
     for (dim = dim1; dim < dim2; dim++) {
-      sprintf(proj_name, "amr_%c.project", 120+dim);
+      sprintf(proj_name, "project_%4.4d_%c.h5", MetaData.CycleNumber, 120+dim);
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
       if (ProjectToPlane2(ParameterFile, MetaData, LevelArray, 
