@@ -15,8 +15,6 @@
 #endif /* USE_MPI */
  
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -819,49 +817,33 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
   int NumberOfRegions = max(NumberOfFromRegions, NumberOfToRegions);
   commSndRcv commNB[PROCS_PER_LOOP];
   region *Sends, *Receives;
-  int jct, jcf, ict, icf;
-  int *jtrue, *jfalse, *itrue, *ifalse;
+
+  for (i = 0; i < PROCS_PER_LOOP; i++) {
+    commNB[i].Sends = new region[NumberOfRegions];
+    commNB[i].Receives = new region[NumberOfRegions];
+    //MPI_Request_free(RequestHandle+i);
+  }
 
   //  if (NumberOfProcessors == 1) return SUCCESS;
 
-  /* Offset for each call - 6 axes */
-  
-  int oSet = NumberOfProcessors * ((First_Pass+6) % 6);
-  if (First_Pass == 0)
-    cSndRcv = new commSndRcv[6*NumberOfProcessors];
+  /* Store which From/To Regions this processor will process */
 
-  /* Only allocate memory for sends and receives for the first 6
-     passes.  Otherwise, we have already calculated and stored
-     them. */
+  int jct = 0, jcf = 0, ict = 0, icf = 0;
+  int *jtrue = new int[NumberOfFromRegions];
+  int *itrue = new int[NumberOfToRegions];
+  int *jfalse = new int[NumberOfFromRegions];
+  int *ifalse = new int[NumberOfToRegions];
 
-  if (First_Pass < 6) {
-
-    for (i = 0; i < PROCS_PER_LOOP; i++) {
-      commNB[i].Sends = new region[NumberOfRegions];
-      commNB[i].Receives = new region[NumberOfRegions];
-      //MPI_Request_free(RequestHandle+i);
-    }
-
-    /* Store which From/To Regions this processor will process */
-
-    jct = jcf = ict = icf = 0;
-    jtrue = new int[NumberOfFromRegions];
-    itrue = new int[NumberOfToRegions];
-    jfalse = new int[NumberOfFromRegions];
-    ifalse = new int[NumberOfToRegions];
-
-    for (j = 0; j < NumberOfFromRegions; j++)
-      if (MyProcessorNumber == FromRegion[j].Processor)
-	jtrue[jct++] = j;
-      else
-	jfalse[jcf++] = j;
-    for (i = 0; i < NumberOfToRegions; i++)
-      if (MyProcessorNumber == ToRegion[i].Processor)
-	itrue[ict++] = i;
-      else
-	ifalse[icf++] = i;
-
-  } // ENDIF First_Pass < 6
+  for (j = 0; j < NumberOfFromRegions; j++)
+    if (MyProcessorNumber == FromRegion[j].Processor)
+      jtrue[jct++] = j;
+    else
+      jfalse[jcf++] = j;
+  for (i = 0; i < NumberOfToRegions; i++)
+    if (MyProcessorNumber == ToRegion[i].Processor)
+      itrue[ict++] = i;
+    else
+      ifalse[icf++] = i;
  
   /* Loop over processor jumps (number of processors ahead to send). */
  
@@ -873,76 +855,54 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
     ni = (max(n-1,0)) % PROCS_PER_LOOP;
     ReceiveMode = (ni == PROCS_PER_LOOP-1 || n == NumberOfProcessors-1 || n==0);
 
-    /* In the first 6 passes, determine overlap and store later them
-       in memory */
+    sends = receives = 0;
+    SendSize = ReceiveSize = 0;
+    Sends = commNB[ni].Sends;
+    Receives = commNB[ni].Receives;
 
-    if (First_Pass < 6) {
+    /* Copy regions into communication buffer (or just set buffer if
+       there is only one FromRegion per processor).  Check only
+       regions that involve this processor. */
 
-      sends = receives = 0;
-      SendSize = ReceiveSize = 0;
-      Sends = commNB[ni].Sends;
-      Receives = commNB[ni].Receives;
+//    for (j = 0; j < NumberOfFromRegions; j++)
+//      for (i = 0; i < NumberOfToRegions; i++)
+//        if ((ToRegion[i].Processor - FromRegion[j].Processor +
+//             NumberOfProcessors) % NumberOfProcessors == n &&
+//	    (MyProcessorNumber == FromRegion[j].Processor ||
+//	     MyProcessorNumber ==   ToRegion[i].Processor)) {
 
-      /* Copy regions into communication buffer (or just set buffer if
-	 there is only one FromRegion per processor).  Check only
-	 regions that involve this processor. */
+    for (jj = 0; jj < jct; jj++) {
+      j = jtrue[jj];
+      for (ii = 0; ii < ict; ii++) {
+	i = itrue[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
 
-      //    for (j = 0; j < NumberOfFromRegions; j++)
-      //      for (i = 0; i < NumberOfToRegions; i++)
-      //        if ((ToRegion[i].Processor - FromRegion[j].Processor +
-      //             NumberOfProcessors) % NumberOfProcessors == n &&
-      //	    (MyProcessorNumber == FromRegion[j].Processor ||
-      //	     MyProcessorNumber ==   ToRegion[i].Processor)) {
+    for (jj = 0; jj < jct; jj++) {
+      j = jtrue[jj];
+      for (ii = 0; ii < icf; ii++) {
+	i = ifalse[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
 
-      for (jj = 0; jj < jct; jj++) {
-	j = jtrue[jj];
-	for (ii = 0; ii < ict; ii++) {
-	  i = itrue[ii];
-	  if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
-	      NumberOfProcessors == n)
-	    TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
-				   receives, sends, SendSize, ReceiveSize);
-	} // ENDFOR ii
-      } // ENDFOR jj
-
-      for (jj = 0; jj < jct; jj++) {
-	j = jtrue[jj];
-	for (ii = 0; ii < icf; ii++) {
-	  i = ifalse[ii];
-	  if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
-	      NumberOfProcessors == n)
-	    TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
-				   receives, sends, SendSize, ReceiveSize);
-	} // ENDFOR ii
-      } // ENDFOR jj
-
-      for (jj = 0; jj < jcf; jj++) {
-	j = jfalse[jj];
-	for (ii = 0; ii < ict; ii++) {
-	  i = itrue[ii];
-	  if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
-	      NumberOfProcessors == n)
-	    TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
-				   receives, sends, SendSize, ReceiveSize);
-	} // ENDFOR ii
-      } // ENDFOR jj
-
-    } // ENDIF First_Pass < 6
-
-    /* If send and receive structure is already stored, copy/point them */
-
-    else {
-
-      receives = cSndRcv[oSet+n].receives;
-      sends = cSndRcv[oSet+n].sends;
-      SendSize = cSndRcv[oSet+n].SendSize;
-      ReceiveSize = cSndRcv[oSet+n].ReceiveSize;
-      Sends = cSndRcv[oSet+n].Sends;
-      Receives = cSndRcv[oSet+n].Receives;
-      commNB[ni].Sends = Sends;
-      commNB[ni].Receives = Receives;
-
-    } // ENDELSE First_Pass < 6
+    for (jj = 0; jj < jcf; jj++) {
+      j = jfalse[jj];
+      for (ii = 0; ii < ict; ii++) {
+	i = itrue[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
 
     /* Store data into structure for the last PROCS_PER_LOOP cycles */
 
@@ -1192,21 +1152,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 
     } // ENDIF ReceiveMode
 
-    /* In the first 6 passes, store the send / receive structure.
-       Allocating only necessary memory, i.e. not
-       region[NumberOfRegions] */
-
-    if (First_Pass < 6) {
-      cSndRcv[oSet+n].SendSize = SendSize;
-      cSndRcv[oSet+n].ReceiveSize = ReceiveSize;
-      cSndRcv[oSet+n].sends = sends;
-      cSndRcv[oSet+n].receives = receives;
-      cSndRcv[oSet+n].Sends = new region[sends];
-      cSndRcv[oSet+n].Receives = new region[receives];
-      memcpy(cSndRcv[oSet+n].Sends, Sends, sends * sizeof(region));
-      memcpy(cSndRcv[oSet+n].Receives, Receives, receives * sizeof(region));
-    }
-
 #ifdef DEBUG_NONBLOCKCT
     fprintf(stderr, "CT(%"ISYM"): end jump %"ISYM"\n", MyProcessorNumber, n);
 #endif
@@ -1222,21 +1167,18 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
  
   /* Clean up. */
 
-  if (First_Pass < 6) {
-    delete [] itrue;
-    delete [] jtrue;
-    delete [] ifalse;
-    delete [] jfalse;
+  delete [] itrue;
+  delete [] jtrue;
+  delete [] ifalse;
+  delete [] jfalse;
 
-    for (i = 0; i < PROCS_PER_LOOP; i++) {
-      delete [] commNB[i].Sends;
-      delete [] commNB[i].Receives;
-    }
+  for (i = 0; i < PROCS_PER_LOOP; i++) {
+    delete [] commNB[i].Sends;
+    delete [] commNB[i].Receives;
   }
 
   CommunicationBarrier();
   CommunicationBufferPurge();
-  First_Pass++;
  
   return SUCCESS;
 };
