@@ -1093,7 +1093,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 
 	  /* Check for any errors */
 
-//#ifdef UNUSED
+#ifdef UNUSED
 	  for (i = 0; i < NumberOfRequests; i++) {
 	    index = ListOfIndices[i];
 	    if (ListOfStatuses[index].MPI_ERROR != 0) {
@@ -1108,7 +1108,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	      ENZO_FAIL("");
 	    }
 	  }
-//#endif
+#endif
 
 	} // ENDIF n > 0
 
