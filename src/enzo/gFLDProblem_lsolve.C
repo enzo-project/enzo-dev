@@ -80,54 +80,34 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
 //   if (debug)  printf("Entering gFLDProblem::lsolve routine\n");
 
   // check that the gFLDProblem has been set up
-  if (!prepared) {
-    fprintf(stderr,"lsolve error: gFLDProblem not yet prepared\n");
-    return FAIL;
-  }
+  if (!prepared) 
+    ENZO_FAIL("lsolve error: gFLDProblem not yet prepared");
   
   // have b communicate neighbor information and enforce BCs
-//   if (b->exchange() == FAIL) {
-//     fprintf(stderr,"lsolve error: vector exchange failure\n");
-//     return FAIL;
-//   }
-  if (this->EnforceBoundary(b,1) == FAIL) {
-    fprintf(stderr,"lsolve error: EnforceBoundary failure\n");
-    return FAIL;
-  }
+//   if (b->exchange() == FAIL) 
+//      ENZO_FAIL("lsolve error: vector exchange failure");
+  if (this->EnforceBoundary(b,1) == FAIL) 
+    ENZO_FAIL("lsolve error: EnforceBoundary failure");
 
   // check that b matches local vector size (including ghosts, etc)
   int ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   int vsz[4];
   b->size(&vsz[0], &vsz[1], &vsz[2], &vsz[3], 
 	  &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
-  if (vsz[0] != LocDims[0]) {
-    fprintf(stderr,"lsolve error: x0 vector dims do not match\n");
-    return FAIL;
-  }
-  if (vsz[1] != LocDims[1]) {
-    fprintf(stderr,"lsolve error: x1 vector dims do not match\n");
-    return FAIL;
-  }
-  if (vsz[2] != LocDims[2]) {
-    fprintf(stderr,"lsolve error: x2 vector dims do not match\n");
-    return FAIL;
-  }
-  if (vsz[3] != (2+Nchem)) {
-    fprintf(stderr,"lsolve error: nspecies do not match\n");
-    return FAIL;
-  }
-  if ((vsz[0]+ghXl+ghXr) != ArrDims[0]) {
-    fprintf(stderr,"lsolve error: x0 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((vsz[1]+ghYl+ghYr) != ArrDims[1]) {
-    fprintf(stderr,"lsolve error: x1 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((vsz[2]+ghZl+ghZr) != ArrDims[2]) {
-    fprintf(stderr,"lsolve error: x2 vector sizes do not match\n");
-    return FAIL;
-  }
+  if (vsz[0] != LocDims[0]) 
+    ENZO_FAIL("lsolve error: x0 vector dims do not match");
+  if (vsz[1] != LocDims[1]) 
+    ENZO_FAIL("lsolve error: x1 vector dims do not match");
+  if (vsz[2] != LocDims[2]) 
+    ENZO_FAIL("lsolve error: x2 vector dims do not match");
+  if (vsz[3] != (2+Nchem)) 
+    ENZO_FAIL("lsolve error: nspecies do not match");
+  if ((vsz[0]+ghXl+ghXr) != ArrDims[0]) 
+    ENZO_FAIL("lsolve error: x0 vector sizes do not match");
+  if ((vsz[1]+ghYl+ghYr) != ArrDims[1]) 
+    ENZO_FAIL("lsolve error: x1 vector sizes do not match");
+  if ((vsz[2]+ghZl+ghZr) != ArrDims[2]) 
+    ENZO_FAIL("lsolve error: x2 vector sizes do not match");
 
 //   if (debug)
 //     printf("gFLDProblem::lsolve -- creating Schur comp. temp vector\n");
@@ -151,7 +131,7 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   float *M = new float[size*size];
   float *bvec = new float[2*size];
   float *xvec = new float[2*size];
-
+  float D;
   for (iz=ghZl; iz<ghZl+vsz[2]; iz++) {
     for (iy=ghYl; iy<ghYl+vsz[1]; iy++) {
       for (ix=ghXl; ix<ghXl+vsz[0]; ix++) {
@@ -183,11 +163,16 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
 	  xvec[0] = bvec[0]/M[0];
 	  xvec[1] = bvec[1]/M[0];
 	}
+	else if (Nchem == 1) {
+	  D = M[0]*M[3] - M[1]*M[2];
+	  xvec[0] = (M[3]*bvec[0] - M[2]*bvec[1])/D;
+	  xvec[1] = (M[0]*bvec[1] - M[1]*bvec[0])/D;
+	  xvec[2] = (M[3]*bvec[2] - M[2]*bvec[3])/D;
+	  xvec[3] = (M[0]*bvec[3] - M[1]*bvec[2])/D;
+	}
 	else {
-	  if (this->BlockSolve(M, xvec, bvec, &size, &two) != SUCCESS) {
-	    fprintf(stderr,"lsolve: Error in BlockSolve routine\n");
-	    return FAIL;
-	  }
+	  if (this->BlockSolve(M, xvec, bvec, &size, &two) != SUCCESS) 
+	    ENZO_FAIL("lsolve: Error in BlockSolve routine");
 	}
 
 	// extract solution components to appropriate locations
@@ -263,10 +248,8 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
 #endif
     
   //       communicate yvec to spread local corrections to neighbors
-  if (yvec->exchange_component(0) == FAIL) {
-    fprintf(stderr,"lsolve error: vector exchange_component error\n");
-    return FAIL;
-  }
+  if (yvec->exchange_component(0) == FAIL) 
+    ENZO_FAIL("lsolve error: vector exchange_component error");
     
 #ifdef USE_JBPERF
     JBPERF_STOP("gfldproblem_lsolve-exchange");
@@ -287,14 +270,10 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   //       NOTE: Temp, OpacityE and OpacityS are still valid from nlresid
   //
   if (this->MatrixEntries(Ptmpvec, u_E, u0_E, Temp, 
-			  OpacityE, OpacityS, y_E) != SUCCESS) {
-    fprintf(stderr,"lsolve: Error in MatrixEntries routine\n");
-    return FAIL;
-  }
-  if (this->SetNewtonBCs(Ptmpvec, b_E) != SUCCESS) {
-    fprintf(stderr,"lsolve: Error in SetNewtonBCs routine\n");
-    return FAIL;
-  }  
+			  OpacityE, OpacityS, y_E) != SUCCESS) 
+    ENZO_FAIL("lsolve: Error in MatrixEntries routine");
+  if (this->SetNewtonBCs(Ptmpvec, b_E) != SUCCESS) 
+    ENZO_FAIL("lsolve: Error in SetNewtonBCs routine");
 //   if (debug)  printf("lsolve: calling HYPRE_StructMatrixSetBoxValues\n");
   Eint32 zed=0;
   Eint32 one=1;
