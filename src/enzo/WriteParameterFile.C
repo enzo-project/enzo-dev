@@ -821,9 +821,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "CurrentTimeIdentifier = %"ISYM"\n", int(ID));
 
   /* If the simulation was given a name, write that. */
-  if(MetaData.MetaDataString != NULL){
-    fprintf(fptr, "MetaDataString             = %s\n",
-	    MetaData.MetaDataString);
+  if(MetaData.MetaDataIdentifier != NULL){
+    fprintf(fptr, "MetaDataIdentifier             = %s\n",
+	    MetaData.MetaDataIdentifier);
   }
   /* Write unique simulation identifier. */
   fprintf(fptr, "SimulationUUID             = %s\n", MetaData.SimulationUUID);

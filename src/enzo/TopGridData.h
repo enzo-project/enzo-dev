@@ -105,7 +105,7 @@ struct TopGridData
   char *LocalDir;               // local disk directory name
   char *GlobalDir;              // global disk directory name
 
-  char *MetaDataString;          // A name (string) that will be persisted between datasets
+  char *MetaDataIdentifier;     // A name (string) that will be persisted between datasets
   char *SimulationUUID;          // Unique identifier for the simulation
   char *RestartedFromDatasetUUID; // Identifier of the dataset restarting from
 

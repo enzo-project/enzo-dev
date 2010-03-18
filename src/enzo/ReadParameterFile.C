@@ -97,9 +97,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
 
-    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) 
-      MetaDataIdentifier = dummy;
-
     ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
 		  &MetaData.MaximumTopGridTimeStep);
 
@@ -594,8 +591,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "BoundaryConditionName         = %s", dummy) == 1)
       MetaData.BoundaryConditionName = dummy;
 
-    if (sscanf(line, "MetaDataString = %s", dummy) == 1) {
-      MetaData.MetaDataString = dummy;
+    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) {
+      MetaData.MetaDataIdentifier = dummy;
       ret++;
     }
     if (sscanf(line, "SimulationUUID = %s", dummy) == 1) {

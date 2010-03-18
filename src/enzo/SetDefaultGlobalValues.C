@@ -70,7 +70,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
-  MetaDataIdentifier       = NULL;
  
   MetaData.MaximumTopGridTimeStep = huge_number;
 
@@ -114,7 +113,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
 
-  MetaData.MetaDataString      = NULL;
+  MetaData.MetaDataIdentifier  = NULL;
   MetaData.SimulationUUID      = NULL;
   MetaData.RestartedFromDatasetUUID  = NULL; 
 
