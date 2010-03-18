@@ -39,6 +39,7 @@ int  WriteUnits(FILE *fptr);
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+void get_uuid(char *buffer);
 #ifdef TRANSFER
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
@@ -818,6 +819,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   time_t ID;
   ID = time(NULL);
   fprintf(fptr, "CurrentTimeIdentifier = %"ISYM"\n", int(ID));
+
+  /* If the simulation was given a name, write that. */
+  if(MetaData.MetaDataString != NULL){
+    fprintf(fptr, "MetaDataString             = %s\n",
+	    MetaData.MetaDataString);
+  }
+  /* Write unique simulation identifier. */
+  fprintf(fptr, "SimulationUUID             = %s\n", MetaData.SimulationUUID);
+  /* Give this dataset a unique identifier. */
+  char dset_uuid[MAX_LINE_LENGTH];
+  get_uuid(dset_uuid);
+  fprintf(fptr, "DatasetUUID                = %s\n", dset_uuid);
+  /* If the restart data had a UUID, write that. */
+  if(MetaData.RestartedFromDatasetUUID != NULL){
+    fprintf(fptr, "RestartedFromDatasetUUID   = %s\n",
+	    MetaData.RestartedFromDatasetUUID);
+  }
 
   /* write version info */
  
