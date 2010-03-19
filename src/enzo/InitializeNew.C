@@ -133,6 +133,34 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
 			    HierarchyEntry &TopGrid,
 			    TopGridData &MetaData, int local);
+
+int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
+				HierarchyEntry &TopGrid,
+				TopGridData &MetaData, int local);
+int RadHydroGreyMarshakWaveInitialize(FILE *fptr, FILE *Outfptr,
+				      HierarchyEntry &TopGrid,
+				      TopGridData &MetaData, int local);
+int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
+				HierarchyEntry &TopGrid,
+				TopGridData &MetaData, int local);
+int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, int local);
+int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
+				 HierarchyEntry &TopGrid,
+				 TopGridData &MetaData, int local);
+int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid,
+			       TopGridData &MetaData, int local);
+int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
+				HierarchyEntry &TopGrid,
+				TopGridData &MetaData, int local);
+int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
+				HierarchyEntry &TopGrid,
+				TopGridData &MetaData, int local);
+int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
+			      HierarchyEntry &TopGrid,
+			      TopGridData &MetaData, int local);
 #endif /* TRANSFER */
 
 
@@ -466,12 +494,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
-  // Insert new problem intializer here...
-
-    if (ProblemType ==300) {
-    ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-
 
 
 
@@ -530,12 +552,57 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-  // 250-252) Free-streaming radiation tests
+  /* ???? */
+  if (ProblemType ==300) {
+    ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+
 #ifdef TRANSFER
-  if ((ProblemType == 250) || (ProblemType == 251) || (ProblemType == 252))
+  // 400) Radiation-Hydrodynamics test 1 -- constant fields
+  if ((ProblemType == 400) || (ProblemType == 416))
+    ret = RadHydroConstTestInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 401) Radiation-Hydrodynamics test 2 -- stream test
+  if (ProblemType == 401)
+    ret = RadHydroStreamTestInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 402) Radiation-Hydrodynamics test 3 -- pulse test
+  if (ProblemType == 402)
+    ret = RadHydroPulseTestInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 403) Radiation-Hydrodynamics test 4 -- grey Marshak test
+  if (ProblemType == 403)
+    ret = RadHydroGreyMarshakWaveInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 404/405) Radiation-Hydrodynamics test 5 -- radiating shock test
+  if ( (ProblemType == 404) || (ProblemType == 405) )
+    ret = RadHydroRadShockInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 410/411) Radiation-Hydrodynamics tests 10 & 11 -- HI ionization (static)
+  if ((ProblemType == 410) || (ProblemType == 411))
+    ret = RHIonizationTestInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 412) Radiation-Hydrodynamics test 12 -- HI ionization of a clump
+  if (ProblemType == 412)
+    ret = RHIonizationClumpInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 413) Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
+  if (ProblemType == 413)
+    ret = RHIonizationSteepInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+  // 414/415) Radiation-Hydrodynamics tests 14 & 15 -- Cosmological HI ioniz.
+  if ((ProblemType == 414) || (ProblemType == 415))
+    ret = CosmoIonizationInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
+
+
+  // 450-452) Free-streaming radiation tests
+  if ((ProblemType == 450) || (ProblemType == 451) || (ProblemType == 452))
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
 
+
+  // Insert new problem intializer here...
 
 
  
