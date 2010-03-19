@@ -494,8 +494,8 @@ c
           endif
 c           A small cheat: if idual is on, assume a cosmo sim, and institute
 c              a minimum density.  This should be a parameter and pased in.
-c          if (idual .eq. 1 .and. gravity .eq. 1) 
-          dnu(i) = max(dnu(i),1.0e-3)
+          if (idual .eq. 1 .and. gravity .eq. 1) 
+     &         dnu(i) = max(dnu(i),1.0e-3)
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
 c     &         qc*(duub(i)-duub(i+1) +  pb(i) -  pb(i+1)))/dnu(i),
