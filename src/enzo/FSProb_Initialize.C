@@ -482,7 +482,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   switch (ProblemType) {
     
   // FSMultiSource Test
-  case 250:
+  case 450:
 
     // first call local problem initializer (to allocate/setup local data)
     if (FSMultiSourceInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
@@ -511,7 +511,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     break;
 
   // FSRadWave Test
-  case 251:
+  case 451:
 
     ONE = 1.0e-15;
     // first call local problem initializer (to allocate/setup local data)
@@ -528,7 +528,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     break;
 
   // FSRadPoint Test
-  case 252:
+  case 452:
 
     // first call local problem initializer (to allocate/setup local data)
     // [call this other problem init because it sets a homogeneous field]
@@ -552,7 +552,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     break;
 
   // running a multi-frequency problem, don't initialize data but do set up BCs
-  case 260:
+  case 460:
 
     // set BCs based on input, 0 implies periodic, otherwise set to zero-valued
     if (BdryType[0][0] != 0) {

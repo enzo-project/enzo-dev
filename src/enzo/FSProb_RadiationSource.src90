@@ -86,7 +86,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   ! compute point source emissivity for various problems
 
   !   multiple (random) emissivity sources (w/ mean NGammaDot photons/s/cm^2)
-  if (ProbType == 250) then
+  if (ProbType == 450) then
 
      ! get the number of sources from EtaRadius
      nsrc = EtaRadius   ! cast to an integer
@@ -112,7 +112,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      enddo
 
   !   point-source emissivity at location EtaCenter(1:3)
-  else if ((ProbType > 250) .and. (ProbType <= 260)) then
+  else if ((ProbType > 450) .and. (ProbType <= 460)) then
 
      ! one-cell source
      if (EtaRadius == 0.d0) then
@@ -185,7 +185,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      endif ! EtaRadius == 0
 
   !   point-source emissivity at center of every processor
-  elseif (ProbType == 252) then
+  elseif (ProbType == 452) then
 
      ! compute eta factor for given ionization source
      etaconst = h_nu0*NGammaDot/dV

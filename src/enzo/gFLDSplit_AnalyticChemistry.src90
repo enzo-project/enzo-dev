@@ -1289,10 +1289,10 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
   rhoval = rho*DenUnits
 
   ! compute temperature and ODE terms
-  if (PType == 205) then   ! Lowrie & Edwards radiating shock
+  if (PType == 405) then   ! Lowrie & Edwards radiating shock
      T = (eint+ecval)/2.218056e12/kb*ev2erg
   else
-     if (PType == 204) then
+     if (PType == 404) then
         T = (gamma-1.0)*0.5d0*mp*(eint+ecval)/kb
      else
         T = (gamma-1.0)*0.6d0*mp*(eint+ecval)/kb

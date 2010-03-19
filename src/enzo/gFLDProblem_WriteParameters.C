@@ -99,9 +99,9 @@ int gFLDProblem::WriteParameters(FILE *fptr)
   fprintf(fptr, "ScatteringOpacityC3 = %22.16e\n", ScatteringOpacityC3);
   fprintf(fptr, "ScatteringOpacityC4 = %22.16e\n", ScatteringOpacityC4);
 
-  // if doing an ionization problem (ProblemTypes 210-215),  
+  // if doing an ionization problem (ProblemTypes 410-415),
   // output additional parameters 
-  if ((ProblemType >= 210) && (ProblemType <= 215)) {
+  if ((ProblemType >= 410) && (ProblemType <= 415)) {
     fprintf(fptr, "NGammaDot = %22.16e\n", IonizationParms[0]);
     fprintf(fptr, "EtaRadius = %22.16e\n", IonizationParms[1]);
     fprintf(fptr, "EtaCenter = %22.16e %22.16e %22.16e\n",

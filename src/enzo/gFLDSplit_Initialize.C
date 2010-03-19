@@ -81,7 +81,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   if (foundgrid == 0) {
     printf("FLD Initialize ERROR: p%"ISYM" could not locate his grid\n",
 	   MyProcessorNumber);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDSplit_Initialize");
   }
 
   // set rank of self-gravity problem to 3
@@ -261,8 +261,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // Model gives the physical set of equations to use
   if ((Model != 1) && (Model != 10)) {
     fprintf(stderr,"gFLDSplit Initialize: illegal Model = %"ISYM"\n",Model);
-    fprintf(stderr,"   Model is unimplemented in this module, exiting.\n");
-    return FAIL;
+    ENZO_FAIL("   Model is unimplemented in this module, exiting.");
   }
 
   // Nchem gives the number of chemical species
@@ -479,26 +478,20 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // ensure that CoolData object has been set up
   if (CoolData.ceHI == NULL) 
-    if (InitializeRateData(MetaData.Time) == FAIL) {
-      fprintf(stderr,"Error in InitializeRateData.\n");
-      return FAIL;
-    }
+    if (InitializeRateData(MetaData.Time) == FAIL) 
+      ENZO_FAIL("Error in InitializeRateData.");
   // un-scale rates for use within RadHydro solver (handles its own units)
   {
     float MassUnits, TempUnits;
     DenUnits=LenUnits=TempUnits=MassUnits=TimeUnits=VelUnits=aUnits=1.0;
     if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	         &TimeUnits, &VelUnits, &MassUnits, MetaData.Time) == FAIL) {
-      fprintf(stderr,"Error in GetUnits.\n");
-      return FAIL;
-    }
+	         &TimeUnits, &VelUnits, &MassUnits, MetaData.Time) == FAIL) 
+      ENZO_FAIL("Error in GetUnits.");
     float mp = 1.67262171e-24;   // Mass of a proton [g]
     a = 1.0; adot = 0.0;
     if (ComovingCoordinates) {
-      if (CosmologyComputeExpansionFactor(MetaData.Time, &a, &adot) == FAIL) {
-        fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-        return FAIL;
-      }
+      if (CosmologyComputeExpansionFactor(MetaData.Time, &a, &adot) == FAIL) 
+        ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
       aUnits = 1.0/(1.0 + InitialRedshift);
     }
     
@@ -562,10 +555,8 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 //   if (debug)  printf("  Initialize: computing radiation spectrum integrals\n");
 
   // compute Radiation Energy spectrum integrals
-  if (this->ComputeRadiationIntegrals() == FAIL) {
-    fprintf(stderr,"gFLDSplit::Initialize Error in computing radiation spectrum integrals\n");
-    return FAIL;
-  }
+  if (this->ComputeRadiationIntegrals() == FAIL) 
+    ENZO_FAIL("gFLDSplit::Initialize Error in computing radiation spectrum integrals");
 
 //   if (debug)  printf("  Initialize: initializing HYPRE data structures\n");
 
@@ -717,300 +708,216 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     
   // ODE test problem, set BCs based on input.  
   // 0 implies periodic, otherwise set to homogeneous Dirichlet
-  case 200:
+  case 400:
     // first call local problem initializer (to allocate/setup local data)
-    if (RadHydroConstTestInitialize(fptr, fptr, TopGrid, 
-				    MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RadHydroConstTestInitialize.\n");
-      return FAIL;
-    }
+    if (RadHydroConstTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RadHydroConstTestInitialize.");
     
     if (BdryType[0][0] != 0) {
-      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
-      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     if ( MetaData.TopGridRank >= 2 ) {
       if (BdryType[1][0] != 0) {
-	if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	  return FAIL;
-	}
-	if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x1 left radiation BCs.");
+	if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x1 right radiation BCs.");
       }
     }
     if ( MetaData.TopGridRank == 3 ) {
       if (BdryType[2][0] != 0) {
-	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	  return FAIL;
-	}
-	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 left radiation BCs.");
+	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 right radiation BCs.");
       }
     }
     break;
     
   // Streaming test problem: set Dirichlet BC to value of 1.0, 
   // or Neumann BC to value of 0.0; leave Periodic BC alone
-  case 201:
+  case 401:
     // first call local problem initializer (to allocate/setup local data)
-    if (RadHydroStreamTestInitialize(fptr, fptr, TopGrid, 
-				     MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RadHydroStreamTestInitialize.\n");
-      return FAIL;
-    }
+    if (RadHydroStreamTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RadHydroStreamTestInitialize.");
     
     //   x0, left
     if (BdryType[0][0] == 1) {
-      if (this->SetupBoundary(0,0,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
     }
     else if (BdryType[0][0] == 2) {
-      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
     }
     
     //   x0, right
     if (BdryType[0][1] == 1) {
-      if (this->SetupBoundary(0,1,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,1,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     else if (BdryType[0][1] == 2) {
-      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     
     //   x1, left
     if (BdryType[1][0] == 1) {
-      if (this->SetupBoundary(1,0,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,0,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
     }
     else if (BdryType[1][0] == 2) {
-      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
     }
     
     //   x1, right
     if (BdryType[1][1] == 1) {
-      if (this->SetupBoundary(1,1,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,1,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
     }
     else if (BdryType[1][1] == 2) {
-      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
     }
     
     //   x2, left
     if ( MetaData.TopGridRank == 3 ) {
       if (BdryType[2][0] == 1) {
-	if (this->SetupBoundary(2,0,1,&ONE) == FAIL) {
-	  fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,0,1,&ONE) == FAIL) 
+	  ENZO_FAIL("Error setting x2 left radiation BCs.");
       }
       else if (BdryType[2][0] == 2) {
-	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 left radiation BCs.");
       }
       
       //   x2, right
       if (BdryType[2][1] == 1) {
-	if (this->SetupBoundary(2,1,1,&ONE) == FAIL) {
-	  fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,1,1,&ONE) == FAIL) 
+	  ENZO_FAIL("Error setting x2 right radiation BCs.");
       }
       else if (BdryType[2][1] == 2) {
-	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 right radiation BCs.");
       }
     }
     break;
     
   // Pulse test problem: set Dirichlet BC to value of 1.0, 
   // or Neumann BC to value of 0.0; leave Periodic BC alone
-  case 202:
+  case 402:
     // first call local problem initializer (to allocate/setup local data)
-    if (RadHydroPulseTestInitialize(fptr, fptr, TopGrid, 
-				    MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RadHydroPulseTestInitialize.\n");
-      return FAIL;
-    }
+    if (RadHydroPulseTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RadHydroPulseTestInitialize.");
     
     //   x0, left
     if (BdryType[0][0] == 1) {
-      if (this->SetupBoundary(0,0,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
     }
     else if (BdryType[0][0] == 2) {
-      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
     }
     
     //   x0, right
     if (BdryType[0][1] == 1) {
-      if (this->SetupBoundary(0,1,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,1,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     else if (BdryType[0][1] == 2) {
-      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     
     //   x1, left
     if (BdryType[1][0] == 1) {
-      if (this->SetupBoundary(1,0,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,0,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
     }
     else if (BdryType[1][0] == 2) {
-      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
     }
     
     //   x1, right
     if (BdryType[1][1] == 1) {
-      if (this->SetupBoundary(1,1,1,&ONE) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,1,1,&ONE) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
     }
     else if (BdryType[1][1] == 2) {
-      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
     }
     
     //   x2, left
     if ( MetaData.TopGridRank == 3 ) {
       if (BdryType[2][0] == 1) {
-	if (this->SetupBoundary(2,0,1,&ONE) == FAIL) {
-	  fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,0,1,&ONE) == FAIL) 
+	  ENZO_FAIL("Error setting x2 left radiation BCs.");
       }
       else if (BdryType[2][0] == 2) {
-	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 left radiation BCs.");
       }
       
       //   x2, right
       if (BdryType[2][1] == 1) {
-	if (this->SetupBoundary(2,1,1,&ONE) == FAIL) {
-	  fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,1,1,&ONE) == FAIL) 
+	  ENZO_FAIL("Error setting x2 right radiation BCs.");
       }
       else if (BdryType[2][1] == 2) {
-	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-	  fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	  return FAIL;
-	}
+	if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	  ENZO_FAIL("Error setting x2 right radiation BCs.");
       }
     }
     break;
     
   // Astrophysical and Lowrie & Edwards Radiating shock test problems: 
   // set Neumann value to 0.0; leave Periodic BC alone
-  case 204:
-  case 205:
+  case 404:
+  case 405:
     // first call local problem initializer (to allocate/setup local data)
-    if (RadHydroRadShockInitialize(fptr, fptr, TopGrid, 
-				   MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RadHydroRadShockInitialize.\n");
-      return FAIL;
-    }
+    if (RadHydroRadShockInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RadHydroRadShockInitialize.");
     //   x0, left
     if (BdryType[0][0] == 2) {
-      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
     }
     
     //   x0, right
     if (BdryType[0][1] == 2) {
-      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
     }
     
     //   x1, left
     if (BdryType[1][0] == 2) {
-      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
     }
     
     //   x1, right
     if (BdryType[1][1] == 2) {
-      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
     }
     
     //   x2, left
     if (BdryType[2][0] == 2) {
-      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 left radiation BCs.");
     }
     
     //   x1, right
     if (BdryType[2][1] == 2) {
-      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-	fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-	return FAIL;
-      }
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 right radiation BCs.");
     }
     
     break;
@@ -1018,143 +925,95 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     
   // Ionization tests 0 and 1: set zero-gradient (homogeneous Neumann)
   // boundary conditions on all faces.
-  case 210:
-  case 211:
+  case 410:
+  case 411:
     // first call local problem initializer (to allocate/setup local data)
-    if (RHIonizationTestInitialize(fptr, fptr, TopGrid, 
-				   MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RHIonizationTestInitialize.\n");
-      return FAIL;
-    }
+    if (RHIonizationTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RHIonizationTestInitialize.");
     
     //   x0, left
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 left radiation BCs.");
     //   x0, right
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 right radiation BCs.");
     //   x1, left
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 left radiation BCs.");
     //   x1, right
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 right radiation BCs.");
     //   x2, left
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 left radiation BCs.");
     //   x2, right
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
     
     
   // Ionization test 2: set zero-gradient (homogeneous Neumann)
   // boundary conditions on all faces.
-  case 212:
+  case 412:
     // first call local problem initializer (to allocate/setup local data)
-    if (RHIonizationClumpInitialize(fptr, fptr, TopGrid, 
-				    MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RHIonizationSteepInitialize.\n");
-      return FAIL;
-    }
+    if (RHIonizationClumpInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RHIonizationSteepInitialize.");
     
     //   x0, left
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-      return FAIL;
-      }
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 left radiation BCs.");
     //   x0, right
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 right radiation BCs.");
     //   x1, left
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 left radiation BCs.");
     //   x1, right
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 right radiation BCs.");
     //   x2, left
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 left radiation BCs.");
     //   x2, right
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
     
     
   // Ionization test 13: set zero-gradient (homogeneous Neumann)
   // boundary conditions on all faces.
-  case 213:
+  case 413:
     // first call local problem initializer (to allocate/setup local data)
-    if (RHIonizationSteepInitialize(fptr, fptr, TopGrid, 
-				    MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RHIonizationSteepInitialize.\n");
-      return FAIL;
-    }
+    if (RHIonizationSteepInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RHIonizationSteepInitialize.");
     
     //   x0, left
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 left radiation BCs.");
     //   x0, right
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 right radiation BCs.");
     //   x1, left
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 left radiation BCs.");
     //   x1, right
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 right radiation BCs.");
     //   x2, left
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 left radiation BCs.");
     //   x2, right
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
     
     
     
   // Ionization test 14: periodic boundary conditions on all faces (store no data).
-  case 214:
+  case 414:
     // first call local problem initializer (to allocate/setup local data)
-    if (CosmoIonizationInitialize(fptr, fptr, TopGrid, 
-				  MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in CosmoIonizationInitialize.\n");
-      return FAIL;
-    }
+    if (CosmoIonizationInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in CosmoIonizationInitialize.");
     
     break;
     
@@ -1162,55 +1021,37 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // Ionization test 15: set zero-gradient (homogeneous Neumann)
   // boundary conditions on all faces.
-  case 215:
+  case 415:
     // first call local problem initializer (to allocate/setup local data)
-    if (CosmoIonizationInitialize(fptr, fptr, TopGrid, 
-				  MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in CosmoIonizationInitialize.\n");
-      return FAIL;
-    }
+    if (CosmoIonizationInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in CosmoIonizationInitialize.");
     
     //   x0, left
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 left radiation BCs.");
     //   x0, right
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 right radiation BCs.");
     //   x1, left
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 left radiation BCs.");
     //   x1, right
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 right radiation BCs.");
     //   x2, left
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 left radiation BCs.");
     //   x2, right
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
     
     
   // Temperature jump test 16: periodic BCs on all faces
-  case 216:
+  case 416:
     // first call local problem initializer (to allocate/setup local data)
-    if (RadHydroConstTestInitialize(fptr, fptr, TopGrid, 
-				    MetaData, 1) == FAIL) {
-      fprintf(stderr,"Error in RadHydroConstTestInitialize.\n");
-      return FAIL;
-    }
+    if (RadHydroConstTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
+      ENZO_FAIL("Error in RadHydroConstTestInitialize.");
     break;
     
 
@@ -1220,30 +1061,18 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   default:
     // set BC on all faces to homogeneous Dirichlet
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 left radiation BCs.\n");
-      return FAIL;
-    }
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x0 right radiation BCs.\n");
-      return FAIL;
-    }
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 left radiation BCs.\n");
-      return FAIL;
-    }
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x1 right radiation BCs.\n");
-      return FAIL;
-    }
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 left radiation BCs.\n");
-      return FAIL;
-    }
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) {
-      fprintf(stderr,"Error setting x2 right radiation BCs.\n");
-      return FAIL;
-    }
+    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 left radiation BCs.");
+    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x0 right radiation BCs.");
+    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 left radiation BCs.");
+    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x1 right radiation BCs.");
+    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 left radiation BCs.");
+    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+      ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
   }
   ////////////////////////////////
@@ -1256,7 +1085,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     if ((outfptr = fopen(outfilename, "a")) == NULL) {
       fprintf(stderr,"Error opening parameter output file %s!!\n", 
 	      outfilename);
-      return FAIL;
+      ENZO_FAIL("Error in gFLDSplit_Initialize");
     }
     else {
       fprintf(outfptr, "RadHydroESpectrum = %"ISYM"\n", ESpectrum);

@@ -124,7 +124,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
     } 
     //  STANDARD temperature computation for fully ionized gas
     else {
-      if ( ProblemType == 205 ) {
+      if ( ProblemType == 405 ) {
 	// special case for Lowrie & Edwards radiating shock
 	Cv    = 2.218056e12;
 	everg = 1.60219e-12;
@@ -132,13 +132,13 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 	Cv    = 2.218056e12 * kb / everg ;
 	for (i=0; i<size; i++)
 	  TempArr[i] = max(TempArr[i]/Cv, MIN_TEMP);
-      } else if ( ProblemType == 204 ) {
+      } else if ( ProblemType == 404 ) {
 	// special case for the astrophysical radiating shock
 	mmw = 0.5;
       } else {
 	mmw = DEFAULT_MU;
       }
-      if ( ProblemType != 205 ) {
+      if ( ProblemType != 405 ) {
 	for (i=0; i<size; i++)
 	  TempArr[i] = max((Gamma-1.0)*mmw*mp*TempArr[i]/kb, MIN_TEMP);
       }

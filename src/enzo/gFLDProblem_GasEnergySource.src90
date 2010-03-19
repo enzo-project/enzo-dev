@@ -92,7 +92,7 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
   ecsrc = 0.d0
 
 
-  if (ProbType == 216) then
+  if (ProbType == 416) then
 !!$     if (time/TimeUnits > 0.005) then
         ecsrc = 1.d4
 !!$     end if

@@ -90,7 +90,7 @@ int gFLDSplit::ComputeRadiationIntegrals()
 
 
   // for monochromatic problems, integration uses delta function
-  if (ProblemType == 210) {
+  if (ProblemType == 410) {
     // evaluation point
     nu_m = nu0_HI*(1.0 + 2.0*epsilon);
 
@@ -126,10 +126,8 @@ int gFLDSplit::ComputeRadiationIntegrals()
   fr_E = this->RadiationSpectrum(nu_r);
   fr_ni = this->CrossSections(nu_r,0);
   fr_nu = 1.0/nu_r;
-  if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-    fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-    return FAIL;
-  }
+  if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+    ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
   //   iterate over intervals
   for (int i=1; i<1e9; i++) {
@@ -150,19 +148,15 @@ int gFLDSplit::ComputeRadiationIntegrals()
     fm_E = this->RadiationSpectrum(nu_m);
     fm_ni = this->CrossSections(nu_m,0);
     fm_nu = 1.0/nu_m;
-    if ((fm_E == -1.0) || (fm_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fm_E == -1.0) || (fm_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     nu_r = nu0_HI/xr;
     fr_E = this->RadiationSpectrum(nu_r);
     fr_ni = this->CrossSections(nu_r,0);
     fr_nu = 1.0/nu_r;
-    if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     //      compute integrals using re-scaled function values
     fl = fl_E/xl/xl;
@@ -198,10 +192,8 @@ int gFLDSplit::ComputeRadiationIntegrals()
   fr_E = this->RadiationSpectrum(nu_r);
   fr_ni = this->CrossSections(nu_r,1);
   fr_nu = 1.0/nu_r;
-  if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-    fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-    return FAIL;
-  }
+  if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+    ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
   //   iterate over intervals
   for (int i=1; i<1e9; i++) {
@@ -222,19 +214,15 @@ int gFLDSplit::ComputeRadiationIntegrals()
     fm_E = this->RadiationSpectrum(nu_m);
     fm_ni = this->CrossSections(nu_m,1);
     fm_nu = 1.0/nu_m;
-    if ((fm_E == -1.0) || (fm_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fm_E == -1.0) || (fm_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     nu_r = nu0_HeI/xr;
     fr_E = this->RadiationSpectrum(nu_r);
     fr_ni = this->CrossSections(nu_r,1);
     fr_nu = 1.0/nu_r;
-    if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     //      compute integrals using re-scaled function values
     fl = fl_E*fl_ni/xl/xl;
@@ -264,10 +252,8 @@ int gFLDSplit::ComputeRadiationIntegrals()
   fr_E = this->RadiationSpectrum(nu_r);
   fr_ni = this->CrossSections(nu_r,2);
   fr_nu = 1.0/nu_r;
-  if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-    fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-    return FAIL;
-  }
+  if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+    ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
   //   iterate over intervals
   for (int i=1; i<1e9; i++) {
@@ -288,19 +274,15 @@ int gFLDSplit::ComputeRadiationIntegrals()
     fm_E = this->RadiationSpectrum(nu_m);
     fm_ni = this->CrossSections(nu_m,2);
     fm_nu = 1.0/nu_m;
-    if ((fm_E == -1.0) || (fm_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fm_E == -1.0) || (fm_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     nu_r = nu0_HeII/xr;
     fr_E = this->RadiationSpectrum(nu_r);
     fr_ni = this->CrossSections(nu_r,2);
     fr_nu = 1.0/nu_r;
-    if ((fr_E == -1.0) || (fr_ni == -1.0)) {
-      fprintf(stderr,"ComputeRadiationIntegrals Error in evaluating spectrum\n");
-      return FAIL;
-    }
+    if ((fr_E == -1.0) || (fr_ni == -1.0)) 
+      ENZO_FAIL("ComputeRadiationIntegrals Error in evaluating spectrum");
   
     //      compute integrals using re-scaled function values
     fl = fl_E*fl_ni/xl/xl;

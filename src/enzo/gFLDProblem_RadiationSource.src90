@@ -111,8 +111,8 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   ! compute point source emissivity for various problems
 
   !   point-source emissivity at location (EtaCenter0,EtaCenter1,EtaCenter2)
-  if ((ProbType == 210) .or. (ProbType == 211) .or. &
-      (ProbType == 213) .or. (ProbType == 215)) then
+  if ((ProbType == 410) .or. (ProbType == 411) .or. &
+      (ProbType == 413) .or. (ProbType == 415)) then
 
      ! one-cell source
      if (EtaRadius == 0.d0) then
@@ -199,7 +199,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
      endif ! EtaRadius == 0
 
   !   emissivity flux along x=0 wall (NGammaDot photons/s/cm^2)
-  else if (ProbType == 212) then
+  else if (ProbType == 412) then
 
      ! place ionization source along left wall (if on this subdomain)
      if (x1L == 0.d0) then
@@ -217,7 +217,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
      endif
      
   !   point-source emissivity at center of every processor
-  elseif (ProbType == 214) then
+  elseif (ProbType == 414) then
 
      ! compute eta factor for given ionization source
      etaconst = h_nu0*NGammaDot/dV
