@@ -36,34 +36,20 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
   // get local mesh description
   int Nx, Ny, Nz, Nvar, ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   unew->size(&Nx, &Ny, &Nz, &Nvar, &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
-  if (Nx != LocDims[0]) {
-    fprintf(stderr,"ComputeTimeStep error: x0 vector dims do not match\n");
-    return FAIL;
-  }
-  if (Ny != LocDims[1]) {
-    fprintf(stderr,"ComputeTimeStep error: x1 vector dims do not match\n");
-    return FAIL;
-  }
-  if (Nz != LocDims[2]) {
-    fprintf(stderr,"ComputeTimeStep error: x2 vector dims do not match\n");
-    return FAIL;
-  }
-  if (Nvar != (2+Nchem)) {
-    fprintf(stderr,"ComputeTimeStep error: nspecies dims do not match\n");
-    return FAIL;
-  }
-  if ((Nx+ghXl+ghXr) != ArrDims[0]) {
-    fprintf(stderr,"ComputeTimeStep error: x0 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((Ny+ghYl+ghYr) != ArrDims[1]) {
-    fprintf(stderr,"ComputeTimeStep error: x1 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((Nz+ghZl+ghZr) != ArrDims[2]) {
-    fprintf(stderr,"ComputeTimeStep error: x2 vector sizes do not match\n");
-    return FAIL;
-  }
+  if (Nx != LocDims[0]) 
+    ENZO_FAIL("ComputeTimeStep error: x0 vector dims do not match");
+  if (Ny != LocDims[1]) 
+    ENZO_FAIL("ComputeTimeStep error: x1 vector dims do not match");
+  if (Nz != LocDims[2]) 
+    ENZO_FAIL("ComputeTimeStep error: x2 vector dims do not match");
+  if (Nvar != (2+Nchem)) 
+    ENZO_FAIL("ComputeTimeStep error: nspecies dims do not match");
+  if ((Nx+ghXl+ghXr) != ArrDims[0]) 
+    ENZO_FAIL("ComputeTimeStep error: x0 vector sizes do not match");
+  if ((Ny+ghYl+ghYr) != ArrDims[1]) 
+    ENZO_FAIL("ComputeTimeStep error: x1 vector sizes do not match");
+  if ((Nz+ghZl+ghZr) != ArrDims[2]) 
+    ENZO_FAIL("ComputeTimeStep error: x2 vector sizes do not match");
 
 
   // Set time step depending on how it has been set up by the user:

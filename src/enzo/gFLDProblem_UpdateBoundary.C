@@ -51,10 +51,8 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
 //     printf("Entering gFLDProblem::UpdateBoundary routine\n");
 
   // check that the gFLDProblem has been prepared
-  if (!prepared) {
-    fprintf(stderr,"UpdateBoundary ERROR: gFLDProblem unprepared\n");
-    return FAIL;
-  }
+  if (!prepared) 
+    ENZO_FAIL("UpdateBoundary ERROR: gFLDProblem unprepared");
   
   // get information about the vector u, and check against BC dims
   int i, j, k, l, m, idx, idxbc;
@@ -65,22 +63,22 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
   if (udims[0] != LocDims[0]) {
     fprintf(stderr,"p%"ISYM" UpdateBC: mismatched x0 dims %"ISYM"!=%"ISYM"\n",
 	    MyProcessorNumber,udims[0],LocDims[0]);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDProblem_UpdateBoundary");
   }
   if (udims[1] != LocDims[1]) {
     fprintf(stderr,"p%"ISYM" UpdateBC: mismatched x1 dims %"ISYM"!=%"ISYM"\n",
 	    MyProcessorNumber,udims[1],LocDims[1]);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDProblem_UpdateBoundary");
   }
   if (udims[2] != LocDims[2]) {
     fprintf(stderr,"p%"ISYM" UpdateBC: mismatched x2 dims %"ISYM"!=%"ISYM"\n",
 	    MyProcessorNumber,udims[2],LocDims[2]);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDProblem_UpdateBoundary");
   }
   if (udims[3] != (2+Nchem)) {
     fprintf(stderr,"p%"ISYM" UpdateBC: mismatched nspecies %"ISYM"!=3\n",
 	    MyProcessorNumber,udims[3]);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDProblem_UpdateBoundary");
   }
 
   // set some shortcuts for the EnzoVector dimensions

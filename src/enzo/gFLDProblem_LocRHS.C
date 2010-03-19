@@ -39,34 +39,20 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
   int usz[4], ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   u->size(&usz[0], &usz[1], &usz[2], &usz[3], 
 	  &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
-  if (usz[0] != LocDims[0]) {
-    fprintf(stderr,"LocRHS error: x0 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[1] != LocDims[1]) {
-    fprintf(stderr,"LocRHS error: x1 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[2] != LocDims[2]) {
-    fprintf(stderr,"LocRHS error: x2 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[3] != (2+Nchem)) {
-    fprintf(stderr,"LocRHS error: nspecies dims do not match\n");
-    return FAIL;
-  }
-  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) {
-    fprintf(stderr,"LocRHS error: x0 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) {
-    fprintf(stderr,"LocRHS error: x1 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) {
-    fprintf(stderr,"LocRHS error: x2 vector sizes do not match\n");
-    return FAIL;
-  }
+  if (usz[0] != LocDims[0]) 
+    ENZO_FAIL("LocRHS error: x0 vector dims do not match");
+  if (usz[1] != LocDims[1]) 
+    ENZO_FAIL("LocRHS error: x1 vector dims do not match");
+  if (usz[2] != LocDims[2]) 
+    ENZO_FAIL("LocRHS error: x2 vector dims do not match");
+  if (usz[3] != (2+Nchem)) 
+    ENZO_FAIL("LocRHS error: nspecies dims do not match");
+  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) 
+    ENZO_FAIL("LocRHS error: x0 vector sizes do not match");
+  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) 
+    ENZO_FAIL("LocRHS error: x1 vector sizes do not match");
+  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) 
+    ENZO_FAIL("LocRHS error: x2 vector sizes do not match");
 
   // extract fluid energy, radiation energy and chemistry arrays
   float *Er = u->GetData(0);
@@ -87,16 +73,12 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
     n_HeI  = u->GetData(3);
     n_HeII = u->GetData(4);
   }
-  else {
-    fprintf(stderr,"LocRHS ERROR: only valid for Nchem = {0,1,3}\n");
-    return FAIL;
-  }
+  else 
+    ENZO_FAIL("LocRHS ERROR: only valid for Nchem = {0,1,3}");
 
   // compute temperature over domain
-  if (this->ComputeTemperature(Temp,time,a,u) == FAIL) {
-    fprintf(stderr,"LocRHS: Error in ComputeTemperature routine\n");
-    return FAIL;
-  }
+  if (this->ComputeTemperature(Temp,time,a,u) == FAIL) 
+    ENZO_FAIL("LocRHS: Error in ComputeTemperature routine");
 
   int size=usz[0]*usz[1]*usz[2];
   int ix, iy, iz, idx, dim;
@@ -105,10 +87,8 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
 
   // compute opacity over domain
   if (this->Opacity(OpacityP, OpacityE, OpacityS, &time, 
-		    n_HI, n_HeI, n_HeII, Temp) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in Opacity routine\n");
-    return FAIL;
-  }
+		    n_HI, n_HeI, n_HeII, Temp) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in Opacity routine");
 
   // compute local rhs source terms over domain
   float *src_E = extsrc->GetData(0);
@@ -135,27 +115,21 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
   if (StarMakerEmissivityField == 0) {
 #endif
   if (this->RadiationSource(src_E, &time, Er, ec, n_HI, 
-			    n_HeI, n_HeII, Temp) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in EmissivitySource routine\n");
-    return FAIL;
-  }
+			    n_HeI, n_HeII, Temp) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in EmissivitySource routine");
 #ifdef EMISSIVITY
   }
 #endif
 
   //    compute external gas energy sources over domain
   if (this->GasEnergySource(src_e, &time, Er, ec, n_HI, 
-			    n_HeI, n_HeII, Temp) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in GasEnergySource routine\n");
-    return FAIL;
-  }
+			    n_HeI, n_HeII, Temp) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in GasEnergySource routine");
 
   //    compute external chemistry sources over domain
   if (this->ChemistrySource(src_HI, src_HeI, src_HeII, &time, Er, 
-			    ec, n_HI, n_HeI, n_HeII, Temp) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in ChemistrySource routine\n");
-    return FAIL;
-  }
+			    ec, n_HI, n_HeI, n_HeII, Temp) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in ChemistrySource routine");
 
   //    set pointers to the rhs vectors
   float *rhs_E = locrhs->GetData(0);
@@ -181,10 +155,8 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
   if (this->LocalRHS(rhs_E, rhs_e, rhs_HI, rhs_HeI, rhs_HeII, 
 		     src_E, src_e, src_HI, src_HeI, src_HeII, 
 		     &time, ec, Er, Temp, OpacityP, OpacityE, 
-		     n_HI, n_HeI, n_HeII) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in LocalRHS routine\n");
-    return FAIL;
-  }
+		     n_HI, n_HeI, n_HeII) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in LocalRHS routine");
 
 #ifdef USE_JBPERF
     JBPERF_STOP("gfldproblem_locrhs");

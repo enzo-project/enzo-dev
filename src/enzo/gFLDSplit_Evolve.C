@@ -54,7 +54,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   if (MyProcessorNumber != MPI_id) {
     fprintf(stderr, "ERROR: Enzo PID %"ISYM" doesn't match MPI ID %"ISYM"\n", 
 	    MyProcessorNumber, int(MPI_id));
-    return FAIL;
+    ENZO_FAIL("Error in gFLDSplit_Evolve");
   }
 #endif
 
@@ -75,44 +75,30 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
     FluidEnergyCorrection[i] = 0.0;
   vx = ThisGrid->GridData->AccessVelocity1();
-  if (vx == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not obtain velocity1\n");
-    return FAIL;
-  }
+  if (vx == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not obtain velocity1");
   vy = ThisGrid->GridData->AccessVelocity2();
-  if (vy == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not obtain velocity2\n");
-    return FAIL;
-  }
+  if (vy == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not obtain velocity2");
   vz = ThisGrid->GridData->AccessVelocity3();
-  if (vz == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not obtain velocity3\n");
-    return FAIL;
-  }
+  if (vz == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not obtain velocity3");
   rho = ThisGrid->GridData->AccessDensity();
-  if (rho == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not obtain density\n");
-    return FAIL;
-  }
+  if (rho == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not obtain density");
   if (DualEnergyFormalism) {
     eh = ThisGrid->GridData->AccessGasEnergy();
-    if (eh == NULL) {
-      fprintf(stderr,"gFLDSplit Evolve: could not obtain fluid energy\n");
-      return FAIL;
-    }
+    if (eh == NULL) 
+      ENZO_FAIL("gFLDSplit Evolve: could not obtain fluid energy");
   }
   else {
     eh = ThisGrid->GridData->AccessTotalEnergy();
-    if (eh == NULL) {
-      fprintf(stderr,"gFLDSplit Evolve: could not obtain fluid energy\n");
-      return FAIL;
-    }
+    if (eh == NULL) 
+      ENZO_FAIL("gFLDSplit Evolve: could not obtain fluid energy");
   }
   RadiationEnergy = ThisGrid->GridData->AccessRadiationFrequency0();
-  if (RadiationEnergy == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not obtain Radiation energy\n");
-    return FAIL;
-  }
+  if (RadiationEnergy == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not obtain Radiation energy");
   // "access" all chemical species (some will be NULL); this helps for 
   // problems in which we only do Hydrogen chemistry internally to this 
   // module, but Helium species are present.
@@ -130,19 +116,13 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   ne     = ThisGrid->GridData->AccessElectronDensity();
   //    check that we accessed the required species for Nchem
   if (Nchem > 0) 
-    if (nHI == NULL) {
-      fprintf(stderr,"EvolveRadHydro error: cannot access HI density!\n");
-      return FAIL;
-    }
+    if (nHI == NULL) 
+      ENZO_FAIL("EvolveRadHydro error: cannot access HI density!");
   if (Nchem > 1) {
-    if (nHeI == NULL) {
-      fprintf(stderr,"EvolveRadHydro error: cannot access HeI density!\n");
-      return FAIL;
-    }
-    if (nHeII == NULL) {
-      fprintf(stderr,"EvolveRadHydro error: cannot access HeII density!\n");
-      return FAIL;
-    }
+    if (nHeI == NULL) 
+      ENZO_FAIL("EvolveRadHydro error: cannot access HeI density!");
+    if (nHeII == NULL) 
+      ENZO_FAIL("EvolveRadHydro error: cannot access HeII density!");
   }
 
   // Get time-related information
@@ -155,20 +135,16 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   // access/fill radiation source array 
   float *RadSrc = extsrc->GetData(0);
-  if (RadSrc == NULL) {
-    fprintf(stderr,"gFLDSplit Evolve: could not access Radiaton source\n");
-    return FAIL;
-  }
+  if (RadSrc == NULL) 
+    ENZO_FAIL("gFLDSplit Evolve: could not access Radiaton source");
   int eta_set = 0;
 #ifdef EMISSIVITY
   // if using external Emissivity field source, copy into extsrc
   if (StarMakerEmissivityField > 0) {
     // access external emissivity field 
     float *EmissivitySource = ThisGrid->GridData->AccessEmissivityField();
-    if (EmissivitySource == NULL) {
-      fprintf(stderr,"gFLDSplit Evolve: could not access emissivity field\n");
-      return FAIL;
-    }
+    if (EmissivitySource == NULL) 
+      ENZO_FAIL("gFLDSplit Evolve: could not access emissivity field");
     // copy data
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
       RadSrc[i] = EmissivitySource[i];
@@ -178,10 +154,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 #endif
   //   compute emissivity (if not yet set)
   if (eta_set == 0) {
-    if (this->RadiationSource(RadSrc, &tnew) != SUCCESS) {
-      fprintf(stderr,"LocRHS: Error in RadiationSource routine\n");
-      return FAIL;
-    }
+    if (this->RadiationSource(RadSrc, &tnew) != SUCCESS) 
+      ENZO_FAIL("LocRHS: Error in RadiationSource routine");
   }
   float srcNorm = extsrc->rmsnorm_component(0);
   float srcMax  = extsrc->infnorm_component(0);
@@ -237,14 +211,10 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   float TempUnits, MassUnits, RadUnits;
   DenUnits0=LenUnits0=TempUnits=TimeUnits=VelUnits=MassUnits=1.0;
   if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, told) == FAIL) {
-    fprintf(stderr,"Error in GetUnits.\n");
-    return FAIL;
-  }
-  if (RadiationGetUnits(&RadUnits, told) == FAIL) {
-    fprintf(stderr,"Error in RadiationGetUnits.\n");
-    return FAIL;
-  }
+	       &TimeUnits, &VelUnits, &MassUnits, told) == FAIL) 
+    ENZO_FAIL("Error in GetUnits.");
+  if (RadiationGetUnits(&RadUnits, told) == FAIL) 
+    ENZO_FAIL("Error in RadiationGetUnits.");
   // incorporate Enzo units with implicit solver unit scaling
   float mp = 1.67262171e-24;   // Mass of a proton [g]
   ErUnits0 = RadUnits*ErScale;
@@ -252,22 +222,16 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   // set a, adot, unit scalings to correct time-level values
   if (ComovingCoordinates) 
-    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      return FAIL;
-    }
+    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) 
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
 
   // get/store internal Enzo units (new time step)
   DenUnits = LenUnits = TempUnits = TimeUnits = VelUnits = MassUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) {
-    fprintf(stderr,"Error in GetUnits.\n");
-    return FAIL;
-  }
-  if (RadiationGetUnits(&RadUnits, tnew) == FAIL) {
-    fprintf(stderr,"Error in RadiationGetUnits.\n");
-    return FAIL;
-  }
+	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
+    ENZO_FAIL("Error in GetUnits.");
+  if (RadiationGetUnits(&RadUnits, tnew) == FAIL) 
+    ENZO_FAIL("Error in RadiationGetUnits.");
   // incorporate Enzo units with implicit solver unit scaling
   ErUnits = RadUnits*ErScale;
   ecUnits = VelUnits*VelUnits*ecScale;
@@ -275,10 +239,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   // set a, adot to correct time-level values
   if (ComovingCoordinates) 
-    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      return FAIL;
-    }
+    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) 
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
 
   // attach arrays to U0 vector
   U0->SetData(0, RadiationEnergy);
@@ -296,10 +258,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   for (ns=1; ns<=Nchem; ns++)  U0->scale_component(ns+1, 1.0/NiScale);
 
   // have U0 begin communication of neighbor information
-  if (U0->exchange_start() == FAIL) {
-    fprintf(stderr,"gFLDSplit Evolve: vector exchange_start error\n");
-    return FAIL;
-  }
+  if (U0->exchange_start() == FAIL) 
+    ENZO_FAIL("gFLDSplit Evolve: vector exchange_start error");
 
   // output typical/maximum values
   float UTypVals[Nchem+2];
@@ -370,10 +330,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   adot /= TimeUnits;
 
   // have U0 finish communication of neighbor information
-  if (U0->exchange_end() == FAIL) {
-    fprintf(stderr,"gFLDSplit Evolve: vector exchange_end error\n");
-    return FAIL;
-  }
+  if (U0->exchange_end() == FAIL) 
+    ENZO_FAIL("gFLDSplit Evolve: vector exchange_end error");
 
 
 
@@ -381,24 +339,19 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   // Problem Solve Phase
 
   //   enforce boundary conditions on old time step vector
-  if (this->EnforceBoundary(U0) == FAIL) {
-    fprintf(stderr,"ERROR: EnforceBoundary failure!!\n");
-    return FAIL;
-  }
+  if (this->EnforceBoundary(U0) == FAIL) 
+    ENZO_FAIL("ERROR: EnforceBoundary failure!!");
 
   //   obtain initial guess for time-evolved solution
   sol->copy(U0);
   if (this->InitialGuess(sol) == FAIL) {
-    fprintf(stderr,"ERROR: InitialGuess failure!!\n");
     this->Dump(sol);
-    return FAIL;    
+    ENZO_FAIL("ERROR: InitialGuess failure!!");
   }
 
   //   enforce boundary conditions on new time step initial guess vector
-  if (this->EnforceBoundary(sol) == FAIL) {
-    fprintf(stderr,"ERROR: EnforceBoundary failure!!\n");
-    return FAIL;
-  }
+  if (this->EnforceBoundary(sol) == FAIL) 
+    ENZO_FAIL("ERROR: EnforceBoundary failure!!");
 
 //   // write out radiation field initial guess
 //   if (debug)  printf("Writing out initial guess to file guess.vec\n");
@@ -410,10 +363,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
 
   //   compute updated opacities
-  if (this->Opacity(OpacityE, &tnew, sol) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in Opacity routine\n");
-    return FAIL;
-  }
+  if (this->Opacity(OpacityE, &tnew, sol) != SUCCESS) 
+    ENZO_FAIL("LocRHS: Error in Opacity routine");
 
 //   if (debug)
 //     printf("      kE:  %8.2e  %8.2e  %8.2e  %8.2e\n",
@@ -421,14 +372,10 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 // 	   OpacityE[buff+2]*NiUnits, OpacityE[buff+3]*NiUnits);
 
   //   compute the gas 'Temperature' at old and new time steps
-  if (this->ComputeTemperature(Temperature0, U0) == FAIL) {
-    fprintf(stderr,"LocRHS: Error in ComputeTemperature routine\n");
-    return FAIL;
-  }
-  if (this->ComputeTemperature(Temperature, sol) == FAIL) {
-    fprintf(stderr,"LocRHS: Error in ComputeTemperature routine\n");
-    return FAIL;
-  }
+  if (this->ComputeTemperature(Temperature0, U0) == FAIL) 
+    ENZO_FAIL("LocRHS: Error in ComputeTemperature routine");
+  if (this->ComputeTemperature(Temperature, sol) == FAIL) 
+    ENZO_FAIL("LocRHS: Error in ComputeTemperature routine");
 
 //   // output typical/maximum temperature values
 //   UTypVals[1] = 0.0;  UMaxVals[1] = 0.0;
@@ -461,10 +408,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   Eint32 ilower[3] = {SolvIndices[0][0],SolvIndices[1][0],SolvIndices[2][0]};
   Eint32 iupper[3] = {SolvIndices[0][1],SolvIndices[1][1],SolvIndices[2][1]};
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, RadiationEnergy, Eg_new, 
-			OpacityE, Temperature, Temperature0, RadSrc) != SUCCESS) {
-    fprintf(stderr,"FSProb Solve: Error in SetupSystem routine\n");
-    return FAIL;
-  }
+			OpacityE, Temperature, Temperature0, RadSrc) != SUCCESS) 
+    ENZO_FAIL("FSProb Solve: Error in SetupSystem routine");
   HYPRE_StructMatrixSetBoxValues(P, ilower, iupper, stSize, entries, matentries); 
     
   //       assemble matrix
@@ -575,7 +520,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
       this->Dump(sol);
 
       fprintf(stderr," ======================================================================\n\n");
-      return FAIL;
+      ENZO_FAIL("Error in gFLDSplit_Evolve");
     }
   }
   if (debug)	printf(" ======================================================================\n\n");
@@ -630,29 +575,21 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     HeIsrc = extsrc->GetData(3);
     HeIIsrc = extsrc->GetData(4);
   }
-  if (this->GasEnergySource(ecsrc, &tnew) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in GasEnergySource routine\n");
-    return FAIL;
-  }
-  if (this->ChemistrySource(HIsrc, HeIsrc, HeIIsrc, &tnew) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in GasEnergySource routine\n");
-    return FAIL;
-  }
+  if (this->GasEnergySource(ecsrc, &tnew) != SUCCESS) 
+    ENZO_FAIL("gFLDSplit_Evolve: Error in GasEnergySource routine");
+  if (this->ChemistrySource(HIsrc, HeIsrc, HeIIsrc, &tnew) != SUCCESS) 
+    ENZO_FAIL("gFLDSplit_Evolve: Error in GasEnergySource routine");
 
   //   solve local chemistry/gas energy systems
-  if (this->AnalyticChemistry(U0, sol, extsrc, dt) != SUCCESS) {
-    fprintf(stderr,"FSProb Solve: Error in AnalyticChemistry routine\n");
-    return FAIL;
-  }
+  if (this->AnalyticChemistry(U0, sol, extsrc, dt) != SUCCESS) 
+    ENZO_FAIL("gFLDSplit_Evolve: Error in AnalyticChemistry routine");
 
 
   // correct the radiation equation with the updated opacities
   //   compute updated opacities (store in Temperature array)
   float *Opacity_new = Temperature;
-  if (this->Opacity(Opacity_new, &tnew, sol) != SUCCESS) {
-    fprintf(stderr,"LocRHS: Error in Opacity routine\n");
-    return FAIL;
-  }
+  if (this->Opacity(Opacity_new, &tnew, sol) != SUCCESS) 
+    ENZO_FAIL("gFLDSplit_Evolve: Error in Opacity routine");
   //   update the radiation in each cell
   //   (no need for floor, due to analytical solution)
   float factor = -0.5*2.99792458e10*dt*NiUnits;

@@ -53,10 +53,8 @@ int gFLDSplit::InitialGuess(EnzoVector *uvec)
     //   Note: extsrc is available thanks to the last call to ComputeRHS.
     uvec->copy(U0);
     if (Model == 1) 
-      if (this->AnalyticInitGuess(uvec,dt) == FAIL) {
-	fprintf(stderr,"InitialGuess Error: AnalyticInitGuess failure\n");
-	return FAIL;
-      }
+      if (this->AnalyticInitGuess(uvec,dt) == FAIL) 
+	ENZO_FAIL("InitialGuess Error: AnalyticInitGuess failure");
     break;
 
 
@@ -64,7 +62,7 @@ int gFLDSplit::InitialGuess(EnzoVector *uvec)
 
     fprintf(stderr,"InitialGuess Error: illegal initial_guess choice = %"ISYM"\n",
 	    initial_guess);
-    return FAIL;
+    ENZO_FAIL("Error in gFLDSplit_InitialGuess");
 
   }
 

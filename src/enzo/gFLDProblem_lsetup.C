@@ -41,43 +41,27 @@ int gFLDProblem::lsetup(EnzoVector *u)
 //   if (debug)  printf("Entering gFLDProblem::lsetup routine\n");
 
   // check that the gFLDProblem has been set up
-  if (!prepared) {
-    fprintf(stderr,"lsetup error: gFLDProblem not yet prepared\n");
-    return FAIL;
-  }
+  if (!prepared) 
+    ENZO_FAIL("lsetup error: gFLDProblem not yet prepared");
 
   // get local mesh description
   int usz[4], ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   u->size(&usz[0], &usz[1], &usz[2], &usz[3], 
 	  &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
-  if (usz[0] != LocDims[0]) {
-    fprintf(stderr,"lsetup error: x0 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[1] != LocDims[1]) {
-    fprintf(stderr,"lsetup error: x1 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[2] != LocDims[2]) {
-    fprintf(stderr,"lsetup error: x2 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[3] != (2+Nchem)) {
-    fprintf(stderr,"lsetup error: nspecies do not match\n");
-    return FAIL;
-  }
-  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) {
-    fprintf(stderr,"lsetup error: x0 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) {
-    fprintf(stderr,"lsetup error: x1 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) {
-    fprintf(stderr,"lsetup error: x2 vector sizes do not match\n");
-    return FAIL;
-  }
+  if (usz[0] != LocDims[0]) 
+    ENZO_FAIL("lsetup error: x0 vector dims do not match");
+  if (usz[1] != LocDims[1]) 
+    ENZO_FAIL("lsetup error: x1 vector dims do not match");
+  if (usz[2] != LocDims[2]) 
+    ENZO_FAIL("lsetup error: x2 vector dims do not match");
+  if (usz[3] != (2+Nchem)) 
+    ENZO_FAIL("lsetup error: nspecies do not match");
+  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) 
+    ENZO_FAIL("lsetup error: x0 vector sizes do not match");
+  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) 
+    ENZO_FAIL("lsetup error: x1 vector sizes do not match");
+  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) 
+    ENZO_FAIL("lsetup error: x2 vector sizes do not match");
 
   // clear Jacobian data arrays
   int i, j, k, ns, outidx;
@@ -171,18 +155,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
 		       HeIjac_Eg, HeIjac_ec, HeIjac_HI, HeIjac_HeI, 
 		       HeIjac_HeII, HeIIjac_Eg, HeIIjac_ec, HeIIjac_HI, 
 		       HeIIjac_HeI, HeIIjac_HeII, &tnew, Eg, ec, nHI, nHeI, 
-		       nHeII) == FAIL) {
-      fprintf(stderr,"lsetup: LocalJac failure!\n");
-      return FAIL;
-
-      // clean up
-      Egjac_Eg = Egjac_ec = Egjac_HI = Egjac_HeI = Egjac_HeII = NULL;
-      ecjac_Eg = ecjac_ec = ecjac_HI = ecjac_HeI = ecjac_HeII = NULL;
-      HIjac_Eg = HIjac_ec = HIjac_HI = HIjac_HeI = HIjac_HeII = NULL;
-      HeIjac_Eg = HeIjac_ec = HeIjac_HI = HeIjac_HeI = HeIjac_HeII = NULL;
-      HeIIjac_Eg = HeIIjac_ec = HeIIjac_HI = HeIIjac_HeI = HeIIjac_HeII = NULL;
-
-    }
+		       nHeII) == FAIL) 
+      ENZO_FAIL("lsetup: LocalJac failure!");
 
     // rescale local Jacobians by dt*theta for implicit time-stepping,
     // and add identity contribution
@@ -234,10 +208,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
     EnzoVector *ftmp = tmp3;
 
     //   compute the local rhs at the current state, new time (fval)
-    if (this->LocRHS(fval,tnew,u) == FAIL) {
-      fprintf(stderr,"lsetup error: LocRHS failure\n");
-      return FAIL;
-    }
+    if (this->LocRHS(fval,tnew,u) == FAIL) 
+      ENZO_FAIL("lsetup error: LocRHS failure");
 
     // determine floating-point roundoff
     float epsilon=1.0;
@@ -252,10 +224,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
     if (AnalyticChem == 1) {
 
       /////////// First, adjust fval(2:3) to use analytical residual ///////////
-      if (this->AnalyticResid(U0, u, fval, dt) == FAIL) {
-	fprintf(stderr,"lsetup error: AnalyticResid failure\n");
-	return FAIL;
-      }
+      if (this->AnalyticResid(U0, u, fval, dt) == FAIL) 
+	ENZO_FAIL("lsetup error: AnalyticResid failure");
 
       /////////// Second, handle the radiation (theta method) ///////////
       //   perturb each component of the current state (utmp),
@@ -281,10 +251,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
 	}
 	
 	// compute the local rhs due to this perturbation (ftmp)
-	if (this->LocRHS(ftmp,tnew,utmp) == FAIL) {
-	  fprintf(stderr,"lsetup error: LocRHS failure\n");
-	  return FAIL;
-	}
+	if (this->LocRHS(ftmp,tnew,utmp) == FAIL) 
+	  ENZO_FAIL("lsetup error: LocRHS failure");
 	
 	// store the resulting Jacobian approximations to E components
 	farray = fval->GetData(0);
@@ -327,10 +295,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
 	}
 	
 	// compute the AnalyticResid due to this perturbation (ftmp)
-	if (this->AnalyticResid(U0, utmp, ftmp, dt) == FAIL) {
-	  fprintf(stderr,"lsetup error: AnalyticResid failure\n");
-	  return FAIL;
-	}
+	if (this->AnalyticResid(U0, utmp, ftmp, dt) == FAIL) 
+	  ENZO_FAIL("lsetup error: AnalyticResid failure");
 	
 	// store the resulting Jacobian approximations
 	for (ns2=1; ns2<(2+Nchem); ns2++) {
@@ -377,10 +343,8 @@ int gFLDProblem::lsetup(EnzoVector *u)
 	}
 	
 	// compute the local rhs due to this perturbation (ftmp)
-	if (this->LocRHS(ftmp,tnew,utmp) == FAIL) {
-	  fprintf(stderr,"lsetup error: LocRHS failure\n");
-	  return FAIL;
-	}
+	if (this->LocRHS(ftmp,tnew,utmp) == FAIL) 
+	  ENZO_FAIL("lsetup error: LocRHS failure");
 	
 	// store the resulting Jacobian approximations
 	for (ns2=0; ns2<(2+Nchem); ns2++) {

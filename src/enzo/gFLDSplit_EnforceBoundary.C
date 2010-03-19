@@ -46,26 +46,14 @@ int gFLDSplit::EnforceBoundary(EnzoVector *u)
   u->size(&udims[0], &udims[1], &udims[2], &udims[3], 
 	  &ugh[0][0], &ugh[0][1], &ugh[1][0], 
 	  &ugh[1][1], &ugh[2][0], &ugh[2][1]);
-  if (udims[0] != LocDims[0]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x0 dims %"ISYM"!=%"ISYM"\n",
-	    MyProcessorNumber,udims[0],LocDims[0]);
-    return FAIL;
-  }
-  if (udims[1] != LocDims[1]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x1 dims %"ISYM"!=%"ISYM"\n",
-	    MyProcessorNumber,udims[1],LocDims[1]);
-    return FAIL;
-  }
-  if (udims[2] != LocDims[2]) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched x2 dims %"ISYM"!=%"ISYM"\n",
-	    MyProcessorNumber,udims[2],LocDims[2]);
-    return FAIL;
-  }
-  if (udims[3] != (2+Nchem)) {
-    fprintf(stderr,"p%"ISYM" EnforceBC: mismatched nspecies %"ISYM"!=3\n",
-	    MyProcessorNumber,udims[3]);
-    return FAIL;
-  }
+  if (udims[0] != LocDims[0]) 
+    ENZO_FAIL(" EnforceBC: mismatched x0 dims");
+  if (udims[1] != LocDims[1]) 
+    ENZO_FAIL(" EnforceBC: mismatched x1 dims");
+  if (udims[2] != LocDims[2]) 
+    ENZO_FAIL(" EnforceBC: mismatched x2 dims");
+  if (udims[3] != (2+Nchem)) 
+    ENZO_FAIL(" EnforceBC: mismatched nspecies dims");
 
   // set some shortcuts for the EnzoVector dimensions, scaling
   int x0len = udims[0] + ugh[0][0] + ugh[0][1];

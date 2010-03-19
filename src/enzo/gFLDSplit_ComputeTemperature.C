@@ -44,34 +44,20 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
   int usz[4], ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   u->size(&usz[0], &usz[1], &usz[2], &usz[3], 
 	  &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
-  if (usz[0] != LocDims[0]) {
-    fprintf(stderr,"Temperature error: x0 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[1] != LocDims[1]) {
-    fprintf(stderr,"Temperature error: x1 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[2] != LocDims[2]) {
-    fprintf(stderr,"Temperature error: x2 vector dims do not match\n");
-    return FAIL;
-  }
-  if (usz[3] != (2+Nchem)) {
-    fprintf(stderr,"Temperature error: nspecies dims do not match\n");
-    return FAIL;
-  }
-  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) {
-    fprintf(stderr,"Temperature error: x0 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) {
-    fprintf(stderr,"Temperature error: x1 vector sizes do not match\n");
-    return FAIL;
-  }
-  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) {
-    fprintf(stderr,"Temperature error: x2 vector sizes do not match\n");
-    return FAIL;
-  }
+  if (usz[0] != LocDims[0]) 
+    ENZO_FAIL("Temperature error: x0 vector dims do not match");
+  if (usz[1] != LocDims[1]) 
+    ENZO_FAIL("Temperature error: x1 vector dims do not match");
+  if (usz[2] != LocDims[2]) 
+    ENZO_FAIL("Temperature error: x2 vector dims do not match");
+  if (usz[3] != (2+Nchem)) 
+    ENZO_FAIL("Temperature error: nspecies dims do not match");
+  if ((usz[0]+ghXl+ghXr) != ArrDims[0]) 
+    ENZO_FAIL("Temperature error: x0 vector sizes do not match");
+  if ((usz[1]+ghYl+ghYr) != ArrDims[1]) 
+    ENZO_FAIL("Temperature error: x1 vector sizes do not match");
+  if ((usz[2]+ghZl+ghZr) != ArrDims[2]) 
+    ENZO_FAIL("Temperature error: x2 vector sizes do not match");
 
 
   // set some physical constants
@@ -110,12 +96,12 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
     }
     
     // special case for Lowrie & Edwards radiating shock
-    if ( ProblemType == 205 ) {
+    if ( ProblemType == 405 ) {
       for (i=0; i<size; i++)
 	TempArr[i] = max(TempArr[i]/2.218056e12/kb*1.60219e-12, MIN_TEMP);
     } 
     // special case for the astrophysical radiating shock
-    else if ( ProblemType == 204 ) {
+    else if ( ProblemType == 404 ) {
       for (i=0; i<size; i++)
 	TempArr[i] = max((Gamma-1.0)*0.5*mp*TempArr[i]/kb, MIN_TEMP);
     } 

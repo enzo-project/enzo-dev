@@ -37,70 +37,48 @@ int gFLDProblem::nlresid(EnzoVector *fu, EnzoVector *u)
 //     printf("Entering gFLDProblem::nlresid routine\n");
 
   // check that the gFLDProblem has been set up
-  if (!prepared) {
-    fprintf(stderr,"nlresid error: gFLDProblem not yet prepared\n");
-    return FAIL;
-  }
+  if (!prepared) 
+    ENZO_FAIL("nlresid error: gFLDProblem not yet prepared");
 
 //   // have u communicate neighbor information
-//   if (u->exchange() == FAIL) {
-//     fprintf(stderr,"nlresid error: EnzoVector::exchange failure\n");
-//     return FAIL;
-//   }
+//   if (u->exchange() == FAIL) 
+//      ENZO_FAIL("nlresid error: EnzoVector::exchange failure");
   // have u initiate communication of neighbor information
-  if (u->exchange_start() == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::exchange_start failure\n");
-    return FAIL;
-  }
+  if (u->exchange_start() == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::exchange_start failure");
 
   // initialize residual to zero
-  if (fu->constant(0.0) == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::constant failure\n");
-    return FAIL;
-  }
+  if (fu->constant(0.0) == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::constant failure");
   
   // have u finish communication of neighbor information
-  if (u->exchange_end() == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::exchange_end failure\n");
-    return FAIL;
-  }
+  if (u->exchange_end() == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::exchange_end failure");
 
   // update time-dependent boundary conditions on state u, if needed
-  if (this->UpdateBoundary(u,tnew,1) == FAIL) {
-    fprintf(stderr,"nlresid error: UpdateBoundary failure\n");
-    return FAIL;
-  }
+  if (this->UpdateBoundary(u,tnew,1) == FAIL) 
+    ENZO_FAIL("nlresid error: UpdateBoundary failure");
 
   // enforce boundary conditions on state u
-  if (this->EnforceBoundary(u,0) == FAIL) {
-    fprintf(stderr,"nlresid error: EnforceBoundary failure\n");
-    return FAIL;
-  }
+  if (this->EnforceBoundary(u,0) == FAIL) 
+    ENZO_FAIL("nlresid error: EnforceBoundary failure");
 
   // compute rhs at current state for updated time
-  if (this->ComputeRHS(rhs, tnew, u) == FAIL) {
-    fprintf(stderr,"nlresid error: ComputeRHS failure\n");
-    return FAIL;
-  }
+  if (this->ComputeRHS(rhs, tnew, u) == FAIL) 
+    ENZO_FAIL("nlresid error: ComputeRHS failure");
 
   // combine together via theta-scheme
   //   fu =  u-u0
-  if (fu->linearsum(1.0,u,-1.0,U0) == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::linearsum failure\n");
-    return FAIL;
-  }
+  if (fu->linearsum(1.0,u,-1.0,U0) == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::linearsum failure");
 
   //   fu = (u-u0) - dt*(1-theta)*rhs0
-  if (fu->axpy(-dt*(1.0-theta),rhs0)  == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::axpy failure\n");
-    return FAIL;
-  }
+  if (fu->axpy(-dt*(1.0-theta),rhs0)  == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::axpy failure");
 
   //   fu = (u-u0) - dt*(1-theta)*rhs0 - dt*theta*rhs
-  if (fu->axpy(-dt*theta,rhs) == FAIL) {
-    fprintf(stderr,"nlresid error: EnzoVector::axpy failure\n");
-    return FAIL;
-  }
+  if (fu->axpy(-dt*theta,rhs) == FAIL) 
+    ENZO_FAIL("nlresid error: EnzoVector::axpy failure");
 
   
   // if using the analytical chemistry solver, call it now 
@@ -108,18 +86,14 @@ int gFLDProblem::nlresid(EnzoVector *fu, EnzoVector *u)
   int i;
   if (AnalyticChem == 1) {
     for (i=1; i<Nchem+2; i++)  fu->scale_component(i, 0.0);
-    if (this->AnalyticResid(U0, u, fu, dt) == FAIL) {
-      fprintf(stderr,"nlresid error: AnalyticalResid failure\n");
-      return FAIL;
-    }
+    if (this->AnalyticResid(U0, u, fu, dt) == FAIL) 
+      ENZO_FAIL("nlresid error: AnalyticalResid failure");
   }
 
 
   //   Enforce boundary conditions on fu (for Dirichlet faces)
-  if (this->EnforceBoundary(fu,1) == FAIL) {
-    fprintf(stderr,"nlresid error: EnforceBoundary failure\n");
-    return FAIL;    
-  } 
+  if (this->EnforceBoundary(fu,1) == FAIL) 
+    ENZO_FAIL("nlresid error: EnforceBoundary failure");
 
 
 //   // output component residuals
