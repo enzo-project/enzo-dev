@@ -113,9 +113,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
 
-  MetaData.MetaDataIdentifier  = NULL;
-  MetaData.SimulationUUID      = NULL;
-  MetaData.RestartedFromDatasetUUID  = NULL; 
+  MetaData.MetaDataIdentifier    = NULL;
+  MetaData.SimulationUUID        = NULL;
+  MetaData.RestartDatasetUUID    = NULL;
+  MetaData.InitialConditionsUUID = NULL;
 
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;

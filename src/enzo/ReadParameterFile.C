@@ -595,12 +595,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetaData.MetaDataIdentifier = dummy;
       ret++;
     }
-    if (sscanf(line, "SimulationUUID = %s", dummy) == 1) {
+    if (sscanf(line, "MetaDataSimulationUUID = %s", dummy) == 1) {
       MetaData.SimulationUUID = dummy;
       ret++;
     }
-    if (sscanf(line, "DatasetUUID = %s", dummy) == 1) {
-      MetaData.RestartedFromDatasetUUID = dummy;
+    if (sscanf(line, "MetaDataDatasetUUID = %s", dummy) == 1) {
+      MetaData.RestartDatasetUUID = dummy;
+      ret++;
+    }
+    if (sscanf(line, "MetaDataInitialConditionsUUID = %s", dummy) == 1) {
+      MetaData.InitialConditionsUUID = dummy;
       ret++;
     }
  

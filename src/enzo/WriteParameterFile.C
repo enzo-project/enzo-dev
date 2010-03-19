@@ -822,19 +822,23 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   /* If the simulation was given a name, write that. */
   if(MetaData.MetaDataIdentifier != NULL){
-    fprintf(fptr, "MetaDataIdentifier             = %s\n",
+    fprintf(fptr, "MetaDataIdentifier              = %s\n",
 	    MetaData.MetaDataIdentifier);
   }
   /* Write unique simulation identifier. */
-  fprintf(fptr, "SimulationUUID             = %s\n", MetaData.SimulationUUID);
+  fprintf(fptr, "MetaDataSimulationUUID          = %s\n", MetaData.SimulationUUID);
   /* Give this dataset a unique identifier. */
   char dset_uuid[MAX_LINE_LENGTH];
   get_uuid(dset_uuid);
-  fprintf(fptr, "DatasetUUID                = %s\n", dset_uuid);
+  fprintf(fptr, "MetaDataDatasetUUID             = %s\n", dset_uuid);
   /* If the restart data had a UUID, write that. */
-  if(MetaData.RestartedFromDatasetUUID != NULL){
-    fprintf(fptr, "RestartedFromDatasetUUID   = %s\n",
-	    MetaData.RestartedFromDatasetUUID);
+  if(MetaData.RestartDatasetUUID != NULL){
+    fprintf(fptr, "MetaDataRestartDatasetUUID      = %s\n",
+	    MetaData.RestartDatasetUUID);
+  }
+  if(MetaData.InitialConditionsUUID != NULL){
+    fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
+	    MetaData.InitialConditionsUUID);
   }
 
   /* write version info */
