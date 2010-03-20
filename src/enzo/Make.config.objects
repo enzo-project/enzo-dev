@@ -672,6 +672,7 @@ OBJS_CONFIG_LIB = \
 	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
         utilities.o \
+        uuid.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \
