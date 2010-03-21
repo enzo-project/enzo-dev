@@ -52,7 +52,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* declarations */
  
   const float Pi = 3.14159;
-  int dim, i;
+  int dim, i, j;
  
   huge_number               = 1.0e+20;
   tiny_number               = 1.0e-20;
@@ -70,7 +70,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.StopCPUTime     = 720.0*3600.0;     // 30 days
   MetaData.ResubmitOn      = FALSE;
   MetaData.ResubmitCommand = NULL;
-  MetaDataIdentifier       = NULL;
  
   MetaData.MaximumTopGridTimeStep = huge_number;
 
@@ -113,7 +112,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   //MetaData.RedshiftDumpNumber  = 0;
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
- 
+
+  MetaData.MetaDataIdentifier    = NULL;
+  MetaData.SimulationUUID        = NULL;
+  MetaData.RestartDatasetUUID    = NULL;
+  MetaData.InitialConditionsUUID = NULL;
+
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
@@ -139,6 +143,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
  
   MetaData.StaticHierarchy     = TRUE;
+  FastSiblingLocatorEntireDomain = TRUE;
  
   MetaData.TopGridRank = INT_UNDEFINED;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -210,6 +215,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
+
+  /* For evolving refinement regions. */
+  RefineRegionFile = NULL;
+  RefineRegionTimeType = -1; /* 0=time bins 1=redshift bins*/
+  for (i = 0; i < MAX_REFINE_REGIONS; i++) {
+    EvolveRefineRegionTime[i] = FLOAT_UNDEFINED;
+    for (j = 0; j < MAX_DIMENSION; j++) {
+      EvolveRefineRegionLeftEdge[i][j]  = FLOAT_UNDEFINED;
+      EvolveRefineRegionRightEdge[i][j] = FLOAT_UNDEFINED;
+    }
+  }
+
  
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
@@ -335,6 +352,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
+  StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
@@ -381,6 +399,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIMetalCriticalFraction      = 1e-4;
   PopIIISupernovaRadius            = 1;            // pc
   PopIIISupernovaUseColour         = FALSE;
+  PopIIISupernovaMustRefine        = FALSE;
+  PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
 

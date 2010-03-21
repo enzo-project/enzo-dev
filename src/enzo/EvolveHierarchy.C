@@ -105,7 +105,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 			  TopGridData *MetaData); 
 void PrintMemoryUsage(char *str);
-
+int SetEvolveRefineRegion(FLOAT time);
 
 #ifdef MEM_TRACE
 Eint64 mused(void);
@@ -359,15 +359,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       }
 
       dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
+      dt = min(MetaData.MaximumTopGridTimeStep, dt);
 
-    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
-    dt = min(MetaData.MaximumTopGridTimeStep, dt);
-
-    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
-    if (Initialdt != 0) {
-      
-      dt = min(dt, Initialdt);
       if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
+      if (Initialdt != 0) {
+      
+	dt = min(dt, Initialdt);
+	if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
         dtPhoton = dt;
 #endif
@@ -437,6 +435,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FOF(&MetaData, LevelArray, WroteData);
 
+    /* If provided, set RefineRegion from evolving RefineRegion */
+    if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
+        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) {
+          fprintf(stderr, "Error in SetEvolveRefineRegion.\n");
+          return FAIL;
+        }
+    }
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 

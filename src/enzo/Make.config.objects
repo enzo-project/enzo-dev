@@ -214,6 +214,7 @@ OBJS_CONFIG_LIB = \
         Grid_AppendForcingToBaryonFields.o \
         Grid_ApplyTimeAction.o \
         Grid_CalculateAngularMomentum.o \
+	Grid_ChangeParticleTypeBeforeSN.o \
         Grid_CheckForExternalReflections.o \
         Grid_CheckForOverlap.o \
         Grid_CheckForPossibleOverlap.o \
@@ -385,6 +386,7 @@ OBJS_CONFIG_LIB = \
         Grid_ProjectToPlane.o \
         Grid_ProjectToPlane2.o \
         Grid_ProtostellarCollapseInitializeGrid.o \
+	Grid_PutSinkRestartInitialize.o \
         Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
         Grid_ReadGrid.o \
@@ -472,6 +474,7 @@ OBJS_CONFIG_LIB = \
         InitializeNew.o \
         InitializePythonInterface.o \
         InitializeRadiationFieldData.o \
+        InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
         interp1d.o \
@@ -494,6 +497,7 @@ OBJS_CONFIG_LIB = \
         MagneticFieldResetter.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
+	MemoryPoolRoutines.o \
 	MersenneTwister.o \
         mg_calc_defect.o \
         mg_prolong2.o \
@@ -556,12 +560,14 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_FindGridsByZeroSignature.o \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
+	PutSinkRestartInitialize.o \
         QuickSortAndDrag.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
         ReadAttr.o \
+        ReadEvolveRefineFile.o \
         read_bt.o \
         read_bv.o \
         ReadDataHierarchy.o \
@@ -572,6 +578,7 @@ OBJS_CONFIG_LIB = \
         ReadMetalCoolingRatios.o \
         ReadParameterFile.o \
         ReadRadiationData.o \
+        ReadRadiativeTransferSpectrumTable.o \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
@@ -579,6 +586,7 @@ OBJS_CONFIG_LIB = \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
+        ReturnValuesFromSpectrumTable.o \
         ReturnWallTime.o \
         rotate2d.o \
         rotate3d.o \
@@ -590,6 +598,7 @@ OBJS_CONFIG_LIB = \
 	SetBoundaryConditions.o \
         SetDefaultGlobalValues.o \
         SetLevelTimeStep.o \
+        SetEvolveRefineRegion.o \
         sgi_st1_fft64.o \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \
@@ -654,6 +663,7 @@ OBJS_CONFIG_LIB = \
         TestGravitySphereInitialize.o \
         TestOrbitInitialize.o \
         TracerParticleCreation.o \
+	TransposeRegionOverlap.o \
         tscint1d.o \
         tscint2d.o \
         tscint3d.o \
@@ -662,6 +672,7 @@ OBJS_CONFIG_LIB = \
 	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
         utilities.o \
+        uuid.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \
@@ -738,6 +749,7 @@ POBJS_CONFIG_LIB = \
         Grid_WalkPhotonPackage.o \
         LinkedListRoutines.o \
         PhotonTestInitialize.o \
+	PhotonPackageRoutines.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \
         RadiativeTransferInitialize.o \

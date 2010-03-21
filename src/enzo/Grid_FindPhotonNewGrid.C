@@ -27,16 +27,6 @@
 #include "CosmologyParameters.h"
 #include "RadiativeTransferHealpixRoutines.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6f
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, FLOAT rx, 
 		 FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
 
@@ -55,7 +45,7 @@ int grid::FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r,
     if (dummy >= 0) {
       MoveToGrid = Grids0[dummy];
       DeltaLevel = 0;
-      PP->Radius += ROUNDOFF;
+      PP->Radius += PFLOAT_EPSILON;
       // Sometimes a photon can loiter on the grid boundary until kicked off
       if (MoveToGrid != this)
 	return FALSE;
@@ -79,7 +69,7 @@ int grid::FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r,
 	  ENZO_FAIL("Periodic photon boundary failed to find the next grid.");
 	MoveToGrid = Grids0[dummy];
 	DeltaLevel = 0;
-	PP->Radius += ROUNDOFF;
+	PP->Radius += PFLOAT_EPSILON;
 	// Sometimes a photon can loiter on the grid boundary until kicked off
 	if (MoveToGrid != this)
 	  return FALSE;
@@ -100,7 +90,7 @@ int grid::FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r,
     if (dummy >= 0) {
       MoveToGrid = Grids0[dummy];
       DeltaLevel = 0;
-      PP->Radius += ROUNDOFF;
+      PP->Radius += PFLOAT_EPSILON;
     } else {
       // PhotonPackage left the box
       PP->Photons=-1;
@@ -114,7 +104,7 @@ int grid::FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r,
   case SubGridIsolated:
     MoveToGrid = ParentGrid;
     DeltaLevel = -1;
-    PP->Radius += ROUNDOFF;
+    PP->Radius += PFLOAT_EPSILON;
     if (DEBUG) 
       fprintf(stdout, "Walk: left grid: sent photon to grid %x\n", 
 	      ParentGrid);

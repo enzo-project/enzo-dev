@@ -39,6 +39,7 @@ int  WriteUnits(FILE *fptr);
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+void get_uuid(char *buffer);
 #ifdef TRANSFER
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
@@ -277,9 +278,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
   fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
   fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
-  fprintf(fptr, "MustRefineRegionMinRefinementLevel = %"ISYM"\n", MustRefineRegionMinRefinementLevel);
-  fprintf(fptr, "MetallicityRefinementMinLevel = %"ISYM"\n", MetallicityRefinementMinLevel);
-  fprintf(fptr, "MetallicityRefinementMinMetallicity      = %"GSYM"\n", 
+
+  fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
+	  FastSiblingLocatorEntireDomain);
+  fprintf(fptr, "MustRefineRegionMinRefinementLevel  = %"ISYM"\n", 
+	  MustRefineRegionMinRefinementLevel);
+  fprintf(fptr, "MetallicityRefinementMinLevel       = %"ISYM"\n", 
+	  MetallicityRefinementMinLevel);
+  fprintf(fptr, "MetallicityRefinementMinMetallicity = %"GSYM"\n", 
 	  MetallicityRefinementMinMetallicity);
  
   fprintf(fptr, "DomainLeftEdge         = ");
@@ -297,6 +303,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionLeftEdge);
   fprintf(fptr, "MustRefineRegionRightEdge  = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, MustRefineRegionRightEdge);
+  fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
+  if (RefineRegionFile != NULL)
+    fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
+  fprintf(fptr, "\n");
   fprintf(fptr, "\n");
  
   for (dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
@@ -474,7 +484,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "Debug1                          = %"ISYM"\n", debug1);
   fprintf(fptr, "Debug2                          = %"ISYM"\n", debug2);
 
-  fprintf(fptr, "MemoryLimit                     = %"ISYM"\n", MemoryLimit);
+  fprintf(fptr, "MemoryLimit                     = %lld\n", MemoryLimit);
 
 #ifdef STAGE_INPUT
   fprintf(fptr, "StageInput                      = %"ISYM"\n", StageInput);
@@ -577,6 +587,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
+  fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
+      StarMakerSHDensityThreshold);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",
 	  StarMakerMassEfficiency);
   fprintf(fptr, "StarMakerMinimumMass                  = %"GSYM"\n",
@@ -637,12 +649,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIMetalCriticalFraction);
   fprintf(fptr, "PopIIISupernovaRadius                 = %"GSYM"\n",
           PopIIISupernovaRadius);
-  fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n",
           PopIIISupernovaUseColour);
+  fprintf(fptr, "PopIIISupernovaMustRefine             = %"ISYM"\n",
+          PopIIISupernovaMustRefine);
+  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n\n",
+          PopIIISupernovaMustRefineResolution);
 
-  fprintf(fptr, "PopIIIColorDensityThreshold            = %"GSYM"\n",
+  fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
-  fprintf(fptr, "PopIIIColorMass                        = %"GSYM"\n\n",
+  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
           PopIIIColorMass);
 
   fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
@@ -803,6 +819,27 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   time_t ID;
   ID = time(NULL);
   fprintf(fptr, "CurrentTimeIdentifier = %"ISYM"\n", int(ID));
+
+  /* If the simulation was given a name, write that. */
+  if(MetaData.MetaDataIdentifier != NULL){
+    fprintf(fptr, "MetaDataIdentifier              = %s\n",
+	    MetaData.MetaDataIdentifier);
+  }
+  /* Write unique simulation identifier. */
+  fprintf(fptr, "MetaDataSimulationUUID          = %s\n", MetaData.SimulationUUID);
+  /* Give this dataset a unique identifier. */
+  char dset_uuid[MAX_LINE_LENGTH];
+  get_uuid(dset_uuid);
+  fprintf(fptr, "MetaDataDatasetUUID             = %s\n", dset_uuid);
+  /* If the restart data had a UUID, write that. */
+  if(MetaData.RestartDatasetUUID != NULL){
+    fprintf(fptr, "MetaDataRestartDatasetUUID      = %s\n",
+	    MetaData.RestartDatasetUUID);
+  }
+  if(MetaData.InitialConditionsUUID != NULL){
+    fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
+	    MetaData.InitialConditionsUUID);
+  }
 
   /* write version info */
  

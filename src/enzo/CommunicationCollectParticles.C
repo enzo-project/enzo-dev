@@ -50,7 +50,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
 
-#define NO_DEBUG_CCP 
+#define NO_DEBUG_CCP
 #define GRIDS_PER_LOOP 20000
 #define PARTICLES_PER_LOOP 10000000
  
@@ -113,6 +113,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     if (NumberOfSubgrids == 0) {
       CommunicationSyncNumberOfParticles(GridHierarchyPointer, NumberOfGrids);
       delete [] NumberToMove;
+      delete [] StarsToMove;
       return SUCCESS;
     }
 
@@ -493,7 +494,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     if (SyncNumberOfParticles)
       CommunicationSyncNumberOfParticles(GridHierarchyPointer, NumberOfGrids);
     else {
-      for (i = StartGrid; i < EndGrid; i++)
+      for (i = 0; i < NumberOfGrids; i++)
 	if (MyProcessorNumber != 
 	    GridHierarchyPointer[i]->GridData->ReturnProcessorNumber()) {
 	  GridHierarchyPointer[i]->GridData->SetNumberOfParticles(0);

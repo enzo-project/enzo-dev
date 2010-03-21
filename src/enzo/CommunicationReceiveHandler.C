@@ -54,7 +54,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 //  	 CommunicationReceiveIndex);
 
   MPI_Arg NumberOfCompleteRequests, TotalReceives;
-  int ReceivesCompletedToDate = 0, index, errcode,
+  int ReceivesCompletedToDate = 0, index, errcode, SUBling,
     igrid, isubgrid, dim, FromStart, FromNumber, ToStart, ToNumber;
   int GridDimension[MAX_DIMENSION];
   FLOAT EdgeOffset[MAX_DIMENSION];
@@ -204,13 +204,16 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  /* Correct this grid for the refined fluxes (step #19)
 	     (this also deletes the fields in SubgridFluxesRefined). */
 
+	  // For SUBlings, the subgrid number is flagged by setting it to negative
+
 	  igrid = CommunicationReceiveArgumentInt[0][index];
 	  isubgrid = CommunicationReceiveArgumentInt[1][index];
-#ifdef FLUX_FIX	  
+	  SUBling = CommunicationReceiveArgumentInt[2][index];
+#ifdef FLUX_FIX
 	  if ((errcode = grid_two->CorrectForRefinedFluxes
 	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1],
-	       FluxFlag, MetaData)) == FAIL) {
+	       SUBling, MetaData)) == FAIL) {
 	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
 	    ENZO_FAIL("");
 	  }

@@ -45,7 +45,8 @@
     ASSEMBLE_PARAMETER_DEFINES = \
           -D__max_subgrids=$(PARAMETER_MAX_SUBGRIDS) \
           -D__max_baryons=$(PARAMETER_MAX_BARYONS) \
-          -D__max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE)
+          -D__max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE) \
+          -D__memory_pool_size=$(PARAMETER_MEMORY_POOL_SIZE)
 
 #-----------------------------------------------------------------------
 # DETERMINE INTEGER SIZE SETTINGS FOR PARTICLE INDICES

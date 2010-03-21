@@ -21,6 +21,7 @@
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
+#include "MemoryPool.h"
 
 #ifdef FLUX_FIX
 #include "TopGridData.h"
@@ -1256,6 +1257,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
                                hid_t parent_group,
                                hid_t file_id);
 
+ int ChangeParticleTypeBeforeSN(int _type, int level, 
+				int *ParticleBufferSize=NULL);
+
 // -------------------------------------------------------------------------
 // Communication functions
 //
@@ -1748,6 +1752,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 float EjectaThermalEnergy, 
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
+
+/* Put Sink restart initialize grid. */
+
+  int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
+
 
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();

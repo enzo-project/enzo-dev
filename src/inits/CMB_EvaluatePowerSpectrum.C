@@ -50,8 +50,7 @@ int TFmdm_set_cosm(FLOAT omega_matter, FLOAT omega_baryon,
                    FLOAT omega_lambda, FLOAT hubble,
                    FLOAT redshift);
 FLOAT TFmdm_onek_mpc(FLOAT kk);
- 
- 
+FLOAT TF98_onek_mpc(FLOAT kk);
  
  
 FLOAT EvaluatePowerSpectrum(FLOAT k, int Species)
@@ -103,7 +102,7 @@ FLOAT EvaluatePowerSpectrum(FLOAT k, int Species)
     }
  
     // Compute transfer function
- 
+
     psval = TFmdm_onek_mpc(k);
  
     // Multiply transfer function by power spectrum
@@ -182,8 +181,40 @@ FLOAT EvaluatePowerSpectrum(FLOAT k, int Species)
     psval *= POW( (1.0 + (WDMAlpha*k)*(WDMAlpha*k)), -10.0);
  
   }
+
+  /* ------------------------------------------------------------------------
+     15) This is the Eisenstein & Hu (1998) fitting function that includes the baryonic oscillations. */ 
+
+  else if (PowerSpectrumType == 15){ 
  
+    // Error check
  
+    if (kcutoff != 0) {
+      fprintf(stderr, "This power spectrum does not support kcutoff.\n");
+      exit(EXIT_FAILURE);
+    }
+ 
+    // Initialize cosmology
+ 
+    int NumberOfNeutrinoSpecies = 1;
+ 
+    if (TFmdm_set_cosm(OmegaMatterNow, OmegaBaryonNow, OmegaHDMNow,
+		       NumberOfNeutrinoSpecies, OmegaLambdaNow,
+		       HubbleConstantNow, Redshift) != 0) {
+      fprintf(stderr, "Error in TFmdm_set_cosm.\n");
+      exit(EXIT_FAILURE);
+    }
+ 
+    // Compute transfer function
+    psval = TF98_onek_mpc(k);
+ 
+    // Multiply transfer function by power spectrum
+ 
+    psval = Normalization * POW(k, PrimordialIndex) *
+                            POW(GrowthFactor*psval, 2);
+     
+  }
+
   /* ------------------------------------------------------------------------
      20) Read in transfer function from CMBFAST. */
  

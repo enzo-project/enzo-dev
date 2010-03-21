@@ -37,7 +37,7 @@
 
 /* remove all photon packages */ 
 
-   int DeletePhotonPackages(void);
+   int DeletePhotonPackages(int DeleteHeadPointer=FALSE);
 
 /* Set Subgrid Marker field */
 
@@ -88,6 +88,25 @@ int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove,
 
 int ElectronFractionEstimate(float dt);
 int RadiationPresent(void) { return HasRadiation; }
+
+void InitializePhotonPackages(void) {
+  if (PhotonPackages == NULL) {
+    PhotonPackages = new PhotonPackageEntry;
+    PhotonPackages->NextPackage     = NULL;
+    PhotonPackages->PreviousPackage = NULL;
+  }
+  if (FinishedPhotonPackages == NULL) {
+    FinishedPhotonPackages = new PhotonPackageEntry;
+    FinishedPhotonPackages->NextPackage = NULL;
+    FinishedPhotonPackages->PreviousPackage = NULL;
+  }    
+  if (PausedPhotonPackages == NULL) {
+    PausedPhotonPackages = new PhotonPackageEntry;
+    PausedPhotonPackages->NextPackage = NULL;
+    PausedPhotonPackages->PreviousPackage = NULL;
+  }
+  return;
+}
 
 void ResetPhotonPackagePointer(void) {
   PhotonPackages->NextPackage     = NULL;

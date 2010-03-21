@@ -21,6 +21,9 @@
 #define GLOBAL_DATA_DEFINED__
 
 #include <stdio.h>
+#ifdef MEMORY_POOL
+#include "MemoryPool.h"
+#endif
 #ifdef DEFINE_STORAGE
 # define EXTERN
 #else /* DEFINE_STORAGE */
@@ -72,7 +75,7 @@ EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:
-       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS        */
+       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
 
 EXTERN hydro_method HydroMethod;
 
@@ -98,6 +101,7 @@ EXTERN int RefineBy;
 EXTERN int MaximumRefinementLevel;
 EXTERN int MaximumGravityRefinementLevel;
 EXTERN int MaximumParticleRefinementLevel;
+EXTERN int FastSiblingLocatorEntireDomain;
 
 /* Cell Flagging method:  0 = None
                           1 = FlagCellsToBeRefinedBySlope
@@ -370,10 +374,16 @@ EXTERN int UseMinimumPressureSupport;
 EXTERN float MinimumPressureSupportParameter;
 
 /* Parameters for statically refined regions. */
-
 EXTERN FLOAT StaticRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN FLOAT StaticRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN int   StaticRefineRegionLevel[MAX_STATIC_REGIONS];
+
+/* Evolving refinement region. */
+EXTERN char *RefineRegionFile;
+EXTERN int RefineRegionTimeType; // 0=time 1=redshift
+EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
 
 /* Processor identifier for this thread/processor */
 
@@ -682,7 +692,7 @@ EXTERN TestProblemDataType TestProblemData;
 
 /* Memory Limit */
 
-EXTERN int MemoryLimit;
+EXTERN long_int MemoryLimit;
 
 /* Staged input */
 
@@ -724,6 +734,9 @@ EXTERN float dtPhoton;
 EXTERN RadiationSourceEntry *GlobalRadiationSources;
 EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
+#ifdef MEMORY_POOL
+EXTERN MPool::MemoryPool *PhotonMemoryPool;
+#endif
 
 /* [0]: Emitted photons
    [1]: escaped past 0.5 RadiativeTransferPhotonEscapeRadius
@@ -734,6 +747,9 @@ EXTERN double EscapedPhotonCount[4];
 EXTERN double TotalEscapedPhotonCount[4];
 EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
+
+#include "RadiativeTransferSpectrumTable.h"
+EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 
 #endif /* TRANSFER  */
 

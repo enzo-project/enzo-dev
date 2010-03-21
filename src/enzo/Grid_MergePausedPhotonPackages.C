@@ -55,11 +55,31 @@ Eint32 compare_ss (const void *a, const void *b)
 {
   PhotonPackageEntry *ia = (PhotonPackageEntry*) a;
   PhotonPackageEntry *ib = (PhotonPackageEntry*) b;
+  // Sort by source, then level, then pixel number, then photon type
   if ( ia->CurrentSource < ib->CurrentSource )
     return -1;
   else if ( ia->CurrentSource > ib->CurrentSource )
     return 1;
-  return 0;
+  else {
+    if ( ia->level < ib->level)
+      return -1;
+    else if ( ia->level > ib->level)
+      return 1;
+    else {
+      if ( ia->ipix < ib->ipix)
+	return -1;
+      else if ( ia->ipix > ib->ipix)
+	return 1;
+      else {
+	if ( ia->Type < ib->Type)
+	  return -1;
+	else if ( ia->Type > ib->Type)
+	  return 1;
+	else
+	  return 0;
+      }
+    }
+  }
 }
 
 int grid::MergePausedPhotonPackages() {
@@ -146,75 +166,32 @@ int grid::MergePausedPhotonPackages() {
   PP = PausedPhotonPackages->NextPackage;
   TempPP = LinkedListToArray(PP, nphotons);
 
-  /* First sort by super source */
+  /* Sort by super source, then on level for each source, then on
+     pixel number, last on photon type. */
 
-//  printf("========== BEFORE SORTING ==========\n");
-//  for (i = 0; i < nphotons; i++)
-//    printf("photon %"ISYM": lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].level,
-//	   TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
-//	   TempPP[i].CurrentSource);
+  if (DEBUG) {
+    printf("========== BEFORE SORTING ==========\n");
+    for (i = 0; i < nphotons; i++)
+      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].Type, TempPP[i].level,
+	     TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
+	     TempPP[i].CurrentSource);
+  }
 
   qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
 
-  /* Now sort rays based on level for each source, then on pixel number. */
-
-  count_ss = 1;
-  cumulative_sum1 = 0;
-  while (count_ss < nphotons) {
-
-    // If the next package is from another source or the last package,
-    // now we can sort the previous pixels by level then pixel number
-    if (TempPP[count_ss].CurrentSource != TempPP[count_ss-1].CurrentSource ||
-	count_ss+1 == nphotons) {
-
-      min_level = +99999;
-      max_level = -99999;
-      for (i = cumulative_sum1; i < count_ss; i++) {
-	min_level = min(min_level, TempPP[i].level);
-	max_level = max(max_level, TempPP[i].level);
-      }
-
-      // Sort by level
-      photons_this_source = count_ss - cumulative_sum1;
-//      printf("photons[%x] = %"ISYM"\n", TempPP[count_ss-1].CurrentSource,
-//	     photons_this_source);
-      qsort(TempPP+cumulative_sum1, photons_this_source,
-	    sizeof(PhotonPackageEntry), compare_lvl);
-
-      // Sort by pixel number
-      if (photons_this_source > 1) {
-	count_lvl = cumulative_sum1;
-	cumulative_sum2 = cumulative_sum1;
-	for (level = min_level; level <= max_level; level++) {
-	  ilvl = level - min_level;
-	  while (count_lvl < count_ss)
-	    if (TempPP[count_lvl].level == level) count_lvl++; else break;
-	  photons_this_level = count_lvl - cumulative_sum2;
-	  qsort(TempPP+cumulative_sum2, photons_this_level+1, 
-		sizeof(PhotonPackageEntry), compare_pix);
-	  cumulative_sum2 += photons_this_level;
-	} // ENDFOR level
-      } // ENDIF multiple photons
-
-      count_ss++;
-      cumulative_sum1 += photons_this_source + 1;
-
-    } // ENDIF different source
-
-    count_ss++;
-
-  } // ENDWHILE photons from all sources
-
-//  printf("========== AFTER ALL SORTING ==========\n");
-//  for (i = 0; i < nphotons; i++)
-//    printf("photon %"ISYM": lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].level,
-//	   TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
-//	   TempPP[i].CurrentSource);
+  if (DEBUG) {
+    printf("========== AFTER ALL SORTING ==========\n");
+    for (i = 0; i < nphotons; i++)
+      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", i, TempPP[i].Type, TempPP[i].level,
+	     TempPP[i].ipix, TempPP[i].Radius, TempPP[i].Photons, 
+	     TempPP[i].CurrentSource);
+  }
 
   /* Now that the list is sorted, we can easily merge pixels with the
      same pixel number, level, and type */
 
-  //  printf("========== AFTER MERGING ==========\n");
+  if (DEBUG)
+    printf("========== AFTER MERGING ==========\n");
 
   PhotonPackageEntry *NewPack = NULL;
   int match, merges = 0;
@@ -248,10 +225,11 @@ int grid::MergePausedPhotonPackages() {
 	//NewPack->Radius /= NewPack->Photons;
 	NewPack->EmissionTimeInterval /= NewPack->Photons;
 	NewPack->ColumnDensity /= NewPack->Photons;
-//	printf("photon %"ISYM": lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
-//	       NewPack->level,
-//	       NewPack->ipix, NewPack->Radius, NewPack->Photons, 
-//	       NewPack->CurrentSource);
+	if (DEBUG)
+	  printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
+		 NewPack->Type, NewPack->level,
+		 NewPack->ipix, NewPack->Radius, NewPack->Photons, 
+		 NewPack->CurrentSource);
 	InsertPhotonAfter(this->PhotonPackages, NewPack);
       }
 
@@ -285,10 +263,11 @@ int grid::MergePausedPhotonPackages() {
     //NewPack->Radius /= NewPack->Photons;
     NewPack->EmissionTimeInterval /= NewPack->Photons;
     NewPack->ColumnDensity /= NewPack->Photons;
-//    printf("photon %"ISYM": lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
-//	   NewPack->level,
-//	   NewPack->ipix, NewPack->Radius, NewPack->Photons, 
-//	   NewPack->CurrentSource);
+    if (DEBUG)
+      printf("photon %"ISYM": type %"ISYM", lvl %"ISYM", pix %"ISYM", r=%"GSYM", L=%"GSYM", CSRC=%x\n", merges, 
+	     NewPack->Type, NewPack->level,
+	     NewPack->ipix, NewPack->Radius, NewPack->Photons, 
+	     NewPack->CurrentSource);
     InsertPhotonAfter(this->PhotonPackages, NewPack);
   }
 
@@ -303,7 +282,9 @@ int grid::MergePausedPhotonPackages() {
   PausedPhotonPackages->PreviousPackage = NULL;
   delete [] TempPP;
 
-  //printf("MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", nphotons, merges);
+  if (DEBUG)
+    printf("P%d: MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", 
+	   MyProcessorNumber, nphotons, merges);
 
   return SUCCESS;
 }

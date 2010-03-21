@@ -235,9 +235,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	if (r < CloudRadius) {
 
-	  /* Type 0: uniform cloud */
+	  /* Type 0: uniform cloud, 7: uniform cloud (only turb k=1-2) */
 
-	  if (CloudType == 0) {
+	  if (CloudType == 0 || CloudType == 7) {
 	    Density = CloudDensity;
 	    eint = CloudInternalEnergy;
 	  }
@@ -303,7 +303,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	} else {
 
-	  if (CloudType == 0) {
+	  if (CloudType == 0 || CloudType == 7 ) {
 	    Density = CloudDensity/100.0;
 	    eint = CloudInternalEnergy*100.;
 	  }
@@ -437,6 +437,14 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       k2 = 10.0;
       dk = 1.0;
     }
+
+    if (CloudType == 7) {
+      k1 = 1.0;
+      k2 = 2.0;
+      dk = 0.5;
+    }
+
+
     printf("Begin generating turbulent velocity spectrum...\n");
     Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
 			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,

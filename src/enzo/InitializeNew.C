@@ -94,6 +94,9 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior);
+int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   HierarchyEntry &TopGrid,
 				   TopGridData &MetaData);
@@ -485,6 +488,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 106) {
     ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 107) Put Sink from restart
+ 
+  if (ProblemType == 107)
+    ret = PutSinkRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
+ 
 
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {

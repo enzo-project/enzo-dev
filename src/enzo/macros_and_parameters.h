@@ -52,6 +52,7 @@
 #define CYCLE_TAG_FORMAT       "4.4"
 #define MAX_COUNTERS              40
 
+#define MEMORY_POOL_SIZE  __memory_pool_size
 
 #define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
 
@@ -62,6 +63,8 @@
 #define MAX_FLAGGING_METHODS                9
 
 #define MAX_STATIC_REGIONS               1000
+
+#define MAX_REFINE_REGIONS               150
 
 #ifdef WINDS 
 #define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
@@ -204,6 +207,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_4
+#define BFLOAT_EPSILON 1e-6f
 #define Eflt float
 #define FSYM "f"
 #define ESYM "e"
@@ -222,6 +226,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_BFLOAT_8
+#define BFLOAT_EPSILON 1e-12f
 #define Eflt double
 #define FSYM "lf"
 #define ESYM "le"
@@ -237,6 +242,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_4
+#define PFLOAT_EPSILON 1e-6f
 #define FLOAT Eflt32
 #define PEXP expf
 #define PSYM "f"
@@ -253,6 +259,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_8
+#define PFLOAT_EPSILON 1e-12f
 #define FLOAT double
 #define PEXP exp
 #define PSYM "lf"
@@ -269,6 +276,7 @@ typedef int            HDF5_hid_t;
 #endif
 
 #ifdef CONFIG_PFLOAT_16
+#define PFLOAT_EPSILON 1e-16f
 #define FLOAT long_double
 #define PEXP expl
 #define PSYM "Lf"
@@ -441,6 +449,7 @@ typedef int            HDF5_hid_t;
 
 #define NUM_PARTICLE_TYPES 10
 
+#define PARTICLE_TYPE_RESET       -1
 #define PARTICLE_TYPE_GAS          0
 #define PARTICLE_TYPE_DARK_MATTER  1
 #define PARTICLE_TYPE_STAR         2

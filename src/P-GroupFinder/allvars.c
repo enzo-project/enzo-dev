@@ -9,7 +9,7 @@
 
  double  SearchRadius;
 
- int     NumPart;   /* total particle number */
+ PINT    NumPart;   /* total particle number */
  int     *NpartInGrids;
 
  int     *Nslab, *Nshadow;
