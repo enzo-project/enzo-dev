@@ -30,34 +30,46 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
-void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], float &Radius, 
-					  float RootCellWidth,
-					  double &EjectaDensity,
-					  float DensityUnits, float LengthUnits, 
-					  float TemperatureUnits, float TimeUnits,
-					  float VelocityUnits, float dtForThisStar)
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
+
+int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level, FLOAT star_pos[],
+				    double star_mass, float star_last_accretion_rate,
+				    float StarLevelCellWidth, float dtForThisStar,
+				    float &Radius, double &Subtraction)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
-  float StarLevelCellWidth, mdot, AccretedMass;
-  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, AvgVelocity[MAX_DIMENSION];
+  float mdot, AccretedMass, SafetyFactor;
+  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];
   float *temperature, density, old_mass, c_s, mu, number_density;
-
+  
   int igrid[MAX_DIMENSION], dim, l, index;
   int size=1, FirstLoop = TRUE;
   LevelHierarchyEntry *Temp, *Temp2;
+  FLOAT Time;
 
-  if (this->type != MBH || MBHAccretion <= 0) {
+  /* This routine is invoked only when there is a MBH accretion */
+
+  if (MBHAccretion <= 0 || MBHAccretionRadius == 0) {
     fprintf(stderr, "You're not supposed to be coming in here; something's wrong!\n");
-    return;
+    return SUCCESS;
   }
 
+  /* Set the units. */
+
+  Temp = LevelArray[level];
+  Time = Temp->GridData->ReturnTime();
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, Time);
+
   Radius = 0.0;
-  EjectaDensity = 0.0;
+  Subtraction = 0.0;
   AccretedMass = 0.0;
-  StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(this->level));
 
 #ifdef ACCURATE_TEMPERATURE_AND_MU
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -133,8 +145,8 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
   /* Calculate c_s */
 
   c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
-
 #endif
+
 
 
   /* Find mdot and Radius;
@@ -144,108 +156,117 @@ void Star::CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], flo
      just use the MBHAccretionFixedTemperature and default mu */
 
   c_s = sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (DEFAULT_MU * m_h));
-  old_mass = (float)(this->Mass);
-  mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
+  old_mass = (float)(star_mass);
+  mdot = isnan(star_last_accretion_rate) ? 0.0 : star_last_accretion_rate;  
+  AccretedMass = mdot * dtForThisStar * TimeUnits; //in Msun
+
   
   if (MBHAccretionRadius > 0) 
     Radius = MBHAccretionRadius * pc / LengthUnits;
   else {
-    float safetyfactor = 2.0;
-    Radius = safetyfactor * 2.0 * Grav * old_mass * Msun / (c_s * c_s) / LengthUnits;
+    SafetyFactor = -MBHAccretionRadius;
+    Radius = SafetyFactor * 2.0 * Grav * old_mass * Msun / (c_s * c_s) / LengthUnits;
   }
 
-  Radius = max(Radius, 2*StarLevelCellWidth);
-
-  /* use negative EjectaDensity so the mass can be subtracted */
-
-  EjectaDensity = -mdot * Msun * dtForThisStar * TimeUnits /   
-    (4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
-
-//  fprintf(stdout, "star::CSP: mdot = %g, EjectaDensity=%lf, Radius=%g\n", 
-//	  mdot, EjectaDensity, Radius);  
-//  fprintf(stdout, "star::CSP: star - old_mass = %lf  ->  new_mass = %lf\n", 
-//          Mass - mdot * dtForThisStar * TimeUnits, Mass); 
+  Radius = min(max(Radius, 4*StarLevelCellWidth), 100*StarLevelCellWidth);
 
 
-#ifdef UNUSED   
-  /* Below method currently not working because of CommunicationAllSumValues;
-     if you want to use this approach, you may want to accordingly change 
-     Grid_SubtractAccretedMassFromSphere.C as well */ 
+  while (MassEnclosed <= 0) {
 
-  /* Find enclosed mass within Radius */
-
-  MassEnclosed = 0;
-  Metallicity = 0;
-  ColdGasMass = 0;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    AvgVelocity[dim] = 0.0;
-
-  for (l = 0; l < MAX_DEPTH_OF_HIERARCHY; l++) {
-    Temp = LevelArray[l];
-    while (Temp != NULL) {
-      
-      /* Zero under subgrid field */
-      
-      if (FirstLoop == 1) {
-	Temp->GridData->
-	  ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
-	Temp2 = LevelArray[l+1];
-	while (Temp2 != NULL) {
-	  Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
-						   ZERO_UNDER_SUBGRID_FIELD);
-	  Temp2 = Temp2->NextGridThisLevel;
+    /* Find enclosed mass within Radius */
+    
+    MassEnclosed = 0;
+    Metallicity = 0;
+    ColdGasMass = 0;
+    OneOverRSquaredSum = 0;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      AvgVelocity[dim] = 0.0;
+    
+    for (l = 0; l < MAX_DEPTH_OF_HIERARCHY; l++) {
+      Temp = LevelArray[l];
+      while (Temp != NULL) {
+	
+	/* Zero under subgrid field */
+	
+	if (FirstLoop == 1) {
+	  Temp->GridData->
+	    ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
+	  Temp2 = LevelArray[l+1];
+	  while (Temp2 != NULL) {
+	    Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
+						     ZERO_UNDER_SUBGRID_FIELD);
+	    Temp2 = Temp2->NextGridThisLevel;
+	  }
 	}
-      }
       
-      /* Sum enclosed mass in this grid */
+	/* Sum enclosed mass in this grid */
+	
+	if (Temp->GridData->GetEnclosedMass(star_pos, Radius, MassEnclosed, 
+					    Metallicity, ColdGasMass, 
+					    AvgVelocity, OneOverRSquaredSum) == FAIL) {
+	  ENZO_FAIL("Error in GetEnclosedMass.");
+	}
+	
+	Temp = Temp->NextGridThisLevel;
+	
+      } // END: Grids
       
-      if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
-					  Metallicity, ColdGasMass, 
-					  AvgVelocity) == FAIL) {
-	ENZO_FAIL("Error in GetEnclosedMass.");
-      }
-      
-      Temp = Temp->NextGridThisLevel;
-      
-    } // END: Grids
+      if (l == MAX_DEPTH_OF_HIERARCHY-1) 
+	FirstLoop = 0;
     
-    if (l == MAX_DEPTH_OF_HIERARCHY-1) 
-      FirstLoop = 0;
+    } // END: level
+
+    CommunicationAllSumValues(&Metallicity, 1);
+    CommunicationAllSumValues(&MassEnclosed, 1); 
+    CommunicationAllSumValues(&ColdGasMass, 1);
+    CommunicationAllSumValues(&OneOverRSquaredSum, 1);
+    CommunicationAllSumValues(AvgVelocity, 3);
     
-  } // END: level
+    if (MassEnclosed == 0) {
+      printf("CSP: MassEnclosed = 0; something is wrong!\n");
+      ENZO_FAIL("");
+    }
 
-  CommunicationAllSumValues(&Metallicity, 1);
-  CommunicationAllSumValues(&MassEnclosed, 1); 
-  CommunicationAllSumValues(&ColdGasMass, 1);
-  CommunicationAllSumValues(AvgVelocity, 3);
+    Metallicity /= MassEnclosed;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      AvgVelocity[dim] /= MassEnclosed;
 
-  Metallicity /= MassEnclosed;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    AvgVelocity[dim] /= MassEnclosed;
-
-//  fprintf(stdout, "star::CSP-2: MassEnclosed=%g\n", MassEnclosed); 
+//  fprintf(stdout, "CSP: MassEnclosed, OneOverRSquaredSum = %g %g \n", 
+//	  MassEnclosed, OneOverRSquaredSum); 
   
-  /* Find ejecta characteristics (i.e. characteristics for the regions after mass subtraction) */
+  }
 
-  AccretedMass = mdot * dtForThisStar * TimeUnits; //in Msun
+  /* here Subtraction is the mass ratio of 
+     accreted mass (thus, to-be-subtracted mass) to total mass in the sphere */
 
-  EjectaDensity = (float) 
-    (double(Msun * (MassEnclosed - AccretedMass)) / 
-     double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
-     DensityUnits);
+  Subtraction = (double)(AccretedMass) / (double)(MassEnclosed); 
 
-  if (EjectaDensity < 0) {
-    fprintf(stderr, "Your parameter (most likely MBHAccretionRadius) is set wrongly.\n");
+  if (Subtraction < 0) {
+    fprintf(stderr, "CSP: parameters (most likely MBHAccretionRadius) set wrongly.\n");
     ENZO_FAIL("");
   }
+
+
+#ifdef SUBTRACTION_UNIFORM
+  /* find negative Subtraction so the mass can be uniformly subtracted out of the sphere;
+     here Subtraction is the density that should be subtracted.
+     if one wants to use this, change Grid_SAMFS.C accordingly. */
+
+  Subtraction = -AccretedMass * Msun /   
+    (4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) / DensityUnits; 
 #endif
+
 
 
 #ifdef ACCURATE_TEMPERATURE_AND_MU
   delete [] temperature;
 #endif 
 
-  return;
+
+//  fprintf(stdout, "CSP: mdot = %g, Subtraction=%g, Radius=%g\n", mdot, Subtraction, Radius);  
+//  fprintf(stdout, "CSP: star - old_mass = %lf  ->  new_mass = %lf\n", star_mass - AccretedMass, star_mass);  
+
+  return SUCCESS;
 }
 
 

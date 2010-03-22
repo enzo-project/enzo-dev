@@ -118,7 +118,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 	if (Temp->GridData->GetEnclosedMass(star_pos, Radius, MassEnclosed, 
 					    Metallicity, ColdGasMass, 
 					    AvgVelocity, OneOverRSquaredSum) == FAIL) {
-	  	  ENZO_FAIL("Error in GetEnclosedMass.");
+	  ENZO_FAIL("Error in GetEnclosedMass.");
 	}
 
 	Temp = Temp->NextGridThisLevel;

@@ -34,6 +34,7 @@ OBJS_CONFIG_LIB = \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
+        CalculateSubtractionParameters.o \
         CallProblemSpecificRoutines.o \
         CallPython.o \
         CheckEnergyConservation.o \
@@ -629,7 +630,6 @@ OBJS_CONFIG_LIB = \
         Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
-        Star_CalculateSubtractionParameters.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \

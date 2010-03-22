@@ -533,15 +533,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 //    fprintf(stdout, "d1, d2, d3, i, j, k = %d %d %d / %d %d %d\n", 
 //	    GridDimension[0], GridDimension[1], GridDimension[2], i,j,k);
 
-    /* If the current grid cannot contain the whole supercell, return */
-
-    if (i < ibuff+SUPERCELL || i > GridDimension[0]-ibuff-SUPERCELL-1 || 
-	j < ibuff+SUPERCELL || j > GridDimension[1]-ibuff-SUPERCELL-1 ||
-	k < ibuff+SUPERCELL || k > GridDimension[2]-ibuff-SUPERCELL-1) {
-      fprintf(stdout, "grid::AddFS: MBH_JETS - supercell not contained; moving on.\n"); 
-      return SUCCESS;
-    }
-    
     /* If NotEjectedMass is still smaller than the threshold, return */
 
     if (cstar->NotEjectedMass <= MBHFeedbackJetsThresholdMass) {
@@ -550,6 +541,23 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       return SUCCESS;
     }
 
+    /* If the current grid cannot contain the whole supercell, return */
+
+    if (i < ibuff+SUPERCELL || i > GridDimension[0]-ibuff-SUPERCELL-1 || 
+	j < ibuff+SUPERCELL || j > GridDimension[1]-ibuff-SUPERCELL-1 ||
+	k < ibuff+SUPERCELL || k > GridDimension[2]-ibuff-SUPERCELL-1) {
+      fprintf(stdout, "grid::AddFS: MBH_JETS - supercell not contained; accumulated mass (%g Ms).\n",
+	      cstar->NotEjectedMass); 
+      
+      // if the supercell issue hasn't allowed the jet injection for too long,
+      // issue an warning signal; otherwise, just proceed and do it later
+      if (cstar->NotEjectedMass >= 3.0 * MBHFeedbackJetsThresholdMass) {
+	ENZO_FAIL(""); 
+      } else {
+	return SUCCESS;
+      }
+    }
+    
     /* Find ejecta mass */
 
     EjectaMass = cstar->NotEjectedMass * Msun / DensityUnits / pow(LengthUnits,3.0); 
