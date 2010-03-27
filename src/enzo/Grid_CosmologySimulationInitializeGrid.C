@@ -2508,27 +2508,30 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
 	  (GridEndIndex[1]-GridStartIndex[1]+1)*
 	  (GridEndIndex[2]-GridStartIndex[2]+1);
 	int GridToPartRatio;
-    float GridToPartRatioFloat;
-    GridToPartRatioFloat = 1.;
+	float GridToPartRatioFloat;
+	GridToPartRatioFloat = 1.;
+
 	if (NumberOfActiveCells > NumberOfParticles) {
 	    GridToPartRatio = NumberOfActiveCells / NumberOfParticles;
 	    GridToPartRatioFloat = float(NumberOfActiveCells) /
-	        float(NumberOfParticles);
+	      float(NumberOfParticles);
 	    if ((GridToPartRatio % 8) != 0) {
-	        fprintf(stderr, "Grid to Particle ratio is unallowed.\n");
-	        ENZO_FAIL("");
+	      fprintf(stderr, "Grid to Particle ratio is unallowed.\n");
+	      fprintf(stderr, "NumberOfActiveCells = %d, NumberOfParticles = %d\n", 
+		      NumberOfActiveCells, NumberOfParticles);
+	      ENZO_FAIL("");
 	    }
-        UniformParticleMass *= GridToPartRatio;
-    } else if (NumberOfParticles > NumberOfActiveCells) {
-        GridToPartRatio = NumberOfParticles / NumberOfActiveCells;
-        GridToPartRatioFloat = float(NumberOfParticles) / 
+	    UniformParticleMass *= GridToPartRatio;
+	} else if (NumberOfParticles > NumberOfActiveCells) {
+	  GridToPartRatio = NumberOfParticles / NumberOfActiveCells;
+	  GridToPartRatioFloat = float(NumberOfParticles) / 
             float(NumberOfActiveCells);
-	    if ((GridToPartRatio % 8) != 0) {
-	        fprintf(stderr, "Grid to Particle ratio is unallowed.\n");
-	        ENZO_FAIL("");
-	    }
-        UniformParticleMass /= GridToPartRatio;
-    }
+	  if ((GridToPartRatio % 8) != 0) {
+	    fprintf(stderr, "Grid to Particle ratio is unallowed.\n");
+	    ENZO_FAIL("");
+	  }
+	  UniformParticleMass /= GridToPartRatio;
+	}
 
 	//      UniformParticleMass *= float(POW(TotalRefinement, GridRank));
 	/*      for (dim = 0; dim < GridRank; dim++)
@@ -2547,11 +2550,11 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
 	  fprintf(stderr,"calculated correctly!\n");
 	  fprintf(stderr,"Your particle mass is being calculated as:  %"GSYM"\n",
 		  UniformParticleMass);
-      fprintf(stderr,"This number is the fraction of CosmologyOmegaMatterNow\n");
-      fprintf(stderr,"that is made up of dark matter particles, scaled by the\n");
-      fprintf(stderr,"grid to particle ratio. A value of %"GSYM"\n",
-        GridToPartRatioFloat);
-      fprintf(stderr,"means there is no baryonic matter.\n");
+	  fprintf(stderr,"This number is the fraction of CosmologyOmegaMatterNow\n");
+	  fprintf(stderr,"that is made up of dark matter particles, scaled by the\n");
+	  fprintf(stderr,"grid to particle ratio. A value of %"GSYM"\n",
+		  GridToPartRatioFloat);
+	  fprintf(stderr,"means there is no baryonic matter.\n");
 	  fprintf(stderr,"\n*********************************************\n\n\n");
 	}
 

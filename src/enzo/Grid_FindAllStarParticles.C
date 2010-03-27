@@ -23,8 +23,12 @@
 #include "Grid.h"
 
 void InsertStarAfter(Star * &Node, Star * &NewNode);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
 
 #define RESET_BH_LIFETIMES
+#define NO_RESET_MBH_MASS //#####
 
 int grid::FindAllStarParticles(int level)
 {
@@ -49,11 +53,26 @@ int grid::FindAllStarParticles(int level)
         ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH) {
 
+
 #ifdef RESET_BH_LIFETIMES // Make BH lifetimes "infinite"
       if (ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE &&
 	  ParticleAttribute[1][i] < 1)
 	ParticleAttribute[1][i] = huge_number;
 #endif /* RESET_BH_LIFETIMES */
+
+#ifdef RESET_MBH_MASS // Edit MBH Mass; only for test purpose
+      const double Msun = 1.989e33;
+      float MassConversion, DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, VelocityUnits;
+      GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, this->Time);
+
+      double dx = LengthUnits * this->CellWidth[0][0];
+      MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
+
+      if (ParticleType[i] == PARTICLE_TYPE_MBH)
+	ParticleMass[i] = 1.0e5 / MassConversion;
+#endif /* RESET_MBH_MASS */  
+
 
       NewStar = new Star(this, i, level);
       InsertStarAfter(Stars, NewStar);

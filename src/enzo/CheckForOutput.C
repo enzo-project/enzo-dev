@@ -17,6 +17,7 @@
 ************************************************************************/
  
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -45,6 +46,7 @@ int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 //#endif
 
 double ReturnWallTime(void);
+void my_exit(int status);
 
 
 int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -200,6 +202,22 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 
 	  WroteData = TRUE;
 	}
+
+  /* Check for output: when the MBH jets haven't been ejected for too long 
+                       this is currently a test - Ji-hoon Kim, Mar.2010 */  //#####
  
+  if ((MBHFeedback == 2 || MBHFeedback == 3) && 
+      OutputWhenJetsHaveNotEjected == TRUE) {
+
+    fprintf(stdout, "CheckForOutput: MBH_JETS - file output complete; restart with the dump!\n");
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior);
+
+    OutputWhenJetsHaveNotEjected = FALSE;
+    WroteData = TRUE;
+    my_exit(EXIT_SUCCESS);
+
+  }
+  
   return SUCCESS;
 }

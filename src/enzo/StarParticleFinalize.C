@@ -151,6 +151,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       MBHParticleIOTemp[mbh_particle_io_count][1] = ThisStar->ReturnMass();      
       for (int dim = 0; dim < MAX_DIMENSION; dim++) 
 	MBHParticleIOTemp[mbh_particle_io_count][2+dim] = (double)(ThisStar->ReturnAccretedAngularMomentum()[dim]);
+      MBHParticleIOTemp[mbh_particle_io_count][5] = ThisStar->ReturnNotEjectedMass();      
       mbh_particle_io_count++;
     }
 

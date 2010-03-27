@@ -1218,13 +1218,14 @@ main(int argc, char *argv[])
 
     if (parameters.PrintGlobalProfileValues) { 
 
-      FILE *fpLKS, *fpGKS;
+      FILE *fpLKS, *fpGKS, *fpSSD;
       double AverageGasSurfaceDensity = 0.0;  
       double AverageSFRSurfaceDensity = 0.0;  
       FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
 
       fpLKS = fopen("local_KS.dat","w");      
       fpGKS = fopen("global_KS.dat","a");
+      fpSSD = fopen("stellar_surface_density.dat", "a");
 //      fprintf(fpGKS, "# time  Sigma_gas  Sigma_SFR  R_vir  M_vir  M_vir_star  M_vir_gas  M_vir_DM\n");
 
       /* Print gas surface density and SFR surface density for local K-S law.  
@@ -1250,8 +1251,22 @@ main(int argc, char *argv[])
 	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) ),
 	      rvir*BoxSize, mvir, mvir_star, mvir_gas, mvir - mvir_gas - mvir_star); 
 
+      /* Print stellar/gas/SFR surface density w.r.t. time and radius (in Msun/pc^2, Msun/yr/kpc^2) */
+
+      for (j = 1; j < NumberOfPoints; j++) {
+
+	if (ProfileValue[j][114] != 0)
+	  fprintf(fpSSD, "%g   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", 
+		  MetaData.Time, ProfileRadius[j],
+		  log10( (ProfileValue[j][114] == 0) ? tiny_number : ProfileValue[j][114]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) ));
+
+      }
+
       fclose(fpLKS);
       fclose(fpGKS);
+      fclose(fpSSD);
       
     } // end: if (parameters.PrintGlobalProfileValues)
 

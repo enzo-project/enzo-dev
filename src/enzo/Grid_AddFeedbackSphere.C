@@ -519,12 +519,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       return SUCCESS;
     }
 
-#ifdef UNUSED
-    if (this->Time <= 0.008 + 3e-6) {
-      cstar->NotEjectedMass = 999.95;  
-    }
-#endif
-
     /* Calculate mass that has accumulated thus far; since EjectaDensity is calculated 
        for isotropic MBH_THERMAL, we use it only to compute EjectaMass, not apply it directly. */
 
@@ -550,18 +544,21 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      cstar->NotEjectedMass); 
       
       // if the supercell issue hasn't allowed the jet injection for too long,
-      // issue an warning signal; otherwise, just proceed and do it later
-      if (cstar->NotEjectedMass >= 3.0 * MBHFeedbackJetsThresholdMass) {
-	ENZO_FAIL(""); 
-      } else {
-	return SUCCESS;
-      }
+      // issue an warning signal and output the current hierarchy at CheckForOutput
+      if (cstar->NotEjectedMass > 2.0 * MBHFeedbackJetsThresholdMass) { 
+	fprintf(stdout, "grid::AddFS: MBH_JETS - jets haven't been ejected for too long!\n");
+	OutputWhenJetsHaveNotEjected = TRUE;  //#####
+      } 
+      
+      // otherwise, just proceed and do it later
+      return SUCCESS;
     }
     
     /* Find ejecta mass */
 
     EjectaMass = cstar->NotEjectedMass * Msun / DensityUnits / pow(LengthUnits,3.0); 
     EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
+    OutputWhenJetsHaveNotEjected = FALSE; 
 
     /* Find the the direction n_L of angular momentum accreted thus far */
 
