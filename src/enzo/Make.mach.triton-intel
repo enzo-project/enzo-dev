@@ -74,8 +74,12 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
 MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
-MACH_OPT_HIGH        = -O1 -g # Flags for high conservative optimization
-MACH_OPT_AGGRESSIVE  = -O3 -g -fp-model strict -fp-speculation off # Flags for aggressive optimization
+# Flags for high conservative optimization
+MACH_OPT_HIGH        = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
+# Note that this breaks determinism, which is why it's commented out!
+#MACH_OPT_AGGRESSIVE  = -O3 -fp-model strict -fp-speculation off # Flags for aggressive optimization
+# This is the best we can do, from what I can tell.
+MACH_OPT_AGGRESSIVE  = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
 
 #-----------------------------------------------------------------------
 # Includes
