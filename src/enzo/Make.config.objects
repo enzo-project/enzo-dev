@@ -327,6 +327,7 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
+        Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
@@ -645,6 +646,7 @@ OBJS_CONFIG_LIB = \
         Star_MirrorToParticle.o \
         Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
+	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \
         star_maker2.o \
