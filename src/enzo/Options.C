@@ -206,6 +206,12 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  New Grid I/O disabled\n");
 #endif
 
+#ifdef BITWISE_IDENTICALITY
+    fprintf(opf, "  Bitwise-identicality enabled\n");
+#else
+    fprintf(opf, "  Bitwise-identicality disabled\n");
+#endif
+
 
     fprintf(opf, "\n");
     fprintf(opf, "Macro and Parameter Definitions\n");
