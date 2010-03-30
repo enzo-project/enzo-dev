@@ -826,7 +826,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     index = 0;
     if (cstar->type == PopII)
-      MinimumTemperature = 1e4;
+      MinimumTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
     
     for (k = 0; k < GridDimension[2]; k++) {
 

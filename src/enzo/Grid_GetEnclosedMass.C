@@ -24,8 +24,6 @@
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
 
-#define COLD_THRESHOLD 1e4
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -37,7 +35,7 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
- 
+
   /* Quick check to see if sphere overlaps this grid. */
 
   int i, j, k, index, dim;
@@ -103,13 +101,17 @@ int grid::GetEnclosedMass(Star *star, float radius, float &mass,
      ComputeTemperatureField is slow if used repeatedly as in the loop
      in finding a sphere with an enclosed gas mass. */
 
+  // Cold gas temperature threshold = 10^4 for no H2 cooling and 10^3
+  // with H2 cooling
+  float ColdTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
+ 
   float *ThresholdField = NULL;
   float ColdThreshold;
   if (DualEnergyFormalism) {
-    ColdThreshold = COLD_THRESHOLD / (TemperatureUnits * (Gamma-1.0) * 0.6);
+    ColdThreshold = ColdTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     ThresholdField = BaryonField[GENum];
   } else {
-    ColdThreshold = COLD_THRESHOLD;
+    ColdThreshold = ColdTemperature;
     ThresholdField = new float[size];  // i.e. temperature
     this->ComputeTemperatureField(ThresholdField);
   }
@@ -241,13 +243,17 @@ int grid::GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
      ComputeTemperatureField is slow if used repeatedly as in the loop
      in finding a sphere with an enclosed gas mass. */
 
+  // Cold gas temperature threshold = 10^4 for no H2 cooling and 10^3
+  // with H2 cooling
+  float ColdTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
+ 
   float *ThresholdField = NULL;
   float ColdThreshold;
   if (DualEnergyFormalism) {
-    ColdThreshold = COLD_THRESHOLD / (TemperatureUnits * (Gamma-1.0) * 0.6);
+    ColdThreshold = ColdTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     ThresholdField = BaryonField[GENum];
   } else {
-    ColdThreshold = COLD_THRESHOLD;
+    ColdThreshold = ColdTemperature;
     ThresholdField = new float[size];  // i.e. temperature
     this->ComputeTemperatureField(ThresholdField);
   }
