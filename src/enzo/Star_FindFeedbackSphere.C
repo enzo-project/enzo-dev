@@ -257,6 +257,14 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       
   } // ENDIF FORMATION
 
+  /* If SphereContained is TRUE, i.e. either not FORMATION or
+     COLOR_FIELD or formation sphere is acutally contained (double
+     checking in this case, doesn't hurt...), check if the sphere is
+     contained within grids on this level.  */
+
+  if (SphereContained == TRUE)
+    SphereContained = this->SphereContained(LevelArray, level, Radius);
+
   /* If contained and this is for star formation, we record how much
      mass we should add and reset the flags for formation. */
 
