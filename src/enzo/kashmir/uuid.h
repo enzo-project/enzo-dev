@@ -194,7 +194,7 @@ std::basic_istream<char_t, char_traits>& uuid_t::get(std::basic_istream<char_t, 
                 break;
             }
 
-            data[i] = static_cast<value_type>(std::distance(hexdigits, f));
+            data[i] = 0;//static_cast<value_type>(std::distance(hexdigits, f));
 
             is >> c;
             c = facet.tolower(c);
@@ -207,7 +207,7 @@ std::basic_istream<char_t, char_traits>& uuid_t::get(std::basic_istream<char_t, 
             }
 
             data[i] <<= 4;
-            data[i] |= static_cast<value_type>(std::distance(hexdigits, f));
+            //data[i] |= static_cast<value_type>(std::distance(hexdigits, f));
 
             if (i == 3 || i == 5 || i == 7 || i == 9)
             {
