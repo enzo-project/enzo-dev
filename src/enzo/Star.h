@@ -156,6 +156,9 @@ public:
 			 float TemperatureUnits, float TimeUnits,
 			 float VelocityUnits, FLOAT Time);
 
+  int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
+		      float Radius);
+
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);
 #endif
