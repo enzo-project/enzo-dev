@@ -227,7 +227,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       SphereContained = FALSE;
       return SUCCESS;
     }
-      
+
   } // ENDIF FORMATION
 
   /**************************************************************
@@ -301,6 +301,19 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	     level, Identifier, FeedbackFlag);
     }
 
+    // If there is little cold gas, then give up hope of accreting
+    // more gas and form the star.  If more gas is accreted, another
+    // star particle will form.
+    if (StarType == PopII && 
+	AccretedMass < 0.01*StarClusterMinimumMass) {
+      if (debug) 
+	printf("star::FindFeedbackSphere: SMALL AccretedMass = %g. "
+	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
+	       AccretedMass, this->Mass, this->Identifier);
+      this->BirthTime = Time;
+      this->type = PopII;
+    }
+      
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
 
@@ -310,20 +323,22 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
        overwrite any previous accretion rates, although this should
        never happen! */
 
-    if (this->accretion_rate == NULL && this->accretion_time == NULL) {
-      this->naccretions = 1;
-      this->accretion_rate = new float[2];
+    this->naccretions = 1;
+    if (this->accretion_rate != NULL)
+      delete [] this->accretion_rate;
+    if (this->accretion_time == NULL)
+      delete [] this->accretion_time;
 
-      // Add a bit of a cushion, so we exceed Pop III stellar mass in
-      // the accretion.  Mass > PopIIIMass is required for star
-      // activation.
-      this->accretion_rate[0] = (1.0001) * AccretedMass / (Time * TimeUnits);
-      this->accretion_rate[1] = 0.0;
-
-      this->accretion_time = new FLOAT[2];
-      this->accretion_time[0] = 0.0;
-      this->accretion_time[1] = Time;
-    }
+    // Add a bit of a cushion, so we exceed Pop III stellar mass in
+    // the accretion.  Mass > PopIIIMass is required for star
+    // activation.
+    this->accretion_rate = new float[2];
+    this->accretion_rate[0] = (1.0001) * AccretedMass / (Time * TimeUnits);
+    this->accretion_rate[1] = 0.0;
+    
+    this->accretion_time = new FLOAT[2];
+    this->accretion_time[0] = 0.0;
+    this->accretion_time[1] = Time;
 
     //DeltaMass = AccretedMass;
     //type = abs(type);  // Unmark as unborn (i.e. negative type)

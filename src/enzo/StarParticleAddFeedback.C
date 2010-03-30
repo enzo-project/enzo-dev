@@ -141,7 +141,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
-	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA) &&
+	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
+	 cstar->ReturnFeedbackFlag() == FORMATION) &&
 	LevelArray[level+1] != NULL) {
       if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
 				    EjectaDensity, EjectaThermalEnergy, 
