@@ -347,6 +347,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RefineByJeansLengthSafetyFactor  = 4.0;
   JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
+  ShockwaveRefinementMinMach = 1.3; // Only above M=1.3
+  ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
+  ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
