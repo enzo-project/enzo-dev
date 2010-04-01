@@ -40,6 +40,9 @@ c    [3] removed dt dependence in stellar mass created
 c    [4] prevents SF or feedback when there is a MBH particle in the cell
 c        MBH particle will suck out the gas later in StarParticleFinalize,
 c        - item [4] was still a test as of Nov.2009.
+c    [5] when in cosmological sim, StarMakerOverDensity is in particles/cc, 
+c        not the ratio with respect to the DensityUnits, unlike others
+c        this should be taken care of in Grid_StarParticleHandler.C
 c
 c  INPUTS:
 c

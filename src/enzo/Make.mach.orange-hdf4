@@ -23,7 +23,7 @@ MACH_FILE  = Make.mach.orange-hdf4
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 #INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys
-INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1/
+INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1
 
 #LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI
 #LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
