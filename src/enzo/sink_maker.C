@@ -51,13 +51,13 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 		float *tcp, float *tdp, int *type, int *npold, FLOAT *xpold, 
 		FLOAT *ypold, FLOAT *zpold, float *upold, float *vpold, 
 		float *wpold, float *mpold, float *tcpold, float *tdpold, 
-		int *typeold, int *ctype, float *jlrefine, float *temp)
+		int *typeold, int *ctype, float *jlrefine, float *temp, float *JRCT)
 {
 
   int		i, j, k, index, ii, inew, n, dim, bb, cc, nsinks, closest;
   int           xo, yo, zo;
   float         huge_number = 1e20;
-  float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid;
+  float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, my_temp;
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
 
@@ -194,8 +194,10 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 
 	/* Finest level of refinement and density greater than threshold? */
 
-	if (*jlrefine > 0)
-	  jeansthresh = overflowFactor * jlsquared * temp[index] / d[index];
+    my_temp = (*JRCT > 0) ? *JRCT : temp[index];
+
+	if (*jlrefine > 0) 
+	  jeansthresh = overflowFactor * jlsquared * my_temp / d[index];
 
 //	printf("star_maker3[a]: %"ISYM" %"ISYM" %"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", i, j, k,
 //	       densthresh, d[index], jeansthresh, dx2, *jlrefine, jlsquared);
@@ -210,7 +212,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	  /* Calculate change in density */
 
 	  if (*jlrefine > 0)
-	    maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+	    maxdens = min(jlsquared * my_temp / dx2, densthresh);
 	  else
 	    maxdens = densthresh;
 	  

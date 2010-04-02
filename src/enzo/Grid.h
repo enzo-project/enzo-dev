@@ -757,6 +757,10 @@ public:
 
    int FlagCellsToBeRefinedByShocks();
 
+/* Flag all points based on the Mach number of the shock. */
+
+   int FlagCellsToBeRefinedByShockwaves(int level);
+
 /* Flag all points that require refining by the Jean's length criterion. */
 
    int FlagCellsToBeRefinedByJeansLength();
