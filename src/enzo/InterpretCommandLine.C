@@ -33,7 +33,8 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int RegionStart[], int RegionEnd[],
 			 FLOAT RegionStartCoordinate[],
 			 FLOAT RegionEndCoordinate[],
-			 int &RegionLevel, int MyProcessorNumber)
+			 int &RegionLevel, int &HaloFinderOnly,
+			 int MyProcessorNumber)
 {
  
   int dim;
@@ -109,6 +110,12 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  while (*(argv[0]+1))
 	    ++argv[0];
 	}
+	break;
+
+	/* FOF halo finder only */
+
+      case 'F':
+	HaloFinderOnly = TRUE;
 	break;
  
 	/* help */
@@ -264,6 +271,7 @@ void PrintUsage(char *myname)
 	          "      -P(roject_to_plane version 2) dimension\n"
                   "         -m(smooth projection)\n"
 	          "      -o(utput as particle data)\n"
+	          "      -F(riends-of-friends halo finder only)\n"
                   "      -h(elp)\n"
 	          "      -i(nformation output)\n"
 	          "      -s(tart  index region) dim0 [dim1] [dim2]\n"

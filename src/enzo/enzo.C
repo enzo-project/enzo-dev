@@ -106,7 +106,8 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int RegionStart[], int RegionEnd[],
 			 FLOAT RegionStartCoordinates[],
 			 FLOAT RegionEndCoordinates[],
-			 int &Level, int MyProcessorNumber);
+			 int &Level, int &HaloFinderOnly, 
+			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 
@@ -163,6 +164,8 @@ void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData=1);
 
 #ifdef TASKMAP
 int GetNodeFreeMemory(void);
@@ -292,6 +295,7 @@ Eint32 main(Eint32 argc, char *argv[])
   int restart                  = FALSE,
     OutputAsParticleDataFlag = FALSE,
     InformationOutput        = FALSE,
+    HaloFinderOnly           = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -381,7 +385,8 @@ Eint32 main(Eint32 argc, char *argv[])
 			   &ParameterFile,
 			   RegionStart, RegionEnd,
 			   RegionStartCoordinates, RegionEndCoordinates,
-			   RegionLevel, MyProcessorNumber) == FAIL) {
+			   RegionLevel, HaloFinderOnly,
+			   MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -503,7 +508,12 @@ Eint32 main(Eint32 argc, char *argv[])
     } // ENDFOR dim
   } 
  
-
+  if (HaloFinderOnly) {
+    InlineHaloFinder = TRUE;
+    HaloFinderSubfind = TRUE;
+    FOF(&MetaData, LevelArray);
+    my_exit(EXIT_SUCCESS);
+  }
 
   /* Do vector analysis */
   
