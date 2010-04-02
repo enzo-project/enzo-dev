@@ -312,7 +312,8 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedByResistiveLength.o \
         Grid_FlagCellsToBeRefinedByShear.o \
         Grid_FlagCellsToBeRefinedByShocks.o \
-        Grid_FlagCellsToBeRefinedBySlope.o \
+	Grid_FlagCellsToBeRefinedByShockwaves.o \
+	Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \

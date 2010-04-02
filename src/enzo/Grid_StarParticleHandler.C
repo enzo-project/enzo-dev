@@ -279,7 +279,7 @@ int sink_maker(int *nx, int *ny, int *nz, int *size,
              int *npold, FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, 
 	     float *upold, float *vpold, float *wpold, float *mpold,
 		 float *tcpold, float *tdpold, int *typeold, int *ctype,
-	     float *jlrefine, float *temp);
+	     float *jlrefine, float *temp, float *JRCT);
  
 extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
                                    int *sdim1, int *sdim2, int *sdim3,
@@ -736,7 +736,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 		     ParticleVelocity[0], ParticleVelocity[1], 
 		     ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
 		     ParticleAttribute[1], ParticleType, &MBHParticleType, 
-		     &JeansLengthRefinement, temperature) == FAIL) {
+		     &JeansLengthRefinement, temperature,
+             &JeansRefinementColdTemperature) == FAIL) {
 	ENZO_FAIL("Error in sink_maker for MBH.");
       }
       
@@ -841,7 +842,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       }
 
       if(StellarWindFeedback|| HydroMethod == MHD_RK || HydroMethod == HD_RK ){
-      //if(HydroMethod == MHD_RK || HydroMethod == HD_RK ){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
@@ -898,7 +898,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 		       ParticleVelocity[0], ParticleVelocity[1], 
 		       ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
 		       ParticleAttribute[1], ParticleType, &SinkParticleType, 
-		       &JeansLengthRefinement, temperature) == FAIL) {
+		       &JeansLengthRefinement, temperature,
+               &JeansRefinementColdTemperature) == FAIL) {
 	  ENZO_FAIL("Error in sink_maker.\n");
 	}
       }

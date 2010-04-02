@@ -117,7 +117,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "StopCPUTime         = %lg\n", MetaData.StopCPUTime);
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
-  fprintf(fptr, "MetaDataIdentifier  = %s\n\n", MetaDataIdentifier);
  
   fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
 
@@ -561,6 +560,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
+  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+         ShockwaveRefinementMinMach);
+  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+         ShockwaveRefinementMinVelocity);
+  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+         ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",
