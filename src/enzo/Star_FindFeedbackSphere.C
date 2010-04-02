@@ -43,10 +43,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8], MBHFeedbackThermalRadiusTooSmall;
-  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, ColdGasFraction, initialRadius; 
-  FLOAT corners[MAX_DIMENSION][8];
-  int direction;
+  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
+    MBHFeedbackThermalRadiusTooSmall;
+  float MassEnclosed, Metallicity, ColdGasMass, ColdGasFraction, initialRadius;
+  float ShellMass, ShellMetallicity, ShellColdGasMass, 
+    ShellVelocity[MAX_DIMENSION];
   LevelHierarchyEntry *Temp, *Temp2;
 
   /* Get cell width */
@@ -93,16 +94,32 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   int MBHFeedbackToConstantMass = FALSE; 
   MBHFeedbackThermalRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
 
+  MassEnclosed = 0;
+  Metallicity = 0;
+  ColdGasMass = 0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    AvgVelocity[dim] = 0.0;
+
   while (SphereTooSmall || MBHFeedbackThermalRadiusTooSmall) { 
 #endif
   while (SphereTooSmall) { 
     Radius += CellWidth;
-    MassEnclosed = 0;
-    Metallicity = 0;
-    ColdGasMass = 0;
+
+    /* Before we sum the enclosed mass, check if the sphere with
+       r=Radius is completely contained in grids on this level */
+
+    SphereContained = this->SphereContained(LevelArray, level, Radius);
+    if (SphereContained == FALSE)
+      break;
+
+
+    ShellMass = 0;
+    ShellMetallicity = 0;
+    ShellColdGasMass = 0;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      AvgVelocity[dim] = 0.0;
-    for (l = 0; l < MAX_DEPTH_OF_HIERARCHY; l++) {
+      ShellVelocity[dim] = 0.0;
+
+    for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++) {
       Temp = LevelArray[l];
       while (Temp != NULL) {
 
@@ -121,11 +138,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
 	/* Sum enclosed mass in this grid */
 
-	if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
-					    Metallicity, ColdGasMass, 
-					    AvgVelocity) == FAIL) {
-	  	  ENZO_FAIL("Error in GetEnclosedMass.");
-	}
+	Temp->GridData->GetEnclosedMassInShell(this, Radius-CellWidth, Radius, 
+					       ShellMass, ShellMetallicity, 
+					       ShellColdGasMass, ShellVelocity);
 
 	Temp = Temp->NextGridThisLevel;
 
@@ -136,10 +151,22 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     } // END: level
 
-    CommunicationAllSumValues(&Metallicity, 1);
-    CommunicationAllSumValues(&MassEnclosed, 1);
-    CommunicationAllSumValues(&ColdGasMass, 1);
-    CommunicationAllSumValues(AvgVelocity, 3);
+    CommunicationAllSumValues(&ShellMetallicity, 1);
+    CommunicationAllSumValues(&ShellMass, 1);
+    CommunicationAllSumValues(&ShellColdGasMass, 1);
+    CommunicationAllSumValues(ShellVelocity, 3);
+
+    MassEnclosed += ShellMass;
+    ColdGasMass += ShellColdGasMass;
+
+    // Must first make mass-weighted, then add shell mass-weighted
+    // (already done in GetEnclosedMassInShell) velocity and
+    // metallicity.  We divide out the mass after checking if mass is
+    // non-zero.
+    Metallicity = Metallicity * (MassEnclosed - ShellMass) + ShellMetallicity;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
+	ShellVelocity[dim];
 
     if (MassEnclosed == 0) {
       SphereContained = FALSE;
@@ -230,56 +257,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       
   } // ENDIF FORMATION
 
-  /**************************************************************
+  /* If SphereContained is TRUE, i.e. either not FORMATION or
+     COLOR_FIELD or formation sphere is acutally contained (double
+     checking in this case, doesn't hurt...), check if the sphere is
+     contained within grids on this level.  */
 
-     Compute corners of cube that contains a sphere of r=Radius
-
-   **************************************************************/
-
-  for (i = 0; i < 8; i++) {
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-
-      // If the bit is true, forward.  If not, reverse.
-      direction = (i >> dim & 1) ? 1 : -1;
-      corners[dim][i] = pos[dim] + direction * Radius;
-    }
-    cornerDone[i] = 0;
-  }
-
-  /* First check if the influenced sphere is contained within the
-     grids on this level */
-
-  int cornersContained = 0;
-  int inside;
-
-  Temp = LevelArray[level];
-
-  while (Temp != NULL && cornersContained < 8) {
-
-    // Get grid edges
-    Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-
-    for (i = 0; i < 8; i++) {
-      if (cornerDone[i]) continue;    // Skip if already found
-      inside = 1;
-      for (dim = 0; dim < MAX_DIMENSION; dim++)
-	inside = min((corners[dim][i] >= LeftEdge[dim] &&
-		      corners[dim][i] <= RightEdge[dim]),
-		     inside);
-      if (inside) {
-	cornersContained++;
-	cornerDone[i] = 1;
-      }
-    }
-
-    Temp = Temp->NextGridThisLevel;
-
-  }
-
-  /* If sphere not contained in grids in this level, check again in
-     level-1. */
-
-  SphereContained = (cornersContained == 8);
+  if (SphereContained == TRUE)
+    SphereContained = this->SphereContained(LevelArray, level, Radius);
 
   /* If contained and this is for star formation, we record how much
      mass we should add and reset the flags for formation. */
