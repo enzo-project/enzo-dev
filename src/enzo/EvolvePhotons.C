@@ -44,11 +44,11 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int InitiateKeepTransportingCheck(int keep_transporting);
-int StopKeepTransportingCheck();
-int InitializePhotonCommunication();
-int FinalizePhotonCommunication();
-int KeepTransportingCheck(int &keep_transporting);
+//int InitiateKeepTransportingCheck(int keep_transporting);
+//int StopKeepTransportingCheck();
+int InitializePhotonCommunication(char* &kt_global);
+int FinalizePhotonCommunication(char* &kt_global);
+int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
@@ -62,6 +62,7 @@ void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
+#define NONBLOCKING
 #define REPORT_PERF
 
 #ifdef REPORT_PERF
@@ -262,8 +263,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     PhotonsToMove->NextPackageToMove = NULL;
 
     int loop_count = 0;
-    int keep_transporting = 1;
     int ThisProcessor;
+    int keep_transporting = 1;
+    char *kt_global = NULL;
 
     HierarchyEntry **Temp0;
     int nGrids0 = GenerateGridArray(LevelArray, 0, &Temp0);
@@ -274,7 +276,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Initialize nonblocking communication */
 
     START_PERF();
-    InitializePhotonCommunication();
+    InitializePhotonCommunication(kt_global);
     END_PERF(3);
 
     /* Transport the rays! */
@@ -328,9 +330,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       START_PERF();
 #ifdef NONBLOCKING
-      InitiateKeepTransportingCheck(keep_transporting);
-      KeepTransportingCheck(keep_transporting);
-#else /* NON_BLOCKING */
+      KeepTransportingCheck(kt_global, keep_transporting);
+#else /* NONBLOCKING */
       keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
       END_PERF(6);
@@ -343,7 +344,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }                           //  end while keep_transporting
 
-    FinalizePhotonCommunication();
+    FinalizePhotonCommunication(kt_global);
     //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,

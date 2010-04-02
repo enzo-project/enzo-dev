@@ -50,6 +50,7 @@ int FindSuperSource(PhotonPackageEntry **PP, int &LeafID,
 #define NO_DEBUG_CRP2
 
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
+				 bool local_transport,
 				 int &keep_transporting)
 {
 
@@ -93,9 +94,14 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Wait for >1 receives */
 
-  MPI_Waitsome(TotalReceives, PH_CommunicationReceiveMPI_Request,
-	       &NumberOfCompletedRequests, 
-	       PH_ListOfIndices, PH_ListOfStatuses);
+  if (local_transport)
+    MPI_Testsome(TotalReceives, PH_CommunicationReceiveMPI_Request,
+		 &NumberOfCompletedRequests, 
+		 PH_ListOfIndices, PH_ListOfStatuses);
+  else
+    MPI_Waitsome(TotalReceives, PH_CommunicationReceiveMPI_Request,
+		 &NumberOfCompletedRequests, 
+		 PH_ListOfIndices, PH_ListOfStatuses);
   
 #ifdef DEBUG_CRP
   printf("PH_CRH[%"ISYM"][b]: %"ISYM" %"ISYM" %"ISYM" (%"ISYM" %"ISYM" %"ISYM")\n", 

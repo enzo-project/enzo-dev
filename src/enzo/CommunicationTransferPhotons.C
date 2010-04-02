@@ -37,6 +37,7 @@ PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
+				 bool local_transport,
 				 int &keep_transporting);
 int CommunicationNumberOfPhotonSends(int *nPhoton, int size);
 //int InitiatePhotonNumberSend(int *nPhoton);
@@ -291,9 +292,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Modeled after the scheme in communication.h and EvolveLevel */
   /***************************************************************/
 
-  int NumberOfMessages, Offset;
+  bool local_transport, NumberOfMessages, Offset;
   Eint32 tag, SizeOfGroupPhotonList, Size;
   
+  local_transport = (localCounter > 0);
   MPI_Type_size(MPI_PhotonList, &SizeOfGroupPhotonList);
   //SizeOfGroupPhotonList = sizeof(GroupPhotonList);
 
@@ -326,10 +328,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Third stage: finally receive the data and transfer them to their
      respective grids  */
 
-  if (CommunicationReceiverPhotons(LevelArray, keep_transporting) == FAIL) {
-    fprintf(stderr, "Error in CommunicationReceiverPhotons.\n");
-    ENZO_FAIL("");
-  }
+  CommunicationReceiverPhotons(LevelArray, local_transport, 
+			       keep_transporting);
       
   /* Clean up */
 

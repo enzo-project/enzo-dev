@@ -428,7 +428,7 @@ int OldInitializePhotonReceive(int group_size)
 /******************** END OF OLD, UNUSED ROUTINES *****************/
 /******************************************************************/
 
-int InitializePhotonCommunication()
+int InitializePhotonCommunication(char* &kt_global)
 {
 #ifdef USE_MPI
   int proc;
@@ -448,13 +448,19 @@ int InitializePhotonCommunication()
       PhotonMessageMaxIndex++;
     } // ENDIF other processor
 
+  kt_global = new char[NumberOfProcessors];
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    kt_global[proc] = 1;
+  MPI_Win_create(kt_global, NumberOfProcessors, 1, MPI_INFO_NULL,
+		 MPI_COMM_WORLD, &KeepTransportingWindow);
+
 #endif /* USE_MPI */
     return SUCCESS;
 }
 
 /**********************************************************************/
 
-int FinalizePhotonCommunication()
+int FinalizePhotonCommunication(char* &kt_global)
 {
 #ifdef USE_MPI
   int i;
@@ -467,6 +473,9 @@ int FinalizePhotonCommunication()
   for (i = 0; i < PhotonMessageMaxIndex; i++)
     if (PhotonMessageRequest[i] != MPI_REQUEST_NULL)
       MPI_Cancel(PhotonMessageRequest+i);
+
+  MPI_Win_free(&KeepTransportingWindow);
+  delete [] kt_global;
 
 #endif /* USE_MPI */
   return SUCCESS;
@@ -653,3 +662,29 @@ int InitializePhotonReceive(int max_size, MPI_Datatype MPI_PhotonType)
 #endif
 
 /************************************************************************/
+int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
+{
+#ifdef USE_MPI
+  int proc;
+  char value = keep_transporting;
+  if (DEBUG)
+    printf("P%d: keep_transporting(before) = %d\n", MyProcessorNumber,
+	   keep_transporting);
+  value = keep_transporting;
+  MPI_Win_fence(MPI_MODE_NOPRECEDE, KeepTransportingWindow);
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    MPI_Put(&value, 1, MPI_CHAR, proc, MyProcessorNumber, 1, MPI_CHAR,
+	    KeepTransportingWindow);
+  MPI_Win_fence(MPI_MODE_NOSUCCEED, KeepTransportingWindow);
+
+  // Find max in the global keep_transporting array
+  keep_transporting = 0;
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    keep_transporting = max(keep_transporting, kt_global[proc]);
+  if (DEBUG)
+    printf("P%d: keep_transporting = %d, kt_global = %d %d\n", 
+	   MyProcessorNumber, keep_transporting, kt_global[0],
+	   kt_global[1]);
+#endif /* USE_MPI */
+  return SUCCESS;
+}

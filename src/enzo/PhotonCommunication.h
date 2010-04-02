@@ -28,6 +28,8 @@ EXTERN MPI_Request PhotonMessageRequest[MAX_PH_RECEIVE_BUFFERS];
 EXTERN Eint32 PhotonMessageIndex;
 EXTERN Eint32 PhotonMessageMaxIndex;
 
+EXTERN MPI_Win KeepTransportingWindow;
+
 #ifdef UNUSED
 struct MyRequest {
   int nbuffer;
