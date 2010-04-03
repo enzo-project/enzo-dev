@@ -1,4 +1,4 @@
-#define DEBUG 0
+#define DEBUG 1
 /***********************************************************************
 /
 /  NON-BLOCKING COMMUNICATION ROUTINES FOR PHOTONS
@@ -27,6 +27,20 @@
 #include "PhotonCommunication.h"
 
 #define TOOLARGE 10000000
+
+#ifdef USE_MPI
+int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,
+			      int Tag, MPI_Comm CommWorld, int BufferSize);
+//int CommunicationCompactifyBuffer(MPI_Request *requests, Eint32 *indices, void *buffer, 
+//				  size_t sz, bool *cflag, int ncomplete, Eint32 &size);
+int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
+				 Eint32 nrequests, Eint32 index, Eint32 &max_index);
+static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
+static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
+#endif /* USE_MPI */
+
+/******************** START WITH OLD, UNUSED ROUTINES *****************/
+#ifdef UNUSED
 
 #ifdef USE_MPI
 static MyRequest *PhotonNumberReceiveHandles = NULL;
@@ -318,9 +332,9 @@ int InitiatePhotonNumberSend(int *nPhoton)
 
 }
 
-/**********************************************************************/
+/************************************************************************/
 
-int InitializePhotonReceive(int group_size)
+int OldInitializePhotonReceive(int group_size)
 {
 
 #ifdef USE_MPI
@@ -407,4 +421,270 @@ int InitializePhotonReceive(int group_size)
 
   return SUCCESS;
 
+}
+
+#endif /* UNUSED */
+/******************************************************************/
+/******************** END OF OLD, UNUSED ROUTINES *****************/
+/******************************************************************/
+
+int InitializePhotonCommunication(char* &kt_global)
+{
+#ifdef USE_MPI
+  int proc;
+  PhotonMessageIndex = 0;
+  PhotonMessageMaxIndex = 0;
+  PH_CommunicationReceiveIndex = 0;  
+  PH_CommunicationReceiveMaxIndex = 0;
+  
+  /* Anticipate the first call for the number of messages to receive */
+
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    if (proc != MyProcessorNumber) {
+      MPI_Irecv(PhotonMessageBuffer+PhotonMessageIndex,
+		1, MPI_INT, proc, MPI_NPHOTON_TAG, MPI_COMM_WORLD,
+		PhotonMessageRequest+PhotonMessageIndex);
+      PhotonMessageIndex++;
+      PhotonMessageMaxIndex++;
+    } // ENDIF other processor
+
+  kt_global = new char[NumberOfProcessors];
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    kt_global[proc] = 1;
+  MPI_Win_create(kt_global, NumberOfProcessors, 1, MPI_INFO_NULL,
+		 MPI_COMM_WORLD, &KeepTransportingWindow);
+
+#endif /* USE_MPI */
+    return SUCCESS;
+}
+
+/**********************************************************************/
+
+int FinalizePhotonCommunication(char* &kt_global)
+{
+#ifdef USE_MPI
+  int i;
+
+  /* If there are any leftover MPI_Irecv calls from the photon
+     "nPhoton" calls, cancel them. */
+
+  printf("P%d: FinalizePhotonComm, PhotonMessageMaxIndex = %d\n",
+	 MyProcessorNumber, PhotonMessageMaxIndex);
+  for (i = 0; i < PhotonMessageMaxIndex; i++)
+    if (PhotonMessageRequest[i] != MPI_REQUEST_NULL)
+      MPI_Cancel(PhotonMessageRequest+i);
+
+  MPI_Win_free(&KeepTransportingWindow);
+  delete [] kt_global;
+
+#endif /* USE_MPI */
+  return SUCCESS;
+}
+
+/**********************************************************************/
+
+int CommunicationNumberOfPhotonSends(int *nPhoton, int size)
+{
+#ifdef USE_MPI
+
+  /* Send the number of messages that we're going to send, so the
+     client can post the receives. */
+
+  Eint32 NumberOfMessages, proc;
+
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    if (proc != MyProcessorNumber) {
+      NumberOfMessages = nPhoton[proc] / size;
+      if (nPhoton[proc] % size > 0) NumberOfMessages++;
+      if (DEBUG)
+	printf("CRP[%d]: Sending %d messages, %d photons to P%d\n", MyProcessorNumber,
+	       NumberOfMessages, nPhoton[proc], proc);
+      CommunicationBufferedSend(&NumberOfMessages, 1, MPI_INT, proc,
+				MPI_NPHOTON_TAG, MPI_COMM_WORLD, sizeof(Eint32));
+    }
+#endif
+  return SUCCESS;
+}
+
+
+/**********************************************************************/
+
+#ifdef USE_MPI
+int PostPhotonReceives(Eint32 index, Eint32 proc, int size, MPI_Datatype type)
+{
+  int i;
+  Eint32 NumberOfMessages;
+  GroupPhotonList *ReceiveBuffer;
+  
+  NumberOfMessages = PhotonMessageBuffer[index];
+  for (i = 0; i < NumberOfMessages; i++) {
+    if (DEBUG)
+      printf("CTPh[P%"ISYM"]: Receiving photons from P%"ISYM" "
+	     "(message %"ISYM", %"ISYM"/%"ISYM", index %d)\n", 
+	     MyProcessorNumber, proc, i, i+1, NumberOfMessages,
+	     PH_CommunicationReceiveIndex);
+    ReceiveBuffer = new GroupPhotonList[size];
+
+    MPI_Irecv(ReceiveBuffer, size, type, proc,
+	      MPI_PHOTONGROUP_TAG, MPI_COMM_WORLD,
+	      PH_CommunicationReceiveMPI_Request +
+	      PH_CommunicationReceiveIndex);
+
+    PH_CommunicationReceiveBuffer[PH_CommunicationReceiveIndex] =
+      (char *) ReceiveBuffer;
+
+    PH_CommunicationReceiveIndex = 
+      CommunicationFindOpenRequest(PH_CommunicationReceiveMPI_Request,
+				   NO_HINT, MAX_PH_RECEIVE_BUFFERS,
+				   PH_CommunicationReceiveIndex,
+				   PH_CommunicationReceiveMaxIndex);
+
+    printf("P%d: PHCRIndex/Max = %d/%d\n", MyProcessorNumber, 
+	   PH_CommunicationReceiveIndex, PH_CommunicationReceiveMaxIndex);
+
+  } // ENDFOR i (messages)
+
+  return SUCCESS;
+}
+#endif /* USE_MPI */
+
+/**********************************************************************/
+#ifdef USE_MPI
+int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
+				 Eint32 nrequests, Eint32 index,
+				 Eint32 &max_index)
+{
+  int i;
+  int FoundOpenRequest = FALSE;
+  MPI_Status status;
+
+  max_index = max(max_index, index);
+  i = (last_free != NO_HINT) ? last_free : 0;
+  i = i % nrequests;
+
+  while (!FoundOpenRequest) {
+    if (requests[i] == NULL || requests[i] == MPI_REQUEST_NULL)
+      FoundOpenRequest = TRUE;
+    else
+      i = i++ % nrequests;
+  } // ENDWHILE
+
+  max_index = max(max_index, i);
+  printf("FindOpenRequest[P%d]: i, max_index = %d, %d\n", MyProcessorNumber,
+	 i, max_index);
+  return i;
+}
+#endif /* USE_MPI */
+/**********************************************************************/
+
+#ifdef USE_MPI
+int InitializePhotonReceive(int max_size, MPI_Datatype MPI_PhotonType)
+{
+
+  MPI_Status status;
+  MPI_Arg proc, MessageReceived;
+  bool CompletedRequests[MAX_PH_RECEIVE_BUFFERS];
+  Eint32 NumberOfMessages, NumberOfReceives, TotalNumberOfReceives;
+  GroupPhotonList *ReceiveBuffer = NULL;
+  int i, j, index, RecvProc;
+
+  /* Receive MPI messages that contain how many messages with the
+     actual photon data that we'll be receiving from each process. */
+
+  MPI_Waitsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
+	       PH_ListOfIndices, PH_ListOfStatuses);
+  if (DEBUG)
+    printf("P%d: Received %d header messages, Index/MaxIndex = %d/%d.\n", 
+	   MyProcessorNumber, NumberOfReceives, PhotonMessageIndex, 
+	   PhotonMessageMaxIndex);
+
+  TotalNumberOfReceives = NumberOfReceives;
+  for (i = 0; i < NumberOfReceives; i++)
+    CompletedRequests[i] = false;
+
+  for (i = 0; i < NumberOfReceives; i++) {
+    
+    index = PH_ListOfIndices[i];
+    RecvProc = PH_ListOfStatuses[i].MPI_SOURCE;
+
+    if (DEBUG)
+      printf("P%d: Processing header message %d from P%d.\n", 
+	     MyProcessorNumber, index, RecvProc);
+
+
+    PostPhotonReceives(index, RecvProc, max_size, MPI_PhotonType);
+    CompletedRequests[index] = true;
+
+    /* Post another receive for the next loop.  Immediately test if
+       there's already a message waiting.  If so, post another
+       receive.  Repeat until no more messages. */
+
+    do {
+      printf("P%d: Posting new header Irecv, index = %d\n", MyProcessorNumber,
+	     PhotonMessageIndex);
+      MPI_Irecv(PhotonMessageBuffer + PhotonMessageIndex,
+		1, MPI_INT, RecvProc, MPI_NPHOTON_TAG, MPI_COMM_WORLD,
+		PhotonMessageRequest + PhotonMessageIndex);
+      MPI_Test(PhotonMessageRequest + PhotonMessageIndex, &MessageReceived,
+	       MPI_STATUS_IGNORE);
+
+      if (MessageReceived) {
+	PostPhotonReceives(PhotonMessageIndex, RecvProc, max_size, MPI_PhotonType);
+	CompletedRequests[PhotonMessageIndex] = true;
+	// Store this index so we can compact the array afterwards.
+	// Doesn't affect this for-loop because NumberOfReceives
+	// remains unchanged.
+	PH_ListOfIndices[TotalNumberOfReceives++] = PhotonMessageIndex;
+      } else
+	CompletedRequests[PhotonMessageIndex] = false;
+
+//      PhotonMessageIndex++;
+//      PhotonMessageMaxIndex++;
+      PhotonMessageIndex =
+	CommunicationFindOpenRequest(PhotonMessageRequest, NO_HINT, //PhotonMessageIndex,
+				     MAX_PH_RECEIVE_BUFFERS, PhotonMessageIndex+1,
+				     PhotonMessageMaxIndex);
+      printf("P%d: PhotonMessageIndex = %d\n", MyProcessorNumber, PhotonMessageIndex);
+
+    } while (MessageReceived);
+
+  } // ENDFOR i (receives)
+
+  /* Compactify photon message arrays (requests and buffers) */
+
+//  CommunicationCompactifyBuffer(PhotonMessageRequest, PH_ListOfIndices,
+//				PhotonMessageBuffer, sizeof(Eint32), CompletedRequests,
+//				TotalNumberOfReceives, PhotonMessageIndex);
+
+
+  return SUCCESS;
+}
+#endif
+
+/************************************************************************/
+int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
+{
+#ifdef USE_MPI
+  int proc;
+  char value = keep_transporting;
+  if (DEBUG)
+    printf("P%d: keep_transporting(before) = %d\n", MyProcessorNumber,
+	   keep_transporting);
+  value = keep_transporting;
+  MPI_Win_fence(MPI_MODE_NOPRECEDE, KeepTransportingWindow);
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    MPI_Put(&value, 1, MPI_CHAR, proc, MyProcessorNumber, 1, MPI_CHAR,
+	    KeepTransportingWindow);
+  MPI_Win_fence(MPI_MODE_NOSUCCEED, KeepTransportingWindow);
+
+  // Find max in the global keep_transporting array
+  keep_transporting = 0;
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    keep_transporting = max(keep_transporting, kt_global[proc]);
+  if (DEBUG)
+    printf("P%d: keep_transporting = %d, kt_global = %d %d\n", 
+	   MyProcessorNumber, keep_transporting, kt_global[0],
+	   kt_global[1]);
+#endif /* USE_MPI */
+  return SUCCESS;
 }

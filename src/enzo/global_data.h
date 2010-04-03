@@ -476,7 +476,6 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    refinement.    */
 
 
-
 EXTERN float MinimumShearForRefinement;
 
 /* For CellFlaggingMethod = 11,
@@ -485,6 +484,12 @@ EXTERN float MinimumShearForRefinement;
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
 
+/* For CellFlaggingMethod = 14,   
+   Minimum mach number required for refinement.    */
+
+EXTERN float ShockwaveRefinementMinMach;
+EXTERN float ShockwaveRefinementMinVelocity;
+EXTERN float ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 

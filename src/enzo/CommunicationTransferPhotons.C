@@ -37,11 +37,14 @@ PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
+				 bool local_transport,
 				 int &keep_transporting);
-int InitiatePhotonNumberSend(int *nPhoton);
-int InitializePhotonReceive(int group_size);
+int CommunicationNumberOfPhotonSends(int *nPhoton, int size);
+//int InitiatePhotonNumberSend(int *nPhoton);
+//int InitializePhotonReceive(int group_size);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 #ifdef USE_MPI
+int InitializePhotonReceive(int max_size, MPI_Datatype MPI_PhotonType);
 int CommunicationBufferPurge(void);
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
                               int Target, int Tag, MPI_Comm CommWorld, 
@@ -113,9 +116,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   int NumberOfGrids = 0, count = 0;
 
   GroupPhotonList **SendList = new GroupPhotonList*[NumberOfProcessors];
-  //  GroupPhotonList **RecvList = new GroupPhotonList*[NumberOfProcessors];
-  int *nPhoton = new int[NumberOfProcessors];
   int *PhotonCounter = new int[NumberOfProcessors];
+  int *nPhoton = new int[NumberOfProcessors];
 
   /* Initialize counters */
 
@@ -144,7 +146,9 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Communicate number of photons to move */
 
-  InitiatePhotonNumberSend(nPhoton);
+  //InitiatePhotonNumberSend(nPhoton);
+  CommunicationNumberOfPhotonSends(nPhoton, PHOTON_BUFFER_SIZE);
+
 
   /* Allocate memory */
 
@@ -288,7 +292,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Modeled after the scheme in communication.h and EvolveLevel */
   /***************************************************************/
 
-  Eint32 tag, SizeOfGroupPhotonList;
+  bool local_transport, NumberOfMessages, Offset;
+  Eint32 tag, SizeOfGroupPhotonList, Size;
+  
+  local_transport = (localCounter > 0);
   MPI_Type_size(MPI_PhotonList, &SizeOfGroupPhotonList);
   //SizeOfGroupPhotonList = sizeof(GroupPhotonList);
 
@@ -296,32 +303,33 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
      completed messages, post receive calls from all processors with
      photons to receive */
 
-  InitializePhotonReceive(SizeOfGroupPhotonList);
+  InitializePhotonReceive(PHOTON_BUFFER_SIZE, MPI_PhotonList);
 
   /* Second stage: post sends to processors */
      
-  for (proc = 0; proc < NumberOfProcessors; proc++) {
+  for (proc = 0; proc < NumberOfProcessors; proc++)
     if (proc != MyProcessorNumber) {
-      if (nPhoton[proc] > 0) {
-	tag = MPI_PHOTONGROUP_TAG*10 + nPhoton[proc];
-	if (DEBUG)
-	  printf("CTPh(P%"ISYM"): Sending %"ISYM" photons to P%"ISYM" (TAG=%"ISYM")\n", 
-		 MyProcessorNumber, nPhoton[proc], proc, tag);
-	CommunicationBufferedSend(SendList[proc], 
-				  SizeOfGroupPhotonList*nPhoton[proc], 
-				  MPI_BYTE, proc, tag, 
+      NumberOfMessages = nPhoton[proc] / PHOTON_BUFFER_SIZE;
+      if (nPhoton[proc] % PHOTON_BUFFER_SIZE > 0) NumberOfMessages++;
+      //tag = MPI_PHOTONGROUP_TAG*10 + nPhoton[proc];
+      tag = MPI_PHOTONGROUP_TAG;
+      if (DEBUG)
+	printf("CTPh(P%"ISYM"): Sending %"ISYM" photons to P%"ISYM" (%d messages, TAG=%d)\n", 
+	       MyProcessorNumber, nPhoton[proc], proc, NumberOfMessages, tag);
+      for (i = 0; i < NumberOfMessages; i++) {
+	Offset = i*PHOTON_BUFFER_SIZE;
+	Size = (i < NumberOfMessages-1) ? PHOTON_BUFFER_SIZE : (nPhoton[proc]-Offset);
+	CommunicationBufferedSend(SendList[proc]+Offset, 
+				  Size, MPI_PhotonList, proc, tag, 
 				  MPI_COMM_WORLD, BUFFER_IN_PLACE);
-      }
+      } // ENDFOR messages
     } // ENDIF other processor
-  } // ENDFOR processor
 
   /* Third stage: finally receive the data and transfer them to their
      respective grids  */
 
-  if (CommunicationReceiverPhotons(LevelArray, keep_transporting) == FAIL) {
-    fprintf(stderr, "Error in CommunicationReceiverPhotons.\n");
-    ENZO_FAIL("");
-  }
+  CommunicationReceiverPhotons(LevelArray, local_transport, 
+			       keep_transporting);
       
   /* Clean up */
 

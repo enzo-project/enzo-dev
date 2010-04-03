@@ -569,6 +569,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
 		  &MinimumEnergyRatioForRefinement);
+    ret += sscanf(line, "ShockwaveRefinementMinMach = %"FSYM,
+                 &ShockwaveRefinementMinMach);
+    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
+                 &ShockwaveRefinementMinVelocity);
+    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"FSYM,
+                 &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);

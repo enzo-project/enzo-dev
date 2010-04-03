@@ -560,6 +560,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
+  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+         ShockwaveRefinementMinMach);
+  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+         ShockwaveRefinementMinVelocity);
+  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+         ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",
