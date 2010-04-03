@@ -56,11 +56,12 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
   const char *ParticleVelocityLabel[] = 
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   const char *ParticleOtherLabel[] =
-    {"particle_type", "particle_number", "particle_mass"};
+    {"particle_type", "particle_index", "particle_mass"};
   /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
       "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+				    "metallicity_fraction", 
+				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
 
   int i;
     
@@ -426,7 +427,8 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+				    "metallicity_fraction", 
+				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
 
   /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
       "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
@@ -494,7 +496,7 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   // ID
   dataspace = H5Screate_simple(1, &hdims, &hdims);
-  dataset = H5Dcreate(gridGrp, "particle_number", HDF5_FILE_PINT,
+  dataset = H5Dcreate(gridGrp, "particle_index", HDF5_FILE_PINT,
 		      dataspace, H5P_DEFAULT);
   H5Dwrite(dataset, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
   H5Dclose(dataset);
@@ -503,18 +505,18 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
 
   // Mass
   dataspace = H5Screate_simple(1, &hdims, &hdims);
-  dataset = H5Dcreate(gridGrp, "particle_mass", H5T_NATIVE_FLOAT,
+  dataset = H5Dcreate(gridGrp, "particle_mass", h5DataType,
 		      dataspace, H5P_DEFAULT);
-  H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, mass);
+  H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, mass);
   H5Dclose(dataset);
   H5Sclose(dataspace);
   
   // Attributes
   for (i = 0; i < nAttributes; i++) {
     dataspace = H5Screate_simple(1, &hdims, &hdims);
-    dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i], H5T_NATIVE_FLOAT,
+    dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i], h5DataType,
 			dataspace, H5P_DEFAULT);
-    H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
+    H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
     H5Dclose(dataset);
     H5Sclose(dataspace);
   } // ENDFOR attributes
