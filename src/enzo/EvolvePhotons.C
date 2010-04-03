@@ -44,11 +44,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-//int InitiateKeepTransportingCheck(int keep_transporting);
-//int StopKeepTransportingCheck();
 int InitializePhotonCommunication(char* &kt_global);
 int FinalizePhotonCommunication(char* &kt_global);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
+int KeepTransportingSend(int keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
@@ -63,7 +62,7 @@ void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
 #define NONBLOCKING
-#define REPORT_PERF
+#define REPORT_PERF_OFF
 
 #ifdef REPORT_PERF
 #define START_PERF() tt0 = ReturnWallTime();
@@ -265,6 +264,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     int loop_count = 0;
     int ThisProcessor;
     int keep_transporting = 1;
+    int local_keep_transporting = 1, last_keep_transporting;
     char *kt_global = NULL;
 
     HierarchyEntry **Temp0;
@@ -282,10 +282,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Transport the rays! */
 
     while (keep_transporting) {
+      last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
       PrintMemoryUsage("EvolvePhotons -- loop");
       START_PERF();
+      if (local_keep_transporting)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
 	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
@@ -330,13 +332,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       START_PERF();
 #ifdef NONBLOCKING
+      local_keep_transporting = keep_transporting;
+      if (keep_transporting != last_keep_transporting)
+	KeepTransportingSend(keep_transporting);
       KeepTransportingCheck(kt_global, keep_transporting);
 #else /* NONBLOCKING */
       keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
       END_PERF(6);
 
-#ifdef REPORT_PERF
+#ifdef UNUSED
       if (debug) puts("End of keep_transporting loop\n");
       printf("P%d:", MyProcessorNumber);
       fflush(stdout);
@@ -508,13 +513,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Temp->GridData->ErrorCheckPhotonNumber(lvl);
 #endif
 
-#ifdef REPORT_PERF
-    if (debug) puts("End of time loop\n");
-    printf("P%d:", MyProcessorNumber);
-    fflush(stdout);
-    fpcol(PerfCounter, 14, 14, stdout);
-#endif
-
     if (!LoopTime)
       break;
     
@@ -545,9 +543,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   END_PERF(13);
 
 #ifdef REPORT_PERF
-  printf("P%d:", MyProcessorNumber);
-  fflush(stdout);
-  fpcol(PerfCounter, 14, 14, stdout);
+  for (int i = 0; i < NumberOfProcessors; i++) {
+    CommunicationBarrier();
+    if (MyProcessorNumber == i) {
+      printf("P%d:", MyProcessorNumber);
+      fpcol(PerfCounter, 14, 14, stdout);
+      fflush(stdout);
+    }
+  }
 #endif
 
 

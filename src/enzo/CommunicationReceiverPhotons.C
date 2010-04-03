@@ -33,8 +33,6 @@
 #ifdef USE_MPI
 static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
 static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
-//int CommunicationCompactifyBuffer(MPI_Request *requests, Eint32 *indices, void *buffer, 
-//				  size_t sz, bool *cflag, int ncomplete, Eint32 &size);
 int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
 				 Eint32 nrequests, Eint32 index, 
 				 Eint32 &max_index);
@@ -46,7 +44,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int FindSuperSource(PhotonPackageEntry **PP, int &LeafID, 
 		    int SearchNewTree = TRUE);
 
-#define DEBUG_CRP
+#define NO_DEBUG_CRP
 #define NO_DEBUG_CRP2
 
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
@@ -76,8 +74,8 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
     return SUCCESS;
 
 #ifdef DEBUG_CRP
-  printf("P(%"ISYM") in PH_CRH with %"ISYM" requests\n", MyProcessorNumber,
-	 PH_CommunicationReceiveIndex);
+  printf("P(%"ISYM") in PH_CRH with %"ISYM" requests (local=%d)\n", 
+	 MyProcessorNumber, TotalReceives, local_transport);
 #endif
 
   CompletedRequests = new bool[TotalReceives];
@@ -239,24 +237,14 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level] != NULL)
       delete [] Grids[level];
 
-  /* For any remaining receives, pack them in the request array.
-     Adjust the communication receive index. */
-
-//  CommunicationCompactifyBuffer(PH_CommunicationReceiveMPI_Request,
-//				PH_ListOfIndices,
-//				PH_CommunicationReceiveBuffer,
-//				sizeof(char),
-//				CompletedRequests,
-//				ReceivesCompletedToDate,
-//				PH_CommunicationReceiveIndex);
-
   delete [] CompletedRequests;
   if (TotalReceivedPhotons > 0)
     keep_transporting = 1;
   
 #ifdef DEBUG_CRP
-    printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests\n", 
-	   MyProcessorNumber, PH_CommunicationReceiveIndex);
+    printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests. nphotons=%d, kt=%d\n",
+	   MyProcessorNumber, PH_CommunicationReceiveMaxIndex, 
+	   TotalReceivedPhotons, keep_transporting);
 #endif
 
 #endif /* USE_MPI */

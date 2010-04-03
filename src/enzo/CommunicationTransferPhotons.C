@@ -44,7 +44,8 @@ int CommunicationNumberOfPhotonSends(int *nPhoton, int size);
 //int InitializePhotonReceive(int group_size);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 #ifdef USE_MPI
-int InitializePhotonReceive(int max_size, MPI_Datatype MPI_PhotonType);
+int InitializePhotonReceive(int max_size, bool local_transport, 
+			    MPI_Datatype MPI_PhotonType);
 int CommunicationBufferPurge(void);
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
                               int Target, int Tag, MPI_Comm CommWorld, 
@@ -292,7 +293,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Modeled after the scheme in communication.h and EvolveLevel */
   /***************************************************************/
 
-  bool local_transport, NumberOfMessages, Offset;
+  bool local_transport;
+  int NumberOfMessages, Offset;
   Eint32 tag, SizeOfGroupPhotonList, Size;
   
   local_transport = (localCounter > 0);
@@ -303,7 +305,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
      completed messages, post receive calls from all processors with
      photons to receive */
 
-  InitializePhotonReceive(PHOTON_BUFFER_SIZE, MPI_PhotonList);
+  InitializePhotonReceive(PHOTON_BUFFER_SIZE, local_transport, 
+			  MPI_PhotonList);
 
   /* Second stage: post sends to processors */
      
@@ -321,8 +324,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	Size = (i < NumberOfMessages-1) ? PHOTON_BUFFER_SIZE : (nPhoton[proc]-Offset);
 	CommunicationBufferedSend(SendList[proc]+Offset, 
 				  Size, MPI_PhotonList, proc, tag, 
-				  MPI_COMM_WORLD, BUFFER_IN_PLACE);
+				  MPI_COMM_WORLD,
+				  Size*sizeof(GroupPhotonList));
       } // ENDFOR messages
+      delete [] SendList[proc];
     } // ENDIF other processor
 
   /* Third stage: finally receive the data and transfer them to their
@@ -334,6 +339,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Clean up */
 
   CommunicationBufferPurge();
+  delete [] SendList;
   delete [] nPhoton;
   delete [] PhotonCounter;
 

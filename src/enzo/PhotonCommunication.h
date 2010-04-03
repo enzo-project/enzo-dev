@@ -28,7 +28,10 @@ EXTERN MPI_Request PhotonMessageRequest[MAX_PH_RECEIVE_BUFFERS];
 EXTERN Eint32 PhotonMessageIndex;
 EXTERN Eint32 PhotonMessageMaxIndex;
 
-EXTERN MPI_Win KeepTransportingWindow;
+EXTERN char KeepTransMessageBuffer[MAX_PH_RECEIVE_BUFFERS];
+EXTERN MPI_Request KeepTransMessageRequest[MAX_PH_RECEIVE_BUFFERS];
+EXTERN Eint32 KeepTransMessageIndex;
+EXTERN Eint32 KeepTransMessageMaxIndex;
 
 #ifdef UNUSED
 struct MyRequest {
