@@ -274,11 +274,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		BaryonField[DensNum][index] * fhez * ionizedFraction;
 	    }
 	    if (MultiSpecies > 1) {
-	      BaryonField[HMNum][index] = tiny_number * BaryonField[DensNum][index];
+	      BaryonField[HMNum][index] = tiny_number;// * BaryonField[DensNum][index];
 	      BaryonField[H2INum][index] = 
-		tiny_number * BaryonField[DensNum][index];
+		tiny_number;// * BaryonField[DensNum][index];
 	      BaryonField[H2IINum][index] = 
-		tiny_number * BaryonField[DensNum][index];
+		tiny_number;// * BaryonField[DensNum][index];
 	    }
 	    if (MultiSpecies > 2) {
 	      BaryonField[DINum][index] = BaryonField[DensNum][index] * fh *

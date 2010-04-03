@@ -266,6 +266,11 @@
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, imetal, aye**(-3))
 
+      call ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+     &                     HM, H2I, H2II, DI, DII, HDI, metal,
+     &                     is, ie, js, je, ks, ke,
+     &                     in, jn, kn, ispecies, imetal)
+
 !  Loop over zones, and do an entire i-column in one go
 
       do k = ks+1, ke+1
@@ -683,6 +688,79 @@ c -------------------------------------------------------------------
             do j = js+1, je+1
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)*factor
+               enddo
+            enddo
+         enddo
+      endif
+
+      return
+      end
+
+c -----------------------------------------------------------
+!   This routine ensures that the species aren't below tiny.
+
+      subroutine ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+     &                           HM, H2I, H2II, DI, DII, HDI, metal,
+     &                           is, ie, js, je, ks, ke,
+     &                           in, jn, kn, ispecies, imetal)
+c -------------------------------------------------------------------
+
+      implicit NONE
+
+!     Arguments
+
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+     &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
+      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      real metal(in,jn,kn)
+
+!     locals
+
+      integer i, j, k
+
+!     Multiply all fields by factor (1/a^3 or a^3)
+
+      do k = ks+1, ke+1
+         do j = js+1, je+1
+            do i = is+1, ie+1
+               de(i,j,k)    = max(de(i,j,k), tiny)
+               HI(i,j,k)    = max(HI(i,j,k), tiny)
+               HII(i,j,k)   = max(HII(i,j,k), tiny)
+               HeI(i,j,k)   = max(HeI(i,j,k), tiny)
+               HeII(i,j,k)  = max(HeII(i,j,k), tiny)
+               HeIII(i,j,k) = max(HeIII(i,j,k), tiny)
+            enddo
+         enddo
+      enddo
+      if (ispecies .gt. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  HM(i,j,k)   = max(HM(i,j,k), tiny)
+                  H2I(i,j,k)  = max(H2I(i,j,k), tiny)
+                  H2II(i,j,k) = max(H2II(i,j,k), tiny)
+               enddo
+            enddo
+         enddo
+      endif
+      if (ispecies .gt. 2) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  DI(i,j,k)  = max(DI(i,j,k), tiny)
+                  DII(i,j,k) = max(DII(i,j,k), tiny)
+                  HDI(i,j,k) = max(HDI(i,j,k), tiny)
+               enddo
+            enddo
+         enddo
+      endif
+      if (imetal .eq. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  metal(i,j,k) = max(metal(i,j,k), tiny)
                enddo
             enddo
          enddo
@@ -1470,11 +1548,11 @@ c
       do i = is+1, ie+1
          if (itmask(i)) then
          HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i),tiny)
-         HI(i,j,k)    = HIp(i)
-         HII(i,j,k)   = HIIp(i)
-         HeI(i,j,k)   = HeIp(i)
-         HeII(i,j,k)  = HeIIp(i)
-         HeIII(i,j,k) = max(HeIIIp(i), 1.0e-25)
+         HI(i,j,k)    = max(HIp(i), tiny)
+         HII(i,j,k)   = max(HIIp(i), tiny)
+         HeI(i,j,k)   = max(HeIp(i), tiny)
+         HeII(i,j,k)  = max(HeIIp(i), tiny)
+         HeIII(i,j,k) = max(HeIIIp(i), tiny)
 
 !        de(i,j,k)    = dep(i)
 
@@ -1488,15 +1566,15 @@ c
      &                         max(dtit(i),tiny)
 
          if (ispecies .gt. 1) then
-            HM(i,j,k)    = HMp(i)
-            H2I(i,j,k)   = H2Ip(i)
-            H2II(i,j,k)  = H2IIp(i)
+            HM(i,j,k)    = max(HMp(i), tiny)
+            H2I(i,j,k)   = max(H2Ip(i), tiny)
+            H2II(i,j,k)  = max(H2IIp(i), tiny)
          endif
 
          if (ispecies .gt. 2) then
-            DI(i,j,k)    = DIp(i)
-            DII(i,j,k)   = DIIp(i)
-            HDI(i,j,k)   = HDIp(i)
+            DI(i,j,k)    = max(DIp(i), tiny)
+            DII(i,j,k)   = max(DIIp(i), tiny)
+            HDI(i,j,k)   = max(HDIp(i), tiny)
          endif
       endif                     ! itmask
 !     
