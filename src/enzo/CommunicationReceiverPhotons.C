@@ -84,12 +84,6 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   NumberOfCompletedRequests = 0;
 
-  /* Get grid lists */
-  
-  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    if (LevelArray[level] != NULL)
-      nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
-
   /* Wait for >1 receives */
 
   if (local_transport)
@@ -108,6 +102,13 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	 PH_ListOfIndices[0], PH_ListOfIndices[1], PH_ListOfIndices[2]);
   fflush(stdout);
 #endif
+
+  /* Get grid lists */
+
+  if (NumberOfCompletedRequests > 0)
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      if (LevelArray[level] != NULL)
+	nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
 
   /* Loop over receive handles, looking for completed (i.e. null)
      requests. */
@@ -233,18 +234,19 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 PH_CommunicationReceiveIndex,
 				 PH_CommunicationReceiveMaxIndex);
 
-  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    if (LevelArray[level] != NULL)
-      delete [] Grids[level];
+  if (NumberOfCompletedRequests > 0)
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      if (LevelArray[level] != NULL)
+	delete [] Grids[level];
 
   delete [] CompletedRequests;
   if (TotalReceivedPhotons > 0)
     keep_transporting = 1;
   
 #ifdef DEBUG_CRP
-    printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests. nphotons=%d, kt=%d\n",
-	   MyProcessorNumber, PH_CommunicationReceiveMaxIndex, 
-	   TotalReceivedPhotons, keep_transporting);
+  printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests. nphotons=%d, kt=%d\n",
+	 MyProcessorNumber, PH_CommunicationReceiveMaxIndex, 
+	 TotalReceivedPhotons, keep_transporting);
 #endif
 
 #endif /* USE_MPI */

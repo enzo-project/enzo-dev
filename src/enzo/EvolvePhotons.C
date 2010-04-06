@@ -106,16 +106,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Declarations */
 
+  int lvl;
   grid *Helper;
-  int lvl, RefinementFactors[MAX_DIMENSION];
-    
-  /* Create an array (Grids) of all the grids. */
-
-  typedef HierarchyEntry* HierarchyEntryPointer;
-  HierarchyEntry **Grids;
-  HierarchyEntry **Parents;
   LevelHierarchyEntry *Temp;
-
+    
   //while (GridTime >= PhotonTime) {
   while (GridTime > PhotonTime) {
 
@@ -132,8 +126,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
-    int GridNum = 0, value, i, proc;
-    int NumberOfGrids = 0;  
+    int i, GridNum = 0;
 
     // delete source if we are passed (or before) their lifetime (only
     // if not restarting)
@@ -157,9 +150,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
-    int Rank, Dims[MAX_DIMENSION];
-    FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
-  
     /* Initialize radiation fields */
 
     START_PERF();
@@ -261,8 +251,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ListOfPhotonsToMove *PhotonsToMove = new ListOfPhotonsToMove;
     PhotonsToMove->NextPackageToMove = NULL;
 
-    int loop_count = 0;
-    int ThisProcessor;
     int keep_transporting = 1;
     int local_keep_transporting = 1, last_keep_transporting;
     char *kt_global = NULL;
@@ -290,24 +278,23 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (local_keep_transporting)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
-	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
-	for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
+	//NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
+	for (Temp = LevelArray[lvl], GridNum = 0;
+	     Temp; Temp = Temp->NextGridThisLevel, GridNum++) {
+	  //for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
-	  if (Grids[GridNum]->ParentGrid != NULL) 
-	    Helper = Grids[GridNum]->ParentGrid->GridData;
+	  if (Temp->GridHierarchyEntry->ParentGrid != NULL) 
+	    Helper = Temp->GridHierarchyEntry->ParentGrid->GridData;
 	  else
 	    Helper = NULL;
-	  if (Grids[GridNum]->GridData->TransportPhotonPackages
-	      (lvl, &PhotonsToMove, GridNum, Grids0, 
-	       nGrids0, Helper, Grids[GridNum]->GridData) == FAIL) {
-	    fprintf(stderr, "Error in %"ISYM" th grid. "
-		    "grid->TransportPhotonPackages.\n",GridNum);
-	    ENZO_FAIL("");
-	  }
+
+	  Temp->GridData->TransportPhotonPackages
+	    (lvl, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
+	     Temp->GridData);
 
 	} // ENDFOR grids
 
-	delete [] Grids;
+	//delete [] Grids;
 
       }                          // loop over levels
       END_PERF(4);
@@ -414,9 +401,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] Temp0;
 
     /* Coupled rate & energy solver */
-
-    float dtMin, dtGrid;
-    float dtLastLevel = 1e20;
 
     int debug_store = debug;
     debug = FALSE;

@@ -42,6 +42,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
+  float values[6];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
   int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
     MBHFeedbackThermalRadiusTooSmall;
@@ -87,18 +88,18 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
                  || (FeedbackFlag == COLOR_FIELD));
   initialRadius = Radius;
 
+  MassEnclosed = 0;
+  Metallicity = 0;
+  ColdGasMass = 0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    AvgVelocity[dim] = 0.0;
+
 #ifdef UNUSED
   /* MBHFeedbackToConstantMass is implemented to apply your feedback energy 
      always to a constant mass, not to a constant volume.  For now, this is 
      for future use and not tested, and shouldn't be used.  -Ji-hoon Kim, Sep.2009 */
   int MBHFeedbackToConstantMass = FALSE; 
   MBHFeedbackThermalRadiusTooSmall = (type == MBH && MBHFeedbackToConstantMass);
-
-  MassEnclosed = 0;
-  Metallicity = 0;
-  ColdGasMass = 0;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    AvgVelocity[dim] = 0.0;
 
   while (SphereTooSmall || MBHFeedbackThermalRadiusTooSmall) { 
 #endif
@@ -111,7 +112,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     SphereContained = this->SphereContained(LevelArray, level, Radius);
     if (SphereContained == FALSE)
       break;
-
 
     ShellMass = 0;
     ShellMetallicity = 0;
@@ -151,10 +151,19 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     } // END: level
 
-    CommunicationAllSumValues(&ShellMetallicity, 1);
-    CommunicationAllSumValues(&ShellMass, 1);
-    CommunicationAllSumValues(&ShellColdGasMass, 1);
-    CommunicationAllSumValues(ShellVelocity, 3);
+    values[0] = ShellMetallicity;
+    values[1] = ShellMass;
+    values[2] = ShellColdGasMass;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      values[3+dim] = ShellVelocity[dim];
+
+    CommunicationAllSumValues(values, 6);
+
+    ShellMetallicity = values[0];
+    ShellMass = values[1];
+    ShellColdGasMass = values[2];
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      ShellVelocity[dim] = values[3+dim];
 
     MassEnclosed += ShellMass;
     ColdGasMass += ShellColdGasMass;
@@ -168,10 +177,12 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	ShellVelocity[dim];
 
+#ifdef UNUSED
     if (MassEnclosed == 0) {
       SphereContained = FALSE;
       return SUCCESS;
     }
+#endif
 
     Metallicity /= MassEnclosed;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -239,20 +250,24 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Don't allow the sphere to be too large (2x leeway) */
 
-  float epsMass = 9.0;
-  float eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
+  const float epsMass = 2.0;
+  float eps_tdyn;
   if (FeedbackFlag == FORMATION) {
     // single Pop III star
-    if (StarType == PopIII && MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
-      SphereContained = FALSE;
-      return SUCCESS;
-    }
+    if (StarType == PopIII)
+      if (MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
+	SphereContained = FALSE;
+	return SUCCESS;
+      }
 
     // t_dyn \propto M_enc^{-1/2} => t_dyn > sqrt(1.0+eps)*lifetime
     // Star cluster
-    if (StarType == PopII && DynamicalTime > eps_tdyn) {
-      SphereContained = FALSE;
-      return SUCCESS;
+    if (StarType == PopII) {
+      eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
+      if (DynamicalTime > eps_tdyn) {
+	SphereContained = FALSE;
+	return SUCCESS;
+      }
     }
 
   } // ENDIF FORMATION
