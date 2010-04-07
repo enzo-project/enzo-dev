@@ -506,6 +506,7 @@ typedef int            HDF5_hid_t;
 
 #define ALL_PARTICLES 1
 #define NON_DM_PARTICLES 2
+#define NON_DM_PARTICLES_IN_SEPARATE_HDF5 3
 #define TEMPERATURE_FIELD 1000
 
 #define DEFAULT_MU 0.6

@@ -283,7 +283,7 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
             Source = FromProcessor;
 	    Here = MyProcessorNumber;
 
-	    fprintf(stderr, "P%"ISYM" Post receive %"ISYM" bytes from %"ISYM" [%"ISYM" x %"ISYM"]\n", Here, RecvCount, Source, Usize, Xsize);  //#####
+	    // fprintf(stderr, "P%"ISYM" Post receive %"ISYM" bytes from %"ISYM" [%"ISYM" x %"ISYM"]\n", Here, RecvCount, Source, Usize, Xsize);  
 	    stat = MPI_Recv(SharedList[j].Pointer[i], RecvCount, DataTypeByte, Source, MPI_TRANSFERPARTICLE_TAG, MPI_COMM_WORLD, &Status);
 	      if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
 	    stat = MPI_Get_count(&Status, DataTypeByte, &RecvCount);

@@ -180,7 +180,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     sprintf(Amira_pid, "_P%3.3d", MyProcessorNumber);
     sprintf(Amira_fileID, "%4.4d", NewMovieDumpNumber);
 
-    strcpy(AmiraFileName, "AmiraData");
+    strcpy(AmiraFileName, NewMovieName);
     strcat(AmiraFileName, Amira_fileID);
     strcat(AmiraFileName, Amira_pid);
     strcat(AmiraFileName, ".hdf5");
@@ -191,7 +191,9 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			      DataType, stag, field_type, TopGridCycle,
 			      Time, CurrentRedshift, root_dx, 0, 
 			      (MyProcessorNumber == ROOT_PROCESSOR),
-			      nFields, (NewMovieParticleOn > 0),
+			      nFields, 
+			      (NewMovieParticleOn > 0 &&
+			       NewMovieParticleOn < 3),
 			      NumberOfParticleAttributes, FieldNames, 
 			      error);
       //printf("NewMovie: Opened movie data file %s\n", AmiraFileName);

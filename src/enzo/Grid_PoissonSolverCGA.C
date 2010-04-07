@@ -371,7 +371,7 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
   
  
   if (r_norm < threshold){
-//    printf("r_norm1  %g < threshold %g\n", r_norm, threshold);  //#####
+//    printf("r_norm1  %g < threshold %g\n", r_norm, threshold);  
     delete [] x;
     delete [] Ax;
     delete [] r_old;
@@ -468,7 +468,7 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
 
   if (debug){
-//    printf("Iteration times = %d\n", counter); //#####
+//    printf("Iteration times = %d\n", counter); 
   
     if (counter == size)
       printf("Iterations reached limit, maxnr = %g\n", dotnr);

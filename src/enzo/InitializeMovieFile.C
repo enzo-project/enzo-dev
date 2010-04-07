@@ -75,7 +75,7 @@ int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid)
   sprintf(pid, "_P%3.3d", MyProcessorNumber);
   sprintf(fileID, "%4.4d", NewMovieDumpNumber);
  
-  strcpy(AmiraFileName, "AmiraData");
+  strcpy(AmiraFileName, NewMovieName);
   strcat(AmiraFileName, fileID);
   strcat(AmiraFileName, pid);
   strcat(AmiraFileName, ".hdf5");
@@ -97,19 +97,40 @@ int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid)
       strcpy(FieldNames[field], "Temperature");
   }
   
-  if (Movie3DVolumes > 0)
+  if (Movie3DVolumes > 0) {
     MetaData.AmiraGrid.AMRHDF5Create(AmiraFileName, RefineByArray, 
 				     DataType, stag, field_type, 
 				     MetaData.CycleNumber, MetaData.Time, 
 				     InitialRedshift, root_dx, 1,
 				     (MyProcessorNumber == ROOT_PROCESSOR),
-				     nFields, (NewMovieParticleOn > 0),
+				     nFields, 
+				     (NewMovieParticleOn > 0 &&
+				      NewMovieParticleOn < 3),
 				     NumberOfParticleAttributes, FieldNames, 
 				     error);
+    if (error) {
+      fprintf(stderr, "Error in AMRHDF5Writer.\n");
+      return FAIL;
+    }
 
-  if (error) {
-    fprintf(stderr, "Error in AMRHDF5Writer.\n");
-    return FAIL;
+    if (NewMovieParticleOn == NON_DM_PARTICLES_IN_SEPARATE_HDF5) {   
+
+      char *AmiraParticleFileName = new char[80];
+      strcpy(AmiraParticleFileName, NewMovieName);
+      strcat(AmiraParticleFileName, "Particle");
+      strcat(AmiraParticleFileName, pid);
+      strcat(AmiraParticleFileName, ".hdf5");
+
+      MetaData.AmiraGrid.AMRHDF5CreateSeparateParticles(AmiraParticleFileName, 
+							(NewMovieParticleOn > 0),
+							NumberOfParticleAttributes,  
+							error);
+      if (error) {
+	fprintf(stderr, "Error in AMRHDF5Writer.\n");
+	return FAIL;
+      }
+      delete [] AmiraParticleFileName;
+    }
   }
 
   delete [] AmiraFileName;

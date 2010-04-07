@@ -75,7 +75,13 @@ class AMRHDF5Writer
   
   ~AMRHDF5Writer() ;
   void AMRHDF5Close();
+  void AMRHDF5CloseSeparateParticles();
 
+  void AMRHDF5CreateSeparateParticles( const char*      fileName, 
+				       const int        ParticlesOn,
+				       const int        nParticleAttr,
+				       bool&            error) ;
+  
   herr_t WriteTextures(  const int    timeStep,
 			 const double physicalTime,
 			 const int    levelIndex,
@@ -120,7 +126,22 @@ class AMRHDF5Writer
 			 void *mass,
 			 void **attr );
 
+  herr_t writeSeparateParticles ( const int nPart,
+				  const int nAttributes,
+				  const int Rank,
+				  void **pos,
+				  void **vel,
+				  void *type,
+				  void *ID,
+				  void *mass,
+				  void **attr,
+				  double doubleTime,
+				  double doubleRedshift,
+				  int& alreadyopenedentry,
+				  int& NumberOfStarParticlesOnProcEntry ) ;
+
   void IncreaseGridCount();
+  void IncreaseOutputParticleCount();
 
  protected:
 
@@ -128,10 +149,10 @@ class AMRHDF5Writer
   staggering staggerType;
   fieldtype  fieldType;
 
-  hid_t  fileId;
+  hid_t  fileId, fileId_particle;
   FILE  *index_file;
   int    relRef[3];
-  int    gridId;
+  int    gridId, output_particle;
 
   double rootDelta[3];
   

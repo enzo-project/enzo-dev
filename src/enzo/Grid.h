@@ -574,6 +574,12 @@ public:
 			 int WriteMe, int MovieTimestepCounter, int open, 
 			 FLOAT WriteTime);
 
+   int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
+					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
+					  int lastMovieStep, int WriteMe, 
+					  FLOAT WriteTime, int alreadyopened[],
+					  int NumberOfStarParticlesOnProc[]);
+
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 
 /* Output tracer particle information (interpolated from baryon grid). */

@@ -750,8 +750,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       //                            not the ratio with respect to the DensityUnits, unlike others)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
-      if (ComovingCoordinates) 
-	StarMakerOverDensityThreshold *= m_h / DensityUnits;
+
+      // change the unit for StarMakerOverDensity for cosmological run
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold *= m_h / DensityUnits;   //#####
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -774,6 +776,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
        ParticleType, &MBHParticleType, &MBHTurnOffStarFormation);
+
+      // make it back to original 
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold /= m_h / DensityUnits;   //#####
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;

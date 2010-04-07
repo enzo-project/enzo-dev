@@ -449,6 +449,7 @@ OBJS_CONFIG_LIB = \
         Grid_WriteGridX.o \
         Grid_WriteMemoryMap.o \
         Grid_WriteNewMovieData.o \
+        Grid_WriteNewMovieDataSeparateParticles.o \
         Grid_WriteStuff.o \
         Grid_WriteTaskMap.o \
         Grid_ZeldovichPancakeInitializeGrid.o \
