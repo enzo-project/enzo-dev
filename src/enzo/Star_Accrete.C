@@ -31,7 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
-  if ((this->type != BlackHole && abs(this->type) != MBH) || 
+  if ((this->type != BlackHole && ABS(this->type) != MBH) || 
       (this->CurrentGrid == NULL))
     return SUCCESS;
 

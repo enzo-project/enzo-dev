@@ -297,7 +297,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
     DeltaMass = AccretedMass;
-    //type = abs(type);  // Unmark as unborn (i.e. negative type)
+    //type = ABS(type);  // Unmark as unborn (i.e. negative type)
 
   } // ENDIF formation
 
