@@ -753,7 +753,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
       // change the unit for StarMakerOverDensity for cosmological run
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold *= m_h / DensityUnits;   //#####
+	StarMakerOverDensityThreshold *= m_h / DensityUnits;   
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,

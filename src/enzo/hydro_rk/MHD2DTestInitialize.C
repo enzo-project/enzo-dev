@@ -63,7 +63,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   int RefineAtStart   = FALSE;
   int MHD2DProblemType = 0;
   float RampWidth = 0.05;
-  float  LowerDensity, UpperDensity = 1.0,
+  float  LowerDensity = 1.0, UpperDensity = 1.0,
     LowerVelocityX = 0, UpperVelocityX = 0, 
     LowerVelocityY = 0, UpperVelocityY = 0, 
     LowerPressure = 1.0, UpperPressure = 1.0,

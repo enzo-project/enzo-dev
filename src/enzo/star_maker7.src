@@ -485,6 +485,13 @@ c
 c             (aug 7/00 addition: share ejected energy between gas
 c              being ejected and that remaining in star particle)
 c
+c
+c
+c            write(6,*) 'star_feedback7: mp, minitial, mform, energy',
+c     &                  mp(n), minitial, mform, energy
+c
+c
+c
 #define NO_SHARE_ENERGY
 #ifdef SHARE_ENERGY
             energy = energy*mform*m_eject/
