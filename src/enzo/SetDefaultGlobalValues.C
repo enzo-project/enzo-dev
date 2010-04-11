@@ -643,7 +643,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoxProblemType = 0; 
   useMHD=0;
 
-  MoveParticlesBetweenSiblings = FALSE;
+  MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
 
