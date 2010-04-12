@@ -37,7 +37,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   /* declarations */
 
-  int dim, i, j, k, m, n, field, sphere, size, igrid, activesize;
+  int dim, i, j, k,l, m, n, field, sphere, size, igrid, activesize;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
@@ -636,8 +636,16 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
   if (PutSink == 2 && level == 0) {  // set it up on level zero and make it mustrefine
 
+    printf("Adding Sink Particles. \n");
+
+    NumberOfParticles = 6;
+    NumberOfStars = 6;
+    //    MaximumParticleNumber = 1;
+    if (StellarWindFeedback) NumberOfParticleAttributes = 6;
+    this->AllocateNewParticles(NumberOfParticles);
+
     //    double mass_p = 20.0*1.989e33;
-    double mass_m = 10.0*1.989e33; //Mass of massive stars
+    double mass_m = 3.415*1.989e33; //Mass of massive stars
     double mass_s = 0.01*1.989e33; //Mass of small stars
     mass_m /= MassUnits;
     mass_s /= MassUnits;
@@ -652,139 +660,39 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
     printf("Adding Sink Particles. \n");
 
-    NumberOfParticles = 6;
-    NumberOfStars = 6;
+    NumberOfParticles = 64;
+    NumberOfStars = 64;
     //    MaximumParticleNumber = 1;
-    if (StellarWindFeedback) NumberOfParticleAttributes = 6;
+    if (StellarWindFeedback) NumberOfParticleAttributes = 3;
     this->AllocateNewParticles(NumberOfParticles);
 
-    ParticleMass[0] = den_m;
-    ParticleNumber[0] = 0;
-    ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5; //+0.5*dx;
-    ParticlePosition[1][0] = 0.2; //+0.5*dx;
-    ParticlePosition[2][0] = 0.2; //+0.5*dx;
+    for (k=0; k<4; k++){
+      for (j=0; j<4; j++){
+	for (i=0; i<4; i++){
+	  l = i+4*j+16*k;
+	  printf("Creating particle %i \n",l);
+	  ParticleMass[0] = den_m;
+	  ParticleNumber[0] = 0;
+	  ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
+	  ParticlePosition[0][0] = 0.125+0.25*i; //+0.5*dx;
+	  ParticlePosition[1][0] = 0.125+0.25*j; //+0.5*dx;
+	  ParticlePosition[2][0] = 0.125+0.25*k; //+0.5*dx;
 
-    ParticleVelocity[0][0] = 0.0;
-    ParticleVelocity[1][0] = 0.0;
-    ParticleVelocity[2][0] = 0.0;
-    ParticleAttribute[0][0] = 0.0; // creation time             
-    ParticleAttribute[1][0] = 0.0;
-    ParticleAttribute[2][0] = mass_m;
+	  ParticleVelocity[0][0] = 0.0;
+	  ParticleVelocity[1][0] = 0.0;
+	  ParticleVelocity[2][0] = 0.0;
+	  ParticleAttribute[0][0] = 0.002; // creation time (in code units?)           
+	  ParticleAttribute[1][0] = 0.0;
+	  ParticleAttribute[2][0] = mass_m;
 
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][0] = 1.0;  
-      ParticleAttribute[4][0] = 0.0;
-      ParticleAttribute[5][0] = 0.0;
+	  for (i = 0; i< MAX_DIMENSION+1; i++){
+	    ParticleAcceleration[i] = NULL;
+	  }
+	  this->ClearParticleAccelerations();
+
+	}
+      }
     }
-
-
-    ParticleMass[1] = den_m;
-    ParticleNumber[1] = 1;
-    ParticleType[1] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][1] = 0.5; //+0.5*dx;
-    ParticlePosition[1][1] = 0.2; //+0.5*dx;
-    ParticlePosition[2][1] = 0.21; //+0.5*dx;
-
-    ParticleVelocity[0][1] = 0.0;
-    ParticleVelocity[1][1] = 0.0;
-    ParticleVelocity[2][1] = 0.0;
-    ParticleAttribute[0][1] = 0.0; // creation time             
-    ParticleAttribute[1][1] = 0.0;
-    ParticleAttribute[2][1] = mass_m;
-
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][1] = 1.0;  
-      ParticleAttribute[4][1] = 0.0;
-      ParticleAttribute[5][1] = 0.0;
-    }
-
-    ParticleMass[2] = den_m;
-    ParticleNumber[2] = 2;
-    ParticleType[2] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][2] = 0.3; //+0.5*dx;
-    ParticlePosition[1][2] = 0.5; //+0.5*dx;
-    ParticlePosition[2][2] = 0.5; //+0.5*dx;
-
-    ParticleVelocity[0][2] = 0.0;
-    ParticleVelocity[1][2] = 0.0;
-    ParticleVelocity[2][2] = 0.0;
-    ParticleAttribute[0][2] = 0.0; // creation time             
-    ParticleAttribute[1][2] = 0.0;
-    ParticleAttribute[2][2] = mass_m;
-
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][2] = 1.0;  
-      ParticleAttribute[4][2] = 0.0;
-      ParticleAttribute[5][2] = 0.0;
-    }
-
-    ParticleMass[3] = den_s;
-    ParticleNumber[3] = 3;
-    ParticleType[3] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][3] = 0.3; //+0.5*dx;
-    ParticlePosition[1][3] = 0.5; //+0.5*dx;
-    ParticlePosition[2][3] = 0.51; //+0.5*dx;
-
-    ParticleVelocity[0][3] = 0.0;
-    ParticleVelocity[1][3] = 0.0;
-    ParticleVelocity[2][3] = 0.0;
-    ParticleAttribute[0][3] = 0.0; // creation time             
-    ParticleAttribute[1][3] = 0.0;
-    ParticleAttribute[2][3] = mass_s;
-
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][3] = 1.0;  
-      ParticleAttribute[4][3] = 0.0;
-      ParticleAttribute[5][3] = 0.0;
-    }
-
-    ParticleMass[4] = den_s;
-    ParticleNumber[4] = 4;
-    ParticleType[4] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][4] = 0.7; //+0.5*dx;
-    ParticlePosition[1][4] = 0.7; //+0.5*dx;
-    ParticlePosition[2][4] = 0.7; //+0.5*dx;
-
-    ParticleVelocity[0][4] = 0.0;
-    ParticleVelocity[1][4] = 0.0;
-    ParticleVelocity[2][4] = 0.0;
-    ParticleAttribute[0][4] = 0.0; // creation time             
-    ParticleAttribute[1][4] = 0.0;
-    ParticleAttribute[2][4] = mass_s;
-
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][4] = 1.0;  
-      ParticleAttribute[4][4] = 0.0;
-      ParticleAttribute[5][4] = 0.0;
-    }
-
-    ParticleMass[5] = den_s;
-    ParticleNumber[5] = 5;
-    ParticleType[5] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][5] = 0.7; //+0.5*dx;
-    ParticlePosition[1][5] = 0.7; //+0.5*dx;
-    ParticlePosition[2][5] = 0.71; //+0.5*dx;
-
-    ParticleVelocity[0][5] = 0.0;
-    ParticleVelocity[1][5] = 0.0;
-    ParticleVelocity[2][5] = 0.0;
-    ParticleAttribute[0][5] = 0.0; // creation time             
-    ParticleAttribute[1][5] = 0.0;
-    ParticleAttribute[2][5] = mass_s;
-
-    if (StellarWindFeedback) {
-      ParticleAttribute[3][5] = 1.0;  
-      ParticleAttribute[4][5] = 0.0;
-      ParticleAttribute[5][5] = 0.0;
-    }
-
-
-
-    for (i = 0; i< MAX_DIMENSION+1; i++){
-      ParticleAcceleration[i] = NULL;
-    }
-    this->ClearParticleAccelerations();
 
   }
 
