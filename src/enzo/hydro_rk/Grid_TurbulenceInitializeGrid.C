@@ -637,10 +637,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (PutSink == 2 && level == 0) {  // set it up on level zero and make it mustrefine
 
     printf("Adding Sink Particles. \n");
-
-    NumberOfParticles = 6;
-    NumberOfStars = 6;
-    //    MaximumParticleNumber = 1;
+    NumberOfParticleAttributes = 3;
     if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
 
@@ -671,25 +668,36 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	for (i=0; i<4; i++){
 	  l = i+4*j+16*k;
 	  printf("Creating particle %i \n",l);
-	  ParticleMass[0] = den_m;
-	  ParticleNumber[0] = 0;
-	  ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-	  ParticlePosition[0][0] = 0.125+0.25*i; //+0.5*dx;
-	  ParticlePosition[1][0] = 0.125+0.25*j; //+0.5*dx;
-	  ParticlePosition[2][0] = 0.125+0.25*k; //+0.5*dx;
+	  ParticleMass[l] = den_m;
+	  ParticleNumber[l] = l;
+	  ParticleType[l] = PARTICLE_TYPE_MUST_REFINE;
+	  ParticlePosition[0][l] = 0.125+0.25*i; //+0.5*dx;
+	  ParticlePosition[1][l] = 0.125+0.25*j; //+0.5*dx;
+	  ParticlePosition[2][l] = 0.125+0.25*k; //+0.5*dx;
+	  ParticleVelocity[0][l] = 0.0;
+	  ParticleVelocity[1][l] = 0.0;
+	  ParticleVelocity[2][l] = 0.0;
+	  printf("line 680 \n");   
+	  ParticleAttribute[0][l] = 0.2; // creation time             
+	  printf("line 682 \n");   
+	  ParticleAttribute[1][l] = 0.0;
+	  printf("line 684 \n");   
+	  ParticleAttribute[2][l] = mass_m;
+	  printf("line 686 \n");   
 
-	  ParticleVelocity[0][0] = 0.0;
-	  ParticleVelocity[1][0] = 0.0;
-	  ParticleVelocity[2][0] = 0.0;
-	  ParticleAttribute[0][0] = 0.002; // creation time (in code units?)           
-	  ParticleAttribute[1][0] = 0.0;
-	  ParticleAttribute[2][0] = mass_m;
-
-	  for (i = 0; i< MAX_DIMENSION+1; i++){
-	    ParticleAcceleration[i] = NULL;
+	  if (StellarWindFeedback) {
+	    ParticleAttribute[3][l] = 1.0;  
+	    ParticleAttribute[4][l] = 0.0;
+	    ParticleAttribute[5][l] = 0.0;
 	  }
-	  this->ClearParticleAccelerations();
+	  printf("line 693 \n");     
+	  /*for (m = 0; m< MAX_DIMENSION+1; m++){
+	    ParticleAcceleration[m][l] = 0.0;
+	    }*/
 
+	  printf("line 697 \n");     
+	  this->ClearParticleAccelerations();
+	  printf("Completed particle %i \n",l);
 	}
       }
     }
