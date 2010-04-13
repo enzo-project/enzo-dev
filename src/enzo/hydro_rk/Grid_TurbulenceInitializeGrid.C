@@ -530,7 +530,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
     
     /* Renormalize the mass-weighted 3D rms velocity inside the cloud */
-
+    /*
     double VelRMS = 0.0, Mass = 0.0;
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -553,16 +553,16 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	}
       }
     }
-    
+    */
     //printf("Grid_TubInit: Mass = %"FSYM"\n",Mass);
-    VelRMS /= Mass;
+    /* VelRMS /= Mass;
     double t_ff = sqrt(32.0/(3.0*M_PI*CloudDensity));
     double NormFactor = CloudMachNumber * CloudSoundSpeed / VelRMS / t_ff;
     for (dim = 0; i < GridRank; dim++) {
       for (n = 0; n < activesize; n++) {
 	DrivingField[dim][n] *= NormFactor;
       }
-    }
+      }*/
 
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
