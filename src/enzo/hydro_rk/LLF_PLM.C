@@ -28,6 +28,7 @@ int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq);
 int plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize);
 int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize);
 int llf(float **FluxLine, float **priml, float **primr, int ActiveSize);
+int rllf(float **FluxLine, float **priml, float **primr, int ActiveSize);
 
 int LLF_PLM(float **prim, float **priml, float **primr,
 	    float **species, float **colors,  float **FluxLine, int ActiveSize,
@@ -40,9 +41,12 @@ int LLF_PLM(float **prim, float **priml, float **primr,
   }
 
   // compute FluxLine
-  if (llf(FluxLine, priml, primr, ActiveSize)==FAIL) {
-    return FAIL;
-  }
+
+  if (ComovingRiemannSolver == 1)  
+    rllf(FluxLine, priml, primr, ActiveSize);
+  else 
+     llf(FluxLine, priml, primr, ActiveSize);
+  
 
   if (NSpecies > 0) {
     plm_species(prim, 5, species, FluxLine[iD], ActiveSize);

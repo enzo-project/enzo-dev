@@ -733,7 +733,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	ramp =  1./((1.+exp(-2/delx*(y-0.25)))*(1.+exp(-2/delx*(0.75-y))));
 	BaryonField[iden ][igrid] = rhou + ramp*(rhol-rhou);
 	BaryonField[ivx  ][igrid] = vxu  + ramp*(vxl-vxu);
-	BaryonField[ivy  ][igrid] = 0.0;
+	BaryonField[ivy  ][igrid] = vyl;
 	BaryonField[ivz  ][igrid] = 0.0;
 	
 	// y-velocity perturbation: 
