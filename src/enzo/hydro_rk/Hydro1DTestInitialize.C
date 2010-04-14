@@ -57,23 +57,23 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %d", 
+    ret += sscanf(line, "RefineAtStart = %"ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LeftVelocityX = %f",
+    ret += sscanf(line, "LeftVelocityX = %"FSYM,
 		  &vxl);
-    ret += sscanf(line, "LeftVelocityY = %f",
+    ret += sscanf(line, "LeftVelocityY = %"FSYM,
 		  &vyl);
-    ret += sscanf(line, "LeftPressure = %f", 
+    ret += sscanf(line, "LeftPressure = %"FSYM, 
 		  &pl);
-    ret += sscanf(line, "LeftDensity = %f", 
+    ret += sscanf(line, "LeftDensity = %"FSYM, 
 		  &rhol);
-    ret += sscanf(line, "RightVelocityX = %f", 
+    ret += sscanf(line, "RightVelocityX = %"FSYM, 
 		  &vxr);
-    ret += sscanf(line, "RightVelocityY = %f", 
+    ret += sscanf(line, "RightVelocityY = %"FSYM, 
 		  &vyr);
-    ret += sscanf(line, "RightPressure = %f", 
+    ret += sscanf(line, "RightPressure = %"FSYM, 
 		  &pr);
-    ret += sscanf(line, "RightDensity = %f",
+    ret += sscanf(line, "RightDensity = %"FSYM,
                   &rhor);
 
     /* if the line is suspicious, issue a warning */
@@ -127,7 +127,7 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -186,23 +186,23 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %d\n",
+    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "LeftDensity       = %f\n",
+    fprintf(Outfptr, "LeftDensity       = %"FSYM"\n",
 	    rhol);
-    fprintf(Outfptr, "RightDensity          = %f\n",
+    fprintf(Outfptr, "RightDensity          = %"FSYM"\n",
 	    rhor);
-    fprintf(Outfptr, "LeftVelocityX = %f\n",
+    fprintf(Outfptr, "LeftVelocityX = %"FSYM"\n",
 	    vxl);
-    fprintf(Outfptr, "RightVelocityX = %f\n",
+    fprintf(Outfptr, "RightVelocityX = %"FSYM"\n",
             vxr);
-    fprintf(Outfptr, "LeftVelocityY = %f\n",
+    fprintf(Outfptr, "LeftVelocityY = %"FSYM"\n",
 	    vyl);
-    fprintf(Outfptr, "RightVelocityY = %f\n",
+    fprintf(Outfptr, "RightVelocityY = %"FSYM"\n",
             vyr);
-    fprintf(Outfptr, "LeftPressure = %f\n",
+    fprintf(Outfptr, "LeftPressure = %"FSYM"\n",
             pl);
-    fprintf(Outfptr, "RightPressure = %f\n",
+    fprintf(Outfptr, "RightPressure = %"FSYM"\n",
             pr);
   }
   //return FAIL;
