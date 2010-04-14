@@ -32,4 +32,4 @@ if (! -e src/enzo/Make.config.machine) then
 endif
 
 
-
+echo "Configure complete."
