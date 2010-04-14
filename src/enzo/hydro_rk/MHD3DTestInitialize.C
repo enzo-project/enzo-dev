@@ -75,33 +75,33 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %d", 
+    ret += sscanf(line, "RefineAtStart = %"ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LeftVelocityX = %f",
+    ret += sscanf(line, "LeftVelocityX = %"FSYM,
 		  &vxl);
-    ret += sscanf(line, "LeftVelocityY = %f",
+    ret += sscanf(line, "LeftVelocityY = %"FSYM,
 		  &vyl);
-    ret += sscanf(line, "LeftPressure = %f", 
+    ret += sscanf(line, "LeftPressure = %"FSYM, 
 		  &pl);
-    ret += sscanf(line, "LeftDensity = %f", 
+    ret += sscanf(line, "LeftDensity = %"FSYM, 
 		  &rhol);
-    ret += sscanf(line, "LeftBx = %f",
+    ret += sscanf(line, "LeftBx = %"FSYM,
 		  &Bxl);
-    ret += sscanf(line, "LeftBy = %f",
+    ret += sscanf(line, "LeftBy = %"FSYM,
 		  &Byl);
-    ret += sscanf(line, "RightVelocityX = %f", 
+    ret += sscanf(line, "RightVelocityX = %"FSYM, 
 		  &vxu);
-    ret += sscanf(line, "RightVelocityY = %f", 
+    ret += sscanf(line, "RightVelocityY = %"FSYM, 
 		  &vyu);
-    ret += sscanf(line, "RightPressure = %f", 
+    ret += sscanf(line, "RightPressure = %"FSYM, 
 		  &pu);
-    ret += sscanf(line, "RightDensity = %f",
+    ret += sscanf(line, "RightDensity = %"FSYM,
                   &rhou);
-    ret += sscanf(line, "RightBx = %f",
+    ret += sscanf(line, "RightBx = %"FSYM,
 		  &Bxu);
-    ret += sscanf(line, "RightBy = %f",
+    ret += sscanf(line, "RightBy = %"FSYM,
 		  &Byu);
-    ret += sscanf(line, "MHD3DProblemType = %d",
+    ret += sscanf(line, "MHD3DProblemType = %"ISYM,
 		  &MHD3DProblemType);
 
   } // end input from parameter file
@@ -152,7 +152,7 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -218,31 +218,31 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   /*if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %d\n",
+    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "LeftDensity       = %f\n",
+    fprintf(Outfptr, "LeftDensity       = %"FSYM"\n",
 	    rhol);
-    fprintf(Outfptr, "RightDensity          = %f\n",
+    fprintf(Outfptr, "RightDensity          = %"FSYM"\n",
 	    rhor);
-    fprintf(Outfptr, "LeftVelocityX = %f\n",
+    fprintf(Outfptr, "LeftVelocityX = %"FSYM"\n",
 	    vxl);
-    fprintf(Outfptr, "RightVelocityX = %f\n",
+    fprintf(Outfptr, "RightVelocityX = %"FSYM"\n",
             vxr);
-    fprintf(Outfptr, "LeftVelocityY = %f\n",
+    fprintf(Outfptr, "LeftVelocityY = %"FSYM"\n",
 	    vyl);
-    fprintf(Outfptr, "RightVelocityY = %f\n",
+    fprintf(Outfptr, "RightVelocityY = %"FSYM"\n",
             vyr);
-    fprintf(Outfptr, "LeftBx = %f\n",
+    fprintf(Outfptr, "LeftBx = %"FSYM"\n",
 	    Bxl);
-    fprintf(Outfptr, "RightBx = %f\n",
+    fprintf(Outfptr, "RightBx = %"FSYM"\n",
 	    Bxr);
-    fprintf(Outfptr, "LeftBy = %f\n",
+    fprintf(Outfptr, "LeftBy = %"FSYM"\n",
 	    Byl);
-    fprintf(Outfptr, "RightBy = %f\n",
+    fprintf(Outfptr, "RightBy = %"FSYM"\n",
 	    Byr);
-    fprintf(Outfptr, "LeftPressure = %f\n",
+    fprintf(Outfptr, "LeftPressure = %"FSYM"\n",
             pl);
-    fprintf(Outfptr, "RightPressure = %f\n",
+    fprintf(Outfptr, "RightPressure = %"FSYM"\n",
             pr);
 	    }*/
 

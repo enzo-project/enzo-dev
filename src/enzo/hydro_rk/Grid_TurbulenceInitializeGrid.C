@@ -142,8 +142,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (UsePhysicalUnit)
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, Time);
   double MassUnits = DensityUnits*pow(LengthUnits,3);
-  printf("Mass Units = %g \n",MassUnits);
-  printf("Time Units = %g \n",TimeUnits);
+  printf("Mass Units = %"GSYM" \n",MassUnits);
+  printf("Time Units = %"GSYM" \n",TimeUnits);
 
 
   size = 1;
@@ -456,7 +456,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     float VelocityNormalization = 1;
 // for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
   if (level > 0) VelocityNormalization = CloudMachNumber; 
-  printf("Cloud Mach Number = %g \n",CloudMachNumber);
+  printf("Cloud Mach Number = %"GSYM" \n",CloudMachNumber);
   for (i = 0; i < 3; i++) {
     for (n = 0; n < activesize; n++) {
       TurbulenceVelocity[i][n] *= VelocityNormalization;
@@ -709,9 +709,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 
 
-  /*  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  /*  printf("XXX PutSinkParticle = %"ISYM"\n", PutSinkParticle);
   int PutSinkParticle = 0;
-  printf("XXX PutSinkParticle = %d\n", PutSinkParticle);
+  printf("XXX PutSinkParticle = %"ISYM"\n", PutSinkParticle);
   if (PutSinkParticle == 1 && level == 0) {
     NumberOfParticleAttributes = 6;
     double mass_p = 1.1*1.989e33;
@@ -744,7 +744,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleAttribute[0][0] = 0.0; // creation time    
     ParticleAttribute[1][0] = t_dyn; // dynamical time                                                                
     ParticleAttribute[2][0] = mass_p; //                                                                                 
-    printf("XXX Sink Particle in, NumberOfParticles = %d \n",NumberOfParticles);
+    printf("XXX Sink Particle in, NumberOfParticles = %"ISYM" \n",NumberOfParticles);
     }*/
 
 
