@@ -174,7 +174,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     FLOAT r;
     FLOAT r0 = 0.1, r1 = 0.115;
     float eint, h, cs, dpdrho, dpde, etot;
-    float rho0 = 10.0, rho1 = 1.0, pres = 1.0, v0 = 2.0, Bx0 = 5.;
+//  float rho0 = 10.0, rho1 = 1.0, pres = 1.0, v0 = 2.0, Bx0 = 5.;
+    float rho0 = 10.0, rho1 = 1.0, pres = 1.0, v0 = 2.0, Bx0 = 5./sqrt(4.*M_PI);
 
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
@@ -613,7 +614,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (MHD2DProblemType == 7) { 
 
     float E0 = 1.0;
-    const FLOAT r0 = 0.06;
+    const FLOAT r0 = 0.02;
     //    const FLOAT r0 = 0.1;
     float P0 = 3.0*(Gamma-1.0)*E0/(3.0*M_PI*pow(r0,2));
     float rho0 = 1.0;

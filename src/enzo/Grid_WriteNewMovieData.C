@@ -70,7 +70,9 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			    AMRHDF5Writer &AmiraGrid,
 			    int lastMovieStep, int TopGridCycle, 
 			    int WriteMe, int MovieTimestepCounter, int open, 
-			    FLOAT WriteTime)
+			    FLOAT WriteTime, 
+			    int alreadyopened[][MAX_DEPTH_OF_HIERARCHY], 
+			    int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY])
 {
 
   static char suffix[] = ".mdat";
@@ -187,6 +189,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     
     if (Movie3DVolumes > 0) {
       AmiraGrid.AMRHDF5Close();
+      AmiraGrid.AMRHDF5CloseSeparateParticles();
       AmiraGrid.AMRHDF5Create(AmiraFileName, RefineByArray, 
 			      DataType, stag, field_type, TopGridCycle,
 			      Time, CurrentRedshift, root_dx, 0, 
@@ -432,6 +435,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       TempNumber[i] = ParticleNumber[j];
     } // ENDFOR non-DM particles
 
+    /* Write */
 
     if (AmiraGrid.writeParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
 				 NumberOfBaryonFields, GridRank, 
@@ -463,6 +467,92 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   } // ENDIF Non-DM particles
 
   AmiraGrid.IncreaseGridCount();
+
+  /* Print out particles merged by level if requested.
+     - Ji-hoon Kim, Apr.2010 */
+
+  if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL) {
+
+    int *NonDMParticleIndices = new int[NumberOfParticles];
+    int NumberOfNonDMParticles = 0;
+    int ii, iattr;
+
+    FLOAT *TempPosition[3];
+    float *TempVelocity[3], *TempMass;
+    float *TempAttr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+    int *TempType;
+    PINT *TempNumber;
+    
+    for (i = 0; i < NumberOfParticles; i++)
+      NonDMParticleIndices[i] = -1;
+    for (i = 0; i < NumberOfParticles; i++)
+      if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER)
+	NonDMParticleIndices[NumberOfNonDMParticles++] = i;
+
+    /* Allocate memory */
+
+    if (NumberOfNonDMParticles > 0) {
+      for (dim = 0; dim < GridRank; dim++) {
+	TempPosition[dim] = new FLOAT[NumberOfNonDMParticles];
+	TempVelocity[dim] = new float[NumberOfNonDMParticles];
+      }
+      TempMass = new float[NumberOfNonDMParticles];
+      for (i = 0; i < NumberOfParticleAttributes; i++)
+	TempAttr[i] = new float[NumberOfNonDMParticles];
+      TempType = new int[NumberOfNonDMParticles];
+      TempNumber = new PINT[NumberOfNonDMParticles];
+    } // ENDIF non-DM particles > 0
+
+    /* Move non-DM particles into temp arrays */
+
+    for (i = 0; i < NumberOfNonDMParticles; i++) {
+      j = NonDMParticleIndices[i];
+      for (dim = 0; dim < GridRank; dim++) {
+	TempPosition[dim][i] = ParticlePosition[dim][j];
+	TempVelocity[dim][i] = ParticleVelocity[dim][j];
+      }
+      TempMass[i] = ParticleMass[j];
+      for (iattr = 0; iattr < NumberOfParticleAttributes; iattr++)
+	TempAttr[iattr][i] = ParticleAttribute[iattr][j];
+      TempType[i] = ParticleType[j];
+      TempNumber[i] = ParticleNumber[j];
+    } // ENDFOR non-DM particles
+
+    /* Write (merging grids level-by-level) */
+
+    if (AmiraGrid.writeParticles2(NumberOfNonDMParticles, NumberOfParticleAttributes,
+				  NumberOfBaryonFields, GridRank, 
+				  (void **) TempPosition, 
+				  (void **) TempVelocity,
+				  (void *) TempType, (void *) TempNumber, 
+				  (void *) TempMass,
+				  (void **) TempAttr,
+				  alreadyopened[ProcessorNumber][thislevel],
+				  NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel],
+				  MovieTimestepCounter, doubleTime, doubleRedshift, 
+				  thislevel, delta, doubleGridLeftEdge,
+				  integerOrigin, ghostzoneFlags, numGhostzones) != 0) {
+      fprintf(stderr, "Error in AMRHDF5Writer->writeParticles2\n");
+      return FAIL;
+    }
+
+    /* Free memory */
+
+    if (NumberOfNonDMParticles > 0) {
+      for (dim = 0; dim < GridRank; dim++) {
+	delete [] TempPosition[dim];
+	delete [] TempVelocity[dim];
+      }
+      for (i = 0; i < NumberOfParticleAttributes; i++)
+	delete [] TempAttr[i];
+      delete [] TempMass;
+      delete [] TempType;
+      delete [] TempNumber;
+    } // ENDIF non-DM particles > 0
+
+    delete [] NonDMParticleIndices;
+
+  } // ENDIF NON_DM_PARTICLES_MERGED_LEVEL
 
   /* Clean up */
 

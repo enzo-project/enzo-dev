@@ -113,11 +113,13 @@ int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid)
       return FAIL;
     }
 
-    if (NewMovieParticleOn == NON_DM_PARTICLES_IN_SEPARATE_HDF5) {   
+    if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL ||
+	NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {   
 
       char *AmiraParticleFileName = new char[80];
       strcpy(AmiraParticleFileName, NewMovieName);
       strcat(AmiraParticleFileName, "Particle");
+      strcat(AmiraParticleFileName, fileID);
       strcat(AmiraParticleFileName, pid);
       strcat(AmiraParticleFileName, ".hdf5");
 

@@ -203,8 +203,9 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	  WroteData = TRUE;
 	}
 
+#ifdef UNUSED
   /* Check for output: when the MBH jets haven't been ejected for too long 
-                       this is currently a test - Ji-hoon Kim, Mar.2010 */  //#####
+                       this is currently a test - Ji-hoon Kim, Mar.2010 */  
  
   if ((MBHFeedback == 2 || MBHFeedback == 3) && 
       OutputWhenJetsHaveNotEjected == TRUE) {
@@ -218,6 +219,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     my_exit(EXIT_SUCCESS);
 
   }
-  
+#endif   
+
   return SUCCESS;
 }

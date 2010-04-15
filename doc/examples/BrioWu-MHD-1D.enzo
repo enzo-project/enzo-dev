@@ -1,9 +1,11 @@
 # AMR PROBLEM DEFINITION FILE: MHD1D test
+#
 # Reference: Brio, M., & Wu, C. C. 1988, J. of Comput. Phys., 75, 400
 #
-#  This also serves as an Example of how to do 1D HD/MHD tests with the myriad 
-#  of shock tube problems defined in the literature
-#  define problem
+# This also serves as an Example of how to do 1D HD/MHD tests with the myriad 
+# of shock tube problems defined in the literature
+#
+# define problem
 #
 
 ProblemType                = 200
@@ -12,8 +14,8 @@ TopGridDimensions          = 800
 SelfGravity                = 0
 LeftFaceBoundaryCondition  = 1
 RightFaceBoundaryCondition = 1
-DomainLeftEdge = -1 -1 -1
-DomainRightEdge = 1 1 1
+#DomainLeftEdge = -1 -1 -1
+#DomainRightEdge = 1 1 1
 #
 #  set I/O and stop/start parameters
 #

@@ -89,6 +89,7 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
   int err = 0;
 
   gridId = 0;
+  particlegridId = 0;
 
   /* Create a string array that has the field names */
 
@@ -540,8 +541,274 @@ void AMRHDF5Writer::IncreaseGridCount() { gridId++; }
 
 
 
-/* The following three functions were made for printing out particles 
-   in a separate hdf5.  - Ji-hoon Kim, Apr. 2010 */   
+
+
+
+
+/* The following 2 functions were made for NON_DM_PARTICLES_MERGED_LEVEL
+  - Ji-hoon Kim, Apr. 2010 */   
+
+/***********************************************************************/
+
+void AMRHDF5Writer::IncreaseParticleGridCount() { particlegridId++; }
+
+
+
+/***********************************************************************/
+
+herr_t AMRHDF5Writer::writeParticles2( const int nPart,
+				       const int nAttributes,
+				       const int nBaryonFields,
+				       const int Rank,
+				       void **pos,
+				       void **vel,
+				       void *type,
+				       void *ID,
+				       void *mass,
+				       void **attr,
+                                       int& alreadyopenedentry,
+				       int& NumberOfStarParticlesOnProcOnLvlEntry,
+				       
+				       const int    timeStep,
+				       const double physicalTime,
+				       const double redshift,
+				       const int    levelIndex,
+				       const double *delta,
+				       
+				       const double *physicalOrigin,
+				       const Eint64    *integerOrigin,
+				       const int    *bboxflags,
+				       const int    *nghostzones )
+{
+
+  int dim, i, nPart_recorded_here, nPart_recorded_here_new;
+  int err = 0;
+  hid_t gridGrp, dataspace, dataspace2, dataset, PositionDatatype, attrname;
+  herr_t ret;
+  hsize_t hdims, hdims2;  
+  char gridDataName[100];
+
+  const char *ParticlePositionLabel[] = 
+     {"particle_position_x", "particle_position_y", "particle_position_z"};
+  const char *ParticleVelocityLabel[] = 
+     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
+  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", 
+				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+
+  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+
+  /* if there's no particle, don't bother */
+//if (nPart == 0 && levelIndex != 0)
+  if (nPart == 0)
+    return 0;
+
+  sprintf(gridDataName, "/particlegrid-%d", particlegridId);
+  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, gridDataName = %s\n",
+	  nPart, alreadyopenedentry, gridDataName); //#####
+
+  if (alreadyopenedentry == FALSE) {
+    gridGrp = H5Gcreate(fileId_particle, gridDataName, 0);
+
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_INT, "level", &levelIndex);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_INT, "timestep", 
+				&timeStep);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_DOUBLE, "time", 
+				&physicalTime);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_DOUBLE, "redshift", 
+				&redshift);
+    err |= writeArrayAttribute( gridGrp, H5T_NATIVE_INT,    6, "cctk_bbox", 
+				bboxflags);
+    err |= writeArrayAttribute( gridGrp, H5T_NATIVE_INT,    3, 
+				"cctk_nghostzones", nghostzones);
+    err |= writeArrayAttribute( gridGrp, H5T_NATIVE_DOUBLE, 3, "delta",        
+				delta);
+    err |= writeArrayAttribute( gridGrp, H5T_NATIVE_DOUBLE, 3, "origin",        
+				physicalOrigin);
+    err |= writeArrayAttribute( gridGrp, H5T_NATIVE_LLONG,  3, "iorigin",  
+				integerOrigin);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_INT, "NumberOfStarParticles", 
+				&NumberOfStarParticles);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_INT, "NumberOfStarParticlesOnProcOnLvlEntry", 
+				&NumberOfStarParticlesOnProcOnLvlEntry);
+    err |= writeScalarAttribute(gridGrp, H5T_NATIVE_INT, "nPart_recorded_here", 
+				&nPart);
+  } else {
+    gridGrp = H5Gopen(fileId_particle, gridDataName);
+
+    attrname = H5Aopen_name(gridGrp, "nPart_recorded_here");
+    ret  = H5Aread(attrname, H5T_NATIVE_INT, &nPart_recorded_here);
+
+    // increase the recorded number of star particles
+    nPart_recorded_here_new = nPart_recorded_here + nPart;
+    ret  = H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
+    H5Aclose(attrname);
+
+    fprintf(stdout, "nPart_recorded_here was %d, is now %d \n",
+	    nPart_recorded_here, nPart_recorded_here_new); //#####
+  }
+
+  if (nPart == 0) {
+    H5Gclose(gridGrp);
+    return 0;
+  }
+
+  assert(err==0);
+
+  /* Write particle data */
+
+  int FLOAT_Size = sizeof(FLOAT);
+  switch (FLOAT_Size) {
+  case 4:
+    PositionDatatype = H5T_NATIVE_FLOAT;
+    break;
+  case 8:
+    PositionDatatype = H5T_NATIVE_DOUBLE;
+    break;
+  case 12:
+  case 16:
+    PositionDatatype = H5T_NATIVE_LDOUBLE;
+    break;
+  default:
+    PositionDatatype = H5T_NATIVE_FLOAT;
+  } // ENDSWITCH
+
+  if (alreadyopenedentry == FALSE) {
+    
+    //When creating the group, the size is NumberOfStarParticlesOnProcEntry
+    hdims = NumberOfStarParticlesOnProcOnLvlEntry;  
+  
+    // setting the maximum size to be NULL is critical, 
+    // in order to extend the size later with H5Dextend
+    dataspace = H5Screate_simple(1, &hdims, NULL);
+
+    for (dim = 0; dim < Rank; dim++) {
+      
+      // Position
+      dataset = H5Dcreate(gridGrp, ParticlePositionLabel[dim], PositionDatatype,
+			  dataspace, H5P_DEFAULT);
+      H5Dwrite(dataset, PositionDatatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, pos[dim]);
+      H5Dclose(dataset);
+      
+      // Velocity
+      dataset = H5Dcreate(gridGrp, ParticleVelocityLabel[dim], h5DataType,
+			  dataspace, H5P_DEFAULT);
+      H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, vel[dim]);
+      H5Dclose(dataset);
+      
+    } // ENDFOR dim
+
+    // Type
+    dataset = H5Dcreate(gridGrp, "particle_type", H5T_NATIVE_INT,
+			dataspace, H5P_DEFAULT);
+    H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, type);
+    H5Dclose(dataset);
+    
+    // ID
+    dataset = H5Dcreate(gridGrp, "particle_index", HDF5_FILE_PINT,
+			dataspace, H5P_DEFAULT);
+    H5Dwrite(dataset, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
+    H5Dclose(dataset);
+    
+    // Mass
+    dataset = H5Dcreate(gridGrp, "particle_mass", h5DataType,
+			dataspace, H5P_DEFAULT);
+    H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, mass);
+    H5Dclose(dataset);
+    
+    // Attributes
+    for (i = 0; i < nAttributes; i++) {
+      dataset = H5Dcreate(gridGrp, ParticleAttributeLabel[i], h5DataType,
+			  dataspace, H5P_DEFAULT);
+      H5Dwrite(dataset, h5DataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, attr[i]);
+      H5Dclose(dataset);
+    } // ENDFOR attributes
+
+    H5Sclose(dataspace);
+
+    alreadyopenedentry = TRUE;  //now it is fully open
+
+  } else {
+
+    // When group alreadyopened, 
+    // first extend the filespace, and then append the new particles at the end
+
+    hsize_t file_count[1], file_offset[1];
+
+    file_offset[0] = nPart_recorded_here;
+    file_count[0] = nPart;
+
+    hdims = NumberOfStarParticlesOnProcOnLvlEntry;  //file
+    hdims2 = nPart;                                 //memory
+
+    dataspace = H5Screate_simple(1, &hdims, NULL);
+    dataspace2 = H5Screate_simple(1, &hdims2, NULL);
+    ret = H5Sselect_hyperslab(dataspace, H5S_SELECT_SET, file_offset, NULL, file_count, NULL);
+
+    hsize_t a1[1], a2[1];
+    int a3;
+    H5Sget_simple_extent_dims(dataspace, a1, a2);
+    a3 = H5Sget_select_npoints(dataspace);
+
+    for (dim = 0; dim < Rank; dim++) {
+      
+      // Position
+      dataset = H5Dopen(gridGrp, ParticlePositionLabel[dim]);
+      H5Dwrite(dataset, PositionDatatype, dataspace2, dataspace, H5P_DEFAULT, pos[dim]);
+      H5Dclose(dataset);
+      
+      // Velocity
+      dataset = H5Dopen(gridGrp, ParticleVelocityLabel[dim]);
+      H5Dwrite(dataset, h5DataType, dataspace2, dataspace, H5P_DEFAULT, vel[dim]);
+      H5Dclose(dataset);
+      
+    } // ENDFOR dim
+
+    // Type
+    dataset = H5Dopen(gridGrp, "particle_type");
+    H5Dwrite(dataset, H5T_NATIVE_INT, dataspace2, dataspace, H5P_DEFAULT, type);
+    H5Dclose(dataset);
+    
+    // ID
+    dataset = H5Dopen(gridGrp, "particle_index");
+    H5Dwrite(dataset, HDF5_PINT, dataspace2, dataspace, H5P_DEFAULT, ID);
+    H5Dclose(dataset);
+    
+    // Mass
+    dataset = H5Dopen(gridGrp, "particle_mass");
+    H5Dwrite(dataset, h5DataType, dataspace2, dataspace, H5P_DEFAULT, mass);
+    H5Dclose(dataset);
+    
+    // Attributes
+    for (i = 0; i < nAttributes; i++) {
+      dataset = H5Dopen(gridGrp, ParticleAttributeLabel[i]);
+      H5Dwrite(dataset, h5DataType, dataspace2, dataspace, H5P_DEFAULT, attr[i]);
+      H5Dclose(dataset);
+    } // ENDFOR attributes
+
+    H5Sclose(dataspace);
+    H5Sclose(dataspace2);
+
+  } // ENDIF alreadyopenedentry
+
+  H5Gclose(gridGrp);
+  H5Fflush(fileId_particle, H5F_SCOPE_LOCAL);
+
+  return 0;
+
+}
+
+
+
+
+
+
+
+
+
+/* The following 4 functions were made for NON_DM_PARTICLES_IN_MERGED_ALL
+  - Ji-hoon Kim, Apr. 2010 */   
 
 /***********************************************************************/
 
@@ -552,6 +819,7 @@ void AMRHDF5Writer::IncreaseOutputParticleCount() { output_particle++; }
 /***********************************************************************/
 
 void AMRHDF5Writer::AMRHDF5CloseSeparateParticles() { H5Fclose (fileId_particle); }
+
 
 
 /***********************************************************************/
@@ -646,8 +914,8 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
 					       void *ID,
 					       void *mass,
 					       void **attr,
-					       double doubleTime,
-					       double doubleRedshift,
+					       double physicalTime,
+					       double redshift,
 					       int& alreadyopenedentry,
 					       int& NumberOfStarParticlesOnProcEntry )
 {
@@ -674,8 +942,8 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
     return 0;
 
   sprintf(partDataName, "/Timestep-%d", output_particle);
-  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n",
-	  nPart, alreadyopenedentry, partDataName); //#####
+  //  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n",
+  //	  nPart, alreadyopenedentry, partDataName); 
   //  fprintf(stdout, "fileId_particle = %g\n", fileId_particle);
 
   if (alreadyopenedentry == FALSE) {
@@ -687,9 +955,9 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
     err |= writeScalarAttribute(partGrp, H5T_NATIVE_INT, "nPart_recorded_here", 
 				&nPart);
     err |= writeScalarAttribute(partGrp, H5T_NATIVE_DOUBLE, "time", 
-				&doubleTime);
+				&physicalTime);
     err |= writeScalarAttribute(partGrp, H5T_NATIVE_DOUBLE, "redshift", 
-				&doubleRedshift);    
+				&redshift);    
   } else {
     partGrp = H5Gopen(fileId_particle, partDataName);
 
@@ -700,14 +968,12 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
     nPart_recorded_here_new = nPart_recorded_here + nPart;
     ret  = H5Awrite(attrname, H5T_NATIVE_INT, &nPart_recorded_here_new);
     H5Aclose(attrname);
-  }
 
-  /*
-  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n"
-	  "nPart_recorded_here was %d, is now %d \n",
-	  nPart, alreadyopenedentry, partDataName, 
-	  nPart_recorded_here, nPart_recorded_here_new); 
-  */
+  //  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, partDataName = %s\n"
+  //	  "nPart_recorded_here was %d, is now %d \n",
+  //	  nPart, alreadyopenedentry, partDataName, 
+  //	  nPart_recorded_here, nPart_recorded_here_new); 
+  }
 
   assert(err==0);
 

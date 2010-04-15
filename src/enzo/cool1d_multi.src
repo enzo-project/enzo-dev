@@ -726,6 +726,11 @@ c
                endif
 #endif
 
+               if (edot(i) .ne. edot(i)) then    !#####
+                  write(6,*) 'cool1d_multi: edot = NaN!'
+                  edot(i) = 0.0
+               endif
+
             endif
          enddo
 

@@ -46,7 +46,7 @@ int grid::WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT Regio
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  if (NewMovieParticleOn != NON_DM_PARTICLES_IN_SEPARATE_HDF5)
+  if (NewMovieParticleOn != NON_DM_PARTICLES_MERGED_ALL)
     return SUCCESS;
 
   /* Exit if last timestep, but not called from WriteDataHierarchy */
@@ -86,7 +86,7 @@ int grid::WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT Regio
 
   /* Output particles */
 
-  if (NewMovieParticleOn == NON_DM_PARTICLES_IN_SEPARATE_HDF5) {
+  if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {
 
     /* Search for non dark matter particles and record their array
        element.  We don't store the data first because we need the

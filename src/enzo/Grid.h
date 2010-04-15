@@ -572,7 +572,9 @@ public:
 			 AMRHDF5Writer &AmiraGrid,
 			 int lastMovieStep, int TopGridCycle, 
 			 int WriteMe, int MovieTimestepCounter, int open, 
-			 FLOAT WriteTime);
+			 FLOAT WriteTime,
+			 int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
+			 int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
 
    int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
 					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,

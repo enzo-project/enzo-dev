@@ -126,6 +126,30 @@ class AMRHDF5Writer
 			 void *mass,
 			 void **attr );
 
+  herr_t writeParticles2( const int nPart,
+			  const int nAttributes,
+			  const int nBaryonFields,
+			  const int Rank,
+			  void **pos,
+			  void **vel,
+			  void *type,
+			  void *ID,
+			  void *mass,
+			  void **attr,
+			  int& alreadyopenedentry,
+			  int& NumberOfStarParticlesOnProcOnLvlEntry,
+			  
+			  const int    timeStep,
+			  const double physicalTime,
+			  const double redshift,
+			  const int    levelIndex,
+			  const double *delta,
+			  
+			  const double *physicalOrigin,
+			  const Eint64    *integerOrigin,
+			  const int    *bboxflags,
+			  const int    *nghostzones ) ;
+  
   herr_t writeSeparateParticles ( const int nPart,
 				  const int nAttributes,
 				  const int Rank,
@@ -141,6 +165,7 @@ class AMRHDF5Writer
 				  int& NumberOfStarParticlesOnProcEntry ) ;
 
   void IncreaseGridCount();
+  void IncreaseParticleGridCount();
   void IncreaseOutputParticleCount();
 
  protected:
@@ -152,7 +177,7 @@ class AMRHDF5Writer
   hid_t  fileId, fileId_particle;
   FILE  *index_file;
   int    relRef[3];
-  int    gridId, output_particle;
+  int    gridId, particlegridId, output_particle;
 
   double rootDelta[3];
   
