@@ -489,10 +489,11 @@
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
-               if (edot(i) .ne. edot(i)) then    !#####
-                  write(6,*) 'solve_rate_cool: edot = NaN!'
-                  edot(i) = 0.0
-               endif
+
+!               if (edot(i) .ne. edot(i)) then    !#####
+!                  write(6,*) 'solve_rate_cool: edot = NaN!'
+!                  edot(i) = 0.0
+!               endif
 
 !              Compute timestep for 10% change
 

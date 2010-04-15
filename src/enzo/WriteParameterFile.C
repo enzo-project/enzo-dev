@@ -39,6 +39,7 @@ int  WriteUnits(FILE *fptr);
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+void get_uuid(char *buffer);
 #ifdef TRANSFER
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
@@ -116,7 +117,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "StopCPUTime         = %lg\n", MetaData.StopCPUTime);
   fprintf(fptr, "ResubmitOn          = %"ISYM"\n", MetaData.ResubmitOn);
   fprintf(fptr, "ResubmitCommand     = %s\n\n", MetaData.ResubmitCommand);
-  fprintf(fptr, "MetaDataIdentifier  = %s\n\n", MetaDataIdentifier);
  
   fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
 
@@ -277,9 +277,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
   fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
   fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
-  fprintf(fptr, "MustRefineRegionMinRefinementLevel = %"ISYM"\n", MustRefineRegionMinRefinementLevel);
-  fprintf(fptr, "MetallicityRefinementMinLevel = %"ISYM"\n", MetallicityRefinementMinLevel);
-  fprintf(fptr, "MetallicityRefinementMinMetallicity      = %"GSYM"\n", 
+
+  fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
+	  FastSiblingLocatorEntireDomain);
+  fprintf(fptr, "MustRefineRegionMinRefinementLevel  = %"ISYM"\n", 
+	  MustRefineRegionMinRefinementLevel);
+  fprintf(fptr, "MetallicityRefinementMinLevel       = %"ISYM"\n", 
+	  MetallicityRefinementMinLevel);
+  fprintf(fptr, "MetallicityRefinementMinMetallicity = %"GSYM"\n", 
 	  MetallicityRefinementMinMetallicity);
  
   fprintf(fptr, "DomainLeftEdge         = ");
@@ -555,6 +560,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
+  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+         ShockwaveRefinementMinMach);
+  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+         ShockwaveRefinementMinVelocity);
+  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+         ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",
@@ -813,6 +824,27 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   time_t ID;
   ID = time(NULL);
   fprintf(fptr, "CurrentTimeIdentifier = %"ISYM"\n", int(ID));
+
+  /* If the simulation was given a name, write that. */
+  if(MetaData.MetaDataIdentifier != NULL){
+    fprintf(fptr, "MetaDataIdentifier              = %s\n",
+	    MetaData.MetaDataIdentifier);
+  }
+  /* Write unique simulation identifier. */
+  fprintf(fptr, "MetaDataSimulationUUID          = %s\n", MetaData.SimulationUUID);
+  /* Give this dataset a unique identifier. */
+  char dset_uuid[MAX_LINE_LENGTH];
+  get_uuid(dset_uuid);
+  fprintf(fptr, "MetaDataDatasetUUID             = %s\n", dset_uuid);
+  /* If the restart data had a UUID, write that. */
+  if(MetaData.RestartDatasetUUID != NULL){
+    fprintf(fptr, "MetaDataRestartDatasetUUID      = %s\n",
+	    MetaData.RestartDatasetUUID);
+  }
+  if(MetaData.InitialConditionsUUID != NULL){
+    fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
+	    MetaData.InitialConditionsUUID);
+  }
 
   /* write version info */
  

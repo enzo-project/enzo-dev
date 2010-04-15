@@ -63,7 +63,7 @@ void ReadParticleField_INT (int32 sd_id, char *label, int nPart, int **data);
 #endif
 
 #ifdef USE_HDF5
-void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, int **data);
+void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, PINT **data);
 void ReadParticleFieldHDF5_FLOAT(hid_t group_id, char *label, int nPart, float **data);
 void ReadParticleFieldHDF5_DOUBLE(hid_t group_id, char *label, int nPart, double **data);
 #endif

@@ -54,11 +54,17 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 #ifdef USE_MPI
 int CommunicationReduceValues(float *values, int number, MPI_Op ReduceOp);
 #endif /* USE_MPI */
+#ifdef TRANSFER
+int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
+				ExternalBoundary &Exterior, 
+				LevelHierarchyEntry *LevelArray[]);
+#endif
 
 #define NUMBER_OF_PROJECTED_FIELDS 28
 
 
-int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
+int ProjectToPlane2(char *ParameterFile,
+		    TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		    int ProjectStartTemp[], int ProjectEndTemp[], 
 		    FLOAT ProjectStartCoordinate[],
 		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
@@ -74,6 +80,13 @@ int ProjectToPlane2(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
   float **ProjectedField, TempCellWidth;
   double total_lum;
   FLOAT ProjectLeft[MAX_DIMENSION], ProjectRight[MAX_DIMENSION];
+
+  /* Read radiative transfer parameters */
+
+#ifdef TRANSFER
+  RadiativeTransferInitialize(ParameterFile, MetaData, *Exterior,
+			      LevelArray);
+#endif
 
   /* Set The GravityResolution to 1 to make the DM resolution the same at
      the gas. This is one of two reason's why this routine cannot be called

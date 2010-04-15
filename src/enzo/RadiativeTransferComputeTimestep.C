@@ -146,11 +146,18 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   /* Do not go past the level-0 time (+timestep) */
 
+  float Saved_dtPhoton = dtPhoton;
   HydroTime = LevelArray[0]->GridData->ReturnTime();
   if (level == 0)
     HydroTime += LevelArray[0]->GridData->ReturnTimeStep();
-  if ((HydroTime - PhotonTime + PFLOAT_EPSILON) < dtPhoton) {
-    dtPhoton = HydroTime - PhotonTime + PFLOAT_EPSILON;
+  float dtTol = PFLOAT_EPSILON * HydroTime;
+  if ((HydroTime+dtTol - PhotonTime) < dtPhoton) {
+    if (debug) 
+      printf("HydroTime = %"PSYM", PhotonTime = %"PSYM
+	     ", dtPhoton = %g, dtPhoton0 = %g\n",
+	     HydroTime, PhotonTime, dtPhoton, Saved_dtPhoton);
+    dtPhoton = max(HydroTime+dtTol - PhotonTime, dtTol);
+    dtPhoton = max(dtPhoton, 1e-4*Saved_dtPhoton);
     //LastTimestepUseHII = FALSE;
   }
 

@@ -94,6 +94,9 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior);
+int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   HierarchyEntry &TopGrid,
 				   TopGridData &MetaData);
@@ -486,6 +489,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
+  // 107) Put Sink from restart
+ 
+  if (ProblemType == 107)
+    ret = PutSinkRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
+ 
+
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {
     ret = MHD1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
@@ -547,7 +557,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+    printf("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
 	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
 	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");

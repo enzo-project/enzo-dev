@@ -765,6 +765,10 @@ public:
 
    int FlagCellsToBeRefinedByShocks();
 
+/* Flag all points based on the Mach number of the shock. */
+
+   int FlagCellsToBeRefinedByShockwaves(int level);
+
 /* Flag all points that require refining by the Jean's length criterion. */
 
    int FlagCellsToBeRefinedByJeansLength();
@@ -1760,6 +1764,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 float EjectaThermalEnergy, 
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
+
+/* Put Sink restart initialize grid. */
+
+  int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
+
 
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();

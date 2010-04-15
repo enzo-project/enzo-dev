@@ -51,7 +51,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior)
 {
- 
+  printf("       PutSinkRestart STARTED\n"); 
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -59,16 +59,16 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   float dummyf;
   /* Set default supernova parameters. */
  
-  float SupernovaRestartEjectaMass   = 1.0;   // in solar masses
-  float SupernovaRestartEjectaRadius = 1.0;   // in pc
-  float SupernovaRestartEjectaEnergy = 1.0;   // in 10^51 erg
-  FLOAT SupernovaRestartEjectaCenter[MAX_DIMENSION];
-  int   SupernovaRestartColourField   = FALSE;
+//   float SupernovaRestartEjectaMass   = 1.0;   // in solar masses
+//   float SupernovaRestartEjectaRadius = 1.0;   // in pc
+//   float SupernovaRestartEjectaEnergy = 1.0;   // in 10^51 erg
+//   FLOAT SupernovaRestartEjectaCenter[MAX_DIMENSION];
+//   int   SupernovaRestartColourField   = FALSE;
  
   char *PutSinkRestartName = NULL;
  
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    SupernovaRestartEjectaCenter[dim] = FLOAT_UNDEFINED;
+//   for (dim = 0; dim < MAX_DIMENSION; dim++)
+//     SupernovaRestartEjectaCenter[dim] = FLOAT_UNDEFINED;
  
   /* Error check. */
  
@@ -83,18 +83,18 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     /* Read parameters */
  
-    ret += sscanf(line, "SupernovaRestartEjectaMass = %"FSYM,
-		  &SupernovaRestartEjectaMass);
-    ret += sscanf(line, "SupernovaRestartEjectaRadius = %"FSYM,
-		  &SupernovaRestartEjectaRadius);
-    ret += sscanf(line, "SupernovaRestartEjectaEnergy = %"FSYM,
-		  &SupernovaRestartEjectaEnergy);
-    ret += sscanf(line, "SupernovaRestartEjectaCenter = %"PSYM" %"PSYM" %"PSYM,
-		  SupernovaRestartEjectaCenter,
-		  SupernovaRestartEjectaCenter+1,
-		  SupernovaRestartEjectaCenter+2);
-    ret += sscanf(line, "SupernovaRestartColourField = %"ISYM,
-		  &SupernovaRestartColourField);
+//     ret += sscanf(line, "SupernovaRestartEjectaMass = %"FSYM,
+// 		  &SupernovaRestartEjectaMass);
+//     ret += sscanf(line, "SupernovaRestartEjectaRadius = %"FSYM,
+// 		  &SupernovaRestartEjectaRadius);
+//     ret += sscanf(line, "SupernovaRestartEjectaEnergy = %"FSYM,
+// 		  &SupernovaRestartEjectaEnergy);
+//     ret += sscanf(line, "SupernovaRestartEjectaCenter = %"PSYM" %"PSYM" %"PSYM,
+// 		  SupernovaRestartEjectaCenter,
+// 		  SupernovaRestartEjectaCenter+1,
+// 		  SupernovaRestartEjectaCenter+2);
+//     ret += sscanf(line, "SupernovaRestartColourField = %"ISYM,
+// 		  &SupernovaRestartColourField);
  
     if (sscanf(line, "PutSinkRestartName = %s", dummy) == 1)
       PutSinkRestartName = dummy;
@@ -120,7 +120,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, "Missing restart file name.\n");
     ENZO_FAIL("");
   }
- 
+
   /* -------------------------------------------------------------------- */
   /* Read the restart file. */
  
@@ -130,12 +130,14 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
       == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "Error in ParameterFile %s.\n", PutSinkRestartName);
-    ENZO_FAIL("");PutSinkRestartInitialize.C
+    ENZO_FAIL("");
   }
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stderr, "Successfully read restart file %s.\n",
 	    PutSinkRestartName);
  
+  printf("    PutSinkRestartName = %s   \n",PutSinkRestartName ); 
+
   LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     LevelArray[level] = NULL;
@@ -167,22 +169,22 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   }
  
-  float EjectaRadius = SupernovaRestartEjectaRadius * LengthConversion;
-  float EjectaDensity = SupernovaRestartEjectaMass * MassConversion/
-                        (4.0/3.0*3.14159*POW(EjectaRadius, 3));
-  float EjectaThermalEnergy = SupernovaRestartEjectaEnergy * EnergyConversion /
-        (SupernovaRestartEjectaMass * MassConversion);
+//   float EjectaRadius = SupernovaRestartEjectaRadius * LengthConversion;
+//   float EjectaDensity = SupernovaRestartEjectaMass * MassConversion/
+//                         (4.0/3.0*3.14159*POW(EjectaRadius, 3));
+//   float EjectaThermalEnergy = SupernovaRestartEjectaEnergy * EnergyConversion /
+//         (SupernovaRestartEjectaMass * MassConversion);
  
-  EjectaRadius        /= LengthUnits;
-  EjectaDensity       /= DensityUnits;
-  EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
+//   EjectaRadius        /= LengthUnits;
+//   EjectaDensity       /= DensityUnits;
+//   EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
  
-  if (debug) {
-    printf("PutSinkRestart: initial T = %"GSYM" K\n",
-	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
-    printf("PutSinkRestart: r (code units) = %"GSYM"\n", EjectaRadius);
-    printf("PutSinkRestart: density (code units) = %"GSYM"\n", EjectaDensity);
-  }
+//   if (debug) {
+//     printf("PutSinkRestart: initial T = %"GSYM" K\n",
+// 	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
+//     printf("PutSinkRestart: r (code units) = %"GSYM"\n", EjectaRadius);
+//     printf("PutSinkRestart: density (code units) = %"GSYM"\n", EjectaDensity);
+//   }
  
   /* -------------------------------------------------------------------- */
   /* Loop over all the grids and call the initializer to modify them
@@ -196,11 +198,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     while (Temp != NULL) {
  
-      if (Temp->GridData->PutSinkRestartInitialize(EjectaDensity,
-			       EjectaRadius, EjectaThermalEnergy,
-			       SupernovaRestartEjectaCenter,
-			       SupernovaRestartColourField,
-			       &NumberOfCellsSet) == FAIL) {
+      if (Temp->GridData->PutSinkRestartInitialize(level,&NumberOfCellsSet) == FAIL) {
 	fprintf(stderr, "Error in grid->PutSinkRestartInitialize\n");
 	ENZO_FAIL("");
       }
@@ -233,17 +231,17 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
-	    SupernovaRestartEjectaMass);
-    fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",
-	    SupernovaRestartEjectaRadius);
-    fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %"FSYM"\n",
-	    SupernovaRestartEjectaEnergy);
-    fprintf(Outfptr, "SupernovaRestartEjectaCenter = ");
-    WriteListOfFloats(Outfptr, MetaData.TopGridRank,
-		      SupernovaRestartEjectaCenter);
-    fprintf(Outfptr, "SupernovaRestartColourField  = %"ISYM"\n",
-	    SupernovaRestartColourField);
+//     fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
+// 	    SupernovaRestartEjectaMass);
+//     fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",
+// 	    SupernovaRestartEjectaRadius);
+//     fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %"FSYM"\n",
+// 	    SupernovaRestartEjectaEnergy);
+//     fprintf(Outfptr, "SupernovaRestartEjectaCenter = ");
+//     WriteListOfFloats(Outfptr, MetaData.TopGridRank,
+// 		      SupernovaRestartEjectaCenter);
+//     fprintf(Outfptr, "SupernovaRestartColourField  = %"ISYM"\n",
+// 	    SupernovaRestartColourField);
     fprintf(Outfptr, "PutSinkRestartName         = %s\n",
 	    PutSinkRestartName);
  

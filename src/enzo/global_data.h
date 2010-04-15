@@ -101,6 +101,7 @@ EXTERN int RefineBy;
 EXTERN int MaximumRefinementLevel;
 EXTERN int MaximumGravityRefinementLevel;
 EXTERN int MaximumParticleRefinementLevel;
+EXTERN int FastSiblingLocatorEntireDomain;
 
 /* Cell Flagging method:  0 = None
                           1 = FlagCellsToBeRefinedBySlope
@@ -475,7 +476,6 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    refinement.    */
 
 
-
 EXTERN float MinimumShearForRefinement;
 
 /* For CellFlaggingMethod = 11,
@@ -484,6 +484,12 @@ EXTERN float MinimumShearForRefinement;
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
 
+/* For CellFlaggingMethod = 14,   
+   Minimum mach number required for refinement.    */
+
+EXTERN float ShockwaveRefinementMinMach;
+EXTERN float ShockwaveRefinementMinVelocity;
+EXTERN float ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 

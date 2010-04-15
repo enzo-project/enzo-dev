@@ -69,6 +69,7 @@ extern "C" void FORTRAN_NAME(primordial_solver)(
 	float *HM, float *H2I, float *H2II, float *DI, float *DII, float *HDI,
 	float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
 	float *gpldl, float *gphdl, float *HDltea, float *HDlowa, float *HDcool, float *ciecoa,
+	float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
 	float *inutot, int *iradtype, int *nfreq, 
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
     int *iciecool, int *ih2optical, int *errcode, int *omaskflag, int *threebody, int *subgridmask
@@ -235,6 +236,7 @@ int grid::SolveHighDensityPrimordialChemistry()
     CoolData.hyd01k, CoolData.h2k01, CoolData.vibh, CoolData.roth,CoolData.rotl,
     CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit, 
        CoolData.HDlte, CoolData.HDlow, CoolData.HDcool, CoolData.cieco,
+    CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp, CoolData.GAel,
     RadiationData.Spectrum[0], &RadiationFieldType, 
           &RadiationData.NumberOfFrequencyBins, 
     &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,

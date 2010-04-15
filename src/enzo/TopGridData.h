@@ -105,6 +105,11 @@ struct TopGridData
   char *LocalDir;               // local disk directory name
   char *GlobalDir;              // global disk directory name
 
+  char *MetaDataIdentifier;     // A name (string) that will be persisted between datasets
+  char *SimulationUUID;         // Unique identifier for the simulation
+  char *RestartDatasetUUID;     // Identifier of the dataset restarting from
+  char *InitialConditionsUUID;  // Identifier of the initial conditions used
+
   /* TopGrid Parameters governing hierarchy */
 
   int StaticHierarchy;     // TRUE for static mesh refinement

@@ -32,7 +32,7 @@ double Gaussian(double cs);
    */
  {
    int igrid, i, j, k;
-   igrid = -1;
+   igrid = 0;
    for (k = 0; k < dim2; k++) {
      for (j = 0; j < dim1; j++) {
        for (i = 0; i < dim0; i++, igrid++) {

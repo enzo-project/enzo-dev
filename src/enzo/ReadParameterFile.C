@@ -59,6 +59,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int ReadEvolveRefineFile(void);
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
+void get_uuid(char *buffer);
 
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
@@ -95,9 +96,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ResubmitOn  = %"ISYM, &MetaData.ResubmitOn);
     if (sscanf(line, "ResubmitCommand = %s", dummy) == 1) 
       MetaData.ResubmitCommand = dummy;
-
-    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) 
-      MetaDataIdentifier = dummy;
 
     ret += sscanf(line, "MaximumTopGridTimeStep = %"FSYM,
 		  &MetaData.MaximumTopGridTimeStep);
@@ -290,6 +288,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
     ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
     ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
+    ret += sscanf(line, "FastSiblingLocatorEntireDomain = %"ISYM, &FastSiblingLocatorEntireDomain);
     ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
 		  &MustRefineRegionMinRefinementLevel);
     ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
@@ -570,6 +569,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
 		  &MinimumEnergyRatioForRefinement);
+    ret += sscanf(line, "ShockwaveRefinementMinMach = %"FSYM,
+                 &ShockwaveRefinementMinMach);
+    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
+                 &ShockwaveRefinementMinVelocity);
+    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"FSYM,
+                 &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
@@ -588,10 +593,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  		  MetaData.RightFaceBoundaryCondition,
  		  MetaData.RightFaceBoundaryCondition+1,
  		  MetaData.RightFaceBoundaryCondition+2);
-
   
     if (sscanf(line, "BoundaryConditionName         = %s", dummy) == 1)
       MetaData.BoundaryConditionName = dummy;
+
+    if (sscanf(line, "MetaDataIdentifier = %s", dummy) == 1) {
+      MetaData.MetaDataIdentifier = dummy;
+      ret++;
+    }
+    if (sscanf(line, "MetaDataSimulationUUID = %s", dummy) == 1) {
+      MetaData.SimulationUUID = dummy;
+      ret++;
+    }
+    if (sscanf(line, "MetaDataDatasetUUID = %s", dummy) == 1) {
+      MetaData.RestartDatasetUUID = dummy;
+      ret++;
+    }
+    if (sscanf(line, "MetaDataInitialConditionsUUID = %s", dummy) == 1) {
+      MetaData.InitialConditionsUUID = dummy;
+      ret++;
+    }
  
     /* Check version number. */
  
@@ -1271,6 +1292,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
+  }
+
+  /* Generate unique identifier if one wasn't found. */
+  if(MetaData.SimulationUUID == NULL){
+    MetaData.SimulationUUID = new char[MAX_LINE_LENGTH];
+    get_uuid(MetaData.SimulationUUID);
   }
  
    for (int i=0; i<MetaData.TopGridRank;i++)

@@ -41,16 +41,21 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
     Mesh->Dimension[dim] = min(TopGridDims[dim] / 4, 128);
  
     /* Set the chaining mesh size to be the same as the entire domain. */
- 
-    Mesh->LeftEdge[dim] = DomainLeftEdge[dim];
-    Mesh->RightEdge[dim] = DomainRightEdge[dim];
-    Mesh->BoundaryType[dim] = periodic;
- 
+
+    if (FastSiblingLocatorEntireDomain) {
+
+      Mesh->LeftEdge[dim] = DomainLeftEdge[dim];
+      Mesh->RightEdge[dim] = DomainRightEdge[dim];
+      Mesh->BoundaryType[dim] = periodic;
+    }
+
     /* The other option is to just use the AMR refine region. */
  
-    //    Mesh->LeftEdge[dim] = RefineRegionLeftEdge[dim];
-    //    Mesh->RightEdge[dim] = RefineRegionRightEdge[dim];
-    //    Mesh->BoundaryType[dim] = outflow; // i.e. not periodic
+    else {
+      Mesh->LeftEdge[dim] = RefineRegionLeftEdge[dim];
+      Mesh->RightEdge[dim] = RefineRegionRightEdge[dim];
+      Mesh->BoundaryType[dim] = outflow; // i.e. not periodic
+    }
  
     Mesh->CellSize[dim] = (Mesh->RightEdge[dim] - Mesh->LeftEdge[dim])/
                           Mesh->Dimension[dim];
