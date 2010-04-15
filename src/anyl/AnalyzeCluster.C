@@ -18,7 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_HDF4
 #include <df.h>
+#endif /* USE_HDF4 */
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
