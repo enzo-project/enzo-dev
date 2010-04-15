@@ -106,7 +106,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
-
+  if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
+    MetalNum = SNColourNum;
 
   /***********************************************************************
                                 SUPERNOVAE

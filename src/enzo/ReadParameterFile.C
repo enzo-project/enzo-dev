@@ -293,8 +293,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MustRefineRegionMinRefinementLevel);
     ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
 		  &MetallicityRefinementMinLevel);
-    ret += sscanf(line, "MetallicityRefinementMinMetallicity      = %"FSYM, 
+    ret += sscanf(line, "MetallicityRefinementMinMetallicity = %"FSYM, 
 		  &MetallicityRefinementMinMetallicity);
+    ret += sscanf(line, "MetallicityRefinementMinDensity = %"FSYM, 
+		  &MetallicityRefinementMinDensity);
 
     ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);

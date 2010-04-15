@@ -68,8 +68,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
   // grid::StarParticleHandler.
-  if (StarType == PopII && FeedbackFlag == FORMATION &&
-      Mass > StarClusterMinimumMass) {
+  if ((StarType == PopII && FeedbackFlag == FORMATION &&
+       Mass > StarClusterMinimumMass) ||
+      (StarType == PopIII && FeedbackFlag == FORMATION &&
+       Mass >= PopIIIStarMass)) {
     if (debug)
       printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
@@ -250,11 +252,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Don't allow the sphere to be too large (2x leeway) */
 
-  const float epsMass = 2.0;
+  const float epsMass = 9.0;
   float eps_tdyn;
   if (FeedbackFlag == FORMATION) {
     // single Pop III star
-    if (StarType == PopIII)
+    if (StarType == PopIII && LevelArray[level+1] != NULL)
       if (MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
 	SphereContained = FALSE;
 	return SUCCESS;
@@ -262,7 +264,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     // t_dyn \propto M_enc^{-1/2} => t_dyn > sqrt(1.0+eps)*lifetime
     // Star cluster
-    if (StarType == PopII) {
+    if (StarType == PopII && LevelArray[level+1] != NULL) {
       eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
       if (DynamicalTime > eps_tdyn) {
 	SphereContained = FALSE;
@@ -288,7 +290,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     if (debug) {
       printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM", Z = %"GSYM"\n",
 	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity);
-      if (StarType == PopII)
+      if (StarType == PopII || StarType == PopIII)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
 	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n",

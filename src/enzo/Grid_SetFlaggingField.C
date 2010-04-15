@@ -179,10 +179,11 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       /* ==== METHOD 12: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
  
     case 12:
- 
-      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
-      if (NumberOfFlaggedCells < 0) {
-        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
+      if (level < MustRefineRegionMinRefinementLevel) {
+	NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
+	if (NumberOfFlaggedCells < 0) {
+	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
+	}
       }
       break;
  
@@ -190,10 +191,11 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       /* ==== METHOD 13: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
  
     case 13:
- 
-      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
-      if (NumberOfFlaggedCells < 0) {
-        ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
+      if (level < MetallicityRefinementMinLevel) {
+	NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
+	if (NumberOfFlaggedCells < 0) {
+	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
+	}
       }
       break;
  

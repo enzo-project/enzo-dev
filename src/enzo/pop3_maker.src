@@ -203,7 +203,7 @@ c                  type(ii) = -ctype
                else
 c                  type(ii) = ctype
 c                  mp(ii)   = starmass / m1
-                  mp(ii)   = 0.5 * bmass
+                  mp(ii)   = min(0.5 * bmass, starmass/m1)
                   tdp(ii) = lifetime*3.15e7/t1
                endif
 

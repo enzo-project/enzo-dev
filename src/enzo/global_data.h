@@ -136,9 +136,9 @@ EXTERN int MustRefineRegionMinRefinementLevel;
    will refine up to (does not prevent refinement to higher levels) */
 EXTERN int MetallicityRefinementMinLevel;
 
-/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+/* threshold metallicity and density for FlagGridCellsToBeRefinedByMetallicity */
 EXTERN float MetallicityRefinementMinMetallicity;
-
+EXTERN float MetallicityRefinementMinDensity;
 
 /* Velocity to limit timesteps */
 

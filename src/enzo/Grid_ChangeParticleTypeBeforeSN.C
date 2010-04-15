@@ -43,7 +43,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
   const float pc = 3.086e18, mh = 1.673e-24, Msun = 1.989e33;
   const float PISNLowerMass = 140.0, PISNUpperMass = 260.0;
   const float StartRefineAtTime = 0.99;  // Percentage of stellar lifetime
-  const float EndRefineAtTime = 1.01;
+  const float EndRefineAtTime = 1.0;
   const float AmbientDensity = 1.0;  // For SN shock radius (cm^-3)
 
   // The refined region will be 2*BufferZone*SNradius wide
@@ -117,7 +117,7 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 		// diameter, calculate the refinement level
 		DesiredResolution = 
 		  Diameter / PopIIISupernovaMustRefineResolution;
-		MustRefineParticlesRefineToLevel = 1+level +
+		MustRefineParticlesRefineToLevel = level +
 		  nint(ceil(logf(CellWidth[0][0]/DesiredResolution) /
 			    logf(RefineBy)));
 		printf("Diameter = %g, factor = %f, Need_dx = %g (%g), "
@@ -204,7 +204,7 @@ double CalculateBlastWaveRadius(double Mass, double n0, double Time)
 	 ShockVelocity, StartTime, STradius);
 
   // Correct the time by a sound crossing time and StartTime (see above)
-  Time = max(Time-StartTime-SoundCrossingTime, 0);
+  //Time = max(Time-StartTime-SoundCrossingTime, 0);
   printf("\t Time = %g\n", Time);
 
   // Free expansion (for now, assume a constant velocity.  In reality,
