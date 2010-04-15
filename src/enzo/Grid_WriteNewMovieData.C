@@ -189,7 +189,6 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     
     if (Movie3DVolumes > 0) {
       AmiraGrid.AMRHDF5Close();
-      AmiraGrid.AMRHDF5CloseSeparateParticles();
       AmiraGrid.AMRHDF5Create(AmiraFileName, RefineByArray, 
 			      DataType, stag, field_type, TopGridCycle,
 			      Time, CurrentRedshift, root_dx, 0, 
@@ -200,11 +199,34 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			      NumberOfParticleAttributes, FieldNames, 
 			      error);
       //printf("NewMovie: Opened movie data file %s\n", AmiraFileName);
-    }
 
-    if (error) {
-      fprintf(stderr, "Error in AMRHDF5Writer %s.\n", AmiraFileName);
-      return FAIL;
+      if (error) {
+	fprintf(stderr, "Error in AMRHDF5Writer %s.\n", AmiraFileName);
+	return FAIL;
+      }
+
+      if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL ||
+	  NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {   
+
+	char *AmiraParticleFileName = new char[80];
+	strcpy(AmiraParticleFileName, NewMovieName);
+	strcat(AmiraParticleFileName, "Particle");
+	strcat(AmiraParticleFileName, Amira_fileID);
+	strcat(AmiraParticleFileName, Amira_pid);
+	strcat(AmiraParticleFileName, ".hdf5");
+	
+	AmiraGrid.AMRHDF5CloseSeparateParticles();
+	AmiraGrid.AMRHDF5CreateSeparateParticles(AmiraParticleFileName, 
+						 (NewMovieParticleOn > 0),
+						 NumberOfParticleAttributes,  
+						 error);
+	if (error) {
+	  fprintf(stderr, "Error in AMRHDF5Writer.\n");
+	  return FAIL;
+	}
+	delete [] AmiraParticleFileName;
+      }
+
     }
 
     for (field = 0; field < nFields; field++)

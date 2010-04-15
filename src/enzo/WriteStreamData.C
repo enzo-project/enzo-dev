@@ -186,7 +186,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 	delete [] AmiraParticleFileName;
       }
 
-   }
+    }
 
     delete [] AmiraFileName;
     delete [] RefineByArray;
