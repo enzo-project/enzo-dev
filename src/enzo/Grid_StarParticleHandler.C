@@ -365,7 +365,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   /* Find metallicity field and set flag. */
  
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
-  int MetallicityField = FALSE;
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
@@ -373,8 +372,26 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     ENZO_FAIL("");
   }
 
-  MetalNum = max(MetalNum, SNColourNum);
-  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+  /* If both metal fields exist, make a total metal field */
+
+  float *MetalPointer;
+  float *TotalMetals = NULL;
+  int MetallicityField;
+
+  MetallicityField = (MetalNum != -1 || SNColour != -1);
+
+  if (MetalNum != -1 && SNColour != -1) {
+    TotalMetals = new float[size];
+    for (i = 0; i < size; i++)
+      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+    MetalPointer = TotalMetals;
+  } // ENDIF both metal types
+  else {
+    if (MetalNum != -1)
+      MetalPointer = BaryonField[MetalNum];
+    else if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } // ENDELSE both metal types
 
   /* Set variables to type defines to pass to FORTRAN routines */
 
@@ -535,7 +552,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -594,7 +611,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum], 
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer, 
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -623,7 +640,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	(GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
 	 dmfield, h2field, temperature, BaryonField[Vel1Num], 
 	 BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time, &dtFixed, 
-	 BaryonField[NumberOfBaryonFields], BaryonField[MetalNum], 
+	 BaryonField[NumberOfBaryonFields], MetalPointer, 
 	 &CellWidthTemp, &Time, &zred, &MyProcessorNumber, &DensityUnits, 
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
@@ -677,7 +694,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 BaryonField[DensNum], dmfield, temperature, 
 	 BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
 	 cooling_time, &dtFixed, BaryonField[NumberOfBaryonFields], 
-	 BaryonField[MetalNum], &CellWidthTemp, 
+	 MetalPointer, &CellWidthTemp, 
 	 &Time, &zred, &MyProcessorNumber, &DensityUnits, 
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
@@ -755,7 +772,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -798,7 +815,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, coolingrate,
           BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -1007,7 +1024,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1060,7 +1077,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield, 
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod, 
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp, 
           &Time, &zred,
@@ -1110,7 +1127,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1138,7 +1155,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield, 
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod, 
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp, 
           &Time, &zred,
@@ -1176,7 +1193,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
   /* Clean up. */
  
-  if (h2field != NULL) delete [] h2field;
+  delete [] h2field;
+  delete [] TotalMetals;
   delete [] temperature;
   delete [] dmfield;
   delete [] BaryonField[NumberOfBaryonFields];   // refinement flag field
