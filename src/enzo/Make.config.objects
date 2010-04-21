@@ -462,6 +462,7 @@ OBJS_CONFIG_LIB = \
         Group_WriteAllData.o \
         Group_WriteDataHierarchy.o \
         h5utilities.o \
+	HilbertCurve3D.o \
         Hierarchy_DeleteHierarchyEntry.o \
         ibm_fft64.o \
         ibm_st1_fft64.o \
@@ -495,6 +496,8 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceHilbertCurve.o \
+	LoadBalanceHilbertCurveRootGrids.o \
 	LoadBalanceSimulatedAnnealing.o \
         MagneticFieldResetter.o \
         mcooling.o \

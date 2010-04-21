@@ -50,6 +50,8 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
+int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
+			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
@@ -484,8 +486,12 @@ int RebuildHierarchy(TopGridData *MetaData,
 	  CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
 					MoveParticles);
 	break;
+      case 4:
+	if (i >= LoadBalancingMinLevel)
+	  LoadBalanceHilbertCurve(SubgridHierarchyPointer, subgrids, 
+				  MoveParticles);
+	break;
       default:
-	
 	break;
       }
       tt1 = ReturnWallTime();
