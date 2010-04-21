@@ -447,10 +447,8 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData)
     for (i = 0; i < size; i++) {
-      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];  
-#ifdef NOUSE
-      //BaryonField[MetalNum][i] = 1e-4 * 0.0204 * BaryonField[0][i];    // Z = 1e-4Zs
-#endif
+      //      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];  
+      BaryonField[MetalNum][i] = 1e-4 * 0.0204 * BaryonField[0][i];    // Z = 1e-4Zs  //#####
       if(MultiMetals){
 	BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
 	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];

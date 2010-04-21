@@ -742,11 +742,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
       
     }
 
-    if (STARMAKE_METHOD(INSTANT_STAR) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(INSTANT_STAR)) {
 
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
-      //                            only at MaximumRefinementLevel, 
-      //                            reconsiders star formation or feedback when MBH exists,
+      //                            can reconsider star formation or feedback when MBH exists,
       //                            when in cosmological sim, StarMakerOverDensity is in particles/cc, 
       //                            not the ratio with respect to the DensityUnits, unlike others)
 

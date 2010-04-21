@@ -423,8 +423,8 @@
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
 
-               if (dtit(i) .ne. dtit(i)) 
-     &            write(6,*) '1-#####-dtit(i) = ', dtit(i)
+!               if (dtit(i) .ne. dtit(i)) 
+!     &            write(6,*) '1-#####-dtit(i) = ', dtit(i)
 
 !              Output some debugging information if required
 
@@ -460,8 +460,8 @@
             endif
             enddo               ! end loop over i
 
-               if (dtit(i) .ne. dtit(i)) 
-     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
+!               if (dtit(i) .ne. dtit(i)) 
+!     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
 
 !           Compute maximum timestep for cooling/heating
 
