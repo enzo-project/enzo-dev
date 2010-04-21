@@ -278,10 +278,15 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
 
 #ifdef USE_MPI
   MPI_Bcast(&NumberOfRootGrids, 1, IntDataType, ROOT_PROCESSOR, MPI_COMM_WORLD);
-  if (MyProcessorNumber != ROOT_PROCESSOR)
-    RootProcessors = new int[NumberOfRootGrids];
-  MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
-	    MPI_COMM_WORLD);
+  if (NumberOfRootGrids > 1) {
+    if (MyProcessorNumber != ROOT_PROCESSOR)
+      RootProcessors = new int[NumberOfRootGrids];
+    MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
+	      MPI_COMM_WORLD);
+  } else {
+    delete [] RootProcessors;
+    RootProcessors = NULL;
+  }
 #endif
 
   rewind(fptr);

@@ -157,6 +157,13 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   BlockDivisions[i] = NumberOfGrids-1;
   ProcessorWork[i] = WorkLeft;
 
+//  if (debug) {
+//    printf("BlockDivisions = ");
+//    for (i = 0; i < NumberOfProcessors; i++)
+//      printf("%d ", BlockDivisions[i]);
+//    printf("\n");
+//  }
+
   /* Mark the new processor numbers with the above divisions. */
 
   block_num = 0;
@@ -184,6 +191,8 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
     MinWork = 0x7FFFFFFF;
     MaxWork = -1;
     for (i = 0; i < NumberOfProcessors-1; i++) {
+
+      if (BlockDivisions[i] == 0) continue;
       
       /* Hilbert key for the division and boundaries of the curve
 	 segment that we will move grids */
