@@ -3,6 +3,7 @@ syntax: glob
 
 *.o
 *.f
+*.f90
 *~
 
 DEPEND
