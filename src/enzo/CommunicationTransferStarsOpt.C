@@ -60,6 +60,11 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
   int Rank, grid_num, GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
 
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    Layout[dim] = 0;
+    GridPosition[dim] = 0;
+  }
+
   GridPointer[0]->ReturnGridInfo(&Rank, Dims, Left, Right); // need rank
   Enzo_Dims_create(NumberOfGrids, Rank, LayoutTemp);
 
