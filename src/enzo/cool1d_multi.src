@@ -729,7 +729,11 @@ c
                if (edot(i) .ne. edot(i)) then    !#####
                   write(6,*) 'cool1d_multi: edot = NaN!', 
      $                        metalc(i), d(i,j,k), xi, dom, edot(i), 
-     $                        dlogxe, dlogT
+     $                        dlogxe, log_xe, xe1, dlogxea,
+     $                        logxe1, logxe0, n_xe
+                  write(6,*) 'more: ',
+     $                        log_xe, log(xe), logxe1, logxe0, xe, 
+     $                        xe_max, xe_min
                   edot(i) = 0.0
                endif
 

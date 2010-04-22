@@ -30,8 +30,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::CalculateMassAccretion(void)
 {
 
-  if ((this->type != BlackHole && ABS(this->type) != MBH) || 
+  if ((this->type != BlackHole && this->type != MBH) || 
       (this->CurrentGrid == NULL)) 
+    return SUCCESS;
+
+  if (this->type == MBH && MBHAccretion == 0)
     return SUCCESS;
 
   const double Grav = 6.673e-8, k_b = 1.38e-16, m_h = 1.673e-24;
@@ -174,7 +177,10 @@ int Star::CalculateMassAccretion(void)
 	mdot = min(mdot, mdot_Edd); 
 
       /* No accretion if the BH is in some low-density and cold cell. */
-      if (density < tiny_number || temperature[index] < 10 || isnan(mdot) || !(MBHAccretion > 0))
+      if (density < tiny_number || temperature[index] < 10)
+	mdot = 0.0;
+
+      if (isnan(mdot))
 	mdot = 0.0;
 
 //    fprintf(stdout, "mdot_UpperLimit=%g, mdot_Edd=%g, mdot=%g\n", mdot_UpperLimit, mdot_Edd, mdot); 
@@ -191,9 +197,9 @@ int Star::CalculateMassAccretion(void)
     this->accretion_time[0] = time;
 
     if (mdot > 0.0)
-      fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot_ori = %"GSYM", mdot = %"GSYM" Msun/yr, "
+      fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" (%"GSYM"/%"GSYM") Msun/yr, "
 	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
-	      Identifier, time, mdot_original*yr, mdot*yr, Mass, density*DensityUnits,
+	      Identifier, time, mdot*yr, mdot_original*yr, mdot_Edd*yr, Mass, density*DensityUnits,
 	      temperature[index], v_rel);
 
   } // ENDIF LOCAL_ACCRETION  

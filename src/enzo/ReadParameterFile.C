@@ -710,6 +710,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHParticleIO);
     if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
       MBHParticleIOFilename = dummy;
+    if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
+      MBHInsertLocationFilename = dummy;
 
     /* Read Movie Dump parameters */
 

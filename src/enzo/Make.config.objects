@@ -497,6 +497,7 @@ OBJS_CONFIG_LIB = \
         ListIO.o \
 	LoadBalanceSimulatedAnnealing.o \
         MagneticFieldResetter.o \
+        mbh_maker.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \

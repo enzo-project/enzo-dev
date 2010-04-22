@@ -801,6 +801,7 @@ EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 EXTERN int MBHParticleIO;
 EXTERN char *MBHParticleIOFilename;
 EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN char *MBHInsertLocationFilename;
 EXTERN int OutputWhenJetsHaveNotEjected;
 
 /* Vorticity Calculations */

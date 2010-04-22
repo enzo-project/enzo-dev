@@ -428,6 +428,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
+  MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
   OutputWhenJetsHaveNotEjected     = FALSE;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
