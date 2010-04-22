@@ -436,8 +436,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		
 		
 		    if (CorrectLeftBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
-			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+//		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
+//			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 		
 		    if(CorrectLeftBaryonField){
 		
@@ -458,8 +458,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    }
 		
 		    if (CorrectRightBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
-			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
+//		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
+//			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
 		
 		    /* update only if necessary */
 		    if(CorrectRightBaryonField){
