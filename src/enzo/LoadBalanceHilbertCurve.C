@@ -230,9 +230,9 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 	  ProcessorWork[LoadedBlock] - ProcessorWork[UnloadedBlock];
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
-	  if (debug)
-	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
-		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
+//	  if (debug)
+//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
 	  NewProcessorNumber[HilbertData[grid_num].grid_num] = UnloadedBlock;
@@ -520,9 +520,9 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 	  ProcessorWork[LoadedBlock] - ProcessorWork[UnloadedBlock];
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
-	  if (debug)
-	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
-		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
+//	  if (debug)
+//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
 	  NewProcessorNumber[HilbertData[grid_num].grid_num] = UnloadedBlock;
