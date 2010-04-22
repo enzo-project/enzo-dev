@@ -68,6 +68,11 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ThisCellWidth;
 
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    Layout[dim] = 0;
+    GridPosition[dim] = 0;
+  }
+
   // Root processor does all of the work, and broadcasts the new
   // processor numbers
 
