@@ -497,9 +497,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2s
         do j=1,Ny
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(1,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -521,9 +519,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1s
         do k=1,Nz
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(2,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -545,9 +541,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0s
         do k=1,Nz
            do j=1,Ny
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(3,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -569,9 +563,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0e
         do k=1,Nz
            do j=1,Ny
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(5,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -593,9 +585,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1e
         do k=1,Nz
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(6,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -617,9 +607,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2e
         do j=1,Ny
            do i=1,Nx
-              matentries(:,i,j,k) = 0.d0
-              matentries(4,i,j,k) = 1.d0
-              rhsentries(i,j,k)   = 0.d0
+              matentries(7,i,j,k) = 0.d0
            enddo
         enddo
      ! Neumann
@@ -893,9 +881,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCYl==1) then
         j = x1s
         do i=1,Nx
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = 0.d0
+           matentries(1,i,j) = 0.d0
         enddo
         ! Neumann
      else if (BCYl==2) then
@@ -913,9 +899,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCXl==1) then
         i = x0s
         do j=1,Ny
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = 0.d0
+           matentries(2,i,j) = 0.d0
         enddo
         ! Neumann
      else if (BCXl==2) then
@@ -933,9 +917,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCXr==1) then
         i = x0e
         do j=1,Ny
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = 0.d0
+           matentries(4,i,j) = 0.d0
         enddo
         ! Neumann
      else if (BCXr==2) then
@@ -953,9 +935,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCYr==1) then
         j = x1e
         do i=1,Nx
-           matentries(:,i,j) = 0.d0
-           matentries(3,i,j) = 1.d0
-           rhsentries(i,j)   = 0.d0
+           matentries(5,i,j) = 0.d0
         enddo
         ! Neumann
      else if (BCYr==2) then
@@ -1144,9 +1124,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXl==1) then
         i = x0s
-        matentries(:,i) = 0.d0
-        matentries(2,i) = 1.d0
-        rhsentries(i)   = 0.d0
+        matentries(1,i) = 0.d0
      ! Neumann
      else if (BCXl==2) then
         i = x0s
@@ -1160,9 +1138,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXr==1) then
         i = x0e
-        matentries(:,i) = 0.d0
-        matentries(2,i) = 1.d0
-        rhsentries(i)   = 0.d0
+        matentries(3,i) = 0.d0
      ! Neumann
      else if (BCXr==2) then
         i = x0e
