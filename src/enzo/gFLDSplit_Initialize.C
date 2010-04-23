@@ -103,11 +103,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 //   if (debug)  printf("  Initialize: setting default parameters\n");
 
   // set default module parameters
-  Nchem  = 0;           // hydrogen only
-  Model  = 1;           // chemistry-dependent case
-  ESpectrum = 0;        // simple power law spectrum
+  Nchem  = 1;           // hydrogen only
+  Model  = 1;           // case-B HII recombination coefficient
+  ESpectrum = 1;        // T=10^5 blackbody spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
-  LimType = 3;          // no limiter
+  dtnorm = 2.0;         // use 2-norm for time step estimation
+  LimType = 4;          // ZEUS limiter
   ErScale = 1.0;        // no radiation equation scaling
   ecScale = 1.0;        // no energy equation scaling
   NiScale = 1.0;        // no chemistry equation scaling
@@ -270,6 +271,21 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     Nchem = 0;  // default is no chemistry
   }
 
+  // RadHydroHFraction must be between 0 and 1
+  if ((RadHydroHFraction < 0.0) || (RadHydroHFraction > 1.0)) {
+    fprintf(stderr,"gFLDSplit Initialize: illegal RadHydroHFraction = %g\n",
+	    RadHydroHFraction);
+    fprintf(stderr,"   re-setting to 1.0\n");
+    RadHydroHFraction = 1.0;  // default is all Hydrogen
+  }
+
+  // LimType gives the limiter formula to use (see header)
+  if ((LimType < 0) || (LimType > 4)) {
+    fprintf(stderr,"gFLDSplit Initialize: illegal LimType = %"ISYM"\n",LimType);
+    fprintf(stderr,"   re-setting LimType to 4 (ZEUS)\n");
+    LimType = 0;  // default is ZEUS limiter
+  }
+
   // maxdt gives the maximum radiation time step size
   if (maxdt <= 0.0) {
     fprintf(stderr,"gFLDSplit Initialize: illegal MaxDt = %g\n",maxdt);
@@ -341,8 +357,8 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // dtnorm gives the norm for calculating allowed relative change per step
   if (dtnorm < 0.0) {
     fprintf(stderr,"gFLDSplit Initialize: illegal DtNorm = %g\n",dtnorm);
-    fprintf(stderr,"   re-setting to 0.0 (max pointwise norm)\n");
-    dtnorm = 0.0;  // default is pointwise norm
+    fprintf(stderr,"   re-setting to 2.0 (2-norm)\n");
+    dtnorm = 2.0;  // default is 2-norm
   }
 
   // Theta gives the implicit time-stepping method (1->BE, 0.5->CN, 0->FE)

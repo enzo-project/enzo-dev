@@ -127,6 +127,7 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   int Nchem;           // number of chemical species (non-negative integer)
   int Model;           // model choice:
                        //    1 => case B HII recombination rates
+                       //    4 => isothermal, case B HII recombination
                        //   10 => LTE couplings (ZEUS), constant opacity
   float NGammaDot;     // ionization strength (photons/sec)
   float EtaRadius;     // ionization source radius

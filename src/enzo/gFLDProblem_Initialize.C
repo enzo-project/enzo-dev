@@ -111,12 +111,13 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 //   if (debug)  printf("  Initialize: setting default parameters\n");
 
   // set default module parameters
-  Nchem  = 0;           // hydrogen only
-  Model  = 0;           // test case 
-  ESpectrum = 0;        // simple power law spectrum
+  Nchem  = 1;           // hydrogen only
+  Model  = 1;           // case-B HII recombination coefficient
+  ESpectrum = 1;        // T=10^5 blackbody spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
+  dtnorm = 2.0;         // use 2-norm for time step estimation
   LimImp = 0;           // lag implicit dependence of limiter in time
-  LimType = 3;          // no limiter
+  LimType = 4;          // ZEUS limiter
   ErScale = 1.0;        // no radiation equation scaling
   ecScale = 1.0;        // no energy equation scaling
   NiScale = 1.0;        // no chemistry equation scaling
@@ -194,7 +195,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "RadHydroMaxDt = %"FSYM, &maxdt);
 	ret += sscanf(line, "RadHydroMinDt = %"FSYM, &mindt);
 	ret += sscanf(line, "RadHydroInitDt = %"FSYM, &initdt);
-	ret += sscanf(line, "RadHydroDtSolver = %"ISYM, &dtsolver);
 	ret += sscanf(line, "RadHydroDtNorm = %"FSYM, &dtnorm);
 	ret += sscanf(line, "RadHydroDtRadFac = %"FSYM, &dtfac[0]);
 	ret += sscanf(line, "RadHydroDtGasFac = %"FSYM, &dtfac[1]);
@@ -344,8 +344,23 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     Nchem = 0;  // default is no chemistry
   }
 
+  // RadHydroHFraction must be between 0 and 1
+  if ((RadHydroHFraction < 0.0) || (RadHydroHFraction > 1.0)) {
+    fprintf(stderr,"gFLDProblem Initialize: illegal RadHydroHFraction = %g\n",
+	    RadHydroHFraction);
+    fprintf(stderr,"   re-setting to 1.0\n");
+    RadHydroHFraction = 1.0;  // default is all Hydrogen
+  }
+
+  // LimType gives the limiter formula to use (see header)
+  if ((LimType < 0) || (LimType > 4)) {
+    fprintf(stderr,"gFLDProblem Initialize: illegal LimType = %"ISYM"\n",LimType);
+    fprintf(stderr,"   re-setting LimType to 4 (ZEUS)\n");
+    LimType = 0;  // default is ZEUS limiter
+  }
+
   // LimImp gives the implicitness of the radiation flux limiter (see header)
-  if ((LimImp < 0) || (LimImp > 4)) {
+  if ((LimImp < 0) || (LimImp > 2)) {
     fprintf(stderr,"gFLDProblem Initialize: illegal LimImp = %"ISYM"\n",
 	    LimImp);
     fprintf(stderr,"   re-setting LimImp to 0\n");
@@ -427,8 +442,8 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // dtnorm gives the norm for calculating allowed relative change per step
   if (dtnorm < 0.0) {
     fprintf(stderr,"gFLDProblem Initialize: illegal DtNorm = %g\n",dtnorm);
-    fprintf(stderr,"   re-setting to 0.0 (max pointwise norm)\n");
-    dtnorm = 0.0;  // default is pointwise norm
+    fprintf(stderr,"   re-setting to 2.0 (2-norm)\n");
+    dtnorm = 2.0;  // default is 2-norm
   }
 
   // Theta gives the implicit time-stepping method (1->BE, 0.5->CN, 0->FE)
@@ -799,7 +814,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    newt_maxit);
     newt_maxit = 20;
   }
-  if ((newt_norm < 0) || (newt_norm > 7)) {
+  if ((newt_norm < 0) || (newt_norm > 5)) {
     fprintf(stderr,"Illegal RadHydroNewtNorm = %"ISYM". Setting to 0\n",
 	    newt_norm);
     newt_norm = 0;
