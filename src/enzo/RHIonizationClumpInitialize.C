@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -118,17 +119,8 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroTemperatureOut);
 	ret += sscanf(line, "RadHydroRadiationEnergy = %"FSYM, 
 		      &RadHydroRadiationEnergy);
-	if (RadHydroChemistry > 0)
-	  ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
-			&RadHydroInitialFractionHII);
-	if (RadHydroChemistry > 1) {
-	  ret += sscanf(line, "RadHydroHydrogenMassFraction = %"FSYM, 
-			&RadHydroHydrogenMassFraction);
-	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
-			&RadHydroInitialFractionHeII);
-	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
-			&RadHydroInitialFractionHeIII);
-	}
+	ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
+		      &RadHydroInitialFractionHII);
 	ret += sscanf(line, "RadHydroOmegaBaryonNow = %"FSYM, 
 		      &RadHydroOmegaBaryonNow);
 	
@@ -140,6 +132,9 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+  // ensure that we're performing only Hydrogen chemistry
+  if (RadHydroChemistry != 1) 
+    ENZO_FAIL("RHIonizationClumpInitialize error: RadHydroChemistry must equal 1!");
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 
@@ -154,31 +149,11 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   float mp = 1.67262171e-24;    // proton mass [g]
   float kb = 1.3806504e-16;     // boltzmann constant [erg/K]
   float nH, HI, HII, nHe, HeI, HeII, HeIII, ne, num_dens, mu;
-  if (RadHydroChemistry == 0) 
-    mu = DEFAULT_MU;
-  else if (RadHydroChemistry == 1) {
-    HI = 1.0 - RadHydroInitialFractionHII;
-    HII = RadHydroInitialFractionHII;
-    ne = HII;
-    num_dens = HI + HII + ne;
-    mu = 1.0/num_dens;
-  }
-  else if (RadHydroChemistry == 3) {
-    nH = RadHydroHydrogenMassFraction;
-    nHe = (1.0 - RadHydroHydrogenMassFraction);
-    HI = nH*(1.0 - RadHydroInitialFractionHII);
-    HII = nH*RadHydroInitialFractionHII;
-    HeII = nHe*RadHydroInitialFractionHeII;
-    HeIII = nHe*RadHydroInitialFractionHeIII;
-    HeI = nHe - HeII - HeIII;
-    ne = HII + HeII/4.0 + HeIII/2.0;
-    num_dens = 0.25*(HeI + HeII + HeIII) + HI + HII + ne;
-    mu = 1.0/num_dens;
-  }
-  else {
-    fprintf(stderr,"Initialize error: NChem != {0,1,3}\n");
-    return FAIL;	
-  }
+  HI = 1.0 - RadHydroInitialFractionHII;
+  HII = RadHydroInitialFractionHII;
+  ne = HII;
+  num_dens = HI + HII + ne;
+  mu = 1.0/num_dens;
   // correct mu if using a special model
   if ((RadHydroModel == 4) || (RadHydroModel == 5)) 
     mu = DEFAULT_MU;
@@ -218,9 +193,6 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = DeName;
   DataLabel[BaryonField++] = HIName;
   DataLabel[BaryonField++] = HIIName;
-  DataLabel[BaryonField++] = HeIName;
-  DataLabel[BaryonField++] = HeIIName;
-  DataLabel[BaryonField++] = HeIIIName;
 
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;

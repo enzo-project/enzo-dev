@@ -211,13 +211,16 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = Vel1Name;
   DataLabel[BaryonField++] = Vel2Name;
   DataLabel[BaryonField++] = RadName;
-  DataLabel[BaryonField++] = DeName;
-  DataLabel[BaryonField++] = HIName;
-  DataLabel[BaryonField++] = HIIName;
-  DataLabel[BaryonField++] = HeIName;
-  DataLabel[BaryonField++] = HeIIName;
-  DataLabel[BaryonField++] = HeIIIName;
-
+  if (RadHydroChemistry > 0) {
+    DataLabel[BaryonField++] = DeName;
+    DataLabel[BaryonField++] = HIName;
+    DataLabel[BaryonField++] = HIIName;
+  }
+  if (RadHydroChemistry == 3) {
+    DataLabel[BaryonField++] = HeIName;
+    DataLabel[BaryonField++] = HeIIName;
+    DataLabel[BaryonField++] = HeIIIName;
+  }
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;
 

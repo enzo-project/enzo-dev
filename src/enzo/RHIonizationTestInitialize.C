@@ -118,6 +118,8 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
 			&RadHydroInitialFractionHII);
 	  ret += sscanf(line, "RadHydroHydrogenMassFraction = %"FSYM, 
 			&RadHydroHydrogenMassFraction);
+	}
+	if (RadHydroChemistry == 3) {
 	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
 			&RadHydroInitialFractionHeII);
 	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
@@ -209,12 +211,16 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = Vel1Name;
   DataLabel[BaryonField++] = Vel2Name;
   DataLabel[BaryonField++] = RadName;
-  DataLabel[BaryonField++] = DeName;
-  DataLabel[BaryonField++] = HIName;
-  DataLabel[BaryonField++] = HIIName;
-  DataLabel[BaryonField++] = HeIName;
-  DataLabel[BaryonField++] = HeIIName;
-  DataLabel[BaryonField++] = HeIIIName;
+  if (RadHydroChemistry > 0) {
+    DataLabel[BaryonField++] = DeName;
+    DataLabel[BaryonField++] = HIName;
+    DataLabel[BaryonField++] = HIIName;
+  }
+  if (RadHydroChemistry == 3) {
+    DataLabel[BaryonField++] = HeIName;
+    DataLabel[BaryonField++] = HeIIName;
+    DataLabel[BaryonField++] = HeIIIName;
+  }
 
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;

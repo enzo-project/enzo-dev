@@ -48,12 +48,6 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name  = "y-velocity";
   char *Vel2Name  = "z-velocity";
   char *RadName   = "Grey_Radiation_Energy";
-  char *HIName    = "HI_Density";
-  char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
-  char *DeName    = "Electron_Density";
 
   // local declarations
   int dim;
@@ -122,12 +116,6 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = Vel1Name;
   DataLabel[BaryonField++] = Vel2Name;
   DataLabel[BaryonField++] = RadName;
-  DataLabel[BaryonField++] = DeName;
-  DataLabel[BaryonField++] = HIName;
-  DataLabel[BaryonField++] = HIIName;
-  DataLabel[BaryonField++] = HeIName;
-  DataLabel[BaryonField++] = HeIIName;
-  DataLabel[BaryonField++] = HeIIIName;
 
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;

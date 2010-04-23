@@ -59,12 +59,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
   FieldType[V1Num = NumberOfBaryonFields++]    = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++]    = Velocity3;
   FieldType[EgNum = NumberOfBaryonFields++]    = RadiationFreq0;
-  FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
-  FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
-  FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;    
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;    
   
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -94,9 +88,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
-// 	   MyProcessorNumber, NumberOfBaryonFields, size, 
-// 	   GridDimension[0], GridDimension[1], GridDimension[2]);
     for (int field=0; field<NumberOfBaryonFields; field++)
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[size];
@@ -114,12 +105,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
     float Vzconstant = 0.0;
     float TEConstant = IEConstant + 0.5 * (Vxconstant*Vxconstant 
 		       + Vyconstant*Vyconstant +Vzconstant*Vzconstant);
-    float HIIConstant = 0.0;
-    float HIConstant = 0.0;
-    float HeIIConstant = 0.0;
-    float HeIIIConstant = 0.0;
-    float HeIConstant = 0.0;
-    float DeConstant = 0.0;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;
     
@@ -130,12 +115,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
       BaryonField[V1Num][i]    = Vyconstant/VelocityUnits;
       BaryonField[V2Num][i]    = Vzconstant/VelocityUnits;
       BaryonField[EgNum][i]    = EgConstant/EUnits;
-      BaryonField[DeNum][i]    = DeConstant/DensityUnits;
-      BaryonField[HINum][i]    = HIConstant/DensityUnits;
-      BaryonField[HIINum][i]   = HIIConstant/DensityUnits;
-      BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
-      BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
-      BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
     }
     if (DualEnergyFormalism)
       for (i=0; i<size; i++)
@@ -151,12 +130,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
       if (DualEnergyFormalism)
 	printf("         IEConstant = %g\n",IEConstant);    
       printf("         EgConstant = %g\n",EgConstant);    
-      printf("         DeConstant = %g\n",DeConstant);    
-      printf("         HIConstant = %g\n",HIConstant);    
-      printf("        HIIConstant = %g\n",HIIConstant);    
-      printf("        HeIConstant = %g\n",HeIConstant);    
-      printf("       HeIIConstant = %g\n",HeIIConstant);    
-      printf("      HeIIIConstant = %g\n",HeIIIConstant);    
       
       printf("Corresponding scaled values:\n");
       printf("    Density = %g\n",DensityConstant/DensityUnits);
@@ -164,12 +137,6 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
       if (DualEnergyFormalism)
       printf("         IE = %g\n",IEConstant/eUnits);
       printf("         Eg = %g\n",EgConstant/EUnits);
-      printf("         De = %g\n",DeConstant/DensityUnits);
-      printf("         HI = %g\n",HIConstant/DensityUnits);
-      printf("        HII = %g\n",HIIConstant/DensityUnits);
-      printf("        HeI = %g\n",HeIConstant/DensityUnits);
-      printf("       HeII = %g\n",HeIIConstant/DensityUnits);
-      printf("      HeIII = %g\n",HeIIIConstant/DensityUnits);
     }
     
     if ( GreyMarshDir == 0 ) {

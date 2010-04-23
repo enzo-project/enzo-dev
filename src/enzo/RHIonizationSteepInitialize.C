@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -56,9 +57,6 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   char *RadName   = "Grey_Radiation_Energy";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
   char *DeName    = "Electron_Density";
 
   // local declarations
@@ -115,6 +113,9 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+  // ensure that we're performing only Hydrogen chemistry
+  if (RadHydroChemistry != 1) 
+    ENZO_FAIL("RHIonizationSteepInitialize error: RadHydroChemistry must equal 1!");
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 
@@ -170,9 +171,6 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = DeName;
   DataLabel[BaryonField++] = HIName;
   DataLabel[BaryonField++] = HIIName;
-  DataLabel[BaryonField++] = HeIName;
-  DataLabel[BaryonField++] = HeIIName;
-  DataLabel[BaryonField++] = HeIIIName;
 
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;

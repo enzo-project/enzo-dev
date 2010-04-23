@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -56,12 +57,9 @@ int grid::RHIonizationClumpInitializeGrid(int NumChemicals,
 //     fprintf(stdout,"Entering grid::RHIonizationClumpInitializeGrid routine\n");
 
   // ensure that we're using Hydrogen only
-  // note: we still set up space for Helium chemistry, but only because Enzo
-  //       requires it for Hydrogen chemistry (Grid_ComputeTemperatureField.C) 
-  //       and color field advection (Grid_SolveHydroEquations.C).
   if (NumChemicals != 1) {
     fprintf(stderr,"  Illegal chemical species = %i\n",NumChemicals);
-    return FAIL;
+    ENZO_FAIL("Error in Grid_RHIonizationClumpInitializeGrid");
   }
 
   // determine whether data should be allocated/initialized or not
@@ -85,9 +83,6 @@ int grid::RHIonizationClumpInitializeGrid(int NumChemicals,
   FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
   FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
   FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
 
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -117,10 +112,6 @@ int grid::RHIonizationClumpInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
-// 	   MyProcessorNumber, NumberOfBaryonFields, size, 
-// 	   GridDimension[0], GridDimension[1], GridDimension[2]);
-
     for (int field=0; field<NumberOfBaryonFields; field++)
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[size];

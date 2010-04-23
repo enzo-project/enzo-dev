@@ -49,8 +49,7 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
     NewData = FALSE;
 
   // create necessary baryon fields
-  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum, HeINum, HeIINum, HeIIINum;
+  int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++] = Density;
   FieldType[TENum = NumberOfBaryonFields++]  = TotalEnergy;
@@ -60,12 +59,6 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
   FieldType[V1Num = NumberOfBaryonFields++] = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++] = Velocity3;
   FieldType[EgNum = NumberOfBaryonFields++] = RadiationFreq0;
-  FieldType[DeNum = NumberOfBaryonFields++]  = ElectronDensity;
-  FieldType[HINum = NumberOfBaryonFields++]  = HIDensity;
-  FieldType[HIINum = NumberOfBaryonFields++] = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;    
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;    
   
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -116,12 +109,6 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
 
     float IEConstant = 1.0/(Gamma-1.0)/DEFAULT_MU*sqrt(sqrt((EgConstant/RadCon)));
     float TEConstant = IEConstant;
-    float HIIConstant = 0.0;
-    float HIConstant = 0.0;
-    float HeIIConstant = 0.0;
-    float HeIIIConstant = 0.0;
-    float HeIConstant = 0.0;
-    float DeConstant = 0.0;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;
     
@@ -131,12 +118,6 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
       BaryonField[V0Num][i]    = 0.0;
       BaryonField[V1Num][i]    = 0.0;
       BaryonField[V2Num][i]    = 0.0;
-      BaryonField[DeNum][i]    = DeConstant/DensityUnits;
-      BaryonField[HINum][i]    = HIConstant/DensityUnits;
-      BaryonField[HIINum][i]   = HIIConstant/DensityUnits;
-      BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
-      BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
-      BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
     }
     if (DualEnergyFormalism)
       for (i=0; i<size; i++)
@@ -152,25 +133,13 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
       if (DualEnergyFormalism)
 	printf("         IEConstant = %g\n",IEConstant);    
       printf("         EgConstant = %g\n",EgConstant);    
-      printf("         DeConstant = %g\n",DeConstant);    
-      printf("         HIConstant = %g\n",HIConstant);    
-      printf("        HIIConstant = %g\n",HIIConstant);    
-      printf("        HeIConstant = %g\n",HeIConstant);    
-      printf("       HeIIConstant = %g\n",HeIIConstant);    
-      printf("      HeIIIConstant = %g\n",HeIIIConstant);    
       
       printf("Corresponding scaled values:\n");
       printf("    Density = %g\n",DensityConstant/DensityUnits);
       printf("         TE = %g\n",TEConstant/eUnits);
-      printf("         Eg = %g\n",EgConstant/EUnits);
-      printf("         De = %g\n",DeConstant/DensityUnits);
       if (DualEnergyFormalism)
 	printf("         IE = %g\n",IEConstant/eUnits);
-      printf("         HI = %g\n",HIConstant/DensityUnits);
-      printf("        HII = %g\n",HIIConstant/DensityUnits);
-      printf("        HeI = %g\n",HeIConstant/DensityUnits);
-      printf("       HeII = %g\n",HeIIConstant/DensityUnits);
-      printf("      HeIII = %g\n",HeIIIConstant/DensityUnits);
+      printf("         Eg = %g\n",EgConstant/EUnits);
     }
 
     int idx;

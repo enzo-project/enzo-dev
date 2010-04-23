@@ -69,12 +69,16 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
   FieldType[V1Num = NumberOfBaryonFields++]    = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++]    = Velocity3;
   FieldType[EgNum = NumberOfBaryonFields++]    = RadiationFreq0;
-  FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
-  FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
-  FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;    
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;    
+  if (NumChemicals > 0) {
+    FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
+    FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
+    FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
+  }
+  if (NumChemicals == 3) {
+    FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
+    FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;    
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+  }
 
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -132,12 +136,16 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
       BaryonField[V1Num][i]  = VyConstant/VelocityUnits;
       BaryonField[V2Num][i]  = VzConstant/VelocityUnits;
       BaryonField[EgNum][i]  = EgConstant/EUnits;
-      BaryonField[DeNum][i]  = DeConstant/DensityUnits;
-      BaryonField[HINum][i]  = HIConstant/DensityUnits;
-      BaryonField[HIINum][i] = HIIConstant/DensityUnits;
-      BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
-      BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
-      BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
+      if (NumChemicals > 0) {
+	BaryonField[DeNum][i]  = DeConstant/DensityUnits;
+	BaryonField[HINum][i]  = HIConstant/DensityUnits;
+	BaryonField[HIINum][i] = HIIConstant/DensityUnits;
+      }
+      if (NumChemicals == 3) {
+	BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
+	BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
+	BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
+      }
     }
     if (DualEnergyFormalism)
       for (i=0; i<size; i++)
@@ -153,13 +161,17 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
       printf("     y-velocity = %g\n",VyConstant);
       printf("     z-velocity = %g\n",VzConstant);
       printf("      radiation = %g\n",EgConstant);
-      printf("      electrons = %g\n",DeConstant);
-      printf("            nHI = %g\n",HIConstant);
-      printf("           nHII = %g\n",HIIConstant);
-      printf("           nHeI = %g\n",HeIConstant);
-      printf("          nHeII = %g\n",HeIIConstant);
-      printf("         nHeIII = %g\n",HeIIIConstant);
-      
+      if (NumChemicals > 0) {
+	printf("      electrons = %g\n",DeConstant);
+	printf("            nHI = %g\n",HIConstant);
+	printf("           nHII = %g\n",HIIConstant);
+      }
+      if (NumChemicals == 3) {
+	printf("           nHeI = %g\n",HeIConstant);
+	printf("          nHeII = %g\n",HeIIConstant);
+	printf("         nHeIII = %g\n",HeIIIConstant);
+      }
+
       printf("Corresponding scaled values:\n");
       printf("        density = %g\n",DensityConstant/DensityUnits);
       printf("   total energy = %g\n",TEConstant/eUnits);
@@ -169,12 +181,16 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
       printf("     y-velocity = %g\n",VyConstant/VelocityUnits);
       printf("     z-velocity = %g\n",VzConstant/VelocityUnits);
       printf("      radiation = %g\n",EgConstant/EUnits);
-      printf("      electrons = %g\n",DeConstant/DensityUnits);
-      printf("            nHI = %g\n",HIConstant/DensityUnits);
-      printf("           nHII = %g\n",HIIConstant/DensityUnits);
-      printf("           nHeI = %g\n",HeIConstant/DensityUnits);
-      printf("          nHeII = %g\n",HeIIConstant/DensityUnits);
-      printf("         nHeIII = %g\n",HeIIIConstant/DensityUnits);
+      if (NumChemicals > 0) {
+	printf("      electrons = %g\n",DeConstant/DensityUnits);
+	printf("            nHI = %g\n",HIConstant/DensityUnits);
+	printf("           nHII = %g\n",HIIConstant/DensityUnits);
+      }
+      if (NumChemicals == 3) {
+	printf("           nHeI = %g\n",HeIConstant/DensityUnits);
+	printf("          nHeII = %g\n",HeIIConstant/DensityUnits);
+	printf("         nHeIII = %g\n",HeIIIConstant/DensityUnits);
+      }
     }
 
   } // end if NewData == TRUE

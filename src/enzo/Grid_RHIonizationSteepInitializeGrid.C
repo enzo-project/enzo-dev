@@ -50,23 +50,14 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 //   if (debug)
 //     fprintf(stdout,"Entering grid::RHIonizationSteepInitializeGrid routine\n");
 
-  // ensure that we're using Hydrogen only
-  // note: we still set up space for Helium chemistry, but only because 
-  //       Enzo requires it for Hydrogen chemistry (ComputeTemperature)
-  if (NumChemicals != 1) {
-    fprintf(stderr,"  Illegal chemical species = %"ISYM"\n",NumChemicals);
-    return FAIL;
-  }
-
   // determine whether data should be allocated/initialized or not
   int NewData = TRUE;
   if ((ParallelRootGridIO == TRUE) && (local == 0))
     NewData = FALSE;
 
-
   // create necessary baryon fields
   int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum, HeINum, HeIINum, HeIIINum;
+    HINum, HIINum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++] = Density;
   FieldType[TENum = NumberOfBaryonFields++]  = TotalEnergy;
@@ -79,9 +70,6 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
   FieldType[DeNum = NumberOfBaryonFields++]  = ElectronDensity;
   FieldType[HINum = NumberOfBaryonFields++]  = HIDensity;
   FieldType[HIINum = NumberOfBaryonFields++] = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]  = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++] = HeIIDensity;
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
 
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -134,9 +122,6 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
       BaryonField[V1Num][i] = VyConstant/VelocityUnits;
       BaryonField[V2Num][i] = VzConstant/VelocityUnits;
       BaryonField[EgNum][i] = EgConstant/EUnits;
-      BaryonField[HeINum][i]   = 0.0;
-      BaryonField[HeIINum][i]  = 0.0;
-      BaryonField[HeIIINum][i] = 0.0;
     }
     if (DualEnergyFormalism)
       for (i=0; i<size; i++)

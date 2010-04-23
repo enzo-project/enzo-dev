@@ -61,12 +61,6 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
   FieldType[V1Num = NumberOfBaryonFields++]    = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++]    = Velocity3;
   FieldType[EgNum = NumberOfBaryonFields++]    = RadiationFreq0;
-  FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
-  FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
-  FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
-  FieldType[HeINum = NumberOfBaryonFields++]   = HeIDensity;
-  FieldType[HeIINum = NumberOfBaryonFields++]  = HeIIDensity;    
-  FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;    
   
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -96,32 +90,20 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
-// 	   MyProcessorNumber, NumberOfBaryonFields, size, 
-// 	   GridDimension[0], GridDimension[1], GridDimension[2]);
-
     for (int field=0; field<NumberOfBaryonFields; field++)
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[size];
  
     // set fluid density, total energy, [internal energy,] velocities, 
-    // radiation energy, electron density, chemical species
-    
+    // radiation energy
     int i, j, k;
     float IEConstant = TEConstant - 0.5 * VelocityConstant * VelocityConstant;
-    float HIIConstant = 0.0;
-    float HIConstant = 0.0;
-    float HeIIConstant = 0.0;
-    float HeIIIConstant = 0.0;
-    float HeIConstant = 0.0;
-    float DeConstant = 0.0;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;
     for (i=0; i<size; i++) {
       BaryonField[RhoNum][i] = DensityConstant/DensityUnits;
       BaryonField[TENum][i]  = TEConstant/eUnits;
       BaryonField[EgNum][i]  = REConstant/EUnits;
-      BaryonField[DeNum][i]  = DeConstant/DensityUnits;
     }
     
     if ( ShockDir == 0 )
@@ -149,17 +131,6 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
       for (i=0; i<size; i++)
 	BaryonField[IENum][i] = IEConstant/eUnits;
 
-    for (i=0; i<size; i++) {
-      BaryonField[HINum][i]  = HIConstant/DensityUnits;
-      BaryonField[HIINum][i] = HIIConstant/DensityUnits;
-    }
-
-    for (i=0; i<size; i++) {
-      BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
-      BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
-      BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
-    }
-    
     if (debug) {
       fprintf(stdout,"RadHydroRadShockInitializeGrid:\n");
       printf("           ShockDir = %"ISYM"\n",ShockDir);
@@ -169,12 +140,6 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
       if (DualEnergyFormalism)
 	printf("         IEConstant = %g\n",IEConstant);    
       printf("         REConstant = %g\n",REConstant);    
-      printf("         DeConstant = %g\n",DeConstant);    
-      printf("         HIConstant = %g\n",HIConstant);    
-      printf("        HIIConstant = %g\n",HIIConstant);    
-      printf("        HeIConstant = %g\n",HeIConstant);    
-      printf("       HeIIConstant = %g\n",HeIIConstant);    
-      printf("      HeIIIConstant = %g\n",HeIIIConstant);    
       
       printf("Corresponding scaled values:\n");
       printf("    Density = %g\n",DensityConstant/DensityUnits);
@@ -182,12 +147,6 @@ int grid::RadHydroRadShockInitializeGrid(float DensityConstant,
       if (DualEnergyFormalism)
 	printf("         IE = %g\n",IEConstant/eUnits);
       printf("         RE = %g\n",REConstant/EUnits);
-      printf("         De = %g\n",DeConstant/DensityUnits);
-      printf("         HI = %g\n",HIConstant/DensityUnits);
-      printf("        HII = %g\n",HIIConstant/DensityUnits);
-      printf("        HeI = %g\n",HeIConstant/DensityUnits);
-      printf("       HeII = %g\n",HeIIConstant/DensityUnits);
-      printf("      HeIII = %g\n",HeIIIConstant/DensityUnits);
     }
 
   } // end if NewData == TRUE
