@@ -1,0 +1,27 @@
+In preparation for the Enzo-2.0 code release, I need to do the
+following tasks:
+
+
+Coding [5/1/2010]:
+(i) clean up the user interface and default parameters for both the
+    gFLDProblem and gFLDSplit modules 
+(ii) clean up color field advection to only advect relevant fields, so
+    that I don't need to create Helium arrays for Hydrogen-only tests. 
+(iii) re-run all regression tests to ensure they work, and generate
+    baselines against which future tests can be run. 
+(iv) ensure the "evolve" routines set up all relevant units before any
+    physics are calculated.
+
+
+
+User guides [5/8/2010]:
+(i) Update the implicit FLD solver user guide, describing both the
+    algorithms and the input parameters. 
+(ii) Write the split FLD solver user guide, describing both the algorithms
+    and the input parameters. 
+
+
+
+Test problems and packaging [5/15/2010]:
+In addition to Code and User Guide items, need to write test problem
+descriptions for all regression tests (both modules). 

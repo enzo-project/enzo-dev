@@ -1,0 +1,69 @@
+Current input parameters (variable) [default; choices] - comments:
+------------------------------------------------------------------
+* RadHydroESpectrum (ESpectrum) [0; -1,0,1] 
+  - change default to be T=10^5 blackbody
+* RadHydroChemistry (Nchem) [0; 0,1,3] 
+  - change default to 1 for Hydrogen evolution
+  - remove Helium as a choice, since never used with this
+    approximation. 
+* RadHydroHFraction (HFrac) [1.0; 0<=x<=1] 
+  - add in check in initalizer to enforce bounds
+* RadHydroModel (Model) [0; 0,1,2,3,4,5,10,20]
+  - change default to 1, for case-B ionization model
+* RadHydroMaxDt (maxdt) [1e20; x>0]
+* RadHydroMinDt (mindt) [0.0; x>=0]
+* RadHydroInitDt (initdt) [1e20; x>0]
+* RadHydroDtSolver (dtsolver) [0; 0,1]
+  - maybe disable entirely, since nobody uses heuristic approach
+* RadHydroDtNorm (dtnorm) [0.0; x>=0]
+  - maybe change default to 2.0
+* RadHydroDtRadFac (dtfac[0]) [1e20; x>0] 
+* RadHydroDtGasFac (dtfac[1]) [1e20; x>0] 
+* RadHydroDtChemFac (dtfac[2]) [1e20; x>0] 
+* RadiationScaling (ErScale) [1.0; x>0]
+* EnergyCorrectionScaling (ecScale) [1.0; x>0]
+* ChemistryScaling (NiScale) [1.0; x>0]
+* RadHydroTheta (theta) [1.0; 0<x<1]
+* RadHydroImplicitLimiter (LimImp) [0; 0,1,2] 
+  - 2 is disabled, which of 0 or 1 is always used?
+  - maybe remove entirely
+* RadHydroLimiterType (LimType) [3; 0,1,2,3,4]
+  - change to zeus limiter
+* RadiationBoundaryX*Faces = (BdryType[][]) [0; 0,1,2,3]
+* RadHydroAprxJacobian (approx_jac) [0; 0,1] 
+* RadHydroInitialGuess (initial_guess) [0; 0,1,2,3,4,5]
+* RadHydroAnalyticChem (AnalyticChem) [0; 0,1]
+  - maybe change default to 1 (for allowed models)
+* RadHydroSemiImplicit (semi_implicit) [0; 0,1]
+  - delete option entirely
+* RadHydroNewtLinesearch (newt_linesearch) [1; 0,1]
+* RadHydroNewtIters (newt_maxit) [20; x>0]
+* RadHydroNewtNorm (newt_norm) [0; 0<=x<=7]
+  - remove option entirely?
+
+* RadHydroINConst (newt_INconst) [1e-8; ] - 
+* RadHydroNewtTolerance (newt_tol) [1e-4; ] - 
+* RadHydroMinLinesearch (newt_MinLinesearch) [1e-10; ] - 
+* RadHydroMaxMGIters (sol_maxit) [50; ] - 
+* RadHydroMGRelaxType (sol_rlxtype) [1; ] - 
+* RadHydroMGPreRelax (sol_npre) [1; ] - 
+* RadHydroMGPostRelax (sol_npost) [1; ] - 
+* PlanckOpacityC0 (PlanckOpacityC0) [1.0; ] - 
+* PlanckOpacityC1 (PlanckOpacityC1) [1.0; ] - 
+* PlanckOpacityC2 (PlanckOpacityC2) [0.0; ] - 
+* PlanckOpacityC3 (PlanckOpacityC3) [1.0; ] - 
+* PlanckOpacityC4 (PlanckOpacityC4) [0.0; ] - 
+* EnergyOpacityC0 (EnergyOpacityC0) [1.0; ] - 
+* EnergyOpacityC1 (EnergyOpacityC1) [1.0; ] - 
+* EnergyOpacityC2 (EnergyOpacityC2) [0.0; ] - 
+* EnergyOpacityC3 (EnergyOpacityC3) [1.0; ] - 
+* EnergyOpacityC4 (EnergyOpacityC4) [0.0; ] - 
+* ScatteringOpacityC0 (ScatteringOpacityC0) [1.0; ] - 
+* ScatteringOpacityC1 (ScatteringOpacityC1) [1.0; ] - 
+* ScatteringOpacityC2 (ScatteringOpacityC2) [0.0; ] - 
+* ScatteringOpacityC3 (ScatteringOpacityC3) [1.0; ] - 
+* ScatteringOpacityC4 (ScatteringOpacityC4) [0.0; ] - 
+* SuOlsonGreyEps (MarshakParms[0]) [none; ] - 
+* NGammaDot (IonizationParms[0]) [0.0; ] - 
+* EtaRadius (IonizationParms[1]) [0.0; ] - 
+* EtaCenter (IonizationParms[2:5]) [0.0, 0.0, 0.0; ] - 

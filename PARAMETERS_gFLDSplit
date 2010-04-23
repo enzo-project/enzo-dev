@@ -1,0 +1,31 @@
+Current input parameters (variable) [default; choices] - comments:
+--------------------------------------------------------
+* RadHydroESpectrum (ESpectrum) [0; ] - 
+* RadHydroChemistry (Nchem) [0; ] - 
+* RadHydroHFraction (HFrac) [1.0; ] - 
+* RadHydroModel (Model) [1; ] - 
+* RadHydroMaxDt (maxdt) [1e20; ] - 
+* RadHydroMinDt (mindt) [0.0; ] - 
+* RadHydroInitDt (initdt) [1e20; ] - 
+* RadHydroDtNorm (dtnorm) [0.0; ] - 
+* RadHydroDtRadFac (dtfac[0]) [1e20; ] - 
+* RadHydroDtGasFac (dtfac[1]) [1e20; ] - 
+* RadHydroDtChemFac (dtfac[2]) [1e20; ] - 
+* RadiationScaling (ErScale) [1.0; ] - 
+* EnergyCorrectionScaling (ecScale) [1.0; ] - 
+* ChemistryScaling (NiScale) [1.0; ] - 
+* RadHydroTheta (theta) [1.0; ] - 
+* RadHydroLimiterType (LimType) [3; ] - 
+* RadiationBoundaryX0Faces (BdryType[][]) [0; ] - 
+* RadHydroInitialGuess (initial_guess) [0; ] - 
+* RadHydroNewtTolerance (sol_tolerance) [1e-4; ] - 
+* RadHydroMaxMGIters (sol_maxit) [50; ] - 
+* RadHydroMGRelaxType (sol_rlxtype) [1; ] - 
+* RadHydroMGPreRelax (sol_npre) [1; ] - 
+* RadHydroMGPostRelax (sol_npost) [1; ] - 
+* EnergyOpacityC0 (EnergyOpacityC0) [1.0; ] - 
+* EnergyOpacityC1 (EnergyOpacityC1) [1.0; ] - 
+* EnergyOpacityC2 (EnergyOpacityC2) [0.0; ] - 
+* NGammaDot (NGammaDot) [0.0; ] - 
+* EtaRadius (EtaRadius) [0.0; ] - 
+* EtaCenter (EtaCenter[0:2]) [0.0, 0.0, 0.0; ] - 
