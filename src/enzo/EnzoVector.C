@@ -31,6 +31,7 @@ typedef int MPI_Request
 #include <string.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -322,7 +323,7 @@ int EnzoVector::write(char *outfile, int species) const
   if ((species<0) || (species >= Nspecies)) {
     fprintf(stderr,"EnzoVector::write ERROR, illegal species %"ISYM"\n",
 	    species);
-    return FAIL;
+    ENZO_FAIL("EnzoVector::write error");
   }
 
   // append processor number to file name
@@ -356,7 +357,7 @@ int EnzoVector::writeall(char *outfile, int species) const
   if ((species<0) || (species >= Nspecies)) {
     fprintf(stderr,"EnzoVector::writeall ERROR, illegal species %"ISYM"\n",
 	    species);
-    return FAIL;
+    ENZO_FAIL("EnzoVector::writeall error");
   }
 
   // append processor number to file name
@@ -403,14 +404,12 @@ int EnzoVector::SetData(int species, float *NewPtr)
   if ((species < 0) || (species >= Nspecies)) {
     fprintf(stderr,"EnzoVector::SetData ERROR, illegal species %"ISYM"\n",
 	    species);
-    return FAIL;
+    ENZO_FAIL("EnzoVector::SetData error");
   }
 
   // check that data array not owned by vector (memory leak)
-  if (owndata) {
-    fprintf(stderr,"EnzoVector::SetData ERROR, vector owns data array\n");
-    return FAIL;
-  }
+  if (owndata) 
+    ENZO_FAIL("EnzoVector::SetData ERROR, vector owns data array");
 
   // otherwise, set the data array to point at the new memory
   data[species] = NewPtr;
@@ -440,15 +439,38 @@ int EnzoVector::copy(EnzoVector *x)
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
-      (x->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector copy ERROR: vector sizes do not match\n");
-    return FAIL;
-  } 
+      (x->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector copy ERROR: vector sizes do not match");
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = x->data[idat][i];
 #ifdef USE_JBPERF
     JBPERF_STOP("enzovector_copy");
+#endif
+  return SUCCESS;
+}
+
+
+//  Single component vector Copy (assumes vectors have same size)
+//  [operates on ghost zones as well as active data]
+int EnzoVector::copy_component(EnzoVector *x, int c)
+{
+#ifdef USE_JBPERF
+    JBPERF_START("enzovector_copy_component");
+#endif
+  if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
+      (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
+      (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
+      (x->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector copy_component ERROR: vector sizes do not match");
+  if ((c<0) || (c>=Nspecies)) {
+    fprintf(stderr,"copy_component ERROR: illegal component %"ISYM"\n",c);
+    ENZO_FAIL("EnzoVector copy_component ERROR");
+  }
+  for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
+    data[c][i] = x->data[c][i];
+#ifdef USE_JBPERF
+    JBPERF_STOP("enzovector_copy_component");
 #endif
   return SUCCESS;
 }
@@ -468,10 +490,8 @@ int EnzoVector::linearsum(float a, EnzoVector *x, float b, EnzoVector *y)
       (y->Nx0 != Nx0) || (y->Nx1 != Nx1) || (y->Nx2 != Nx2) ||
       (y->Ng0l != Ng0l) || (y->Ng1l != Ng1l) || (y->Ng2l != Ng2l) ||
       (y->Ng0r != Ng0r) || (y->Ng1r != Ng1r) || (y->Ng2r != Ng2r) || 
-      (y->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector linearsum ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (y->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector linearsum ERROR: vector sizes do not match");
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = a*x->data[idat][i] + b*y->data[idat][i];
@@ -492,10 +512,8 @@ int EnzoVector::axpy(float a, EnzoVector *x)
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
-      (x->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector axpy ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (x->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector axpy ERROR: vector sizes do not match");
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] += a*x->data[idat][i];
@@ -516,13 +534,11 @@ int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
-      (x->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector axpy ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (x->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector axpy_component ERROR: vector sizes do not match");
   if ((c<0) || (c>=Nspecies)) {
-    fprintf(stderr,"EnzoVector axpy ERROR: illegal component %"ISYM"\n",c);
-    return FAIL;
+    fprintf(stderr,"axpy_component ERROR: illegal component %"ISYM"\n",c);
+    ENZO_FAIL("EnzoVector axpy_component ERROR");
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)
     data[c][i] += a*x->data[c][i];
@@ -672,10 +688,8 @@ int EnzoVector::abs(EnzoVector *x)
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
-      (x->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector abs ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (x->Nspecies != Nspecies))
+    ENZO_FAIL("EnzoVector abs ERROR: vector sizes do not match");
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = fabs(x->data[idat][i]);
@@ -700,10 +714,8 @@ int EnzoVector::product(EnzoVector *x, EnzoVector *y)
       (y->Nx0 != Nx0) || (y->Nx1 != Nx1) || (y->Nx2 != Nx2) ||
       (y->Ng0l != Ng0l) || (y->Ng1l != Ng1l) || (y->Ng2l != Ng2l) ||
       (y->Ng0r != Ng0r) || (y->Ng1r != Ng1r) || (y->Ng2r != Ng2r) || 
-      (y->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector product ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (y->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector product ERROR: vector sizes do not match");
 
   int idx;
   int x0len = Nx0 + Ng0l + Ng0r;
@@ -736,10 +748,8 @@ int EnzoVector::quotient(EnzoVector *x, EnzoVector *y)
       (y->Nx0 != Nx0) || (y->Nx1 != Nx1) || (y->Nx2 != Nx2) ||
       (y->Ng0l != Ng0l) || (y->Ng1l != Ng1l) || (y->Ng2l != Ng2l) ||
       (y->Ng0r != Ng0r) || (y->Ng1r != Ng1r) || (y->Ng2r != Ng2r) || 
-      (y->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector quotient ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (y->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector quotient ERROR: vector sizes do not match");
 
   int idx;
   int x0len = Nx0 + Ng0l + Ng0r;
@@ -769,10 +779,8 @@ float EnzoVector::minquotient(EnzoVector *y)
   if ((y->Nx0 != Nx0) || (y->Nx1 != Nx1) || (y->Nx2 != Nx2) ||
       (y->Ng0l != Ng0l) || (y->Ng1l != Ng1l) || (y->Ng2l != Ng2l) ||
       (y->Ng0r != Ng0r) || (y->Ng1r != Ng1r) || (y->Ng2r != Ng2r) || 
-      (y->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector minquotient ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (y->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector minquotient ERROR: vector sizes do not match");
 
   float minquot = huge_number;
   float quotient, numer, denom;
@@ -810,10 +818,8 @@ int EnzoVector::inverse(EnzoVector *x)
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
-      (x->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector inverse ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (x->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector inverse ERROR: vector sizes do not match");
 
   float value;
   int idx;
@@ -854,10 +860,8 @@ bool EnzoVector::constraintcheck(EnzoVector *c, EnzoVector *x)
       (c->Nx0 != Nx0) || (c->Nx1 != Nx1) || (c->Nx2 != Nx2) ||
       (c->Ng0l != Ng0l) || (c->Ng1l != Ng1l) || (c->Ng2l != Ng2l) ||
       (c->Ng0r != Ng0r) || (c->Ng1r != Ng1r) || (c->Ng2r != Ng2r) || 
-      (c->Nspecies != Nspecies)) {
-    fprintf(stderr,"EnzoVector constraintcheck ERROR: vector sizes do not match\n");
-    return FAIL;
-  }
+      (c->Nspecies != Nspecies)) 
+    ENZO_FAIL("EnzoVector constraintcheck ERROR: vector sizes do not match");
 
   bool test=TRUE;
   int idx;

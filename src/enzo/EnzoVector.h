@@ -150,6 +150,9 @@ class EnzoVector {
   //   Copies the values from a vector x (including ghost cells)
   int copy(EnzoVector *x);
 
+  //   Copies the values from a vector x (including ghost cells)
+  int copy_component(EnzoVector *x, int c);
+
   //   Vector linear sum operation, this = a*x + b*y
   int linearsum(float a, EnzoVector *x, float b, EnzoVector *y);
 
