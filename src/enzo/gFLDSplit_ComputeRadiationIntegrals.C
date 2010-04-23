@@ -90,7 +90,7 @@ int gFLDSplit::ComputeRadiationIntegrals()
 
 
   // for monochromatic problems, integration uses delta function
-  if (ProblemType == 410) {
+  if (ESpectrum == -1) {
     // evaluation point
     nu_m = nu0_HI*(1.0 + 2.0*epsilon);
 
