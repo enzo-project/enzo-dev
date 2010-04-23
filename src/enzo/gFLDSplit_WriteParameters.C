@@ -28,7 +28,7 @@ int gFLDSplit::WriteParameters(FILE *fptr)
   
   fprintf(fptr, "RadHydroESpectrum = %"ISYM"\n", ESpectrum);
   fprintf(fptr, "RadHydroChemistry = %"ISYM"\n", Nchem);
-  fprintf(fptr, "RadHydroHFraction = %"ISYM"\n", HFrac);
+  fprintf(fptr, "RadHydroHFraction = %22.16\n", HFrac);
   fprintf(fptr, "RadHydroModel = %"ISYM"\n", Model);
 
   // set restart initial time step to current time step

@@ -130,6 +130,41 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   told = ThisGrid->GridData->ReturnTime();
   tnew = told+dt;
 
+  // get internal Enzo units (old time step)
+  float TempUnits, MassUnits, RadUnits;
+  DenUnits0=LenUnits0=TempUnits=TimeUnits=VelUnits=MassUnits=1.0;
+  if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
+	       &TimeUnits, &VelUnits, &MassUnits, told) == FAIL) 
+    ENZO_FAIL("Error in GetUnits.");
+  if (RadiationGetUnits(&RadUnits, told) == FAIL) 
+    ENZO_FAIL("Error in RadiationGetUnits.");
+  // incorporate Enzo units with implicit solver unit scaling
+  float mp = 1.67262171e-24;   // Mass of a proton [g]
+  ErUnits0 = RadUnits*ErScale;
+  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mp*NiScale;
+
+  // set a, adot, unit scalings to correct time-level values
+  if (ComovingCoordinates) 
+    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) 
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
+
+  // get/store internal Enzo units (new time step)
+  DenUnits = LenUnits = TempUnits = TimeUnits = VelUnits = MassUnits = 1.0;
+  if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
+	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
+    ENZO_FAIL("Error in GetUnits.");
+  if (RadiationGetUnits(&RadUnits, tnew) == FAIL) 
+    ENZO_FAIL("Error in RadiationGetUnits.");
+  // incorporate Enzo units with implicit solver unit scaling
+  ErUnits = RadUnits*ErScale;
+  ecUnits = VelUnits*VelUnits*ecScale;
+  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mp*NiScale;
+
+  // set a, adot to correct time-level values
+  if (ComovingCoordinates) 
+    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) 
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
+
   // initialize external sources to 0
   extsrc->constant(0.0);
 
@@ -206,41 +241,6 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
       nHeIII[i] *= max(0.0, rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i]);
     }
   }
-
-  // get internal Enzo units (old time step)
-  float TempUnits, MassUnits, RadUnits;
-  DenUnits0=LenUnits0=TempUnits=TimeUnits=VelUnits=MassUnits=1.0;
-  if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, told) == FAIL) 
-    ENZO_FAIL("Error in GetUnits.");
-  if (RadiationGetUnits(&RadUnits, told) == FAIL) 
-    ENZO_FAIL("Error in RadiationGetUnits.");
-  // incorporate Enzo units with implicit solver unit scaling
-  float mp = 1.67262171e-24;   // Mass of a proton [g]
-  ErUnits0 = RadUnits*ErScale;
-  NiUnits0 = (Nchem == 0) ? NiScale : DenUnits0/mp*NiScale;
-
-  // set a, adot, unit scalings to correct time-level values
-  if (ComovingCoordinates) 
-    if (CosmologyComputeExpansionFactor(told, &a0, &adot0) == FAIL) 
-      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
-
-  // get/store internal Enzo units (new time step)
-  DenUnits = LenUnits = TempUnits = TimeUnits = VelUnits = MassUnits = 1.0;
-  if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
-    ENZO_FAIL("Error in GetUnits.");
-  if (RadiationGetUnits(&RadUnits, tnew) == FAIL) 
-    ENZO_FAIL("Error in RadiationGetUnits.");
-  // incorporate Enzo units with implicit solver unit scaling
-  ErUnits = RadUnits*ErScale;
-  ecUnits = VelUnits*VelUnits*ecScale;
-  NiUnits = (Nchem == 0) ? NiScale : DenUnits/mp*NiScale;
-
-  // set a, adot to correct time-level values
-  if (ComovingCoordinates) 
-    if (CosmologyComputeExpansionFactor(tnew, &a, &adot) == FAIL) 
-      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
 
   // attach arrays to U0 vector
   U0->SetData(0, RadiationEnergy);
@@ -324,10 +324,11 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
 
   // rescale dt, told, tnew, adot to physical values
-  dt   *= TimeUnits;
-  told *= TimeUnits;
-  tnew *= TimeUnits;
-  adot /= TimeUnits;
+  dt    *= TimeUnits;
+  told  *= TimeUnits;
+  tnew  *= TimeUnits;
+  adot  /= TimeUnits;
+  adot0 /= TimeUnits;
 
   // have U0 finish communication of neighbor information
   if (U0->exchange_end() == FAIL) 
@@ -348,6 +349,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     this->Dump(sol);
     ENZO_FAIL("ERROR: InitialGuess failure!!");
   }
+
+  // do not use initial guess for radiation equation
+  sol->copy_component(U0,0);
 
   //   enforce boundary conditions on new time step initial guess vector
   if (this->EnforceBoundary(sol) == FAIL) 
@@ -484,7 +488,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   HYPRE_StructPCGSetup(solver, P, rhsvec, solvec);
     
   //       solve the linear system
-  printf(" ----------------------------------------------------------------------\n");
+  if (debug)
+    printf(" ----------------------------------------------------------------------\n");
   HYPRE_StructPCGSolve(solver, P, rhsvec, solvec);
     
 //   if (debug)  printf("Writing out solution to file s.vec\n");
@@ -563,91 +568,118 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     Eg_new[i] = max(Eg_new[i],epsilon);
 
 
-
-  //   fill in the gas energy and chemistry source terms
-  float *ecsrc   = NULL;
+  // subcycle the chemistry and gas energy equations
+  float thisdt, dtchem2;
+  float tchem = told;
+  float *ecsrc   = extsrc->GetData(1);
   float *HIsrc   = NULL;
   float *HeIsrc  = NULL;
   float *HeIIsrc = NULL;
-  ecsrc = extsrc->GetData(1);
   if (Nchem > 0)  HIsrc = extsrc->GetData(2);
   if (Nchem > 1) {
     HeIsrc = extsrc->GetData(3);
     HeIIsrc = extsrc->GetData(4);
   }
-  if (this->GasEnergySource(ecsrc, &tnew) != SUCCESS) 
-    ENZO_FAIL("gFLDSplit_Evolve: Error in GasEnergySource routine");
-  if (this->ChemistrySource(HIsrc, HeIsrc, HeIIsrc, &tnew) != SUCCESS) 
-    ENZO_FAIL("gFLDSplit_Evolve: Error in GasEnergySource routine");
-
-  //   solve local chemistry/gas energy systems
-  if (this->AnalyticChemistry(U0, sol, extsrc, dt) != SUCCESS) 
-    ENZO_FAIL("gFLDSplit_Evolve: Error in AnalyticChemistry routine");
-
-
-  // correct the radiation equation with the updated opacities
-  //   compute updated opacities (store in Temperature array)
   float *Opacity_new = Temperature;
-  if (this->Opacity(Opacity_new, &tnew, sol) != SUCCESS) 
-    ENZO_FAIL("gFLDSplit_Evolve: Error in Opacity routine");
-  //   update the radiation in each cell
-  //   (no need for floor, due to analytical solution)
-  float factor = -0.5*2.99792458e10*dt*NiUnits;
-  for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) 
-    Eg_new[i] *= exp(factor*(Opacity_new[i]-OpacityE[i]));
-  
- 
+  float *Opacity_old = OpacityE;
+  float *sol_ec   = sol->GetData(1);
+  float *sol_HI   = NULL;
+  float *sol_HeI  = NULL;
+  float *sol_HeII = NULL;
+  if (Nchem > 0)  sol_HI = sol->GetData(2);
+  if (Nchem > 1) {
+    sol_HeI  = sol->GetData(3);
+    sol_HeII = sol->GetData(4);
+  }
+  float *tmp, factor, epsilon2, *eh_tot, *eh_gas;
+  for (int chemstep=0; chemstep<=100; chemstep++) {
+
+    // update tchem
+    thisdt = min(dtchem, dt);          // do not exceed radiation dt
+    thisdt = max(thisdt, dt/100);      // take at most 100 steps
+    tchem += thisdt;                   // update chemistry time
+    //    check that we don't exceed radiation time
+    if (tchem >= tnew) {
+      thisdt = tnew - (tchem - thisdt);  // get max time step
+      tchem = tnew;                      // set updated time
+    }
+    if (debug) {
+      printf("  subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",chemstep,thisdt/TimeUnits,tchem/TimeUnits,dt/TimeUnits,tnew/TimeUnits);
+    }
+
+
+    //   fill in the gas energy and chemistry source terms
+    if (this->GasEnergySource(ecsrc, &tchem) != SUCCESS)
+      ENZO_FAIL("gFLDSplit Evolve: Error in GasEnergySource routine");
+    if (this->ChemistrySource(HIsrc, HeIsrc, HeIIsrc, &tchem) != SUCCESS)
+      ENZO_FAIL("gFLDSplit Evolve: Error in ChemistrySource routine");
+
+    //   solve local chemistry/gas energy systems
+    if (this->AnalyticChemistry(U0, sol, extsrc, thisdt) != SUCCESS) 
+      ENZO_FAIL("gFLDSplit Evolve: Error in AnalyticChemistry routine");
+
+    // update chemistry time step size based on changes to chem+energy
+//     dtchem = (this->ComputeTimeStep(U0,sol,1))*TimeUnits;
+    //   (limit growth at each cycle)
+    dtchem2 = this->ComputeTimeStep(U0,sol,1)*TimeUnits;
+    dtchem = min(dtchem2, 2.0*dtchem);
+
+    // enforce a solution floor on number densities
+    epsilon2 = 0.0;    // put a hard floor of 0 on these fields
+    if (Nchem > 0)
+      for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+	sol_HI[i] = min(max(sol_HI[i],epsilon2),rho[i]*HFrac);
+    if (Nchem > 1) {
+      for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+	sol_HeI[i] = max(sol_HeI[i],epsilon2);
+      for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+	sol_HeII[i] = max(sol_HeII[i],epsilon2);
+    }
+
+    //   Add fluid correction to fluid energy field (with floor)
+    eh_tot = ThisGrid->GridData->AccessTotalEnergy();
+    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
+      eh_tot[i] = max(eh_tot[i]+sol_ec[i]*ecScale,tiny_number);
+    if (DualEnergyFormalism) {
+      eh_gas = ThisGrid->GridData->AccessGasEnergy();
+      for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
+	eh_gas[i] = max(eh_gas[i]+sol_ec[i]*ecScale,tiny_number);
+    }
+
+    //   Update Enzo chemistry arrays with new values
+    if (Nchem > 0)  
+      U0->copy_component(sol, 2);  // HI
+    if (Nchem > 1) {
+      U0->copy_component(sol, 3);  // HeI
+      U0->copy_component(sol, 4);  // HeII
+    }
+
+    // break out of time-stepping loop if we've reached the end
+    if (tchem >= tnew)  break;
+
+  }
+
 
   ////////////////////////////////////
   // Problem Cleanup and Preparation for Next Call Phase
 
   // update the radiation time step size for next time step
-  float RadDt = this->ComputeTimeStep(U0,sol);
+  float RadDt = this->ComputeTimeStep(U0,sol,0);
+  if (debug)  printf("   gFLDSplit time step = %g\n",RadDt);
   if (RadDt != huge_number)
     ThisGrid->GridData->SetMaxRadiationDt(RadDt);
 
+  // update Enzo data with new values
+  U0->copy_component(sol, 0);
 
-  // enforce a solution floor on number densities
-  float epsilon2 = 0.0;    // put a hard floor of 0 on these fields
-  if (Nchem > 0) {
-    float *sol_HI = sol->GetData(2);
-    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-      sol_HI[i] = min(max(sol_HI[i],epsilon2),rho[i]*HFrac);
-  }
-  if (Nchem > 1) {
-    float *sol_HeI = sol->GetData(3);
-    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-      sol_HeI[i] = max(sol_HeI[i],epsilon2);
-    float *sol_HeII = sol->GetData(4);
-    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-      sol_HeII[i] = max(sol_HeII[i],epsilon2);
-  }
-
-  // Rescale solution arrays to get back from solver to Enzo units
-  sol->scale_component(0,ErScale);
-  sol->scale_component(1,ecScale);
-  for (i=1; i<=Nchem; i++)  sol->scale_component(i+1, NiScale);
-
-  // Update Enzo data with new values
-  //   Radiation Energy, Chemical Species and Fluid Correction are in 
-  //   sol, while Enzo pointers to these fields are in U0
-  U0->copy(sol);
-
-  //   Add fluid correction to fluid energy field (with floor)
-  float *eh_tot = ThisGrid->GridData->AccessTotalEnergy();
-  for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
-    eh_tot[i] = max(eh_tot[i]+FluidEnergyCorrection[i],tiny_number);
-  if (DualEnergyFormalism) {
-    float *eh_gas = ThisGrid->GridData->AccessGasEnergy();
-    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
-      eh_gas[i] = max(eh_gas[i]+FluidEnergyCorrection[i],tiny_number);
-  }
+  // scale back to Enzo units
+  U0->scale_component(0,ErScale);
+  U0->scale_component(1,ecScale);
+  for (i=1; i<=Nchem; i++)  U0->scale_component(i+1, NiScale);
 
   //   Update dependent chemical species densities (ne, nHII, nHeIII) 
   //   using computed values
-  if (Nchem == 0) {        // do nothing
-  }
-  else if (Nchem == 1) {   // update ne, HII
+  if (Nchem == 1) {   // update ne, HII
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) {
       nHII[i] = max(rho[i]*HFrac - nHI[i], 0.0);
       ne[i] = nHII[i];
@@ -675,7 +707,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   float ftime = 0.0;
 #endif
   RTtime += ftime-stime;
-  if (debug)  printf("RadHydro cumulative wall time = %g\n",RTtime);
+  if (debug)  printf("RadHydro cumulative wall time = %g\n\n",RTtime);
 
   // Return
   return SUCCESS;

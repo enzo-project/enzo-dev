@@ -101,7 +101,6 @@ class gFLDSplit : public virtual ImplicitProblemABC {
 
   // time-stepping related data
   int initial_guess;   // parameter for setting the initial guess:
-  int AnalyticChem;    // use analytical reaction solver instead of theta-method
   float initdt;        // initial radiation time step size
   float maxdt;         // maximum radiation time step size
   float mindt;         // minimum radiation time step size
@@ -112,6 +111,7 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   float tnew;          // new time
   float told;          // old time
   float dt;            // time step size
+  float dtchem;        // chemistry time step size (subcycled)
   float theta;         // implicitness parameter (1->BE, 0.5->CN, 0->FE)
   int LimType;         // flux limiter formulation:
                        //    0 -> standard Levermore-Pomraning limiter (LP, 1981)
@@ -246,7 +246,7 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   int InitialGuess(EnzoVector *uvec);
   
   // Return the maximum rad-hydro time step size
-  float ComputeTimeStep(EnzoVector *uold, EnzoVector *unew);
+  float ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag);
 
 };
 

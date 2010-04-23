@@ -20,6 +20,11 @@
 /                 dt = min(dt_hydro,dt_radiation).
 /           This routine is called with scaled arguments.
 /
+/           Also, the argument 'flag' determines which entries we use to 
+/           compute the time step:
+/                0 -> use radiation only
+/                1 -> use chemistry + energy correction only
+/                2 -> use both
 ************************************************************************/
 #ifdef TRANSFER
 #include "gFLDSplit.h"
@@ -27,7 +32,7 @@
  
  
 
-float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
+float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
 {
 #ifdef USE_JBPERF
     JBPERF_START("gfldsplit_computetimestep");
@@ -51,46 +56,56 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
   if ((Nz+ghZl+ghZr) != ArrDims[2]) 
     ENZO_FAIL("ComputeTimeStep error: x2 vector sizes do not match");
 
+  // set internal dtfactor array based on user inputs and flag:
+  float dtfactor[Nchem+2];
+  int i;
+  for (i=0; i<2+Nchem; i++)  dtfactor[i]=huge_number;
+  if (flag == 0)  
+    dtfactor[0] = dtfac[0];
+  if (flag == 1)  
+    for (i=1; i<2+Nchem; i++)  dtfactor[i]=dtfac[i];
+  if (flag == 2)
+    for (i=0; i<2+Nchem; i++)  dtfactor[i]=dtfac[i];
+
 
   // Set time step depending on how it has been set up by the user:
-  //    If dtfac is set for any species, compute maximum time step 
-  //    as estimate allowing dtfac relative change.  This relative 
+  //    If dtfactor is set for any species, compute maximum time step 
+  //    as estimate allowing dtfactor relative change.  This relative 
   //    change is estimated as follows:
   //       dt_new = dt_old / relerr_fac
   //    where relerr_fac gives the ratio between an estimated 
   //    local truncation error and the desired relative change:
   //       relerr_fac = || (unew - uold) / w ||_p
   //    with the scaling vector w given by
-  //       w = dtfac*[sqrt(|unew*uold|) + atol]
+  //       w = dtfactor*[sqrt(|unew*uold|) + atol]
   //    and where we have the following parameters:
   //       p - norm choice (input), 0->max norm, otherwise the p-norm
   //           **all p-norms here divide by the total number of cells**
-  //       dtfac - desired relative change per step (input)
+  //       dtfactor - desired relative change per step (input)
   //       atol - 1e-3 (assumes units are all normalized)
   //    For the gas energy correction, this is different since we do 
   //    not have uold: 
   //       relerr_fac = || unew / w ||_p
-  //       w = dtfac*(|unew| + atol).
+  //       w = dtfactor*(|unew| + atol).
   //
-  //    If dtfac is not set for any species, use a heuristic to shoot 
+  //    If dtfactor is not set for any species, use a heuristic to shoot 
   //    for 2 to 3 newton iterations per time step, with linesearch 
   //    step length equal to 1.
-  float dt_est;    // max time step (normalized units)
-  float test = dtfac[0];
-  int i;
-  for (i=0; i<2+Nchem; i++)  test = min(dtfac[i],test);
+  float dt_est = huge_number;    // max time step (normalized units)
+  float test = dtfactor[0];
+  for (i=0; i<2+Nchem; i++)  test = min(dtfactor[i],test);
   if (test != huge_number) {
 
     // initialize variables
     float diff, w, tmp, atol;
-    int i, j, k, l;
+    int j, k, l;
     int x0len = Nx + ghXl + ghXr;
     int x1len = Ny + ghYl + ghYr;
     float loc_est[Nvar];
 
     // perform local estimates for the radiation energy relative change
     loc_est[0] = 0.0;
-    if (dtfac[0] != huge_number) {
+    if (dtfactor[0] != huge_number) {
       float *Eold = uold->GetData(0);
       float *Enew = unew->GetData(0);
       atol = 0.1; // assumes values are normalized
@@ -98,7 +113,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
 	    for (i=ghXl; i<Nx+ghXl; i++) {
-	      w = dtfac[0]*(sqrt(fabs(Enew[(k*x1len + j)*x0len + i]
+	      w = dtfactor[0]*(sqrt(fabs(Enew[(k*x1len + j)*x0len + i]
 				     *Eold[(k*x1len + j)*x0len + i])) 
 			    + atol);
 	      diff = Enew[(k*x1len + j)*x0len + i] 
@@ -111,7 +126,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
 	    for (i=ghXl; i<Nx+ghXl; i++) {
-	      w = dtfac[0]*(sqrt(fabs(Enew[(k*x1len + j)*x0len + i]
+	      w = dtfactor[0]*(sqrt(fabs(Enew[(k*x1len + j)*x0len + i]
 				     *Eold[(k*x1len + j)*x0len + i])) 
 			    + atol);
 	      diff = Enew[(k*x1len + j)*x0len + i] 
@@ -124,14 +139,14 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 
     // perform estimates for the gas energy
     loc_est[1] = 0.0;
-    if (dtfac[1] != huge_number) {
+    if (dtfactor[1] != huge_number) {
       float *ec = unew->GetData(1);
       atol = 0.001; // assumes values are normalized
       if (dtnorm > 0.0) {
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
 	    for (i=ghXl; i<Nx+ghXl; i++) {
-	      w = dtfac[1]*(fabs(ec[(k*x1len + j)*x0len + i]
+	      w = dtfactor[1]*(fabs(ec[(k*x1len + j)*x0len + i]
 			       + eh[(k*x1len + j)*x0len + i]/ecScale) 
 			    + atol);
 	      diff = ec[(k*x1len + j)*x0len + i];
@@ -143,7 +158,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
 	    for (i=ghXl; i<Nx+ghXl; i++) {
-	      w = dtfac[1]*(fabs(ec[(k*x1len + j)*x0len + i]
+	      w = dtfactor[1]*(fabs(ec[(k*x1len + j)*x0len + i]
 			       + eh[(k*x1len + j)*x0len + i]/ecScale) 
 			    + atol);
 	      diff = ec[(k*x1len + j)*x0len + i];
@@ -157,7 +172,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
     float *niold, *ninew;
     for (l=2; l<=Nchem+1; l++) {
       loc_est[l] = 0.0;
-      if (dtfac[l] != huge_number) {
+      if (dtfactor[l] != huge_number) {
 	niold = uold->GetData(l);
 	ninew = unew->GetData(l);
 	atol = 0.001; // assumes values are normalized
@@ -165,7 +180,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfactor[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i] 
@@ -178,7 +193,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfactor[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i]
@@ -231,6 +246,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
     // limit maximum growth per step
     dt_est = min(dt_est, 1.1*dt);    // time step growth (physical units)
 
+
     // rescale dt estimates to normalized values
     dt_est /= TimeUnits;
     for (l=0; l<Nvar; l++)  dt_est_var[l] /= TimeUnits;
@@ -240,11 +256,20 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew)
     dt_est = min(dt_est, maxdt);
 
     if (debug) {
-      printf("gFLDSplit_ComputeTimestep: (E, e, ni) dt_est = (");
-      for (l=0; l<Nvar; l++)  printf(" %8.2e ",dt_est_var[l]);
-      printf(")\ngFLDSplit_ComputeTimeStep: dt_est = %g\n",dt_est);
+      printf("  gFLDSplit_ComputeTimestep: (E, e, ni) dt_est = (");
+      for (l=0; l<Nvar; l++) {
+	if (dt_est_var[l] == huge_number/TimeUnits)
+	  printf(" -------- ");
+	else  
+	  printf(" %8.2e ",dt_est_var[l]);
+      }
+      printf(")\n");
     }
   }
+
+  // account for min/max time step size (according to user)
+  dt_est = max(dt_est, mindt);
+  dt_est = min(dt_est, maxdt);
 
 #ifdef USE_JBPERF
   JBPERF_STOP("gfldsplit_computetimestep");

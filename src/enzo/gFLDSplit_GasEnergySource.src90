@@ -65,13 +65,6 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
   ier = 1
   ecsrc = 0.d0
 
-
-  ! compute gas energy sources based on problem type
-  if (ProbType == 416) then
-     ecsrc = 1.d4
-  end if
-
-
   return
 end subroutine gFLDSplit_GasEnergySource
 !=======================================================================

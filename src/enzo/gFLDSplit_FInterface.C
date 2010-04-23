@@ -78,9 +78,9 @@ extern "C" void FORTRAN_NAME(gfldsplit_analyticinitguess)(
    float *ciHeIITb, float *reHIITb, float *reHeII1Tb, float *reHeII2Tb, 
    float *reHeIIITb, float *bremTb, float *aUnits, float *DenUnits, 
    float *VelUnits, float *LenUnits, float *TimeUnits, float *ErUnits, 
-   float *ecUnits, float *NiUnits, int *Nchem, float *dx, float *dy, 
-   float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, 
-   int *NGyr, int *NGzl, int *NGzr, int *ier);
+   float *ecUnits, float *NiUnits, float *ecScale, int *Nchem, float *dx, 
+   float *dy, float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, 
+   int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldsplit_analyticchemistry)(
    float *Er, float *ec, float *HI, float *HeI, float *HeII, float *Er0, 
@@ -96,9 +96,9 @@ extern "C" void FORTRAN_NAME(gfldsplit_analyticchemistry)(
    float *ciHeISTb, float *ciHeIITb, float *reHIITb, float *reHeII1Tb, 
    float *reHeII2Tb, float *reHeIIITb, float *bremTb, float *aUnits, 
    float *DenUnits, float *VelUnits, float *LenUnits, float *TimeUnits, 
-   float *ErUnits, float *ecUnits, float *NiUnits, int *Nchem, int *Nx, int *Ny, 
-   int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, int *NGzr, 
-   int *ier);
+   float *ErUnits, float *ecUnits, float *NiUnits, float *ecScale, int *Nchem, 
+   int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
+   int *NGzl, int *NGzr, int *ier);
 
 
 
@@ -240,12 +240,12 @@ int gFLDSplit::AnalyticInitGuess(EnzoVector *u, float deltat)
   float *HIsrc   = extsrc->GetData(2);
   float *HeIsrc  = extsrc->GetData(3);
   float *HeIIsrc = extsrc->GetData(4);
-  FLOAT aval = (a+a0)*0.5;
-  FLOAT adval = (adot+adot0)*0.5;
-  float dUn  = (DenUnits + DenUnits0)*0.5;
-  float lUn  = (LenUnits + LenUnits0)*0.5;
-  float rUn  = (ErUnits + ErUnits0)*0.5;
-  float nUn  = (NiUnits + NiUnits0)*0.5;
+  FLOAT aval = a;
+  FLOAT adval = adot;
+  float dUn  = DenUnits;
+  float lUn  = LenUnits;
+  float rUn  = ErUnits;
+  float nUn  = NiUnits;
   FORTRAN_NAME(gfldsplit_analyticinitguess)
     (Er, ec, HI, HeI, HeII, &deltat, vx, vy, vz, rho, eh, Ersrc, ecsrc, 
      HIsrc, HeIsrc, HeIIsrc, &Gamma, &HFrac, &Model, &ESpectrum, &dualenergy, 
@@ -258,9 +258,10 @@ int gFLDSplit::AnalyticInitGuess(EnzoVector *u, float deltat)
      CoolData.ceHeII, CoolData.ciHI, CoolData.ciHeI, CoolData.ciHeIS, 
      CoolData.ciHeII, CoolData.reHII, CoolData.reHeII1, CoolData.reHeII2, 
      CoolData.reHeIII, CoolData.brem, &aUnits, &dUn, &VelUnits, &lUn, 
-     &TimeUnits, &rUn, &ecUnits, &nUn, &Nchem, &dx[0], &dx[1], &dx[2], 
-     &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], 
-     &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
+     &TimeUnits, &rUn, &ecUnits, &nUn, &ecScale, &Nchem, &dx[0], &dx[1], 
+     &dx[2], &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], 
+     &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], 
+     &GhDims[2][1], &ier);
   return(ier);
 }
 
@@ -285,12 +286,12 @@ int gFLDSplit::AnalyticChemistry(EnzoVector *u0, EnzoVector *u,
   float *HIsrc   = src->GetData(2);
   float *HeIsrc  = src->GetData(3);
   float *HeIIsrc = src->GetData(4);
-  FLOAT aval = (a+a0)*0.5;
-  FLOAT adval = (adot+adot0)*0.5;
-  float dUn  = (DenUnits + DenUnits0)*0.5;
-  float lUn  = (LenUnits + LenUnits0)*0.5;
-  float rUn  = (ErUnits + ErUnits0)*0.5;
-  float nUn  = (NiUnits + NiUnits0)*0.5;
+  FLOAT aval = a;
+  FLOAT adval = adot;
+  float dUn  = DenUnits;
+  float lUn  = LenUnits;
+  float rUn  = ErUnits;
+  float nUn  = NiUnits;
   FORTRAN_NAME(gfldsplit_analyticchemistry)
     (Er, ec, HI, HeI, HeII, Er0, ec0, HI0, HeI0, HeII0, &deltat, vx, vy, 
      vz, rho, eh, ecsrc, HIsrc, HeIsrc, HeIIsrc, OpacityE, &Gamma, 
@@ -303,7 +304,7 @@ int gFLDSplit::AnalyticChemistry(EnzoVector *u0, EnzoVector *u,
      CoolData.ceHI, CoolData.ceHeI, CoolData.ceHeII, CoolData.ciHI, 
      CoolData.ciHeI, CoolData.ciHeIS, CoolData.ciHeII, CoolData.reHII, 
      CoolData.reHeII1, CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, 
-     &aUnits, &dUn, &VelUnits, &lUn, &TimeUnits, &rUn, &ecUnits, &nUn, 
+     &aUnits, &dUn, &VelUnits, &lUn, &TimeUnits, &rUn, &ecUnits, &nUn, &ecScale, 
      &Nchem, &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], 
      &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
   return(ier);

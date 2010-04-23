@@ -104,7 +104,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // set default module parameters
   Nchem  = 0;           // hydrogen only
-  Model  = 0;           // test case 
+  Model  = 1;           // chemistry-dependent case
   ESpectrum = 0;        // simple power law spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
   LimType = 3;          // no limiter
@@ -190,7 +190,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	  }
 	}
 	ret += sscanf(line, "RadHydroInitialGuess = %"ISYM, &initial_guess);
-	ret += sscanf(line, "RadHydroAnalyticChem = %"ISYM, &AnalyticChem);
 	ret += sscanf(line, "RadHydroNewtTolerance = %"FSYM, &sol_tolerance);
 	ret += sscanf(line, "RadHydroMaxMGIters = %i", &sol_maxit);
 	ret += sscanf(line, "RadHydroMGRelaxType = %i", &sol_rlxtype);
@@ -259,7 +258,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       - ThisGrid->GridData->GetGridStartIndex(dim) + 1;
 
   // Model gives the physical set of equations to use
-  if ((Model != 1) && (Model != 10)) {
+  if ((Model != 1) && (Model != 10) && (Model != 4)) {
     fprintf(stderr,"gFLDSplit Initialize: illegal Model = %"ISYM"\n",Model);
     ENZO_FAIL("   Model is unimplemented in this module, exiting.");
   }
@@ -294,6 +293,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // dt gives the time step size (initialize to zero)
   dt = 0.0;
+  dtchem = huge_number;  // initially use the radiation dt
 
   // a, adot give cosmological expansion & rate
   a = 1.0;
@@ -1060,19 +1060,25 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 
   default:
-    // set BC on all faces to homogeneous Dirichlet
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 left radiation BCs.");
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 right radiation BCs.");
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 left radiation BCs.");
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 right radiation BCs.");
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 left radiation BCs.");
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 right radiation BCs.");
+    // set BCs based on inputs, for non periodic set to 0-valued
+    if (BdryType[0][0] != 0)
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
+    if (BdryType[0][1] != 0)
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
+    if (BdryType[1][0] != 0)
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
+    if (BdryType[1][1] != 0)
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
+    if (BdryType[2][0] != 0)
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 left radiation BCs.");
+    if (BdryType[2][1] != 0)
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
   }
   ////////////////////////////////
@@ -1114,7 +1120,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	}
       }
       fprintf(outfptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
-      fprintf(outfptr, "RadHydroAnalyticChem = %"ISYM"\n", AnalyticChem);
       fprintf(outfptr, "RadHydroNewtTolerance = %g\n", sol_tolerance);    
       fprintf(outfptr, "RadHydroMaxMGIters = %i\n", sol_maxit);    
       fprintf(outfptr, "RadHydroMGRelaxType = %i\n", sol_rlxtype);    

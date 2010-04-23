@@ -84,9 +84,9 @@ gFLDSplit::gFLDSplit()
   tnew = -1.0;
   told = -1.0;
   dt = -1.0;
+  dtchem = -1.0;
   theta = -1.0;
   LimType = -1;
-  AnalyticChem = 0;
   sol = NULL;
   U0 = NULL;
   extsrc = NULL;

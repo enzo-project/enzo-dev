@@ -19,7 +19,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !
 !  PURPOSE: Computes the array of matrix stencil elements and vector of 
 !           rhs entries for the Grey FLD radiation problem,
-!              d_t E - Div(D(E)*Grad(E)) - adot/a*E - kappa*E + eta + src
+!              d_t E - Div(D(E)*Grad(E)) = -adot/a*E - c*kappa*E + eta + src
 !           where D(E) is a nonlinear flux-limiter 
 !           depending on E0 (time lagged).  We define the values
 !              R_i = |Grad(E)_i|/E,
@@ -51,7 +51,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !           state such that the corrected solution satisfies the above 
 !           equation.  This helps with enforcement of boundary conditions,
 !           since they may be directly placed onto the current state, 
-!           and the correction need only not interfere.  
+!           and the correction need only refrain from interfering.
 !
 !  INPUTS:
 !     E0         - Grey radiation energy density (prev time step)
@@ -201,7 +201,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   integer :: i, j, k
   real*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
   real*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, R, R0, E0avg, Ed
+  real*8  :: afac, afac0, R, R0, E0avg
   real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
   real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
   real*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr, Ed_zl, Ed_zr
@@ -245,8 +245,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! z-directional limiter, lower face
            !    compute gradients of E0, Ediff
-           E0d_zl = (E0(i,j,k) - E0(i,j,k-1))
-           Ed_zl  = E0d_zl - (E(i,j,k) - E(i,j,k-1))
+           E0d_zl = E0(i,j,k) - E0(i,j,k-1)
+           Ed_zl  = E(i,j,k) - E(i,j,k-1)
            E0avg  = (E0(i,j,k) + E0(i,j,k-1))*0.5d0
 
            !    compute R for limiters
@@ -280,8 +280,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! y-directional limiter, lower face
            !    compute gradients of E0, Ediff
-           E0d_yl = (E0(i,j,k) - E0(i,j-1,k))
-           Ed_yl  = E0d_yl - (E(i,j,k) - E(i,j-1,k))
+           E0d_yl = E0(i,j,k) - E0(i,j-1,k)
+           Ed_yl  = E(i,j,k) - E(i,j-1,k)
            E0avg  = (E0(i,j,k) + E0(i,j-1,k))*0.5d0
 
            !    compute R for limiters
@@ -315,8 +315,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! x-directional limiter, lower face
            !    compute gradients of E0, Ediff
-           E0d_xl = (E0(i,j,k) - E0(i-1,j,k))
-           Ed_xl  = E0d_xl - (E(i,j,k) - E(i-1,j,k))
+           E0d_xl = E0(i,j,k) - E0(i-1,j,k)
+           Ed_xl  = E(i,j,k) - E(i-1,j,k)
            E0avg  = (E0(i,j,k) + E0(i-1,j,k))*0.5d0
 
            !    compute R for limiters
@@ -350,8 +350,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! x-directional limiter, upper face
            !    compute gradients of E0, Ediff
-           E0d_xr = (E0(i+1,j,k) - E0(i,j,k))
-           Ed_xr  = E0d_xr - (E(i+1,j,k) - E(i,j,k))
+           E0d_xr = E0(i+1,j,k) - E0(i,j,k)
+           Ed_xr  = E(i+1,j,k) - E(i,j,k)
            E0avg  = (E0(i+1,j,k) + E0(i,j,k))*0.5d0
 
            !    compute R for limiters
@@ -385,8 +385,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! y-directional limiter, upper face
            !    compute gradients of E0, Ediff
-           E0d_yr = (E0(i,j+1,k) - E0(i,j,k))
-           Ed_yr  = E0d_yr - (E(i,j+1,k) - E(i,j,k))
+           E0d_yr = E0(i,j+1,k) - E0(i,j,k)
+           Ed_yr  = E(i,j+1,k) - E(i,j,k)
            E0avg  = (E0(i,j+1,k) + E0(i,j,k))*0.5d0
 
            !    compute R for limiters
@@ -420,8 +420,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !--------------
            ! z-directional limiter, upper face
            !    compute gradients of E0, Ediff
-           E0d_zr = (E0(i,j,k+1) - E0(i,j,k))
-           Ed_zr  = E0d_zr - (E(i,j,k+1) - E(i,j,k))
+           E0d_zr = E0(i,j,k+1) - E0(i,j,k)
+           Ed_zr  = E(i,j,k+1) - E(i,j,k)
            E0avg  = (E0(i,j,k+1) + E0(i,j,k))*0.5d0
 
            !    compute R for limiters
@@ -456,12 +456,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            kap = kappa(i,j,k)*nUn
            kap0 = kappa(i,j,k)*nUn0
 
-           ! black-body radiation in this cell (if applicable)
+           ! black-body radiation in this cell (if applicable; otherwise Temp=0)
            eta = 4.d0*kap*StBz/rUn*Temp(i,j,k)**4
            eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i,j,k)**4
-
-           ! difference between old state and guess in cell
-           Ed = E0(i,j,k) - E(i,j,k)
 
            ! set the matrix entries.  Note: the diffusive component 
            ! need not be rescaled, since scaling and chain rule cancel 
@@ -469,22 +466,23 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
                 -dtfac*dzi*dzi*D_zl, &         ! z-left
                 -dtfac*dyi*dyi*D_yl, &         ! y-left
                 -dtfac*dxi*dxi*D_xl, &         ! x-left
-                 1.d0 + dtfac*(afac+c*kap+dxi*dxi*(D_xl+D_xr)  &    ! self
-                 + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr)), &
+                 1.d0 + dtfac*(afac + c*kap + dxi*dxi*(D_xl+D_xr)   &   ! self
+                      + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr)), &
                 -dtfac*dxi*dxi*D_xr, &         ! x-right
                 -dtfac*dyi*dyi*D_yr, &         ! y-right
                 -dtfac*dzi*dzi*D_zr /)         ! z-right
 
            ! set the rhs entries
-           rhsentries(i,j,k) = ( dt*src(i,j,k)/rUn + dtfac*eta + dtfac0*eta0   &
-                               - dt*(afac0 + c*kap0)*E0(i,j,k)                 &
-                               + dt*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)      &
-                               + dt*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)      &
-                               + dt*dzi0*dzi0*(D0_zr*E0d_zr-D0_zl*E0d_zl)      &
-                               + (1.d0 + dtfac*(afac+c*kap))*Ed                &
-                               - dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
-                               - dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl)         &
-                               - dtfac*dzi*dzi*(D_zr*Ed_zr-D_zl*Ed_zl) )
+           rhsentries(i,j,k) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j,k)          &
+                               + dtfac*eta + dtfac0*eta0                       &
+                               + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i,j,k)      &
+                               + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
+                               + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)  &
+                               + dtfac0*dzi0*dzi0*(D0_zr*E0d_zr-D0_zl*E0d_zl)  &
+                               - (1.d0 + dtfac*(afac+c*kap))*E(i,j,k)          &
+                               + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
+                               + dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl)         &
+                               + dtfac*dzi*dzi*(D_zr*Ed_zr-D_zl*Ed_zl) )
 
         enddo
      enddo
@@ -499,7 +497,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2s
         do j=1,Ny
            do i=1,Nx
-              matentries(1,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
@@ -521,7 +521,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1s
         do k=1,Nz
            do i=1,Nx
-              matentries(2,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
@@ -543,7 +545,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0s
         do k=1,Nz
            do j=1,Ny
-              matentries(3,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
@@ -565,7 +569,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0e
         do k=1,Nz
            do j=1,Ny
-              matentries(5,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
@@ -587,14 +593,16 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1e
         do k=1,Nz
            do i=1,Nx
-              matentries(6,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
      else if (BCYr==2) then
         j = x1e
         do k=1,Nz
-           do i=i,Nx
+           do i=1,Nx
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(6,i,j,k)
               matentries(6,i,j,k) = 0.d0
            enddo
@@ -609,7 +617,9 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2e
         do j=1,Ny
            do i=1,Nx
-              matentries(7,i,j,k) = 0.d0
+              matentries(:,i,j,k) = 0.d0
+              matentries(4,i,j,k) = 1.d0
+              rhsentries(i,j,k)   = 0.d0
            enddo
         enddo
      ! Neumann
@@ -670,7 +680,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   integer :: i, j
   real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
   real*8  :: c, pi, dxi, dxi0, dyi, dyi0
-  real*8  :: afac, afac0, R, R0, E0avg, Ed
+  real*8  :: afac, afac0, R, R0, E0avg
   real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
   real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
   real*8  :: Rmin
@@ -709,8 +719,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         !--------------
         ! y-directional limiter, lower face
         !    compute gradients of E0, Ediff
-        E0d_yl = (E0(i,j) - E0(i,j-1))
-        Ed_yl  = E0d_yl - (E(i,j) - E(i,j-1))
+        E0d_yl = E0(i,j) - E0(i,j-1)
+        Ed_yl  = E(i,j) - E(i,j-1)
         E0avg  = (E0(i,j) + E0(i,j-1))/2.d0
 
         !    compute R for limiters
@@ -744,8 +754,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         !--------------
         ! x-directional limiter, lower face
         !    compute gradients of E0, Ediff
-        E0d_xl = (E0(i,j) - E0(i-1,j))
-        Ed_xl  = E0d_xl - (E(i,j) - E(i-1,j))
+        E0d_xl = E0(i,j) - E0(i-1,j)
+        Ed_xl  = E(i,j) - E(i-1,j)
         E0avg  = (E0(i,j) + E0(i-1,j))/2.d0
 
         !    compute R for limiters
@@ -779,8 +789,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         !--------------
         ! x-directional limiter, upper face
         !    compute gradients of E0, Ediff
-        E0d_xr = (E0(i+1,j) - E0(i,j))
-        Ed_xr  = E0d_xr - (E(i+1,j) - E(i,j))
+        E0d_xr = E0(i+1,j) - E0(i,j)
+        Ed_xr  = E(i+1,j) - E(i,j)
         E0avg  = (E0(i+1,j) + E0(i,j))/2.d0
 
         !    compute R for limiters
@@ -814,8 +824,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         !--------------
         ! y-directional limiter, upper face
         !    compute gradients of E0, Ediff
-        E0d_yr = (E0(i,j+1) - E0(i,j))
-        Ed_yr  = E0d_yr - (E(i,j+1) - E(i,j))
+        E0d_yr = E0(i,j+1) - E0(i,j)
+        Ed_yr  = E(i,j+1) - E(i,j)
         E0avg  = (E0(i,j+1) + E0(i,j))/2.d0
 
         !    compute R for limiters
@@ -854,9 +864,6 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         eta = 4.d0*kap*StBz/rUn*Temp(i,j)**4
         eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i,j)**4
 
-        ! difference between old state and guess in cell
-        Ed = E0(i,j) - E(i,j)
-
         ! set the matrix entries.  Note: the diffusive component 
         ! need not be rescaled, since scaling and chain rule cancel 
         matentries(:,i,j) = (/    &
@@ -868,13 +875,14 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
              -dtfac*dyi*dyi*D_yr /)         ! y-right
 
         ! set the rhs entries
-        rhsentries(i,j) = ( dt*src(i,j)/rUn + dtfac*eta + dtfac0*eta0     &
-                          - dt*(afac0 + c*kap0)*E0(i,j)                   &
-                          + dt*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)      &
-                          + dt*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)      &
-                          + (1.d0 + dtfac*(afac+c*kap))*Ed                &
-                          - dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
-                          - dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl) )
+        rhsentries(i,j) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j)            &
+                          + dtfac*eta + dtfac0*eta0                       &
+                          + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i,j)        &
+                          + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
+                          + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)  &
+                          - (1.d0 + dtfac*(afac+c*kap))*E(i,j)            &
+                          + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
+                          + dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl) )
      enddo
   enddo
   
@@ -884,13 +892,15 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      ! Dirichlet
      if (BCYl==1) then
         j = x1s
-        do i=x0s,x0e
-           matentries(1,i,j) = 0.d0
+        do i=1,Nx
+           matentries(:,i,j) = 0.d0
+           matentries(3,i,j) = 1.d0
+           rhsentries(i,j)   = 0.d0
         enddo
         ! Neumann
      else if (BCYl==2) then
         j = x1s
-        do i=x0s,x0e
+        do i=1,Nx
            matentries(3,i,j) = matentries(3,i,j) + matentries(1,i,j)
            matentries(1,i,j) = 0.d0
         enddo
@@ -902,13 +912,15 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      ! Dirichlet
      if (BCXl==1) then
         i = x0s
-        do j=x1s,x1e
-           matentries(2,i,j) = 0.d0
+        do j=1,Ny
+           matentries(:,i,j) = 0.d0
+           matentries(3,i,j) = 1.d0
+           rhsentries(i,j)   = 0.d0
         enddo
         ! Neumann
      else if (BCXl==2) then
         i = x0s
-        do j=x1s,x1e
+        do j=1,Ny
            matentries(3,i,j) = matentries(3,i,j) + matentries(2,i,j)
            matentries(2,i,j) = 0.d0
         enddo
@@ -920,13 +932,15 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      ! Dirichlet
      if (BCXr==1) then
         i = x0e
-        do j=x1s,x1e
-           matentries(4,i,j) = 0.d0
+        do j=1,Ny
+           matentries(:,i,j) = 0.d0
+           matentries(3,i,j) = 1.d0
+           rhsentries(i,j)   = 0.d0
         enddo
         ! Neumann
      else if (BCXr==2) then
         i = x0e
-        do j=x1s,x1e
+        do j=1,Ny
            matentries(3,i,j) = matentries(3,i,j) + matentries(4,i,j)
            matentries(4,i,j) = 0.d0
         enddo
@@ -938,13 +952,15 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      ! Dirichlet
      if (BCYr==1) then
         j = x1e
-        do i=x0s,x0e
-           matentries(5,i,j) = 0.d0
+        do i=1,Nx
+           matentries(:,i,j) = 0.d0
+           matentries(3,i,j) = 1.d0
+           rhsentries(i,j)   = 0.d0
         enddo
         ! Neumann
      else if (BCYr==2) then
         j = x1e
-        do i=x0s,x0e
+        do i=1,Nx
            matentries(3,i,j) = matentries(3,i,j) + matentries(5,i,j)
            matentries(5,i,j) = 0.d0
         enddo
@@ -994,7 +1010,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   integer :: i
   real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
   real*8  :: c, pi, dxi, dxi0
-  real*8  :: afac, afac0, R, R0, E0avg, Ed
+  real*8  :: afac, afac0, R, R0, E0avg
   real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
   real*8  :: Rmin
 
@@ -1029,8 +1045,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      !--------------
      ! x-directional limiter, lower face
      !    compute gradients of E0, Ediff
-     E0d_xl = (E0(i) - E0(i-1))
-     Ed_xl  = E0d_xl - (E(i) - E(i-1))
+     E0d_xl = E0(i) - E0(i-1)
+     Ed_xl  = E(i) - E(i-1)
      E0avg  = (E0(i) + E0(i-1))/2.d0
 
      !    compute R for limiters
@@ -1064,8 +1080,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      !--------------
      ! x-directional limiter, upper face
      !    compute gradients of E0, Ediff
-     E0d_xr = (E0(i+1) - E0(i))
-     Ed_xr  = E0d_xr - (E(i+1) - E(i))
+     E0d_xr = E0(i+1) - E0(i)
+     Ed_xr  = E(i+1) - E(i)
      E0avg  = (E0(i+1) + E0(i))/2.d0
 
      !    compute R for limiters
@@ -1104,9 +1120,6 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      eta = 4.d0*kap*StBz/rUn*Temp(i)**4
      eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i)**4
 
-     ! difference between old state and guess in cell
-     Ed = E0(i) - E(i)
-
      ! set the matrix entries.  Note: the diffusive component 
      ! need not be rescaled, since scaling and chain rule cancel 
      matentries(:,i) = (/              &
@@ -1116,11 +1129,12 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
           -dtfac*dxi*dxi*D_xr /)          ! x-right
 
      ! set the rhs entries
-     rhsentries(i) = ( dt*src(i)/rUn + dtfac*eta + dtfac0*eta0     &
-                     - dt*(afac0 + c*kap0)*E0(i)                   &
-                     + dt*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)    &
-                     + (1.d0 + dtfac*(afac+c*kap))*Ed              &
-                     - dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl) )
+     rhsentries(i) = ( (dtfac/rUn + dtfac0/rUn0)*src(i)              &
+                     + dtfac*eta + dtfac0*eta0                       &
+                     + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i)          &
+                     + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
+                     - (1.d0 + dtfac*(afac+c*kap))*E(i)              &
+                     + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl) )
 
   enddo
 
@@ -1130,7 +1144,9 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXl==1) then
         i = x0s
-        matentries(1,i) = 0.d0
+        matentries(:,i) = 0.d0
+        matentries(2,i) = 1.d0
+        rhsentries(i)   = 0.d0
      ! Neumann
      else if (BCXl==2) then
         i = x0s
@@ -1144,7 +1160,9 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXr==1) then
         i = x0e
-        matentries(3,i) = 0.d0
+        matentries(:,i) = 0.d0
+        matentries(2,i) = 1.d0
+        rhsentries(i)   = 0.d0
      ! Neumann
      else if (BCXr==2) then
         i = x0e
