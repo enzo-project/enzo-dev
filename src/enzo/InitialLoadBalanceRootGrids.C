@@ -37,6 +37,8 @@ int DetermineNumberOfNodes(void);
 int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes, 
 				  int* &ProcessorNumbers, double* NumberOfCells, 
 				  double* NumberOfSubcells);
+int LoadBalanceHilbertCurveRootGrids(FLOAT *GridCenters[], int *CellCount,
+				     int NumberOfGrids, int* &RootProcessors);
 
 int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
 				int TopGridDim, int &NumberOfRootGrids,
@@ -62,10 +64,12 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   char line[MAX_LINE_LENGTH];
   int i, dim, GridID, Rank, ThisLevel, dummy, GridDims[MAX_DIMENSION];
   int ThisTask, *GridMap;
+  int *Workload;
   int size, grid_num, RootGridID, GridPosition[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
   double *NumberOfCells, *NumberOfSubgridCells;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+  FLOAT *GridCenters[MAX_DIMENSION];
   float ThisCellWidth;
 
   // Root processor does all of the work, and broadcasts the new
@@ -98,7 +102,8 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
     return SUCCESS;
   } // ENDIF LoadBalancing == 1
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if ((LoadBalancing == 2 || LoadBalancing == 3) &&
+      MyProcessorNumber == ROOT_PROCESSOR) {
 
   // Compute (processor number)->(grid number) map
   Enzo_Dims_create(NumberOfRootGrids, TopGridRank, LayoutTemp);
@@ -200,14 +205,88 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   delete [] NumberOfCells;
   delete [] NumberOfSubgridCells;
 
-  } // ENDIF ROOT_PROCESSOR
+  } // ENDIF ROOT_PROCESSOR and LoadBalancing == 2 or 3
+
+  if (MyProcessorNumber == ROOT_PROCESSOR && LoadBalancing == 4) {
+    RootProcessors = new int[NumberOfRootGrids];
+    Workload = new int[NumberOfRootGrids];
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      GridCenters[dim] = new FLOAT[NumberOfRootGrids];
+
+    for (i = 0; i < NumberOfRootGrids; i++)
+      Workload[i] = 0;
+
+    // Start reading hierarchy
+    rewind(fptr);
+    Rank = 1;
+    while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+
+      sscanf(line, "Grid = %"ISYM, &GridID);
+      sscanf(line, "Task = %"ISYM, &ThisTask);
+      sscanf(line, "GridRank = %"ISYM, &Rank);
+      switch (Rank) {
+      case 1:
+	sscanf(line, "GridDimension = %"ISYM, GridDims);
+	sscanf(line, "GridLeftEdge = %"PSYM, LeftEdge);
+	sscanf(line, "GridRightEdge = %"PSYM, RightEdge);
+	break;
+      case 2:
+	sscanf(line, "GridDimension = %"ISYM" %"ISYM, GridDims, GridDims+1);
+	sscanf(line, "GridLeftEdge = %"PSYM" %"PSYM, LeftEdge, LeftEdge+1);
+	sscanf(line, "GridRightEdge = %"PSYM" %"PSYM, RightEdge, RightEdge+1);
+	break;
+      case 3:
+	sscanf(line, "GridDimension = %"ISYM" %"ISYM" %"ISYM,
+	       GridDims, GridDims+1, GridDims+2);
+	sscanf(line, "GridLeftEdge = %"PSYM" %"PSYM" %"PSYM,
+	       LeftEdge, LeftEdge+1, LeftEdge+2);
+	sscanf(line, "GridRightEdge = %"PSYM" %"PSYM" %"PSYM,
+	       RightEdge, RightEdge+1, RightEdge+2);
+	break;
+      default:
+	ENZO_FAIL("Bad grid rank!");
+      } // ENDSWITCH Rank
+
+      // Compute level and other derived quantities after reading the
+      // last line
+      if (sscanf(line, "GravityBoundaryType = %"ISYM, &dummy) > 0) {
+
+	for (dim = 0, size = 1; dim < Rank; dim++) {
+	  GridCenters[dim][GridID-1] =
+	    (LeftEdge[dim] - DomainLeftEdge[dim]) /
+	    (DomainRightEdge[dim] - DomainLeftEdge[dim]);
+	  size *= GridDims[dim];
+	}
+
+	Workload[GridID-1] = size;
+
+	if (GridID == NumberOfRootGrids)
+	  break;
+
+      } // ENDIF GravityBoundaryType read
+
+    } // ENDWHILE lines
+
+    LoadBalanceHilbertCurveRootGrids(GridCenters, Workload, 
+				     NumberOfRootGrids, RootProcessors);
+
+    delete [] Workload;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      delete [] GridCenters[dim];
+
+  } // ENDIF ROOT_PROCESSOR and LoadBalancing == 4
 
 #ifdef USE_MPI
   MPI_Bcast(&NumberOfRootGrids, 1, IntDataType, ROOT_PROCESSOR, MPI_COMM_WORLD);
-  if (MyProcessorNumber != ROOT_PROCESSOR)
-    RootProcessors = new int[NumberOfRootGrids];
-  MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
-	    MPI_COMM_WORLD);
+  if (NumberOfRootGrids > 1) {
+    if (MyProcessorNumber != ROOT_PROCESSOR)
+      RootProcessors = new int[NumberOfRootGrids];
+    MPI_Bcast(RootProcessors, NumberOfRootGrids, IntDataType, ROOT_PROCESSOR, 
+	      MPI_COMM_WORLD);
+  } else {
+    delete [] RootProcessors;
+    RootProcessors = NULL;
+  }
 #endif
 
   rewind(fptr);
