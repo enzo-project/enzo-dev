@@ -249,43 +249,6 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
       printf(")\ngFLDProblem_ComputeTimeStep: dt_est = %g\n",dt_est);
     }
   }
-  if (dtsolver > 0) {
-
-    // Use a heuristic to shoot for 2.5 Newton iterations per time 
-    // step, with linesearch step length equal to 1.
-    
-    // if Newton required linesearch, reduce step size (normalized units)
-    if (FStep < 0.1)
-      dt_est = min(dt_est,0.1*dt/TimeUnits);
-    else if (FStep < 1.0)
-      dt_est = min(dt_est,0.5*dt/TimeUnits);
-    
-    if (NewtIts < 2)      // <2 iterations, increase dt by 50%
-      dt_est = 1.5*dt/TimeUnits;
-    if (NewtIts == 2)     // 2 iterations, base off of newton residual
-      if (FResid < newt_tol*1e-4)  dt_est = 1.1*dt/TimeUnits;
-      else if (FResid < newt_tol*1e-3)  dt_est = 1.05*dt/TimeUnits;
-      else if (FResid < newt_tol*1e-2)  dt_est = 1.01*dt/TimeUnits;
-      else if (FResid < newt_tol*5e-2)  dt_est = 1.001*dt/TimeUnits;
-      else if (FResid < newt_tol*1e-1)  dt_est = min(dt_est,0.99*dt/TimeUnits);
-      else dt_est = min(dt_est,0.95*dt/TimeUnits);
-    if (NewtIts == 3)     // 3 iterations, decrease estimate by 10%
-      dt_est = min(dt_est,0.9*dt/TimeUnits);
-    if (NewtIts == 4)     // 4 iterations, decrease dt by 50%
-      dt_est = min(dt_est,0.5*dt/TimeUnits);
-    if (NewtIts == 5)     // 5 iterations, decrease dt by 75%
-      dt_est = min(dt_est,0.25*dt/TimeUnits);
-    if (NewtIts > 5)      // >5 iterations, decrease dt by 90%
-      dt_est = min(dt_est,0.1*dt/TimeUnits);
-    
-    // enforce max/min dt values on dt_est
-    dt_est = max(dt_est, mindt);
-    dt_est = min(dt_est, maxdt);    
-    
-    if (debug) {
-      printf("gFLDProblem_ComputeTimestep: NewtIts = %"ISYM", FStep = %g, dt_est = %g\n",NewtIts,FStep,dt_est);
-    }
-  }
 
 #ifdef USE_JBPERF
   JBPERF_STOP("gfldproblem_computetimestep");

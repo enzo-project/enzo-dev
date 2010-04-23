@@ -40,7 +40,6 @@ int gFLDProblem::WriteParameters(FILE *fptr)
     fprintf(fptr, "RadHydroInitDt = %22.16e\n", dt);
   fprintf(fptr, "RadHydroMaxDt = %22.16e\n", maxdt);
   fprintf(fptr, "RadHydroMinDt = %22.16e\n", mindt);
-  fprintf(fptr, "RadHydroDtSolver = %"ISYM"\n", dtsolver);
   fprintf(fptr, "RadHydroDtNorm = %22.16e\n", dtnorm);
   fprintf(fptr, "RadHydroDtRadFac = %22.16e\n", dtfac[0]);
   fprintf(fptr, "RadHydroDtGasFac = %22.16e\n", dtfac[1]);

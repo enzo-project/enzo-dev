@@ -97,7 +97,6 @@ gFLDProblem::gFLDProblem()
   dtfac[1] = 1.0e20;
   dtfac[2] = 1.0e20;
   dtnorm = 0.0;
-  dtsolver = 0;
   tnew = -1.0;
   told = -1.0;
   dt = -1.0;
