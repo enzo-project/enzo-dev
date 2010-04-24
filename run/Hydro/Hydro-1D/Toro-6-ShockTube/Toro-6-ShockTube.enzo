@@ -1,0 +1,64 @@
+#
+# PROBLEM DEFINITION FILE: 
+#
+#  This is Problem #6 from Chapter 10.8 in Toro's "Riemann Solvers and
+#  Numerical Methods for Fluid Dynamics" (2nd edition).
+#
+#  This test consists of an isolated stationary contact wave. It
+#  demonstrates the advantage of the HLLC Riemann solver over the HLL
+#  solver in capturing stationary and slowly moving contact
+#  waves (see also Toro-7-ShockTube).
+#
+
+#
+#  define problem
+#
+ProblemType            = 1
+TopGridRank            = 1
+TopGridDimensions      = 100 
+
+#  Use this for the original PPM-DirectEulerian method
+#
+HydroMethod            = 0
+
+#  Use this for the newer Runge-Kutta solvers (supporting PLM or PPM
+#  reconstruction, and several different Riemann solvers)
+#
+# HydroMethod            = 3
+# RiemannSolver          = 4
+# ReconstructionMethod   = 0
+# Theta_Limiter          = 1.5
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 2.0
+dtDataDump             = 5.0
+DataDumpName           = data
+
+#
+#  Boundary conditions are typically set to be transmissive for shock tubes
+#
+LeftFaceBoundaryCondition    = 1 1 1
+RightFaceBoundaryCondition   = 1 1 1
+
+#  set hydro parameters
+#
+Gamma                  = 1.4
+CourantSafetyNumber    = 0.9
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy        = 1    // static hierarchy
+
+#
+# The following parameters define the shock tube problem
+#
+HydroShockTubesInitialDiscontinuity  = 0.5
+HydroShockTubesLeftDensity           = 1.4
+HydroShockTubesLeftVelocityX         = 0.0
+HydroShockTubesLeftPressure          = 1.0
+HydroShockTubesRightDensity          = 1.0
+HydroShockTubesRightVelocityX        = 0.0
+HydroShockTubesRightPressure         = 1.0
