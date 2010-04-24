@@ -55,7 +55,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
     delete [] BaryonField[NumberOfBaryonFields];
  
-    if ( (Unigrid == 1) && ((ProblemType == 30) || (ProblemType == 60)) ) //AK
+    if ( (Unigrid == 1) && ((ProblemType == 30) || (ProblemType == 60) || (ProblemType >= 400)) ) //AK
     {
        printf("ZeroSUS - ZERO_UNDER_SUBGRID_FIELD && Subgrid == NULL\n");
        printf("ZeroSUS - Unigrid: %"ISYM"\n", Unigrid);
@@ -142,7 +142,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
  
 //    printf("    ZeroSUS Value = %10.4e\n", Value);
  
-    if ( (Unigrid == 1) && ((ProblemType == 30) || (ProblemType == 60)) ) //AK
+    if ( (Unigrid == 1) && ((ProblemType == 30) || (ProblemType == 60) || (ProblemType >= 400)) ) //AK
     {
       printf("    Ignoring BaryonField Assignment!\n");
     }
