@@ -1508,10 +1508,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 					 float CoreRadius,
 					 float AngularVelocity);
 
-/* ShockTube problem: initialize grid (returns SUCCESS or FAIL) */
+/* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
-  int ShockTubeInitializeGrid(int Direction, float Boundary, float Density[],
-			      float Pressure[], float Velocity[]);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float LeftDensity, float RightDensity, 
+				    float LeftVelocityX, float RightVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float LeftPressure, float RightPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -2129,10 +2133,6 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
-  int Hydro1DTestInitializeGrid(float rhol, float rhor,
-				float vxl,  float vxr,
-				float vyl,  float vyr,
-				float pl,   float pr);
   int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);

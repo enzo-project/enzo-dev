@@ -14,11 +14,13 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
 		      float *VelocityUnits, FLOAT Time);
 
-int grid::Hydro1DTestInitializeGrid(float rhol, float rhor,
-				    float vxl,  float vxr,
-				    float vyl,  float vyr,
-				    float pl,   float pr
-				    )
+int grid::HydroShockTubesInitializeGrid(float x0, 
+					float rhol, float rhor,
+					float vxl,  float vxr,
+					float vyl,  float vyr,
+					float vzl,  float vzr,
+					float pl,   float pr
+					)
 {  
 
   NumberOfBaryonFields = 0;
@@ -52,10 +54,10 @@ int grid::Hydro1DTestInitializeGrid(float rhol, float rhor,
   
   /* transform pressure to total energy */
   float etotl, etotr, v2;
-  v2 = vxl * vxl + vyl * vyl;
+  v2 = vxl * vxl + vyl * vyl + vzl * vzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2;
 
-  v2 = vxr * vxr + vyr * vyr;
+  v2 = vxr * vxr + vyr * vyr + vzr * vzr;
   etotr = pr / ((Gamma-1.0)*rhor) + 0.5*v2;
 
   FLOAT x;
@@ -64,23 +66,23 @@ int grid::Hydro1DTestInitializeGrid(float rhol, float rhor,
 
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 
-    if (x <= 0.5) {
+    if (x <= x0) {
       BaryonField[iden ][i] = rhol;
       BaryonField[ivx  ][i] = vxl;
       BaryonField[ivy  ][i] = vyl;
-      BaryonField[ivz  ][i] = 0.0;
+      BaryonField[ivz  ][i] = vzl;
       BaryonField[ietot][i] = etotl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl);
+	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
     } else {
       BaryonField[iden ][i] = rhor;
       BaryonField[ivx  ][i] = vxr;
       BaryonField[ivy  ][i] = vyr;
-      BaryonField[ivz  ][i] = 0.0;
+      BaryonField[ivz  ][i] = vzr;
       BaryonField[ietot][i] = etotr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr);
+	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
   }
