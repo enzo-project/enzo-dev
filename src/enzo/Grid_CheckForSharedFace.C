@@ -88,6 +88,12 @@ int grid::CheckForSharedFace(grid *OtherGrid,
   bool BoundaryCheck[2*MAX_DIMENSION];
   bool ycheck, zcheck;
   FLOAT DomainWidth[MAX_DIMENSION];
+
+  for (dim = 0; dim < GridRank; dim++) {
+    BoundaryCheck[2*dim] = false;
+    BoundaryCheck[2*dim+1] = false;
+  }
+
   for (dim = 0; dim < GridRank; dim++) {
 
     BoundaryCheck[2*dim] = 
