@@ -272,11 +272,11 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   // RadHydroHFraction must be between 0 and 1
-  if ((RadHydroHFraction < 0.0) || (RadHydroHFraction > 1.0)) {
+  if ((HFrac < 0.0) || (HFrac > 1.0)) {
     fprintf(stderr,"gFLDSplit Initialize: illegal RadHydroHFraction = %g\n",
-	    RadHydroHFraction);
+	    HFrac);
     fprintf(stderr,"   re-setting to 1.0\n");
-    RadHydroHFraction = 1.0;  // default is all Hydrogen
+    HFrac = 1.0;  // default is all Hydrogen
   }
 
   // LimType gives the limiter formula to use (see header)
