@@ -150,7 +150,6 @@ OBJS_CONFIG_LIB = \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \
-        feuler_sweep.o \
         fft66.o \
         fft90.o \
         ffte4X.o \
@@ -374,7 +373,6 @@ OBJS_CONFIG_LIB = \
         Grid_PoissonSolver.o                    \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
-        Grid_PPMDirectEuler.o \
         Grid_PrepareBoundaryFluxes.o \
         Grid_PrepareFFT.o \
         Grid_PrepareGreensFunction.o \
@@ -419,6 +417,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
         Grid_SolveRateEquations.o \
@@ -457,6 +456,9 @@ OBJS_CONFIG_LIB = \
         Grid_ZeldovichPancakeInitializeGrid.o \
         Grid_ZeroSolutionUnderSubgrid.o \
         Grid_ZeusSolver.o \
+	Grid_xEulerSweep.o \
+	Grid_yEulerSweep.o \
+	Grid_zEulerSweep.o \
         Group_ReadAllData.o \
         Group_ReadDataHierarchy.o \
         Group_WriteAllData.o \

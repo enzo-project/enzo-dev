@@ -1461,15 +1461,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* PPM Direct Euler Solver. */
 
-  int PPMDirectEuler(int CycleNumber, int NumberOfSubgrids, 
-                     fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-                     long_int GridGlobalStart[], int GravityOn,
-		     int NumberOfColours, int colnum[]);
+int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
+		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+		Elong_int GridGlobalStart[], int GravityOn, 
+		int NumberOfColours, int colnum[]);
 
-  int euler_sweep(int dim, int iter, int CycleNumber, int NumberOfSubgrids, 
-                  fluxes *SubgridFluxes[], float *CellWidthTemp[],
-                  long_int GridGlobalStart[], int GravityOn,
-		  int NumberOfColours, int colnum[], float *temp, int tempsize);
+int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
 
 // AccelerationHack
 
