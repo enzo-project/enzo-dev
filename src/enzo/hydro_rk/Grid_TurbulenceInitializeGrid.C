@@ -696,7 +696,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  ParticleAcceleration[2] = NULL;
 
 	  ParticleAttribute[0][l] = 0.0; // creation time             
-	  ParticleAttribute[1][l] = 0.0; //t_dyn_m; // t_dyn
+	  ParticleAttribute[1][l] = t_dyn_m; // t_dyn
 	  ParticleAttribute[2][l] = mass_m;
 
 	  if (StellarWindFeedback) {
