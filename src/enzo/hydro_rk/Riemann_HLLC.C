@@ -153,13 +153,13 @@ int hllc(float **FluxLine, float **priml, float **primr, int ActiveSize)
     
 
     if (isnan(FluxLine[iD][n])) {
-      printf("F[iS1] NaN at n=%d: fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
+      printf("F[iS1] NaN at n=%"ISYM": fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
 	     n, Fl[iD], Fr[iD], Ul[iD], Ur[iD], ap, am);
       printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, cs_l=%lf, cs_r=%lf\n",
 	     lp_l, lm_l, lp_r, lm_r, cs_l, cs_r);
-      printf("priml: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("priml: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     priml[0][n], priml[1][n], priml[2][n], priml[3][n], priml[4][n]);
-      printf("primr: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("primr: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     primr[0][n], primr[1][n], primr[2][n], primr[3][n], primr[4][n]);
       return FAIL;
     }
@@ -170,7 +170,7 @@ int hllc(float **FluxLine, float **priml, float **primr, int ActiveSize)
     if (fabs(FluxLine[iEtot][n+1]-FluxLine[iEtot][n]) > 1e5) {
       printf("flux error\n");
       for (int n = 0; n < ActiveSize+1; n++) {
-	printf("%g ", FluxLine[iEtot][n]);
+	printf("%"GSYM" ", FluxLine[iEtot][n]);
       }
       printf("\n");
 
@@ -184,7 +184,7 @@ int hllc(float **FluxLine, float **priml, float **primr, int ActiveSize)
 	v2 = vx*vx + vy*vy + vz*vz;
 	etot = eintl + 0.5*v2;
 	EOS(p, rho, eintl, h, cs_l, dpdrho, dpde, 0, 2);
-	printf("pl=%g, cs_l=%g entl=%g, rho=%g ",p, cs_l, eintl, rho);
+	printf("pl=%"GSYM", cs_l=%"GSYM" entl=%"GSYM", rho=%"GSYM" ",p, cs_l, eintl, rho);
 	
 	Ul[iD  ] = rho;
 	Ul[iS1 ] = rho * vx;
@@ -211,7 +211,7 @@ int hllc(float **FluxLine, float **priml, float **primr, int ActiveSize)
 	v2 = vx*vx + vy*vy + vz*vz;
 	etot = eintr + 0.5*v2;
 	EOS(p, rho, eintr, h, cs_r, dpdrho, dpde, 0, 2);
-	printf("pr=%g,cs_r=%g eintr=%g rhor=%g \n", p, cs_r, eintr, rho);
+	printf("pr=%"GSYM",cs_r=%"GSYM" eintr=%"GSYM" rhor=%"GSYM" \n", p, cs_r, eintr, rho);
 	
 	Ur[iD  ] = rho;
 	Ur[iS1 ] = rho * vx;
@@ -230,7 +230,7 @@ int hllc(float **FluxLine, float **priml, float **primr, int ActiveSize)
     
 	ap = Max(Zero, lp_l, lp_r);
 	am = Max(Zero, -lm_l, -lm_r);
-	printf("fr=%g,fl=%g,ap=%g,am=%g, ur=%g, ul=%g\n",Fr[iEtot],Fl[iEtot],ap,am, Ur[iEtot], Ul[iEtot]);
+	printf("fr=%"GSYM",fl=%"GSYM",ap=%"GSYM",am=%"GSYM", ur=%"GSYM", ul=%"GSYM"\n",Fr[iEtot],Fl[iEtot],ap,am, Ur[iEtot], Ul[iEtot]);
 	
 	for (int field = 0; field < NEQ_HYDRO; field++) {
 	  FluxLine[field][n] = (ap*Fl[field]+am*Fr[field]-ap*am*(Ur[field]-Ul[field]))/(ap+am);

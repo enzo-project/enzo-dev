@@ -1,0 +1,70 @@
+#
+# PROBLEM DEFINITION FILE: 
+#
+#  This is Problem #5 from Chapter 10.8 in Toro's "Riemann Solvers and
+#  Numerical Methods for Fluid Dynamics" (2nd edition).
+#
+#  AMR version
+#
+#  This test is designed to assess the code's ability to resolve
+#  slowly-moving contact discontinuities. Its solution consists of a
+#  left rarefaction wave, a right travelling shock, and a stationary
+#  contact discontinuity.
+#
+
+#
+#  define problem
+#
+ProblemType            = 1
+TopGridRank            = 1
+TopGridDimensions      = 100 
+
+#  Use this for the original PPM-DirectEulerian method
+#
+HydroMethod            = 0
+
+#  Use this for the newer Runge-Kutta solvers (supporting PLM or PPM
+#  reconstruction, and several different Riemann solvers)
+#
+# HydroMethod            = 3
+# RiemannSolver          = 1
+# ReconstructionMethod   = 1
+# Theta_Limiter          = 1.5
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.012
+dtDataDump             = 1.0
+DataDumpName           = data
+
+#
+#  Boundary conditions are typically set to be transmissive for shock tubes
+#
+LeftFaceBoundaryCondition    = 1 1 1
+RightFaceBoundaryCondition   = 1 1 1
+
+#  set hydro parameters
+#
+Gamma                  = 1.4
+CourantSafetyNumber    = 0.9
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy (AMR)
+MaximumRefinementLevel    = 4    // use up to 4 levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 1    // refine by local gradients
+MinimumSlopeForRefinement = 0.2
+
+#
+# The following parameters define the shock tube problem
+#
+HydroShockTubesInitialDiscontinuity  = 0.8
+HydroShockTubesLeftDensity           = 1.0
+HydroShockTubesLeftVelocityX         = -19.59745
+HydroShockTubesLeftPressure          = 1000.0
+HydroShockTubesRightDensity          = 1.0
+HydroShockTubesRightVelocityX        = -19.59745
+HydroShockTubesRightPressure         = 0.01

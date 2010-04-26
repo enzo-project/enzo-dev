@@ -45,6 +45,9 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
   int GridPosition[MAX_DIMENSION];
   int *ToGrid;
  
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    GridPosition[dim] = 0;
+
   /* ----------------------------------------------------------------- */
   /* Copy particle out of grid. */
  

@@ -76,39 +76,39 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %d", 
+    ret += sscanf(line, "RefineAtStart = %"ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LeftVelocityX = %f",
+    ret += sscanf(line, "LeftVelocityX = %"FSYM,
 		  &LeftVelocityX);
-    ret += sscanf(line, "LeftVelocityY = %f",
+    ret += sscanf(line, "LeftVelocityY = %"FSYM,
 		  &LeftVelocityY);
-    ret += sscanf(line, "LeftVelocityZ = %f",
+    ret += sscanf(line, "LeftVelocityZ = %"FSYM,
 		  &LeftVelocityZ);
-    ret += sscanf(line, "LeftPressure = %f", 
+    ret += sscanf(line, "LeftPressure = %"FSYM, 
 		  &LeftPressure);
-    ret += sscanf(line, "LeftDensity = %f", 
+    ret += sscanf(line, "LeftDensity = %"FSYM, 
 		  &LeftDensity);
-    ret += sscanf(line, "LeftBx = %f",
+    ret += sscanf(line, "LeftBx = %"FSYM,
 		  &LeftBx);
-    ret += sscanf(line, "LeftBy = %f",
+    ret += sscanf(line, "LeftBy = %"FSYM,
 		  &LeftBy);
-    ret += sscanf(line, "LeftBz = %f",
+    ret += sscanf(line, "LeftBz = %"FSYM,
 		  &LeftBz);
-    ret += sscanf(line, "RightVelocityX = %f", 
+    ret += sscanf(line, "RightVelocityX = %"FSYM, 
 		  &RightVelocityX);
-    ret += sscanf(line, "RightVelocityY = %f", 
+    ret += sscanf(line, "RightVelocityY = %"FSYM, 
 		  &RightVelocityY);
-    ret += sscanf(line, "RightVelocityZ = %f",
+    ret += sscanf(line, "RightVelocityZ = %"FSYM,
 		  &RightVelocityZ);
-    ret += sscanf(line, "RightPressure = %f", 
+    ret += sscanf(line, "RightPressure = %"FSYM, 
 		  &RightPressure);
-    ret += sscanf(line, "RightDensity = %f",
+    ret += sscanf(line, "RightDensity = %"FSYM,
                   &RightDensity);
-    ret += sscanf(line, "RightBx = %f",
+    ret += sscanf(line, "RightBx = %"FSYM,
 		  &RightBx);
-    ret += sscanf(line, "RightBy = %f",
+    ret += sscanf(line, "RightBy = %"FSYM,
 		  &RightBy);
-    ret += sscanf(line, "RightBz = %f",
+    ret += sscanf(line, "RightBz = %"FSYM,
 		  &RightBz);
 
     /* if the line is suspicious, issue a warning */
@@ -129,7 +129,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   double PressureUnits = DensityUnits*pow(VelocityUnits,2);
   double MagneticUnits = sqrt(4.0*M_PI*PressureUnits);
 
-  printf("DensityUnits=%g,VelocityUnits=%g,LengthUnits=%g,TimeUnits=%g (%g yr),PressureUnits=%g\n", 
+  printf("DensityUnits=%"GSYM",VelocityUnits=%"GSYM",LengthUnits=%"GSYM",TimeUnits=%"GSYM" (%"GSYM" yr),PressureUnits=%"GSYM"\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
 
   if (UsePhysicalUnit) {
@@ -190,7 +190,7 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -257,31 +257,31 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %d\n",
+    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "LeftDensity       = %f\n",
+    fprintf(Outfptr, "LeftDensity       = %"FSYM"\n",
 	    LeftDensity);
-    fprintf(Outfptr, "RightDensity          = %f\n",
+    fprintf(Outfptr, "RightDensity          = %"FSYM"\n",
 	    RightDensity);
-    fprintf(Outfptr, "LeftVelocityX = %f\n",
+    fprintf(Outfptr, "LeftVelocityX = %"FSYM"\n",
 	    LeftVelocityX);
-    fprintf(Outfptr, "RightVelocityX = %f\n",
+    fprintf(Outfptr, "RightVelocityX = %"FSYM"\n",
             RightVelocityX);
-    fprintf(Outfptr, "LeftVelocityY = %f\n",
+    fprintf(Outfptr, "LeftVelocityY = %"FSYM"\n",
 	    LeftVelocityY);
-    fprintf(Outfptr, "RightVelocityY = %f\n",
+    fprintf(Outfptr, "RightVelocityY = %"FSYM"\n",
             RightVelocityY);
-    fprintf(Outfptr, "LeftBx = %f\n",
+    fprintf(Outfptr, "LeftBx = %"FSYM"\n",
 	    LeftBx);
-    fprintf(Outfptr, "RightBx = %f\n",
+    fprintf(Outfptr, "RightBx = %"FSYM"\n",
 	    RightBx);
-    fprintf(Outfptr, "LeftBy = %f\n",
+    fprintf(Outfptr, "LeftBy = %"FSYM"\n",
 	    LeftBy);
-    fprintf(Outfptr, "RightBy = %f\n",
+    fprintf(Outfptr, "RightBy = %"FSYM"\n",
 	    RightBy);
-    fprintf(Outfptr, "LeftPressure = %f\n",
+    fprintf(Outfptr, "LeftPressure = %"FSYM"\n",
             LeftPressure);
-    fprintf(Outfptr, "RightPressure = %f\n",
+    fprintf(Outfptr, "RightPressure = %"FSYM"\n",
             RightPressure);
   }
   //return FAIL;
