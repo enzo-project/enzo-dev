@@ -41,7 +41,7 @@ int StarParticleAccretion(TopGridData *MetaData,
   return SUCCESS;
 #endif
 
-  printf("\n XXXX StarParticleAccretion Called XXXX \n \n");
+  //printf("\n XXXX StarParticleAccretion Called XXXX \n \n");
 
   Star *ThisStar;
   FLOAT Time;

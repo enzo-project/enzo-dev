@@ -292,7 +292,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
-  printf("\n XXXX StarParticleHandler Called XXXX \n \n");
+  //printf("\n XXXX StarParticleHandler Called XXXX \n \n");
 
 
   if (MyProcessorNumber != ProcessorNumber)

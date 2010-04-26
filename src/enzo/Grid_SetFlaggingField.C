@@ -149,7 +149,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     /* ==== METHOD 9: BY SHEAR ==== */
  
   case 9:
- 
+
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShear();
     if (NumberOfFlaggedCells < 0) {
       ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByShear.");
