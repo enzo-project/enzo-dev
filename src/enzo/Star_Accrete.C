@@ -33,8 +33,6 @@ int Star::Accrete(void)
   if (this->CurrentGrid == NULL || this->naccretions == 0)
     return SUCCESS;
 
-  printf("\n XXXX Star Accretion Called XXXX \n \n");
-
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
