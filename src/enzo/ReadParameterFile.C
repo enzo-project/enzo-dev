@@ -668,6 +668,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  StarClusterRegionRightEdge+2);
 
     ret += sscanf(line, "PopIIIStarMass = %"FSYM, &PopIIIStarMass);
+    ret += sscanf(line, "PopIIIInitialMassFunction = %"ISYM, 
+		  &PopIIIInitialMassFunction);
+    ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
+		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
+    ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 
+		  &PopIIIInitialMassFunctionSlope);
     ret += sscanf(line, "PopIIIBlackHoles = %"ISYM, &PopIIIBlackHoles);
     ret += sscanf(line, "PopIIIBHLuminosityEfficiency = %"FSYM, 
 		  &PopIIIBHLuminosityEfficiency);

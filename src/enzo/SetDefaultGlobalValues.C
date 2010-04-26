@@ -396,6 +396,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   PopIIIStarMass                   = 100;
+  PopIIIInitialMassFunction        = FALSE;
+  PopIIILowerMassCutoff            = 1.0;
+  PopIIIUpperMassCutoff            = 300.0;
+  PopIIIInitialMassFunctionSlope   = -1.3;         // high mass slope
   PopIIIBlackHoles                 = FALSE;
   PopIIIBHLuminosityEfficiency     = 0.1;
   PopIIIOverDensityThreshold       = 1e6;          // times mean total density
@@ -407,6 +411,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  IMFData                          = NULL;
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e6;          // Msun

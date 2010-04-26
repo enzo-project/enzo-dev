@@ -71,7 +71,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   if ((StarType == PopII && FeedbackFlag == FORMATION &&
        Mass > StarClusterMinimumMass) ||
       (StarType == PopIII && FeedbackFlag == FORMATION &&
-       Mass >= PopIIIStarMass)) {
+       Mass >= this->FinalMass)) {
     if (debug)
       printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
@@ -193,10 +193,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // Baryon Removal based on star particle type
     switch (StarType) {
     case PopIII:  // Single star
-      SphereTooSmall = MassEnclosed < 2*PopIIIStarMass;
+      SphereTooSmall = MassEnclosed < 2*this->FinalMass;
       ColdGasFraction = 1.0;
       // to make the total mass PopIIIStarMass
-      AccretedMass = PopIIIStarMass - float(Mass);
+      AccretedMass = this->FinalMass - float(Mass);
       break;
 
     case PopII:  // Star Cluster Formation

@@ -491,6 +491,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     OverDensityThreshold = PopIIIOverDensityThreshold;
  
   float CellWidthTemp = float(CellWidth[0][0]);
+  float PopIIIMass = (PopIIIInitialMassFunction == TRUE) ? 
+    PopIIILowerMassCutoff : PopIIIStarMass;
  
   /* ------------------------------------------------------------------- */
   /* 1) StarParticle creation. */
@@ -646,7 +648,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
 	 &MetallicityField, &HydroMethod, &PopIIIH2CriticalFraction, 
 	 &PopIIIMetalCriticalFraction, &OverDensityThreshold, 
-	 &PopIIIStarMass, &level, &NumberOfNewParticles, 
+	 &PopIIIMass, &level, &NumberOfNewParticles, 
 	 tg->ParticlePosition[0], tg->ParticlePosition[1],
 	 tg->ParticlePosition[2], tg->ParticleVelocity[0], 
 	 tg->ParticleVelocity[1], tg->ParticleVelocity[2], tg->ParticleMass, 

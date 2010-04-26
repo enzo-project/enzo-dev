@@ -38,7 +38,7 @@ void Star::ActivateNewStar(FLOAT Time)
       }
       break;
     case PopIII:
-      if (Mass >= PopIIIStarMass) {
+      if (Mass >= this->FinalMass) {
 	type = StarType;
 	BirthTime = (1-1e-6)*Time;
       }

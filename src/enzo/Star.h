@@ -69,6 +69,8 @@ public:
   star_type ReturnType(void) { return type; };
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
+  double ReturnFinalMass(void) { return FinalMass; };
+  double AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
   int   ReturnLevel(void) { return level; };
@@ -159,6 +161,7 @@ public:
 
   int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
 		      float Radius);
+  int AssignFinalMassFromIMF(void);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

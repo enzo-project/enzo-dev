@@ -644,6 +644,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StarClusterRegionRightEdge[2]);
   fprintf(fptr, "PopIIIStarMass                        = %"GSYM"\n",
           PopIIIStarMass);
+  fprintf(fptr, "PopIIIInitialMassFunction             = %"ISYM"\n",
+          PopIIIInitialMassFunction);
+  fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
+          PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
+  fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
+          PopIIIInitialMassFunctionSlope);
   fprintf(fptr, "PopIIIBlackHoles                      = %"ISYM"\n",
           PopIIIBlackHoles);
   fprintf(fptr, "PopIIIBHLuminosityEfficiency          = %"FSYM"\n",

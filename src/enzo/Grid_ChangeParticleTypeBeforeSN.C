@@ -108,7 +108,8 @@ int grid::ChangeParticleTypeBeforeSN(int _type, int level,
 
 		  Diameter = 2*BufferZone *
 		    float(CalculateBlastWaveRadius
-			  (PopIIIStarMass, AmbientDensity, (factor-1)*TimeUnits) 
+			  (ThisStar->FinalMass, AmbientDensity, 
+			   (factor-1)*TimeUnits) 
 			  / double(LengthUnits));
 
 		} // ENDELSE factor < 1

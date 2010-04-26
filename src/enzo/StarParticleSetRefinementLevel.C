@@ -70,7 +70,8 @@ int StarParticleSetRefinementLevel(Star *AllStars)
 		 &TimeUnits, &VelocityUnits, GridTime);
 
 	Diameter = 2.0 *
-	  float(CalculateBlastWaveRadius(PopIIIStarMass, AmbientDensity, 
+	  float(CalculateBlastWaveRadius(cstar->ReturnFinalMass(), 
+					 AmbientDensity,
 					 (factor-1)*TimeUnits) 
 		/ double(LengthUnits));
 

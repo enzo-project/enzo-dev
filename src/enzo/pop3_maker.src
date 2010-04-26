@@ -201,10 +201,12 @@ c                  type(ii) = -ctype
                   mp(ii)   = 0   !starmass / m1
                   tdp(ii) = 1.5*lifetime*3.15e7/t1
                else
-c                  type(ii) = ctype
-c                  mp(ii)   = starmass / m1
+c              because it's possible that we'll be using an IMF, adjust
+c              these later
                   mp(ii)   = min(0.5 * bmass, starmass/m1)
                   tdp(ii) = lifetime*3.15e7/t1
+c                  mp(ii)   = min(0.5 * bmass, starmass/m1)
+c                  tdp(ii) = lifetime*3.15e7/t1
                endif
 
                type(ii) = -ctype

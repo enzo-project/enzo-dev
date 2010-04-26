@@ -57,7 +57,7 @@ int Star::Accrete(void)
 //  printf("star::Accrete: old_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
   double old_mass = Mass;
   Mass += (double)(DeltaMass);
-  FinalMass += (double)(DeltaMass);
+//  FinalMass += (double)(DeltaMass);
 //  printf("star::Accrete: new_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
 
 
