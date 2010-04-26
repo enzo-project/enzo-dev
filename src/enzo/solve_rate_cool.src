@@ -465,8 +465,8 @@
             endif
             enddo               ! end loop over i
 
-               if (dtit(i) .ne. dtit(i)) 
-     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
+c            if (dtit(i) .ne. dtit(i)) 
+c     &           write(6,*) '2-#####-dtit(i) = ',dtit(i),i,itmask(i),dt
 
 !           Compute maximum timestep for cooling/heating
 
