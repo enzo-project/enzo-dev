@@ -408,7 +408,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIColorMass                  = 1e6;          // total mass to color
 
   MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1e6;          // Msun
+  MBHMinimumMass                   = 1e3;          // Msun
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C

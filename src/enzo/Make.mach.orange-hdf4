@@ -27,7 +27,7 @@ INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1
 
 #LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI
 #LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
-LOCAL_MPI_INSTALL    = /usr/lib64/openmpi/1.3.2-gcc
+LOCAL_MPI_INSTALL    = /usr/lib64/openmpi/1.4-gcc
 #LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.6.6/amd64_linux26
 #LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64
 #LOCAL_HDF5_INSTALL   = /u/ki/mornkr/nfs12/yt-x86_64

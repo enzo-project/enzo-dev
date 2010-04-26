@@ -727,7 +727,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 		    tg->ParticleType, &MBHParticleType) == FAIL) {
 	ENZO_FAIL("Error in mbh_maker.");
       }
-
       
     }
 
@@ -768,7 +767,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
       // make it back to original 
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold /= m_h / DensityUnits;   //#####
+	StarMakerOverDensityThreshold /= m_h / DensityUnits;  
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;

@@ -81,7 +81,7 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
     while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) 
       if (line[0] != '#') {
 
-	/* order: MBH mass (in Ms), MBH position[3], MBH creation time */
+	/* order: MBH mass (in Ms), MBH position[3], MBH creation time (w.r.t. the current time) */
 
 	if (sscanf(line, " %"FSYM"  %"PSYM"  %"PSYM"  %"PSYM"  %"FSYM, 
 		   &dummy_float[0], &dummy_double[0], &dummy_double[1],
@@ -118,27 +118,26 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	    yp[ii] = dummy_double[1];
 	    zp[ii] = dummy_double[2];
 	    
-	    // if creation time is not properly given, take the current time
-	    if (dummy_float[1] <= 0.0)
-	      tcp[ii] = (float) *t;
+	    // creation time is given w.r.t. the current time
+	    if (dummy_float[1] < 0.0) {
+	      fprintf(stderr, "mbh_maker: creation time should be given w.r.t the current time (only + possible)\n");
+	      return FAIL;
+	    }
 	    else
-	      tcp[ii] = dummy_float[1];
-	    
+	      tcp[ii] = (float) ((*t) + dummy_float[1]);
+
 	    // MBH other attributes 
 	    up[ii] = u[index];
 	    vp[ii] = v[index];
 	    wp[ii] = w[index];
 	    tdp[ii] = MBHMinDynamicalTime;
 	    
-	    // when the creation time is still in the future, type is negative
-	    if (tcp[ii] <= (*t))
-	      type[ii] = *ctype;
-	    else 
-	      type[ii] = -(*ctype);
+	    // the particle type has to be negative because it is just created 
+	    // only negative type Stars will be read at StarParticleFindAll->FindNewStarParticles
+	    type[ii] = (*ctype);
 
 	    // take out the mass from the cell; if you then get a negative density,
-	    // probably your choice of the MBH position was horribly wrong - NOW UNUSED!
-
+	    // probably your choice of the MBH position was horribly wrong! 
 	    d[index] -= mp[ii];
 	    if (d[index] <= 0) {
 	      fprintf(stderr, "mbh_maker: check the MBH position; not dense enough for your MBH mass. (mp[]=%g, d[]=%g)\n",
@@ -146,8 +145,8 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	      return FAIL;
 	    }
 
-	    fprintf(stdout, "mbh_maker: a mbh inserted at (%g,%g,%g) with v=(%g,%g,%g), m=%g, tc=%g, type=%d\n",
-		    xp[ii], yp[ii], zp[ii], up[ii], vp[ii], wp[ii], mp[ii], tcp[ii], type[ii]);
+	    fprintf(stdout, "mbh_maker: A MBH inserted at (%lf,%lf,%lf) with v=(%f,%f,%f), m=%f (d=%f), tc=%f, type=%d\n",
+		    xp[ii], yp[ii], zp[ii], up[ii], vp[ii], wp[ii], mp[ii], d[index], tcp[ii], type[ii]);
 
 	    // increase the counter
 	    ii++;

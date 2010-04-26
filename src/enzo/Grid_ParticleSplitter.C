@@ -70,19 +70,6 @@ int grid::ParticleSplitter(int level)
   if (GridRank <=2)
     ENZO_FAIL("GridRank <= 2 has never been tested; do you really?");
 
-  /* We split particles in the grids only that are 
-     completely within the RefineRegion */
-
-  /*
-  if ((GridLeftEdge[0] < RefineRegionLeftEdge[0]) ||
-      (GridRightEdge[0] > RefineRegionRightEdge[0]) ||
-      (GridLeftEdge[1] < RefineRegionLeftEdge[1]) ||
-      (GridRightEdge[1] > RefineRegionRightEdge[1]) || 
-      (GridLeftEdge[2] < RefineRegionLeftEdge[2]) ||
-      (GridRightEdge[2] > RefineRegionRightEdge[2]))
-    return SUCCESS;
-  */  //#####
-
   /* Initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;

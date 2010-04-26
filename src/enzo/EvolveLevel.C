@@ -571,7 +571,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        turn off MBH creation (at the bottom of the hierarchy) */
 
     if (STARMAKE_METHOD(MBH_PARTICLE) && (LevelArray[level+1] == NULL)) { 
-      StarParticleCreation -= pow(2, MBH_PARTICLE);  //#####
+      StarParticleCreation -= pow(2, MBH_PARTICLE);  
     }
 
     /* ------------------------------------------------------- */

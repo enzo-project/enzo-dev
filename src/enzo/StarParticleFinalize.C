@@ -132,8 +132,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     TimeNow = LevelArray[level]->GridData->ReturnTime();
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
-//      ThisStar->PrintInfo();
-//    }
+//     ThisStar->PrintInfo();
+//    } 
     if (AddedFeedback[count])
       ThisStar->ActivateNewStar(TimeNow);
     ThisStar->ResetAccretion();

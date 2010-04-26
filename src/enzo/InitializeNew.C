@@ -462,7 +462,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Insert new problem intializer here...
 
-    if (ProblemType ==300) {
+  if (ProblemType ==300) {
     ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
