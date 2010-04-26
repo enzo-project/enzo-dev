@@ -183,6 +183,11 @@ help-config:
 	@echo "      gmake cuda-yes"
 	@echo "      gmake cuda-no"
 	@echo
+	@echo "   Set whether to use 4th-order gravity"
+	@echo
+	@echo "      gmake gravity-4s-yes"
+	@echo "      gmake gravity-4s-no"
+	@echo
 
 #-----------------------------------------------------------------------
 
@@ -246,6 +251,7 @@ show-config:
 	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
+	@echo "   CONFIG_GRAVITY_4S:            $(CONFIG_GRAVITY_4S)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -772,6 +778,25 @@ CONFIG_USE-HDF4-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_USE_HDF4 = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_USE_HDF4:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+
+VALID_GRAVITY_4S = gravity-4s-yes gravity-4s-no
+.PHONY: $(VALID_GRAVITY_4S)
+
+gravity-4s-yes: CONFIG_GRAVITY_4S-yes
+gravity-4s-no: CONFIG_GRAVITY_4S-no
+gravity-4s-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_GRAVITY_4S)]\n\n"
+CONFIG_GRAVITY_4S-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_GRAVITY_4S $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_GRAVITY_4S = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_GRAVITY_4S:
 	@echo
 
 

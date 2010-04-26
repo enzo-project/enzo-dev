@@ -34,6 +34,10 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level, FLOAT star_pos[],
+				   double star_mass, float star_last_accretion_rate,
+				   float StarLevelCellWidth, float dtForThisStar,
+				   float &Radius, double &Subtraction);
 
 int StarParticleSubtractAccretedMass(TopGridData *MetaData, 
 				     LevelHierarchyEntry *LevelArray[], int level, 
@@ -47,8 +51,8 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy;
   float influenceRadius, RootCellWidth, SNe_dt, mdot;
-  float dtForThisStar;
-  double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity, EjectaVolume;
+  float dtForThisStar, StarLevelCellWidth;
+  double Subtraction, dummy_float = 0;
   FLOAT Time;
   LevelHierarchyEntry *Temp;
 
@@ -82,8 +86,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	ABS(cstar->ReturnType()) != MBH)
       continue;
 
-    if ((ABS(cstar->ReturnType()) == MBH && MBHAccretion <= 0) ||
-	cstar->ReturnLastAccretionRate() < tiny_number)
+    if (ABS(cstar->ReturnType()) == MBH && MBHAccretion <= 0)
       continue;
 
     /* Now let us do the job! */
@@ -103,25 +106,25 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
     case MBH:
 
-      /* If MBH, subtract mass from multiple cells 
-	 defined by MBHAccretionRadius */
+      /* If MBH, subtract mass from multiple cells defined by MBHAccretionRadius */
 
       dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+      StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(cstar->ReturnLevel()));
 
       /* Compute some parameters, similar to Star_CalculateFeedbackParameters */
 
-      cstar->CalculateSubtractionParameters(LevelArray, influenceRadius, RootCellWidth, 
-           EjectaDensity, DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-	   VelocityUnits, dtForThisStar);
+      CalculateSubtractionParameters(LevelArray, level, cstar->ReturnPosition(), cstar->ReturnMass(),
+				     cstar->ReturnLastAccretionRate(), StarLevelCellWidth, dtForThisStar, 
+				     influenceRadius, Subtraction);
 
-//      fprintf(stdout, "SPSAM: EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+//      fprintf(stdout, "SPSAM: Subtraction=%g, influenceRadius=%g\n", Subtraction, influenceRadius); 
 
       /* Determine if a sphere with influenceRadius is enclosed within grids on this level 
 	 we use FindFeedbackSphere function, but we are not doing any "feedback" here; 
 	 we simply subtract the mass */
 
       if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-				    EjectaDensity, EjectaThermalEnergy, 
+				    Subtraction, dummy_float, 
 				    SphereContained, dummy, DensityUnits, 
 				    LengthUnits, TemperatureUnits, TimeUnits, 
 				    VelocityUnits, Time) == FAIL) {
@@ -142,7 +145,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       if (LevelArray[level+1] != NULL) {
 	if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
-				      EjectaDensity, EjectaThermalEnergy, 
+				      Subtraction, dummy_float, 
 				      SphereContainedNextLevel, dummy, DensityUnits, 
 				      LengthUnits, TemperatureUnits, TimeUnits, 
 				      VelocityUnits, Time) == FAIL) {
@@ -160,7 +163,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
       if ((SphereContained == FALSE) ||
 	  (SphereContained == TRUE && SphereContainedNextLevel == TRUE))
 	break;
-    
+
+//      if ((cstar->ReturnLastAccretionRate() < tiny_number) ||
+//	  ABS(Subtraction) < tiny_number)
+//	break;
+
       /* Now set cells within the radius to their values after subtraction. */
       
       int CellsModified = 0;
@@ -169,7 +176,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
 	  Temp->GridData->SubtractAccretedMassFromSphere
 	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
-	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
+	     VelocityUnits, TemperatureUnits, TimeUnits, Subtraction, 
 	     CellsModified);
 
 //    fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "

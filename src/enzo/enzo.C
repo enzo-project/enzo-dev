@@ -636,6 +636,7 @@ Eint32 main(Eint32 argc, char *argv[])
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");
       MetaData.AmiraGrid.AMRHDF5Close();
+      MetaData.AmiraGrid.AMRHDF5CloseSeparateParticles();
     }
     my_exit(EXIT_FAILURE);
   }

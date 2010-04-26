@@ -258,7 +258,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
-      factor2[i] = factor1 * (*PP)->Energy;
+      if (RadiationXRaySecondaryIon)
+	factor2[i] = factor1 * (*PP)->Energy;
+      else
+	factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
     if (RadiationXRayComptonHeating) 
       TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
   }
@@ -272,29 +275,28 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      actually calculate acceleration due to radiation pressure, (all
      unit conversions are in []),
 
-     dA = dMomentum / Mass 
-        = (N_absorbed * Energy / c) / (CellVolume * Density) * r_hat
+     dA = dMomentum * emission_dt_inv / Mass 
+        = (N_absorbed * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
      ---  N_absorbed = dP * [L^3] / [t]
-     dA = (dP * [L^3] / [t] * Energy / c) / (CellVolume * Density) * r_hat
+     dA = (dP * [L^3] / [t] * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
 
      LHS = [~] * [v] / [t]
-     RHS = [L^3] / [t] * (erg_eV) / (c_cgs) / [L^3] / [rho]
+     RHS = [L^3] / [t] * (erg_eV) / (c_cgs) * emission_dt_inv / [L^3] / [rho]
 
      (unit conversion for acceleration will be [~])
      [~] = RHS / ([v] / [t])
-         = (erg_eV / c_cgs) / ([t] * [rho]) / ([v] / [t])
-         = (erg_eV / c_cgs) / [rho] / [v]
+         = (erg_eV / c_cgs) * emission_dt_inv / ([t] * [rho]) / ([v] / [t])
+         = (erg_eV / c_cgs) * emission_dt_inv / [rho] / [v]
 
      Therefore,
      dA = [~] * dP * Energy / (CellVolume * Density) * r_hat
 
      Since CellVolume is constant for the grid, incorporate it into [~].
      dA = [~] * dP * Energy / Density * r_hat
-
   */
 
   double RadiationPressureConversion =
-    erg_eV / c_cgs / DensityUnits / VelocityUnits * Volume_inv;
+    erg_eV / c_cgs * emission_dt_inv / DensityUnits / VelocityUnits * Volume_inv;
 
   // Mark that this grid has radiation (mainly for the coupled rate solver)
   HasRadiation = TRUE;
@@ -673,12 +675,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
 	dP1 = dPXray[i] * slice_factor2;
 
-	// contributions to the photoionization rate is over whole timestep
 	// units are 1/s *TimeUnits
 	BaryonField[kphNum[i]][index] += dP1 * factor1; 
 	
-	// the heating rate is just the number of photo ionizations times
-	// the excess energy; units are eV/s *TimeUnits;
+	// units are eV/s *TimeUnits;
 	// the spectrum table returns the mean energy of the spectrum at this column density
 	BaryonField[gammaNum][index] += dP1 * factor1 * 
 	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 

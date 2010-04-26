@@ -218,6 +218,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ResetLoadBalancing     = %"ISYM"\n", ResetLoadBalancing);
   fprintf(fptr, "LoadBalancingCycleSkip = %"ISYM"\n", LoadBalancingCycleSkip);
   fprintf(fptr, "LoadBalancingMinLevel  = %"ISYM"\n", LoadBalancingMinLevel);
+  fprintf(fptr, "LoadBalancingMaxLevel  = %"ISYM"\n", LoadBalancingMaxLevel);
  
   for (dim = 0; dim < MAX_TIME_ACTIONS; dim++)
     if (TimeActionType[dim] > 0) {

@@ -73,7 +73,7 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
     for (int field = 0; field < 2; field++) { 
       priml[field][i] = prim[field][iprim] + 0.5*dv[field][i];
       primr[field][i] = prim[field][iprim] - 0.5*dv[field][i+1];
-      if (field == 0) printf("field i :priml, prim, primr: %i %i : %g %g %g \n", field, i, 
+      if (field == 0) printf("field i :priml, prim, primr: %"ISYM" %"ISYM" : %"GSYM" %"GSYM" %"GSYM" \n", field, i, 
 	     primr[field][i],prim[field][iprim], priml[field][i]);
     }
     // velocities

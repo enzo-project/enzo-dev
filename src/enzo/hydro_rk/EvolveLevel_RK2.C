@@ -268,7 +268,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
-  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %d, NSpecies = %d\n", NColor, NSpecies); 
+  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -372,12 +372,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
     if (debug && HydroMethod == MHD_RK) 
-      fprintf(stderr, "wave speeds: timestep: %g  C_h: %g  C_p: %g\n ", 
+      fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
 	       dt0, C_h, C_p);
 
 
     When = 0.5;
-    RK2SecondStepBaryonDeposit = 0;
+//    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -450,7 +450,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // Recompute potential and accelerations with time centered baryon Field
     // this also does the particles again at the moment so could be made more efficient.
 
-    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
+    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
@@ -583,7 +583,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel_RK2(MetaData, LevelArray, level+1, dtThisLevel, Exterior, dt0) 
 	  == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel_RK2 (%d).\n", level);
+	fprintf(stderr, "Error in EvolveLevel_RK2 (%"ISYM").\n", level);
 	ENZO_FAIL("");
       }
     }
@@ -678,7 +678,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   } // while (dtThisLevelSoFar < dtLevelAbove)
 
   if (debug)
-    printf("EvolveLevelRK2[%d]: NumberOfSubCycles = %d (%d total)\n", level, 
+    printf("EvolveLevelRK2[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total)\n", level, 
            cycle, LevelCycleCount[level]);
 
   /* If possible & desired, report on memory usage. */

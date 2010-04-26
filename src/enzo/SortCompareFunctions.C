@@ -69,6 +69,18 @@ Eint32 compare_flt(const void *a, const void *b)
   if (*(float*)a - *(float*)b < 0)
     return -1;
   else if (*(float*)a - *(float*)b > 0)
-    return +1;
+    return 1;
+  return 0;
+}
+
+/***********************************************************************/
+
+Eint32 compare_hkey(const void *a, const void *b)
+  struct hilbert_data *ia = (struct hilbert_data*) a;
+  struct hilbert_data *ib = (struct hilbert_data*) b;
+  if (ia->hkey - ib->hkey < 0)
+    return -1;
+  else if (ia->hkey - ib->hkey > 0)
+    return 1;
   return 0;
 }

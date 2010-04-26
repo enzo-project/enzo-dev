@@ -127,6 +127,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoresPerNode = 1;
   PreviousMaxTask = 0;
   LoadBalancingMinLevel = 0;     //All Levels
+  LoadBalancingMaxLevel = MAX_DEPTH_OF_HIERARCHY;  //All Levels
 
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;
@@ -434,6 +435,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
+  OutputWhenJetsHaveNotEjected     = FALSE;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
@@ -649,7 +651,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoxProblemType = 0; 
   useMHD=0;
 
-  MoveParticlesBetweenSiblings = FALSE;
+  MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
 

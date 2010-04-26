@@ -22,7 +22,8 @@ MACH_FILE  = Make.mach.orange-hdf4
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
-#INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1/
+#INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys
+INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1
 
 #LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI
 #LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
@@ -139,17 +140,17 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
-#LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
-#                     -limf -lifcore -lifport \
-#                     -L$(INT_DIR)/cc/10.1.018/@sys/lib/ \
-#                     -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/ \
-#                     -lstdc++ -lgfortran -lg2c
-
-LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
+LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
                      -limf -lifcore -lifport \
-                     -L$(INT_DIR)/cc/lib/ \
+                     -L$(INT_DIR)/cc/10.1.018/@sys/lib/ \
                      -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/ \
                      -lstdc++ -lgfortran -lg2c
+
+#LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
+#                     -limf -lifcore -lifport \
+#                     -L$(INT_DIR)/cc/lib/ \
+#                     -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/ \
+#                     -lstdc++ -lgfortran -lg2c
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

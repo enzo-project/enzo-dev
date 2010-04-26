@@ -99,11 +99,11 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
       count++;
     }
   }
-  printf("Allocated %i Baryonfields\n", count);
+  printf("Allocated %"ISYM" Baryonfields\n", count);
 
-  printf("rho_sphere=%g, cs_sphere=%g, rho_medium=%g, p_medium=%g\n",
+  printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
-  printf("r_sphere: %g\n", r_sphere[0]);
+  printf("r_sphere: %"GSYM"\n", r_sphere[0]);
   // if use BE sphere, read in the BE sphere density profile
 
   char *filename = "be.dat";
@@ -119,7 +119,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
         printf("BE sphere data not enough\n");
         return FAIL;
       }
-      sscanf(line, "%g %g", &radius[i], &rho_be[i]);
+      sscanf(line, "%"GSYM" %"GSYM, &radius[i], &rho_be[i]);
     }
     fclose(fptr);
   }
@@ -141,10 +141,10 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
         printf("SIT data not enough\n");
         return FAIL;
       }
-      sscanf(line, "%g %g %g %g", &theta_sit[i], &R_sit[i], &phi_sit[i], &dphi_sit[i]);
+      sscanf(line, "%"GSYM" %"GSYM" %"GSYM" %"GSYM, &theta_sit[i], &R_sit[i], &phi_sit[i], &dphi_sit[i]);
     }
     fgets(line, MAX_LINE_LENGTH, fptr);
-    sscanf(line, "%g", &v_sit);
+    sscanf(line, "%"GSYM, &v_sit);
     fclose(fptr);
   }
 

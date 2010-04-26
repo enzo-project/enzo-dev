@@ -28,8 +28,6 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
-#define  PROTONMASS  1.6726e-24
-
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -313,7 +311,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
- 
+  const double m_h = 1.673e-24;
+
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
 
@@ -766,9 +765,15 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
 
       //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
       //                            only at MaximumRefinementLevel, 
-      //                            reconsiders star formation or feedback when MBH exists)
+      //                            reconsiders star formation or feedback when MBH exists,
+      //                            when in cosmological sim, StarMakerOverDensity is in particles/cc, 
+      //                            not the ratio with respect to the DensityUnits, unlike others)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      // change the unit for StarMakerOverDensity for cosmological run
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold *= m_h / DensityUnits;   
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -791,6 +796,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
        ParticleType, &MBHParticleType, &MBHTurnOffStarFormation);
+
+      // make it back to original 
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold /= m_h / DensityUnits;   //#####
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;

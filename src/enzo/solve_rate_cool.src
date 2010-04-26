@@ -428,6 +428,9 @@
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
 
+               if (dtit(i) .ne. dtit(i)) 
+     &            write(6,*) '1-#####-dtit(i) = ', dtit(i)
+
 !              Output some debugging information if required
 
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
@@ -462,6 +465,9 @@
             endif
             enddo               ! end loop over i
 
+               if (dtit(i) .ne. dtit(i)) 
+     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
+
 !           Compute maximum timestep for cooling/heating
 
             do i = is+1, ie+1
@@ -487,6 +493,12 @@
                if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
+!
+
+!               if (edot(i) .ne. edot(i)) then    !#####
+!                  write(6,*) 'solve_rate_cool: edot = NaN!'
+!                  edot(i) = 0.0
+!               endif
 
 !              Compute timestep for 10% change
 
@@ -498,13 +510,20 @@
      &                        dt-ttot(i), dtit(i))
 !              endif
 
+               if (dtit(i) .ne. dtit(i)) 
+     &           write(6,*) '3-##### energy, edot, abs(0.1*energy/edot), 
+     &                      real(abs(0.1*energy/edot)), dt, ttot, dtit',
+     &                      energy, edot(i), abs(0.1*energy/edot(i)), 
+     &                      real(abs(0.1*energy/edot(i))), dt, ttot(i), 
+     &                      dtit(i)
+
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
                if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1)
      &           write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
                if (idual .eq. 1 .and.
      &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0.0)
-     &         write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
+     &           write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 

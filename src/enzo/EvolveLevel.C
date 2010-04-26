@@ -459,8 +459,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       /* Gravity: clean up AccelerationField. */
 
-      if (level != MaximumGravityRefinementLevel ||
-	  MaximumGravityRefinementLevel == MaximumRefinementLevel)
+      if ((level != MaximumGravityRefinementLevel ||
+	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
+	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();

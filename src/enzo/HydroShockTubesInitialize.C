@@ -24,8 +24,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr, 
-			HierarchyEntry &TopGrid, TopGridData &MetaData) 
+int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr, 
+			      HierarchyEntry &TopGrid, TopGridData &MetaData) 
 {
   char *DensName = "Density";
   char *PresName = "Pressure";
@@ -44,10 +44,12 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters */
 
   int RefineAtStart   = FALSE;
-  float  rhol = 1.0, rhor = 1.0, 
-    vxl = 0, vxr = 0, 
-    vyl = 0, vyr = 0, 
-    pl = 1.0, pr = 1.0;
+  float  InitialDiscontinuity = 0.5, 
+    LeftDensity = 1.0, RightDensity = 1.0, 
+    LeftVelocityX = 0.0, RightVelocityX = 0.0, 
+    LeftVelocityY = 0.0, RightVelocityY = 0.0, 
+    LeftVelocityZ = 0.0, RightVelocityZ = 0.0, 
+    LeftPressure = 1.0, RightPressure = 1.0;
   
   /* read input from file */
 
@@ -57,28 +59,34 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
     ret = 0;
 
     /* read parameters */
-    ret += sscanf(line, "RefineAtStart = %d", 
+    ret += sscanf(line, "HydroShockTubesRefineAtStart = %"ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "LeftVelocityX = %f",
-		  &vxl);
-    ret += sscanf(line, "LeftVelocityY = %f",
-		  &vyl);
-    ret += sscanf(line, "LeftPressure = %f", 
-		  &pl);
-    ret += sscanf(line, "LeftDensity = %f", 
-		  &rhol);
-    ret += sscanf(line, "RightVelocityX = %f", 
-		  &vxr);
-    ret += sscanf(line, "RightVelocityY = %f", 
-		  &vyr);
-    ret += sscanf(line, "RightPressure = %f", 
-		  &pr);
-    ret += sscanf(line, "RightDensity = %f",
-                  &rhor);
+    ret += sscanf(line, "HydroShockTubesInitialDiscontinuity = %"FSYM, 
+		  &InitialDiscontinuity);
+    ret += sscanf(line, "HydroShockTubesLeftVelocityX = %"FSYM,
+		  &LeftVelocityX);
+    ret += sscanf(line, "HydroShockTubesLeftVelocityY = %"FSYM,
+		  &LeftVelocityY);
+    ret += sscanf(line, "HydroShockTubesLeftVelocityZ = %"FSYM,
+		  &LeftVelocityZ);
+    ret += sscanf(line, "HydroShockTubesLeftPressure = %"FSYM, 
+		  &LeftPressure);
+    ret += sscanf(line, "HydroShockTubesLeftDensity = %"FSYM, 
+		  &LeftDensity);
+    ret += sscanf(line, "HydroShockTubesRightVelocityX = %"FSYM, 
+		  &RightVelocityX);
+    ret += sscanf(line, "HydroShockTubesRightVelocityY = %"FSYM, 
+		  &RightVelocityY);
+    ret += sscanf(line, "HydroShockTubesRightVelocityZ = %"FSYM, 
+		  &RightVelocityZ);
+    ret += sscanf(line, "HydroShockTubesRightPressure = %"FSYM, 
+		  &RightPressure);
+    ret += sscanf(line, "HydroShockTubesRightDensity = %"FSYM,
+                  &RightDensity);
 
     /* if the line is suspicious, issue a warning */
 
-    if (ret == 0 && strstr(line, "=") && strstr(line, "CollapseTest") 
+    if (ret == 0 && strstr(line, "=") && strstr(line, "HydroShockTubes") 
 	&& line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
 
@@ -94,11 +102,14 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->Hydro1DTestInitializeGrid(rhol, rhor,
-						  vxl,  vxr,
-						  vyl,  vyr,
-						  pl,   pr)  == FAIL) {
-    fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
+  if (TopGrid.GridData->
+      HydroShockTubesInitializeGrid(InitialDiscontinuity, 
+				    LeftDensity, RightDensity,
+				    LeftVelocityX,  RightVelocityX,
+				    LeftVelocityY,  RightVelocityY,
+				    LeftVelocityZ,  RightVelocityZ,
+				    LeftPressure,   RightPressure)  == FAIL) {
+    fprintf(stderr, "Error in HydroShockTubesInitializeGrid.\n");
     return FAIL;
   }
 
@@ -127,7 +138,7 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -136,11 +147,14 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->Hydro1DTestInitializeGrid(rhol, rhor,
-						    vxl,  vxr,
-						    vyl,  vyr,
-						    pl,   pr) == FAIL) {
-	  fprintf(stderr, "Error in Hydro1DTestInitializeGrid.\n");
+	if (Temp->GridData->
+	    HydroShockTubesInitializeGrid(InitialDiscontinuity, 
+					  LeftDensity, RightDensity,
+					  LeftVelocityX,  RightVelocityX,
+					  LeftVelocityY,  RightVelocityY,
+					  LeftVelocityZ,  RightVelocityZ,
+					  LeftPressure,   RightPressure) == FAIL) {
+	  fprintf(stderr, "Error in HydroShockTubesInitializeGrid.\n");
 	  return FAIL;
 	}
 	Temp = Temp->NextGridThisLevel;
@@ -186,24 +200,30 @@ int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "RefineAtStart      = %d\n",
+    fprintf(Outfptr, "HydroShockTubesRefineAtStart        = %"ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "LeftDensity       = %f\n",
-	    rhol);
-    fprintf(Outfptr, "RightDensity          = %f\n",
-	    rhor);
-    fprintf(Outfptr, "LeftVelocityX = %f\n",
-	    vxl);
-    fprintf(Outfptr, "RightVelocityX = %f\n",
-            vxr);
-    fprintf(Outfptr, "LeftVelocityY = %f\n",
-	    vyl);
-    fprintf(Outfptr, "RightVelocityY = %f\n",
-            vyr);
-    fprintf(Outfptr, "LeftPressure = %f\n",
-            pl);
-    fprintf(Outfptr, "RightPressure = %f\n",
-            pr);
+    fprintf(Outfptr, "HydroShockTubesInitialDiscontinuity = %"FSYM"\n",
+	    InitialDiscontinuity);
+    fprintf(Outfptr, "HydroShockTubesLeftDensity          = %"FSYM"\n",
+	    LeftDensity);
+    fprintf(Outfptr, "HydroShockTubesRightDensity         = %"FSYM"\n",
+	    RightDensity);
+    fprintf(Outfptr, "HydroShockTubesLeftVelocityX        = %"FSYM"\n",
+	    LeftVelocityX);
+    fprintf(Outfptr, "HydroShockTubesRightVelocityX       = %"FSYM"\n",
+            RightVelocityX);
+    fprintf(Outfptr, "HydroShockTubesLeftVelocityY        = %"FSYM"\n",
+	    LeftVelocityY);
+    fprintf(Outfptr, "HydroShockTubesRightVelocityY       = %"FSYM"\n",
+            RightVelocityY);
+    fprintf(Outfptr, "HydroShockTubesLeftVelocityZ        = %"FSYM"\n",
+	    LeftVelocityZ);
+    fprintf(Outfptr, "HydroShockTubesRightVelocityZ       = %"FSYM"\n",
+            RightVelocityZ);
+    fprintf(Outfptr, "HydroShockTubesLeftPressure         = %"FSYM"\n",
+            LeftPressure);
+    fprintf(Outfptr, "HydroShockTubesRightPressure        = %"FSYM"\n",
+            RightPressure);
   }
   //return FAIL;
   return SUCCESS;

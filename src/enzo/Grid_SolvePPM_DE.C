@@ -42,10 +42,10 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
   nzz = GridEndIndex[2] - GridStartIndex[2] + 1;
 
-  ixyz = CycleNumber % 3;
+  ixyz = CycleNumber % GridRank;
 
   int i,j,k,n;
-  for (n = ixyz; n <= ixyz+2; n++) {
+  for (n = ixyz; n < ixyz+GridRank; n++) {
 
     // Update in x-direction
     if ((n % 3 == 0) && nxz > 1) {

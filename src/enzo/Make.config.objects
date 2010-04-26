@@ -34,6 +34,7 @@ OBJS_CONFIG_LIB = \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
+        CalculateSubtractionParameters.o \
         CallProblemSpecificRoutines.o \
         CallPython.o \
         CheckEnergyConservation.o \
@@ -335,6 +336,7 @@ OBJS_CONFIG_LIB = \
         Grid_Group_ReadGrid.o \
         New_Grid_WriteGrid.o \
         New_Grid_ReadGrid.o \
+	Grid_HydroShockTubesInitializeGrid.o \
 	Grid_IdentifyCRSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
@@ -412,7 +414,6 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShearingBox2DInitializeGrid.o \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
-        Grid_ShockTubeInitializeGrid.o \
 	Grid_ShocksHandler.o \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
@@ -450,6 +451,7 @@ OBJS_CONFIG_LIB = \
         Grid_WriteGridX.o \
         Grid_WriteMemoryMap.o \
         Grid_WriteNewMovieData.o \
+        Grid_WriteNewMovieDataSeparateParticles.o \
         Grid_WriteStuff.o \
         Grid_WriteTaskMap.o \
         Grid_ZeldovichPancakeInitializeGrid.o \
@@ -463,7 +465,9 @@ OBJS_CONFIG_LIB = \
         Group_WriteAllData.o \
         Group_WriteDataHierarchy.o \
         h5utilities.o \
+	HilbertCurve3D.o \
         Hierarchy_DeleteHierarchyEntry.o \
+	HydroShockTubesInitialize.o \
         ibm_fft64.o \
         ibm_st1_fft64.o \
         I_ColumnFormat.o \
@@ -478,7 +482,6 @@ OBJS_CONFIG_LIB = \
         InitializeNew.o \
         InitializePythonInterface.o \
         InitializeRadiationFieldData.o \
-        InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
         interp1d.o \
@@ -497,6 +500,8 @@ OBJS_CONFIG_LIB = \
         LevelHierarchy_AddLevel.o \
         lgrg.o \
         ListIO.o \
+	LoadBalanceHilbertCurve.o \
+	LoadBalanceHilbertCurveRootGrids.o \
 	LoadBalanceSimulatedAnnealing.o \
         MagneticFieldResetter.o \
         mcooling.o \
@@ -582,7 +587,6 @@ OBJS_CONFIG_LIB = \
         ReadMetalCoolingRatios.o \
         ReadParameterFile.o \
         ReadRadiationData.o \
-        ReadRadiativeTransferSpectrumTable.o \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
@@ -590,7 +594,6 @@ OBJS_CONFIG_LIB = \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
-        ReturnValuesFromSpectrumTable.o \
         ReturnWallTime.o \
         rotate2d.o \
         rotate3d.o \
@@ -609,7 +612,6 @@ OBJS_CONFIG_LIB = \
         ShearingBoxStratifiedInitialize.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
-        ShockTubeInitialize.o \
         sink_maker.o \
         smooth_deposit.o \
         smooth_deposit_c.o \
@@ -641,7 +643,6 @@ OBJS_CONFIG_LIB = \
 	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
-        Star_CalculateSubtractionParameters.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -755,6 +756,7 @@ POBJS_CONFIG_LIB = \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
+        InitializeRadiativeTransferSpectrumTable.o \
         LinkedListRoutines.o \
         PhotonTestInitialize.o \
 	PhotonPackageRoutines.o \
@@ -765,8 +767,10 @@ POBJS_CONFIG_LIB = \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
         ReadPhotonSources.o \
+        ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
         RestartPhotons.o \
+        ReturnValuesFromSpectrumTable.o \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
@@ -787,7 +791,6 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_Collapse3DInitializeGrid.o \
         hydro_rk/Grid_CopyOldBaryonFieldToBaryonField.o \
         hydro_rk/Grid_GalaxyDiskInitializeGrid.o \
-        hydro_rk/Grid_Hydro1DTestInitializeGrid.o \
         hydro_rk/Grid_Hydro3D.o \
 	hydro_rk/Grid_ReturnHydroRKPointers.o \
 	hydro_rk/Grid_ReturnOldHydroRKPointers.o \
@@ -806,7 +809,6 @@ OBJS_HYDRO_RK = \
         hydro_rk/HLL_PLM.o \
         hydro_rk/HLL_PPM.o \
         hydro_rk/HLLC_PLM.o \
-        hydro_rk/Hydro1DTestInitialize.o \
         hydro_rk/HydroLine.o \
         hydro_rk/HydroSweepX.o \
         hydro_rk/HydroSweepY.o \

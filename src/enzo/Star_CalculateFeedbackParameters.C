@@ -138,8 +138,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
       (4.0/3.0 * PI * pow(-MBHFeedbackThermalRadius, 3) * Msun) / (VelocityUnits * VelocityUnits);
 #endif    
 
-    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
-
 #ifdef SEDOV_TEST
     // For Sedov test, here the unit of EjectaThermalEnergy is ergs/cm^3.  
 //    EjectaDensity = 0.0;
@@ -151,6 +149,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
     EjectaThermalEnergy = 1.0e40 * dtForThisStar * TimeUnits /
       EjectaVolume / DensityUnits / (VelocityUnits * VelocityUnits);  
 #endif
+
+    if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
 
     break;
 
