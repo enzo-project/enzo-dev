@@ -605,7 +605,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (PutSink == 1 && level == 0) {  // set it up on level zero and make it mustrefine
 
     //    double mass_p = 20.0*1.989e33;
-    double mass_p = 20.0*1.989e33;
+    double mass_p = 3.415*1.989e33;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -625,15 +625,15 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5; //+0.5*dx;
-    ParticlePosition[1][0] = 0.5; //+0.5*dx;
-    ParticlePosition[2][0] = 0.5; //+0.5*dx;
-
+    ParticlePosition[0][0] = 0.5+0.005*dx;
+    ParticlePosition[1][0] = 0.5+0.005*dx;
+    ParticlePosition[2][0] = 0.5+0.005*dx;
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
     ParticleVelocity[2][0] = 0.0;
+
     ParticleAttribute[0][0] = 0.0; // creation time             
-    ParticleAttribute[1][0] = 0.0;
+    ParticleAttribute[1][0] = t_dyn;
     ParticleAttribute[2][0] = mass_p;
 
     if (StellarWindFeedback) {
@@ -685,9 +685,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  ParticleMass[l] = den_m;
 	  ParticleNumber[l] = l;
 	  ParticleType[l] = PARTICLE_TYPE_MUST_REFINE;
-	  ParticlePosition[0][l] = 0.125+0.25*i;//+0.5*dx;
-	  ParticlePosition[1][l] = 0.125+0.25*j;//+0.5*dx;
-	  ParticlePosition[2][l] = 0.125+0.25*k;//+0.5*dx;
+	  ParticlePosition[0][l] = 0.125+0.25*i+0.5*dxm;
+	  ParticlePosition[1][l] = 0.125+0.25*j+0.5*dxm;
+	  ParticlePosition[2][l] = 0.125+0.25*k+0.5*dxm;
 	  ParticleVelocity[0][l] = 0.0;
 	  ParticleVelocity[1][l] = 0.0;
 	  ParticleVelocity[2][l] = 0.0;
@@ -695,7 +695,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  ParticleAcceleration[1] = NULL;
 	  ParticleAcceleration[2] = NULL;
 
-	  ParticleAttribute[0][l] = 0.0; // creation time             
+	  ParticleAttribute[0][l] = 0.001; // creation time             
 	  ParticleAttribute[1][l] = t_dyn_m; // t_dyn
 	  ParticleAttribute[2][l] = mass_m;
 
