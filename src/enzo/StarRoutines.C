@@ -323,7 +323,7 @@ void Star::Merge(Star a)
     accreted_angmom[dim] = ratio1 * accreted_angmom[dim] + ratio2 * a.accreted_angmom[dim];
   }
   Mass += a.Mass;
-  FinalMass += a.FinalMass;
+  //FinalMass += a.FinalMass;
   DeltaMass += a.DeltaMass;
   last_accretion_rate += a.last_accretion_rate;
   NotEjectedMass += a.NotEjectedMass;
