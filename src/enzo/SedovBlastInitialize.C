@@ -110,13 +110,13 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     /* read parameters */
 
     ret += sscanf(line, "SedovBlastFullBox  = %"ISYM, &SedovBlastFullBox);
-    ret += sscanf(line, "SedovBlastInitialTime  = %"FSYM, &SedovBlastInitialTime);
+    ret += sscanf(line, "SedovBlastInitialTime  = %"PSYM, &SedovBlastInitialTime);
     ret += sscanf(line, "SedovBlastDensity  = %"FSYM, &SedovBlastDensity);
     ret += sscanf(line, "SedovBlastPressure = %"FSYM, &SedovBlastPressure);
     ret += sscanf(line, "SedovBlastEnergy   = %"FSYM, &SedovBlastEnergy);
-    ret += sscanf(line, "SedovBlastSubgridLeft = %"FSYM, 
+    ret += sscanf(line, "SedovBlastSubgridLeft = %"PSYM, 
 		        &SedovBlastSubgridLeft);
-    ret += sscanf(line, "SedovBlastSubgridRight = %"FSYM, 
+    ret += sscanf(line, "SedovBlastSubgridRight = %"PSYM, 
 		        &SedovBlastSubgridRight);
 
     /* if the line is suspicious, issue a warning */

@@ -109,13 +109,26 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   /* set up grid */
  
-  if (TopGrid.GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
-						ShockInABoxBoundary,
-						ShockInABoxDensity,
-						ShockInABoxPressure,
-						ShockInABoxVelocity) == FAIL) {
-    fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-    ENZO_FAIL("");
+  if( ShockInABoxDirection != 0 )
+    ENZO_FAIL("Only ShockInABoxDirection=0 supported at the moment!");
+
+//   if (TopGrid.GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
+// 						ShockInABoxBoundary,
+// 						ShockInABoxDensity,
+// 						ShockInABoxPressure,
+// 						ShockInABoxVelocity) == FAIL) {
+//     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
+//     ENZO_FAIL("");
+//   }
+
+  if (TopGrid.GridData->
+      HydroShockTubesInitializeGrid(ShockInABoxBoundary,
+				    ShockInABoxDensity[0], ShockInABoxDensity[1],
+				    ShockInABoxVelocity[0], ShockInABoxVelocity[1],
+				    0.0, 0.0,
+				    0.0, 0.0, 
+				    ShockInABoxPressure[0], ShockInABoxPressure[1]) == FAIL) {
+    ENZO_FAIL("Error in HydroShockTubesInitializeGrid (called from ShockInABoxInitialize).\n");
   }
  
   /* If requested, create a subgrid */
@@ -151,17 +164,17 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     Subgrid->GridData->InheritProperties(TopGrid.GridData);
     Subgrid->GridData->PrepareGrid(MetaData.TopGridRank, SubgridDims,
 				   LeftEdge, RightEdge, 0);
-    if (Subgrid->GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
-						   ShockInABoxBoundary,
-						   ShockInABoxDensity,
-						   ShockInABoxPressure,
-						   ShockInABoxVelocity)
-	== FAIL) {
-      fprintf(stderr, "Error in ShockTubeInitializeGrid (subgrid).\n");
-      ENZO_FAIL("");
-    }			
+    if (Subgrid->GridData->
+	HydroShockTubesInitializeGrid(ShockInABoxBoundary,
+				      ShockInABoxDensity[0], ShockInABoxDensity[1],
+				      ShockInABoxVelocity[0], ShockInABoxVelocity[1],
+				      0.0, 0.0,
+				      0.0, 0.0, 
+				      ShockInABoxPressure[0], ShockInABoxPressure[1]) == FAIL) {
+      ENZO_FAIL("Error in HydroShockTubesInitializeGrid (called from ShockInABoxInitialize).\n");
+    }
   }
- 
+  
   /* Initialize the exterior. */
  
   Exterior.Prepare(TopGrid.GridData);

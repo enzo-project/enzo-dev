@@ -150,7 +150,6 @@ OBJS_CONFIG_LIB = \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \
-        feuler_sweep.o \
         fft66.o \
         fft90.o \
         ffte4X.o \
@@ -336,6 +335,7 @@ OBJS_CONFIG_LIB = \
         Grid_Group_ReadGrid.o \
         New_Grid_WriteGrid.o \
         New_Grid_ReadGrid.o \
+	Grid_HydroShockTubesInitializeGrid.o \
 	Grid_IdentifyCRSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
@@ -374,7 +374,6 @@ OBJS_CONFIG_LIB = \
         Grid_PoissonSolver.o                    \
         Grid_PoissonSolverCGA.o                 \
         Grid_PoissonSolverTestInitializeGrid.o  \
-        Grid_PPMDirectEuler.o \
         Grid_PrepareBoundaryFluxes.o \
         Grid_PrepareFFT.o \
         Grid_PrepareGreensFunction.o \
@@ -414,11 +413,11 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShearingBox2DInitializeGrid.o \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
-        Grid_ShockTubeInitializeGrid.o \
 	Grid_ShocksHandler.o \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
         Grid_SolveRateEquations.o \
@@ -457,6 +456,9 @@ OBJS_CONFIG_LIB = \
         Grid_ZeldovichPancakeInitializeGrid.o \
         Grid_ZeroSolutionUnderSubgrid.o \
         Grid_ZeusSolver.o \
+	Grid_xEulerSweep.o \
+	Grid_yEulerSweep.o \
+	Grid_zEulerSweep.o \
         Group_ReadAllData.o \
         Group_ReadDataHierarchy.o \
         Group_WriteAllData.o \
@@ -464,6 +466,7 @@ OBJS_CONFIG_LIB = \
         h5utilities.o \
 	HilbertCurve3D.o \
         Hierarchy_DeleteHierarchyEntry.o \
+	HydroShockTubesInitialize.o \
         ibm_fft64.o \
         ibm_st1_fft64.o \
         I_ColumnFormat.o \
@@ -608,7 +611,6 @@ OBJS_CONFIG_LIB = \
         ShearingBoxStratifiedInitialize.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
-        ShockTubeInitialize.o \
         sink_maker.o \
         smooth_deposit.o \
         smooth_deposit_c.o \
@@ -784,7 +786,6 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_Collapse3DInitializeGrid.o \
         hydro_rk/Grid_CopyOldBaryonFieldToBaryonField.o \
         hydro_rk/Grid_GalaxyDiskInitializeGrid.o \
-        hydro_rk/Grid_Hydro1DTestInitializeGrid.o \
         hydro_rk/Grid_Hydro3D.o \
 	hydro_rk/Grid_ReturnHydroRKPointers.o \
 	hydro_rk/Grid_ReturnOldHydroRKPointers.o \
@@ -803,7 +804,6 @@ OBJS_HYDRO_RK = \
         hydro_rk/HLL_PLM.o \
         hydro_rk/HLL_PPM.o \
         hydro_rk/HLLC_PLM.o \
-        hydro_rk/Hydro1DTestInitialize.o \
         hydro_rk/HydroLine.o \
         hydro_rk/HydroSweepX.o \
         hydro_rk/HydroSweepY.o \
