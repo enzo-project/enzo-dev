@@ -443,6 +443,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
+    ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
+                  &MustRefineParticlesRefineToLevelAutoAdjust);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 

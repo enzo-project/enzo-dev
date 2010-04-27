@@ -457,9 +457,6 @@
             endif
             enddo               ! end loop over i
 
-!               if (dtit(i) .ne. dtit(i)) 
-!     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
-
 !           Compute maximum timestep for cooling/heating
 
             do i = is+1, ie+1
@@ -496,12 +493,10 @@
      &                        dt-ttot(i), dtit(i))
 !              endif
 
-               if (dtit(i) .ne. dtit(i)) 
-     &           write(6,*) '3-##### energy, edot, abs(0.1*energy/edot), 
-     &                      real(abs(0.1*energy/edot)), dt, ttot, dtit',
-     &                      energy, edot(i), abs(0.1*energy/edot(i)), 
-     &                      real(abs(0.1*energy/edot(i))), dt, ttot(i), 
-     &                      dtit(i)
+               if (dtit(i) .ne. dtit(i)) !#####
+     &           write(6,*) 'HUGE dtit :: ', energy, edot(i), dtit(i),
+     &                      dt, ttot(i), abs(0.1*energy/edot(i)), 
+     &                      real(abs(0.1*energy/edot(i)))
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
@@ -1211,6 +1206,14 @@ c
             if (iradtrans .eq. 1) scoef = scoef + kphHI(i,j,k)*HIp(i)
             acoef  = k2(i)*de (i,j,k)
             HIIp(i) = (scoef*dtit(i) + HII(i,j,k))/(1.0 + acoef*dtit(i))
+!
+            if (HIIp(i) .le. 0.0) then  !#####
+               write(*,*) 'negative HIIp! :: ', i, j, k, HIIp(i), 
+     $              scoef, dtit(i), HII(i,j,k), acoef,
+     $              k2(i), de(i,j,k),
+     $              kphHI(i,j,k), HIp(i),
+     $              k24shield(i)
+            endif
 
 !        3) Electron density
 

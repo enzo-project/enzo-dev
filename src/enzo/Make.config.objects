@@ -18,6 +18,7 @@ OBJS_CONFIG_LIB = \
         acml_st1.o \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
+        AdjustMustRefineParticlesRefineToLevel.o \
         AMRH5writer.o \
         AnalysisBaseClass.o \
         AnalysisBaseClass_HDF5Utils.o \

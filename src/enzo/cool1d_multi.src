@@ -733,6 +733,8 @@ c
      $                        logxe1, logxe0, n_xe
                   write(6,*) 'more: ',
      $                        log_xe, log(xe), logxe1, logxe0, xe, 
+     $                        de(i,j,k), metal(i,j,k), d(i,j,k),  
+     $                        HII(i,j,k), HeII(i,j,k), HeIII(i,j,k),
      $                        xe_max, xe_min
                   edot(i) = 0.0
                endif

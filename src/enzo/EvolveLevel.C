@@ -197,6 +197,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int TotalStarParticleCountPrevious[]);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
+int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -272,11 +273,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
-  /* On the top grid, adjust the refine region so that only the finest
-     particles are included.  We don't want the more massive particles
+  /* Adjust the refine region so that only the finest particles 
+     are included.  We don't want the more massive particles
      to contaminate the high-resolution region. */
 
   AdjustRefineRegion(LevelArray, MetaData, level);
+
+  /* Adjust MustRefineParticlesRefineToLevel parameter if requested */
+
+  AdjustMustRefineParticlesRefineToLevel(MetaData, level);
 
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.

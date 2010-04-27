@@ -445,6 +445,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  RefineByResistiveLengthSafetyFactor);
   fprintf(fptr, "MustRefineParticlesRefineToLevel = %"ISYM"\n",
           MustRefineParticlesRefineToLevel);
+  fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
+          MustRefineParticlesRefineToLevelAutoAdjust);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
