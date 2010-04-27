@@ -693,6 +693,10 @@ EXTERN int UseCUDA;
 
 EXTERN int ran1_init;
 
+/* random number initialization flag */
+
+EXTERN int rand_init;
+
 /* test problem stuff */
 EXTERN TestProblemDataType TestProblemData;
 

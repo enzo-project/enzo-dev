@@ -293,11 +293,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       if (StarType == PopII || StarType == PopIII)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
-	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n",
+	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
+	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",
 	       this->Mass+AccretedMass, 100*ColdGasFraction, 
 	       AvgDensity, DynamicalTime*TimeUnits/Myr,
 	       AvgVelocity[0], AvgVelocity[1], AvgVelocity[2],
-	       vel[0], vel[1], vel[2]);
+	       vel[0], vel[1], vel[2],
+	       pos[0], pos[1], pos[2]);
       printf("FindFeedbackSphere[%"ISYM"][%"ISYM"]: Adding sphere for feedback type = %"ISYM"\n", 
 	     level, Identifier, FeedbackFlag);
     }

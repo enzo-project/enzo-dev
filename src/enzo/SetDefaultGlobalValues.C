@@ -452,6 +452,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.MovieTimestepCounter      = 0;
 
   ran1_init = 0;
+  rand_init = 0;
 
   SinkMergeDistance     = 1e16;
   SinkMergeMass         = 0.1;

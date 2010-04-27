@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -35,7 +36,7 @@ int Star::AssignFinalMassFromIMF(void)
 {
 
   unsigned_long_int random_int = mt_random();
-  unsigned_int max_random = ~0;
+  const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
   float dm = log10(PopIIIUpperMassCutoff / PopIIILowerMassCutoff) / 
     (float) (IMF_TABLE_ENTRIES-1);

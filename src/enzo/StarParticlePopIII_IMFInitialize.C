@@ -57,7 +57,7 @@ int StarParticlePopIII_IMFInitialize(void)
 
   // Initialize the random number generator (and get the first one out
   // of the way.  It seems to always be the same...)
-  mt_init(time(NULL));
+  mt_init(time(NULL)+100*MyProcessorNumber);
   unsigned_long_int trash = mt_random();
 
   return SUCCESS;
