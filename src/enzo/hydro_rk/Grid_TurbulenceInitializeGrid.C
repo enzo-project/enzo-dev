@@ -625,9 +625,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5+0.005*dx;
-    ParticlePosition[1][0] = 0.5+0.005*dx;
-    ParticlePosition[2][0] = 0.5+0.005*dx;
+    ParticlePosition[0][0] = 0.5+0.5*dxm;
+    ParticlePosition[1][0] = 0.5+0.5*dxm;
+    ParticlePosition[2][0] = 0.5+0.5*dxm;
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
     ParticleVelocity[2][0] = 0.0;
