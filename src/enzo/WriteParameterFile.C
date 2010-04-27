@@ -688,7 +688,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHParticleIO                         = %"ISYM"\n",
 	  MBHParticleIO);
   if (MBHParticleIOFilename != NULL)
-    fprintf(fptr, "MBHParticleIOFilename               = %s\n\n", MBHParticleIOFilename);
+    fprintf(fptr, "MBHParticleIOFilename               = %s\n", MBHParticleIOFilename);
+  if (MBHInsertLocationFilename != NULL)
+    fprintf(fptr, "MBHInsertLocationFilename           = %s\n\n", MBHInsertLocationFilename);
 
   /* Most Stanford additions: */
 

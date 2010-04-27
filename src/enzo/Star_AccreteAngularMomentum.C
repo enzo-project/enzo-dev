@@ -35,7 +35,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::AccreteAngularMomentum(void)
 {
 
-  if (CurrentGrid == NULL || type != MBH || (MBHFeedback != 2 && MBHFeedback != 3))
+  if (CurrentGrid == NULL || 
+      type != MBH || 
+      (MBHFeedback != 2 && MBHFeedback != 3))
     return SUCCESS;
 
   if (CurrentGrid->GridRank != MAX_DIMENSION) {

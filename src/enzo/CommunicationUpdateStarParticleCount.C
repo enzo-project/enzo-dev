@@ -10,7 +10,7 @@
 /  modified2:  Ji-hoon Kim
 /  date:       November, 2009
 /
-/              Now this new routines can correctly assigns the new 
+/              Now this new routines can correctly assigns indices to new 
 /              particles (whether they are star or DM) and keep track 
 /              of NumberOfStarParticles and NumberOfOtherParticles.
 /              This function has to have the arguments 

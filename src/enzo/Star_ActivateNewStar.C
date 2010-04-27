@@ -48,11 +48,8 @@ void Star::ActivateNewStar(FLOAT Time)
     case BlackHole:
       // nothing to do
       break;
-    case MBH:
-      if (Mass >= MBHMinimumMass) {
-	type = StarType; 
-	BirthTime = Time;
-      }
+    case MBH:  // probably you wouldn't need this activation routine anyway (see mbh_maker)
+      type = StarType;  
       break;
     } // ENDSWITCH type
   } // ENDIF FORMATION

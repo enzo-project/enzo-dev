@@ -503,6 +503,7 @@ OBJS_CONFIG_LIB = \
 	LoadBalanceHilbertCurveRootGrids.o \
 	LoadBalanceSimulatedAnnealing.o \
         MagneticFieldResetter.o \
+        mbh_maker.o \
         mcooling.o \
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
