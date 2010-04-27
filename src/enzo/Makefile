@@ -108,7 +108,10 @@ all: $(EXE).exe
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+MACHNOTES: 
+	@echo $(MACHINE_NOTES)
+
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
 	@echo "Linking enzo executable. Type  cat $(OUTPUT)  in case it fails."
 	@(if [ $(VERBOSE) -eq 0 ]; then \
@@ -345,26 +348,6 @@ include DEPEND
 #photon:
 #	@echo "Making radiative transfer module"
 #	+(cd photons/ ; make photon)
-
-#-----------------------------------------------------------------------
-# INSTALL TARGET
-#-----------------------------------------------------------------------
-
-install: $(TOP_DIR)/bin
-	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
-	-@cp $(EXE).exe $(TOP_DIR)/bin/$(EXE)
-	-@cp gridtests.exe $(TOP_DIR)/bin/gridtests
-	-@cp ealfloattests.exe $(TOP_DIR)/bin/ealfloattests
-	-@cp ealinttests.exe $(TOP_DIR)/bin/ealinttests
-	-@cp readgridtests.exe $(TOP_DIR)/bin/readgridtests
-	-@cp analysisbaseclasstests.exe $(TOP_DIR)/bin/analysisbaseclasstests
-	-$(MAKE) -s show-flags   >& $(TOP_DIR)/bin/$(EXE).show-flags
-	-$(MAKE) -s show-config  >& $(TOP_DIR)/bin/$(EXE).show-config
-	-$(MAKE) -s show-version >& $(TOP_DIR)/bin/$(EXE).show-version
-	-$(MAKE) -s show-diff    >& $(TOP_DIR)/bin/$(EXE).show-diff
-
-$(TOP_DIR)/bin:
-	mkdir $(TOP_DIR)/bin
 
 #-----------------------------------------------------------------------
 # HELP TARGET
