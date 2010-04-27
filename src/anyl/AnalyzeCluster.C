@@ -929,7 +929,7 @@ main(int argc, char *argv[])
       /* Clean up. */
 
       delete float_temp;
-#endif
+#endif  //USE_HDF4
 
       } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 
