@@ -167,6 +167,9 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
 void PrintMemoryUsage(char *str);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
  
@@ -668,7 +671,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
-
 
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {

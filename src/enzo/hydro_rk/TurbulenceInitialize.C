@@ -200,10 +200,11 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
     }
   }
 
+  /*
   if (UsePhysicalUnit){
-    MinimumMassForRefinement[0] /= DensityUnits * pow(LengthUnits,3);
+    MinimumMassForRefinement[0] /= DensityUnits * pow(LengthUnits,3);  //#####
   }
-
+  */
 
   /* If requested, refine the grid to the desired level. */
 
