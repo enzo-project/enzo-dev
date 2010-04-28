@@ -36,7 +36,6 @@ int gFLDSplit::Dump(EnzoVector *ucur)
     fprintf(stderr,"  dt = %g\n",dt);
     fprintf(stderr,"  dtchem = %g\n",dtchem);
     fprintf(stderr,"  theta = %g\n",theta);
-    fprintf(stderr,"  LimType = %"ISYM"\n",LimType);
     fprintf(stderr,"  Nchem = %"ISYM"\n",Nchem);
     fprintf(stderr,"  Model = %"ISYM"\n",Model);
     fprintf(stderr,"  ESpectrum = %"ISYM"\n",ESpectrum);

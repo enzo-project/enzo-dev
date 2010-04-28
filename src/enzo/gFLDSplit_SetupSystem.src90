@@ -7,11 +7,11 @@
 !
 !=======================================================================
 subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
-     E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,       &
-     ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, rank, dx,  &
-     dy, dz, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e,    &
-     x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, xlface,  &
-     xrface, ylface, yrface, zlface, zrface, ier)
+     E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,     &
+     theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, rank, dx, dy, dz,     &
+     BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e, x2s, x2e,  &
+     Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, xlface, xrface,    &
+     ylface, yrface, zlface, zrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       July 2009
@@ -60,12 +60,6 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !     Temp0      - gas temperature (prev time step)
 !     kappa      - opacity array
 !     src        - spatially-dependent radiation source
-!     LimType    - integer flag denoting type of flux limiter:
-!                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
-!                       1 -> rational approx. to LP lim. (LP, 1981)
-!                       2 -> Reynolds approx to LP lim.
-!                       3 -> turns off the limiter (D = c/R)
-!                       4 -> Zeus limiter
 !     dt         - time step size
 !     a,a0       - cosmological expansion factor (new and old time steps)
 !     adot,adot0 - da/dt and da0/dt
@@ -111,7 +105,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   
   !--------------
   ! argument declarations
-  integer, intent(in)  :: LimType, rank, ESpectrum
+  integer, intent(in)  :: rank, ESpectrum
   integer, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
@@ -131,26 +125,26 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   if (rank == 3) then
 
      call gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0,    &
-          E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,    &
-          ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, &
-          dz, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e,     &
-          x2s, x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr,       &
-          xlface, xrface, ylface, yrface, zlface, zrface, ier)
+          E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,  &
+          theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, dz, BCXl,  &
+          BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e, x2s, x2e, Nx, &
+          Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, xlface, xrface,     &
+          ylface, yrface, zlface, zrface, ier)
 
   elseif (rank == 2) then
 
      call gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,    &
-          E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,    &
-          ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, &
-          BCXl, BCXr, BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, &
-          NGyl, NGyr, xlface, xrface, ylface, yrface, ier)
+          E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,  &
+          theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, BCXl,      &
+          BCXr, BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, &
+          NGyr, xlface, xrface, ylface, yrface, ier)
 
   elseif (rank == 1) then
 
      call gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0,    &
-          E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,    &
-          ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx,     &
-          BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
+          E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,  &
+          theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, BCXl, BCXr,    &
+          x0s, x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
 
   else
      write(0,*) 'gFLDSplit_SetupSystem error: illegal rank =',rank
@@ -165,11 +159,11 @@ end subroutine gFLDSplit_SetupSystem
 
 
 subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
-     E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,       &
-     ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy,    &
-     dz, BCXl, BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e, x2s,   &
-     x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr,  NGzl, NGzr, xlface,      &
-     xrface, ylface, yrface, zlface, zrface, ier)
+     E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,     &
+     theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, dz, BCXl,     &
+     BCXr, BCYl, BCYr, BCZl, BCZr, x0s, x0e, x1s, x1e, x2s, x2e, Nx,    &
+     Ny, Nz, NGxl, NGxr, NGyl, NGyr,  NGzl, NGzr, xlface, xrface,       &
+     ylface, yrface, zlface, zrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       June 2009
@@ -182,7 +176,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, ESpectrum
+  integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
@@ -260,22 +254,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_zl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_zl = c/3.d0/kap
-              D0_zl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_zl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_zl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            !--------------
            ! y-directional limiter, lower face
@@ -295,22 +275,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j-1,k))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_yl = c/3.d0/kap
-              D0_yl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            !--------------
            ! x-directional limiter, lower face
@@ -330,22 +296,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i-1,j,k))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_xl = c/3.d0/kap
-              D0_xl = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            !--------------
            ! x-directional limiter, upper face
@@ -365,22 +317,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i+1,j,k))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_xr = c/3.d0/kap
-              D0_xr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            !--------------
            ! y-directional limiter, upper face
@@ -400,22 +338,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j+1,k))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_yr = c/3.d0/kap
-              D0_yr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            !--------------
            ! z-directional limiter, upper face
@@ -435,22 +359,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k+1))*nUn0
            
            !    compute limiter
-           if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              D_zr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-              D0_zr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-           else if (LimType == 3) then  ! no limiter
-              D_zr = c/3.d0/kap
-              D0_zr = c/3.d0/kap0
-           else if (LimType == 4) then  ! Zeus limiter
-              D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-              D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           else                         ! standard LP lim (LP, 1981)
-              D_zr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-              D0_zr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-           endif
+           D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+           D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
            ! opacity values in this cell
            kap = kappa(i,j,k)*nUn
@@ -634,10 +544,10 @@ end subroutine gFLDSplit_SetupSystem3D
 
 
 subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
-     E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,         &
-     ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy,      &
-     BCXl, BCXr, BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr,      &
-     NGyl, NGyr, xlface, xrface, ylface, yrface, ier)
+     E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,       &
+     theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, dy, BCXl, BCXr,     &
+     BCYl, BCYr, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr,      &
+     xlface, xrface, ylface, yrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       July 2009
@@ -650,7 +560,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, ESpectrum
+  integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
@@ -722,22 +632,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i,j-1))*nUn0
            
         !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_yl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_yl = c/3.d0/kap
-           D0_yl = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_yl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_yl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
+        D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
         !--------------
         ! x-directional limiter, lower face
@@ -757,22 +653,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i-1,j))*nUn0
            
         !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_xl = c/3.d0/kap
-           D0_xl = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
+        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
         !--------------
         ! x-directional limiter, upper face
@@ -792,22 +674,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i+1,j))*nUn0
            
         !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_xr = c/3.d0/kap
-           D0_xr = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
+        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
         !--------------
         ! y-directional limiter, upper face
@@ -827,22 +695,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i,j+1))*nUn0
            
         !    compute limiter
-        if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           D_yr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-           D0_yr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-        else if (LimType == 3) then  ! no limiter
-           D_yr = c/3.d0/kap
-           D0_yr = c/3.d0/kap0
-        else if (LimType == 4) then  ! Zeus limiter
-           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        else                         ! standard LP lim (LP, 1981)
-           D_yr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-           D0_yr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-        endif
+        D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+        D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
         ! opacity values in this cell
         kap = kappa(i,j)*nUn
@@ -959,9 +813,9 @@ end subroutine gFLDSplit_SetupSystem2D
 
 
 subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
-     E, Temp, Temp0, kappa, src, LimType, dt, a, a0, adot, adot0,       &
-     ESpectrum, theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx,        &
-     BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
+     E, Temp, Temp0, kappa, src, dt, a, a0, adot, adot0, ESpectrum,     &
+     theta, aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0, dx, BCXl, BCXr, x0s,  &
+     x0e, Nx, NGxl, NGxr, xlface, xrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       June 2009
@@ -974,7 +828,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: LimType, ESpectrum
+  integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   REALSUB,  intent(in) :: a, a0, adot, adot0
   real,     intent(in) :: dt, theta, dx
@@ -1040,22 +894,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 !     kap0 = sqrt(kappa(i))*sqrt(kappa(i-1))*nUn0
            
      !    compute limiter
-     if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xl = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-        D0_xl = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-     else if (LimType == 3) then  ! no limiter
-        D_xl = c/3.d0/kap
-        D0_xl = c/3.d0/kap0
-     else if (LimType == 4) then  ! Zeus limiter
-        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else                         ! standard LP lim (LP, 1981)
-        D_xl = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-        D0_xl = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-     endif
+     D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+     D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
      !--------------
      ! x-directional limiter, upper face
@@ -1075,22 +915,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 !     kap0 = sqrt(kappa(i))*sqrt(kappa(i+1))*nUn0
            
      !    compute limiter
-     if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        D_xr = 2.d0*c/pi*atan(R*pi/6.d0/kap)/R
-        D0_xr = 2.d0*c/pi*atan(R0*pi/6.d0/kap0)/R0
-     else if (LimType == 3) then  ! no limiter
-        D_xr = c/3.d0/kap
-        D0_xr = c/3.d0/kap0
-     else if (LimType == 4) then  ! Zeus limiter
-        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     else                         ! standard LP lim (LP, 1981)
-        D_xr = c*(cosh(R/kap)/sinh(R/kap)-kap/R)/R
-        D0_xr = c*(cosh(R0/kap0)/sinh(R0/kap0)-kap0/R0)/R0
-     endif
+     D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
+     D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
 
      ! opacity values in this cell
      kap = kappa(i)*nUn

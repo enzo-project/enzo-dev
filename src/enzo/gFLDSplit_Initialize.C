@@ -108,7 +108,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   ESpectrum = 1;        // T=10^5 blackbody spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
   dtnorm = 2.0;         // use 2-norm for time step estimation
-  LimType = 4;          // ZEUS limiter
   ErScale = 1.0;        // no radiation equation scaling
   ecScale = 1.0;        // no energy equation scaling
   NiScale = 1.0;        // no chemistry equation scaling
@@ -179,7 +178,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "EnergyCorrectionScaling = %"FSYM, &ecScale);
 	ret += sscanf(line, "ChemistryScaling = %"FSYM, &NiScale);
 	ret += sscanf(line, "RadHydroTheta = %"FSYM, &theta);
-	ret += sscanf(line, "RadHydroLimiterType = %"ISYM, &LimType);
 	ret += sscanf(line, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM, 
 		      BdryType[0], BdryType[0]+1);
 	if (rank > 1) {
@@ -277,13 +275,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    HFrac);
     fprintf(stderr,"   re-setting to 1.0\n");
     HFrac = 1.0;  // default is all Hydrogen
-  }
-
-  // LimType gives the limiter formula to use (see header)
-  if ((LimType < 0) || (LimType > 4)) {
-    fprintf(stderr,"gFLDSplit Initialize: illegal LimType = %"ISYM"\n",LimType);
-    fprintf(stderr,"   re-setting LimType to 4 (ZEUS)\n");
-    LimType = 0;  // default is ZEUS limiter
   }
 
   // maxdt gives the maximum radiation time step size
@@ -1124,7 +1115,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "EnergyCorrectionScaling = %g\n", ecScale);
       fprintf(outfptr, "ChemistryScaling = %g\n", NiScale);
       fprintf(outfptr, "RadHydroTheta = %g\n", theta);
-      fprintf(outfptr, "RadHydroLimiterType = %"ISYM"\n", LimType);
       fprintf(outfptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
 	      BdryType[0][0], BdryType[0][1]);
       if (rank > 1) {

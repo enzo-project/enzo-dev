@@ -113,12 +113,6 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   float dt;            // time step size
   float dtchem;        // chemistry time step size (subcycled)
   float theta;         // implicitness parameter (1->BE, 0.5->CN, 0->FE)
-  int LimType;         // flux limiter formulation:
-                       //    0 -> standard Levermore-Pomraning limiter (LP, 1981)
-                       //    1 -> rational approx. to LP limiter (LP, 1981)
-                       //    2 -> Reynolds approx. to LP limiter
-                       //    3 -> no limiter
-                       //    4 -> ZEUS limiter (like 1, but no 'albedo')
   EnzoVector *sol;     // solution vector
   EnzoVector *U0;      // old time-level state
   EnzoVector *extsrc;  // temporary vector holding external forcing sources

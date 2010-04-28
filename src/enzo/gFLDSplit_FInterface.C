@@ -24,7 +24,7 @@
 /* Fortran function prototypes */
 extern "C" void FORTRAN_NAME(gfldsplit_setupsystem)(
    Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, float *E0, float *E, float *Temp, 
-   float *Temp0, float *kappaE, float *eta, int *LimType, float *dt, FLOAT *a, 
+   float *Temp0, float *kappaE, float *eta, float *dt, FLOAT *a, 
    FLOAT *a0, FLOAT *adot, FLOAT *adot0, int *ESpectrum, float *theta, 
    float *aUnits, float *LenUnits, float *LenUnits0, float *ErUnits, 
    float *ErUnits0, float *NiUnits, float *NiUnits0, int *rank, float *dx, 
@@ -121,7 +121,7 @@ int gFLDSplit::SetupSystem(Eflt64 *mat, Eflt64 *rhs, float *rhsnorm, float *E0,
   int x0s=1, x0e=LocDims[0], x1s=1, x1e=LocDims[1], x2s=1, x2e=LocDims[2];
   int ier;
   FORTRAN_NAME(gfldsplit_setupsystem)
-    (mat, rhs, rhsnorm, E0, E, Temp, Temp0, kappaE, eta, &LimType, &dt, &a, &a0, 
+    (mat, rhs, rhsnorm, E0, E, Temp, Temp0, kappaE, eta, &dt, &a, &a0, 
      &adot, &adot0, &ESpectrum, &theta, &aUnits, &LenUnits, &LenUnits0, 
      &ErUnits, &ErUnits0, &NiUnits, &NiUnits0, &rank, &dx[0], &dx[1], 
      &dx[2], &BdryType[0][0], &BdryType[0][1], &BdryType[1][0], &BdryType[1][1], 
