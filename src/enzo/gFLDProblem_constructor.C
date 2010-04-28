@@ -85,7 +85,6 @@ gFLDProblem::gFLDProblem()
       BdryType[dim][face] = -1;
       EdgeVals[dim][face] = -1.0;
       EBdryVals[dim][face] = NULL;
-      FBdryVals[dim][face] = NULL;
     }
   }
   

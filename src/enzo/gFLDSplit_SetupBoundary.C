@@ -50,12 +50,6 @@
 /               n*grad(u(x)) = g(x)  on boundary, 
 /           the flux value g(x) must be supplied on the face.
 /
-/           For Mixed conditions, i.e.
-/               u(x) + a(x)(n*grad(u(x))) = g(x)  on boundary, 
-/           the value of g(x) must be supplied on the face.  The 
-/           value of a(x) will be problem-specific, and is 
-/           separately handled in the EnforceBoundary routine.
-/
 /  RETURNS: SUCCESS or FAIL
 /
 ************************************************************************/

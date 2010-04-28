@@ -8,11 +8,11 @@
 ! in the accompanying LICENSE file.
 !
 !=======================================================================
-subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
-     BCFluxXr, BCFluxYl, BCFluxYr, BCFluxZl, BCFluxZr, a, aUnits,        &
-     LenUnits, ErUnits, dx, dy, dz, x0s, x0e, x1s, x1e, x2s, x2e, Nx,    &
-     Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, BCxL, BCxR, BCyL, BCyR, &
-     BCzL, BCzR, xlface, xrface, ylface, yrface, zlface, zrface, ier)
+subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
+     aUnits, LenUnits, ErUnits, dx, dy, dz, x0s, x0e, x1s, x1e, x2s,   &
+     x2e, Nx, Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, BCxL, BCxR,  &
+     BCyL, BCyR, BCzL, BCzR, xlface, xrface, ylface, yrface, zlface,   &
+     zrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -25,8 +25,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
 !              -dt/a*Div(D(Eg)*Grad(Eg))
 !
 !  INPUTS:
-!     BCFlux*    - array of fluxes for mixed boundary condition 
-!                  flux values
 !     *Units     - variable scaling constants
 !     dx,dy,dz   - mesh spacing in each direction
 !     x*{s,e}    - start/end indices of linear solver domain; 
@@ -38,7 +36,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!                     3->Mixed (uses BCFlux* arrays)
 !     *{l,r}face - integer flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
@@ -72,9 +69,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
   real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real, intent(in), dimension(Ny,Nz) :: BCFluxXl, BCFluxXr
-  real, intent(in), dimension(Nx,Nz) :: BCFluxYl, BCFluxYr
-  real, intent(in), dimension(Nx,Ny) :: BCFluxZl, BCFluxZr
 
 !--------------
 ! locals
@@ -114,16 +108,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
               matentries(3,i,j,k) = 0.d0
            enddo
         enddo
-     ! Mixed
-     else if (BCxL==3) then
-        i = 1
-        do k=1,Nz,1
-           do j=1,Ny,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dxa/BCFluxXl(j,k))*matentries(3,i,j,k)
-              matentries(3,i,j,k) = 0.d0
-           enddo
-        enddo
      endif
   endif
 
@@ -145,16 +129,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
         do k=1,Nz,1
            do j=1,Ny,1
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(5,i,j,k)
-              matentries(5,i,j,k) = 0.d0
-           enddo
-        enddo
-     ! Mixed
-     else if (BCxR==3) then
-        i = Nx
-        do k=1,Nz,1
-           do j=1,Ny,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dxa/BCFluxXr(j,k))*matentries(5,i,j,k)
               matentries(5,i,j,k) = 0.d0
            enddo
         enddo
@@ -182,16 +156,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
               matentries(2,i,j,k) = 0.d0
            enddo
         enddo
-     ! Mixed
-     else if (BCyL==3) then
-        j = 1
-        do k=1,Nz,1
-           do i=1,Nx,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dya/BCFluxYl(i,k))*matentries(2,i,j,k)
-              matentries(2,i,j,k) = 0.d0
-           enddo
-        enddo
      endif
   endif
 
@@ -213,16 +177,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
         do k=1,Nz,1
            do i=1,Nx,1
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(6,i,j,k)
-              matentries(6,i,j,k) = 0.d0
-           enddo
-        enddo
-     ! Mixed
-     else if (BCyR==3) then
-        j = Ny
-        do k=1,Nz,1
-           do i=1,Nx,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dya/BCFluxYr(i,k))*matentries(6,i,j,k)
               matentries(6,i,j,k) = 0.d0
            enddo
         enddo
@@ -250,16 +204,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
               matentries(1,i,j,k) = 0.d0
            enddo
         enddo
-     ! Mixed
-     else if (BCzL==3) then
-        k = 1
-        do j=1,Ny,1
-           do i=1,Nx,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dza/BCFluxZl(i,j))*matentries(1,i,j,k)
-              matentries(1,i,j,k) = 0.d0
-           enddo
-        enddo
      endif
   endif
 
@@ -284,16 +228,6 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, BCFluxXl, &
               matentries(7,i,j,k) = 0.d0
            enddo
         enddo
-     ! Mixed
-     else if (BCzR==3) then
-        k = Nz
-        do j=1,Ny,1
-           do i=1,Nx,1
-              matentries(4,i,j,k) = matentries(4,i,j,k)        &
-                   + (1.d0-dza/BCFluxZr(i,j))*matentries(7,i,j,k)
-              matentries(7,i,j,k) = 0.d0
-           enddo
-        enddo
      endif
   endif
 
@@ -310,10 +244,10 @@ end subroutine gFLDProblem_SetNewtonBCs_3D
 
 
 
-subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
-     BCFluxXr, BCFluxYl, BCFluxYr, a, aUnits, LenUnits, ErUnits, dx, dy, &
-     x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr, BCxL, BCxR,     &
-     BCyL, BCyR, xlface, xrface, ylface, yrface, ier)
+subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
+     aUnits, LenUnits, ErUnits, dx, dy, x0s, x0e, x1s, x1e, Nx, Ny,   &
+     NGxl, NGxr, NGyl, NGyr, BCxL, BCxR, BCyL, BCyR, xlface, xrface,  &
+     ylface, yrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -326,8 +260,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
 !              -dt/a*Div(D(Eg)*Grad(Eg))
 !
 !  INPUTS:
-!     BCFlux*    - array of fluxes for mixed boundary condition 
-!                  flux values
 !     *Units     - variable scaling constants
 !     dx,dy,dz   - mesh spacing in each direction
 !     x*{s,e}    - start/end indices of linear solver domain; 
@@ -339,7 +271,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!                     3->Mixed (uses BCFlux* arrays)
 !     *{l,r}face - integer flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
@@ -372,8 +303,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(5,x0s:x0e,x1s:x1e)
   real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
-  real, intent(in), dimension(Ny) :: BCFluxXl, BCFluxXr
-  real, intent(in), dimension(Nx) :: BCFluxYl, BCFluxYr
 
 !--------------
 ! locals
@@ -408,14 +337,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
            matentries(3,i,j) = matentries(3,i,j) + matentries(2,i,j)
            matentries(2,i,j) = 0.d0
         enddo
-     ! Mixed
-     else if (BCxL==3) then
-        i = 1
-        do j=1,Ny,1
-           matentries(3,i,j) = matentries(3,i,j)        &
-              + (1.d0-dxa/BCFluxXl(j))*matentries(2,i,j)
-           matentries(2,i,j) = 0.d0
-        enddo
      endif
   endif
 
@@ -434,14 +355,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
         i = Nx
         do j=1,Ny,1
            matentries(3,i,j) = matentries(3,i,j) + matentries(4,i,j)
-           matentries(4,i,j) = 0.d0
-        enddo
-     ! Mixed
-     else if (BCxR==3) then
-        i = Nx
-        do j=1,Ny,1
-           matentries(3,i,j) = matentries(3,i,j)        &
-              + (1.d0-dxa/BCFluxXr(j))*matentries(4,i,j)
            matentries(4,i,j) = 0.d0
         enddo
      endif
@@ -464,14 +377,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
            matentries(3,i,j) = matentries(3,i,j) + matentries(1,i,j)
            matentries(1,i,j) = 0.d0
         enddo
-     ! Mixed
-     else if (BCyL==3) then
-        j = 1
-        do i=1,Nx,1
-           matentries(3,i,j) = matentries(3,i,j)        &
-                + (1.d0-dya/BCFluxYl(i))*matentries(1,i,j)
-           matentries(1,i,j) = 0.d0
-        enddo
      endif
   endif
 
@@ -492,14 +397,6 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, BCFluxXl, &
            matentries(3,i,j) = matentries(3,i,j) + matentries(5,i,j)
            matentries(5,i,j) = 0.d0
         enddo
-     ! Mixed
-     else if (BCyR==3) then
-        j = Ny
-        do i=1,Nx,1
-           matentries(3,i,j) = matentries(3,i,j)        &
-                + (1.d0-dya/BCFluxYr(i))*matentries(5,i,j)
-           matentries(5,i,j) = 0.d0
-        enddo
      endif
   endif
 
@@ -516,9 +413,9 @@ end subroutine gFLDProblem_SetNewtonBCs_2D
 
 
 
-subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
-     BCFluxXr, a, aUnits, LenUnits, ErUnits, dx, x0s, x0e, Nx, NGxl,     &
-     NGxr, BCxL, BCxR, xlface, xrface, ier)
+subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
+     aUnits, LenUnits, ErUnits, dx, x0s, x0e, Nx, NGxl, NGxr, BCxL, &
+     BCxR, xlface, xrface, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -531,8 +428,6 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
 !              -dt/a*Div(D(Eg)*Grad(Eg))
 !
 !  INPUTS:
-!     BCFlux*    - array of fluxes for mixed boundary condition 
-!                  flux values
 !     *Units     - variable scaling constants
 !     dx,dy,dz   - mesh spacing in each direction
 !     x*{s,e}    - start/end indices of linear solver domain; 
@@ -544,7 +439,6 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!                     3->Mixed (uses BCFlux* arrays)
 !     *{l,r}face - integer flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
@@ -576,7 +470,6 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(3,x0s:x0e)
   real :: rhsentries(1-NGxl:Nx+NGxr)
-  real, intent(in), dimension(1) :: BCFluxXl, BCFluxXr
 
 !--------------
 ! locals
@@ -605,12 +498,6 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
         i = 1
         matentries(2,i) = matentries(2,i) + matentries(1,i)
         matentries(1,i) = 0.d0
-     ! Mixed
-     else if (BCxL==3) then
-        i = 1
-        matentries(2,i) = matentries(2,i)        &
-           + (1.d0-dxa/BCFluxXl(1))*matentries(1,i)
-        matentries(1,i) = 0.d0
      endif
   endif
 
@@ -626,12 +513,6 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, BCFluxXl, &
      else if (BCxR==2) then
         i = Nx
         matentries(2,i) = matentries(2,i) + matentries(3,i)
-        matentries(3,i) = 0.d0
-     ! Mixed
-     else if (BCxR==3) then
-        i = Nx
-        matentries(2,i) = matentries(2,i)        &
-           + (1.d0-dxa/BCFluxXr(1))*matentries(3,i)
         matentries(3,i) = 0.d0
      endif
   endif

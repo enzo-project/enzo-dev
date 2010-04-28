@@ -54,31 +54,25 @@ extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_1d)(
    int *Model, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_setnewtonbcs_3d)(
-   Eflt64 *matentries, float *rhsentries, float *BCFluxXl, 
-   float *BCFluxXr, float *BCFluxYl, float *BCFluxYr, float *BCFluxZl, 
-   float *BCFluxZr, FLOAT *a, float *aUnits, float *LenUnits, float *ErUnits, 
-   float *dx, 
-   float *dy, float *dz, int *x0s, int *x0e, int *x1s, int *x1e, 
-   int *x2s, int *x2e, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, 
-   int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *BCxL, int *BCxR, 
-   int *BCyL, int *BCyR, int *BCzL, int *BCzR, int *xlface, int *xrface, 
-   int *ylface, int *yrface, int *zlface, int *zrface, int *ier);
+   Eflt64 *matentries, float *rhsentries, FLOAT *a, float *aUnits, 
+   float *LenUnits, float *ErUnits, float *dx, float *dy, float *dz, 
+   int *x0s, int *x0e, int *x1s, int *x1e, int *x2s, int *x2e, int *Nx, 
+   int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
+   int *NGzl, int *NGzr, int *BCxL, int *BCxR, int *BCyL, int *BCyR, 
+   int *BCzL, int *BCzR, int *xlface, int *xrface, int *ylface, 
+   int *yrface, int *zlface, int *zrface, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_setnewtonbcs_2d)(
-   Eflt64 *matentries, float *rhsentries, float *BCFluxXl, 
-   float *BCFluxXr, float *BCFluxYl, float *BCFluxYr, FLOAT *a, 
-   float *aUnits, float *LenUnits, float *ErUnits, float *dx, float *dy, 
-   int *x0s, int *x0e, int *x1s, 
-   int *x1e, int *Nx, int *Ny, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
-   int *BCxL, int *BCxR, int *BCyL, int *BCyR, int *xlface, int *xrface, 
-   int *ylface, int *yrface, int *ier);
+   Eflt64 *matentries, float *rhsentries, FLOAT *a, float *aUnits, 
+   float *LenUnits, float *ErUnits, float *dx, float *dy, int *x0s, 
+   int *x0e, int *x1s, int *x1e, int *Nx, int *Ny, int *NGxl, 
+   int *NGxr, int *NGyl, int *NGyr, int *BCxL, int *BCxR, int *BCyL, 
+   int *BCyR, int *xlface, int *xrface, int *ylface, int *yrface, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_setnewtonbcs_1d)(
-   Eflt64 *matentries, float *rhsentries, float *BCFluxXl, 
-   float *BCFluxXr, FLOAT *a, float *aUnits, float *LenUnits, 
-   float *ErUnits,
-   float *dx, int *x0s, int *x0e, int *Nx, 
-   int *NGxl, int *NGxr, int *BCxL, int *BCxR, int *xlface, 
+   Eflt64 *matentries, float *rhsentries, FLOAT *a, float *aUnits, 
+   float *LenUnits, float *ErUnits, float *dx, int *x0s, int *x0e, 
+   int *Nx, int *NGxl, int *NGxr, int *BCxL, int *BCxR, int *xlface, 
    int *xrface, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_3d)(
@@ -355,9 +349,7 @@ int gFLDProblem::SetNewtonBCs(Eflt64 *matentries, float *rhsentries)
   int ier;
   if (rank == 3) {
     FORTRAN_NAME(gfldproblem_setnewtonbcs_3d)
-      (matentries, rhsentries, FBdryVals[0][0], FBdryVals[0][1], 
-       FBdryVals[1][0], FBdryVals[1][1], FBdryVals[2][0], 
-       FBdryVals[2][1], &a, &aUnits, &LenUnits, &ErUnits, 
+      (matentries, rhsentries, &a, &aUnits, &LenUnits, &ErUnits, 
        &dx[0], &dx[1], &dx[2], &x0s, &x0e, &x1s, &x1e, &x2s, 
        &x2e, &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], 
        &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], 
@@ -368,21 +360,19 @@ int gFLDProblem::SetNewtonBCs(Eflt64 *matentries, float *rhsentries)
   }
   else if (rank == 2) {
     FORTRAN_NAME(gfldproblem_setnewtonbcs_2d)
-      (matentries, rhsentries, FBdryVals[0][0], FBdryVals[0][1], 
-       FBdryVals[1][0], FBdryVals[1][1], &a, 
-       &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &x0s, &x0e, 
-       &x1s, &x1e, &LocDims[0], &LocDims[1], &GhDims[0][0], &GhDims[0][1], 
-       &GhDims[1][0], &GhDims[1][1], &BdryType[0][0], &BdryType[0][1], 
+      (matentries, rhsentries, &a, &aUnits, &LenUnits, &ErUnits, 
+       &dx[0], &dx[1], &x0s, &x0e, &x1s, &x1e, &LocDims[0], 
+       &LocDims[1], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
+       &GhDims[1][1], &BdryType[0][0], &BdryType[0][1], 
        &BdryType[1][0], &BdryType[1][1], &xlface, &xrface, &ylface, 
        &yrface, &ier);
     return(ier);
   }
   else {
     FORTRAN_NAME(gfldproblem_setnewtonbcs_1d)
-      (matentries, rhsentries, FBdryVals[0][0], FBdryVals[0][1], &a, 
-       &aUnits, &LenUnits, &ErUnits, &dx[0], &x0s, 
-       &x0e, &LocDims[0], &GhDims[0][0], &GhDims[0][1], &BdryType[0][0], 
-       &BdryType[0][1], &xlface, &xrface, &ier);
+      (matentries, rhsentries, &a, &aUnits, &LenUnits, &ErUnits, 
+       &dx[0], &x0s, &x0e, &LocDims[0], &GhDims[0][0], &GhDims[0][1], 
+       &BdryType[0][0], &BdryType[0][1], &xlface, &xrface, &ier);
     return(ier);
   }
 }

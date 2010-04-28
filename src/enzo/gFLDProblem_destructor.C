@@ -70,10 +70,8 @@ gFLDProblem::~gFLDProblem()
 
   // delete boundary condition arrays
   for (i=0; i<3; i++)
-    for (j=0; j<2; j++) {
+    for (j=0; j<2; j++) 
       if (EBdryVals[i][j] != NULL)  delete[] EBdryVals[i][j];
-      if (FBdryVals[i][j] != NULL)  delete[] FBdryVals[i][j];
-    }
 
 }
 #endif

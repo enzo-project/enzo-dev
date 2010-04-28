@@ -21,19 +21,17 @@
 /           vector.  Depending on 'flag' this routine will perform
 /           one of two BC-related actions:
 /
-/              flag=0: sets Dirichlet, Neumann, or mixed (Robin) values 
-/              into a given vector.  Useful for enforcing conditions on 
-/              a solution.
+/              flag=0: sets Dirichlet or Neumann values into a given
+/              vector.  Useful for enforcing conditions on a solution.
 /
-/              flag!=0: set zero-valued homogeneous Dirichlet, 
-/              Neumann or mixed (Robin) conditions on any external face.  
-/              Useful for enforcing conditions into a Newton update, 
-/              which should not interfere with BC values.
+/              flag!=0: set zero-valued homogeneous Dirichlet or  
+/              Neumann conditions on any external face. Useful for  
+/              enforcing conditions into a Newton update, which 
+/              should not interfere with BC values.
 /
-/           Note: Neumann and mixed values are enforced on the first 
-/                 layer of ghost zones using a first-order central 
-/                 difference approximation to the first (outward-normal) 
-/                 derivative.
+/           Note: Neumann values are enforced on the first layer of 
+/                 ghost zones using a first-order difference
+/                 approximation to the outward-normal derivative.
 /           Note: Since the internal radiation variables are comoving 
 /                 and normalized, we renormalize the boundary conditions 
 /                 as they are enforced to match the internal units.
@@ -120,18 +118,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	  udata[idx] = udata[idx2] + dxa*EBdryVals[0][0][idxbc]/ErUnits;
 	}
     }
-    //   Mixed
-    if (OnBdry[0][0] && (BdryType[0][0]==3)) {
-      i = -1;  i2 = i+1;
-      for (k=0; k<LocDims[2]; k++)
-	for (j=0; j<LocDims[1]; j++) {
-	  idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	  idx2 = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i2+ugh[0][0];
-	  idxbc = k*LocDims[1] + j;
-	  udata[idx] = udata[idx2] + dxa/FBdryVals[0][0][idxbc]*ErUnits
-	    *(EBdryVals[0][0][idxbc]/ErUnits-udata[idx2]);
-	}
-    }
 
     // x0 right boundary
     //   Dirichlet
@@ -153,18 +139,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	  idx2 = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i2+ugh[0][0];
 	  idxbc = k*LocDims[1] + j;
 	  udata[idx] = udata[idx2] + dxa*EBdryVals[0][1][idxbc]/ErUnits;
-	}
-    }
-    //   Mixed
-    if (OnBdry[0][1] && (BdryType[0][1]==3)) {
-      i = LocDims[0];  i2 = i-1;
-      for (k=0; k<LocDims[2]; k++)
-	for (j=0; j<LocDims[1]; j++) {
-	  idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	  idx2 = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i2+ugh[0][0];
-	  idxbc = k*LocDims[1] + j;
-	  udata[idx] = udata[idx2] + dxa/FBdryVals[0][1][idxbc]*ErUnits
-	    *(EBdryVals[0][1][idxbc]/ErUnits-udata[idx2]);
 	}
     }
 
@@ -193,18 +167,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	    udata[idx] = udata[idx2] + dya*EBdryVals[1][0][idxbc]/ErUnits;
 	  }
       }
-      //   Mixed
-      if (OnBdry[1][0] && (BdryType[1][0]==3)) {
-	j = -1;  j2 = j+1;
-	for (k=0; k<LocDims[2]; k++)
-	  for (i=0; i<LocDims[0]; i++) {
-	    idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idx2 = ((k+ugh[2][0])*x1len + j2+ugh[1][0])*x0len + i+ugh[0][0];
-	    idxbc = i*LocDims[2] + k;
-	    udata[idx] = udata[idx2] + dya/FBdryVals[1][0][idxbc]*ErUnits
-	      *(EBdryVals[1][0][idxbc]/ErUnits-udata[idx2]);
-	  }
-      }
       
       // x1 right boundary
       //   Dirichlet
@@ -226,18 +188,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	    idx2 = ((k+ugh[2][0])*x1len + j2+ugh[1][0])*x0len + i+ugh[0][0];
 	    idxbc = i*LocDims[2] + k;
 	    udata[idx] = udata[idx2] + dya*EBdryVals[1][1][idxbc]/ErUnits;
-	  }
-      }
-      //   Mixed
-      if (OnBdry[1][1] && (BdryType[1][1]==3)) {
-	j = LocDims[1];  j2 = j-1;
-	for (k=0; k<LocDims[2]; k++)
-	  for (i=0; i<LocDims[0]; i++) {
-	    idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idx2 = ((k+ugh[2][0])*x1len + j2+ugh[1][0])*x0len + i+ugh[0][0];
-	    idxbc = i*LocDims[2] + k;
-	    udata[idx] = udata[idx2] + dya/FBdryVals[1][1][idxbc]*ErUnits
-	      *(EBdryVals[1][1][idxbc]/ErUnits-udata[idx2]);
 	  }
       }
     }  // end if rank > 1
@@ -267,18 +217,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	    udata[idx] = udata[idx2] + dza*EBdryVals[2][0][idxbc]/ErUnits;
 	  }
       }
-      //   Mixed
-      if (OnBdry[2][0] && (BdryType[2][0]==3)) {
-	k = -1;  k2 = k+1;
-	for (j=0; j<LocDims[1]; j++)
-	  for (i=0; i<LocDims[0]; i++) {
-	    idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idx2 = ((k2+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idxbc = j*LocDims[0] + i;
-	    udata[idx] = udata[idx2] + dza/FBdryVals[2][0][idxbc]*ErUnits
-	      *(EBdryVals[2][0][idxbc]/ErUnits-udata[idx2]);
-	  }
-      }
       
       // x2 right boundary
       //   Dirichlet
@@ -300,18 +238,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 	    idx2 = ((k2+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
 	    idxbc = j*LocDims[0] + i;
 	    udata[idx] = udata[idx2] + dza*EBdryVals[2][1][idxbc]/ErUnits;
-	  }
-      }
-      //   Mixed
-      if (OnBdry[2][1] && (BdryType[2][1]==3)) {
-	k = LocDims[2];  k2 = k-1;
-	for (j=0; j<LocDims[1]; j++)
-	  for (i=0; i<LocDims[0]; i++) {
-	    idx = ((k+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idx2 = ((k2+ugh[2][0])*x1len + j+ugh[1][0])*x0len + i+ugh[0][0];
-	    idxbc = j*LocDims[0] + i;
-	    udata[idx] = udata[idx2] + dza/FBdryVals[2][1][idxbc]*ErUnits
-	      *(EBdryVals[2][1][idxbc]/ErUnits-udata[idx2]);
 	  }
       }
     }  // end if rank > 2
