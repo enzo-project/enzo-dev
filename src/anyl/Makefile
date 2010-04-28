@@ -114,11 +114,11 @@ $(EXE).exe: $(MODULES) dep $(OBJS_ANYL_LIB) purge_main
 	@rm -f $@
 	@echo "Linking"
 	-@$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o \
-             $(ENZO_DIR)/hydro_rk/*.o $(LIBS) >& $(OUTPUT)
+             $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
              echo "Success!"; \
          else \
-             echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o $(ENZO_DIR)/hydro_rk/*.o $(LIBS)" >> temp1; \
+             echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS)" >> temp1; \
              cat temp1 $(OUTPUT) > temp2; \
              rm -f temp1; \
              mv -f temp2 $(OUTPUT); \
