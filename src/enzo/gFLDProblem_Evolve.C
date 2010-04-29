@@ -361,7 +361,7 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
   int NewtIts = INSolve->GetNonlinearIterations();
   float FStep = INSolve->GetLinesearchStepsize();
   float FRes = INSolve->GetNonlinearResidual();
-  if ((semi_implicit == 0) && (FRes > newt_tol)) {
+  if (FRes > newt_tol) {
     this->Dump(sol);
     ENZO_FAIL("ERROR: non-convergent Newton method!");
   }

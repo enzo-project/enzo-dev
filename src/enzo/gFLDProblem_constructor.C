@@ -62,7 +62,6 @@ gFLDProblem::gFLDProblem()
   INSolve = NULL;
   approx_jac = -1;
   initial_guess = -1;
-  semi_implicit = -1;
   newt_linesearch = -1;
   newt_maxit = -1;
   newt_norm = -1;
@@ -102,7 +101,7 @@ gFLDProblem::gFLDProblem()
   theta = -1.0;
   LimImp = -1;
   LimType = -1;
-  AnalyticChem = 0;
+  AnalyticChem = -1;
   sol = NULL;
   U0 = NULL;
   rhs = NULL;

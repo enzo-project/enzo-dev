@@ -103,11 +103,6 @@ class gFLDProblem : public virtual NonlinearProblemABC {
                                  //    3 -> partial fwd Euler (local sources)
                                  //    4 -> partial fwd Euler (all rhs)
                                  //    5 -> local analytic guess (Rx only)
-  int semi_implicit;             // use a semi-implicit solver (fixed # of
-                                 // Newton iters) as opposed to a fully
-                                 // consistent nonlinear solver
-                                 //    0 -> use full Newton solver
-                                 //  !=0 -> use a fixed # of Newton iters
   int newt_linesearch;           // use a linesearch in the Newton method
                                  //    0 -> no linesearch
                                  //  !=0 -> linesearch (i.e. damped Newton)

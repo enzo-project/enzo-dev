@@ -67,7 +67,6 @@ int gFLDProblem::WriteParameters(FILE *fptr)
   fprintf(fptr, "RadHydroAprxJacobian = %"ISYM"\n", approx_jac);    
   fprintf(fptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
   fprintf(fptr, "RadHydroAnalyticChem = %"ISYM"\n", AnalyticChem);
-  fprintf(fptr, "RadHydroSemiImplicit = %"ISYM"\n", semi_implicit);
   fprintf(fptr, "RadHydroNewtLinesearch = %"ISYM"\n", newt_linesearch);
   fprintf(fptr, "RadHydroNewtIters = %"ISYM"\n", newt_maxit);
   fprintf(fptr, "RadHydroNewtNorm = %"ISYM"\n", newt_norm);    

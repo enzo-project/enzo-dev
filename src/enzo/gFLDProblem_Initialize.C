@@ -146,7 +146,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set default solver parameters
   approx_jac         = 0;         // analytical jacobian
   initial_guess      = 0;         // previous time step
-  semi_implicit      = 0;         // use a full Newton nonlinear solver
+  AnalyticChem       = 1;         // use analytical QSS approach
   newt_linesearch    = 1;         // use a linesearch in the Newton solver
   newt_maxit         = 20;        // 20 Newton iterations
   newt_norm          = 0;         // standard RMS norm
@@ -218,7 +218,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "RadHydroAprxJacobian = %"ISYM, &approx_jac);
 	ret += sscanf(line, "RadHydroInitialGuess = %"ISYM, &initial_guess);
 	ret += sscanf(line, "RadHydroAnalyticChem = %"ISYM, &AnalyticChem);
-	ret += sscanf(line, "RadHydroSemiImplicit = %"ISYM, &semi_implicit);
 	ret += sscanf(line, "RadHydroNewtLinesearch = %"ISYM, &newt_linesearch);
 	ret += sscanf(line, "RadHydroNewtIters = %"ISYM, &newt_maxit);
 	ret += sscanf(line, "RadHydroNewtNorm = %"ISYM, &newt_norm);
@@ -367,11 +366,14 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     LimImp = 0;  // default is time-lagged in implicit solve
   }
 
-  // AnalyticChem redefines the gas energy and chemistry ODE functions
-  if ((AnalyticChem == 1) && (approx_jac==0)) {
-    fprintf(stderr,"gFLDProblem Initialize: AnalyticChem requires approximate Jacobian\n");
-    fprintf(stderr,"   re-setting approx_jac to 1\n");
-    approx_jac = 1;
+  // check that AnalyticChem is enabled for this Model
+  if ((AnalyticChem) && ((Model != 1) && (Model != 4) || (Nchem == 0))) {
+    AnalyticChem = 0;  // disable AnalyticChem for this problem
+  }
+
+  // AnalyticChem requires an approximate Jacobian
+  if ((AnalyticChem) && (approx_jac==0)) {
+    approx_jac = 1;  // turn on approximate Jacobian
   }
 
   // maxdt gives the maximum radiation time step size
@@ -1295,7 +1297,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "RadHydroAprxJacobian = %"ISYM"\n", approx_jac);    
       fprintf(outfptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
       fprintf(outfptr, "RadHydroAnalyticChem = %"ISYM"\n", AnalyticChem);
-      fprintf(outfptr, "RadHydroSemiImplicit = %"ISYM"\n", semi_implicit);
       fprintf(outfptr, "RadHydroNewtLinesearch = %"ISYM"\n", newt_linesearch);
       fprintf(outfptr, "RadHydroNewtIters = %"ISYM"\n", newt_maxit);    
       fprintf(outfptr, "RadHydroNewtNorm = %"ISYM"\n", newt_norm);    
