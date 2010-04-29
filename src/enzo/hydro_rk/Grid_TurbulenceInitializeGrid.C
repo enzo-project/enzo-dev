@@ -131,7 +131,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
-  /* Return if this doesn't concern us. */
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0,
     VelocityUnits = 1.0;
@@ -144,13 +143,14 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   GravitationalConstant = 4.0*pi*GravConst*MassUnits*pow(TimeUnits,2)/pow(LengthUnits,3);
 
 
+  /* Return if this doesn't concern us. */
+
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
 
   if (SetBaryonFields == 0) 
     return SUCCESS;
-
 
 
   size = 1;
@@ -347,7 +347,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	BaryonField[ivx  ][n] = Velx;
 	BaryonField[ivy  ][n] = Vely;
 	BaryonField[ivz  ][n] = Velz;
-	BaryonField[ietot][n] = eint + 0.5*(Velx*Velx + Vely*Vely + Velz*Velz);
+	BaryonField[ietot][n] = eint;
+	if (HydroMethod != Zeus_Hydro)
+	  BaryonField[ietot][n] += 0.5*(Velx*Velx + Vely*Vely + Velz*Velz);
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}

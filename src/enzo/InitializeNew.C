@@ -768,7 +768,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
        == FAIL) {
       fprintf(stderr, "Error in TurbulenceReInitialize.\n");
       ENZO_FAIL("");}
-    if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
+    //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
   }
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
