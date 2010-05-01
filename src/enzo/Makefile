@@ -146,7 +146,7 @@ verbose: $(EXE).exe
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f
+.PRECIOUS: %.o
 
 .src.f:
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
