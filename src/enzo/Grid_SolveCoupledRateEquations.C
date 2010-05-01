@@ -171,7 +171,7 @@ int grid::SolveCoupledRateEquations()
   // the solver)
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-  MetalFieldPresent = (MetalNum != -1 || SNColour != -1);
+  MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
 
   // Double check if there's a metal field when we have metal cooling
   if (MetalCooling && MetalFieldPresent == FALSE) {
