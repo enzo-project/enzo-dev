@@ -140,10 +140,6 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   float told;          // old time
   float dt;            // time step size
   float theta;         // implicitness parameter (1->BE, 0.5->CN, 0->FE)
-  int LimImp;          // implicitness of flux limiter:
-                       //    0 -> fully lagged to previous time step
-                       //    1 -> fully lagged to previous newton iterate
-                       //    2 -> lag only temperature dependence
   int LimType;         // flux limiter formulation:
                        //    0 -> standard Levermore-Pomraning limiter (LP, 1981)
                        //    1 -> rational approx. to LP limiter (LP, 1981)

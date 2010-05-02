@@ -116,7 +116,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   ESpectrum = 1;        // T=10^5 blackbody spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
   dtnorm = 2.0;         // use 2-norm for time step estimation
-  LimImp = 0;           // lag implicit dependence of limiter in time
   LimType = 4;          // ZEUS limiter
   ErScale = 1.0;        // no radiation equation scaling
   ecScale = 1.0;        // no energy equation scaling
@@ -198,7 +197,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "EnergyCorrectionScaling = %"FSYM, &ecScale);
 	ret += sscanf(line, "ChemistryScaling = %"FSYM, &NiScale);
 	ret += sscanf(line, "RadHydroTheta = %"FSYM, &theta);
-	ret += sscanf(line, "RadHydroImplicitLimiter = %"ISYM, &LimImp);
 	ret += sscanf(line, "RadHydroLimiterType = %"ISYM, &LimType);
 	ret += sscanf(line, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM, 
 		      BdryType[0], BdryType[0]+1);
@@ -346,14 +344,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     fprintf(stderr,"gFLDProblem Initialize: illegal LimType = %"ISYM"\n",LimType);
     fprintf(stderr,"   re-setting LimType to 4 (ZEUS)\n");
     LimType = 0;  // default is ZEUS limiter
-  }
-
-  // LimImp gives the implicitness of the radiation flux limiter (see header)
-  if ((LimImp < 0) || (LimImp > 2)) {
-    fprintf(stderr,"gFLDProblem Initialize: illegal LimImp = %"ISYM"\n",
-	    LimImp);
-    fprintf(stderr,"   re-setting LimImp to 0\n");
-    LimImp = 0;  // default is time-lagged in implicit solve
   }
 
   // check that AnalyticChem is enabled for this Model
@@ -1279,7 +1269,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "ChemistryScaling = %g\n", NiScale);
       fprintf(outfptr, "RadHydroTheta = %g\n", theta);
       fprintf(outfptr, "RadHydroLimiterType = %"ISYM"\n", LimType);
-      fprintf(outfptr, "RadHydroImplicitLimiter = %"ISYM"\n", LimImp);
       fprintf(outfptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
 	      BdryType[0][0], BdryType[0][1]);
       if (rank > 1) {

@@ -99,7 +99,6 @@ gFLDProblem::gFLDProblem()
   told = -1.0;
   dt = -1.0;
   theta = -1.0;
-  LimImp = -1;
   LimType = -1;
   AnalyticChem = -1;
   sol = NULL;

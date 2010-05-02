@@ -28,9 +28,8 @@
 /* Fortran function prototypes */
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_3d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *adjvec, int *LimType, int *LimImp, float *dt, 
-   FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
-   float *dx, 
+   float *adjvec, int *LimType, float *dt, FLOAT *a, float *theta, 
+   float *aUnits, float *LenUnits, float *ErUnits, float *dx, 
    float *dy, float *dz, int *x0s, int *x0e, int *x1s, int *x1e, int *x2s, 
    int *x2e, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, 
    int *NGyr, int *NGzl, int *NGzr, int *xrface, int *yrface, int *zrface, 
@@ -38,18 +37,16 @@ extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_3d)(
 
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_2d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *adjvec, int *LimType, int *LimImp, float *dt, 
-   FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
-   float *dx, 
+   float *adjvec, int *LimType, float *dt, FLOAT *a, float *theta, 
+   float *aUnits, float *LenUnits, float *ErUnits, float *dx, 
    float *dy, int *x0s, int *x0e, int *x1s, int *x1e, int *Nx, int *Ny, 
    int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *xrface, int *yrface, 
    int *Model, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_1d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *adjvec, int *LimType, int *LimImp, float *dt, 
-   FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
-   float *dx, 
+   float *adjvec, int *LimType, float *dt, FLOAT *a, float *theta, 
+   float *aUnits, float *LenUnits, float *ErUnits, float *dx, 
    int *x0s, int *x0e, int *Nx, int *NGxl, int *NGxr, int *xrface, 
    int *Model, int *ier);
 
@@ -76,42 +73,23 @@ extern "C" void FORTRAN_NAME(gfldproblem_setnewtonbcs_1d)(
    int *xrface, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_3d)(
-   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
-   float *LenUnits, float *ErUnits, float *dx, float *dy, float *dz, int *Nx, int *Ny, 
-   int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, 
-   int *NGzr, int *BCxL, int *BCxR, int *BCyL, int *BCyR, int *BCzL, 
-   int *BCzR, int *xlface, int *xrface, int *ylface, int *yrface, 
-   int *zlface, int *zrface, int *Model, int *ier);
+   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, int *LimType, 
+   FLOAT *a, float *aUnits, float *LenUnits, float *ErUnits, float *dx, 
+   float *dy, float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, 
+   int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *xlface, int *xrface, 
+   int *ylface, int *yrface, int *zlface, int *zrface, int *Model, int *ier);
   
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_2d)(
-   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
-   float *LenUnits, float *ErUnits, float *dx, float *dy, int *Nx, int *Ny, int *NGxl, 
-   int *NGxr, int *NGyl, int *NGyr, int *BCxL, int *BCxR, int *BCyL, 
-   int *BCyR, int *xlface, int *xrface, int *ylface, int *yrface, 
-   int *Model, int *ier);
+   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, int *LimType, 
+   FLOAT *a, float *aUnits, float *LenUnits, float *ErUnits, float *dx, 
+   float *dy, int *Nx, int *Ny, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
+   int *xlface, int *xrface, int *ylface, int *yrface, int *Model, int *ier);
   
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_1d)(
-   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
-   float *LenUnits, float *ErUnits, float *dx, int *Nx, int *NGxl, int *NGxr, int *BCxL, 
-   int *BCxR, int *xlface, int *xrface, int *Model, int *ier);
+   float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, int *LimType, 
+   FLOAT *a, float *aUnits, float *LenUnits, float *ErUnits, float *dx, int *Nx, 
+   int *NGxl, int *NGxr, int *xlface, int *xrface, int *Model, int *ier);
   
-// extern "C" void FORTRAN_NAME(gfldproblem_localrhs)(
-//    float *Errhs, float *ecrhs, float *HIrhs, float *HeIrhs, float *HeIIrhs, 
-//    float *Ersrc, float *ecsrc, float *HIsrc, float *HeIsrc, float *HeIIsrc, 
-//    float *time, float *vx, float *vy, float *vz, float *rho, float *ec, 
-//    float *Er, float *nHI, float *nHeI, float *nHeII, float *Temp, float *eh, 
-//    float *kappaP, float *kappaE, FLOAT *a, FLOAT *adot, float *gamma, 
-//    float *hfrac, int *model, int *ESpectrum, float *CompA, float *Comp_xray, 
-//    float *Comp_temp, float *IsE, float *IsEsHI, float *IsEsHInu, float *IsEsHeI, 
-//    float *IsEsHeInu, float *IsEsHeII, float *IsEsHeIInu, float *aUnits, 
-//    float *DenUnits, float *VelUnits, float *ErUnits, float *ecUnits, 
-//    float *NiUnits, float *ecScale, int *Nchem, float *dx, float *dy, float *dz, 
-//    int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, 
-//    int *NGzl, int *NGzr, int *ier);
-
 extern "C" void FORTRAN_NAME(gfldproblem_localrhs)(
    float *Errhs, float *ecrhs, float *HIrhs, float *HeIrhs, float *HeIIrhs, 
    float *Ersrc, float *ecsrc, float *HIsrc, float *HeIsrc, float *HeIIsrc, 
@@ -131,26 +109,6 @@ extern "C" void FORTRAN_NAME(gfldproblem_localrhs)(
    float *ecScale, int *Nchem, float *dx, float *dy, float *dz, int *Nx, 
    int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, 
    int *NGzr, int *ier);
-
-// extern "C" void FORTRAN_NAME(gfldproblem_localjac)(
-//    float *Erjac_Er, float *Erjac_ec, float *Erjac_HI, float *Erjac_HeI, 
-//    float *Erjac_HeII, float *ecjac_Er, float *ecjac_ec, float *ecjac_HI, 
-//    float *ecjac_HeI, float *ecjac_HeII, float *HIjac_Er, float *HIjac_ec, 
-//    float *HIjac_HI, float *HIjac_HeI, float *HIjac_HeII, float *HeIjac_Er, 
-//    float *HeIjac_ec, float *HeIjac_HI, float *HeIjac_HeI, float *HeIjac_HeII, 
-//    float *HeIIjac_Er, float *HeIIjac_ec, float *HeIIjac_HI, float *HeIIjac_HeI, 
-//    float *HeIIjac_HeII, float *time, float *Er, float *ec, float *nHI, 
-//    float *nHeI, float *nHeII, float *eh, float *rho, float *vx, float *vy, 
-//    float *vz, int *Nchem, float *hfrac, int *model, int *ESpectrum, int *probtype, 
-//    int *dualenergy, FLOAT *a, FLOAT *adot, float *CompA, float *Comp_xray, 
-//    float *Comp_temp, float *IsE, float *IsEsHI, float *IsEsHInu, 
-//    float *IsEsHeI, float *IsEsHeInu, float *IsEsHeII, float *IsEsHeIInu, 
-//    float *PlC0, float *PlC1, float *PlC2, float *PlC3, float *PlC4, 
-//    float *RoC0, float *RoC1, float *RoC2, float *RoC3, float *RoC4, 
-//    float *gamma, float *aUnits, float *DenUnits, float *VelUnits, float *ErUnits, 
-//    float *ecUnits, float *NiUnits, float *ecScale, float *dx, float *dy, 
-//    float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, 
-//    int *NGyr, int *NGzl, int *NGzr, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_localjac)(
    float *Erjac_Er, float *Erjac_ec, float *Erjac_HI, float *Erjac_HeI, 
@@ -242,23 +200,6 @@ extern "C" void FORTRAN_NAME(gfldproblem_analyticinitguess)(
    float *dy, float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, 
    int *NGyl, int *NGyr, int *NGzl, int *NGzr, int *ier);
 
-// extern "C" void FORTRAN_NAME(gfldproblem_analyticinitguess2)(
-//    float *Er, float *ec, float *HI, float *HeI, float *HeII, float *dt, float *vx, 
-//    float *vy, float *vz, float *rho, float *eh, float *src_Er, float *src_ec, 
-//    float *src_HI, float *src_HeI, float *src_HeII, float *gamma, float *HFrac, 
-//    int *Model, int *ESpectrum, int *DualEnergy, FLOAT *a, FLOAT *adot, float *CompA, 
-//    float *Comp_xray, float *Comp_temp, float *IsE, float *IsEsHI, float *IsEsHInu, 
-//    float *IsEsHeI, float *IsEsHeInu, float *IsEsHeII, float *IsEsHeIInu, 
-//    int *NTempBins, float *TempStart, float *TempEnd, float *k1Tb, float *k2Tb, 
-//    float *k3Tb, float *k4Tb, float *k5Tb, float *k6Tb, float *ceHITb, 
-//    float *ceHeITb, float *ceHeIITb, float *ciHITb, float *ciHeTb, float *ciHeISTb, 
-//    float *ciHeIITb, float *reHIITb, float *reHeII1Tb, float *reHeII2Tb, 
-//    float *reHeIIITb, float *bremTb, float *aUnits, float *DenUnits, 
-//    float *VelUnits, float *LenUnits, float *TimeUnits, float *ErUnits, 
-//    float *ecUnits, float *NiUnits, int *Nchem, float *dx, float *dy, 
-//    float *dz, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, 
-//    int *NGyr, int *NGzl, int *NGzr, int *ier);
-
 extern "C" void FORTRAN_NAME(gfldproblem_analyticresid)(
    float *ecres, float *HIres, float *HeIres, float *HeIIres, float *Er, 
    float *ec, float *HI, float *HeI, float *HeII, float *Er0, float *ec0, 
@@ -302,8 +243,8 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   int ier;
   if (rank == 3) {
     FORTRAN_NAME(gfldproblem_matrixentries_3d)
-      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
-       &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &dx[2], 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &dt, &a, 
+       &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &dx[2], 
        &x0s, &x0e, 
        &x1s, &x1e, &x2s, &x2e, &LocDims[0], &LocDims[1], &LocDims[2], 
        &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], 
@@ -312,8 +253,8 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   }
   else if (rank == 2) {
     FORTRAN_NAME(gfldproblem_matrixentries_2d)
-      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
-       &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &x0s, 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &dt, &a, 
+       &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &x0s, 
        &x0e, &x1s, 
        &x1e, &LocDims[0], &LocDims[1], &GhDims[0][0], &GhDims[0][1], 
        &GhDims[1][0], &GhDims[1][1], &xrface, &yrface, &Model, &ier);
@@ -321,8 +262,8 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   }
   else {
     FORTRAN_NAME(gfldproblem_matrixentries_1d)
-      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
-       &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &x0s, &x0e, 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &dt, &a, 
+       &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &x0s, &x0e, 
        &LocDims[0], 
        &GhDims[0][0], &GhDims[0][1], &xrface, &Model, &ier);
     return(ier);
@@ -389,56 +330,29 @@ int gFLDProblem::DiffRHS(float *drhs, float *Er, float *Er0,
   int ier;
   if (rank == 3) {
     FORTRAN_NAME(gfldproblem_diffrhs_3d)
-      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
-       &LenUnits, &ErUnits, &dx[0], &dx[1], &dx[2], &LocDims[0], &LocDims[1], 
-       &LocDims[2], 
-       &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], 
-       &GhDims[2][0], &GhDims[2][1], &BdryType[0][0], &BdryType[0][1], 
-       &BdryType[1][0], &BdryType[1][1], &BdryType[2][0], &BdryType[2][1], 
-       &xlface, &xrface, &ylface, &yrface, &zlface, &zrface, &Model, &ier);
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &a, &aUnits, &LenUnits, 
+       &ErUnits, &dx[0], &dx[1], &dx[2], &LocDims[0], &LocDims[1], 
+       &LocDims[2], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
+       &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &xlface, &xrface, 
+       &ylface, &yrface, &zlface, &zrface, &Model, &ier);
     return(ier);
   }
   else if (rank == 2) {
     FORTRAN_NAME(gfldproblem_diffrhs_2d)
-      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
-       &LenUnits, &ErUnits, &dx[0], &dx[1], &LocDims[0], &LocDims[1], 
-       &GhDims[0][0], 
-       &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &BdryType[0][0], 
-       &BdryType[0][1], &BdryType[1][0], &BdryType[1][1], &xlface, &xrface, 
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &a, &aUnits, &LenUnits, 
+       &ErUnits, &dx[0], &dx[1], &LocDims[0], &LocDims[1], &GhDims[0][0], 
+       &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &xlface, &xrface, 
        &ylface, &yrface, &Model, &ier);
     return(ier);
   }
   else {
     FORTRAN_NAME(gfldproblem_diffrhs_1d)
-      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
-       &LenUnits, &ErUnits, &dx[0], &LocDims[0], &GhDims[0][0], &GhDims[0][1], 
-       &BdryType[0][0], &BdryType[0][1], &xlface, &xrface, &Model, &ier);
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &a, &aUnits, &LenUnits, 
+       &ErUnits, &dx[0], &LocDims[0], &GhDims[0][0], &GhDims[0][1], 
+       &xlface, &xrface, &Model, &ier);
     return(ier);
   }
 }
-
-// /********/
-// int gFLDProblem::LocalRHS(float *rhs_Er, float *rhs_ec, float *rhs_HI, 
-// 			  float *rhs_HeI, float *rhs_HeII, float *src_Er, 
-// 			  float *src_ec, float *src_HI, float *src_HeI, 
-// 			  float *src_HeII, float *time, float *ec, float *Er, 
-// 			  float *Temperature, float *kappaP, float *kappaE, 
-// 			  float *nHI, float *nHeI, float *nHeII)
-// {
-//   int ier;
-//   FORTRAN_NAME(gfldproblem_localrhs)
-//     (rhs_Er, rhs_ec, rhs_HI, rhs_HeI, rhs_HeII, src_Er, src_ec, src_HI, src_HeI, 
-//      src_HeII, time, vx, vy, vz, rho, ec, Er, nHI, nHeI, nHeII, Temperature, eh, 
-//      kappaP, kappaE, &a, &adot, &Gamma, &HFrac, &Model, &ESpectrum, &CoolData.comp, 
-//      &CoolData.comp_xray, &CoolData.temp_xray, &intSigE, &intSigESigHI, 
-//      &intSigESigHInu, &intSigESigHeI, &intSigESigHeInu, &intSigESigHeII, 
-//      &intSigESigHeIInu, &aUnits, &DenUnits, &VelUnits, &ErUnits, &ecUnits, 
-//      &NiUnits, &ecScale, &Nchem, &dx[0], &dx[1], &dx[2], &LocDims[0], 
-//      &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], 
-//      &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
-//   return(ier);
-// }
-
 
 /********/
 int gFLDProblem::LocalRHS(float *rhs_Er, float *rhs_ec, float *rhs_HI, 
@@ -468,39 +382,6 @@ int gFLDProblem::LocalRHS(float *rhs_Er, float *rhs_ec, float *rhs_HI,
      &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
   return(ier);
 }
-
-
-// /********/
-// int gFLDProblem::LocalJac(float *Erjac_Er, float *Erjac_ec, float *Erjac_HI, 
-// 			  float *Erjac_HeI, float *Erjac_HeII, float *ecjac_Er, 
-// 			  float *ecjac_ec, float *ecjac_HI, float *ecjac_HeI, 
-// 			  float *ecjac_HeII, float *HIjac_Er, float *HIjac_ec, 
-// 			  float *HIjac_HI, float *HIjac_HeI, float *HIjac_HeII, 
-// 			  float *HeIjac_Er, float *HeIjac_ec, float *HeIjac_HI, 
-// 			  float *HeIjac_HeI, float *HeIjac_HeII, float *HeIIjac_Er, 
-// 			  float *HeIIjac_ec, float *HeIIjac_HI, float *HeIIjac_HeI, 
-// 			  float *HeIIjac_HeII, float *time, float *Er, float *ec, 
-// 			  float *nHI, float *nHeI, float *nHeII)
-// {
-//   int ier;
-//   int dualenergy = (DualEnergyFormalism) ? 1 : 0;
-//   FORTRAN_NAME(gfldproblem_localjac)
-//     (Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, Erjac_HeII, ecjac_Er, ecjac_ec, 
-//      ecjac_HI, ecjac_HeI, ecjac_HeII, HIjac_Er, HIjac_ec, HIjac_HI, HIjac_HeI, 
-//      HIjac_HeII, HeIjac_Er, HeIjac_ec, HeIjac_HI, HeIjac_HeI, HeIjac_HeII, 
-//      HeIIjac_Er, HeIIjac_ec, HeIIjac_HI, HeIIjac_HeI, HeIIjac_HeII, time, Er, 
-//      ec, nHI, nHeI, nHeII, eh, rho, vx, vy, vz, &Nchem, &HFrac, &Model, 
-//      &ESpectrum, &ProblemType, &dualenergy, &a, &adot, &CoolData.comp, 
-//      &CoolData.comp_xray, &CoolData.temp_xray, &intSigE, &intSigESigHI, 
-//      &intSigESigHInu, &intSigESigHeI, &intSigESigHeInu, &intSigESigHeII, 
-//      &intSigESigHeIInu, &PlanckOpacityC0, &PlanckOpacityC1, &PlanckOpacityC2, 
-//      &PlanckOpacityC3, &PlanckOpacityC4, &EnergyOpacityC0, &EnergyOpacityC1, 
-//      &EnergyOpacityC2, &EnergyOpacityC3, &EnergyOpacityC4, &Gamma, &aUnits, 
-//      &DenUnits, &VelUnits, &ErUnits, &ecUnits, &NiUnits, &ecScale, &dx[0], 
-//      &dx[1], &dx[2], &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], 
-//      &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], &GhDims[2][1], &ier);
-//   return(ier);
-// }
 
 
 /********/
@@ -661,41 +542,6 @@ int gFLDProblem::AnalyticInitGuess(EnzoVector *u, float deltat)
      &GhDims[2][0], &GhDims[2][1], &ier);
   return(ier);
 }
-
-
-// /********/
-// int gFLDProblem::AnalyticInitGuess2(EnzoVector *u, float deltat)
-// {
-//   int ier;
-//   int dualenergy = (DualEnergyFormalism) ? 1 : 0;
-//   float *Er   = u->GetData(0);
-//   float *ec   = u->GetData(1);
-//   float *HI   = u->GetData(2);
-//   float *HeI  = u->GetData(3);
-//   float *HeII = u->GetData(4);
-//   float *Ersrc   = extsrc->GetData(0);
-//   float *ecsrc   = extsrc->GetData(1);
-//   float *HIsrc   = extsrc->GetData(2);
-//   float *HeIsrc  = extsrc->GetData(3);
-//   float *HeIIsrc = extsrc->GetData(4);
-//   FORTRAN_NAME(gfldproblem_analyticinitguess2)
-//     (Er, ec, HI, HeI, HeII, &deltat, vx, vy, vz, rho, eh, Ersrc, ecsrc, 
-//      HIsrc, HeIsrc, HeIIsrc, &Gamma, &HFrac, &Model, &ESpectrum, &dualenergy, 
-//      &a, &adot, &CoolData.comp, &CoolData.comp_xray, &CoolData.temp_xray, 
-//      &intSigE, &intSigESigHI, &intSigESigHInu, &intSigESigHeI, 
-//      &intSigESigHeInu, &intSigESigHeII, &intSigESigHeIInu, 
-//      &CoolData.NumberOfTemperatureBins, &CoolData.TemperatureStart, 
-//      &CoolData.TemperatureEnd, RateData.k1, RateData.k2, RateData.k3, 
-//      RateData.k4, RateData.k5, RateData.k6, CoolData.ceHI, CoolData.ceHeI, 
-//      CoolData.ceHeII, CoolData.ciHI, CoolData.ciHeI, CoolData.ciHeIS, 
-//      CoolData.ciHeII, CoolData.reHII, CoolData.reHeII1, CoolData.reHeII2, 
-//      CoolData.reHeIII, CoolData.brem, &aUnits, &DenUnits, &VelUnits, 
-//      &LenUnits, &TimeUnits, &ErUnits, &ecUnits, &NiUnits, &Nchem, &dx[0], 
-//      &dx[1], &dx[2], &LocDims[0], &LocDims[1], &LocDims[2], &GhDims[0][0], 
-//      &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &GhDims[2][0], 
-//      &GhDims[2][1], &ier);
-//   return(ier);
-// }
 
 
 /********/

@@ -36,7 +36,6 @@ int gFLDProblem::Dump(EnzoVector *ucur)
     fprintf(stderr,"  tnew = %g\n",tnew);
     fprintf(stderr,"  dt = %g\n",dt);
     fprintf(stderr,"  theta = %g\n",theta);
-    fprintf(stderr,"  LimImp = %"ISYM"\n",LimImp);
     fprintf(stderr,"  LimType = %"ISYM"\n",LimType);
     fprintf(stderr,"  Nchem = %"ISYM"\n",Nchem);
     fprintf(stderr,"  Model = %"ISYM"\n",Model);

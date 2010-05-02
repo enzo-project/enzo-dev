@@ -9,10 +9,9 @@
 !
 !=======================================================================
 subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
-     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,      &
-     LenUnits, EgUnits, dx, dy, dz, x0s, x0e, x1s, x1e, x2s, x2e, Nx,    &
-     Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, xrface, yrface, zrface, &
-     Model, ier)
+     kappaE, adjvec, LimType, dt, a, theta, aUnits, LenUnits, EgUnits,   &
+     dx, dy, dz, x0s, x0e, x1s, x1e, x2s, x2e, Nx, Ny, Nz, NGxl, NGxr,   &
+     NGyl, NGyr, NGzl, NGzr, xrface, yrface, zrface, Model, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -27,8 +26,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B)/(sigT*E)
-!              sigA = absorption coefficient
+!              omega = B/E
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -61,10 +59,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !                       2 -> Reynolds approx to LP lim.
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
-!     LimImp     - integer flag denoting implicitness of flux limiter:
-!                       0 -> fully lagged to previous time step
-!                       1 -> fully lagged to previous newton iterate
-!                       2 -> lag only temperature dependence
 !     a          - cosmological expansion parameter
 !     dt         - time step size
 !     theta      - overall implicitness parameter
@@ -99,7 +93,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType, LimImp
+  integer, intent(in)  :: LimType
   integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
   integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
   integer, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
@@ -120,11 +114,9 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 ! locals
   integer :: i, j, k
   real :: c, pi, StBz, dxi, dyi, dzi, dtfac
-  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
-  real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
-  real :: fltzero, one
-  real, pointer :: Eg(:,:,:)
-  real :: acoef, fourthirds
+  real :: Egf, omega, R, sigT, AGradEg, Tf
+  real :: GradEg, Dlim
+  real :: Rmin, acoef
 
 !=======================================================================
   
@@ -136,35 +128,13 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
   ! set shortcut values
   dtfac = dt*theta    ! time step conversion factor
-  one   = 1.d0
-!!$  dxi   = 1.d0/dx/a/aUnits
-!!$  dyi   = 1.d0/dy/a/aUnits
-!!$  dzi   = 1.d0/dz/a/aUnits
   dxi   = a/dx/LenUnits
   dyi   = a/dy/LenUnits
   dzi   = a/dz/LenUnits
   c  = 2.99792458d10     ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = 4.d0*datan(1.d0)
-  datanR = 0.d0
-  dcothR = 0.d0
-  fourthirds = 4.d0/3.d0
-#undef tiny
-  ! get rid of bad macro (1e-20??: >> min, << roundoff, nonsensical)
-  ! fltzero = tiny(fltzero)  ! use f90 built-in function for min instead
-  fltzero = 1.0e-20
-
-
-  ! set Eg and ec to point at appropriate arrays for limiter evaluation
-  select case (LimImp)
-  case(1)       ! fully lagged to previous newton iterate
-     Eg=>EgCur
-  case(2)       ! lag only temperature
-     Eg=>EgCur
-  case default  ! fully lagged to previous time step
-     Eg=>EgOld
-  end select
-
+  Rmin = 1.0e-20
 
   ! iterate over the active domain
   do k=1,Nz,1
@@ -178,740 +148,317 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !--------------
            ! x-directional limiter, lower face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i,j,k) - Eg(i-1,j,k))*dxi
+           AGradEg = abs(EgOld(i,j,k) - EgOld(i-1,j,k))*dxi
 
            !    compute gradients of current Eg
            GradEg = (EgCur(i,j,k) - EgCur(i-1,j,k))*dxi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i-1,j,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i-1,j,k))/2.d0
 
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i-1,j,k))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i-1,j,k))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i-1,j,k))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i-1,j,k))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on x-left Eg
-           matentries(3,i,j,k) = matentries(3,i,j,k)           &
-                - dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
+           matentries(3,i,j,k) = matentries(3,i,j,k) - dtfac*Dlim*dxi*dxi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dxi*dxi
 
 
            !--------------
            ! x-directional limiter, upper face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i+1,j,k) - Eg(i,j,k))*dxi
+           AGradEg = abs(EgOld(i+1,j,k) - EgOld(i,j,k))*dxi
            
            !    compute gradients of current Eg
            GradEg = (EgCur(i+1,j,k) - EgCur(i,j,k))*dxi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i+1,j,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i+1,j,k))/2.d0
            
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i+1,j,k))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i+1,j,k))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i+1,j,k))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i+1,j,k))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-              acoef = fourthirds*dxi/(kappaE(i,j,k))
+              acoef = 4.d0/3.d0*dxi/kappaE(i,j,k)
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on x-right Eg
-           matentries(5,i,j,k) = matentries(5,i,j,k)           &
-                - dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+           matentries(5,i,j,k) = matentries(5,i,j,k) - dtfac*Dlim*dxi*dxi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dxi*dxi
 
 
            !--------------
            ! y-directional limiter, lower face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i,j,k) - Eg(i,j-1,k))*dyi
+           AGradEg = abs(EgOld(i,j,k) - EgOld(i,j-1,k))*dyi
 
            !    compute gradients of current Eg
            GradEg = (EgCur(i,j,k) - EgCur(i,j-1,k))*dyi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i,j-1,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j-1,k))/2.d0
 
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i,j-1,k))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i,j-1,k))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i,j-1,k))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j-1,k))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on y-left Eg
-           matentries(2,i,j,k) = matentries(2,i,j,k)           &
-                - dtfac*dyi*((Dlim + Glim)*dyi - 0.5d0*Alim)
+           matentries(2,i,j,k) = matentries(2,i,j,k) - dtfac*Dlim*dyi*dyi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dyi*((Dlim + Glim)*dyi + 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dyi*dyi
 
 
            !--------------
            ! y-directional limiter, upper face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i,j+1,k) - Eg(i,j,k))*dyi
+           AGradEg = abs(EgOld(i,j+1,k) - EgOld(i,j,k))*dyi
 
            !    compute gradients of current Eg
            GradEg = (EgCur(i,j+1,k) - EgCur(i,j,k))*dyi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i,j+1,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j+1,k))/2.d0
 
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i,j+1,k))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i,j+1,k))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i,j+1,k))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j+1,k))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-              acoef = fourthirds*dyi/(kappaE(i,j,k))
+              acoef = 4.d0/3.d0*dyi/kappaE(i,j,k)
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on y-right Eg
-           matentries(6,i,j,k) = matentries(6,i,j,k)           &
-                - dtfac*dyi*((Dlim + Glim)*dyi + 0.5d0*Alim)
+           matentries(6,i,j,k) = matentries(6,i,j,k) - dtfac*Dlim*dyi*dyi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dyi*((Dlim + Glim)*dyi - 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dyi*dyi
 
 
            !--------------
            ! z-directional limiter, lower face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i,j,k) - Eg(i,j,k-1))*dzi
+           AGradEg = abs(EgOld(i,j,k) - EgOld(i,j,k-1))*dzi
 
            !    compute gradients of current Eg
            GradEg = (EgCur(i,j,k) - EgCur(i,j,k-1))*dzi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i,j,k-1))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j,k-1))/2.d0
 
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i,j,k-1))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i,j,k-1))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i,j,k-1))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j,k-1))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on z-left Eg
-           matentries(1,i,j,k) = matentries(1,i,j,k)           &
-                - dtfac*dzi*((Dlim + Glim)*dzi - 0.5d0*Alim)
+           matentries(1,i,j,k) = matentries(1,i,j,k) - dtfac*Dlim*dzi*dzi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dzi*((Dlim + Glim)*dzi + 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dzi*dzi
 
 
            !--------------
            ! z-directional limiter, upper face
            !    radiation energy gradient on face
-           AGradEg = abs(Eg(i,j,k+1) - Eg(i,j,k))*dzi
+           AGradEg = abs(EgOld(i,j,k+1) - EgOld(i,j,k))*dzi
 
            !    compute gradients of current Eg
            GradEg = (EgCur(i,j,k+1) - EgCur(i,j,k))*dzi
 
            !    face-centered radiation energy value
-           Egf = (Eg(i,j,k) + Eg(i,j,k+1))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j,k+1))/2.d0
 
-           !    absorption, scattering, total extinction coeffs on face
-           sigA = (kappaE(i,j,k)+kappaE(i,j,k+1))/2.d0
-           sigT = sigA
+           !    total extinction coeff on face
+           sigT = (kappaE(i,j,k)+kappaE(i,j,k+1))/2.d0
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
-!!$              R = AGradEg/Egf/sigT
               R = AGradEg/Egf
-              R = max(R,fltzero)
+              R = max(R,Rmin)
            else                             ! all others
-              !    black-body energy at face
-              Tf = (Temp(i,j,k)+Temp(i,j,k+1))/2.d0
-              B = 4.d0*StBz/c*Tf**4
-              
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j,k+1))/2.d0
+              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
-!!$              R = AGradEg/Egf/sigT/omega
               R = AGradEg/Egf/omega
-              R = max(R,fltzero)  ! force away from 0 to avoid NaN
+              R = max(R,Rmin)  ! force away from 0 to avoid NaN
            endif
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$              Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R) 
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R) 
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$              datanR = datan(R*pi/6.d0)
-              datanR = datan(R*pi/6.d0/sigT)
-!!$              Dlim = 2.d0*c/pi/omega/sigT*datanR/R
-              Dlim = 2.d0*c/pi/omega*datanR/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
-              Alim = 0.d0
-              Glim = 0.d0
            else if (LimType == 4) then  ! Zeus limiter
-!!$              Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R) 
               Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R) 
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
            else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$              dcothR = cosh(R)/sinh(R)
-              dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$              Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-              Dlim = c/omega*(dcothR-sigT/R)/R
-              if (LimImp < 2) then
-                 Alim = 0.d0
-                 Glim = 0.d0
-              else
-!!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-                 ! need to fix these due to re-defined R above
-                 Alim = 0.d0
-                 Glim = 0.d0
-              endif
+              Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (k==Nz) .and. (zrface==1)) then
-              acoef = fourthirds*dzi/(kappaE(i,j,k))
+              acoef = 4.d0/3.d0*dzi/kappaE(i,j,k)
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
            !    need not be rescaled, since scaling and chain rule cancel 
            !       dep. on z-right Eg
-           matentries(7,i,j,k) = matentries(7,i,j,k)           &
-                - dtfac*dzi*((Dlim + Glim)*dzi + 0.5d0*Alim)
+           matentries(7,i,j,k) = matentries(7,i,j,k) - dtfac*Dlim*dzi*dzi
            !       dep. on self Eg
-           matentries(4,i,j,k) = matentries(4,i,j,k)           &
-                + dtfac*dzi*((Dlim + Glim)*dzi - 0.5d0*Alim)
+           matentries(4,i,j,k) = matentries(4,i,j,k) + dtfac*Dlim*dzi*dzi
 
         enddo
      enddo
   enddo
-
-  ! nullify pointers
-  nullify(Eg)
 
   return
 end subroutine gFLDProblem_MatrixEntries_3D
@@ -921,10 +468,10 @@ end subroutine gFLDProblem_MatrixEntries_3D
 
 
 
-subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
-     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
-     LenUnits, EgUnits, dx, dy, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, &
-     NGyl, NGyr, xrface, yrface, Model, ier)
+subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
+     kappaE, adjvec, LimType, dt, a, theta, aUnits, LenUnits, EgUnits,   &
+     dx, dy, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, NGyl, NGyr, xrface, &
+     yrface, Model, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -940,8 +487,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B)/(sigT*E)
-!              sigA = absorption coefficient
+!              omega = B/E
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -974,10 +520,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 !                       2 -> Reynolds approx to LP lim.
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
-!     LimImp     - integer flag denoting implicitness of flux limiter:
-!                       0 -> fully lagged to previous time step
-!                       1 -> fully lagged to previous newton iterate
-!                       2 -> lag only temperature dependence
 !     a          - cosmological expansion parameter
 !     dt         - time step size
 !     theta      - overall implicitness parameter
@@ -1012,7 +554,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType, LimImp
+  integer, intent(in)  :: LimType
   integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
   integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
   integer, intent(in)  :: Model
@@ -1031,12 +573,9 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 ! locals
   integer :: i, j
   real :: c, pi, StBz, dxi, dyi, dtfac
-  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
-  real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
-  real :: fltzero, one
-  real, pointer :: Eg(:,:)
-
-  real :: acoef, fourthirds
+  real :: Egf, omega, R, sigT, AGradEg, Tf
+  real :: GradEg, Dlim
+  real :: Rmin, acoef
 
 !=======================================================================
   
@@ -1048,33 +587,12 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
   ! set shortcut values
   dtfac = dt*theta       ! time step conversion factor
-  one   = 1.d0
-!!$  dxi   = 1.d0/dx/a/aUnits
-!!$  dyi   = 1.d0/dy/a/aUnits
   dxi   = a/dx/LenUnits
   dyi   = a/dy/LenUnits
   c  = 2.99792458d10     ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = 4.d0*datan(1.d0)
-  datanR = 0.d0
-  dcothR = 0.d0
-  fourthirds = 4.d0/3.d0
-#undef tiny
-  ! get rid of bad macro (1e-20??: >> min, << roundoff, nonsensical)
-  !fltzero = tiny(fltzero)  ! use f90 built-in function for min instead
-  fltzero = 1.0e-20
-
-
-  ! set Eg and ec to point at appropriate arrays for limiter evaluation
-  select case (LimImp)
-  case(1)       ! fully lagged to previous newton iterate
-     Eg=>EgCur
-  case(2)       ! lag only temperature
-     Eg=>EgCur
-  case default  ! fully lagged to previous time step
-     Eg=>EgOld
-  end select
-
+  Rmin = 1.0e-20
 
   ! iterate over the active domain
   do j=1,Ny,1
@@ -1087,495 +605,211 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
         !--------------
         ! x-directional limiter, lower face
         !    radiation energy gradient on face
-        AGradEg = abs(Eg(i,j) - Eg(i-1,j))*dxi
+        AGradEg = abs(EgOld(i,j) - EgOld(i-1,j))*dxi
 
         !    compute gradients of current Eg
         GradEg = (EgCur(i,j) - EgCur(i-1,j))*dxi
 
         !    face-centered radiation energy value
-        Egf = (Eg(i,j) + Eg(i-1,j))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i-1,j))/2.d0
 
-        !    absorption, scattering, total extinction coeffs on face
-        sigA = (kappaE(i,j)+kappaE(i-1,j))/2.d0
-        sigT = sigA
+        !    total extinction coeff on face
+        sigT = (kappaE(i,j)+kappaE(i-1,j))/2.d0
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
-!!$           R = AGradEg/Egf/sigT
            R = AGradEg/Egf
-           R = max(R,fltzero)
+           R = max(R,Rmin)
         else                             ! all others
-           !    black-body energy at face
-           Tf = (Temp(i,j)+Temp(i-1,j))/2.d0
-           B = 4.d0*StBz/c*Tf**4
-           
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i-1,j))/2.d0
+           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
-!!$           R = AGradEg/Egf/sigT/omega
            R = AGradEg/Egf/omega
-           R = max(R,fltzero)  ! force away from 0 to avoid NaN
+           R = max(R,Rmin)  ! force away from 0 to avoid NaN
         endif
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$           Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$          datanR = datan(R*pi/6.d0)
-           datanR = datan(R*pi/6.d0/sigT)
-!!$          Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-           Dlim = 2.d0*c/pi/omega*datanR/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$             Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                     *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                     *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$             Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                   *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
-           Alim = 0.d0
-           Glim = 0.d0
         else if (LimType == 4) then  ! Zeus limiter
-!!$           Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$           dcothR = cosh(R)/sinh(R)
-           dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$           Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-           Dlim = c/omega*(dcothR-sigT/R)/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+        !    need not be rescaled, since scaling and chain rule cancel 
         !       dep. on x-left Eg
-        matentries(2,i,j) = matentries(2,i,j)           &
-           - dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
-           !       dep. on self Eg
-        matentries(3,i,j) = matentries(3,i,j)           &
-           + dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+        matentries(2,i,j) = matentries(2,i,j) - dtfac*Dlim*dxi*dxi
+        !       dep. on self Eg
+        matentries(3,i,j) = matentries(3,i,j) + dtfac*Dlim*dxi*dxi
 
 
         !--------------
         ! x-directional limiter, upper face
         !    radiation energy gradient on face
-        AGradEg = abs(Eg(i+1,j) - Eg(i,j))*dxi
+        AGradEg = abs(EgOld(i+1,j) - EgOld(i,j))*dxi
         
         !    compute gradients of current Eg
         GradEg = (EgCur(i+1,j) - EgCur(i,j))*dxi
 
         !    face-centered radiation energy value
-        Egf = (Eg(i,j) + Eg(i+1,j))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i+1,j))/2.d0
         
-        !    absorption, scattering, total extinction coeffs on face
-        sigA = (kappaE(i,j)+kappaE(i+1,j))/2.d0
-        sigT = sigA
+        !    total extinction coeff on face
+        sigT = (kappaE(i,j)+kappaE(i+1,j))/2.d0
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
-!!$           R = AGradEg/Egf/sigT
            R = AGradEg/Egf
-           R = max(R,fltzero)
+           R = max(R,Rmin)
         else                             ! all others
-           !    black-body energy at face
-           Tf = (Temp(i,j)+Temp(i+1,j))/2.d0
-           B = 4.d0*StBz/c*Tf**4
-           
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i+1,j))/2.d0
+           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
-!!$           R = AGradEg/Egf/sigT/omega
            R = AGradEg/Egf/omega
-           R = max(R,fltzero)  ! force away from 0 to avoid NaN
+           R = max(R,Rmin)  ! force away from 0 to avoid NaN
         endif
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$           Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$           datanR = datan(R*pi/6.d0)
-           datanR = datan(R*pi/6.d0/sigT)
-!!$           Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-           Dlim = 2.d0*c/pi/omega*datanR/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                     *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                      *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
-           Alim = 0.d0
-           Glim = 0.d0
         else if (LimType == 4) then  ! Zeus limiter
-!!$           Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *(GradEg/sigT/Egf/Egf))*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                      *sign(one,GradEg)/sigT/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$           dcothR = cosh(R)/sinh(R)
-           dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$           Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-           Dlim = c/omega*(dcothR-sigT/R)/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(1.d0/Egf)*GradEg)    &
-!!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-           acoef = fourthirds*dxi/(kappaE(i,j))
+           acoef = 4.d0/3.d0*dxi/kappaE(i,j)
            Dlim = 2.0*Dlim / (1.0 + acoef)
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+        !    need not be rescaled, since scaling and chain rule cancel 
         !       dep. on x-right Eg
-        matentries(4,i,j) = matentries(4,i,j)           &
-           - dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+        matentries(4,i,j) = matentries(4,i,j) - dtfac*Dlim*dxi*dxi
         !       dep. on self Eg
-        matentries(3,i,j) = matentries(3,i,j)           &
-           + dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
+        matentries(3,i,j) = matentries(3,i,j) + dtfac*Dlim*dxi*dxi
 
 
         !--------------
         ! y-directional limiter, lower face
         !    radiation energy gradient on face
-        AGradEg = abs(Eg(i,j) - Eg(i,j-1))*dyi
+        AGradEg = abs(EgOld(i,j) - EgOld(i,j-1))*dyi
 
         !    compute gradients of current Eg
         GradEg = (EgCur(i,j) - EgCur(i,j-1))*dyi
 
         !    face-centered radiation energy value
-        Egf = (Eg(i,j) + Eg(i,j-1))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i,j-1))/2.d0
 
-        !    absorption, scattering, total extinction coeffs on face
-        sigA = (kappaE(i,j)+kappaE(i,j-1))/2.d0
-        sigT = sigA
+        !    total extinction coeff on face
+        sigT = (kappaE(i,j)+kappaE(i,j-1))/2.d0
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
-!!$           R = AGradEg/Egf/sigT
            R = AGradEg/Egf
-           R = max(R,fltzero)
+           R = max(R,Rmin)
         else                             ! all others
-           !    black-body energy at face
-           Tf = (Temp(i,j)+Temp(i,j-1))/2.d0
-           B = 4.d0*StBz/c*Tf**4
-           
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i,j-1))/2.d0
+           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
-!!$           R = AGradEg/Egf/sigT/omega
            R = AGradEg/Egf/omega
-           R = max(R,fltzero)  ! force away from 0 to avoid NaN
+           R = max(R,Rmin)  ! force away from 0 to avoid NaN
         endif
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$           Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$           datanR = datan(R*pi/6.d0)
-           datanR = datan(R*pi/6.d0/sigT)
-!!$           Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-           Dlim = 2.d0*c/pi/omega*datanR/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                      *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                   *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
-           Alim = 0.d0
-           Glim = 0.d0
         else if (LimType == 4) then  ! Zeus limiter
-!!$           Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *(GradEg/sigT/Egf/Egf))*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else                         ! standard Levermore-Pomraning lim. (LP, 1981)
-!!$           dcothR = cosh(R)/sinh(R)
-           dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$           Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-           Dlim = c/omega*(dcothR-sigT/R)/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(1.d0/Egf)*GradEg)    &
-!!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+        !    need not be rescaled, since scaling and chain rule cancel 
         !       dep. on y-left Eg
-        matentries(1,i,j) = matentries(1,i,j)           &
-           - dtfac*dyi*((Dlim + Glim)*dyi - 0.5d0*Alim)
+        matentries(1,i,j) = matentries(1,i,j) - dtfac*Dlim*dyi*dyi
         !       dep. on self Eg
-        matentries(3,i,j) = matentries(3,i,j)           &
-           + dtfac*dyi*((Dlim + Glim)*dyi + 0.5d0*Alim)
+        matentries(3,i,j) = matentries(3,i,j) + dtfac*Dlim*dyi*dyi
 
 
         !--------------
         ! y-directional limiter, upper face
         !    radiation energy gradient on face
-        AGradEg = abs(Eg(i,j+1) - Eg(i,j))*dyi
+        AGradEg = abs(EgOld(i,j+1) - EgOld(i,j))*dyi
 
         !    compute gradients of current Eg
         GradEg = (EgCur(i,j+1) - EgCur(i,j))*dyi
 
         !    face-centered radiation energy value
-        Egf = (Eg(i,j) + Eg(i,j+1))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i,j+1))/2.d0
 
-        !    absorption, scattering, total extinction coeffs on face
-        sigA = (kappaE(i,j)+kappaE(i,j+1))/2.d0
-        sigT = sigA
+        !    total extinction coeff on face
+        sigT = (kappaE(i,j)+kappaE(i,j+1))/2.d0
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
-!!$           R = AGradEg/Egf/sigT
            R = AGradEg/Egf
-           R = max(R,fltzero)
+           R = max(R,Rmin)
         else                             ! all others
-           !    black-body energy at face
-           Tf = (Temp(i,j)+Temp(i,j+1))/2.d0
-           B = 4.d0*StBz/c*Tf**4
-           
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits
+           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
-!!$           R = AGradEg/Egf/sigT/omega
            R = AGradEg/Egf/omega
-           R = max(R,fltzero)  ! force away from 0 to avoid NaN
+           R = max(R,Rmin)  ! force away from 0 to avoid NaN
         endif
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$           Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$           datanR = datan(R*pi/6.d0)
-           datanR = datan(R*pi/6.d0/sigT)
-!!$           Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-           Dlim = 2.d0*c/pi/omega*datanR/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                      *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                   *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
-           Alim = 0.d0
-           Glim = 0.d0
         else if (LimType == 4) then  ! Zeus limiter
-!!$           Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
            Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *(GradEg/sigT/Egf/Egf))*GradEg
-!!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
         else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$           dcothR = cosh(R)/sinh(R)
-           dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$           Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-           Dlim = c/omega*(dcothR-sigT/R)/R
-           if (LimImp < 2) then
-              Alim = 0.d0
-              Glim = 0.d0
-           else
-!!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(1.d0/Egf)*GradEg)    &
-!!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-              ! need to fix these due to re-defined R above
-              Alim = 0.d0
-              Glim = 0.d0
-           endif
+           Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-           acoef = fourthirds*dyi/(kappaE(i,j))
+           acoef = 4.d0/3.d0*dyi/kappaE(i,j)
            Dlim = 2.0*Dlim / (1.0 + acoef)
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+        !    need not be rescaled, since scaling and chain rule cancel 
         !       dep. on y-right Eg
-        matentries(5,i,j) = matentries(5,i,j)           &
-             - dtfac*dyi*((Dlim + Glim)*dyi + 0.5d0*Alim)
+        matentries(5,i,j) = matentries(5,i,j) - dtfac*Dlim*dyi*dyi
         !       dep. on self Eg
-        matentries(3,i,j) = matentries(3,i,j)           &
-             + dtfac*dyi*((Dlim + Glim)*dyi - 0.5d0*Alim)
+        matentries(3,i,j) = matentries(3,i,j) + dtfac*Dlim*dyi*dyi
 
       enddo
    enddo
-
-  ! nullify pointers
-  nullify(Eg)
 
   return
 end subroutine gFLDProblem_MatrixEntries_2D
@@ -1585,8 +819,8 @@ end subroutine gFLDProblem_MatrixEntries_2D
 
 
 subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
-     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
-     LenUnits, EgUnits, dx, x0s, x0e, Nx, NGxl, NGxr, xrface, Model, ier)
+     kappaE, adjvec, LimType, dt, a, theta, aUnits, LenUnits, EgUnits,  &
+     dx, x0s, x0e, Nx, NGxl, NGxr, xrface, Model, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
 !  date:       September, 2006
@@ -1602,8 +836,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B)/(sigT*E)
-!              sigA = absorption coefficient
+!              omega = B/E
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -1636,10 +869,6 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !                       2 -> Reynolds approx to LP lim.
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
-!     LimImp     - integer flag denoting implicitness of flux limiter:
-!                       0 -> fully lagged to previous time step
-!                       1 -> fully lagged to previous newton iterate
-!                       2 -> lag only temperature dependence
 !     a          - cosmological expansion parameter
 !     dt         - time step size
 !     theta      - overall implicitness parameter
@@ -1674,7 +903,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType, LimImp
+  integer, intent(in)  :: LimType
   integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
@@ -1690,12 +919,9 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 ! locals
   integer :: i
   real :: c, pi, StBz, dxi, dtfac
-  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
-  real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
-  real :: fltzero, one
-  real, pointer :: Eg(:)
-
-  real :: acoef, fourthirds
+  real :: Egf, omega, R, sigT, AGradEg, Tf
+  real :: GradEg, Dlim
+  real :: Rmin, acoef
 
 !=======================================================================
   
@@ -1707,31 +933,11 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
   ! set shortcut values
   dtfac = dt*theta       ! time step conversion factor
-  one   = 1.d0
-!!$  dxi   = 1.d0/dx/a/aUnits
   dxi   = a/dx/LenUnits
   c  = 2.99792458d10     ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = 4.d0*datan(1.d0)
-  datanR = 0.d0
-  dcothR = 0.d0
-  fourthirds = 4.d0/3.d0
-#undef tiny
-  ! get rid of bad macro (1e-20??: >> min, << roundoff, nonsensical)
-  !fltzero = tiny(fltzero)  ! use f90 built-in function for min instead
-  fltzero = 1.0e-20
-
-
-  ! set Eg and ec to point at appropriate arrays for limiter evaluation
-  select case (LimImp)
-  case(1)       ! fully lagged to previous newton iterate
-     Eg=>EgCur
-  case(2)       ! lag only temperature
-     Eg=>EgCur
-  case default  ! fully lagged to previous time step
-     Eg=>EgOld
-  end select
-
+  Rmin = 1.0e-20
 
   ! iterate over the active domain
   do i=1,Nx,1
@@ -1743,251 +949,107 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      !--------------
      ! x-directional limiter, lower face
      !    radiation energy gradient on face
-     AGradEg = abs(Eg(i) - Eg(i-1))*dxi
+     AGradEg = abs(EgOld(i) - EgOld(i-1))*dxi
 
      !    compute gradients of current Eg
      GradEg = (EgCur(i) - EgCur(i-1))*dxi
 
      !    face-centered radiation energy value
-     Egf = (Eg(i) + Eg(i-1))/2.d0
+     Egf = (EgOld(i) + EgOld(i-1))/2.d0
 
-     !    absorption, scattering, total extinction coeffs on face
-     sigA = (kappaE(i)+kappaE(i-1))/2.d0
-     sigT = sigA
+     !    total extinction coeff on face
+     sigT = (kappaE(i)+kappaE(i-1))/2.d0
 
      !    compute R for limiter based on LimType
      if (LimType == 4) then           ! Zeus limiter
-!!$        R = AGradEg/Egf/sigT
         R = AGradEg/Egf
-        R = max(R,fltzero)
+        R = max(R,Rmin)
      else                             ! all others
-        !    black-body energy at face
-        Tf = (Temp(i)+Temp(i-1))/2.d0
-        B = 4.d0*StBz/c*Tf**4
-        
         !    scaling coefficient ('effective albedo' -- LP)
-        omega = sigA/sigT*B/Egf/EgUnits
+        Tf = (Temp(i)+Temp(i-1))/2.d0
+        omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
         
         !    face-centered R value
-!!$        R = AGradEg/Egf/sigT/omega
         R = AGradEg/Egf/omega
-        R = max(R,fltzero)  ! force away from 0 to avoid NaN
+        R = max(R,Rmin)  ! force away from 0 to avoid NaN
      endif
         
      !    compute limiter
      if (LimType == 1) then        ! rational approx. to LP lim. (LP, 1981)
-!!$        Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
         Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                *sign(one,GradEg)/sigT/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
      else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$       datanR = datan(R*pi/6.d0)
-        datanR = datan(R*pi/6.d0/sigT)
-!!$       Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-        Dlim = 2.d0*c/pi/omega*datanR/R
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$          Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                  *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                  *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$          Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
+        Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
      else if (LimType == 3) then  ! no limiter
         Dlim = c/sigT/3.d0
-        Alim = 0.d0
-        Glim = 0.d0
      else if (LimType == 4) then  ! Zeus limiter
-!!$        Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
         Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *(GradEg/sigT/Egf/Egf))*GradEg
-!!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
      else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$        dcothR = cosh(R)/sinh(R)
-        dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$        Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-        Dlim = c/omega*(dcothR-sigT/R)/R
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(1.d0/Egf)*GradEg)    &
-!!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$           Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
+        Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
      endif
 
      !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+     !    need not be rescaled, since scaling and chain rule cancel 
      !       dep. on x-left Eg
-     matentries(1,i) = matentries(1,i)           &
-        - dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
-        !       dep. on self Eg
-     matentries(2,i) = matentries(2,i)           &
-        + dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+     matentries(1,i) = matentries(1,i) - dtfac*Dlim*dxi*dxi
+     !       dep. on self Eg
+     matentries(2,i) = matentries(2,i) + dtfac*Dlim*dxi*dxi
 
 
      !--------------
      ! x-directional limiter, upper face
      !    radiation energy gradient on face
-     AGradEg = abs(Eg(i+1) - Eg(i))*dxi
+     AGradEg = abs(EgOld(i+1) - EgOld(i))*dxi
      
      !    compute gradients of current Eg
      GradEg = (EgCur(i+1) - EgCur(i))*dxi
 
      !    face-centered radiation energy value
-     Egf = (Eg(i) + Eg(i+1))/2.d0
+     Egf = (EgOld(i) + EgOld(i+1))/2.d0
      
-     !    absorption, scattering, total extinction coeffs on face
-     sigA = (kappaE(i)+kappaE(i+1))/2.d0
-     sigT = sigA
+     !    total extinction coeff on face
+     sigT = (kappaE(i)+kappaE(i+1))/2.d0
 
      !    compute R for limiter based on LimType
      if (LimType == 4) then           ! Zeus limiter
-!!$        R = AGradEg/Egf/sigT
         R = AGradEg/Egf
-        R = max(R,fltzero)
+        R = max(R,Rmin)
      else                             ! all others
-        !    black-body energy at face
-        Tf = (Temp(i)+Temp(i+1))/2.d0
-        B = 4.d0*StBz/c*Tf**4
-        
         !    scaling coefficient ('effective albedo' -- LP)
-        omega = sigA/sigT*B/Egf/EgUnits
+        Tf = (Temp(i)+Temp(i+1))/2.d0
+        omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
         
         !    face-centered R value
-!!$        R = AGradEg/Egf/sigT/omega
         R = AGradEg/Egf/omega
-        R = max(R,fltzero)  ! force away from 0 to avoid NaN
+        R = max(R,Rmin)  ! force away from 0 to avoid NaN
      endif
         
      !    compute limiter
      if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-!!$        Dlim = c/omega/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
         Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
-!!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
-!!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
      else if (LimType == 2) then  ! Reynolds approx to LP lim.
-!!$        datanR = datan(R*pi/6.d0)
-        datanR = datan(R*pi/6.d0/sigT)
-!!$        Dlim = 2.d0/pi*c/omega/sigT*datanR/R
-        Dlim = 2.d0*c/pi/omega*datanR/R
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
-!!$                  *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
-!!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
-!!$           Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
-!!$                   *sign(one,GradEg)/sigT/sigT/R/omega/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
+        Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
      else if (LimType == 3) then  ! no limiter
         Dlim = c/sigT/3.d0
-        Alim = 0.d0
-        Glim = 0.d0
      else if (LimType == 4) then  ! Zeus limiter
-!!$        Dlim = c/sigT*(2.d0+R)/(6.d0+3.d0*R+R*R)
         Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *(GradEg/sigT/Egf/Egf))*GradEg
-!!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
-!!$                   *sign(one,GradEg)/sigT/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
      else                         ! standard Levermore-Pomraning (LP, 1981)
-!!$        dcothR = cosh(R)/sinh(R)
-        dcothR = cosh(R/sigT)/sinh(R/sigT)
-!!$        Dlim = c/omega/sigT*(dcothR-1.d0/R)/R
-        Dlim = c/omega*(dcothR-sigT/R)/R
-        if (LimImp < 2) then
-           Alim = 0.d0
-           Glim = 0.d0
-        else
-!!$           Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
-!!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(1.d0/Egf)*GradEg)    &
-!!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
-!!$           Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
-!!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
-           ! need to fix these due to re-defined R above
-           Alim = 0.d0
-           Glim = 0.d0
-        endif
+        Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
      endif
 
      ! correct diffusion coefficient for Marshak boundaries
      if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-        acoef = fourthirds*dxi/(kappaE(i))
+        acoef = 4.d0/3.d0*dxi/kappaE(i)
         Dlim = 2.0*Dlim / (1.0 + acoef)
      endif
 
      !    set the relevant matrix entries. Note: the diffusive component 
-           !    need not be rescaled, since scaling and chain rule cancel 
+     !    need not be rescaled, since scaling and chain rule cancel 
      !       dep. on x-right Eg
-     matentries(3,i) = matentries(3,i)           &
-        - dtfac*dxi*((Dlim + Glim)*dxi + 0.5d0*Alim)
+     matentries(3,i) = matentries(3,i) - dtfac*Dlim*dxi*dxi
      !       dep. on self Eg
-     matentries(2,i) = matentries(2,i)           &
-        + dtfac*dxi*((Dlim + Glim)*dxi - 0.5d0*Alim)
+     matentries(2,i) = matentries(2,i) + dtfac*Dlim*dxi*dxi
 
    enddo
-
-  ! nullify pointers
-  nullify(Eg)
-
 
   return
 end subroutine gFLDProblem_MatrixEntries_1D

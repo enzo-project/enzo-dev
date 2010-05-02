@@ -51,7 +51,6 @@ int gFLDProblem::WriteParameters(FILE *fptr)
 
   fprintf(fptr, "RadHydroTheta = %22.16e\n", theta);
   fprintf(fptr, "RadHydroLimiterType = %"ISYM"\n", LimType);
-  fprintf(fptr, "RadHydroImplicitLimiter = %"ISYM"\n", LimImp);
 
   fprintf(fptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
 	  BdryType[0][0], BdryType[0][1]);
