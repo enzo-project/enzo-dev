@@ -101,7 +101,7 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
       // set some relevant constants
       float bval, kap, tau, c, pi, so_eps;
       idx = ((ugh[2][0])*x1len+ugh[1][0])*x0len;  // first interior cell index
-      kap = (OpacityE[idx]+OpacityS[idx]);        // opacity (constant)
+      kap = OpacityE[idx];                        // opacity (constant)
       so_eps = MarshakParms[0];                   // 'epsilon' for Su & Olson
       c = 2.99792458e10;                          // speed of light (cm/s)
       pi = 4.0*atan(1.0);                         // no explanation needed

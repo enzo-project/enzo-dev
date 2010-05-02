@@ -9,7 +9,7 @@
 !
 !=======================================================================
 subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
-     kappaE, kappaS, adjvec, LimType, LimImp, dt, a, theta, aUnits,      &
+     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,      &
      LenUnits, EgUnits, dx, dy, dz, x0s, x0e, x1s, x1e, x2s, x2e, Nx,    &
      Ny, Nz, NGxl, NGxr, NGyl, NGyr, NGzl, NGzr, xrface, yrface, zrface, &
      Model, ier)
@@ -27,9 +27,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B + sigS*E)/(sigT*E)
+!              omega = (sigA*B)/(sigT*E)
 !              sigA = absorption coefficient
-!              sigS = scattering coefficient
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -55,7 +54,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
-!     kappaS     - scattering coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
@@ -114,7 +112,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) &
        :: EgCur, EgOld
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
-       :: Temp, kappaE, kappaS
+       :: Temp, kappaE
   real*8, intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: adjvec
 
@@ -122,7 +120,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 ! locals
   integer :: i, j, k
   real :: c, pi, StBz, dxi, dyi, dzi, dtfac
-  real :: Egf, B, omega, R, sigA, sigS, sigT, AGradEg, Tf
+  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
   real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
   real :: fltzero, one
   real, pointer :: Eg(:,:,:)
@@ -190,8 +188,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i-1,j,k))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i-1,j,k))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -204,7 +201,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -222,7 +219,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -238,7 +235,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -277,7 +274,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -310,8 +307,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i+1,j,k))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i+1,j,k))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -324,7 +320,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -342,7 +338,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -358,7 +354,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -397,7 +393,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -409,7 +405,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-              acoef = fourthirds*dxi/(kappaE(i,j,k)+kappaS(i,j,k))
+              acoef = fourthirds*dxi/(kappaE(i,j,k))
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
@@ -436,8 +432,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i,j-1,k))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i,j-1,k))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -450,7 +445,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -468,7 +463,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -484,7 +479,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -523,7 +518,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -556,8 +551,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i,j+1,k))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i,j+1,k))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -570,7 +564,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -588,7 +582,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -604,7 +598,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -643,7 +637,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -655,7 +649,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-              acoef = fourthirds*dyi/(kappaE(i,j,k)+kappaS(i,j,k))
+              acoef = fourthirds*dyi/(kappaE(i,j,k))
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
@@ -682,8 +676,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i,j,k-1))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i,j,k-1))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -696,7 +689,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -714,7 +707,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -730,7 +723,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -769,7 +762,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -802,8 +795,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    absorption, scattering, total extinction coeffs on face
            sigA = (kappaE(i,j,k)+kappaE(i,j,k+1))/2.d0
-           sigS = (kappaS(i,j,k)+kappaS(i,j,k+1))/2.d0
-           sigT = sigA+sigS
+           sigT = sigA
 
            !    compute R for limiter based on LimType
            if (LimType == 4) then           ! Zeus limiter
@@ -816,7 +808,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               B = 4.d0*StBz/c*Tf**4
               
               !    scaling coefficient ('effective albedo' -- LP)
-              omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+              omega = sigA/sigT*B/Egf/EgUnits
               
               !    face-centered R value
 !!$              R = AGradEg/Egf/sigT/omega
@@ -834,7 +826,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$                 Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
                  ! need to fix these due to re-defined R above
@@ -850,7 +842,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
                  Alim = 0.d0
                  Glim = 0.d0
               else
-!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$                 Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                         *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$                 Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -889,7 +881,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               else
 !!$                 Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$                 Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -901,7 +893,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (k==Nz) .and. (zrface==1)) then
-              acoef = fourthirds*dzi/(kappaE(i,j,k)+kappaS(i,j,k))
+              acoef = fourthirds*dzi/(kappaE(i,j,k))
               Dlim = 2.0*Dlim / (1.0 + acoef)
            endif
 
@@ -930,7 +922,7 @@ end subroutine gFLDProblem_MatrixEntries_3D
 
 
 subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
-     kappaE, kappaS, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
+     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
      LenUnits, EgUnits, dx, dy, x0s, x0e, x1s, x1e, Nx, Ny, NGxl, NGxr, &
      NGyl, NGyr, xrface, yrface, Model, ier)
 !=======================================================================
@@ -948,9 +940,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B + sigS*E)/(sigT*E)
+!              omega = (sigA*B)/(sigT*E)
 !              sigA = absorption coefficient
-!              sigS = scattering coefficient
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -976,7 +967,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
-!     kappaS     - scattering coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
@@ -1033,7 +1023,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
   real, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: EgCur, EgOld
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
-       :: Temp, kappaE, kappaS
+       :: Temp, kappaE
   real*8, intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: adjvec
 
@@ -1041,7 +1031,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 ! locals
   integer :: i, j
   real :: c, pi, StBz, dxi, dyi, dtfac
-  real :: Egf, B, omega, R, sigA, sigS, sigT, AGradEg, Tf
+  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
   real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
   real :: fltzero, one
   real, pointer :: Eg(:,:)
@@ -1107,8 +1097,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
         !    absorption, scattering, total extinction coeffs on face
         sigA = (kappaE(i,j)+kappaE(i-1,j))/2.d0
-        sigS = (kappaS(i,j)+kappaS(i-1,j))/2.d0
-        sigT = sigA+sigS
+        sigT = sigA
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
@@ -1121,7 +1110,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            B = 4.d0*StBz/c*Tf**4
            
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+           omega = sigA/sigT*B/Egf/EgUnits
            
            !    face-centered R value
 !!$           R = AGradEg/Egf/sigT/omega
@@ -1139,7 +1128,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
               ! need to fix these due to re-defined R above
@@ -1155,7 +1144,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
               Alim = 0.d0
               Glim = 0.d0
            else
-!!$             Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$             Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                     *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                     *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$             Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1194,7 +1183,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1227,8 +1216,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
         
         !    absorption, scattering, total extinction coeffs on face
         sigA = (kappaE(i,j)+kappaE(i+1,j))/2.d0
-        sigS = (kappaS(i,j)+kappaS(i+1,j))/2.d0
-        sigT = sigA+sigS
+        sigT = sigA
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
@@ -1241,7 +1229,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            B = 4.d0*StBz/c*Tf**4
            
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+           omega = sigA/sigT*B/Egf/EgUnits
            
            !    face-centered R value
 !!$           R = AGradEg/Egf/sigT/omega
@@ -1259,7 +1247,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                      + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                      *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                      *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                      *sign(one,GradEg)/sigT/omega/Egf*GradEg
               ! need to fix these due to re-defined R above
@@ -1275,7 +1263,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
               Alim = 0.d0
               Glim = 0.d0
            else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                     *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                       *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1314,7 +1302,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                         - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                          *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                          *(1.d0/Egf)*GradEg)    &
 !!$                       *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                      *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1326,7 +1314,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-           acoef = fourthirds*dxi/(kappaE(i,j)+kappaS(i,j))
+           acoef = fourthirds*dxi/(kappaE(i,j))
            Dlim = 2.0*Dlim / (1.0 + acoef)
         endif
 
@@ -1353,8 +1341,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
         !    absorption, scattering, total extinction coeffs on face
         sigA = (kappaE(i,j)+kappaE(i,j-1))/2.d0
-        sigS = (kappaS(i,j)+kappaS(i,j-1))/2.d0
-        sigT = sigA+sigS
+        sigT = sigA
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
@@ -1367,7 +1354,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            B = 4.d0*StBz/c*Tf**4
            
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+           omega = sigA/sigT*B/Egf/EgUnits
            
            !    face-centered R value
 !!$           R = AGradEg/Egf/sigT/omega
@@ -1385,7 +1372,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
               ! need to fix these due to re-defined R above
@@ -1401,7 +1388,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
               Alim = 0.d0
               Glim = 0.d0
            else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                      *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1440,7 +1427,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                       *(1.d0/Egf)*GradEg)    &
 !!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1473,8 +1460,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
         !    absorption, scattering, total extinction coeffs on face
         sigA = (kappaE(i,j)+kappaE(i,j+1))/2.d0
-        sigS = (kappaS(i,j)+kappaS(i,j+1))/2.d0
-        sigT = sigA+sigS
+        sigT = sigA
 
         !    compute R for limiter based on LimType
         if (LimType == 4) then           ! Zeus limiter
@@ -1487,7 +1473,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            B = 4.d0*StBz/c*Tf**4
            
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+           omega = sigA/sigT*B/Egf/EgUnits
            
            !    face-centered R value
 !!$           R = AGradEg/Egf/sigT/omega
@@ -1505,7 +1491,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$              Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
               ! need to fix these due to re-defined R above
@@ -1521,7 +1507,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
               Alim = 0.d0
               Glim = 0.d0
            else
-!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$              Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                      *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$              Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1560,7 +1546,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
            else
 !!$              Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                       *(1.d0/Egf)*GradEg)    &
 !!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$              Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1572,7 +1558,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp, &
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-           acoef = fourthirds*dyi/(kappaE(i,j)+kappaS(i,j))
+           acoef = fourthirds*dyi/(kappaE(i,j))
            Dlim = 2.0*Dlim / (1.0 + acoef)
         endif
 
@@ -1599,7 +1585,7 @@ end subroutine gFLDProblem_MatrixEntries_2D
 
 
 subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
-     kappaE, kappaS, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
+     kappaE, adjvec, LimType, LimImp, dt, a, theta, aUnits,     &
      LenUnits, EgUnits, dx, x0s, x0e, Nx, NGxl, NGxr, xrface, Model, ier)
 !=======================================================================
 !  written by: Daniel R. Reynolds
@@ -1616,9 +1602,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !           where D(Eg) is a nonlinear flux-limiter depending on Eg.  
 !           We define the values
 !              R_i = |Grad(Eg)_i|/sigT/omega/Eg,
-!              omega = (sigA*B + sigS*E)/(sigT*E)
+!              omega = (sigA*B)/(sigT*E)
 !              sigA = absorption coefficient
-!              sigS = scattering coefficient
 !              sigT = total extinction coefficient.
 !           The '_i' subscript implies the gradient in the ith 
 !           direction; these quantities are all required at cell faces, 
@@ -1644,7 +1629,6 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
-!     kappaS     - scattering coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
@@ -1698,7 +1682,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   real,    intent(in)  :: dx, dt, theta
   real,    intent(in)  :: aUnits, LenUnits, EgUnits
   real,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
-  real,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE, kappaS
+  real,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE
   real*8,  intent(out) :: matentries(3,x0s:x0e)
   real, dimension(1-NGxl:Nx+NGxr) :: adjvec
 
@@ -1706,7 +1690,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 ! locals
   integer :: i
   real :: c, pi, StBz, dxi, dtfac
-  real :: Egf, B, omega, R, sigA, sigS, sigT, AGradEg, Tf
+  real :: Egf, B, omega, R, sigA, sigT, AGradEg, Tf
   real :: GradEg, Dlim, Alim, Glim, datanR, dcothR
   real :: fltzero, one
   real, pointer :: Eg(:)
@@ -1769,8 +1753,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
      !    absorption, scattering, total extinction coeffs on face
      sigA = (kappaE(i)+kappaE(i-1))/2.d0
-     sigS = (kappaS(i)+kappaS(i-1))/2.d0
-     sigT = sigA+sigS
+     sigT = sigA
 
      !    compute R for limiter based on LimType
      if (LimType == 4) then           ! Zeus limiter
@@ -1783,7 +1766,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         B = 4.d0*StBz/c*Tf**4
         
         !    scaling coefficient ('effective albedo' -- LP)
-        omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+        omega = sigA/sigT*B/Egf/EgUnits
         
         !    face-centered R value
 !!$        R = AGradEg/Egf/sigT/omega
@@ -1801,7 +1784,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         else
 !!$           Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                *sign(one,GradEg)/sigT/omega/Egf*GradEg
            ! need to fix these due to re-defined R above
@@ -1817,7 +1800,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
            Alim = 0.d0
            Glim = 0.d0
         else
-!!$          Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$          Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                  *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                  *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$          Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1856,7 +1839,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         else
 !!$           Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                       *(1.d0/Egf)*GradEg)    &
 !!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$           Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1889,8 +1872,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      
      !    absorption, scattering, total extinction coeffs on face
      sigA = (kappaE(i)+kappaE(i+1))/2.d0
-     sigS = (kappaS(i)+kappaS(i+1))/2.d0
-     sigT = sigA+sigS
+     sigT = sigA
 
      !    compute R for limiter based on LimType
      if (LimType == 4) then           ! Zeus limiter
@@ -1903,7 +1885,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         B = 4.d0*StBz/c*Tf**4
         
         !    scaling coefficient ('effective albedo' -- LP)
-        omega = sigA/sigT*B/Egf/EgUnits + sigS/sigT
+        omega = sigA/sigT*B/Egf/EgUnits
         
         !    face-centered R value
 !!$        R = AGradEg/Egf/sigT/omega
@@ -1921,7 +1903,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         else
 !!$           Alim = (c*B*sigA/Egf/sigT/omega*(2.d0+R)/(6.d0+3.d0*R+R*R)   &
 !!$                   + 2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R)  &
-!!$                   *(sigS/omega/sigT+1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
+!!$                   *(1.d0/Egf)*GradEg)/omega/sigT/Egf*GradEg
 !!$           Glim = -2.d0*c*R/sigT/(36.d0+(36.d0+(21.d0+(6.d0+R)*R)*R)*R) &
 !!$                   *sign(one,GradEg)/sigT/omega/Egf*GradEg
            ! need to fix these due to re-defined R above
@@ -1937,7 +1919,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
            Alim = 0.d0
            Glim = 0.d0
         else
-!!$           Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (sigS/omega/sigT+1.d0/Egf)    &
+!!$           Alim = (2.d0*c*B*sigA/Egf/pi*datanR - (1.d0/Egf)    &
 !!$                  *GradEg*(c/3.d0/(1.d0+R*R*pi*pi/36.d0)-2.d0*c/pi*datanR/R)) &
 !!$                    *GradEg/sigT/sigT/omega/omega/R/Egf
 !!$           Glim = (c/3.d0/(1.d0+R*R*pi*pi/36.d0) - 2.d0*c/pi*datanR/R)         &
@@ -1976,7 +1958,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         else
 !!$           Alim = (B*sigA/Egf*(dcothR-1.d0/R)                &
 !!$                      - (1.d0-dcothR*dcothR-dcothR/R+2.d0/R/R)  &
-!!$                       *(sigS/omega/sigT + 1.d0/Egf)*GradEg)    &
+!!$                       *(1.d0/Egf)*GradEg)    &
 !!$                    *c/sigT/sigT/omega/omega/Egf/R*GradEg
 !!$           Glim = ((1.d0-dcothR*dcothR+1.d0/R/R) - (dcothR-1.d0/R)/R)  &
 !!$                   *sign(one,GradEg)*c/R/sigT/sigT/omega/omega/Egf*GradEg
@@ -1988,7 +1970,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
      ! correct diffusion coefficient for Marshak boundaries
      if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-        acoef = fourthirds*dxi/(kappaE(i)+kappaS(i))
+        acoef = fourthirds*dxi/(kappaE(i))
         Dlim = 2.0*Dlim / (1.0 + acoef)
      endif
 

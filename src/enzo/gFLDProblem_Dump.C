@@ -149,7 +149,6 @@ int gFLDProblem::Dump(EnzoVector *ucur)
 				    NBors[1][1], NBors[2][0], NBors[2][1], empty);
   Opacities.SetData(0, OpacityP);
   Opacities.SetData(1, OpacityE);
-  Opacities.SetData(2, OpacityS);
   rmstmp = Opacities.rmsnorm_component(0);
   inftmp = Opacities.infnorm_component(0);
   if (debug) 
@@ -158,10 +157,6 @@ int gFLDProblem::Dump(EnzoVector *ucur)
   inftmp = Opacities.infnorm_component(1);
   if (debug) 
     fprintf(stderr,"  Energy mean opacity: rms = %g, max = %g\n",rmstmp,inftmp);
-  rmstmp = Opacities.rmsnorm_component(2);
-  inftmp = Opacities.infnorm_component(2);
-  if (debug) 
-    fprintf(stderr,"  Scattering opacity: rms = %g, max = %g\n",rmstmp,inftmp);
 
   strcpy(ofile,"opacityP");
   strcat(ofile,".vec");
@@ -173,11 +168,6 @@ int gFLDProblem::Dump(EnzoVector *ucur)
   if (debug) 
     fprintf(stderr,"  writing Energy mean opacity to %s\n",ofile);
   Opacities.writeall(ofile,1);
-  strcpy(ofile,"opacityS");
-  strcat(ofile,".vec");
-  if (debug) 
-    fprintf(stderr,"  writing Scattering opacity to %s\n\n",ofile);
-  Opacities.writeall(ofile,2);
 
   // output current residual (store in tmp3)
   this->nlresid(tmp3,ucur);

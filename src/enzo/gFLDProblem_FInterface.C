@@ -28,7 +28,7 @@
 /* Fortran function prototypes */
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_3d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, float *adjvec, int *LimType, int *LimImp, float *dt, 
+   float *adjvec, int *LimType, int *LimImp, float *dt, 
    FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
    float *dx, 
    float *dy, float *dz, int *x0s, int *x0e, int *x1s, int *x1e, int *x2s, 
@@ -38,7 +38,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_3d)(
 
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_2d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, float *adjvec, int *LimType, int *LimImp, float *dt, 
+   float *adjvec, int *LimType, int *LimImp, float *dt, 
    FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
    float *dx, 
    float *dy, int *x0s, int *x0e, int *x1s, int *x1e, int *Nx, int *Ny, 
@@ -47,7 +47,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_2d)(
 
 extern "C" void FORTRAN_NAME(gfldproblem_matrixentries_1d)(
    Eflt64 *matentries, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, float *adjvec, int *LimType, int *LimImp, float *dt, 
+   float *adjvec, int *LimType, int *LimImp, float *dt, 
    FLOAT *a, float *theta, float *aUnits, float *LenUnits, float *ErUnits, 
    float *dx, 
    int *x0s, int *x0e, int *Nx, int *NGxl, int *NGxr, int *xrface, 
@@ -77,7 +77,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_setnewtonbcs_1d)(
 
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_3d)(
    float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
+   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
    float *LenUnits, float *ErUnits, float *dx, float *dy, float *dz, int *Nx, int *Ny, 
    int *Nz, int *NGxl, int *NGxr, int *NGyl, int *NGyr, int *NGzl, 
    int *NGzr, int *BCxL, int *BCxR, int *BCyL, int *BCyR, int *BCzL, 
@@ -86,7 +86,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_3d)(
   
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_2d)(
    float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
+   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
    float *LenUnits, float *ErUnits, float *dx, float *dy, int *Nx, int *Ny, int *NGxl, 
    int *NGxr, int *NGyl, int *NGyr, int *BCxL, int *BCxR, int *BCyL, 
    int *BCyR, int *xlface, int *xrface, int *ylface, int *yrface, 
@@ -94,7 +94,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_2d)(
   
 extern "C" void FORTRAN_NAME(gfldproblem_diffrhs_1d)(
    float *drhs, float *Er, float *Er0, float *Temp, float *kappaE, 
-   float *kappaS, int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
+   int *LimType, int *LimImp, FLOAT *a, float *aUnits, 
    float *LenUnits, float *ErUnits, float *dx, int *Nx, int *NGxl, int *NGxr, int *BCxL, 
    int *BCxR, int *xlface, int *xrface, int *Model, int *ier);
   
@@ -182,12 +182,11 @@ extern "C" void FORTRAN_NAME(blocksolve)(
    float *Amat, float *xvec, float *bvec, int *N, int *M, int *ier);
 
 extern "C" void FORTRAN_NAME(gfldproblem_opacity)(
-   float *kappaP, float *kappaE, float *kappaS, float *time, float *rho, 
+   float *kappaP, float *kappaE, float *time, float *rho, 
    float *n_HI, float *n_HeI, float *n_HeII, float *Temperature, FLOAT *a, 
    int *Model, float *IsE, float *IsEsHI, float *IsEsHInu, float *IsEsHeI, 
    float *IsEsHeInu, float *IsEsHeII, float *IsEsHeIInu, float *PlC0, 
-   float *PlC1, float *PlC2, float *PlC3, float *PlC4, float *ScC0, 
-   float *ScC1, float *ScC2, float *ScC3, float *ScC4, float *EmC0, 
+   float *PlC1, float *PlC2, float *PlC3, float *PlC4, float *EmC0, 
    float *EmC1, float *EmC2, float *EmC3, float *EmC4, float *aUnits, 
    float *DenUnits, float *LenUnits, float *TimeUnits, float *NiUnits, 
    int *Nchem, int *Nx, int *Ny, int *Nz, int *NGxl, int *NGxr, int *NGyl, 
@@ -288,7 +287,7 @@ extern "C" void FORTRAN_NAME(gfldproblem_analyticresid)(
 /********/
 int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er, 
 			       float *Er0, float *Temperature, 
-			       float *sigA, float *sigS, float *adjvec) 
+			       float *sigA, float *adjvec) 
 {
   int xrface = (OnBdry[0][1]) ? 1 : 0;
   int yrface = (OnBdry[1][1]) ? 1 : 0;
@@ -303,7 +302,7 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   int ier;
   if (rank == 3) {
     FORTRAN_NAME(gfldproblem_matrixentries_3d)
-      (matentries, Er, Er0, Temperature, sigA, sigS, adjvec, &LimType, &LimImp, 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
        &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &dx[2], 
        &x0s, &x0e, 
        &x1s, &x1e, &x2s, &x2e, &LocDims[0], &LocDims[1], &LocDims[2], 
@@ -313,7 +312,7 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   }
   else if (rank == 2) {
     FORTRAN_NAME(gfldproblem_matrixentries_2d)
-      (matentries, Er, Er0, Temperature, sigA, sigS, adjvec, &LimType, &LimImp, 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
        &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &dx[1], &x0s, 
        &x0e, &x1s, 
        &x1e, &LocDims[0], &LocDims[1], &GhDims[0][0], &GhDims[0][1], 
@@ -322,7 +321,7 @@ int gFLDProblem::MatrixEntries(Eflt64 *matentries, float *Er,
   }
   else {
     FORTRAN_NAME(gfldproblem_matrixentries_1d)
-      (matentries, Er, Er0, Temperature, sigA, sigS, adjvec, &LimType, &LimImp, 
+      (matentries, Er, Er0, Temperature, sigA, adjvec, &LimType, &LimImp, 
        &dt, &a, &theta, &aUnits, &LenUnits, &ErUnits, &dx[0], &x0s, &x0e, 
        &LocDims[0], 
        &GhDims[0][0], &GhDims[0][1], &xrface, &Model, &ier);
@@ -379,7 +378,7 @@ int gFLDProblem::SetNewtonBCs(Eflt64 *matentries, float *rhsentries)
 
 /********/
 int gFLDProblem::DiffRHS(float *drhs, float *Er, float *Er0, 
-			 float *Temperature, float *sigA, float *sigS)
+			 float *Temperature, float *sigA)
 {
   int xlface = (OnBdry[0][0]) ? 1 : 0;
   int xrface = (OnBdry[0][1]) ? 1 : 0;
@@ -390,7 +389,7 @@ int gFLDProblem::DiffRHS(float *drhs, float *Er, float *Er0,
   int ier;
   if (rank == 3) {
     FORTRAN_NAME(gfldproblem_diffrhs_3d)
-      (drhs, Er, Er0, Temperature, sigA, sigS, &LimType, &LimImp, &a, &aUnits, 
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
        &LenUnits, &ErUnits, &dx[0], &dx[1], &dx[2], &LocDims[0], &LocDims[1], 
        &LocDims[2], 
        &GhDims[0][0], &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], 
@@ -401,7 +400,7 @@ int gFLDProblem::DiffRHS(float *drhs, float *Er, float *Er0,
   }
   else if (rank == 2) {
     FORTRAN_NAME(gfldproblem_diffrhs_2d)
-      (drhs, Er, Er0, Temperature, sigA, sigS, &LimType, &LimImp, &a, &aUnits, 
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
        &LenUnits, &ErUnits, &dx[0], &dx[1], &LocDims[0], &LocDims[1], 
        &GhDims[0][0], 
        &GhDims[0][1], &GhDims[1][0], &GhDims[1][1], &BdryType[0][0], 
@@ -411,7 +410,7 @@ int gFLDProblem::DiffRHS(float *drhs, float *Er, float *Er0,
   }
   else {
     FORTRAN_NAME(gfldproblem_diffrhs_1d)
-      (drhs, Er, Er0, Temperature, sigA, sigS, &LimType, &LimImp, &a, &aUnits, 
+      (drhs, Er, Er0, Temperature, sigA, &LimType, &LimImp, &a, &aUnits, 
        &LenUnits, &ErUnits, &dx[0], &LocDims[0], &GhDims[0][0], &GhDims[0][1], 
        &BdryType[0][0], &BdryType[0][1], &xlface, &xrface, &Model, &ier);
     return(ier);
@@ -556,19 +555,17 @@ int gFLDProblem::BlockSolve(float *Amat, float *xvec,
 
 
 /********/
-int gFLDProblem::Opacity(float *kappaP, float *kappaE, float *kappaS, 
-			 float *time, float *n_HI, float *n_HeI, 
-			 float *n_HeII, float *Temperature)
+int gFLDProblem::Opacity(float *kappaP, float *kappaE, float *time, 
+			 float *n_HI, float *n_HeI, float *n_HeII, 
+			 float *Temperature)
 {
   int ier;
   FORTRAN_NAME(gfldproblem_opacity)
-    (kappaP, kappaE, kappaS, time, rho, n_HI, n_HeI, n_HeII, 
+    (kappaP, kappaE, time, rho, n_HI, n_HeI, n_HeII, 
      Temperature, &a, &Model, &intSigE, &intSigESigHI, &intSigESigHInu, 
      &intSigESigHeI, &intSigESigHeInu, &intSigESigHeII, &intSigESigHeIInu, 
      &PlanckOpacityC0, &PlanckOpacityC1, &PlanckOpacityC2, 
-     &PlanckOpacityC3, &PlanckOpacityC4, &ScatteringOpacityC0, 
-     &ScatteringOpacityC1, &ScatteringOpacityC2, &ScatteringOpacityC3, 
-     &ScatteringOpacityC4, &EnergyOpacityC0, &EnergyOpacityC1, 
+     &PlanckOpacityC3, &PlanckOpacityC4, &EnergyOpacityC0, &EnergyOpacityC1, 
      &EnergyOpacityC2, &EnergyOpacityC3, &EnergyOpacityC4, 
      &aUnits, &DenUnits, &LenUnits, &TimeUnits, &NiUnits, &Nchem, &LocDims[0], 
      &LocDims[1], &LocDims[2], &GhDims[0][0], &GhDims[0][1], 

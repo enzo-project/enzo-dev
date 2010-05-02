@@ -86,8 +86,8 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
   float *tmpArr, meanVal, minVal, maxVal;
 
   // compute opacity over domain
-  if (this->Opacity(OpacityP, OpacityE, OpacityS, &time, 
-		    n_HI, n_HeI, n_HeII, Temp) != SUCCESS) 
+  if (this->Opacity(OpacityP, OpacityE, &time, n_HI, n_HeI, 
+		    n_HeII, Temp) != SUCCESS) 
     ENZO_FAIL("LocRHS: Error in Opacity routine");
 
   // compute local rhs source terms over domain

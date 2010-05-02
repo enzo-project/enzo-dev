@@ -137,11 +137,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   EnergyOpacityC2 = 0.0;
   EnergyOpacityC3 = 1.0;
   EnergyOpacityC4 = 0.0;
-  ScatteringOpacityC0 = 0.0;
-  ScatteringOpacityC1 = 1.0;
-  ScatteringOpacityC2 = 0.0;
-  ScatteringOpacityC3 = 1.0;
-  ScatteringOpacityC4 = 0.0;
 
   // set default solver parameters
   approx_jac         = 0;         // analytical jacobian
@@ -239,11 +234,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "EnergyOpacityC2 = %"FSYM, &EnergyOpacityC2);
 	ret += sscanf(line, "EnergyOpacityC3 = %"FSYM, &EnergyOpacityC3);
 	ret += sscanf(line, "EnergyOpacityC4 = %"FSYM, &EnergyOpacityC4);
-	ret += sscanf(line, "ScatteringOpacityC0 = %"FSYM, &ScatteringOpacityC0);
-	ret += sscanf(line, "ScatteringOpacityC1 = %"FSYM, &ScatteringOpacityC1);
-	ret += sscanf(line, "ScatteringOpacityC2 = %"FSYM, &ScatteringOpacityC2);
-	ret += sscanf(line, "ScatteringOpacityC3 = %"FSYM, &ScatteringOpacityC3);
-	ret += sscanf(line, "ScatteringOpacityC4 = %"FSYM, &ScatteringOpacityC4);
 	
       }  // end loop over file lines
 
@@ -591,7 +581,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   Temp = new float[ArrDims[0]*ArrDims[1]*ArrDims[2]];
   OpacityP = new float[ArrDims[0]*ArrDims[1]*ArrDims[2]];
   OpacityE = new float[ArrDims[0]*ArrDims[1]*ArrDims[2]];
-  OpacityS = new float[ArrDims[0]*ArrDims[1]*ArrDims[2]];
 //   Eta = new float[ArrDims[0]*ArrDims[1]*ArrDims[2]];
   L = (EnzoVector **) new EnzoVector*[2+Nchem];
   for (i=0; i<(2+Nchem); i++)  L[i] = U0->clone();
@@ -797,12 +786,12 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    sol_rlxtype);
     sol_rlxtype = 1;
   }
-  if (sol_npre < 0) {
+  if (sol_npre < 1) {
     fprintf(stderr,"Illegal RadHydroMGPreRelax = %i. Setting to 1\n",
 	    sol_npre);
     sol_npre = 1;
   }
-  if (sol_npost < 0) {
+  if (sol_npost < 1) {
     fprintf(stderr,"Illegal RadHydroMGPostRelax = %i. Setting to 1\n",
 	    sol_npost);
     sol_npost = 1;
@@ -821,7 +810,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    newt_norm);
     newt_norm = 0;
   }
-  if (newt_tol < 1.0e-15) {
+  if ((newt_tol < 1.0e-15) || (newt_tol > 1.0)) {
     fprintf(stderr,"Illegal RadHydroNewtTolerance = %g. Setting to 1e-4\n",
 	    newt_tol);
     newt_tol = 1.0e-4;
@@ -831,11 +820,18 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    newt_INconst);
     newt_INconst = 1.0e-4;
   }
-  if (newt_MinLinesearch < 1.0e-15) {
+  if ((newt_MinLinesearch < 1.0e-15) || (newt_MinLinesearch > 1.0e-3)) {
     fprintf(stderr,"Illegal RadHydroMinLinesearch = %g. Setting to 1e-12\n",
 	    newt_MinLinesearch);
     newt_MinLinesearch = 1.0e-12;
   }
+  // if linesearch enabled (default), force INconst to be small
+  if ((newt_linesearch) && (newt_INconst > 1e-4)) {
+    if (debug) 
+      printf("Warning: when using linesearch, RadHydroINConst should be small.  Resettingto 1.0e-4\n");
+    newt_INconst = 1.0e-4;
+  }
+
 
 
 //   if (debug)  printf("  Initialize: calling local problem initializers\n");
@@ -1318,11 +1314,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       fprintf(outfptr, "EnergyOpacityC2 = %g\n", EnergyOpacityC2);
       fprintf(outfptr, "EnergyOpacityC3 = %g\n", EnergyOpacityC3);
       fprintf(outfptr, "EnergyOpacityC4 = %g\n", EnergyOpacityC4);
-      fprintf(outfptr, "ScatteringOpacityC0 = %g\n", ScatteringOpacityC0);
-      fprintf(outfptr, "ScatteringOpacityC1 = %g\n", ScatteringOpacityC1);
-      fprintf(outfptr, "ScatteringOpacityC2 = %g\n", ScatteringOpacityC2);
-      fprintf(outfptr, "ScatteringOpacityC3 = %g\n", ScatteringOpacityC3);
-      fprintf(outfptr, "ScatteringOpacityC4 = %g\n", ScatteringOpacityC4);
       
       // close parameter file
       fclose(outfptr);

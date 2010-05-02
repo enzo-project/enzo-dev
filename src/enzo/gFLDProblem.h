@@ -205,11 +205,6 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   float PlanckOpacityC2;
   float PlanckOpacityC3;
   float PlanckOpacityC4;
-  float ScatteringOpacityC0;
-  float ScatteringOpacityC1;
-  float ScatteringOpacityC2;
-  float ScatteringOpacityC3;
-  float ScatteringOpacityC4;
   float EnergyOpacityC0;
   float EnergyOpacityC1;
   float EnergyOpacityC2;
@@ -247,7 +242,6 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   float *Temp;      // gas temperature
   float *OpacityP;  // Planck mean opacity
   float *OpacityE;  // Energy mean opacity
-  float *OpacityS;  // Scattering opacity
 
   // private computation routines
   int LocRHS(EnzoVector *locrhs, float time, EnzoVector *u);
@@ -255,11 +249,10 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   int ComputeTemperature(float *Temperature, float time, 
 			 FLOAT a, EnzoVector *u);
   int MatrixEntries(Eflt64 *matentries, float *Eg, float *Eg0, 
-		    float *Temperature, float *OpacityE, 
-		    float *OpacityS, float *adjvec);
+		    float *Temperature, float *OpacityE, float *adjvec);
   int SetNewtonBCs(Eflt64 *matentries, float *rhsentries);
   int DiffRHS(float *drhs, float *Eg, float *Eg0, float *Temperature, 
-	      float *OpacityE, float *OpacityS);
+	      float *OpacityE);
   int LocalRHS(float *Egrhs, float *ecrhs, float *HIrhs, float *HeIrhs, 
 	       float *HeIIrhs, float *Egsrc, float *ecsrc, float *HIsrc, 
 	       float *HeIsrc, float *HeIIsrc, float *time, float *ec, 
@@ -276,9 +269,8 @@ class gFLDProblem : public virtual NonlinearProblemABC {
 	       float *HeIIjac_HeII, float *time, float *ec, float *Eg, 
 	       float *nHI, float *nHeI, float *nHeII);
   int BlockSolve(float *Amat, float *xvec, float *bvec, int *N, int *M);
-  int Opacity(float *OpacityP, float *OpacityE, float *OpacityS, 
-	      float *time, float *n_HI, float *n_HeI, float *n_HeII, 
-	      float *Temperature);
+  int Opacity(float *OpacityP, float *OpacityE, float *time, float *n_HI, 
+	      float *n_HeI, float *n_HeII, float *Temperature);
   int RadiationSource(float *Egsrc, float *time, float *Eg, float *ec, 
 		      float *n_HI, float *n_HeI, float *n_HeII, 
 		      float *Temperature);

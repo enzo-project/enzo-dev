@@ -158,7 +158,6 @@ gFLDProblem::gFLDProblem()
   Temp = NULL;
   OpacityP = NULL;
   OpacityE = NULL;
-  OpacityS = NULL;
 
 }
 #endif

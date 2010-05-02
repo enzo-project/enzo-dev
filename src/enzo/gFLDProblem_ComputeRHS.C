@@ -66,9 +66,9 @@ int gFLDProblem::ComputeRHS(EnzoVector *rhsvec, float time, EnzoVector *u)
   float *tmp1_E = tmp1->GetData(0);
   float *Er = u->GetData(0);
   float *Er0 = U0->GetData(0);
-  // note: OpacityE, OpacityS, Temp have already been filled in by LocRHS
+  // note: OpacityE and Temp have already been filled in by LocRHS
   //
-  if (this->DiffRHS(tmp1_E, Er, Er0, Temp, OpacityE, OpacityS) != SUCCESS)
+  if (this->DiffRHS(tmp1_E, Er, Er0, Temp, OpacityE) != SUCCESS)
     ENZO_FAIL("ComputeRHS: Error in DiffRHS routine");
 
   //   combine pieces together and delete temporary storage

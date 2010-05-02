@@ -63,7 +63,6 @@ gFLDProblem::~gFLDProblem()
   delete[] Temp;
   delete[] OpacityP;
   delete[] OpacityE;
-  delete[] OpacityS;
   delete[] L;
   if ((Model >= 20) && (Model <= 29))
     delete[] MarshakParms;

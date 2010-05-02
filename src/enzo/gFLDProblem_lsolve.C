@@ -267,10 +267,9 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   int Ny = (SolvIndices[1][1]-SolvIndices[1][0]+1);
   int Nz = (SolvIndices[2][1]-SolvIndices[2][0]+1);
   for (ix=0; ix<stSize*Nx*Ny*Nz; ix++)  Ptmpvec[ix]=0.0;
-  //       NOTE: Temp, OpacityE and OpacityS are still valid from nlresid
+  //       NOTE: Temp and OpacityE are still valid from nlresid
   //
-  if (this->MatrixEntries(Ptmpvec, u_E, u0_E, Temp, 
-			  OpacityE, OpacityS, y_E) != SUCCESS) 
+  if (this->MatrixEntries(Ptmpvec, u_E, u0_E, Temp, OpacityE, y_E) != SUCCESS) 
     ENZO_FAIL("lsolve: Error in MatrixEntries routine");
   if (this->SetNewtonBCs(Ptmpvec, b_E) != SUCCESS) 
     ENZO_FAIL("lsolve: Error in SetNewtonBCs routine");
