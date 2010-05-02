@@ -189,7 +189,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	  }
 	}
 	ret += sscanf(line, "RadHydroInitialGuess = %"ISYM, &initial_guess);
-	ret += sscanf(line, "RadHydroNewtTolerance = %"FSYM, &sol_tolerance);
+	ret += sscanf(line, "RadHydroSolTolerance = %"FSYM, &sol_tolerance);
 	ret += sscanf(line, "RadHydroMaxMGIters = %i", &sol_maxit);
 	ret += sscanf(line, "RadHydroMGRelaxType = %i", &sol_rlxtype);
 	ret += sscanf(line, "RadHydroMGPreRelax = %i", &sol_npre);
@@ -682,17 +682,17 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	    sol_rlxtype);
     sol_rlxtype = 1;
   }
-  if (sol_npre < 0) {
+  if (sol_npre < 1) {
     fprintf(stderr,"Illegal RadHydroMGPreRelax = %i. Setting to 1\n",
 	    sol_npre);
     sol_npre = 1;
   }
-  if (sol_npost < 0) {
+  if (sol_npost < 1) {
     fprintf(stderr,"Illegal RadHydroMGPostRelax = %i. Setting to 1\n",
 	    sol_npost);
     sol_npost = 1;
   }
-  if (sol_tolerance < 1.0e-15) {
+  if ((sol_tolerance < 1.0e-15) || (sol_tolerance > 1.0)) {
     fprintf(stderr,"Illegal RadHydroNewtTolerance = %g. Setting to 1e-4\n",
 	    sol_tolerance);
     sol_tolerance = 1.0e-4;
