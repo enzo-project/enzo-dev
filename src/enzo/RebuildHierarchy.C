@@ -614,7 +614,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, 0) == FAIL)
+  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
     ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
 #endif /* TRANSFER  */
 
