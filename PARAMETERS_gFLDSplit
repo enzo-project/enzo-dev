@@ -50,7 +50,7 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 1 => Hydrogen chemistry
   - 3 => Hydrogen + Helium chemistry
   * change default to 1 for Hydrogen evolution [done]
-  + remove Helium as a choice, since never used with this approximation?
+  + remove Helium choice from User Guide
 * RadHydroHFraction (HFrac) [1.0; 0<=x<=1] 
   + add in check in initalizer to enforce bounds
   + if we remove Helium chemistry as a choice, we should remove this too?
@@ -71,16 +71,8 @@ Current solver params (variable) [default; choices], -options, +comments:
 * ChemistryScaling (NiScale) [1.0; x>0]
 * RadHydroTheta (theta) [1.0; 0<=x<=1]
 * RadHydroLimiterType (LimType) [3; 0,1,2,3,4]
-  - 0 => original Levermore-Pomraning limiter
-  - 1 => rational approx. to LP limiter
-  - 2 => Reynolds approx. to LP limiter
-  - 3 => no limiter
-  - 4 => ZEUS limiter
-  * change default to zeus limiter [done]
-  * add in check that input is allowable [done]
-  + test out Reynolds limiter for free-streaming problems
-  + maybe hard-code in only the one that we want (to improve
-    efficiency) and simplify interface?
+  * hard-coded in only the ZEUS limiter, to improve efficiency and
+    simplify interface 
 * RadiationBoundaryX*Faces = (BdryType[][]) [0; 0,1,2]
   - 0 => periodic
   - 1 => Dirichlet
@@ -89,8 +81,8 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 0 => previous time step
   - 5 => analytical solution to local physics
 * RadHydroNewtTolerance (sol_tolerance) [1e-4; x>1e-15]
-  + set max value of 1?
-  + rename to RadHydroSolTolerance??
+  * set max value of 1
+  * renamed to RadHydroSolTolerance
 * RadHydroMaxMGIters (sol_maxit) [50; x>0]
 * RadHydroMGRelaxType (sol_rlxtype) [1; 0,1,2,3]
   - 0 => Jacobi
@@ -98,9 +90,9 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 2 => Red/Black Gauss-Seidel (symmetric)
   - 3 => Red/Black Gauss-Seidel (nonsymmetric)
 * RadHydroMGPreRelax (sol_npre) [1; x>=0]
-  + change to x>0
+  * changed to x>0
 * RadHydroMGPostRelax (sol_npost) [1; x>=0]
-  + change to x>0
+  * changed to x>0
 * EnergyOpacityC0 (EnergyOpacityC0) [1.0; x>=0]
 * EnergyOpacityC1 (EnergyOpacityC1) [1.0; x>0] 
 * EnergyOpacityC2 (EnergyOpacityC2) [0.0; x>=0]

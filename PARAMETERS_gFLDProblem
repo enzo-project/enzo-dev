@@ -50,7 +50,7 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 1 => Hydrogen chemistry
   - 3 => Hydrogen + Helium chemistry
   * change default to 1 for Hydrogen evolution
-  + remove Helium as a choice, since never used with this approximation?
+  + remove Helium choice from User Guide
 * RadHydroHFraction (HFrac) [1.0; 0<=x<=1] 
   * add in check in initalizer to enforce bounds [done]
   + if we remove Helium chemistry as a choice, we should remove this too?
@@ -84,7 +84,7 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 0 => lag limiter to previous time step
   - 1 => lag limiter to previous Newton iterate
   - 2 => lag only Temperature dependence (unused since "albedo" ignored)
-  + remove entirely, and just use 0 (what we always use)
+  * removed entirely, now just use 0 (what we always used before)
 * RadHydroLimiterType (LimType) [3; 0,1,2,3,4]
   - 0 => original Levermore-Pomraning limiter
   - 1 => rational approx. to LP limiter
@@ -93,15 +93,12 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 4 => ZEUS limiter
   * change default to zeus limiter [done]
   * add in check that input is allowable [done]
-  + test out Reynolds limiter for free-streaming problems
-  + maybe hard-code in only the one that we want (to improve
-    efficiency) and simplify interface?
+  + test out Reynolds limiter for free-streaming problems (and others)
 * RadiationBoundaryX*Faces = (BdryType[][]) [0; 0,1,2,3]
   - 0 => periodic
   - 1 => Dirichlet
   - 2 => Neumann
-  - 3 => Robin
-  + check if Robin works, if not remove
+  * removed Robin BC type, since unusable
 * RadHydroAprxJacobian (approx_jac) [0; 0,1] 
   - 0 => use the analytical Jacobian
   - 1 => use the FD Jacobian
@@ -115,19 +112,20 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 3 => partial fwd Euler step w/ local physics
   - 4 => partial fwd Euler step w/ all physics
   - 5 => analytical solution to local physics
-  + remove 3 and 4, since never used?
+  + document only 0,1,2 and 5 in user guide.
 * RadHydroAnalyticChem (AnalyticChem) [0; 0,1]
   - 0 => use Theta-method for chemistry and gas
   - 1 => use analytical residual for chemistry and gas
-  + maybe change default to 1 (for allowed models)??
+  * changed default to 1 (for allowed models)
 * RadHydroSemiImplicit (semi_implicit) [0; 0,1]
   - 0 => fully implicit
   - 1 => linearly implicit
-  + delete option entirely
+  * deleted option entirely
 * RadHydroNewtLinesearch (newt_linesearch) [1; 0,1]
   - 0 => no linesearch
   - 1 => use linesearch
-  + remove option entirely?  If so, force INConst to be small
+  * force INConst to be small (x<1e-4) if linesearch enabled
+  + hide option from user interface; 
 * RadHydroNewtIters (newt_maxit) [20; x>0]
 * RadHydroNewtNorm (newt_norm) [0; 0,1,2,3,4,5]
   - 0 =>  ||f(x)||_rms < Ntol
@@ -136,16 +134,13 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 3 =>  ||f(x)||_inf / ||f(x0)||_inf  < Ntol
   - 4 =>  ||f(x)||_rms / ||x||_rms < Ntol
   - 5 =>  ||f(x)||_inf / ||x||_inf < Ntol
-  + remove option entirely, or maybe just don't describe in User Guide
-    (keep for myself).
+  + hide option from User Guide (keep for myself).
 * RadHydroINConst (newt_INconst) [1e-8; 0<x<1]
-  + if we remove linesearch option, reset max value to something
-    smaller (e.g. 1e-3)
 * RadHydroNewtTolerance (newt_tol) [1e-4; x>1e-15]
-  + set max value of 1?
+  * set max value of 1
 * RadHydroMinLinesearch (newt_MinLinesearch) [1e-10; x>1e-15]
-  + set max value of 1e-3
-  + maybe remove from UserGuide and just keep for myself?
+  * set max value of 1e-3
+  + remove option from UserGuide and just keep for myself
 * RadHydroMaxMGIters (sol_maxit) [50; x>0]
 * RadHydroMGRelaxType (sol_rlxtype) [1; 0,1,2,3]
   - 0 => Jacobi
@@ -153,9 +148,9 @@ Current solver params (variable) [default; choices], -options, +comments:
   - 2 => Red/Black Gauss-Seidel (symmetric)
   - 3 => Red/Black Gauss-Seidel (nonsymmetric)
 * RadHydroMGPreRelax (sol_npre) [1; x>=0]
-  + change to x>0
+  * changed to x>0
 * RadHydroMGPostRelax (sol_npost) [1; x>=0]
-  + change to x>0
+  * changed to x>0
 * PlanckOpacityC0 (PlanckOpacityC0) [1.0; x>=0]
 * PlanckOpacityC1 (PlanckOpacityC1) [1.0; x>0] 
 * PlanckOpacityC2 (PlanckOpacityC2) [0.0; x>=0]
@@ -166,18 +161,10 @@ Current solver params (variable) [default; choices], -options, +comments:
 * EnergyOpacityC2 (EnergyOpacityC2) [0.0; x>=0]
 * EnergyOpacityC3 (EnergyOpacityC3) [1.0; x>0] 
 * EnergyOpacityC4 (EnergyOpacityC4) [0.0; x>=0]
-* ScatteringOpacityC0 (ScatteringOpacityC0) [1.0; x>=0]
-  + omit since never used
-* ScatteringOpacityC1 (ScatteringOpacityC1) [1.0; x>0] 
-  + omit since never used
-* ScatteringOpacityC2 (ScatteringOpacityC2) [0.0; x>=0]
-  + omit since never used
-* ScatteringOpacityC3 (ScatteringOpacityC3) [1.0; x>0] 
-  + omit since never used
-* ScatteringOpacityC4 (ScatteringOpacityC4) [0.0; x>=0]
-  + omit since never used
+* ScatteringOpacityC0->C4 (ScatteringOpacityC0->C4) [1.0; x>=0]
+  * removed
 * SuOlsonGreyEps (MarshakParms[0]) [none;]
-  + leave in, but do not discuss in UserGuide
+  + leave in, but hide from UserGuide
 * NGammaDot (IonizationParms[0]) [0.0;]
 * EtaRadius (IonizationParms[1]) [0.0; x>=0]
 * EtaCenter (IonizationParms[2:5]) [0.0, 0.0, 0.0;]
