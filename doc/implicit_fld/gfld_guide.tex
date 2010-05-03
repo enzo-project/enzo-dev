@@ -1,0 +1,306 @@
+\documentclass[letterpaper,10pt]{article}
+\usepackage{geometry}   % See geometry.pdf to learn the layout
+                        % options.  There are lots.
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{amsmath,amsfonts,amssymb}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\author{Daniel R. Reynolds}
+\title{{\tt gFLDProblem}: \\
+A FLD-based Radiation and Chemistry Solver for ENZO}
+
+\renewcommand{\(}{\left(}
+\renewcommand{\)}{\right)}
+\newcommand{\vb}{{\bf v}_b}
+\newcommand{\xvec}{{\bf x}}
+\newcommand{\Omegabar}{\bar{\Omega}}
+\newcommand{\rhob}{\rho_b}
+\newcommand{\dt}{\Delta t}
+\newcommand{\Eot}{E^{OT}}
+\newcommand{\Ef}{E_f}
+\newcommand{\sighat}{\hat{\sigma}}
+\newcommand{\Fnu}{{\bf F}_{\nu}}
+\newcommand{\Pnu}{\overline{\bf P}_{\nu}}
+\newcommand{\R}{I\!\!R}
+\newcommand{\Rthree}{\R^3}
+\newcommand{\eh}{e_h}
+\newcommand{\ec}{e_c}
+\newcommand{\Edd}{\mathcal F}
+\newcommand{\Eddnu}{\Edd_{\nu}}
+\newcommand{\mn}{{\tt n}}
+\newcommand{\mB}{\mathcal B}
+\newcommand{\mC}{{\mathcal C}}
+\newcommand{\mL}{{\mathcal L}}
+\newcommand{\mD}{{\mathcal D}}
+\newcommand{\mDnu}{\mD_{\nu}}
+\newcommand{\mCnu}{\mC_{\nu}}
+\newcommand{\mLnu}{{\mathcal L}_{\nu}}
+\newcommand{\mCe}{\mC_e}
+\newcommand{\mLe}{\mL_e}
+\newcommand{\mCn}{\mC_{\mn}}
+\newcommand{\mLn}{\mL_{\mn}}
+
+
+\textheight 9truein
+\textwidth 6.5truein
+\addtolength{\oddsidemargin}{-0.25in}
+\addtolength{\evensidemargin}{-0.25in}
+\addtolength{\topmargin}{-0.5in}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{2ex}
+
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+This document is meant to describe a new, highly scalable,
+field-based radiation and chemistry solver solver for Enzo, 
+{\tt gFLProblem}. The target applications of this solver include the
+transport of radiation using a flux-limited-diffusion-based solver
+over a uniform grid, distributed among a possibly large number of
+processors.  In this solver, the radiation field is assumed to be
+either a monochromatic radiation energy at the ionization threshold of
+Hydrogen I ($h\nu = 13.6$ eV), or an integrated radiation energy
+density with an assumed radiation spectrum.  This radiation field may
+be coupled to the surrounding matter using either an assumption of
+local thermodynamic equilibrium (no chemical ionization), or a
+Hydrogen-only universe using a case-B Hydrogen II recombination
+coefficient.  
+
+The defining characteristic of this solver in comparison 
+with the {\tt gFLDSplit} solver is that in a given time step, this
+solver evolves the radiation, a gas energy correction, and possibly a
+Hydrogen-I number density together, using a full nonlinearly-implicit
+solver.  The goal in using a full nonlinear solver on this problem is
+to self-consistently capture the stiff interactions between these
+processes in a time-accurate and stable fashion. 
+
+This guide will only highlight the solvers and equations available in
+this module.  For further details on the equations, numerical methods,
+and verification tests relevant to this module, we refer to the paper 
+\cite{ReynoldsHayesPaschosNorman2009}.
+
+
+
+
+\section{Flux-limited diffusion radiation model}
+\label{sec:rad_model}
+
+We begin with the equation for flux-limited diffusion radiative
+transfer in a cosmological medium \cite{ReynoldsHayesPaschosNorman2009},
+\begin{equation}
+\label{eq:radiation_PDE}
+  \partial_{t} E + \frac1a \nabla\cdot\(E\vb\) =
+    \nabla\cdot\(D\,\nabla E\) - \frac{\dot{a}}{a} E - c\kappa E + 4\pi\eta,
+\end{equation}
+where here the comoving radiation energy density $E$ and emissivity
+$\eta$ are functions of space and time.  In this equation, the
+frequency-dependence of the radiation energy has been integrated away,
+under the premise of an assumed radiation energy spectrum,
+\begin{align}
+\label{eq:spectrum}
+  & E_{\nu}(\nu,\xvec,t) = E(\xvec,t) \chi(\nu), \\
+  \Rightarrow & \\
+  & E(\xvec,t) = \(\int_{\nu_0}^{\infty} E_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \)
+    \Big/ \( \int_{\nu_0}^{\infty} \chi(\nu)\,\mathrm{d}\nu \).
+\end{align}
+As such, the emissivity function $\eta(\xvec,t)$
+relates to the true emissivity $\eta_{\nu}(\nu,\xvec,t)$ as
+\begin{equation}
+\label{eq:emissivity}
+  \eta(\xvec,t) = \( \int_{\nu_0}^{\infty}\eta_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \) 
+  \Big/ \( \int_{\nu_0}^{\infty}\chi(\nu)\,\mathrm{d}\nu \).
+\end{equation}
+
+The function $D$ in the above equation \eqref{eq:radiation_PDE} is
+the {\em flux-limiter} that depends on $E$, $\nabla E$ and the 
+opacity $\kappa$ (see
+\cite{HayesNorman2003,ReynoldsHayesPaschosNorman2009}),  
+\begin{equation}
+\label{eq:limiter}
+\begin{split}
+   D(E) &= \text{diag}\( D_1(E),\, D_2(E),\, D_3(E) \) \\
+   \text{where}\qquad & \\
+   D_i(E) &= \frac{c(2\kappa+R_i)}{6\kappa^2+3\kappa R_i+R_i^2}, \\
+   R_i &= \frac{|\partial_i E|}{E},\, i=1,2,3.
+\end{split}
+\end{equation}
+
+
+\section{LTE couplings}
+\label{sec:lte_model}
+
+
+\section{Chemistry-dependent couplings}
+\label{sec:chem_model}
+
+
+\section{Numerical solution approach}
+\label{sec:solution_approach}
+
+
+
+
+
+\section{{\tt gFLDProblem} usage}
+\label{sec:module_usage}
+
+In order to use the implicit FLD radiation solver module, and to
+allow optimal control over the nonlinear and linear solution methods
+used, there are a number of parameters than may be supplied to Enzo.
+We group these into two categories, those associated with the general
+startup of the module via the Enzo infrastructure, and those that may
+be supplied to the module itself.  However, prior to embarking on a
+description of these parameters, there are a few requirements for any
+problem that wishes to use the {\tt gFLDProblem} module.
+
+Foremost, Enzo must be built using the configuration option 
+{\tt RAD\_HYDRO}; this is enabled through the call 
+{\tt gmake rad-hydro-yes} in the Enzo source directory.  Moreover, the
+machine Makefile must specify how to include and link with an
+available HYPRE library (version $\ge$ 2.4.0b).  If a user must
+compile HYPRE themselves to obtain this version, they should make note
+of the HYPRE configuration {\tt --with-no-global-partition}, which
+must be used for solver scalability when using over $\sim1000$
+processors, but which results in slower executables on smaller
+problems.
+
+
+\subsection{Startup parameters}
+
+In a user's main problem parameter file, the following three parameters
+must be set:
+\begin{itemize}
+\item {\tt RadiationHydrodynamics} -- this must be set to either 1 or
+  2.  A value of 1 enables the use of implicit radiation solvers
+  alongside standard Enzo chemistry and hydrodynamics physics.  A
+  value of 2 turns on the implicit radiation solvers, and {\em turns off}  
+  all other Enzo physics solvers.
+\item {\tt ImplicitProblem} -- this must be set to 2 to use the 
+  {\tt FSProb} module (among the possible implicit radiation solver
+  modules).
+\item {\tt RadHydroParamfile} -- this should contain the filename
+  (relative to this parameter file) that contains all module-specific
+  solver parameters.  While the {\tt FSProb} module parameters may be
+  supplied in the main parameter file, it is not recommended since
+  Enzo's main {\tt ReadParameterFile.C} routine will complain about
+  all of the 'unknown' parameters.
+\end{itemize}
+
+In addition, in a user's problem initialization routines, they must
+allocate a standard Enzo baryon field having the {\tt FieldType} set
+to {\tt RadiationFreq0}.  It is this baryon field that will be evolved
+by the {\tt FSProb} module, and that a user may access to obtain
+information on the free-streaming radiation field.
+
+Furthermore, the {\tt FSProb} module currently computes its own
+emissivity field $\eta_f(\xvec)^n$, in the routine 
+{\tt FSProb\_RadiationSource.src90}.  A user may edit this file to add
+in an emissivity field corresponding to their own Enzo 
+{\tt ProblemType}.  Alternatively, we are currently working to
+implement a separate interface whereby some other Enzo function fills
+in an emissivity field, which is then used internally by the 
+{\tt FSProb} module.
+
+For convenience, we have provided the {\tt ProblemType} 250, with the
+initialization filed {\tt FSMultiSourceInitialize.C} and 
+{\tt Grid\_FSMultiSourceInitializeGrid.C}, as an example of how to set
+up this module.
+
+
+
+\subsection{Module parameters}
+
+Once a user has enabled the free-streaming radiation module, they have
+complete control over a variety of internal module parameters.  The
+parameters are given here, with their default values specified in brackets.
+\begin{itemize}
+\item {\tt FSRadiationScaling} [1.0] -- this parameter may be used to
+  rescale the internal solver units for the free-streaming radiation
+  field, to ensure that the linear system is well-scaled to have
+  solution with values on the order of 1.  We note that without
+  scaling, the solver will use the internal Enzo units for a radiation
+  field, i.e.~the radiation field will have values in 
+  CGS/({\tt DensityUnits*VelocityUnits*VelocityUnits}). 
+\item {\tt FSRadiationTheta} [1.0] -- this is the implicit
+  discretization method parameter.  1 gives implicit Euler, and 2
+  gives the trapezoid rule (Crank-Nicolson).
+\item {\tt FSRadiationOpacity} [$10^{-4}$] -- this is the opacity
+  constant used within the computations of the flux-limiter
+  $D_f(\Ef)$.  The expected values should be those of a (small)
+  physical opacity for the problem in CGS.
+\item {\tt FSRadiationLimiterType} [4] -- this gives the formula for
+  the flux limiter to be used in the code.  The default value provides
+  the formula \eqref{eq:limiter}; other allowable values and their
+  formulas may be found in the file {\tt FSProb\_SetupSystem.src90}.
+\item {\tt FSRadiationBoundaryX0Faces} [0 0] -- these integer
+  constants give the type of boundary conditions to supply on the
+  free-streaming radiation field at the lower and upper domain
+  boundaries in the x-direction, respectively.  Allowable 
+  constants are 0 (periodic), 1 (Dirichlet), and 2 (Neumann).  If
+  either 1 or 2 are provided, the file {\tt FSProb\_Initialize} will
+  need to be modified to set the Dirichlet or Neumann values on the
+  appropriate faces, based on the {\tt ProblemType}.
+\item {\tt FSRadiationBoundaryX1Faces} [0 0] -- lower and upper
+  boundary condition types for the y-direction.
+\item {\tt FSRadiationBoundaryX2Faces} [0 0] -- lower and upper
+  boundary condition types for the z-direction.
+\item {\tt FSRadiationMaxDt} [0.0] -- this gives a maximum allowed
+  time step size for the free-streaming radiation problem.  The
+  default value of 0 turns off control over the maximum step size; any
+  positive value will turn it on.
+\item {\tt FSRadiationInitialGuess} [0] -- this gives control over the
+  algorithm to use in computing the initial guess at the time-evolved
+  solution.  Since the solver is iterative, a good initial guess will
+  result in faster convergence.  Allowable values may be found in the
+  file {\tt FSProb\_InitialGuess.src90}.
+\item {\tt FSRadiationTolerance} [$10^{-10}$] -- this gives the
+  absolute tolerance to be used in solving the linear system
+  \eqref{eq:fs_linear}.  Note, this absolute tolerance is used on the
+  scaled linear system (see {\tt FSRadiationScaling}).
+\item {\tt FSRadiationMaxMGIters} [50] -- this gives the maximum
+  number of multigrid v-cycles to be used.
+\item {\tt FSRadiationMGRelaxType} [1] -- this gives the type of
+  smoother to use within multigrid v-cycles.  Values of 0 or 1 give
+  weighted Jacobi, and values of 2 or 3 give red-black Gauss-Seidel
+  (see HYPRE documentation for further details).
+\item {\tt FSRadiationMGPreRelax} [1] -- this gives the number of
+  pre-relaxation sweeps that should be performed by the multigrid
+  smoother. 
+\item {\tt FSRadiationMGPostRelax} [1] -- this gives the number of
+  post-relaxation sweeps that should be performed by the multigrid
+  smoother. 
+\item {\tt FSRadiationNGammaDot} [0.0] -- input parameter used by 
+  {\tt FSProb\_RadiationSource.src90} to supply the function
+  $\eta_f(\xvec)^n$. 
+\item {\tt FSRadiationEtaRadius} [0.0] -- input parameter used by 
+  {\tt FSProb\_RadiationSource.src90} to supply the function
+  $\eta_f(\xvec)^n$. 
+\item {\tt FSRadiationEtaCenter} [0.0 0.0 0.0] -- input parameters
+  used by {\tt FSProb\_RadiationSource.src90} to supply the function
+  $\eta_f(\xvec)^n$. 
+\end{itemize}
+
+
+\section{Concluding remarks}
+\label{sec:conclusions}
+
+We wish to remark that the module is not large (one header file, 8 C++
+files, 3 F90 files), and all files begin with the {\tt FSProb}
+prefix.  Most of the user interface is handled through the routines
+{\tt FSProb\_Initialize.C} and {\tt FSProb\_RadiationSource.src90}, and
+most of the 'action' may be found in the files {\tt FSProb\_Evolve.C}
+and {\tt FSProb\_SetupSystem.src90}.  
+
+Feedback/suggestions are appreciated.
+
+
+\bibliography{sources}
+\bibliographystyle{siam}
+\end{document}
