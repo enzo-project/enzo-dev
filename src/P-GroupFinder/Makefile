@@ -256,17 +256,6 @@ dep:
 include DEPEND
 
 #-----------------------------------------------------------------------
-# INSTALL TARGET
-#-----------------------------------------------------------------------
-
-install: $(TOP_DIR)/bin
-	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
-	-@cp $(EXE) $(TOP_DIR)/bin/$(EXE)
-
-$(TOP_DIR)/bin:
-	mkdir $(TOP_DIR)/bin
-
-#-----------------------------------------------------------------------
 # HELP TARGET
 #-----------------------------------------------------------------------
 
@@ -277,7 +266,6 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'anyl.exe'"
-	@echo "   gmake install        Copy the executable to bin"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
