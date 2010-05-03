@@ -61,8 +61,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 	InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
 			 r[dim] <= DomainRightEdge[dim]);
       if (!InsideDomain) {
-	if (RadiativeTransferPeriodicBoundary &&
-	    GravityBoundaryType == TopGridPeriodic) {
+	if (RadiativeTransferPeriodicBoundary) {
 	  for (dim = 0; dim < 3; dim++)
 	    if (r[dim] < DomainLeftEdge[dim])
 	      PP->SourcePosition[dim] += DomainWidth[dim];
@@ -86,8 +85,21 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
       // or sibling grid
       if (MoveToGrid == ParentGrid)
 	DeltaLevel = -1;
-      else
+      else {
 	DeltaLevel = 0;
+	for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)
+	  InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
+			   r[dim] <= DomainRightEdge[dim]);
+	if (!InsideDomain) {
+	  if (RadiativeTransferPeriodicBoundary) {
+	    for (dim = 0; dim < 3; dim++)
+	      if (r[dim] < DomainLeftEdge[dim])
+		PP->SourcePosition[dim] += DomainWidth[dim];
+	      else if (r[dim] > DomainRightEdge[dim])
+		PP->SourcePosition[dim] -= DomainWidth[dim];
+	  } // ENDIF periodic
+	} // ENDELSE !InsideDomain
+      } // ENDELSE
     }
     if (DEBUG) 
       fprintf(stdout, "Walk: left grid: sent photon to grid %x (DeltaL = %d)\n", 

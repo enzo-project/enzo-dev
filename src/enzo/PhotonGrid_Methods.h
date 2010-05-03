@@ -43,6 +43,8 @@
 
    int SetSubgridMarkerFromSubgrid(grid *Subgrid);
    int SetSubgridMarkerFromParent(grid *Parent);
+   int SetSubgridMarkerFromSibling(grid *Sibling, 
+				   FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* Return Subgrid Marker for a position */
 

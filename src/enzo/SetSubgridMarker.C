@@ -93,7 +93,10 @@ int SetSubgridMarker(TopGridData &MetaData,
 	for (grid2 = 0; grid2 < SiblingList.NumberOfSiblings; grid2++)
 	  if (Temp->GridData != SiblingList.GridList[grid2])
 	    Temp->GridData->
-	      SetSubgridMarkerFromSubgrid(SiblingList.GridList[grid2]);
+	      CheckForOverlap(SiblingList.GridList[grid2],
+			      MetaData.LeftFaceBoundaryCondition,
+			      MetaData.RightFaceBoundaryCondition,
+			      &grid::SetSubgridMarkerFromSibling);
 
 	delete [] SiblingList.GridList;
       } // ENDIF i > 0

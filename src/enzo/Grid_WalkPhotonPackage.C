@@ -59,6 +59,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};
   const double k_b = 8.62e-5; // eV/K
+  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
@@ -320,9 +321,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   count = 0;
   keep_walking = 1;
+  cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   while (keep_walking) {
-
-    cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
 
     /* If the photon has left the grid, determine MoveToGrid,
        DeltaLevel, and DeleteMe, and exit the loop. */
@@ -775,6 +775,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     count++;
     
     g[direction] += u_sign[direction];
+    cindex += u_sign[direction] * offset[direction];
     
   } // while keep walking
 

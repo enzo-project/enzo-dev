@@ -4,7 +4,8 @@
 /
 /  written by: Tom Abel
 /  date:       August 2004
-/  modified1:
+/  modified1:  John Wise, May, 2010 -- modified the subgrid version to
+/              accept parent grids.
 /
 /  PURPOSE:
 /
