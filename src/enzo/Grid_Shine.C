@@ -80,7 +80,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     AllCellWidth[dim] =(GridRightEdge[dim] - GridLeftEdge[dim])/
       FLOAT(GridEndIndex[dim] - GridStartIndex[dim] + 1);
 
-  srand(time(NULL));
+  if (rand_init == 0) {
+    srand( time(NULL) );
+    rand_init = 1;
+  }
   
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 

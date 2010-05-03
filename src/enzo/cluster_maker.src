@@ -173,8 +173,9 @@ c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
 c               if (tdyn .lt. cooltime(i,j,k)) goto 10
-               if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. min_temp) goto 10
+               if (temp(i,j,k) .gt. min_temp) goto 10
+c               if (tdyn .lt. cooltime(i,j,k) .and. 
+c     &             temp(i,j,k) .gt. min_temp) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -330,12 +331,11 @@ c              Remove mass from grid
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k
 c               write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
-c               write(6,779) type(ii), tcp(ii), tdp(ii)
-
- 777           format('pop3_maker: ', e10.3, 3(f12.6))
+c               write(6,779) type(ii), tcp(ii), tdp(ii), metalf(ii)
+ 777           format('clst_maker: ', e10.3, 3(f12.6))
  7777          format('            ', 3(i5))
  778           format('            ', 4(e15.3))
- 779           format('            ', i5, 2(f15.6))
+ 779           format('            ', i5, 3(f15.6))
 
 c
 c               write(7+procnum,1000) bmass*starfraction,tdp(ii),tcp(ii),

@@ -294,8 +294,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MustRefineRegionMinRefinementLevel);
     ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
 		  &MetallicityRefinementMinLevel);
-    ret += sscanf(line, "MetallicityRefinementMinMetallicity      = %"FSYM, 
+    ret += sscanf(line, "MetallicityRefinementMinMetallicity = %"FSYM, 
 		  &MetallicityRefinementMinMetallicity);
+    ret += sscanf(line, "MetallicityRefinementMinDensity = %"FSYM, 
+		  &MetallicityRefinementMinDensity);
 
     ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);
@@ -667,6 +669,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  StarClusterRegionRightEdge+2);
 
     ret += sscanf(line, "PopIIIStarMass = %"FSYM, &PopIIIStarMass);
+    ret += sscanf(line, "PopIIIInitialMassFunction = %"ISYM, 
+		  &PopIIIInitialMassFunction);
+    ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
+		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
+    ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 
+		  &PopIIIInitialMassFunctionSlope);
     ret += sscanf(line, "PopIIIBlackHoles = %"ISYM, &PopIIIBlackHoles);
     ret += sscanf(line, "PopIIIBHLuminosityEfficiency = %"FSYM, 
 		  &PopIIIBHLuminosityEfficiency);

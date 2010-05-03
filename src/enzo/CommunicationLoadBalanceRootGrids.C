@@ -51,7 +51,7 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 				      int TopGridRank, int CycleNumber)
 {
 
-  if (NumberOfProcessors == 1 || LoadBalancing <= 1)
+  if (NumberOfProcessors == 1 || !(LoadBalancing == 2 || LoadBalancing == 3))
     return SUCCESS;
 
   if (CycleNumber % LoadBalancingCycleSkip != 0)

@@ -181,6 +181,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MustRefineRegionMinRefinementLevel = -1;        // unused if negative
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
+  MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
@@ -396,6 +397,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   PopIIIStarMass                   = 100;
+  PopIIIInitialMassFunction        = FALSE;
+  PopIIILowerMassCutoff            = 1.0;
+  PopIIIUpperMassCutoff            = 300.0;
+  PopIIIInitialMassFunctionSlope   = -1.3;         // high mass slope
   PopIIIBlackHoles                 = FALSE;
   PopIIIBHLuminosityEfficiency     = 0.1;
   PopIIIOverDensityThreshold       = 1e6;          // times mean total density
@@ -407,6 +412,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  IMFData                          = NULL;
 
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e3;          // Msun
@@ -447,6 +453,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.MovieTimestepCounter      = 0;
 
   ran1_init = 0;
+  rand_init = 0;
 
   SinkMergeDistance     = 1e16;
   SinkMergeMass         = 0.1;

@@ -328,6 +328,7 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
+        Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
@@ -631,6 +632,8 @@ OBJS_CONFIG_LIB = \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
+	StarParticlePopIII_IMFInitialize.o \
+	StarParticleSetRefinementLevel.o \
         StarParticleSubtractAccretedMass.o \
         StarRoutines.o \
         Star_Accrete.o \
@@ -638,6 +641,7 @@ OBJS_CONFIG_LIB = \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
         Star_AssignAccretedAngularMomentum.o \
+	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_ComputePhotonRates.o \
@@ -650,6 +654,7 @@ OBJS_CONFIG_LIB = \
         Star_MirrorToParticle.o \
         Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
+	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \
         star_maker2.o \
@@ -757,6 +762,8 @@ POBJS_CONFIG_LIB = \
         Grid_PhotonTestInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
+        Grid_SetSubgridMarkerFromParent.o \
+        Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SolveCoupledRateEquations.o \
         Grid_Shine.o \

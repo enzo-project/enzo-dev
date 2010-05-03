@@ -32,6 +32,7 @@
 #define KILL_STAR 1
 #define KILL_ALL 2
 
+int StarParticleSetRefinementLevel(Star *AllStars);
 int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 TopGridData *MetaData,
 					 int NumberOfGrids,
@@ -165,6 +166,10 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
       return FAIL;
     }
   }
+
+  /* Set minimum refinement level for metallicity if desired */
+
+  StarParticleSetRefinementLevel(AllStars);
 
   /* Delete the global star particle list, AllStars */
 

@@ -24,6 +24,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+int StarParticlePopIII_IMFInitialize(void);
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
@@ -49,6 +50,11 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
   RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 			       TotalStarParticleCountPrevious);
+
+  /* Initialize the IMF lookup table if requested and not defined */
+
+  if (PopIIIInitialMassFunction)
+    StarParticlePopIII_IMFInitialize();
 
   int level, grids;
   Star *cstar;
