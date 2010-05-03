@@ -719,6 +719,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHParticleIO);
     if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
       MBHParticleIOFilename = dummy;
+    if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
+      MBHInsertLocationFilename = dummy;
 
     /* Read Movie Dump parameters */
 
@@ -966,23 +968,28 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
       printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
 	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;
       }
-    }
-    
+
   }
 
-  
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+  /* For !restart, this only ruins the units because MinimumOverDensityForRefinement is already 
+     set in SetDefaultGlobalValues and not FLOAT_UNDEFINED.
+     For restart, MinimumOverDensityForRefinement is not even needs to be read because only 
+     MinimumMassForRefinement is used for CellFlagging.  
+     So, why did we have to do this in the first place?  - Ji-hoon Kim in Apr.2010
+     (The counterpart in WriteParameterFile is also commented out) */   //#####
+
+  /*
+  if (!ComovingCoordinates && UsePhysicalUnit) 
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumOverDensityForRefinement[i] /= DensityUnits;
       }
-    }
-  }
-
+  */
+  
   /* If RefineRegionTimeType is 0 or 1, read in the input file. */
   if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
       if (ReadEvolveRefineFile() == FAIL) {

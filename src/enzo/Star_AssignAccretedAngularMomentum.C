@@ -48,7 +48,7 @@ void Star::AssignAccretedAngularMomentum(void)
 		   &dummy[0], &dummy_int[0], &dummy_int[1], &dummy_double[0], 
 		   &AccretedAngularMomentum[0], &AccretedAngularMomentum[1], 
 		   &AccretedAngularMomentum[2], &dummy_double[1]) != 8) {
-	  fprintf(stderr, "File structure wrong: %s\n", MBHParticleIOFilename);
+	  fprintf(stderr, "star::AAAM: File structure wrong: %s\n", MBHParticleIOFilename);
 	  ENZO_FAIL("");
 	}
 

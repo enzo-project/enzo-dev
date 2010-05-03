@@ -428,9 +428,6 @@
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
 
-               if (dtit(i) .ne. dtit(i)) 
-     &            write(6,*) '1-#####-dtit(i) = ', dtit(i)
-
 !              Output some debugging information if required
 
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
@@ -465,8 +462,8 @@
             endif
             enddo               ! end loop over i
 
-c            if (dtit(i) .ne. dtit(i)) 
-c     &           write(6,*) '2-#####-dtit(i) = ',dtit(i),i,itmask(i),dt
+!               if (dtit(i) .ne. dtit(i)) 
+!     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
 
 !           Compute maximum timestep for cooling/heating
 
@@ -494,12 +491,6 @@ c     &           write(6,*) '2-#####-dtit(i) = ',dtit(i),i,itmask(i),dt
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
-
-!               if (edot(i) .ne. edot(i)) then    !#####
-!                  write(6,*) 'solve_rate_cool: edot = NaN!'
-!                  edot(i) = 0.0
-!               endif
-
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then

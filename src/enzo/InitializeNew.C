@@ -167,6 +167,9 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
 void PrintMemoryUsage(char *str);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
  
@@ -461,7 +464,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Insert new problem intializer here...
 
-    if (ProblemType ==300) {
+  if (ProblemType ==300) {
     ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
@@ -656,7 +659,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ProblemType != 27 &&
       ProblemType != 30 &&
       ProblemType != 31 &&  // BWO (isolated galaxies)
-      ProblemType != 60) //AK
+      ProblemType != 60 &&
+      ProblemType != 106 ) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
  
   // If using StarParticles, set the number to zero 
@@ -667,7 +671,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
-
 
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
@@ -760,12 +763,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
             ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
- if (ProblemType == 106)
-   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+  if (ProblemType == 106){
+    if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
-     ENZO_FAIL("");
-   }
+      fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+      ENZO_FAIL("");}
+    //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
+  }
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.
