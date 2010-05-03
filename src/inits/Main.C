@@ -34,6 +34,7 @@ int InitializePowerSpectrum();
 //int MakePowerSpectrumLookUpTable();
 int MakePowerSpectrumLookUpTable(char *);
 int GenerateRealization(parmstruct *Parameters, parmstruct *SubGridParameters);
+int AutomaticSubgridGeneration(parmstruct *Parameters);
 int CosmologyReadParameters(FILE *fptr);
 int ReadPowerSpectrumParameters(FILE *fptr);
  
@@ -58,7 +59,7 @@ Eint32 main(Eint32 argc, char *argv[])
   printf("ENZO Inits V64.0 - April 3rd 2006\n\n");
  
   InterpretCommandLine(int_argc, argv, myname, &ParameterFile, &SubGridParameterFile);
-o 
+
   // Set Parameter defaults
  
   SetParameterDefaults(&Parameters);
@@ -102,6 +103,10 @@ o
   // Read parameters from SubGridParameter file
  
   if (SubGridParameterFile != NULL) {
+    if (Parameters.MaximumInitialRefinementLevel != INT_UNDEFINED) {
+      fprintf(stderr, "Do not specify a subgrid if using MaximumInitialRefinementLevel.\n");
+      return FAIL;
+    }
     if ((fptr = fopen(SubGridParameterFile, "r")) == NULL) {
       fprintf(stderr, "%s: error opening SubGridParameterFile %s\n", myname,
 	      SubGridParameterFile);
@@ -136,8 +141,11 @@ o
  
   // Generate the fields and particles
  
-  GenerateRealization(&Parameters, SubGridParameters);
- 
+  if (Parameters.MaximumInitialRefinementLevel == INT_UNDEFINED)
+    GenerateRealization(&Parameters, SubGridParameters);
+  else
+    AutomaticSubgridGeneration(&Parameters);
+
   printf("successful completion.\n");
   exit(EXIT_SUCCESS);
  

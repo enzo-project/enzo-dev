@@ -67,7 +67,12 @@ int SetParameterDefaults(parmstruct *Parameters)
     Parameters->TopGridStart[dim] = INT_UNDEFINED;
     Parameters->TopGridEnd[dim] = INT_UNDEFINED;
     Parameters->RootGridDims[dim] = INT_UNDEFINED;
+    Parameters->RefineRegionLeftEdge[dim] = FLOAT_UNDEFINED;
+    Parameters->RefineRegionRightEdge[dim] = FLOAT_UNDEFINED;
   }
+
+  Parameters->RefineBy = 2;
+  Parameters->MaximumInitialRefinementLevel = INT_UNDEFINED;
  
   return SUCCESS;
 }

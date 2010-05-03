@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
 	select_fft.o \
 	sgi_st1_fft64.o \
 	adjfft.o \
+	AutomaticSubgridGeneration.o \
 	cosmo_functions.o \
 	CosmologyReadParameters.o \
 	cray_x1_fft64.o \
