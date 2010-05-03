@@ -428,9 +428,6 @@
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
 
-               if (dtit(i) .ne. dtit(i)) 
-     &            write(6,*) '1-#####-dtit(i) = ', dtit(i)
-
 !              Output some debugging information if required
 
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
@@ -465,8 +462,8 @@
             endif
             enddo               ! end loop over i
 
-c            if (dtit(i) .ne. dtit(i)) 
-c     &           write(6,*) '2-#####-dtit(i) = ',dtit(i),i,itmask(i),dt
+!               if (dtit(i) .ne. dtit(i)) 
+!     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
 
 !           Compute maximum timestep for cooling/heating
 
@@ -494,12 +491,6 @@ c     &           write(6,*) '2-#####-dtit(i) = ',dtit(i),i,itmask(i),dt
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
-
-!               if (edot(i) .ne. edot(i)) then    !#####
-!                  write(6,*) 'solve_rate_cool: edot = NaN!'
-!                  edot(i) = 0.0
-!               endif
-
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
@@ -886,22 +877,22 @@ c -------------------------------------------------------------------
      &                max(1,int((logtem(i)-logtem0)/dlogtem)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
-         tdef(i) = t2(i) - t1(i)
+         tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))
 
 !        Do linear table lookup (in log temperature)
 
-         k1(i) = k1a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k1a(indixe(i)+1) -k1a(indixe(i)))/tdef(i)
-         k2(i) = k2a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k2a(indixe(i)+1) -k2a(indixe(i)))/tdef(i)
-         k3(i) = k3a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k3a(indixe(i)+1) -k3a(indixe(i)))/tdef(i)
-         k4(i) = k4a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k4a(indixe(i)+1) -k4a(indixe(i)))/tdef(i)
-         k5(i) = k5a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k5a(indixe(i)+1) -k5a(indixe(i)))/tdef(i)
-         k6(i) = k6a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k6a(indixe(i)+1) -k6a(indixe(i)))/tdef(i)
+         k1(i) = k1a(indixe(i)) +
+     &           (k1a(indixe(i)+1) -k1a(indixe(i)))*tdef(i)
+         k2(i) = k2a(indixe(i)) +
+     &           (k2a(indixe(i)+1) -k2a(indixe(i)))*tdef(i)
+         k3(i) = k3a(indixe(i)) +
+     &           (k3a(indixe(i)+1) -k3a(indixe(i)))*tdef(i)
+         k4(i) = k4a(indixe(i)) +
+     &           (k4a(indixe(i)+1) -k4a(indixe(i)))*tdef(i)
+         k5(i) = k5a(indixe(i)) +
+     &           (k5a(indixe(i)+1) -k5a(indixe(i)))*tdef(i)
+         k6(i) = k6a(indixe(i)) +
+     &           (k6a(indixe(i)+1) -k6a(indixe(i)))*tdef(i)
       endif
       enddo
 
@@ -910,43 +901,43 @@ c -------------------------------------------------------------------
       if (ispecies .gt. 1) then
          do i = is+1, ie+1
             if (itmask(i)) then
-            k7(i) = k7a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k7a(indixe(i)+1) -k7a(indixe(i)))/tdef(i)
-            k8(i) = k8a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k8a(indixe(i)+1) -k8a(indixe(i)))/tdef(i)
-            k9(i) = k9a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k9a(indixe(i)+1) -k9a(indixe(i)))/tdef(i)
-            k10(i) = k10a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k10a(indixe(i)+1) -k10a(indixe(i)))/tdef(i)
-            k11(i) = k11a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k11a(indixe(i)+1) -k11a(indixe(i)))/tdef(i)
-            k12(i) = k12a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k12a(indixe(i)+1) -k12a(indixe(i)))/tdef(i)
-            k13(i) = k13a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k13a(indixe(i)+1) -k13a(indixe(i)))/tdef(i)
-            k14(i) = k14a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k14a(indixe(i)+1) -k14a(indixe(i)))/tdef(i)
-            k15(i) = k15a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k15a(indixe(i)+1) -k15a(indixe(i)))/tdef(i)
-            k16(i) = k16a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k16a(indixe(i)+1) -k16a(indixe(i)))/tdef(i)
-            k17(i) = k17a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k17a(indixe(i)+1) -k17a(indixe(i)))/tdef(i)
-            k18(i) = k18a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k18a(indixe(i)+1) -k18a(indixe(i)))/tdef(i)
-            k19(i) = k19a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k19a(indixe(i)+1) -k19a(indixe(i)))/tdef(i)
-            k22(i) = k22a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k22a(indixe(i)+1) -k22a(indixe(i)))/tdef(i)
+            k7(i) = k7a(indixe(i)) +
+     &            (k7a(indixe(i)+1) -k7a(indixe(i)))*tdef(i)
+            k8(i) = k8a(indixe(i)) +
+     &            (k8a(indixe(i)+1) -k8a(indixe(i)))*tdef(i)
+            k9(i) = k9a(indixe(i)) +
+     &            (k9a(indixe(i)+1) -k9a(indixe(i)))*tdef(i)
+            k10(i) = k10a(indixe(i)) +
+     &            (k10a(indixe(i)+1) -k10a(indixe(i)))*tdef(i)
+            k11(i) = k11a(indixe(i)) +
+     &            (k11a(indixe(i)+1) -k11a(indixe(i)))*tdef(i)
+            k12(i) = k12a(indixe(i)) +
+     &            (k12a(indixe(i)+1) -k12a(indixe(i)))*tdef(i)
+            k13(i) = k13a(indixe(i)) +
+     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*tdef(i)
+            k14(i) = k14a(indixe(i)) +
+     &            (k14a(indixe(i)+1) -k14a(indixe(i)))*tdef(i)
+            k15(i) = k15a(indixe(i)) +
+     &            (k15a(indixe(i)+1) -k15a(indixe(i)))*tdef(i)
+            k16(i) = k16a(indixe(i)) +
+     &            (k16a(indixe(i)+1) -k16a(indixe(i)))*tdef(i)
+            k17(i) = k17a(indixe(i)) +
+     &            (k17a(indixe(i)+1) -k17a(indixe(i)))*tdef(i)
+            k18(i) = k18a(indixe(i)) +
+     &            (k18a(indixe(i)+1) -k18a(indixe(i)))*tdef(i)
+            k19(i) = k19a(indixe(i)) +
+     &            (k19a(indixe(i)+1) -k19a(indixe(i)))*tdef(i)
+            k22(i) = k22a(indixe(i)) +
+     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*tdef(i)
          endif
          enddo
 
          do n1 = 1, 7
             do i = is+1, ie+1
                if (itmask(i)) then
-               k13dd(i,n1) = k13dda(indixe(i),n1) + (logtem(i) - t1(i))
-     &             *(k13dda(indixe(i)+1,n1) - 
-     &               k13dda(indixe(i)  ,n1) )/tdef(i)
+               k13dd(i,n1) = k13dda(indixe(i),n1) +
+     &             (k13dda(indixe(i)+1,n1) - 
+     &               k13dda(indixe(i)  ,n1) )*tdef(i)
             endif
             enddo
          enddo
@@ -957,20 +948,20 @@ c -------------------------------------------------------------------
       if (ispecies .gt. 2) then
          do i = is+1, ie+1
             if (itmask(i)) then
-            k50(i) = k50a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k50a(indixe(i)+1) -k50a(indixe(i)))/tdef(i)
-            k51(i) = k51a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k51a(indixe(i)+1) -k51a(indixe(i)))/tdef(i)
-            k52(i) = k52a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k52a(indixe(i)+1) -k52a(indixe(i)))/tdef(i)
-            k53(i) = k53a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k53a(indixe(i)+1) -k53a(indixe(i)))/tdef(i)
-            k54(i) = k54a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k54a(indixe(i)+1) -k54a(indixe(i)))/tdef(i)
-            k55(i) = k55a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k55a(indixe(i)+1) -k55a(indixe(i)))/tdef(i)
-            k56(i) = k56a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k56a(indixe(i)+1) -k56a(indixe(i)))/tdef(i)
+            k50(i) = k50a(indixe(i)) +
+     &            (k50a(indixe(i)+1) -k50a(indixe(i)))*tdef(i)
+            k51(i) = k51a(indixe(i)) +
+     &            (k51a(indixe(i)+1) -k51a(indixe(i)))*tdef(i)
+            k52(i) = k52a(indixe(i)) +
+     &            (k52a(indixe(i)+1) -k52a(indixe(i)))*tdef(i)
+            k53(i) = k53a(indixe(i)) +
+     &            (k53a(indixe(i)+1) -k53a(indixe(i)))*tdef(i)
+            k54(i) = k54a(indixe(i)) +
+     &            (k54a(indixe(i)+1) -k54a(indixe(i)))*tdef(i)
+            k55(i) = k55a(indixe(i)) +
+     &            (k55a(indixe(i)+1) -k55a(indixe(i)))*tdef(i)
+            k56(i) = k56a(indixe(i)) +
+     &            (k56a(indixe(i)+1) -k56a(indixe(i)))*tdef(i)
          endif
          enddo
       endif

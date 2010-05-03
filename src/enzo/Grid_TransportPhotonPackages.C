@@ -258,8 +258,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
-	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM"\n",
-	    tcount, dcount, pcount);
+	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
+	    tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
   /* For safety, clean up paused photon list */

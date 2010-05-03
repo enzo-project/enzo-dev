@@ -599,9 +599,9 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
   /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
       "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
 
-  /* if there's no particle, don't bother */
-//if (nPart == 0 && levelIndex != 0)
-  if (nPart == 0)
+  /* if there's no particle, don't bother,
+     but if this is a root-level grid, print them anyway */
+  if (nPart == 0 && levelIndex != 0)
     return 0;
 
   sprintf(gridDataName, "/particlegrid-%d", particlegridId);

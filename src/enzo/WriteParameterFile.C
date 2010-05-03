@@ -93,12 +93,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     }
     */
 
+    /* Check ReadParameterFile for the reason why this is commented out. 
+       - Ji-hoon Kim in Apr.2010 */
+    /*
     if (!ComovingCoordinates && UsePhysicalUnit) {
       for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
 	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
 	  MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
+    */
 
   }
 
@@ -696,7 +700,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "MBHParticleIO                         = %"ISYM"\n",
 	  MBHParticleIO);
   if (MBHParticleIOFilename != NULL)
-    fprintf(fptr, "MBHParticleIOFilename               = %s\n\n", MBHParticleIOFilename);
+    fprintf(fptr, "MBHParticleIOFilename               = %s\n", MBHParticleIOFilename);
+  if (MBHInsertLocationFilename != NULL)
+    fprintf(fptr, "MBHInsertLocationFilename           = %s\n\n", MBHInsertLocationFilename);
 
   /* Most Stanford additions: */
 
@@ -820,12 +826,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     }
     */
 
+    /*
     if (!ComovingCoordinates && UsePhysicalUnit) {
       for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
 	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
 	  MinimumOverDensityForRefinement[i] /= rhou;
       }
     }
+    */
 
   }
 

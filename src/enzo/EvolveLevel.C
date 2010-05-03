@@ -568,6 +568,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       MetaData->MovieTimestepCounter++;
     }
 
+    /* Once MBH particles are inserted throughout the whole grid hierarchy,
+       turn off MBH creation (at the bottom of the hierarchy) */
+
+    if (STARMAKE_METHOD(MBH_PARTICLE) && (LevelArray[level+1] == NULL)) { 
+      StarParticleCreation -= pow(2, MBH_PARTICLE);  
+    }
+
     /* ------------------------------------------------------- */
     /* For each grid,
      * (a) project the subgrid's solution into this grid (step #18)

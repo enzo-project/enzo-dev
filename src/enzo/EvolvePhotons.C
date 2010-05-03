@@ -85,7 +85,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   bool FirstTime = true;
 
 #ifdef REPORT_PERF
-  double tt0, tt1, PerfCounter[14];
+  double ep0, tt0, tt1, PerfCounter[14];
+  ep0 = ReturnWallTime();
   for (int i = 0; i < 14; i++)
     PerfCounter[i] = 0;
 #endif
@@ -527,6 +528,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   END_PERF(13);
 
 #ifdef REPORT_PERF
+  if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
   for (int i = 0; i < NumberOfProcessors; i++) {
     CommunicationBarrier();
     if (MyProcessorNumber == i) {

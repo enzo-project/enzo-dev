@@ -44,13 +44,6 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
   for (dim = 0; dim < GridRank; dim++)
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
  
-  /* Set up colour field. */
- 
-  /*  if (ColourField) {
-    fprintf(stderr, "ColourField not implemented yet.\n");
-    ENZO_FAIL("");
-    } */
- 
   /* Find fields: density, total energy, velocity1-3. */
  
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -59,11 +52,14 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     ENZO_FAIL("");
   }
- 
 
   if (level == 0) {  // set it up on level zero and make it mustrefine
-
-    //    double mass_p = 20.0*1.989e33;
+    NumberOfParticles = 64;
+    NumberOfStars = 64;
+    printf("Adding Sink Particles. \n");
+    NumberOfParticleAttributes = 3;
+    if (StellarWindFeedback) NumberOfParticleAttributes = 6;
+    this->AllocateNewParticles(NumberOfParticles);
     double mass_m = 3.415*1.989e33; //Mass of massive stars
     double mass_s = 0.01*1.989e33; //Mass of small stars
     mass_m /= MassUnits;
@@ -76,44 +72,39 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
     t_dyn_m /= TimeUnits;
     t_dyn_s /= TimeUnits;
     double dxm = dx / pow(RefineBy, MaximumRefinementLevel);
-
-    printf("Adding Sink Particles. \n");
-
-    NumberOfParticles = 64;
-    NumberOfStars = 64;
-    //    MaximumParticleNumber = 1;
-    if (StellarWindFeedback) NumberOfParticleAttributes = 3;
-    this->AllocateNewParticles(NumberOfParticles);
-
-
     for (k=0; k<4; k++){
       for (j=0; j<4; j++){
 	for (i=0; i<4; i++){
 	  l = i+4*j+16*k;
 	  printf("Creating particle %i \n",l);
-	  ParticleMass[0] = den_m;
-	  ParticleNumber[0] = 0;
-	  ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-	  ParticlePosition[0][0] = 0.125+0.25*i; //+0.5*dx;
-	  ParticlePosition[1][0] = 0.125+0.25*j; //+0.5*dx;
-	  ParticlePosition[2][0] = 0.125+0.25*k; //+0.5*dx;
-
-	  ParticleVelocity[0][0] = 0.0;
-	  ParticleVelocity[1][0] = 0.0;
-	  ParticleVelocity[2][0] = 0.0;
-	  ParticleAttribute[0][0] = 0.0; // creation time             
-	  ParticleAttribute[1][0] = 0.0;
-	  ParticleAttribute[2][0] = mass_m;
-
-	  for (i = 0; i< MAX_DIMENSION+1; i++){
-	    ParticleAcceleration[i] = NULL;
+	  ParticleMass[l] = den_m;
+	  ParticleNumber[l] = l;
+	  ParticleType[l] = PARTICLE_TYPE_MUST_REFINE;
+	  ParticlePosition[0][l] = 0.125+0.25*i;//+0.5*dx;
+	  ParticlePosition[1][l] = 0.125+0.25*j;//+0.5*dx;
+	  ParticlePosition[2][l] = 0.125+0.25*k;//+0.5*dx;
+	  ParticleVelocity[0][l] = 0.0;
+	  ParticleVelocity[1][l] = 0.0;
+	  ParticleVelocity[2][l] = 0.0;
+	  ParticleAcceleration[0] = NULL;
+	  ParticleAcceleration[1] = NULL;
+	  ParticleAcceleration[2] = NULL;
+	  ParticleAttribute[0][l] = 0.0; // creation time             
+	  ParticleAttribute[1][l] = t_dyn_m; // t_dyn
+	  ParticleAttribute[2][l] = mass_m;
+	  if (StellarWindFeedback) {
+	    ParticleAttribute[3][l] = 1.0;  
+	    ParticleAttribute[4][l] = 0.0;
+	    ParticleAttribute[5][l] = 0.0;
 	  }
 	  this->ClearParticleAccelerations();
-
+	  printf("Completed particle %i, position %g,%g,%g \n",l,ParticlePosition[0][l],ParticlePosition[1][l],ParticlePosition[2][l]);
 	}
       }
     }
   }
+
+
 
 
 

@@ -41,7 +41,10 @@
 
 /* Set Subgrid Marker field */
 
-   int SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid);
+   int SetSubgridMarkerFromSubgrid(grid *Subgrid);
+   int SetSubgridMarkerFromParent(grid *Parent);
+   int SetSubgridMarkerFromSibling(grid *Sibling, 
+				   FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* Return Subgrid Marker for a position */
 
@@ -343,8 +346,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
 
-int FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r, 
-		      const FLOAT *u, PhotonPackageEntry* &PP,
+int FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 		      grid* &MoveToGrid, int &DeltaLevel,
 		      const float *DomainWidth, int &DeleteMe,
 		      grid *ParentGrid);
