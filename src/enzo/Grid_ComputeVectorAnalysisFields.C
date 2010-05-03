@@ -31,8 +31,8 @@
 
 int grid::ComputeVectorAnalysisFields(
         field_type fx, field_type fy, field_type fz,
-        float *curl_x, float *curl_y, float *curl_z,
-        float *div)
+        float* &curl_x, float* &curl_y, float* &curl_z,
+        float* &div)
 {
   int F1Num, F2Num, F3Num;
   F1Num=FindField(fx, FieldType, NumberOfBaryonFields);

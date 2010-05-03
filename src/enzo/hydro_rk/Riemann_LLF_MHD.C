@@ -165,14 +165,14 @@ int llf_mhd(float **FluxLine, float **priml, float **primr, float **prim, int Ac
     FluxLine[iPhi][n] *= (C_h*C_h);
 
     /*if (isnan(FluxLine[iD][n])) {
-      printf("F[iD] huge at n=%d: fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
+      printf("F[iD] huge at n=%"ISYM": fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
 	     n, Fl[iD], Fr[iD], Ul[iD], Ur[iD], ap, am);
-      printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, pl=%g, pr=%g, cfr=%g, temp2=%g, 4.0csca=%g\n",
+      printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, pl=%"GSYM", pr=%"GSYM", cfr=%"GSYM", temp2=%"GSYM", 4.0csca=%"GSYM"\n",
 	     lp_l, lm_l, lp_r, lm_r, pl, pr, cf, temp1*temp1, 4.0*cs2*ca2);
-      printf("cs2=%g, ca2=%g, B2/rho=%g\n", cs2, ca2, B2/rho);
-      printf("priml: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("cs2=%"GSYM", ca2=%"GSYM", B2/rho=%"GSYM"\n", cs2, ca2, B2/rho);
+      printf("priml: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     priml[0][n], priml[1][n], priml[2][n], priml[3][n], priml[4][n]);
-      printf("primr: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("primr: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     primr[0][n], primr[1][n], primr[2][n], primr[3][n], primr[4][n]);
       return FAIL;
       }*/

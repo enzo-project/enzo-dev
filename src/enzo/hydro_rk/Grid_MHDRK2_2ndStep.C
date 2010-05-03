@@ -52,7 +52,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
   for (int j=30; j < 33; j++) 
-    for (int i=0; i < 9; i++) printf("BaryonField[%i][%i] = %g \n", i, j, BaryonField[i][j]);
+    for (int i=0; i < 9; i++) printf("BaryonField[%"ISYM"][%"ISYM"] = %"GSYM" \n", i, j, BaryonField[i][j]);
 #endif
 
   this->ReturnHydroRKPointers(Prim, false);  
@@ -61,7 +61,7 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
   for (int j=30; j < 33; j++) 
-    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+    for (int i=0; i < 9; i++) printf("Prim[%"ISYM"][%"ISYM"] = %"GSYM" \n", i, j, Prim[i][j]);
 #endif
 
 

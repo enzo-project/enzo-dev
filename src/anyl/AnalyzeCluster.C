@@ -895,6 +895,7 @@ main(int argc, char *argv[])
 	  if (ProfileWeight[j][i] > 0) 
 	    ProfileValue[j][i] /= ProfileWeight[j][i];  
 
+#ifdef USE_HDF4
       /* Save disk image. */
 
       Eint32 OutDims[2];
@@ -928,6 +929,7 @@ main(int argc, char *argv[])
       /* Clean up. */
 
       delete float_temp;
+#endif  //USE_HDF4
 
       } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 

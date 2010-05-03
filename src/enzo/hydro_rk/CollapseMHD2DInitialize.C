@@ -80,20 +80,20 @@ int CollapseMHD2DInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %d", &RefineAtStart);
-    ret += sscanf(line, "MediumDensity = %f", &MediumDensity);
-    ret += sscanf(line, "MediumPressure = %f", &MediumPressure);
-    ret += sscanf(line, "InitialBField = %f", &B0);
-    ret += sscanf(line, "theta_B = %f", &theta_B);
+    ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
+    ret += sscanf(line, "MediumDensity = %"FSYM, &MediumDensity);
+    ret += sscanf(line, "MediumPressure = %"FSYM, &MediumPressure);
+    ret += sscanf(line, "InitialBField = %"FSYM, &B0);
+    ret += sscanf(line, "theta_B = %"FSYM, &theta_B);
  
-    ret += sscanf(line, "SphereType = %d", &SphereType);
-    ret += sscanf(line, "SphereRadius = %"FSYM, &SphereRadius);
-    ret += sscanf(line, "SphereCoreRadius = %"FSYM, &SphereCoreRadius);
-    ret += sscanf(line, "SphereDensity = %f", &SphereDensity);
-    ret += sscanf(line, "SpherePressure = %f", &SpherePressure);
-    ret += sscanf(line, "SphereSoundVelocity = %f", &SphereSoundVelocity);
-    ret += sscanf(line, "SphereAngVel = %f", &SphereAngVel);
-    ret += sscanf(line, "SphereCutOff = %f", &SphereCutOff);
+    ret += sscanf(line, "SphereType = %"ISYM, &SphereType);
+    ret += sscanf(line, "SphereRadius = %"PSYM, &SphereRadius);
+    ret += sscanf(line, "SphereCoreRadius = %"PSYM, &SphereCoreRadius);
+    ret += sscanf(line, "SphereDensity = %"FSYM, &SphereDensity);
+    ret += sscanf(line, "SpherePressure = %"FSYM, &SpherePressure);
+    ret += sscanf(line, "SphereSoundVelocity = %"FSYM, &SphereSoundVelocity);
+    ret += sscanf(line, "SphereAngVel = %"FSYM, &SphereAngVel);
+    ret += sscanf(line, "SphereCutOff = %"FSYM, &SphereCutOff);
 
   } // end input from parameter file
   
@@ -104,7 +104,7 @@ int CollapseMHD2DInitialize(FILE *fptr, FILE *Outfptr,
     bfieldu = sqrt(presu*4.0*Pi);
   }
   
-  printf("rhou=%g,velu=%g,lenu=%g,tu=%g (%g yr),tempu=%g,presu=%g, bfieldu=%g, tempu=%g\n", 
+  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM" (%"GSYM" yr),tempu=%"GSYM",presu=%"GSYM", bfieldu=%"GSYM", tempu=%"GSYM"\n", 
 	 rhou, velu,lenu,tu,tu/3.1558e7,tempu,presu,bfieldu, tempu);
 
   MediumDensity /= rhou;
@@ -117,7 +117,7 @@ int CollapseMHD2DInitialize(FILE *fptr, FILE *Outfptr,
   SphereSoundVelocity /= velu;
   SphereAngVel *= tu;
 
-  printf("rhoc=%g, rhom=%g, pm=%g\n", SphereDensity, MediumDensity, MediumPressure);
+  printf("rhoc=%"GSYM", rhom=%"GSYM", pm=%"GSYM"\n", SphereDensity, MediumDensity, MediumPressure);
 
 
   if (TopGrid.GridData->CollapseMHD3DInitializeGrid(

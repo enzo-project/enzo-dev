@@ -127,6 +127,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoresPerNode = 1;
   PreviousMaxTask = 0;
   LoadBalancingMinLevel = 0;     //All Levels
+  LoadBalancingMaxLevel = MAX_DEPTH_OF_HIERARCHY;  //All Levels
 
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;
@@ -408,7 +409,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIColorMass                  = 1e6;          // total mass to color
 
   MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1e6;          // Msun
+  MBHMinimumMass                   = 1e3;          // Msun
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
@@ -428,6 +429,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
+  MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
   OutputWhenJetsHaveNotEjected     = FALSE;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;

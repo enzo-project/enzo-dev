@@ -459,8 +459,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       /* Gravity: clean up AccelerationField. */
 
-      if (level != MaximumGravityRefinementLevel ||
-	  MaximumGravityRefinementLevel == MaximumRefinementLevel)
+      if ((level != MaximumGravityRefinementLevel ||
+	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
+	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
@@ -565,6 +566,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] == NULL) {
       MetaData->SubcycleNumber++;
       MetaData->MovieTimestepCounter++;
+    }
+
+    /* Once MBH particles are inserted throughout the whole grid hierarchy,
+       turn off MBH creation (at the bottom of the hierarchy) */
+
+    if (STARMAKE_METHOD(MBH_PARTICLE) && (LevelArray[level+1] == NULL)) { 
+      StarParticleCreation -= pow(2, MBH_PARTICLE);  
     }
 
     /* ------------------------------------------------------- */

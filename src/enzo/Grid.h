@@ -271,8 +271,8 @@ class grid
                             char *base_name, int grid_id, HDF5_hid_t file_id);
 
    int ComputeVectorAnalysisFields(field_type fx, field_type fy, field_type fz,
-                                   float *curl_x, float *curl_y, float *curl_z,
-                                   float *div);
+                                   float* &curl_x, float* &curl_y, float* &curl_z,
+                                   float* &div);
 
 private:
    int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
@@ -1461,15 +1461,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* PPM Direct Euler Solver. */
 
-  int PPMDirectEuler(int CycleNumber, int NumberOfSubgrids, 
-                     fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-                     long_int GridGlobalStart[], int GravityOn,
-		     int NumberOfColours, int colnum[]);
+int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
+		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+		Elong_int GridGlobalStart[], int GravityOn, 
+		int NumberOfColours, int colnum[]);
 
-  int euler_sweep(int dim, int iter, int CycleNumber, int NumberOfSubgrids, 
-                  fluxes *SubgridFluxes[], float *CellWidthTemp[],
-                  long_int GridGlobalStart[], int GravityOn,
-		  int NumberOfColours, int colnum[], float *temp, int tempsize);
+int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
 
 // AccelerationHack
 
@@ -1501,10 +1508,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 					 float CoreRadius,
 					 float AngularVelocity);
 
-/* ShockTube problem: initialize grid (returns SUCCESS or FAIL) */
+/* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
-  int ShockTubeInitializeGrid(int Direction, float Boundary, float Density[],
-			      float Pressure[], float Velocity[]);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float LeftDensity, float RightDensity, 
+				    float LeftVelocityX, float RightVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float LeftPressure, float RightPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -2122,10 +2133,6 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
-  int Hydro1DTestInitializeGrid(float rhol, float rhor,
-				float vxl,  float vxr,
-				float vyl,  float vyr,
-				float pl,   float pr);
   int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);

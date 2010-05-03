@@ -59,7 +59,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
  
-  float *temp;
+  float *temp, *temp_VelAnyl;
  
   FILE *log_fptr;
   FILE *procmap_fptr;
