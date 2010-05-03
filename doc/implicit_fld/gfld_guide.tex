@@ -136,9 +136,97 @@ opacity $\kappa$ (see
 \section{LTE couplings}
 \label{sec:lte_model}
 
+For problems in which chemical ionization is unimportant, we may
+assume that the gas is in local thermodynamic eqiulibrium.  In this
+case we do not need to couple the radiation energy to a model for
+chemical ionization, and only couple the radiation to the gas energy
+correction equation, 
+\begin{align}
+  \label{eq:cons_energy}
+  \partial_t e + \frac1a\vb\cdot\nabla e &=
+    - \frac{2\dot{a}}{a}e
+    - \frac{1}{a\rhob}\nabla\cdot\left(p\vb\right) 
+    - \frac1a\vb\cdot\nabla\phi + G - \Lambda.
+\end{align}
+The advection, pressure, and gravity-dependent terms are already
+handled by Enzo's existing infrastructure.  In this module, we
+therefore consider the equation
+\begin{align}
+  \label{eq:cons_energy_correction}
+  \partial_t e_c &= - \frac{2\dot{a}}{a}e_c + G - \Lambda,
+\end{align}
+that we use to correct Enzo's original gas energy to include radiation
+couplings.  Here, $e$ corresponds to Enzo's total specific energy, $G$
+is the local heating rate,
+\begin{align}
+\label{eq:G_LTE}
+  G &= \frac{c \kappa}{\rhob} E,
+\end{align}
+and $\Lambda$ corresponds to the local cooling rate,
+\begin{align}
+\label{eq:Lambda_LTE}
+  \Lambda = \frac{4\pi}{\rhob} \eta.
+\end{align}
+Here $\kappa$ is a spatially-homogeneous, user-defined energy-mean
+opacity, 
+\begin{align}
+\label{eq:opacityE}
+  \kappa = C_0 \left(\frac{\rhob}{C_1}\right)^{C_2}
+    \left(\frac{T}{C_3}\right)^{C_4}, 
+\end{align}
+and $\eta$ is a black-body emissivity given by
+\begin{align}
+\label{eq:etaBB}
+  \eta = \frac{\kappa_P\sigma_{SB}T^4}{\pi},
+\end{align}
+where the user-defined Planck-mean opacity $\kappa_P$ is defined
+similarly to the energy-mean opacity \eqref{eq:opacityE},
+$\sigma_{SB}$ is the Stefan-Boltzmann constant [$5.6704\times 10^{-5}$
+erg s$^{-1}$ cm$^{-2}$ K$^{-4}$], and $T$ is the gas temperature in
+Kelvin.
+
 
 \section{Chemistry-dependent couplings}
 \label{sec:chem_model}
+
+In general, radiation calculations in Enzo are used in simulations
+where chemical ionization states are important.  For these situations,
+we couple the radiation equation \eqref{eq:radiation_PDE} with
+equations for both the specific gas energy correction and the
+ionization dynamics of Hydrogen,
+\begin{align}
+  \notag
+  \partial_t e_c &= - \frac{2\dot{a}}{a}e_c + G - \Lambda, \\
+  \label{eq:hydrogen_ionization}
+  \partial_t \mn_{HI} + \frac{1}{a}\nabla\cdot\(\mn_{HI}\vb\) &=
+    -3\frac{\dot{a}}{a}\mn_{HI} + \frac{1}{a^3}\left(
+    \alpha^{rec} \mn_e \mn_{HII} - \mn_{HI}
+    \Gamma_{HI}^{ph}\right). 
+\end{align}
+In this case, the heating and cooling rates are chemistry-dependent,
+\begin{align}
+  \label{eq:G_nLTE}
+  G &= \frac{c\,E\,\mn_{HI}}{\rhob} 
+    \left(\int_{\nu_{HI}}^{\infty} \sigma_{HI}\, \chi_E
+    \left(1-\tfrac{\nu_{HI}}{\nu}\right)\, d\nu\right) \bigg/
+    \left(\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right) \\ \notag
+  &= \frac{c\,E\,\mn_{HI}}{\rhob}  \left(
+    \int_{\nu_{HI}}^{\infty}\sigma_{HI}\, \chi_E\, d\nu 
+    -\nu_{HI} \int_{\nu_{HI}}^{\infty} \sigma_{HI}\, \chi_E\,
+    \tfrac{1}{\nu}\, d\nu\right) \bigg/ \left(\int_{\nu_{HI}}^{\infty} \chi_E\,
+    d\nu\right), \\
+\label{eq:Lambda_nLTE}
+  \Lambda &= \frac{\mn_e}{\rhob}\bigg[ce_{HI}\, \mn_{HI} 
+  + ci_{HI}\, \mn_{HI} + re_{HII}\, \mn_{HII} + \text{brem}
+  \mn_{HII} \\
+  \notag &\quad+ \frac{m_h}{\rho_{units}\, a^3} \left(\text{comp}_1\, (T-\text{comp}_2) 
+    + \text{comp}_{X}\, (T-\text{comp}_{T})\right) \bigg].
+\end{align}
+The temperature-dependent cooling rates comprising
+\eqref{eq:Lambda_nLTE} are all taken from Enzo's built-in rate tables.
+
+
+
 
 
 \section{Numerical solution approach}
