@@ -47,6 +47,7 @@ int SetParameterDefaults(parmstruct *Parameters)
   Parameters->WaveNumberCutoff    = INT_UNDEFINED;
   Parameters->InitializeParticles = TRUE;
   Parameters->InitializeGrids     = TRUE;
+  Parameters->RandomNumberGenerator = 0;
  
   Parameters->ParticlePositionName = ppos_name;
   Parameters->ParticleVelocityName = pvel_name;

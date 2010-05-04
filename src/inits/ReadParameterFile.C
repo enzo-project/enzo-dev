@@ -93,6 +93,7 @@ int ReadParameterFile(FILE *fptr, parmstruct *Parameters)
     ret += sscanf(line, "InitializeParticles = %"ISYM,
 		  &Parameters->InitializeParticles);
     ret += sscanf(line, "InitializeGrids = %"ISYM, &Parameters->InitializeGrids);
+    ret += sscanf(line, "RandomNumberGenerator = %"ISYM, &Parameters->RandomNumberGenerator);
     ret += sscanf(line, "RefineBy = %"ISYM, &Parameters->RefineBy);
     ret += sscanf(line, "MaximumInitialRefinementLevel = %"ISYM, 
 		  &Parameters->MaximumInitialRefinementLevel);

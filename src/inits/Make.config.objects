@@ -52,8 +52,8 @@ OBJS_CONFIG_LIB = \
 	qromo.o \
 	ran1.o \
 	ReadPowerSpectrumParameters.o \
-	Rmake_field_kpreserving.o \
-	Rmake_field.o \
+	make_field_kpreserving.o \
+	make_field.o \
 	rotate2d.o \
 	rotate3d.o \
 	s66_st1.o \

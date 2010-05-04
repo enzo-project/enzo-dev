@@ -44,6 +44,7 @@ struct parmstruct {
 
   int InitializeParticles;
   int InitializeGrids;
+  int RandomNumberGenerator;
 
   /* Names. */
 
