@@ -530,6 +530,8 @@ OBJS_CONFIG_LIB = \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
+	OutputPotentialFieldOnly.o \
+	OutputSmoothedDarkMatterOnly.o \
         P_ColumnFormat.o \
 	ParticleMergeRoutines.o \
         ParticleSplitter.o \
