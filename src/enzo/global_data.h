@@ -206,6 +206,7 @@ EXTERN float PointSourceGravityCoreRadius;
 /* SelfGravity (TRUE or FALSE) */
 
 EXTERN int SelfGravity;
+EXTERN int SelfGravityGasOff;
 
 /* CopyGravPotential (TRUE or FALSE) */
 

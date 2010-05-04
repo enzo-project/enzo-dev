@@ -282,7 +282,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", pow(csgrid2*pow(*v1,2),0.5), pow(vrel2*pow(*v1,2),0.5));
     //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
     r_bh = G*msink / (csgrid2 + vrel2);
-    //printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18);
+    printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
     densgrid *= min(pow((*dx)/r_bh, 1.5), 1.0);
     mdot = 4.0 * pi * densgrid * pow(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
     drho = min(mdot * (*dt) / pow(*dx,3), 0.25 * d[index]);

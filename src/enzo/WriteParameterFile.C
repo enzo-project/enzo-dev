@@ -345,6 +345,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  PointSourceGravityCoreRadius);
  
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
+  fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);
   fprintf(fptr, "GravitationalConstant          = %e\n",
 	  GravitationalConstant);
   fprintf(fptr, "S2ParticleSize                 = %"GSYM"\n", S2ParticleSize);

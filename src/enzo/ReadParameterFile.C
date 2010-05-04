@@ -348,6 +348,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PointSourceGravityCoreRadius);
  
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
+    ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
     ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
     ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);

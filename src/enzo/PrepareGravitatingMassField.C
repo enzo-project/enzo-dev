@@ -100,9 +100,13 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
  
   // if (CurrentGrid->AddBaryonsToGravitatingMassField() == FAIL) {
       //fprintf(stderr, "  PGMF - DepositBaryons\n");
-  if (DepositBaryons(Grid, When) == FAIL) {
-    fprintf(stderr, "Error in DepositBaryons\n");
-    ENZO_FAIL("");
+
+  // IF STATEMENT HERE TO MAKE IT SO NO GAS CONTRIBUTES TO GRAVITY
+  if(!SelfGravityGasOff){
+    if (DepositBaryons(Grid, When) == FAIL) {
+      fprintf(stderr, "Error in DepositBaryons\n");
+      ENZO_FAIL("");
+    }
   }
  
   /* Particles: go through all the other grids on this level and add all
