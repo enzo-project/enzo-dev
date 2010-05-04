@@ -37,10 +37,10 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 int grid::DepositMustRefineParticles(int pmethod, int level)
 {
   /* declarations */
- 
+  //printf("grid::DepositMustRefineParticles called \n");
   int i, dim, size = 1, ParticleTypeToMatch1, ParticleTypeToMatch2;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
-  int ParticleBufferSize = 1;
+  int ParticleBufferSize = 16;
 
   /* error check */
  
