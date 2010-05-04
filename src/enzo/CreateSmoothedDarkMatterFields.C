@@ -54,6 +54,9 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   if (OutputSmoothedDarkMatter == 0)
     return SUCCESS;
 
+  if (OutputSmoothedDarkMatter < 0)
+    OutputSmoothedDarkMatter = -OutputSmoothedDarkMatter;
+
   /* Create a LevelHierarchyEntry array */
 
   int level;
