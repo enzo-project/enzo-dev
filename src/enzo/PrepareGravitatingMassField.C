@@ -106,6 +106,7 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
     if (DepositBaryons(Grid, When) == FAIL) {
       fprintf(stderr, "Error in DepositBaryons\n");
       ENZO_FAIL("");
+      printf("      Potential calculated for the gas\n");
     }
   }
  

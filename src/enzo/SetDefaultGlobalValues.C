@@ -274,6 +274,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PointSourceGravityCoreRadius = 0.0;
 
   SelfGravity                 = FALSE;             // off
+  SelfGravityGasOff           = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
