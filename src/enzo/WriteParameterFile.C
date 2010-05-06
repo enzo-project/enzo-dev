@@ -425,8 +425,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
 
-  fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
-	  OutputSmoothedDarkMatter);
+  if (OutputSmoothedDarkMatter < 0)
+    fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
+	    OutputSmoothedDarkMatter);
   fprintf(fptr, "SmoothedDarkMatterNeighbors    = %"ISYM"\n", 
 	  SmoothedDarkMatterNeighbors);
   fprintf(fptr, "OutputGriddedStarParticle      = %"ISYM"\n", 
