@@ -48,7 +48,7 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid)
     //    if (debug) printf("allocating SubgridMarker field\n");
     SubgridMarker = new grid*[size];
     if (Subgrid == this) {
-      //for (i=0; i<size; i++) SubgridMarker[i] = this;
+      for (i=0; i<size; i++) SubgridMarker[i] = NULL;
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  index = (k*GridDimension[1]+j)*GridDimension[0] + GridStartIndex[0];

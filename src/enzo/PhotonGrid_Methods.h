@@ -42,9 +42,11 @@
 /* Set Subgrid Marker field */
 
    int SetSubgridMarkerFromSubgrid(grid *Subgrid);
-   int SetSubgridMarkerFromParent(grid *Parent);
+   int SetSubgridMarkerFromParent(grid *Parent, int level);
    int SetSubgridMarkerFromSibling(grid *Sibling, 
 				   FLOAT EdgeOffset[MAX_DIMENSION]);
+   int SubgridMarkerPostParallel(grid *Parent, HierarchyEntry **Grids[],
+				 int *NumberOfGrids);
 
 /* Return Subgrid Marker for a position */
 
