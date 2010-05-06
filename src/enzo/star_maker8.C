@@ -81,10 +81,15 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   int		i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
   int           xo, yo, zo;
-  float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid;
+#define MAX_SUPERCELL_NUMBER 1000
+  int           n_cell, ind_cell[MAX_SUPERCELL_NUMBER];
+  float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, m_cell;
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
   double        Pi = 3.1415926;
+  float nx_cell[MAX_SUPERCELL_NUMBER], 
+    ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
+
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
   printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
@@ -252,54 +257,164 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
      printf("note:   G = %"FSYM" in code units \n",G);
   double csgrid2;
   float densgrid, tempgrid, msink, drho,
-    usink, vsink, wsink, vrel2, mdot, e, de;
+    usink, vsink, wsink, vrel2, mdot, e, de,
+    r_k;
   //  float pi = 4.0*atan(1.0);
   FLOAT r_bh;
-  for (n = 0; n < nsinks; n++) {
+  if (ProblemType == 107){
+    for (n = 0; n < nsinks; n++) {
 
-    bb = sink_index[n];
+      bb = sink_index[n];
 
-    if (mpold[bb] < 0.0) continue;
+      if (mpold[bb] < 0.0) continue;
 
-    i = (xpold[bb] - *xstart) / (*dx);
-    j = (ypold[bb] - *ystart) / (*dx);
-    k = (zpold[bb] - *zstart) / (*dx);
-    index = i + (j + k * (*ny)) * (*nx);
+      i = (xpold[bb] - *xstart) / (*dx);
+      j = (ypold[bb] - *ystart) / (*dx);
+      k = (zpold[bb] - *zstart) / (*dx);
+      index = i + (j + k * (*ny)) * (*nx);
     
-    densgrid  = d[index];
-    ugrid     = u[index];
-    vgrid     = v[index];
-    wgrid     = w[index];
-    tempgrid  = temp[index];    
-    msink     = mpold[bb] * pow(*dx,3);
-    usink     = upold[bb];
-    vsink     = vpold[bb];
-    wsink     = wpold[bb];
+      densgrid  = d[index];
+      ugrid     = u[index];
+      vgrid     = v[index];
+      wgrid     = w[index];
+      tempgrid  = temp[index];    
+      msink     = mpold[bb] * pow(*dx,3);
+      usink     = upold[bb];
+      vsink     = vpold[bb];
+      wsink     = wpold[bb];
 
-    csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / pow(*v1,2);
-    vrel2 = pow(ugrid-usink,2) + pow(vgrid-vsink,2) + pow(wgrid-wsink,2);
-    //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, pow(vrel2/csgrid2,0.5));
-    //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", pow(csgrid2*pow(*v1,2),0.5), pow(vrel2*pow(*v1,2),0.5));
-    //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
-    r_bh = G*msink / (csgrid2 + vrel2);
-    printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
-    densgrid *= min(pow((*dx)/r_bh, 1.5), 1.0);
-    mdot = 4.0 * pi * densgrid * pow(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
-    drho = min(mdot * (*dt) / pow(*dx,3), 0.25 * d[index]);
+      csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / pow(*v1,2);
+      vrel2 = pow(ugrid-usink,2) + pow(vgrid-vsink,2) + pow(wgrid-wsink,2);
+      //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, pow(vrel2/csgrid2,0.5));
+      //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", pow(csgrid2*pow(*v1,2),0.5), pow(vrel2*pow(*v1,2),0.5));
+      //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
+      r_bh = G*msink / (csgrid2 + vrel2);
+      printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+
+      if (r_bh/(*dx) < 0.25) r_k = (*dx)/4.0;
+      else if (r_bh/(*dx) <= 4.0 ) r_k = r_bh;
+      else r_k = 2*(*dx); 
+
+
+
+
+
+      densgrid *= min(pow((*dx)/r_bh, 1.5), 1.0);
+      mdot = 4.0 * pi * densgrid * pow(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
+      drho = min(mdot * (*dt) / pow(*dx,3), 0.25 * d[index]);
+
+      n_cell = 0;      
+      m_cell = 0;
+      
+      /* Caclualte the total mass of the supercell */
+      for (int kk = -4; kk <= 4; kk++) {
+	for (int jj = -4; jj <= 4; jj++) {
+	  for (int ii = -4; ii <= 4; ii++) {
+
+
+
+
+
+	    
+// 	    x_cell = ii*(*dx), y_cell = jj*(*dx), z_cell = kk*(*dx);
+// 	    double radius2 = pow(x_cell,2) + pow(y_cell,2) + pow(z_cell,2);
+// 	    double radius = sqrt(radius2);
+// 	    radius_cell[n_cell] = radius;
+// 	    radius2_cell[n_cell] = pow(ii,2)+pow(jj,2)+pow(kk,2);
+// 	    // printf("Radius Squared = %f\n",radius2_cell[n_cell]);
+// 	    ind_cell[n_cell] = i+ii+(j+jj+(k+kk)*(*ny))*(*nx);
+// 	    nx_cell[n_cell]  = x_cell/radius_cell[n_cell];
+// 	    ny_cell[n_cell]  = y_cell/radius_cell[n_cell];
+// 	    nz_cell[n_cell]  = z_cell/radius_cell[n_cell];
+// 	    m_cell += d[ind_cell[n_cell]]*pow(*dx,3);
+// 	    n_cell++;
+	  
+	  }
+	}
+      }
+
+      /* Calculate the wind mass */
+
+      // rho_wind = rho_wind/(n_cell*pow((*dx),3)) /* Density per solid angle in units of density code units */
+
+
+      /* Do the feedback */
+
+      //printf("n_cell = %i \n", n_cell);
+      float m_wind = 0.0;
+      float cells_volume = 0.0;
+      for (int ic = 0; ic < n_cell; ic++) {
+	//v_wind = mdot_wind/(4.0*Pi*pow(radius_cell[ic],2)*rho_wind);
+	//rho_wind = mdot_wind/(4.0*Pi*pow(radius_cell[ic],2)*v_wind);
+	// m_wind += rho_wind*pow(*dx,3);;
+	float u1 = u[ind_cell[ic]], 
+	  v1 = v[ind_cell[ic]],
+	  w1 = v[ind_cell[ic]];
+
+	 }
+
+
+
     
-    /*maxdens = jlsquared * temp[index] / dx2;
-      drho = max(0.0, d[index] - maxdens);*/        
-    printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*pow(*dx,3)*umass,drho );
+      /*maxdens = jlsquared * temp[index] / dx2;
+	drho = max(0.0, d[index] - maxdens);*/        
+      printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*pow(*dx,3)*umass,drho );
 
-    upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
-    vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
-    wpold[bb] = (mpold[bb]*wsink + drho*wgrid) / (mpold[bb] + drho);
-    mpold[bb] += drho;
-    dmold[bb] += drho*pow(*dx,3);
-    d[index]  -= drho;
+      upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
+      vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
+      wpold[bb] = (mpold[bb]*wsink + drho*wgrid) / (mpold[bb] + drho);
+      mpold[bb] += drho;
+      dmold[bb] += drho*pow(*dx,3);
+      d[index]  -= drho;
 
+    }
   }
+   else{
+    for (n = 0; n < nsinks; n++) {
 
+      bb = sink_index[n];
+
+      if (mpold[bb] < 0.0) continue;
+
+      i = (xpold[bb] - *xstart) / (*dx);
+      j = (ypold[bb] - *ystart) / (*dx);
+      k = (zpold[bb] - *zstart) / (*dx);
+      index = i + (j + k * (*ny)) * (*nx);
+    
+      densgrid  = d[index];
+      ugrid     = u[index];
+      vgrid     = v[index];
+      wgrid     = w[index];
+      tempgrid  = temp[index];    
+      msink     = mpold[bb] * pow(*dx,3);
+      usink     = upold[bb];
+      vsink     = vpold[bb];
+      wsink     = wpold[bb];
+
+      csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / pow(*v1,2);
+      vrel2 = pow(ugrid-usink,2) + pow(vgrid-vsink,2) + pow(wgrid-wsink,2);
+      //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, pow(vrel2/csgrid2,0.5));
+      //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", pow(csgrid2*pow(*v1,2),0.5), pow(vrel2*pow(*v1,2),0.5));
+      //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
+      r_bh = G*msink / (csgrid2 + vrel2);
+      printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+      densgrid *= min(pow((*dx)/r_bh, 1.5), 1.0);
+      mdot = 4.0 * pi * densgrid * pow(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
+      drho = min(mdot * (*dt) / pow(*dx,3), 0.25 * d[index]);
+    
+      /*maxdens = jlsquared * temp[index] / dx2;
+	drho = max(0.0, d[index] - maxdens);*/        
+      printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*pow(*dx,3)*umass,drho );
+
+      upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
+      vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
+      wpold[bb] = (mpold[bb]*wsink + drho*wgrid) / (mpold[bb] + drho);
+      mpold[bb] += drho;
+      dmold[bb] += drho*pow(*dx,3);
+      d[index]  -= drho;
+
+    }
+   }
   /* For a 3D->1D index, put x+1, y+1, z+1 indices into nice variables */
 
   xo = 1;
@@ -316,11 +431,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   float fe = StellarWindEjectionFraction;
   float p_star = StellarWindMomentumPerStellarMass/(*v1);
   float m_wind = StellarWindThresholdMass/umass;
-  float p_wind, m_cell;
-#define MAX_SUPERCELL_NUMBER 1000
-  int n_cell, ind_cell[MAX_SUPERCELL_NUMBER];
-  float nx_cell[MAX_SUPERCELL_NUMBER], 
-    ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
+  float p_wind;
   float b_c, bx_c, by_c, bz_c, costheta = cos(3.1415926/3.9), v_wind, rho_wind,
     nx_b, ny_b, nz_b;
   FLOAT r_cell, x_cell, y_cell, z_cell;
@@ -663,9 +774,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 19.0) SolidAngle = 0.0426303472;
 	else if (radius2_cell[ic] == 22.0) SolidAngle = 0.0356113280;
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
-	 else { 
-	   SolidAngle = 4.*3.1415926/n_cell; 
-	   printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
+	else { 
+	  SolidAngle = 4.*3.1415926/n_cell; 
+	  printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(pow((*dx),3));
 	cells_volume += pow((*dx),3);
