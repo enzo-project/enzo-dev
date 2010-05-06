@@ -195,7 +195,7 @@ c           keep default option unrolled!
                jend = min(j1+buffersize, dim2)
                kstart = max(k1-buffersize+1, 1)
                kend = min(k1+buffersize, dim3)
-	       print*,'cic_flag: buffersize is:',buffersize
+c	       print*,'cic_flag: buffersize is:',buffersize
                do kk = kstart, kend
                   do jj = jstart, jend
                      do ii = istart, iend
