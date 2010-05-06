@@ -27,7 +27,6 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25

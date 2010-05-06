@@ -610,6 +610,11 @@ int RebuildHierarchy(TopGridData *MetaData,
  
   } // end: if (StaticHierarchy == TRUE)
 
+  /* set grid IDs */
+
+  for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)
+    for (Temp = LevelArray[i], j = 0; Temp; Temp = Temp->NextGridThisLevel, j++)
+      Temp->GridData->SetGridID(j);
 
   /* update all SubgridMarkers */
 
@@ -617,12 +622,6 @@ int RebuildHierarchy(TopGridData *MetaData,
   if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
     ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
 #endif /* TRANSFER  */
-
-  /* set grid IDs */
-
-  for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)
-    for (Temp = LevelArray[i], j = 0; Temp; Temp = Temp->NextGridThisLevel, j++)
-      Temp->GridData->SetGridID(j);
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();

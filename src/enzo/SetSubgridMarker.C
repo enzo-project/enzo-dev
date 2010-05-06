@@ -58,7 +58,7 @@ int SetSubgridMarker(TopGridData &MetaData,
 
   /* Generate grid arrays for lookups */
 
-  for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++)
+  for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++)
     if (LevelArray[i] != NULL)
       NumberOfGrids[i] = GenerateGridArray(LevelArray, i, &Grids[i]);
 
@@ -163,7 +163,7 @@ int SetSubgridMarker(TopGridData &MetaData,
 
   /* Cleanup */
 
-  for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++)
+  for (i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++)
     if (LevelArray[i] != NULL)
       delete [] Grids[i];
 
