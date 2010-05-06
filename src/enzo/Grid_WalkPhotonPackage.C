@@ -321,7 +321,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   count = 0;
   keep_walking = 1;
-  cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
+  //cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   while (keep_walking) {
 
     /* If the photon has left the grid, determine MoveToGrid,
@@ -369,26 +369,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // My Position in coordinates [0..1]
     for (dim = 0; dim < 3; dim++)
       r[dim] = s[dim] + radius*u[dim];
-
-//    if (SubgridMarker[cindex] != CurrentGrid) {
-//      if (SubgridMarker[cindex] == NULL) {
-//	(*MoveToGrid) = ParentGrid;
-//	DeltaLevel = -1;
-//      } else {
-//	(*MoveToGrid) = SubgridMarker[cindex];
-//	DeltaLevel = 1;
-//	if (DEBUG) 
-//	  printf("different grid subgrid marker %x %x %ld %"ISYM" %"ISYM
-//		 " %"ISYM" %"FSYM" %"FSYM" %"FSYM"\n",
-//		 SubgridMarker[cindex], CurrentGrid, cindex, 
-//		 g[0], g[1], g[2], r[0], r[1], r[2]);
-//      }
-//      // move it at least a tiny fraction of the grid cell to not have
-//      // to worry about round off errors shifting photons back and
-//      // forth between two grids without doing anything.
-//      (*PP)->Radius += PFLOAT_EPSILON;
-//      return SUCCESS;
-//    }
 
     // splitting condition split package if its associated area is
     // larger than dx^2/RaysPerCell but only as long as the radius is

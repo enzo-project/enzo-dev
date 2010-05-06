@@ -122,9 +122,11 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 
   /* Error check */
 
+#ifdef UNUSED
   if (MoveToGrid != NULL)
     if (MoveToGrid->PointInGridNB(r) == FALSE)
       ENZO_FAIL("Photon not contained in MoveToGrid!");
+#endif
 
   return SUCCESS;
 

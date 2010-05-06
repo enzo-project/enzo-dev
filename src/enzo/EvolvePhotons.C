@@ -61,7 +61,7 @@ void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
-#define NONBLOCKING_OFF
+#define NONBLOCKING
 #define REPORT_PERF_OFF
 
 #ifdef REPORT_PERF
