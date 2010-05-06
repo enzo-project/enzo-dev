@@ -52,8 +52,6 @@ int InitializePhotonCommunication(char* &kt_global)
   PH_CommunicationReceiveIndex = 0;  
   PH_CommunicationReceiveMaxIndex = 0;
 
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-
   for (i = 0; i < MAX_PH_RECEIVE_BUFFERS; i++)
     PH_CommunicationReceiveMPI_Request[i] = NULL;
   
@@ -114,6 +112,8 @@ int FinalizePhotonCommunication(char* &kt_global)
   delete [] kt_global;
 
   /* Wait until all of the requests are cancelled */
+
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
   MPI_Waitall(PhotonMessageMaxIndex, PhotonMessageRequest, 
 	      PH_ListOfStatuses);
@@ -250,11 +250,13 @@ int InitializePhotonReceive(int max_size, bool local_transport,
      actual photon data that we'll be receiving from each process. */
 
   //if (local_transport)
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
   MPI_Testsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
 	       PH_ListOfIndices, PH_ListOfStatuses);
   if (NumberOfReceives > 0)
     CommunicationCheckForErrors(PhotonMessageMaxIndex, PH_ListOfStatuses,
 				"Testsome InitializePhotonReceive");
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 //  else
 //    MPI_Waitsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
 //		 PH_ListOfIndices, PH_ListOfStatuses);
@@ -338,11 +340,13 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
     printf("P%d: keep_transporting(before) = %d, KTMaxIndex = %d\n", 
 	   MyProcessorNumber, keep_transporting, KeepTransMessageMaxIndex);
 
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
   MPI_Testsome(KeepTransMessageMaxIndex, KeepTransMessageRequest,
 	       &NumberOfReceives, PH_ListOfIndices, PH_ListOfStatuses);
   if (NumberOfReceives > 0)
     CommunicationCheckForErrors(KeepTransMessageMaxIndex, PH_ListOfStatuses,
 				"KTCheck Testsome");
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
   if (DEBUG && NumberOfReceives > 0)
     printf("P%d: Received %d KT messages, Index/MaxIndex = %d/%d.\n", 

@@ -33,6 +33,8 @@
 #ifdef USE_MPI
 static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
 static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
+void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
+				 char *msg=NULL);
 int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
 				 Eint32 nrequests, Eint32 index, 
 				 Eint32 &max_index);
@@ -83,6 +85,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
     CompletedRequests[i] = false;
 
   NumberOfCompletedRequests = 0;
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
   /* Wait for >1 receives */
 
@@ -103,6 +106,11 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
   fflush(stdout);
 #endif
 
+  if (NumberOfCompletedRequests > 0)
+    CommunicationCheckForErrors(TotalReceives, PH_ListOfStatuses,
+				"CommunicationReceiverPhotons");
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
+
   /* Get grid lists */
 
   if (NumberOfCompletedRequests > 0)
@@ -119,15 +127,6 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
   for (irecv = 0; irecv < NumberOfCompletedRequests; irecv++) {
 
     index = PH_ListOfIndices[irecv];
-      
-    if (PH_ListOfStatuses[index].MPI_ERROR != 0) {
-      fprintf(stderr, "MPI Error on processor %"ISYM". "
-	      "Error number %"ISYM" on request %"ISYM"\n",
-	      MyProcessorNumber, PH_ListOfStatuses[index].MPI_ERROR, index);
-      fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", 
-	      MyProcessorNumber, index, PH_ListOfStatuses[index].MPI_ERROR);
-    }
-
     if (CompletedRequests[index])
       continue;
 

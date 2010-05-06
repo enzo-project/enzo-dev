@@ -25,7 +25,6 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, FLOAT rx, 
 		 FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
