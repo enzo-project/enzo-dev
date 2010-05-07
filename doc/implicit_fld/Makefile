@@ -59,6 +59,7 @@ ${Target}.pdf:	${TexFiles} ${FigFiles} ${StyFiles} ${Target}.tex ${Target}.bbl
 ${Target}.bbl:	$(BibFile)
 	${LaTeX} ${Target}
 	${LaTeX} ${Target}
+	${LaTeX} ${Target}
 	${BibTeX} ${Target}
 
 
