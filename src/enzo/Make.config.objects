@@ -761,6 +761,7 @@ POBJS_CONFIG_LIB = \
         Grid_InitializeSource.o \
         Grid_MergePausedPhotonPackages.o \
         Grid_MoveAllPhotonPackages.o \
+	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \

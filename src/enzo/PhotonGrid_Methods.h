@@ -348,10 +348,15 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
 
-int FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
+int FindPhotonNewGrid(int cindex, FLOAT *r,
+		      PhotonPackageEntry* &PP,
 		      grid* &MoveToGrid, int &DeltaLevel,
 		      const float *DomainWidth, int &DeleteMe,
 		      grid *ParentGrid);
+
+int PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
+			   PhotonPackageEntry* &PP, grid* &MoveToGrid, 
+			   const float *DomainWidth, int &DeleteMe);
 
 /* Create PhotonPackages for a given radiation sources   */
 

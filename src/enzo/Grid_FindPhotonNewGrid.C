@@ -24,19 +24,16 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
-#include "CosmologyParameters.h"
 
-int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, FLOAT rx, 
-		 FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
-
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
+			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,
 			    grid *ParentGrid)
 {
 
   int Refinement;
-  int dim, dummy, RayInsideGrid;
+  int dim, RayInsideGrid;
   bool InsideDomain;
 
   /* First determine whether the ray has left the grid, store the

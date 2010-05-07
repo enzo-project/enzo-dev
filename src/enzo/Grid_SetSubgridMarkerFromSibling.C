@@ -43,7 +43,6 @@ int grid::SetSubgridMarkerFromSibling(grid *Sibling,
 
   /* if the field has not been allocated yet, do it here */ 
 
-
   if (SubgridMarker == NULL)  {
     for (dim = 0, size = 1; dim < GridRank; dim++)
       size *= GridDimension[dim];

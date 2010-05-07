@@ -65,7 +65,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   int i, index, dim, splitMe, direction;
   int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
-  long cindex;
+  int cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
@@ -332,6 +332,16 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			ParentGrid);
       break;
     }
+
+    /* Check for photons that have left the domain (only for root
+       grids without periodic radiation boundaries).  We also adjust
+       the photon coordinates if it needs wrapping around the
+       periodic boundary. */
+
+    if (GravityBoundaryType != SubGridIsolated)
+      if (this->PhotonPeriodicBoundary(cindex, r, g, s, *PP, *MoveToGrid,
+				       DomainWidth, DeleteMe) == FALSE)
+	break;
 
     oldr = (*PP)->Radius;
     min_dr = 1e20;

@@ -75,7 +75,12 @@ int SetSubgridMarker(TopGridData &MetaData,
     /* 1. First the grid marks itself */
 
     for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
-      Temp->GridData->SetSubgridMarkerFromSubgrid(Temp->GridData);
+      Temp->GridData->
+	CheckForOverlap(Temp->GridData,
+			MetaData.LeftFaceBoundaryCondition,
+			MetaData.RightFaceBoundaryCondition,
+			&grid::SetSubgridMarkerFromSibling);
+      //Temp->GridData->SetSubgridMarkerFromSubgrid(Temp->GridData);
       
     /* 2. Mark the parent in the ghost zones.  MOVED: after the grid
        loop to include SubgridMarker in parent's ghost zones. */
