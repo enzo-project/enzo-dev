@@ -72,12 +72,7 @@ include $(ENZO_DIR)/Make.config.machine
 MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
 include $(MAKE_CONFIG_OVERRIDE)
 
-#:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# ANYL ONLY: override the override, These I found are needed 
-# for smooth compiling, but you may want to try other options.
-
-CONFIG_PRECISION = 32
-CONFIG_INTEGERS  = 32
+# These may be necessary, so we manually override them here.
 CONFIG_USE_MPI   = yes
 CONFIG_PHOTON    = yes
 CONFIG_FAST_SIB  = yes
