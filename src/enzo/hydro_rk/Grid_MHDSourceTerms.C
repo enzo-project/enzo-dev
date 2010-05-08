@@ -193,7 +193,7 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
 
 	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
-	  printf("StermStart4 old %g \n", dU[iS2][n])  ;
+	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
 	}
       }
     }

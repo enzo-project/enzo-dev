@@ -71,7 +71,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* initialize */
 
-    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];   // MAX_COLOR is defined in fortran.def
+    // MAX_COLOR is defined in fortran.def
+    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];
     Elong_int GridGlobalStart[MAX_DIMENSION];
     FLOAT a = 1, dadt;
 
@@ -362,10 +363,9 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* note: Start/EndIndex are zero based */
         
     if (HydroMethod == PPM_DirectEuler)
-      this->PPMDirectEuler(CycleNumber, NumberOfSubgrids, 
-			   SubgridFluxes, CellWidthTemp, 
-			   GridGlobalStart, GravityOn,
-			   NumberOfColours, colnum);
+      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
+			CellWidthTemp, GridGlobalStart, GravityOn, 
+			NumberOfColours, colnum);
 
     /* PPM LR has been withdrawn. */
 
@@ -419,7 +419,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if(OutputOnDensity == 1){
       int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
       for(i = 0; i < size; i++)
-        max(BaryonField[DensNum][size], CurrentMaximumDensity);
+        CurrentMaximumDensity =
+            max(BaryonField[DensNum][size], CurrentMaximumDensity);
     }
 
   }  // end: if (NumberOfBaryonFields > 0)

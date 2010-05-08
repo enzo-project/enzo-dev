@@ -129,12 +129,12 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   InitialBField /= MagneticUnits;
   CloudAngularVelocity *= TimeUnits;
 
-  printf("Magnetic Units=%g\n", MagneticUnits);  
-  printf("B field=%g\n", InitialBField);  
-printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
-  printf("DensityUnits=%g,VelocityUnits=%g,LengthUnits=%g,TimeUnits=%g (%g yr),PressureUnits=%g\n", 
+  printf("Magnetic Units=%"GSYM"\n", MagneticUnits);  
+  printf("B field=%"GSYM"\n", InitialBField);  
+printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(InitialBField*InitialBField/2.0));
+  printf("DensityUnits=%"GSYM",VelocityUnits=%"GSYM",LengthUnits=%"GSYM",TimeUnits=%"GSYM" (%"GSYM" yr),PressureUnits=%"GSYM"\n", 
 	 DensityUnits, VelocityUnits, LengthUnits, TimeUnits, TimeUnits/3.1558e7, PressureUnits);
-  printf("CloudDensity=%g, CloudSoundSpeed=%g, CloudRadius=%g, CloudAngularVelocity=%g\n", 
+  printf("CloudDensity=%"GSYM", CloudSoundSpeed=%"GSYM", CloudRadius=%"GSYM", CloudAngularVelocity=%"GSYM"\n", 
 	 CloudDensity, CloudSoundSpeed, CloudRadius, CloudAngularVelocity);
 
 
@@ -166,14 +166,14 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 	  return FAIL;
 	}
 	CurrentGrid = CurrentGrid->NextGridThisLevel;
-	fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+	fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
       }
       
 #ifdef USE_MPI
       CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
       CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-      fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
       // Carry out the Normalization
       v_rms = sqrt(v_rms/Volume); // actuall v_rms
       fac = CloudSoundSpeed*CloudMachNumber/v_rms;
@@ -194,10 +194,17 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 
   if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
     MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
-    for (int dim = 0; dim < MetaData.TopGridRank; dim++)
+    for (int dim = 0; dim < MetaData.TopGridRank; dim++){
       MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
 	float(MetaData.TopGridDims[dim]);
+    }
   }
+
+  /*
+  if (UsePhysicalUnit){
+    MinimumMassForRefinement[0] /= DensityUnits * pow(LengthUnits,3);  //#####
+  }
+  */
 
   /* If requested, refine the grid to the desired level. */
 
@@ -340,11 +347,11 @@ printf("Plasma beta=%g\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(Initial
 //       return FAIL;
 //     }
 //     fprintf(header, "MovieVersion = %s\n", movieVersion);
-//     fprintf(header, "RootReso = %d\n", MetaData.TopGridDims[0]);
-//     fprintf(header, "FLOATSize = %d\n", sizeOfFLOAT);
-//     fprintf(header, "RecordSize = %d\n", sizeOfRecord);
-//     fprintf(header, "NumFields = %d\n", nMovieFields);
-//     fprintf(header, "NumCPUs = %d\n", NumberOfProcessors);
+//     fprintf(header, "RootReso = %"ISYM"\n", MetaData.TopGridDims[0]);
+//     fprintf(header, "FLOATSize = %"ISYM"\n", sizeOfFLOAT);
+//     fprintf(header, "RecordSize = %"ISYM"\n", sizeOfRecord);
+//     fprintf(header, "NumFields = %"ISYM"\n", nMovieFields);
+//     fprintf(header, "NumCPUs = %"ISYM"\n", NumberOfProcessors);
 //     fprintf(header, "FileStem = %s\n", NewMovieName);
 //     fclose(header);
 //   } /* END: write movie header file */

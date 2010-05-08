@@ -14,9 +14,10 @@ c
      &                      nmax, npartnew, children, level,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, 
-     &                      iterations, separation, ran1_init)
+     &                      iterations, separation, ran1_init,
+     &                      rr_leftedge, rr_rightedge)
 c
-c  SPLIT STAR PARTICLES INTO CHILDREN PARTICLES WHEN REQUESTED
+c  SPLIT PARTICLES INTO CHILDREN PARTICLES WHEN REQUESTED
 c
 c  written by: Ji-hoon Kim
 c  date:       15 October 2009
@@ -52,6 +53,8 @@ c    children - number of children particle per parent = 12
 c    level    - current level of refinement
 c    iterations - ParticleSplitterIterations (> 1 not recommended)
 c    separation - ParticleSplitterChildrenParticleSeparation (= 1 by default)
+c    rr_leftedge - RefineRegionLeftEdge[]
+c    rr_rightedge - RefineRegionRightEdge[]
 c
 c    xp,yp,zp - positions of particles created
 c    up,vp,wp - velocities of particles created
@@ -83,6 +86,7 @@ c
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
+      REALSUB rr_leftedge(3), rr_rightedge(3)
 c
 c  Locals
 c
@@ -106,12 +110,12 @@ c
          ran1_init = 1
       endif
 c
-c
 c     The distance to the children particles r is the same for all. It is 
 c     currently set to be dx (=CellWidth), but can be changed. 
 c     (i.e. ParticleSplitterChildrenParticleSeparation = 1 by default)
 c
       r = dx * separation**float(iterations)
+c
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 
 c     only DM and conventional star particles  get splitted.  Other 
@@ -123,6 +127,19 @@ c
       do n = 1, npart
          if (mpold(n) .gt. 0 .and. typeold(n) .le. 2) then
 c
+c           Check bounds [1] - if the particle is outside of RefineRegion
+c           then give a warning and exit.
+c
+            if (xpold(n) .lt. rr_leftedge(1) .or. 
+     &          xpold(n) .gt. rr_rightedge(1) .or.
+     &          ypold(n) .lt. rr_leftedge(2) .or. 
+     &          ypold(n) .gt. rr_rightedge(2) .or.
+     &          zpold(n) .lt. rr_leftedge(3) .or. 
+     &          zpold(n) .gt. rr_rightedge(3)) then
+c               write(6,*) 'part_spl: parent particle out of grid :',
+c     &                     xpold(n), ypold(n), zpold(n), level
+               goto 100
+            endif
 c
 c           Compute index of the cell that the parent particle resides in.
 c 
@@ -130,16 +147,16 @@ c
             j = int((ypold(n) - ystart)/dx) + 1
             k = int((zpold(n) - zstart)/dx) + 1
 c
-c           Check bounds - if star particle is outside of this grid
-c           then exit and give a warning.
+c           Check bounds [2] - if the particle is outside of this grid
+c           then give a warning, but not exit.
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then
-               write(6,*) 'parent particle out of grid:',
+               write(6,*) 'part_spl: parent particle out of grid :',
      &                     i,j,k,nx,ny,nz,level
-               goto 100
+c               goto 100
             endif
-c
+cc
 c
 c
 c
@@ -338,7 +355,7 @@ c           Increase the number of new particles
 c
             ii = ii + children
 c            
-c           Do not generate more star particles than available
+c           Do not generate more particles than available
 c
             if (ii .gt. nmax) goto 20
 c

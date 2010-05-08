@@ -24,7 +24,7 @@
  
 int grid::MoveSubgridParticles(grid* FromGrid,
                                int *Counter,
-                               int *X_Number,
+                               PINT *X_Number,
                                int *X_Type,
                                float *X_Mass,
                                FLOAT *X_Position[],

@@ -26,7 +26,7 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->PreviousPackage = PP;
     NewPack->NextPackage     = PP->NextPackage;
     if (PP->NextPackage != NULL) PP->NextPackage->PreviousPackage = NewPack;
-    PP ->NextPackage      = NewPack;
+    PP->NextPackage      = NewPack;
     if (DEBUG) 
       fprintf(stdout, "split package %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
 	      PP->ipix, PP->PreviousPackage,

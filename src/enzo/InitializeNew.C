@@ -44,11 +44,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 // Initialization function prototypes
  
-int ShockTubeInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid);
+int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -94,6 +95,9 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior);
+int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   HierarchyEntry &TopGrid,
 				   TopGridData &MetaData);
@@ -135,8 +139,6 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 #endif /* TRANSFER */
 
 
-int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
@@ -163,12 +165,13 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+void PrintMemoryUsage(char *str);
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
-
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
  
 // Character strings
  
@@ -190,10 +193,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   float Dummy[MAX_DIMENSION];
   int dim, i;
 
-#ifdef MEM_TRACE
-    Eint64 MemInUse;
-#endif
- 
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Dummy[dim] = 0.0;
@@ -292,10 +291,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Call problem initializer
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call problem init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call problem init");
  
   if (ProblemType == 0) {
         ENZO_FAIL("No problem specified.");
@@ -309,7 +305,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 1) Shocktube problem
  
   if (ProblemType == 1)
-    ret = ShockTubeInitialize(fptr, Outfptr, TopGrid);
+    ret = HydroShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 2) Wave pool
  
@@ -468,17 +464,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Insert new problem intializer here...
 
-    if (ProblemType ==300) {
+  if (ProblemType ==300) {
     ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
-
-
-
-  /* 100) 1D HD Test */
-  if (ProblemType == 100) {
-    ret = Hydro1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
 
   /* 101) 3D Collapse */
   if (ProblemType == 101) {
@@ -494,6 +483,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 106) {
     ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 107) Put Sink from restart
+ 
+  if (ProblemType == 107)
+    ret = PutSinkRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
+ 
 
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {
@@ -556,16 +552,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+    printf("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
 	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
 	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "1st Initialization done %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("1st Initialization done");
 
  
   if (debug)
@@ -632,11 +625,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }  // end of set Exterior
 
 
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exterior set  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exterior set");
 
   if (debug) {
     fprintf(stderr, "End of set exterior\n");
@@ -670,7 +659,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ProblemType != 27 &&
       ProblemType != 30 &&
       ProblemType != 31 &&  // BWO (isolated galaxies)
-      ProblemType != 60) //AK
+      ProblemType != 60 &&
+      ProblemType != 106 ) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
  
   // If using StarParticles, set the number to zero 
@@ -681,7 +671,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
-
 
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
@@ -750,10 +739,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       }
     }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Before 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Before 2nd pass");
  
   if (ParallelRootGridIO == TRUE && ProblemType == 30) {
     if (PartitionNestedGrids) {
@@ -766,12 +752,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       }
     }
   }
- 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "After 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
- 
+
+  PrintMemoryUsage("After 2nd pass");
+
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.
  
@@ -780,12 +763,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
             ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
- if (ProblemType == 106)
-   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+  if (ProblemType == 106){
+    if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
-     ENZO_FAIL("");
-   }
+      fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+      ENZO_FAIL("");}
+    //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
+  }
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.
@@ -804,10 +788,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fclose(Outfptr);
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exit X_Init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exit X_Init");
 
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Added the following line:

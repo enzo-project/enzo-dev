@@ -118,8 +118,8 @@ int grid::SolveRadiativeCooling()
  
   /* Compute size (in floats) of the current grid. */
  
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
+  int i, dim, size = 1;
+  for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -198,23 +198,41 @@ int grid::SolveRadiativeCooling()
  
   /* Metal cooling codes. */
 
-  int MetalNum = 0;
+  int MetalNum = 0, SNColourNum = 0;
   int MetalFieldPresent = FALSE;
 
   // First see if there's a metal field (so we can conserve species in
   // the solver)
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) == -1)
-    MetalNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-  MetalFieldPresent = (MetalNum != -1);
+  MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
+  SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+  MetalFieldPresent = (MetalNum != -1 || SNColour != -1);
 
   // Double check if there's a metal field when we have metal cooling
-  if (MetalCooling) {
-    if (MetalNum == -1) {
+  if (MetalCooling && MetalFieldPresent == FALSE) {
+    if (debug)
       fprintf(stderr, "Warning: No metal field found.  Turning OFF MetalCooling.\n");
-      MetalCooling = FALSE;
-      MetalNum = 0;
-    }
+    MetalCooling = FALSE;
+    MetalNum = 0;
   }
+
+  /* If both metal fields (Pop I/II and III) exist, create a field
+     that contains their sum */
+
+  float *MetalPointer;
+  float *TotalMetals = NULL;
+
+  if (MetalNum != -1 && SNColour != -1) {
+    TotalMetals = new float[size];
+    for (i = 0; i < size; i++)
+      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+    MetalPointer = TotalMetals;
+  } // ENDIF both metal types
+  else {
+    if (MetalNum != -1)
+      MetalPointer = BaryonField[MetalNum];
+    else if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } // ENDELSE both metal types
 
   /* Calculate the rates due to the radiation field. */
  
@@ -267,7 +285,7 @@ int grid::SolveRadiativeCooling()
           &CoolData.piHI, &CoolData.piHeI, &CoolData.piHeII,
        BaryonField[HMNum], BaryonField[H2INum], BaryonField[H2IINum],
           BaryonField[DINum], BaryonField[DIINum], BaryonField[HDINum],
-          BaryonField[MetalNum],
+          MetalPointer,
        CoolData.hyd01k, CoolData.h2k01, CoolData.vibh,
           CoolData.roth, CoolData.rotl,
        CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit,
@@ -353,6 +371,8 @@ int grid::SolveRadiativeCooling()
     
     delete totalenergy;
   }
+
+  delete [] TotalMetals;
  
   return SUCCESS;
  

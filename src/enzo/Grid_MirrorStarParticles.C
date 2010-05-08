@@ -59,7 +59,7 @@ int grid::MirrorStarParticles(void)
       ParticlePosition[dim][place] = cstar->pos[dim];
       ParticleVelocity[dim][place] = cstar->vel[dim];
     }
-    ParticleMass[place] = cstar->Mass / MassConversion;
+    ParticleMass[place] = (float) (cstar->Mass / MassConversion);
     ParticleType[place] = cstar->type;
     ParticleAttribute[0][place] = cstar->BirthTime;
     ParticleAttribute[1][place] = cstar->LifeTime;

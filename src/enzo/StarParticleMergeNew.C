@@ -105,7 +105,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   while (ThisStar)
     if (ThisStar->MarkedToDelete()) {
       ThisStar->DeleteCopyInGrid();
-      ThisStar->DeleteParticle(LevelArray);
+      ThisStar->DisableParticle(LevelArray); // convert to a massless particle
       DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()
     } else
       ThisStar = ThisStar->NextStar;

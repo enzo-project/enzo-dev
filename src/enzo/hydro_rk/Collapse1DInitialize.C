@@ -68,35 +68,35 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
 
     /* read parameters */
 
-    ret += sscanf(line, "RefineAtStart = %d", 
+    ret += sscanf(line, "RefineAtStart = %"ISYM, 
 		  &RefineAtStart);
-    ret += sscanf(line, "UseParticles = %d", 
+    ret += sscanf(line, "UseParticles = %"ISYM, 
 		  &UseParticles);
-    ret += sscanf(line, "MediumDensity = %f", 
+    ret += sscanf(line, "MediumDensity = %"FSYM, 
 		  &MediumDensity);
-    ret += sscanf(line, "MediumPressure = %f",
+    ret += sscanf(line, "MediumPressure = %"FSYM,
 		  &MediumPressure);
 
-    ret += sscanf(line, "SphereType = %d",
+    ret += sscanf(line, "SphereType = %"ISYM,
 		  &SphereType);
-    ret += sscanf(line, "SphereRadius = %"FSYM,
+    ret += sscanf(line, "SphereRadius = %"PSYM,
 		  &SphereRadius);
-    ret += sscanf(line, "SphereCoreRadius = %"FSYM,
+    ret += sscanf(line, "SphereCoreRadius = %"PSYM,
 		  &SphereCoreRadius);
-    ret += sscanf(line, "SphereDensity = %f",
+    ret += sscanf(line, "SphereDensity = %"FSYM,
 		  &SphereDensity);
-    ret += sscanf(line, "SpherePressure = %f",
+    ret += sscanf(line, "SpherePressure = %"FSYM,
 		  &SpherePressure);
-    ret += sscanf(line, "SphereSoundVelocity = %f",
+    ret += sscanf(line, "SphereSoundVelocity = %"FSYM,
 		  &SphereSoundVelocity);
-    ret += sscanf(line, "SphereAngVel = %f",
+    ret += sscanf(line, "SphereAngVel = %"FSYM,
 		  &SphereAngVel);
     /* if the line is suspicious, issue a warning */
 
   } // end input from parameter file
   
-  //printf("InitialFractionHII=%f\n", InitialFractionHII);
-  //printf("1Frac = %f, Temp = %f\n", FracKeplarianRot[sphere], SphereTemperature[sphere]);    
+  //printf("InitialFractionHII=%"FSYM"\n", InitialFractionHII);
+  //printf("1Frac = %"FSYM", Temp = %"FSYM"\n", FracKeplarianRot[sphere], SphereTemperature[sphere]);    
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
   if (UsePhysicalUnit) {
@@ -105,7 +105,7 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
   }
   
 
-  printf("rhou=%g,velu=%g,lenu=%g,tu=%g,presu=%g\n", rhou, velu,lenu,tu,presu);
+  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM"\n", rhou, velu,lenu,tu,presu);
 
   // Bonnor-Ebert sphere: only the sound velocity and sphere radius are free parameters
   if (SphereType == 3) { 
@@ -125,10 +125,10 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
     double msun = 1.989e33;
     m_be /= msun;
 
-    printf("rhoc=%g, cs=%g, re=%g, m=%g\n", rhoc, cs, re, m_be);
+    printf("rhoc=%"GSYM", cs=%"GSYM", re=%"GSYM", m=%"GSYM"\n", rhoc, cs, re, m_be);
   }
 
-  printf("rhoc=%g, rhom=%g, pm=%g\n", SphereDensity, MediumDensity, MediumPressure);
+  printf("rhoc=%"GSYM", rhom=%"GSYM", pm=%"GSYM"\n", SphereDensity, MediumDensity, MediumPressure);
 
   MediumDensity /= rhou;
   MediumPressure /= presu;
@@ -172,7 +172,7 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;
@@ -230,51 +230,51 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   /*if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "NumberOfSpheres    = %d\n",
+    fprintf(Outfptr, "NumberOfSpheres    = %"ISYM"\n",
 	    n_sphere);
-    fprintf(Outfptr, "RefineAtStart      = %d\n",
+    fprintf(Outfptr, "RefineAtStart      = %"ISYM"\n",
 	    RefineAtStart);
-    fprintf(Outfptr, "UseParticles       = %d\n",
+    fprintf(Outfptr, "UseParticles       = %"ISYM"\n",
 	    UseParticles);
-    fprintf(Outfptr, "UseColour          = %d\n",
+    fprintf(Outfptr, "UseColour          = %"ISYM"\n",
 	    UseColour);
-    fprintf(Outfptr, "InitialTemperature = %f\n",
+    fprintf(Outfptr, "InitialTemperature = %"FSYM"\n",
 	    InitialTemperature);
-    fprintf(Outfptr, "UniformVelocity    = %f %f %f\n",
+    fprintf(Outfptr, "UniformVelocity    = %"FSYM" %"FSYM" %"FSYM"\n",
 	    UniformVelocity[0], UniformVelocity[1],
 	    UniformVelocity[2]);
-    fprintf(Outfptr, "LengthUnit = %f\n",
+    fprintf(Outfptr, "LengthUnit = %"FSYM"\n",
             LengthUnit);
-    fprintf(Outfptr, "DensityUnit = %f\n",
+    fprintf(Outfptr, "DensityUnit = %"FSYM"\n",
             DensityUnit);
     for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
-      fprintf(Outfptr, "SphereType[%d] = %d\n", sphere,
+      fprintf(Outfptr, "SphereType[%"ISYM"] = %"ISYM"\n", sphere,
 	      SphereType[sphere]);
-      fprintf(Outfptr, "SphereRadius[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      SphereRadius[sphere]);
-      fprintf(Outfptr, "SphereCoreRadius[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      SphereCoreRadius[sphere]);
-      fprintf(Outfptr, "SphereDensity[%d] = %f\n", sphere,
+      fprintf(Outfptr, "SphereDensity[%"ISYM"] = %"FSYM"\n", sphere,
 	      SphereDensity[sphere]);
-      fprintf(Outfptr, "SphereTemperature[%d] = %f\n", sphere,
+      fprintf(Outfptr, "SphereTemperature[%"ISYM"] = %"FSYM"\n", sphere,
 	      SphereTemperature[sphere]);
-      fprintf(Outfptr, "SpherePosition[%d] = ", sphere);
+      fprintf(Outfptr, "SpherePosition[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			SpherePosition[sphere]);
-      fprintf(Outfptr, "SphereVelocity[%d] = ", sphere);
+      fprintf(Outfptr, "SphereVelocity[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			SphereVelocity[sphere]);
-      fprintf(Outfptr, "FracKeplarianRot[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "FracKeplarianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
               FracKeplarianRot[sphere]);
-      fprintf(Outfptr, "SphereTurbulence[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereTurbulence[%"ISYM"] = %"GOUTSYM"\n", sphere,
               SphereTurbulence[sphere]);
-      fprintf(Outfptr, "SphereCutOff[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereCutOff[%"ISYM"] = %"GOUTSYM"\n", sphere,
               SphereCutOff[sphere]);
-      fprintf(Outfptr, "SphereAng1[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereAng1[%"ISYM"] = %"GOUTSYM"\n", sphere,
               SphereAng1[sphere]);
-      fprintf(Outfptr, "SphereAng2[%d] = %"GOUTSYM"\n", sphere,
+      fprintf(Outfptr, "SphereAng2[%"ISYM"] = %"GOUTSYM"\n", sphere,
               SphereAng2[sphere]);
-      fprintf(Outfptr, "SphereNumShells[%d] = %d\n", sphere,
+      fprintf(Outfptr, "SphereNumShells[%"ISYM"] = %"ISYM"\n", sphere,
               SphereNumShells[sphere]);
     }
     }*/

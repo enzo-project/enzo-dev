@@ -116,21 +116,22 @@ int grid::ReturnOldHydroRKPointers(float **Prim, bool ReturnMassFractions)
     }
   }
 
-  if (SNColourNum      != -1) Prim[nfield++] = OldBaryonField[SNColourNum];
+  if (SNColourNum      != -1) Prim[nfield++] = OldBaryonField[SNColourNum];  
+  /*   //##### These fields are currently not being used and only causing interpolation problems
   if (MBHColourNum     != -1) Prim[nfield++] = OldBaryonField[MBHColourNum];
   if (Galaxy1ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = OldBaryonField[Galaxy2ColourNum];
-
+  */
 
   /* Convert the species and color fields into mass fractions */
 
   for (dim = 0, size = 1; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  if (ReturnMassFractions)
+  if (ReturnMassFractions)  
     for (n = n0; n < nfield; n++)
       for (i = 0; i < size; i++)
-	Prim[n][i] /= Prim[iden][i];
+	Prim[n][i] /= Prim[iden][i];  
 
   return SUCCESS;
 

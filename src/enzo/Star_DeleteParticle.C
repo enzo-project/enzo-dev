@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       March, 2009
-/  modified1:
+/  modified1: shouldn't be used any more in general, instead try 
+/             Star_DisableParticle
 /
 ************************************************************************/
 

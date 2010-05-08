@@ -21,6 +21,7 @@ c
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow, 
      &                hdcoola, hdcool, ciecoa, cieco, 
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edotplus,
@@ -75,6 +76,8 @@ c
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      $        hdcoola(nratec, 5), ciecoa(nratec)
+      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+     &        gaHpa(nratec), gaela(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -103,7 +106,7 @@ c  Slice locals
 c 
       integer indixe(in)
       real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
-     &     tgas(in), tgasold(in)
+     &     tgas(in), tgasold(in), tdef_inv(in)
       real*8 edotplus(ijk), edotminus(ijk)
       double precision ttgas
       real temp_table(5)
@@ -117,6 +120,8 @@ c
       real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), 
      &     hdcool(in, 5), hdcoolval(in), cieco(in)
+      real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
+     &     galdl(in)
 c
 c     Iteration mask
       
@@ -223,7 +228,7 @@ c
              nother = nother + (DI(i)+DII(i))/2.0
      &                       + (HDI(i)/3.0)
            endif
-c#define OLDGAMMA2
+#define OLDGAMMA2
 #ifdef OLDGAMMA2
            oldgamma2(i) = gamma
            do inneriter=1,1
@@ -247,7 +252,7 @@ c#define OLDGAMMA2
            oldgamma2(i) = gamma
            do inneriter=1,1
              x = log10(tgas(i))
-             if(nH2/nother.lt.-1.0e-3.or.tgas(i).lt.50)then
+             if(nH2/nother.lt.-1.0e-3.or.tgas(i).lt.-50)then
                gamma2(i) = 2.5 !gamma
              else
                gamma2(i) = g2p(1)*exp(-(x-g2p(2))**2.0/g2p(3))
@@ -307,35 +312,38 @@ c
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)
+         tdef_inv(i) = 1.0 / tdef(i)
 c
 c        Lookup cooling values and do a linear temperature in log(T)
 c
          turnoff = 1.0
          if(d(i,j,k)*dom.gt.1e18)turnoff=0.0
          ceHI(i) = turnoff*(ceHIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))/tdef(i))
+     .         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))*tdef_inv(i))
          ceHeI(i) = turnoff*(ceHeIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))/tdef(i))
+     .         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))*tdef_inv(i))
          ceHeII(i) = turnoff*(ceHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))/tdef(i))
+     .         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))*tdef_inv(i))
          ciHI(i) = (ciHIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))/tdef(i))!*turnoff
+     .         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))*tdef_inv(i))!*turnoff
          ciHeI(i) = (ciHeIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))/tdef(i))!*turnoff
+     .         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))*tdef_inv(i))!*turnoff
          ciHeIS(i) = (ciHeISa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHeISa(indixe(i)+1) -ciHeISa(indixe(i)))/tdef(i))!*turnoff
+     .         *(ciHeISa(indixe(i)+1) -ciHeISa(indixe(i)))*tdef_inv(i))!*turnoff
          ciHeII(i) = (ciHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))/tdef(i))!*turnoff
+     .         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))*tdef_inv(i))!*turnoff
          reHII(i) = (reHIIa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(reHIIa(indixe(i)+1) -reHIIa(indixe(i)))/tdef(i))!*turnoff
+     .         *(reHIIa(indixe(i)+1) -reHIIa(indixe(i)))*tdef_inv(i))!*turnoff
          reHeII1(i)=(reHeII1a(indixe(i)) + (logtem(i) - t1(i))
-     .        *(reHeII1a(indixe(i)+1)-reHeII1a(indixe(i)))/tdef(i))!*turnoff
+     .        *(reHeII1a(indixe(i)+1)-reHeII1a(indixe(i)))*tdef_inv(i))!*turnoff
          reHeII2(i)=(reHeII2a(indixe(i)) + (logtem(i) - t1(i))
-     .        *(reHeII2a(indixe(i)+1)-reHeII2a(indixe(i)))/tdef(i))!*turnoff
+     .        *(reHeII2a(indixe(i)+1)-reHeII2a(indixe(i)))*tdef_inv(i))!*turnoff
          reHeIII(i)=(reHeIIIa(indixe(i)) + (logtem(i) - t1(i))
-     .        *(reHeIIIa(indixe(i)+1)-reHeIIIa(indixe(i)))/tdef(i))!*turnoff
+     .        *(reHeIIIa(indixe(i)+1)-reHeIIIa(indixe(i)))*tdef_inv(i))!*turnoff
          brem(i) = turnoff*(brema(indixe(i)) + (logtem(i) - t1(i))
-     .         *(brema(indixe(i)+1) -brema(indixe(i)))/tdef(i))
+     .         *(brema(indixe(i)+1) -brema(indixe(i)))*tdef_inv(i))
+         cieco(i) = ciecoa(indixe(i)) + (logtem(i) - t1(i))
+     .      *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))*tdef_inv(i)
       endif
       enddo
 c
@@ -424,6 +432,52 @@ c     --- H2 cooling ---
 c
       if (ispecies .gt. 1) then
 c
+
+#define USE_GLOVER_ABEL2008
+#ifdef USE_GLOVER_ABEL2008
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+            gaHI(i) = gaHIa(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHIa(indixe(i)+1) - gaHIa(indixe(i)))*tdef_inv(i)
+            gaH2(i) = gaH2a(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaH2a(indixe(i)+1) - gaH2a(indixe(i)))*tdef_inv(i)
+            gaHe(i) = gaHea(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHea(indixe(i)+1) - gaHea(indixe(i)))*tdef_inv(i)
+            gaHp(i) = gaHpa(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))*tdef_inv(i)
+            gael(i) = gaela(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))*tdef_inv(i)
+            gphdl(i) = gphdla(indixe(i)) + (logtem(i) - t1(i))
+     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))*tdef_inv(i)
+            end if
+         enddo
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+            if (ih2optical.eq.1) then
+c
+c            nH2 = 0.5*H2I(i)
+c            nother = (HeI(i) + HeII(i) + HeIII(i))/4.0 +
+c     .                HI(i) + HII(i) + de(i)
+c            fH2 = nH2/(nH2 + nother)
+c            fudge = sqrt((40.0 * 10**(4.8 * 
+c     .               sqrt(max(log10(tgas(i)),2.0)-2.0)) / fH2**2)/
+c     .               ((nH2 + nother)*dom) )
+              fudge = (0.76*d(i,j,k)*dom/8.0e9)**(-0.45)
+              fudge = min(fudge, 1.0)
+            endif
+
+            galdl(i) = gaHI(i) * HI(i)  + gaH2(i) * H2I(i)
+     &               + gaHe(i) * HeI(i) + gaHp(i) * HII(i)
+     &               + gael(i) * de(i)
+            gphdl1 = gphdl(i)/dom
+            edotminus(i) = edotminus(i) + float(ih2co)*fudge*H2I(i)*
+     &           gphdl(i)/(1.0 + gphdl1/galdl(i)) / (2.0*dom)
+
+            end if
+         enddo
+#else
+
 #define USE_GALLI_PALLA1999
 
 c        Use the Galli and Palla (1999) cooling rates for molecular H.
@@ -434,17 +488,18 @@ c
          do i = is+1, ie+1
             if ( itmask(i) ) then
             gpldl(i) = gpldla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gpldla(indixe(i)+1) - gpldla(indixe(i)))/tdef(i)
+     &         *(gpldla(indixe(i)+1) - gpldla(indixe(i)))*tdef_inv(i)
             gphdl(i) = gphdla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))/tdef(i)
+     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))*tdef_inv(i)
             cieco(i) = ciecoa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))/tdef(i)
+     .         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))*tdef_inv(i)
             endif
          enddo
 
          do i = is+1, ie+1
 
             if (itmask(i)) then
+            fudge = 1.0d0
             if (ih2optical.eq.1) then
 c
 c            nH2 = 0.5*H2I(i)
@@ -484,17 +539,17 @@ cc
          do i = is+1, ie+1
             if (itmask(i)) then
             hyd01k(i) = hyd01ka(indixe(i)) + (logtem(i) - t1(i))
-     .         *(hyd01ka(indixe(i)+1)-hyd01ka(indixe(i)))/tdef(i)
+     .         *(hyd01ka(indixe(i)+1)-hyd01ka(indixe(i)))*tdef_inv(i)
             h2k01(i) = h2k01a(indixe(i)) + (logtem(i) - t1(i))
-     .         *(h2k01a(indixe(i)+1) - h2k01a(indixe(i)))/tdef(i)
+     .         *(h2k01a(indixe(i)+1) - h2k01a(indixe(i)))*tdef_inv(i)
             vibh(i) = vibha(indixe(i)) + (logtem(i) - t1(i))
-     .         *(vibha(indixe(i)+1) - vibha(indixe(i)))/tdef(i)
+     .         *(vibha(indixe(i)+1) - vibha(indixe(i)))*tdef_inv(i)
             roth(i) = rotha(indixe(i)) + (logtem(i) - t1(i))
-     .         *(rotha(indixe(i)+1) - rotha(indixe(i)))/tdef(i)
+     .         *(rotha(indixe(i)+1) - rotha(indixe(i)))*tdef_inv(i)
             rotl(i) = rotla(indixe(i)) + (logtem(i) - t1(i))
-     .         *(rotla(indixe(i)+1) - rotla(indixe(i)))/tdef(i)
+     .         *(rotla(indixe(i)+1) - rotla(indixe(i)))*tdef_inv(i)
             cieco(i) = ciecoa(indixe(i)) + (logtem(i) - t1(i))
-     .         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))/tdef(i)
+     .         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))*tdef_inv(i)
             endif
          enddo
 c
@@ -527,6 +582,7 @@ c
          enddo
 c
 #endif /* USE_GALLI_PALLA1999 */
+#endif
 c
 
 c     CIE
@@ -543,15 +599,13 @@ c     Only calculate if H2I(i) is a substantial fraction
                 tau = max(tau, 1.e-5)
                 ciefudge = min((1.-exp(-tau))/tau,1.0)
 c               Matt's attempt at a second exponentialier cutoff
-                tau = ((d(i,j,k)/2e18)*dom)**8.0  ! 2e16 is in units of cm^-3
+                tau = ((d(i,j,k)/2e18)*dom)**8.0d0  ! 2e16 is in units of cm^-3
                 tau = max(tau, 1.e-5)
                 ciefudge = ciefudge*min((1.-exp(-tau))/tau,1.0)
 c We apply the ciefudge factor at the end, because it should apply to the
 c entire continuum
-!         if(omask(i))write(0,*)i,j,k,'g1',edotminus(i),edotplus(i),tgas(i),ciefudge
                 edotminus(i) = ciefudge*edotminus(i) 
      &                 + ciefudge*H2I(i)*(d(i,j,k)*cieco(i))
-!         if(omask(i))write(0,*)i,j,k,'g2',edotminus(i),edotplus(i),tgas(i),cieco(i)
               endif
             endif
             enddo
@@ -565,9 +619,9 @@ c
          do i = is+1, ie+1
             if (itmask(i)) then
 c            hdlte(i) = hdltea(indixe(i)) + (logtem(i) - t1(i))
-c     .         *(hdltea(indixe(i)+1) - hdltea(indixe(i)))/tdef(i)
+c     .         *(hdltea(indixe(i)+1) - hdltea(indixe(i)))*tdef_inv(i)
 c            hdlow(i) = hdlowa(indixe(i)) + (logtem(i) - t1(i))
-c     .         *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))/tdef(i)
+c     .         *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))*tdef_inv(i)
 #ifdef PYFORTFIEJ
             ttgas = tgas(i)
             call calc_hdcool(ttgas, temp_table)
@@ -577,7 +631,7 @@ c     .         *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))/tdef(i)
 #else
             do m = 1, 5
               hdcool(i,m) = hdcoola(indixe(i),m) + (logtem(i) - t1(i))
-     .          *(hdcoola(indixe(i)+1,m) - hdcoola(indixe(i),m))/tdef(i)
+     .        *(hdcoola(indixe(i)+1,m)-hdcoola(indixe(i),m))*tdef_inv(i)
             enddo
 #endif
             endif

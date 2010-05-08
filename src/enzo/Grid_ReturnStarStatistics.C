@@ -30,13 +30,14 @@ int grid::ReturnStarStatistics(int &Number, float &minLife)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  int i;
+  int i, MassConvert;
 
   for (i = 0; i < NumberOfParticles; i++)
     if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER &&
 	ParticleType[i] != PARTICLE_TYPE_TRACER &&
 	ParticleType[i] != PARTICLE_TYPE_MUST_REFINE) {
-      minLife = min(minLife, ParticleAttribute[1][i]);
+      if (this->Time < ParticleAttribute[0][i]+ParticleAttribute[1][i])
+	minLife = min(minLife, ParticleAttribute[1][i]);
       Number++;
     }
 

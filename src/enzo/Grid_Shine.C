@@ -44,8 +44,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   BasePackages = 12*(int)pow(4,min_level);
 
   int stype = 3;
+  bool HeliumPhotons = (StarClusterHeliumIonization == TRUE);
 #ifdef ONE_ENERGY
-  stype = 1;
+  stype = (HeliumPhotons) ? 3 : 1;
 #endif
   if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
   if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
@@ -79,7 +80,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     AllCellWidth[dim] =(GridRightEdge[dim] - GridLeftEdge[dim])/
       FLOAT(GridEndIndex[dim] - GridStartIndex[dim] + 1);
 
-  srand(time(NULL));
+  if (rand_init == 0) {
+    srand( time(NULL) );
+    rand_init = 1;
+  }
   
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
@@ -189,7 +193,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  //fprintf(stdout, "MBH = %d, RS->Type = %d, NewPack->Type = %d\n", MBH, RS->Type, NewPack->Type);  
+	  // Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
+	  if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
+
+//	  if (DEBUG)
+//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+//		   MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

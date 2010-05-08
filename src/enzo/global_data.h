@@ -21,6 +21,9 @@
 #define GLOBAL_DATA_DEFINED__
 
 #include <stdio.h>
+#ifdef MEMORY_POOL
+#include "MemoryPool.h"
+#endif
 #ifdef DEFINE_STORAGE
 # define EXTERN
 #else /* DEFINE_STORAGE */
@@ -37,6 +40,8 @@ EXTERN int LoadBalancingCycleSkip;
 EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
+EXTERN int LoadBalancingMinLevel;
+EXTERN int LoadBalancingMaxLevel;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -71,7 +76,7 @@ EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
 
 /* Hydrodynamics method:
-       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS        */
+       0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
 
 EXTERN hydro_method HydroMethod;
 
@@ -97,6 +102,7 @@ EXTERN int RefineBy;
 EXTERN int MaximumRefinementLevel;
 EXTERN int MaximumGravityRefinementLevel;
 EXTERN int MaximumParticleRefinementLevel;
+EXTERN int FastSiblingLocatorEntireDomain;
 
 /* Cell Flagging method:  0 = None
                           1 = FlagCellsToBeRefinedBySlope
@@ -131,9 +137,9 @@ EXTERN int MustRefineRegionMinRefinementLevel;
    will refine up to (does not prevent refinement to higher levels) */
 EXTERN int MetallicityRefinementMinLevel;
 
-/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+/* threshold metallicity and density for FlagGridCellsToBeRefinedByMetallicity */
 EXTERN float MetallicityRefinementMinMetallicity;
-
+EXTERN float MetallicityRefinementMinDensity;
 
 /* Velocity to limit timesteps */
 
@@ -335,6 +341,7 @@ EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
+EXTERN int RadiationXRayComptonHeating;
 
 /* Photoelectric cooling turn on/off */
 
@@ -353,6 +360,10 @@ EXTERN int OutputTemperature;
 EXTERN int OutputSmoothedDarkMatter;
 EXTERN int SmoothedDarkMatterNeighbors;
 
+/* Output gridded star particle fields. */
+
+EXTERN int OutputGriddedStarParticle;
+
 /* ZEUS Hydro artificial viscosity parameters (C1, C2 of Stone & Norman). */
 
 EXTERN float ZEUSLinearArtificialViscosity;
@@ -364,10 +375,16 @@ EXTERN int UseMinimumPressureSupport;
 EXTERN float MinimumPressureSupportParameter;
 
 /* Parameters for statically refined regions. */
-
 EXTERN FLOAT StaticRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN FLOAT StaticRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN int   StaticRefineRegionLevel[MAX_STATIC_REGIONS];
+
+/* Evolving refinement region. */
+EXTERN char *RefineRegionFile;
+EXTERN int RefineRegionTimeType; // 0=time 1=redshift
+EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
+EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
+EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
 
 /* Processor identifier for this thread/processor */
 
@@ -383,6 +400,7 @@ EXTERN int ParallelParticleIO;
 EXTERN int Unigrid;
 EXTERN int CubeDumpEnabled;
 EXTERN int PartitionNestedGrids;
+EXTERN int StaticPartitionNestedGrids;
 EXTERN int ExtractFieldsOnly;
 EXTERN int First_Pass;
 EXTERN int UnigridTranspose;
@@ -459,7 +477,6 @@ EXTERN int   MustRefineParticlesRefineToLevel;
    refinement.    */
 
 
-
 EXTERN float MinimumShearForRefinement;
 
 /* For CellFlaggingMethod = 11,
@@ -468,6 +485,12 @@ EXTERN float MinimumShearForRefinement;
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
 
+/* For CellFlaggingMethod = 14,   
+   Minimum mach number required for refinement.    */
+
+EXTERN float ShockwaveRefinementMinMach;
+EXTERN float ShockwaveRefinementMinVelocity;
+EXTERN float ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -525,6 +548,9 @@ EXTERN int LoadGridDataAtStart;
 /* Storing the parameter file name for rebuilding the */
 /* cpu and grid file names */
 EXTERN char PrevParameterFileName[MAX_NAME_LENGTH];
+
+/* MetaData identifier string */
+EXTERN char *MetaDataIdentifier;
 
 /* Zhiling Lan's modified code */
 
@@ -669,12 +695,16 @@ EXTERN int UseCUDA;
 
 EXTERN int ran1_init;
 
+/* random number initialization flag */
+
+EXTERN int rand_init;
+
 /* test problem stuff */
 EXTERN TestProblemDataType TestProblemData;
 
 /* Memory Limit */
 
-EXTERN int MemoryLimit;
+EXTERN long_int MemoryLimit;
 
 /* Staged input */
 
@@ -716,6 +746,9 @@ EXTERN float dtPhoton;
 EXTERN RadiationSourceEntry *GlobalRadiationSources;
 EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
+#ifdef MEMORY_POOL
+EXTERN MPool::MemoryPool *PhotonMemoryPool;
+#endif
 
 /* [0]: Emitted photons
    [1]: escaped past 0.5 RadiativeTransferPhotonEscapeRadius
@@ -726,6 +759,9 @@ EXTERN double EscapedPhotonCount[4];
 EXTERN double TotalEscapedPhotonCount[4];
 EXTERN char *PhotonEscapeFilename;
 EXTERN int FieldsToInterpolate[MAX_NUMBER_OF_BARYON_FIELDS];
+
+#include "RadiativeTransferSpectrumTable.h"
+EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 
 #endif /* TRANSFER  */
 
@@ -762,11 +798,18 @@ EXTERN int MoveParticlesBetweenSiblings;
 EXTERN int ParticleSplitterIterations;
 EXTERN float ParticleSplitterChildrenParticleSeparation;
 
+/* Magnetic Field Resetter */
+
+EXTERN int ResetMagneticField;
+EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
+
 /* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
 
 EXTERN int MBHParticleIO;
 EXTERN char *MBHParticleIOFilename;
-EXTERN float MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN char *MBHInsertLocationFilename;
+EXTERN int OutputWhenJetsHaveNotEjected;
 
 /* Vorticity Calculations */
 

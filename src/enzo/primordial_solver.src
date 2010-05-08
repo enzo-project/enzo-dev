@@ -25,6 +25,7 @@ c
      &                HM, H2I, H2II, DI, DII, HDI, 
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa, hdcoola, ciecoa, 
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                inutot, iradtype, nfreq, 
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iciecool, ih2optical, errcode, omaskflag,
@@ -160,6 +161,8 @@ c
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      $        hdcoola(nratec, 5), ciecoa(nratec)
+      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+     &        gaHpa(nratec), gaela(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -200,7 +203,8 @@ c  Stuff for TWOSTEP
       real*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sp1(ijk,NSPECIES),
      &       dsp(ijk,NSPECIES), dsq(ijk,NSPECIES), fd(ijk),
      &       temp1, temp2, temp3, kwq, kws,
-     &       tsm1, tsp, ts, ty, dsqge, dspge
+     &       tsm1, tsp, ts, ty, dsqge, dspge,
+     &       temptsc2, temp2tsc, temptsc12
       real*8 qt, sm1(ijk,NSPECIES), 
      &       tsgamma(ijk), tsc(ijk), tscapy(ijk,NSPECIES)
       real*8 temp, dtot(ijk), rtot(ijk), h2heatp(ijk), h2heatm(ijk),
@@ -299,8 +303,8 @@ c to do this second-order BDF
       dtcoef(iHeI  )    =  0.1; capycare(iHeI  )    = .false. !
       dtcoef(iHeII)     =  0.1; capycare(iHeII)     = .false. !
       dtcoef(iHeIII)    =  0.1; capycare(iHeIII)    = .false.
-      dtcoef(iH2I)      =  0.1; capycare(iH2I)      = .true.
-      dtcoef(ige)       =  0.1; capycare(ige)       = .true.
+      dtcoef(iH2I)      =  0.01; capycare(iH2I)      = .true.
+      dtcoef(ige)       =  0.01; capycare(ige)       = .true.
       dtcoef(iDI)       =  1.0; capycare(iDI)       = .false.
       dtcoef(iDII)      =  1.0; capycare(iDII)      = .false.
       dtcoef(iHDI)      =  1.0; capycare(iHDI)      = .false. ! Off for now; should track H2 directly
@@ -391,17 +395,17 @@ c
             endif
             dtit(i) = dt(i,j,k)/5.0
 #else
-            dtit(i) = dt/5.0
+            dtit(i) = dt
             subgridmask = 1
             itmask(i) = .true.
 #endif
             eqmask(i) = .false.
+#ifdef UNUSED_TABULATED_EQ
             dprime(i) = -35
             geprime(i) = -35
             geprime(i) = log10((ge(i,j,k) +
      &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.0))
             dprime(i) = log10(d(i,j,k)*dom*fh)
-#ifdef UNUSED_TABULATED_EQ
 c            write(0,*) rhostartcode, rhostart, estartcode, estart
             if ((dprime(i).gt.rhostart+3.5).and.(geprime(i).gt.estart))then
                 totaleq = totaleq + 1
@@ -476,9 +480,9 @@ c               dtit(i) = dt(i,j,k)/10.0
          do i = is+1, ie+1
          if ((itmask(i).eqv..true.))then!.and.(eqmask(i).eqv..false.))then
 #ifdef PYFORT
-           dtit(i) = min(dt(i,j,k)/5.0, abs(dt(i,j,k)-ttot(i)), dtit(i))
+           dtit(i) = min(dt(i,j,k)/2.0, abs(dt(i,j,k)-ttot(i)), dtit(i))
 #else
-           dtit(i) = min(dt/5.0, abs(dt-ttot(i)), dtit(i))
+           dtit(i) = min(dt/2.0, abs(dt-ttot(i)), dtit(i))
 #endif
            olddtit(i) = dtit(i) ! First iteration!
          endif
@@ -534,15 +538,27 @@ c               dtit(i) = dt(i,j,k)/10.0
                 tsc(i) = olddtit(i)/dtit(i) ! c
                 tsgamma(i) = (tsc(i)+1.0d0)/(tsc(i)+2.0d0) ! gamma
                 do n = 1, ncspecies
-                  tscapy(i,n) = (((tsc(i)+1.d0)**2.d0)*sp(i,n)-sm1(i,n))
-     &                        / (tsc(i)**2.0 + 2.0d0*tsc(i))
+                  temp2tsc = tsc(i)+tsc(i)
+                  temptsc2 = tsc(i)*tsc(i)
+                  temptsc12 = (tsc(i) + 1.0d0)*(tsc(i) + 1.0d0)
+                  tscapy(i,n) = (temptsc12*sp(i,n)-sm1(i,n))
+     &                        / (temptsc2 + temp2tsc)
                   if(tscapy(i,n).lt.0.0d0.and.
      &               capycare(n).eqv..true.)then
                     if(eqmask(i).eqv..true.)then!.and.eqable(n).eqv..true.)then
                     else
                     write(0,*) 'tscapy problems',eqmask(i),rejected(i),
      &                      iter,i,n,tsc(i),sp(i,n),sm1(i,n), esterr(i),
-     &                      mins(i),eqmask(i)
+     &                      mins(i),eqmask(i),tscapy(i,n)
+                    write(0,*) 'tscapy2', s(i,n)/d(i,j,k),
+     &                          sp(i,n)/d(i,j,k),
+     &                          sm1(i,n)/d(i,j,k),
+     &                          s(i,n) * dom,
+     &                          tgas(i)
+                    write(0,*) 'tscapy3', correctH(i),
+     &                          s(i,ige)/ge(i,j,k),
+     &                          dsq(i,ige)/dsp(i,ige),
+     &                          (dsq(i,ige)-dsp(i,ige))*dtit(i)
                     rejected(i) = .true.
 c                    stop
                   endif
@@ -661,24 +677,24 @@ c
          do i=is+1, ie+1
            if(itmask(i).eqv..false.)then
            if(s(i,ige).le.0.0d0)write(6,*)'ge raspberried',i,j,k
-           HI(i,j,k) = max(s(i,iHI),tiny)
-           HII(i,j,k) = max(s(i,iHII),tiny)
-           de(i,j,k) = max(s(i,ide),tiny)
-           HeI(i,j,k) = max(s(i,iHeI),tiny)
-           HeII(i,j,k) = max(s(i,iHeII),tiny)
-           HeIII(i,j,k) = max(s(i,iHeIII),tiny)
-           e(i,j,k) = max(e(i,j,k) + (s(i,ige)-ge(i,j,k)),tiny)
-           ge(i,j,k) = max(s(i,ige),tiny)
-           H2I(i,j,k) = max(s(i,iH2I),tiny)
-           H2II(i,j,k) = max(s(i,iH2II),tiny)
-           HM(i,j,k) = max(s(i,iHM),tiny)
+           HI(i,j,k) = s(i,iHI)
+           HII(i,j,k) = s(i,iHII)
+           de(i,j,k) = s(i,ide)
+           HeI(i,j,k) = s(i,iHeI)
+           HeII(i,j,k) = s(i,iHeII)
+           HeIII(i,j,k) = s(i,iHeIII)
+           e(i,j,k) = e(i,j,k) + (s(i,ige)-ge(i,j,k))
+           ge(i,j,k) = s(i,ige)
+           H2I(i,j,k) = s(i,iH2I)
+           H2II(i,j,k) = s(i,iH2II)
+           HM(i,j,k) = s(i,iHM)
 c           ge(i,j,k) = geprime(i) - (fh-s(i,iH2I)/d(i,j,k))*chunit
 c           e(i,j,k) = ge(i,j,k) + 0.5*(u(i,j,k)**2.0 +
 c     &                                 v(i,j,k)**2.0 +
 c     &                                 w(i,j,k)**2.0)
-           DI(i,j,k) = max(s(i,iDI),tiny)
-           DII(i,j,k) = max(s(i,iDII),tiny)
-           HDI(i,j,k) = max(s(i,iHDI),tiny)
+           DI(i,j,k) = s(i,iDI)
+           DII(i,j,k) = s(i,iDII)
+           HDI(i,j,k) = s(i,iHDI)
            endif
          enddo
 c     
@@ -713,10 +729,10 @@ c
      &                     correctH, correctHe )
 
 
-      if (d(is,js,ks)*dom.gt.1e9)then
-        write(6,*) "solve_chemeq2: itcounts",
-     &        totaliter,in*jn*kn,DBLE(totaliter)/(jn*kn),totaleq
-      endif
+c      if (d(is,js,ks)*dom.gt.1e9.and.totaliter.gt.1e7)then
+c        write(6,*) "solve_chemeq2: itcounts",
+c     &        totaliter,DBLE(totaliter)/(jn*kn)
+c      endif
       if (eqflag.eqv..true.) then
         write(6,*) "solve_chemeq2: total eqmask",totaleq,in*jn*kn
 c       Now we check for NaN's

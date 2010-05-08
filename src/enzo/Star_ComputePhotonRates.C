@@ -28,11 +28,14 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
+
 int Star::ComputePhotonRates(float E[], double Q[])
 {
 
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
-  x = log10(this->Mass);
+  float EnergyFractionHeI, EnergyFractionHeII;
+  x = log10((float)(this->Mass));
   x2 = x*x;
 
   switch(this->type) {
@@ -44,7 +47,7 @@ int Star::ComputePhotonRates(float E[], double Q[])
     E[1] = 30.0;
     E[2] = 58.0;
     E[3] = 12.8;
-    _mass = max(min(this->Mass, 500), 5);
+    _mass = max(min((float)(this->Mass), 500), 5);
     if (_mass > 9 && _mass <= 500) {
       Q[0] = pow(10.0, 43.61 + 4.9*x   - 0.83*x2);
       Q[1] = pow(10.0, 42.51 + 5.69*x  - 1.01*x2);
@@ -61,14 +64,22 @@ int Star::ComputePhotonRates(float E[], double Q[])
     /* Average energy from Schaerer (2003) */
 
   case PopII:
-    EnergyFractionLW = 0.01;
-    E[0] = 21.5; // eV (good for a standard, low-Z IMF)
-    E[1] = 0.0;
-    E[2] = 0.0;
+    EnergyFractionLW   = 0.01;
+    EnergyFractionHeI  = 0.295;
+    EnergyFractionHeII = 2.81e-4;
+    E[0] = 21.62; // eV (good for a standard, low-Z IMF)
+    E[1] = 24.6;
+    E[2] = 54.4;
     E[3] = 12.8;
     Q[0] = StarClusterIonizingLuminosity * this->Mass;
-    Q[1] = 0.0;
-    Q[2] = 0.0;
+    if (StarClusterHeliumIonization) {
+      Q[1] = EnergyFractionHeI * Q[0];
+      Q[2] = EnergyFractionHeII * Q[0];
+      Q[0] *= 1.0 - EnergyFractionHeI - EnergyFractionHeII;
+    } else {
+      Q[1] = 0.0;
+      Q[2] = 0.0;
+    }
     Q[3] = EnergyFractionLW * Q[0];
     break;
 
@@ -85,44 +96,60 @@ int Star::ComputePhotonRates(float E[], double Q[])
     E[3] = 12.8;
     Q[0] = 1.12e66 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
       this->last_accretion_rate / E[0];
-    // Below should be wrong!
-    /*
-    Q[0] = 3.54e58 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
-      this->DeltaMass / E[0];
-    */
+//    Below is wrong!
+//    Q[0] = 3.54e58 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
+//      this->DeltaMass / E[0];
     Q[1] = 0.0;
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
     break;
 
-    /* Approximation to the multi-color disk and power law of an
-       accreting massive BH */
+    /* Average quasar SED by Sazonov et al.(2004), where associated 
+       spectral temperature is 2 keV, for accreting massive BH */
 
   case MBH:
-    XrayLuminosityFraction = 0.43;
-    EnergyFractionLW = 1.51e-3;
-    MeanEnergy = 93.0;  // eV
-    E[0] = 460.0;
+
+    XrayLuminosityFraction = 1.0;
+    E[0] = 2000.0; //2keV
     E[1] = 0.0;
     E[2] = 0.0;
-    E[3] = 12.8;
-    // Below assumes that accretion_rate[] has only one entry (true for BlackHole and MBH, as of Sep.2009)
+    E[3] = 0.0;
     // 1.99e33g/Ms * (3e10cm/s)^2 * 6.24e11eV/ergs = 1.12e66 eV/Ms 
     Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction *
       this->last_accretion_rate / E[0]; 
     Q[1] = 0.0;
     Q[2] = 0.0;
-    Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
+    Q[3] = 0.0;  
 
 #define NOT_HII_REGION_TEST
 #ifdef HII_REGION_TEST
     Q[0] = 1.0e45 * MBHFeedbackRadiativeEfficiency * XrayLuminosityFraction / E[0];
 #endif
     
-    /*
-    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
-    	    this->last_accretion_rate, Q[0]); 
-    */
+//    fprintf(stdout, "star::ComputePhotonRates: this->last_accretion_rate = %g, Q[0]=%g\n", 
+//    	    this->last_accretion_rate, Q[0]); 
+
+#ifdef TRANSFER
+
+    if (RadiativeTransferTraceSpectrum == TRUE) {
+      E[0] = ReturnValuesFromSpectrumTable(0.0, 0.0, 3); //##### mean energy if column density=0
+      E[1] = 0.0;
+      E[2] = 0.0;
+      E[3] = 0.0;
+
+      Q[0] = 1.12e66 * MBHFeedbackRadiativeEfficiency *
+	this->last_accretion_rate / E[0]; 
+      Q[1] = 0.0;
+      Q[2] = 0.0;
+      Q[3] = 0.0;  
+
+      //better check the initial mean energy when tracing spectrum
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stdout, "star::CPP: check initial mean E of photon SED: E[0] = %g\n", E[0]); 
+    }
+
+#endif
+
     break;
 
   default:

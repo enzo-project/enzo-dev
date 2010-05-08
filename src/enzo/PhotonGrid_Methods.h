@@ -37,11 +37,14 @@
 
 /* remove all photon packages */ 
 
-   int DeletePhotonPackages(void);
+   int DeletePhotonPackages(int DeleteHeadPointer=FALSE);
 
 /* Set Subgrid Marker field */
 
-   int SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid);
+   int SetSubgridMarkerFromSubgrid(grid *Subgrid);
+   int SetSubgridMarkerFromParent(grid *Parent);
+   int SetSubgridMarkerFromSibling(grid *Sibling, 
+				   FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* Return Subgrid Marker for a position */
 
@@ -51,6 +54,12 @@
  
   int InitializeRadiativeTransferFields(void);
   int AllocateInterpolatedRadiation(void);
+
+/* Tools for setting up temperature field for Compton heating */
+
+  int InitializeTemperatureFieldForComptonHeating(void);
+  int FinalizeTemperatureFieldForComptonHeating(void);
+  int GetTemperatureFieldNumberForComptonHeating(void);
 
 /* Flag cells to be refined by optical depth */
 
@@ -82,6 +91,25 @@ int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove,
 
 int ElectronFractionEstimate(float dt);
 int RadiationPresent(void) { return HasRadiation; }
+
+void InitializePhotonPackages(void) {
+  if (PhotonPackages == NULL) {
+    PhotonPackages = new PhotonPackageEntry;
+    PhotonPackages->NextPackage     = NULL;
+    PhotonPackages->PreviousPackage = NULL;
+  }
+  if (FinishedPhotonPackages == NULL) {
+    FinishedPhotonPackages = new PhotonPackageEntry;
+    FinishedPhotonPackages->NextPackage = NULL;
+    FinishedPhotonPackages->PreviousPackage = NULL;
+  }    
+  if (PausedPhotonPackages == NULL) {
+    PausedPhotonPackages = new PhotonPackageEntry;
+    PausedPhotonPackages->NextPackage = NULL;
+    PausedPhotonPackages->PreviousPackage = NULL;
+  }
+  return;
+}
 
 void ResetPhotonPackagePointer(void) {
   PhotonPackages->NextPackage     = NULL;
@@ -306,7 +334,7 @@ int TraceRay(int NumberOfSegments,
 int WalkPhotonPackage(PhotonPackageEntry **PP, 
 		      grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid,
 		      grid **Grids0, int nGrids0,
-		      int DensNum, int HINum, int HeINum,
+		      int DensNum, int DeNum, int HINum, int HeINum,
 		      int HeIINum, int H2INum,
 		      int kphHINum, int gammaNum,
 		      int kphHeINum,
@@ -318,8 +346,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
 
-int FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r, 
-		      const FLOAT *u, PhotonPackageEntry* &PP,
+int FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 		      grid* &MoveToGrid, int &DeltaLevel,
 		      const float *DomainWidth, int &DeleteMe,
 		      grid *ParentGrid);

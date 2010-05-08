@@ -33,7 +33,10 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int RegionStart[], int RegionEnd[],
 			 FLOAT RegionStartCoordinate[],
 			 FLOAT RegionEndCoordinate[],
-			 int &RegionLevel, int MyProcessorNumber)
+			 int &RegionLevel, int &HaloFinderOnly,
+			 int &WritePotentialOnly,
+			 int &SmoothedDarkMatterOnly,
+			 int MyProcessorNumber)
 {
  
   int dim;
@@ -110,6 +113,16 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	    ++argv[0];
 	}
 	break;
+
+	/* FOF halo finder only */
+
+      case 'F':
+	HaloFinderOnly = TRUE;
+	break;
+
+      case 'g':
+	WritePotentialOnly = TRUE;
+	break;
  
 	/* help */
  
@@ -148,6 +161,12 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
  
       case 'm':
 	ProjectionSmooth = TRUE;
+	break;
+
+	/* Write smoothed dark matter field */
+
+      case 'M':
+	SmoothedDarkMatterOnly = TRUE;
 	break;
  
 	/* Output as particle data */
@@ -264,6 +283,9 @@ void PrintUsage(char *myname)
 	          "      -P(roject_to_plane version 2) dimension\n"
                   "         -m(smooth projection)\n"
 	          "      -o(utput as particle data)\n"
+	          "      -g (Write Potential field only)\n"
+	          "      -M (Write smoothed DM field only)\n"
+	          "      -F(riends-of-friends halo finder only)\n"
                   "      -h(elp)\n"
 	          "      -i(nformation output)\n"
 	          "      -s(tart  index region) dim0 [dim1] [dim2]\n"

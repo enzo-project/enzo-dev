@@ -107,11 +107,13 @@ int GenerateRealization(parmstruct *Parameters, parmstruct *SubGridParameters)
     for (dim = 0; dim < Parameters->Rank; dim++) {
       size *= (Parameters->ParticleDims[dim] + ((dim == 0) ? 2 : 0));
       NumberOfParticles *= Parameters->ParticleDims[dim];
+        fprintf(stderr, "PARTICLEDIMS %"ISYM" are %"ISYM"\n", dim,
+Parameters->ParticleDims[dim]);
     }
  
 #ifdef RH_M
     big = ((long_int) (size)) * ((long_int) (sizeof(FLOAT)));
-    printf("Allocate %lld bytes for ParticleField\n", big);
+    printf("Allocate %lld bytes (%lld) for ParticleField\n", big, size);
 #endif
  
     if ((ParticleField = new FLOAT[size]) == NULL) {

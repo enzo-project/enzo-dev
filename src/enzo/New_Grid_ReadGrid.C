@@ -74,6 +74,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   hid_t       num_type;
  
   hsize_t     OutDims[MAX_DIMENSION];
+  hsize_t     FullOutDims[MAX_DIMENSION];
   hsize_t     TempIntArray[MAX_DIMENSION];
  
   herr_t      h5_status;
@@ -139,6 +140,10 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if (fscanf(fptr, "Time = %"PSYM"\n", &Time) != 1) {
             ENZO_FAIL("Error reading Time.");
+    }
+    if (ReadEverything == TRUE && 
+       (fscanf(fptr, "OldTime = %"PSYM"\n", &OldTime) != 1)) {
+            ENZO_FAIL("Error reading OldTime.");
     }
  
     if (fscanf(fptr, "SubgridsAreStatic = %"ISYM"\n", &SubgridsAreStatic) != 1) {
@@ -243,6 +248,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     for (int dim = 0; dim < GridRank; dim++) {
       OutDims[GridRank-dim-1] = ActiveDim[dim];
+      FullOutDims[GridRank-dim-1] = GridDimension[dim];
     }
  
     /* allocate temporary space */
@@ -251,8 +257,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     if(ReadEverything == TRUE) {
       old_fields = H5Gopen(group_id, "OldFields");
-      readAttribute(old_fields, HDF5_REAL, "Time", &this->Time, TRUE);
-      readAttribute(old_fields, HDF5_REAL, "OldTime", &this->OldTime, TRUE);
+      FLOAT dtFixedCopy;
+      readAttribute(old_fields, HDF5_PREC, "Time", &this->Time, TRUE);
+      readAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime, TRUE);
+      readAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy, TRUE);
+      this->dtFixed = dtFixedCopy;
     }
  
     /* loop over fields, reading each one */
@@ -263,18 +272,23 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for (i = 0; i < size; i++)
         BaryonField[field][i] = 0;
 
-      this->read_dataset(GridRank, OutDims, DataLabel[field],
-          group_id, HDF5_REAL, (VOIDP) temp,
-          TRUE, BaryonField[field], ActiveDim);
+      if(ReadEverything == FALSE) {
+        this->read_dataset(GridRank, OutDims, DataLabel[field],
+            group_id, HDF5_REAL, (VOIDP) temp,
+            TRUE, BaryonField[field], ActiveDim);
+      } else {
 
-      if(ReadEverything == TRUE) {
+        this->read_dataset(GridRank, OutDims, DataLabel[field],
+            group_id, HDF5_REAL, BaryonField[field],
+            FALSE, NULL, NULL);
+
         OldBaryonField[field] = new float[size];
         for (i = 0; i < size; i++)
           OldBaryonField[field][i] = 0;
 
         this->read_dataset(GridRank, OutDims, DataLabel[field],
-            old_fields, HDF5_REAL, (VOIDP) temp,
-            TRUE, OldBaryonField[field], ActiveDim);
+            old_fields, HDF5_REAL, OldBaryonField[field],
+            FALSE, NULL, NULL);
 
       }
  
@@ -293,20 +307,35 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	divB = new float[activesize];
       
       /* if we restart from a different solvers output without a Phi Field create here and set to zero */
-    int PhiNum; 
-    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
-      fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
-      fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
-      char *PhiName = "Phi";
-      PhiNum = NumberOfBaryonFields;
-      int PhiToAdd = PhiField;
-      this->AddFields(&PhiToAdd, 1);
-      DataLabel[PhiNum] = PhiName;
-    } else { 
-      if (0) 
-	for (int n = 0; n < size; n++)
-	  BaryonField[PhiNum][n] = 0.;
-    }
+      int PhiNum; 
+      if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+	fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
+	fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	char *PhiName = "Phi";
+	PhiNum = NumberOfBaryonFields;
+	int PhiToAdd = PhiField;
+	this->AddFields(&PhiToAdd, 1);
+	DataLabel[PhiNum] = PhiName;
+      } else { 
+	if (0) 
+	  for (int n = 0; n < size; n++)
+	    BaryonField[PhiNum][n] = 0.;
+      }
+
+      /* if we restart from a different solvers output without a Phi_pField 
+	 and yet want to use the divergence cleaning, create here and set to zero */
+      if (UseDivergenceCleaning) {
+	int Phi_pNum; 
+	if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
+	  fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
+	  fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	  char *Phi_pName = "Phi_p";
+	  Phi_pNum = NumberOfBaryonFields;
+	  int Phi_pToAdd = Phi_pField;
+	  this->AddFields(&Phi_pToAdd, 1);
+	  DataLabel[Phi_pNum] = Phi_pName;
+	}
+      }
 
       for (int dim = 0; dim < 3; dim++)
 	if (gradPhi[dim] == NULL)
@@ -375,7 +404,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
     this->read_dataset(1, TempIntArray, "particle_index",
-          group_id, HDF5_INT, (VOIDP) ParticleNumber, FALSE);
+          group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     // Read ParticleType if present
  
@@ -610,6 +639,7 @@ int grid::ReadExtraFields(hid_t group_id)
   int size, dim;
   int ActiveDim[MAX_DIMENSION];
   hsize_t     OutDims[MAX_DIMENSION];
+  hsize_t     FullOutDims[MAX_DIMENSION];
   hsize_t     GMFOutDims[MAX_DIMENSION];
 
   for (dim = 0; dim < 3; dim++)
@@ -617,6 +647,7 @@ int grid::ReadExtraFields(hid_t group_id)
 
   for (dim = 0; dim < GridRank; dim++) {
     OutDims[GridRank-dim-1] = ActiveDim[dim];
+    FullOutDims[GridRank-dim-1] = GridDimension[dim];
   }
 
   H5E_BEGIN_TRY{
@@ -634,9 +665,9 @@ int grid::ReadExtraFields(hid_t group_id)
         delete this->AccelerationField[dim];
       }
       snprintf(acc_name, 254, "AccelerationField%"ISYM, dim);
-      this->read_dataset(GridRank, OutDims, acc_name,
-          acc_node, HDF5_REAL, (VOIDP) temp,
-          TRUE, AccelerationField[dim], ActiveDim);
+      this->read_dataset(GridRank, FullOutDims, acc_name,
+          acc_node, HDF5_REAL, (VOIDP) AccelerationField[dim],
+          FALSE, NULL, NULL);
     }
     delete temp;
     H5Gclose(acc_node);
@@ -650,7 +681,7 @@ int grid::ReadExtraFields(hid_t group_id)
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
         size *= GravitatingMassFieldDimension[dim];
-        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+        GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
     }
       if(this->GravitatingMassField != NULL)
         delete this->GravitatingMassField;
@@ -668,11 +699,11 @@ int grid::ReadExtraFields(hid_t group_id)
     size = 1;
     for (dim = 0; dim < GridRank; dim++) {
         size *= GravitatingMassFieldDimension[dim];
-        GMFOutDims[dim] = GravitatingMassFieldDimension[dim];
+        GMFOutDims[GridRank-dim-1] = GravitatingMassFieldDimension[dim];
     }
       if(this->PotentialField != NULL)
         delete this->PotentialField;
-      fprintf(stderr, "ALLOCATING %"ISYM" for PF\n", size);
+      //fprintf(stderr, "ALLOCATING %"ISYM" for PF\n", size);
       this->PotentialField = new float[size];
       this->read_dataset(GridRank, GMFOutDims, "PotentialField",
           group_id, HDF5_REAL, (VOIDP) this->PotentialField, FALSE);

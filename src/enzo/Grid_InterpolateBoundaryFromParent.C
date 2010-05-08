@@ -326,8 +326,6 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
 	SecondOrderA : SecondOrderC;
 
-    //    fprintf(stdout, "grid:: InterpolateBoundaryFromParent[1]\n"); 
-
     if( AccelerationHack != TRUE ) 
     FORTRAN_NAME(interpolate)(&GridRank,
 			      ParentTemp[densfield], ParentTempDim,
@@ -336,7 +334,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			      TemporaryDensityField, TempDim, ZeroVector, Work,
 			      &InterpolationMethod,
 			      &SecondOrderBFlag[densfield]);
- 
+
     /* Loop over all the fields. */
  
     for (field = 0; field < NumberOfBaryonFields; field++) {
@@ -344,13 +342,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       if (HydroMethod == Zeus_Hydro)
 	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
 	  SecondOrderA : SecondOrderC;
-      
-      //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[2], field = %d\n", field);
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.
 	 (skip density since we did it already) */
- 
+
       if (FieldType[field] != Density)
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,
@@ -431,9 +427,9 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	  for (i = 0; i < GridDimension[0]; i++, fieldindex++, tempindex++)
 	    BaryonField[field][fieldindex] = FieldPointer[tempindex];
 	}
- 
+
     } // end loop over fields
- 
+  
     delete [] Work;
     delete [] TemporaryField;
     delete [] TemporaryDensityField;

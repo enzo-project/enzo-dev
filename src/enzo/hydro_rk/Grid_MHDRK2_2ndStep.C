@@ -52,18 +52,17 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
   for (int j=30; j < 33; j++) 
-    for (int i=0; i < 9; i++) printf("BaryonField[%i][%i] = %g \n", i, j, BaryonField[i][j]);
+    for (int i=0; i < 9; i++) printf("BaryonField[%"ISYM"][%"ISYM"] = %"GSYM" \n", i, j, BaryonField[i][j]);
 #endif
 
-  this->ReturnHydroRKPointers(Prim, false);
-  this->ReturnOldHydroRKPointers(OldPrim, false);
+  this->ReturnHydroRKPointers(Prim, false);  
+  this->ReturnOldHydroRKPointers(OldPrim, false);  
 
 #ifdef ECUDADEBUG
   printf("in Grid_MHDRK_2ndStep.C.\n");
   for (int j=30; j < 33; j++) 
-    for (int i=0; i < 9; i++) printf("Prim[%i][%i] = %g \n", i, j, Prim[i][j]);
+    for (int i=0; i < 9; i++) printf("Prim[%"ISYM"][%"ISYM"] = %"GSYM" \n", i, j, Prim[i][j]);
 #endif
-
 
 
 #ifdef ECUDA
@@ -121,8 +120,6 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
   if (StellarWindFeedback)
     this->ReduceWindBoundary();
 
-  /* Compute dU */
-
   float *dU[NEQ_MHD+NSpecies+NColor];
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
@@ -131,6 +128,10 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
     dU[field] = new float[activesize];
   }
+
+  this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
+
+  /* Compute dU */
 
   int fallback = 0;
   if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 

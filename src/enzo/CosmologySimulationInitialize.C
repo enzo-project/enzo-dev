@@ -45,11 +45,8 @@
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+void PrintMemoryUsage(char *str);
 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
 
 // Cosmology Parameters (that need to be shared)
  
@@ -283,9 +280,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   if (CosmologySimulationDensityName != NULL && CellFlaggingMethod[0] != 2)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationDensityName == NULL && CellFlaggingMethod[0] != 4)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationNumberOfInitialGrids > MAX_INITIAL_GRIDS) {
@@ -702,7 +701,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 }
  
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count);
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
  
 // Re-call the initializer on level zero grids.
 // Used in case of ParallelRootGridIO.
@@ -719,10 +718,6 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
     *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];
   
-#ifdef MEM_TRACE
-  Eint64 MemInUse;
-#endif
- 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticleVelocityNames[dim] = NULL;
     VelocityNames[dim] = NULL;
@@ -793,10 +788,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   HierarchyEntry *Temp = TopGrid;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call G_CSIG");
  
   while (Temp != NULL) {
  
@@ -829,15 +821,11 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Called G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
- 
+  PrintMemoryUsage("Called G_CSIG");
  
     //  Create tracer particles
 
-    int DummyNumberOfParticles = 0;
+    PINT DummyNumberOfParticles = 0;
  
     Temp = TopGrid;
  
@@ -876,16 +864,13 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
  
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Local pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Local pc set");
  
  
   // Loop over grids and set particle ID number
  
   Temp = TopGrid;
-  int ParticleCount = 0;
+  PINT ParticleCount = 0;
   RecursivelySetParticleCount(Temp, &ParticleCount);
   if (debug)
     printf("FinalParticleCount = %"ISYM"\n", ParticleCount);
@@ -896,16 +881,13 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   // Added the following line:
   MetaData.NumberOfParticles = ParticleCount;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Recursive pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Recursive pc set");
 
  
   return SUCCESS;
 }
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count)
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count)
 {
   // Add Count to the particle id's on this grid (which start from zero
   // since we are doing a parallel root grid i/o)

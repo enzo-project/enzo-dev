@@ -385,9 +385,9 @@
      &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4.0+HeIII(i,j,k))
      &                        *de(i,j,k)
 
-!                    Photoelectric heating on dust
+!                    Photoelectric heating by UV-irradiated dust
 
-     &             + float(igammah)*gammaha*d(i,j,k)
+     &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))/dom
      &             )
         
          if (edot(i) .ne. edot(i)) then
@@ -725,6 +725,17 @@ c
                   write(6,*) ''
                endif
 #endif
+
+               if (edot(i) .ne. edot(i)) then    !#####
+                  write(6,*) 'cool1d_multi: edot = NaN!', 
+     $                        metalc(i), d(i,j,k), xi, dom, edot(i), 
+     $                        dlogxe, log_xe, xe1, dlogxea,
+     $                        logxe1, logxe0, n_xe
+                  write(6,*) 'more: ',
+     $                        log_xe, log(xe), logxe1, logxe0, xe, 
+     $                        xe_max, xe_min
+                  edot(i) = 0.0
+               endif
 
             endif
          enddo

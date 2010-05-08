@@ -68,7 +68,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[iPhi]= BaryonField[PhiNum];
   }
   /*
-  printf("Physical Quantities: %i %i  %i %i %i  %i  %i %i %i %i\n", 
+  printf("Physical Quantities: %"ISYM" %"ISYM"  %"ISYM" %"ISYM" %"ISYM"  %"ISYM"  %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", 
 	 DensNum, GENum, Vel1Num, Vel2Num, 
 	 Vel3Num, TENum, B1Num, B2Num, B3Num, 
 	 PhiNum);
@@ -118,39 +118,24 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     }
   }
 
-  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];
+  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];  
+  /*   //##### These fields are currently not being used and only causing interpolation problems
   if (MBHColourNum     != -1) Prim[nfield++] = BaryonField[MBHColourNum];
   if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
   if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
-
-  //fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield); 
-
-  /*  //#####
-  int MetalNum, SNColourNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1) {
-    Prim[nfield++] = BaryonField[MetalNum];
-    if (MultiMetals || TestProblemData.MultiMetals) {
-      Prim[nfield++] = BaryonField[MetalNum+1];
-      Prim[nfield++] = BaryonField[MetalNum+2];
-    }
-  }
-
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    Prim[nfield++] = BaryonField[SNColourNum];
   */
-
 
   /* Convert the species and color fields into mass fractions */
 
   for (dim = 0, size = 1; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  if (ReturnMassFractions)
+  if (ReturnMassFractions)  
     for (n = n0; n < nfield; n++)
-      for (i = 0; i < size; i++)
+      for (i = 0; i < size; i++) 
 	Prim[n][i] /= Prim[iden][i];
+
+  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %"ISYM"\n", nfield);  
 
   return SUCCESS;
 

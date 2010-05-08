@@ -38,7 +38,7 @@ int HLL_PPM(float **prim, float **priml, float **primr,
 
   // compute priml and primr with ppm
  //   plm(prim, priml, primr, ActiveSize, NEQ_HYDRO);
-//   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "plm %i :  %g : %g %g\n", 
+//   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "plm %"ISYM" :  %"GSYM" : %"GSYM" %"GSYM"\n", 
 // 					   i, prim[iden][i+DEFAULT_GHOST_ZONES], 
 // 					   priml[iden][i], primr[iden][i]);
 
@@ -52,7 +52,7 @@ int HLL_PPM(float **prim, float **priml, float **primr,
       primr[field][i] = primr[field][i+1];
     }
 
-//   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "ppm %i :  %g : %g %g\n", 
+//   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "ppm %"ISYM" :  %"GSYM" : %"GSYM" %"GSYM"\n", 
 // 					   i, prim[iden][i+DEFAULT_GHOST_ZONES], 
 // 					   priml[iden][i], primr[iden][i]);
 

@@ -266,6 +266,11 @@
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, imetal, aye**(-3))
 
+      call ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+     &                     HM, H2I, H2II, DI, DII, HDI, metal,
+     &                     is, ie, js, je, ks, ke,
+     &                     in, jn, kn, ispecies, imetal)
+
 !  Loop over zones, and do an entire i-column in one go
 
       do k = ks+1, ke+1
@@ -457,6 +462,9 @@
             endif
             enddo               ! end loop over i
 
+!               if (dtit(i) .ne. dtit(i)) 
+!     &             write(6,*) '2-#####-dtit(i) = ', dtit(i)
+
 !           Compute maximum timestep for cooling/heating
 
             do i = is+1, ie+1
@@ -482,7 +490,7 @@
                if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
-
+!
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
@@ -493,13 +501,20 @@
      &                        dt-ttot(i), dtit(i))
 !              endif
 
+               if (dtit(i) .ne. dtit(i)) 
+     &           write(6,*) '3-##### energy, edot, abs(0.1*energy/edot), 
+     &                      real(abs(0.1*energy/edot)), dt, ttot, dtit',
+     &                      energy, edot(i), abs(0.1*energy/edot(i)), 
+     &                      real(abs(0.1*energy/edot(i))), dt, ttot(i), 
+     &                      dtit(i)
+
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
                if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1)
      &           write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
                if (idual .eq. 1 .and.
      &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0.0)
-     &         write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
+     &           write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
@@ -654,27 +669,112 @@ c -------------------------------------------------------------------
                HeII(i,j,k)  = HeII(i,j,k)*factor
                HeIII(i,j,k) = HeIII(i,j,k)*factor
             enddo
-            if (ispecies .gt. 1) then
+         enddo
+      enddo
+      if (ispecies .gt. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)*factor
                   H2I(i,j,k)  = H2I(i,j,k)*factor
                   H2II(i,j,k) = H2II(i,j,k)*factor
                enddo
-            endif
-            if (ispecies .gt. 2) then
+            enddo
+         enddo
+      endif
+      if (ispecies .gt. 2) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)*factor
                   DII(i,j,k) = DII(i,j,k)*factor
                   HDI(i,j,k) = HDI(i,j,k)*factor
                enddo
-            endif
-            if (imetal .eq. 1) then
+            enddo
+         enddo
+      endif
+      if (imetal .eq. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)*factor
                enddo
-            endif
+            enddo
+         enddo
+      endif
+
+      return
+      end
+
+c -----------------------------------------------------------
+!   This routine ensures that the species aren't below tiny.
+
+      subroutine ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+     &                           HM, H2I, H2II, DI, DII, HDI, metal,
+     &                           is, ie, js, je, ks, ke,
+     &                           in, jn, kn, ispecies, imetal)
+c -------------------------------------------------------------------
+
+      implicit NONE
+
+!     Arguments
+
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+     &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
+      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      real metal(in,jn,kn)
+
+!     locals
+
+      integer i, j, k
+
+!     Multiply all fields by factor (1/a^3 or a^3)
+
+      do k = ks+1, ke+1
+         do j = js+1, je+1
+            do i = is+1, ie+1
+               de(i,j,k)    = max(de(i,j,k), tiny)
+               HI(i,j,k)    = max(HI(i,j,k), tiny)
+               HII(i,j,k)   = max(HII(i,j,k), tiny)
+               HeI(i,j,k)   = max(HeI(i,j,k), tiny)
+               HeII(i,j,k)  = max(HeII(i,j,k), tiny)
+               HeIII(i,j,k) = max(HeIII(i,j,k), tiny)
+            enddo
          enddo
       enddo
+      if (ispecies .gt. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  HM(i,j,k)   = max(HM(i,j,k), tiny)
+                  H2I(i,j,k)  = max(H2I(i,j,k), tiny)
+                  H2II(i,j,k) = max(H2II(i,j,k), tiny)
+               enddo
+            enddo
+         enddo
+      endif
+      if (ispecies .gt. 2) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  DI(i,j,k)  = max(DI(i,j,k), tiny)
+                  DII(i,j,k) = max(DII(i,j,k), tiny)
+                  HDI(i,j,k) = max(HDI(i,j,k), tiny)
+               enddo
+            enddo
+         enddo
+      endif
+      if (imetal .eq. 1) then
+         do k = ks+1, ke+1
+            do j = js+1, je+1
+               do i = is+1, ie+1
+                  metal(i,j,k) = max(metal(i,j,k), tiny)
+               enddo
+            enddo
+         enddo
+      endif
 
       return
       end
@@ -777,22 +877,22 @@ c -------------------------------------------------------------------
      &                max(1,int((logtem(i)-logtem0)/dlogtem)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
-         tdef(i) = t2(i) - t1(i)
+         tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))
 
 !        Do linear table lookup (in log temperature)
 
-         k1(i) = k1a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k1a(indixe(i)+1) -k1a(indixe(i)))/tdef(i)
-         k2(i) = k2a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k2a(indixe(i)+1) -k2a(indixe(i)))/tdef(i)
-         k3(i) = k3a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k3a(indixe(i)+1) -k3a(indixe(i)))/tdef(i)
-         k4(i) = k4a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k4a(indixe(i)+1) -k4a(indixe(i)))/tdef(i)
-         k5(i) = k5a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k5a(indixe(i)+1) -k5a(indixe(i)))/tdef(i)
-         k6(i) = k6a(indixe(i)) + (logtem(i) - t1(i))
-     &           *(k6a(indixe(i)+1) -k6a(indixe(i)))/tdef(i)
+         k1(i) = k1a(indixe(i)) +
+     &           (k1a(indixe(i)+1) -k1a(indixe(i)))*tdef(i)
+         k2(i) = k2a(indixe(i)) +
+     &           (k2a(indixe(i)+1) -k2a(indixe(i)))*tdef(i)
+         k3(i) = k3a(indixe(i)) +
+     &           (k3a(indixe(i)+1) -k3a(indixe(i)))*tdef(i)
+         k4(i) = k4a(indixe(i)) +
+     &           (k4a(indixe(i)+1) -k4a(indixe(i)))*tdef(i)
+         k5(i) = k5a(indixe(i)) +
+     &           (k5a(indixe(i)+1) -k5a(indixe(i)))*tdef(i)
+         k6(i) = k6a(indixe(i)) +
+     &           (k6a(indixe(i)+1) -k6a(indixe(i)))*tdef(i)
       endif
       enddo
 
@@ -801,43 +901,43 @@ c -------------------------------------------------------------------
       if (ispecies .gt. 1) then
          do i = is+1, ie+1
             if (itmask(i)) then
-            k7(i) = k7a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k7a(indixe(i)+1) -k7a(indixe(i)))/tdef(i)
-            k8(i) = k8a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k8a(indixe(i)+1) -k8a(indixe(i)))/tdef(i)
-            k9(i) = k9a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k9a(indixe(i)+1) -k9a(indixe(i)))/tdef(i)
-            k10(i) = k10a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k10a(indixe(i)+1) -k10a(indixe(i)))/tdef(i)
-            k11(i) = k11a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k11a(indixe(i)+1) -k11a(indixe(i)))/tdef(i)
-            k12(i) = k12a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k12a(indixe(i)+1) -k12a(indixe(i)))/tdef(i)
-            k13(i) = k13a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k13a(indixe(i)+1) -k13a(indixe(i)))/tdef(i)
-            k14(i) = k14a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k14a(indixe(i)+1) -k14a(indixe(i)))/tdef(i)
-            k15(i) = k15a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k15a(indixe(i)+1) -k15a(indixe(i)))/tdef(i)
-            k16(i) = k16a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k16a(indixe(i)+1) -k16a(indixe(i)))/tdef(i)
-            k17(i) = k17a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k17a(indixe(i)+1) -k17a(indixe(i)))/tdef(i)
-            k18(i) = k18a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k18a(indixe(i)+1) -k18a(indixe(i)))/tdef(i)
-            k19(i) = k19a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k19a(indixe(i)+1) -k19a(indixe(i)))/tdef(i)
-            k22(i) = k22a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k22a(indixe(i)+1) -k22a(indixe(i)))/tdef(i)
+            k7(i) = k7a(indixe(i)) +
+     &            (k7a(indixe(i)+1) -k7a(indixe(i)))*tdef(i)
+            k8(i) = k8a(indixe(i)) +
+     &            (k8a(indixe(i)+1) -k8a(indixe(i)))*tdef(i)
+            k9(i) = k9a(indixe(i)) +
+     &            (k9a(indixe(i)+1) -k9a(indixe(i)))*tdef(i)
+            k10(i) = k10a(indixe(i)) +
+     &            (k10a(indixe(i)+1) -k10a(indixe(i)))*tdef(i)
+            k11(i) = k11a(indixe(i)) +
+     &            (k11a(indixe(i)+1) -k11a(indixe(i)))*tdef(i)
+            k12(i) = k12a(indixe(i)) +
+     &            (k12a(indixe(i)+1) -k12a(indixe(i)))*tdef(i)
+            k13(i) = k13a(indixe(i)) +
+     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*tdef(i)
+            k14(i) = k14a(indixe(i)) +
+     &            (k14a(indixe(i)+1) -k14a(indixe(i)))*tdef(i)
+            k15(i) = k15a(indixe(i)) +
+     &            (k15a(indixe(i)+1) -k15a(indixe(i)))*tdef(i)
+            k16(i) = k16a(indixe(i)) +
+     &            (k16a(indixe(i)+1) -k16a(indixe(i)))*tdef(i)
+            k17(i) = k17a(indixe(i)) +
+     &            (k17a(indixe(i)+1) -k17a(indixe(i)))*tdef(i)
+            k18(i) = k18a(indixe(i)) +
+     &            (k18a(indixe(i)+1) -k18a(indixe(i)))*tdef(i)
+            k19(i) = k19a(indixe(i)) +
+     &            (k19a(indixe(i)+1) -k19a(indixe(i)))*tdef(i)
+            k22(i) = k22a(indixe(i)) +
+     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*tdef(i)
          endif
          enddo
 
          do n1 = 1, 7
             do i = is+1, ie+1
                if (itmask(i)) then
-               k13dd(i,n1) = k13dda(indixe(i),n1) + (logtem(i) - t1(i))
-     &             *(k13dda(indixe(i)+1,n1) - 
-     &               k13dda(indixe(i)  ,n1) )/tdef(i)
+               k13dd(i,n1) = k13dda(indixe(i),n1) +
+     &             (k13dda(indixe(i)+1,n1) - 
+     &               k13dda(indixe(i)  ,n1) )*tdef(i)
             endif
             enddo
          enddo
@@ -848,20 +948,20 @@ c -------------------------------------------------------------------
       if (ispecies .gt. 2) then
          do i = is+1, ie+1
             if (itmask(i)) then
-            k50(i) = k50a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k50a(indixe(i)+1) -k50a(indixe(i)))/tdef(i)
-            k51(i) = k51a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k51a(indixe(i)+1) -k51a(indixe(i)))/tdef(i)
-            k52(i) = k52a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k52a(indixe(i)+1) -k52a(indixe(i)))/tdef(i)
-            k53(i) = k53a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k53a(indixe(i)+1) -k53a(indixe(i)))/tdef(i)
-            k54(i) = k54a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k54a(indixe(i)+1) -k54a(indixe(i)))/tdef(i)
-            k55(i) = k55a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k55a(indixe(i)+1) -k55a(indixe(i)))/tdef(i)
-            k56(i) = k56a(indixe(i)) + (logtem(i) - t1(i))
-     &            *(k56a(indixe(i)+1) -k56a(indixe(i)))/tdef(i)
+            k50(i) = k50a(indixe(i)) +
+     &            (k50a(indixe(i)+1) -k50a(indixe(i)))*tdef(i)
+            k51(i) = k51a(indixe(i)) +
+     &            (k51a(indixe(i)+1) -k51a(indixe(i)))*tdef(i)
+            k52(i) = k52a(indixe(i)) +
+     &            (k52a(indixe(i)+1) -k52a(indixe(i)))*tdef(i)
+            k53(i) = k53a(indixe(i)) +
+     &            (k53a(indixe(i)+1) -k53a(indixe(i)))*tdef(i)
+            k54(i) = k54a(indixe(i)) +
+     &            (k54a(indixe(i)+1) -k54a(indixe(i)))*tdef(i)
+            k55(i) = k55a(indixe(i)) +
+     &            (k55a(indixe(i)+1) -k55a(indixe(i)))*tdef(i)
+            k56(i) = k56a(indixe(i)) +
+     &            (k56a(indixe(i)+1) -k56a(indixe(i)))*tdef(i)
          endif
          enddo
       endif
@@ -1458,11 +1558,11 @@ c
       do i = is+1, ie+1
          if (itmask(i)) then
          HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i),tiny)
-         HI(i,j,k)    = HIp(i)
-         HII(i,j,k)   = HIIp(i)
-         HeI(i,j,k)   = HeIp(i)
-         HeII(i,j,k)  = HeIIp(i)
-         HeIII(i,j,k) = max(HeIIIp(i), 1.0e-25)
+         HI(i,j,k)    = max(HIp(i), tiny)
+         HII(i,j,k)   = max(HIIp(i), tiny)
+         HeI(i,j,k)   = max(HeIp(i), tiny)
+         HeII(i,j,k)  = max(HeIIp(i), tiny)
+         HeIII(i,j,k) = max(HeIIIp(i), tiny)
 
 !        de(i,j,k)    = dep(i)
 
@@ -1476,15 +1576,15 @@ c
      &                         max(dtit(i),tiny)
 
          if (ispecies .gt. 1) then
-            HM(i,j,k)    = HMp(i)
-            H2I(i,j,k)   = H2Ip(i)
-            H2II(i,j,k)  = H2IIp(i)
+            HM(i,j,k)    = max(HMp(i), tiny)
+            H2I(i,j,k)   = max(H2Ip(i), tiny)
+            H2II(i,j,k)  = max(H2IIp(i), tiny)
          endif
 
          if (ispecies .gt. 2) then
-            DI(i,j,k)    = DIp(i)
-            DII(i,j,k)   = DIIp(i)
-            HDI(i,j,k)   = HDIp(i)
+            DI(i,j,k)    = max(DIp(i), tiny)
+            DII(i,j,k)   = max(DIIp(i), tiny)
+            HDI(i,j,k)   = max(HDIp(i), tiny)
          endif
       endif                     ! itmask
 !     

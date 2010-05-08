@@ -31,7 +31,8 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 int SetParameterDefaults(parmstruct *Parameters);
 int ReadParameterFile(FILE *fptr, parmstruct *Parameters);
 int InitializePowerSpectrum();
-int MakePowerSpectrumLookUpTable();
+//int MakePowerSpectrumLookUpTable();
+int MakePowerSpectrumLookUpTable(char *);
 int GenerateRealization(parmstruct *Parameters, parmstruct *SubGridParameters);
 int CosmologyReadParameters(FILE *fptr);
 int ReadPowerSpectrumParameters(FILE *fptr);
@@ -57,7 +58,7 @@ Eint32 main(Eint32 argc, char *argv[])
   printf("ENZO Inits V64.0 - April 3rd 2006\n\n");
  
   InterpretCommandLine(int_argc, argv, myname, &ParameterFile, &SubGridParameterFile);
- 
+
   // Set Parameter defaults
  
   SetParameterDefaults(&Parameters);
@@ -117,10 +118,21 @@ Eint32 main(Eint32 argc, char *argv[])
   Redshift = 0.0;
   InitializePowerSpectrum();
  
+  // mqk: Output z=0 power spectrum as well, by calling
+  //      MakePowerSpectrumLookUpTable with Redshift=0.0. The
+  //      resulting z=0 look-up table will be overwritten below by the
+  //      call to MakePowerSpectrumLookUpTable with
+  //      Redshift=InitialRedshift.
+  char PowerSpectrumFilename[100];
+  sprintf(PowerSpectrumFilename,"PowerSpectrum_z=%d.out",(int)Redshift);
+  MakePowerSpectrumLookUpTable(PowerSpectrumFilename);
+
+
   // Generate a look-up table at the initial redshift
  
   Redshift = InitialRedshift;
-  MakePowerSpectrumLookUpTable();
+  sprintf(PowerSpectrumFilename,"PowerSpectrum_z=%d.out",(int)Redshift);
+  MakePowerSpectrumLookUpTable(PowerSpectrumFilename);
  
   // Generate the fields and particles
  

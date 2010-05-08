@@ -1,8 +1,8 @@
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <mpi.h>
 #include <unistd.h>
 
 
@@ -276,7 +276,7 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
 		    fwrite(&Pbuf[i].Pos[0], sizeof(double), 3, fdpart);
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&Pbuf[i].PartID, sizeof(int), 1, fdids);
+		    fwrite(&Pbuf[i].PartID, sizeof(PINT), 1, fdids);
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
 		    {
 		      ctype= Pbuf[i].Type;
@@ -311,7 +311,7 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
 		    fwrite(&partbuf[i].Pos[0], sizeof(double), 3, fdpart);
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
-		    fwrite(&partbuf[i].PartID, sizeof(int), 1, fdids);
+		    fwrite(&partbuf[i].PartID, sizeof(PINT), 1, fdids);
 		  for(i=0; i<GroupDatAll[gr-task].Len; i++)
 		    {
 		      ctype= partbuf[i].Type;
@@ -463,7 +463,8 @@ int do_subfind_in_group(struct particle_data *pbuf, int grlen, int *sublen, int 
   int *Len_bak, *Head_bak, *Tail_bak, *Next_bak;
   struct particle_data *P_bak;
   int i, j, oldhead, gr;
-  int saved, offset, count, id;
+  int saved;
+  PINT offset, count, id;
 
 
 

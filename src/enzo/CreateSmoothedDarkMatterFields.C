@@ -40,6 +40,8 @@ void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 void FOF_Initialize(TopGridData *MetaData, 
 		    LevelHierarchyEntry *LevelArray[], 
 		    FOFData &D, bool SmoothData);
+void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[], 
+		  TopGridData *MetaData);
 int CopyParticlesAcrossPeriodicBoundaries(FOFData &D, int TopGridResolution);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
@@ -51,6 +53,9 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
 
   if (OutputSmoothedDarkMatter == 0)
     return SUCCESS;
+
+  if (OutputSmoothedDarkMatter < 0)
+    OutputSmoothedDarkMatter = -OutputSmoothedDarkMatter;
 
   /* Create a LevelHierarchyEntry array */
 
@@ -137,6 +142,7 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
 
   // Cleanup
+  FOF_Finalize(AllVars, LevelArray, &MetaData);
   ngb_treefree();
 
   delete [] AllVars.Nslab;
@@ -144,9 +150,6 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   delete [] AllVars.Noffset;
   delete [] AllVars.NtoLeft;
   delete [] AllVars.NtoRight;
-
-  AllVars.P++;
-  delete [] AllVars.P;
 
   return SUCCESS;
 

@@ -45,7 +45,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(fptr, "\nGrid = %"ISYM"\n", GridID);
   OriginalID = GridID;
- 
+
   /* Write out grid data for this grid (if WriteTime is < 0 then output
      at the grid's time, otherwise interpolate to WriteTime and output). */
 

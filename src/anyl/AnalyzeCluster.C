@@ -14,18 +14,21 @@
 /
 ************************************************************************/
 
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_HDF4
 #include <df.h>
+#endif /* USE_HDF4 */
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
-#include "../enzo/macros_and_parameters.h"
-#include "../enzo/typedefs.h"
 #define DEFINE_STORAGE
 #include "../enzo/ErrorExceptions.h"
+#include "../enzo/macros_and_parameters.h"
+#include "../enzo/units.h"
+#include "../enzo/typedefs.h"
 #include "../enzo/global_data.h"
 #include "../enzo/Fluxes.h"
 #include "../enzo/GridList.h"
@@ -35,9 +38,7 @@
 #include "../enzo/LevelHierarchy.h"
 #include "../enzo/TopGridData.h"
 #include "../enzo/CosmologyParameters.h"  
-//#include "../enzo/StarParticleData.h"  //#####
 #include "../enzo/communication.h"
-#include "../enzo/units.h"
 #include "../enzo/flowdefs.h"
 #include "../enzo/PhotonCommunication.h"
 
@@ -69,7 +70,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
-int CommunicationInitialize(int *argc, char **argv[]);
+int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 int CommunicationSumValues(FLOAT *values, int number);
 int CommunicationAllSumValues(FLOAT *values, int number);
@@ -85,7 +86,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
               float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-main(int argc, char *argv[])
+main(Eint32 argc, char *argv[])
 {
   CommunicationInitialize(&argc, &argv);
 
@@ -894,6 +895,7 @@ main(int argc, char *argv[])
 	  if (ProfileWeight[j][i] > 0) 
 	    ProfileValue[j][i] /= ProfileWeight[j][i];  
 
+#ifdef USE_HDF4
       /* Save disk image. */
 
       Eint32 OutDims[2];
@@ -927,6 +929,7 @@ main(int argc, char *argv[])
       /* Clean up. */
 
       delete float_temp;
+#endif  //USE_HDF4
 
       } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 
@@ -1064,6 +1067,8 @@ main(int argc, char *argv[])
       ProfileFile[profile] = 2;
     for (profile = 150; profile < 190; profile++)  
       ProfileFile[profile] = 6;
+    for (profile = 191; profile < 194; profile++)  
+      ProfileFile[profile] = 0;
 
     /* Output global values. */
 
@@ -1085,6 +1090,8 @@ main(int argc, char *argv[])
 	    RvirValue[0][17], RvirValue[0][18], RvirValue[0][19]);
     fprintf(fptrs[0], "# L (dm)             = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
 	    RvirValue[0][35], RvirValue[0][36], RvirValue[0][37]);
+    fprintf(fptrs[0], "# L (star)           = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
+	    RvirValue[0][65], RvirValue[0][66], RvirValue[0][67]);
     fprintf(fptrs[0], "# InnerEdge = %g Mpc  OuterEdge = %g Mpc\n\n",    
 	  InnerEdge*BoxSize, OuterEdge*BoxSize);
 
@@ -1168,9 +1175,6 @@ main(int argc, char *argv[])
       if (fptrs[i] != NULL)
 	fprintf(fptrs[i], "\n");
 
-
-    double AverageGasSurfaceDensity = 0.0;  
-
     /* Loop over all radial bins, printing each. */
 
     for (j = 0; j < NumberOfPoints; j++) {
@@ -1193,7 +1197,7 @@ main(int argc, char *argv[])
 	      POW(BoxSize, 3) * 4.0*pi/3.0),
 	      ProfileWeight[j][30]);
 
-      /* Printing vertical profile using ProfileRadius2.  Ji-hoon Kim in Dec./2007 */
+      /* Print vertical profile using ProfileRadius2.  JHK in Dec.2007 */
 
       if ((fptrs[6] != NULL) && (parameters.LinearProfileRadiusForVertical)) {
 	FLOAT rmid = 0.5*(ProfileRadius2[j]+ProfileRadius2[j+1])*BoxSize;                   
@@ -1201,47 +1205,11 @@ main(int argc, char *argv[])
 		rmid, ProfileRadius2[j+1]*BoxSize); 
       }
 
-      /* Printing radially-averaged gas surface density.  This is useful for Local Kennicutt-Schmidt law.  
-	 This will create unwanted files, so caveat emptor!  Ji-hoon Kim in Nov./2007 */
-
-#define DO_NOT_PRINT_SURFACE_PROFILE
-#ifdef PRINT_SURFACE_PROFILE
-      FILE *fpGasSurfDen;
-      fpGasSurfDen = fopen("GasSurfDen.txt","a");      
-      fprintf(fpGasSurfDen, "%"GOUTSYM" \n", 
-	      (ProfileValue[j][106] == 0) ? 
-	      tiny_number : ProfileValue[j][106]/1e12); //in unit of Msun/pc^2
-      AverageGasSurfaceDensity += ProfileValue[j][106]*(2*pi*ProfileRadius[j]*BoxSize)
-	      *(ProfileRadius[j]-ProfileRadius[j-1])*BoxSize;
-      fclose(fpGasSurfDen);
-#endif 
-
       for (i = 0; i < NUMBER_OF_FILES; i++)
 	if (fptrs[i] != NULL)
 	  fprintf(fptrs[i], "\n");
 
     }//end of j
-
-    /* Printing disk-averaged gas surface density.  This is useful for Global Kennicutt-Schmidt law of multiple epochs. 
-       This will create unwanted files, so again, caveat emptor!  Ji-hoon Kim in Nov./2007 */
-    /* As a bonus, this also prints the evolution of m_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
-
-#ifdef PRINT_SURFACE_PROFILE
-    FILE *fpAveGasSurfDen;
-    FILE *fpVirialMassEvolution;
-
-    fpAveGasSurfDen = fopen("../AveGasSurfDen.txt","a");
-    fprintf(fpAveGasSurfDen, "%"GOUTSYM"\n", 
-	    AverageGasSurfaceDensity/pi/POW((ProfileRadius[j]*BoxSize),2)/1e12); //in unit of Msun/pc^2 
-    
-    fpVirialMassEvolution = fopen("../VirialMassEvolution.txt","a");
-    fprintf(fpVirialMassEvolution, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
-	    CurrentRedshift, MetaData.Time, rvir*BoxSize, 
-	    mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);   
-
-    fclose(fpAveGasSurfDen);
-    fclose(fpVirialMassEvolution);
-#endif
 
     /* close files */
 
@@ -1249,11 +1217,69 @@ main(int argc, char *argv[])
       if (fptrs[i] != NULL)
 	fclose(fptrs[i]);
 
+
+    /* Print additional info for Kennicutt-Schmidt relations, JHK in Nov.2007 */
+
+    if (parameters.PrintGlobalProfileValues) { 
+
+      FILE *fpLKS, *fpGKS, *fpSSD;
+      double AverageGasSurfaceDensity = 0.0;  
+      double AverageSFRSurfaceDensity = 0.0;  
+      FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
+
+      fpLKS = fopen("local_KS.dat","w");      
+      fpGKS = fopen("global_KS.dat","a");
+      fpSSD = fopen("stellar_surface_density.dat", "a");
+//      fprintf(fpGKS, "# time  Sigma_gas  Sigma_SFR  R_vir  M_vir  M_vir_star  M_vir_gas  M_vir_DM\n");
+
+      /* Print gas surface density and SFR surface density for local K-S law.  
+	 Msun/pc^2 vs. Msun/yr/kpc^2 */
+
+      for (j = 1; j < NumberOfPoints; j++) {
+
+	fprintf(fpLKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM" \n", ProfileRadius[j],
+		log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) )); 
+
+	AverageGasSurfaceDensity += ProfileValue[j][106]*ProfileWeight[j][106];//weights are annuli
+	AverageSFRSurfaceDensity += ProfileValue[j][116]*ProfileWeight[j][116];
+
+      }
+
+      /* Print disk-averaged gas surface density and disk-averaged SFR surface
+	 density for global K-S law.  Msun/pc^2 vs. Msun/yr/kpc^2  */
+
+      fprintf(fpGKS, "%g   %"GOUTSYM"   %"GOUTSYM"    %g    %g    %g    %g    %g\n", 
+	      MetaData.Time,
+	      log10( AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2) ),
+	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) ),
+	      rvir*BoxSize, mvir, mvir_star, mvir_gas, mvir - mvir_gas - mvir_star); 
+
+      /* Print stellar/gas/SFR surface density w.r.t. time and radius (in Msun/pc^2, Msun/yr/kpc^2) */
+
+      for (j = 1; j < NumberOfPoints; j++) {
+
+	if (ProfileValue[j][114] != 0)
+	  fprintf(fpSSD, "%g   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", 
+		  MetaData.Time, ProfileRadius[j],
+		  log10( (ProfileValue[j][114] == 0) ? tiny_number : ProfileValue[j][114]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) ));
+
+      }
+
+      fclose(fpLKS);
+      fclose(fpGKS);
+      fclose(fpSSD);
+      
+    } // end: if (parameters.PrintGlobalProfileValues)
+
     } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 
   } // end: loop over centers
 
   my_exit(EXIT_SUCCESS);
+
 }
 
 

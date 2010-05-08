@@ -50,6 +50,8 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
+int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
+			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
@@ -480,11 +482,16 @@ int RebuildHierarchy(TopGridData *MetaData,
       case 1:
       case 2:
       case 3:
-	CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
-				      MoveParticles);
+	if (i >= LoadBalancingMinLevel && i <= LoadBalancingMaxLevel)
+	  CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
+					MoveParticles);
+	break;
+      case 4:
+	if (i >= LoadBalancingMinLevel && i <= LoadBalancingMaxLevel)
+	  LoadBalanceHilbertCurve(SubgridHierarchyPointer, subgrids, 
+				  MoveParticles);
 	break;
       default:
-	
 	break;
       }
       tt1 = ReturnWallTime();
@@ -607,7 +614,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, 0) == FAIL)
+  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
     ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
 #endif /* TRANSFER  */
 

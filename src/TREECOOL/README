@@ -1,0 +1,10 @@
+TREECOOL.py
+
+This script will re-create the TREECOOL file that is used within Gadget
+Equilibrium cooling. I (Stephen Skory) adapted an IDL script written by
+Pascal Paschos to Python. IDL is great, but it is very not free, and this
+script will work anywhere Python works.
+
+The usage is simple. Edit the top of the Python script to your liking and 
+invoke 'python TREECOOL.py'. It will output a new file 'TREECOOL.mod' with
+your new UV background.

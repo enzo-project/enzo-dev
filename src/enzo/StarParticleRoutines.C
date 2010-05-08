@@ -25,7 +25,7 @@ StarParticle::StarParticle(void)
   accretion_time = NULL;
   NextStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = 0.0;
+  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = NotEjectedMass = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = 0;
 }
 
@@ -47,12 +47,13 @@ StarParticle::StarParticle(grid *_grid, int ParticleID)
   CurrentGrid = _grid;
   DeltaMass = 0.0;
   last_accretion_rate = 0.0;
+  NotEjectedMass = 0.0;
   level = 0;
 
   GridID = _grid->ID;
   type = _grid->ParticleType[ParticleID];
   Identifier = _grid->ParticleNumber[ParticleID];
-  Mass = FinalMass = _grid->ParticleMass[ParticleID];
+  Mass = FinalMass = (double)(_grid->ParticleMass[ParticleID]);
   BirthTime = _grid->ParticleAttribute[0][ParticleID];
   LifeTime = _grid->ParticleAttribute[1][ParticleID];
 }

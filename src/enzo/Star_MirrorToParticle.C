@@ -44,8 +44,6 @@ void Star::MirrorToParticle(void)
   double dx = LengthUnits * CurrentGrid->CellWidth[0][0];
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
 
-  //  printf("CurrentGrid->NumberOfParticles = %d\n", CurrentGrid->NumberOfParticles); 
-
   // Find where this star particle is stored in main arrays
   for (i = 0; i < CurrentGrid->NumberOfParticles; i++) 
     if (CurrentGrid->ParticleNumber[i] == this->Identifier) {
@@ -53,6 +51,8 @@ void Star::MirrorToParticle(void)
       break;
     }
 
+//  printf("star::MTP: CurrentGrid->NumberOfParticles = %d, level = %d, place =%d, Mass = %d, GridID = %d\n", 
+//	 CurrentGrid->NumberOfParticles, level, place, Mass, GridID); 
   assert(place >= 0);
 
   // Change all particle data in favor of updated Star particle
@@ -60,7 +60,7 @@ void Star::MirrorToParticle(void)
     CurrentGrid->ParticlePosition[dim][place] = this->pos[dim];
     CurrentGrid->ParticleVelocity[dim][place] = this->vel[dim];
   }
-  CurrentGrid->ParticleMass[place] = this->Mass / MassConversion;
+  CurrentGrid->ParticleMass[place] = (float)(this->Mass) / MassConversion;
   CurrentGrid->ParticleType[place] = this->type;
   CurrentGrid->ParticleAttribute[0][place] = this->BirthTime;
   CurrentGrid->ParticleAttribute[1][place] = this->LifeTime;

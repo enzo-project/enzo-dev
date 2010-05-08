@@ -51,7 +51,7 @@ Star::Star(void)
   NextStar = NULL;
   PrevStar = NULL;
   CurrentGrid = NULL;
-  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = 0.0;
+  Mass = FinalMass = DeltaMass = BirthTime = LifeTime = last_accretion_rate = NotEjectedMass = 0.0;
   FeedbackFlag = Identifier = level = GridID = type = naccretions = 0;
 }
 
@@ -75,13 +75,14 @@ Star::Star(grid *_grid, int _id, int _level)
   CurrentGrid = _grid;
   DeltaMass = 0.0;
   last_accretion_rate = 0.0;
+  NotEjectedMass = 0.0;
   level = _level;
   FeedbackFlag = NO_FEEDBACK;
 
   GridID = _grid->ID;
   type = _grid->ParticleType[_id];
   Identifier = _grid->ParticleNumber[_id];
-  Mass = FinalMass = _grid->ParticleMass[_id];
+  Mass = FinalMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
   this->ConvertAllMassesToSolar();
@@ -115,6 +116,7 @@ Star::Star(StarBuffer *buffer, int n)
   BirthTime = buffer[n].BirthTime;
   LifeTime = buffer[n].LifeTime;
   last_accretion_rate = buffer[n].last_accretion_rate;
+  NotEjectedMass = buffer[n].NotEjectedMass;
   FeedbackFlag = buffer[n].FeedbackFlag;
   Identifier = buffer[n].Identifier;
   level = buffer[n].level;
@@ -152,6 +154,7 @@ Star::Star(StarBuffer buffer)
   BirthTime = buffer.BirthTime;
   LifeTime = buffer.LifeTime;
   last_accretion_rate = buffer.last_accretion_rate;
+  NotEjectedMass = buffer.NotEjectedMass;
   FeedbackFlag = buffer.FeedbackFlag;
   Identifier = buffer.Identifier;
   level = buffer.level;
@@ -196,6 +199,7 @@ void Star::operator=(Star a)
   BirthTime = a.BirthTime;
   LifeTime = a.LifeTime;
   last_accretion_rate = a.last_accretion_rate;
+  NotEjectedMass = a.NotEjectedMass;
   FeedbackFlag = a.FeedbackFlag;
   Identifier = a.Identifier;
   level = a.level;
@@ -258,6 +262,7 @@ Star *Star::copy(void)
   a->BirthTime = BirthTime;
   a->LifeTime = LifeTime;
   a->last_accretion_rate = last_accretion_rate;
+  a->NotEjectedMass = NotEjectedMass;
   a->FeedbackFlag = FeedbackFlag;
   a->Identifier = Identifier;
   a->level = level;
@@ -309,7 +314,7 @@ void Star::ConvertMassToSolar(void)
 void Star::Merge(Star a)
 {
   int dim;
-  float ratio1, ratio2;
+  double ratio1, ratio2;
   ratio1 = Mass / (Mass + a.Mass);
   ratio2 = 1.0 - ratio1;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -318,9 +323,10 @@ void Star::Merge(Star a)
     accreted_angmom[dim] = ratio1 * accreted_angmom[dim] + ratio2 * a.accreted_angmom[dim];
   }
   Mass += a.Mass;
-  FinalMass += a.FinalMass;
+  //FinalMass += a.FinalMass;
   DeltaMass += a.DeltaMass;
   last_accretion_rate += a.last_accretion_rate;
+  NotEjectedMass += a.NotEjectedMass;
   return;
 }
 void Star::Merge(Star *a) { this->Merge(*a); };
@@ -409,10 +415,13 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
   CurrentGrid = _grid;
   level = _level;
   GridID = _grid->ID;
-  Mass = _grid->ParticleMass[_id];
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
-  this->ConvertMassToSolar();
+
+  // below is removed because we want to keep Star->Mass as double 
+  // during the run - Ji-hoon Kim, Dec.2009
+//  Mass = (double)(_grid->ParticleMass[_id]); 
+//  this->ConvertMassToSolar();
   return;
 }
 
@@ -446,8 +455,8 @@ void Star::PrintInfo(void)
   else
     printf("\n");
   printf("\t birthtime = %"FSYM", lifetime = %"FSYM"\n", BirthTime, LifeTime);
-  printf("\t mass = %"GSYM", dmass = %"GSYM", type = %"ISYM", grid %"ISYM","
-	 " lvl %"ISYM"\n", Mass, DeltaMass, type, GridID, level);
+  printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", type = %"ISYM", grid %"ISYM","
+	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
@@ -503,6 +512,7 @@ StarBuffer* Star::StarListToBuffer(int n)
     result[count].BirthTime = tmp->BirthTime;
     result[count].LifeTime = tmp->LifeTime;
     result[count].last_accretion_rate = tmp->last_accretion_rate;    
+    result[count].NotEjectedMass = tmp->NotEjectedMass;    
     result[count].FeedbackFlag = tmp->FeedbackFlag;
     result[count].Identifier = tmp->Identifier;
     result[count].level = tmp->level;

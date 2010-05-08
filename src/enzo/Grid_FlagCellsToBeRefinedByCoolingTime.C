@@ -64,7 +64,7 @@ int grid::FlagCellsToBeRefinedByCoolingTime()
  
   float *cooling_time = new float[size];
   if (this->ComputeCoolingTime(cooling_time) == FAIL) {
-    fprintf(stderr, "Error in grid->ComputeTemperature.\n");
+    fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
     return -1;
   }
  

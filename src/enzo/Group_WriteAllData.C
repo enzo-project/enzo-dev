@@ -79,7 +79,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
- 
+int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
 
 void InitializeHierarchyArrayStorage(int grid_count);
 void WriteHierarchyArrayStorage(const char* name);
@@ -173,10 +173,6 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   FLOAT SavedTime = MetaData.Time;
   MetaData.Time = ((WriteTime < 0) || (CheckpointDump == TRUE)) ? MetaData.Time : WriteTime;
-
-  /* If we're writing interpolated dark matter fields, create them now. */
-
-  CreateSmoothedDarkMatterFields(MetaData, TopGrid);
 
   // Global or local filesystem?
  
@@ -273,7 +269,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
     } // if DataDumpName
 
-    /******************** RESTART BASED OUTPUTS ********************/
+    /******************** REDSHIFT BASED OUTPUTS ********************/
  
     if ( (cptr = strstr(basename, MetaData.RedshiftDumpName)) ) {
  
@@ -640,6 +636,10 @@ int Group_WriteAllData(char *basename, int filenumber,
   strcat(configurename, ConfigureSuffix);
 
  
+  /* If we're writing interpolated dark matter fields, create them now. */
+
+  CreateSmoothedDarkMatterFields(MetaData, TopGrid);
+ 
   /* Combine the top level grids into a single grid for output
      (TempTopGrid is the top of an entirely new hierarchy). */
  
@@ -679,7 +679,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 	}}}}
 #endif
   }
- 
+
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) 
       ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
@@ -696,10 +696,17 @@ int Group_WriteAllData(char *basename, int filenumber,
                         "LevelCycleCount", LevelCycleCount);
   if(CheckpointDump == TRUE){
     // Write our supplemental (global) data
-    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
-                        "dtThisLevel", dtThisLevel);
-    writeArrayAttribute(metadata_group, HDF5_REAL, MAX_DEPTH_OF_HIERARCHY,
-                        "dtThisLevelSoFar", dtThisLevelSoFar);
+    FLOAT dtThisLevelCopy[MAX_DEPTH_OF_HIERARCHY];
+    FLOAT dtThisLevelSoFarCopy[MAX_DEPTH_OF_HIERARCHY];
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+        dtThisLevelCopy[level] = dtThisLevel[level];
+        dtThisLevelSoFarCopy[level] = dtThisLevelSoFar[level];
+    }
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevel", dtThisLevelCopy);
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevelSoFar", dtThisLevelSoFarCopy);
+    writeScalarAttribute(metadata_group, HDF5_PREC, "Time", &MetaData.Time);
   }
     H5Gclose(metadata_group);
 

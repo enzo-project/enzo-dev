@@ -21,6 +21,7 @@
 #include "AMRH5writer.h"
 #include "Star.h"
 #include "FOF_allvars.h"
+#include "MemoryPool.h"
 
 #ifdef FLUX_FIX
 #include "TopGridData.h"
@@ -107,7 +108,7 @@ class grid
   float *ParticleVelocity[MAX_DIMENSION];  // pointers to velocity arrays
   float *ParticleAcceleration[MAX_DIMENSION+1];  // 
   float *ParticleMass;                     // pointer to mass array
-  int   *ParticleNumber;                   // unique identifier
+  PINT  *ParticleNumber;                   // unique identifier
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 //
@@ -202,6 +203,9 @@ class grid
    EnzoArrayFLOAT *CreateFieldArrayFLOAT(field_type field);
    EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
 
+   EnzoArrayPINT *CreateFieldArrayPINT(field_type field);
+   EnzoArrayPINT *CreateFieldArrayPINT(char *field_name);
+
 /* Write unigrid cubes to a file (returns: success/failure) */
 
    int WriteCube(char *base_name, int grid_id, int TGdims[]);
@@ -267,8 +271,8 @@ class grid
                             char *base_name, int grid_id, HDF5_hid_t file_id);
 
    int ComputeVectorAnalysisFields(field_type fx, field_type fy, field_type fz,
-                                   float *curl_x, float *curl_y, float *curl_z,
-                                   float *div);
+                                   float* &curl_x, float* &curl_y, float* &curl_z,
+                                   float* &div);
 
 private:
    int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
@@ -568,7 +572,15 @@ public:
 			 AMRHDF5Writer &AmiraGrid,
 			 int lastMovieStep, int TopGridCycle, 
 			 int WriteMe, int MovieTimestepCounter, int open, 
-			 FLOAT WriteTime);
+			 FLOAT WriteTime,
+			 int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
+			 int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
+
+   int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
+					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
+					  int lastMovieStep, int WriteMe, 
+					  FLOAT WriteTime, int alreadyopened[],
+					  int NumberOfStarParticlesOnProc[]);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 
@@ -753,6 +765,10 @@ public:
 
    int FlagCellsToBeRefinedByShocks();
 
+/* Flag all points based on the Mach number of the shock. */
+
+   int FlagCellsToBeRefinedByShockwaves(int level);
+
 /* Flag all points that require refining by the Jean's length criterion. */
 
    int FlagCellsToBeRefinedByJeansLength();
@@ -910,6 +926,10 @@ public:
 	 BaryonField[0][i]*BaryonField[0][i];
      FieldType[NumberOfBaryonFields++] = Density;
    };
+
+   void PrintBaryonFieldValues(int field, int index)
+     {fprintf(stdout, "Baryonfield[field = %d][index = %d] = %g\n", 
+	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
 // Functions for use with gravity.
@@ -1089,7 +1109,7 @@ public:
 
    int MoveSubgridParticles(grid *TargetGrid,
                             int *Counter,
-                            int *Number,
+                            PINT *Number,
                             int *Type,
                             float *Mass,
                             FLOAT *Position[],
@@ -1159,7 +1179,7 @@ public:
 
    void AllocateNewParticles(int NumberOfNewParticles) {
      ParticleMass = new float[NumberOfNewParticles];
-     ParticleNumber = new int[NumberOfNewParticles];
+     ParticleNumber = new PINT[NumberOfNewParticles];
      ParticleType = new int[NumberOfNewParticles];
      for (int dim = 0; dim < GridRank; dim++) {
        ParticlePosition[dim] = new FLOAT[NumberOfNewParticles];
@@ -1171,7 +1191,7 @@ public:
 
 /* Particles: Copy pointers passed into into grid. */
 
-   void SetParticlePointers(float *Mass, int *Number, int *Type,
+   void SetParticlePointers(float *Mass, PINT *Number, int *Type,
                             FLOAT *Position[], 
 			    float *Velocity[], float *Attribute[]) {
     ParticleMass   = Mass;
@@ -1187,7 +1207,7 @@ public:
 
 /* Particles: Set new star particle index. */
 
-   void SetNewParticleIndex(int &NumberCount1, int &NumberCount2);
+   void SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2);
 
 /* Particles: Set new star particle index. - Old version */
 
@@ -1199,7 +1219,7 @@ public:
 
 /* Particles: Add given number to particle index. */
 
-   void AddToParticleNumber(int *Count) {
+   void AddToParticleNumber(PINT *Count) {
      if (MyProcessorNumber == ProcessorNumber)
        for (int n = 0; n < NumberOfParticles; n++)
 	 ParticleNumber[n] += *Count;
@@ -1248,6 +1268,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
                                hid_t ptype_dspace,
                                hid_t parent_group,
                                hid_t file_id);
+
+ int ChangeParticleTypeBeforeSN(int _type, int level, 
+				int *ParticleBufferSize=NULL);
 
 // -------------------------------------------------------------------------
 // Communication functions
@@ -1438,15 +1461,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* PPM Direct Euler Solver. */
 
-  int PPMDirectEuler(int CycleNumber, int NumberOfSubgrids, 
-                     fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-                     long_int GridGlobalStart[], int GravityOn,
-		     int NumberOfColours, int colnum[]);
+int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
+		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+		Elong_int GridGlobalStart[], int GravityOn, 
+		int NumberOfColours, int colnum[]);
 
-  int euler_sweep(int dim, int iter, int CycleNumber, int NumberOfSubgrids, 
-                  fluxes *SubgridFluxes[], float *CellWidthTemp[],
-                  long_int GridGlobalStart[], int GravityOn,
-		  int NumberOfColours, int colnum[], float *temp, int tempsize);
+int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
 
 // AccelerationHack
 
@@ -1478,10 +1508,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 					 float CoreRadius,
 					 float AngularVelocity);
 
-/* ShockTube problem: initialize grid (returns SUCCESS or FAIL) */
+/* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
-  int ShockTubeInitializeGrid(int Direction, float Boundary, float Density[],
-			      float Pressure[], float Velocity[]);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float LeftDensity, float RightDensity, 
+				    float LeftVelocityX, float RightVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float LeftPressure, float RightPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -1662,7 +1696,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			  float CosmologySimulationInitialFrctionH2I,
 			  float CosmologySimulationInitialFrctionH2II,
 			  int   CosmologySimulationUseMetallicityField,
-			  int  &CurrentNumberOfParticles,
+			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions);
@@ -1700,7 +1734,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			  float CosmologySimulationInitialFrctionH2I,
 			  float CosmologySimulationInitialFrctionH2II,
 			  int   CosmologySimulationUseMetallicityField,
-			  int  &CurrentNumberOfParticles,
+			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions);
@@ -1741,6 +1775,11 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				 float EjectaThermalEnergy, 
 				 FLOAT EjectaCenter[3], int ColourField,
 				 int *NumberOfCellsSet);
+
+/* Put Sink restart initialize grid. */
+
+  int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
+
 
   /* Cooling test initialization */
   int CoolingTestInitializeGrid();
@@ -1822,6 +1861,10 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 
   int ParticleSplitter(int level);
 
+/* Magnetic field resetting routine. */
+
+  int MagneticFieldResetter(int level);
+
 /* Apply a time-action to a grid. */
 
   int ApplyTimeAction(int Type, float Parameter);
@@ -1833,7 +1876,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 /* Creates tracer particles in this grid. */
 
   int TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
-                                    FLOAT Spacing, int &TotalParticleCount);
+                                    FLOAT Spacing, PINT &TotalParticleCount);
 
 
 /* ShearingBox: initialize grid. */
@@ -1966,14 +2009,25 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int GetEnclosedMass(Star *star, float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[]);
+  int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
+		      float &metallicity, float &coldgas_mass, 
+		      float AvgVelocity[], float &OneOverRSquaredSum);
+  int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
+			     float &mass, float &metallicity, 
+			     float &coldgas_mass, float AvgVelocity[]);
 
-  int RemoveParticle(int ID);
+  int RemoveParticle(int ID, bool disable=false);
 
   int AddFeedbackSphere(Star *cstar, int level, float radius, float DensityUnits,
 			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
+
+  int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
+				     float LengthUnits, float VelocityUnits, 
+				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+				     int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
@@ -2069,6 +2123,12 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int InterpolateParticlesToGrid(FOFData *D);
 
 //------------------------------------------------------------------------
+//  Grid star particles onto the AMR mesh
+//------------------------------------------------------------------------
+
+  int InterpolateStarParticlesToGrid(int NumberOfSPFields);  
+
+//------------------------------------------------------------------------
 // new hydro & MHD routines
 //------------------------------------------------------------------------
 
@@ -2076,10 +2136,6 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
-  int Hydro1DTestInitializeGrid(float rhol, float rhor,
-				float vxl,  float vxr,
-				float vyl,  float vyr,
-				float pl,   float pr);
   int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);

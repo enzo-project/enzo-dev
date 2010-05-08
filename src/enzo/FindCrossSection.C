@@ -76,7 +76,7 @@ FLOAT FindCrossSection(int type, float energy)
   case 3:
     e_th = 11.18;
     e_max = 13.6;
-    sigma0 = 3.71e-18;
+    sigma0 = 3.71;  
     break;
 
   } // ENDSWITCH

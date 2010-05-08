@@ -9,11 +9,11 @@
 #define MAXFILES 400000
 #define MAX_FILE_LENGTH 512
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <mpi.h>
 
 #ifdef USE_HDF4
 #include "hdf.h"
@@ -35,8 +35,8 @@ void enzoLoadPositions (char *fname, int files)
   char 		 buf[200], buf1[200], line[200];
   char          *filename[MAXFILES];
   char           dummy_str[MAX_FILE_LENGTH];
-  int            i, TotalLocal, *disp_local, ptype_size;
-  int           *Nslab_recv, *disp_recv, TotalRecv;
+  int            i, TotalLocal, TotalRecv, ptype_size;
+  int           *Nslab_recv, *disp_recv, *disp_local;
 
   ptype_size = sizeof(struct particle_data);
   Nslab_recv = (int *) malloc(sizeof(int) * NTask);
@@ -160,7 +160,7 @@ int enzoFindFiles (char *fname)
 
   EnzoTimeUnit = CM_PER_MPC * (BoxSize/HubbleConstantNow/(1+initialRedshift)) / 
     EnzoVelocityUnit;
-  BoxSize *= 1e3/HubbleConstantNow;
+  BoxSize *= 1e3;
   //  Time *= EnzoTimeUnit / UnitTime_in_s;
   Time = 1.0 / (1.0 + redshift);    // Time = a
 
@@ -224,7 +224,7 @@ int enzoFindFiles (char *fname)
   fclose(fptr);
 
   if (ThisTask == 0)
-    fprintf(stdout, "Grids = %ld, NumPart = %ld\n", NumFiles, NumPart);
+    fprintf(stdout, "Grids = %ld, NumPart = %"PISYM"\n", NumFiles, NumPart);
 
   // Reduce NpartInGrids array from MAXFILES to NumFiles
   NpartInGrids = (int *) realloc(NpartInGrids, NumFiles * sizeof(int));
@@ -244,9 +244,9 @@ void enzoCountLocalParticles (char *fname, int files)
   char           dummy_str[MAX_FILE_LENGTH];
   int 	 	 i, j, dim, dummy, grid, filecount_local;
   int 	 	 n, slab, TotalLocal, PbufPlace, ptype_size;
-  int 		*id, *level;
-  int           *inside, GridsInside;
-  int            startIndex, endIndex;
+  PINT 		*id;
+  int           *inside, *level;
+  int            GridsInside, startIndex, endIndex;
   float          GridLeftEdge[3], GridRightEdge[3];
   float		 cellWidth, rootCellWidth;
   float          ln2 = log(2.0);
@@ -283,7 +283,7 @@ void enzoCountLocalParticles (char *fname, int files)
   NtoLeft= (int *) malloc(sizeof(int)*NTask);
   NtoRight=(int *) malloc(sizeof(int)*NTask);
 
-  Pbuf_local = malloc(ptype_size*TotalLocal);
+  Pbuf_local = (struct particle_data*) malloc(ptype_size*TotalLocal);
   Nslab_local =   (int *) malloc(sizeof(int)*NTask);
   NtoLeft_local = (int *) malloc(sizeof(int)*NTask);
   NtoRight_local =(int *) malloc(sizeof(int)*NTask);
@@ -428,6 +428,7 @@ void enzoCountLocalParticles (char *fname, int files)
       slab = (int) ((pos[0][n]-leftEdge[0])/(rightEdge[0]-leftEdge[0])*NTask);
       PbufPlace = Nlocal_in_file;
       Nslab_local[slab]++;
+      Pbuf_local[PbufPlace].Pos[0] = 0;
 	
       if ((pos[0][n]-leftEdge[0])*BoxSize / (rightEdge[0]-leftEdge[0]) < 
 	  slab*BoxSize/NTask + SearchRadius)
@@ -456,6 +457,7 @@ void enzoCountLocalParticles (char *fname, int files)
       Pbuf_local[PbufPlace].Mclouds = 0;
       Pbuf_local[PbufPlace].slab = slab;
       Nlocal_in_file++;
+
 
     } // ENDFOR particles
 
@@ -538,6 +540,7 @@ void enzoCountLocalParticles (char *fname, int files)
 void MarkInteriorParticles (char *fname, int files)
 {
 
+#ifdef UNUSED
   FILE *fptr;
   int i, j, n, dim, NumPart0, dummy, grid, ngrid_local, count;
   int nRemove, total_nRemove;
@@ -710,6 +713,8 @@ void MarkInteriorParticles (char *fname, int files)
   for (i = 0; i < files; i++)
     free(filename[i]);
 #endif  
+
+#endif /* UNUSED */
 
 }
 

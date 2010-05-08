@@ -1,30 +1,37 @@
+#ifdef USE_MPI
+#include "mpi.h"
+#endif
+
 #if defined(SP2)
 
 // Memory usage from getrusage
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
 
-#include<stdio.h>
-#include<sys/time.h>
-#include<sys/resource.h>
-#include<unistd.h>
 
-
-long long int mused(void)
+Eint64 mused(void)
 {
 
 #ifdef MEM_TRACE
   struct rusage temp;
-  long long int bytes;
+  Eint64 bytes;
   int result;
 
   result = getrusage(RUSAGE_SELF, &temp);
   if( result == 0 ) {
-    bytes = ((long long int) (1024)) * ((long long int) temp.ru_maxrss);
+    bytes = ((Eint64) (1024)) * ((Eint64) temp.ru_maxrss);
   } else {
-    bytes = ((long long int) (0));
+    bytes = ((Eint64) (0));
   }
   return(bytes);
 #else
-  return((long long int) 0);
+  return((Eint64) 0);
 #endif
 
 }
@@ -37,9 +44,14 @@ long long int mused(void)
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
+
 void my_exit(int status);
 
-long long int mused(void)
+Eint64 mused(void)
 {
 
 #ifdef MEM_TRACE
@@ -47,28 +59,53 @@ long long int mused(void)
   int ps = getpagesize();
 
   char procname[120];
-  long long int kb;
+  Eint64 kb;
   FILE* ptr;
 
-  sprintf(procname, "/proc/%lld/statm", ((long long int) this_pid));
+  sprintf(procname, "/proc/%lld/statm", ((Eint64) this_pid));
   ptr = fopen(procname, "r");
   fscanf(ptr, "%lld", &kb);
   fclose(ptr);
-  fprintf(stderr, "Proc statm Bytes: %lld\n", ((long long int) kb*ps));
-  return ((long long int) kb*ps);
+  //fprintf(stderr, "Proc statm Bytes: %lld\n", ((Eint64) kb*ps));
+  return ((Eint64) ps*kb);
 #else
-  return ((long long int) 0);
+  return ((Eint64) 0);
 #endif
 
 }
 
 #else
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CommunicationUtilities.h"
 
 // Default case return zero bytes
 
-long long int mused(void)
+Eint64 mused(void)
 {
-  return((long long int) 0);
+  return((Eint64) 0);
 }
 
 #endif
+
+void PrintMemoryUsage(char *str)
+{
+#ifdef MEM_TRACE
+  Eint64 MemInUse, MinMem, MaxMem, MeanMem;
+  MemInUse = mused();
+  MinMem = CommunicationMinValue(MemInUse);
+  MaxMem = CommunicationMaxValue(MemInUse);
+  MeanMem = MemInUse;
+  CommunicationSumValues(&MeanMem, 1);
+  MeanMem /= NumberOfProcessors;
+  fprintf(memtracePtr, "%s  %16lld\n", str, MemInUse);
+  if (debug) 
+    printf("MEM %s :: mean/min/max = %lld/%lld/%lld\n", 
+	   str, MeanMem, MinMem, MaxMem);
+#endif
+  return;
+}

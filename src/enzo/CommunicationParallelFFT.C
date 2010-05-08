@@ -9,7 +9,10 @@
 /  PURPOSE:
 /
 ************************************************************************/
- 
+
+#ifdef USE_MPI
+#include "mpi.h"
+#endif 
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -22,17 +25,14 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "CommunicationUtilities.h"
  
 int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 			   region *ToRegion, int NumberOfToRegions,
 			   int TransposeOrder);
 int FastFourierTransform(float *buffer, int Rank, int DimensionReal[],
 			 int Dimension[], int direction, int type);
- 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
- 
+void PrintMemoryUsage(char *str);
  
 int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
 			     region **OutRegion, int *NumberOfOutRegions,
@@ -45,14 +45,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
   int i, j, k, dim, size;
   float x, DomainCellSize[MAX_DIMENSION];
 
-#ifdef MEM_TRACE
-    Eint64 MemInUse;
-#endif
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Enter FFT  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Enter FFT");
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     DomainCellSize[dim] = (DomainRightEdge[dim]-DomainLeftEdge[dim])/float(DomainDim[dim]);
@@ -276,10 +269,7 @@ int CommunicationParallelFFT(region *InRegion, int NumberOfInRegions,
   if (*OutRegion != strip0)
     delete [] strip0;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exit FFT  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exit FFT");
  
   return SUCCESS;
 }

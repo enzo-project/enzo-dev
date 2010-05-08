@@ -102,14 +102,18 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
 				      int TopGridRank, int CycleNumber);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
-
-#ifdef USE_PYTHON
-int CallPython();
-#endif
+int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
+			  TopGridData *MetaData); 
+void PrintMemoryUsage(char *str);
+int SetEvolveRefineRegion(FLOAT time);
 
 #ifdef MEM_TRACE
 Eint64 mused(void);
 #endif
+#ifdef USE_PYTHON
+int CallPython();
+#endif
+
  
  
 #define NO_REDUCE_FRAGMENTATION
@@ -141,10 +145,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.CycleNumber >= MetaData.StopCycle) Stop = TRUE;
   MetaData.StartCPUTime = MetaData.CPUTime = LastCPUTime = ReturnWallTime();
   MetaData.LastCycleCPUTime = 0.0;
- 
-#ifdef MEM_TRACE
-  Eint64 MemInUse;
-#endif
  
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
@@ -185,10 +185,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   Temp = LevelArray[0];
 
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "Enter EH %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("Enter EH");
 
 #ifdef FORCE_MSG_PROGRESS
   CommunicationBarrier();
@@ -230,11 +227,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef FORCE_MSG_PROGRESS
   CommunicationBarrier();
 #endif
- 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Bdry set %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+
+  PrintMemoryUsage("Bdry set");
  
   /* Remove RandomForcingFields from BaryonFields when BCs are set. */
  
@@ -251,11 +245,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
 
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "Output %8"ISYM"  %16"ISYM" \n", 
-	  MetaData.CycleNumber, MemInUse);
-#endif
+  PrintMemoryUsage("Output");
  
   /* Compute the acceleration field so ComputeTimeStep can find dtAccel.
      (Actually, this is a huge pain-in-the-ass, so only do it if the
@@ -276,23 +266,20 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
-  /* Particle Splitter. Split the particles into 13 (=1+12) children 
-     particles */
+  PrintMemoryUsage("1st rebuild");
+ 
+  /* Particle Splitter. Split particles into 13 (=1+12) child particles */
   
   if (MetaData.FirstTimestepAfterRestart == TRUE &&
       ParticleSplitterIterations > 0)
     ParticleSplitter(LevelArray, 0, &MetaData);
- 
+
+  /* Reset magnetic fields if requested. */
   
+  if (MetaData.FirstTimestepAfterRestart == TRUE &&
+      ResetMagneticField == TRUE)
+    MagneticFieldResetter(LevelArray, 0, &MetaData);
 
-
-
-#ifdef MEM_TRACE
-  MemInUse = mused();
-  fprintf(memtracePtr, "1st rebuild %8"ISYM"  %16"ISYM" \n", 
-	  MetaData.CycleNumber, MemInUse);
-#endif
- 
   /* Open the OutputLevelInformation file. */
  
   FILE *LevelInfofptr;
@@ -333,9 +320,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
 #ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Top %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    fprintf(memtracePtr, "==== CYCLE %"ISYM" ====\n", MetaData.CycleNumber);
+#endif    
+    PrintMemoryUsage("Top");
 
     /* Load balance the root grids if this isn't the initial call */
 
@@ -345,8 +332,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Output level information to log file. */
  
-    if (MyProcessorNumber == ROOT_PROCESSOR)
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
       LevelInfofptr = fopen("OutputLevelInformation.out", "a");
+      if (LevelInfofptr == NULL)
+        ENZO_FAIL("Can't open OutputLevelInformation.out!");
+    }
 
     // OutputLevelInformation() only needs to be called by all processors
     // when lcaperf is enabled.
@@ -369,15 +359,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       }
 
       dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
+      dt = min(MetaData.MaximumTopGridTimeStep, dt);
 
-    dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
-    dt = min(MetaData.MaximumTopGridTimeStep, dt);
-
-    if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
-    if (Initialdt != 0) {
-      
-      dt = min(dt, Initialdt);
       if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
+      if (Initialdt != 0) {
+      
+	dt = min(dt, Initialdt);
+	if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
 #ifdef TRANSFER
         dtPhoton = dt;
 #endif
@@ -447,6 +435,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FOF(&MetaData, LevelArray, WroteData);
 
+    /* If provided, set RefineRegion from evolving RefineRegion */
+    if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
+        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) {
+          fprintf(stderr, "Error in SetEvolveRefineRegion.\n");
+          return FAIL;
+        }
+    }
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
@@ -487,33 +482,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     CommunicationBarrier();
     tlev1 = MPI_Wtime();
 #endif
- 
-    /* Rebuild the grids from level 0. */
-
-#ifdef USE_MPI
-    treb0 = MPI_Wtime();
-#endif
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Pre loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
- 
-    if (ProblemType != 25)
-      if (RebuildHierarchy(&MetaData, LevelArray, 0) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
-      }
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Post loop rebuild %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
-
-#ifdef USE_MPI
-    treb1 = MPI_Wtime();
-#endif
- 
+  
     /* Add time and check stopping criteria (steps #21 & #22)
        (note the topgrid is also keeping its own time but this statement will
        keep the two in synch). */
@@ -548,6 +517,23 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       Stop = TRUE;
       Restart = TRUE;
     }
+
+    /* If not restarting, rebuild the grids from level 0. */
+
+#ifdef USE_MPI
+    treb0 = MPI_Wtime();
+#endif
+
+    PrintMemoryUsage("Pre loop rebuild");
+ 
+    if (ProblemType != 25 && Restart == FALSE)
+      RebuildHierarchy(&MetaData, LevelArray, 0);
+
+    PrintMemoryUsage("Post loop rebuild");
+
+#ifdef USE_MPI
+    treb1 = MPI_Wtime();
+#endif
  
     /* Check for time-actions. */
  
@@ -581,10 +567,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)==0) lcaperf.end("EL");
 #endif
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Bot %8"ISYM"  %16"ISYM" \n", MetaData.CycleNumber, MemInUse);
-#endif
+    PrintMemoryUsage("Bot");
 
   for ( i = 0; i < MAX_NUMBER_OF_TASKS; i++ ) {
     TaskMemory[i] = -1;
@@ -592,6 +575,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
 #ifdef MEM_TRACE
 
+  /*
   MPI_Datatype DataTypeInt = (sizeof(Eint64) == 4) ? MPI_INT : MPI_LONG_LONG_INT;
   MPI_Arg ThisTask;
   MPI_Arg TaskCount;
@@ -602,7 +586,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   stat = MPI_Comm_rank(MPI_COMM_WORLD, &ThisTask);
   stat = MPI_Allgather(&MemInUse, Count, DataTypeInt, TaskMemory, Count, DataTypeInt, MPI_COMM_WORLD);
 
-/*
   if (ThisTask == 0 ) {
     for ( i = 0; i < TaskCount; i++) {
       fprintf(stderr, "TaskMemory : Task %"ISYM"  Memory %"ISYM"\n", i, TaskMemory[i]);
@@ -624,7 +607,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 
 #ifdef MEM_TRACE
+    Eint64 MemInUse;
     if (WroteData) {
+      MemInUse = mused();
+      MemInUse = CommunicationMaxValue(MemInUse);
       if (MemInUse > MemoryLimit) {
         if (MyProcessorNumber == ROOT_PROCESSOR)
           printf("Stopping due to memory limit.\n");

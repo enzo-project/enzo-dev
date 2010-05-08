@@ -35,7 +35,8 @@ bool Star::ApplyFeedbackTrue(float dt)
 
   rules[0] = !(FeedbackFlag == NO_FEEDBACK);
   rules[1] = !(FeedbackFlag == STROEMGREN && RadiativeTransfer);
-  rules[2] = !(FeedbackFlag == CONT_SUPERNOVA && dt <= 0);
+  //rules[2] = !(FeedbackFlag == CONT_SUPERNOVA && dt <= 0);
+  rules[2] = true;
 
   for (i = 0; i < NumberOfRules; i++)
     result &= rules[i];

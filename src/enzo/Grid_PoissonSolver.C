@@ -124,10 +124,10 @@ int grid::PoissonSolver(int level)
     if (debug) printf("Monopole Density %g < %g\n", monopoleDensity, DivergenceCleaningThreshold);
     return SUCCESS;
   }
-  else
-    printf("**Poisson Cleaning**\n");
-  int type=UseDivergenceCleaning;
+//  else
+//    printf("**Poisson Cleaning**\n");
 
+  int type=UseDivergenceCleaning;
 
    if(debug){
    bool badDiv=false;
@@ -141,7 +141,7 @@ int grid::PoissonSolver(int level)
       }
     }
     
-    printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
+//    printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size); 
    }
     
  
@@ -292,7 +292,7 @@ int grid::PoissonCleanStep(int level)
   }  
 
   
-  printf("End divB_p: %g (%g/%d) \n\n", divSum/size, divSum, size);
+//  printf("End divB_p: %g (%g/%d) \n", divSum/size, divSum, size);   //#####
   
   delete [] divB_p;
   }

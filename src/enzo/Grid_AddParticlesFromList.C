@@ -61,14 +61,14 @@ int grid::AddParticlesFromList(ParticleEntry *List, const int &Size,
   /* Copy the old and new ones to a new list and
      get rid of the old one. */
 
-  int *Number;
+  PINT *Number;
   int *Type;
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION];
   float *Mass;
   float *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
 
-  Number = new int[NumberOfParticles];
+  Number = new PINT[NumberOfParticles];
   Type = new int[NumberOfParticles];
   Mass = new float[NumberOfParticles];
   for (int dim = 0; dim < GridRank; dim++) {

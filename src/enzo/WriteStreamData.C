@@ -33,7 +33,6 @@
 #include "CommunicationUtilities.h"
 
 /****************************** Prototypes ******************************/
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -50,7 +49,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
   FLOAT lbbox[] = { huge_number,  huge_number,  huge_number};
   FLOAT rbbox[] = {-huge_number, -huge_number, -huge_number};
   FLOAT Left[3], Right[3];
-  int Dims[3], Rank, i;
+  int Dims[3], Rank, i, j;
 
   int ilevel, Zero = FALSE;
   LevelHierarchyEntry *Temp;
@@ -65,12 +64,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
   if (!MetaData->FirstTimestepAfterRestart)
     if (CycleCount[level] != MovieSkipTimestep) {
-
-      // Increase movie cycle count
-      for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++)
-	CycleCount[i] = 0;
       CycleCount[level]++;
-
       return SUCCESS;
     }
 
@@ -152,23 +146,47 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     sprintf(pid, "_P%3.3d", MyProcessorNumber);
     sprintf(fileID, "%4.4d", NewMovieDumpNumber);
     
-    strcpy(AmiraFileName, "AmiraData");
+    strcpy(AmiraFileName, NewMovieName);
     strcat(AmiraFileName, fileID);
     strcat(AmiraFileName, pid);
     strcat(AmiraFileName, ".hdf5");
 
-    if (Movie3DVolumes > 0)
+    if (Movie3DVolumes > 0) {
       MetaData->AmiraGrid.AMRHDF5Create(AmiraFileName, RefineByArray, 
 					DataType, stag, field_type, 
 					MetaData->CycleNumber, MetaData->Time, 
 					CurrentRedshift, root_dx, TRUE, 
 					(MyProcessorNumber == ROOT_PROCESSOR),
-					nFields, (NewMovieParticleOn > 0),
+					nFields, 
+					(NewMovieParticleOn > 0 &&
+					 NewMovieParticleOn < 3),
 					NumberOfParticleAttributes, FieldNames, 
 					error);
+      if (error)
+	ENZO_FAIL("Error in AMRHDF5Writer.\n");
 
-    if (error)
-      ENZO_FAIL("Error in AMRHDF5Writer.\n");
+      if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL ||
+	  NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {   
+
+	char *AmiraParticleFileName = new char[80];
+	strcpy(AmiraParticleFileName, NewMovieName);
+	strcat(AmiraParticleFileName, "Particle");
+	strcat(AmiraParticleFileName, fileID);
+	strcat(AmiraParticleFileName, pid);
+	strcat(AmiraParticleFileName, ".hdf5");
+	
+	MetaData->AmiraGrid.AMRHDF5CreateSeparateParticles(AmiraParticleFileName, 
+							   (NewMovieParticleOn > 0),
+							   NumberOfParticleAttributes,  
+							   error);
+	if (error) {
+	  fprintf(stderr, "Error in AMRHDF5Writer.\n");
+	  return FAIL;
+	}
+	delete [] AmiraParticleFileName;
+      }
+
+    }
 
     delete [] AmiraFileName;
     delete [] RefineByArray;
@@ -232,9 +250,58 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
   } // ENDIF RadiativeTransfer  
 #endif /* TRANSFER */
 
+  int NumberOfStarParticlesOnProcOnLvl[NumberOfProcessors][MAX_DEPTH_OF_HIERARCHY];
+  int alreadyopened[NumberOfProcessors][MAX_DEPTH_OF_HIERARCHY];
+  
+  for (i = 0; i < NumberOfProcessors; i++) 
+    for (j = 0; j < MAX_DEPTH_OF_HIERARCHY; j++) {
+      alreadyopened[i][j] = FALSE;  //whether the group for a certain timestep is already opened
+      NumberOfStarParticlesOnProcOnLvl[i][j] = 0;
+    }
+
+  /* Print out particles merged by level if requested.  
+     This is to speed up the access to the particle data 
+     when only particles are being drawn.  - Ji-hoon Kim, Apr.2010 */  
+    
+  if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL) {
+    
+    // collect the number of star particles on each processor
+    for (ilvl = StartLevel; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
+      
+      Temp = LevelArray[ilvl];
+      
+      while (Temp != NULL) {
+	
+	/* Write data */
+	if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+	  NumberOfStarParticlesOnProcOnLvl[Temp->GridData->ReturnProcessorNumber()][ilvl]
+	    += Temp->GridData->ReturnNumberOfStarParticles();
+	}
+
+	Temp = Temp->NextGridThisLevel;
+
+      } 
+    } 
+
+#ifdef USE_MPI
+    CommunicationBarrier();
+#endif
+
+//    for (i = 0; i < NumberOfProcessors; i++)
+//      for (j = 0; j < 8; j++) 
+//	fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProc[%d][%d] = %d\n", 
+//		i, j, NumberOfStarParticlesOnProcOnLvl[i][j]); 
+
+  } // ENDIF NON_DM_PARTICLES_MERGED_LEVEL
+
+#ifdef USE_MPI
+    CommunicationBarrier();
+#endif
+
   if (debug)
     printf("WriteStreamData: level = %d, StartLevel = %d, timestep = %d\n", 
 	   level, StartLevel, MetaData->MovieTimestepCounter);
+
   for (ilvl = StartLevel; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
 
     Temp = LevelArray[ilvl];
@@ -246,7 +313,8 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 	(MetaData->NewMovieLeftEdge, MetaData->NewMovieRightEdge, 
 	 MetaData->TopGridDims[0], MetaData->StopTime, MetaData->AmiraGrid, 
 	 Zero, MetaData->CycleNumber, WriteMe, 
-	 MetaData->MovieTimestepCounter, open, WriteTime);
+	 MetaData->MovieTimestepCounter, open, WriteTime,
+	 alreadyopened, NumberOfStarParticlesOnProcOnLvl);
 
 #define NOFIND_DENSEST
 #ifdef FIND_DENSEST
@@ -265,7 +333,84 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
       Temp = Temp->NextGridThisLevel;
 
     } /* ENDWHILE: grid loop */
+
+    /* Increase particlegridId for NON_DM_PARTICLES_MERGED_LEVEL
+       when a level is done with nonzero star particles 
+       (the group name should be the same on a level) 
+       now this is done AmiraGrid.writeParticles2 */
+
+    if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL) 
+      MetaData->AmiraGrid.IncreaseParticleGridCount();  
+
   } /* ENDFOR: level loop */
+
+
+  /* Print out particles all merged to a separate file if requested.  
+     This is to speed up the access to the particle data 
+     when only particles are being drawn.  - Ji-hoon Kim, Apr.2010 */  
+
+  if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {
+    
+    int NumberOfStarParticlesOnProc[NumberOfProcessors];
+    int alreadyopened[NumberOfProcessors];
+
+    for (i = 0; i < NumberOfProcessors; i++) {
+      alreadyopened[i] = FALSE;  //whether the group for a certain timestep is already opened
+      NumberOfStarParticlesOnProc[i] = 0;
+    }
+
+    // collect the number of star particles on each processor
+    for (ilvl = 0; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
+      
+      Temp = LevelArray[ilvl];
+      
+      while (Temp != NULL) {
+	
+	/* Write data */
+	if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+	  NumberOfStarParticlesOnProc[Temp->GridData->ReturnProcessorNumber()]
+	    += Temp->GridData->ReturnNumberOfStarParticles();
+	}
+
+	Temp = Temp->NextGridThisLevel;
+
+      } 
+    } 
+
+#ifdef USE_MPI
+    CommunicationBarrier();
+#endif
+
+//    for (i = 0; i < NumberOfProcessors; i++)
+//      fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProc[%d] = %d\n", 
+//	      i, NumberOfStarParticlesOnProc[i]);  
+
+    // starting from ilvl=0, to print all the particles in the dataset
+    for (ilvl = 0; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
+      
+      Temp = LevelArray[ilvl];
+      
+      while (Temp != NULL) {
+	
+	/* Write data */
+	Temp->GridData->WriteNewMovieDataSeparateParticles
+	  (MetaData->NewMovieLeftEdge, MetaData->NewMovieRightEdge, 
+	   MetaData->StopTime, MetaData->AmiraGrid, 
+	   Zero, WriteMe, WriteTime, 
+	   alreadyopened, NumberOfStarParticlesOnProc);
+
+	Temp = Temp->NextGridThisLevel;
+
+      } 
+    } 
+
+#ifdef USE_MPI
+    CommunicationBarrier();
+#endif
+
+    MetaData->AmiraGrid.IncreaseOutputParticleCount();
+
+  }
 
 #ifdef FIND_DENSEST
   float value = MaxDensity;
@@ -301,7 +446,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     fclose(fptr);
   } // ENDIF ROOT PROCESSOR
 
-#endif
+#endif  /* FIND_DENSEST */
 
   delete [] pos;
 

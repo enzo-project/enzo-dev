@@ -383,8 +383,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
 
     if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
-      // 
-
    
       int activesize = 1;
       for (int dim = 0; dim < GridRank; dim++)
@@ -393,21 +391,36 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (divB == NULL) 
 	divB = new float[activesize];
       
-      /* if we restart from a different solvers output without a Phi Field create here and set to zero */
-    int PhiNum; 
-    if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
-      fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
-      fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
-      char *PhiName = "Phi";
-      PhiNum = NumberOfBaryonFields;
-      int PhiToAdd = PhiField;
-      this->AddFields(&PhiToAdd, 1);
-      DataLabel[PhiNum] = PhiName;
-    } else { 
-      if (0) 
-	for (int n = 0; n < size; n++)
-	  BaryonField[PhiNum][n] = 0.;
-    }
+      /* if we restart from a different solvers output without a PhiField create here and set to zero */
+      int PhiNum; 
+      if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
+	fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
+	fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	char *PhiName = "Phi";
+	PhiNum = NumberOfBaryonFields;
+	int PhiToAdd = PhiField;
+	this->AddFields(&PhiToAdd, 1);
+	DataLabel[PhiNum] = PhiName;
+      } else { 
+	if (0) 
+	  for (int n = 0; n < size; n++)
+	    BaryonField[PhiNum][n] = 0.;
+      }
+
+      /* if we restart from a different solvers output without a Phi_pField 
+	 and yet want to use the divergence cleaning, create here and set to zero */
+      if (UseDivergenceCleaning) {
+	int Phi_pNum; 
+	if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
+	  fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
+	  fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	  char *Phi_pName = "Phi_p";
+	  Phi_pNum = NumberOfBaryonFields;
+	  int Phi_pToAdd = Phi_pField;
+	  this->AddFields(&Phi_pToAdd, 1);
+	  DataLabel[Phi_pNum] = Phi_pName;
+	}
+      }
 
       for (int dim = 0; dim < 3; dim++)
 	if (gradPhi[dim] == NULL)
@@ -600,7 +613,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
  
-    int *tempint = new int[NumberOfParticles];
+    PINT *tempPINT = new PINT[NumberOfParticles];
  
     file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
     if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -612,7 +625,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
     if( dset_id == h5_error ){ENZO_FAIL("Error in IO");}
  
-    h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+    h5_status = H5Dread(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempPINT);
     if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
  
@@ -625,7 +638,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if( h5_status == h5_error ){ENZO_FAIL("Error in IO");}
  
     for (i = 0; i < NumberOfParticles; i++)
-      ParticleNumber[i] = tempint[i];
+      ParticleNumber[i] = tempPINT[i];
  
  
     // Read ParticleType if present
@@ -633,6 +646,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if (ParticleTypeInFile == TRUE) {
  
       /* Read ParticleType into temporary buffer and Copy to ParticleType. */
+
+      int *tempint = new int[NumberOfParticles];
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -669,6 +684,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
           ENZO_FAIL("");
         }
       }
+
+      delete [] tempint;
  
     } else {
  
@@ -719,7 +736,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     } // ENDELSE add particle attributes
  
     delete [] temp;
-    delete [] tempint;
+    delete [] tempPINT;
  
 
   } // end: if (NumberOfParticles > 0) && ReadData && (MyProcessorNumber == ProcessorNumber)

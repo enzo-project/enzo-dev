@@ -1,19 +1,19 @@
 #include "fortran.def"
 c=======================================================================
-c////////////////////////  SUBROUTINE POP3_MAKER \\\\\\\\\\\\\\\\\\\\\\\
+c//////////////////////  SUBROUTINE CLUSTER_MAKER \\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cluster_maker(nx, ny, nz, formleft, formright,
      &                      d, dm, temp, u, v, w, cooltime,
      &                      dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
-     &                      imetal, imethod, efficiency, metalcrit,
-     &                      odthresh, lifetime, level, np,
+     &                      imetal, imethod, imulti, efficiency, 
+     &                      metalcrit, odthresh, lifetime, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      type, ctype, justburn, iradtrans)
 c
-c  CREATES PRIMORDIAL STAR PARTICLES
+c  CREATES JEANS-RESOLVED STAR PARTICLES
 c
 c  written by: Chris Loken
 c  date:       3 March 1997
@@ -80,7 +80,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans
+      integer procnum, ctype, iradtrans, imulti
       real    formleft(3), formright(3)
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
@@ -102,7 +102,7 @@ c
       integer  dim
       real   div, tdyn, dtot, wgt
       real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum
+      real   isosndsp2, bmass, jeanmass, lum, min_temp
       REALSUB this_pos(3)
       double precision msolar, mh
       parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
@@ -118,6 +118,11 @@ c
 c
 c     calculate how many solar masses are in d1*x1^3
       m1 = dble(x1*dx)**3 * dble(d1) / msolar
+c
+c     Different minimum temperature when to ignore tcool < tdyn
+      if (imulti.le.1) min_temp = 1e4
+      if (imulti.ge.2) min_temp = 1e3
+c
 c
 c  for each zone, : a primordial "star" particle is created if answers
 c  to all the following questions are affirmative:
@@ -160,16 +165,17 @@ c
                endif
                if (div .ge. 0.0) goto 10
 c
-c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
+c              4) t_cool < t_free-fall (if T < 8000.0 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
                tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+c               if (tdyn .gt. cooltime(i,j,k) .or.
+c     &            temp(i,j,k) .lt. 1.1e4) 
+c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
 c               if (tdyn .lt. cooltime(i,j,k)) goto 10
+               if (temp(i,j,k) .gt. min_temp) goto 10
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
-c     &             temp(i,j,k) .gt. 1.1e4) 
-c     &            write(40,*) '1',tdyn,cooltime(i,j,k),temp(i,j,k)
-               if (tdyn .lt. cooltime(i,j,k) .and. 
-     &              temp(i,j,k) .gt. 1.1e4) goto 10
+c     &             temp(i,j,k) .gt. min_temp) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -325,12 +331,11 @@ c              Remove mass from grid
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k
 c               write(6,778) up(ii), vp(ii), wp(ii), mp(ii)
-c               write(6,779) type(ii), tcp(ii), tdp(ii)
-
- 777           format('pop3_maker: ', e10.3, 3(f12.6))
+c               write(6,779) type(ii), tcp(ii), tdp(ii), metalf(ii)
+ 777           format('clst_maker: ', e10.3, 3(f12.6))
  7777          format('            ', 3(i5))
  778           format('            ', 4(e15.3))
- 779           format('            ', i5, 2(f15.6))
+ 779           format('            ', i5, 3(f15.6))
 
 c
 c               write(7+procnum,1000) bmass*starfraction,tdp(ii),tcp(ii),

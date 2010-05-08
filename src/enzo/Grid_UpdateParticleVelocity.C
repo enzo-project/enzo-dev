@@ -124,7 +124,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
 
   if (ProblemType == 29)
     for (i = 0; i < NumberOfParticles; i++)
-      printf("id=%"ISYM"  %"PSYM" %"PSYM" %"PSYM"\n", ParticleNumber[i],
+      printf("id=%"PISYM"  %"PSYM" %"PSYM" %"PSYM"\n", ParticleNumber[i],
 	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i]);
 
  

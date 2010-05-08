@@ -97,10 +97,11 @@ int WRITE_BT(boundary_type *bt_buffer,
 
     if (io_log) fprintf(stderr, "Calling H5Fopen with Name = %s\n", Name);
 
-    file_id = H5Fopen(Name, H5F_ACC_RDWR, H5P_DEFAULT);
-      if (io_log) fprintf(stderr, "H5Fopen id: %"ISYM"\n", file_id);
+//    file_id = H5Fopen(Name, H5F_ACC_RDWR, H5P_DEFAULT);
+//      if (io_log) fprintf(stderr, "H5Fopen id: %"ISYM"\n", file_id);
 
-    if ( file_id < 0 ) {
+    // Create if the first field, dimension, and face.  Open otherwise.
+    if ( field+dim+face == 0 ) {
 
     if (io_log) fprintf(stderr, "Calling H5Fcreate with Name = %s\n", Name);
 

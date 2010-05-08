@@ -90,7 +90,7 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
 
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim,false);
+  this->ReturnHydroRKPointers(Prim, false);  
 
   // RK2 first step
 #ifdef ECUDA 
@@ -121,6 +121,8 @@ int grid::RungeKutta2_1stStep(fluxes *SubgridFluxes[],
       dU[field][i] = 0.0;
     }
   }
+
+  this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
   // compute dU
   int fallback = 0;

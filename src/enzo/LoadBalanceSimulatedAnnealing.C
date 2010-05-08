@@ -95,7 +95,10 @@ int LoadBalanceSimulatedAnnealing(int NumberOfGrids, int NumberOfNodes,
   if (LoadBalancing < 2 || LoadBalancing > 3)
     ENZO_FAIL("Calling LBSimulatedAnnealing with a wrong LoadBalancing setting.");
 
-  srand( time(NULL) );
+  if (rand_init == 0) {
+    srand( time(NULL) );
+    rand_init = 1;
+  }
 
   int i, j, node, nsucc;
   float temperature, H;

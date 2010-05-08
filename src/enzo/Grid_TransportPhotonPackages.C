@@ -28,16 +28,6 @@
 #include "GridList.h"
 #include "Grid.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
@@ -154,13 +144,13 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int DeleteMe, DeltaLevel, PauseMe;
 
   const float clight = 2.9979e10;
-  float LightCrossingTime = 1.7320508 * VelocityUnits /  // sqrt(3)=1.73
-    (clight * RadiativeTransferPropagationSpeedFraction);
+  float LightCrossingTime = 1.7320508 * (LengthUnits/TimeUnits) /
+    (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
   FLOAT EndTime;
   if (RadiativeTransferAdaptiveTimestep)
     EndTime = PhotonTime+LightCrossingTime;
   else
-    EndTime = PhotonTime+dtPhoton-ROUNDOFF;
+    EndTime = PhotonTime+dtPhoton-PFLOAT_EPSILON;
 
   while (PP != NULL) {
 
@@ -172,7 +162,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if ((PP->CurrentTime) < EndTime) {
       WalkPhotonPackage(&PP,
 			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-			DensNum, HINum, HeINum, HeIINum, H2INum,
+			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
 			kphHINum, gammaNum, kphHeINum, 
 			kphHeIINum, kdissH2INum, RPresNum1,
 			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 
@@ -268,8 +258,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
-	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM"\n",
-	    tcount, dcount, pcount);
+	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
+	    tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
   /* For safety, clean up paused photon list */

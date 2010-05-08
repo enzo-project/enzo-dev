@@ -26,8 +26,6 @@
 
 #define NUMBER_OF_COOLANTS 11
 
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-
 int ReadMetalCoolingRatios(char *filename)
 {
 

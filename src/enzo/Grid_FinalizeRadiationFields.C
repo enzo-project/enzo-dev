@@ -78,7 +78,7 @@ int grid::FinalizeRadiationFields(void)
       index = GRIDINDEX_NOGHOST(GridStartIndex[0],j,k);
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 	BaryonField[kphHINum][index] /= factor * BaryonField[HINum][index];
-	BaryonField[gammaNum][index] /= factor * BaryonField[HINum][index];
+	BaryonField[gammaNum][index] /= factor * BaryonField[HINum][index]; //divide by N_HI = n_HI*(dx)^3
       } // ENDFOR i
     } // ENDFOR j
 

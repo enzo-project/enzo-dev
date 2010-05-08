@@ -53,6 +53,7 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "phys_constants.h"
 
 #define USE
 
@@ -74,8 +75,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		FLOAT *ypold, FLOAT *zpold, float *upold, float *vpold, 
 		float *wpold, float *mpold, float *tcpold, float *tdpold, float *dmold,
 		float *nx_jet, float *ny_jet, float *nz_jet,
-		int *typeold, int *idold, int *ctype, float *jlrefine, float *temp,
-		float *gamma, float *mu, int *nproc, int *nstar)
+		int *typeold, PINT *idold, int *ctype, float *jlrefine, 
+		float *temp, float *gamma, float *mu, int *nproc, int *nstar)
 {
 
   int		i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
@@ -86,7 +87,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
-  // printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
+  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
   printf("Star Maker 8: time = %g\n", *t);
 
 
@@ -106,7 +107,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   densthresh = *massthresh / pow(*dx,3);
   //densthresh = 1e-12/(*d1);
   dx2 = (*dx)*(*dx);
-
+  printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / pow(*x1,2) / (*mu) / pow((*jlrefine),2);
@@ -247,11 +248,12 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   /* sink particle accretes gas from parent cell according to modified Bondi-Hoyle formula. 
    Reference: M. Ruffert, ApJ (1994) 427 342 */
-
+     double G = GravConst*(*d1)*pow(*t1,2);    //MassUnits*pow(TimeUnits,2)/pow(LengthUnits,3)
+     printf("note:   G = %"FSYM" in code units \n",G);
   double csgrid2;
   float densgrid, tempgrid, msink, drho,
     usink, vsink, wsink, vrel2, mdot, e, de;
-  float pi = 4.0*atan(1.0);
+  //  float pi = 4.0*atan(1.0);
   FLOAT r_bh;
   for (n = 0; n < nsinks; n++) {
 
@@ -276,14 +278,18 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
     csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / pow(*v1,2);
     vrel2 = pow(ugrid-usink,2) + pow(vgrid-vsink,2) + pow(wgrid-wsink,2);
-    r_bh = msink / (csgrid2 + vrel2);
+    //printf("star_maker8: Accretion routine, csgrid2 = %"FSYM", vrel2 = %"FSYM", Mach = %"FSYM"\n", csgrid2, vrel2, pow(vrel2/csgrid2,0.5));
+    //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", pow(csgrid2*pow(*v1,2),0.5), pow(vrel2*pow(*v1,2),0.5));
+    //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
+    r_bh = G*msink / (csgrid2 + vrel2);
+    //printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18);
     densgrid *= min(pow((*dx)/r_bh, 1.5), 1.0);
     mdot = 4.0 * pi * densgrid * pow(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
     drho = min(mdot * (*dt) / pow(*dx,3), 0.25 * d[index]);
     
     /*maxdens = jlsquared * temp[index] / dx2;
       drho = max(0.0, d[index] - maxdens);*/        
-    printf("star_maker8: Accretion routine, mass added = %"FSYM"\n",drho*pow(*dx,3)*umass);
+    printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*pow(*dx,3)*umass,drho );
 
     upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
     vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
@@ -400,7 +406,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",
@@ -520,7 +526,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      /*printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      /*printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",
@@ -705,8 +711,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	  
 	  if (*jlrefine > 0)
 	    jeansthresh = jlsquared * temp[index] / d[index];
-	  /*printf("jeansthresh = %g \n",jeansthresh);
-	  printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);*/
+	  //printf("jeansthresh = %g \n",jeansthresh);
+	  //printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);
 
 	  if (r[index] == 0 && (d[index] > densthresh ||
 				(*jlrefine > 0 && dx2 > jeansthresh))) {
@@ -761,7 +767,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 	    /* Look for a nearby OLD sink particle to add the mass to */
 	    
-// 	    inew = 1;
+	    inew = 1;
 // 	    nearestdx2 = 1e20;
 // 	    for (cc = 0; cc < nsinks; cc++) {
 	      
@@ -841,7 +847,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 // 	    } // ENDIF add to new particle
 
 	    /* Create a new sink particle if necessary and if there's room */
-	    
+	    //printf("inew = %i\n",inew);
+
 	    if (inew == 1 && ii < *nmax) {
 	      
 	      //printf("star_maker8: making new star\n" );

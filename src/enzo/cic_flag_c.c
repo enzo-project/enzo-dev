@@ -15,7 +15,8 @@
 /* Subroutine */ 
 int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions, 
 	     int *itype, int *ffield, FLOAT *leftedge, int *dim1, int *dim2, 
-	     int *dim3, float *cellsize, int *imatch, int *cellsflagged)
+	       int *dim3, float *cellsize, int *imatch1, int *imatch2,
+	       int *buffersize)
 {
     /* System generated locals */
     int ffield_dim1, ffield_dim2, ffield_offset, i__1;
@@ -92,7 +93,7 @@ int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions
 
 /*           only do this for must-refine particles */
 
-	    if (itype[n] == *imatch) {
+	    if (itype[n] == *imatch1 || itype[n] == *imatch2) {
 
 /*           Compute the position of the central cell */
 
@@ -126,7 +127,7 @@ int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions
 
 /*           only do this for must-refine particles */
 
-	    if (itype[n] == *imatch) {
+	    if (itype[n] == *imatch1 || itype[n] == *imatch2) {
 
 /*           Compute the position of the central cell */
 
@@ -168,7 +169,7 @@ int cic_flag_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, int *npositions
 
 /*           only do this for must-refine particles */
 
-	    if (itype[n] == *imatch) {
+	    if (itype[n] == *imatch1 || itype[n] == *imatch2) {
 
 /*           Compute the position of the central cell */
 
