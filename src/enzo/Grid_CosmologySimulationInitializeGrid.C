@@ -265,7 +265,12 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
- 
+  /* 
+    printf("XXXXXXXXXXXXXXX NumberOfBaryonFields : %i \n", NumberOfBaryonFields); 
+    for (i=0; i<NumberOfBaryonFields; i++) 
+      printf("FieldType[%i] = %i \n", i, FieldType[i]);
+  */
+
   // Set the subgrid static flag
  
   SubgridsAreStatic = CosmologySimulationSubgridsAreStatic;

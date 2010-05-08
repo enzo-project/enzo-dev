@@ -122,7 +122,7 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    int CycleNumber)
 {
 
-  if ( ! ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 ))
+  if ( ! (( Grids[0]->GridData->ReturnNumberOfBaryonFields() > 0) && (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 ))
     return SUCCESS;
 
   //Set the boundary on the Acceleration field.  Reuse SetBoundaryConditions.  

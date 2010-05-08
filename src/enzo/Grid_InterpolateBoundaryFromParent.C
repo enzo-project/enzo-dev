@@ -86,7 +86,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
  
   if (NumberOfBaryonFields > 0) {
- 
+
     /* Compute refinement factors and set zero. */
  
     ParentGrid->ComputeRefinementFactors(this, Refinement);

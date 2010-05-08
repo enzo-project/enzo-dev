@@ -129,57 +129,57 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 		  &UseParticles);
     ret += sscanf(line, "UseGas = %d", 
 		  &UseGas);
-    ret += sscanf(line, "MediumTemperature = %f", 
+    ret += sscanf(line, "MediumTemperature = %"FSYM, 
 		  &MediumTemperature);
-    ret += sscanf(line, "MediumDensity = %f",
+    ret += sscanf(line, "MediumDensity = %"FSYM,
 		  &MediumDensity);
-    ret += sscanf(line, "HaloMagneticField = %f",
+    ret += sscanf(line, "HaloMagneticField = %"FSYM,
 		  &HaloMagneticField);
-    ret += sscanf(line, "UniformVelocity = %f %f %f", 
+    ret += sscanf(line, "UniformVelocity = %f %f %"FSYM, 
 		  UniformVelocity, UniformVelocity+1,
 		  UniformVelocity+2);
     if (sscanf(line, "GalaxyType[%d]", &sphere) > 0)
       ret += sscanf(line, "GalaxyType[%d] = %d", &sphere,
 		    &GalaxyType[sphere]);
     if (sscanf(line, "HaloRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "HaloRadius[%d] = %"PSYM, &sphere,
 		    &HaloRadius[sphere]);
     if (sscanf(line, "HaloCoreRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloCoreRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "HaloCoreRadius[%d] = %"PSYM, &sphere,
 		    &HaloCoreRadius[sphere]);
     if (sscanf(line, "HaloDensity[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloDensity[%d] = %f", &sphere,
+      ret += sscanf(line, "HaloDensity[%d] = %"FSYM, &sphere,
 		    &HaloDensity[sphere]);
     if (sscanf(line, "HaloTemperature[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloTemperature[%d] = %f", &sphere,
+      ret += sscanf(line, "HaloTemperature[%d] = %"FSYM, &sphere,
 		    &HaloTemperature[sphere]);
     if (sscanf(line, "HaloAngVel[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloAngVel[%d] = %f", &sphere,
+      ret += sscanf(line, "HaloAngVel[%d] = %"FSYM, &sphere,
 		    &HaloAngVel[sphere]);
     if (sscanf(line, "HaloSpin[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloSpin[%d] = %f", &sphere,
+      ret += sscanf(line, "HaloSpin[%d] = %"FSYM, &sphere,
 		    &HaloSpin[sphere]);
     if (sscanf(line, "HaloPosition[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloPosition[%d] = %"FSYM" %"FSYM" %"FSYM, 
+      ret += sscanf(line, "HaloPosition[%d] = %"PSYM" %"PSYM" %"PSYM, 
 		    &sphere, &HaloPosition[sphere][0],
 		    &HaloPosition[sphere][1],
 		    &HaloPosition[sphere][2]);
     if (sscanf(line, "HaloVelocity[%d]", &sphere) > 0)
-      ret += sscanf(line, "HaloVelocity[%d] = %f %f %f", 
+      ret += sscanf(line, "HaloVelocity[%d] = %"FSYM" %"FSYM" %"FSYM, 
 		    &sphere, &HaloVelocity[sphere][0],
 		    &HaloVelocity[sphere][1],
 		    &HaloVelocity[sphere][2]);
     if (sscanf(line, "DiskRadius[%d]", &sphere) > 0)
-      ret += sscanf(line, "DiskRadius[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "DiskRadius[%d] = %"PSYM, &sphere,
 		    &DiskRadius[sphere]);
     if (sscanf(line, "DiskHeight[%d]", &sphere) > 0)
-      ret += sscanf(line, "DiskHeight[%d] = %"FSYM, &sphere,
+      ret += sscanf(line, "DiskHeight[%d] = %"PSYM, &sphere,
 		    &DiskHeight[sphere]);
     if (sscanf(line, "DiskDensity[%d]", &sphere) > 0)
-      ret += sscanf(line, "DiskDensity[%d] = %f", &sphere,
+      ret += sscanf(line, "DiskDensity[%d] = %"FSYM, &sphere,
 		    &DiskDensity[sphere]);
     if (sscanf(line, "DiskTemperature[%d]", &sphere) > 0)
-      ret += sscanf(line, "DiskTemperature[%d] = %f", &sphere,
+      ret += sscanf(line, "DiskTemperature[%d] = %"FSYM, &sphere,
 		    &DiskTemperature[sphere]);
 
     /* if the line is suspicious, issue a warning */
@@ -202,8 +202,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	 MagneticUnits, PressureUnits);
 
   printf("timeu=%g(year)\n", TimeUnits/3.1558e7);
-  //printf("temp=%g, radius=%g, height=%g, density=%g\n",
-  // DiskTemperature[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
+  printf("temp=%g, radius=%g, height=%g, density=%g\n",
+	 DiskTemperature[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
 
   if (UsePhysicalUnit) {
     MediumDensity /= DensityUnits;
