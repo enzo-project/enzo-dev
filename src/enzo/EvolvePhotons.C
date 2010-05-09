@@ -40,7 +40,8 @@
 /* function prototypes */
 void my_exit(int status);
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
-				 ListOfPhotonsToMove **AllPhotons,
+				 ListOfPhotonsToMove **AllPhotons, 
+				 char* &kt_global,
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
@@ -309,7 +310,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
       START_PERF();
-      if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, 
+      if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
 				       keep_transporting) == FAIL) {
 	fprintf(stderr, "Error in CommunicationTransferPhotons.\n");
 	ENZO_FAIL("");

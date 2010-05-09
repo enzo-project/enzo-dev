@@ -60,10 +60,13 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
       if (!InsideDomain) {
 	if (RadiativeTransferPeriodicBoundary) {
 	  for (dim = 0; dim < 3; dim++)
-	    if (r[dim] < DomainLeftEdge[dim])
-	      PP->SourcePosition[dim] += DomainWidth[dim];
-	    else if (r[dim] > DomainRightEdge[dim])
-	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	    if (r[dim] < DomainLeftEdge[dim]) {
+ 	      PP->SourcePosition[dim] += DomainWidth[dim];
+	      //r[dim] += DomainWidth[dim];
+	    } else if (r[dim] > DomainRightEdge[dim]) {
+ 	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	      //r[dim] -= DomainWidth[dim];
+	    }
 	} // ENDIF periodic
 	else {
 	  MoveToGrid = NULL;
@@ -71,7 +74,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
 	} // ENDELSE periodic
 	
       } // ENDIF !InsideDomain
-    }
+    } // ENDELSE inside grid
     break;
       
   case SubGridIsolated:
@@ -90,20 +93,25 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
 	  Refinement /= RefineBy;
 	  DeltaLevel--;
 	}
-	for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)
-	  InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
-			   r[dim] <= DomainRightEdge[dim]);
-	if (!InsideDomain) {
-	  if (RadiativeTransferPeriodicBoundary) {
-	    for (dim = 0; dim < 3; dim++)
-	      if (r[dim] < DomainLeftEdge[dim])
-		PP->SourcePosition[dim] += DomainWidth[dim];
-	      else if (r[dim] > DomainRightEdge[dim])
-		PP->SourcePosition[dim] -= DomainWidth[dim];
-	  } // ENDIF periodic
-	} // ENDELSE !InsideDomain
-      } // ENDELSE
-    }
+      }
+
+      for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)
+	InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
+			 r[dim] <= DomainRightEdge[dim]);
+      if (!InsideDomain) {
+	if (RadiativeTransferPeriodicBoundary) {
+	  for (dim = 0; dim < 3; dim++)
+	    if (r[dim] < DomainLeftEdge[dim]) {
+	      PP->SourcePosition[dim] += DomainWidth[dim];
+	      //r[dim] += DomainWidth[dim];
+	    } else if (r[dim] > DomainRightEdge[dim]) {
+	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	      //r[dim] -= DomainWidth[dim];
+	    }
+	} // ENDIF periodic
+      } // ENDELSE !InsideDomain
+    } // ENDELSE
+
     if (DEBUG) 
       fprintf(stdout, "Walk: left grid: sent photon to grid %d (DeltaL = %d)\n", 
 	      MoveToGrid->ID, DeltaLevel);
@@ -120,7 +128,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
   /* Error check */
 
 #ifdef UNUSED
-  if (MoveToGrid != NULL)
+  if (MoveToGrid != NULL && InsideDomain)
     if (MoveToGrid->PointInGridNB(r) == FALSE)
       ENZO_FAIL("Photon not contained in MoveToGrid!");
 #endif

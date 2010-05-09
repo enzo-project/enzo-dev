@@ -155,6 +155,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
+    if (g[dim] < 0 || g[dim] >= GridDimension[dim])
+      ENZO_FAIL("Ray out of grid?");
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions

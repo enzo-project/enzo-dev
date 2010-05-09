@@ -58,6 +58,7 @@ static MPI_Datatype MPI_PhotonList;
 
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
 				 ListOfPhotonsToMove **AllPhotons,
+				 char* &kt_global,
 				 int &keep_transporting)
 {
 
@@ -335,7 +336,11 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   CommunicationReceiverPhotons(LevelArray, local_transport, 
 			       keep_transporting);
-      
+
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    if (proc != MyProcessorNumber && nPhoton[proc] > 0)
+      kt_global[proc] = 1;
+
   /* Clean up */
 
   CommunicationBufferPurge();
