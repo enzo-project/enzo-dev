@@ -290,7 +290,6 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   //    0->periodic
   //    1->dirichlet
   //    2->neumann
-  //    3->mixed (a.k.a. Robin)
   int BdryType[3][2];
 
   ///////////////////////////////////////

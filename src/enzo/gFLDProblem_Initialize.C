@@ -146,7 +146,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   newt_norm          = 0;         // standard RMS norm
   newt_INconst       = 1.0e-8;    // inexact Newton forcing constant
   newt_tol           = 1.0e-4;    // default nonlinear tolerance
-  newt_MinLinesearch = 1.0e-10;   // minimum linesearch step length
+  newt_MinLinesearch = 1.0e-12;   // minimum linesearch step length
   sol_relch          = 0;         // HYPRE relative change stopping crit.
   sol_printl         = 1;         // HYPRE print level
   sol_log            = 1;         // HYPRE logging level
@@ -806,9 +806,9 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     newt_tol = 1.0e-4;
   }
   if ((newt_INconst <= 0.0e0) || (newt_INconst >= 1.)) {
-    fprintf(stderr,"Illegal RadHydroINConst = %g. Setting to 1.0e-4\n",
+    fprintf(stderr,"Illegal RadHydroINConst = %g. Setting to 1.0e-8\n",
 	    newt_INconst);
-    newt_INconst = 1.0e-4;
+    newt_INconst = 1.0e-8;
   }
   if ((newt_MinLinesearch < 1.0e-15) || (newt_MinLinesearch > 1.0e-3)) {
     fprintf(stderr,"Illegal RadHydroMinLinesearch = %g. Setting to 1e-12\n",
@@ -1226,19 +1226,25 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 
   default:
-    // set BC on all faces to homogeneous Dirichlet
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 left radiation BCs.");
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 right radiation BCs.");
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 left radiation BCs.");
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 right radiation BCs.");
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 left radiation BCs.");
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 right radiation BCs.");
+    // set BC on all faces to homogeneous (if not periodic)
+    if (BdryType[0][0] != 0)
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
+    if (BdryType[0][1] != 0)
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
+    if (BdryType[1][0] != 0)
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
+    if (BdryType[1][1] != 0)
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
+    if (BdryType[2][0] != 0)
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 left radiation BCs.");
+    if (BdryType[2][1] != 0)
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
   }
   ////////////////////////////////
