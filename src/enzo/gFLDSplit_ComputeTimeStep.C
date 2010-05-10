@@ -108,7 +108,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
     if (dtfactor[0] != huge_number) {
       float *Eold = uold->GetData(0);
       float *Enew = unew->GetData(0);
-      atol = 0.1; // assumes values are normalized
+      atol = 0.001; // assumes values are normalized
       if (dtnorm > 0.0) {
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
