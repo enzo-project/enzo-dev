@@ -187,12 +187,12 @@ this document.
   assumed radiation energy spectrum from \eqref{eq:spectrum}.  Allowed
   values include
   \begin{itemize}
-  \item[-1] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
-  \item[0] power law spectrum,
+  \item[(-1)] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
+  \item[(0)] power law spectrum,
     \[
       \chi(\nu) = \left(\frac{\nu}{\nu_{HI}}\right)^{-1.5}
     \]
-  \item[1] $T=10^5$ K blackbody spectrum, 
+  \item[(1)] $T=10^5$ K blackbody spectrum, 
     \[
        \chi(\nu) = \frac{8 \pi h
          \left(\frac{nu}{c}\right)^3}{exp\left(\frac{h\nu}{k_b T}\right)-1}.
@@ -201,8 +201,8 @@ this document.
 \item {\tt RadHydroChemistry} [1], this parameter controls whether to
   use Hydrogen chemistry or not.  Allowable values are
   \begin{itemize}
-  \item[0] no chemistry
-  \item[1] Hydrogen chemistry
+  \item[(0)] no chemistry
+  \item[(1)] Hydrogen chemistry
   \end{itemize}
 \item {\tt RadHydroHFraction} [1], this parameter controls the
   fraction of baryonic matter comprised of Hydrogen, allowable
@@ -211,13 +211,13 @@ this document.
   for radiation-matter coupling we wish to use, allowable values
   include
   \begin{itemize}
-  \item[1] Use the chemistry-dependent model from section
+  \item[(1)] Use the chemistry-dependent model from section
     \ref{sec:chem_model}, with the case B HII recombination coefficient.
-  \item[2] Use the chemistry-dependent model from section
+  \item[(2)] Use the chemistry-dependent model from section
     \ref{sec:chem_model}, with the case A HII recombination coefficient.
-  \item[4] The same as model 1, but assumes an isothermal gas energy
+  \item[(4)] The same as model 1, but assumes an isothermal gas energy
     (for regression test problems).
-  \item[10] Use the local thermodynamic equilibrium model from section
+  \item[(10)] Use the local thermodynamic equilibrium model from section
     \ref{sec:lte_model}.
   \end{itemize}
 \item {\tt RadHydroMaxDt} [$10^{20}$], this parameter sets the value of
@@ -230,7 +230,7 @@ this document.
   time step size for the {\tt gFLDProblem} module.  We note that since
   the module will take the smaller of $\dt_{\text{FLD}}$ and
   $\dt_{\text{CFL}}$, this default value is never actually used.
-\item {\tt RadHydroDtNorm} [2.0; x>=0], this parameter sets the value
+\item {\tt RadHydroDtNorm} [2.0], this parameter sets the value
   of $p$ from equation \eqref{eq:time_error}.  
   \begin{itemize}
   \item A value of $0$ implies to use the $\max$ norm, 
@@ -247,20 +247,20 @@ this document.
   factors $s_E$, $s_e$ and $s_{\mn}$ from
   \eqref{eq:variable_rescaling}; supplied values must be positive.
 \item {\tt RadHydroTheta} [1.0], this parameter specifies the
-  value of $\theta$ in equations.
-  \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta}.
+  value of $\theta$ in equations
+  \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta}. 
   $0\le\theta\le 1$.
 \item {\tt RadHydroLimiterType} [4], this parameter determines the
   type of flux limiter $D$ to use in \eqref{eq:radiation_PDE}:
   \begin{itemize}
-  \item[0] specifies the original Levermore-Pomraning limiter,
+  \item[(0)] specifies the original Levermore-Pomraning limiter,
     \eqref{eq:LP_limiter} \cite{LevermorePomraning1981,Levermore1984}.
-  \item[1] specifies the rational approximation to the
+  \item[(1)] specifies the rational approximation to the
     Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
-  \item[2] specifies to use a new approximation to the
+  \item[(2)] specifies to use a new approximation to the
     Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
-  \item[3] specifies to use no limiter, \eqref{eq:no_limiter}.
-  \item[4] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
+  \item[(3)] specifies to use no limiter, \eqref{eq:no_limiter}.
+  \item[(4)] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
   \end{itemize}
 \item {\tt RadiationBoundaryX0Faces}, {\tt RadiationBoundaryX1Faces}
   and {\tt RadiationBoundaryX2Faces} [0 0], these specify the
@@ -268,9 +268,9 @@ this document.
   to use on the lower and upper boundaries in each direction.
   Allowable values are
   \begin{itemize}
-  \item[0] periodic (must be set on both faces in a given direction)
-  \item[1] Dirichlet
-  \item[2] Neumann
+  \item[(0)] periodic (must be set on both faces in a given direction)
+  \item[(1)] Dirichlet
+  \item[(2)] Neumann
   \end{itemize}
 \item {\tt RadHydroInitialGuess} [0], this parameter specifies the
   method to use in calculating an initial guess to the time-evolved
@@ -301,10 +301,10 @@ this document.
 \item {\tt RadHydroMGRelaxType} [1], this parameter specifies the
   relaxation method used by the multigrid solver:
   \begin{itemize}
-  \item[0] Jacobi
-  \item[1] Weighted Jacobi
-  \item[2] Red/Black Gauss-Seidel (symmetric)
-  \item[3] Red/Black Gauss-Seidel (nonsymmetric)
+  \item[(0)] Jacobi
+  \item[(1)] Weighted Jacobi
+  \item[(2)] Red/Black Gauss-Seidel (symmetric)
+  \item[(3)] Red/Black Gauss-Seidel (nonsymmetric)
   \end{itemize}
   For more information, see the HYPRE user manual.
 \item {\tt RadHydroMGPreRelax} [1], this positive parameter
@@ -779,7 +779,14 @@ set the new time step size based on the previous time step size and a
 user-input tolerance $\tau_{\text{tol}}$ as
 \begin{align}
 \label{eq:time_estimate}
-  \dt_{\text{FLD}}^{n+1} = \frac{\tau_{\text{tol}} \dt^n}{e}.
+  \dt^{n+1} = \frac{\tau_{\text{tol}} \dt^n}{e}.
+\end{align}
+The final estimated time step size is given as the minimum of the
+three,
+\begin{align}
+\label{eq:FLD_time_estimate}
+  \dt_{\text{FLD}}^{n+1} =
+  \min\{\dt_{E}^{n+1},\dt_{e_c}^{n+1},\dt_{HI}^{n+1}\}. 
 \end{align}
 These adaptive time step controls may be overridden with user-input
 values for $\dt_{\text{max}}$ and $\dt_{\text{min}}$.

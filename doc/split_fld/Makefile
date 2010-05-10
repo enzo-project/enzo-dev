@@ -52,14 +52,12 @@
 
 all:	${Target}.pdf
 
-${Target}.pdf:	${TexFiles} ${FigFiles} ${StyFiles} ${Target}.tex ${Target}.bbl 
-	${LaTeX} ${Target}
-	${LaTeX} ${Target}
-
-${Target}.bbl:	$(BibFile)
+${Target}.pdf:	${TexFiles} ${FigFiles} ${StyFiles} ${Target}.tex ${BibFile}
 	${LaTeX} ${Target}
 	${LaTeX} ${Target}
 	${BibTeX} ${Target}
+	${LaTeX} ${Target}
+	${LaTeX} ${Target}
 
 clean:
 	rm -f "\#"*"\#" *.aux *.log *.bbl *.blg *.toc *.lof *.lot
