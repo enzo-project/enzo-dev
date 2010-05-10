@@ -85,7 +85,243 @@ modeling parameters, as it is used as a test-bed for new methods.
 This guide will only highlight the solvers and equations available in
 this module.  For further details on the equations, numerical methods,
 and verification tests relevant to this module, we refer to the paper 
-\cite{ReynoldsHayesPaschosNorman2009}.
+\cite{ReynoldsHayesPaschosNorman2009}.  Moreover, we start right in
+with the relevant parameters that must be defined to use the module.
+The equations that describe what these options mean follow in
+subsequent sections, with references placed accordingly.
+
+
+
+
+\section{{\tt gFLDProblem} usage}
+\label{sec:module_usage}
+
+In order to use the implicit FLD radiation solver module, and to
+allow optimal control over the nonlinear and linear solution methods
+used, there are a number of parameters than may be supplied to Enzo.
+We group these into two categories, those associated with the general
+startup of the module via the Enzo infrastructure, and those that may
+be supplied to the module itself.  However, prior to embarking on a
+description of these parameters, there are a few requirements for any
+problem that wishes to use the {\tt gFLDProblem} module.
+
+Foremost, Enzo must be built using the two configuration options
+{\tt PHOTON} (enabled through the call {\tt gmake photon-yes} in the
+Enzo source directory), and {\tt HYPRE} (enabled using the call 
+{\tt gmake hypre-yes}).  Moreover, the machine Makefile must specify
+how to include and link with an available HYPRE library (version $\ge$
+2.4.0b).  If a user must compile HYPRE themselves to obtain this
+version, they should make note of the HYPRE configuration option
+{\tt --with-no-global-partition}, which must be used for solver
+scalability when using over $\sim1000$ processors, but which results
+in slower executables on smaller-scale problems.
+
+
+\subsection{Startup parameters}
+
+In a user's main problem parameter file, the following parameters
+must be set:
+\begin{itemize}
+\item {\tt RadiativeTransferFLD} -- this must be set to 2.  Other
+  values will either disable the FLD solver, or will use one in a
+  non-desired context.
+\item {\tt ImplicitProblem} -- this must be set to 1 to use this
+  {\tt gFLDProblem} module (among the possible implicit radiation solver
+  modules).
+\item {\tt ProblemType} -- as usual, this is problem-dependent.
+  However, for implicit FLD-based solvers, the value of ProblemType
+  should be within the 400's.
+\item {\tt RadHydroParamfile} -- this should contain the filename
+  (with path relative to this parameter file) that contains all
+  module-specific solver parameters (discussed below).  While the 
+  {\tt gFLDProblem} module parameters may be supplied in the main
+  parameter file, that filename must still be specified here (though
+  it is not recommended, since the {\tt ReadParameterFile.C} routine
+  will complain about all of the 'unknown' parameters). 
+\item {\tt RadiationFieldType} -- this can be any value {\em except}
+  10 or 11, since those use pre-existing background radiation
+  radiation approximations.
+\item {\tt RadiativeTransferFLDCallOnLevel} -- this should currently
+  be set to 0.  Future releases plan to enable the implicit solver on
+  a statically nested subgrid, but this does not work at present.
+\item {\tt RadiativeTransfer} -- this must be set to 0.  A nonzero
+  value will instead use an explicit ray-tracing solver for the
+  radiation transport. 
+\item {\tt RadiativeCooling} -- this must be set to 0.  A nonzero
+  value will use Enzo's built-in explicit subcycled gas cooling
+  modules instead of the coupled radiative-ionization provided by 
+  {\tt gFLDProblem}. 
+\item {\tt GadgetEquilibriumCooling} -- this must be set to 0.  A
+  nonzero value will use Enzo's built-in equilibrium cooling
+  modules instead of the coupled radiative-ionization provided by 
+  {\tt gFLDProblem}. 
+\end{itemize}
+
+In addition, if a user wishes to set up a new {\tt ProblemType} that
+uses the {\tt gFLDProblem} module, they must allocate a standard Enzo
+baryon field having the {\tt FieldType} set to {\tt RadiationFreq0}.
+It is this baryon field that will be evolved by the {\tt gFLDProblem}
+module, and that a user may access to obtain information on the
+grey radiation field. 
+
+Furthermore, the {\tt gFLDProblem} module currently computes its own
+emissivity field $\eta_f(\xvec)^n$, in the routine 
+{\tt gFLDProblem\_RadiationSource.src90}.  A user may edit this file
+to add in an emissivity field corresponding to their own 
+{\tt ProblemType}.  Alternatively, we are currently working to
+implement a separate interface whereby other Enzo functions fill
+in an emissivity field, which is then used internally by the 
+{\tt gFLDProblem} module.
+
+
+
+\subsection{Module parameters}
+
+Once a user has enabled the {\tt gFLDProblem} module, they have
+complete control over a variety of internal module parameters.  The
+parameters are given here, with their default values specified in
+brackets, and references to the appropriate equations elsewhere in
+this document. 
+\begin{itemize}
+\item {\tt RadHydroESpectrum} [1], this parameter chooses the type of
+  assumed radiation energy spectrum from \eqref{eq:spectrum}.  Allowed
+  values include
+  \begin{itemize}
+  \item[-1] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
+  \item[0] power law spectrum,
+    \[
+      \chi(\nu) = \left(\frac{\nu}{\nu_{HI}}\right)^{-1.5}
+    \]
+  \item[1] $T=10^5$ K blackbody spectrum, 
+    \[
+       \chi(\nu) = \frac{8 \pi h
+         \left(\frac{nu}{c}\right)^3}{exp\left(\frac{h\nu}{k_b T}\right)-1}.
+    \]
+  \end{itemize}
+\item {\tt RadHydroChemistry} [1], this parameter controls whether to
+  use Hydrogen chemistry or not.  Allowable values are
+  \begin{itemize}
+  \item[0] no chemistry
+  \item[1] Hydrogen chemistry
+  \end{itemize}
+\item {\tt RadHydroHFraction} [1], this parameter controls the
+  fraction of baryonic matter comprised of Hydrogen, allowable
+  values are $0 \le {\tt RadHydroHFraction} \le 1$.
+\item {\tt RadHydroModel} [1], this parameter determines which model
+  for radiation-matter coupling we wish to use, allowable values
+  include
+  \begin{itemize}
+  \item[1] Use the chemistry-dependent model from section
+    \ref{sec:chem_model}, with the case B HII recombination coefficient.
+  \item[2] Use the chemistry-dependent model from section
+    \ref{sec:chem_model}, with the case A HII recombination coefficient.
+  \item[4] The same as model 1, but assumes an isothermal gas energy
+    (for regression test problems).
+  \item[10] Use the local thermodynamic equilibrium model from section
+    \ref{sec:lte_model}.
+  \end{itemize}
+\item {\tt RadHydroMaxDt} [$10^{20}$], this parameter sets the value of
+  $\dt_{\text{max}}$ from section \ref{sec:dt_selection}; it must be
+  greater than 0.
+\item {\tt RadHydroMinDt} [0], this parameter sets the value of
+  $\dt_{\text{min}}$ from section \ref{sec:dt_selection}; it must be
+  non-negative.
+\item {\tt RadHydroInitDt} [$10^{20}$], this parameter sets the initial
+  time step size for the {\tt gFLDProblem} module.  We note that since
+  the module will take the smaller of $\dt_{\text{FLD}}$ and
+  $\dt_{\text{CFL}}$, this default value is never actually used.
+\item {\tt RadHydroDtNorm} [2.0; x>=0], this parameter sets the value
+  of $p$ from equation \eqref{eq:time_error}.  
+  \begin{itemize}
+  \item A value of $0$ implies to use the $\max$ norm, 
+  \item A value $>0$ implies to use the corresponding $p$-norm,
+  \item Values $<0$ are not allowed.
+  \end{itemize}
+\item {\tt RadHydroDtRadFac}, {\tt RadHydroDtGasFac} and {\tt
+    RadHydroDtChemFac}  [$10^{20}$], these parameters give the values
+  of $\tau_{\text{tol}}$ for the variables $E$, $e_c$ and $\mn_{HI}$
+  from equation \eqref{eq:time_estimate}.  They must be positive; the
+  default specifies no restrictions on $\dt_{\text{FLD}}$.
+\item {\tt RadiationScaling}, {\tt EnergyCorrectionScaling} and 
+  {\tt ChemistryScaling} [1.0], these parameters give the scaling 
+  factors $s_E$, $s_e$ and $s_{\mn}$ from
+  \eqref{eq:variable_rescaling}; supplied values must be positive.
+\item {\tt RadHydroTheta} [1.0], this parameter specifies the
+  value of $\theta$ in equations.
+  \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta}.
+  $0\le\theta\le 1$.
+\item {\tt RadHydroLimiterType} [4], this parameter determines the
+  type of flux limiter $D$ to use in \eqref{eq:radiation_PDE}:
+  \begin{itemize}
+  \item[0] specifies the original Levermore-Pomraning limiter,
+    \eqref{eq:LP_limiter} \cite{LevermorePomraning1981,Levermore1984}.
+  \item[1] specifies the rational approximation to the
+    Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
+  \item[2] specifies to use a new approximation to the
+    Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
+  \item[3] specifies to use no limiter, \eqref{eq:no_limiter}.
+  \item[4] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
+  \end{itemize}
+\item {\tt RadiationBoundaryX0Faces}, {\tt RadiationBoundaryX1Faces}
+  and {\tt RadiationBoundaryX2Faces} [0 0], these specify the
+  boundary-condition types from section \ref{sec:boundary_conditions}
+  to use on the lower and upper boundaries in each direction.
+  Allowable values are
+  \begin{itemize}
+  \item[0] periodic (must be set on both faces in a given direction)
+  \item[1] Dirichlet
+  \item[2] Neumann
+  \end{itemize}
+\item {\tt RadHydroInitialGuess} [0], this parameter specifies the
+  method to use in calculating an initial guess to the time-evolved
+  nonlinear problem.  The allowed values are the same as those
+  described in section \ref{sec:initial_guess}, with 0 and 5 being the
+  safest to use.
+\item {\tt RadHydroAnalyticChem} [1], this parameter specifies to use
+  the implicit quasi-steady-state time approximation, i.e.~equations
+  \eqref{eq:radiation_PDE_iqss}-\eqref{eq:hydrogen_iqss}, instead of
+  the $\theta$-method in time.  Allowable values are $\{0,1\}$, and a
+  value of 1 will be used for all models for which this has been
+  implemented (all models allow the $\theta$-method).
+\item {\tt RadHydroNewtIters} [20], this positive parameter specifies
+  the maximum allowed number of Inexact Newton iterations, as
+  described in section \ref{sec:nkmg}.  If the nonlinear problem has
+  not been solved after this many iterations, the solver will return
+  with a failure. 
+\item {\tt RadHydroINConst} [$10^{-8}$], this parameter specifies
+  the value of $C$ used in determining $\delta_k$ within the Inexact
+  Newton iteration from section \ref{sec:nkmg}.  Allowable values must
+  be between 0 and 1.
+\item {\tt RadHydroNewtTolerance} [$10^{-8}$], this parameter
+  specifies the nonlinear tolerance $\varepsilon$ from section
+  \ref{sec:nkmg}.  Allowable values must be between $10^{-15}$ and 1.
+\item {\tt RadHydroMaxMGIters} [50], this positive parameter
+  specifies the maximum number of multigrid iterations to perform in
+  the MG-CG solver from section \ref{sec:nkmg}.
+\item {\tt RadHydroMGRelaxType} [1], this parameter specifies the
+  relaxation method used by the multigrid solver:
+  \begin{itemize}
+  \item[0] Jacobi
+  \item[1] Weighted Jacobi
+  \item[2] Red/Black Gauss-Seidel (symmetric)
+  \item[3] Red/Black Gauss-Seidel (nonsymmetric)
+  \end{itemize}
+  For more information, see the HYPRE user manual.
+\item {\tt RadHydroMGPreRelax} [1], this positive parameter
+  specifies the number of pre-relaxation sweeps the multigrid solver
+  should use in the MG-CG solver from section \ref{sec:nkmg}.
+\item {\tt RadHydroMGPostRelax} [1], this positive parameter
+  specifies the number of post-relaxation sweeps the multigrid solver
+  should use in the MG-CG solver from section \ref{sec:nkmg}.
+\item {\tt EnergyOpacityC0}-{\tt EnergyOpacityC4} [1, 1, 0, 1, 0],
+  these specify the opacity-defining constants $C_0$-$C_4$ for the
+  energy-mean opacity $\kappa_E$ as in equation \eqref{eq:opacityE}.
+  The parameters $C_0$, $C_2$ and $C_4$ must all be $\ge 0$, while the
+  parameters $C_1$ and $C_3$ must be $> 0$.
+\item {\tt PlanckOpacityC0}-{\tt PlanckOpacityC4} [1, 1, 0, 1, 0], the
+  same as above, but for the Planck-mean opacity $\kappa_P$.
+\end{itemize}
+
 
 
 
@@ -293,7 +529,7 @@ operator-split solver framework in the following manner:
   mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
 \item[(ii)] Solve for the gravitational potential $\phi$ using a
   Poisson equation [Enzo];
-\item[(iii)] Advect the dark matter particles with the Particl-Mesh
+\item[(iii)] Advect the dark matter particles with the Particle-Mesh
   method [Enzo];
 \item[(iv)] Evolve the hydrodynamics equations using an up to
   second-order explicit method, and have the velocity $\vb$ advect
@@ -514,164 +750,106 @@ initial guess $U_0$:
 \subsection{Time-step selection}
 \label{sec:dt_selection}
 
+Time steps are chosen adaptively in an attempt to control error in the
+calculated solution.  To this end, we first define an heuristic
+measure of the time accuracy error in a specific variable as
+\begin{align}
+\label{eq:time_error}
+  e = \left(\frac1N \sum_{i=1}^N
+    \left(\frac{u_i^{n}-u_i^{pred}}{\omega_i}\right)^p\right)^{1/p}, 
+\end{align}
+where the weighting vector $\omega$ is given by
+\begin{align}
+\label{eq:time_weighting}
+  \omega_i &= \sqrt{u_i^n*u_i^{pred}} + 10^{-3}, \quad i=1,\ldots,N, \\
+  \omega_i &= |e_{c,i} + e_{h,i}| + 10^{-3}, \quad i=1,\ldots,N,
+\end{align}
+i.e.~we scale the radiation and chemistry change by the geometric mean
+of the old and new states, and scale the gas energy change by the new
+total gas energy, adding on a floor value of $10^{-3}$ in case either
+of the states are too close to zero.  This approach works well when
+the internal solution variables are unit-normalized, or at least close
+to unit-normalized, since the difference between the predicted
+solution $u^{pred}$ and the resulting solution $u^n$, divided by this
+weighting factor $\omega$, should give a reasonable estimate of the
+number of significant digits that are correct in the solution.
+
+With these error estimates \eqref{eq:time_error} for each variable, we
+set the new time step size based on the previous time step size and a
+user-input tolerance $\tau_{\text{tol}}$ as
+\begin{align}
+\label{eq:time_estimate}
+  \dt_{\text{FLD}}^{n+1} = \frac{\tau_{\text{tol}} \dt^n}{e}.
+\end{align}
+These adaptive time step controls may be overridden with user-input
+values for $\dt_{\text{max}}$ and $\dt_{\text{min}}$.
+
+We further note that when run in combination with Enzo's hydrodynamics
+routines, both modules will limit their maximum time step sizes to the
+minimum of $\dt_{\text{FLD}}$ and $\dt_{\text{CFL}}$, where
+$\dt_{\text{CFL}}$ is the time step size that Enzo's other routines
+would normally take.  As a result, in some physical regimes, the
+global time step size will be limited based on the
+radiation/ionization/heating time scale, and in other regimes it will
+be limited by the hydrodynamic time scale.
+
+
+
+
 \subsection{Variable rescaling}
 \label{sec:variable_rescaling}
+
+In case the standard Enzo unit non-dimensionalization with 
+{\tt DensityUnits}, {\tt LengthUnits} and {\tt TimeUnits} is
+insufficient to render the resulting solver values $E$, $e_c$ and
+$n_{HI}$ to have nearly unit magnitude, The user may input additional
+variable scaling factors to be used inside the {\tt gFLDProblem}
+module.  Let these user-input values be named $s_E$, $s_e$ and
+$s_{\mn}$, then all solvers within this module will rescale Enzo's
+internal variables to
+\begin{align}
+\label{eq:variable_rescaling}
+  \tilde{E} = E / s_E, \qquad \tilde{e}_c = e_c / s_e, \qquad \tilde{\mn}_{HI} = \mn_{HI} / s_{\mn}.
+\end{align}
+If the user does not know appropriate values for these scaling factors
+{\em a-priori}, a generally-applicable rule of thumb is to first run
+their simulation for a small number of time steps and investigate
+Enzo's HDF5 output files to see the magnitude of values stored
+internally by Enzo; if these are far from unit-magnitude, these
+scaling factors should be used.
+
+
 
 \subsection{Boundary conditions}
 \label{sec:boundary_conditions}
 
-
-
-
-\section{{\tt gFLDProblem} usage}
-\label{sec:module_usage}
-
-In order to use the implicit FLD radiation solver module, and to
-allow optimal control over the nonlinear and linear solution methods
-used, there are a number of parameters than may be supplied to Enzo.
-We group these into two categories, those associated with the general
-startup of the module via the Enzo infrastructure, and those that may
-be supplied to the module itself.  However, prior to embarking on a
-description of these parameters, there are a few requirements for any
-problem that wishes to use the {\tt gFLDProblem} module.
-
-Foremost, Enzo must be built using the configuration option 
-{\tt RAD\_HYDRO}; this is enabled through the call 
-{\tt gmake rad-hydro-yes} in the Enzo source directory.  Moreover, the
-machine Makefile must specify how to include and link with an
-available HYPRE library (version $\ge$ 2.4.0b).  If a user must
-compile HYPRE themselves to obtain this version, they should make note
-of the HYPRE configuration {\tt --with-no-global-partition}, which
-must be used for solver scalability when using over $\sim1000$
-processors, but which results in slower executables on smaller
-problems.
-
-
-\subsection{Startup parameters}
-
-In a user's main problem parameter file, the following three parameters
-must be set:
+As the radiation equation \eqref{eq:radiation_PDE} is parabolic,
+boundary conditions must be supplied on the radiation field $E$.  The
+{\tt gFLDProblem} module allows three types of boundary conditions to
+be placed on the radiation field:
 \begin{itemize}
-\item {\tt RadiationHydrodynamics} -- this must be set to either 1 or
-  2.  A value of 1 enables the use of implicit radiation solvers
-  alongside standard Enzo chemistry and hydrodynamics physics.  A
-  value of 2 turns on the implicit radiation solvers, and {\em turns off}  
-  all other Enzo physics solvers.
-\item {\tt ImplicitProblem} -- this must be set to 2 to use the 
-  {\tt FSProb} module (among the possible implicit radiation solver
-  modules).
-\item {\tt RadHydroParamfile} -- this should contain the filename
-  (relative to this parameter file) that contains all module-specific
-  solver parameters.  While the {\tt FSProb} module parameters may be
-  supplied in the main parameter file, it is not recommended since
-  Enzo's main {\tt ReadParameterFile.C} routine will complain about
-  all of the 'unknown' parameters.
+\item[0.] Periodic,
+\item[1.] Dirichlet, i.e.~$E(x,t) = g(x), \; x\in\partial\Omega$, and
+\item[2.] Neumann, i.e.~$\nabla E(x,t)\cdot n = g(x), \; x\in\partial\Omega$.
 \end{itemize}
+In most cases, the boundary condition types (and values of $g$) are
+problem-dependent.  When adding new problem types, these conditions
+should be set near the bottom of the file {\tt gFLDProblem\_Initialize.C}, 
+otherwise these will default to periodic, or will use $g=0$, depending
+on the user input boundary condition type.
 
-In addition, in a user's problem initialization routines, they must
-allocate a standard Enzo baryon field having the {\tt FieldType} set
-to {\tt RadiationFreq0}.  It is this baryon field that will be evolved
-by the {\tt FSProb} module, and that a user may access to obtain
-information on the free-streaming radiation field.
-
-Furthermore, the {\tt FSProb} module currently computes its own
-emissivity field $\eta_f(\xvec)^n$, in the routine 
-{\tt FSProb\_RadiationSource.src90}.  A user may edit this file to add
-in an emissivity field corresponding to their own Enzo 
-{\tt ProblemType}.  Alternatively, we are currently working to
-implement a separate interface whereby some other Enzo function fills
-in an emissivity field, which is then used internally by the 
-{\tt FSProb} module.
-
-For convenience, we have provided the {\tt ProblemType} 250, with the
-initialization filed {\tt FSMultiSourceInitialize.C} and 
-{\tt Grid\_FSMultiSourceInitializeGrid.C}, as an example of how to set
-up this module.
-
-
-
-\subsection{Module parameters}
-
-Once a user has enabled the free-streaming radiation module, they have
-complete control over a variety of internal module parameters.  The
-parameters are given here, with their default values specified in brackets.
-\begin{itemize}
-\item {\tt FSRadiationScaling} [1.0] -- this parameter may be used to
-  rescale the internal solver units for the free-streaming radiation
-  field, to ensure that the linear system is well-scaled to have
-  solution with values on the order of 1.  We note that without
-  scaling, the solver will use the internal Enzo units for a radiation
-  field, i.e.~the radiation field will have values in 
-  CGS/({\tt DensityUnits*VelocityUnits*VelocityUnits}). 
-\item {\tt FSRadiationTheta} [1.0] -- this is the implicit
-  discretization method parameter.  1 gives implicit Euler, and 2
-  gives the trapezoid rule (Crank-Nicolson).
-\item {\tt FSRadiationOpacity} [$10^{-4}$] -- this is the opacity
-  constant used within the computations of the flux-limiter
-  $D_f(\Ef)$.  The expected values should be those of a (small)
-  physical opacity for the problem in CGS.
-\item {\tt FSRadiationLimiterType} [4] -- this gives the formula for
-  the flux limiter to be used in the code.  The default value provides
-  the formula \eqref{eq:limiter}; other allowable values and their
-  formulas may be found in the file {\tt FSProb\_SetupSystem.src90}.
-\item {\tt FSRadiationBoundaryX0Faces} [0 0] -- these integer
-  constants give the type of boundary conditions to supply on the
-  free-streaming radiation field at the lower and upper domain
-  boundaries in the x-direction, respectively.  Allowable 
-  constants are 0 (periodic), 1 (Dirichlet), and 2 (Neumann).  If
-  either 1 or 2 are provided, the file {\tt FSProb\_Initialize} will
-  need to be modified to set the Dirichlet or Neumann values on the
-  appropriate faces, based on the {\tt ProblemType}.
-\item {\tt FSRadiationBoundaryX1Faces} [0 0] -- lower and upper
-  boundary condition types for the y-direction.
-\item {\tt FSRadiationBoundaryX2Faces} [0 0] -- lower and upper
-  boundary condition types for the z-direction.
-\item {\tt FSRadiationMaxDt} [0.0] -- this gives a maximum allowed
-  time step size for the free-streaming radiation problem.  The
-  default value of 0 turns off control over the maximum step size; any
-  positive value will turn it on.
-\item {\tt FSRadiationInitialGuess} [0] -- this gives control over the
-  algorithm to use in computing the initial guess at the time-evolved
-  solution.  Since the solver is iterative, a good initial guess will
-  result in faster convergence.  Allowable values may be found in the
-  file {\tt FSProb\_InitialGuess.src90}.
-\item {\tt FSRadiationTolerance} [$10^{-10}$] -- this gives the
-  absolute tolerance to be used in solving the linear system
-  \eqref{eq:fs_linear}.  Note, this absolute tolerance is used on the
-  scaled linear system (see {\tt FSRadiationScaling}).
-\item {\tt FSRadiationMaxMGIters} [50] -- this gives the maximum
-  number of multigrid v-cycles to be used.
-\item {\tt FSRadiationMGRelaxType} [1] -- this gives the type of
-  smoother to use within multigrid v-cycles.  Values of 0 or 1 give
-  weighted Jacobi, and values of 2 or 3 give red-black Gauss-Seidel
-  (see HYPRE documentation for further details).
-\item {\tt FSRadiationMGPreRelax} [1] -- this gives the number of
-  pre-relaxation sweeps that should be performed by the multigrid
-  smoother. 
-\item {\tt FSRadiationMGPostRelax} [1] -- this gives the number of
-  post-relaxation sweeps that should be performed by the multigrid
-  smoother. 
-\item {\tt FSRadiationNGammaDot} [0.0] -- input parameter used by 
-  {\tt FSProb\_RadiationSource.src90} to supply the function
-  $\eta_f(\xvec)^n$. 
-\item {\tt FSRadiationEtaRadius} [0.0] -- input parameter used by 
-  {\tt FSProb\_RadiationSource.src90} to supply the function
-  $\eta_f(\xvec)^n$. 
-\item {\tt FSRadiationEtaCenter} [0.0 0.0 0.0] -- input parameters
-  used by {\tt FSProb\_RadiationSource.src90} to supply the function
-  $\eta_f(\xvec)^n$. 
-\end{itemize}
 
 
 \section{Concluding remarks}
 \label{sec:conclusions}
 
-We wish to remark that the module is not large (one header file, 8 C++
-files, 3 F90 files), and all files begin with the {\tt FSProb}
-prefix.  Most of the user interface is handled through the routines
-{\tt FSProb\_Initialize.C} and {\tt FSProb\_RadiationSource.src90}, and
-most of the 'action' may be found in the files {\tt FSProb\_Evolve.C}
-and {\tt FSProb\_SetupSystem.src90}.  
+We wish to remark that the module is not incredibly large (one header
+file, 21 C++ files, 10 F90 files), and all files begin with the 
+{\tt gFLDProblem} prefix.  While we have strived to ensure that the
+module is bug-free, there is still work to be done in enabling
+additional physics, including Helium chemistry and more advanced
+time-stepping interactions with the rest of Enzo (especially when
+ionization sources ``turn on'' abruptly).  
 
 Feedback/suggestions are appreciated.
 
