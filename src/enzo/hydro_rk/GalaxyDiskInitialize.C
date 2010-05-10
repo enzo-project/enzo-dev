@@ -145,9 +145,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 
     if (sscanf(line, "HaloRadius[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "HaloRadius[%"ISYM"] = %"PSYM, &sphere,
+		    &HaloRadius[sphere]);
 
-    if (sscanf(line, "HaloRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloRadius[%"ISYM"] = %"FSYM, &sphere,
 
     if (sscanf(line, "HaloCoreRadius[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "HaloCoreRadius[%"ISYM"] = %"PSYM, &sphere,
