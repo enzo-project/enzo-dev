@@ -71,7 +71,7 @@ int CommunicationReduceValues(float *Values, int Number, MPI_Op ReduceOperation)
 int CommunicationAllSumValues(float *Values, int Number);
 float CommunicationMinValue(float Value);
 float CommunicationMaxValue(float Value);
-int CommunicationBarrier();
+
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,

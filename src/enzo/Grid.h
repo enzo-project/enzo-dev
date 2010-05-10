@@ -2173,7 +2173,8 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
   int SourceTerms(float **dU);
-  int MHD1DTestInitializeGrid(float rhol, float rhor,
+  int MHD1DTestInitializeGrid(float RampWidth,
+			      float rhol, float rhor,
 			      float vxl,  float vxr,
 			      float vyl,  float vyr,
 			      float vzl,  float vzr,
