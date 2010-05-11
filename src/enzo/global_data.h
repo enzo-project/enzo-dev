@@ -621,8 +621,6 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
-EXTERN int ComovingRiemannSolver;
-EXTERN int LagrangeReconstruction;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;
