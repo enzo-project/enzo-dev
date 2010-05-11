@@ -145,7 +145,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   newt_maxit         = 20;        // 20 Newton iterations
   newt_norm          = 0;         // standard RMS norm
   newt_INconst       = 1.0e-8;    // inexact Newton forcing constant
-  newt_tol           = 1.0e-4;    // default nonlinear tolerance
+  newt_tol           = 1.0e-6;    // default nonlinear tolerance
   newt_MinLinesearch = 1.0e-12;   // minimum linesearch step length
   sol_relch          = 0;         // HYPRE relative change stopping crit.
   sol_printl         = 1;         // HYPRE print level

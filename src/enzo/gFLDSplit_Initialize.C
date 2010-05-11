@@ -123,7 +123,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // set default solver parameters
   initial_guess      = 0;         // previous time step
-  sol_tolerance      = 1.0e-4;    // HYPRE solver tolerance
+  sol_tolerance      = 1.0e-8;    // HYPRE solver tolerance
   sol_printl         = 1;         // HYPRE print level
   sol_log            = 1;         // HYPRE logging level
   sol_maxit          = 50;        // HYPRE max multigrid iters
