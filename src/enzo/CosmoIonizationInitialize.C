@@ -69,7 +69,6 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroX2Velocity           = 0.0;
   float RadHydroTemperature          = 10000.0;       // [K]
   float RadHydroRadiationEnergy      = 1.0e-32;
-  float RadHydroHydrogenMassFraction = 1.0;
   float RadHydroInitialFractionHII   = 0.0;
   float RadHydroOmegaBaryonNow       = 0.2;
   int   RadHydroChemistry            = 1;

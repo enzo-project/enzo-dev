@@ -55,8 +55,8 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
 
   // Setup and parameters:
   //  1. ambient density (g/cc)
-  //  2. ambient gas temperature (K or eV, depending ProbType)
-  //  3. ambient rad temperature (K or eV, depending ProbType)
+  //  2. ambient gas temperature (K or eV, depending CGSType)
+  //  3. ambient rad temperature (K or eV, depending CGSType)
   //  4. imposed fluid velocity  (cm/sec)
   //  5. coordinate along which to propagate shock {0,1,2}
   //  6. Problem Type (1 = astrophysical setup parameters;
@@ -67,7 +67,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   float RadTempConstant  = 1.0;
   float VelocityConstant = 1.0;
   int   ShockDir    = 0;
-  int   ProbType    = 1;
+  int   CGSType     = 1;
 
   // overwrite parameters from RadHydroParamFile file, if it exists
   char line[MAX_LINE_LENGTH];
@@ -83,7 +83,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
 	ret += sscanf(line, "RadTempConstant = %"FSYM, &RadTempConstant);
 	ret += sscanf(line, "VelocityConstant = %"FSYM, &VelocityConstant);
 	ret += sscanf(line, "ShockDir = %"ISYM, &ShockDir);
-	ret += sscanf(line, "ProbType = %"ISYM, &ProbType);
+	ret += sscanf(line, "CGSType = %"ISYM, &CGSType);
       } // end input from parameter file
       fclose(RHfptr);
     }
@@ -107,17 +107,17 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   // Compute total gas energy (erg/gm) and radiation energy 
   // density (erg/cc) from input temperatures
   float gas_pressure;
-  if ( ProbType == 1 ) 
+  if ( CGSType == 1 ) 
     gas_pressure  = DensityConstant * kb * GasTempConstant / DEFAULT_MU / mp;
-  if ( ProbType == 2 ) 
+  if ( CGSType == 2 ) 
     gas_pressure  = (Gamma - 1.0) * Cv * DensityConstant * GasTempConstant;
 
   float TEConstant = gas_pressure/(Gamma-1.0)/DensityConstant 
                    + 0.5 * VelocityConstant * VelocityConstant;
 
   float rc;
-  if ( ProbType == 1 ) rc = rc_ast;
-  if ( ProbType == 2 ) rc = rc_lab;
+  if ( CGSType == 1 ) rc = rc_ast;
+  if ( CGSType == 2 ) rc = rc_lab;
 
   float REConstant = rc * POW(RadTempConstant,4.0);
 

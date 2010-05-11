@@ -117,7 +117,7 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
 	  ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
 			&RadHydroInitialFractionHII);
 	if (RadHydroChemistry > 1) {
-	  ret += sscanf(line, "RadHydroHydrogenMassFraction = %"FSYM, 
+	  ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
 			&RadHydroHydrogenMassFraction);
 	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
 			&RadHydroInitialFractionHeII);

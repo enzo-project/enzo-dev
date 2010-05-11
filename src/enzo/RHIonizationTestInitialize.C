@@ -116,7 +116,7 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
 	if (RadHydroChemistry > 0) {
 	  ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
 			&RadHydroInitialFractionHII);
-	  ret += sscanf(line, "RadHydroHydrogenMassFraction = %"FSYM, 
+	  ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
 			&RadHydroHydrogenMassFraction);
 	}
 	if (RadHydroChemistry == 3) {
