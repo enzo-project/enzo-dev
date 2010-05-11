@@ -54,9 +54,6 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   char *RadName   = "Grey_Radiation_Energy";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
-  char *HeIName   = "HeI_Density";
-  char *HeIIName  = "HeII_Density";
-  char *HeIIIName = "HeIII_Density";
   char *DeName    = "Electron_Density";
 
   // local declarations
@@ -70,11 +67,8 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   //  4. ambient radiation energy
   //  5. Hydrogen mass fraction 
   //  6. initial fraction HII
-  //  7. initial fraction HeII
-  //  8. initial fraction HeIII
-  //  9. OmegaBaryonNow
-  // 10. Number of chemical species
-  // 11. mesh spacing
+  //  7. Number of chemical species
+  //  8. mesh spacing
   float RadHydroX0Velocity           = 0.0;
   float RadHydroX1Velocity           = 0.0;
   float RadHydroX2Velocity           = 0.0;
@@ -85,11 +79,8 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroRadiationEnergy      = 1.0e-20;
   float RadHydroHydrogenMassFraction = 1.0;
   float RadHydroInitialFractionHII   = 0.0;
-  float RadHydroInitialFractionHeII  = 0.0;
-  float RadHydroInitialFractionHeIII = 0.0;
-  float RadHydroOmegaBaryonNow       = 1.0;
   int   RadHydroChemistry            = 1;
-  int   RadHydroModel                = 0;
+  int   RadHydroModel                = 1;
   float ClumpCenterX                 = 1.54285e22;  // cm (5 kpc)
   float ClumpCenterY                 = 1.018281e22; // cm (3.3 kpc)
   float ClumpCenterZ                 = 1.018281e22; // cm (3.3 kpc)
@@ -121,8 +112,6 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroRadiationEnergy);
 	ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
 		      &RadHydroInitialFractionHII);
-	ret += sscanf(line, "RadHydroOmegaBaryonNow = %"FSYM, 
-		      &RadHydroOmegaBaryonNow);
 	
 	ret += sscanf(line, "ClumpCenter = %"FSYM" %"FSYM" %"FSYM,
 		      &ClumpCenterX, &ClumpCenterY, &ClumpCenterZ);
@@ -148,7 +137,7 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
   RadHydroTemperatureOut = max(RadHydroTemperatureOut,MIN_TEMP); // enforce minimum
   float mp = 1.67262171e-24;    // proton mass [g]
   float kb = 1.3806504e-16;     // boltzmann constant [erg/K]
-  float nH, HI, HII, nHe, HeI, HeII, HeIII, ne, num_dens, mu;
+  float nH, HI, HII, ne, num_dens, mu;
   HI = 1.0 - RadHydroInitialFractionHII;
   HII = RadHydroInitialFractionHII;
   ne = HII;
@@ -170,10 +159,8 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
 			RadHydroX1Velocity, RadHydroX2Velocity, 
 			RadHydroIEnergyIn, RadHydroIEnergyOut, 
 			RadHydroRadiationEnergy, RadHydroHydrogenMassFraction, 
-			RadHydroInitialFractionHII, RadHydroInitialFractionHeII, 
-			RadHydroInitialFractionHeIII, RadHydroOmegaBaryonNow, 
-			ClumpCenterX, ClumpCenterY, ClumpCenterZ, 
-			ClumpRadius, local) == FAIL) {
+			RadHydroInitialFractionHII, ClumpCenterX, ClumpCenterY, 
+			ClumpCenterZ, ClumpRadius, local) == FAIL) {
       fprintf(stderr, "Error in RHIonizationClumpInitializeGrid.\n");
       return FAIL;
     }

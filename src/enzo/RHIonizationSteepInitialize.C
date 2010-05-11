@@ -74,9 +74,7 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   float DensityCenter2               = 0.0;
   float RadHydroTemperature          = 100.0;         // [K]
   float RadHydroRadiationEnergy      = 1.0e-20;
-  float RadHydroHydrogenMassFraction = 1.0;
   float RadHydroInitialFractionHII   = 0.0;
-  float RadHydroOmegaBaryonNow       = 1.0;
   int   RadHydroChemistry            = 1;
   int   RadHydroModel                = 1;
 
@@ -104,8 +102,6 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroRadiationEnergy);
 	ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
 		      &RadHydroInitialFractionHII);
-	ret += sscanf(line, "RadHydroOmegaBaryonNow = %"FSYM, 
-		      &RadHydroOmegaBaryonNow);
 	ret += sscanf(line, "EtaCenter = %"FSYM" %"FSYM" %"FSYM, 
 		      &DensityCenter0, &DensityCenter1, &DensityCenter2);
       } // end input from parameter file
@@ -148,8 +144,7 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 			DensityCenter1, DensityCenter2, RadHydroX0Velocity, 
 			RadHydroX1Velocity, RadHydroX2Velocity, 
 			RadHydroIEnergy, RadHydroRadiationEnergy, 
-			RadHydroInitialFractionHII, RadHydroOmegaBaryonNow,
-			local) == FAIL) {
+			RadHydroInitialFractionHII, local) == FAIL) {
       fprintf(stderr, "Error in RHIonizationSteepInitializeGrid.\n");
       return FAIL;
     }

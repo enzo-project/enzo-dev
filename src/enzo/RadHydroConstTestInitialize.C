@@ -73,9 +73,8 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
   //  6. initial fraction HII
   //  7. initial fraction HeII
   //  8. initial fraction HeIII
-  //  9. OmegaBaryonNow
-  // 10. Number of chemical species
-  // 11. mesh spacing
+  //  9. Number of chemical species
+  // 10. mesh spacing
   float RadHydroX0Velocity           = 0.0;
   float RadHydroX1Velocity           = 0.0;
   float RadHydroX2Velocity           = 0.0;
@@ -87,9 +86,8 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroInitialFractionHII   = 0.0;
   float RadHydroInitialFractionHeII  = 0.0;
   float RadHydroInitialFractionHeIII = 0.0;
-  float RadHydroOmegaBaryonNow       = 1.0;
-  int   RadHydroChemistry            = 0;
-  int   RadHydroModel                = 0;
+  int   RadHydroChemistry            = 1;
+  int   RadHydroModel                = 1;
 
   // overwrite input from RadHydroParamFile file, if it exists
   if (MetaData.RadHydroParameterFname != NULL) {
@@ -124,8 +122,6 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
 	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
 			&RadHydroInitialFractionHeIII);
 	}
-	ret += sscanf(line, "RadHydroOmegaBaryonNow = %"FSYM, 
-		      &RadHydroOmegaBaryonNow);
       } // end input from parameter file
       fclose(RHfptr);
     }
@@ -193,8 +189,7 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
 			RadHydroX2Velocity, RadHydroIEnergy, 
 			RadHydroRadiationEnergy, RadHydroHydrogenMassFraction, 
                         RadHydroInitialFractionHII, RadHydroInitialFractionHeII, 
-                        RadHydroInitialFractionHeIII, RadHydroOmegaBaryonNow, 
-                        local) == FAIL) {
+                        RadHydroInitialFractionHeIII, local) == FAIL) {
       fprintf(stderr, "Error in RadHydroConstTestInitializeGrid.\n");
       return FAIL;
     }

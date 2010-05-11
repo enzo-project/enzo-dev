@@ -43,7 +43,6 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 					  float IEConstant, 
 					  float EgConstant, 
 					  float InitialFractionHII, 
-					  float OmegaBaryonNow,
 					  int   local)
 {
 #ifdef TRANSFER

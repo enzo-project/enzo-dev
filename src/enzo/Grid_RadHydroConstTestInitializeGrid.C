@@ -44,7 +44,6 @@ int grid::RadHydroConstTestInitializeGrid(int NumChemicals,
 					  float InitFracHII, 
 					  float InitFracHeII, 
 					  float InitFracHeIII, 
-					  float OmegaBaryonNow,
 					  int   local)
 {
 #ifdef TRANSFER

@@ -42,7 +42,6 @@ int grid::RHIonizationTestInitializeGrid(int NumChemicals,
 					 float InitialFractionHII, 
 					 float InitialFractionHeII, 
 					 float InitialFractionHeIII, 
-					 float OmegaBaryonNow,
 					 int   local)
 {
 #ifdef TRANSFER

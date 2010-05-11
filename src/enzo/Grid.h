@@ -1783,8 +1783,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				      float V2Const, float IEConst, 
 				      float EgConst, float HMassFrac, 
 				      float InitFracHII, float InitFracHeII, 
-				      float InitFracHeIII, 
-				      float OmegaBaryonNow, int local);
+				      float InitFracHeIII, int local);
 
   /* FLD Radiation ionization test problem: initialize grid (SUCCESS or FAIL) */
   int RHIonizationTestInitializeGrid(int NumChem, float DensityConst, 
@@ -1792,8 +1791,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				     float V2Const, float IEConst, 
 				     float EgConst, float HMassFrac, 
 				     float InitFracHII, float InitFracHeII, 
-				     float InitFracHeIII, 
-				     float OmegaBaryonNow, int local);
+				     float InitFracHeIII, int local);
 
   /* FLD Radiation clump ionization problem: initialize grid (SUCCESS or FAIL) */
   int RHIonizationClumpInitializeGrid(int NumChem, float NumDensityIn, 
@@ -1801,11 +1799,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				      float V1Const, float V2Const,
 				      float IEConstIn, float IEConstOut, 
 				      float EgConst, float HMassFrac, 
-				      float InitFracHII, float InitFracHeII, 
-				      float InitFracHeIII, float OmegaBaryonNow,
-				      float ClumpCenterX0, float ClumpCenterX1,
-				      float ClumpCenterX2, float ClumpRadius,
-				      int local);
+				      float InitFracHII, float ClumpCenterX0, 
+				      float ClumpCenterX1, float ClumpCenterX2, 
+				      float ClumpRadius, int local);
 
   /* FLD Rad r^{-2} density ionization problem: initialize grid (SUCCESS or FAIL) */
   int RHIonizationSteepInitializeGrid(int NumChem, float NumDensity, 
@@ -1813,8 +1809,7 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 				      float DensityCenter1, float DensityCenter2, 
 				      float V0Const, float V1Const, 
 				      float V2Const, float IEConst, 
-				      float EgConst, float InitFracHII, 
-				      float OmegaBaryonNow, int local);
+				      float EgConst, float InitFracHII, int local);
 
   /* FLD Radiation test problem: cosmological HII ioniztion (SUCCESS or FAIL) */
   int CosmoIonizationInitializeGrid(int NumChem, float VxConst, float VyConst, 
