@@ -193,14 +193,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 //	       MyProcessorNumber, i, lvl, gi, 
 //	       RecvBuffer[i].buffer.SuperSourceID, NewPack->Photons);
 
-	if (RadiativeTransferSourceClustering) {
-	  if (FindSuperSource(&NewPack, RecvBuffer[i].buffer.SuperSourceID) 
-	      == FAIL) {
-	    fprintf(stderr, "Error in FindSuperSource.\n");
-	    ENZO_FAIL("");
-	  }
-	} else
-	  NewPack->CurrentSource = NULL;
+	NewPack->CurrentSource = NULL;
 
 	InsertPhotonAfter(ToPP, NewPack);
 

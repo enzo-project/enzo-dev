@@ -39,8 +39,6 @@ static MPI_Datatype PhotonBufferType;
 #endif /* USE_MPI */
 
 void my_exit(int status);
-int FindSuperSource(PhotonPackageEntry **PP, int &LeafID, 
-		    int SearchNewTree = TRUE);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 
@@ -273,13 +271,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	ENZO_FAIL("");
       }
 
-      if (RadiativeTransferSourceClustering) {
-	if (FindSuperSource(&NewPP, buffer[index].SuperSourceID) == FAIL) {
-	  fprintf(stderr, "Error in FindSuperSource.\n");
-	  ENZO_FAIL("");
-	}
-      } else
-	NewPP->CurrentSource = NULL;
+      NewPP->CurrentSource = NULL;
 
       // Move pointer to the next photon
       //      *ToPP = (*ToPP)->NextPackage;

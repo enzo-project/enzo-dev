@@ -163,33 +163,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   }
 
-  /* Compute the photon distance that corresponds to a distance =
-     R_merge away from the super source. 
-     | (PauseRadius * dir_vec) + (vector_between_source_and_super) | = R_merge
-     solve for PauseRadius, which results in a quadratic equation.
-
-     PauseRadius = -u1 +/- sqrt(u1^2 - d^2 + R_merge^2), where
-     u1 = dir_vec \dot d
-     d := vector between current and super source
-  */
-
-  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
-    r_merge = 2*RadiativeTransferPhotonMergeRadius *
-      (*PP)->CurrentSource->ClusteringRadius;
-    d2_ss = 0.0;
-    u_dot_d = 0.0;
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      d_ss = (*PP)->SourcePosition[dim] - (*PP)->CurrentSource->Position[dim];
-      d2_ss += d_ss * d_ss;
-      u_dot_d += dir_vec[dim] * d_ss;
-    }
-    sqrt_term = sqrt(u_dot_d*u_dot_d - d2_ss + r_merge*r_merge);
-    if (sqrt_term > u_dot_d)
-      PauseRadius = -u_dot_d + sqrt_term;
-    else
-      PauseRadius = -u_dot_d - sqrt_term;
-  } else
-    PauseRadius = huge_number;
+  PauseRadius = huge_number;
 
   /* find relevant cross-section and number of secondary ionizations
      for X-rays */
