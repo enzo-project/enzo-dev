@@ -35,18 +35,19 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "PhotonCommunication.h"
 #include "CommunicationUtilities.h"
 
 /* function prototypes */
 void my_exit(int status);
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
 				 ListOfPhotonsToMove **AllPhotons, 
-				 char* &kt_global,
+				 char *kt_global,
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int InitializePhotonCommunication(char* &kt_global);
-int FinalizePhotonCommunication(char* &kt_global);
+int FinalizePhotonCommunication(char* &kt_global, int keep_transporting);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
 int KeepTransportingSend(int keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
@@ -271,7 +272,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Transport the rays! */
 
-    while (keep_transporting) {
+    while (keep_transporting != NO_TRANSPORT && 
+	   keep_transporting != HALT_TRANSPORT) {
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
@@ -338,7 +340,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }                           //  end while keep_transporting
 
-    FinalizePhotonCommunication(kt_global);
+    FinalizePhotonCommunication(kt_global, keep_transporting);
     //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,
@@ -529,13 +531,15 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   END_PERF(13);
 
 #ifdef REPORT_PERF
-  if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
-  for (int i = 0; i < NumberOfProcessors; i++) {
-    CommunicationBarrier();
-    if (MyProcessorNumber == i) {
-      printf("P%d:", MyProcessorNumber);
-      fpcol(PerfCounter, 14, 14, stdout);
-      fflush(stdout);
+  if (!FirstTime) {
+    if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
+    for (int i = 0; i < NumberOfProcessors; i++) {
+      CommunicationBarrier();
+      if (MyProcessorNumber == i) {
+	printf("P%d:", MyProcessorNumber);
+	fpcol(PerfCounter, 14, 14, stdout);
+	fflush(stdout);
+      }
     }
   }
 #endif

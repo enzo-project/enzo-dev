@@ -62,6 +62,10 @@ int SetSubgridMarker(TopGridData &MetaData,
     if (LevelArray[i] != NULL)
       NumberOfGrids[i] = GenerateGridArray(LevelArray, i, &Grids[i]);
 
+  // Initialize SubgridMarker only on root grid
+  if (level == 0)
+    for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
+      Temp->GridData->SetSubgridMarkerFromSubgrid(NULL);
 
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)  {
 

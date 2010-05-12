@@ -37,8 +37,8 @@
    the work by summing over batches of processors, determined by the
    total number of cells on the level. */
 
-#define CELLS_PER_LOOP 1e8
-#define GRIDS_PER_LOOP 20000
+#define CELLS_PER_LOOP 3e8
+#define GRIDS_PER_LOOP 50000
 
 void my_exit(int status);
 double ReturnWallTime(void);

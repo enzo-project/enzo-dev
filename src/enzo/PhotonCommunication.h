@@ -12,7 +12,11 @@
 // Maximum number of photons to send in one MPI message.
 #define PHOTON_BUFFER_SIZE 100000
 
+#define NO_TRANSPORT 0
+#define TRANSPORT 1
 #define HALT_TRANSPORT 2
+#define SENT_DATA 3
+#define RECV_DATA 4
 #define EMPTY_BUFFER -1
 #define BUFFER_TRASH -1
 #define BUFFER_END -99999
