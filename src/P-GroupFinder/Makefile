@@ -113,6 +113,8 @@ $(EXE): $(MODULES) dep $(OBJS_PGROUP_LIB)
 	-@$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
              echo "Success!"; \
+             if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+             cp $(EXE) $(TOP_DIR)/bin/$(EXE); \
          else \
              echo "$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS)" >> temp1; \
              cat temp1 $(OUTPUT) > temp2; \
