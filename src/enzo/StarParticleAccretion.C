@@ -75,13 +75,6 @@ int StarParticleAccretion(TopGridData *MetaData,
       ENZO_FAIL("");
     }
 
-    /* Add accreted angular momentum to star particles */
-
-    if (ThisStar->AccreteAngularMomentum() == FAIL) {
-      fprintf(stderr, "Error in star::AccreteAngularMomentum.\n");
-      ENZO_FAIL("");
-    }
-
   }
 
   return SUCCESS;

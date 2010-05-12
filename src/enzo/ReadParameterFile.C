@@ -688,29 +688,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
 
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
-    ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
-    ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
-    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
-    ret += sscanf(line, "MBHAccretionFixedTemperature = %"FSYM, &MBHAccretionFixedTemperature);
-    ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
-    ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
-    ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
-
-    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
-    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
-    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %"FSYM, &MBHFeedbackEnergyCoupling);
-    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
-    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
-    ret += sscanf(line, "MBHFeedbackJetsThresholdMass = %"FSYM, &MBHFeedbackJetsThresholdMass);
-
-    ret += sscanf(line, "MBHParticleIO = %"ISYM,
-		  &MBHParticleIO);
-    if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
-      MBHParticleIOFilename = dummy;
-
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -969,7 +946,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      For restart, MinimumOverDensityForRefinement is not even needs to be read because only 
      MinimumMassForRefinement is used for CellFlagging.  
      So, why did we have to do this in the first place?  - Ji-hoon Kim in Apr.2010
-     (The counterpart in WriteParameterFile is also commented out) */   //#####
+     (The counterpart in WriteParameterFile is also commented out) */   
 
   /*
   if (!ComovingCoordinates && UsePhysicalUnit) 
@@ -1050,12 +1027,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
-  /* If using MBHFeedback = 2 or 3 (Star->FeedbackFlag = MBH_JETS), 
-     you need MBHParticleIO for angular momentum */
-
-  if (MBHFeedback == 2 || MBHFeedback == 3) 
-    MBHParticleIO = TRUE;
-
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */
  
   if (HydroMethod == Zeus_Hydro) {

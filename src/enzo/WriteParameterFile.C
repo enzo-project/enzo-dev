@@ -670,29 +670,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
           PopIIIColorMass);
 
-  fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
-  fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n", MBHMinimumMass);
-  fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
-  fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
-  fprintf(fptr, "MBHAccretingMassRatio                 = %"GSYM"\n", MBHAccretingMassRatio);
-  fprintf(fptr, "MBHAccretionFixedTemperature          = %"GSYM"\n", MBHAccretionFixedTemperature);
-  fprintf(fptr, "MBHAccretionFixedRate                 = %"GSYM"\n", MBHAccretionFixedRate);
-  fprintf(fptr, "MBHTurnOffStarFormation               = %"ISYM"\n", MBHTurnOffStarFormation);
-  fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
-
-  fprintf(fptr, "MBHFeedback                           = %"ISYM"\n", MBHFeedback);
-  fprintf(fptr, "MBHFeedbackRadiativeEfficiency        = %"GSYM"\n", MBHFeedbackRadiativeEfficiency);
-  fprintf(fptr, "MBHFeedbackEnergyCoupling             = %"GSYM"\n", MBHFeedbackEnergyCoupling);
-  fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
-  fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
-  fprintf(fptr, "MBHFeedbackThermalRadius              = %"GSYM"\n", MBHFeedbackThermalRadius);
-  fprintf(fptr, "MBHFeedbackJetsThresholdMass          = %"GSYM"\n\n", MBHFeedbackJetsThresholdMass);
-
-  fprintf(fptr, "MBHParticleIO                         = %"ISYM"\n",
-	  MBHParticleIO);
-  if (MBHParticleIOFilename != NULL)
-    fprintf(fptr, "MBHParticleIOFilename               = %s\n\n", MBHParticleIOFilename);
-
   /* Most Stanford additions: */
 
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);

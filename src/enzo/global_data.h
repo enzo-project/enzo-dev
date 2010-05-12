@@ -796,12 +796,6 @@ EXTERN float ParticleSplitterChildrenParticleSeparation;
 EXTERN int ResetMagneticField;
 EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 
-/* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
-
-EXTERN int MBHParticleIO;
-EXTERN char *MBHParticleIOFilename;
-EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
-
 /* Vorticity Calculations */
 
 EXTERN int VelAnyl;

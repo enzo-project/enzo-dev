@@ -36,7 +36,6 @@
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
-float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
@@ -258,7 +257,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
-      factor2[i] = factor1 * (*PP)->Energy;
+      if (RadiationXRaySecondaryIon)
+	factor2[i] = factor1 * (*PP)->Energy;
+      else
+	factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
     if (RadiationXRayComptonHeating) 
       TemperatureField = this->GetTemperatureFieldNumberForComptonHeating();
   }
@@ -272,29 +274,28 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      actually calculate acceleration due to radiation pressure, (all
      unit conversions are in []),
 
-     dA = dMomentum / Mass 
-        = (N_absorbed * Energy / c) / (CellVolume * Density) * r_hat
+     dA = dMomentum * emission_dt_inv / Mass 
+        = (N_absorbed * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
      ---  N_absorbed = dP * [L^3] / [t]
-     dA = (dP * [L^3] / [t] * Energy / c) / (CellVolume * Density) * r_hat
+     dA = (dP * [L^3] / [t] * Energy / c) * emission_dt_inv / (CellVolume * Density) * r_hat
 
      LHS = [~] * [v] / [t]
-     RHS = [L^3] / [t] * (erg_eV) / (c_cgs) / [L^3] / [rho]
+     RHS = [L^3] / [t] * (erg_eV) / (c_cgs) * emission_dt_inv / [L^3] / [rho]
 
      (unit conversion for acceleration will be [~])
      [~] = RHS / ([v] / [t])
-         = (erg_eV / c_cgs) / ([t] * [rho]) / ([v] / [t])
-         = (erg_eV / c_cgs) / [rho] / [v]
+         = (erg_eV / c_cgs) * emission_dt_inv / ([t] * [rho]) / ([v] / [t])
+         = (erg_eV / c_cgs) * emission_dt_inv / [rho] / [v]
 
      Therefore,
      dA = [~] * dP * Energy / (CellVolume * Density) * r_hat
 
      Since CellVolume is constant for the grid, incorporate it into [~].
      dA = [~] * dP * Energy / Density * r_hat
-
   */
 
   double RadiationPressureConversion =
-    erg_eV / c_cgs / DensityUnits / VelocityUnits * Volume_inv;
+    erg_eV / c_cgs * emission_dt_inv / DensityUnits / VelocityUnits * Volume_inv;
 
   // Mark that this grid has radiation (mainly for the coupled rate solver)
   HasRadiation = TRUE;
@@ -575,7 +576,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       for (i = 0; i < 4; i++) dPXray[i] = 0.0; 
 
       /* Loop over absorbers */
-      for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1
+      for (i = 0; i < 3; i++) {   
 
 	thisDensity = PopulationFractions[i] * fields[i][index] *
 	  ConvertToProperNumberDensity;
@@ -645,51 +646,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       }
       
       // find the total absorbed number of photons including Compton heating
-      for (i = 0; i < 4; i++) dP += dPXray[i];
-
-      break;
-
-      /************************************************************/
-      /* tracing spectrum (HI/HeI/HeII all in one!) */
-      /************************************************************/
-      // instead of calculating the optical depth (tau), ColumnDensity will 
-      // give all the necessary information of the photon spectrum: dP, min E
-      // at the moment, secondary ionization is ignored (Alvarez & Kim 2010)
-    case 5:
-
-      dP = dN = 0.0;
-      for (i = 0; i < 4; i++) dPXray[i] = 0.0;
-
-      // calculate dColumnDensity of this ray segment (only for the main absorber, HI)     
-      thisDensity = PopulationFractions[0] * fields[0][index] * 
-	ConvertToProperNumberDensity; 
-      dColumnDensity = thisDensity * ddr * LengthUnits;
-      
-      /* Loop over absorbers */
-      for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1
-
-	// the spectrum table returns the fraction of photons absorbed at this column density
-	dPXray[i] = (*PP)->Photons * 
-	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
-	dP1 = dPXray[i] * slice_factor2;
-
-	// contributions to the photoionization rate is over whole timestep
-	// units are 1/s *TimeUnits
-	BaryonField[kphNum[i]][index] += dP1 * factor1; 
-	
-	// the heating rate is just the number of photo ionizations times
-	// the excess energy; units are eV/s *TimeUnits;
-	// the spectrum table returns the mean energy of the spectrum at this column density
-	BaryonField[gammaNum][index] += dP1 * factor1 * 
-	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 
-	    EnergyThresholds[i] );
-
-      }
-
-      // update column density
-      (*PP)->ColumnDensity += dColumnDensity;
-
-      // find the total absorbed number of photons 
       for (i = 0; i < 4; i++) dP += dPXray[i];
 
       break;

@@ -78,12 +78,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 //    if (debug)
 //      cstar->PrintInfo();
 
-    if (cstar->ReturnType() != BlackHole && 
-	ABS(cstar->ReturnType()) != MBH)
-      continue;
-
-    if ((ABS(cstar->ReturnType()) == MBH && MBHAccretion <= 0) ||
-	cstar->ReturnLastAccretionRate() < tiny_number)
+    if (cstar->ReturnType() != BlackHole)
       continue;
 
     /* Now let us do the job! */
@@ -98,99 +93,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	fprintf(stderr, "Error in star::SubtractAccretedMass.\n");
 	ENZO_FAIL("");
       }
-
-      break;
-
-    case MBH:
-
-      /* If MBH, subtract mass from multiple cells 
-	 defined by MBHAccretionRadius */
-
-      dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
-
-      /* Compute some parameters, similar to Star_CalculateFeedbackParameters */
-
-      cstar->CalculateSubtractionParameters(LevelArray, influenceRadius, RootCellWidth, 
-           EjectaDensity, DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-	   VelocityUnits, dtForThisStar);
-
-//      fprintf(stdout, "SPSAM: EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-
-      /* Determine if a sphere with influenceRadius is enclosed within grids on this level 
-	 we use FindFeedbackSphere function, but we are not doing any "feedback" here; 
-	 we simply subtract the mass */
-
-      if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-				    EjectaDensity, EjectaThermalEnergy, 
-				    SphereContained, dummy, DensityUnits, 
-				    LengthUnits, TemperatureUnits, TimeUnits, 
-				    VelocityUnits, Time) == FAIL) {
-	ENZO_FAIL("Error in star::FindFeedbackSphere");
-      }
-
-      /* If something weird happens, don't bother. */
-
-      if ( influenceRadius <= tiny_number || 
-	   influenceRadius >= RootCellWidth/2 )
-	break;
-
-      /* Determine if a sphere is enclosed within the grids on next level
-	 If that is the case, we perform SubtractAccretedMass not here, 
-	 but in the EvolveLevel of the next level. */
-      
-      SphereContainedNextLevel = FALSE;
-
-      if (LevelArray[level+1] != NULL) {
-	if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
-				      EjectaDensity, EjectaThermalEnergy, 
-				      SphereContainedNextLevel, dummy, DensityUnits, 
-				      LengthUnits, TemperatureUnits, TimeUnits, 
-				      VelocityUnits, Time) == FAIL) {
-	  fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-	  ENZO_FAIL("");
-	}
-      }
-
-//    fprintf(stdout, "SPSAM: SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
-//	    SkipMassRemoval, SphereContained, SphereContainedNextLevel);  
-
-      /* Quit this routine when 
-	 (1) sphere is not contained, or 
-	 (2) sphere is contained, but the next level can contain the sphere, too. */ 
-      if ((SphereContained == FALSE) ||
-	  (SphereContained == TRUE && SphereContainedNextLevel == TRUE))
-	break;
-    
-      /* Now set cells within the radius to their values after subtraction. */
-      
-      int CellsModified = 0;
-      
-      for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
-	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
-	  Temp->GridData->SubtractAccretedMassFromSphere
-	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
-	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
-	     CellsModified);
-
-//    fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-//	    "Radius = %e pc, changed %"ISYM" cells.\n", 
-//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
-
-#ifdef UNUSED
-      temp_int = CellsModified;
-      MPI_Reduce(&temp_int, &CellsModified, 1, MPI_INT, MPI_SUM, ROOT_PROCESSOR,
-		 MPI_COMM_WORLD);
-
-      if (debug) {
-	if (cstar->ReturnFeedbackFlag() != FORMATION)
-	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-		  "Radius = %"GSYM" pc\n",
-		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
-	fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
-		"changed %"ISYM" cells.\n", 
-		cstar->ReturnID(), level, CellsModified);
-      }
-#endif      
 
       break;
 

@@ -426,7 +426,6 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
         Grid_SupernovaRestartInitialize.o \
-        Grid_SubtractAccretedMassFromSphere.o \
         Grid_TestGravityCheckResults.o \
         Grid_TestGravityInitializeGrid.o \
         Grid_TestGravityMotionInitializeGrid.o \
@@ -586,7 +585,6 @@ OBJS_CONFIG_LIB = \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
-        RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
         remap.o \
         ReportMemoryUsage.o \
@@ -627,17 +625,13 @@ OBJS_CONFIG_LIB = \
         StarParticleFindAll.o \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
-        StarParticleMergeMBH.o \
         StarParticleSubtractAccretedMass.o \
         StarRoutines.o \
         Star_Accrete.o \
-        Star_AccreteAngularMomentum.o \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
-        Star_AssignAccretedAngularMomentum.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
-        Star_CalculateSubtractionParameters.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -646,7 +640,6 @@ OBJS_CONFIG_LIB = \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
-        Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
 	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \

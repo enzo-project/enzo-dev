@@ -71,7 +71,7 @@ int Star::Accrete(void)
 
   double ratio1, ratio2, new_vel;
 
-  if (type != MBH || type != BlackHole) {
+  if (type != BlackHole) {
     ratio2 = DeltaMass / Mass;
     ratio1 = 1.0 - ratio2;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -83,20 +83,6 @@ int Star::Accrete(void)
       delta_vel[dim] = 0.0;
     }
   }
-
-  /* [3] For MBH, 
-     because gas mass is added to MBH from many cells with zero net momentum,
-     just decrease the particle's velocity accordingly. */
-
-  if (type == MBH) {
-//    printf("star::Accrete: old_vel[1] = %g\n", vel[1]);
-    vel[0] *= old_mass / Mass; 
-    vel[1] *= old_mass / Mass;
-    vel[2] *= old_mass / Mass; 
-//    printf("star::Accrete: old_mass = %lf  ->  Mass = %lf\n", old_mass, Mass); 
-//    printf("star::Accrete: new_vel[1] = %g\n", vel[1]);
-  }
-
 
   /* Keep the last accretion_rate for future use */
 

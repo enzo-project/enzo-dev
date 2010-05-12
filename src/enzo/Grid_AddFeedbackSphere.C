@@ -5,10 +5,6 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1: Ji-hoon Kim to include MBH_THERMAL feedback
-/             July, 2009
-/  modified2: Ji-hoon Kim to include MBH_JETS feedback
-/             November, 2009
 /
 /  PURPOSE:
 /

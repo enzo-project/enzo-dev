@@ -102,14 +102,11 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
-  int	AccreteAngularMomentum(void);
   int	SubtractAccretedMassFromCell(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);
   bool  Mergable(Star *a);
-  bool	MergableMBH(Star a);
-  bool  MergableMBH(Star *a);
   float Separation(Star a);
   float Separation(Star *a);
   float Separation2(Star a);
@@ -118,7 +115,6 @@ public:
   float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
-  void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   void	CopyToGrid(void);
@@ -139,15 +135,6 @@ public:
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar);
-  void  CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], float &Radius, 
-				       float RootCellWidth,
-				       double &EjectaDensity,
-				       float DensityUnits, float LengthUnits, 
-				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits, float dtForThisStar);
-  int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
-				      float DensityUnits, float LengthUnits,
-				      int &CellsModified);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
