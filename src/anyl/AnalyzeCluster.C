@@ -14,8 +14,8 @@
 /
 ************************************************************************/
 
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef USE_HDF4
@@ -24,10 +24,11 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
-#include "../enzo/macros_and_parameters.h"
-#include "../enzo/typedefs.h"
 #define DEFINE_STORAGE
 #include "../enzo/ErrorExceptions.h"
+#include "../enzo/macros_and_parameters.h"
+#include "../enzo/units.h"
+#include "../enzo/typedefs.h"
 #include "../enzo/global_data.h"
 #include "../enzo/Fluxes.h"
 #include "../enzo/GridList.h"
@@ -38,7 +39,6 @@
 #include "../enzo/TopGridData.h"
 #include "../enzo/CosmologyParameters.h"  
 #include "../enzo/communication.h"
-#include "../enzo/units.h"
 #include "../enzo/flowdefs.h"
 #include "../enzo/PhotonCommunication.h"
 
@@ -70,7 +70,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
-int CommunicationInitialize(int *argc, char **argv[]);
+int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 int CommunicationSumValues(FLOAT *values, int number);
 int CommunicationAllSumValues(FLOAT *values, int number);
@@ -86,7 +86,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
               float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-main(int argc, char *argv[])
+main(Eint32 argc, char *argv[])
 {
   CommunicationInitialize(&argc, &argv);
 

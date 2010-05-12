@@ -82,7 +82,7 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
   if (ComovingCoordinates) {
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
 	== FAIL) {
-      fprintf(stderr, "Error in CsomologyComputeExpansionFactors.\n");
+      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
       return FAIL;
     }
   }

@@ -838,6 +838,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \
         hydro_rk/Riemann_LLF.o \
+        hydro_rk/Riemann_rLLF.o \
         hydro_rk/TurbulenceInitialize.o \
         hydro_rk/CollapseMHD3DInitialize.o \
         hydro_rk/Grid_AddAmbipolarDiffusion.o \
