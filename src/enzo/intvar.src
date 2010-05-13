@@ -63,7 +63,7 @@ c
 c  local declarations (arrays passed as temps)
 c
       integer i
-      real qplus, qmnus, temp1, temp2, temp3
+      real qplus, qmnus, temp1, temp2, temp3, temp22, temp23
       real dq(idim), ql(idim), qr(idim), q6(idim)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
@@ -113,9 +113,11 @@ c
             ql(i) = qslice(i)
             qr(i) = qslice(i)
          endif
-         if (temp2**2-temp2*temp3 .lt. 0.0)
+         temp22 = temp2**2
+         temp23 = temp2*temp3
+         if (temp22 .lt. temp23)
      &        ql(i) = 3.0*qslice(i) - 2.0*qr(i)
-         if (temp2**2+temp2*temp3 .lt. 0.0)
+         if (temp22 .lt. -temp23)
      &        qr(i) = 3.0*qslice(i) - 2.0*ql(i)
       enddo
 c

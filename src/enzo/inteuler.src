@@ -92,7 +92,7 @@ c  local declarations
 c
       integer i, j, ic
       real steepen(ijkn),tmp1(ijkn),tmp2(ijkn),tmp3(ijkn),tmp4(ijkn)
-      real qa,qb,qc,qd,qe,s1,s2      
+      real qa,qb,qc,qd,qe,s1,s2,f1
       real  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
      &    ,dp(ijkn),pl(ijkn),pr(ijkn),p6(ijkn)
      &    ,du(ijkn),ul(ijkn),ur(ijkn),u6(ijkn)
@@ -102,7 +102,7 @@ c
      &    ,dl0(ijkn),dr0(ijkn),pl0(ijkn),pr0(ijkn)
      &    ,plp(ijkn),prp(ijkn),ulp(ijkn),urp(ijkn),ul0(ijkn),ur0(ijkn)
      &    ,vl0(ijkn),vr0(ijkn),wl0(ijkn),wr0(ijkn)
-     &    , cs(ijkn),d2d(ijkn),dxb(ijkn)
+     &    , cs(ijkn),d2d(ijkn),dxb(ijkn), dx2i(ijkn)
      &    , cm(ijkn), c0(ijkn), cp(ijkn),char1(ijkn),char2(ijkn)
      &    ,betalp(ijkn),betalm(ijkn),betal0(ijkn),cla(ijkn)
      &    ,betarp(ijkn),betarm(ijkn),betar0(ijkn),cra(ijkn)
@@ -142,6 +142,7 @@ c
          c4(i) = qb
          c5(i) =  dxi(i  )/qa*qd
          c6(i) = -dxi(i-1)/qa*qc
+         dx2i(i) = 0.5/dxi(i)
       enddo
 c
 c    Loop over sweep lines (in this slice)
@@ -184,14 +185,14 @@ c
       do i=i1-1,i2+1
          cs(i) = sqrt(gamma*pslice(i,j)/dslice(i,j))
          if (ipresfree .eq. 1) cs(i) = tiny
-         char1(i) = max(0.0, dt*(uslice(i,j)+cs(i)))/(2.0*dxi(i))
-         char2(i) = max(0.0,-dt*(uslice(i,j)-cs(i)))/(2.0*dxi(i))
+         char1(i) = max(0.0, dt*(uslice(i,j)+cs(i)))*dx2i(i)
+         char2(i) = max(0.0,-dt*(uslice(i,j)-cs(i)))*dx2i(i)
       enddo
 c
       do i=i1-1,i2+1
-        cm(i) = dt*(uslice(i,j)-cs(i))/(2.0*dxi(i))
-        c0(i) = dt*(uslice(i,j)      )/(2.0*dxi(i))
-        cp(i) = dt*(uslice(i,j)+cs(i))/(2.0*dxi(i))
+        cm(i) = dt*(uslice(i,j)-cs(i))*dx2i(i)
+        c0(i) = dt*(uslice(i,j)      )*dx2i(i)
+        cp(i) = dt*(uslice(i,j)+cs(i))*dx2i(i)
       enddo
 c
 c     Compute left and right states for each variable
@@ -273,9 +274,10 @@ c
 c     a) left side
 c
       do i = i1, i2+1
-         betalp(i) = (ula(i)-ulp(i)) + (pla(i)-plp(i))/cla(i)
-         betalm(i) = (ula(i)-ulm(i)) - (pla(i)-plm(i))/cla(i)
-         betal0(i) = (pla(i)-pl0(i))/cla(i)**2 + 1.0/dla(i) - 1.0/dl0(i)
+         f1 = 1.0/cla(i)
+         betalp(i) = (ula(i)-ulp(i)) + (pla(i)-plp(i))*f1
+         betalm(i) = (ula(i)-ulm(i)) - (pla(i)-plm(i))*f1
+         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1.0/dla(i) - 1.0/dl0(i)
       enddo
 c
 c     Add gravity component
@@ -291,8 +293,9 @@ c          endif
       endif
 c
       do i = i1, i2+1
-         betalp(i) = -betalp(i)/(2.0*cla(i))
-         betalm(i) = +betalm(i)/(2.0*cla(i))
+         f1 = 0.5/cla(i)
+         betalp(i) = -betalp(i)*f1
+         betalm(i) = +betalm(i)*f1
       enddo
 c
       do i = i1, i2+1
@@ -304,9 +307,10 @@ c
 c     b) right side
 c
       do i = i1, i2+1
-         betarp(i) = (ura(i)-urp(i)) + (pra(i)-prp(i))/cra(i)
-         betarm(i) = (ura(i)-urm(i)) - (pra(i)-prm(i))/cra(i)
-         betar0(i) = (pra(i)-pr0(i))/cra(i)**2 + 1.0/dra(i) - 1.0/dr0(i)
+         f1 = 1.0/cra(i)
+         betarp(i) = (ura(i)-urp(i)) + (pra(i)-prp(i))*f1
+         betarm(i) = (ura(i)-urm(i)) - (pra(i)-prm(i))*f1
+         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1.0/dra(i) - 1.0/dr0(i)
       enddo
 c
 c     Add gravity component
@@ -322,8 +326,9 @@ c          endif
       endif
 c
       do i = i1, i2+1
-         betarp(i) = -betarp(i)/(2.0*cra(i))
-         betarm(i) = +betarm(i)/(2.0*cra(i))
+         f1 = 0.5/cra(i)
+         betarp(i) = -betarp(i)*f1
+         betarm(i) = +betarm(i)*f1
       enddo
 c
       do i = i1, i2+1
