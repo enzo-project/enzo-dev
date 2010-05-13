@@ -84,7 +84,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
       }else{
 
-        fprintf(stderr,"Shit-- in CopyBF to Old, no AccelerationField.\n");
+        fprintf(stderr,"Error in CopyBF to Old, no AccelerationField.\n");
         return FAIL;
 
       }
