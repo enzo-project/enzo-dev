@@ -294,7 +294,6 @@ OBJS_CONFIG_LIB = \
         Grid_destructor.o \
         Grid_DetachForcingFromBaryonFields.o \
         Grid_DoubleMachInitializeGrid.o \
-	Grid_FindShocks.o \
         Grid_FastSiblingLocatorAddGrid.o \
         Grid_FastSiblingLocatorFindSiblings.o \
         Grid_FindAllStarParticles.o \
@@ -311,7 +310,6 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToBeRefinedByResistiveLength.o \
         Grid_FlagCellsToBeRefinedByShear.o \
         Grid_FlagCellsToBeRefinedByShocks.o \
-	Grid_FlagCellsToBeRefinedByShockwaves.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
@@ -335,7 +333,6 @@ OBJS_CONFIG_LIB = \
         New_Grid_WriteGrid.o \
         New_Grid_ReadGrid.o \
 	Grid_HydroShockTubesInitializeGrid.o \
-	Grid_IdentifyCRSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
         Grid_IdentifyPhysicalQuantities.o \
@@ -412,7 +409,6 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxInitializeGrid.o \
         Grid_ShearingBox2DInitializeGrid.o \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
-	Grid_ShocksHandler.o \
         Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolveHydroEquations.o \
@@ -469,7 +465,6 @@ OBJS_CONFIG_LIB = \
         IdentifyNewSubgridsBySignature.o \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
-	InitializeCosmicRayData.o \
         InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \

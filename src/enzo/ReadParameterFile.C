@@ -48,7 +48,6 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
-int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
 int InitializeGadgetEquilibriumCoolData(FLOAT Time);
@@ -394,11 +393,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
-    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
-    ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
-    ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
-    ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
-
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
@@ -569,12 +563,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
 		  &MinimumEnergyRatioForRefinement);
-    ret += sscanf(line, "ShockwaveRefinementMinMach = %"FSYM,
-                 &ShockwaveRefinementMinMach);
-    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
-                 &ShockwaveRefinementMinVelocity);
-    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"FSYM,
-                 &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
@@ -1003,14 +991,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialze Cosmic Ray Efficiency Models */
-
-  if (CRModel){
-    if (InitializeCosmicRayData() == FAIL){
-      ENZO_FAIL("Error in Initialize CosmicRayData.");
     }
   }
 

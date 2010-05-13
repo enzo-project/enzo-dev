@@ -120,8 +120,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   if (ProcessorNumber == MyProcessorNumber)
     for (field = 0; field < NumberOfBaryonFields; field++)
-      if (FieldTypeIsDensity(FieldType[field]) == FALSE && 
-	  (FieldTypeNoInterpolate(FieldType[field]) == FALSE) && (
+      if (FieldTypeIsDensity(FieldType[field]) == FALSE && (
 	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
           || HydroMethod != Zeus_Hydro) &&
 	  FieldType[field] != Bfield1 &&
@@ -193,9 +192,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
 	  for (i = 0; i < Dim[0]; i += skipi) {
 	    i1 = i/Refinement[0];
-	    if (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
-	      ParentGrid.BaryonField[field][pindex+i1] +=
-		BaryonField[field][gindex+i]*weight;
+	    ParentGrid.BaryonField[field][pindex+i1] +=
+	      BaryonField[field][gindex+i]*weight;
 	  }
 	}
       }
@@ -232,8 +230,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   /* Divide all fields by mass to return to original quantity. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)
-    if ((FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	 (FieldTypeNoInterpolate(FieldType[field]) == FALSE) && (
+    if ((FieldTypeIsDensity(FieldType[field]) == FALSE && (
 	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
           || HydroMethod != Zeus_Hydro) &&
 	FieldType[field] != Bfield1 &&

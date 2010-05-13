@@ -397,10 +397,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);
   fprintf(fptr, "RadiationXRaySecondaryIon      = %"ISYM"\n", RadiationXRaySecondaryIon);
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
-  fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
-  fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
-  fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
-  fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
@@ -564,12 +560,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
-  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
-         ShockwaveRefinementMinMach);
-  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
-         ShockwaveRefinementMinVelocity);
-  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
-         ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",

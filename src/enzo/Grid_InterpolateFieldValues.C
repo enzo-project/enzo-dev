@@ -286,13 +286,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
                                &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
     
     /* Do the interpolation for the density field. */
- 
+    
     if (HydroMethod == Zeus_Hydro)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
 	SecondOrderA : SecondOrderC;
- 
+    
     //    fprintf(stdout, "grid:: InterpolateBoundaryFromParent[3]\n"); 
-
+    
     FORTRAN_NAME(interpolate)(&GridRank,
 			      ParentTemp[densfield], ParentTempDim,
 			      ParentTempStartIndex, ParentTempEndIndex,
@@ -309,16 +309,10 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        is done for the entire current grid, not just it's boundaries.
        (skip density since we did it already) */
  
-      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE){
-        if (HydroMethod == Zeus_Hydro){
-	        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	            SecondOrderA : SecondOrderC;
-        }
-      } else {
-        /* Use nearest grid point interpolation for fields that 
-           shouldn't ever be averaged. */ 
-        MyInterpolationMethod = FirstOrderA; 
-      }
+      if (HydroMethod == Zeus_Hydro)
+	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+	  SecondOrderA : SecondOrderC;
+
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
       if (FieldType[field] != Density)
@@ -355,10 +349,10 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
       if (FieldType[field] == Density)
 	FieldPointer = TemporaryDensityField;
       else 
-	  FieldPointer = TemporaryField;
- 
+	FieldPointer = TemporaryField;
+      
       /* Copy needed portion of temp field to current grid. */
- 
+      
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[GridSize];
       if (BaryonField[field] == NULL) {
