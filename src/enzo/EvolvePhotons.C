@@ -105,7 +105,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //	 GridTime, PhotonTime, dtPhoton, (GridTime >= PhotonTime));
 
   if (dtPhoton < 0)
-    return SUCCESS;  //#####
+    return SUCCESS;  
 
   /* Declarations */
 

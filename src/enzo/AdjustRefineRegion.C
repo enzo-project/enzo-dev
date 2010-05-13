@@ -38,7 +38,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 {
 
 //if (!(RefineRegionAutoAdjust && EL_level == 0))
-  if (!(RefineRegionAutoAdjust >= 1 && EL_level == RefineRegionAutoAdjust-1))  //#####
+  if (!(RefineRegionAutoAdjust >= 1 && EL_level == RefineRegionAutoAdjust-1)) 
     return SUCCESS;
 
   if (RefineRegionLeftEdge[0] == DomainLeftEdge[0] &&
