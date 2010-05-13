@@ -185,11 +185,6 @@ OBJS_CONFIG_LIB = \
 	FreeExpansionInitialize.o \
         FreeRealMem.o \
         FriendOfFriend.o \
-	GadgetInitCoolMemory.o \
-	GadgetIonizeParamsTable.o \
-	GadgetMakeCoolingTable.o \
-	Gadget.o \
-	GadgetReadIonizeParams.o \
 	GalaxySimulationInitialize.o \
         F_ColumnFormat.o \
         f_message.o \
@@ -314,15 +309,6 @@ OBJS_CONFIG_LIB = \
         Grid_FlagRefinedCells.o \
         Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \
-	Grid_GadgetCalculateCooling.o \
-	Grid_GadgetComputeTemperature.o \
-	Grid_GadgetComputeTemperatureDEF.o \
-	Grid_GadgetCoolingRate.o \
-	Grid_GadgetCoolingRateFromU.o \
-	Grid_GadgetCoolingTime.o \
-	Grid_GadgetEquilibriumCooling.o \
-	Grid_Gadgetconvertutotemp.o \
-	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
         Grid_GetProjectedBoundaryFluxes.o \
@@ -466,7 +452,6 @@ OBJS_CONFIG_LIB = \
         ImplosionInitialize.o \
         InitializeCloudyCooling.o \
         InitializeEquilibriumCoolData.o \
-	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeMovieFile.o \
         InitializeNew.o \
@@ -641,7 +626,6 @@ OBJS_CONFIG_LIB = \
         star_maker2.o \
         star_maker3.o \
         star_maker4.o \
-	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
 	particle_splitter.o \

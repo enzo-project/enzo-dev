@@ -388,11 +388,6 @@ XOBJ =	AdiabaticExpansionInitialize.o			\
 	FindCube.o					\
 	FindField.o					\
 	FindSubgrids.o					\
-	Gadget.o					\
-	GadgetInitCoolMemory.o				\
-	GadgetIonizeParamsTable.o			\
-	GadgetMakeCoolingTable.o			\
-	GadgetReadIonizeParams.o			\
 	GetNodeFreeMemory.o				\
 	GetUnits.o                                      \
 	GravityBdryExchange.o				\
@@ -473,15 +468,6 @@ XOBJ =	AdiabaticExpansionInitialize.o			\
 	Grid_FlagCellsToBeRefinedBySlope.o		\
 	Grid_FlagCellsToBeRefinedByShear.o		\
 	Grid_FlagCellsToBeRefinedByShocks.o		\
-	Grid_GadgetCalculateCooling.o			\
-	Grid_GadgetComputeTemperatureDEF.o		\
-	Grid_GadgetComputeTemperature.o			\
-	Grid_Gadgetconvertutotemp.o			\
-	Grid_GadgetCoolingRateFromU.o			\
-	Grid_GadgetCoolingRate.o			\
-	Grid_GadgetCoolingTime.o			\
-	Grid_GadgetEquilibriumCooling.o			\
-	Grid_Gadgetfindabundancesandrates.o		\
 	Grid_GetProjectedBoundaryFluxes.o		\
 	Grid_GravityEquilibriumTestInitializeGrid.o	\
 	Grid_IdentifyNewSubgrids.o			\
@@ -565,7 +551,6 @@ XOBJ =	AdiabaticExpansionInitialize.o			\
 	IdentifyNewSubgridsBySignature.o		\
 	ImplosionInitialize.o				\
 	InitializeEquilibriumCoolData.o			\
-	InitializeGadgetEquilibriumCoolData.o		\
 	InitializeLocal.o				\
 	InitializeNew.o					\
 	InitializeRadiationFieldData.o			\
@@ -739,7 +724,6 @@ XOBJ =	AdiabaticExpansionInitialize.o			\
 	star_maker2.o					\
 	star_maker3.o					\
 	star_maker4.o					\
-	star_maker5.o					\
         tscint1d.o					\
         tscint2d.o					\
         tscint3d.o					\

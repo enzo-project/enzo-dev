@@ -25,7 +25,6 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
- #include "Gadget.h"
 
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -40,15 +39,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int RadiationFieldCalculateRates(FLOAT Time);
 int FindField(int field, int farray[], int numfields);
-int GadgetCalculateCooling(float *d, float *e, float *ge, 
-                 float *u, float *v, float *w,
-                 int *in, int *jn, int *kn, 
-                 int *iexpand, hydro_method *imethod, int *idual, int *idim,
-                 int *is, int *js, int *ks, int *ie, int *je, 
-                 int *ke, float *dt, float *aye,
-                  float *fh, float *utem, float *uxyz, 
-                 float *uaye, float *urho, float *utim,
-                 float *gamma);
 
 extern "C" void FORTRAN_NAME(multi_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w, float *de,
@@ -217,15 +207,9 @@ int grid::SolveRadiativeCooling()
   }
 
   /* Calculate the rates due to the radiation field. */
- 
-  /* Calculate the rates due to the radiation field, but ONLY if
-     you are NOT using Gadget cooling (it's taken care of in that
-     variety of cooling within the subroutines. */
-  
-  if(!GadgetEquilibriumCooling) {
-    if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-      ENZO_FAIL("Error in RadiationFieldCalculateRates.");
-    }
+   
+  if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
+    ENZO_FAIL("Error in RadiationFieldCalculateRates.");
   }
 
   /* Set up information for rates which depend on the radiation field. 
@@ -295,25 +279,6 @@ int grid::SolveRadiativeCooling()
        &CloudyCoolingData.CloudyDataSize,
        CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating,
        CloudyCoolingData.CloudyMeanMolecularWeight);
-  } else if (GadgetEquilibriumCooling==1) {
-
-    // Gadget cooling
-
-    int result = GadgetCalculateCooling (
-	density,totalenergy,gasenergy,velocity1,
-	velocity2,velocity3,GridDimension,GridDimension+1,
-	GridDimension+2, &ComovingCoordinates, &HydroMethod,
-	&DualEnergyFormalism, &GridRank,
-	GridStartIndex,GridStartIndex+1,GridStartIndex+2,
-	GridEndIndex,GridEndIndex+1,GridEndIndex+2,&dtFixed,
-	&afloat,&CoolData.HydrogenFractionByMass,
-	&TemperatureUnits,&LengthUnits,
-	&aUnits,&DensityUnits,&TimeUnits,&Gamma);
-
-    if (result == FAIL )  {
-      ENZO_FAIL("Error in GadgetCalculateCooling.  Exiting.");
-    }
-
   } else {
 
     // Generic cooling

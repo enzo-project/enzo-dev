@@ -283,10 +283,6 @@ EXTERN CoolDataType CoolData;
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
 
-/* Gadget Equilibrium cooling on/off flag */
-
-EXTERN int GadgetEquilibriumCooling;
-
 /* Random Forcing on/off flag and associated data. */ //AK
 
 EXTERN int     RandomForcing;
@@ -663,7 +659,7 @@ EXTERN int UseCUDA;
 /* End of Stanford block */
 
 
-/* ran1 initialization flag for star_maker5 */
+/* ran1 initialization flag for random numbers */
 
 EXTERN int ran1_init;
 

@@ -470,7 +470,6 @@ typedef int            HDF5_hid_t;
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
 #define INSTANT_STAR    7
-#define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)

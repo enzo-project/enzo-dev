@@ -454,16 +454,6 @@ public:
 
    int ComputeTemperatureField(float *temperature);
 
-/* Baryons: compute the temperature at the requested time using
-   Gadget equilibrium cooling. */
-
-   int GadgetComputeTemperature(FLOAT time, float *temperature);
-
-/* Baryons: compute the temperatre at the requested time using the dual energy
-   formalism when using Gadget equilibrium cooling. */
-
-   int GadgetComputeTemperatureDEF(FLOAT time, float *temperature);
-
 /* Baryons: compute X-ray emissivity in specified band. */
 
    int ComputeXrayEmissivity(float *temperature,
@@ -611,62 +601,6 @@ public:
 /* Compute densities of various species for RadiationFieldUpdate. */
 
    int RadiationComputeDensities(int level);
-
-// -------------------------------------------------------------------------
-// Functions for Gadget cooling
-
-/* Driving routine for Gadget equilibrium cooling */
-
-   int GadgetCalculateCooling(float *d, float *e, float *ge,
-			      float *u, float *v, float *w,
-			      int *in, int *jn, int *kn,
-			      int *iexpand, hydro_method *imethod, 
-			      int *idual, int *idim,
-			      int *is, int *js, int *ks, int *ie, int *je,
-			      int *ke, float *dt, float *aye,
-			      float *fh, float *utem, float *uxyz,
-			      float *uaye, float *urho, float *utim,
-			      float *gamma);
-
-/* Computes cooling time using gadget equilibrium cooling */
-
-   int GadgetCoolingTime(float *d, float *e, float *ge,
-			 float *u, float *v, float *w,
-			 float *cooltime,
-			 int *in, int *jn, int *kn,
-			 int *iexpand, hydro_method *imethod, int *idual, int *idim,
-			 int *is, int *js, int *ks, int *ie, int *je,
-			 int *ke, float *dt, float *aye,
-			 float *fh, float *utem, float *uxyz,
-			 float *uaye, float *urho, float *utim,
-			 float *gamma);
-
-
-/* calculates abundances and rates using Gadget equilibrium cooling */
-
-   void Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_guess);
-
-/* calculates temperature using Gadget equilibrium cooling */
-
-   float Gadgetconvert_u_to_temp(float u, float rho, float *ne_guess);
-
-/* calculates cooling rates (not cooling time) using Gadget equilibrium cooling 
-   and gas temperature */
-
-   float GadgetCoolingRate(float logT, float rho, float *nelec, float redshift);
-
-/* wrapper for GadgetCoolingRate */
-
-   float Gadget_EquilibriumCooling(float u_old, float rho, float dt,
-				   float *ne_guess, float *utem, float *uxyz, 
-				   float *uaye, float *urho,
-				   float *utim, float redshift);
-
-/* calculates cooling rate (not cooling time) using energy instead of temperature 
-   for Gadget equil. cooling */
-
-   float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
-				float redshift);
 
 // -------------------------------------------------------------------------
 // Functions for grid (re)generation.
