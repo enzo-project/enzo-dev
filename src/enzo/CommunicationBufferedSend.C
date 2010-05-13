@@ -94,7 +94,42 @@ int CommunicationBufferPurge(void) {
   return SUCCESS;
 }
 
+int CommunicationBufferedSendCancel(int Tag)
+{
+  
+  /* Cancels all buffered sends with Tag */
 
+  int i;
+  MPI_Arg RequestDone, stat;
+  MPI_Status Status;
+  int NewLastActiveIndex = -1;
+  int BuffersCancelled = 0;
+  int BuffersActive = 0;
+
+  for (i = 0; i < LastActiveIndex+1; i++) {
+    if (RequestBuffer[i] != NULL) {
+      stat = MPI_Test(RequestHandle+i, &RequestDone, &Status);
+      if (stat != MPI_SUCCESS)
+	ENZO_FAIL("Error in MPI_Test");
+      if (Status.MPI_TAG == Tag && !RequestDone) {
+	MPI_Cancel(RequestHandle+i);
+	MPI_Wait(RequestHandle+i, MPI_STATUS_IGNORE);
+	delete [] RequestBuffer[i];
+	RequestBuffer[i] = NULL;
+	BuffersCancelled++;
+      } // ENDIF matching tag
+      else {
+	NewLastActiveIndex = max(i, NewLastActiveIndex);
+	BuffersActive++;
+      }
+    } // ENDIF RequestBuffer[i] != NULL
+  } // ENDFOR requests
+
+  LastActiveIndex = NewLastActiveIndex;
+
+  return SUCCESS;
+
+}
 
 
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,

@@ -32,11 +32,13 @@ int grid::AddH2Dissociation(Star *AllStars)
 {
 
   Star *cstar;
-  FLOAT delx, dely, delz, DomainWidth[MAX_DIMENSION];
-  FLOAT innerFront, outerFront;
-  double r2, radius2, Luminosity[4];
+  FLOAT DomainWidth[MAX_DIMENSION];
+  FLOAT *ddr2[MAX_DIMENSION];
+  FLOAT innerFront, outerFront, innerFront2, outerFront2;
+  double Luminosity[4];
   float energies[4], kdiss_r2;
   int ipart, dim, i, j, k, index, indixe;
+  int ActiveDims[MAX_DIMENSION];
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
 
@@ -92,8 +94,11 @@ int grid::AddH2Dissociation(Star *AllStars)
   // Absorb the unit conversions into the cross-section
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
-  for (dim = 0; dim < GridRank; dim++)
+  for (dim = 0; dim < GridRank; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+    ActiveDims[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+    ddr2[dim] = new FLOAT[ActiveDims[dim]];
+  }
 
   /* Loop over shining particles in the grid */
 
@@ -117,40 +122,58 @@ int grid::AddH2Dissociation(Star *AllStars)
     float dilRadius2 = dilutionRadius * dilutionRadius;
     float LightTravelDist = TimeUnits * clight / LengthUnits;
 
+#ifdef UNUSED
     // Determine the inner and outer radiation fronts
     outerFront = (PhotonTime - cstar->BirthTime) * LightTravelDist;
+    outerFront2 = outerFront*outerFront;
 
     if (PhotonTime > (cstar->BirthTime + cstar->LifeTime))
       innerFront = (PhotonTime - cstar->BirthTime - cstar->LifeTime)
 	* LightTravelDist;
     else
       innerFront = 0;
+    innerFront2 = innerFront * innerFront;
+#endif /* UNUSED */
+
+    /* Pre-calculate distances from cells to source */
+
+    for (dim = 0; dim < GridRank; dim++)
+      for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
+	   i++, index++) {
+
+	// Calculate dr_i first, then square it
+	ddr2[dim][i] = fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
+			    cstar->pos[dim]);
+	ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+	ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+      }
 
     /* Loop over cells */
 
-    index = 0;
+    double radius2, radius2_yz;
+
     kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
-    for (k = 0; k < GridDimension[2]; k++) {
-      delz = fabs(CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2]);
-      delz = min(delz, DomainWidth[2]-delz);
-      for (j = 0; j < GridDimension[1]; j++) {
-	dely = fabs(CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1]);
-	dely = min(dely, DomainWidth[1]-dely);
-	for (i = 0; i < GridDimension[0]; i++, index++) {
-	  delx = fabs(CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0]);
-	  delx = min(delx, DomainWidth[0]-delx);
-	  radius2 = delx*delx + dely*dely + delz*delz;
-	  if (radius2 > outerFront*outerFront || radius2 < innerFront*innerFront)
-	    continue;
-
-	  radius2 = max(radius2, dilRadius2);
-	  BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
-
+    for (k = 0; k < ActiveDims[2]; k++) {
+      for (j = 0; j < ActiveDims[1]; j++) {
+	radius2_yz = ddr2[1][j] + ddr2[2][k];
+	index = GRIDINDEX(0, j, k);
+	for (i = 0; i < ActiveDims[0]; i++, index++) {
+	  radius2 = radius2_yz + ddr2[0][i];
+	  //if (radius2 < outerFront2 && radius2 > innerFront2) {
+	  //radius2 = max(radius2, dilRadius2);
+	  if (radius2 < dilRadius2)
+	    BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
+	  else
+	    BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+	  //} // ENDIF
 	} // END: i-direction
       } // END: j-direction
     } // END: k-direction
 
   } // END: stars
+
+  for (dim = 0; dim < GridRank; dim++)
+    delete [] ddr2[dim];
 
   return SUCCESS;
 

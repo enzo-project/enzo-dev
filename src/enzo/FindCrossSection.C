@@ -85,8 +85,10 @@ FLOAT FindCrossSection(int type, float energy)
   if (type != 3) {
     x = energy/e0 - y0;
     y = sqrt(x*x + y1*y1);
-    fy = ((x-1.0)*(x-1.0) + yw*yw) * pow(y, 0.5*P-5.5) * 
-      pow((1.0 + sqrt(y/ya)), -P);
+    fy = 0.;
+    if (energy > e_th) 
+      fy = ((x-1.0)*(x-1.0) + yw*yw) * pow(y, 0.5*P-5.5) * 
+	pow((1.0 + sqrt(y/ya)), -P);
   } else
     fy = 1.0;
 

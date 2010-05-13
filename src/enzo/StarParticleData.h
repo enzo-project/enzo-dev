@@ -53,6 +53,10 @@ SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
 
 SPEXTERN float PopIIIStarMass;
+SPEXTERN int   PopIIIInitialMassFunction;
+SPEXTERN float PopIIILowerMassCutoff;
+SPEXTERN float PopIIIUpperMassCutoff;
+SPEXTERN float PopIIIInitialMassFunctionSlope;
 SPEXTERN int   PopIIIBlackHoles;
 SPEXTERN float PopIIIBHLuminosityEfficiency;
 SPEXTERN float PopIIIOverDensityThreshold;
@@ -97,3 +101,4 @@ SPEXTERN float  MBHFeedbackJetsThresholdMass;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
+SPEXTERN float *IMFData;

@@ -33,10 +33,12 @@
 #include "CommunicationUtilities.h"
 #include "communication.h"
 
-#define GRIDS_PER_LOOP 20000
+#define GRIDS_PER_LOOP 50000
 #define CELLS_PER_LOOP 100000000
 
+#ifdef USE_MPI
 int CommunicationBufferPurge(void);
+#endif /* USE_MPI */
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
 				int FluxFlag = FALSE,
@@ -155,7 +157,9 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     }
 
     FirstGrid = Temp;
+#ifdef USE_MPI
     CommunicationBufferPurge();
+#endif /* USE_MPI */
 
   } // ENDWHILE grid batches
 

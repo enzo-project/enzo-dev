@@ -21,6 +21,7 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "EOS.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -41,7 +42,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
-
 
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
@@ -131,15 +131,6 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
-  /* Return if this doesn't concern us. */
-
-  if (ProcessorNumber != MyProcessorNumber) {
-    return SUCCESS;
-  }
-
-  if (SetBaryonFields == 0) 
-    return SUCCESS;
-
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, TimeUnits = 1.0,
     VelocityUnits = 1.0;
@@ -148,6 +139,18 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   double MassUnits = DensityUnits*pow(LengthUnits,3);
   printf("Mass Units = %"GSYM" \n",MassUnits);
   printf("Time Units = %"GSYM" \n",TimeUnits);
+
+  GravitationalConstant = 4.0*pi*GravConst*MassUnits*pow(TimeUnits,2)/pow(LengthUnits,3);
+
+
+  /* Return if this doesn't concern us. */
+
+  if (ProcessorNumber != MyProcessorNumber) {
+    return SUCCESS;
+  }
+
+  if (SetBaryonFields == 0) 
+    return SUCCESS;
 
 
   size = 1;
@@ -344,7 +347,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	BaryonField[ivx  ][n] = Velx;
 	BaryonField[ivy  ][n] = Vely;
 	BaryonField[ivz  ][n] = Velz;
-	BaryonField[ietot][n] = eint + 0.5*(Velx*Velx + Vely*Vely + Velz*Velz);
+	BaryonField[ietot][n] = eint;
+	if (HydroMethod != Zeus_Hydro)
+	  BaryonField[ietot][n] += 0.5*(Velx*Velx + Vely*Vely + Velz*Velz);
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
@@ -617,7 +622,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     printf("Adding a Sink Particle. \n");
 
     NumberOfParticles = 1;
-    NumberOfStars = 1;
+    NumberOfStars = 1;    
+    NumberOfParticleAttributes = 3;
     //    MaximumParticleNumber = 1;
     if (StellarWindFeedback) NumberOfParticleAttributes = 6;
     this->AllocateNewParticles(NumberOfParticles);
@@ -625,9 +631,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.5+0.005*dx;
-    ParticlePosition[1][0] = 0.5+0.005*dx;
-    ParticlePosition[2][0] = 0.5+0.005*dx;
+    ParticlePosition[0][0] = 0.5+0.5*dxm;
+    ParticlePosition[1][0] = 0.5+0.5*dxm;
+    ParticlePosition[2][0] = 0.5+0.5*dxm;
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
     ParticleVelocity[2][0] = 0.0;

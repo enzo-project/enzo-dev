@@ -33,13 +33,14 @@ void Star::ActivateNewStar(FLOAT Time)
     case PopII:
       if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
-	BirthTime = Time;
+	BirthTime = (1-1e-6)*Time;  // slightly before to avoid
+				    // round-off errors in comparisons
       }
       break;
     case PopIII:
-      if (Mass >= PopIIIStarMass) {
-	type = StarType;  // No minimum mass now.  User-specified mass.
-	BirthTime = Time;
+      if (Mass >= this->FinalMass) {
+	type = StarType;
+	BirthTime = (1-1e-6)*Time;
       }
       break;
     case PopIII_CF:

@@ -323,7 +323,7 @@ void Star::Merge(Star a)
     accreted_angmom[dim] = ratio1 * accreted_angmom[dim] + ratio2 * a.accreted_angmom[dim];
   }
   Mass += a.Mass;
-  FinalMass += a.FinalMass;
+  //FinalMass += a.FinalMass;
   DeltaMass += a.DeltaMass;
   last_accretion_rate += a.last_accretion_rate;
   NotEjectedMass += a.NotEjectedMass;
@@ -455,8 +455,8 @@ void Star::PrintInfo(void)
   else
     printf("\n");
   printf("\t birthtime = %"FSYM", lifetime = %"FSYM"\n", BirthTime, LifeTime);
-  printf("\t mass = %"GSYM", dmass = %"GSYM", type = %"ISYM", grid %"ISYM","
-	 " lvl %"ISYM"\n", Mass, DeltaMass, type, GridID, level);
+  printf("\t mass = %"GSYM", dmass = %"GSYM", fmass = %"GSYM", type = %"ISYM", grid %"ISYM","
+	 " lvl %"ISYM"\n", Mass, DeltaMass, FinalMass, type, GridID, level);
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);

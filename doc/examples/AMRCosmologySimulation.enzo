@@ -27,7 +27,7 @@ CosmologySimulationParticleVelocityName = ParticleVelocities
 ComovingCoordinates        = 1       // Expansion ON
 CosmologyOmegaMatterNow    = 0.3
 CosmologyOmegaLambdaNow    = 0.7
-CosmologyHubbleConstantNow = 0.5     // in km/s/Mpc
+CosmologyHubbleConstantNow = 0.5     // in 100 km/s/Mpc
 CosmologyComovingBoxSize   = 16.0    // in Mpc/h
 CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
 CosmologyInitialRedshift   = 30      // 
@@ -64,9 +64,9 @@ MultiSpecies                = 0
 #  set grid refinement parameters
 #
 StaticHierarchy           = 0    // dynamic hierarchy
-MaximumRefinementLevel    = 0    // use up to 2 levels
+MaximumRefinementLevel    = 2    // use up to 2 levels
 RefineBy                  = 2    // refinement factor
-CellFlaggingMethod        = 2    // use baryon mass for refinement 
+CellFlaggingMethod        = 2 4    // use baryon mass for refinement 
 MinimumEfficiency         = 0.4  // fraction efficiency
 MinimumOverDensityForRefinement = 4.0 // times the initial density
 MinimumMassForRefinementLevelExponent = -0.3

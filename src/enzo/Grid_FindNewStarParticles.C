@@ -55,6 +55,15 @@ int grid::FindNewStarParticles(int level)
 
       if (!exists) {
 	NewStar = new Star(this, i, level);
+
+	// If using an IMF for Pop III stars, assign the mass here
+	// before communicating the stars with all processors.
+	if (ParticleType[i] == -PARTICLE_TYPE_SINGLE_STAR)
+	  if (PopIIIInitialMassFunction == TRUE)
+	    NewStar->AssignFinalMassFromIMF();
+	  else
+	    NewStar->AssignFinalMass(PopIIIStarMass);
+
 	InsertStarAfter(Stars, NewStar);
 	NumberOfStars++;
       }

@@ -27,7 +27,6 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
@@ -59,13 +58,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
   const int kphNum[] = {kphHINum, kphHeINum, kphHeIINum};
   const double k_b = 8.62e-5; // eV/K
+  const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
   int i, index, dim, splitMe, direction;
   int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
-  long cindex;
+  int cindex;
   float m[3], slice_factor, slice_factor2, sangle_inv;
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
@@ -154,13 +154,26 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
-      (int) ((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]);
+      nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
+    if (g[dim] < 0 || g[dim] >= GridDimension[dim])
+      ENZO_FAIL("Ray out of grid?");
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions
     if (r[dim] == f[dim])
       g[dim] += (u_sign[dim]-1)/2;
 
+  }
+
+  /* Before we do anything else, check if the photon belongs in this
+     grid, or needs to be moved */
+
+  cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
+  if (SubgridMarker[cindex] != this) {
+    FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+		      DeltaLevel, DomainWidth, DeleteMe, 
+		      ParentGrid);
+    return SUCCESS;
   }
 
   /* Compute the photon distance that corresponds to a distance =
@@ -309,18 +322,29 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   count = 0;
   keep_walking = 1;
+  //cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   while (keep_walking) {
 
     /* If the photon has left the grid, determine MoveToGrid,
-       DeltaLevel, and DeleteMe, and return. */
+       DeltaLevel, and DeleteMe, and exit the loop. */
 
-    if (PointInGridNB(r) == FALSE)
-      if (FindPhotonNewGrid(Grids0, nGrids0, r, u, *PP, *MoveToGrid,
-			    DeltaLevel, DomainWidth, DeleteMe, 
-			    ParentGrid) == FALSE)
-	return SUCCESS;
+    if (SubgridMarker[cindex] != this) {
+      FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+			DeltaLevel, DomainWidth, DeleteMe, 
+			ParentGrid);
+      break;
+    }
 
-    cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
+    /* Check for photons that have left the domain (only for root
+       grids without periodic radiation boundaries).  We also adjust
+       the photon coordinates if it needs wrapping around the
+       periodic boundary. */
+
+    if (GravityBoundaryType != SubGridIsolated)
+      if (this->PhotonPeriodicBoundary(cindex, r, g, s, *PP, *MoveToGrid,
+				       DomainWidth, DeleteMe) == FALSE)
+	break;
+
     oldr = (*PP)->Radius;
     min_dr = 1e20;
        
@@ -337,7 +361,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       dri[dim] = u_inv[dim] * (nce[dim] - s[dim]);
 
     // the closest one is the one we want
-    for (dim = 0; dim < 3; dim++)
+    for (dim = 1, direction = 0, min_dr = dri[0]; dim < 3; dim++)
       if (dri[dim] < min_dr) {
 	direction = dim;
 	min_dr = dri[dim];
@@ -356,26 +380,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // My Position in coordinates [0..1]
     for (dim = 0; dim < 3; dim++)
       r[dim] = s[dim] + radius*u[dim];
-
-    if (SubgridMarker[cindex] != CurrentGrid) {
-      if (SubgridMarker[cindex] == NULL) {
-	(*MoveToGrid) = ParentGrid;
-	DeltaLevel = -1;
-      } else {
-	(*MoveToGrid) = SubgridMarker[cindex];
-	DeltaLevel = 1;
-	if (DEBUG) 
-	  printf("different grid subgrid marker %x %x %ld %"ISYM" %"ISYM
-		 " %"ISYM" %"FSYM" %"FSYM" %"FSYM"\n",
-		 SubgridMarker[cindex], CurrentGrid, cindex, 
-		 g[0], g[1], g[2], r[0], r[1], r[2]);
-      }
-      // move it at least a tiny fraction of the grid cell to not have
-      // to worry about round off errors shifting photons back and
-      // forth between two grids without doing anything.
-      (*PP)->Radius += PFLOAT_EPSILON;
-      return SUCCESS;
-    }
 
     // splitting condition split package if its associated area is
     // larger than dx^2/RaysPerCell but only as long as the radius is
@@ -762,6 +766,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     count++;
     
     g[direction] += u_sign[direction];
+    cindex += u_sign[direction] * offset[direction];
     
   } // while keep walking
 

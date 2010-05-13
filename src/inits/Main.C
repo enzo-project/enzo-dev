@@ -58,7 +58,7 @@ Eint32 main(Eint32 argc, char *argv[])
   printf("ENZO Inits V64.0 - April 3rd 2006\n\n");
  
   InterpretCommandLine(int_argc, argv, myname, &ParameterFile, &SubGridParameterFile);
-o 
+
   // Set Parameter defaults
  
   SetParameterDefaults(&Parameters);

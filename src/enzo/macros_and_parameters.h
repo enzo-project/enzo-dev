@@ -437,6 +437,7 @@ typedef int            HDF5_hid_t;
 #define MPI_SENDSTAR_TAG 21
 #define MPI_SENDPMFLAG_TAG 22
 #define MPI_SENDPART_TAG 23
+#define MPI_SENDMARKER_TAG 24
 
 // There are 5 tags related to this (1000-1004)
 #define MPI_SENDPARTFIELD_TAG 1000
@@ -515,6 +516,10 @@ typedef int            HDF5_hid_t;
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2
+
+/* Number of entries in the Pop III IMF lookup table */
+
+#define IMF_TABLE_ENTRIES 1000
 
 #ifdef USE_MPI
 #define MPI_INSTRUMENTATION

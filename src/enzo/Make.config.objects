@@ -329,6 +329,7 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GalaxySimulationInitializeGrid.o \
         Grid_GetEnclosedMass.o \
+        Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
@@ -530,6 +531,8 @@ OBJS_CONFIG_LIB = \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
+	OutputPotentialFieldOnly.o \
+	OutputSmoothedDarkMatterOnly.o \
         P_ColumnFormat.o \
 	ParticleMergeRoutines.o \
         ParticleSplitter.o \
@@ -632,6 +635,8 @@ OBJS_CONFIG_LIB = \
         StarParticleInitialize.o \
         StarParticleMergeNew.o \
         StarParticleMergeMBH.o \
+	StarParticlePopIII_IMFInitialize.o \
+	StarParticleSetRefinementLevel.o \
         StarParticleSubtractAccretedMass.o \
         StarRoutines.o \
         Star_Accrete.o \
@@ -639,6 +644,7 @@ OBJS_CONFIG_LIB = \
         Star_ActivateNewStar.o \
         Star_ApplyFeedbackTrue.o \
         Star_AssignAccretedAngularMomentum.o \
+	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
         Star_ComputePhotonRates.o \
@@ -651,6 +657,7 @@ OBJS_CONFIG_LIB = \
         Star_MirrorToParticle.o \
         Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
+	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
         star_maker1.o \
         star_maker2.o \
@@ -755,11 +762,15 @@ POBJS_CONFIG_LIB = \
         Grid_InitializeSource.o \
         Grid_MergePausedPhotonPackages.o \
         Grid_MoveAllPhotonPackages.o \
+	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
+        Grid_SetSubgridMarkerFromParent.o \
+        Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SolveCoupledRateEquations.o \
+        Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
@@ -828,6 +839,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \
         hydro_rk/Riemann_LLF.o \
+        hydro_rk/Riemann_rLLF.o \
         hydro_rk/TurbulenceInitialize.o \
         hydro_rk/CollapseMHD3DInitialize.o \
         hydro_rk/Grid_AddAmbipolarDiffusion.o \

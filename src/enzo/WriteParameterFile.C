@@ -291,6 +291,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetallicityRefinementMinLevel);
   fprintf(fptr, "MetallicityRefinementMinMetallicity = %"GSYM"\n", 
 	  MetallicityRefinementMinMetallicity);
+  fprintf(fptr, "MetallicityRefinementMinDensity     = %"GSYM"\n", 
+	  MetallicityRefinementMinDensity);
  
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
@@ -422,8 +424,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
 
-  fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
-	  OutputSmoothedDarkMatter);
+  if (OutputSmoothedDarkMatter < 0)
+    fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 
+	    OutputSmoothedDarkMatter);
   fprintf(fptr, "SmoothedDarkMatterNeighbors    = %"ISYM"\n", 
 	  SmoothedDarkMatterNeighbors);
   fprintf(fptr, "OutputGriddedStarParticle      = %"ISYM"\n", 
@@ -649,6 +654,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StarClusterRegionRightEdge[2]);
   fprintf(fptr, "PopIIIStarMass                        = %"GSYM"\n",
           PopIIIStarMass);
+  fprintf(fptr, "PopIIIInitialMassFunction             = %"ISYM"\n",
+          PopIIIInitialMassFunction);
+  fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
+          PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
+  fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
+          PopIIIInitialMassFunctionSlope);
   fprintf(fptr, "PopIIIBlackHoles                      = %"ISYM"\n",
           PopIIIBlackHoles);
   fprintf(fptr, "PopIIIBHLuminosityEfficiency          = %"FSYM"\n",
@@ -702,6 +713,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "ComovingRiemannSolver      = %d\n", ComovingRiemannSolver);
+  fprintf(fptr, "LagrangeReconstruction     = %d\n", LagrangeReconstruction);
   fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
   fprintf(fptr, "RKOrder                    = %d\n", RKOrder);

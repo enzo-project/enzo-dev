@@ -24,7 +24,7 @@
 
 /* function prototypes */
 
-int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid)
+int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid)
 {
 
   /* Return if this grid is not on this processor. */
@@ -44,16 +44,27 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid)
   for (dim = 0; dim < GridRank; dim++)
       size *= GridDimension[dim];
 
+  // Subgrid == NULL is the flag to allocate and initialize.
+  if (Subgrid == NULL) {
+    if (SubgridMarker != NULL)
+      delete [] SubgridMarker;
+    SubgridMarker = new grid*[size];
+    for (i=0; i<size; i++) SubgridMarker[i] = NULL;
+    return SUCCESS;
+  }
+
   if (SubgridMarker == NULL)  {
     //    if (debug) printf("allocating SubgridMarker field\n");
     SubgridMarker = new grid*[size];
-    if (CurrentGrid == Subgrid) {
-      for (i=0; i<size; i++) SubgridMarker[i] = CurrentGrid;
+    if (Subgrid == this) {
+      // Set everything to this grid because any cells from subgrids,
+      // siblings, or parents will overwrite these.
+      for (i=0; i<size; i++) SubgridMarker[i] = this;  //NULL;
 //      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-//	for (j = GridStartIndex[1]; j <= GridStartIndex[1]; j++) {
+//	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 //	  index = (k*GridDimension[1]+j)*GridDimension[0] + GridStartIndex[0];
-//	  for (i = GridStartIndex[0]; i <= GridStartIndex[0]; i++, index++)
-//	    SubgridMarker[index] = CurrentGrid;
+//	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+//	    SubgridMarker[index] = this;
 //	} // ENDFOR j
       return SUCCESS;
 
@@ -71,10 +82,6 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid)
 
   for (dim = 0; dim < GridRank; dim++) {
 
-    if (Subgrid->GridRightEdge[dim] <= GridLeftEdge[dim] ||
-	Subgrid->GridLeftEdge[dim]  >= GridRightEdge[dim])
-      return SUCCESS;
-
     SubgridStart[dim] = nint(
         (Subgrid->GridLeftEdge[dim] - GridLeftEdge[dim])/CellWidth[dim][0]
 			       ) + GridStartIndex[dim];
@@ -82,8 +89,8 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid, grid *CurrentGrid)
 	(Subgrid->GridRightEdge[dim] - GridLeftEdge[dim])/CellWidth[dim][0]
 			       ) + GridStartIndex[dim] - 1;
 
-    SubgridStart[dim] = max(SubgridStart[dim], GridStartIndex[dim]);
-    SubgridEnd[dim]   = min(SubgridEnd[dim], GridEndIndex[dim]);
+    SubgridStart[dim] = max(SubgridStart[dim], 0);
+    SubgridEnd[dim]   = min(SubgridEnd[dim], GridDimension[dim]-1);
 
   }
 

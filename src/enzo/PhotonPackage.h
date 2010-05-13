@@ -13,6 +13,7 @@
 /
 ************************************************************************/
 #include "RadiationSource.h"
+#include "RadiativeTransferHealpixRoutines.h"
 
 class PhotonPackageEntry
 {
@@ -46,5 +47,20 @@ public:
   void* operator new(size_t nobjects);
   void operator delete(void* object);
 #endif
+
+  void PrintInfo(void) {
+    FLOAT r[3];
+    FLOAT u[3];
+    pix2vec_nest((long)(1 << level), ipix, u);
+    for (int dim = 0; dim < 3; dim++) 
+      r[dim] = SourcePosition[dim] + u[dim] * Radius;
+    printf("Photons = %g, Type = %d, Radius = %"PSYM"\n", Photons, Type, Radius);
+    printf("ipix = %ld, level = %d\n", ipix, level);
+    printf("normal = %lf %lf %lf\n", u[0], u[1], u[2]);
+    printf("SourcePosition = %"PSYM" %"PSYM" %"PSYM"\n",
+	   SourcePosition[0], SourcePosition[1], SourcePosition[2]);
+    printf("RayPosition = %"PSYM" %"PSYM" %"PSYM"\n", r[0], r[1], r[2]);
+    return;
+  };
 
 };

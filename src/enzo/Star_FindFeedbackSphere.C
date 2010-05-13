@@ -42,11 +42,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
+  float values[6];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
-  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, cornerDone[8], MBHFeedbackThermalRadiusTooSmall;
-  float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, ColdGasFraction, initialRadius; 
-  FLOAT corners[MAX_DIMENSION][8];
-  int direction;
+  int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
+    MBHFeedbackThermalRadiusTooSmall;
+  float MassEnclosed, Metallicity, ColdGasMass, ColdGasFraction, initialRadius;
+  float ShellMass, ShellMetallicity, ShellColdGasMass, 
+    ShellVelocity[MAX_DIMENSION];
   LevelHierarchyEntry *Temp, *Temp2;
 
   /* Get cell width */
@@ -66,8 +68,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
   // grid::StarParticleHandler.
-  if (StarType == PopII && FeedbackFlag == FORMATION &&
-      Mass > StarClusterMinimumMass) {
+  if ((StarType == PopII && FeedbackFlag == FORMATION &&
+       Mass > StarClusterMinimumMass) ||
+      (StarType == PopIII && FeedbackFlag == FORMATION &&
+       Mass >= this->FinalMass)) {
     if (debug)
       printf("StarParticle[%"ISYM"]: Accreted mass = %"GSYM" Msun.\n", Identifier, Mass);
     SkipMassRemoval = TRUE;
@@ -86,6 +90,12 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
                  || (FeedbackFlag == COLOR_FIELD));
   initialRadius = Radius;
 
+  MassEnclosed = 0;
+  Metallicity = 0;
+  ColdGasMass = 0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    AvgVelocity[dim] = 0.0;
+
 #ifdef UNUSED
   /* MBHFeedbackToConstantMass is implemented to apply your feedback energy 
      always to a constant mass, not to a constant volume.  For now, this is 
@@ -97,12 +107,21 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 #endif
   while (SphereTooSmall) { 
     Radius += CellWidth;
-    MassEnclosed = 0;
-    Metallicity = 0;
-    ColdGasMass = 0;
+
+    /* Before we sum the enclosed mass, check if the sphere with
+       r=Radius is completely contained in grids on this level */
+
+    SphereContained = this->SphereContained(LevelArray, level, Radius);
+    if (SphereContained == FALSE)
+      break;
+
+    ShellMass = 0;
+    ShellMetallicity = 0;
+    ShellColdGasMass = 0;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      AvgVelocity[dim] = 0.0;
-    for (l = 0; l < MAX_DEPTH_OF_HIERARCHY; l++) {
+      ShellVelocity[dim] = 0.0;
+
+    for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++) {
       Temp = LevelArray[l];
       while (Temp != NULL) {
 
@@ -121,11 +140,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
 	/* Sum enclosed mass in this grid */
 
-	if (Temp->GridData->GetEnclosedMass(this, Radius, MassEnclosed, 
-					    Metallicity, ColdGasMass, 
-					    AvgVelocity) == FAIL) {
-	  	  ENZO_FAIL("Error in GetEnclosedMass.");
-	}
+	Temp->GridData->GetEnclosedMassInShell(this, Radius-CellWidth, Radius, 
+					       ShellMass, ShellMetallicity, 
+					       ShellColdGasMass, ShellVelocity);
 
 	Temp = Temp->NextGridThisLevel;
 
@@ -136,15 +153,38 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     } // END: level
 
-    CommunicationAllSumValues(&Metallicity, 1);
-    CommunicationAllSumValues(&MassEnclosed, 1);
-    CommunicationAllSumValues(&ColdGasMass, 1);
-    CommunicationAllSumValues(AvgVelocity, 3);
+    values[0] = ShellMetallicity;
+    values[1] = ShellMass;
+    values[2] = ShellColdGasMass;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      values[3+dim] = ShellVelocity[dim];
 
+    CommunicationAllSumValues(values, 6);
+
+    ShellMetallicity = values[0];
+    ShellMass = values[1];
+    ShellColdGasMass = values[2];
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      ShellVelocity[dim] = values[3+dim];
+
+    MassEnclosed += ShellMass;
+    ColdGasMass += ShellColdGasMass;
+
+    // Must first make mass-weighted, then add shell mass-weighted
+    // (already done in GetEnclosedMassInShell) velocity and
+    // metallicity.  We divide out the mass after checking if mass is
+    // non-zero.
+    Metallicity = Metallicity * (MassEnclosed - ShellMass) + ShellMetallicity;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
+	ShellVelocity[dim];
+
+#ifdef UNUSED
     if (MassEnclosed == 0) {
       SphereContained = FALSE;
       return SUCCESS;
     }
+#endif
 
     Metallicity /= MassEnclosed;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -153,10 +193,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // Baryon Removal based on star particle type
     switch (StarType) {
     case PopIII:  // Single star
-      SphereTooSmall = MassEnclosed < 2*PopIIIStarMass;
+      SphereTooSmall = MassEnclosed < 2*this->FinalMass;
       ColdGasFraction = 1.0;
       // to make the total mass PopIIIStarMass
-      AccretedMass = PopIIIStarMass - float(Mass);
+      AccretedMass = this->FinalMass - float(Mass);
       break;
 
     case PopII:  // Star Cluster Formation
@@ -212,74 +252,35 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Don't allow the sphere to be too large (2x leeway) */
 
-  float epsMass = 9.0;
-  float eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
+  const float epsMass = 9.0;
+  float eps_tdyn;
   if (FeedbackFlag == FORMATION) {
     // single Pop III star
-    if (StarType == PopIII && MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
-      SphereContained = FALSE;
-      return SUCCESS;
-    }
+    if (StarType == PopIII && LevelArray[level+1] != NULL)
+      if (MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
+	SphereContained = FALSE;
+	return SUCCESS;
+      }
 
     // t_dyn \propto M_enc^{-1/2} => t_dyn > sqrt(1.0+eps)*lifetime
     // Star cluster
-    if (StarType == PopII && DynamicalTime > eps_tdyn) {
-      SphereContained = FALSE;
-      return SUCCESS;
-    }
-      
-  } // ENDIF FORMATION
-
-  /**************************************************************
-
-     Compute corners of cube that contains a sphere of r=Radius
-
-   **************************************************************/
-
-  for (i = 0; i < 8; i++) {
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-
-      // If the bit is true, forward.  If not, reverse.
-      direction = (i >> dim & 1) ? 1 : -1;
-      corners[dim][i] = pos[dim] + direction * Radius;
-    }
-    cornerDone[i] = 0;
-  }
-
-  /* First check if the influenced sphere is contained within the
-     grids on this level */
-
-  int cornersContained = 0;
-  int inside;
-
-  Temp = LevelArray[level];
-
-  while (Temp != NULL && cornersContained < 8) {
-
-    // Get grid edges
-    Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-
-    for (i = 0; i < 8; i++) {
-      if (cornerDone[i]) continue;    // Skip if already found
-      inside = 1;
-      for (dim = 0; dim < MAX_DIMENSION; dim++)
-	inside = min((corners[dim][i] >= LeftEdge[dim] &&
-		      corners[dim][i] <= RightEdge[dim]),
-		     inside);
-      if (inside) {
-	cornersContained++;
-	cornerDone[i] = 1;
+    if (StarType == PopII && LevelArray[level+1] != NULL) {
+      eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
+      if (DynamicalTime > eps_tdyn) {
+	SphereContained = FALSE;
+	return SUCCESS;
       }
     }
 
-    Temp = Temp->NextGridThisLevel;
+  } // ENDIF FORMATION
 
-  }
+  /* If SphereContained is TRUE, i.e. either not FORMATION or
+     COLOR_FIELD or formation sphere is acutally contained (double
+     checking in this case, doesn't hurt...), check if the sphere is
+     contained within grids on this level.  */
 
-  /* If sphere not contained in grids in this level, check again in
-     level-1. */
-
-  SphereContained = (cornersContained == 8);
+  if (SphereContained == TRUE)
+    SphereContained = this->SphereContained(LevelArray, level, Radius);
 
   /* If contained and this is for star formation, we record how much
      mass we should add and reset the flags for formation. */
@@ -289,18 +290,33 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     if (debug) {
       printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM", Z = %"GSYM"\n",
 	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity);
-      if (StarType == PopII)
+      if (StarType == PopII || StarType == PopIII)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
-	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n",
+	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
+	       "\t pos = %"PSYM" %"PSYM" %"PSYM"\n",
 	       this->Mass+AccretedMass, 100*ColdGasFraction, 
 	       AvgDensity, DynamicalTime*TimeUnits/Myr,
 	       AvgVelocity[0], AvgVelocity[1], AvgVelocity[2],
-	       vel[0], vel[1], vel[2]);
+	       vel[0], vel[1], vel[2],
+	       pos[0], pos[1], pos[2]);
       printf("FindFeedbackSphere[%"ISYM"][%"ISYM"]: Adding sphere for feedback type = %"ISYM"\n", 
 	     level, Identifier, FeedbackFlag);
     }
 
+    // If there is little cold gas, then give up hope of accreting
+    // more gas and form the star.  If more gas is accreted, another
+    // star particle will form.
+    if (StarType == PopII && 
+	AccretedMass < 0.01*StarClusterMinimumMass) {
+      if (debug) 
+	printf("star::FindFeedbackSphere: SMALL AccretedMass = %g. "
+	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
+	       AccretedMass, this->Mass, this->Identifier);
+      this->BirthTime = Time;
+      this->type = PopII;
+    }
+      
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
 
@@ -310,20 +326,22 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
        overwrite any previous accretion rates, although this should
        never happen! */
 
-    if (this->accretion_rate == NULL && this->accretion_time == NULL) {
-      this->naccretions = 1;
-      this->accretion_rate = new float[2];
+    this->naccretions = 1;
+    if (this->accretion_rate != NULL)
+      delete [] this->accretion_rate;
+    if (this->accretion_time == NULL)
+      delete [] this->accretion_time;
 
-      // Add a bit of a cushion, so we exceed Pop III stellar mass in
-      // the accretion.  Mass > PopIIIMass is required for star
-      // activation.
-      this->accretion_rate[0] = (1.0001) * AccretedMass / (Time * TimeUnits);
-      this->accretion_rate[1] = 0.0;
-
-      this->accretion_time = new FLOAT[2];
-      this->accretion_time[0] = 0.0;
-      this->accretion_time[1] = Time;
-    }
+    // Add a bit of a cushion, so we exceed Pop III stellar mass in
+    // the accretion.  Mass > PopIIIMass is required for star
+    // activation.
+    this->accretion_rate = new float[2];
+    this->accretion_rate[0] = (1.0001) * AccretedMass / (Time * TimeUnits);
+    this->accretion_rate[1] = 0.0;
+    
+    this->accretion_time = new FLOAT[2];
+    this->accretion_time[0] = 0.0;
+    this->accretion_time[1] = Time;
 
     //DeltaMass = AccretedMass;
     //type = abs(type);  // Unmark as unborn (i.e. negative type)

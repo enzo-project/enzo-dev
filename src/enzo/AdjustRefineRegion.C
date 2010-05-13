@@ -165,7 +165,10 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 
   nRemoveTotal = INT_UNDEFINED;
   ParticlesLeft = TotalNumberOfParticles;
-  srand( time(NULL) );
+  if (rand_init == 0) {
+    srand( time(NULL) );
+    rand_init = 1;
+  }
 
   while (ParticlesLeft > 0) {
 

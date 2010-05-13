@@ -137,9 +137,9 @@ EXTERN int MustRefineRegionMinRefinementLevel;
    will refine up to (does not prevent refinement to higher levels) */
 EXTERN int MetallicityRefinementMinLevel;
 
-/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+/* threshold metallicity and density for FlagGridCellsToBeRefinedByMetallicity */
 EXTERN float MetallicityRefinementMinMetallicity;
-
+EXTERN float MetallicityRefinementMinDensity;
 
 /* Velocity to limit timesteps */
 
@@ -625,6 +625,8 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
+EXTERN int ComovingRiemannSolver;
+EXTERN int LagrangeReconstruction;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;
@@ -697,6 +699,10 @@ EXTERN int UseCUDA;
 /* ran1 initialization flag for star_maker5 */
 
 EXTERN int ran1_init;
+
+/* random number initialization flag */
+
+EXTERN int rand_init;
 
 /* test problem stuff */
 EXTERN TestProblemDataType TestProblemData;
