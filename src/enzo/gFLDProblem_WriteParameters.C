@@ -105,6 +105,12 @@ int gFLDProblem::WriteParameters(FILE *fptr)
     fprintf(fptr, "SuOlsonGreyEps = %22.16e", &MarshakParms[0]);
   }
 
+  // output relevant units: although these aren't required for restart, 
+  // cosmology runs never output the units (why?), making data analyisis tough
+  fprintf(fptr, "DensityUnits = %22.16e\n", DenUnits);
+  fprintf(fptr, "LengthUnits = %22.16e\n",  LenUnits);
+  fprintf(fptr, "TimeUnits = %22.16e\n",    TimeUnits);
+
   return SUCCESS;
 }
 #endif

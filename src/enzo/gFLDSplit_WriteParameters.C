@@ -79,7 +79,13 @@ int gFLDSplit::WriteParameters(FILE *fptr)
     fprintf(fptr, "EtaCenter = %22.16e %22.16e %22.16e\n",
 	    EtaCenter[0], EtaCenter[1], EtaCenter[2]);
   }
-  
+
+  // output relevant units: although these aren't required for restart, 
+  // cosmology runs never output the units (why?), making data analyisis tough
+  fprintf(fptr, "DensityUnits = %22.16e\n", DenUnits);
+  fprintf(fptr, "LengthUnits = %22.16e\n",  LenUnits);
+  fprintf(fptr, "TimeUnits = %22.16e\n",    TimeUnits);
+
   return SUCCESS;
 }
 #endif
