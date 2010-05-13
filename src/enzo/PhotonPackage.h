@@ -50,7 +50,7 @@ public:
 
   void PrintInfo(void) {
     FLOAT r[3];
-    double u[3];
+    FLOAT u[3];
     pix2vec_nest((long)(1 << level), ipix, u);
     for (int dim = 0; dim < 3; dim++) 
       r[dim] = SourcePosition[dim] + u[dim] * Radius;
