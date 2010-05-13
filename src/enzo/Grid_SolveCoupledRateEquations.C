@@ -188,7 +188,7 @@ int grid::SolveCoupledRateEquations()
   float *MetalPointer;
   float *TotalMetals = NULL;
 
-  if (MetalNum != -1 && SNColour != -1) {
+  if (MetalNum != -1 && SNColourNum != -1) {
     for (dim = 0, size = 1; dim < GridRank; dim++)
       size *= GridDimension[dim];
     TotalMetals = new float[size];
