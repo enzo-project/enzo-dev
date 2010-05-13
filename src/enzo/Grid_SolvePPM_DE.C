@@ -48,7 +48,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   for (n = ixyz; n < ixyz+GridRank; n++) {
 
     // Update in x-direction
-    if ((n % 3 == 0) && nxz > 1) {
+    if ((n % GridRank == 0) && nxz > 1) {
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
@@ -60,7 +60,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
     } // ENDIF x-direction
 
     // Update in y-direction
-    if ((n % 3 == 1) && nyz > 1) {
+    if ((n % GridRank == 1) && nyz > 1) {
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
@@ -72,7 +72,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
     } // ENDIF y-direction
 
     // Update in z-direction
-    if ((n % 3 == 2) && nzz > 1) {
+    if ((n % GridRank == 2) && nzz > 1) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
