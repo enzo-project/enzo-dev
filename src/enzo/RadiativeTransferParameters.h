@@ -46,13 +46,6 @@ EXTERN int RadiativeTransferInterpolateField;
 
 EXTERN float RadiativeTransferTimestepVelocityLimit;
 
-/* Flag whether to cluster sources on a binary tree and merge rays at
-   a certain radii with associated SuperSources */
-
-EXTERN int RadiativeTransferSourceClustering;
-
-EXTERN float RadiativeTransferPhotonMergeRadius;
-
 EXTERN int RadiationPressure;
 
 EXTERN int RadiativeTransferOpticallyThinH2;

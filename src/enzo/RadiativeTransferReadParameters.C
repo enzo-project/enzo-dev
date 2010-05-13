@@ -53,8 +53,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferInitialHEALPixLevel        = 3;
   RadiativeTransferPhotonEscapeRadius         = 0.0;   // kpc
   RadiativeTransferInterpolateField           = FALSE;
-  RadiativeTransferSourceClustering           = FALSE;
-  RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
@@ -97,10 +95,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferPhotonEscapeRadius);
     ret += sscanf(line, "RadiativeTransferInterpolateField = %"ISYM, 
 		  &RadiativeTransferInterpolateField);
-    ret += sscanf(line, "RadiativeTransferSourceClustering = %"ISYM, 
-		  &RadiativeTransferSourceClustering);
-    ret += sscanf(line, "RadiativeTransferPhotonMergeRadius = %"FSYM, 
-		  &RadiativeTransferPhotonMergeRadius);
     ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
 		  &RadiativeTransferHIIRestrictedTimestep);
     ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 

@@ -211,17 +211,6 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     delete [] PhotonTestSourceSED[source];
   }
 
-  /* Create tree that clusters the sources if requested */
-
-  /* While creating tree (type SuperSource), compute position of the
-     super source in each leaf. */
-  
-  if (RadiativeTransferSourceClustering == TRUE)
-    if (CreateSourceClusteringTree(NULL, NULL, NULL) == FAIL) {
-      fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
-      ENZO_FAIL("");
-    }
-  
   return SUCCESS;
 
 }

@@ -718,14 +718,11 @@ POBJS_CONFIG_LIB = \
         CommunicationReceiverPhotons.o \
         CommunicationSyncNumberOfPhotons.o \
         CommunicationTransferPhotons.o \
-        CreateSourceClusteringTree.o \
         DeletePhotonPackage.o \
         DeleteRadiationSource.o \
         EvolvePhotons.o \
         FindCrossSection.o \
         FindRootGrid.o \
-        FindSuperSource.o \
-        FindSuperSourceByPosition.o \
         Grid_AddH2Dissociation.o \
         Grid_AddRadiationPressureAcceleration.o \
         Grid_AllocateInterpolatedRadiation.o \
@@ -746,7 +743,6 @@ POBJS_CONFIG_LIB = \
         Grid_MergePausedPhotonPackages.o \
         Grid_MoveAllPhotonPackages.o \
         Grid_PhotonTestInitializeGrid.o \
-        Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SolveCoupledRateEquations.o \
@@ -763,7 +759,6 @@ POBJS_CONFIG_LIB = \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
         ReadPhotonSources.o \
-        ReassignSuperSources.o \
         RestartPhotons.o \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \

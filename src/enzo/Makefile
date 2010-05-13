@@ -122,6 +122,8 @@ MACHNOTES:
 	fi)
 	@(if [ -e $@ ]; then \
 	   echo "Success!"; \
+           if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+           cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
 	   echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
 	   cat temp1 $(OUTPUT) > temp2; \
@@ -360,7 +362,6 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'enzo.exe'"
-	@echo "   gmake install        Copy the executable to bin/enzo"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
