@@ -136,6 +136,7 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	    // only negative type Stars will be read at StarParticleFindAll->FindNewStarParticles
 	    type[ii] = (*ctype);
 
+#ifdef SUBTRACT_MASS
 	    // take out the mass from the cell; if you then get a negative density,
 	    // probably your choice of the MBH position was horribly wrong! 
 	    d[index] -= mp[ii];
@@ -144,6 +145,7 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 		      mp[ii], d[index]);
 	      return FAIL;
 	    }
+#endif
 
 	    fprintf(stdout, "mbh_maker: A MBH inserted at (%lf,%lf,%lf) with v=(%f,%f,%f), m=%f (d=%f), tc=%f, type=%d\n",
 		    xp[ii], yp[ii], zp[ii], up[ii], vp[ii], wp[ii], mp[ii], d[index], tcp[ii], type[ii]);
@@ -156,6 +158,8 @@ int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
 	} //ENDIF indices correct
 
       } //ENDIF line[0] != '#'
+
+    fclose(fptr);
 
   } //ENDIF fptr
 

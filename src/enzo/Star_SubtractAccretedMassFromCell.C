@@ -11,7 +11,7 @@
 /           for Star particle type BlackHole..
 /           Note that accretion_rate is calculted in Star_CalculateMassAccretion.C
 /           but DeltaMass is calculated in Star_Accrete.C.
-/           At the moment, the mass is used only for BlackHole;
+/           At the moment, this method is used only for BlackHole;
 /           for MBH, the job is done in Grid_SubtractAccretedMassFromSphere.C
 /
 ************************************************************************/
@@ -42,7 +42,7 @@ int Star::SubtractAccretedMassFromCell(void)
 
   /* Check if the star type is correct */
 
-  if ((this->type != BlackHole && ABS(this->type) != MBH) || 
+  if ((this->type != BlackHole) || 
       (this->CurrentGrid == NULL))
     return SUCCESS;
 

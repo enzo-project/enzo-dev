@@ -658,6 +658,7 @@ c               endif
 
 #endif /* RADIATION */
 
+
 !     --- Cooling/heating due to metals ---
 
       if (imcool .eq. 1) then
@@ -675,6 +676,12 @@ c
      $        / dlogtem
          do i = is+1, ie+1
             if (itmask(i)) then
+!
+               if (de(i,j,k) .lt. 0.0) then !#####
+                  write(6,*) 'cool1d_multi: negative d(i,j,k)', 
+     $                 de(i,j,k), d(i,j,k), metal(i,j,k)
+               endif
+!
 c               metalfree = d(i,j,k) - metal(i,j,k)
                xe = de(i,j,k) / d(i,j,k)
 c               if (tgas(i) .lt. 1e4) xe = min(xe, 1e-2)

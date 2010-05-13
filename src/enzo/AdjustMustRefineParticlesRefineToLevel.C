@@ -19,9 +19,9 @@
 /           = 120 (pc), then
 /
 /           - at z=7, MustRefineParticlesRefineToLevel 
-/                     = int [ ln(16 Mpc/(1+7)/128/120 pc) / ln(2) ] = 7
+/                     = floor [ ln(16 Mpc/(1+7)/128/120 pc) / ln(2) ] = 7
 /           - at z=0, MustRefineParticlesRefineToLevel 
-/                     = int [ ln(16 Mpc/(1+0)/128/120 pc) / ln(2) ] = 10
+/                     = floor [ ln(16 Mpc/(1+0)/128/120 pc) / ln(2) ] = 10
 /
 ************************************************************************/
 
@@ -42,14 +42,17 @@
 #include "LevelHierarchy.h"
 #include "Star.h"
 
-int  GetUnits(float *DensityUnits, float *LengthUnits,
-	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, FLOAT Time);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
 int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
 {
 
   if (MustRefineParticlesRefineToLevelAutoAdjust == FALSE || EL_level != 0)
+    return SUCCESS;
+
+  if (!ComovingCoordinates)
     return SUCCESS;
 
   if (!(MetaData->TopGridRank == 3 &&
@@ -78,13 +81,13 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
   //          = MustRefineParticlesRefineToLevelAutoAdjust
 
   MustRefineParticlesRefineToLevel = 
-    (int) nint( log( LengthUnits / MetaData->TopGridDims[0] 
+    (int) floor( log( LengthUnits / MetaData->TopGridDims[0] 
 		     / MustRefineParticlesRefineToLevelAutoAdjust / pc) / ln2);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("AdjustMustRefineParticlesRefineToLevel: Changed MustRefineParticlesRefineToLevel from %"ISYM" to %"ISYM"\n", 
 	   MustRefineParticlesRefineToLevel_prev, MustRefineParticlesRefineToLevel);
-    printf("AdjustMustRefineParticlesRefineToLevel: LengthUnits = %g\n", LengthUnits);
+//  printf("AdjustMustRefineParticlesRefineToLevel: LengthUnits = %g\n", LengthUnits);
   }
 
   return SUCCESS;
