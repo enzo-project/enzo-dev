@@ -102,7 +102,7 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: $(EXE).exe
+all: MACHNOTES $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
