@@ -107,7 +107,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
      if (EtaRadius == 0.d0) then
         
         ! compute eta factor for given ionization source
-        etaconst = h_nu0*NGammaDot*specconst*specconst/dV
+        etaconst = h_nu0*NGammaDot*specconst/dV
         
         ! place ionization source in one cell
         do k=1,Nz,1
