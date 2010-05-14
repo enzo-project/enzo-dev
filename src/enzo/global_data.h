@@ -508,6 +508,9 @@ EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
+EXTERN int   BigStarFormation;
+EXTERN float BigStarSeparation;
+
 
 /* Parameters governing certain time or redshift-dependent actions. */
 

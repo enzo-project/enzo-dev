@@ -581,6 +581,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",
 	  StarParticleCreation);
+  fprintf(fptr, "BigStarFormation                      = %"ISYM"\n",
+	  BigStarFormation);
+  fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
+	  BigStarSeparation);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
