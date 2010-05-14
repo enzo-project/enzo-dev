@@ -293,7 +293,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
-  GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
@@ -302,10 +301,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
-  CRModel                     = 0;                 // off
-  ShockMethod                 = 0;                 // temperature unsplit
-  ShockTemperatureFloor       = 1.0;               // Set to 1K
-  StorePreShockFields         = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -347,15 +342,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RefineByJeansLengthSafetyFactor  = 4.0;
   JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
-  ShockwaveRefinementMinMach = 1.3; // Only above M=1.3
-  ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
-  ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
-  StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years

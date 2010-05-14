@@ -283,10 +283,6 @@ EXTERN CoolDataType CoolData;
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
 
-/* Gadget Equilibrium cooling on/off flag */
-
-EXTERN int GadgetEquilibriumCooling;
-
 /* Random Forcing on/off flag and associated data. */ //AK
 
 EXTERN int     RandomForcing;
@@ -309,24 +305,6 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 /* Multi-element metallicity field flag and count. */
 
 EXTERN int MultiMetals;
-
-/* Cosmic Ray Model 
- * 0: Off - default
- * 1: On, Let CRs accululate on Grid
- * 2: On, Zero out CRs each step to only look at instantaneous acceleration
- * 3: Highly experimental, takes energy out of gas.  Unstable.
- */
-EXTERN int CRModel; 
-/* Shock Finding Method: Always on when CRModel nonzero
- * 0: temperature unsplit - default
- * 1: temperature split 
- * 2: velocity unsplit
- * 3: velocity split
- */
-EXTERN int ShockMethod; 
-EXTERN CosmicRayDataType CosmicRayData;
-EXTERN float ShockTemperatureFloor;
-EXTERN int StorePreShockFields;
 
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5
@@ -483,13 +461,6 @@ EXTERN float MinimumShearForRefinement;
    should be resolved. */
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
-
-/* For CellFlaggingMethod = 14,   
-   Minimum mach number required for refinement.    */
-
-EXTERN float ShockwaveRefinementMinMach;
-EXTERN float ShockwaveRefinementMinVelocity;
-EXTERN float ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -688,7 +659,7 @@ EXTERN int UseCUDA;
 /* End of Stanford block */
 
 
-/* ran1 initialization flag for star_maker5 */
+/* ran1 initialization flag for random numbers */
 
 EXTERN int ran1_init;
 

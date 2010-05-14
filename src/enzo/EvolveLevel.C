@@ -34,8 +34,6 @@
 /                Optional StaticSiblingList for root grid
 /  modified8:  April, 2009 by John Wise
 /                Added star particle class and radiative transfer
-/  modified9:  July, 2009 by Sam Skillman
-/                Added shock and cosmic ray analysis
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -453,10 +451,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level);
 
-      /* Include shock-finding and cosmic ray acceleration */
-
-      Grids[grid1]->GridData->ShocksHandler();
- 
       /* Gravity: clean up AccelerationField. */
 
       if ((level != MaximumGravityRefinementLevel ||
