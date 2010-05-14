@@ -50,7 +50,6 @@ int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
-int InitializeGadgetEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -372,7 +371,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
-    ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
     ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
     ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
@@ -951,29 +949,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
   }
 
-  /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
-     or RadiationFieldType to be on - both are taken care of in
-     the Gadget cooling routine.  Therefore, we turn them off!
-     Also, initialize the Gadget equilibrium cooling data. */
-
-  if(GadgetEquilibriumCooling == TRUE){
-
-    if(MyProcessorNumber == ROOT_PROCESSOR ) {
-      fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
-      fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
-      fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
-    }
-
-    RadiationFieldType = 0;
-    MultiSpecies       = 0;
-    RadiativeCooling   = 1;
-
-    // initialize Gadget equilibrium cooling
-    if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
-            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
-    } 
-  }
-
   /* If set, initialize the RadiativeCooling and RateEquations data. */
 
   if (MultiSpecies > 0) {
@@ -987,7 +962,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
-      GadgetEquilibriumCooling == 0 &&
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");

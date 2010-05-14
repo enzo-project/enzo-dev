@@ -293,7 +293,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
-  GadgetEquilibriumCooling    = FALSE;             // off
   MultiSpecies                = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
@@ -348,7 +347,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
-  StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
