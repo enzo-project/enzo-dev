@@ -113,6 +113,7 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   // set default module parameters
   Nchem  = 1;           // hydrogen only
   Model  = 1;           // case-B HII recombination coefficient
+  HFrac  = 1.0;         // all Hydrogen
   ESpectrum = 1;        // T=10^5 blackbody spectrum
   theta  = 1.0;         // backwards euler implicit time discret.
   dtnorm = 2.0;         // use 2-norm for time step estimation

@@ -106,6 +106,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   Nchem  = 1;           // hydrogen only
   Model  = 1;           // case-B HII recombination coefficient
   ESpectrum = 1;        // T=10^5 blackbody spectrum
+  HFrac  = 1.0;         // all Hydrogen
   theta  = 1.0;         // backwards euler implicit time discret.
   dtnorm = 2.0;         // use 2-norm for time step estimation
   ErScale = 1.0;        // no radiation equation scaling
