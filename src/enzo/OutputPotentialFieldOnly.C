@@ -85,6 +85,7 @@ int OutputPotentialFieldOnly(char *ParameterFile,
 
   WritePotential = TRUE;
   CopyGravPotential = TRUE;
+  OutputParticleTypeGrouping = FALSE;
 
   /* Add the potential field pointer to BaryonField and field names */
 

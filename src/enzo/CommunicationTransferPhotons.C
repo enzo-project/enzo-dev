@@ -58,6 +58,7 @@ static MPI_Datatype MPI_PhotonList;
 
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
 				 ListOfPhotonsToMove **AllPhotons,
+				 char *kt_global,
 				 int &keep_transporting)
 {
 
@@ -316,7 +317,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       if (nPhoton[proc] % PHOTON_BUFFER_SIZE > 0) NumberOfMessages++;
       //tag = MPI_PHOTONGROUP_TAG*10 + nPhoton[proc];
       tag = MPI_PHOTONGROUP_TAG;
-      if (DEBUG)
+      if (DEBUG && NumberOfMessages > 0)
 	printf("CTPh(P%"ISYM"): Sending %"ISYM" photons to P%"ISYM" (%d messages, TAG=%d)\n", 
 	       MyProcessorNumber, nPhoton[proc], proc, NumberOfMessages, tag);
       for (i = 0; i < NumberOfMessages; i++) {
@@ -335,7 +336,23 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
   CommunicationReceiverPhotons(LevelArray, local_transport, 
 			       keep_transporting);
-      
+
+  bool dbg = false;
+  for (proc = 0; proc < NumberOfProcessors; proc++)
+    if (proc != MyProcessorNumber && nPhoton[proc] > 0) {
+      if (kt_global[proc] != HALT_TRANSPORT) {
+	kt_global[proc] = SENT_DATA;
+	keep_transporting = 1;
+      }
+      dbg = true;
+    }
+
+  if (DEBUG && dbg)
+    printf("P%d: 222keep_transporting = %d, kt_global = %d %d %d %d %d %d %d %d\n",
+	   MyProcessorNumber, keep_transporting, kt_global[0],
+	   kt_global[1], kt_global[2], kt_global[3], kt_global[4], 
+	   kt_global[5], kt_global[6], kt_global[7]);
+
   /* Clean up */
 
   CommunicationBufferPurge();

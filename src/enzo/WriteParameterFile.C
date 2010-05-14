@@ -451,6 +451,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  RefineByResistiveLengthSafetyFactor);
   fprintf(fptr, "MustRefineParticlesRefineToLevel = %"ISYM"\n",
           MustRefineParticlesRefineToLevel);
+  fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
+          MustRefineParticlesRefineToLevelAutoAdjust);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
@@ -687,15 +689,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
           PopIIIColorMass);
 
-  fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
-  fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n", MBHMinimumMass);
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
   fprintf(fptr, "MBHAccretingMassRatio                 = %"GSYM"\n", MBHAccretingMassRatio);
   fprintf(fptr, "MBHAccretionFixedTemperature          = %"GSYM"\n", MBHAccretionFixedTemperature);
   fprintf(fptr, "MBHAccretionFixedRate                 = %"GSYM"\n", MBHAccretionFixedRate);
   fprintf(fptr, "MBHTurnOffStarFormation               = %"ISYM"\n", MBHTurnOffStarFormation);
-  fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
+  fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n", MBHCombineRadius);
+  fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
+  fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n\n", MBHMinimumMass);
 
   fprintf(fptr, "MBHFeedback                           = %"ISYM"\n", MBHFeedback);
   fprintf(fptr, "MBHFeedbackRadiativeEfficiency        = %"GSYM"\n", MBHFeedbackRadiativeEfficiency);

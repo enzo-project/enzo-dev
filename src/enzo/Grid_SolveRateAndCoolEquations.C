@@ -207,7 +207,7 @@ int grid::SolveRateAndCoolEquations()
   float *MetalPointer;
   float *TotalMetals = NULL;
 
-  if (MetalNum != -1 && SNColour != -1) {
+  if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
       TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];

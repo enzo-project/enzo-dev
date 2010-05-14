@@ -70,7 +70,7 @@ public:
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
   double ReturnFinalMass(void) { return FinalMass; };
-  double AssignFinalMass(double value) { FinalMass = value; };
+  void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
   float ReturnBirthtime(void) { return BirthTime; };
   int   ReturnLevel(void) { return level; };

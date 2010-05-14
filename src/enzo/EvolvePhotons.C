@@ -35,17 +35,19 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "PhotonCommunication.h"
 #include "CommunicationUtilities.h"
 
 /* function prototypes */
 void my_exit(int status);
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
-				 ListOfPhotonsToMove **AllPhotons,
+				 ListOfPhotonsToMove **AllPhotons, 
+				 char *kt_global,
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int InitializePhotonCommunication(char* &kt_global);
-int FinalizePhotonCommunication(char* &kt_global);
+int FinalizePhotonCommunication(char* &kt_global, int keep_transporting);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
 int KeepTransportingSend(int keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
@@ -61,7 +63,7 @@ void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
-#define NONBLOCKING_OFF
+#define NONBLOCKING
 #define REPORT_PERF_OFF
 
 #ifdef REPORT_PERF
@@ -103,7 +105,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //	 GridTime, PhotonTime, dtPhoton, (GridTime >= PhotonTime));
 
   if (dtPhoton < 0)
-    return SUCCESS;  //#####
+    return SUCCESS;  
 
   /* Declarations */
 
@@ -270,7 +272,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Transport the rays! */
 
-    while (keep_transporting) {
+    while (keep_transporting != NO_TRANSPORT && 
+	   keep_transporting != HALT_TRANSPORT) {
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
@@ -309,7 +312,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
       START_PERF();
-      if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, 
+      if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
 				       keep_transporting) == FAIL) {
 	fprintf(stderr, "Error in CommunicationTransferPhotons.\n");
 	ENZO_FAIL("");
@@ -337,7 +340,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
     }                           //  end while keep_transporting
 
-    FinalizePhotonCommunication(kt_global);
+    FinalizePhotonCommunication(kt_global, keep_transporting);
     //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,
@@ -528,13 +531,15 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   END_PERF(13);
 
 #ifdef REPORT_PERF
-  if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
-  for (int i = 0; i < NumberOfProcessors; i++) {
-    CommunicationBarrier();
-    if (MyProcessorNumber == i) {
-      printf("P%d:", MyProcessorNumber);
-      fpcol(PerfCounter, 14, 14, stdout);
-      fflush(stdout);
+  if (!FirstTime) {
+    if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
+    for (int i = 0; i < NumberOfProcessors; i++) {
+      CommunicationBarrier();
+      if (MyProcessorNumber == i) {
+	printf("P%d:", MyProcessorNumber);
+	fpcol(PerfCounter, 14, 14, stdout);
+	fflush(stdout);
+      }
     }
   }
 #endif

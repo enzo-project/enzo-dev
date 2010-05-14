@@ -6,7 +6,7 @@
 /  date:       April, 2009
 /  modified1:
 /
-/ PURPOSE:
+/  PURPOSE:
 /
 ************************************************************************/
 
@@ -38,7 +38,7 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 {
 
 //if (!(RefineRegionAutoAdjust && EL_level == 0))
-  if (!(RefineRegionAutoAdjust >= 1 && EL_level == RefineRegionAutoAdjust-1))  //#####
+  if (!(RefineRegionAutoAdjust >= 1 && EL_level == RefineRegionAutoAdjust-1)) 
     return SUCCESS;
 
   if (RefineRegionLeftEdge[0] == DomainLeftEdge[0] &&
@@ -50,9 +50,6 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
   float MinParticleMass, dx;
   FLOAT RefineRegionWidth[MAX_DIMENSION], RefineRegionCenter[MAX_DIMENSION];
   int MaximumStaticRegionLevel = 0;
-
-//  if (MyProcessorNumber == ROOT_PROCESSOR) 
-//    fprintf(stdout, "AdjustRR: I'm here, don't worry! (level = %d)\n", EL_level);  
 
   /* First find the highest resolution particle in the whole
      simulation.  We could be clever by only looking in the finest

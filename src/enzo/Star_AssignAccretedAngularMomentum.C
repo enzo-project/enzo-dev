@@ -64,6 +64,7 @@ void Star::AssignAccretedAngularMomentum(void)
 	}
       }
 
+    fclose(fptr);
   }
 
   return;

@@ -548,7 +548,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       // issue an warning signal and output the current hierarchy at CheckForOutput
       if (cstar->NotEjectedMass > 2.0 * MBHFeedbackJetsThresholdMass) { 
 	fprintf(stdout, "grid::AddFS: MBH_JETS - jets haven't been ejected for too long!\n");
-	OutputWhenJetsHaveNotEjected = TRUE;  //#####
+	OutputWhenJetsHaveNotEjected = TRUE;  
       } 
       
       // otherwise, just proceed and do it later

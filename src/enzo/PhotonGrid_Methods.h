@@ -42,9 +42,11 @@
 /* Set Subgrid Marker field */
 
    int SetSubgridMarkerFromSubgrid(grid *Subgrid);
-   int SetSubgridMarkerFromParent(grid *Parent);
+   int SetSubgridMarkerFromParent(grid *Parent, int level);
    int SetSubgridMarkerFromSibling(grid *Sibling, 
 				   FLOAT EdgeOffset[MAX_DIMENSION]);
+   int SubgridMarkerPostParallel(grid *Parent, HierarchyEntry **Grids[],
+				 int *NumberOfGrids);
 
 /* Return Subgrid Marker for a position */
 
@@ -346,10 +348,15 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);
 
-int FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
+int FindPhotonNewGrid(int cindex, FLOAT *r,
+		      PhotonPackageEntry* &PP,
 		      grid* &MoveToGrid, int &DeltaLevel,
 		      const float *DomainWidth, int &DeleteMe,
 		      grid *ParentGrid);
+
+int PhotonPeriodicBoundary(int &cindex, FLOAT *r, int *g, FLOAT *s,
+			   PhotonPackageEntry* &PP, grid* &MoveToGrid, 
+			   const float *DomainWidth, int &DeleteMe);
 
 /* Create PhotonPackages for a given radiation sources   */
 

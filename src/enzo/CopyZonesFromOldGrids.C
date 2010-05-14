@@ -33,7 +33,7 @@
 #include "CommunicationUtilities.h"
 #include "communication.h"
 
-#define GRIDS_PER_LOOP 20000
+#define GRIDS_PER_LOOP 50000
 #define CELLS_PER_LOOP 100000000
 
 int CommunicationBufferPurge(void);

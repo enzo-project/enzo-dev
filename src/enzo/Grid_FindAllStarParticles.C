@@ -28,7 +28,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 #define RESET_BH_LIFETIMES
-#define NO_RESET_MBH_MASS //#####
+#define NO_RESET_MBH_MASS 
 
 int grid::FindAllStarParticles(int level)
 {
@@ -75,7 +75,6 @@ int grid::FindAllStarParticles(int level)
 	if (ParticleType[i] == PARTICLE_TYPE_MBH)
 	  ParticleMass[i] = 1.0e5 / MassConversion;
 #endif /* RESET_MBH_MASS */  
-
 
 	NewStar = new Star(this, i, level);
 	InsertStarAfter(Stars, NewStar);

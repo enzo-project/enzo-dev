@@ -473,10 +473,15 @@ EXTERN float JeansRefinementColdTemperature;
 
 EXTERN int   MustRefineParticlesRefineToLevel;
 
+/* For CellFlaggingMethod = 8,
+   The physical length (in pc) to which the must refine particles apply 
+   The above parameter will be automatically adjusted to match this length */
+
+EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
+
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
-
 
 EXTERN float MinimumShearForRefinement;
 

@@ -44,17 +44,28 @@ int grid::SetSubgridMarkerFromSubgrid(grid *Subgrid)
   for (dim = 0; dim < GridRank; dim++)
       size *= GridDimension[dim];
 
+  // Subgrid == NULL is the flag to allocate and initialize.
+  if (Subgrid == NULL) {
+    if (SubgridMarker != NULL)
+      delete [] SubgridMarker;
+    SubgridMarker = new grid*[size];
+    for (i=0; i<size; i++) SubgridMarker[i] = NULL;
+    return SUCCESS;
+  }
+
   if (SubgridMarker == NULL)  {
     //    if (debug) printf("allocating SubgridMarker field\n");
     SubgridMarker = new grid*[size];
     if (Subgrid == this) {
-      //for (i=0; i<size; i++) SubgridMarker[i] = this;
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	  index = (k*GridDimension[1]+j)*GridDimension[0] + GridStartIndex[0];
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
-	    SubgridMarker[index] = this;
-	} // ENDFOR j
+      // Set everything to this grid because any cells from subgrids,
+      // siblings, or parents will overwrite these.
+      for (i=0; i<size; i++) SubgridMarker[i] = this;  //NULL;
+//      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+//	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+//	  index = (k*GridDimension[1]+j)*GridDimension[0] + GridStartIndex[0];
+//	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+//	    SubgridMarker[index] = this;
+//	} // ENDFOR j
       return SUCCESS;
 
     } else

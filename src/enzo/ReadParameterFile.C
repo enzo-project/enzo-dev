@@ -446,6 +446,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
+    ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
+                  &MustRefineParticlesRefineToLevelAutoAdjust);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
@@ -700,8 +702,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
 
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
@@ -709,6 +709,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
     ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
+    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
 
     ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);

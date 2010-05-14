@@ -28,7 +28,6 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 /* function prototypes */
 

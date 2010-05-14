@@ -24,19 +24,16 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
-#include "CosmologyParameters.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
-int FindRootGrid(int &dummy, grid **Grids0, int nGrids0, FLOAT rx, 
-		 FLOAT ry, FLOAT rz, FLOAT ux, FLOAT uy, FLOAT uz);
-
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
+			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,
 			    grid *ParentGrid)
 {
 
-  int dim, dummy, RayInsideGrid;
+  int Refinement;
+  int dim, RayInsideGrid;
   bool InsideDomain;
 
   /* First determine whether the ray has left the grid, store the
@@ -63,10 +60,13 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
       if (!InsideDomain) {
 	if (RadiativeTransferPeriodicBoundary) {
 	  for (dim = 0; dim < 3; dim++)
-	    if (r[dim] < DomainLeftEdge[dim])
-	      PP->SourcePosition[dim] += DomainWidth[dim];
-	    else if (r[dim] > DomainRightEdge[dim])
-	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	    if (r[dim] < DomainLeftEdge[dim]) {
+ 	      PP->SourcePosition[dim] += DomainWidth[dim];
+	      //r[dim] += DomainWidth[dim];
+	    } else if (r[dim] > DomainRightEdge[dim]) {
+ 	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	      //r[dim] -= DomainWidth[dim];
+	    }
 	} // ENDIF periodic
 	else {
 	  MoveToGrid = NULL;
@@ -74,7 +74,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 	} // ENDELSE periodic
 	
       } // ENDIF !InsideDomain
-    }
+    } // ENDELSE inside grid
     break;
       
   case SubGridIsolated:
@@ -82,28 +82,39 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
       DeltaLevel = +1;
     } else {
       // Outside the grid, we have to determine whether it's a parent
-      // or sibling grid
+      // or some other grid
       if (MoveToGrid == ParentGrid)
 	DeltaLevel = -1;
       else {
+	Refinement = nint( MoveToGrid->CellWidth[0][0] /
+			   CellWidth[0][0] );
 	DeltaLevel = 0;
-	for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)
-	  InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
-			   r[dim] <= DomainRightEdge[dim]);
-	if (!InsideDomain) {
-	  if (RadiativeTransferPeriodicBoundary) {
-	    for (dim = 0; dim < 3; dim++)
-	      if (r[dim] < DomainLeftEdge[dim])
-		PP->SourcePosition[dim] += DomainWidth[dim];
-	      else if (r[dim] > DomainRightEdge[dim])
-		PP->SourcePosition[dim] -= DomainWidth[dim];
-	  } // ENDIF periodic
-	} // ENDELSE !InsideDomain
-      } // ENDELSE
-    }
+	while (Refinement > 1) {
+	  Refinement /= RefineBy;
+	  DeltaLevel--;
+	}
+      }
+
+      for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)
+	InsideDomain &= (r[dim] >= DomainLeftEdge[dim] && 
+			 r[dim] <= DomainRightEdge[dim]);
+      if (!InsideDomain) {
+	if (RadiativeTransferPeriodicBoundary) {
+	  for (dim = 0; dim < 3; dim++)
+	    if (r[dim] < DomainLeftEdge[dim]) {
+	      PP->SourcePosition[dim] += DomainWidth[dim];
+	      //r[dim] += DomainWidth[dim];
+	    } else if (r[dim] > DomainRightEdge[dim]) {
+	      PP->SourcePosition[dim] -= DomainWidth[dim];
+	      //r[dim] -= DomainWidth[dim];
+	    }
+	} // ENDIF periodic
+      } // ENDELSE !InsideDomain
+    } // ENDELSE
+
     if (DEBUG) 
-      fprintf(stdout, "Walk: left grid: sent photon to grid %x (DeltaL = %d)\n", 
-	      MoveToGrid, DeltaLevel);
+      fprintf(stdout, "Walk: left grid: sent photon to grid %d (DeltaL = %d)\n", 
+	      MoveToGrid->ID, DeltaLevel);
     break;
 
   case GravityUndefined:
@@ -113,6 +124,14 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, PhotonPackageEntry* &PP,
 	    GravityBoundaryType);
     ENZO_FAIL("");
   } // ENDSWITCH
+
+  /* Error check */
+
+#ifdef UNUSED
+  if (MoveToGrid != NULL && InsideDomain)
+    if (MoveToGrid->PointInGridNB(r) == FALSE)
+      ENZO_FAIL("Photon not contained in MoveToGrid!");
+#endif
 
   return SUCCESS;
 

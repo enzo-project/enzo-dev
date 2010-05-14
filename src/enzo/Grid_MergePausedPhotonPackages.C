@@ -23,7 +23,6 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 #define MAX_HEALPIX_LEVEL 13
 

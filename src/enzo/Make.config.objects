@@ -18,6 +18,7 @@ OBJS_CONFIG_LIB = \
         acml_st1.o \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
+        AdjustMustRefineParticlesRefineToLevel.o \
         AMRH5writer.o \
         AnalysisBaseClass.o \
         AnalysisBaseClass_HDF5Utils.o \
@@ -761,6 +762,7 @@ POBJS_CONFIG_LIB = \
         Grid_InitializeSource.o \
         Grid_MergePausedPhotonPackages.o \
         Grid_MoveAllPhotonPackages.o \
+	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
@@ -768,6 +770,7 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SolveCoupledRateEquations.o \
+        Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \

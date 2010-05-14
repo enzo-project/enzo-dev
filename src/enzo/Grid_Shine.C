@@ -24,7 +24,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "RadiativeTransferHealpixRoutines.h"
 
 #define ONE_ENERGY
 

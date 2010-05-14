@@ -354,6 +354,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
+  MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
@@ -417,15 +418,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIColorMass                  = 1e6;          // total mass to color
   IMFData                          = NULL;
 
-  MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1e3;          // Msun
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
-  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretiob = 3
+  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretion = 3
   MBHTurnOffStarFormation          = FALSE;        // check Grid_StarParticleHandler.C
   MBHCombineRadius                 = 50;           // pc
+  MBHMinDynamicalTime              = 10e6;         // in years
+  MBHMinimumMass                   = 1e3;          // Msun
 
   MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)

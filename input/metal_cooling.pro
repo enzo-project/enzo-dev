@@ -398,7 +398,6 @@ function metal_cooling, rho, nelec, nHI, nHII, nH2I, T, Z, redshift, pop3=pop3
   cp_heat = cp10.bij * (cp10.eji_k*kb) * $
             (REFORM(cp_ratio[*,0]) * Cplus_ratio * rho * abundances.C * Z)
   cp10.total = cp_cool - cp_heat
-;  shit
 
   ;; Si+
   sip_cool = (sip10.aji + sip10.bji) * (sip10.eji_k*kb) * $
