@@ -196,11 +196,13 @@ int Star::CalculateMassAccretion(void)
     this->accretion_rate[0] = mdot;
     this->accretion_time[0] = time;
 
-    if (mdot > 0.0)
+    if (mdot > 0.0) {
       fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" (%"GSYM"/%"GSYM") Msun/yr, "
 	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
 	      Identifier, time, mdot*yr, mdot_original*yr, mdot_Edd*yr, Mass, density*DensityUnits,
 	      temperature[index], v_rel);
+      this->PrintInfo();
+    }
 
   } // ENDIF LOCAL_ACCRETION  
 
