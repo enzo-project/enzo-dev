@@ -108,7 +108,10 @@ all: MACHNOTES $(EXE).exe
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+MACHNOTES: 
+	@echo $(MACHINE_NOTES)
+
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
 	@echo "Linking"
 	@(if [ $(VERBOSE) -eq 0 ]; then \
