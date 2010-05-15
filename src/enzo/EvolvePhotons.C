@@ -51,8 +51,6 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int InitializePhotonCommunication(void);
-int InitializePhotonReceive(int max_size, bool local_transport,
-			    MPI_Datatype MPI_PhotonType);
 int FinalizePhotonCommunication(void);
 int KeepTransportingInitialize(char* &kt_global, bool initial_call);
 int KeepTransportingFinalize(char* &kt_global, int keep_transporting);
@@ -71,8 +69,12 @@ void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
+#ifdef USE_MPI
+int InitializePhotonReceive(int max_size, bool local_transport,
+			    MPI_Datatype MPI_PhotonType);
 static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_PhotonList;
+#endif
 
 #define NONBLOCKING
 #define REPORT_PERF_OFF
@@ -361,7 +363,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }                           //  end while keep_transporting
     
     KeepTransportingFinalize(kt_global, keep_transporting);
+#ifdef USE_MPI
     InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
+#endif
     CommunicationReceiverPhotons(LevelArray, false, local_keep_transporting);
     secondary_kt_check = CommunicationMaxValue(local_keep_transporting);
 
