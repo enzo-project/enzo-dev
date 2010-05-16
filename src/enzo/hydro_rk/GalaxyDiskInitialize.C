@@ -231,6 +231,10 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     printf("halodensity=%"GSYM"\n", HaloDensity[0]);
   }
 
+  HaloVirialRadius  = HaloRadius[0]*LengthUnits;
+  HaloConcentration = HaloVirialRadius/HaloCoreRadius[0]/LengthUnits;
+  HaloCentralDensity = HaloDensity[0]*DensityUnits;
+
   /* set up grid */
 
   if (TopGrid.GridData->GalaxyDiskInitializeGrid(

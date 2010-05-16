@@ -235,6 +235,36 @@ int grid::ComputeAccelerationFieldExternal()
 	}  // if (PointSourceGravity == 1)
 
 
+
+	if (PointSourceGravity == 2) {
+
+	  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
+	     is mass within rs in g. */
+
+	  
+	  radius = sqrt(rsquared);
+	  rcore = PointSourceGravityCoreRadius/LengthUnits;
+	  FLOAT x = radius/rcore;
+	  accel = GravConst*PointSourceGravityConstant*
+	    ((log(1.0+x  )-x  /(1.0+x  )) /
+	     (log(1.0+1.0)-1.0/(1.0+1.0))) / 
+	    POW(radius*LengthUnits, 2) / AccelUnits;
+	  accel = accel/radius;  // this radius normalizes the multiplication by xpos,ypos,zpos done below
+
+
+	} // if (PointSourceGravity == 2)
+	
+
+	/* Apply force. */
+	
+	ParticleAcceleration[0][i] -= accel*xpos;
+	ParticleAcceleration[1][i] -= accel*ypos;
+	ParticleAcceleration[2][i] -= accel*zpos;
+
+      } // end: loop over number of particles
+      
+  } // end: if (PointSourceGravity)
+
   /* -----------------------------------------------------------------
      ExternalGraivty 1: NFW profile
      ----------------------------------------------------------------- */
@@ -341,35 +371,6 @@ int grid::ComputeAccelerationFieldExternal()
 
   }
 
-
-	if (PointSourceGravity == 2) {
-
-	  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
-	     is mass within rs in g. */
-
-	  
-	  radius = sqrt(rsquared);
-	  rcore = PointSourceGravityCoreRadius/LengthUnits;
-	  FLOAT x = radius/rcore;
-	  accel = GravConst*PointSourceGravityConstant*
-	    ((log(1.0+x  )-x  /(1.0+x  )) /
-	     (log(1.0+1.0)-1.0/(1.0+1.0))) / 
-	    POW(radius*LengthUnits, 2) / AccelUnits;
-	  accel = accel/radius;  // this radius normalizes the multiplication by xpos,ypos,zpos done below
-
-
-	} // if (PointSourceGravity == 2)
-	
-
-	/* Apply force. */
-	
-	ParticleAcceleration[0][i] -= accel*xpos;
-	ParticleAcceleration[1][i] -= accel*ypos;
-	ParticleAcceleration[2][i] -= accel*zpos;
-
-      } // end: loop over number of particles
-      
-  } // end: if (PointSourceGravity)
  
   /* -----------------------------------------------------------------
      Uniform gravity field
