@@ -177,7 +177,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   // if using external Emissivity field source, copy into extsrc
   if (StarMakerEmissivityField > 0) {
     // access external emissivity field 
-    float *EmissivitySource = ThisGrid->GridData->AccessEmissivityField();
+    float *EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
     if (EmissivitySource == NULL) 
       ENZO_FAIL("gFLDSplit Evolve: could not access emissivity field");
     // copy data
