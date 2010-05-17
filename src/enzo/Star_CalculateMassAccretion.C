@@ -79,8 +79,8 @@ int Star::CalculateMassAccretion(void)
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
-    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-      CurrentGrid->CellWidth[0][0];
+    igrid[dim] = (int) ((pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+			CurrentGrid->CellWidth[0][0]);
   }
 
   temperature = new float[size];
@@ -101,6 +101,17 @@ int Star::CalculateMassAccretion(void)
        igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
       igrid[0] + CurrentGrid->GridStartIndex[0];
     density = CurrentGrid->BaryonField[DensNum][index];
+
+    /*
+    fprintf(stdout, "index = %d, density = %g\n", index, density);  //#####
+    fprintf(stdout, "igrid[0], igrid[1], igrid[2] = %d, %d, %d\n", igrid[0], igrid[1], igrid[2]); 
+    fprintf(stdout, "pos[0], [1], [2] = %g %g %g\n", pos[0], pos[1], pos[2]); 
+    fprintf(stdout, "GridLeftEdge[0], [1], [2] = %g, %g, %g\n",
+	    CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1], CurrentGrid->GridLeftEdge[2]);
+    fprintf(stdout, "GridDimension[0], [1], [2] = %d, %d, %d\n",
+	    CurrentGrid->GridDimension[0], CurrentGrid->GridDimension[1], CurrentGrid->GridDimension[2]);
+    */
+
 
     if (MultiSpecies == 0) {
       number_density = density * DensityUnits / (DEFAULT_MU * m_h);
@@ -201,7 +212,7 @@ int Star::CalculateMassAccretion(void)
 	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
 	      Identifier, time, mdot*yr, mdot_original*yr, mdot_Edd*yr, Mass, density*DensityUnits,
 	      temperature[index], v_rel);
-      this->PrintInfo();
+//      this->PrintInfo();  
     }
 
   } // ENDIF LOCAL_ACCRETION  
