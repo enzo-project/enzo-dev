@@ -49,7 +49,7 @@ int Star::HitEndpoint(FLOAT Time)
 	this->Mass = 1e-10;  // Needs to be non-zero
 
 	// Set lifetime so the time of death is exactly now.
-	this->LifeTime = Time - this->BirthTime;
+	//this->LifeTime = Time - this->BirthTime;
 
 	this->FeedbackFlag = NO_FEEDBACK;
 	//result = KILL_STAR;

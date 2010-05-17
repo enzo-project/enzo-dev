@@ -234,6 +234,114 @@ int grid::ComputeAccelerationFieldExternal()
 
 	}  // if (PointSourceGravity == 1)
 
+
+  /* -----------------------------------------------------------------
+     ExternalGraivty 1: NFW profile
+     ----------------------------------------------------------------- */
+
+  if (ExternalGravity == 1) {
+    
+    /* Specify NFW parameters by hand here 
+       Should move to parameter file in the future */
+    
+    double rhoc = HaloCentralDensity,
+      c = HaloConcentration, 
+      rvir = HaloVirialRadius;
+    FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
+
+    double rs = rvir / c;
+    double Mvir = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+c)-c/(1.0+c));
+    
+    float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
+      TimeUnits = 1.0, VelocityUnits = 1.0;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
+    double AccelerationUnits = LengthUnits / pow(TimeUnits,2);
+    double CGSGravConst = 6.672e-8;
+
+    printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/1.989e33);
+    
+    FLOAT x, y, z, xpos, ypos, zpos, r;
+    int n = 0;
+    double x1, M, g;
+    for (dim = 0; dim < GridRank; dim++) {
+      n = 0;
+    for (int k = 0; k < GridDimension[2]; k++) {
+      z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+      zpos = z - zc;
+
+      if (dim == 2 && HydroMethod == Zeus_Hydro) 
+	zpos -= 0.5*CellWidth[2][k];
+
+      for (int j = 0; j < GridDimension[1]; j++) {
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	ypos = y - yc;
+
+	if (dim == 1 && HydroMethod == Zeus_Hydro) 
+	  ypos -= 0.5*CellWidth[1][j];
+
+	for (int i = 0; i < GridDimension[0]; i++, n++) {
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	  xpos = x - xc;
+
+	  if (dim == 0 && HydroMethod == Zeus_Hydro) 
+	    xpos -= 0.5*CellWidth[0][i];
+
+	  r = sqrt(xpos*xpos+ypos*ypos+zpos*zpos);
+	  r = max(r, CellWidth[0][0]);
+	  
+	  if (r < rvir/LengthUnits) {
+	    x1 = r*LengthUnits/rs;
+	    M = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	  }
+	  else {
+	    M = Mvir;
+	  }
+	  g = CGSGravConst*M/pow(r*LengthUnits,2);
+	  g /= AccelerationUnits;
+	  if (dim == 0) { 
+	    AccelerationField[0][n] += -g*xpos/r;
+	  }
+	  if (dim == 1) {
+	    AccelerationField[1][n] += -g*ypos/r;
+	  }
+	  if (dim == 2) { 
+	    AccelerationField[2][n] += -g*zpos/r;
+	  }
+	}
+      }
+    }
+    }
+
+    for (int i = 0; i < NumberOfParticles; i++) {
+      x = ParticlePosition[0][i];
+      y = ParticlePosition[1][i];
+      z = ParticlePosition[2][i];
+      xpos = x - xc;
+      ypos = y - yc;
+      zpos = z - zc;
+      r = sqrt(xpos*xpos+ypos*ypos+zpos*zpos);
+      r = max(r, CellWidth[0][0]);
+
+      if (r < rvir/LengthUnits) {
+	x1 = r*LengthUnits/rs;
+	M = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+      }
+      else {
+	M = Mvir;
+      }
+      g = CGSGravConst*M/pow(r*LengthUnits,2);
+      g /= AccelerationUnits;
+
+      ParticleAcceleration[0][i] += -g*xpos/r;
+      ParticleAcceleration[1][i] += -g*ypos/r;
+      ParticleAcceleration[2][i] += -g*zpos/r;
+    }
+    
+
+  }
+
+
 	if (PointSourceGravity == 2) {
 
 	  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
