@@ -18,7 +18,7 @@
 # file names, must be surrounded by parentheses, either () or {}.
 #===========================================================================
 
- Target   = gfld_guide
+ Target   = gfldproblem_UG
  TexFiles = 
  FigFiles = 
  BibFile  = sources.bib

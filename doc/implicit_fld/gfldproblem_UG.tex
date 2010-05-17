@@ -59,18 +59,18 @@ A FLD-based Radiation and Chemistry Solver for Enzo}
 \section{Introduction}
 \label{sec:intro}
 
-This document is meant to describe a new, highly scalable,
-field-based radiation and chemistry solver solver for Enzo, 
+This document describes a new, highly scalable,
+field-based radiation and chemistry solver for Enzo, 
 {\tt gFLProblem}. The target applications of this solver include the
-transport of radiation using a flux-limited-diffusion-based solver
-over a uniform grid, distributed among a possibly large number of
+transport of radiation using a flux-limited-diffusion-based solver,
+distributed among a possibly large number of 
 processors.  In this solver, the radiation field is assumed to be
 either a monochromatic radiation energy at the ionization threshold of
 Hydrogen I ($h\nu = 13.6$ eV), or an integrated radiation energy
 density with an assumed radiation spectrum.  This radiation field may
 be coupled to the surrounding matter using either an assumption of
 local thermodynamic equilibrium (no chemical ionization), or a model
-for Hydrogen ionization (no Helium, yet). 
+for Hydrogen ionization. 
 
 The defining characteristic of this solver in comparison 
 with {\tt gFLDSplit} is that in a given time step, this
@@ -78,9 +78,13 @@ solver evolves the radiation, a gas energy correction, and possibly a
 Hydrogen-I number density together, using a full nonlinearly-implicit
 solver.  The goal in using a nonlinear solver on this problem is
 to self-consistently capture the stiff interactions between these
-processes in a time-accurate and stable fashion.  In addition to the
-full nonlinear solver, this module allows increased choice over
-modeling parameters, as it is used as a test-bed for new methods.
+processes in a time-accurate and numerically stable fashion.  It is
+therefore usually slower than its sister solver, {\tt gFLDSplit},
+which takes more shortcuts in numerical accuracy to obtain a faster
+and more robust solver for a similar physical regime.  In addition to
+the full nonlinear solver, this module allows increased choice over 
+modeling parameters, as it is used as a test-bed for developing new
+methods. 
 
 This guide will only highlight the solvers and equations available in
 this module.  For further details on the equations, numerical methods,
@@ -89,6 +93,35 @@ and verification tests relevant to this module, we refer to the paper
 with the relevant parameters that must be defined to use the module.
 The equations that describe what these options mean follow in
 subsequent sections, with references placed accordingly.
+
+
+
+\subsection{Current limitations}
+\label{sec:limitations}
+
+This solver is still a work in progress, though will serve many user's
+needs in its current form.  Specific limitations that are present in
+the current solver, and that are under active development include:
+\begin{itemize}
+\item Adaptive mesh refinement -- This solver may currently only be
+  run in unigrid simulations.  This is because in the implicit
+  radiation equation we must solve the problem on the entire mesh
+  hierarchy, and the linear solver interface changes (and becomes more
+  complex) when moving to a hierarchical mesh structure.  We have
+  finished an initial interface for linear solvers on hierarchical
+  meshes, in the context of self-gravity solves.  We plan to extend
+  this interface to the implicit {\tt gFLDProblem} module in the near
+  future.
+\item Increased chemistry -- Due to the use of a single radiation
+  field with an assumed spectrum, our initial solver development
+  focused only on Hydrogen chemistry.  This was based on the fact that
+  multiple chemical species would be best simulated with a radiation
+  approximation that allows spectral variation in space, to allow for
+  spectral hardening and I-front preheating.  However, we plan on
+  extending this single-field solver to work with Helium and molecular
+  chemistry, for problems where spectral variation may be less
+  important.
+\end{itemize}
 
 
 
@@ -113,48 +146,52 @@ how to include and link with an available HYPRE library (version $\ge$
 2.4.0b).  If a user must compile HYPRE themselves to obtain this
 version, they should make note of the HYPRE configuration option
 {\tt --with-no-global-partition}, which must be used for solver
-scalability when using over $\sim1000$ processors, but which results
+scalability when using over $\sim\!1000$ processors, but which results
 in slower executables on smaller-scale problems.
 
 
 \subsection{Startup parameters}
 
 In a user's main problem parameter file, the following parameters
-must be set:
+must be set (their default values are in brackets):
 \begin{itemize}
-\item {\tt RadiativeTransferFLD} -- this must be set to 2.  Other
+\item {\tt RadiativeTransferFLD} [0] -- this must be set to 2.  Other
   values will either disable the FLD solver, or will use one in a
   non-desired context.
-\item {\tt ImplicitProblem} -- this must be set to 1 to use this
+\item {\tt ImplicitProblem} [0] -- this must be set to 1 to use this
   {\tt gFLDProblem} module (among the possible implicit radiation solver
   modules).
-\item {\tt ProblemType} -- as usual, this is problem-dependent.
+\item {\tt ProblemType} [0] -- as usual, this is problem-dependent.
   However, for implicit FLD-based solvers, the value of ProblemType
   should be within the 400's.
-\item {\tt RadHydroParamfile} -- this should contain the filename
+\item {\tt RadHydroParamfile} [NULL] -- this should contain the filename
   (with path relative to this parameter file) that contains all
   module-specific solver parameters (discussed below).  While the 
   {\tt gFLDProblem} module parameters may be supplied in the main
   parameter file, that filename must still be specified here (though
   it is not recommended, since the {\tt ReadParameterFile.C} routine
-  will complain about all of the 'unknown' parameters). 
-\item {\tt RadiationFieldType} -- this can be any value {\em except}
+  will complain about all of the `unknown' parameters that are read
+  elsewhere).
+\item {\tt RadiationFieldType} [0] -- this can be any value {\em except}
   10 or 11, since those use pre-existing background radiation
-  radiation approximations.
-\item {\tt RadiativeTransferFLDCallOnLevel} -- this should currently
+  approximations.
+\item {\tt RadiativeTransferFLDCallOnLevel} [0] -- this should currently
   be set to 0.  Future releases plan to enable the implicit solver on
   a statically nested subgrid, but this does not work at present.
-\item {\tt RadiativeTransfer} -- this must be set to 0.  A nonzero
+\item {\tt RadiativeTransfer} [0] -- this must be set to 0.  A nonzero
   value will instead use an explicit ray-tracing solver for the
   radiation transport. 
-\item {\tt RadiativeCooling} -- this must be set to 0.  A nonzero
-  value will use Enzo's built-in explicit subcycled gas cooling
+\item {\tt RadiativeTransferOpticallyThinH2} [1] -- this must be set
+  to 0.  A nonzero value will attempt to use a $1/r^2$ Lyman-Werner
+  radiation field, that is {\em ignored} by the {\tt gFLDProblem} module.
+\item {\tt RadiativeCooling} [0] -- this must be set to 0.  A nonzero
+  value will attempt to use Enzo's built-in explicit subcycled gas
+  cooling modules instead of the coupled radiative-ionization provided
+  by {\tt gFLDProblem}, which has not yet been enabled to work together. 
+\item {\tt GadgetEquilibriumCooling} [0] -- this must be set to 0.  A
+  nonzero value will attempt to use Enzo's built-in equilibrium cooling
   modules instead of the coupled radiative-ionization provided by 
-  {\tt gFLDProblem}. 
-\item {\tt GadgetEquilibriumCooling} -- this must be set to 0.  A
-  nonzero value will use Enzo's built-in equilibrium cooling
-  modules instead of the coupled radiative-ionization provided by 
-  {\tt gFLDProblem}. 
+  {\tt gFLDProblem}, which have also not been set up to work together. 
 \end{itemize}
 
 In addition, if a user wishes to set up a new {\tt ProblemType} that
@@ -165,13 +202,15 @@ module, and that a user may access to obtain information on the
 grey radiation field. 
 
 Furthermore, the {\tt gFLDProblem} module currently computes its own
-emissivity field $\eta_f(\xvec)^n$, in the routine 
+emissivity field $\eta_f(\xvec)$, in the routine 
 {\tt gFLDProblem\_RadiationSource.src90}.  A user may edit this file
 to add in an emissivity field corresponding to their own 
-{\tt ProblemType}.  Alternatively, we are currently working to
-implement a separate interface whereby other Enzo functions fill
-in an emissivity field, which is then used internally by the 
-{\tt gFLDProblem} module.
+{\tt ProblemType}.  Alternatively, a user may separately fill in the
+BaryonField {\tt Emissivity0} in some other Enzo routine.  Then, when
+Enzo is compiled using the pre-processor directive {\tt EMISSIVITY}
+and run with the global parameter {\tt StarMakerEmissivity $\ne$ 0},
+the {\tt gFLDProblem} module will use the {\tt Emissivity0} field
+instead of computing its own. 
 
 
 
@@ -184,52 +223,56 @@ brackets, and references to the appropriate equations elsewhere in
 this document. 
 \begin{itemize}
 \item {\tt RadHydroESpectrum} [1], this parameter chooses the type of
-  assumed radiation energy spectrum from \eqref{eq:spectrum}.  Allowed
-  values include
+  assumed radiation energy spectrum from equation \eqref{eq:spectrum}.
+  Allowed values include:
   \begin{itemize}
-  \item[(-1)] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
-  \item[(0)] power law spectrum,
+  \item[-1.] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
+  \item[0.] power law spectrum,
     \[
       \chi(\nu) = \left(\frac{\nu}{\nu_{HI}}\right)^{-1.5}
     \]
-  \item[(1)] $T=10^5$ K blackbody spectrum, 
+  \item[1.] $T=10^5$ K blackbody spectrum, 
     \[
        \chi(\nu) = \frac{8 \pi h
-         \left(\frac{nu}{c}\right)^3}{exp\left(\frac{h\nu}{k_b T}\right)-1}.
+         \left(\frac{\nu}{c}\right)^3}{\exp\left(\frac{h\nu}{k_b 10^5}\right)-1}.
     \]
   \end{itemize}
 \item {\tt RadHydroChemistry} [1], this parameter controls whether to
-  use Hydrogen chemistry or not.  Allowable values are
+  use Hydrogen chemistry or not.  Allowable values are:
   \begin{itemize}
-  \item[(0)] no chemistry
-  \item[(1)] Hydrogen chemistry
+  \item[0.] no chemistry
+  \item[1.] Hydrogen chemistry
   \end{itemize}
 \item {\tt RadHydroHFraction} [1], this parameter controls the
   fraction of baryonic matter comprised of Hydrogen, allowable
   values are $0 \le {\tt RadHydroHFraction} \le 1$.
 \item {\tt RadHydroModel} [1], this parameter determines which model
   for radiation-matter coupling we wish to use, allowable values
-  include
+  include:
   \begin{itemize}
-  \item[(1)] Use the chemistry-dependent model from section
-    \ref{sec:chem_model}, with the case B HII recombination coefficient.
-  \item[(2)] Use the chemistry-dependent model from section
-    \ref{sec:chem_model}, with the case A HII recombination coefficient.
-  \item[(4)] The same as model 1, but assumes an isothermal gas energy
+  \item[1.] Use the chemistry-dependent model from section
+    \ref{sec:chem_model}, with a case B HII recombination coefficient.
+  \item[2.] Use the chemistry-dependent model from section
+    \ref{sec:chem_model}, with a case A HII recombination coefficient.
+  \item[4.] The same as model 1, but assume an isothermal gas energy
     (for regression test problems).
-  \item[(10)] Use the local thermodynamic equilibrium model from section
+  \item[10.] Use the local thermodynamic equilibrium model from section
     \ref{sec:lte_model}.
   \end{itemize}
 \item {\tt RadHydroMaxDt} [$10^{20}$], this parameter sets the value of
   $\dt_{\text{max}}$ from section \ref{sec:dt_selection}; it must be
-  greater than 0.
+  greater than 0.  This value must be given in {\em scaled} time units,   
+  i.e.~$\dt_{\text{physical}} \le \dt_{\text{max}}*\text{TimeUnits}$, 
+  where TimeUnits is Enzo's internal time scaling factor for the simulation.
 \item {\tt RadHydroMinDt} [0], this parameter sets the value of
   $\dt_{\text{min}}$ from section \ref{sec:dt_selection}; it must be
-  non-negative.
+  non-negative.  This value must also be given in scaled time
+  units.
 \item {\tt RadHydroInitDt} [$10^{20}$], this parameter sets the initial
   time step size for the {\tt gFLDProblem} module.  We note that since
   the module will take the smaller of $\dt_{\text{FLD}}$ and
-  $\dt_{\text{CFL}}$, this default value is never actually used.
+  $\dt_{\text{CFL}}$, the default value is never actually used.  This
+  value must also be given in scaled time units.
 \item {\tt RadHydroDtNorm} [2.0], this parameter sets the value
   of $p$ from equation \eqref{eq:time_error}.  
   \begin{itemize}
@@ -240,49 +283,53 @@ this document.
 \item {\tt RadHydroDtRadFac}, {\tt RadHydroDtGasFac} and {\tt
     RadHydroDtChemFac}  [$10^{20}$], these parameters give the values
   of $\tau_{\text{tol}}$ for the variables $E$, $e_c$ and $\mn_{HI}$
-  from equation \eqref{eq:time_estimate}.  They must be positive; the
-  default specifies no restrictions on $\dt_{\text{FLD}}$.
+  from equation \eqref{eq:time_estimate}, respectively.  They must be
+  positive; the default specifies no restrictions on $\dt_{\text{FLD}}$.
 \item {\tt RadiationScaling}, {\tt EnergyCorrectionScaling} and 
   {\tt ChemistryScaling} [1.0], these parameters give the scaling 
   factors $s_E$, $s_e$ and $s_{\mn}$ from
-  \eqref{eq:variable_rescaling}; supplied values must be positive.
-\item {\tt RadHydroTheta} [1.0], this parameter specifies the
-  value of $\theta$ in equations
-  \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta}. 
-  $0\le\theta\le 1$.
-\item {\tt RadHydroLimiterType} [4], this parameter determines the
-  type of flux limiter $D$ to use in \eqref{eq:radiation_PDE}:
-  \begin{itemize}
-  \item[(0)] specifies the original Levermore-Pomraning limiter,
-    \eqref{eq:LP_limiter} \cite{LevermorePomraning1981,Levermore1984}.
-  \item[(1)] specifies the rational approximation to the
-    Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
-  \item[(2)] specifies to use a new approximation to the
-    Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
-  \item[(3)] specifies to use no limiter, \eqref{eq:no_limiter}.
-  \item[(4)] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
-  \end{itemize}
+  \eqref{eq:variable_rescaling}, respectively; supplied values must be
+  positive. 
 \item {\tt RadiationBoundaryX0Faces}, {\tt RadiationBoundaryX1Faces}
   and {\tt RadiationBoundaryX2Faces} [0 0], these specify the
   boundary-condition types from section \ref{sec:boundary_conditions}
   to use on the lower and upper boundaries in each direction.
-  Allowable values are
+  Allowable values are:
   \begin{itemize}
-  \item[(0)] periodic (must be set on both faces in a given direction)
-  \item[(1)] Dirichlet
-  \item[(2)] Neumann
+  \item[0.] periodic (must match on both faces in a given direction)
+  \item[1.] Dirichlet
+  \item[2.] Neumann
   \end{itemize}
-\item {\tt RadHydroInitialGuess} [0], this parameter specifies the
-  method to use in calculating an initial guess to the time-evolved
-  nonlinear problem.  The allowed values are the same as those
-  described in section \ref{sec:initial_guess}, with 0 and 5 being the
-  safest to use.
+\item {\tt RadHydroLimiterType} [4], this parameter determines the
+  type of flux limiter $D$ to use in \eqref{eq:radiation_PDE}:
+  \begin{itemize}
+  \item[0.] specifies the original Levermore-Pomraning limiter,
+    \eqref{eq:LP_limiter} \cite{Levermore1984,LevermorePomraning1981}.
+  \item[1.] specifies the rational approximation to the
+    Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
+  \item[2.] specifies to use a new approximation to the
+    Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
+  \item[3.] specifies to use no limiter, \eqref{eq:no_limiter}.
+  \item[4.] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
+  \end{itemize}
+\item {\tt RadHydroTheta} [1.0], this parameter specifies the
+  value of $\theta$ in equations
+  \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta},
+  $0\le\theta\le 1$.
 \item {\tt RadHydroAnalyticChem} [1], this parameter specifies to use
   the implicit quasi-steady-state time approximation, i.e.~equations
   \eqref{eq:radiation_PDE_iqss}-\eqref{eq:hydrogen_iqss}, instead of
   the $\theta$-method in time.  Allowable values are $\{0,1\}$, and a
   value of 1 will be used for all models for which this has been
   implemented (all models allow the $\theta$-method).
+\item {\tt RadHydroInitialGuess} [0], this parameter specifies the
+  method to use in calculating an initial guess to the time-evolved
+  nonlinear problem.  The allowed values are the same as those
+  described in section \ref{sec:initial_guess}, with 0 and 5 being the
+  safest to use.
+\item {\tt RadHydroNewtTolerance} [$10^{-6}$], this parameter
+  specifies the nonlinear tolerance $\varepsilon$ from section
+  \ref{sec:nkmg}.  Allowable values must be between $10^{-15}$ and 1.
 \item {\tt RadHydroNewtIters} [20], this positive parameter specifies
   the maximum allowed number of Inexact Newton iterations, as
   described in section \ref{sec:nkmg}.  If the nonlinear problem has
@@ -292,19 +339,16 @@ this document.
   the value of $C$ used in determining $\delta_k$ within the Inexact
   Newton iteration from section \ref{sec:nkmg}.  Allowable values must
   be between 0 and 1.
-\item {\tt RadHydroNewtTolerance} [$10^{-8}$], this parameter
-  specifies the nonlinear tolerance $\varepsilon$ from section
-  \ref{sec:nkmg}.  Allowable values must be between $10^{-15}$ and 1.
 \item {\tt RadHydroMaxMGIters} [50], this positive parameter
   specifies the maximum number of multigrid iterations to perform in
   the MG-CG solver from section \ref{sec:nkmg}.
 \item {\tt RadHydroMGRelaxType} [1], this parameter specifies the
   relaxation method used by the multigrid solver:
   \begin{itemize}
-  \item[(0)] Jacobi
-  \item[(1)] Weighted Jacobi
-  \item[(2)] Red/Black Gauss-Seidel (symmetric)
-  \item[(3)] Red/Black Gauss-Seidel (nonsymmetric)
+  \item[0.] Jacobi
+  \item[1.] Weighted Jacobi
+  \item[2.] Red/Black Gauss-Seidel (symmetric)
+  \item[3.] Red/Black Gauss-Seidel (nonsymmetric)
   \end{itemize}
   For more information, see the HYPRE user manual.
 \item {\tt RadHydroMGPreRelax} [1], this positive parameter
@@ -336,31 +380,33 @@ transfer in a cosmological medium \cite{ReynoldsHayesPaschosNorman2009},
   \partial_{t} E + \frac1a \nabla\cdot\(E\vb\) =
     \nabla\cdot\(D\,\nabla E\) - \frac{\dot{a}}{a} E - c\kappa E + 4\pi\eta,
 \end{equation}
-where here the comoving radiation energy density $E$ and emissivity
-$\eta$ are functions of space and time.  In this equation, the
-frequency-dependence of the radiation energy has been integrated away,
-under the premise of an assumed radiation energy spectrum,
+where here the comoving radiation energy density $E$, emissivity
+$\eta$ and opacity $\kappa$ are functions of space and time.  In this
+equation, the frequency-dependence of the radiation energy has been
+integrated away, under the premise of an assumed radiation energy
+spectrum, 
 \begin{align}
   \notag
-  & E_{\nu}(\nu,\xvec,t) = E(\xvec,t) \chi(\nu), \\
+  & E_{\nu}(\nu,\xvec,t) = \tilde{E}(\xvec,t) \chi(\nu), \\
   \notag
   \Rightarrow & \\
   \label{eq:spectrum}
-  & E(\xvec,t) = \(\int_{\nu_0}^{\infty} E_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \)
-    \Big/ \( \int_{\nu_0}^{\infty} \chi(\nu)\,\mathrm{d}\nu \).
+  & E(\xvec,t) = \int_{\nu_{HI}}^{\infty} E_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu 
+    = \tilde{E}(\xvec,t) \int_{\nu_{HI}}^{\infty} \chi(\nu)\,\mathrm{d}\nu,
 \end{align}
-We note that if the assumed spectrum is the Dirac delta function,
-$\chi(\nu) = \delta_{\nu_{HI}}(\nu)$, $E$ is a monochromatic radiation
-energy density at the ionization threshold of HI, and the
-$-\frac{\dot{a}}{a}E$ term (obtained by integration by parts of the
-redshift term $\frac{\dot{a}}{a}\partial_{\nu}E_{\nu}$) is omitted
-from \eqref{eq:radiation_PDE}. Similarly, the emissivity function 
+where $\tilde{E}$ is an intermediate quantity (for analysis) that is
+never computed.  We note that if the assumed spectrum is the Dirac
+delta function, $\chi(\nu) = \delta_{\nu_{HI}}(\nu)$, $E$ is a
+monochromatic radiation energy density at the ionization threshold of
+HI, and the $-\frac{\dot{a}}{a}E$ term (obtained through integration
+by parts of the redshift term
+$\frac{\dot{a}}{a}\partial_{\nu}E_{\nu}$) is omitted from
+\eqref{eq:radiation_PDE}. Similarly, the emissivity function
 $\eta(\xvec,t)$ relates to the true emissivity
-$\eta_{\nu}(\nu,\xvec,t)$ as  
+$\eta_{\nu}(\nu,\xvec,t)$ by the formula
 \begin{equation}
 \label{eq:emissivity}
-  \eta(\xvec,t) = \( \int_{\nu_0}^{\infty}\eta_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \) 
-  \Big/ \( \int_{\nu_0}^{\infty}\chi(\nu)\,\mathrm{d}\nu \).
+  \eta(\xvec,t) = \int_{\nu_{HI}}^{\infty}\eta_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu.
 \end{equation}
 
 The function $D$ in the above equation \eqref{eq:radiation_PDE} is
@@ -392,9 +438,11 @@ In all of the above, the ``effective albedo'' is given by
 and the limiter factor $R_i$ is given by either
 \begin{align}
   \label{eq:R_zeus}
-   R_i &= \frac{|\partial_i E|}{E}, \qquad\text{[Zeus limiter,
+   R_i &= \max\left\{\frac{|\partial_i E|}{E}, 10^{-20}\right\},
+     \qquad\text{[Zeus limiter, 
      \eqref{eq:Zeus_limiter}]},\\ 
-   R_i &= \frac{|\partial_i E|}{\omega E}, \qquad\text{[all others]}.
+   R_i &= \max\left\{\frac{|\partial_i E|}{\omega E},
+     10^{-20}\right\}, \qquad\text{[all others]}. 
 \end{align}
 
 
@@ -403,10 +451,10 @@ and the limiter factor $R_i$ is given by either
 \label{sec:lte_model}
 
 For problems in which chemical ionization is unimportant, we may
-assume that the gas is in local thermodynamic eqiulibrium.  In this
+assume that the gas is in local thermodynamic equilibrium.  In this
 case we do not need to couple the radiation energy to a model for
-chemical ionization, and only couple the radiation to the specific gas
-energy equation, 
+chemical ionization, we therefore couple the radiation to the specific
+gas energy equation, 
 \begin{align}
   \label{eq:cons_energy}
   \partial_t e + \frac1a\vb\cdot\nabla e &=
@@ -414,10 +462,9 @@ energy equation,
     - \frac{1}{a\rhob}\nabla\cdot\left(p\vb\right) 
     - \frac1a\vb\cdot\nabla\phi + G - \Lambda.
 \end{align}
-The advection, pressure, and gravity-dependent terms in
-\eqref{eq:cons_energy} are already handled by Enzo's existing
-hydrodynamics solver infrastructure.  In this module, we therefore
-consider a specific energy correction equation 
+All but the final two terms in \eqref{eq:cons_energy} are already
+handled by Enzo's existing hydrodynamics solver infrastructure.  In
+this module, we therefore consider a specific energy correction equation 
 \begin{align}
   \label{eq:cons_energy_correction}
   \partial_t e_c &= -\frac{2\dot{a}}{a}e_c + G - \Lambda,
@@ -478,7 +525,7 @@ recombination rate,
 \end{equation}
 or the case-A rate found in Enzo's chemistry rate lookup tables.
 
-In this case, the gas heating and cooling rates are
+In this model, the gas heating and cooling rates are
 chemistry-dependent, 
 \begin{align}
   \label{eq:G_nLTE}
@@ -508,9 +555,9 @@ Moreover, the frequency-integrated opacity is now chemistry-dependent,
     \chi_E\,\sigma_{HI}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right],
 \end{equation}
-where these integrals with the assumed radiation spectrum handle the
-change from the original frequency-dependent radiation equation to the
-integrated grey radiation equation.
+where these integrals with the assumed radiation spectrum $\chi(\nu)$
+handle the change from the original frequency-dependent radiation
+equation to the integrated grey radiation equation. 
 
 
 
@@ -518,7 +565,7 @@ integrated grey radiation equation.
 \section{Numerical solution approach}
 \label{sec:solution_approach}
 
-We solve these models in an implicit-time fashion, coupling either 
+We solve these models in an implicit-time fashion, coupling 
 \eqref{eq:radiation_PDE}, \eqref{eq:cons_energy_correction} and
 possibly \eqref{eq:hydrogen_ionization} together to form a large
 system of nonlinear PDEs that must be solved in each time step to find
@@ -592,17 +639,17 @@ a.k.a.~Crank-Nicolson).  Benefits of this approach include:
 \item Unified treatment of all variables in implicit system,
 \item Ease of analytical Jacobians for efficient solution of the
   resulting implicit systems.
-\item Asymptotic accuracy of $O(\dt)$ for $\theta=1$ and $O(\dt^2)$
-  for $\theta=\frac12$. 
+\item Theoretical asymptotic accuracy of $O(\dt)$ for $\theta=1$ and
+  $O(\dt^2)$ for $\theta=\frac12$. 
 \end{itemize}
 However, a key drawback of this approach is that it knows nothing
-about the inherent constraints on the solution variables, i.e.~$e>0$
-and $\mn_{HI}\ge 0$.  As a result, in problems with rapidly-varying
-chemical states in which the $\mn_{HI}$ value in a newly-irradiated
-finite volume cell should change by multiple orders of magnitude in a
-single time step, these simple linear or quadratic interpolations in
-time can result in negative solution values due to time discretization
-error.  Therefore, in using the above system
+about the inherent constraints on the solution variables, i.e.~$E\ge
+0$, $e>0$ and $\mn_{HI}\ge 0$.  As a result, in problems with
+rapidly-varying chemical states in which $\mn_{HI}$ in a
+newly-irradiated finite volume cell should change by multiple orders 
+of magnitude in a single time step, these simple linear or quadratic
+interpolations in time can result in negative solution values due to
+time discretization error.  Therefore, in using the above system 
 \eqref{eq:radiation_PDE_theta}-\eqref{eq:hydrogen_theta}, it is
 imperative that the user allow {\em very conservative} time step sizes
 to be used (see section \ref{sec:dt_selection}).
@@ -610,13 +657,11 @@ to be used (see section \ref{sec:dt_selection}).
 As a result, we have also implemented a second approach to time
 discretization that should be much more robust, while attempting to
 remain as accurate as possible.  This approach is based on a new
-implicit-time version of the {\em quasi-steady-state approximation},
-the explicit-time version of which is popular in the computational
-chemistry community.  In this approach, instead of approximating the
-solution to the correct ODEs, we analytically solve approximate ODEs.
-Here, if we assume in each equation that all but the time-evolving
-variable are held constant throughout the time step, we could consider
-the ODE system
+implicit-time version of the {\em quasi-steady-state approximation}.
+In this approach, instead of approximating the solution to the exact
+ODEs, we exactly solve approximate ODEs.  Here, if we assume in each
+equation that all but the time-evolving variable are held constant
+throughout the time step, we could consider the ODE system
 \begin{align}
   \label{eq:energy_correction_qss}
   \partial_t e_c &= -\frac{2\dot{a}}{a}e_c + G(\overline{E},\overline{\mn_{HI}}) - \Lambda(\overline{E},e,\overline{\mn_{HI}}), \\
@@ -633,8 +678,9 @@ written as
   \label{eq:hydrogen_qss2}
   \partial_t \mn_{HI} &= a \mn_{HI}^2 + b\mn_{HI} + c,
 \end{align}
-which may be solved analytically to full accuracy for any time step
-size $\dt$.  We write these analytical solvers as
+where $P$, $Q$, $a$, $b$ and $c$ are constant throughout the time
+step.  These may be solved analytically to full accuracy for any time
+step size $\dt$.  We write these analytical solvers as
 \begin{align}
   \label{eq:energy_correction_qss3}
   e_c(t) &= \text{sol}_e\left(\overline{E},\overline{\mn_{HI}},e_c^{n-1},t\right), \\
@@ -642,10 +688,11 @@ size $\dt$.  We write these analytical solvers as
   \mn_{HI}(t) &= \text{sol}_{HI}\left(\overline{E},\overline{e},\mn_{HI}^{n-1},t\right).
 \end{align}
 Since such an approach does not work well for PDEs (e.g.~equation
-\eqref{eq:radiation_PDE}), and since the radiation equation is
-typically less problematic than the gas energy and chemistry, we still
-use the $\theta$-method to discretize $E$.  Putting these together,
-our second approach to time discretization uses the equations
+\eqref{eq:radiation_PDE}), and since the radiation equation constraint
+is typically less problematic than the gas energy and chemistry, we
+still use the $\theta$-method to discretize $E$.  Putting these
+together, our second approach to time discretization uses the
+equations 
 \begin{align}
   \label{eq:radiation_PDE_iqss}
   E^n - E^{n-1} &- \theta\dt\left(\nabla\cdot\(D\,\nabla E^n\) - \frac{\dot{a}}{a} E^n -
@@ -691,7 +738,7 @@ at each time step to obtain the updated solution variables $E^n$,
 $e_c^n$ and $\mn_{HI}^n$.  Grouping these together as $f(U)=0$, for
 $U=(E,e_c,\mn_{HI})$, we solve the system \eqref{eq:nonlinear_system}
 using a {\em globalized Inexact Newton's Method}
-\cite{Kelley1995,KnollKeyes2004,KeyesReynoldsWoodward2006}:
+\cite{Kelley1995,KeyesReynoldsWoodward2006,KnollKeyes2004}:
 \begin{quote}
 Given an initial guess $U_0\approx U(t^n)$, we iterate toward a
 solution $U^n$ satisfying $f(U^n)\approx 0$:
@@ -711,7 +758,7 @@ solution $U^n$ satisfying $f(U^n)\approx 0$:
     \lambda_{min} \le \lambda \le \lambda_{max}
     \qquad\text{and}\qquad \|f(U_k + \lambda_k S_k)\| < \|f(U_k)\|.
   \] 
-\item[(c.)] Update $U_{k+1} = U_k + S_k$.
+\item[(c.)] Update $U_{k+1} = U_k + \lambda_k S_k$.
 \item[(d.)] Stop the iteration when
   \[
     \left(\frac1N \sum_{i=1}^N f(U_k)^2 \right)^{1/2} \ < \
@@ -726,7 +773,7 @@ solution $U^n$ satisfying $f(U^n)\approx 0$:
 \label{sec:initial_guess}
 
 Performance of the Newton iteration is highly influenced by a good
-initial guess: a good guess results in a robust, and efficient method,
+initial guess: a good guess results in a robust and efficient method,
 while a poor guess may take much longer to converge (if at all).  We
 therefore have a number of options that may be used to determine the
 initial guess $U_0$:
@@ -761,7 +808,7 @@ measure of the time accuracy error in a specific variable as
 where the weighting vector $\omega$ is given by
 \begin{align}
 \label{eq:time_weighting}
-  \omega_i &= \sqrt{u_i^n*u_i^{pred}} + 10^{-3}, \quad i=1,\ldots,N, \\
+  \omega_i &= \sqrt{u_i^n u_i^{pred}} + 10^{-3}, \quad i=1,\ldots,N, \\
   \omega_i &= |e_{c,i} + e_{h,i}| + 10^{-3}, \quad i=1,\ldots,N,
 \end{align}
 i.e.~we scale the radiation and chemistry change by the geometric mean
@@ -779,17 +826,17 @@ set the new time step size based on the previous time step size and a
 user-input tolerance $\tau_{\text{tol}}$ as
 \begin{align}
 \label{eq:time_estimate}
-  \dt^{n+1} = \frac{\tau_{\text{tol}} \dt^n}{e}.
+  \dt^{n} = \frac{\tau_{\text{tol}} \dt^{n-1}}{e}.
 \end{align}
 The final estimated time step size is given as the minimum of the
 three,
 \begin{align}
 \label{eq:FLD_time_estimate}
-  \dt_{\text{FLD}}^{n+1} =
-  \min\{\dt_{E}^{n+1},\dt_{e_c}^{n+1},\dt_{HI}^{n+1}\}. 
+  \dt_{\text{FLD}}^{n} =
+  \min\{\dt_{E}^{n},\dt_{e_c}^{n},\dt_{HI}^{n}\}. 
 \end{align}
-These adaptive time step controls may be overridden with user-input
-values for $\dt_{\text{max}}$ and $\dt_{\text{min}}$.
+The user may override this adaptive time step with the inputs
+$\dt_{\text{max}}$ and $\dt_{\text{min}}$. 
 
 We further note that when run in combination with Enzo's hydrodynamics
 routines, both modules will limit their maximum time step sizes to the
@@ -806,23 +853,25 @@ be limited by the hydrodynamic time scale.
 \subsection{Variable rescaling}
 \label{sec:variable_rescaling}
 
-In case the standard Enzo unit non-dimensionalization with 
+In case Enzo's standard unit non-dimensionalization with 
 {\tt DensityUnits}, {\tt LengthUnits} and {\tt TimeUnits} is
 insufficient to render the resulting solver values $E$, $e_c$ and
-$n_{HI}$ to have nearly unit magnitude, The user may input additional
+$n_{HI}$ to have nearly unit magnitude, the user may input additional
 variable scaling factors to be used inside the {\tt gFLDProblem}
-module.  Let these user-input values be named $s_E$, $s_e$ and
-$s_{\mn}$, then all solvers within this module will rescale Enzo's
-internal variables to
+module.  Denoting the user-input values $s_E$, $s_e$ and $s_{\mn}$,
+then all solvers within this module will rescale Enzo's internal
+variables to 
 \begin{align}
 \label{eq:variable_rescaling}
-  \tilde{E} = E / s_E, \qquad \tilde{e}_c = e_c / s_e, \qquad \tilde{\mn}_{HI} = \mn_{HI} / s_{\mn}.
+  \tilde{E} = E / s_E, \qquad \tilde{e}_c = e_c / s_e, \qquad \tilde{\mn}_{HI} = \mn_{HI} / s_{\mn},
 \end{align}
-If the user does not know appropriate values for these scaling factors
-{\em a-priori}, a generally-applicable rule of thumb is to first run
-their simulation for a small number of time steps and investigate
-Enzo's HDF5 output files to see the magnitude of values stored
-internally by Enzo; if these are far from unit-magnitude, these
+and use these rescaled values $\tilde{E}$, $\tilde{e}_c$ and
+$\tilde{\mn}_{HI}$ instead of Enzo's values $E$, $e_c$ and
+$\mn_{HI}$.  If the user does not know appropriate values for these
+scaling factors {\em a-priori}, a generally-applicable rule of thumb
+is to first run their simulation for a small number of time steps and
+investigate Enzo's HDF5 output files to see the magnitude of values
+stored internally by Enzo; if these are far from unit-magnitude, these 
 scaling factors should be used.
 
 
@@ -842,8 +891,8 @@ be placed on the radiation field:
 In most cases, the boundary condition types (and values of $g$) are
 problem-dependent.  When adding new problem types, these conditions
 should be set near the bottom of the file {\tt gFLDProblem\_Initialize.C}, 
-otherwise these will default to periodic, or will use $g=0$, depending
-on the user input boundary condition type.
+otherwise these will default to either (a) periodic, or (b) will use
+$g=0$ along with the user input boundary condition types.
 
 
 
@@ -858,7 +907,7 @@ additional physics, including Helium chemistry and more advanced
 time-stepping interactions with the rest of Enzo (especially when
 ionization sources ``turn on'' abruptly).  
 
-Feedback/suggestions are appreciated.
+Feedback/suggestions are welcome.
 
 
 \bibliography{sources}

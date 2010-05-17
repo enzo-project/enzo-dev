@@ -200,12 +200,12 @@ Furthermore, the {\tt gFLDSplit} module currently computes its own
 emissivity field $\eta_f(\xvec)$, in the routine 
 {\tt gFLDSplit\_RadiationSource.src90}.  A user may edit this file
 to add in an emissivity field corresponding to their own 
-{\tt ProblemType}.  Alternatively, a user may fill in the 
-BaryonField {\tt Emissivity0}.  When Enzo is compiled using the
-pre-processor directive {\tt EMISSIVITY} and run with the global
-parameter {\tt StarMakerEmissivity $\ne$ 0}, the {\tt gFLDSplit}
-module will use the {\tt Emissivity0} field instead of computing its
-own. 
+{\tt ProblemType}.  Alternatively, a user may separately fill in the
+BaryonField {\tt Emissivity0} in some other Enzo routine.  Then, when
+Enzo is compiled using the pre-processor directive {\tt EMISSIVITY}
+and run with the global parameter {\tt StarMakerEmissivity $\ne$ 0},
+the {\tt gFLDSplit} module will use the {\tt Emissivity0} field
+instead of computing its own. 
 
 
 
@@ -344,25 +344,26 @@ integrated away, under the premise of an assumed radiation energy
 spectrum, 
 \begin{align}
   \notag
-  & E_{\nu}(\nu,\xvec,t) = E(\xvec,t) \chi(\nu), \\
+  & E_{\nu}(\nu,\xvec,t) = \tilde{E}(\xvec,t) \chi(\nu), \\
   \notag
   \Rightarrow & \\
   \label{eq:spectrum}
-  & E(\xvec,t) = \(\int_{\nu_0}^{\infty} E_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \)
-    \Big/ \( \int_{\nu_0}^{\infty} \chi(\nu)\,\mathrm{d}\nu \).
+  & E(\xvec,t) = \int_{\nu_{HI}}^{\infty} E_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu 
+    = \tilde{E}(\xvec,t) \int_{\nu_{HI}}^{\infty} \chi(\nu)\,\mathrm{d}\nu,
 \end{align}
-We note that if the assumed spectrum is the Dirac delta function,
-$\chi(\nu) = \delta_{\nu_{HI}}(\nu)$, $E$ is a monochromatic radiation
-energy density at the ionization threshold of HI, and the
-$-\frac{\dot{a}}{a}E$ term (obtained through integration by parts of
-the redshift term $\frac{\dot{a}}{a}\partial_{\nu}E_{\nu}$) is omitted
-from \eqref{eq:radiation_PDE}. Similarly, the emissivity function 
-$\eta(\xvec,t)$ relates to the true emissivity
+where $\tilde{E}$ is an intermediate quantity (for analysis) that is
+never computed.  We note that if the assumed spectrum is the Dirac
+delta function, $\chi(\nu) = \delta_{\nu_{HI}}(\nu)$, $E$ is a
+monochromatic radiation energy density at the ionization threshold of
+HI, and the $-\frac{\dot{a}}{a}E$ term (obtained through integration
+by parts of the redshift term
+$\frac{\dot{a}}{a}\partial_{\nu}E_{\nu}$) is omitted from
+\eqref{eq:radiation_PDE}. Similarly, the emissivity function
+$\eta(\xvec,t)$ relates to the true emissivity 
 $\eta_{\nu}(\nu,\xvec,t)$ by the formula
 \begin{equation}
 \label{eq:emissivity}
-  \eta(\xvec,t) = \( \int_{\nu_0}^{\infty}\eta_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu \) 
-  \Big/ \( \int_{\nu_0}^{\infty}\chi(\nu)\,\mathrm{d}\nu \).
+  \eta(\xvec,t) = \int_{\nu_{HI}}^{\infty}\eta_{\nu}(\nu,\xvec,t)\,\mathrm{d}\nu.
 \end{equation}
 
 The function $D$ in the above equation \eqref{eq:radiation_PDE} is
@@ -457,7 +458,7 @@ recombination rate,
                    \left(1+\left(\frac{3.15614\times 10^5}{2.74\, T}\right)^{0.407}\right)^{-2.242}.
 \end{equation}
 
-In this case, the gas heating and cooling rates are
+In this model, the gas heating and cooling rates are
 chemistry-dependent, 
 \begin{align}
   \label{eq:G_nLTE}
@@ -487,9 +488,9 @@ Moreover, the frequency-integrated opacity is now chemistry-dependent,
     \chi_E\,\sigma_{HI}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right],
 \end{equation}
-where these integrals with the assumed radiation spectrum handle the
-change from the original frequency-dependent radiation equation to the
-integrated grey radiation equation.
+where these integrals with the assumed radiation spectrum $\chi(\nu)$
+handle the change from the original frequency-dependent radiation
+equation to the integrated grey radiation equation.
 
 
 
