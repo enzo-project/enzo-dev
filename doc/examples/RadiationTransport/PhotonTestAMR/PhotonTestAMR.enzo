@@ -1,73 +1,68 @@
-# -*-C++-*-
+# AMR RADIATIVE TRANSFER TEST
+# 
+# Test 6 from Iliev et al. (2009), MNRAS, 400, 1283
+#
+# - Source and isothermal sphere centered at origin
+#
 ProblemType             = 50
 TopGridRank             = 3
-StopTime                = 1.
+StopTime                = 25
 
-TopGridDimensions       = 16 16 16
+TopGridDimensions       = 32 32 32
 
 MultiSpecies            = 1
 RadiativeCooling        = 1
-RadiativeTransfer       = 1
-RadiationFieldType      = 0
 
-ComovingCoordinates     = 1
+RadiativeTransfer       = 1
+RadiativeTransferRaysPerCell = 5.1
+RadiativeTransferInitialHEALPixLevel = 3
+RadiativeTransferHIIRestrictedTimestep = 1
+RadiativeTransferAdaptiveTimestep = 1
+RadiativeTransferHydrogenOnly = 1
+
+ComovingCoordinates     = 0
+DensityUnits = 7.0033871e-26    // 3.2 cm^-3 at r=91.5pc
+TimeUnits = 3.1557e13   // Myr
+LengthUnits = 2.4688e21  // 800 pc
 
 HydroMethod             = 0
 DualEnergyFormalism     = 1 
-FluxCorrection          = 0
-#InterpolationMethod     = 4
 
 TopGridGravityBoundary     = 0
-LeftFaceBoundaryCondition  = 3       // same for fluid
-RightFaceBoundaryCondition = 3
+LeftFaceBoundaryCondition  = 0 0 0       // 
+RightFaceBoundaryCondition = 0 0 0
 
-StaticHierarchy            = 0
-MaximumRefinementLevel     = 1    // use up to __ levels
-RefineBy                   = 2    // refinement factor
-CellFlaggingMethod         = 2    // use baryon mass for refinement 
-MinimumOverDensityForRefinement = 1.5 // times the initial density
-MinimumMassForRefinementLevelExponent = -0.1
+StaticHierarchy            = 0        // AMR
+MaximumRefinementLevel     = 2        // use up to __ levels
+RefineBy                   = 2        // refinement factor
+CellFlaggingMethod         = 2        // use baryon mass for refinement 
 
 GravitationalConstant      = 1
-SelfGravity                = 1
+SelfGravity                = 0
 
-PhotonTestInitialTemperature = 2.e4
-PhotonTestOmegaBaryonNow     = 0.05
-
-PhotonTestSphereType[0]        = 1 
-PhotonTestNumberOfSpheres      = 1
-PhotonTestSphereRadius[0]      = 0.1
-PhotonTestSphereDensity[0]     = 2.
-PhotonTestSphereTemperature[0] = 1.e4
-PhotonTestSphereCoreRadius[0]  = 0.05
-PhotonTestSpherePosition[0]    = 0.53125 0.53125 0.53125
-
-PhotonTestRefineAtStart       = 1
+PhotonTestOmegaBaryonNow   = 1.0
+PhotonTestInitialTemperature = 1e2
+PhotonTestInitialFractionHII  = 1e-6
+PhotonTestRefineAtStart = 1
 
 PhotonTestNumberOfSources     = 1
-PhotonTimeStep                = 0.0005
 
 PhotonTestSourceType[0]       = 1
-PhotonTestSourcePosition[0]   = 0.45 0.5 0.5
-PhotonTestSourceLuminosity[0] = 8.e52       // photon number flux [#/s]
-PhotonTestSourceLifeTime[0]   = 1
+PhotonTestSourcePosition[0]   = 1e-3 1e-3 1e-3
+PhotonTestSourceLuminosity[0] = 1e50       // photon number flux [#/s]
+PhotonTestSourceLifeTime[0]   = 1e10
+PhotonTestSourceEnergyBins[0] = 1
+PhotonTestSourceEnergy[0] = 23.2686
+#PhotonTestSourceEnergy[0] = 13.60001
 
-PhotonTestSourceType[1]       = 1
-PhotonTestSourcePosition[1]   = 0.53125 0.53125 0.53125
-PhotonTestSourceLuminosity[1] = 1.e51
-PhotonTestSourceLifeTime[1]   = 0
+PhotonTestNumberOfSpheres      = 1
 
+PhotonTestSphereType[0]        = 5
+PhotonTestSphereRadius[0]      = 1.0
+PhotonTestSphereDensity[0]     = 1.0
+PhotonTestSphereTemperature[0] = 1.e2
+PhotonTestSphereCoreRadius[0]  = 0.114375
+PhotonTestSpherePosition[0]    = 1e-3 1e-3 1e-3
 
-dtDataDump = 0.02
-Initialdt  = 0.00003
-
-PhotonTestInitialFractionHII = .9999
-
-CosmologyInitialRedshift   = 20.
-CosmologyFinalRedshift     = 10.
-CosmologyMaxExpansionRate = 0.03
-
-CosmologyComovingBoxSize   =  .2
-CosmologyHubbleConstantNow = 0.7
-CosmologyOmegaMatterNow    = 0.3
-CosmologyOmegaLambdaNow    = 0.7
+dtDataDump = 0.25                        // one every 1 Myr
+Initialdt  = 0.01

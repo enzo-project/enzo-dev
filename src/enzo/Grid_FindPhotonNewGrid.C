@@ -44,6 +44,38 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
   MoveToGrid = SubgridMarker[cindex];
   PP->Radius += PFLOAT_EPSILON;
 
+  /* Special case for no gravity (just like TopGridIsolated) */
+
+  if (SelfGravity == FALSE) 
+    if (ParentGrid == NULL) {
+      FindRootGrid(dummy, Grids0, nGrids0, r[0], r[1], r[2], 
+		   u[0], u[1], u[2]);
+      if (dummy >= 0) {
+	MoveToGrid = Grids0[dummy];
+	DeltaLevel = 0;
+	PP->Radius += PFLOAT_EPSILON;
+      } else {
+	// PhotonPackage left the box
+	PP->Photons=-1;
+	DeleteMe = TRUE;
+      }
+      if (MoveToGrid != this)
+	return FALSE;
+      else
+	MoveToGrid = NULL;
+      return TRUE;
+    } else {
+      // Subgrid
+      MoveToGrid = ParentGrid;
+      DeltaLevel = -1;
+      PP->Radius += PFLOAT_EPSILON;
+      if (DEBUG) 
+	fprintf(stdout, "Walk: left grid: sent photon to grid %x\n", 
+		ParentGrid);
+      return FALSE;
+    }
+
+
   switch (GravityBoundaryType) {
 
   case TopGridIsolated: 
