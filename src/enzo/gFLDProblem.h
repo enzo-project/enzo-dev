@@ -193,7 +193,7 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   float TimeUnits;     // time scaling factor
   float TempUnits;     // temperature scaling factor
   float VelUnits;      // velocity scaling factor
-  float MassUnits;     // mass scaling factor
+  double MassUnits;    // mass scaling factor
 
   // chemistry constants
   float HFrac;         // Fraction of matter composed of Hydrogen

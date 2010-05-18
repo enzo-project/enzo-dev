@@ -27,7 +27,7 @@
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
  
 
@@ -75,8 +75,9 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
     return SUCCESS;
 
   // Get various units
+  double MassUnits=1;
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
@@ -85,7 +86,7 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("  Internal Unit Conversion Factors:\n");
     printf("         length = %g\n",LengthUnits);
-    printf("           mass = %g\n",MassUnits);
+    printf("           mass = %lg\n",MassUnits);
     printf("           time = %g\n",TimeUnits);
   }
 

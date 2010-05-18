@@ -32,7 +32,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 int RadiationGetUnits(float *RadiationUnits, FLOAT Time);
 
 
@@ -131,7 +131,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   tnew = told+dt;
 
   // get internal Enzo units (old time step)
-  float TempUnits, MassUnits, RadUnits;
+  float TempUnits, RadUnits;
+  double MassUnits;
   DenUnits0=LenUnits0=TempUnits=TimeUnits=VelUnits=MassUnits=1.0;
   if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
 	       &TimeUnits, &VelUnits, &MassUnits, told) == FAIL) 

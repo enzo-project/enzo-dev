@@ -31,7 +31,7 @@
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits, 
 	     float *TemperatureUnits, float *TimeUnits, 
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
 
@@ -71,8 +71,9 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
     return SUCCESS;
 
   // Get various units
+  double MassUnits=1;
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, MassUnits=1;
+    VelocityUnits=1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
@@ -81,7 +82,7 @@ int grid::RadHydroStreamTestInitializeGrid(float DensityConstant,
   if (debug) {
     fprintf(stdout,"  Internal Unit Conversion Factors:\n");
     fprintf(stdout,"         length = %g\n",LengthUnits);
-    fprintf(stdout,"           mass = %g\n",MassUnits);
+    fprintf(stdout,"           mass = %lg\n",MassUnits);
     fprintf(stdout,"           time = %g\n",TimeUnits);
   }
 

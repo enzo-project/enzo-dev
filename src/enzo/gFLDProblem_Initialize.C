@@ -38,7 +38,7 @@ int InitializeRateData(FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Problem initializer prototypes
 int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,

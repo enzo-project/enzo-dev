@@ -34,7 +34,7 @@ int InitializeRateData(FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Function prototypes
 int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
@@ -490,7 +490,8 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       ENZO_FAIL("Error in InitializeRateData.");
   // un-scale rates for use within RadHydro solver (handles its own units)
   {
-    float MassUnits, TempUnits;
+    double MassUnits;
+    float TempUnits;
     DenUnits=LenUnits=TempUnits=MassUnits=TimeUnits=VelUnits=aUnits=1.0;
     if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
 	         &TimeUnits, &VelUnits, &MassUnits, MetaData.Time) == FAIL) 
