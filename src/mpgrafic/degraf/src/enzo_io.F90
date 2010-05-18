@@ -224,10 +224,12 @@ contains
 
   end subroutine create_mask
 
-  subroutine crop_buffer_single(sbuffer, workout, dims, mask)
+
+  subroutine crop_buffer_single(dbuffer, workout, dims, mask)
+
     ! Arguments
     implicit none
-    real(sp), dimension(:), allocatable, intent(in) :: sbuffer
+    real(sp), dimension(:), allocatable, intent(in) :: dbuffer
     real(sp), dimension(:), allocatable, intent(out) :: workout
     integer, intent(inout) :: dims(3)
     logical, dimension(:,:,:), intent(in) :: mask
@@ -275,7 +277,7 @@ contains
 
     allocate(workout(int(dims(1)*dims(2),8)*dims(3)))
     if (count(workmask) == size(workmask)) then
-       workout = sbuffer
+       workout = dbuffer
     else
        do k = 1, dims(3)
           do j = 1, dims(2)
@@ -283,7 +285,7 @@ contains
              index2 = ((zrange(1)+k-2)*old_dims(2) + yrange(1)+j-2) * old_dims(1) + &
                   xrange(1)
              do i = 1, dims(1)
-                workout(index1) = sbuffer(index2)
+                workout(index1) = dbuffer(index2)
                 index1 = index1 + 1
                 index2 = index2 + 1
              enddo

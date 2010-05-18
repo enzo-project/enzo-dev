@@ -4,7 +4,8 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1:
+/  modified1: Ji-hoon Kim
+/             October, 2009
 /
 / PURPOSE: To apply feedback effects, we must consider multiple grids
 /          since sometimes the feedback radius often exceeds the grid
@@ -30,28 +31,32 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define MAX_TEMPERATURE 1e8
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[], 
+					int level, float &Radius, 
+					double &EjectaDensity, double &EjectaMetalDensity,
+					double &EjectaThermalEnergy);
 int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
 #ifdef USE_MPI
 #endif /* USE_MPI */
 
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
-			    Star *&AllStars)
+			    Star* &AllStars, bool* &AddedFeedback)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
-  int i, l, dim, temp_int, SkipMassRemoval, SphereContained;
-  float influenceRadius, RootCellWidth, SNe_dt;
+  int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
+      SphereContainedNextLevel, dummy, count;
+  float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
   LevelHierarchyEntry *Temp;
@@ -77,38 +82,88 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
 
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+  count = 0;
+  for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 
-    if(cstar->ReturnFeedbackFlag() != MBH_THERMAL) 
-      if (!cstar->ApplyFeedbackTrue(SNe_dt))
-	continue;
+    AddedFeedback[count] = false;
 
-    float dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
+    if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) &&
+	(cstar->ReturnFeedbackFlag() != MBH_JETS) &&
+	!cstar->ApplyFeedbackTrue(SNe_dt))
+      continue;
+
+    dtForThisStar = LevelArray[level]->GridData->ReturnTimeStep();
 	  
     /* Compute some parameters */
+
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
            SNe_dt, EjectaDensity, EjectaThermalEnergy, EjectaMetalDensity, 
 	   DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
 	   VelocityUnits, dtForThisStar);
 
+    /* Recalibrate MBHFeedbackThermalRadius if requested */
+
+    if (cstar->ReturnFeedbackFlag() == MBH_THERMAL)    
+      RecalibrateMBHFeedbackThermalRadius(cstar->ReturnPosition(), LevelArray, level, influenceRadius, 
+					  EjectaDensity, EjectaMetalDensity, EjectaThermalEnergy);
 
     /* Determine if a sphere with enough mass (or equivalently radius
        for SNe) is enclosed within grids on this level */
 
     if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, EjectaThermalEnergy, SphereContained, SkipMassRemoval,	DensityUnits, 
+	       EjectaDensity, EjectaThermalEnergy, 
+	       SphereContained, SkipMassRemoval, DensityUnits, 
 	       LengthUnits, TemperatureUnits, TimeUnits, 
-	       VelocityUnits) == FAIL) {
-      fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-      ENZO_FAIL("");
+	       VelocityUnits, Time) == FAIL) {
+            ENZO_FAIL("Error in star::FindFeedbackSphere");
     }
 
-    /*
-    fprintf(stderr, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
-    fprintf(stderr, "SkipMassRemoval=%d, SphereContained=%d\n", SkipMassRemoval, SphereContained); 
-    */
+    /* If the particle already had sufficient mass, we still want to
+       mark this particle to activate it. */
 
-    if (SphereContained == FALSE)
+    if (SkipMassRemoval == TRUE)
+      AddedFeedback[count] = true;
+
+    /* If there's no feedback or something weird happens, don't bother. */
+
+    if ( influenceRadius <= tiny_number || 
+	((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS) &&
+	 (influenceRadius >= RootCellWidth/2 || 
+	  EjectaThermalEnergy <= tiny_number)) )
+      continue;
+
+    /* Determine if a sphere is enclosed within the grids on next level
+       If that is the case, we perform AddFeedbackSphere not here, 
+       but in the EvolveLevel of the next level. */
+
+    SphereContainedNextLevel = FALSE;
+
+    if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
+	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA) &&
+	LevelArray[level+1] != NULL) {
+      if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+				    EjectaDensity, EjectaThermalEnergy, 
+				    SphereContainedNextLevel, dummy, DensityUnits, 
+				    LengthUnits, TemperatureUnits, TimeUnits, 
+				    VelocityUnits, Time) == FAIL) {
+	fprintf(stderr, "Error in star::FindFeedbackSphere\n");
+	ENZO_FAIL("");
+      }
+    }
+
+//    if (debug) {
+//      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
+//      fprintf(stdout, "SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
+//	      SkipMassRemoval, SphereContained, SphereContainedNextLevel); 
+//    }
+
+    /* Quit this routine when 
+       (1) sphere is not contained, or 
+       (2) sphere is contained, but the next level can contain the sphere, too. */ 
+    if ((SphereContained == FALSE) ||
+	(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
       continue;
     
     /* Now set cells within the radius to their values after feedback.
@@ -120,19 +175,35 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (SkipMassRemoval == FALSE)
       for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
-	  if (Temp->GridData->
-	      AddFeedbackSphere(cstar, l, influenceRadius, DensityUnits, LengthUnits, 
-				VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
-				EjectaMetalDensity, EjectaThermalEnergy, 
-				CellsModified) == FAIL) {
-	    fprintf(stderr, "Error in AddFeedbackSphere.\n");
-	    ENZO_FAIL("");
-	  }
+	  Temp->GridData->AddFeedbackSphere
+	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
+	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
+	     EjectaMetalDensity, EjectaThermalEnergy, CellsModified);
+
+//    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
+//	    "Radius = %e pc, changed %"ISYM" cells.\n", 
+//	    cstar->ReturnID(), level, influenceRadius*LengthUnits/pc, CellsModified); 
+
+    /* Remove mass from the star that is added to grids. Also, because EjectaDensity 
+       is added with zero net momentum, increase the particle's velocity accordingly. 
+       Only for MBH_JETS; currently this is done in Grid_AddFeedbackSphere.C */
+
+    /*
+    if (EjectaDensity != 0 && CellsModified > 0)
+      if (cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS)
+	cstar->RemoveMassFromStarAfterFeedback(influenceRadius, EjectaDensity, 
+					       DensityUnits, LengthUnits, CellsModified);
+    */
 
     /* Only kill a Pop III star after it has gone SN */
 
     if (cstar->ReturnFeedbackFlag() == SUPERNOVA)
       cstar->SetFeedbackFlag(DEATH);
+
+    /* We only color the fields once */
+
+    AddedFeedback[count] = true;
 
 #ifdef UNUSED
     temp_int = CellsModified;
@@ -144,15 +215,17 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Radius = %"GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
-      if (cstar->ReturnFeedbackFlag() == SUPERNOVA || 
+      if (cstar->ReturnFeedbackFlag() == DEATH || 
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
-	  cstar->ReturnFeedbackFlag() == MBH_THERMAL )
+	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
+	  cstar->ReturnFeedbackFlag() == MBH_JETS )
 	fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 		"Energy = %"GSYM"  , skip = %"ISYM"\n",
 		cstar->ReturnID(), level, EjectaThermalEnergy, SkipMassRemoval);
       fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
-	      "changed %"ISYM" cells.\n", 
-	      cstar->ReturnID(), level, CellsModified);
+	      "changed %"ISYM" cells.  AddedFeedback[%d] = %d\n", 
+	      cstar->ReturnID(), level, CellsModified, 
+	      count, AddedFeedback[count]);
     }
 #endif
     

@@ -93,14 +93,10 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     
   } // end of loop over subgrids
 
-  // Dual Energy Formalism not fully implemented with MHD yet ... 
-  
   if (DualEnergyFormalism > 0) NEQ_MHD = 10;
 
-
   float *Prim[NEQ_MHD+NSpecies+NColor];
-
-  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnHydroRKPointers(Prim, false); 
 
   /* RK2 first step */
 
@@ -118,8 +114,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   }
 #endif
 
-  /* Compute dU */
-
   float *dU[NEQ_MHD+NSpecies+NColor];
 
   int activesize = 1;
@@ -128,6 +122,10 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++)
     dU[field] = new float[activesize];
+
+  this->ReturnHydroRKPointers(Prim, true); //##### added! because Hydro3D needs fractions for species
+
+  /* Compute dU */
 
   int fallback = 0;
   if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 

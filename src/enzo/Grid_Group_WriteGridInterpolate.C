@@ -32,7 +32,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
  
 /* function prototypes */
  

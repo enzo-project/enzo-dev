@@ -99,7 +99,9 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
 #else
   int         io_log = 0;
 #endif
- 
+
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    Dims[dim] = OutDims[dim] = 0;
  
   int ii = sizeof(float32);
  
@@ -177,7 +179,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
  
     file_id = H5Fcreate(hdfname, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
-      if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( file_id == h5_error )ENZO_FAIL("Could not create boundary file");
  
     for (dim = 0; dim < BoundaryRank; dim++)
       if (BoundaryDimension[dim] > 1) {

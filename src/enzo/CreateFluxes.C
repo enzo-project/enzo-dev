@@ -39,7 +39,7 @@ int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
     /* For each grid, create the subgrid list. */
 
 
-    JBPERF_START("CreateFluxes"); // create subgrid list
+    LCAPERF_START("CreateFluxes"); // create subgrid list
     int grid1, counter,subgrid;
     HierarchyEntry *NextGrid;
     int RefinementFactors[MAX_DIMENSION];
@@ -107,6 +107,6 @@ int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
       
     } // end loop over grids (create Subgrid list)
     // dcc flux cut stop
-    JBPERF_STOP("CreateFluxes"); // create subgrid list
+    LCAPERF_STOP("CreateFluxes"); // create subgrid list
     return SUCCESS;
 }

@@ -33,7 +33,6 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
-#include "StarParticleData.h"
  
 // Function prototypes
  
@@ -45,7 +44,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 // Initialization function prototypes
  
@@ -95,6 +94,9 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior);
+int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   HierarchyEntry &TopGrid,
 				   TopGridData &MetaData);
@@ -126,7 +128,10 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
 
 int ShearingBoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
-
+int ShearingBox2DInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
+int ShearingBoxStratifiedInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                        TopGridData &MetaData);
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -192,12 +197,10 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+void PrintMemoryUsage(char *str);
 
 
 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
  
 // Character strings
  
@@ -219,10 +222,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   float Dummy[MAX_DIMENSION];
   int dim, i;
 
-#ifdef MEM_TRACE
-    Eint64 MemInUse;
-#endif
- 
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Dummy[dim] = 0.0;
@@ -230,8 +229,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Open parameter file
  
   if ((fptr = fopen(filename, "r")) == NULL) {
-    fprintf(stderr, "Error opening parameter file.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error opening parameter file.");
   }
  
   // Open output file
@@ -249,8 +247,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Read the MetaData/global values from the Parameter file
  
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
-    fprintf(stderr, "Error in ReadParameterFile.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in ReadParameterFile.");
   }
 
   // Set the number of particle attributes, if left unset
@@ -323,14 +320,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Call problem initializer
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call problem init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call problem init");
  
   if (ProblemType == 0) {
-    fprintf(stderr, "No problem specified.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("No problem specified.");
   }
  
   int ret = INT_UNDEFINED;
@@ -466,7 +459,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 // 35) Shearing Box Simulation
   if (ProblemType == 35) 
       ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
-  
+  if (ProblemType == 36) 
+      ret = ShearingBox2DInitialize(fptr, Outfptr, TopGrid, MetaData);
+  if (ProblemType == 37) 
+      ret = ShearingBoxStratifiedInitialize(fptr, Outfptr, TopGrid, MetaData);
+ 
    
   // 40) Supernova Explosion from restart
  
@@ -516,6 +513,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 106) {
     ret = TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 107) Put Sink from restart
+ 
+  if (ProblemType == 107)
+    ret = PutSinkRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
+ 
 
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {
@@ -613,8 +617,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
  
   if (ret == FAIL) {
-    fprintf(stderr, "Error in problem initialization.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in problem initialization.");
   }
  
   if (debug)
@@ -637,10 +640,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("");
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "1st Initialization done %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("1st Initialization done");
 
  
   if (debug)
@@ -663,8 +663,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       fprintf(stderr, "Opened BC file mode r\n");
 
       if (Exterior.ReadExternalBoundary(BCfptr) == FAIL) {
-	fprintf(stderr, "Error in ReadExternalBoundary.\n");
-	ENZO_FAIL("");
+		ENZO_FAIL("Error in ReadExternalBoundary.");
       }
       fclose(BCfptr);
     } else 
@@ -695,8 +694,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 				    MetaData.RightFaceBoundaryCondition[dim],
 				    Dummy, Dummy)
 	    == FAIL) {
-	  fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-	  ENZO_FAIL("");
+	  	  ENZO_FAIL("Error in InitializeExternalBoundaryFace.");
 	}
  
       // Initialize particle boundary conditions
@@ -709,11 +707,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }  // end of set Exterior
 
 
-
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exterior set  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exterior set");
 
   if (debug) {
     fprintf(stderr, "End of set exterior\n");
@@ -773,16 +767,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Tracer particles will not be created at this point if ||rgio in ON
  
   if (TracerParticleCreation(fptr, TopGrid, MetaData) == FAIL) {
-    fprintf(stderr, "Error in TracerParticleCreation\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in TracerParticleCreation");
   }
  
   // Write the MetaData/global values to the Parameter file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (WriteParameterFile(Outfptr, MetaData) == FAIL) {
-      fprintf(stderr, "Error in WriteParameterFile.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in WriteParameterFile.");
     }
  
   if (debug)
@@ -829,37 +821,28 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       }
     }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Before 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Before 2nd pass");
  
   if (ParallelRootGridIO == TRUE && ProblemType == 30) {
     if (PartitionNestedGrids) {
       if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in NestedCosmologySimulationReInitialize.");
       }
     } else {
       if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-        fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-        ENZO_FAIL("");
+                ENZO_FAIL("Error in CosmologySimulationReInitialize.");
       }
     }
   }
- 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "After 2nd pass  %16"ISYM" \n", MemInUse);
-#endif
- 
+
+  PrintMemoryUsage("After 2nd pass");
+
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.
  
   if (ParallelRootGridIO == TRUE && ProblemType == 60)
     if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-      fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-      ENZO_FAIL("");
+            ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
  if (ProblemType == 106)
@@ -886,17 +869,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fclose(Outfptr);
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Exit X_Init  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Exit X_Init");
 
-#ifdef MISCOUNT
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Added the following line:
 
   CommunicationBroadcastValue(&MetaData.NumberOfParticles, ROOT_PROCESSOR);
-#endif
  
   MetaData.FirstTimestepAfterRestart = FALSE;
   

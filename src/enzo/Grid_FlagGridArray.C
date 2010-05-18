@@ -10,7 +10,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "Hierarchy.h"
 
 void grid::FlagGridArray( HierarchyEntry ***GridArray, int *dx,

@@ -42,16 +42,11 @@ int grid::CopyBaryonFieldToOldBaryonField()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  JBPERF_START("grid_CopyBaryonFieldToOldBaryonField");
+  LCAPERF_START("grid_CopyBaryonFieldToOldBaryonField");
 
   /* compute the field size */
  
   int size = 1;
-
-/* BUG reported 4th June 2006
-  for (int dim = 0; dim < GridDimension[dim]; dim++)
-    size *= GridDimension[dim];
-*/
 
   for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
@@ -67,7 +62,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       fprintf(stderr, "BaryonField missing.\n");
       ENZO_FAIL("");
     }
- 
+
     /* Create OldBaryonField if necessary. */
  
     if ((OldBaryonField[field] == NULL))
@@ -112,7 +107,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
 #endif /* SAB */
  
-  JBPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
+  LCAPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
   return SUCCESS;
  
 }

@@ -38,7 +38,7 @@ int CopyParticlesAcrossPeriodicBoundaries(FOFData &D, int TopGridResolution)
   int i, dim;
   float sr;
   double Edge;
-  int nflag = 3*D.Nlocal/2;
+  int nflag = 3*D.Nlocal;
   bool *flag = new bool[nflag];
 
   sr = D.LinkLength * D.BoxSize / TopGridResolution;
@@ -136,6 +136,16 @@ void sm_copy_left(FOFData &D, int dim, double Edge, bool* &flag)
     if (Pnew[i].Pos[dim] > Edge) {
       Pnew[j] = Pnew[i];
       Pnew[j].Pos[dim] -= D.BoxSize;
+
+      /* Mark duplicated particles so we don't copy them back into the
+	 grid structures when we're finished. */
+      if (Pnew[j].PartID > 0)
+	Pnew[j].PartID *= -1;
+      else if (Pnew[j].PartID == 0)
+	Pnew[j].PartID = -1;
+
+      /* Mark both particles again so we don't reduplicate */
+
       flag[i] = true;
       flag[j] = true;
       j++;
@@ -173,6 +183,14 @@ void sm_copy_right(FOFData &D, int dim, double Edge, bool *flag)
     if (Pnew[i].Pos[dim] < Edge && !flag[i]) {
       Pnew[j] = Pnew[i];
       Pnew[j].Pos[dim] += D.BoxSize;
+
+      /* Mark duplicated particles so we don't copy them back into the
+	 grid structures when we're finished. */
+      if (Pnew[j].PartID > 0)
+	Pnew[j].PartID *= -1;
+      else if (Pnew[j].PartID == 0)
+	Pnew[j].PartID = -1;
+
       j++;
     }
 

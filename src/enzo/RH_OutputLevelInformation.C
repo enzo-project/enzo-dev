@@ -42,7 +42,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 {
  
   // NOTE: DON'T immediately return if this isn't the root
-  //       processor, since jbPerf computes grid/zone-related
+  //       processor, since lcaperf computes grid/zone-related
   //       counts here
 
   bool isRoot = (MyProcessorNumber == ROOT_PROCESSOR);
@@ -173,7 +173,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
       HierarchyAxialRatio/float(HierarchyGrids) );
   }
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
   long long jb_zones  = 0;
   long long jb_ghosts = 0;
   long long jb_grids  = 0;
@@ -188,35 +188,35 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
       CellsActive[level]);
     }
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-    // Assign to jbPerf counters "count-[zones|ghosts|grids]-<level>"
+    // Assign to lcaperf counters "count-[zones|ghosts|grids]-<level>"
 
     if (level <= MaximumRefinementLevel) {
 
       char jb_counter_name[30];
       long long value;
 
-      // jbPerf count-zones-local-<level>
+      // lcaperf count-zones-local-<level>
 
       sprintf (jb_counter_name,"count-zones-local-%"ISYM,level);
       value = LocalCellsActive[level];
-      jbPerf.assign(jb_counter_name, value);
+      lcaperf.assign(jb_counter_name, value);
 
-      // jbPerf count-ghosts-local-<level>
+      // lcaperf count-ghosts-local-<level>
 
       sprintf (jb_counter_name,"count-ghosts-local-%"ISYM,level);
       value = LocalCellsTotal[level]-LocalCellsActive[level];
-      jbPerf.assign(jb_counter_name, value);
+      lcaperf.assign(jb_counter_name, value);
 
-      // jbPerf count-grids-local-<level>
+      // lcaperf count-grids-local-<level>
 
       sprintf (jb_counter_name,"count-grids-local-%"ISYM,level);
       value = LocalGrids[level];
-      jbPerf.assign(jb_counter_name, value);
+      lcaperf.assign(jb_counter_name, value);
     }
 
-    // Accumulate jbPerf counter values for "count-[zones|ghosts|grids]"
+    // Accumulate lcaperf counter values for "count-[zones|ghosts|grids]"
 
     jb_zones += CellsActive[level];
     jb_ghosts += CellsTotal[level] - CellsActive[level];;
@@ -226,13 +226,13 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 
   }
 
-#ifdef USE_JBPERF
+#ifdef USE_LCAPERF
 
-  // Assign to jbPerf counters "count-[zones|ghosts|grids]"
+  // Assign to lcaperf counters "count-[zones|ghosts|grids]"
 
-  jbPerf.assign("count-zones", jb_zones);
-  jbPerf.assign("count-ghosts",jb_ghosts);
-  jbPerf.assign("count-grids", jb_grids);
+  lcaperf.assign("count-zones", jb_zones);
+  lcaperf.assign("count-ghosts",jb_ghosts);
+  lcaperf.assign("count-grids", jb_grids);
   
 #endif
 

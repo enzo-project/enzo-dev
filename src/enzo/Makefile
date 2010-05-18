@@ -44,8 +44,9 @@ OUTPUT   = out.compile
 
 ENZO_DIR = .
 MODULES  = 
+VERBOSE  = 0
 
-SVN      = svn
+SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
@@ -104,13 +105,18 @@ include Make.config.objects
 all: $(EXE).exe
 
 #-----------------------------------------------------------------------
-# MAIN AN EXECUTABLE
+# MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
 	@rm -f $@
 	@echo "Linking"
-	-@$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
+	else \
+	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
+	    2>&1 ; \
+	fi)
 	@(if [ -e $@ ]; then \
 	   echo "Success!"; \
 	else \
@@ -120,6 +126,17 @@ all: $(EXE).exe
 	   mv -f temp2 $(OUTPUT); \
 	   echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
+
+#-----------------------------------------------------------------------
+# WRITE ALL COMPILER OUTPUT TO FILE
+#-----------------------------------------------------------------------
+
+.PHONY: verbose
+verbose: VERBOSE = 1
+#verbose:
+#	@rm -fv $(OUTPUT)
+#	@echo "Writing all compiler output to $(OUTPUT)"
+verbose: $(EXE).exe
 
 #-----------------------------------------------------------------------
 # Implicit rules
@@ -136,10 +153,9 @@ all: $(EXE).exe
 .f.o:
 	@echo "Compiling $<"
 	@rm -f $@
-	-@($(FC) -c -o $@ $(FFLAGS) $*.f) >& $(OUTPUT)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f; \
-          else \
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(FC) -c -o $@ $(FFLAGS) $*.f >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
              echo "$(FC) -c -o $@ $(FFLAGS) $*.f"; \
@@ -148,6 +164,16 @@ all: $(EXE).exe
              $(FC) -c -o $@ $(FFLAGS) $*.f; \
              echo; \
              exit 1; \
+          fi ; \
+	else \
+	  $(FC) -c -o $@ $(FFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
+	@(if [ -e $@ ]; then \
+             rm -f $*.f; \
           fi)
 
 .src90.f90:
@@ -155,10 +181,9 @@ all: $(EXE).exe
 	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
 .f90.o:
 	@rm -f $@
-	-@($(F90) -c -o $@ $(F90FLAGS) $*.f90) >& $(OUTPUT)
-	@(if [ -e $@ ]; then \
-             touch $*.f90; \
-          else \
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
              echo; \
              echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \
              echo "$(F90) -c -o $@ $(F90FLAGS) $*.f90"; \
@@ -167,46 +192,86 @@ all: $(EXE).exe
              $(F90) -c -o $@ $(F90FLAGS) $*.f90; \
              echo; \
              exit 1; \
+	  fi ; \
+	else \
+	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
+	@(if [ -e $@ ]; then \
+             rm -f $*.f90; \
           fi)
 
 .c.o:
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
-	@(if [ ! -e $@ ]; then \
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c \
+	    >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
-          fi)
+          fi ; \
+	else \
+	  $(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c \
+	    >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
 
 .C.o:
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C) >& $(OUTPUT)
-	@(if [ ! -e $@ ]; then \
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C \
+	    >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
              echo; \
              echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C"; \
              echo; \
              $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C;\
              echo; \
              exit 1; \
-          fi)
+          fi ; \
+	else \
+	  $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.C \
+	    >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
 
 .cu.o: 
 	@rm -f $@
 	@echo "Compiling $<"
-	-@($(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu) >& $(OUTPUT)
-	@(if [ ! -e $@ ]; then \
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) \
+	    $(INCLUDES) $*.cu >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
 	     echo; \
              echo "$(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu"; \
              echo; \
              $(CUDACOMPILER)  -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) $(INCLUDES) $*.cu;\
              echo; \
              exit 1; \
-          fi)
+          fi ; \
+	else \
+	  $(CUDACOMPILER) -c -o $@ $(DEFINES) $(CUDACOMPFLAGS) \
+	    $(INCLUDES) $*.cu >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
 
 #-----------------------------------------------------------------------
 # Generate all make-generated source files
@@ -243,9 +308,9 @@ auto_show_version.C:
 # Force update of svn_version.def
 .PHONY: svn_version.def
 svn_version.def:
-	-@$(SVN) info -R $(TOP_DIR) | grep Revision | sort | uniq | tail -1 | \
-           awk '{print "#define ENZO_SVN_REVISION",$$2}' > svn_version.def
-	-@$(SVN) info $(TOP_DIR) | awk '/URL/{print "#define ENZO_SVN_BRANCH","\""$$2"\""};' >> svn_version.def 
+	-@$(SVN) identify -i | \
+           awk '{print "#define ENZO_SVN_REVISION","\""$$1"\""}' > svn_version.def
+	-@$(SVN) identify -b | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
 	-@if [ ! -s svn_version.def ]; then \
 	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
 	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \

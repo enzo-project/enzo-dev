@@ -30,7 +30,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define CONVERGE 0.001
 
@@ -70,7 +69,9 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   float LightCrossingTime = VelocityUnits / 
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
+  float SavedPhotonTimestep = dtPhoton;
   PhotonTime -= LightCrossingTime;
+  dtPhoton = 0.1*LightCrossingTime;
 
   if (debug)
     printf("Restarting radiative transfer.  Light-crossing time = %"GSYM"\n", 
@@ -107,11 +108,16 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif /* USE_MPI */    
 
     if (LastPhotonCount > 0)
-      if (float(PhotonCount-LastPhotonCount)/float(LastPhotonCount) < CONVERGE)
+      if (float(PhotonCount-LastPhotonCount)/float(LastPhotonCount) < CONVERGE) {
 	PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+	break;
+      }
 
-    if (PhotonCount == 0 && LastPhotonCount == 0)
+    if ((PhotonCount == 0 && LastPhotonCount == 0) ||
+	RadiativeTransferAdaptiveTimestep == TRUE) {
       PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+      break;
+    }
 
     LastPhotonCount = PhotonCount;
 

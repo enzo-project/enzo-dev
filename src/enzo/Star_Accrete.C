@@ -22,7 +22,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -31,14 +30,18 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
+<<<<<<< local
   if ((this->type != BlackHole && ABS(this->type) != MBH) || 
       (this->CurrentGrid == NULL))
+=======
+  if (this->CurrentGrid == NULL || this->naccretions == 0)
+>>>>>>> other
     return SUCCESS;
 
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
-  float this_dt, ratio1, ratio2, new_vel;
+  float this_dt;
   
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
     VelocityUnits;
@@ -55,34 +58,57 @@ int Star::Accrete(void)
       this_dt = accretion_time[n+1] - accretion_time[n];
     DeltaMass += accretion_rate[n++] * this_dt * TimeUnits;
   }
-  Mass += DeltaMass;
-  FinalMass += DeltaMass;
+  
+//  printf("star::Accrete: old_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
+  double old_mass = Mass;
+  Mass += (double)(DeltaMass);
+  FinalMass += (double)(DeltaMass);
+//  printf("star::Accrete: new_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
 
-  /* Conserve momentum: change star particle velocity due to accreted
-     material */
-  /* Below was an approximation for DetalMass <<1; 
-     Now this is accurately done in Star_SubtractAccretedMass.C - Ji-hoon Kim in Sep.2009 */
-  /*
-  ratio2 = DeltaMass / Mass;
-  ratio1 = 1.0 - ratio2;
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
-    delta_vel[dim] = 0.0;
+
+  /* Conserve momentum: change star particle velocity due to accreted material */
+
+  /* [1] For BlackHole, 
+     it is now accurately done in Star_SubtractAccretedMassFromCell */
+
+  /* [2] For Star Formation, 
+     We can still do this in approximate way (JHW, Jan10) */
+
+  double ratio1, ratio2, new_vel;
+
+  if (type != MBH || type != BlackHole) {
+    ratio2 = DeltaMass / Mass;
+    ratio1 = 1.0 - ratio2;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
+      delta_vel[dim] = 0.0;
+    }
+  } else {
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      delta_vel[dim] = 0.0;
+    }
   }
-  */
 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    delta_vel[dim] = 0.0;
+  /* [3] For MBH, 
+     because gas mass is added to MBH from many cells with zero net momentum,
+     just decrease the particle's velocity accordingly. */
+
+  if (type == MBH) {
+//    printf("star::Accrete: old_vel[1] = %g\n", vel[1]);
+    vel[0] *= old_mass / Mass; 
+    vel[1] *= old_mass / Mass;
+    vel[2] *= old_mass / Mass; 
+//    printf("star::Accrete: old_mass = %lf  ->  Mass = %lf\n", old_mass, Mass); 
+//    printf("star::Accrete: new_vel[1] = %g\n", vel[1]);
   }
 
-  /* Keep the last accretion_rate for computing photon rates later on (see Star_ComputePhotonRates.C) */
+
+  /* Keep the last accretion_rate for future use */
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-  /*
-  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, accretion_time[0] = %g, this_dt = %g, DeltaMass = %g\n",
-  	  last_accretion_rate, accretion_time[0], this_dt, DeltaMass); //#####
-  */
+//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, time = %g, accretion_time[0] = %g, this_dt = %e, 
+//          DeltaMass = %g, Mass = %lf\n", last_accretion_rate, time, accretion_time[0], this_dt, DeltaMass, Mass); 
 
   /* Remove these entries in the accretion table */
 

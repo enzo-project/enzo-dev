@@ -44,11 +44,17 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   BasePackages = 12*(int)pow(4,min_level);
 
   int stype = 3;
+  bool HeliumPhotons = (StarClusterHeliumIonization == TRUE);
 #ifdef ONE_ENERGY
-  stype = 1;
+  stype = (HeliumPhotons) ? 3 : 1;
 #endif
+<<<<<<< local
   if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2 && 
       !RadiativeTransferFLD) stype++;
+=======
+  if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
+  if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
+>>>>>>> other
 
   /* At most how many new Photon Packages should be allocated and
      created?  */
@@ -116,11 +122,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	       RS->Luminosity);
       break;
     case BlackHole:
-      if (RadiativeTransferInterpolateField) {
-	FieldsToInterpolate[HINum] = TRUE;
-	FieldsToInterpolate[HeINum] = TRUE;
-	FieldsToInterpolate[HeIINum] = TRUE;
-      } // ENDIF interpolate fields
+//      if (RadiativeTransferInterpolateField) {
+//	FieldsToInterpolate[HINum] = TRUE;
+//	FieldsToInterpolate[HeINum] = TRUE;
+//	FieldsToInterpolate[HeIINum] = TRUE;
+//      } // ENDIF interpolate fields
 //      if (MyProcessorNumber == ProcessorNumber)
 //	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
 //	       PhotonTime-RS->CreationTime+dtPhoton);
@@ -188,7 +194,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  // Type 4 = X-Ray
 	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  //fprintf(stdout, "MBH = %d, RS->Type = %d, NewPack->Type = %d\n", MBH, RS->Type, NewPack->Type);  
+	  // Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
+	  if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
+
+//	  if (DEBUG)
+//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+//		   MBH, RS->Type, NewPack->Type);  
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

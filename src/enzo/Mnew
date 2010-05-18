@@ -91,8 +91,8 @@ else
 endif
 
 
-#JBPERF_INC := /users/ucsd/drreynol/jbPerf/include
-#JBPERF_LIB := /users/ucsd/drreynol/jbPerf/lib
+#LCAPERF_INC := /users/ucsd/drreynol/lcaperf/include
+#LCAPERF_LIB := /users/ucsd/drreynol/lcaperf/lib
 #MGMPI_INC := /users/ucsd/drreynol/mgmpi-code/include
 #MGMPI_LIB := /users/ucsd/drreynol/mgmpi-code/lib
 
@@ -870,7 +870,7 @@ include ${INCLUDE_MAKEFILE}
 	${CPP} -D${ENZO_PPR} ${DEFINES} -D${ENZO_XPR} -P ${CPP_FLAG} $< > $*.f
 	${FC} ${FFLAGS} ${FC_OPT} ${FORTPR} ${DEBUG} ${OPTS} $*.f 
 .C.o:
-	${CCxx} ${CCxxFLAGS} ${CCxx_OPT} ${AMR_OPT} -D${OOC_OPT} -D${ENZO_INT} -D${INIT_PPR} -D${ENZO_PPR} -D${ENZO_XPR} -D${ENZO_END} -D${TASK_MAP} -D${UXP_OPT} -D${IOT} -D${IO_PACK} -D${IO_OPT} -D${IO_MEM_BUFF_OUT} -D${IO_MEM_BUFF_INP} -D__max_subgrids=${MAX_GRIDS} -D__max_baryons=${MAX_BARYONS} -D__max_cpu_per_node=${MAX_CPU_PER_NODE} -DNO_ISO_GRAV -DNO_USE_JBPERF ${DEBUG} ${OPTS} $*.C
+	${CCxx} ${CCxxFLAGS} ${CCxx_OPT} ${AMR_OPT} -D${OOC_OPT} -D${ENZO_INT} -D${INIT_PPR} -D${ENZO_PPR} -D${ENZO_XPR} -D${ENZO_END} -D${TASK_MAP} -D${UXP_OPT} -D${IOT} -D${IO_PACK} -D${IO_OPT} -D${IO_MEM_BUFF_OUT} -D${IO_MEM_BUFF_INP} -D__max_subgrids=${MAX_GRIDS} -D__max_baryons=${MAX_BARYONS} -D__max_cpu_per_node=${MAX_CPU_PER_NODE} -DNO_ISO_GRAV -DNO_USE_LCAPERF ${DEBUG} ${OPTS} $*.C
 .c.o:
 	${CC} ${CFLAGS} ${CC_OPT} -D${ENZO_INT} -D${ENZO_PPR} -D${ENZO_XPR} -D${ENZO_END} -D${TASK_MAP} -D${USE_LOADL} ${DEBUG} ${OPTS} -c $<
 

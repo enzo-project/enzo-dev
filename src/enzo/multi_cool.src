@@ -7,7 +7,7 @@
 
       subroutine multi_cool(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
-     &                in, jn, kn, nratec, iexpand, imethod,
+     &                in, jn, kn, nratec, iexpand, imethod, igammah,
      &                idual, ispecies, imetal, imcool, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend,
@@ -15,7 +15,7 @@
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &                reHeII2a, reHeIIIa, brema, compa,
+     &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp, piHI, piHeI, piHeII,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
@@ -24,8 +24,7 @@
      &                metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
-     &                iradtrans, kphHI, kphHeI, kphHeII, kdissH2I,
-     &                gammaHI, gammaHeI, gammaHeII,
+     &                iradtrans, photogamma, 
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -58,7 +57,7 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
-     &        imcool
+     &        imcool, igammah
       real    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end
@@ -69,9 +68,7 @@
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
-     &        kdissH2I(in,jn,kn)
-      real    gammaHI(in,jn,kn), gammaHeI(in,jn,kn), gammaHeII(in,jn,kn)
+      real    photogamma(in,jn,kn)
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
@@ -84,6 +81,7 @@
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
       real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
+      real    gammaha
 
 !  Cloudy cooling data
 
@@ -211,13 +209,13 @@
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idim,
-     &                is, ie, j, k, ih2co, ipiht, iter,
+     &                is, ie, j, k, ih2co, ipiht, iter, igammah,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &                reHeII2a, reHeIIIa, brema, compa, 
+     &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
@@ -233,7 +231,7 @@
      &                tgas, tgasold, p2d,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
-     &                iradtrans, gammaHI, gammaHeI, gammaHeII,
+     &                iradtrans, photogamma, 
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,

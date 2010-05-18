@@ -79,6 +79,7 @@ include $(MAKE_CONFIG_OVERRIDE)
 #CONFIG_PRECISION = 32
 CONFIG_INTEGERS  = 32
 CONFIG_USE_MPI   = yes
+CONFIG_LCAPERF   = no
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------
@@ -93,11 +94,8 @@ include $(ENZO_DIR)/Make.config.assemble
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
-
-# Override previous defines
-DEFINES = -DUSE_HDF5
+-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
 #=======================================================================
 # OBJECT FILES
@@ -122,6 +120,59 @@ $(EXE): $(MODULES) dep $(OBJS_PGROUP_LIB)
              mv -f temp2 $(OUTPUT); \
              echo "Failed! See $(OUTPUT) for error messages"; \
          fi)
+
+#-----------------------------------------------------------------------
+# Ripped out the particle ID setup from targets/assemble because we
+# ignore all of the other defines.
+# -----------------------------------------------------------------------
+
+VALID_IDS = particle-id-32 particle-id-64
+.PHONY: $(VALID_IDS)
+
+particle-id-32: CONFIG_PARTICLE_IDS-32
+particle-id-64: CONFIG_PARTICLE_IDS-64
+particle-id-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_IDS)]\n\n"
+CONFIG_PARTICLE_IDS-%: suggest-clean
+	@tmp=.config.temp; \
+	grep -v CONFIG_PARTICLE_IDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_PARTICLE_IDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PARTICLE_IDS:
+	@echo
+
+#-----------------------------------------------------------------------
+# DETERMINE INTEGER SIZE SETTINGS FOR PARTICLE INDICES
+#-----------------------------------------------------------------------
+
+ERROR_IDS = 1
+
+# Settings for 32-bit integers
+
+ifeq ($(CONFIG_PARTICLE_IDS),32)
+    ERROR_IDS = 0
+    ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_4
+endif
+
+# Settings for 64-bit integers
+
+ifeq ($(CONFIG_PARTICLE_IDS),64)
+    ERROR_IDS = 0
+    ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_8
+endif
+
+# error if CONFIG_INTEGERS is incorrect
+
+ifeq ($(ERROR_IDS),1)
+   .PHONY: error_ids
+   error_ids:
+	$(error Illegal value '$(CONFIG_PARTICLE_IDS)' for $$(CONFIG_PARTICLE_IDS))
+endif
+
+#=======================================================================
+
+# Override previous defines with the exception of particle id size
+DEFINES = -DUSE_HDF5 $(ASSEMBLE_IDS_DEFINES)
 
 #-----------------------------------------------------------------------
 # Implicit rules

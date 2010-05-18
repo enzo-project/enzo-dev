@@ -57,8 +57,11 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   const char *ParticleOtherLabel[] =
     {"particle_type", "particle_number", "particle_mass"};
-  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+
   int i;
     
   for (i=0; i<3; i++) { 
@@ -422,8 +425,11 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+
+  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
 
   sprintf(gridDataName, "/grid-%d", gridId);
   if (nBaryonFields > 0) 
@@ -486,14 +492,14 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
   H5Dclose(dataset);
   H5Sclose(dataspace);
 
-
   // ID
   dataspace = H5Screate_simple(1, &hdims, &hdims);
-  dataset = H5Dcreate(gridGrp, "particle_number", H5T_NATIVE_INT,
+  dataset = H5Dcreate(gridGrp, "particle_number", HDF5_FILE_PINT,
 		      dataspace, H5P_DEFAULT);
-  H5Dwrite(dataset, H5T_NATIVE_LONG, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
+  H5Dwrite(dataset, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, ID);
   H5Dclose(dataset);
   H5Sclose(dataspace);
+
 
   // Mass
   dataspace = H5Screate_simple(1, &hdims, &hdims);

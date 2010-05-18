@@ -31,7 +31,8 @@ int grid::CleanUpMovedParticles()
     return SUCCESS;
  
   int i, j, n, dim, NumberOfParticlesRemaining = NumberOfParticles,
-      *Number, *Type;
+    *Type;
+  PINT *Number;
   FLOAT *Position[MAX_DIMENSION];
   float *Velocity[MAX_DIMENSION], *Mass,
         *Attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
@@ -58,7 +59,7 @@ int grid::CleanUpMovedParticles()
     /* Allocate space for the new set of particles. */
  
     Mass = new float[NumberOfParticlesRemaining];
-    Number = new int[NumberOfParticlesRemaining];
+    Number = new PINT[NumberOfParticlesRemaining];
     Type = new int[NumberOfParticlesRemaining];
     for (dim = 0; dim < GridRank; dim++) {
       Position[dim] = new FLOAT[NumberOfParticlesRemaining];

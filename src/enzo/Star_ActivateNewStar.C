@@ -22,7 +22,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 void Star::ActivateNewStar(FLOAT Time)
 {
@@ -32,7 +31,7 @@ void Star::ActivateNewStar(FLOAT Time)
     StarType = ABS(type);
     switch (StarType) {
     case PopII:
-      if (Mass > StarClusterMinimumMass) {
+      if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
 	BirthTime = Time;
       }
@@ -42,6 +41,9 @@ void Star::ActivateNewStar(FLOAT Time)
 	type = StarType;  // No minimum mass now.  User-specified mass.
 	BirthTime = Time;
       }
+      break;
+    case PopIII_CF:
+      type = StarType;
       break;
     case BlackHole:
       // nothing to do

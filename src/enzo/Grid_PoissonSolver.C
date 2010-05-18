@@ -53,6 +53,10 @@ int grid::PoissonSolver(int level)
     return SUCCESS;
   }
   
+  int iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+  int iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+  int iBz;
+  if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
 
   /* Calculating divB_p */
   
@@ -69,17 +73,19 @@ int grid::PoissonSolver(int level)
     size *= GridDimension[dim];
   }
 
-  float monopoleDensity = 0.0, current;
+  float monopoleDensity = 0.0, current, Bdiff;
 
   double *divB_p = new double[size];
 
   int igrid;
 
-  //int MatrixStartIndex[3]={GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
-  //int MatrixEndIndex[3]={GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
+  int MatrixStartIndex[3]={GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
+  int MatrixEndIndex[3]={GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
   
-  int MatrixStartIndex[3]={0,  0,  0};
-  int MatrixEndIndex[3]={GridDimension[0]-1,  GridDimension[1]-1,  GridDimension[2]-1};
+
+  for (int igrid = 0; igrid < size; igrid++) {
+    divB_p[igrid] =0.0;
+  }
 
   for (int k = MatrixStartIndex[2]; k <= MatrixEndIndex[2]; k++) {
     for (int j = MatrixStartIndex[1]; j <= MatrixEndIndex[1]; j++) {
@@ -87,35 +93,60 @@ int grid::PoissonSolver(int level)
 	igrid = GetIndex(i, j, k);
 	
 	divB_p[igrid] =
+	  (BaryonField[iBx][igrid + diff[0]] - BaryonField[iBx][igrid - diff[0]]) / (2.0*dx[0]) +
+	  (BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]]) / (2.0*dx[1]);
+
+	Bdiff=  
 	  (BaryonField[iBx][igrid + diff[0]] - BaryonField[iBx][igrid - diff[0]]) / 2.0 +
-	  (BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]]) / 2.0 +
-	  (BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]]) / 2.0;
-	
+	  (BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]]) / 2.0;
+
+	if (GridRank > 2){
+	  divB_p[igrid] += (BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]]) / (2.0*dx[2]);
+	  Bdiff+=(BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]]) / 2.0;
+	}
+
+
+	if (GridRank == 2){
+	  current=sqrt(Bdiff*Bdiff/
+	    (BaryonField[iBx][igrid]*BaryonField[iBx][igrid]+
+	     BaryonField[iBy][igrid]*BaryonField[iBy][igrid]));}
+	else if (GridRank ==3){
+	  current=sqrt(Bdiff*Bdiff/
+	    (BaryonField[iBx][igrid]*BaryonField[iBx][igrid]+
+	     BaryonField[iBy][igrid]*BaryonField[iBy][igrid]+
+	     BaryonField[iBz][igrid]*BaryonField[iBz][igrid]));}
+	if (monopoleDensity<current) monopoleDensity=current;
       }
     }
   }
 
- //  /* Apply Dirichlet Boundary Condition to rhs */
+  if (monopoleDensity<DivergenceCleaningThreshold){
+    if (debug) printf("Monopole Density %g < %g\n", monopoleDensity, DivergenceCleaningThreshold);
+    return SUCCESS;
+  }
+//  else
+//    printf("**Poisson Cleaning**\n");
 
- //  this->PoissonSolverDirichletBC(divB_p);
+  int type=UseDivergenceCleaning;
 
-  bool badDiv=false;
+   if(debug){
+   bool badDiv=false;
     float divSum = 0;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	  igrid = i + (j + k * GridDimension[1]) * GridDimension[0];
-	  if (divB_p[igrid]>DivergenceCleaningThreshold) badDiv=true;
 	  divSum += fabs(divB_p[igrid]/dx[0]);
 	}
       }
     }
     
     printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
+   }
     
-    if (!badDiv) return SUCCESS;
+ 
 
-  int type=UseDivergenceCleaning;
+ 
 
   if (type == 1) PoissonSolverSOR();
   else if (type == 2) PoissonSolverSOR2();
@@ -137,6 +168,10 @@ int grid::PoissonSolver(int level)
 int grid::PoissonCleanStep(int level)
 {
 
+  int iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+  int iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+  int iBz;
+  if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
   
 
   int size = 1;
@@ -161,6 +196,11 @@ int grid::PoissonCleanStep(int level)
   int MatrixStartIndex[3]={GridStartIndex[0]+x,  GridStartIndex[1]+x,  GridStartIndex[2]+x};
   int MatrixEndIndex[3]={GridEndIndex[0]-x,  GridEndIndex[1]-x,  GridEndIndex[2]-x};
 
+  if (GridRank==2) {
+    MatrixEndIndex[2]=0;
+    MatrixStartIndex[2]=0;
+  }
+
   //int MatrixStartIndex[3]={GridStartIndex[0],  GridStartIndex[1],  GridStartIndex[2]};
   //int MatrixEndIndex[3]={GridEndIndex[0],  GridEndIndex[1],  GridEndIndex[2]};
 
@@ -174,8 +214,8 @@ int grid::PoissonCleanStep(int level)
 	igrid = GetIndex(i, j, k);
 
 	Bx  = BaryonField[iBx][igrid];
-	By  = BaryonField[iBx][igrid];
-	Bz  = BaryonField[iBz][igrid];
+	By  = BaryonField[iBy][igrid];
+	Bz  = (GridRank > 2) ? BaryonField[iBz][igrid]:0;
 	B2  = Bx * Bx + By * By + Bz * Bz;
 	rho = BaryonField[iden][igrid];
 	BaryonField[ietot][igrid] -= 0.5 * B2 / rho;
@@ -198,8 +238,10 @@ int grid::PoissonCleanStep(int level)
 	  ( Phi_p[igrid + diff[0]] - Phi_p[igrid - diff[0]] ) / (2.0 * dx[0]);
 	BaryonField[iBy][igrid] -= 
 	  ( Phi_p[igrid + diff[1]] - Phi_p[igrid - diff[1]] ) / (2.0 * dx[1]);
-	BaryonField[iBz][igrid] -= 
-	  ( Phi_p[igrid + diff[2]] - Phi_p[igrid - diff[2]] ) / (2.0 * dx[2]);
+
+	if (GridRank > 2)
+	  BaryonField[iBz][igrid] -= 
+	    ( Phi_p[igrid + diff[2]] - Phi_p[igrid - diff[2]] ) / (2.0 * dx[2]);
 
       }
     }
@@ -214,8 +256,8 @@ int grid::PoissonCleanStep(int level)
 	igrid = GetIndex(i, j, k);
 
 	Bx = BaryonField[iBx][igrid];
-	By = BaryonField[iBx][igrid];
-	Bz = BaryonField[iBz][igrid];
+	By = BaryonField[iBy][igrid];
+	Bz = (GridRank > 2) ? BaryonField[iBz][igrid]:0;
 	B2 = Bx * Bx + By * By + Bz * Bz;
 	rho = BaryonField[iden][igrid];
 	BaryonField[ietot][igrid] += 0.5 * B2 / rho;
@@ -238,8 +280,10 @@ int grid::PoissonCleanStep(int level)
 
 	divB_p[igrid] =
 	  ( BaryonField[iBx][igrid + diff[0]] - BaryonField[iBx][igrid - diff[0]] ) / 2.0 +
-	  ( BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]] ) / 2.0 +
-	  ( BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]] ) / 2.0;
+	  ( BaryonField[iBy][igrid + diff[1]] - BaryonField[iBy][igrid - diff[1]] ) / 2.0;
+	
+	if (GridRank > 2)
+	  divB_p[igrid] +=( BaryonField[iBz][igrid + diff[2]] - BaryonField[iBz][igrid - diff[2]] ) / 2.0;
 
 	divSum += fabs(divB_p[igrid]/dx[0]);
 
@@ -248,7 +292,7 @@ int grid::PoissonCleanStep(int level)
   }  
 
   
-  printf("End divB_p: %g (%g/%d) \n\n", divSum/size, divSum, size);
+  printf("End divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
   
   delete [] divB_p;
   }
@@ -257,111 +301,127 @@ int grid::PoissonCleanStep(int level)
   
 }
 
-int grid::PoissonSolverDirichletBC(double *divB_p) 
-{
+// int grid::PoissonSolverDirichletBC(int d, double *divB_p) 
 
-  const int ng = DEFAULT_GHOST_ZONES;
-  int igrid, igrid_rhs;
+// {
 
-  int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
-
-  FLOAT dx_inv[3];
-  dx_inv[0] = 1.0 / CellWidth[0][0];
-  dx_inv[1] = (GridRank > 1) ? 1.0 / CellWidth[1][0] : 0.0;
-  dx_inv[2] = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
-
-  /* x boundary */
-
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-
-      /* left boundary */
-
-      igrid = GetIndex(ng - 1, j, k);
-      igrid_rhs = GetIndex(ng + 1, j, k);
-      divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0] / 4.0;
-      
-      igrid = GetIndex(ng - 2, j, k);
-      igrid_rhs = GetIndex(ng, j, k);
-      divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0] / 4.0;
-      
-      /* right bounary */
-
-      igrid = GetIndex(GridEndIndex[0] + 1, j, k);
-      igrid_rhs = GetIndex(GridEndIndex[0] - 1, j, k);
-      divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0] / 4.0;
-      
-      igrid = GetIndex(GridEndIndex[0] + 2, j, k);
-      igrid_rhs = GetIndex(GridEndIndex[0], j, k);
-      divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0] / 4.0;      
-
-    }
-
-  /* y boundary */
   
-  if (GridRank > 1) {
 
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+//   const int ng = DEFAULT_GHOST_ZONES;
+//   int igrid, igrid_rhs;
 
-	/* left boundary */
+//   int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
 
-	igrid = GetIndex(i, ng - 1, k);
-	igrid_rhs = GetIndex(i, ng + 1, k);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1] / 4.0;
+//   FLOAT dx_inv[3];
+//   dx_inv[0] = 1.0 / CellWidth[0][0];
+//   dx_inv[1] = (GridRank > 1) ? 1.0 / CellWidth[1][0] : 0.0;
+//   dx_inv[2] = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
 
-	igrid = GetIndex(i, ng - 2, k);
-	igrid_rhs = GetIndex(i, ng, k);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1] / 4.0;
+  
+//   for (int i=0; i<3; i++)
+//     dx_inv[i]=d*d*dx_inv[i]*dx_inv[i];
 
-	/* right boundary */
 
-	igrid = GetIndex(i, GridEndIndex[1] + 1, k);
-	igrid_rhs = GetIndex(i, GridEndIndex[1] - 1, k);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1] / 4.0;
+    
 
-	igrid = GetIndex(i, GridEndIndex[1] + 2, k);
-	igrid_rhs = GetIndex(i, GridEndIndex[1], k);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1] / 4.0;
+//   /* x boundary */
 
-      }
+//   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) 
+//     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 
-  }
+//       /* left boundary */
 
-  /* z boundary */
+//       igrid = GetIndex(ng - d + 1, j, k);
+//       igrid_rhs = GetIndex(ng + 1, j, k);
+//       divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0];
+      
+//       igrid = GetIndex(ng - d, j, k);
+//       igrid_rhs = GetIndex(ng, j, k);
+//       divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0];
+      
+//       /* right bounary */
 
-  if (GridRank > 2) {
+//       igrid = GetIndex(GridEndIndex[0] + d - 1, j, k);
+//       igrid_rhs = GetIndex(GridEndIndex[0] - 1, j, k);
+//       divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0];
+      
+//       igrid = GetIndex(GridEndIndex[0] + d, j, k);
+//       igrid_rhs = GetIndex(GridEndIndex[0], j, k);
+//       divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[0];      
 
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+//     }
+
+//   /* y boundary */
+  
+//   if (GridRank > 1) {
+
+//     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+//       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+// 	/* left boundary */
+
+// 	igrid = GetIndex(i, ng - d + 1, k);
+// 	igrid_rhs = GetIndex(i, ng + 1, k);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1];
+
+// 	igrid = GetIndex(i, ng - d, k);
+// 	igrid_rhs = GetIndex(i, ng, k);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1];
+
+// 	/* right boundary */
+
+// 	igrid = GetIndex(i, GridEndIndex[1] + d -1, k);
+// 	igrid_rhs = GetIndex(i, GridEndIndex[1] - 1, k);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1];
+
+// 	igrid = GetIndex(i, GridEndIndex[1] + d, k);
+// 	igrid_rhs = GetIndex(i, GridEndIndex[1], k);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[1];
+
+//       }
+
+//   }
+
+//   /* z boundary */
+
+//   if (GridRank > 2) {
+
+//     for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+//       for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	
-	/* left boundary */
+// 	/* left boundary */
 
-	igrid = GetIndex(i, j, ng - 1);
-	igrid_rhs = GetIndex(i, j, ng + 1);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2] / 4.0;
+// 	igrid = GetIndex(i, j, ng - d + 1);
+// 	igrid_rhs = GetIndex(i, j, ng + 1);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2];
 
-	igrid = GetIndex(i, j, ng - 2);
-	igrid_rhs = GetIndex(i, j, ng);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2] / 4.0;
+// 	igrid = GetIndex(i, j, ng - d);
+// 	igrid_rhs = GetIndex(i, j, ng);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2];
 
-	/* right boundary */
+// 	/* right boundary */
 
-	igrid = GetIndex(i, j, GridEndIndex[2] + 1);
-	igrid_rhs = GetIndex(i, j, GridEndIndex[2] - 1);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2] / 4.0;
+// 	igrid = GetIndex(i, j, GridEndIndex[2] + d - 1);
+// 	igrid_rhs = GetIndex(i, j, GridEndIndex[2] - 1);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2];
 
-	igrid = GetIndex(i, j, GridEndIndex[2] + 2);
-        igrid_rhs = GetIndex(i, j, GridEndIndex[2]);
-	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2] / 4.0;
+// 	igrid = GetIndex(i, j, GridEndIndex[2] + d);
+//         igrid_rhs = GetIndex(i, j, GridEndIndex[2]);
+// 	divB_p[igrid_rhs] -= BaryonField[Phi_pNum][igrid] * dx_inv[2];
 
-      }
+//       }
+    
+//   }
+  
 
-  }
 
-  return SUCCESS;
+//   return SUCCESS;
 
-}
+// }
+
+
+
+
 
 //**********
 //Other Solvers
@@ -716,7 +776,7 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 
 
 int grid::PrintToScreenBoundaries(float *field, char *display){
- //if (!debug) return SUCCESS;
+ if (!debug) return SUCCESS;
 
   //return SUCCESS;
 

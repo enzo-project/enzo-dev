@@ -47,6 +47,7 @@ struct CoolDataType
   float comp;                    // Compton cooling
   float comp_xray;               // X-ray compton heating coefficient
   float temp_xray;               // X-ray compton heating temperature (K)
+  float gammah;                  // Photoelectric heating
 
   /* radiative rates (external field). */
 
@@ -79,6 +80,7 @@ struct CoolDataType
 
   float *HDlte;
   float *HDlow;
+  float *HDcool;
 
   /* CIE cooling */
   float *cieco;

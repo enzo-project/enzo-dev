@@ -37,7 +37,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   int B1Num, B2Num, B3Num, PhiNum;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-  int MetalNum, SNColourNum;
 
   /* Add the physical quantities */
 
@@ -77,7 +76,6 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   /* Add the species */
 
   if (MultiSpecies) {
-
     this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
 				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
@@ -104,8 +102,15 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   /* Add the colours (NColor is determined in EvolveLevel_RK2) */  
 
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1) {
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    return FAIL;
+  }
+  
+  if (MetalNum != -1) {
     Prim[nfield++] = BaryonField[MetalNum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = BaryonField[MetalNum+1];
@@ -113,19 +118,24 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     }
   }
 
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    Prim[nfield++] = BaryonField[SNColourNum];
+  if (SNColourNum      != -1) Prim[nfield++] = BaryonField[SNColourNum];  
+  /*   //##### These fields are currently not being used and only causing interpolation problems
+  if (MBHColourNum     != -1) Prim[nfield++] = BaryonField[MBHColourNum];
+  if (Galaxy1ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy1ColourNum];
+  if (Galaxy2ColourNum != -1) Prim[nfield++] = BaryonField[Galaxy2ColourNum];
+  */
 
   /* Convert the species and color fields into mass fractions */
 
   for (dim = 0, size = 1; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  if (ReturnMassFractions)
+  if (ReturnMassFractions)  
     for (n = n0; n < nfield; n++)
-      for (i = 0; i < size; i++)
+      for (i = 0; i < size; i++) 
 	Prim[n][i] /= Prim[iden][i];
+
+  //  fprintf(stdout, "grid::ReturnHydroRKPointers: nfield = %d\n", nfield);  
 
   return SUCCESS;
 

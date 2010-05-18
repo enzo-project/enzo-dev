@@ -91,6 +91,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"] = %lf", &source,
 		    &PhotonTestSourceLuminosity[source]);
+    if (sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"] = %"FSYM, &source,
+		    &PhotonTestSourceCreationTime[source]);
     if (sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceLifeTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceLifeTime[source]);
@@ -181,6 +184,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     RadSources = new RadiationSourceEntry;
     RadSources->PreviousSource = GlobalRadiationSources;
     RadSources->NextSource     = GlobalRadiationSources->NextSource;
+    RadSources->SuperSource    = NULL;
     RadSources->Type           = PhotonTestSourceType[i]; 
     RadSources->Luminosity     = PhotonTestSourceLuminosity[i]; 
     RadSources->LifeTime       = PhotonTestSourceLifeTime[i]; 

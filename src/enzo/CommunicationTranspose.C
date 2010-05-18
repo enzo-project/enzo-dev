@@ -43,15 +43,30 @@ extern "C" void FORTRAN_NAME(copy3drt)(float *source, float *dest,
                                    int *sstart1, int *sstart2, int *sstart3,
                                    int *dstart1, int *dstart2, int *dststart3);
 
+#ifdef USE_MPI
+int CommunicationBufferPurge(void);
+int CommunicationBarrier(void);
+int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,
+			      int Tag, MPI_Comm CommWorld, int BufferSize);
+#endif
+
+int TransposeRegionOverlap(region *FromRegion, region *ToRegion, int i, int j,
+			   region *Sends, region *Receives, 
+			   int &nrecv, int &nsend,
+			   int &SendSize, int &ReceiveSize);
+
 int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 			   region *ToRegion, int NumberOfToRegions,
 			   int TransposeOrder);
-
-int OptimizedUnigridCommunicationTranspose(
-               region *FromRegion, int NumberOfFromRegions,
+int OptimizedUnigridCommunicationTranspose(region *FromRegion, 
+			   int NumberOfFromRegions,
 			   region *ToRegion, int NumberOfToRegions,
 			   int TransposeOrder);
+int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
+			   region *ToRegion, int NumberOfToRegions,
+		           int TransposeOrder);
 
+#define DEBUG_NONBLOCKCT_OFF
 commSndRcv *cSndRcv; /* Used in optimized transpose */
  
 int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
@@ -59,15 +74,25 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 			   int TransposeOrder)
 {
     int retval;
-    if (UnigridTranspose) {
-        retval = OptimizedUnigridCommunicationTranspose(
-            FromRegion, NumberOfFromRegions,
-            ToRegion, NumberOfToRegions, TransposeOrder);
-        } else {
-        retval = NonUnigridCommunicationTranspose(
-            FromRegion, NumberOfFromRegions,
-            ToRegion, NumberOfToRegions, TransposeOrder);
-    }
+    switch (UnigridTranspose) {
+    case 0:
+      retval = NonUnigridCommunicationTranspose
+	(FromRegion, NumberOfFromRegions,
+	 ToRegion, NumberOfToRegions, TransposeOrder);
+      break;
+    case 1:
+      retval = OptimizedUnigridCommunicationTranspose
+	(FromRegion, NumberOfFromRegions,
+	 ToRegion, NumberOfToRegions, TransposeOrder);
+      break;
+    case 2:
+      retval = NonBlockingCommunicationTranspose
+	(FromRegion, NumberOfFromRegions,
+	 ToRegion, NumberOfToRegions, TransposeOrder);
+      break;
+    default:
+      ENZO_VFAIL("Invalid value for UnigridTranspose = %d", UnigridTranspose);
+    } // ENDSWITCH
     return retval;
 }
 
@@ -84,9 +109,10 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
  
   //  fprintf(stderr, "CT(%"ISYM"): start From=%"ISYM"  To=%"ISYM"\n", MyProcessorNumber,
   //	  NumberOfFromRegions, NumberOfToRegions);
-							
-  region *Sends = new region[NumberOfFromRegions];
-  region *Receives = new region[NumberOfToRegions];
+
+  int NumberOfRegions = max(NumberOfFromRegions, NumberOfToRegions);
+  region *Sends = new region[NumberOfRegions];
+  region *Receives = new region[NumberOfRegions];
 
   //  if (NumberOfProcessors == 1) return SUCCESS;
  
@@ -106,51 +132,9 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
              NumberOfProcessors) % NumberOfProcessors == n &&
 	    (MyProcessorNumber == FromRegion[j].Processor ||
 	     MyProcessorNumber ==   ToRegion[i].Processor)) {
- 
-	  /* Determine if there is an overlap. */
- 
-	  size = 1;
-	  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-	    LeftIndex[dim] = max(FromRegion[j].StartIndex[dim],
-                                   ToRegion[i].StartIndex[dim]);
-	    RightIndex[dim] = min(
-	     FromRegion[j].StartIndex[dim] + FromRegion[j].RegionDim[dim],
-	       ToRegion[i].StartIndex[dim] +   ToRegion[i].RegionDim[dim])-1;
-	    size *= max(RightIndex[dim] - LeftIndex[dim] + 1, 0);
-	  }
- 
-	  /* If there is an overlap, add it to the list of sends/receives. */
- 
-	  if (size > 0) {
- 
-	    if (MyProcessorNumber == FromRegion[j].Processor) {
-//	      fprintf(stderr, "CT(%"ISYM"): from: i,j=%"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-//		      MyProcessorNumber, j, i, FromRegion[j].Processor,
-//		      ToRegion[i].Processor);
-	      for (dim = 0; dim < MAX_DIMENSION; dim++) {
-		Sends[sends].StartIndex[dim] = LeftIndex[dim] -
-		  FromRegion[j].StartIndex[dim];
-		Sends[sends].RegionDim[dim] = RightIndex[dim] -
-		  LeftIndex[dim] + 1;
-	      }
-	      SendSize += size;
-	      Sends[sends++].Processor = j;
-	    }
- 
-	    if (MyProcessorNumber == ToRegion[i].Processor) {
-//	      fprintf(stderr, "CT(%"ISYM"): to: %"ISYM"->%"ISYM" from proc %"ISYM"\n",
-//		      MyProcessorNumber, j, i, FromRegion[j].Processor);
-	      for (dim = 0; dim < MAX_DIMENSION; dim++) {
-		Receives[receives].StartIndex[dim] = LeftIndex[dim] -
-		  ToRegion[i].StartIndex[dim];
-		Receives[receives].RegionDim[dim] = RightIndex[dim] -
-		  LeftIndex[dim] + 1;
-	      }
-	      ReceiveSize += size;
-	      Receives[receives++].Processor = i;
-	    }
- 
-	  } // end: if (size > 0)
+
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
  
         } // end: if (proc jump == n)
  
@@ -202,6 +186,7 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
  
 #ifdef USE_MPI
  
+      MPI_Request RequestHandle;
       MPI_Status status;
       MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
       MPI_Arg Count;
@@ -225,14 +210,20 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
       Source = FromProc;
       Dest = ToProc;
        
-      if (MPI_Sendrecv((void*) SendBuffer, Count, DataType, Dest,
-	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
-	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
-	       &status) != MPI_SUCCESS) {
-	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
-		status.MPI_ERROR);
-	ENZO_FAIL("");
-      }
+//      if (MPI_Sendrecv((void*) SendBuffer, Count, DataType, Dest,
+//	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
+//	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
+//	       &status) != MPI_SUCCESS) {
+//	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+//		status.MPI_ERROR);
+//	ENZO_FAIL("");
+//      }
+
+      MPI_Irecv((void*) ReceiveBuffer, RecvCount, DataType, Source, 
+		MPI_TRANSPOSE_TAG, MPI_COMM_WORLD, &RequestHandle);
+      MPI_Send((void*) SendBuffer, Count, DataType, Dest, 
+	       MPI_TRANSPOSE_TAG, MPI_COMM_WORLD);
+      MPI_Wait(&RequestHandle, &status);
  
 #ifdef MPI_INSTRUMENTATION
       endtime = MPI_Wtime();
@@ -350,8 +341,8 @@ int OptimizedUnigridCommunicationTranspose(
  
   if(First_Pass < 6)  {
 
-  // fprintf(stderr, "FFT Initialization Pass %"ISYM" on proc %"ISYM" : #FromRegions =  %"ISYM"  #ToRegions =  %"ISYM"\n",
-  //         First_Pass, MyProcessorNumber, NumberOfFromRegions, NumberOfToRegions);
+//    fprintf(stderr, "FFT Initialization Pass %"ISYM" on proc %"ISYM" : #FromRegions =  %"ISYM"  #ToRegions =  %"ISYM"\n",
+//	    First_Pass, MyProcessorNumber, NumberOfFromRegions, NumberOfToRegions);
 
   // Loop over processor jumps (number of processors ahead to send)
 
@@ -413,7 +404,6 @@ int OptimizedUnigridCommunicationTranspose(
 
     int ict = 0;
     int icf = 0;
-
     for (i = 0; i < NumberOfToRegions; i++) {
       if ( MyProcessorNumber ==   ToRegion[i].Processor ) {
         itrue[ict] = i;
@@ -424,7 +414,7 @@ int OptimizedUnigridCommunicationTranspose(
       }
     }
 
-    // fprintf(stderr, "  Counter indices on proc %"ISYM" for n = %"ISYM": ict = %"ISYM", jct = %"ISYM"\n", MyProcessorNumber, n, ict, jct);
+    //    fprintf(stderr, "  Counter indices on proc %"ISYM" for n = %"ISYM": ict = %"ISYM", jct = %"ISYM"\n", MyProcessorNumber, n, ict, jct);
 
 
 /*
@@ -444,58 +434,13 @@ int OptimizedUnigridCommunicationTranspose(
       for ( ii = 0; ii < ict; ii++ ) {
         i = itrue[ii];
 
-        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % NumberOfProcessors == n ) {
+        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % 
+	     NumberOfProcessors == n ) {
 
-          // Determine if there is an overlap
-   
-          size = 1;
-   
-          for (dim = 0; dim < MAX_DIMENSION; dim++) {
-            LeftIndex[dim] = max(FromRegion[j].StartIndex[dim],
-                                   ToRegion[i].StartIndex[dim]);
-            RightIndex[dim] = min(
-             FromRegion[j].StartIndex[dim] + FromRegion[j].RegionDim[dim],
-               ToRegion[i].StartIndex[dim] +   ToRegion[i].RegionDim[dim])-1;
-            size *= max(RightIndex[dim] - LeftIndex[dim] + 1, 0);
-          }
-   
-          // If there is an overlap, add it to the list of sends/receives
-   
-          if (size > 0) {
-   
-            if (MyProcessorNumber == FromRegion[j].Processor) {
-   
-              // fprintf(stderr, "FromRegion Overlap CT(%"ISYM"): send: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Sends[sends].StartIndex[dim] = LeftIndex[dim] -
-                  FromRegion[j].StartIndex[dim];
-                  cSndRcv[oSet+n].Sends[sends].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-              SendSize += size;
-              cSndRcv[oSet+n].Sends[sends++].Processor = j;
-            }
-   
-            if (MyProcessorNumber == ToRegion[i].Processor) {
-   
-              // fprintf(stderr, "ToRegion Overlap CT(%"ISYM"): recv: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Receives[receives].StartIndex[dim] = LeftIndex[dim] -
-                  ToRegion[i].StartIndex[dim];
-                  cSndRcv[oSet+n].Receives[receives].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-   
-              ReceiveSize += size;
-              cSndRcv[oSet+n].Receives[receives++].Processor = i;
-   
-            }
-   
-          } // end: if (size > 0)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, 
+				 cSndRcv[oSet+n].Sends, 
+				 cSndRcv[oSet+n].Receives,
+				 receives, sends, SendSize, ReceiveSize);
    
         } // end: if (proc jump == n)
 
@@ -511,58 +456,13 @@ int OptimizedUnigridCommunicationTranspose(
       for ( ii = 0; ii < icf; ii++ ) {
         i = ifalse[ii];
 
-        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % NumberOfProcessors == n ) {
+        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % 
+	     NumberOfProcessors == n ) {
 
-          // Determine if there is an overlap
-   
-          size = 1;
-   
-          for (dim = 0; dim < MAX_DIMENSION; dim++) {
-            LeftIndex[dim] = max(FromRegion[j].StartIndex[dim],
-                                   ToRegion[i].StartIndex[dim]);
-            RightIndex[dim] = min(
-             FromRegion[j].StartIndex[dim] + FromRegion[j].RegionDim[dim],
-               ToRegion[i].StartIndex[dim] +   ToRegion[i].RegionDim[dim])-1;
-            size *= max(RightIndex[dim] - LeftIndex[dim] + 1, 0);
-          }
-   
-          // If there is an overlap, add it to the list of sends/receives
-   
-          if (size > 0) {
-   
-            if (MyProcessorNumber == FromRegion[j].Processor) {
-   
-              // fprintf(stderr, "FromRegion Overlap CT(%"ISYM"): send: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Sends[sends].StartIndex[dim] = LeftIndex[dim] -
-                  FromRegion[j].StartIndex[dim];
-                  cSndRcv[oSet+n].Sends[sends].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-              SendSize += size;
-              cSndRcv[oSet+n].Sends[sends++].Processor = j;
-            }
-   
-            if (MyProcessorNumber == ToRegion[i].Processor) {
-   
-              // fprintf(stderr, "ToRegion Overlap CT(%"ISYM"): recv: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Receives[receives].StartIndex[dim] = LeftIndex[dim] -
-                  ToRegion[i].StartIndex[dim];
-                  cSndRcv[oSet+n].Receives[receives].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-   
-              ReceiveSize += size;
-              cSndRcv[oSet+n].Receives[receives++].Processor = i;
-   
-            }
-   
-          } // end: if (size > 0)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, 
+				 cSndRcv[oSet+n].Sends, 
+				 cSndRcv[oSet+n].Receives,
+				 receives, sends, SendSize, ReceiveSize);
    
         } // end: if (proc jump == n)
 
@@ -578,58 +478,13 @@ int OptimizedUnigridCommunicationTranspose(
       for ( ii = 0; ii < ict; ii++ ) {
         i = itrue[ii];
 
-        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % NumberOfProcessors == n ) {
+        if ( (ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) % 
+	     NumberOfProcessors == n ) {
 
-          // Determine if there is an overlap
-   
-          size = 1;
-   
-          for (dim = 0; dim < MAX_DIMENSION; dim++) {
-            LeftIndex[dim] = max(FromRegion[j].StartIndex[dim],
-                                   ToRegion[i].StartIndex[dim]);
-            RightIndex[dim] = min(
-             FromRegion[j].StartIndex[dim] + FromRegion[j].RegionDim[dim],
-               ToRegion[i].StartIndex[dim] +   ToRegion[i].RegionDim[dim])-1;
-            size *= max(RightIndex[dim] - LeftIndex[dim] + 1, 0);
-          }
-   
-          // If there is an overlap, add it to the list of sends/receives
-   
-          if (size > 0) {
-   
-            if (MyProcessorNumber == FromRegion[j].Processor) {
-   
-              // fprintf(stderr, "FromRegion Overlap CT(%"ISYM"): send: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Sends[sends].StartIndex[dim] = LeftIndex[dim] -
-                  FromRegion[j].StartIndex[dim];
-                  cSndRcv[oSet+n].Sends[sends].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-              SendSize += size;
-              cSndRcv[oSet+n].Sends[sends++].Processor = j;
-            }
-   
-            if (MyProcessorNumber == ToRegion[i].Processor) {
-   
-              // fprintf(stderr, "ToRegion Overlap CT(%"ISYM"): recv: %"ISYM" %"ISYM"  %"ISYM"->%"ISYM"\n",
-              //         MyProcessorNumber, j, i, FromRegion[j].Processor, ToRegion[i].Processor);
-   
-              for (dim = 0; dim < MAX_DIMENSION; dim++) {
-                  cSndRcv[oSet+n].Receives[receives].StartIndex[dim] = LeftIndex[dim] -
-                  ToRegion[i].StartIndex[dim];
-                  cSndRcv[oSet+n].Receives[receives].RegionDim[dim] = RightIndex[dim] -
-                  LeftIndex[dim] + 1;
-              }
-   
-              ReceiveSize += size;
-              cSndRcv[oSet+n].Receives[receives++].Processor = i;
-   
-            }
-   
-          } // end: if (size > 0)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, 
+				 cSndRcv[oSet+n].Sends, 
+				 cSndRcv[oSet+n].Receives,
+				 receives, sends, SendSize, ReceiveSize);
    
         } // end: if (proc jump == n)
 
@@ -820,8 +675,8 @@ int OptimizedUnigridCommunicationTranspose(
       starttime = MPI_Wtime();
 #endif
  
-      //  fprintf(stderr, "CT(%"ISYM"): MPI SS/RS = %"ISYM"/%"ISYM" From/To = %"ISYM" %"ISYM"\n",
-      //  MyProcessorNumber, SendSize, ReceiveSize, FromProc, ToProc);
+//      fprintf(stderr, "CT(%"ISYM"): MPI SS/RS = %"ISYM"/%"ISYM" From/To = %"ISYM" %"ISYM"\n",
+//	      MyProcessorNumber, SendSize, ReceiveSize, FromProc, ToProc);
 
       Count = SendSize;
       RecvCount = ReceiveSize;
@@ -862,7 +717,7 @@ int OptimizedUnigridCommunicationTranspose(
  
     index = 0;
  
-//    fprintf(stderr, "CT(%"ISYM"): receives = %"ISYM"\n", MyProcessorNumber, receives);
+    //fprintf(stderr, "CT(%"ISYM"): receives = %"ISYM"\n", MyProcessorNumber, receives);
  
     for (i = 0; i < receives; i++) {
  
@@ -897,7 +752,7 @@ int OptimizedUnigridCommunicationTranspose(
  
     /* Clean up. */
  
-    //  fprintf(stderr, "CT(%"ISYM"): end jump %"ISYM"\n", MyProcessorNumber, n);
+    //fprintf(stderr, "CT(%"ISYM"): end jump %"ISYM"\n", MyProcessorNumber, n);
  
     delete [] SendBuffer;
     delete [] ReceiveBuffer;
@@ -907,7 +762,7 @@ int OptimizedUnigridCommunicationTranspose(
  
   /* Delete FromRegion data. */
  
-  //  fprintf(stderr, "CT(%"ISYM"): Deleting FromRegions\n", MyProcessorNumber);
+  //fprintf(stderr, "CT(%"ISYM"): Deleting FromRegions\n", MyProcessorNumber);
  
   for (i = 0; i < NumberOfFromRegions; i++) {
     delete [] FromRegion[i].Data;
@@ -919,5 +774,411 @@ int OptimizedUnigridCommunicationTranspose(
   return SUCCESS;
 
 }
- 
 
+/* Non-blocking version of CommunicationTranspose where we process the
+   received data every PROCS_PER_LOOP cycles. */ 
+
+#define PROCS_PER_LOOP 128
+int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
+			   region *ToRegion, int NumberOfToRegions,
+			   int TransposeOrder)
+{
+
+  /* Declarations. */
+ 
+  int dim, n, ni, i, ii, j, jj, size, index, Zero[] = {0,0,0};
+  int LeftIndex[MAX_DIMENSION], RightIndex[MAX_DIMENSION];
+  float *ReceiveBuffer[PROCS_PER_LOOP], *SendBuffer[PROCS_PER_LOOP];
+  bool ReceiveMode;
+  int sends, receives, request;
+  int SendSize, ReceiveSize;
+  int NumberOfRequests = 0;
+
+#ifdef USE_MPI
+  MPI_Request RequestHandle[PROCS_PER_LOOP];
+  MPI_Status ListOfStatuses[PROCS_PER_LOOP];
+  MPI_Arg ListOfIndices[PROCS_PER_LOOP];
+  MPI_Datatype DataType = (sizeof(float) == 4) ? MPI_FLOAT : MPI_DOUBLE;
+  MPI_Arg Count;
+  MPI_Arg RecvCount;
+  MPI_Arg Source;
+  MPI_Arg Dest;
+  MPI_Arg error_code;
+  char error_string[1024];
+  MPI_Arg length_of_error_string, error_class;
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
+ 
+#ifdef DEBUG_NONBLOCKCT
+    fprintf(stderr, "CT(%"ISYM"): start From=%"ISYM"  To=%"ISYM"\n", 
+	    MyProcessorNumber, NumberOfFromRegions, NumberOfToRegions);
+#endif
+
+  int NumberOfRegions = max(NumberOfFromRegions, NumberOfToRegions);
+  commSndRcv commNB[PROCS_PER_LOOP];
+  region *Sends, *Receives;
+
+  for (i = 0; i < PROCS_PER_LOOP; i++) {
+    commNB[i].Sends = new region[NumberOfRegions];
+    commNB[i].Receives = new region[NumberOfRegions];
+    //MPI_Request_free(RequestHandle+i);
+  }
+
+  //  if (NumberOfProcessors == 1) return SUCCESS;
+
+  /* Store which From/To Regions this processor will process */
+
+  int jct = 0, jcf = 0, ict = 0, icf = 0;
+  int *jtrue = new int[NumberOfFromRegions];
+  int *itrue = new int[NumberOfToRegions];
+  int *jfalse = new int[NumberOfFromRegions];
+  int *ifalse = new int[NumberOfToRegions];
+
+  for (j = 0; j < NumberOfFromRegions; j++)
+    if (MyProcessorNumber == FromRegion[j].Processor)
+      jtrue[jct++] = j;
+    else
+      jfalse[jcf++] = j;
+  for (i = 0; i < NumberOfToRegions; i++)
+    if (MyProcessorNumber == ToRegion[i].Processor)
+      itrue[ict++] = i;
+    else
+      ifalse[icf++] = i;
+ 
+  /* Loop over processor jumps (number of processors ahead to send). */
+ 
+  for (n = 0; n < NumberOfProcessors; n++) {
+ 
+    /* Receive every PROCS_PER_LOOP (and last) cycle.  The first cycle
+       is special because there is no communication. */
+
+    ni = (max(n-1,0)) % PROCS_PER_LOOP;
+    ReceiveMode = (ni == PROCS_PER_LOOP-1 || n == NumberOfProcessors-1 || n==0);
+
+    sends = receives = 0;
+    SendSize = ReceiveSize = 0;
+    Sends = commNB[ni].Sends;
+    Receives = commNB[ni].Receives;
+
+    /* Copy regions into communication buffer (or just set buffer if
+       there is only one FromRegion per processor).  Check only
+       regions that involve this processor. */
+
+//    for (j = 0; j < NumberOfFromRegions; j++)
+//      for (i = 0; i < NumberOfToRegions; i++)
+//        if ((ToRegion[i].Processor - FromRegion[j].Processor +
+//             NumberOfProcessors) % NumberOfProcessors == n &&
+//	    (MyProcessorNumber == FromRegion[j].Processor ||
+//	     MyProcessorNumber ==   ToRegion[i].Processor)) {
+
+    for (jj = 0; jj < jct; jj++) {
+      j = jtrue[jj];
+      for (ii = 0; ii < ict; ii++) {
+	i = itrue[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
+
+    for (jj = 0; jj < jct; jj++) {
+      j = jtrue[jj];
+      for (ii = 0; ii < icf; ii++) {
+	i = ifalse[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
+
+    for (jj = 0; jj < jcf; jj++) {
+      j = jfalse[jj];
+      for (ii = 0; ii < ict; ii++) {
+	i = itrue[ii];
+	if ((ToRegion[i].Processor - FromRegion[j].Processor + NumberOfProcessors) %
+	    NumberOfProcessors == n)
+	  TransposeRegionOverlap(FromRegion, ToRegion, i, j, Sends, Receives,
+				 receives, sends, SendSize, ReceiveSize);
+      } // ENDFOR ii
+    } // ENDFOR jj
+
+    /* Store data into structure for the last PROCS_PER_LOOP cycles */
+
+    commNB[ni].sends = sends;
+    commNB[ni].receives = receives;
+    commNB[ni].SendSize = SendSize;
+    commNB[ni].ReceiveSize = ReceiveSize;
+ 
+    /* Allocate buffer and copy data into buffer. */
+ 
+    ReceiveBuffer[ni] = NULL;
+    SendBuffer[ni] = new float[SendSize];
+ 
+    index = 0;
+ 
+#ifdef DEBUG_NONBLOCKCT
+    fprintf(stderr, "CT(%"ISYM"): sends = %"ISYM"  SendSize = %"ISYM"\n", 
+	    MyProcessorNumber, sends, SendSize);
+#endif
+ 
+    for (i = 0; i < sends; i++) {
+      j = Sends[i].Processor;
+      if (FromRegion[j].Data == NULL) {
+	int ijk, rsize;
+	rsize = FromRegion[j].RegionDim[0] * 
+	  FromRegion[j].RegionDim[1] * 
+	  FromRegion[j].RegionDim[2];
+
+	// allocate FROM field
+	FromRegion[j].Data = new float[rsize];
+	for (ijk = 0; ijk < rsize; ijk++)
+	  FromRegion[j].Data[ijk] = 0;
+      }
+      if (TransposeOrder == TRANSPOSE_REVERSE)
+	FORTRAN_NAME(copy3drt)(FromRegion[j].Data, SendBuffer[ni]+index,
+		       FromRegion[j].RegionDim, FromRegion[j].RegionDim+1,
+			   FromRegion[j].RegionDim+2,
+		       Sends[i].RegionDim, Sends[i].RegionDim+1,
+			   Sends[i].RegionDim+2,
+		       Zero, Zero+1, Zero+2,
+		       Sends[i].StartIndex, Sends[i].StartIndex+1,
+			   Sends[i].StartIndex+2);
+      else
+	FORTRAN_NAME(copy3d)(FromRegion[j].Data, SendBuffer[ni]+index,
+		       FromRegion[j].RegionDim, FromRegion[j].RegionDim+1,
+			   FromRegion[j].RegionDim+2,
+		       Sends[i].RegionDim, Sends[i].RegionDim+1,
+			   Sends[i].RegionDim+2,
+		       Zero, Zero+1, Zero+2,
+		       Sends[i].StartIndex, Sends[i].StartIndex+1,
+			   Sends[i].StartIndex+2);
+      index += Sends[i].RegionDim[0] * Sends[i].RegionDim[1] * 
+	Sends[i].RegionDim[2];
+    }
+ 
+    /* shift buffer by n processors. */
+ 
+    if (n > 0) {
+ 
+      ReceiveBuffer[ni] = new float[ReceiveSize];
+ 
+#ifdef USE_MPI
+ 
+      int ToProc = (MyProcessorNumber + n) % NumberOfProcessors;
+      int FromProc = (MyProcessorNumber - n + NumberOfProcessors) %
+	NumberOfProcessors;
+ 
+#ifdef MPI_INSTRUMENTATION
+      starttime = MPI_Wtime();
+#endif
+ 
+#ifdef DEBUG_NONBLOCKCT
+      fprintf(stderr, "CT(%"ISYM"): MPI SS/RS = %"ISYM"/%"ISYM" From/To = %"ISYM" %"ISYM"\n",
+	      MyProcessorNumber, SendSize, ReceiveSize, FromProc, ToProc);
+#endif
+
+      Count = SendSize;
+      RecvCount = ReceiveSize;
+      Source = FromProc;
+      Dest = ToProc;
+       
+//      if (MPI_Sendrecv((void*) SendBuffer, Count, DataType, Dest,
+//	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
+//	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
+//	       &status) != MPI_SUCCESS) {
+//	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+//		status.MPI_ERROR);
+//	ENZO_FAIL("");
+//      }
+
+      /* Post receive call */
+
+      MPI_Irecv((void*) ReceiveBuffer[ni], RecvCount, DataType, Source, 
+		MPI_TRANSPOSE_TAG, MPI_COMM_WORLD, RequestHandle+ni);
+
+      /* Buffered send of the data */
+
+      CommunicationBufferedSend(SendBuffer[ni], Count, DataType, Dest,
+				MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
+				BUFFER_IN_PLACE);
+
+//      MPI_Send((void*) SendBuffer[ni], Count, DataType, Dest, 
+//	       MPI_TRANSPOSE_TAG, MPI_COMM_WORLD);
+//      MPI_Wait(&RequestHandle, &status);
+ 
+#ifdef MPI_INSTRUMENTATION
+      endtime = MPI_Wtime();
+      timer[14] += endtime-starttime;
+      counter[14] ++;
+      CommunicationTime += endtime-starttime;
+#endif /* MPI_INSTRUMENTATION */
+ 
+#endif /* USE_MPI */
+ 
+    } else {
+      //MPI_Request_free(RequestHandle+ni);
+      ReceiveBuffer[ni] = SendBuffer[ni];
+      SendBuffer[ni] = NULL;
+    }
+
+    // Every cycle has a request (valid or free)
+    NumberOfRequests++;
+ 
+    /* Copy from communication buffer back to regions if we're
+       processing receives this cycle. */
+ 
+    MPI_Arg TotalCompletedRequests, CompletedRequests;
+    if (ReceiveMode) {
+
+      TotalCompletedRequests = 0;
+
+#ifdef DEBUG_NONBLOCKCT
+      printf("CT(%"ISYM"): TotalCompletedRequests = %d, NumberOfRequests = %d\n",
+	     MyProcessorNumber, TotalCompletedRequests, 
+	     NumberOfRequests);
+#endif
+      
+      while (TotalCompletedRequests < NumberOfRequests) {
+
+	if (n > 0) {
+	  CompletedRequests = 0;
+	  MPI_Waitsome(NumberOfRequests, RequestHandle, &CompletedRequests,
+		       ListOfIndices, ListOfStatuses);
+#ifdef DEBUG_NONBLOCKCT
+	  printf("P%d: CompletedRequests = %d/%d\n", MyProcessorNumber, 
+		 CompletedRequests, NumberOfRequests);
+#endif
+
+	  /* Check for any errors */
+
+#ifdef UNUSED
+	  for (i = 0; i < NumberOfRequests; i++) {
+	    index = ListOfIndices[i];
+	    if (ListOfStatuses[index].MPI_ERROR != 0) {
+	      fprintf(stderr, "CommunicationTranspose: MPI Error on request %d, "
+		      "n = %d, error = %d\n", i, n, ListOfStatuses[i].MPI_ERROR);
+	      MPI_Error_class(ListOfStatuses[index].MPI_ERROR, &error_class);
+	      MPI_Error_string(error_class, error_string, &length_of_error_string);
+	      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
+	      MPI_Error_string(ListOfStatuses[index].MPI_ERROR, error_string, 
+			       &length_of_error_string);
+	      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
+	      ENZO_FAIL("");
+	    }
+	  }
+#endif
+
+	} // ENDIF n > 0
+
+	for (request = 0; request < NumberOfRequests; request++) {
+
+	  /* First cycle only has one call.  Break if we've already
+	     processed the first call, otherwise always process it. */
+
+	  if (n == 0 && request > 0) break;
+	  if ((RequestHandle[request] == MPI_REQUEST_NULL &&
+	      ReceiveBuffer[request] != NULL) || 
+	      (n == 0 && request == 0)) {
+
+#ifdef DEBUG_NONBLOCKCT
+	    fprintf(stderr, "CT(%"ISYM"): request = %d, receives = %"ISYM"\n", 
+		    MyProcessorNumber, request, receives);
+#endif
+
+	    index = 0;
+	    Receives = commNB[request].Receives;
+	    receives = commNB[request].receives;
+
+	    for (i = 0; i < receives; i++) {
+
+	      j = Receives[i].Processor;
+
+	      if (ToRegion[j].Data == NULL) {
+		int ijk, rsize;
+		rsize = ToRegion[j].RegionDim[0] * 
+		  ToRegion[j].RegionDim[1] * 
+		  ToRegion[j].RegionDim[2];
+		ToRegion[j].Data = new float[rsize];
+		for (ijk = 0; ijk < rsize; ijk++)
+		  ToRegion[j].Data[ijk] = 0;
+	      }
+
+	      if (TransposeOrder == TRANSPOSE_FORWARD)
+		FORTRAN_NAME(copy3dft)(ReceiveBuffer[request]+index, 
+				 ToRegion[j].Data,
+				 Receives[i].RegionDim, Receives[i].RegionDim+1,
+				 Receives[i].RegionDim+2,
+				 ToRegion[j].RegionDim, ToRegion[j].RegionDim+1,
+				 ToRegion[j].RegionDim+2,
+				 Receives[i].StartIndex, Receives[i].StartIndex+1,
+				 Receives[i].StartIndex+2,
+				 Zero, Zero+1, Zero+2);
+	      else
+		FORTRAN_NAME(copy3d)(ReceiveBuffer[request]+index, 
+			       ToRegion[j].Data,
+			       Receives[i].RegionDim, Receives[i].RegionDim+1,
+			       Receives[i].RegionDim+2,
+			       ToRegion[j].RegionDim, ToRegion[j].RegionDim+1,
+			       ToRegion[j].RegionDim+2,
+			       Receives[i].StartIndex, Receives[i].StartIndex+1,
+			       Receives[i].StartIndex+2,
+			       Zero, Zero+1, Zero+2);
+	      index += Receives[i].RegionDim[0]*Receives[i].RegionDim[1]*
+		Receives[i].RegionDim[2];
+	    } // ENDFOR receives
+
+	    delete [] ReceiveBuffer[request];
+	    ReceiveBuffer[request] = NULL;
+	    TotalCompletedRequests++;
+
+	  } // ENDIF completed request
+	} // ENDFOR requests
+#ifdef DEBUG_NONBLOCKCT
+	printf("CT(%"ISYM"): (n=%d) -- completed %d out of %d requests\n",
+	       MyProcessorNumber, n, TotalCompletedRequests, NumberOfRequests);
+#endif
+      } // ENDWHILE
+
+      /* Clean up (SendBuffer will be deleted in CommunicationBufferedSend). */
+ 
+//      delete [] SendBuffer;
+//      for (i = 0; i < PROCS_PER_LOOP; i++)
+//	MPI_Request_free(RequestHandle+i);
+//	delete [] ReceiveBuffer[i];
+
+      NumberOfRequests = 0;
+
+    } // ENDIF ReceiveMode
+
+#ifdef DEBUG_NONBLOCKCT
+    fprintf(stderr, "CT(%"ISYM"): end jump %"ISYM"\n", MyProcessorNumber, n);
+#endif
+ 
+  } // end: loop over processors jumps
+ 
+  /* Delete FromRegion data. */
+ 
+  for (i = 0; i < NumberOfFromRegions; i++) {
+    delete [] FromRegion[i].Data;
+    FromRegion[i].Data = NULL;
+  }
+ 
+  /* Clean up. */
+
+  delete [] itrue;
+  delete [] jtrue;
+  delete [] ifalse;
+  delete [] jfalse;
+
+  for (i = 0; i < PROCS_PER_LOOP; i++) {
+    delete [] commNB[i].Sends;
+    delete [] commNB[i].Receives;
+  }
+
+  CommunicationBarrier();
+  CommunicationBufferPurge();
+ 
+  return SUCCESS;
+};

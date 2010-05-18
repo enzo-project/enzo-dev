@@ -23,15 +23,31 @@
 
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 
-int grid::DeletePhotonPackages() {
+int grid::DeletePhotonPackages(int DeleteHeadPointer) {
 
-  PhotonPackageEntry *PP = PhotonPackages;
+  PhotonPackageEntry *PP;
 
-  while (PP != NULL) PP = DeletePhotonPackage(PP);
+  for (PP = PhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    PP = DeletePhotonPackage(PP);
+  for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage)
+    PP = DeletePhotonPackage(PP);
 
-  PhotonPackages = new PhotonPackageEntry;
-  PhotonPackages->NextPackage = NULL;
-  PhotonPackages->PreviousPackage = NULL;
+  if (DeleteHeadPointer) {
+    delete PhotonPackages;
+    delete FinishedPhotonPackages;
+    delete PausedPhotonPackages;
+    PhotonPackages = NULL;
+    FinishedPhotonPackages = NULL;
+    PausedPhotonPackages = NULL;
+  }
+  else {
+    PhotonPackages->NextPackage = NULL;
+    PhotonPackages->PreviousPackage = NULL;
+    FinishedPhotonPackages->NextPackage = NULL;
+    FinishedPhotonPackages->PreviousPackage = NULL;
+  }
+
+  this->NumberOfPhotonPackages = 0;
 
   return SUCCESS;
   

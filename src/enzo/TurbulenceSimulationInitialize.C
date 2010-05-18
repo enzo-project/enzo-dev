@@ -48,7 +48,6 @@
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int CommunicationAllSumIntegerValues(int *Values, int Number);
  
 /* Turbulence Parameters (that need to be shared) */

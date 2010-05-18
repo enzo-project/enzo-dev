@@ -9,7 +9,7 @@ pop3_on = 0
 
 h2_fraction = 1e-5
 density = 1.0
-redshift = 15.0
+redshift = 0.0 ;15.0
 h_fraction = 0.76  ;; Hydrogen mass fraction
 metallicity = 0.1  ;; relative to solar (don't matter here ... everything 
                    ;; approx. scales with Z)
@@ -39,7 +39,7 @@ printf, 1, "# ", t_bins, ne_bins
 printf, 1, "# ", t_range[0], t_range[1], ne_range[0], ne_range[1]
 printf, 1, "# Rates are in erg/s * cm^3 for [Z/H] = ", $
         STRING(ALOG10(metallicity), FORMAT='(F0.2)')
-printf, 1, "# Rates assumed to scale linearly with metallicity in the code."
+printf, 1, "# Rates assumed to scale linearly with metallicity in enzo (see cool1d_multi.src)."
 printf, 1, "#"
 line_format = STRING(ne_bins, FORMAT='("(",I0,"(G12.5))")')
 printf, 1, TRANSPOSE(total_rate), FORMAT=line_format

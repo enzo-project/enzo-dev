@@ -9,11 +9,11 @@
 
 #ifdef USE_HDF4
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <mpi.h>
 
 #include "hdf.h"
 #include "allvars.h"

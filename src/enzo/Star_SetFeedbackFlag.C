@@ -25,7 +25,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -92,13 +91,23 @@ int Star::SetFeedbackFlag(FLOAT Time)
     this->FeedbackFlag = NO_FEEDBACK;
     break;
 
+  case PopIII_CF:
+    if (this->type < 0) 
+      this->FeedbackFlag = COLOR_FIELD;
+    else 
+      this->FeedbackFlag = NO_FEEDBACK;
+    break;
+
   /* For MBH particle. Even with the NO_FEEDBACK flag, 
      the particle still can act as a Radiation Source if RadiativeTransfer = 1. */  
-
   case MBH:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
-    if (this->type > 0 && AgeInMyr > 0 && MBHFeedbackThermal)
-      this->FeedbackFlag = MBH_THERMAL;
+    if (this->type > 0 && AgeInMyr > 0 && MBHFeedback > 0) {
+      if (MBHFeedback == 1) 
+	this->FeedbackFlag = MBH_THERMAL;
+      if (MBHFeedback == 2 or MBHFeedback == 3) 
+	this->FeedbackFlag = MBH_JETS;
+    }
     else
       this->FeedbackFlag = NO_FEEDBACK; //It could still be a Radiation Source. 
 

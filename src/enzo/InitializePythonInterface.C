@@ -163,6 +163,9 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   TEMP_PYINT(NumberOfPythonCalls);
   PyDict_SetItemString(yt_parameter_file, "NumberOfPythonCalls", temp_int);
 
+  TEMP_PYFLOAT(CurrentMaximumDensity);
+  PyDict_SetItemString(yt_parameter_file, "CurrentMaximumDensity", temp_float);
+
   PyObject *tgd_tuple, *tgd0, *tgd1, *tgd2;
   
   /* Construct a tuple */

@@ -46,16 +46,30 @@ int grid::FindAllStarParticles(int level)
     if (ParticleType[i] == PARTICLE_TYPE_SINGLE_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
+        ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH) {
+
 #ifdef RESET_BH_LIFETIMES // Make BH lifetimes "infinite"
       if (ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE &&
 	  ParticleAttribute[1][i] < 1)
 	ParticleAttribute[1][i] = huge_number;
 #endif /* RESET_BH_LIFETIMES */
+
       NewStar = new Star(this, i, level);
       InsertStarAfter(Stars, NewStar);
       NumberOfStars++;
-      
+
+      /* For MBHFeedback = 2 or 3 (FeedbackFlag=MBH_JETS), you need the angular 
+	 momentum;  if no file to read in, assume zero angular momentum 
+	 accreted so far.  -Ji-hoon Kim, Nov.2009 */
+
+      if((MBHFeedback == 2 || MBHFeedback ==3) && 
+	 ParticleType[i] == PARTICLE_TYPE_MBH) {
+	NewStar->AssignAccretedAngularMomentum();
+      	printf("MBH particle info (for MBHFeedback=2, check angular momentum): \n"); 
+	NewStar->PrintInfo();
+      }
+ 
     } // ENDIF star
   } // ENDFOR particles
 

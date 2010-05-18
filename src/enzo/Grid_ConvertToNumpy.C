@@ -27,6 +27,15 @@
 void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, int level, FLOAT WriteTime)
 {
 
+    char *ParticlePositionLabel[] =
+       {"particle_position_x", "particle_position_y", "particle_position_z"};
+    char *ParticleVelocityLabel[] =
+       {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
+    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+    /*    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+	  "metallicity_fraction", "alpha_fraction", "p5", "p6"};*/
+
     this->DebugCheck("Converting to NumPy arrays");
 
     PyObject *grid_data, *old_grid_data, *field_name, *grid_id;
@@ -40,7 +49,7 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
         int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
         int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
             DINum, DIINum, HDINum;
-        int field;
+        int field, dim;
         FLOAT a = 1.0, dadt;
 
         /* Find fields: density, total energy, velocity1-3. */
@@ -72,17 +81,57 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             /* This gives back a new reference 
                So we need to decref it after we add it to the dict */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    3, dims, ENPY_FLOAT, BaryonField[field]);
+                    3, dims, ENPY_BFLOAT, BaryonField[field]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
 
 			/* Now the old grid data */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                    3, dims, ENPY_FLOAT, OldBaryonField[field]);
+                    3, dims, ENPY_BFLOAT, OldBaryonField[field]);
             dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
+        }
+
+        /* Now we do our particle fields */
+
+        if(this->NumberOfParticles > 0) {
+          dims[0] = this->NumberOfParticles;
+          for(dim = 0; dim < this->GridRank; dim++) {
+            /* Position */
+            dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                    1, dims, ENPY_PFLOAT, ParticlePosition[dim]);
+            dataset->flags &= ~NPY_OWNDATA;
+            PyDict_SetItemString(grid_data, ParticlePositionLabel[dim],
+                (PyObject*) dataset);
+            Py_DECREF(dataset);
+
+            /* Velocity */
+            dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                    1, dims, ENPY_BFLOAT, ParticleVelocity[dim]);
+            dataset->flags &= ~NPY_OWNDATA;
+            PyDict_SetItemString(grid_data, ParticleVelocityLabel[dim],
+                (PyObject*) dataset);
+            Py_DECREF(dataset);
+
+          }
+          /* Mass */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_BFLOAT, ParticleMass);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_mass",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
+          /* Number */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_PINT, ParticleNumber);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_index",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
         }
 
         grid_id = PyLong_FromLong((long) GridID);
@@ -97,52 +146,52 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
     int j = 0;
     /* Fill our hierarchy information */
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridDimension[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridDimension[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridStartIndex[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridStartIndex[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(int *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (int) this->GridEndIndex[i];
+        *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_int) this->GridEndIndex[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (FLOAT) this->GridLeftEdge[i];
+        *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_pfloat) this->GridLeftEdge[i];
     }
     j++;
 
     for (int i = 0; i < 3; i++) {
-        *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, i) =
-            (FLOAT) this->GridRightEdge[i];
+        *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, i) =
+            (enpy_pfloat) this->GridRightEdge[i];
     }
     j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) level; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) level; j++;
 
-    *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (FLOAT) this->Time; j++;
+    *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_pfloat) this->Time; j++;
 
-    *(FLOAT *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (FLOAT) this->OldTime; j++;
+    *(enpy_pfloat *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_pfloat) this->OldTime; j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) this->ProcessorNumber; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) this->ProcessorNumber; j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) this->ReturnNumberOfParticles(); j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) this->ReturnNumberOfParticles(); j++;
 
-    *(int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
-        (int) ParentID; j++;
+    *(enpy_int *) PyArray_GETPTR2(container[j], GridID-1, 0) =
+        (enpy_int) ParentID; j++;
 
 }
 #endif

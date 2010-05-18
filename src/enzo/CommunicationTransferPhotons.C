@@ -36,13 +36,13 @@
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int InitiatePhotonNumberSend(int *nPhoton);
 int InitializePhotonReceive(int group_size);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 #ifdef USE_MPI
+int CommunicationBufferPurge(void);
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
                               int Target, int Tag, MPI_Comm CommWorld, 
 			      int BufferSize);
@@ -325,6 +325,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       
   /* Clean up */
 
+  CommunicationBufferPurge();
   delete [] nPhoton;
   delete [] PhotonCounter;
 

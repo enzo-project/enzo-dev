@@ -80,12 +80,12 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
 /************************************************************************/
 
 #ifdef FAST_SIB
-int PrepareGravitatingMassField2(HierarchyEntry *Grid, int grid1,
+int PrepareGravitatingMassField2a(HierarchyEntry *Grid, int grid1,
 				 SiblingGridList SiblingList[],
 				 TopGridData *MetaData, int level,
 				 FLOAT When)
 #else
-int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
+int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 				 LevelHierarchyEntry *LevelArray[], int level,
 				 FLOAT When)
 #endif
@@ -101,7 +101,7 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
   // if (CurrentGrid->AddBaryonsToGravitatingMassField() == FAIL) {
       //fprintf(stderr, "  PGMF - DepositBaryons\n");
   if (DepositBaryons(Grid, When) == FAIL) {
-    fprintf(stderr, "Error in grid->AddBaryonsToGravitatingMassField\n");
+    fprintf(stderr, "Error in DepositBaryons\n");
     ENZO_FAIL("");
   }
  
@@ -169,16 +169,21 @@ int PrepareGravitatingMassField2(HierarchyEntry *Grid, TopGridData *MetaData,
  
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
  
-  /* Make a guess at the potential for this grid. */
+  return SUCCESS;
+}
+
+/************************************************************************/
+
+int PrepareGravitatingMassField2b(HierarchyEntry *Grid, int level)
+{
  
+  /* declarations */
+ 
+  grid *CurrentGrid = Grid->GridData;
+
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
   if (level > 0)
-    if (CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData)
-	== FAIL) {
-      fprintf(stderr, "Error in grid->PreparePotential.\n");
-      ENZO_FAIL("");
-    }
- 
+    CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData);
  
   return SUCCESS;
 }

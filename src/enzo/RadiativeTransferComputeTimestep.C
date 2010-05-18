@@ -32,7 +32,10 @@
 #include "CommunicationUtilities.h"
 
 extern int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+//int LastTimestepUseHII = FALSE;
+float LastPhotonDT = -1;
 
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -42,15 +45,20 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     int level)
 {
 
+  if (!RadiativeTransferAdaptiveTimestep && dtPhoton != FLOAT_UNDEFINED)
+    return SUCCESS;
+
   const int MaxStepsPerHydroStep = 8;
   const float PhotonCourantFactor = 1.0;
+
+  // Restrict the increase in dtPhoton to this factor
+  const float MaxDTChange = 1.0;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
   int l, maxLevel;
   FLOAT OldTime, HydroTime;
   float ThisPhotonDT;
-  bool FoundRadiation = false;
 
   // Search for the maximum level
   for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
@@ -67,35 +75,61 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       break;
     }
 
+//  LastPhotonDT = (MetaData->FirstTimestepAfterRestart && 
+//		  LastTimestepUseHII == FALSE) ? -1 : dtPhoton;
   dtPhoton = 10*huge_number;
 
-  // Calculate timestep by limiting to a 50% max change in HII
-  if (RadiativeTransferHIIRestrictedTimestep) {
+  FLOAT TimeNow = LevelArray[level]->GridData->ReturnTime();
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
+	   &VelocityUnits, TimeNow);
 
-    float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-      VelocityUnits = 1, TimeUnits = 1;
-    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits,
-	     &VelocityUnits, LevelArray[level]->GridData->ReturnTime());
+  FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+    CosmologyComputeExpansionFactor(TimeNow, &a, &dadt);
+  float afloat = float(a);
+
+  // Calculate timestep by limiting to a max change in HII
+  if (RadiativeTransferHIIRestrictedTimestep) {
 
     for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
       for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
 	ThisPhotonDT = Temp->GridData->
-	  ComputeRT_TimeStep2(DensityUnits, LengthUnits);
+	  ComputePhotonTimestepHII(DensityUnits, LengthUnits, VelocityUnits, 
+				   afloat, MetaData->GlobalMaximumkphIfront);
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
-	if (Temp->GridData->RadiationPresent() == TRUE)
-	  FoundRadiation = true;
       }
-    CommunicationMinValue(dtPhoton);
+    dtPhoton = CommunicationMinValue(dtPhoton);
+
+    /* Use the average because the minimum ionization timescale can
+       fluctuate significantly.  It gets even worse if the dtPhoton is
+       allowed to vary a lot (>factor of a few). */
+    
+    //    printf("dtPhoton=%g, LastPhotonDT=%g \n", 
+    //	   dtPhoton, LastPhotonDT); 
+
+    if (LastPhotonDT > 0 && dtPhoton < huge_number) {// && LastTimestepUseHII) {
+      if (dtPhoton > (1.0+MaxDTChange)*LastPhotonDT)
+	dtPhoton = LastPhotonDT;
+      else
+	dtPhoton = 0.5 * (dtPhoton + LastPhotonDT);
+    }
+
+    if (dtPhoton < huge_number) {
+      // Store dtPhoton before modifying it based on the next topgrid timestep
+      LastPhotonDT = dtPhoton;  
+      //LastTimestepUseHII = TRUE;
+    }
 
   } // ENDIF
 
-  // if not (FoundRadiation will always be false if the
-  // RTUseHIIRestricted parameter isn't set) or no radiation, use
-  // hydro timestep on finest level
-  if (!FoundRadiation) {
+  // if we didn't find any cells that restrict timestep or the option
+  // isn't requested, use hydro timestep on finest level
+  if (dtPhoton >= huge_number) {
     if (maxLevel > 0) {
       for (Temp = LevelArray[maxLevel]; Temp; Temp = Temp->NextGridThisLevel) {
-	ThisPhotonDT = Temp->GridData->ComputeRT_TimeStep();
+	ThisPhotonDT = Temp->GridData->ComputePhotonTimestep();
 	dtPhoton = min(dtPhoton, ThisPhotonDT);
       } // ENDFOR grids
       dtPhoton = CommunicationMinValue(dtPhoton);
@@ -107,18 +141,34 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
     HydroTime = LevelArray[maxLevel]->GridData->ReturnTime();
     dtPhoton = max(dtPhoton, 
 		   (HydroTime - PhotonTime) / MaxStepsPerHydroStep);
-
-  } // ENDELSE
+    //LastTimestepUseHII = FALSE;
+  } // ENDIF
 
   /* Do not go past the level-0 time (+timestep) */
 
+  float Saved_dtPhoton = dtPhoton;
   HydroTime = LevelArray[0]->GridData->ReturnTime();
   if (level == 0)
     HydroTime += LevelArray[0]->GridData->ReturnTimeStep();
-  dtPhoton = min(HydroTime - PhotonTime, dtPhoton);
+  float dtTol = PFLOAT_EPSILON * HydroTime;
+  if ((HydroTime+dtTol - PhotonTime) < dtPhoton) {
+    if (debug) 
+      printf("HydroTime = %"PSYM", PhotonTime = %"PSYM
+	     ", dtPhoton = %g, dtPhoton0 = %g\n",
+	     HydroTime, PhotonTime, dtPhoton, Saved_dtPhoton);
+    dtPhoton = max(HydroTime+dtTol - PhotonTime, dtTol);
+    dtPhoton = max(dtPhoton, 1e-4*Saved_dtPhoton);
+    //LastTimestepUseHII = FALSE;
+  }
 
-  if (InitialTimestep && !MetaData->FirstTimestepAfterRestart)
-    dtPhoton = min(dtPhoton, dtLevelAbove);
+  //LastTimestepUseHII = CommunicationMaxValue(LastTimestepUseHII);
+
+  //if (InitialTimestep && !MetaData->FirstTimestepAfterRestart)
+  //  dtPhoton = min(dtPhoton, dtLevelAbove);
+
+  if (!RadiativeTransferAdaptiveTimestep && debug)
+    printf("RadiativeTransfer: Setting dtPhoton = %g = %g years\n",
+	   dtPhoton, dtPhoton*TimeUnits/3.1557e7);
   
   return SUCCESS;
 

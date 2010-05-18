@@ -59,6 +59,11 @@ int grid::FlagCellsToBeRefinedByJeansLength()
       fprintf(stderr, "Error in grid->ComputeTemperature.\n");
       return -1;
     }
+    /* This is less efficient, but it avoids too many conditionals */
+    if(JeansRefinementColdTemperature > 0.0){
+      for (i = 0; i < size; i++) temperature[i] =
+        JeansRefinementColdTemperature;
+    }
   }
  
   /* Find fields: density, total energy, velocity1-3. */

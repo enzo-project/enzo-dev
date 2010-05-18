@@ -49,6 +49,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+#ifndef NEW_GRID_IO
 int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id)
 {
  
@@ -82,10 +83,12 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
+  char *GriddedSPLabel[] = {"Star_Particle_Density", "Forming_Stellar_Mass_Density",
+			    "SFR_Density", "Average_creation_time"};
 #ifdef IO_LOG
   int         io_log = 1;
 #else
@@ -300,7 +303,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* 2c) Loop over fields, writing each one. */
  
     for (field = 0; field < NumberOfBaryonFields; field++) {
- 
+
       /* copy active part of field into grid */
  
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -332,6 +335,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         DataUnits[field] = "none";
       }
  
+      //printf("OutPut Field2: %d \n", field);
       WriteStringAttr(dset_id, "Label", DataLabel[field], log_fptr);
       WriteStringAttr(dset_id, "Units", DataUnits[field], log_fptr);
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
@@ -415,6 +419,194 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     } // end: if (OutputTemperature)
 
+
+
+
+
+    if (VelAnyl) {
+      int Vel1Num, Vel2Num, Vel3Num;
+      
+      for (int i=0; i< NumberOfBaryonFields; i++){
+	switch (FieldType[i]){
+	case Velocity1:
+	  Vel1Num=i; break;
+	case Velocity2:
+	  Vel2Num=i; break;
+	case Velocity3:
+	  Vel3Num=i; break;
+	}
+      }
+
+
+      io_type *curlx; io_type *curly;
+
+      
+      if(GridRank==3){
+      curlx = new io_type [size];
+      curly = new io_type [size];}
+
+
+      io_type *curlz = new io_type [size];
+      io_type *div   = new io_type [size];
+
+      FLOAT dx = CellWidth[0][0],
+	dy = CellWidth[1][0], dz;
+      if (GridRank>2)
+	dz = CellWidth[2][0];
+    
+      /* Copy active part of field into grid */
+      int igrid, igridyp1, igridym1, igridzp1, igridzm1;
+      for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+	    igrid = (k*GridDimension[1] + j)*GridDimension[0] + i;
+	    igridyp1 = (k*GridDimension[1] + j + 1)*GridDimension[0] + i;
+	    igridym1 = (k*GridDimension[1] + j - 1)*GridDimension[0] + i;
+	    igridzp1 = ((k+1)*GridDimension[1]+j)*GridDimension[0] + i;
+	    igridzm1 = ((k-1)*GridDimension[1]+j)*GridDimension[0] + i;
+
+
+
+	    if (GridRank==3){
+	      
+	    div[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+              io_type(
+		      (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		      0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy +
+			  0.5*(BaryonField[Vel3Num][igridzp1]-BaryonField[Vel3Num][igridzm1])/dz)
+                     );
+	    curlx[(i-GridStartIndex[0])+
+	       (j-GridStartIndex[1])*ActiveDim[0]+ 
+	       (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	       io_type(
+		      (0.5*(BaryonField[Vel3Num][igridyp1]-BaryonField[Vel3Num][igridym1])/dy -		      
+			  0.5*(BaryonField[Vel2Num][igridzp1]-BaryonField[Vel2Num][igridzm1])/dz)
+		      );
+	    curly[(i-GridStartIndex[0])+
+	       (j-GridStartIndex[1])*ActiveDim[0]+ 
+	       (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		       (0.5*(BaryonField[Vel1Num][igridzp1]-BaryonField[Vel1Num][igridzm1])/dz -		      
+			   0.5*(BaryonField[Vel3Num][igrid+1]-BaryonField[Vel3Num][igrid-1])/dx)
+		       );
+	     curlz[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+ 
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		      (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+			  0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		      );
+	    }
+
+	    if (GridRank==2){
+	      
+	    div[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+              io_type(
+		      (0.5*(BaryonField[Vel1Num][igrid+1]-BaryonField[Vel1Num][igrid-1])/dx +
+		       0.5*(BaryonField[Vel2Num][igridyp1]-BaryonField[Vel2Num][igridym1])/dy 
+		       ));
+	     curlz[(i-GridStartIndex[0])+
+		(j-GridStartIndex[1])*ActiveDim[0]+ 
+		(k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		      (0.5*(BaryonField[Vel2Num][igrid+1]-BaryonField[Vel2Num][igrid-1])/dx -		      
+			  0.5*(BaryonField[Vel1Num][igridyp1]-BaryonField[Vel1Num][igridym1])/dy)
+		      );
+	    }
+
+	    
+
+	  }
+	}
+      }
+
+      /* output */
+      
+      char *DataLabelN[4];
+      if (GridRank==2) {
+	DataLabelN[0]="Velocity_Div";
+	DataLabelN[1]="Velocity_Vorticity";
+      }
+      if (GridRank==3) {
+	DataLabelN[0]="Velocity_Div";
+	DataLabelN[1]="Velocity_Vorticity1";
+	DataLabelN[2]="Velocity_Vorticity2";
+	DataLabelN[3]="Velocity_Vorticity3";
+      }
+
+      
+
+      int tFields=4;
+      if (GridRank==2) tFields=2;
+
+      for (int field=0; field<=tFields; field++){
+
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",DataLabelN[field]);
+ 
+      dset_id =  H5Dcreate(file_id, DataLabelN[field], file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      /* set datafield name and units, etc. */
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      
+      WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
+      WriteStringAttr(dset_id, "Units", NULL, log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+
+      switch (field) {
+      case 0:
+	temp=div;
+      case 1:
+	temp=curlz;
+      case 2:
+	temp=curly;
+      case 3:
+	temp=curlx;
+
+      }
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+
+
+      }
+
+
+
+
+      if(GridRank==3){
+	delete curlx;
+	delete curly;}
+      delete curlz;
+      delete div;
+    }
+
+
     if (OutputCoolingTime) {
  
       /* Allocate field and compute cooling time. */
@@ -449,7 +641,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 		   cooling_time[(k*GridDimension[1] + j)*GridDimension[0] + i]
 			     );
  
-       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
@@ -586,7 +778,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   } // end: if (NumberOfBaryonFields > 0)
 
   /* ------------------------------------------------------------------- */
-  /* 2b) Save particle quantities smoothed to the grid. */
+  /* 3) Save particle quantities smoothed (or gridded) to the grid. */
  
   if (OutputSmoothedDarkMatter > 0 && MyProcessorNumber == ProcessorNumber) {
 
@@ -626,7 +818,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
       WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
  
-      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) InterpolatedField[field]);
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			   (VOIDP) temp);
       if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
@@ -646,12 +839,92 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     delete [] temp;
       
   } // ENDIF OutputSmoothedDarkMatter
+
+  if (OutputGriddedStarParticle > 0 && MyProcessorNumber == ProcessorNumber) {
+
+#define NumberOfInterpolatedFieldsForDM 10
+
+    size = active_size = 1;
+    for (dim = 0; dim < GridRank; dim++) {
+      OutDims[GridRank-dim-1] = ActiveDim[dim];
+      size *= GridDimension[dim];
+      active_size *= ActiveDim[dim];
+    }
+ 
+    temp = new io_type[active_size];
+
+    // Assign number of fields 
+
+    int NumberOfSPFields;
+    switch (OutputGriddedStarParticle) {
+    case 1: NumberOfSPFields = 1; break;  // particle density
+    case 2: NumberOfSPFields = 4; break;  // + forming star particle density + SFR density, etc. 
+    default: 
+      fprintf(stdout, "Unrecognized value for OutputGriddedStarParticle = %"ISYM"\n",
+	      OutputGriddedStarParticle);
+      fprintf(stdout, "Setting to 1.  Outputting particle density only.\n");
+      OutputGriddedStarParticle = 1;
+      NumberOfSPFields = 1;
+      break;
+    } 
+
+    // Get gridded star particle field
+    if (this->InterpolateStarParticlesToGrid(NumberOfSPFields) == FAIL) {
+      fprintf(stderr, "Error in grid->InterpolateStarParticlesToGrid.\n");
+      ENZO_FAIL("");
+    }
+
+    for (field = NumberOfInterpolatedFieldsForDM; 
+	 field < NumberOfInterpolatedFieldsForDM+NumberOfSPFields; field++) {
+
+      // Only the active part was calculated, so just copy over.
+      for (i = 0; i < active_size; i++)
+	temp[i] = io_type(InterpolatedField[field][i]);
+
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+      if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n", GriddedSPLabel[field-NumberOfInterpolatedFieldsForDM]);
+
+      dset_id = H5Dcreate(group_id, GriddedSPLabel[field-NumberOfInterpolatedFieldsForDM], file_type_id, file_dsp_id, H5P_DEFAULT);
+      if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      WriteStringAttr(dset_id, "Label", GriddedSPLabel[field-NumberOfInterpolatedFieldsForDM], log_fptr);
+      WriteStringAttr(dset_id, "Units", "", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+      if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      delete [] InterpolatedField[field];
+      InterpolatedField[field] = NULL;
+
+    } // ENDFOR field
+
+    delete [] temp;
+      
+  } // ENDIF OutputGriddedStarParticle
  
   /* ------------------------------------------------------------------- */
-  /* 3) Save particle quantities. */
+  /* 4) Save particle quantities. */
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
+  if (MyProcessorNumber == ROOT_PROCESSOR && 
+      OutputSmoothedDarkMatter > 0 && NumberOfParticles == 0)
+    fprintf(fptr, "ParticleFileName = %s\n", procfilename);
  
   if (NumberOfParticles > 0) {
  
@@ -678,7 +951,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     float128 *long_temp_pointer = NULL;
  
     TempIntArray[0] = NumberOfParticles;
- 
+
     for (dim = 0; dim < GridRank; dim++) {
  
       /* Convert to 64 if 128, either just write out. */
@@ -738,7 +1011,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       for (i = 0; i < NumberOfParticles; i++)
 	temp[i] = io_type(ParticleVelocity[dim][i]);
  
- 
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
@@ -790,13 +1062,13 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     h5_status = H5Dclose(dset_id);
       if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
+
     /* Copy number (ID) to temp and write it. */
  
-    int *tempint = new int[NumberOfParticles];
+    PINT *tempPINT = new PINT[NumberOfParticles];
  
     for (i = 0; i < NumberOfParticles; i++)
-      tempint[i] = ParticleNumber[i];
+      tempPINT[i] = ParticleNumber[i];
  
  
     file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
@@ -805,11 +1077,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     if (io_log) fprintf(log_fptr,"H5Dcreate with Name = particle_index\n");
  
-    dset_id =  H5Dcreate(group_id, "particle_index", HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
+    dset_id =  H5Dcreate(group_id, "particle_index", HDF5_FILE_PINT, file_dsp_id, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
       if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-    h5_status = H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+    h5_status = H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempPINT);
       if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
@@ -821,11 +1093,12 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
- 
     /* Copy type to temp and write it. */
 
     if (ParticleTypeInFile == TRUE) {
  
+    int *tempint = new int[NumberOfParticles];
+
     if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
  
     if (ParticleType == NULL)
@@ -858,9 +1131,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     h5_status = H5Dclose(dset_id);
       if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
       if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+
+    delete [] tempint;
  
     }
-
  
     /* Copy particle attributes to temp and write them. */
  
@@ -893,11 +1167,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
     }
- 
+
     /* clean up */
  
     delete [] temp;
-    delete [] tempint;
+    delete [] tempPINT;
  
   } // end: if (MyProcessorNumber...)
   } // end: if (NumberOfParticles > 0)
@@ -919,7 +1193,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     if (io_log) fclose(log_fptr);
   }
  
-  /* 4) Save Gravity info. */
+  /* 5) Save Gravity info. */
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
@@ -934,3 +1208,4 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   return SUCCESS;
  
 }
+#endif

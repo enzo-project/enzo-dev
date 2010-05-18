@@ -20,7 +20,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
 #include "EOS.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -143,7 +142,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   float eint, h, dpdrho, dpde, cs;
   eint = cs_medium*cs_medium/(Gamma-1.0);
   FLOAT xc = 0.5, yc = 0.5, zc = 0.5, x, y, z, r;
-  FLOAT rs = 0.3;
+  FLOAT rs = 1.; // 0.3;
   n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
@@ -227,11 +226,10 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
       } 
     }
   }
-  // printf("Grid_MHDTurb: line 218\n");
+
   for (int i = 0; i < 3; i++) {
     delete [] TurbulenceVelocity[i];
     }
-	  // printf("Grid_MHDTurb: line 222\n");
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
   printf("UseDrivingField =%d\n",UseDrivingField);

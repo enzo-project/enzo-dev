@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Configure file for kraken (NICS) with PGI compilers
+# Use modules: pgi/9.0.3 fftw/2.1.5 hdf5-parallel/1.8.3.0
+#
+#FFTW_DIR=/home/jwise/local
+./configure \
+    CFLAGS="-I ${FFTW_DIR}/include" \
+    FCFLAGS="-I ${FFTW_DIR}/include" \
+    LDFLAGS="-L ${FFTW_DIR}/lib" \
+    LD=cc \
+    FC=ftn \
+    CC=cc \
+    --enable-enzo \
+    --with-hdf=${HDF5_DIR}
+
+#    --enable-double \

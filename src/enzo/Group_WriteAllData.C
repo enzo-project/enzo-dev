@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "h5utilities.h"
 
  
 #include "ErrorExceptions.h"
@@ -48,38 +49,55 @@
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
+#include "BinaryHierarchy.h"
 
 void my_exit(int status);
  
 // HDF5 function prototypes
  
-
- 
 // function prototypes
- 
+
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
+
 int SysMkdir(char *startdir, char *directory);
  
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
 int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *TopGrid,
-		       char *gridbasename, int &GridID, FLOAT WriteTime, hid_t file_id);
+		       char *gridbasename, int &GridID, FLOAT WriteTime, hid_t file_id,
+               int CheckpointDump = FALSE);
 int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 		   char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteConfigure(FILE *optr);
 int WriteTaskMap(FILE *fptr, HierarchyEntry *TopGrid,
 		 char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
-int WriteStarParticleData(FILE *fptr);
+int WriteStarParticleData(FILE *fptr, TopGridData &MetaData);
 int WriteRadiationData(FILE *fptr);
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
-			      FLOAT WriteTime);
+			      FLOAT WriteTime, int CheckpointDump);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
  
+int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
+
+void InitializeHierarchyArrayStorage(int grid_count);
+void WriteHierarchyArrayStorage(const char* name);
+void FinalizeHierarchyArrayStorage();
+
+#ifndef FAST_SIB
+int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
+                          int level, TopGridData *MetaData,
+                          ExternalBoundary *Exterior, LevelHierarchyEntry * Level);
+#endif 
+
+
 #ifdef TRANSFER
 extern char RTSuffix[];
 #endif
@@ -93,6 +111,7 @@ extern char MemoryMapSuffix[];
 extern char ConfigureSuffix[];
 
 char CPUSuffix[]       = ".cpu";
+char BHierarchySuffix[] = ".harrays";
  
 extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
@@ -105,7 +124,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 #ifdef TRANSFER
 		 ImplicitProblemABC *ImplicitSolver,
 #endif
-		 FLOAT WriteTime = -1)
+		 FLOAT WriteTime = -1, 
+		 int CheckpointDump = FALSE)
 {
  
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
@@ -114,6 +134,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   char unixcommand[MAX_LINE_LENGTH];
   char gridbasename[MAX_LINE_LENGTH];
   char hierarchyname[MAX_LINE_LENGTH];
+  char bhierarchyname[MAX_LINE_LENGTH];
   char radiationname[MAX_LINE_LENGTH];
   char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
@@ -164,7 +185,7 @@ int Group_WriteAllData(char *basename, int filenumber,
      in MetaData.  Note:  Modified 6 Feb 2006 to fix interpolated  data outputs. */
 
   FLOAT SavedTime = MetaData.Time;
-  MetaData.Time = (WriteTime < 0) ? MetaData.Time : WriteTime;
+  MetaData.Time = ((WriteTime < 0) || (CheckpointDump == TRUE)) ? MetaData.Time : WriteTime;
 
   /* If we're writing interpolated dark matter fields, create them now. */
 
@@ -574,6 +595,11 @@ int Group_WriteAllData(char *basename, int filenumber,
   MetaData.BoundaryConditionName = new char[MAX_LINE_LENGTH];
   strcpy(MetaData.BoundaryConditionName, name);
   strcat(MetaData.BoundaryConditionName, BCSuffix);
+
+  /* We set our global variable CheckpointRestart to TRUE here, so that it gets
+     output in the parameter file. */
+
+  CheckpointRestart = CheckpointDump;
  
 #ifdef TRANSFER
   // Output ImplicitSolver module parameter file
@@ -603,13 +629,15 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Output TopGrid data
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    if ((fptr = fopen(name, "w")) == NULL) {
-      fprintf(stdout, "Error opening output file %s\n", name);
-      ENZO_FAIL("");
+    if ((fptr = fopen(name, "w")) == NULL) 
+      ENZO_VFAIL("Error opening output file %s\n", name)
+    if (CheckpointDump == TRUE) {
+      fprintf(fptr, "# WARNING! This is a checkpoint dump! Lots of data!\n");
     }
-    if (WriteTime >= 0)
+    else if (WriteTime >= 0) {
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
+    }
     if (WriteParameterFile(fptr, MetaData) == FAIL)
       ENZO_FAIL("Error in WriteParameterFile");
     fclose(fptr);
@@ -620,11 +648,9 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Output Boundary condition info
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) {
-      fprintf(stdout, "Error opening boundary condition file: %s\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
-    }
+    if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) 
+      ENZO_VFAIL("Error opening boundary condition file: %s\n",
+	      MetaData.BoundaryConditionName)
     strcat(MetaData.BoundaryConditionName, hdfsuffix);
     if (Exterior->WriteExternalBoundary(fptr, MetaData.BoundaryConditionName)
 	== FAIL)
@@ -656,18 +682,71 @@ int Group_WriteAllData(char *basename, int filenumber,
      (TempTopGrid is the top of an entirely new hierarchy). */
  
   HierarchyEntry *TempTopGrid;
-  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime);
+  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime, CheckpointDump);
  
   // Output Data Hierarchy
+
+  if (WriteBinaryHierarchy == TRUE  || VelAnyl==1 || BAnyl==1){
+    /* If this is true, we have to count up the number of grids. */
+    int level;
+    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+        LevelArray[level] = NULL;
+    AddLevel(LevelArray, TempTopGrid, 0);
+    int num_grids = 0;
+    LevelHierarchyEntry *Temp;
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
+        Temp = LevelArray[level];
+        while (Temp!=NULL) {
+          num_grids++;
+          Temp = Temp->NextGridThisLevel; 
+        }
+    }
+    InitializeHierarchyArrayStorage(num_grids);
+    
+#ifndef FAST_SIB
+    if(VelAnyl==1||BAnyl==1){
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+      HierarchyEntry **Grids;
+      int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+      if (LevelArray[level] != NULL) {
+	
+	if (SetBoundaryConditions(Grids, NumberOfGrids, level, &MetaData, 
+				  Exterior, LevelArray[level]) == FAIL) {
+	  printf("error setboundary");
+	}}}}
+#endif
+  }
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    if ((fptr = fopen(hierarchyname, "w")) == NULL) {
-      fprintf(stdout, "Error opening hierarchy file %s\n", hierarchyname);
-      ENZO_FAIL("");
-    }
+    if ((fptr = fopen(hierarchyname, "w")) == NULL) 
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
+  
  
-  if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid, gridbasename, GridID, WriteTime, file_id) == FAIL)
+	
+  if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
+            gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)
     ENZO_FAIL("Error in Group_WriteDataHierarchy");
+
+    hid_t metadata_group = H5Gcreate(file_id, "Metadata", 0);
+    if(metadata_group == h5_error)ENZO_FAIL("Error writing metadata!");
+    writeArrayAttribute(metadata_group, HDF5_INT, MAX_DEPTH_OF_HIERARCHY,
+                        "LevelCycleCount", LevelCycleCount);
+  if(CheckpointDump == TRUE){
+    // Write our supplemental (global) data
+    FLOAT dtThisLevelCopy[MAX_DEPTH_OF_HIERARCHY];
+    FLOAT dtThisLevelSoFarCopy[MAX_DEPTH_OF_HIERARCHY];
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+        dtThisLevelCopy[level] = dtThisLevel[level];
+        dtThisLevelSoFarCopy[level] = dtThisLevelSoFar[level];
+    }
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevel", dtThisLevelCopy);
+    writeArrayAttribute(metadata_group, HDF5_PREC, MAX_DEPTH_OF_HIERARCHY,
+                        "dtThisLevelSoFar", dtThisLevelSoFarCopy);
+    writeScalarAttribute(metadata_group, HDF5_PREC, "Time", &MetaData.Time);
+  }
+    H5Gclose(metadata_group);
 
   // At this point all the grid data has been written
 
@@ -683,10 +762,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
-    if ((mptr = fopen(memorymapname, "w")) == NULL) {
-      fprintf(stdout, "Error opening memory map file %s\n", memorymapname);
-      ENZO_FAIL("");
-    }
+    if ((mptr = fopen(memorymapname, "w")) == NULL) 
+      ENZO_VFAIL("Error opening memory map file %s\n", memorymapname)
 
   if (WriteMemoryMap(mptr, TempTopGrid, gridbasename, GridKD, WriteTime) == FAIL)
     ENZO_FAIL("Error in WriteMemoryMap");
@@ -707,10 +784,8 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
-  if ((tptr = fopen(taskmapname, "w")) == NULL) {
-    fprintf(stdout, "Error opening task map file %s\n", taskmapname);
-    ENZO_FAIL("");
-  }
+  if ((tptr = fopen(taskmapname, "w")) == NULL)
+    ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL)
     ENZO_FAIL("Error in WriteTaskMap");
@@ -726,6 +801,16 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (CubeDumpEnabled == 1)
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL)
       ENZO_FAIL("Error in WriteDataCubes");
+
+  // Write the binary hierarchy if we want it
+
+  if (WriteBinaryHierarchy == TRUE)
+  {
+    strcpy(bhierarchyname, name);
+    strcat(bhierarchyname, BHierarchySuffix);
+    WriteHierarchyArrayStorage(bhierarchyname);
+    FinalizeHierarchyArrayStorage();
+  }
  
   // Clean up combined top level grid, and first two levels of hierarchy
  
@@ -736,14 +821,15 @@ int Group_WriteAllData(char *basename, int filenumber,
     delete TempTopGrid;
   }
  
-  // Output StarParticle data (actually just number of stars)
+  // Output star particle data 
  
-  if (WriteStarParticleData(fptr) == FAIL)
+  if (WriteStarParticleData(fptr, MetaData) == FAIL)
     ENZO_FAIL("Error in WriteStarParticleData");
  
   // Create radiation name and write radiation data
  
-  if (RadiationFieldType >= 10 && RadiationFieldType <= 11 &&
+  if (((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+       RadiationData.RadiationShield == TRUE) &&
       MyProcessorNumber == ROOT_PROCESSOR) {
  
     FILE *Radfptr;
@@ -772,6 +858,10 @@ int Group_WriteAllData(char *basename, int filenumber,
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
+
+  /* This should always be false outside of writing and the restart process */
+    
+  CheckpointRestart = FALSE;
 
   CommunicationBarrier();
 // if (debug)

@@ -300,7 +300,7 @@ void save_groups(char *particles_fname, char *catalogue_fname,
 	    fwrite(&Pbuf[i].Pos[0], sizeof(double), 3, fd);
 
 	  for(i=0; i<len; i++)
-	    fwrite(&Pbuf[i].PartID, sizeof(int), 1, fdids);
+	    fwrite(&Pbuf[i].PartID, sizeof(PINT), 1, fdids);
 
 	  for(i=0; i<len; i++)
 	    {
@@ -456,7 +456,8 @@ int link_accross(void)
   
   for(i=1; i<=Nslab[ThisTask]; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
@@ -705,7 +706,8 @@ void stitch_together(void)
   struct particle_data *buftoleft, *buftoright, *buffer;
   int    i, slab, nl, nr, nbuf, len;
   int    leftTask, rightTask;
-  int    pp, newid;
+  int    pp;
+  PINT   newid;
   struct idmin_data *iddat;
 
 
@@ -717,7 +719,8 @@ void stitch_together(void)
   
   for(i=1; i<=Nslab[ThisTask]; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 		  
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
@@ -837,7 +840,8 @@ void exchange_shadow(void)
   
   for(i=1; i<=Nlocal; i++)
     {
-      slab= (P[i].Pos[0]/BoxSize)*NTask;
+      //slab= (P[i].Pos[0]/BoxSize)*NTask;
+      slab = P[i].slab;
 
       if(slab!=ThisTask)
 	MPI_Abort(MPI_COMM_WORLD, 11);

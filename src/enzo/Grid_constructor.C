@@ -40,6 +40,9 @@ grid::grid()
   GravitatingMassFieldParticlesCellSize = FLOAT_UNDEFINED;
   SubgridsAreStatic                     = FALSE;
   ProcessorNumber                       = ROOT_PROCESSOR;
+
+  SubgridFluxStorage = new fluxes* [1];
+  NumberOfSubgrids = 1;
  
   /* clear MAX_DIMENSION vectors */
  
@@ -141,6 +144,8 @@ grid::grid()
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
 
+  MaximumkphIfront                = 0;
+  IndexOfMaximumkph               = INT_UNDEFINED;
 
   /* Initialize top level parallelism information */
   for (i=0; i<MAX_DIMENSION; i++) {

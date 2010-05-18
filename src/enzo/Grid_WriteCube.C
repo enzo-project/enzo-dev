@@ -61,6 +61,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
  
   float32 *temp;
   int *tempint;
+  PINT *tempPINT;
  
   FILE *log_fptr;
  
@@ -118,9 +119,10 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   char *ParticleMassLabel = "particle_mass";
   char *ParticleTypeLabel = "particle_type";
   char *ParticleIndexLabel = "particle_index";
- 
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "alpha_fraction"};
+   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction"};*/
 #ifdef IO_LOG
   int         io_log = 1;
 #else
@@ -1111,7 +1113,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
  
     if ( output_cube > -1 ) {
  
-    tempint = new int[NumberOfParticles];
+    tempPINT = new PINT[NumberOfParticles];
  
     for (i = 0; i < NumberOfParticles; i++)
       tempint[i] = ParticleNumber[i];
@@ -1135,7 +1137,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
         file_id = H5Fcreate(GlueFile, H5F_ACC_TRUNC, H5P_DEFAULT, file_access_template);
           if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-        dset_id = H5Dcreate(file_id, PartName, HDF5_FILE_INT, file_dsp_id, H5P_DEFAULT);
+        dset_id = H5Dcreate(file_id, PartName, HDF5_FILE_PINT, file_dsp_id, H5P_DEFAULT);
           if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
         xfer_prop_list = H5Pcreate (H5P_DATASET_XFER);
@@ -1163,7 +1165,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
         h5_status = H5Sselect_hyperslab(file_dsp_id, H5S_SELECT_SET, &m_file_offset, &m_file_stride, &m_file_count, NULL);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-        h5_status = H5Dwrite(dset_id, HDF5_INT, mem_dsp_id, file_dsp_id, xfer_prop_list, (VOIDP) tempint);
+        h5_status = H5Dwrite(dset_id, HDF5_PINT, mem_dsp_id, file_dsp_id, xfer_prop_list, (VOIDP) tempPINT);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
         h5_status = H5Sclose(mem_dsp_id);
@@ -1277,7 +1279,8 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
           fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
           if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-    delete tempint;
+    delete [] tempint;
+    delete [] tempPINT;
  
     } // if output cube active
  

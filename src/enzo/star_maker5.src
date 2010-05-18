@@ -10,9 +10,12 @@ c
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, mintdyn,
-     &                      odthresh, masseff, smthresh, level, np,
+     &                      odthresh, shdens,
+     &                      masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, ran1_init)
+     &                      mp, tdp, tcp, metalf,
+     &                      rr_left0, rr_left1, rr_left2,
+     &                      rr_right0, rr_right1, rr_right2)
 c
 c  CREATES STAR PARTICLES
 c
@@ -26,6 +29,8 @@ c  modified by: Robert harkness, August 12th 2006
 c               Use Fortran90 random numbers
 c  modified by: Stephen Skory, June 30, 2008
 c               Fix units and signs
+c  modified by: Samuel Skillman, Stephen Skory, January 17th, 2010
+c               More unit fixes, added the shdens parameter
 c
 c  
 c  INPUTS:
@@ -37,6 +42,7 @@ c    coolrate - cooling rate of gas in cgs [note - positive is heading, neg. is 
 c    u,v,w - velocity fields
 c    cooltime - cooling time in code units
 c    r     - refinement field (non-zero if zone is further refined)
+c    metal - metallicity field
 c    dt    - current timestep
 c    dx    - zone size (code units)
 c    t     - current time
@@ -45,12 +51,14 @@ c    d1,x1,v1,t1 - factors to convert d,dx,v,t to physical units
 c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
-c    odthresh - Physical Density Threshold, see S&H for values
+c    odthresh - Overdensity of the cell required to turn on star formation.
+c    shdesn   - Critical density (rho_crit) for star formation, see Springel & Hernquist
 c    masseff(not used) - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - mass of all stars that are created ~= 7.6e4 (msolar)
 c    mintdyn  - timescale for star formation ~= 2.1e9 (yrs)
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    rr_left, rr_right - refinement region left and right edges
 c
 c  OUTPUTS:
 c
@@ -83,7 +91,9 @@ c
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real    odthresh, masseff, smthresh, mintdyn
+      real    odthresh, shdens, masseff, smthresh, mintdyn
+      REALSUB rr_left0, rr_left1, rr_left2
+      REALSUB rr_right0, rr_right1, rr_right2
 c
       real   sformsum
       save   sformsum
@@ -93,6 +103,9 @@ c  Locals:
 c
       integer  i, j, k, ii, ran1_init
       real   div, tdyn, dtot, dummy1
+      real   newd, newdt, newcool, newtemp
+      real   tempx, tempy, tempz
+      character*15 fname
       real   usn, tstar, pstar, sqrtepssn, timeconstant
       real   mproton, RandomSeed, beta,x ,y, kb
       real   starfraction, bmass, densthresh 
@@ -100,52 +113,56 @@ c
       parameter (msolar=1.989e33, mproton=1.67e-24, beta=0.1,
      &     sqrtepssn=2e24, RandomSeed=-123456, kb=1.3806e-16)
 
-!     external random
       real random
-!     real ran1
 
-      ii = np
+      ii = 0
 c     Initialize Random Number Generator Once
       if(ran1_init .eq. 0)then
-!       dummy1 = ran1(RandomSeed)
         call random_seed
         ran1_init = 1
       endif
+c      Uncomment the stuff below to write star formation stuff to disk.
+c      write(fname, "(a6, i2.2, a4)") "smout", procnum, ".txt"
+c      open (unit=1701,file=fname,access="APPEND",status="UNKNOWN")
 
 c     Define the energy output from supernovae
 
       usn=(1.0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
-c     Calculate density threshold in correct units!
-      densthresh = odthresh * 2.165e-8
-
-c     Calculate timeconstant t0 in code units, assuming input is years
-      timeconstant = mintdyn * 3.156e7 / t1
-
 c     Loop over all grids
       do k=1+ibuff,nz-ibuff   
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
-c	       Only at the lowest refinement!              
+c	       Only if this is the most refined cell at this location.
 	       if(r(i,j,k) .ne. 0.0) goto 10
 
-               if(d(i,j,k) .le. 100) goto 10
+c             Only over-dense enough cells.
+              if(d(i,j,k) .le. odthresh) goto 10
 
+c         Don't consider this cell if it's not in the refinement region.
+              tempx = xstart + (float(i)-0.5)*dx
+              tempy = ystart + (float(j)-0.5)*dx
+              tempz = zstart + (float(k)-0.5)*dx
+              if (tempx .lt. rr_left0 .or. tempx .gt. rr_right0 .or. 
+     &          tempy .lt. rr_left1 .or. tempy .gt. rr_right1 .or. 
+     &          tempz .lt. rr_left2 .or. tempz .gt. rr_right2) then
+                    goto 10
+               endif
 
 c	       Calculate star formation timescale               
-               tstar = mintdyn*(d(i,j,k)*dble(d1)/  
-     &              mproton/densthresh)**(-0.5)			!Eq(21)
-
-
+               tstar = 31556926.0*mintdyn*(d(i,j,k)*dble(d1)/  
+     &              shdens)**(-0.5)			!Eq(21)
+            
+            
 c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
 c		negative, gas is cooling (which is the opposite of how it's defined in springel
 c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
-               y = -1.0*tstar*t1*coolrate(i,j,k)*d(i,j,k)/dble(d1)/
-     &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton)		!Eq(16)
+               y = -1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
+     &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
-               if (y .eq. 0) then
+               if (y .le. 0) then
                   x = 0
                else
                   x = 1.0 + 1.0/2.0/y - sqrt(1.0/y + 1.0/4.0/y/y)	!Eq(18)
@@ -155,9 +172,21 @@ c              Calculate total baryon mass in the cell
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3/msolar	     
 
 c              Calculate a parameter which is compared to a random number
-               pstar=(bmass/smthresh)*(1.0-exp(-(1.0-beta)*x*dt/tstar)) !Eq(39)
+               pstar=(bmass/smthresh)*
+     &                (1.-exp(-(1.-beta)*x*dt*dble(t1)/tstar)) !Eq(39)
 
-!              dummy1 = ran1(0)
+               newd = d(i,j,k) * dble(d1)
+               newdt = dt*dble(t1)
+               newcool = coolrate(i,j,k)
+               newtemp = temp(i,j,k)
+c               Uncomment the below to write out star formation stuff to disk.
+c               write(1701, *) bmass, newd, newcool, newtemp, newdt,pstar
+
+!               if (pstar .gt. 100.) then
+!                  write(6,*) 'the value of pstar that you are comparing
+!     &             is large, consider raising star mass or timescale'
+!               endif
+
                call random_number(dummy1)
 
 c ----------If a random number < pstar, create a star!----------------
@@ -169,9 +198,9 @@ c ----------If a random number < pstar, create a star!----------------
 	       mp(ii)  = starfraction * d(i,j,k) 
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = tempx
+               yp(ii) = tempy
+               zp(ii) = tempz
                if (imethod .eq. 2) then
                   up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
                   vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
@@ -201,10 +230,14 @@ c
       enddo
  20   continue
 c
+c      Uncomment to write stuff to disk.
+c      close(1701)
+
       if (ii .ge. nmax) then
-         write(6,*) 'star_maker2: reached max new particle count'
+         write(6,*) 'star_maker5: reached max new particle count'
          ERROR_MESSAGE
       endif
+
 c
 c     Make sure to return the number of particles!
 c
@@ -222,7 +255,7 @@ c
      &     d1, x1, v1, t1, sn_param, m_eject, yield,
      &     npart, xstart, ystart, zstart, ibuff,
      &     xp, yp, zp, up, vp, wp,
-     &     mp, tdp, tcp, metalf, justburn)
+     &     mp, tdp, tcp, metalf, type, justburn)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -284,6 +317,7 @@ c
       REALSUB xp(npart), yp(npart), zp(npart)
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      integer type(npart)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -300,7 +334,7 @@ c    Dump it all into thermal making sure to take care of
 c    energy formalisms.
 
       do n=1, npart
-         if(tcp(n) .eq. t .and. mp(n) .gt. 0) then
+         if(tcp(n) .eq. t .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
             
             i = int((xp(n) - xstart)/dx) +1
             j = int((yp(n) - ystart)/dx) + 1

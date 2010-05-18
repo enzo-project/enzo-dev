@@ -31,7 +31,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -44,9 +43,11 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   Star *ThisStar, *OtherStar, *PrevStar;
   LevelHierarchyEntry *Temp;
   float rmerge2;
+  double vcirc2;
   FLOAT TimeNow;
   int dim, level;
   const float pc = 3.086e18;
+  const double Grav = 6.673e-8, Msun = 1.989e33;
 
   /* Get the time at the finest level */
   
@@ -76,13 +77,24 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
 	ENZO_FAIL("");
       }
-      if (ThisStar->MergableMBH(OtherStar))
-	if (ThisStar->Separation2(OtherStar) < rmerge2) {
-	  ThisStar->Merge(OtherStar);
-	  OtherStar->MarkForDeletion();
+
+
+      /* To merge two MBH particles you should satisfy 3 conditions 
+         (1) the same types 
+         (2) separation less than MBHCombineRadius 
+         (3) relative velocity less than the circular velocity */
+
+      vcirc2 = Grav * (ThisStar->ReturnMass() + OtherStar->ReturnMass()) * Msun / 
+	ThisStar->Separation(OtherStar); // reduced mass dynamics
+
+      if (ThisStar->MergableMBH(OtherStar) == 1 &&
+	  ThisStar->Separation2(OtherStar) < rmerge2 &&
+	  ThisStar->RelativeVelocity2(OtherStar) < vcirc2) {
+	ThisStar->Merge(OtherStar);
+	OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
 //		 OtherStar->ReturnID());
-	} // ENDIF radius2 < rmerge2
+      } 
 
     } // ENDFOR OtherStar
   } // ENDFOR ThisStar
@@ -94,7 +106,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   while (ThisStar)
     if (ThisStar->MarkedToDelete()) {
       ThisStar->DeleteCopyInGrid();
-      ThisStar->DeleteParticle(LevelArray);
+      ThisStar->DisableParticle(LevelArray);
       DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()
     } else
       ThisStar = ThisStar->NextStar;

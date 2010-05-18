@@ -55,6 +55,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  int level, TopGridData *MetaData,
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level)
 {
+  
 
   int loopEnd=1;  if (ShearingBoundaryDirection != -1) loopEnd=2;
   
@@ -76,21 +77,21 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
     /* a) Interpolate boundaries from the parent grid or set external
        boundary conditions. */
  
+    if (loop==0){
     if (level == 0) {
-      if (loop==0){
 	if (Grids[grid]->GridData->SetExternalBoundaryValues(Exterior)
 	  == FAIL) {
 	fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
 	ENZO_FAIL("");
       
-	}}}
+	}}
     else {
       if ((Grids[grid]->GridData->InterpolateBoundaryFromParent
 	   (Grids[grid]->ParentGrid->GridData)) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
 	ENZO_FAIL("");
       }
-    }
+    }}
  
     /* b) Copy any overlapping zones for sibling grids.  */
  
@@ -101,7 +102,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 				     &grid::CopyZonesFromGrid)
 	== FAIL) {
       fprintf(stderr, "Error in grid->CopyZonesFromGrid.\n");
-    }
+      }
 
     /* c) Apply external reflecting boundary conditions, if needed.  */
 
@@ -129,13 +130,15 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
     /* a) Interpolate boundaries from the parent grid or set external
        boundary conditions. */
  
+    if (loop==0){
     if (level > 0)
       if ((Grids[grid]->GridData->InterpolateBoundaryFromParent
 	   (Grids[grid]->ParentGrid->GridData)) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateBoundaryFromParent.\n");
 	ENZO_FAIL("");
       }
- 
+    }
+
     /* b) Copy any overlapping zones for sibling grids.  */
  
     for (grid2 = 0; grid2 < NumberOfGrids; grid2++)

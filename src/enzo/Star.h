@@ -32,17 +32,19 @@ class Star
   float		*accretion_rate;	// prescribed Mdot(t) [Msun / s]
   float          last_accretion_rate;
   FLOAT	*accretion_time;	// corresponding time for Mdot(t)
-  float		 Mass;		// Msun
-  float		 FinalMass;	// Msun
+  double       	 Mass;		// Msun
+  double       	 FinalMass;	// Msun
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
   int		 FeedbackFlag;
-  int		 Identifier;
+  PINT		 Identifier;
   int		 level;
   int		 GridID;
   bool           AddedEmissivity;
   star_type	 type;
+  float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
+  double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
 
   friend class grid;
 
@@ -56,7 +58,7 @@ public:
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
   Star(StarBuffer buffer) ;
-  ~Star();
+  //~Star();
 
   // Operators
   void operator=(Star a);
@@ -68,8 +70,12 @@ public:
   star_type ReturnType(void) { return type; };
   FLOAT* ReturnPosition(void) { return pos; };
   int   ReturnID(void) { return Identifier; };
+<<<<<<< local
   float ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
+=======
+  double ReturnMass(void) { return Mass; };
+>>>>>>> other
   float ReturnLifetime(void) { return LifeTime; };
   int   ReturnLevel(void) { return level; };
   void  ReduceLevel(void) { level--; };
@@ -81,13 +87,23 @@ public:
   void  AssignCurrentGrid(grid *a) { this->CurrentGrid = a; };
   bool  MarkedToDelete(void) { return type == TO_DELETE; };
   void  MarkForDeletion(void) { type = TO_DELETE; };
-  void  AddMass(float dM) { Mass += dM; };
+  void  AddMass(double dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
-  void  ResetAccretion(void) { if (type != BlackHole) DeltaMass = 0.0; };
+  void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  ResetNotEjectedMass(void) { NotEjectedMass = 0.0; };
+  void  ResetAccretionPointers(void) 
+  { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
+<<<<<<< local
   bool  ReturnEmissivityFlag(void) { return AddedEmissivity; };
   void  AddEmissivityFlag(void) { this->AddedEmissivity = true; };
+=======
+  FLOAT *ReturnPosition(void) { return pos; }
+  float *ReturnVelocity(void) { return vel; }
+  float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
+  float ReturnLastAccretionRate(void) { return last_accretion_rate; }
+>>>>>>> other
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
@@ -98,7 +114,8 @@ public:
   void  SetFeedbackFlag(Eint32 flag);
 #endif
   int	Accrete(void);
-  int	SubtractAccretedMass(void);
+  int	AccreteAngularMomentum(void);
+  int	SubtractAccretedMassFromCell(void);
   void	Merge(Star a);
   void	Merge(Star *a);
   bool	Mergable(Star a);
@@ -109,34 +126,47 @@ public:
   float Separation(Star *a);
   float Separation2(Star a);
   float Separation2(Star *a);
+  float RelativeVelocity2(Star a);
+  float RelativeVelocity2(Star *a);
   void  UpdatePositionVelocity(void);
   void	CopyFromParticle(grid *_grid, int _id, int _level);
+  void	AssignAccretedAngularMomentum(void);
   void	DeleteCopyInGrid(void);
   int   DeleteCopyInGridGlobal(LevelHierarchyEntry *LevelArray[]);
   void	CopyToGrid(void);
   void  MirrorToParticle(void);
   bool  IsARadiationSource(FLOAT Time);
   int   DeleteParticle(LevelHierarchyEntry *LevelArray[]);
+  int   DisableParticle(LevelHierarchyEntry *LevelArray[]);
   void  ActivateNewStar(FLOAT Time);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);
   void  PrintInfo(void);
 
-  void  CalculateFeedbackParameters(float &Radius, float SNe_dt, 
-				    float RootCellWidth,
+  void  CalculateFeedbackParameters(float &Radius, 
+				    float RootCellWidth, float SNe_dt, 
 				    double &EjectaDensity,
 				    double &EjectaThermalEnergy,
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar);
+  void  CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], float &Radius, 
+				       float RootCellWidth,
+				       double &EjectaDensity,
+				       float DensityUnits, float LengthUnits, 
+				       float TemperatureUnits, float TimeUnits,
+				       float VelocityUnits, float dtForThisStar);
+  int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
+				      float DensityUnits, float LengthUnits,
+				      int &CellsModified);
 
   int FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			 float &Radius, double &EjectaDensity, double &EjectaThermalEnergy,
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits);
+			 float VelocityUnits, FLOAT Time);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

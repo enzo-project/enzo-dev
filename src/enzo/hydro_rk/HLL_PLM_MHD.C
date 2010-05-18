@@ -4,7 +4,8 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1:  Tom Abel 10/2009 
+/              added ConservativeReconstruction
 /
 /
 ************************************************************************/
@@ -25,6 +26,8 @@
 #include "../hydro_rk/ReconstructionRoutines.h"
 
 int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq);
+int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq, char direc);
+inline void plm_point(float &vm1, float &v, float &vp1, float &vl_plm);
 int plm_species(float **prim, int is, float **species, float *flux0, int ActiveSize);
 int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize);
 int hll_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize);
@@ -35,9 +38,10 @@ int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 {
 
   // compute priml and primr
-  if (plm(prim, priml, primr, ActiveSize, 9) == FAIL) {
-    return FAIL;
-  }
+  if (ConservativeReconstruction)
+    cons_plm(prim, priml, primr, ActiveSize, 9, direc);
+  else
+    plm(prim, priml, primr, ActiveSize, 9);
 
   // compute FluxLine
   if (hll_mhd(FluxLine, priml, primr, prim, ActiveSize)==FAIL) {

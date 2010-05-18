@@ -10,7 +10,6 @@
 #include "Grid.h"
 #include "CosmologyParameters.h"
 #include "EOS.h"
-#include "StarParticleData.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -37,8 +36,8 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 
   int dim, i, j, k, m, field, sphere, size;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum,  kphHINum, gammaHINum, kphHeINum, gammaHeINum,
-    kphHeIINum, gammaHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
+    DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum, 
+    kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3;
 
 
   NumberOfBaryonFields = 0;
@@ -84,11 +83,9 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
   if (RadiativeTransfer)
     if (MultiSpecies) {
       FieldType[kphHINum    = NumberOfBaryonFields++] = kphHI;
-      FieldType[gammaHINum  = NumberOfBaryonFields++] = gammaHI;
+      FieldType[gammaNum    = NumberOfBaryonFields++] = PhotoGamma;
       FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
-      FieldType[gammaHeINum = NumberOfBaryonFields++] = gammaHeI;
       FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
-      FieldType[gammaHeIINum= NumberOfBaryonFields++] = gammaHeII;
       if (MultiSpecies > 1) {
         FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
       }
@@ -214,7 +211,7 @@ int grid::Collapse3DInitializeGrid(int n_sphere,
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      vel[0] = -omega_sphere[sphere]*ypos;
 	      vel[1] = omega_sphere[sphere]*xpos;
-	      //printf("cs=%g, vel[0]=%g ", cs, vel[0]);
+	      printf("cs=%g, vel[0]=%g ", cs, vel[0]);
 	      double mach_turb = 0.0;
 	      vel[0] += mach_turb*Gaussian(cs);
 	      vel[1] += mach_turb*Gaussian(cs);

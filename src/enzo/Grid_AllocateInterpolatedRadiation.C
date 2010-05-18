@@ -30,14 +30,9 @@ int grid::AllocateInterpolatedRadiation()
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   int i,j,k, index, field, dim, vcsize = 1;
 
@@ -50,28 +45,32 @@ int grid::AllocateInterpolatedRadiation()
   
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (FieldsToInterpolate[field] == TRUE) {
+      rkph = FieldUndefined;
+      rgamma = FieldUndefined;
       switch (FieldType[field]) {
       case HIDensity:
 	rkph = kphHINum;
-	rgamma = gammaHINum;
+	rgamma = gammaNum;
 	break;
       case HeIDensity:
-	rkph = kphHeINum;
-	rgamma = gammaHeINum;
+	if (RadiativeTransferHydrogenOnly == FALSE)
+	  rkph = kphHeINum;
 	break;
       case HeIIDensity:
-	rkph = kphHeIINum;
-	rgamma = gammaHeIINum;
+	if (RadiativeTransferHydrogenOnly == FALSE)
+	  rkph = kphHeIINum;
 	break;
       } // ENDSWITCH field
-      if (InterpolatedField[rkph] == NULL)
+      if (InterpolatedField[rkph] == NULL && rkph != FieldUndefined)
 	InterpolatedField[rkph] = new float[vcsize];
-      if (InterpolatedField[rgamma] == NULL)
+      if (InterpolatedField[rgamma] == NULL && rgamma != FieldUndefined)
 	InterpolatedField[rgamma] = new float[vcsize];
-      for (i = 0; i < vcsize; i++) {
-	InterpolatedField[rkph][i] =
+      for (i = 0; i < vcsize; i++)
+	InterpolatedField[rkph][i] = 0.0f;
+      if (rgamma != FieldUndefined)
+	for (i = 0; i < vcsize; i++)
 	  InterpolatedField[rgamma][i] = 0.0f;
-      }
+
     } // ENDIF fields to interpolate
 
   return SUCCESS;

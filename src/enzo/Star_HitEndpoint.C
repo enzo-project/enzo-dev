@@ -20,7 +20,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 
 #define NO_DEATH 0
 #define KILL_STAR 1
@@ -35,8 +34,8 @@ int Star::HitEndpoint(FLOAT Time)
      constrains based on its star type */
 
   int result = NO_DEATH;
-  if (Time > this->BirthTime + this->LifeTime)
-    result = KILL_ALL;
+  if ((Time > this->BirthTime + this->LifeTime) && this->type >=0)
+    result = KILL_STAR;
   else
     return result;
 
@@ -46,11 +45,22 @@ int Star::HitEndpoint(FLOAT Time)
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
     if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass)
-      if (this->FeedbackFlag == DEATH)
-	result = KILL_ALL;
-      else
+      if (this->FeedbackFlag == DEATH) {
+	this->Mass = 1e-10;  // Needs to be non-zero
+
+	// Set lifetime so the time of death is exactly now.
+	this->LifeTime = Time - this->BirthTime;
+
+	this->FeedbackFlag = NO_FEEDBACK;
+	//result = KILL_STAR;
 	result = NO_DEATH;
-    else {
+      } else
+	result = NO_DEATH;
+
+    // Check mass: Don't want to kill tracer SN particles formed
+    // (above) in the previous timesteps.
+
+    else if (this->Mass > 1e-9) {
       // Turn particle into a black hole (either radiative or tracer)
       if (PopIIIBlackHoles) {
 	this->type = BlackHole;
@@ -61,7 +71,8 @@ int Star::HitEndpoint(FLOAT Time)
 	this->type = PARTICLE_TYPE_DARK_MATTER;
 	result = KILL_STAR;
       }
-    }
+    } else // SN tracers (must refine)
+      result = NO_DEATH;
     break;
     
   case PopII:
@@ -71,6 +82,9 @@ int Star::HitEndpoint(FLOAT Time)
     break;
     
   case MBH:
+    break;
+
+  case PopIII_CF:
     break;
 
   } // ENDSWITCH

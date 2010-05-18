@@ -26,7 +26,6 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferHealpixRoutines.h"
 #include "ImplicitProblemABC.h"
 #include "gFLDProblem.h"
@@ -37,7 +36,7 @@
 int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 int DetermineParallelism(HierarchyEntry *TopGrid, TopGridData &MetaData);
-void my_exit(int status);
+int InitializeRadiativeTransferSpectrumTable(FLOAT Time);
 
 int RadiativeTransferInitialize(char *ParameterFile, 
 				HierarchyEntry &TopGrid, 
@@ -48,11 +47,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
 {
 
   const char	*kphHIName     = "HI_kph";
-  const char	*gammaHIName   = "HI_gamma";
+  const char	*gammaName     = "PhotoGamma";
   const char	*kphHeIName    = "HeI_kph";
-  const char	*gammaHeIName  = "HeI_gamma";
   const char	*kphHeIIName   = "HeII_kph";
-  const char	*gammaHeIIName = "HeII_gamma";
   const char	*kdissH2IName  = "H2I_kdiss";
   const char	*RadAccel1Name = "RadAccel1";
   const char	*RadAccel2Name = "RadAccel2";
@@ -110,8 +107,12 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ExistingTypes[i] = FieldUndefined;
 
   if (RadiativeTransfer) {
-    for (i = kphHI; i <= gammaHeII; i++)
-      TypesToAdd[FieldsToAdd++] = i;
+    TypesToAdd[FieldsToAdd++] = kphHI;
+    TypesToAdd[FieldsToAdd++] = PhotoGamma;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      TypesToAdd[FieldsToAdd++] = kphHeI;
+      TypesToAdd[FieldsToAdd++] = kphHeII;
+    }
     if (MultiSpecies > 1)
       TypesToAdd[FieldsToAdd++] = kdissH2I;
     if (RadiationPressure)
@@ -181,8 +182,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
-  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_DEPTH_OF_HIERARCHY)
-    ENZO_FAIL("Exceeds MAX_DEPTH_OF_HIERARCHY.  Please increase and re-compile.");
+  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_NUMBER_OF_BARYON_FIELDS)
+    ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "
+	      "Please increase and re-compile.");
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -201,20 +203,14 @@ int RadiativeTransferInitialize(char *ParameterFile,
     case kphHI:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHIName;
       break;
-    case gammaHI:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHIName;
+    case PhotoGamma:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaName;
       break;
     case kphHeI:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHeIName;
       break;
-    case gammaHeI:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHeIName;
-      break;
     case kphHeII:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kphHeIIName;
-      break;
-    case gammaHeII:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) gammaHeIIName;
       break;
     case kdissH2I:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) kdissH2IName;
@@ -240,6 +236,27 @@ int RadiativeTransferInitialize(char *ParameterFile,
     } // ENDSWITCH
   } // ENDFOR fields
 
+  /* Check for old gammaHeI and gammaHeII fields.  Delete if they
+     exist. */
+
+  int NumberOfObsoleteFields = 2;
+  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
+
+  ObsoleteFields[0] = gammaHeI;
+  ObsoleteFields[1] = gammaHeII;
+  if (RadiativeTransferHydrogenOnly == TRUE) {
+    NumberOfObsoleteFields += 2;
+    ObsoleteFields[2] = kphHeI;
+    ObsoleteFields[3] = kphHeII;
+  }
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+      Temp->GridData->DeleteObsoleteFields(ObsoleteFields, 
+					   NumberOfObsoleteFields);
+
+  Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
+
   /* Initialize SubgridMarker (do we need to do this?  it's already
      done in RebuildHierarchy) */
 
@@ -255,10 +272,11 @@ int RadiativeTransferInitialize(char *ParameterFile,
     mk_xy2pix(&x2pix[0], &y2pix[0]);
   }
 
+//  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 
+//	  RadiativeTransferTraceSpectrum, RadiativeTransferTraceSpectrumTable); 
 
   // If FLD solver handles LW radiation, set solver type
   if (RadiativeTransferFLD == 1)   ImplicitProblem = 2;
-
 
   // if using an implicit RT solver, declare the appropriate object here
   if (RadiativeTransferFLD) {
@@ -276,14 +294,21 @@ int RadiativeTransferInitialize(char *ParameterFile,
       ImplicitSolver = new NullProblem;
   }
 
+  /* If set, initialize spectrum table */
+
+  if (RadiativeTransfer == TRUE &&
+      RadiativeTransferTraceSpectrum == TRUE) {
+    if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
+      ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
+    }
+  }
+
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
   if (RadiativeTransferFLD)
     // first get parallelism information for implicit system
-    if (DetermineParallelism(&TopGrid, MetaData) == FAIL) {
-      fprintf(stderr,"Error in DetermineParallelism.\n");
-      my_exit(EXIT_FAILURE);
-    }
+    if (DetermineParallelism(&TopGrid, MetaData) == FAIL)
+      ENZO_FAIL("Error in DetermineParallelism.");
   // initialize the implicit solver
   ImplicitSolver->Initialize(TopGrid, MetaData);
 #else

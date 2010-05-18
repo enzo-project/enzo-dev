@@ -59,7 +59,7 @@ include $(ENZO_DIR)/Make.config.settings
 # Make.config.machine is used for setting which Make.mach.* file to use
 #-----------------------------------------------------------------------
 
-MAKE_CONFIG_MACHINE  = $(ENZO_DIR)/Make.config.machine
+#MAKE_CONFIG_MACHINE  = $(ENZO_DIR)/Make.config.machine
 include $(ENZO_DIR)/Make.config.machine
 
 #-----------------------------------------------------------------------
@@ -81,6 +81,8 @@ CONFIG_INTEGERS  = 32
 CONFIG_USE_MPI   = yes
 CONFIG_PHOTON    = yes
 CONFIG_FAST_SIB  = yes
+CONFIG_LCAPERF   = no
+
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------
@@ -95,7 +97,8 @@ include $(ENZO_DIR)/Make.config.assemble
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
 #=======================================================================
 # OBJECT FILES

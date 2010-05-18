@@ -77,3 +77,16 @@ EXTERN int RadiativeTransferFLDCallOnLevel;
 
 EXTERN int RadiativeTransferHIIRestrictedTimestep;
 
+/* Flag to use adaptive timestepping for ray tracing.  However this
+   removes the time-derivative from the radiative transfer
+   equation. */
+
+EXTERN int RadiativeTransferAdaptiveTimestep;
+
+EXTERN float GlobalMaximumkphIfront;
+
+/* Flag to trace the spectrum in ray tracing */
+
+EXTERN int RadiativeTransferTraceSpectrum;
+
+EXTERN char *RadiativeTransferTraceSpectrumTable;

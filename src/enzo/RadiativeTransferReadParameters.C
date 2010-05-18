@@ -22,7 +22,6 @@
 
 int RadiativeTransferReadParameters(FILE *fptr)
 {
-
   int i;
 
   char line[MAX_LINE_LENGTH], *dummy = new char[MAX_LINE_LENGTH];
@@ -32,7 +31,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
   RadiationPressure           = FALSE;             // off
   PhotonTime                  = 0; 
-  dtPhoton                    = 0.1;
+  dtPhoton                    = FLOAT_UNDEFINED;
   for (i = 0; i < 4; i++) {
     EscapedPhotonCount[i] = 0.0;
     TotalEscapedPhotonCount[i] = 0.0;
@@ -60,6 +59,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferFLDCallOnLevel             = 0;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
+  RadiativeTransferAdaptiveTimestep           = FALSE;
+  RadiativeTransferHydrogenOnly               = FALSE;
+  RadiativeTransferTraceSpectrum              = FALSE;
+  RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
 
   /* read input from file */
 
@@ -69,7 +72,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
     /* read parameters */
     
-    ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, \
+    ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, 
 		  &RadiationPressure);
     ret += sscanf(line, "RadiativeTransferSourceRadius = %"FSYM, 
 		  &RadiativeTransferSourceRadius);
@@ -103,7 +106,23 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferFLDCallOnLevel);
     ret += sscanf(line, "RadiativeTransferHIIRestrictedTimestep = %"ISYM, 
 		  &RadiativeTransferHIIRestrictedTimestep);
+    ret += sscanf(line, "RadiativeTransferAdaptiveTimestep = %"ISYM, 
+		  &RadiativeTransferAdaptiveTimestep);
+    ret += sscanf(line, "RadiativeTransferHydrogenOnly = %"ISYM, 
+		  &RadiativeTransferHydrogenOnly);
+    ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
+		  &RadiativeTransferTraceSpectrum);
+    if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
+      RadiativeTransferTraceSpectrumTable = dummy;  
+    ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);
 
+    /* If the dummy char space was used, then make another. */
+ 
+    if (*dummy != 0) {
+      dummy = new char[MAX_LINE_LENGTH];
+      ret++;
+    }
+ 
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") != NULL && line[0] != '#' && 
@@ -152,6 +171,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
 
 
   delete [] dummy;
-  
+
   return SUCCESS;
 }

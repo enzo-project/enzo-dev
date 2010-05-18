@@ -29,9 +29,6 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
-#ifdef TRANSFER
-#include "gFLDProblem.h"
-#endif
 #undef DEFINE_STORAGE
 
 #include <stdio.h>

@@ -243,35 +243,63 @@ int grid::SourceTerms(float **dU)
 
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 400) {
 
+  if ((ProblemType == 35 || ProblemType == 36 ||ProblemType == 37) && ShearingBoxProblemType !=0) {
+    
     int igrid;
     float rho, gx, gy, gz;
-    float vx, vy, vz, vx_old, v2, vy_old, vz_old;  FLOAT x,z;
+    FLOAT xPos[3];
+    float vels[3]; 
     int n = 0;
+
+    int iden=FindField(Density, FieldType, NumberOfBaryonFields);
+    int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
+    int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
+    int ivz;
+    if (GridRank==3)  ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+ 
+    int indexNumbers[3]={iS1,iS2,iS3};
+
+    float A[3]={0,0,0};//Omega
+    A[ShearingOtherDirection]=AngularVelocity;
+    
+    float lengthx=DomainRightEdge[0]-DomainLeftEdge[0]; 
+    float lengthy=DomainRightEdge[1]-DomainLeftEdge[1];
+    float lengthz;
+    if (GridRank==3) lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
+    else lengthz-0.0;
+    
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-	  rho = BaryonField[DensNum][igrid];
-	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-	 
-	  vx = BaryonField[Vel1Num][igrid];
-	  vy = BaryonField[Vel2Num][igrid];
-	  vz = BaryonField[Vel3Num][igrid];
-
-	  dU[iS1][n] += dtFixed*2.0*rho*AngularVelocity*(vy + VelocityGradient*AngularVelocity*x);
-	  dU[iS2][n] += -dtFixed*2.0*rho*AngularVelocity*vx;
-
-	  //adding tidal expansion terms
-	  //dU[iS1][n] += dtFixed*3*VelocityGradient*AngularVelocity*AngularVelocity*x;
+	  rho = BaryonField[iden][igrid];
+	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0;
+	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i]-lengthy/2.0;
+	  if (GridRank==3) xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
+	  else xPos[2]=0;
 	  
-	  //Adding vertical gravitational forces of the central object in the thin disk approximation
-	  //dU[iS1][n] += -dtFixed*AngularVelocity*AngularVelocity*z;
+	  vels[0] = BaryonField[ivx][igrid];
+	  vels[1] = BaryonField[ivy][igrid];
+	  if (GridRank==3) vels[2] = BaryonField[ivz][igrid];
+	  else vels[2]=0;
+
+	  //Omega cross V
+
+	  dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
+	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
+	  if (GridRank==3) dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
+	
+
+	  dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
 	  
-	  dU[iEtot][n] += dtFixed*2*AngularVelocity*AngularVelocity*VelocityGradient*x*vx;
+	  
+	  dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
+	
+
+
 	  
  	}
       }

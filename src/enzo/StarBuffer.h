@@ -22,8 +22,8 @@ struct StarBuffer {
   float		accretion_rate[MAX_ACCR];
   float         last_accretion_rate;
   FLOAT	accretion_time[MAX_ACCR];
-  float		Mass;
-  float		FinalMass;
+  double       	Mass;
+  double       	FinalMass;
   float		DeltaMass;
   float		BirthTime;
   float		LifeTime;
@@ -33,6 +33,8 @@ struct StarBuffer {
   int		GridID;
   bool          AddedEmissivity;
   star_type	type;
+  float         accreted_angmom[MAX_DIMENSION];  
+  double        NotEjectedMass;
 };
 
 #endif

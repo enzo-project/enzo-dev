@@ -48,7 +48,7 @@ int ENZO_OptionsinEffect(void)
     if (ENZO_SVN_REVISION != 0) {
       fprintf(opf,"=========================\n");
       fprintf(opf,"Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-      fprintf(opf,"Enzo SVN Revision %"ISYM"\n",ENZO_SVN_REVISION);
+      fprintf(opf,"Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
       fprintf(opf,"=========================\n");
     }
 
@@ -58,6 +58,13 @@ int ENZO_OptionsinEffect(void)
 
 #ifdef LARGE_INTS
     fprintf(opf, " 64 bit Integer version\n");
+#endif
+
+#ifdef CONFIG_PINT_4
+    fprintf(opf, " 32 bit Integers for particle indices\n");
+#endif
+#ifdef CONFIG_PINT_8
+    fprintf(opf, " 64 bit Integers for particle indices\n");
 #endif
 
 #ifdef INITS32
@@ -191,6 +198,18 @@ int ENZO_OptionsinEffect(void)
     fprintf(opf, "  Flux fix for subgrid siblings enabled\n");
 #else
     fprintf(opf, "  Flux fix for subgrid siblings disabled\n");
+#endif
+
+#ifdef NEW_GRID_IO
+    fprintf(opf, "  New Grid I/O enabled\n");
+#else
+    fprintf(opf, "  New Grid I/O disabled\n");
+#endif
+
+#ifdef BITWISE_IDENTICALITY
+    fprintf(opf, "  Bitwise-identicality enabled\n");
+#else
+    fprintf(opf, "  Bitwise-identicality disabled\n");
 #endif
 
 

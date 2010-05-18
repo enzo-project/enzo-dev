@@ -56,7 +56,7 @@ int grid::MHDSourceTerms(float **dU)
   float Bx, By, Bz;
   float coeff = 1.;
 
-  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
+  //  if (EOSType == 3)  coeff = 0.; // turn of adding dissipated B-field to Etot if isothermal (worth a try ...)
 
   int n = 0, igrid, igridyp1, igridym1, igridzp1, igridzm1;
   for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -321,9 +321,10 @@ int grid::MHDSourceTerms(float **dU)
   
   /* Add centrifugal force for the shearing box */
 
-  if (ProblemType == 35 && ShearingBoxProblemType !=0) {
-    
-    int igrid;
+  if ((ProblemType == 35 || ProblemType == 36 ||ProblemType == 37) && ShearingBoxProblemType !=0) {
+
+
+ int igrid;
     float rho, gx, gy, gz;
     FLOAT xPos[3];
     float vels[3]; 
@@ -332,7 +333,8 @@ int grid::MHDSourceTerms(float **dU)
     int iden=FindField(Density, FieldType, NumberOfBaryonFields);
     int ivx=FindField(Velocity1, FieldType, NumberOfBaryonFields);
     int ivy=FindField(Velocity2, FieldType, NumberOfBaryonFields);
-    int ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
+    int ivz;
+    if (GridRank==3)  ivz=FindField(Velocity3, FieldType, NumberOfBaryonFields);
  
     int indexNumbers[3]={iS1,iS2,iS3};
 
@@ -341,9 +343,10 @@ int grid::MHDSourceTerms(float **dU)
     
     float lengthx=DomainRightEdge[0]-DomainLeftEdge[0]; 
     float lengthy=DomainRightEdge[1]-DomainLeftEdge[1];
-    float lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
-
-
+    float lengthz;
+    if (GridRank==3) lengthz=DomainRightEdge[2]-DomainLeftEdge[2];
+    else lengthz-0.0;
+    
 
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -353,30 +356,29 @@ int grid::MHDSourceTerms(float **dU)
 	  rho = BaryonField[iden][igrid];
 	  xPos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-lengthx/2.0;
 	  xPos[1] = CellLeftEdge[1][i] + 0.5*CellWidth[1][i]-lengthy/2.0;
-	  xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
-	 
+	  if (GridRank==3) xPos[2] = CellLeftEdge[2][i] + 0.5*CellWidth[2][i]-lengthz/2.0;
+	  else xPos[2]=0;
+	  
 	  vels[0] = BaryonField[ivx][igrid];
 	  vels[1] = BaryonField[ivy][igrid];
-	  vels[2] = BaryonField[ivz][igrid];
-
+	  if (GridRank==3) vels[2] = BaryonField[ivz][igrid];
+	  else vels[2]=0;
 
 	  //Omega cross V
-	  FLOAT temp= dU[indexNumbers[1]][n];
 
 	  dU[indexNumbers[0]][n] -= dtFixed*2.0*rho*(A[1]*vels[2]-A[2]*vels[1]);
 	  dU[indexNumbers[1]][n] -= dtFixed*2.0*rho*(A[2]*vels[0]-A[0]*vels[2]);
-	  dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
+	  if (GridRank==3) dU[indexNumbers[2]][n] -= dtFixed*2.0*rho*(A[0]*vels[1]-A[1]*vels[0]);
 	
-	  //adding Omega cross v term; given Omega in z direction
+
 	  dU[indexNumbers[ShearingBoundaryDirection]][n] += dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection];
 	  
 	  
 	  dU[iEtot][n] +=  dtFixed*2.0*rho*VelocityGradient*AngularVelocity*AngularVelocity*xPos[ShearingBoundaryDirection]*vels[ShearingBoundaryDirection];
 	
 
-	  if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0){
-	  printf("Sterm new %g  old %g \n", dU[indexNumbers[1]][n], temp )  ;
-	}
+
+
 	  
  	}
       }

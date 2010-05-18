@@ -17,6 +17,7 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+#include "CosmicRayData.h"
 
 /* These are the different types of baryon fields. */
 
@@ -63,7 +64,7 @@ const field_type
   ExtraType0      = 21,
   ExtraType1      = 22,
   kphHI           = 23,
-  gammaHI         = 24,
+  PhotoGamma      = 24,
   kphHeI          = 25,
   gammaHeI        = 26,
   kphHeII         = 27,
@@ -109,41 +110,49 @@ const field_type
   AccelerationField2    = 59, 
   AccelerationField3    = 60,
 
-  Galaxy1Color          = 61,
-  Galaxy2Color          = 62,
+  Galaxy1Colour          = 61,
+  Galaxy2Colour          = 62,
+/* these are required for Sam Skillman's Shock/Cosmic ray models. */
+  Mach            = 63,
+  PreShockTemperature = 64,
+  PreShockDensity = 65,  
+  CRDensity       = 66,
 
 /* these are required for Simon Glover's chemistry (which also needs some of the
    other fields, which are used for MultiSpecies) */
-  CIDensity       = 63,
-  CIIDensity      = 64, 
-  OIDensity       = 65, 
-  OIIDensity      = 66,
-  SiIDensity      = 67,
-  SiIIDensity     = 68,
-  SiIIIDensity    = 69,
-  CHIDensity      = 70,
-  CH2IDensity     = 71,
-  CH3IIDensity    = 72,
-  C2IDensity      = 73,
-  COIDensity      = 74,
-  HCOIIDensity    = 75,
-  OHIDensity      = 76,
-  H2OIDensity     = 77,
-  O2IDensity      = 78,
+  CIDensity       = 67,
+  CIIDensity      = 68, 
+  OIDensity       = 69, 
+  OIIDensity      = 70,
+  SiIDensity      = 71,
+  SiIIDensity     = 72,
+  SiIIIDensity    = 73,
+  CHIDensity      = 74,
+  CH2IDensity     = 75,
+  CH3IIDensity    = 76,
+  C2IDensity      = 77,
+  COIDensity      = 78,
+  HCOIIDensity    = 79,
+  OHIDensity      = 80,
+  H2OIDensity     = 81,
+  O2IDensity      = 82,
 
-/* FLD radiation module stuff (Dan Reynolds) */ 
-  RadiationFreq0  = 79,
-  RadiationFreq1  = 80,
-  RadiationFreq2  = 81,
-  RadiationFreq3  = 82,
-  RadiationFreq4  = 83,
-  RadiationFreq5  = 84,
-  RadiationFreq6  = 85,
-  RadiationFreq7  = 86,
-  RadiationFreq8  = 87,
-  RadiationFreq9  = 88,
+  MBHColour       = 83,
+  ForbiddenRefinement = 84,
 
-  FieldUndefined  = 89;
+/* FLD radiation module stuff (D. Reynolds) */ 
+  RadiationFreq0  = 85,
+  RadiationFreq1  = 86,
+  RadiationFreq2  = 87,
+  RadiationFreq3  = 88,
+  RadiationFreq4  = 89,
+  RadiationFreq5  = 90,
+  RadiationFreq6  = 91,
+  RadiationFreq7  = 92,
+  RadiationFreq8  = 93,
+  RadiationFreq9  = 94,
+
+  FieldUndefined  = 95;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -158,6 +167,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE) 
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -211,6 +221,10 @@ enum {Cartesian, Spherical, Cylindrical};
 enum {PLM, PPM, CENO, WENO3, WENO5};
 enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
 
+/* These are the different types of poisson cleaining boundary conditions. */
+enum{Neumann, Dirichlet};
+
+
 
 
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
@@ -221,12 +235,14 @@ const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
+  PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
 
 /* Define a float/int union. */
 
 union float_int {
   long_int ival;
+  PINT IVAL;
   float fval;
   FLOAT FVAL;
 };
@@ -243,7 +259,7 @@ struct particle_data {
   float vel[MAX_DIMENSION];
   float mass;
   float attribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-  int   id;
+  PINT  id;
   int   type;
   int   grid;
   int   proc;

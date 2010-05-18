@@ -88,6 +88,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
  
+  int MyInterpolationMethod = InterpolationMethod;   
   if (NumberOfBaryonFields > 0) {
  
     /* Compute refinement factors and set zero. */
@@ -271,14 +272,14 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     if (ConservativeInterpolation)
       for (field = 0; field < NumberOfBaryonFields; field++)
 	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	      FieldType[field] != Bfield1 &&
-	      FieldType[field] != Bfield2 &&
-	      FieldType[field] != Bfield3 &&
-	      FieldType[field] != PhiField &&
-	      FieldType[field] != DrivingField1 &&
-	      FieldType[field] != DrivingField2 &&
-	      FieldType[field] != DrivingField3 &&
-	      FieldType[field] != GravPotential)
+	    FieldType[field] != Bfield1 &&
+	    FieldType[field] != Bfield2 &&
+	    FieldType[field] != Bfield3 &&
+	    FieldType[field] != PhiField &&
+	    FieldType[field] != DrivingField1 &&
+	    FieldType[field] != DrivingField2 &&
+	    FieldType[field] != DrivingField3 &&
+	    FieldType[field] != GravPotential)
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -308,10 +309,16 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        is done for the entire current grid, not just it's boundaries.
        (skip density since we did it already) */
  
-      if (HydroMethod == Zeus_Hydro)
-	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	  SecondOrderA : SecondOrderC;
- 
+      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE){
+        if (HydroMethod == Zeus_Hydro){
+	        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+	            SecondOrderA : SecondOrderC;
+        }
+      } else {
+        /* Use nearest grid point interpolation for fields that 
+           shouldn't ever be averaged. */ 
+        MyInterpolationMethod = FirstOrderA; 
+      }
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
       if (FieldType[field] != Density)
@@ -347,8 +354,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
       if (FieldType[field] == Density)
 	FieldPointer = TemporaryDensityField;
-      else
-	FieldPointer = TemporaryField;
+      else 
+	  FieldPointer = TemporaryField;
  
       /* Copy needed portion of temp field to current grid. */
  

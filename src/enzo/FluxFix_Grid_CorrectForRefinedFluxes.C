@@ -80,7 +80,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
   int CorrectLeftBaryonField, CorrectRightBaryonField;
   //For correction of the Parent Grid (this grid) boundary flux.
   int CorrectLeftBoundaryFlux, CorrectRightBoundaryFlux;
- 
+  float CorrectionAmount; 
  
   long_int GlobalDim;
  
@@ -123,6 +123,12 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		 RefinedFluxes->LeftFluxStartGlobalIndex[dim][j])  ||
 		(InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 		 RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
+//	      printf("dim=%d / j=%d //// %d == %d :: %d == %d\n", 
+//		     dim, j, 
+//		     InitialFluxes->LeftFluxStartGlobalIndex[dim][j],
+//		     RefinedFluxes->LeftFluxStartGlobalIndex[dim][j],
+//		     InitialFluxes->LeftFluxEndGlobalIndex[dim][j],
+//		     RefinedFluxes->LeftFluxEndGlobalIndex[dim][j]);
 	      fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
 	      ENZO_FAIL("");
 	    }
@@ -338,7 +344,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  if (HydroMethod != Zeus_Hydro) {
 
 	    for (field = 0; field < NumberOfBaryonFields; field++) 
-	      if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
+	      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
+		  FieldTypeIsDensity(FieldType[field]) == FALSE &&
 		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		  FieldType[field] != Bfield1 &&
 		  FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
@@ -373,6 +380,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
 		FieldType[field] < FieldUndefined &&
+		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
@@ -393,7 +401,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  if (Coordinate == Cartesian) {
 	  for (field = 0; field < NumberOfBaryonFields; field++){
-	    if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+	    if ((FieldTypeNoInterpolate(FieldType[field]) == FALSE) &&
+		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					   FieldType[field] != InternalEnergy))
 		&& (FieldType[field] < ElectronDensity) && 
 		FieldType[field] != DrivingField1 &&
@@ -433,15 +442,17 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    if(CorrectLeftBaryonField){
 		
 		      if( SUBlingGrid == FALSE ){
-			BaryonField[field][FieldIndex] +=
-			  (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
+			CorrectionAmount = 
+			  InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
+			  RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+			BaryonField[field][FieldIndex] += CorrectionAmount;
 			
 		      }else{ /* if( SUBlingGrid == False) */
 			
-			BaryonField[field][FieldIndex] -=
-			  (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-			   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex] );
+			CorrectionAmount = 
+			  -(InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
+			    RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex]);
+			BaryonField[field][FieldIndex] += CorrectionAmount;
 			
 		      }
 		    }
@@ -454,37 +465,88 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    if(CorrectRightBaryonField){
 		
 		      if( SUBlingGrid == FALSE ){
-			
-			BaryonField[field][FieldIndex + Offset] -=
-			  (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
-			   RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
+
+			CorrectionAmount = 
+			  -(InitialFluxes->RightFluxes[field][dim][FluxIndex] -
+			    RefinedFluxes->RightFluxes[field][dim][FluxIndex]);
+			  
+			BaryonField[field][FieldIndex + Offset] += CorrectionAmount;
 			
 		      }else{ /* if( SUBlingGrid == FALSE ){ */
-			BaryonField[field][FieldIndex + Offset] +=
-			  (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
-			   RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex] );
+			  CorrectionAmount = 
+			    InitialFluxes->RightFluxes[field][dim][FluxIndex] -
+			    RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex];
+			  BaryonField[field][FieldIndex + Offset] += CorrectionAmount;
 			
 		      } // else{ /* if( SUBlingGrid == FALSE ){ */
 		    } // if(CorrectRightBaryonField)
 		
 		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
 			 FieldType[field] == TotalEnergy ||
-			 FieldType[field] == InternalEnergy) &&
-			 BaryonField[field][FieldIndex+Offset] <= 0) {
-			 /* If new density & energy is < 0 then undo the flux correction. */
-			 
-			 BaryonField[field][FieldIndex] -=
-			 (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-			  RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
-			 for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-			   RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
-			     InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+			 FieldType[field] == InternalEnergy)) {
 
-		
-		      fprintf(stderr,"ERROR: CorrectForRefinedFluxes causing problems.\n");
-		      fprintf(stderr,"      Density or Energy is negative.\n");
-		      fprintf(stderr,"      Please contact your Enzo service professional.\n");
-		      ENZO_FAIL("");
+		      /* If new density & energy is < 0 then undo the
+			 flux correction. */
+
+		      if (CorrectLeftBaryonField &&
+			  BaryonField[field][FieldIndex] <= 0) {
+			BaryonField[field][FieldIndex] -= CorrectionAmount;
+
+			if (SUBlingGrid == FALSE) {
+			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				 MyProcessorNumber, BaryonField[field][FieldIndex],
+				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+				 i, j, k, dim, field);
+			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
+			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+			} else {
+			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				 MyProcessorNumber, BaryonField[field][FieldIndex],
+				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				 RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex],
+				 i, j, k, dim, field);
+			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
+			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+			} // ENDELSE (SUBlingGrid == FALSE)
+		      } // ENDIF CorrectLeftBaryonField
+
+		      if (CorrectRightBaryonField &&
+			  BaryonField[field][FieldIndex+Offset] <= 0) {
+			BaryonField[field][FieldIndex+Offset] -= CorrectionAmount;
+
+			if (SUBlingGrid == FALSE) {
+			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				 MyProcessorNumber, BaryonField[field][FieldIndex],
+				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+				 i, j, k, dim, field);
+			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
+			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+			} else {
+			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				 MyProcessorNumber, BaryonField[field][FieldIndex],
+				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				 i, j, k, dim, field);
+			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
+			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+			}
+		      } // ENDIF CorrectRightBaryonField
+
+		      
+//		      fprintf(stderr,"ERROR: CorrectForRefinedFluxes causing problems.\n");
+//		      fprintf(stderr,"      Density or Energy is negative.\n");
+//		      fprintf(stderr,"      Please contact your Enzo service professional.\n");
+//		      ENZO_FAIL("");
 		    }
 		  }// for (i = Start[0]; i <= End[0]; i++) {
 		} // for (j = Start[1]; j <= End[1]; j++){
@@ -611,6 +673,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  if (HydroMethod != Zeus_Hydro)
 	    for (field = 0; field < NumberOfBaryonFields; field++)
 	      if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
+		  FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		  (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					     FieldType[field] != InternalEnergy)) && 
@@ -684,6 +747,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
 		FieldType[field] < FieldUndefined &&
+		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {

@@ -1,4 +1,3 @@
-#include "fortran.def"
 #include "error.def"
 
 c=======================================================================
@@ -7,6 +6,8 @@ c
       subroutine smooth_deposit(posx, posy, posz, ndim, npositions, 
      &                      mass, field, leftedge, 
      &                      dim1, dim2, dim3, cellsize, rsmooth)
+#ifndef CONFIG_PFLOAT_16
+#include "fortran.def"
 c
 c  PERFORMS 3D SMOOTHED INTERPOLATION FROM FIELD TO SUMFIELD
 c
@@ -102,4 +103,5 @@ c
       endif
 c
       return
+#endif
       end

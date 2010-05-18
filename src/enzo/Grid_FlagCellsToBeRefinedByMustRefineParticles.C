@@ -28,7 +28,7 @@
  
 /* function prototypes */
  
-extern "C" void FORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
+extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
@@ -62,7 +62,7 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
   /* Loop over all the particles, using only particles marked as
      must-refine particles. */
  
-  FORTRAN_NAME(cic_flag)(
+  PFORTRAN_NAME(cic_flag)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,

@@ -64,12 +64,26 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 
   float *Prim[NEQ_MHD+NSpecies+NColor];
   float *OldPrim[NEQ_MHD+NSpecies+NColor];
-  this->ReturnHydroRKPointers(Prim, false);
+  this->ReturnHydroRKPointers(Prim, false);   
   this->ReturnOldHydroRKPointers(OldPrim, false);
 
-  // update species and colours
+  //##### Want to mix species and colors for renormalization?  Normally you don't
+  int MixSpeciesAndColors = 0;
+  int NSpecies_renorm;
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  if (MixSpeciesAndColors) 
+    NSpecies_renorm = NSpecies+NColor;
+  else
+    switch (MultiSpecies) {
+    case 0:  NSpecies_renorm = 0;  break;
+    case 1:  NSpecies_renorm = 5;  break;
+    case 2:  NSpecies_renorm = 8;  break;
+    case 3:  NSpecies_renorm = 11; break;
+    default: NSpecies_renorm = 0;  break;
+    }
+  
+  // update species
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {  
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -83,9 +97,9 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     }
   }
 
-  // renormalize species and colours
+  // renormalize species 
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -99,7 +113,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     }
   }
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++) {
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
@@ -131,8 +145,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	// first convert to conserved variables to do the update
 	igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
 	r = sqrt(x*x + y*y + z*z);
-	
-
 
 	rho_old  = OldBaryonField[DensNum][igrid];
 	vx_old   = OldBaryonField[Vel1Num][igrid];
@@ -162,7 +174,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	Bz   = BaryonField[B3Num][igrid];
 	Phi  = BaryonField[PhiNum ][igrid];
 
-
 	D_new   = c1*rho_old + (1.0-c1)*rho + c2*dU[iD][n];
 	S1_new  = c1*rho_old*vx_old + (1.0-c1)*rho*vx + c2*dU[iS1][n];
 	S2_new  = c1*rho_old*vy_old + (1.0-c1)*rho*vy + c2*dU[iS2][n];
@@ -178,13 +189,12 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 
 	if (D_new < 0 || isnan(D_new)) {
 
-
 	  printf("UpdateMHDPrim: rho <0 at %"ISYM" %"ISYM" %"ISYM": rho_old=%"FSYM", rho=%"FSYM", rho_new=%"FSYM", dU[iD]=%"FSYM"\n", 
 		 i, j, k, rho_old, rho, D_new, dU[iD][n]);
 	  D_new = max(rho, SmallRho);
 	  printf("UpdateMHDPrim: use rho: %"FSYM"\n", D_new);
 	  //	  D_new = rho;
-	  //D_new = rho;
+
 	  return FAIL;
 	}
 
@@ -195,12 +205,11 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	etot = Tau_new/D_new;
 
 	
-	
 	if (etot < 0 && EOSType == 0) {
 	  float v2_old = vx_old*vx_old + vy_old*vy_old + vz_old*vz_old;
 	  float B2_old = Bx_old*vx_old + By_old*By_old + Bz_old*Bz_old;
-	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g\n", 
-		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed);
+	  printf("UpdateMHDPrim: tau < 0. etot_old=%g, etot=%g, etot_new=%g, v2=%g, v2old=%g, dU[iTau] = %g, dtFixed = %g\n", 
+		 Tau_old/rho_old, Tau/rho, Tau_new/D_new, v2, v2_old, dU[iEtot][n]*CellWidth[0][0]/dtFixed, dtFixed);
 	  printf("rho_new=%g, rho=%g, rho_old=%g, B2_old/rho_old=%g\n", D_new, rho, rho_old, B2_old/rho_old);
 	  //return FAIL;
 	}
@@ -215,10 +224,8 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	}
 	
 
-
 	BaryonField[DensNum][igrid] = D_new;
 
-	
 	BaryonField[Vel1Num][igrid] = vx;
 	BaryonField[Vel2Num][igrid] = vy;
 	BaryonField[Vel3Num][igrid] = vz;
@@ -229,19 +236,10 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	BaryonField[PhiNum][igrid] = Phi_new*exp(-c1*dtFixed*pow(C_h/C_p,2));
 
 
-
-
-
-
-
 	if (DualEnergyFormalism) {
 	  v2 = vx*vx + vy*vy + vz*vz;
 	  B2 = Bx_new*Bx_new + By_new*By_new + Bz_new*Bz_new;
-	  //float rhou, lenu, tempu, tu, velu;
-	  //GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
-	  //float eintu = lenu*lenu/tu/tu;
 	  float emin = SmallT/(Mu*(Gamma-1.0));
-	  //float emin = 4.0*0.48999*D_new*pow(CellWidth[0][0],2)/(Gamma*(Gamma-1.0));
 
 	  eint = Eint_new/D_new;
 	  float eint1 = etot - 0.5*v2 - 0.5*B2/D_new;
@@ -271,12 +269,11 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
       }
     }
   }
-  
-  /* Convert species from mass fraction to density */ 
 
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)
-    for (n = 0; n < size; n++)
-      Prim[field][n] *= BaryonField[DensNum][n];
+  // Convert species from mass fraction to density  
+  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)  
+    for (n = 0; n < size; n++) 
+      Prim[field][n] *= Prim[iden][n];
 
   this->UpdateElectronDensity();
 
@@ -284,7 +281,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     delete [] D;
     delete [] sum;
   }
-
   
   return SUCCESS;
 }

@@ -84,9 +84,9 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
   TotalFlaggedCells += NumberOfFlaggedCells;
   if (NumberOfFlaggedCells > 0)
     FlaggedGrids++;
-//  if (debug)
-//    printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
-//	   level, NumberOfFlaggedCells);
+  if (debug1)
+    printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+	   level, NumberOfFlaggedCells);
  
 #ifdef MPI_INSTRUMENTATION
   Grid->GridData->CollectGridInformation
@@ -101,6 +101,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
  
     int NumberOfSubgrids = 1;
     SubgridList[0] = new ProtoSubgrid;
+    
+    SubgridList[0]->SetLevel(level+1);
  
     /* Copy the flagged zones into the ProtoSubgrid. */
  

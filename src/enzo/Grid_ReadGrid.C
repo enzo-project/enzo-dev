@@ -78,7 +78,9 @@ int grid::ReadGrid(FILE *fptr, int GridID,
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-                                    "metallicity_fraction", "alpha_fraction"};
+				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
+      "metallicity_fraction", "alpha_fraction"};*/
 
 #ifdef USE_HDF4
   Eint32 TempIntArray2[MAX_DIMENSION];
@@ -300,7 +302,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
       file_id = H5Fopen(name,  H5F_ACC_RDONLY, H5P_DEFAULT);
       if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-      if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+      if( file_id == h5_error ){ENZO_FAIL("line 305 Grid_ReadGrid.C \n");}
       }
 
       /* fill in ActiveDim for dims up to 3d */
@@ -349,24 +351,24 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	if(TryHDF5) {
 	  file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( file_dsp_id == h5_error ){ENZO_FAIL("line 354  Grid_ReadGrid \n");}
 	  
 	  if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", DataLabel[field]);
 	  
 	  dset_id =  H5Dopen(file_id, DataLabel[field]);
 	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( dset_id == h5_error ){ENZO_FAIL("line 360  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 364  Grid_ReadGrid \n");}
 	  h5_status = H5Sclose(file_dsp_id);
 	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 367  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dclose(dset_id);
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 371  Grid_ReadGrid \n");}
 	}
 
  
@@ -392,7 +394,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
  
     }  // end: if (MyProcessorNumber == ProcessorNumber)
 
-  if (HydroMethod == MHD_RK) {
+  if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
 
     int activesize = 1;
     for (int dim = 0; dim < GridRank; dim++)
@@ -401,7 +403,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     if (divB == NULL) 
       divB = new float[activesize];
 
-    /* if we restart from a a different solvers output without a Phi Field create here and set to zero */
+    /* if we restart from a different solvers output without a PhiField create here and set to zero */
     int PhiNum; 
     if ((PhiNum = FindField(PhiField, FieldType, NumberOfBaryonFields)) < 0) {
       fprintf(stderr, "Starting with Dedner MHD method with no Phi field. \n");
@@ -411,6 +413,21 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       int PhiToAdd = PhiField;
       this->AddFields(&PhiToAdd, 1);
       DataLabel[PhiNum] = PhiName;
+    }
+
+    /* if we restart from a different solvers output without a Phi_pField 
+       and yet want to use the divergence cleaning, create here and set to zero */
+    if (UseDivergenceCleaning) {
+      int Phi_pNum; 
+      if ((Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields)) < 0) {
+	fprintf(stderr, "Want to use divergence cleaning with no Phi_p field. \n");
+	fprintf(stderr, "Adding it in Grid_ReadGrid.C \n");
+	char *Phi_pName = "Phi_p";
+	Phi_pNum = NumberOfBaryonFields;
+	int Phi_pToAdd = Phi_pField;
+	this->AddFields(&Phi_pToAdd, 1);
+	DataLabel[Phi_pNum] = Phi_pName;
+      }
     }
 
     for (int dim = 0; dim < 3; dim++)
@@ -464,7 +481,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	if(TryHDF5) {
 	  file_id = H5Fopen(name, H5F_ACC_RDONLY, H5P_DEFAULT);
 	  if (io_log) fprintf(log_fptr, "H5Fopen id: %"ISYM"\n", file_id);
-	  if( file_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( file_id == h5_error ){ENZO_FAIL("line 484  Grid_ReadGrid \n");}
 	}
 	
  
@@ -656,13 +673,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  
 	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( file_dsp_id == h5_error ){ENZO_FAIL("line  676 Grid_ReadGrid \n");}
 	  
 	  if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n", ParticlePositionLabel[dim]);
 	  
 	  dset_id =  H5Dopen(file_id, ParticlePositionLabel[dim]);
 	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( dset_id == h5_error ){ENZO_FAIL("line 682  Grid_ReadGrid \n");}
 	  
 	  num_type = H5Dget_type(dset_id);
 	  num_size = H5Tget_size(num_type);
@@ -673,23 +690,23 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	      //NOTE: for 128bits this must be FILE_type_id and NOT FLOAT_type_id!
 	      h5_status = H5Dread(dset_id, FILE_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
 	      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      if( h5_status == h5_error ){ENZO_FAIL("line 693  Grid_ReadGrid \n");}
 	      
 	    } else 
 	    {
 	      h5_status = H5Dread(dset_id, FLOAT_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) ParticlePosition[dim]);
 	      if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	      if( h5_status == h5_error ){ENZO_FAIL("line 699  Grid_ReadGrid \n");}
 	      
 	    }
 	  
 	  h5_status = H5Sclose(file_dsp_id);
 	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 705  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dclose(dset_id);
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 709  Grid_ReadGrid \n");}
 	  
 	}
 	
@@ -699,25 +716,25 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	  
 	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	  if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( file_dsp_id == h5_error ){ENZO_FAIL("line 719  Grid_ReadGrid \n");}
 	  
 	  if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", ParticleVelocityLabel[dim]);
 	  
 	  dset_id =  H5Dopen(file_id, ParticleVelocityLabel[dim]);
 	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( dset_id == h5_error ){ENZO_FAIL("line 725  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 729  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Sclose(file_dsp_id);
 	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 733  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dclose(dset_id);
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 737  Grid_ReadGrid \n");}
 	  
 	  for (i = 0; i < NumberOfParticles; i++)
 	    ParticleVelocity[dim][i] = float(temp[i]);
@@ -727,85 +744,87 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
 	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( file_dsp_id == h5_error ){ENZO_FAIL("line 747  Grid_ReadGrid \n");}
 	
 	if (io_log) fprintf(log_fptr,"H5Dopen with Name = particle_mass\n");
 	
 	dset_id =  H5Dopen(file_id, "particle_mass");
 	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( dset_id == h5_error ){ENZO_FAIL("line 753  Grid_ReadGrid \n");}
 	
 	h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line   Grid_ReadGrid \n");}
 	
 	h5_status = H5Sclose(file_dsp_id);
 	if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line 761  Grid_ReadGrid \n");}
 	
 	h5_status = H5Dclose(dset_id);
 	if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line 765  Grid_ReadGrid \n");}
 	
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleMass[i] = float(temp[i]);
 	
 	/* Read ParticleNumber into temporary buffer and Copy to ParticleNumber. */
 	
-	int *tempint = new int[NumberOfParticles];
+	PINT *tempPINT = new PINT[NumberOfParticles];
 	
 	file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
+	if( file_dsp_id == h5_error){ENZO_FAIL("line 776  Grid_ReadGrid \n");}
 	
 	if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_index\n");
 	
 	dset_id =  H5Dopen(file_id, "particle_index");
 	if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	if( dset_id == h5_error ){ENZO_FAIL("line 782  Grid_ReadGrid \n");}
 	
-	h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
+	h5_status = H5Dread(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempPINT);
 	if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line 786  Grid_ReadGrid \n");}
 	
 	h5_status = H5Sclose(file_dsp_id);
 	if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line 790 Grid_ReadGrid \n");}
 	
 	h5_status = H5Dclose(dset_id);
 	if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	if( h5_status == h5_error ){ENZO_FAIL("line 794  Grid_ReadGrid \n");}
 	
 	for (i = 0; i < NumberOfParticles; i++)
-	  ParticleNumber[i] = tempint[i];
+	  ParticleNumber[i] = tempPINT[i];
 	
 	// Read ParticleType if present
 	
 	if (ParticleTypeInFile == TRUE) {
+
+	  int *tempint = new int[NumberOfParticles];
 	  
 	  /* Read ParticleType into temporary buffer and Copy to ParticleType. */
 	  
 	  file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	  if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	  if( file_dsp_id == h5_error){my_exit(EXIT_FAILURE);}
+	  if( file_dsp_id == h5_error){ENZO_FAIL("line 809  Grid_ReadGrid \n");}
 	  
 	  if (io_log) fprintf(log_fptr,"H5Dopen  with Name = particle_type\n");
 	  
 	  dset_id =  H5Dopen(file_id, "particle_type");
 	  if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	  if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( dset_id == h5_error ){ENZO_FAIL("line 815  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dread(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tempint);
 	  if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 819  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Sclose(file_dsp_id);
 	  if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 823  Grid_ReadGrid \n");}
 	  
 	  h5_status = H5Dclose(dset_id);
 	  if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  if( h5_status == h5_error ){ENZO_FAIL("line 827  Grid_ReadGrid \n");}
 	  
 	  for (i = 0; i < NumberOfParticles; i++)
 	    ParticleType[i] = tempint[i];
@@ -817,6 +836,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 		      name, i, ParticleType[i]);
 	      ENZO_FAIL("");
 	    }
+
+	  delete [] tempint;
 	  
 	} else {
  
@@ -839,25 +860,25 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    
 	    file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
 	    if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
-	    if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( file_dsp_id == h5_error ){ENZO_FAIL("line 863  Grid_ReadGrid \n");}
 	    
 	    if (io_log) fprintf(log_fptr,"H5Dopen with Name = %s\n",ParticleAttributeLabel[j]);
 	    
 	    dset_id =  H5Dopen(file_id, ParticleAttributeLabel[j]);
 	    if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
-	    if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( dset_id == h5_error ){ENZO_FAIL("line 869  Grid_ReadGrid \n");}
 	    
 	    h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
 	    if (io_log) fprintf(log_fptr, "H5Dread: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( h5_status == h5_error ){ENZO_FAIL("line 873  Grid_ReadGrid \n");}
 	    
 	    h5_status = H5Sclose(file_dsp_id);
 	    if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( h5_status == h5_error ){ENZO_FAIL("line 877  Grid_ReadGrid \n");}
 	    
 	    h5_status = H5Dclose(dset_id);
 	    if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
-	    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	    if( h5_status == h5_error ){ENZO_FAIL("line 881  Grid_ReadGrid \n");}
 	    
 	    for (i = 0; i < NumberOfParticles; i++)
 	      ParticleAttribute[j][i] = float(temp[i]);
@@ -866,7 +887,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	} // ENDELSE AddParticleAttributes 
 	
 	delete [] temp;
-	delete [] tempint;
+	delete [] tempPINT;
       } // (TryHDF5)
 
  
@@ -886,7 +907,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     if (TryHDF5) {
       h5_status = H5Fclose(file_id);
       if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
-      if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+      if( h5_status == h5_error ){ENZO_FAIL("line 910 Grid_ReadGrid \n");}
     }
 
     

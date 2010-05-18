@@ -33,21 +33,29 @@ int grid::InitializeRadiativeTransferFields()
 //  if (HasRadiation == FALSE)
 //    return SUCCESS;
 
+<<<<<<< local
   int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
     kdissH2INum;
 
   IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
 				  gammaHeINum, kphHeIINum, gammaHeIINum, 
 				  kdissH2INum);
+=======
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
+>>>>>>> other
 
   int i,j,k, index;
 
   /* Initialize photo and heating rates and compute number densities */
+
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
       index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
 	BaryonField[kphHINum][index] =
+<<<<<<< local
 	  BaryonField[gammaHINum][index]   =
 	  BaryonField[kphHeINum][index]    = 
 	  BaryonField[gammaHeINum][index]  =
@@ -55,9 +63,27 @@ int grid::InitializeRadiativeTransferFields()
 	  BaryonField[gammaHeIINum][index] = 0.;
 	if (MultiSpecies > 1 && !RadiativeTransferOpticallyThinH2 && 
 	    !RadiativeTransferFLD)
-	  BaryonField[kdissH2INum][index] = 0.;
-      }
+=======
+	  BaryonField[gammaNum][index]   = 0.0;
     }  // loop over grid
+
+  if (RadiativeTransferHydrogenOnly == FALSE) 
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	  BaryonField[kphHeINum][index]  = 
+	    BaryonField[kphHeIINum][index] = 0.0;
+      }  // loop over grid
+
+  if (MultiSpecies > 1 && !RadiativeTransferOpticallyThinH2) 
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+>>>>>>> other
+	  BaryonField[kdissH2INum][index] = 0.;
+      }  // loop over grid
 
   if (RadiationPressure) {
 
@@ -78,6 +104,7 @@ int grid::InitializeRadiativeTransferFields()
   }  /* ENDIF RadiationPressure */
 
   HasRadiation = FALSE;
+  MaximumkphIfront = 0;
 
   return SUCCESS;
 }

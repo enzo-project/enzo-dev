@@ -42,7 +42,7 @@ int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 #ifdef TRANSFER
 	         ImplicitProblemABC *ImplicitSolver,
 #endif
-		 FLOAT WriteTime = -1);
+		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 //#else
 /* 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
@@ -71,6 +71,55 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   int i, Number;
   WroteData = FALSE;
  
+  /* Check for output: restart-based. */
+
+  char *param;
+  FILE *pfptr;
+  double CurrentCPUTime = ReturnWallTime() - MetaData.StartCPUTime;
+  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
+
+  if ((CurrentCPUTime >= MetaData.dtRestartDump && 
+       MetaData.dtRestartDump > 0 ) ||
+      (MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
+       MetaData.CycleSkipRestartDump &&
+       MetaData.CycleSkipRestartDump > 0)) {
+
+    MetaData.CycleLastRestartDump = MetaData.CycleNumber;
+
+    if (debug) printf("Writing restart dump.\n");
+    Group_WriteAllData(MetaData.RestartDumpName, MetaData.RestartDumpNumber++,
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
+
+    /* On the root processor, write the restart parameter filename to
+       a file that will be read by a (batch) script to restart enzo.
+       We cannot call another MPI application from here. */
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      param = new char[512];
+      if (MetaData.RestartDumpDir != NULL)
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpDir, MetaData.RestartDumpNumber-1,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+      else
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+
+      if ((pfptr = fopen("RestartParamFile", "w")) == NULL)
+	ENZO_FAIL("Error opening RestartParamFile");
+      fprintf(pfptr, "%s", param);
+      fclose(pfptr);
+      
+      delete [] param;
+    } // ENDIF ROOT_PROCESSOR
+
+    WroteData = TRUE;
+    return SUCCESS;
+  }
+    
   /* Check for output: time-based. */
  
   if (MetaData.Time >= MetaData.TimeLastDataDump + MetaData.dtDataDump
@@ -134,8 +183,6 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
      CPU time, output the data to ensure we get the last data dump for
      restarting! */
 
-  double CurrentCPUTime = ReturnWallTime() - MetaData.StartCPUTime;
-  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
   //float FractionalCPUTime = 0.9;
   if (debug)
     printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
@@ -143,7 +190,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	   FractionalCPUTime, ReturnWallTime(), CurrentCPUTime, 
 	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
   if (CurrentCPUTime + MetaData.LastCycleCPUTime > 
-      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0) {
+      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
+      WroteData == FALSE) {
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     if (debug) printf("CPUtime-based output!\n");
 //#ifdef USE_HDF5_GROUPS
@@ -167,51 +215,6 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     WroteData = TRUE;
   } // ENDIF
 
-  /* Check for output: restart-based. */
-
-  char *param;
-  FILE *pfptr;
-
-  if ((CurrentCPUTime >= MetaData.dtRestartDump && 
-       MetaData.dtRestartDump > 0 ) ||
-      (MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
-       MetaData.CycleSkipRestartDump &&
-       MetaData.CycleSkipRestartDump > 0)) {
-
-    MetaData.CycleLastRestartDump = MetaData.CycleNumber;
-
-    if (debug) printf("Writing restart dump.\n");
-	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-			     , ImplicitSolver
-#endif
-			     );
-
-    /* On the root processor, write the restart parameter filename to
-       a file that will be read by a (batch) script to restart enzo.
-       We cannot call another MPI application from here. */
-
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
-      param = new char[512];
-      if (MetaData.RestartDumpDir != NULL)
-	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
-		MetaData.RestartDumpDir, MetaData.RestartDumpNumber-1,
-		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
-      else
-	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM,
-		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
-
-      if ((pfptr = fopen("RestartParamFile", "w")) == NULL)
-	ENZO_FAIL("Error opening RestartParamFile");
-      fprintf(pfptr, "%s", param);
-      fclose(pfptr);
-      
-      delete [] param;
-    } // ENDIF ROOT_PROCESSOR
-
-    WroteData = TRUE;
-  }
-    
   /* Check for output: redshift-based. */
  
   if (ComovingCoordinates)

@@ -34,6 +34,10 @@ contains
     logical, optional :: overwrite_in  ! read (1) or write (0)
     logical, optional :: serial_in
     logical :: overwrite, serial
+    integer :: mdc_nelmts
+    integer(SIZE_T) :: rdcc_nelmts, rdcc_nbytes
+    integer(SIZE_T) :: new_cache_size, new_buf_size
+    real :: rdcc_w0
     
     include 'mpif.h'
     integer ierr
@@ -42,6 +46,9 @@ contains
     serial = .false.
     if (present(overwrite_in)) overwrite = overwrite_in
     if (present(serial_in)) serial = serial_in
+
+    new_cache_size = 16*1024*1024
+    new_buf_size = 1*1024*1024
        
     ! Open HDF5 file for parallel I/O
     CALL h5open_f(ierr)
@@ -50,6 +57,12 @@ contains
     else
        CALL h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
        CALL h5pset_fapl_mpio_f(plist_id, MPI_COMM_WORLD, MPI_INFO_NULL, ierr)
+       CALL h5pset_sieve_buf_size_f(plist_id, new_buf_size, ierr)
+       CALL h5pget_cache_f(plist_id, mdc_nelmts, rdcc_nelmts, rdcc_nbytes, &
+            rdcc_w0, ierr)
+       rdcc_nbytes = new_cache_size
+       CALL h5pset_cache_f(plist_id, mdc_nelmts, rdcc_nelmts, rdcc_nbytes, &
+            rdcc_w0, ierr)
     endif
 
     ! Create/open the file
@@ -244,7 +257,7 @@ contains
        dims = (/nx, ny, local_nz, 1/)
        odims = (/nx, ny, nz, n_filepart/)
        offset = (/0, 0, zstart, filepart/)
-       mem_odims = (/n2x, ny, local_nz/)  ! accounts for padding
+       mem_odims = (/n2x, ny, max(local_nz,1)/)  ! accounts for padding
        mem_dims = (/nx, ny, local_nz/)
        mem_offset = (/0, 0, 0/)
     elseif (mem_rank.eq.1) then
@@ -261,8 +274,15 @@ contains
     CALL h5dget_space_f(dset_id, filespace, ierr)
 
     ! Select the hyperslab we're going to read/write to
-    CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, mem_dims, ierr)
-    CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+    if (local_nz > 0) then
+       CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, &
+            mem_dims, ierr)
+       CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, &
+            ierr)
+    else
+       CALL h5sselect_none_f(memspace, ierr)
+       CALL h5sselect_none_f(filespace, ierr)
+    endif
 
     CALL h5dwrite_f(dset_id, H5T_NATIVE_REAL, buffer, odims, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -305,7 +325,7 @@ contains
        dims = (/nx, ny, local_nz, 1/)
        odims = (/nx, ny, nz, n_filepart/)
        offset = (/0, 0, zstart, filepart/)
-       mem_odims = (/n2x, ny, local_nz/)  ! accounts for padding
+       mem_odims = (/n2x, ny, max(local_nz,1)/)  ! accounts for padding
        mem_dims = (/nx, ny, local_nz/)
        mem_offset = (/0, 0, 0/)
     elseif (mem_rank.eq.1) then
@@ -322,8 +342,15 @@ contains
     CALL h5dget_space_f(dset_id, filespace, ierr)
 
     ! Select the hyperslab we're going to read/write to
-    CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, mem_dims, ierr)
-    CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+    if (local_nz > 0) then
+       CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, &
+            mem_dims, ierr)
+       CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, &
+            ierr)
+    else
+       CALL h5sselect_none_f(memspace, ierr)
+       CALL h5sselect_none_f(filespace, ierr)
+    endif
 
     CALL h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, buffer, odims, ierr, &
          file_space_id = filespace, mem_space_id = memspace, &
@@ -364,7 +391,7 @@ contains
        n2x = 2*(nx/2+1)
        dims = (/nx, ny, local_nz, 1/)
        offset = (/0, 0, zstart, filepart/)
-       mem_odims = (/n2x, ny, local_nz/)  ! accounts for padding
+       mem_odims = (/n2x, ny, max(local_nz,1)/)  ! accounts for padding
        mem_dims = (/nx, ny, local_nz/)
        mem_offset = (/0, 0, 0/)
     elseif (mem_rank.eq.1) then
@@ -377,11 +404,17 @@ contains
 
     ! Create a file dataspace independently, then select the hyperslab
     CALL h5dget_space_f(dset_id, filespace, ierr)
-    CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+    CALL h5screate_simple_f(mem_rank, mem_odims, memspace, ierr)
 
     ! Now create a memory dataspace
-    CALL h5screate_simple_f(mem_rank, mem_odims, memspace, ierr)
-    CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, mem_dims, ierr)
+    if (local_nz > 0) then
+       CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+       CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, &
+            mem_dims, ierr)
+    else
+       CALL h5sselect_none_f(memspace, ierr)
+       CALL h5sselect_none_f(filespace, ierr)
+    endif
 
     ! Finally read the data collectively
     CALL h5dread_f(dset_id, H5T_NATIVE_REAL, buffer, dims, ierr, &
@@ -421,7 +454,7 @@ contains
        n2x = 2*(nx/2+1)
        dims = (/nx, ny, local_nz, 1/)
        offset = (/0, 0, zstart, filepart/)
-       mem_odims = (/n2x, ny, local_nz/)  ! accounts for padding
+       mem_odims = (/n2x, ny, max(local_nz,1)/)  ! accounts for padding
        mem_dims = (/nx, ny, local_nz/)
        mem_offset = (/0, 0, 0/)
     elseif (mem_rank.eq.1) then
@@ -434,11 +467,17 @@ contains
 
     ! Create a file dataspace independently, then select the hyperslab
     CALL h5dget_space_f(dset_id, filespace, ierr)
-    CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+    CALL h5screate_simple_f(mem_rank, mem_odims, memspace, ierr)
 
     ! Now create a memory dataspace
-    CALL h5screate_simple_f(mem_rank, mem_odims, memspace, ierr)
-    CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, mem_dims, ierr)
+    if (local_nz > 0) then
+       CALL h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, dims, ierr)
+       CALL h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, mem_offset, &
+            mem_dims, ierr)
+    else
+       CALL h5sselect_none_f(memspace, ierr)
+       CALL h5sselect_none_f(filespace, ierr)
+    endif
 
     ! Finally read the data collectively
     CALL h5dread_f(dset_id, H5T_NATIVE_DOUBLE, buffer, dims, ierr, &

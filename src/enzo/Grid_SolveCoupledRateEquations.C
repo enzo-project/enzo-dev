@@ -48,7 +48,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
            hydro_method *imethod,
         int *idual, int *ispecies, int *imetal, int *imcool, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co, 
-	   int *ipiht,
+	int *ipiht, int *igammah,
 	float *dt, float *aye, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *fh, float *dtoh,
@@ -64,7 +64,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 	float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, 
 	   float *ciHeIa, 
 	float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a, 
-	float *reHeII2a, float *reHeIIIa, float *brema, float *compa,
+	float *reHeII2a, float *reHeIIIa, float *brema, float *compa, float *gammaha,
 	float *comp_xraya, float *comp_temp, 
            float *piHI, float *piHeI, float *piHeII,
 	float *HM, float *H2I, float *H2II, float *DI, float *DII, float *HDI,
@@ -76,8 +76,9 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 	float *inutot, int *iradtype, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
 	int *iradtrans, int *iradcoupled, int *iradstep, int *ierr,
+	int *irt_honly,
 	float *kphHI, float *kphHeI, float *kphHeII, 
-	float *kdissH2I, float *gammaHI, float *gammaHeI, float *gammaHeII,
+	float *kdissH2I, float *photogamma,
  	int *icmbTfloor, int *iClHeat, int *iClMMW,
  	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
@@ -123,13 +124,9 @@ int grid::SolveCoupledRateEquations()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get easy to handle pointers for each variable. */
 
@@ -204,11 +201,8 @@ int grid::SolveCoupledRateEquations()
     ENZO_FAIL("");
   }
 
-  /* Set up information for rates which depend on the radiation field. */
-
-  int RadiationShield = (RadiationFieldType == 11) ? TRUE : FALSE;
-
-  /* Precompute factors for self shielding (this is the cross section * dx). */
+  /* Set up information for rates which depend on the radiation field. 
+     Precompute factors for self shielding (this is the cross section * dx). */
 
   float HIShieldFactor = RadiationData.HIAveragePhotoHeatingCrossSection * 
                          double(LengthUnits) * CellWidth[0][0];
@@ -231,7 +225,7 @@ int grid::SolveCoupledRateEquations()
     &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCoolingType, 
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2, 
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
-       &CoolData.ih2co, &CoolData.ipiht,
+    &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
     &dtPhoton, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
     &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
     &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
@@ -248,7 +242,7 @@ int grid::SolveCoupledRateEquations()
     CoolData.ceHI, CoolData.ceHeI, CoolData.ceHeII, CoolData.ciHI,
        CoolData.ciHeI, 
     CoolData.ciHeIS, CoolData.ciHeII, CoolData.reHII, CoolData.reHeII1, 
-    CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp,
+    CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, &CoolData.gammah,
     &CoolData.comp_xray, &CoolData.temp_xray,
        &CoolData.piHI, &CoolData.piHeI, &CoolData.piHeII,
     BaryonField[HMNum], BaryonField[H2INum], BaryonField[H2IINum],
@@ -264,12 +258,12 @@ int grid::SolveCoupledRateEquations()
     RadiationData.Spectrum[0], &RadiationFieldType, 
           &RadiationData.NumberOfFrequencyBins, 
           &RadiationFieldRecomputeMetalRates,
-    &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
+    &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
     &RadiativeTransfer, &RadiativeTransferCoupledRateSolver,
     &RTCoupledSolverIntermediateStep, &ierr,
+    &RadiativeTransferHydrogenOnly,
     BaryonField[kphHINum], BaryonField[kphHeINum], BaryonField[kphHeIINum], 
-    BaryonField[kdissH2INum], BaryonField[gammaHINum], BaryonField[gammaHeINum], 
-    BaryonField[gammaHeIINum],
+    BaryonField[kdissH2INum], BaryonField[gammaNum],
     &CloudyCoolingData.CMBTemperatureFloor,
     &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
     &CloudyCoolingData.CloudyMetallicityNormalization,

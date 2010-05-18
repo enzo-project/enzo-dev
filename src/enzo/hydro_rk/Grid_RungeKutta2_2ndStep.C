@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <math.h>
+
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,9 +48,8 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
 
   float *Prim[NEQ_HYDRO+NSpecies+NColor];
   float *OldPrim[NEQ_HYDRO+NSpecies+NColor];
-
-  this->ReturnHydroRKPointers(Prim, false);
-  this->ReturnOldHydroRKPointers(OldPrim, false);
+  this->ReturnHydroRKPointers(Prim, false); 
+  this->ReturnOldHydroRKPointers(OldPrim, false); 
 
 #ifdef ECUDA
   if (UseCUDA == 1) {
@@ -64,7 +64,7 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     
     double time2 = ReturnWallTime();
 
-    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field <= ietot; field++) {   
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -87,7 +87,7 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
       }
     }
 
-    for (int field = ivx; field <= ietot; field++) {
+    for (int field = ivx; field <= ietot; field++) {   
       for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
@@ -120,8 +120,10 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
     }
   }
 
-  int fallback = 0;
+  this->ReturnHydroRKPointers(Prim, true);  //##### added! because Hydro3D needs fractions for species
 
+  // compute dU
+  int fallback = 0;
   if (this->Hydro3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
 		    0.5, fallback) == FAIL) {
     return FAIL;

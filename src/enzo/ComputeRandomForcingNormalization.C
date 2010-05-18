@@ -47,13 +47,13 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
   /* Return if this does not concern us */
   if (!RandomForcing) return SUCCESS;
  
-  JBPERF_START("ComputeRandomForcingNormalization");
+  LCAPERF_START("ComputeRandomForcingNormalization");
 
   /* If level is above 0 then complain: forcing will only work on level 0
      grid(s). */
 
   if ((MetaData->CycleNumber <= 0) || (level != 0)) {
-      JBPERF_STOP("ComputeRandomForcingNormalization");
+      LCAPERF_STOP("ComputeRandomForcingNormalization");
       return SUCCESS;
   }
  
@@ -128,6 +128,6 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
  
   delete [] GlobVal;
  
-  JBPERF_STOP("ComputeRandomForcingNormalization");
+  LCAPERF_STOP("ComputeRandomForcingNormalization");
   return SUCCESS;
 }

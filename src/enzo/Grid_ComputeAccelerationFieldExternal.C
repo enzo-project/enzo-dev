@@ -51,7 +51,7 @@ int grid::ComputeAccelerationFieldExternal()
  
   int dim, i, j, k, size = 1;
  
-  JBPERF_START("grid_ComputeAccelerationFieldExternal");
+  LCAPERF_START("grid_ComputeAccelerationFieldExternal");
 
   /* Compute field size (in floats). */
  
@@ -286,7 +286,7 @@ int grid::ComputeAccelerationFieldExternal()
  
   } // end: if (UniformGravity)
  
-  JBPERF_STOP("grid_ComputeAccelerationFieldExternal");
+  LCAPERF_STOP("grid_ComputeAccelerationFieldExternal");
   return SUCCESS;
 }
  

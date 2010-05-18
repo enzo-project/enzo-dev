@@ -28,16 +28,6 @@
 #include "GridList.h"
 #include "Grid.h"
 
-#ifdef CONFIG_BFLOAT_4
-#define ROUNDOFF 1e-6
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define ROUNDOFF 1e-12
-#endif
-#ifdef CONFIG_BFLOAT_16
-#define ROUNDOFF 1e-16
-#endif
-
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
@@ -93,23 +83,13 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   /* Find radiative transfer fields. */
 
-  int kphHINum, gammaHINum, kphHeINum, gammaHeINum, kphHeIINum, gammaHeIINum,
-    kdissH2INum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   int RPresNum1, RPresNum2, RPresNum3;
-  if (RadiationPressure) {
-    if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3)
-	== FAIL) {
-      fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("");
-    }
-  }
+  if (RadiationPressure)
+    IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
 
   /* Get units. */
 
@@ -163,7 +143,14 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
 
-  FLOAT EndTime = PhotonTime+dtPhoton-ROUNDOFF;
+  const float clight = 2.9979e10;
+  float LightCrossingTime = 1.7320508 * (LengthUnits/TimeUnits) /
+    (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
+  FLOAT EndTime;
+  if (RadiativeTransferAdaptiveTimestep)
+    EndTime = PhotonTime+LightCrossingTime;
+  else
+    EndTime = PhotonTime+dtPhoton-PFLOAT_EPSILON;
 
   while (PP != NULL) {
 
@@ -175,10 +162,11 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if ((PP->CurrentTime) < EndTime) {
       WalkPhotonPackage(&PP,
 			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-			DensNum, HINum, HeINum, HeIINum, H2INum,
-			kphHINum, gammaHINum, kphHeINum, gammaHeINum,
-			kphHeIINum, gammaHeIINum, kdissH2INum, RPresNum1,
+			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
+			kphHINum, gammaNum, kphHeINum, 
+			kphHeIINum, kdissH2INum, RPresNum1,
 			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 
+			LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
 			LengthUnits, TimeUnits);
       tcount++;
@@ -268,14 +256,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   } // ENDWHILE photons
 
-  if (DEBUG) {
+  if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM"\n",
 	    tcount, dcount, pcount);
-    printf("L%d/G%d (%x): tr %d, del %d, move %d (NumberOfPhotons = %d/%d/%d)\n",
-	   level, this->ID, this, tcount, dcount, trcount, NumberOfPhotonPackages,
-	   this->ReturnRealPhotonCount(), NumberOfPhotonPackages-dcount);
-  }
   NumberOfPhotonPackages -= dcount;
 
   /* For safety, clean up paused photon list */

@@ -45,11 +45,8 @@
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+void PrintMemoryUsage(char *str);
 
-#ifdef MEM_TRACE
-Eint64 mused(void);
-#endif
 
 // Cosmology Parameters (that need to be shared)
  
@@ -68,7 +65,6 @@ static char *CosmologySimulationVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticleVelocityNames[MAX_DIMENSION];
 
 static int   CosmologySimulationSubgridsAreStatic    = TRUE;
-static int   CosmologySimulationNumberOfInitialGrids = 1;
  
 static float CosmologySimulationInitialFractionHII   = 1.2e-5;
 static float CosmologySimulationInitialFractionHeII  = 1.0e-14;
@@ -111,6 +107,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName   = "HDI_Density";
   char *MetalName = "Metal_Density";
   char *GPotName  = "Grav_Potential";
+  char *ForbidName  = "ForbiddenRefinement";
+  char *MachName   = "Mach";
+  char *CRName     = "CR_Density";
+  char *PSTempName = "PreShock_Temperature";
+  char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
  
@@ -204,7 +205,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       CosmologySimulationParticleVelocityNames[1] = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocity3Name = %s", dummy) == 1)
       CosmologySimulationParticleVelocityNames[2] = dummy;    
- 
+
     ret += sscanf(line, "CosmologySimulationNumberOfInitialGrids = %"ISYM,
 		  &CosmologySimulationNumberOfInitialGrids);
     ret += sscanf(line, "CosmologySimulationSubgridsAreStatic = %"ISYM,
@@ -279,9 +280,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   if (CosmologySimulationDensityName != NULL && CellFlaggingMethod[0] != 2)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationDensityName == NULL && CellFlaggingMethod[0] != 4)
+    if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationNumberOfInitialGrids > MAX_INITIAL_GRIDS) {
@@ -589,7 +592,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = HDIName;
     }
   }
- 
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
     if(MultiMetals){
@@ -597,9 +599,21 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[i++] = ExtraNames[1];
     }
   }
+  if(STARMAKE_METHOD(COLORED_POP3_STAR)){
+    DataLabel[i++] = ForbidName;
+  }
  
   if (WritePotential)
     DataLabel[i++] = GPotName;
+
+  if (CRModel) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+    DataLabel[i++] = CRName;
+  } 
  
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
@@ -687,7 +701,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 }
  
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count);
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
  
 // Re-call the initializer on level zero grids.
 // Used in case of ParallelRootGridIO.
@@ -704,10 +718,6 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
     *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];
   
-#ifdef MEM_TRACE
-  Eint64 MemInUse;
-#endif
- 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticleVelocityNames[dim] = NULL;
     VelocityNames[dim] = NULL;
@@ -778,10 +788,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   HierarchyEntry *Temp = TopGrid;
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Call G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Call G_CSIG");
  
   while (Temp != NULL) {
  
@@ -814,15 +821,11 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Called G_CSIG  %16"ISYM" \n", MemInUse);
-#endif
- 
+  PrintMemoryUsage("Called G_CSIG");
  
     //  Create tracer particles
 
-    int DummyNumberOfParticles = 0;
+    PINT DummyNumberOfParticles = 0;
  
     Temp = TopGrid;
  
@@ -861,40 +864,30 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = Temp->NextGridThisLevel;
   }
  
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Local pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Local pc set");
  
  
   // Loop over grids and set particle ID number
  
   Temp = TopGrid;
-  int ParticleCount = 0;
+  PINT ParticleCount = 0;
   RecursivelySetParticleCount(Temp, &ParticleCount);
   if (debug)
     printf("FinalParticleCount = %"ISYM"\n", ParticleCount);
 
-#ifdef MISCOUNT
   // 2006-12-11 Skory bug fix for star particle miscounts
   // Removed the following line:
   // MetaData.NumberOfParticles = 0;
   // Added the following line:
   MetaData.NumberOfParticles = ParticleCount;
-#else
-  MetaData.NumberOfParticles = 0;
-#endif
 
-#ifdef MEM_TRACE
-    MemInUse = mused();
-    fprintf(memtracePtr, "Recursive pc set %16"ISYM" \n", MemInUse);
-#endif
+  PrintMemoryUsage("Recursive pc set");
 
  
   return SUCCESS;
 }
  
-void RecursivelySetParticleCount(HierarchyEntry *GridPoint, int *Count)
+void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count)
 {
   // Add Count to the particle id's on this grid (which start from zero
   // since we are doing a parallel root grid i/o)

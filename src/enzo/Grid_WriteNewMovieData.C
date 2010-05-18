@@ -60,7 +60,7 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 //  --JHK notes--
 //  import RootResolution from TopGridDimension[0] to calculate levelIdx
 //  also had to change : WriteStreamData.C, WriteDataHierarchy.C, Grid.h
-//  import TimestepCounter to calculate the timeStep
+//  import MovieTimestepCounter to calculate the timeStep
 //  also had to look at : TopGridData.C, WriteStreamData.C,
 //  WriteDataHierarchy.C, EvolveLevel.C, SetDefaultGlobalValues.C,
 //  Grid.h
@@ -69,7 +69,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			    int RootResolution, FLOAT StopTime, 
 			    AMRHDF5Writer &AmiraGrid,
 			    int lastMovieStep, int TopGridCycle, 
-			    int WriteMe, int TimestepCounter, int open, 
+			    int WriteMe, int MovieTimestepCounter, int open, 
 			    FLOAT WriteTime)
 {
 
@@ -329,7 +329,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 	  if (ParticleType[i] != PARTICLE_TYPE_DARK_MATTER)
 	    NumberOfWrittenParticles++;
 
-      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+      if (AmiraGrid.WriteFlat(MovieTimestepCounter, doubleTime, doubleRedshift, 
 			      thislevel, delta, doubleGridLeftEdge, 
 			      integerOrigin, ghostzoneFlags, numGhostzones, 
 			      AmiraDims, field, nFields, NumberOfWrittenParticles, 
@@ -347,7 +347,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
     // If no baryon data exists, just write the index file
     if (nFields == 0)
-      if (AmiraGrid.WriteFlat(TimestepCounter, doubleTime, doubleRedshift, 
+      if (AmiraGrid.WriteFlat(MovieTimestepCounter, doubleTime, doubleRedshift, 
 			      thislevel, delta, doubleGridLeftEdge, 
 			      integerOrigin, ghostzoneFlags, numGhostzones, 
 			      AmiraDims, field, nFields, NumberOfParticles, 
@@ -375,6 +375,8 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       fprintf(stderr, "Error in AMRHDF5Writer->writeParticles\n");
       return FAIL;
     }
+//  fprintf(stdout, "grid::WriteNewMovieData: NumberOfParticles = %d\n", NumberOfParticles); 
+//    fprintf(stdout, "ParticleNumber[j][0] = %d", ParticleNumber[j][0]);
   } /* ENDIF: output all particles */
 
   if (NewMovieParticleOn == NON_DM_PARTICLES) {
@@ -390,7 +392,8 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     FLOAT *TempPosition[3];
     float *TempVelocity[3], *TempMass;
     float *TempAttr[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
-    int *TempType, *TempNumber;
+    int *TempType;
+    PINT *TempNumber;
     
     for (i = 0; i < NumberOfParticles; i++)
       NonDMParticleIndices[i] = -1;
@@ -409,7 +412,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       for (i = 0; i < NumberOfParticleAttributes; i++)
 	TempAttr[i] = new float[NumberOfNonDMParticles];
       TempType = new int[NumberOfNonDMParticles];
-      TempNumber = new int[NumberOfNonDMParticles];
+      TempNumber = new PINT[NumberOfNonDMParticles];
     } // ENDIF non-DM particles > 0
 
     /* Move non-DM particles into temp arrays */
@@ -426,6 +429,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       TempType[i] = ParticleType[j];
       TempNumber[i] = ParticleNumber[j];
     } // ENDFOR non-DM particles
+
 
     if (AmiraGrid.writeParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
 				 NumberOfBaryonFields, GridRank, 

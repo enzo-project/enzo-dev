@@ -10,8 +10,8 @@ struct AnalyzeClusterParameters {
 
   /* Radial profile parameters (in Mpc). */
 
-  float rinner; 
-  float router;
+  FLOAT rinner; 
+  FLOAT router;
   int npoints;
 
   /* Virial overdensity parameter (times critical density). */
@@ -72,5 +72,10 @@ struct AnalyzeClusterParameters {
 
   float DiskRadiusCutoff;
   int LinearProfileRadiusForVertical;
+
+  /* For printing out global profile values (averaged gas surface densities 
+     on the disk, averaged SFR surface densities on the disk, etc.) */ 
+  
+  int PrintGlobalProfileValues;
 
 };

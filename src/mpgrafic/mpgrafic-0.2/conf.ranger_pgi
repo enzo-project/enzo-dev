@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Configure file for ranger (TACC) with PGI compilers
+# Use modules: pgi/7.2-5 fftw2/2.1.5 phdf5/1.8.2 mvapich2/1.2
+#
+#FFTW_DIR=$HOME/local/fftw2
+FFTW_DIR=$TACC_FFTW2_DIR
+./configure \
+    CFLAGS="-I ${FFTW_DIR}/include" \
+    FCFLAGS="-I ${FFTW_DIR}/include" \
+    LDFLAGS="-L ${FFTW_DIR}/lib -L/usr/lib64" \
+    LD=mpicc \
+    FC=mpif90 \
+    CC=mpicc \
+    --enable-enzo \
+    --enable-onedim \
+    --with-hdf=$TACC_HDF5_DIR
+
+#    --enable-double \

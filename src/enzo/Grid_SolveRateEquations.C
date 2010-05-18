@@ -53,8 +53,8 @@ extern "C" void FORTRAN_NAME(solve_rate)(
 	float *HM, float *H2I, float *H2II, float *DI, float *DII, float *HDI,
 	int *iradshield, float *avgsigh, float *avgsighe, float *avgsighe2,
 	int *iradfield, float *piHI, float *piHeI,
-	int *iradtrans, float *kphHI, float *kphHeI, float *kphHeII, 
-	float *kdissH2I);
+	int *iradtrans, int *irt_honly, float *kphHI, float *kphHeI, 
+	float *kphHeII, float *kdissH2I);
  
  
 int grid::SolveRateEquations()
@@ -91,13 +91,9 @@ int grid::SolveRateEquations()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Find the density field. */
  
@@ -144,8 +140,6 @@ int grid::SolveRateEquations()
  
   /* Set up information for rates which depend on the radiation field. */
  
-  int RadiationShield = (RadiationFieldType == 11) ? TRUE : FALSE;
- 
   /* Precompute factors for self shielding (this is the cross section * dx).
      The factor ToCGS convert code number densities to real number densites
      (the factor of a^3 comes from cancelling a factor of 1/a^3 in
@@ -156,8 +150,7 @@ int grid::SolveRateEquations()
                    double(LengthUnits) * CellWidth[0][0] * ToCGS;
   float HeIShieldFactor = RadiationData.HeIAveragePhotoionizationCrossSection*
                     double(LengthUnits) * CellWidth[0][0] * ToCGS;
-  float HeIIShieldFactor =
-                     RadiationData.HeIIAveragePhotoionizationCrossSection *
+  float HeIIShieldFactor = RadiationData.HeIIAveragePhotoionizationCrossSection *
                      double(LengthUnits) * CellWidth[0][0] * ToCGS;
  
   /* Allocate space for the temperature and compute it. */
@@ -195,9 +188,10 @@ int grid::SolveRateEquations()
           RateData.k54, RateData.k55, RateData.k56,
        BaryonField[HMNum], BaryonField[H2INum], BaryonField[H2IINum],
           BaryonField[DINum], BaryonField[DIINum], BaryonField[HDINum],
-       &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
+       &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiationFieldType, &CoolData.piHI, &CoolData.piHeI,
-       &RadiativeTransfer, BaryonField[kphHINum], BaryonField[kphHeINum], 
+       &RadiativeTransfer, &RadiativeTransferHydrogenOnly,
+       BaryonField[kphHINum], BaryonField[kphHeINum], 
        BaryonField[kphHeIINum], BaryonField[kdissH2INum]);
  
   /* deallocate temporary space for solver */

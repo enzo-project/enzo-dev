@@ -30,7 +30,6 @@
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
-#include "StarParticleData.h"
  
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -76,10 +75,12 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 
   /* Return if this does not concern us */
   if (!(RadiationFieldType >= 10 && RadiationFieldType <= 11 && 
-	level <= RadiationFieldLevelRecompute)) return SUCCESS;
+	level <= RadiationFieldLevelRecompute) &&
+      !(RadiationData.RadiationShield == TRUE &&
+	level <= RadiationFieldLevelRecompute)) 
+    return SUCCESS;
  
- 
-  JBPERF_START("RadiationFieldUpdate");
+  LCAPERF_START("RadiationFieldUpdate");
 
   /* Compute mean density signatures from this level (and all below
      if this is the level on which the radiation field is updated). */
@@ -132,7 +133,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
      (if this is the bottom, then do the calc anyway) . */
  
   if (level < RadiationFieldLevelRecompute && LevelArray[level+1] != NULL) {
-    JBPERF_STOP("RadiationFieldUpdate");
+    LCAPERF_STOP("RadiationFieldUpdate");
     return SUCCESS;
   }
  
@@ -254,7 +255,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   /* Compute the new radiation field given the densities of HI, etc. */
  
-  int RadiationShield = (RadiationFieldType == 10) ? FALSE : TRUE;
   FORTRAN_NAME(calc_rad)(
        &RadiationData.NumberOfFrequencyBins, &RadiationData.FrequencyBinWidth,
        &aaa, &aaanew, &OmegaMatterNow, &HubbleConstantNow, &dt, &TimeUnits,
@@ -277,7 +277,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   FORTRAN_NAME(calc_photo_rates)(
                 &RadiationData.NumberOfFrequencyBins,
-		   &RadiationData.FrequencyBinWidth, &RadiationShield, &afloat,
+		   &RadiationData.FrequencyBinWidth, &RadiationData.RadiationShield, &afloat,
 		RadiationData.HICrossSection,
 		   RadiationData.HeICrossSection,
 		   RadiationData.HeIICrossSection,
@@ -293,6 +293,9 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 		   &RadiationData.HeIAveragePhotoHeatingCrossSection,
 		   &RadiationData.HeIIAveragePhotoHeatingCrossSection,
 		&TimeUnits, &LengthUnits, &DensityUnits, &aUnits);
+
+  //  fprintf(stdout, "RadiationFieldUpdate: RadiationData.HIAPHCS = %e \n",
+  //	  RadiationData.HIAveragePhotoHeatingCrossSection); 
  
   /* Output spectrum. */
  
@@ -339,6 +342,6 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
  
   delete [] buffer;
  
-  JBPERF_STOP("RadiationFieldUpdate");
+  LCAPERF_STOP("RadiationFieldUpdate");
   return SUCCESS;
 }

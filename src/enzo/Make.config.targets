@@ -32,6 +32,10 @@ help-config:
 	@echo
 	@echo "      gmake max-tasks-per-node-###"
 	@echo
+	@echo "   Set initial memory pool size (in number of photons)"
+	@echo
+	@echo "      gmake memory-pool-###"
+	@echo
 	@echo
 	@echo "CONFIGURATION SETTINGS"
 	@echo
@@ -39,6 +43,11 @@ help-config:
 	@echo
 	@echo "      gmake integers-32"
 	@echo "      gmake integers-64"
+	@echo
+	@echo "   Set integer size for particle IDs"
+	@echo
+	@echo "      gmake particle-id-32"
+	@echo "      gmake particle-id-64"
 	@echo
 	@echo "   Set floating-point precision"
 	@echo
@@ -86,12 +95,12 @@ help-config:
 	@echo "      gmake packed-mem-yes"
 	@echo "      gmake packed-mem-no"
 	@echo
-	@echo "   Set whether to call jbPerf performance tool"
+	@echo "   Set whether to call lcaperf performance tool"
 	@echo
-	@echo "      gmake jbperf-yes"
-	@echo "      gmake jbperf-no"
+	@echo "      gmake lcaperf-yes"
+	@echo "      gmake lcaperf-no"
 	@echo
-	@echo "   Set whether to use the PAPI library with jbPerf"
+	@echo "   Set whether to use the PAPI library with lcaperf"
 	@echo
 	@echo "      gmake papi-yes"
 	@echo "      gmake papi-no"
@@ -139,10 +148,20 @@ help-config:
 	@echo "      gmake photon-yes"
 	@echo "      gmake photon-no"
 	@echo 
+	@echo "   Use the new Grid IO routines"
+	@echo
+	@echo "      gmake newgridio-yes"
+	@echo "      gmake newgridio-no"
+	@echo 
 	@echo "   Include fast sibling search"
 	@echo
 	@echo "      gmake fastsib-yes"
 	@echo "      gmake fastsib-no"
+	@echo 
+	@echo "   Turn on blocking-gravity for bitwise identical runs"
+	@echo
+	@echo "      gmake bitwise-yes"
+	@echo "      gmake bitwise-no"
 	@echo 
 	@echo "   Include sibling subgrid boundary fix"
 	@echo
@@ -199,14 +218,17 @@ show-flags:
 show-config:
 	@echo
 	@echo "   MACHINE: $(MACH_TEXT)"
+	@echo "   MACHINE-NAME: $(CONFIG_MACHINE)"
 	@echo
 	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
 	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
 	@echo "   PARAMETER_MAX_TASKS_PER_NODE: $(PARAMETER_MAX_TASKS_PER_NODE)"
+	@echo "   PARAMETER_MEMORY_POOL_SIZE:   $(PARAMETER_MEMORY_POOL_SIZE)"
 	@echo
 	@echo "   CONFIG_PRECISION:             $(CONFIG_PRECISION)"
 	@echo "   CONFIG_PARTICLES:             $(CONFIG_PARTICLES)"
 	@echo "   CONFIG_INTEGERS:              $(CONFIG_INTEGERS)" 
+	@echo "   CONFIG_PARTICLE_IDS:          $(CONFIG_PARTICLE_IDS)"
 	@echo "   CONFIG_INITS:                 $(CONFIG_INITS)"
 	@echo "   CONFIG_IO:                    $(CONFIG_IO)"
 	@echo "   CONFIG_USE_MPI:               $(CONFIG_USE_MPI)"
@@ -214,7 +236,7 @@ show-config:
 	@echo "   CONFIG_TASKMAP:               $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR:            $(CONFIG_PACKED_AMR)"
 	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
-	@echo "   CONFIG_JBPERF:                $(CONFIG_JBPERF)"
+	@echo "   CONFIG_LCAPERF:               $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
 	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
@@ -225,6 +247,8 @@ show-config:
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_HYPRE:                 $(CONFIG_HYPRE)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
+	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
+	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
 	@echo
@@ -241,8 +265,8 @@ suggest-clean:
 
 show-version:
 	@echo
-	@echo "SVN Branch   `$(SVN) info $(TOP_DIR) | awk '/URL/{print $$2}'`"
-	@echo "SVN Revision `$(SVN) info $(TOP_DIR) | awk '/Revision/{print $$2}'`"
+	@echo "Mercurial Branch   `$(SVN) identify -i`"
+	@echo "Mercurial Revision `$(SVN) identify -b`"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -294,6 +318,18 @@ max-tasks-per-node-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+memory-pool-%:
+	@tmp=.config.temp; \
+        grep -v PARAMETER_MEMORY_POOL_SIZE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "PARAMETER_MEMORY_POOL_SIZE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	touch $(TOP_DIR)/src/enzo/enzo.C $(TOP_DIR)/src/enzo/EvolvePhotons.C; \
+	$(MAKE)  show-config | grep PARAMETER_MEMORY_POOL_SIZE:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
 machine-%: suggest-clean
 	@if [ -e $(ENZO_DIR)/Make.mach.$* ] || [ -e $(HOME)/.enzo/Make.mach.$* ]; then \
            tmp=.config.temp; \
@@ -327,6 +363,23 @@ CONFIG_INTEGERS-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+VALID_IDS = particle-id-32 particle-id-64
+.PHONY: $(VALID_IDS)
+
+particle-id-32: CONFIG_PARTICLE_IDS-32
+particle-id-64: CONFIG_PARTICLE_IDS-64
+particle-id-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_IDS)]\n\n"
+CONFIG_PARTICLE_IDS-%: suggest-clean
+	@tmp=.config.temp; \
+	grep -v CONFIG_PARTICLE_IDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_PARTICLE_IDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_PARTICLE_IDS:
+	@echo
+
+#-----------------------------------------------------------------------
+
 VALID_PRECISION = precision-32 precision-64
 .PHONY: $(VALID_PRECISION)
 
@@ -351,6 +404,7 @@ VALID_PARTICLES = particles-32 particles-64 particles-128
 particles-32:  CONFIG_PARTICLES-32
 particles-64:  CONFIG_PARTICLES-64
 particles-128: CONFIG_PARTICLES-128
+	@printf "\nNote that star formation does not work with this option.\n\n"
 particles-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_PARTICLES)]\n\n"
 CONFIG_PARTICLES-%: suggest-clean
@@ -482,19 +536,19 @@ CONFIG_PACKED-MEM-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_JBPERF = jbperf-yes jbperf-no
-.PHONY: $(VALID_JBPERF)
+VALID_LCAPERF = lcaperf-yes lcaperf-no
+.PHONY: $(VALID_LCAPERF)
 
-jbperf-yes: CONFIG_JBPERF-yes
-jbperf-no: CONFIG_JBPERF-no
-jbperf-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_JBPERF)]\n\n"
-CONFIG_JBPERF-%: suggest-clean
+lcaperf-yes: CONFIG_LCAPERF-yes
+lcaperf-no: CONFIG_LCAPERF-no
+lcaperf-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_LCAPERF)]\n\n"
+CONFIG_LCAPERF-%: suggest-clean
 	@tmp=.config.temp; \
-        grep -v CONFIG_JBPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        grep -v CONFIG_LCAPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_JBPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_JBPERF:
+        echo "CONFIG_LCAPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_LCAPERF:
 	@echo
 
 #-----------------------------------------------------------------------
@@ -656,6 +710,23 @@ CONFIG_HYPRE-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+VALID_NEW_GRID_IO = newgridio-yes newgridio-no
+.PHONY: $(VALID_NEW_GRID_IO)
+
+newgridio-yes: CONFIG_NEW_GRID_IO-yes
+newgridio-no: CONFIG_NEW_GRID_IO-no
+newgridio-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_NEW_GRID_IO)]\n\n"
+CONFIG_NEW_GRID_IO-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_NEW_GRID_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_NEW_GRID_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_NEW_GRID_IO:
+	@echo
+
+#-----------------------------------------------------------------------
+
 VALID_FAST_SIB = fastsib-yes fastsib-no
 .PHONY: $(VALID_FAST_SIB)
 
@@ -669,6 +740,24 @@ CONFIG_FAST_SIB-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_FAST_SIB = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_FAST_SIB:
+	@echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_BITWISE_IDENTICALITY = bitwise-yes bitwise-no
+.PHONY: $(VALID_BITWISE_IDENTICALITY)
+
+bitwise-yes: CONFIG_BITWISE_IDENTICALITY-yes
+bitwise-no: CONFIG_BITWISE_IDENTICALITY-no
+BITWISE_IDETICALITY-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_BITWISE_IDENTICALITY)]\n\n"
+CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_BITWISE_IDENTICALITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_BITWISE_IDENTICALITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY:
 	@echo
 
 

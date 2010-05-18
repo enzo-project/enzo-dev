@@ -1,10 +1,12 @@
-#include "fortran.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cic_flag(posx, posy, posz, ndim, npositions, 
      &                    itype, ffield, leftedge, 
-     &                    dim1, dim2, dim3, cellsize, imatch1, imatch2)
+     &                    dim1, dim2, dim3, cellsize, imatch1, 
+     &                    imatch2, buffersize)
+#ifndef CONFIG_PFLOAT_16
+#include "fortran.def"
 c
 c  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD
 c
@@ -25,6 +27,7 @@ c     npositions - number of particles
 c     posx,y,z   - particle positions
 c     itype      - 1D field (length npositions) of types
 c     imatch1,2  - integer(s) indicating type of particle to match
+c     buffersize - how many cells to flag around the particle
 c
 c  OUTPUT ARGUMENTS: 
 c     ffield      - field to be deposited to
@@ -42,6 +45,7 @@ c
 c  argument declarations
 c
       integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
+      integer buffersize
       REALSUB posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
       REALSUB cellsize
@@ -50,7 +54,8 @@ c
 c
 c  locals
 c
-      integer i1, j1, k1, n
+      integer i1, j1, k1, n, ii, jj, kk
+      integer istart, iend, jstart, jend, kstart, kend
       real    xpos, ypos, zpos, fact
       REALSUB edge1, edge2, edge3, half
       parameter (half = 0.5001)
@@ -85,8 +90,17 @@ c
 c
 c           set flagging field
 c
-            ffield(i1  ,1,1) = 1
-            ffield(i1+1,1,1) = 1
+c           keep default option unrolled!
+            if (buffersize .eq. 1) then
+               ffield(i1  ,1,1) = 1
+               ffield(i1+1,1,1) = 1
+            else
+               istart = max(i1-buffersize+1, 1)
+               iend = min(i1+buffersize, dim1)
+               do ii = istart, iend
+                  ffield(ii,1,1) = 1
+               enddo
+            endif
 c
             endif
 c
@@ -116,10 +130,23 @@ c
 c
 c           Interpolate from field into sumfield
 c
-            ffield(i1  ,j1  ,1) = 1
-            ffield(i1+1,j1  ,1) = 1
-            ffield(i1  ,j1+1,1) = 1
-            ffield(i1+1,j1+1,1) = 1
+c           keep default option unrolled!
+            if (buffersize .eq. 1) then
+               ffield(i1  ,j1  ,1) = 1
+               ffield(i1+1,j1  ,1) = 1
+               ffield(i1  ,j1+1,1) = 1
+               ffield(i1+1,j1+1,1) = 1
+            else
+               istart = max(i1-buffersize+1, 1)
+               iend = min(i1+buffersize, dim1)
+               jstart = max(j1-buffersize+1, 1)
+               jend = min(j1+buffersize, dim2)
+               do jj = jstart, jend
+                  do ii = istart, iend
+                     ffield(ii,jj,1) = 1
+                  enddo
+               enddo
+            endif
 c
             endif
 c
@@ -151,14 +178,31 @@ c
 c
 c           Set flagging field
 c     
-            ffield(i1  ,j1  ,k1  ) = 1
-            ffield(i1+1,j1  ,k1  ) = 1
-            ffield(i1  ,j1+1,k1  ) = 1
-            ffield(i1+1,j1+1,k1  ) = 1
-            ffield(i1  ,j1  ,k1+1) = 1
-            ffield(i1+1,j1  ,k1+1) = 1
-            ffield(i1  ,j1+1,k1+1) = 1
-            ffield(i1+1,j1+1,k1+1) = 1
+c           keep default option unrolled!
+            if (buffersize .eq. 1) then
+               ffield(i1  ,j1  ,k1  ) = 1
+               ffield(i1+1,j1  ,k1  ) = 1
+               ffield(i1  ,j1+1,k1  ) = 1
+               ffield(i1+1,j1+1,k1  ) = 1
+               ffield(i1  ,j1  ,k1+1) = 1
+               ffield(i1+1,j1  ,k1+1) = 1
+               ffield(i1  ,j1+1,k1+1) = 1
+               ffield(i1+1,j1+1,k1+1) = 1
+            else
+               istart = max(i1-buffersize+1, 1)
+               iend = min(i1+buffersize, dim1)
+               jstart = max(j1-buffersize+1, 1)
+               jend = min(j1+buffersize, dim2)
+               kstart = max(k1-buffersize+1, 1)
+               kend = min(k1+buffersize, dim3)
+               do kk = kstart, kend
+                  do jj = jstart, jend
+                     do ii = istart, iend
+                        ffield(ii,jj,kk) = 1
+                     enddo
+                  enddo
+               enddo
+            endif
 c
             endif
 c
@@ -167,4 +211,5 @@ c
       endif
 c
       return
+#endif
       end

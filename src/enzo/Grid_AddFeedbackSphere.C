@@ -5,8 +5,10 @@
 /
 /  written by: John Wise
 /  date:       September, 2005
-/  modified1: Ji-hoon Kim
+/  modified1: Ji-hoon Kim to include MBH_THERMAL feedback
 /             July, 2009
+/  modified2: Ji-hoon Kim to include MBH_JETS feedback
+/             November, 2009
 /
 /  PURPOSE:
 /
@@ -48,13 +50,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 {
 
   const float WhalenMaxVelocity = 35;		// km/s
+  const double Msun = 1.989e33;
+  const double c = 3.0e10;
 
   int dim, i, j, k, index;
   int sx, sy, sz;
   FLOAT delx, dely, delz, radius2, Radius, DomainWidth[MAX_DIMENSION];
   float coef, speed, maxVelocity;
   float OldDensity;
-  float r1, norm, ramp, factor, newGE, increase, fh;
+  float r1, norm, ramp, factor, newGE, fh;
+  double increase;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -69,35 +74,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   for (dim = 0; dim < GridRank; dim++)
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
 
-  /* Find metallicity field and set flag. */
-
-  int ZNum, ZField;
-  int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    MetallicityField = TRUE;
-  else
-    MetalNum = 0;
-
-  /* Find SN colour field */
-
-  int UseColour = FALSE, SNColourNum;
-  if ((SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields)) 
-      != -1)
-    UseColour = TRUE;
-  else
-    SNColourNum = 0;
-
-  ZNum = max(MetalNum, SNColourNum);
-  ZField = max(MetallicityField, UseColour);
-
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
   
   /* Find Multi-species fields. */
@@ -108,12 +90,26 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				    DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
+  /* Find Metallicity or SNColour field and set flag. */
+
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int MetallicityField = FALSE;
+
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
+    ENZO_FAIL("");
+  }
+
+  MetalNum = max(MetalNum, SNColourNum);
+  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
+
+
   /***********************************************************************
-                                 SUPERNOVAE
+                                SUPERNOVAE
   ************************************************************************/
 
   // Assume that the remnant is still in the free expansion stage and
@@ -129,7 +125,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   // Correct for exaggerated influence radius for pair-instability supernovae
   if (cstar->FeedbackFlag == SUPERNOVA)
-    radius /= 8.0;
+    radius /= 1.0;
 
   // Correct if the volume with 27 cells is larger than the energy bubble volume
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
@@ -157,11 +153,25 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   outerRadius2 = 1.2 * 1.2 * radius * radius;
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
-      cstar->FeedbackFlag == CONT_SUPERNOVA || 
-      cstar->FeedbackFlag == MBH_THERMAL) {
+      cstar->FeedbackFlag == CONT_SUPERNOVA) {
 
-    //printf("SN: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-    //	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+    /* Remove mass from the star that will now be added to grids. 
+       Also, because EjectaDensity will be added with zero net momentum, 
+       increase the particle's velocity accordingly. - Ji-hoon Kim, Sep.2009 */
+
+//    printf("grid::AFS: before: cstar->Mass = %lf\n", cstar->Mass); 
+    if (cstar->FeedbackFlag != SUPERNOVA) {
+      float old_mass = (float)(cstar->Mass);
+      cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+      cstar->vel[0] *= old_mass / cstar->Mass; 
+      cstar->vel[1] *= old_mass / cstar->Mass;
+      cstar->vel[2] *= old_mass / cstar->Mass;
+    } // ENDIF !Supernova
+
+//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
+//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
+//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
+
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -194,10 +204,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
 	    //	     ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
 
-	    // 1/1.2^3 factor to dilute the density since we're
-	    // depositing a uniform ejecta in a sphere of 1.2*radius
-	    // without a ramp.  The ramp is only applied to the
-	    // energy*density factor.
+	    /* 1/1.2^3 factor to dilute the density since we're
+	       depositing a uniform ejecta in a sphere of 1.2*radius
+	       without a ramp.  The ramp is only applied to the
+	       energy*density factor. */
 	    factor = 0.578704;
 
 	    OldDensity = BaryonField[DensNum][index];
@@ -207,17 +217,12 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	       density to get specific energy */
 
 	    if (GENum >= 0 && DualEnergyFormalism) {
+
 	      newGE = (OldDensity * BaryonField[GENum][index] +
 		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
 		BaryonField[DensNum][index];
 	      newGE = min(newGE, maxGE);  
 //	      newGE = ramp * EjectaThermalEnergy;
-	      /*
-	      printf("AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
-		     OldDensity, BaryonField[DensNum][index], 
-		     BaryonField[GENum][index], newGE, EjectaDensity,
-		     EjectaThermalEnergy);
-	      */
 
 	      BaryonField[GENum][index] = newGE;
 	      BaryonField[TENum][index] = newGE;
@@ -233,39 +238,20 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
 		BaryonField[DensNum][index];
 
-#define NOT_SEDOV_TEST
-#ifdef SEDOV_TEST
-	      newGE = (OldDensity * BaryonField[TENum][index] +
-		       ramp * factor * EjectaThermalEnergy) /
-		BaryonField[DensNum][index];
-#endif
 	      newGE = min(newGE, maxGE);  
-
-	      /*
-	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
-		fprintf(stderr, "grid::AddFeedbackSphere:  Time = %g\n", Time);
-		fprintf(stderr, "dtFixed in G_AFS.C = %g\n", dtFixed);
-		fprintf(stderr, "EjectaDensity = %g\n", EjectaDensity);
-		fprintf(stderr, "EjectaThermalEnergy = %g\n\n", EjectaThermalEnergy);} 
-
-	      if (i==GridDimension[0]/2 && j==GridDimension[1]/2 && k==GridDimension[2]/2) {
-	      fprintf(stderr, "AddSN: rho = %"GSYM"=>%"GSYM", GE = %"GSYM"=>%"GSYM", drho = %"GSYM", dE = %"GSYM"\n",
-		     OldDensity, BaryonField[DensNum][index], 
-		     BaryonField[TENum][index], newGE, EjectaDensity,
-		      EjectaThermalEnergy);}  
-	      */
-
 	      BaryonField[TENum][index] = newGE;
 
 	    } //end if(GENum >= 0 && DualEnergyFormalism)
 
+	    /* Update species and colour fields */
+
 	    //increase = BaryonField[DensNum][index] / OldDensity;
-	    if (ZField == TRUE) {
+	    if (MetallicityField == TRUE) {
 	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[ZNum][index] + EjectaMetalDensity) /
+		metallicity = (BaryonField[MetalNum][index] + EjectaMetalDensity) /
 		  BaryonField[DensNum][index];
 	      } else {
-		metallicity = BaryonField[ZNum][index] / BaryonField[DensNum][index];
+		metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
 	      }
 	    } else
 	      metallicity = 0;
@@ -303,8 +289,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		tiny_number * BaryonField[DensNum][index];
 	    }
 
-	    if (ZField == TRUE)
-	      BaryonField[ZNum][index] = metallicity * BaryonField[DensNum][index];
+	    if (MetallicityField == TRUE)
+	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
 
 	    CellsModified++;
 
@@ -314,6 +300,449 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     }  // END k-direction
 
   }  // END Supernova
+
+  /***********************************************************************
+                                MBH_THERMAL
+  ************************************************************************/
+
+  // Similar to Supernova, but here we assume the followings:
+  // EjectaDensity = 0.0
+  // EjectaMetalDensity = 0.0
+  // The unit of EjectaThermalEnergy = ergs/cm^3, not ergs/g
+
+  if (cstar->FeedbackFlag == MBH_THERMAL) {
+
+    maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
+
+    for (k = 0; k < GridDimension[2]; k++) {
+
+      delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2];
+      sz = sign(delz);
+      delz = fabs(delz);
+      delz = min(delz, DomainWidth[2]-delz);
+
+      for (j = 0; j < GridDimension[1]; j++) {
+
+	dely = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1];
+	sy = sign(dely);
+	dely = fabs(dely);
+	dely = min(dely, DomainWidth[1]-dely);
+
+	index = (k*GridDimension[1] + j)*GridDimension[0];
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+
+	  delx = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0];
+	  sx = sign(delx);
+	  delx = fabs(delx);
+	  delx = min(delx, DomainWidth[0]-delx);
+
+	  radius2 = delx*delx + dely*dely + delz*delz;
+	  if (radius2 <= outerRadius2) {
+
+	    r1 = sqrt(radius2) / radius;
+	    norm = 0.98;
+	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
+//          ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
+
+	    /* 1/1.2^3 factor to dilute the density since we're
+	       depositing a uniform ejecta in a sphere of 1.2*radius
+	       without a ramp.  The ramp is only applied to the
+	       energy*density factor. */
+	    factor = 0.578704;
+
+	    OldDensity = BaryonField[DensNum][index];
+	    BaryonField[DensNum][index] += factor*EjectaDensity;
+
+	    /* Get specific energy */
+
+	    if (GENum >= 0 && DualEnergyFormalism) {
+
+	      /* When injected energy is uniform throughout the volume;
+		 EjectaThermalEnergy in ergs/cm3 */
+	      newGE = (OldDensity * BaryonField[GENum][index] +
+		       ramp * factor * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+
+#ifdef CONSTANT_SPECIFIC
+	      /* When injected energy is proportional to the cell mass;
+		 EjectaThermalEnergy in ergs/g = cm2/s2 */
+	      newGE = (BaryonField[GENum][index] + EjectaThermalEnergy) *
+		OldDensity / BaryonField[DensNum][index];
+#endif
+
+	      newGE = min(newGE, maxGE);  
+
+	      BaryonField[GENum][index] = newGE;
+	      BaryonField[TENum][index] = newGE;
+
+	      for (dim = 0; dim < GridRank; dim++)
+		BaryonField[TENum][index] += 
+		  0.5 * BaryonField[Vel1Num+dim][index] * 
+		  BaryonField[Vel1Num+dim][index];
+
+	    } else {
+
+	      newGE = (OldDensity * BaryonField[TENum][index] +
+		       ramp * factor * EjectaThermalEnergy) /
+		BaryonField[DensNum][index];
+	      
+#ifdef CONSTANT_SPECIFIC
+	      newGE = (BaryonField[TENum][index] + EjectaThermalEnergy) *
+		OldDensity / BaryonField[DensNum][index];
+#endif
+//	      printf("grid::AddFS: rho= %"GSYM"->%"GSYM", TE= %"GSYM"->%"GSYM", drho= %"GSYM", dE= %"GSYM"\n", 
+//		     OldDensity, BaryonField[DensNum][index], 
+//		     BaryonField[TENum][index], newGE, EjectaDensity, EjectaThermalEnergy); 
+
+	      newGE = min(newGE, maxGE);  
+	      BaryonField[TENum][index] = newGE;
+
+	    } //end if(GENum >= 0 && DualEnergyFormalism)
+
+	    /* Update species and colour fields */
+
+	    //increase = BaryonField[DensNum][index] / OldDensity;
+	    if (MetallicityField == TRUE) {
+	      if (radius2 <= MetalRadius2) {
+		metallicity = (BaryonField[MetalNum][index] + EjectaMetalDensity) /
+		  BaryonField[DensNum][index];
+	      } else {
+		metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
+	      }
+	    } else
+	      metallicity = 0;
+
+	    fhz = fh * (1-metallicity);
+	    fhez = (1-fh) * (1-metallicity);
+
+	    if (MultiSpecies) {
+	      BaryonField[DeNum][index] = (1-metallicity) *
+		BaryonField[DensNum][index] * ionizedFraction;
+	      BaryonField[HINum][index] = 
+		BaryonField[DensNum][index] * fhz * (1-ionizedFraction);
+	      BaryonField[HIINum][index] =
+		BaryonField[DensNum][index] * fhz * ionizedFraction;
+	      BaryonField[HeINum][index] =
+		0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
+	      BaryonField[HeIINum][index] =
+		0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
+	      BaryonField[HeIIINum][index] =
+		BaryonField[DensNum][index] * fhez * ionizedFraction;
+	    }
+	    if (MultiSpecies > 1) {
+	      BaryonField[HMNum][index] = tiny_number * BaryonField[DensNum][index];
+	      BaryonField[H2INum][index] = 
+		tiny_number * BaryonField[DensNum][index];
+	      BaryonField[H2IINum][index] = 
+		tiny_number * BaryonField[DensNum][index];
+	    }
+	    if (MultiSpecies > 2) {
+	      BaryonField[DINum][index] = BaryonField[DensNum][index] * fh *
+		CoolData.DeuteriumToHydrogenRatio * (1-ionizedFraction);
+	      BaryonField[DIINum][index] = BaryonField[DensNum][index] * fh *
+		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
+	      BaryonField[HDINum][index] = 
+		tiny_number * BaryonField[DensNum][index];
+	    }
+
+	    if (MetallicityField == TRUE)
+	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
+
+	    /* MBHColour injected */
+	    if (MBHColourNum > 0)
+	      BaryonField[MBHColourNum][index] += factor*EjectaDensity;
+
+	    CellsModified++;
+
+	  } // END if inside radius
+	}  // END i-direction
+      }  // END j-direction
+    }  // END k-direction
+
+  }  // END MBH_THERMAL
+
+  /***********************************************************************
+                                 MBH_JETS
+  ************************************************************************/
+
+  // Inject bipolar jets along the direction of the angular momentum 
+  // vector L of the MBH particle (angular momentum accreted thus far)
+  // or along the z-axis  - Ji-hoon Kim, Nov.2009
+
+#define MAX_SUPERCELL_NUMBER 1000
+  int SUPERCELL = 2; //2 for supercell of 5 cells wide = 5^3  
+  int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
+  float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
+    nz_cell_edge[MAX_SUPERCELL_NUMBER];
+  int n_cell_inside = 0, n_cell_edge = 0, ibuff = DEFAULT_GHOST_ZONES;
+  int ii, jj, kk, r_s, ic, sign;
+  float m_cell_inside = 0.0, metal_cell_inside = 0.0, colour_cell_inside = 0.0, 
+    metallicity_inside = 0.0, colour_inside = 0.0, rho_inside, rho_metal_inside, rho_colour_inside;
+  float m_cell_edge = 0.0, metal_cell_edge = 0.0, colour_cell_edge = 0.0, 
+    metallicity_edge = 0.0, colour_edge = 0.0, rho_jet, rho_metal_jet, rho_colour_jet;
+  float L_x, L_y, L_z, L_s, nx_L = 0.0, ny_L = 0.0, nz_L = 0.0, costheta = cos(3.1415926/3.9);
+  float EjectaMass, EjectaMetalMass, MBHJetsVelocity;
+
+  if (cstar->FeedbackFlag == MBH_JETS) {
+
+    /* Calculate star indicies */
+
+    float CellWidthTemp = float(CellWidth[0][0]);
+    i = (int)((cstar->pos[0] - CellLeftEdge[0][0]) / CellWidthTemp);
+    j = (int)((cstar->pos[1] - CellLeftEdge[1][0]) / CellWidthTemp);
+    k = (int)((cstar->pos[2] - CellLeftEdge[2][0]) / CellWidthTemp);
+    
+    /* Note that we need to inject feedback only for the finest grid the MBH belongs to */
+
+    if (i < ibuff || i > GridDimension[0]-ibuff-1 ||
+	j < ibuff || j > GridDimension[1]-ibuff-1 || 
+	k < ibuff || k > GridDimension[2]-ibuff-1 ||
+	cstar->ReturnCurrentGrid() == NULL ||
+	cstar->level > level) {
+//    fprintf(stdout, "grid::AddFS: MBH_JETS - MBH doesn't belong to this grid.\n"); 
+      return SUCCESS;
+    }
+
+#ifdef UNUSED
+    if (this->Time <= 0.008 + 3e-6) {
+      cstar->NotEjectedMass = 999.95;  
+    }
+#endif
+
+    /* Calculate mass that has accumulated thus far; since EjectaDensity is calculated 
+       for isotropic MBH_THERMAL, we use it only to compute EjectaMass, not apply it directly. */
+
+    cstar->NotEjectedMass += EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
+
+//    fprintf(stdout, "d1, d2, d3, i, j, k = %d %d %d / %d %d %d\n", 
+//	    GridDimension[0], GridDimension[1], GridDimension[2], i,j,k);
+
+    /* If the current grid cannot contain the whole supercell, return */
+
+    if (i < ibuff+SUPERCELL || i > GridDimension[0]-ibuff-SUPERCELL-1 || 
+	j < ibuff+SUPERCELL || j > GridDimension[1]-ibuff-SUPERCELL-1 ||
+	k < ibuff+SUPERCELL || k > GridDimension[2]-ibuff-SUPERCELL-1) {
+      fprintf(stdout, "grid::AddFS: MBH_JETS - supercell not contained; moving on.\n"); 
+      return SUCCESS;
+    }
+    
+    /* If NotEjectedMass is still smaller than the threshold, return */
+
+    if (cstar->NotEjectedMass <= MBHFeedbackJetsThresholdMass) {
+      fprintf(stdout, "grid::AddFS: MBH_JETS - accumulated mass (%g Ms) not passed threshold.\n",
+	      cstar->NotEjectedMass);       
+      return SUCCESS;
+    }
+
+    /* Find ejecta mass */
+
+    EjectaMass = cstar->NotEjectedMass * Msun / DensityUnits / pow(LengthUnits,3.0); 
+    EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
+
+    /* Find the the direction n_L of angular momentum accreted thus far */
+
+    L_x = cstar->accreted_angmom[0];
+    L_y = cstar->accreted_angmom[1];
+    L_z = cstar->accreted_angmom[2]; 
+    L_s = sqrt(pow(L_x,2) + pow(L_y,2) + pow(L_z,2));
+    nx_L = L_x/L_s;  //directional vector
+    ny_L = L_y/L_s;
+    nz_L = L_z/L_s;
+    if (MBHFeedback == 3) {
+      nx_L = 0.0;
+      ny_L = 0.0;
+      nz_L = 1.0;
+    }
+
+    /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
+       but only the edges), and record the cells eligible for jet injection */
+
+    for (kk = -SUPERCELL; kk <= SUPERCELL; kk++) {
+      for (jj = -SUPERCELL; jj <= SUPERCELL; jj++) {
+	for (ii = -SUPERCELL; ii <= SUPERCELL; ii++) {
+
+	  if (fabs(ii) != SUPERCELL && fabs(jj) != SUPERCELL && fabs(kk) != SUPERCELL) {  //if not on edges
+
+	    ind_cell_inside[n_cell_inside] = i+ii+(j+jj+(k+kk)*GridDimension[1])*GridDimension[0];
+	    m_cell_inside += BaryonField[DensNum][ind_cell_inside[n_cell_inside]] * 
+	      pow(CellWidth[0][0], 3);
+	    if (MetallicityField == TRUE) 
+	      metal_cell_inside += BaryonField[MetalNum][ind_cell_inside[n_cell_inside]] * 
+		pow(CellWidth[0][0], 3);
+	    if (MBHColourNum > 0)
+	      colour_cell_inside += BaryonField[MBHColourNum][ind_cell_inside[n_cell_inside]] * 
+		pow(CellWidth[0][0], 3);
+	    n_cell_inside++;
+	    
+	  } else {  //if on edges
+
+	    r_s = sqrt(pow(ii,2) + pow(jj,2) + pow(kk,2));	    
+	    
+	    if (fabs((ii*nx_L + jj*ny_L + kk*nz_L)/r_s) > costheta) { 
+
+	      ind_cell_edge[n_cell_edge] = i+ii+(j+jj+(k+kk)*GridDimension[1])*GridDimension[0];
+	      nx_cell_edge[n_cell_edge]  = ii / r_s;  //directional vector
+	      ny_cell_edge[n_cell_edge]  = jj / r_s;
+	      nz_cell_edge[n_cell_edge]  = kk / r_s;
+	      m_cell_edge += BaryonField[DensNum][ind_cell_edge[n_cell_edge]] * 
+		pow(CellWidth[0][0], 3);
+	      if (MetallicityField == TRUE) 
+		metal_cell_edge += BaryonField[MetalNum][ind_cell_edge[n_cell_edge]] * 
+		  pow(CellWidth[0][0], 3);
+	      if (MBHColourNum > 0) 
+		colour_cell_edge += BaryonField[MBHColourNum][ind_cell_edge[n_cell_edge]] * 
+		  pow(CellWidth[0][0], 3);
+	      n_cell_edge++;
+	    } 
+
+	  }  
+
+	}  // END ii-direction
+      }  // END jj-direction
+    }  // END kk-direction
+
+//    printf("EjectaM in Msun = %g, EjectaM = %g, EjectaMetalM = %g, m_cell_edge = %g, n_cell_edge = %d\n",
+//	   cstar->NotEjectedMass, EjectaMass, EjectaMetalMass, m_cell_edge, n_cell_edge); 
+
+    /* Calculate the jet density */
+
+    rho_jet = (m_cell_edge + EjectaMass) / 
+      (n_cell_edge * pow(CellWidth[0][0], 3));
+
+    if (MetallicityField == TRUE) {
+      rho_metal_jet = (metal_cell_edge + EjectaMetalMass) / 
+	(n_cell_edge * pow(CellWidth[0][0], 3));
+      metallicity_edge = rho_metal_jet / rho_jet;
+    } else
+      metallicity_edge = 0.0;
+
+    if (MBHColourNum > 0) {
+      rho_colour_jet = (colour_cell_edge + EjectaMass) / 
+	(n_cell_edge * pow(CellWidth[0][0], 3));
+      colour_edge = rho_colour_jet / rho_jet;
+    } else
+      colour_edge = 0.0;
+      
+//    printf("rho_jet_prev = %g\n", m_cell_edge / (n_cell_edge * pow(CellWidth[0][0], 3)));
+//    printf("rho_jet =%g, rho_metal_jet = %g, rho_colour_jet = %g, metallicity_edge = %g\n", 
+//	   rho_jet, rho_metal_jet, rho_colour_jet, metallicity_edge); 
+
+    /* Calculate MBHJetsVelocity using energy conservation below:
+
+       MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency * Mdot * c^2 
+       = 0.5 * MBHFeedbackMassEjectionFraction * Mdot * (MBHJetsVelocity)^2                
+       
+       Note that EjectaThermalEnergy is never used; MBHFeedbackEnergyCoupling 
+       should now be calculated considering gravitational redshift (Kim et al. 2010) */
+
+    MBHJetsVelocity = c * sqrt( 2 * MBHFeedbackEnergyCoupling * MBHFeedbackRadiativeEfficiency 
+				      / MBHFeedbackMassEjectionFraction ) / VelocityUnits;
+
+    if (MBHJetsVelocity * VelocityUnits > 0.99*c) {
+      fprintf(stderr, "grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
+	      MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
+	      MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c);
+      ENZO_FAIL("");
+    }
+
+    /* Finally, add the jet feedback at the edges (outer part of the supercell) */
+
+    for (ic = 0; ic < n_cell_edge; ic++) {
+
+      index = ind_cell_edge[ic];
+
+      /* Update velocities and TE; note that we now have kinetic (jet) energy added, so 
+	 for DualEnergyFormalism = 0 you don't have to update any energy field */
+
+      sign = sign(nx_cell_edge[ic]*nx_L + ny_cell_edge[ic]*ny_L + nz_cell_edge[ic]*nz_L);
+
+      if (GENum >= 0 && DualEnergyFormalism) 
+	for (dim = 0; dim < GridRank; dim++)
+	  BaryonField[TENum][index] -= 
+	    0.5 * BaryonField[Vel1Num+dim][index] * 
+	    BaryonField[Vel1Num+dim][index];
+
+      /* Calculate grid velocity: the actual veloctiy injected in supercell edges.
+	 This is different from MBHJetsVelocity because it is the mass-weighted average 
+	 between MBHJetsVelocity and the original veloctiy in grid */  
+      
+      BaryonField[Vel1Num][index] = (BaryonField[DensNum][index] * BaryonField[Vel1Num][index] +
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)) *
+				     sign * nx_L * MBHJetsVelocity) / 
+	                            (BaryonField[DensNum][index] + 
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)));
+      BaryonField[Vel2Num][index] = (BaryonField[DensNum][index] * BaryonField[Vel2Num][index] +
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)) *
+				     sign * ny_L * MBHJetsVelocity) / 
+	                            (BaryonField[DensNum][index] + 
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)));
+      BaryonField[Vel3Num][index] = (BaryonField[DensNum][index] * BaryonField[Vel3Num][index] +
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)) *
+				     sign * nz_L * MBHJetsVelocity) / 
+	                            (BaryonField[DensNum][index] + 
+				     EjectaMass / (n_cell_edge*pow(CellWidth[0][0], 3)));
+      
+      if (GENum >= 0 && DualEnergyFormalism) 
+	for (dim = 0; dim < GridRank; dim++)
+	  BaryonField[TENum][index] += 
+	    0.5 * BaryonField[Vel1Num+dim][index] * 
+	    BaryonField[Vel1Num+dim][index];
+
+      /* Update density, species and colour fields */
+
+      OldDensity = BaryonField[DensNum][index];
+      BaryonField[DensNum][index] = rho_jet;
+      increase = rho_jet / OldDensity;
+//      printf("grid::AFS: increase = %lf\n", increase); 
+      
+      if (MultiSpecies) {
+	BaryonField[DeNum][index] *= increase;
+	BaryonField[HINum][index] *= increase;
+	BaryonField[HIINum][index] *= increase;
+	BaryonField[HeINum][index] *= increase;
+	BaryonField[HeIINum][index] *= increase;
+	BaryonField[HeIIINum][index] *= increase;
+      }
+      if (MultiSpecies > 1) {
+	BaryonField[HMNum][index] *= increase;
+	BaryonField[H2INum][index] *= increase;
+	BaryonField[H2IINum][index] *= increase;
+      }
+      if (MultiSpecies > 2) {
+	BaryonField[DINum][index] *= increase;
+	BaryonField[DIINum][index] *= increase;
+	BaryonField[HIINum][index] *= increase;
+	BaryonField[HDINum][index] *= increase;
+      }
+      
+      if (MetallicityField == TRUE)
+	BaryonField[MetalNum][index] = rho_metal_jet;
+
+      if (MBHColourNum > 0)
+	BaryonField[MBHColourNum][index] = rho_colour_jet;
+      
+      CellsModified++;
+
+    }  // END ic in n_cell_edge
+
+    /* Remove ejected mass from star; now that we injected the NotEjectedMass, set it to zero */
+
+    double old_mass = cstar->Mass;
+    float old_vel1 = cstar->vel[1];
+    cstar->Mass -= cstar->NotEjectedMass; 
+    cstar->NotEjectedMass = 0.0;
+
+    cstar->vel[0] *= old_mass / cstar->Mass; 
+    cstar->vel[1] *= old_mass / cstar->Mass;
+    cstar->vel[2] *= old_mass / cstar->Mass; 
+//    fprintf(stdout, "grid::AFS:  Mass = %lf -> %lf, vel[1] = %f -> %f\n", 
+//	    old_mass, cstar->Mass, old_vel1, cstar->vel[1]);  
+
+    fprintf(stdout, "grid::AddFS: jets injected (EjectaM = %g Ms, JetsVelocity = %g, grid v = %g, rho_jet = %g) along n_L = (%g, %g, %g)\n", 
+	    EjectaMass * DensityUnits * pow(LengthUnits,3.0) / Msun,
+	    MBHJetsVelocity, BaryonField[Vel3Num][n_cell_edge-1], rho_jet, nx_L, ny_L, nz_L); 
+
+  }  // END MBH_JETS
 
   /***********************************************************************
           STROEMGREN SPHERE FROM A POP III STAR (WHALEN ET AL. 2004)
@@ -446,8 +875,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] *= factor;
 	    }
 
-	    if (ZField == TRUE)
-	      BaryonField[ZNum][index] *= factor;
+	    if (MetallicityField == TRUE)
+	      BaryonField[MetalNum][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star
@@ -477,6 +906,55 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     }  // END k-direction
   }  // END star birth
 
+  /***********************************************************************
+                             POPIII - Color field
+  ************************************************************************/
+
+  if (cstar->FeedbackFlag == COLOR_FIELD) {
+    int CellsModified2 = 0;
+
+    int ColorField = FindField(ForbiddenRefinement, FieldType, NumberOfBaryonFields); 
+    if (ColorField < 0) ENZO_FAIL("Couldn't Find Color Field!");
+    index = 0;
+
+    for (k = 0; k < GridDimension[2]; k++) {
+
+      delz = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - cstar->pos[2];
+      sz = sign(delz);
+      delz = fabs(delz);
+      delz = min(delz, DomainWidth[2]-delz);
+
+      for (j = 0; j < GridDimension[1]; j++) {
+
+	dely = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - cstar->pos[1];
+	sy = sign(dely);
+	dely = fabs(dely);
+	dely = min(dely, DomainWidth[1]-dely);
+
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+
+	  delx = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - cstar->pos[0];
+	  sx = sign(delx);
+	  delx = fabs(delx);
+	  delx = min(delx, DomainWidth[0]-delx);
+
+	  radius2 = delx*delx + dely*dely + delz*delz;
+	  if (radius2 <= radius*radius) {
+
+	    BaryonField[ColorField][index] =
+            BaryonField[DensNum][index];
+
+	    CellsModified++;
+	    CellsModified2++;
+
+	  }  // END if inside radius
+
+	}  // END i-direction
+      }  // END j-direction
+    }  // END k-direction
+    fprintf(stderr, "CellsModified: %"ISYM"\n", CellsModified2);
+  }
+
   /* Now it's done, unmark. */
 
   //cstar->FeedbackFlag = NO_FEEDBACK;
@@ -484,3 +962,4 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   return SUCCESS;
 
 }
+ 

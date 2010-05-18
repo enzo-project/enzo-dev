@@ -34,6 +34,8 @@ double Gaussian(double cs);
 int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int InitialMagneticFieldConfiguration)
 {
 
+  //
+
   
   /* declarations */
 
@@ -153,9 +155,15 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*3.14156);
 	  xVel[ShearingVelocityDirection]=magnitude/3.*sin(xPos[ShearingVelocityDirection]*2.0*ShearingGeometry*3.14156);
 	  BaryonField[iden ][n] = rho;
-
-	  
 	}
+	else if (ShearingBoxProblemType == 2){
+
+	    BaryonField[iden ][n]=50.0*rho*xPos[ShearingVelocityDirection];
+	    
+	
+	}
+	
+	
 
 	float rhoActual=BaryonField[iden ][n];
 	pressure=c_s*c_s*rhoActual/Gamma;
@@ -165,7 +173,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	eint=0.0;
 	
 	if (HydroMethod == MHD_RK || HydroMethod == HD_RK) 
-	  EOS(pressure, BaryonField[iden ][n], eint, h, cs, dpdrho, dpde, EOSType, 1);
+	  EOS(pressure, rhoActual, eint, h, cs, dpdrho, dpde, EOSType, 1);
 	else eint=pressure/(rhoActual*(Gamma-1.0));
 
 	xVel[ShearingVelocityDirection]+=(-(xPos[ShearingBoundaryDirection])*AngularVelocity*VelocityGradient);
@@ -179,25 +187,25 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
-	
-	if (useMHD){
-	BaryonField[iBx][n] = 0.0;
-	BaryonField[iBy][n] = 0.0;
-	BaryonField[iBz][n] = 0.0;
-
-	if (InitialMagneticFieldConfiguration == 0) BaryonField[iB[ShearingOtherDirection]][n] = InitialBField;
-	else if (InitialMagneticFieldConfiguration == 1) BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*3.14159*xPos[ShearingBoundaryDirection]);
-
-	}
 
 	v2=xVel[0]*xVel[0]+xVel[1]*xVel[1]+xVel[2]*xVel[2];
 	
-	if (useMHD){BaryonField[ietot][n] = eint + 0.5*v2
-		      + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*
-			     BaryonField[iB[ShearingOtherDirection]][n])/rhoActual;
+	if (useMHD){
+	  BaryonField[iBx][n] = 0.0;
+	  BaryonField[iBy][n] = 0.0;
+	  BaryonField[iBz][n] = 0.0;
+	  
+	  if (InitialMagneticFieldConfiguration == 0) 
+	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField;
+	  else if (InitialMagneticFieldConfiguration == 1) 
+	    BaryonField[iB[ShearingOtherDirection]][n] = InitialBField*sin(2*3.14159*xPos[ShearingBoundaryDirection]);
+	  
+	  BaryonField[ietot][n] = eint + 0.5*v2
+	    + 0.5*(BaryonField[iB[ShearingOtherDirection]][n]*
+		   BaryonField[iB[ShearingOtherDirection]][n])/rhoActual;
 	}
 	else BaryonField[ietot][n] = eint + 0.5*v2;
-	 
+	
 	  
       } // end loop over grid
     }

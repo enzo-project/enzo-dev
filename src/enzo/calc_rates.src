@@ -3,19 +3,20 @@ c=======================================================================
 c//////////////////////  SUBROUTINE CALC_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine calc_rates(
-     &             nratec, aye, temstart, temend, alpha0, f3, iradtype,
+     &             nratec, aye, temstart, temend, alpha0, f3, 
+     &             iradtype, threebody,
      &             utem, uxyz, uaye, urho, utim,
      &             ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &             ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &             reHeII2a, reHeIIIa, brema, compa,
+     &             reHeII2a, reHeIIIa, brema, compa, gammaha,
      &             piHI, piHeI, piHeII,
      &             hyd01ka, h2k01a, vibha, rotha, rotla, 
-     &             gpldl, gphdl, hdltea, hdlowa,
+     &             gpldl, gphdl, hdltea, hdlowa, hdcool, ciecoa,
      &             gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &             k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &             k11a, k12a, k13a, k13dda, k14a, k15a, k16a, k17a,
-     &             k18a, k19a, k20a, k21a, k22a,
-     &             k24, k25, k26, k27, k28, k29, k30, k31,
+     &             k18a, k19a, k20a, k21a, k22a, k23a,
+     &             k24, k25, k26, k27, k28, k29, k30, k31, 
      &             k50a, k51a, k52a, k53a, k54a, k55a, k56a, ioutput
      &                     )
 c
@@ -117,10 +118,11 @@ C ---16--       HM    + HII -> 2HI
 C ---17--       HM    + HII -> H2II  + e
 C ---18--       H2II  + e   -> 2HI
 C ---19--       H2II  + HM  -> HI    + H2I
-c (20-21) - unused
+c (20) - unused
 c --------------  new  ---------------------
 c
 c
+C ------- 21:   2H    + H2  -> H2I   + H2I
 C ------- 22:   2H    + H   -> H2I   + H
 C ------- 24:   HI    + p   -> HII   + e
 C ------- 25:   HeII  + p   -> HeIII + e
@@ -144,7 +146,7 @@ c
 c
 c  Arguments
 c
-      integer nratec, iradtype
+      integer nratec, iradtype, threebody
       real    aye, temstart, temend, alpha0, f3,
      &        utem, uxyz, uaye, urho, utim
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
@@ -155,18 +157,20 @@ c
      &        rotha(nratec), rotla(nratec), gpldl(nratec),
      &        gphdl(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
-     &        gaHpa(nratec), gaela(nratec)
-      real    compa, piHI, piHeI, piHeII
+     &        gaHpa(nratec), gaela(nratec),
+     &        ciecoa(nratec)
+      real    compa, gammaha, piHI, piHeI, piHeII
       real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &        k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
      &        k17a(nratec), k18a(nratec), k19a(nratec), k20a(nratec), 
-     &        k21a(nratec), k24, k25, k26, k27, k28, k29, k30, k31,
+     &        k21a(nratec), k23a(nratec), k24, k25, k26, k27, k28, k29,
+     &        k30, k31,
      &        k22a(nratec), k50a(nratec), k51a(nratec), k52a(nratec), 
      &        k53a(nratec), k54a(nratec), k55a(nratec), k56a(nratec)
       integer ioutput
-      real    k13dda(nratec, 7)
+      real    k13dda(nratec, 7), hdcool(nratec, 5)
 c
 c  Parameters
 c
@@ -206,7 +210,7 @@ c
       integer i,j,n
       double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
-     &                 dbase1, dlogtem, kunit_3bdy, x, y
+     &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate
       double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
@@ -336,6 +340,7 @@ c
         rotla(i)    = tiny
         hdltea(i)   = tiny
         hdlowa(i)   = tiny
+        ciecoa(i)   = tiny
 c
         gaHIa(i)    = tiny
         gaH2a(i)    = tiny
@@ -365,7 +370,8 @@ c
         call coll_rates(ttt, k1a(i), k2a(i), k3a(i), k4a(i), k5a(i),
      &                  k6a(i), k7a(i), k8a(i), k9a(i), k10a(i),
      &                  k11a(i), k12a(i), k13a(i), k14a(i), k15a(i), 
-     &                  k16a(i), k17a(i), k18a(i), k19a(i), kunit)
+     &                  k16a(i), k17a(i), k18a(i), k19a(i), k23a(i),
+     &                  kunit)
 c
 #else /* USE_NEW_COLLISIONAL_RATES */
 c
@@ -531,11 +537,44 @@ c       314. I then match it to the T^-1 of Palla etal (1983)
 c       Which is then 4 times smaller than the Palla rate ! Thats
 c       molecule uncertainties ! :-)
 c
-        if (ttt .le. 300.0) then
-           k22a(i) = 1.3d-32 * (ttt/300.0)**(-0.38) / kunit_3bdy
+c Our varying threebody rates from Simon
+        if(threebody.eq.0)then
+          if (ttt .le. 300.0) then
+             k22a(i) = 1.3d-32 * (ttt/300.0)**(-0.38)
+          else
+             k22a(i) = 1.3d-32 * (ttt/300.0)**(-1.0)
+          endif
+        elseif(threebody.eq.1)then
+c Inverse of PSS83 three-body rate
+          k22a(i) = 5.5d-29 / ttt
+          k13a(i) = (5.24d-7 / ttt**0.485d0) 
+     &                   * exp(-5.2d4 / ttt)
+        elseif(threebody.eq.2)then
+c Inverse of CW83 rate
+          k22a(i) = 8.8d-33
+          k13a(i) = 8.4d-11 * ttt**0.515 * exp(-5.2d4 / ttt)
+        elseif(threebody.eq.3)then
+c Rate from JGC67, used by FH07 to construct their three-body rate
+          k22a(i) = 1.44d-26 / ttt**1.54d0
+          k13a(i) = (1.38d-4 / ttt**1.025d0)
+     &                   * exp(-5.2d4 / ttt)
+        elseif(threebody.eq.4)then
+c High density rate from MSM96
+          k22a(i) = 7.7d-31 / ttt**0.464d0
+          k13a(i) = 1d1**(-178.4239d0 - 68.42243d0 * log10(ttt) 
+     &                   + 43.20243d0 * log10(ttt)**2
+     &                   - 4.633167d0 * log10(ttt)**3 
+     &                   + 69.70086d0 * log10(1d0 + 40870.38d0 / ttt)
+     &                   - (23705.7 / ttt))
         else
-           k22a(i) = 1.3d-32 * (ttt/300.0)**(-1.0) / kunit_3bdy
+            write(0,*) "I didn't understand your threebody rate."
+            stop
         endif
+        k13a(i) = k13a(i) / kunit
+        k22a(i) = k22a(i) / kunit_3bdy
+        
+        k21a(i) = 2.8e-31 * (ttt**(-0.6)) / kunit_3bdy
+c        write(6,*),'calc_rates: check: ', ttt, k2a(i), k22a(i)
 c
 c       ------ Deuterium rates -----
 c
@@ -802,11 +841,36 @@ c
      &            dexp(-255.d0/ttt) * 255.d0) * kb/1.27d0 ) / coolunit
 c      hdcool=hdlte/(1.0d0+hdlte/hdlow)
 c
+c     g) CIE cooling as discussed in Ripamonti & Abel (2003)
+c        cie_thin_cooling_rate returns rate as erg s^-1 cm^3 g^2 so
+c         divide my mh^2 to get usual erg s^-1 cm^3, which is then
+c         converted to code units with the conversion factor coolunit.
+c         To get cooling rate
+c     
+      call cie_thin_cooling_rate(ttt, cierate)
+c      ciecoa(i) = cierate/mh/mh/coolunit
+c
+c     Matt Turk: cie_thin_cooling actually returns
+c     erg per second times cm^3 per gram per (gram in H2 molecules)
+c     To reproduce eq 5 in RA04, divide c_t_c_r by mh, so to get
+c     erg/s cm^3 we multiply by mh.  We can either divide by 2 for 
+c     the H2 mass->number or in cool1d_multi_bdf.src, but we might
+c     as well do it here.
+c
+      ciecoa(i) = cierate * (mh/2.0d0) / coolunit
+c      write(6,*), "thin: ", ttt, cierate * 1e14*mh*2
+c
+
       enddo
 c
-c     g) Compton cooling
+c     h) Compton cooling (Peebles 1971)
 c
-      compa   = 5.65d-36 / coolunit
+      compa     = 5.65d-36 / coolunit
+c
+c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
+c        with epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
+c
+      gammaha   = 8.5d-26 / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes

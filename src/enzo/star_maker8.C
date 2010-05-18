@@ -11,6 +11,9 @@
              SW = 1 - magnetic field protostellar jets
              SW = 2 - random direction protostellar jets
              SW = 3 - isotropic main sequence stellar wind
+               SW = 4 - protostellar and main sequence winds with an accretion disc (in progress)
+               SW = 5 - protostellar and main sequence winds with mag field (not implimented)
+             SW = 6 - protostellar and main sequence winds without mag field
   INPUTS:
     d     - density field
     u,v,w - velocity fields
@@ -56,7 +59,7 @@
 /* function prototypes */
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float *ge, 
 		float *u, float *v, float *w, float *bx, float *by, float *bz,
@@ -71,8 +74,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		FLOAT *ypold, FLOAT *zpold, float *upold, float *vpold, 
 		float *wpold, float *mpold, float *tcpold, float *tdpold, float *dmold,
 		float *nx_jet, float *ny_jet, float *nz_jet,
-		int *typeold, int *idold, int *ctype, float *jlrefine, float *temp,
-		float *gamma, float *mu, int *nproc, int *nstar)
+		int *typeold, PINT *idold, int *ctype, float *jlrefine, 
+		float *temp, float *gamma, float *mu, int *nproc, int *nstar)
 {
 
   int		i, j, k, index, ii, inew, n, bb, cc, nsinks, closest;
@@ -83,6 +86,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double        Pi = 3.1415926;
 
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
+  printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
+  printf("Star Maker 8: time = %g\n", *t);
+
 
   /* Compute Units. */
   
@@ -100,7 +106,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   densthresh = *massthresh / pow(*dx,3);
   //densthresh = 1e-12/(*d1);
   dx2 = (*dx)*(*dx);
-
+  printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / pow(*x1,2) / (*mu) / pow((*jlrefine),2);
@@ -121,110 +127,119 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   }
   printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
 
+  for (n=0; n<nsinks; n++){
+    printf("sink index = %"ISYM"\n", sink_index[n]);
+    printf("sink mass = %"FSYM"\n", dmold[n]);
+    printf("sink position = %"FSYM",%"FSYM", %"FSYM" \n", xpold[n], ypold[n],  zpold[n] );
+    printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" \n", upold[n], vpold[n],  wpold[n] );
+  }
+
+
+
   /* Merge any sink particles that are close enough to each other */
 
-  double mfrac_b, mfrac_c, total_mass, mi, mj;
-  double msun = 1.989e33;
-  double umass = (*d1)*pow(*x1,3)/msun;
-  float SinkMergeMass = 0.001/umass;
-  //printf("star_maker8: SinkMergeDistance = %"FSYM"\n",SinkMergeDistance );
-  if (*level == MaximumRefinementLevel && SinkMergeDistance > 0.0) {
-    for (i = 0; i < nsinks-1; i++) {
-      //printf("star_maker8: Merging alogrithm called\n");
-      bb = sink_index[i];
-      mi = mpold[bb]*pow(*dx,3);
+//   double mfrac_b, mfrac_c, total_mass, mi, mj;
+     double msun = 1.989e33;
+     double umass = (*d1)*pow(*x1,3)/msun;
+//   float SinkMergeMass = 0.001/umass;
+//   //printf("star_maker8: SinkMergeDistance = %"FSYM"\n",SinkMergeDistance );
+//   if (*level == MaximumRefinementLevel && SinkMergeDistance > 0.0) {
+//     for (i = 0; i < nsinks-1; i++) {
+//       //printf("star_maker8: Merging alogrithm called\n");
+//       bb = sink_index[i];
+//       mi = mpold[bb]*pow(*dx,3);
       
-      if (mi <= 0.0) continue;
+//       if (mi <= 0.0) continue;
       
-      for (j = i+1; j < nsinks; j++) {
+//       for (j = i+1; j < nsinks; j++) {
 	
-	cc = sink_index[j];
-	mj = mpold[cc]*pow(*dx,3);
+// 	cc = sink_index[j];
+// 	mj = mpold[cc]*pow(*dx,3);
 	
-	if (mj <= 0.0 || cc == bb) continue;
-	if (mi > SinkMergeMass && mj > SinkMergeMass) continue;
+// 	if (mj <= 0.0 || cc == bb) continue;
+// 	if (mi > SinkMergeMass && mj > SinkMergeMass) continue;
 		
-	delx = xpold[bb] - xpold[cc];
-	dely = ypold[bb] - ypold[cc];
-	delz = zpold[bb] - zpold[cc];
-	dist2 = delx*delx + dely*dely + delz*delz;
+// 	delx = xpold[bb] - xpold[cc];
+// 	dely = ypold[bb] - ypold[cc];
+// 	delz = zpold[bb] - zpold[cc];
+// 	dist2 = delx*delx + dely*dely + delz*delz;
 	
-	if (dist2 > pow(SinkMergeDistance,2)) continue;
+// 	if (dist2 > pow(SinkMergeDistance,2)) continue;
 	
-	/* Do the merging */
+// 	/* Do the merging */
 
-	if (mj < SinkMergeMass) {
+// 	if (mj < SinkMergeMass) {
 
-	  /* Merge j to i */
+// 	  /* Merge j to i */
 
-	  total_mass = mpold[bb] + mpold[cc];
-	  mfrac_b = mpold[bb] / total_mass;
-	  mfrac_c = mpold[cc] / total_mass;
-	  xpold[bb] = xpold[bb]*mfrac_b + xpold[cc]*mfrac_c;
-	  ypold[bb] = ypold[bb]*mfrac_b + ypold[cc]*mfrac_c;
-	  zpold[bb] = zpold[bb]*mfrac_b + zpold[cc]*mfrac_c;
+// 	  total_mass = mpold[bb] + mpold[cc];
+// 	  mfrac_b = mpold[bb] / total_mass;
+// 	  mfrac_c = mpold[cc] / total_mass;
+// 	  xpold[bb] = xpold[bb]*mfrac_b + xpold[cc]*mfrac_c;
+// 	  ypold[bb] = ypold[bb]*mfrac_b + ypold[cc]*mfrac_c;
+// 	  zpold[bb] = zpold[bb]*mfrac_b + zpold[cc]*mfrac_c;
       
-	  upold[bb] = upold[bb]*mfrac_b + upold[cc]*mfrac_c;
-	  vpold[bb] = vpold[bb]*mfrac_b + vpold[cc]*mfrac_c;
-	  wpold[bb] = wpold[bb]*mfrac_b + wpold[cc]*mfrac_c;
-	  mpold[bb] = total_mass;
-	  dmold[bb] += dmold[cc];
+// 	  upold[bb] = upold[bb]*mfrac_b + upold[cc]*mfrac_c;
+// 	  vpold[bb] = vpold[bb]*mfrac_b + vpold[cc]*mfrac_c;
+// 	  wpold[bb] = wpold[bb]*mfrac_b + wpold[cc]*mfrac_c;
+// 	  mpold[bb] = total_mass;
+// 	  dmold[bb] += dmold[cc];
     
-	  // Set second particle to be ignored (no mass)
-	  tcpold[cc] = 0.0;
-	  dmold[cc] = 0.0;
-	  upold[cc] = vpold[cc] = wpold[cc] = 0.0;
-	  mpold[cc] = FLOAT_UNDEFINED;
+// 	  // Set second particle to be ignored (no mass)
+// 	  tcpold[cc] = 0.0;
+// 	  dmold[cc] = 0.0;
+// 	  upold[cc] = vpold[cc] = wpold[cc] = 0.0;
+// 	  mpold[cc] = FLOAT_UNDEFINED;
 	  
-	} else {
+// 	} else {
 
-	  /* Merge i to j */
+// 	  /* Merge i to j */
 
-	  total_mass = mpold[bb] + mpold[cc];
-	  mfrac_b = mpold[bb] / total_mass;
-	  mfrac_c = mpold[cc] / total_mass;
-	  xpold[cc] = xpold[bb]*mfrac_b + xpold[cc]*mfrac_c;
-	  ypold[cc] = ypold[bb]*mfrac_b + ypold[cc]*mfrac_c;
-	  zpold[cc] = zpold[bb]*mfrac_b + zpold[cc]*mfrac_c;
+// 	  total_mass = mpold[bb] + mpold[cc];
+// 	  mfrac_b = mpold[bb] / total_mass;
+// 	  mfrac_c = mpold[cc] / total_mass;
+// 	  xpold[cc] = xpold[bb]*mfrac_b + xpold[cc]*mfrac_c;
+// 	  ypold[cc] = ypold[bb]*mfrac_b + ypold[cc]*mfrac_c;
+// 	  zpold[cc] = zpold[bb]*mfrac_b + zpold[cc]*mfrac_c;
       
-	  upold[cc] = upold[bb]*mfrac_b + upold[cc]*mfrac_c;
-	  vpold[cc] = vpold[bb]*mfrac_b + vpold[cc]*mfrac_c;
-	  wpold[cc] = wpold[bb]*mfrac_b + wpold[cc]*mfrac_c;
-	  mpold[cc] = total_mass;
-	  dmold[cc] += dmold[bb];
+// 	  upold[cc] = upold[bb]*mfrac_b + upold[cc]*mfrac_c;
+// 	  vpold[cc] = vpold[bb]*mfrac_b + vpold[cc]*mfrac_c;
+// 	  wpold[cc] = wpold[bb]*mfrac_b + wpold[cc]*mfrac_c;
+// 	  mpold[cc] = total_mass;
+// 	  dmold[cc] += dmold[bb];
     
-	  // Set second particle to be ignored (no mass)
-	  tcpold[bb] = 0.0;
-	  dmold[bb] = 0.0;
-	  upold[bb] = vpold[bb] = wpold[bb] = 0.0;
-	  mpold[bb] = FLOAT_UNDEFINED;
+// 	  // Set second particle to be ignored (no mass)
+// 	  tcpold[bb] = 0.0;
+// 	  dmold[bb] = 0.0;
+// 	  upold[bb] = vpold[bb] = wpold[bb] = 0.0;
+// 	  mpold[bb] = FLOAT_UNDEFINED;
 
-	  /* Now we are done with the ith sink */
-	  break;
+// 	  /* Now we are done with the ith sink */
+// 	  break;
 
-	}	  
+// 	}	  
 	  
-      }  // ENDIF merge particle 
+//       }  // ENDIF merge particle 
 
-    } // ENDFOR first old particle
+//     } // ENDFOR first old particle
 
-    /* Remove deleted particle from sink particle list */
+//     /* Remove deleted particle from sink particle list */
 
-    int nRemoved = 0;
-    for (n = 0; n < nsinks; n++) {
-      if (mpold[sink_index[n]] < 0.0) {
-	for (bb = n+1; bb < nsinks; bb++) {
-	  sink_index[bb-1] = sink_index[bb];
-	}
-	nRemoved++;
-      }
-    }
-    nsinks -= nRemoved;
+//     int nRemoved = 0;
+//     for (n = 0; n < nsinks; n++) {
+//       if (mpold[sink_index[n]] < 0.0) {
+// 	for (bb = n+1; bb < nsinks; bb++) {
+// 	  sink_index[bb-1] = sink_index[bb];
+// 	}
+// 	nRemoved++;
+//       }
+//     }
+//     nsinks -= nRemoved;
 
-    if (nRemoved > 0) 
-      printf("star_maker8[remove]: Ignoring %"ISYM" sink particles.\n", nRemoved);
+//     if (nRemoved > 0) 
+//       printf("star_maker8[remove]: Ignoring %"ISYM" sink particles.\n", nRemoved);
 
-  } // if (level == maxlevel)	  
+//   } // if (level == maxlevel)	  
 
 
 
@@ -268,7 +283,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     
     /*maxdens = jlsquared * temp[index] / dx2;
       drho = max(0.0, d[index] - maxdens);*/        
-    //printf("star_maker8: Accretion routine, mass added = %"FSYM"\n",drho*pow(*dx,3)*umass);
+    printf("star_maker8: Accretion routine, mass added = %"FSYM"\n",drho*pow(*dx,3)*umass);
 
     upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
     vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
@@ -289,7 +304,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
   //  double msun = 1.989e33;
   //  double umass = (*d1)*pow(*x1,3)/msun;
-  float StellarWindThresholdMass = 0.1;
+  float StellarWindThresholdMass = 22.1;
   float StellarWindMomentumPerStellarMass = 5e6;
   float StellarWindEjectionFraction = 0.2;
   float fe = StellarWindEjectionFraction;
@@ -321,10 +336,11 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
       if (dmold[bb] < m_wind) continue;
       if (mpold[bb]*pow(*dx,3)*umass < StellarWindTurnOnMass && (*t - tcpold[bb])*(*t1) < 1e5*3.1557e7) continue;
+    printf("Feedback 1 running.........\n");
 
       int first = 0;
       if (dmold[bb] > 0.99*mpold[bb]*pow(*dx,3)) first = 1;
-      
+      // if (nx_jet[bb]+ny_jet[bb]+nz_jet[bb] < 0.1) first = 1;
 
       /* Decide whether the current grid contains the whole supercell */
 
@@ -356,7 +372,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	nz_b = nz_jet[bb];
       }
 
-      /* Find the supercell and caclualte its total mass */
+      /* Find the supercell and caclulate its total mass */
 
       for (int kk = -2; kk <= 2; kk++) {
 	for (int jj = -2; jj <= 2; jj++) {
@@ -384,11 +400,11 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      /*printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",
-      m_cell*umass, dmold[bb]*umass, rho_wind*(*d1), p_wind);*/
+      m_cell*umass, dmold[bb]*umass, rho_wind*(*d1), p_wind);
 
       if (v_wind*(*v1) > 1e9) return FAIL;
 
@@ -411,7 +427,6 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	v[ind_cell[ic]] = temp*ny_b*v_wind;
 	w[ind_cell[ic]] = temp*nz_b*v_wind;
 	te[ind_cell[ic]] += 0.5*(pow(u[ind_cell[ic]],2) + pow(v[ind_cell[ic]],2) + pow(w[ind_cell[ic]],2));
-
       }
 
       /* Substract the ejected mass and set dm to be zero */
@@ -421,9 +436,11 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     }
   }
 
-  if (StellarWindFeedback == 2 && bx == NULL) { /*protostellar jets by random direction*/
+  if ((StellarWindFeedback == 2 || StellarWindFeedback == 6 )&& bx == NULL) { /*protostellar jets by random direction*/
+    printf("Feedback 2 (or 6) working.........\n");
     for (n = 0; n < nsinks; n++) {
       //printf("StellarWindFeedback = 2 running\n");
+
       bb = sink_index[n];
 
       if (mpold[bb] < 0.0) continue;
@@ -503,7 +520,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Calculate the jet density */
       rho_wind = (m_cell + fe * dmold[bb]) / (n_cell * pow(*dx,3));
 
-      /*printf("Wind injected: id=%"ISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
+      /*printf("Wind injected: id=%"PISYM", vwind=%g, n_cell=%"ISYM", x=(%g, %g, %g), n=(%g,%g,%g,), ",
 	     idold[bb], v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb], 
              nx_b, ny_b, nz_b);
       printf(" m_cell=%g, dm=%g, rho_wind=%g, p_wind=%g\n",
@@ -544,18 +561,31 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   /* StellarWindFeedback 3: Isotropic wind */
 
   float mdot_wind = 1e-5*(*dt)*(*t1)/(3.1557e7*umass);  /* 10^-5 solar mases per year - this is in code units: density x length^3*/
-  v_wind = 2.0e6/(*v1);
-  mdot_wind = mdot_wind/(4.0*Pi); /* mass Per solid angle */
   //printf("Adding Stellar wind 3: dt =%e, mdot =%e, Vwind =%e, rho_wind =%e \n",dt,mdot_wind*umass/(*t1),v_wind*(*v1),rho_wind*(*d1));
   FLOAT radius_cell[MAX_SUPERCELL_NUMBER]; 
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   float SolidAngle;
-  if (StellarWindFeedback == 3) {
-  printf("mdotwind = %e\n",mdot_wind);
+  FLOAT mdot_wind1, mdot_wind2;
+  if (StellarWindFeedback == 3 || StellarWindFeedback == 6 ) {
+    printf("Feedback 3 (or 6) working.........\n");
+    //printf("mdotwind = %e\n",mdot_wind);
     // printf("STELLAR WIND FEEDBACK = 3\n");
     for (n = 0; n < nsinks; n++) {
       
       bb = sink_index[n];
+
+      if (mpold[bb]*pow(*dx,3)*umass < MSStellarWindTurnOnMass) {
+	continue;
+      }
+      
+      v_wind = 1.e5*(-355.554+892.32*log10(mpold[bb]*pow(*dx,3)*umass - 5.24765))/(*v1);
+      mdot_wind1 = (pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427))*((*t1)*(*dx)/v_wind)/(3.1557e7*umass);
+      mdot_wind2 = (pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427))*(*dt)*(*t1)/(3.1557e7*umass);
+      mdot_wind = max(mdot_wind1,mdot_wind2);
+      //(pow(10,-9.47)*pow(mpold[bb]*pow(*dx,3)*umass,2.2427)) - mass loss in Msun/yr (from N. Smith 2006 table 1)
+      mdot_wind = mdot_wind/(4.0*Pi);/* mass Per solid angle */
+
+      printf("\n Mass star = %e Msun, Mdot_wind = %e Msun/yr, and v_wind = %e cm/s \n \n",mpold[bb]*pow(*dx,3)*umass,(4.0*Pi)*mdot_wind/((*dt)*(*t1)/(3.1557e7*umass)), v_wind*(*v1));
       
       i = (xpold[bb] - *xstart)/(*dx);
       j = (ypold[bb] - *ystart)/(*dx);
@@ -573,7 +603,6 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       m_cell = 0;
       
       /* Caclualte the total mass of the supercell */
-
       for (int kk = -3; kk <= 3; kk++) {
 	for (int jj = -3; jj <= 3; jj++) {
 	  for (int ii = -3; ii <= 3; ii++) {
@@ -607,6 +636,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 
       /* Do the feedback */
+
+      //printf("n_cell = %i \n", n_cell);
       float m_wind = 0.0;
       float cells_volume = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
@@ -628,7 +659,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	else if (radius2_cell[ic] == 27.0) SolidAngle = 0.0302870901;
 	 else { 
 	   SolidAngle = 4.*3.1415926/n_cell; 
-	   //printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
+	   printf("star_maker8.C line 373: Radius squared is wrong?!? radius =%f, n_cell = %i\n",radius2_cell[ic],n_cell); 
 	 }
 	rho_wind = mdot_wind*SolidAngle/(pow((*dx),3));
 	cells_volume += pow((*dx),3);
@@ -643,6 +674,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	te[ind_cell[ic]] += 0.5*v_wind*v_wind;
       }
 
+      if (m_wind > 0.0) printf("  density in cells changed, dt = %e, t = %e\n",(*dt),(*t));
       /* Substract the ejected mass and set dm to be zero */
       /*printf("Iso-wind injected: dt = %e s, vwind=%g, n_cell=%"ISYM", xp=(%g, %g, %g),m_star = %e, m_cell=%e, m_wind=%e, rho=%e, umass = %e\n", 
 	     (*dt)*(*t1),v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb],mpold[bb]*umass , m_cell*umass,m_wind*umass, rho_wind*(*d1),umass);
@@ -658,8 +690,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   }
 
 
-  /* Loop over grid looking for a cell with mass larger than massthres */
 
+  /* Loop over grid looking for a cell with mass larger than massthres */
 
   if (*level == MaximumRefinementLevel) {
     float oldrho;
@@ -673,7 +705,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	  
 	  if (*jlrefine > 0)
 	    jeansthresh = jlsquared * temp[index] / d[index];
-
+	  //printf("jeansthresh = %g \n",jeansthresh);
+	  //printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);
 
 	  if (r[index] == 0 && (d[index] > densthresh ||
 				(*jlrefine > 0 && dx2 > jeansthresh))) {
@@ -729,86 +762,87 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    /* Look for a nearby OLD sink particle to add the mass to */
 	    
 	    inew = 1;
-	    nearestdx2 = 1e20;
-	    for (cc = 0; cc < nsinks; cc++) {
+// 	    nearestdx2 = 1e20;
+// 	    for (cc = 0; cc < nsinks; cc++) {
 	      
-	      n = sink_index[cc];
+// 	      n = sink_index[cc];
 	      
-	      delx = xpos - xpold[n];
-	      dely = ypos - ypold[n];
-	      delz = zpos - zpold[n];
-	      dist2 = delx*delx + dely*dely + delz*delz;
+// 	      delx = xpos - xpold[n];
+// 	      dely = ypos - ypold[n];
+// 	      delz = zpos - zpold[n];
+// 	      dist2 = delx*delx + dely*dely + delz*delz;
 
-	      /* If sink is within 5 cells and closest one, then add to it */
-	      //printf("star_maker8:  distance: dist=%"FSYM", SCD =%"FSYM" \n",pow(dist2,0.5),SinkCollapseDistance );	      
-	      if (dist2 < pow(SinkCollapseDistance,2) && dist2 < nearestdx2) {
-		nearestdx2 = dist2;
-		closest = n;
-	      }
+// 	      /* If sink is within 5 cells and closest one, then add to it */
+// 	      //printf("star_maker8:  distance: dist=%"FSYM", SCD =%"FSYM" \n",pow(dist2,0.5),SinkCollapseDistance );	      
+// 	      if (dist2 < pow(SinkCollapseDistance,2) && dist2 < nearestdx2) {
+// 		nearestdx2 = dist2;
+// 		closest = n;
+// 	      }
 
-	    } // ENDFOR old particles
-	    //printf("star_maker8: nearest old star = %"FSYM"\n",pow(nearestdx2,0.5) );
+// 	    } // ENDFOR old particles
+// 	    //printf("star_maker8: nearest old star = %"FSYM"\n",pow(nearestdx2,0.5) );
 
-	    /* Add momentum and mass to nearest OLD sink */
+// 	    /* Add momentum and mass to nearest OLD sink */
 
-	    if (nearestdx2 < 1) {
+// 	    if (nearestdx2 < 1) {
 	    
-	      upold[closest] = (upold[closest] * mpold[closest] + ugrid*adddens) /
-		(mpold[closest] + adddens);
-	      vpold[closest] = (vpold[closest] * mpold[closest] + vgrid*adddens) /
-		(mpold[closest] + adddens);
-	      wpold[closest] = (wpold[closest] * mpold[closest] + wgrid*adddens) /
-		(mpold[closest] + adddens);
-	      mpold[closest] = mpold[closest] + adddens;
-	      dmold[closest] += adddens*pow(*dx,3);
+// 	      upold[closest] = (upold[closest] * mpold[closest] + ugrid*adddens) /
+// 		(mpold[closest] + adddens);
+// 	      vpold[closest] = (vpold[closest] * mpold[closest] + vgrid*adddens) /
+// 		(mpold[closest] + adddens);
+// 	      wpold[closest] = (wpold[closest] * mpold[closest] + wgrid*adddens) /
+// 		(mpold[closest] + adddens);
+// 	      mpold[closest] = mpold[closest] + adddens;
+// 	      dmold[closest] += adddens*pow(*dx,3);
 	    
-	      /* Record that a new particle is not needed */
+// 	      /* Record that a new particle is not needed */
 	      
-	      inew = 0;
-	      //printf("star_maker8:  new star not needed \n" );	      
-	    }  // ENDIF add to particle
+// 	      inew = 0;
+// 	      //printf("star_maker8:  new star not needed \n" );	      
+// 	    }  // ENDIF add to particle
 
-	    /* Now look for nearby NEW sinks */
+// 	    /* Now look for nearby NEW sinks */
 
-	    nearestdx2 = 1e20;
-	    for (n = 0; n < ii; n++) {
+// 	    nearestdx2 = 1e20;
+// 	    for (n = 0; n < ii; n++) {
 	      
-	      delx = xpos - xp[n];
-	      dely = ypos - yp[n];
-	      delz = zpos - zp[n];
-	      dist2 = delx*delx + dely*dely + delz*delz;
+// 	      delx = xpos - xp[n];
+// 	      dely = ypos - yp[n];
+// 	      delz = zpos - zp[n];
+// 	      dist2 = delx*delx + dely*dely + delz*delz;
 
-	      /* If sink is within SinkCollapseDistance, then add to it */
+// 	      /* If sink is within SinkCollapseDistance, then add to it */
 	      
-	      if (dist2 < pow(SinkCollapseDistance,2) && dist2 < nearestdx2) {
-		nearestdx2 = dist2;
-		closest = n;
-	      }
+// 	      if (dist2 < pow(SinkCollapseDistance,2) && dist2 < nearestdx2) {
+// 		nearestdx2 = dist2;
+// 		closest = n;
+// 	      }
 	      
-	    } // ENDFOR new particles
+// 	    } // ENDFOR new particles
 	  
-	    /* Add momentum and then mass to NEW sink*/
+// 	    /* Add momentum and then mass to NEW sink*/
 
-	    //printf("star_maker8: nearest new star = %"FSYM"\n",pow(nearestdx2,0.5) );
-	    if (nearestdx2 < 1) {
+// 	    //printf("star_maker8: nearest new star = %"FSYM"\n",pow(nearestdx2,0.5) );
+// 	    if (nearestdx2 < 1) {
 
-	      up[closest] = (up[closest] * mp[closest] + ugrid*adddens) /
-		(mp[closest] + adddens);
-	      vp[closest] = (vp[closest] * mp[closest] + vgrid*adddens) /
-		(mp[closest] + adddens);
-	      wp[closest] = (wp[closest] * mp[closest] + wgrid*adddens) /
-		(mp[closest] + adddens);
-	      mp[closest] = mp[closest] + adddens;
-	      dm[closest] += adddens*pow(*dx,3);
+// 	      up[closest] = (up[closest] * mp[closest] + ugrid*adddens) /
+// 		(mp[closest] + adddens);
+// 	      vp[closest] = (vp[closest] * mp[closest] + vgrid*adddens) /
+// 		(mp[closest] + adddens);
+// 	      wp[closest] = (wp[closest] * mp[closest] + wgrid*adddens) /
+// 		(mp[closest] + adddens);
+// 	      mp[closest] = mp[closest] + adddens;
+// 	      dm[closest] += adddens*pow(*dx,3);
 	    
-	      /* Record that a new particle is not needed */
+// 	      /* Record that a new particle is not needed */
 	      
-	      inew = 0;
-	      //printf("star_maker8:  new star not needed \n" );
-	    } // ENDIF add to new particle
+// 	      inew = 0;
+// 	      //printf("star_maker8:  new star not needed \n" );
+// 	    } // ENDIF add to new particle
 
 	    /* Create a new sink particle if necessary and if there's room */
-	    
+	    //printf("inew = %i\n",inew);
+
 	    if (inew == 1 && ii < *nmax) {
 	      
 	      //printf("star_maker8: making new star\n" );

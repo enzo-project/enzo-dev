@@ -54,7 +54,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w, float *de,
 	   float *HI, float *HII, float *HeI, float *HeII, float *HeIII,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
-           hydro_method *imethod,
+	hydro_method *imethod, int *igammah,
         int *idual, int *ispecies, int *imetal, int *imcool, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
 	   int *ipiht,
@@ -64,7 +64,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa,
 	   float *ciHeIa,
 	float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a,
-	float *reHeII2a, float *reHeIIIa, float *brema, float *compa,
+	float *reHeII2a, float *reHeIIIa, float *brema, float *compa, float *gammaha,
 	float *comp_xraya, float *comp_temp,
            float *piHI, float *piHeI, float *piHeII,
 	float *HM, float *H2I, float *H2II, float *DI, float *DII, float *HDI,
@@ -76,7 +76,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	float *metala, int *n_xe, float *xe_start, float *xe_end,
 	float *inutot, int *iradtype, int *nfreq, int *imetalregen,
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
-	int *iradtrans, float *gammaHI, float *gammaHeI, float *gammaHeII,
+	int *iradtrans, float *photogamma,
  	int *icmbTfloor, int *iClHeat, int *iClMMW,
  	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
@@ -85,12 +85,12 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 extern "C" void FORTRAN_NAME(solve_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
-           hydro_method *imethod, int *idual, int *idim,
+	hydro_method *imethod, int *idual, int *idim, int *igammah,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend,
 	   float *fh,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
-	float *eta1, float *eta2, float *gamma, float *coola);
+	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha);
  
  
 int grid::SolveRadiativeCooling()
@@ -145,13 +145,9 @@ int grid::SolveRadiativeCooling()
   /* Find photo-ionization fields */
 
   int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
-  int gammaHINum, gammaHeINum, gammaHeIINum;
-  if (IdentifyRadiativeTransferFields(kphHINum, gammaHINum, kphHeINum, 
-				      gammaHeINum, kphHeIINum, gammaHeIINum, 
-				      kdissH2INum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyRadiativeTransferFields.\n");
-    ENZO_FAIL("");
-  }
+  int gammaNum;
+  IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
+				  kphHeIINum, kdissH2INum);
 
   /* Get easy to handle pointers for each variable. */
  
@@ -232,11 +228,8 @@ int grid::SolveRadiativeCooling()
     }
   }
 
-  /* Set up information for rates which depend on the radiation field. */
- 
-  int RadiationShield = (RadiationFieldType == 11) ? TRUE : FALSE;
- 
-  /* Precompute factors for self shielding (this is the cross section * dx). */
+  /* Set up information for rates which depend on the radiation field. 
+     Precompute factors for self shielding (this is the cross section * dx). */
  
   float HIShieldFactor = RadiationData.HIAveragePhotoHeatingCrossSection *
                          double(LengthUnits) * CellWidth[0][0];
@@ -257,7 +250,7 @@ int grid::SolveRadiativeCooling()
        BaryonField[HeINum], BaryonField[HeIINum], BaryonField[HeIIINum],
        GridDimension, GridDimension+1, GridDimension+2,
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
-          &HydroMethod,
+       &HydroMethod, &PhotoelectricHeating,
        &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCooling, 
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
           GridEndIndex, GridEndIndex+1, GridEndIndex+2,
@@ -269,7 +262,7 @@ int grid::SolveRadiativeCooling()
           CoolData.ciHeI,
        CoolData.ciHeIS, CoolData.ciHeII, CoolData.reHII,
           CoolData.reHeII1,
-       CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp,
+       CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, &CoolData.gammah,
        &CoolData.comp_xray, &CoolData.temp_xray,
           &CoolData.piHI, &CoolData.piHeI, &CoolData.piHeII,
        BaryonField[HMNum], BaryonField[H2INum], BaryonField[H2IINum],
@@ -286,9 +279,8 @@ int grid::SolveRadiativeCooling()
        RadiationData.Spectrum[0], &RadiationFieldType,
           &RadiationData.NumberOfFrequencyBins,
           &RadiationFieldRecomputeMetalRates,
-       &RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
-       &RadiativeTransfer, BaryonField[gammaHINum], BaryonField[gammaHeINum], 
-       BaryonField[gammaHeIINum],
+       &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
+       &RadiativeTransfer, BaryonField[gammaNum],
        &CloudyCoolingData.CMBTemperatureFloor,
        &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
        &CloudyCoolingData.CloudyMetallicityNormalization,
@@ -331,14 +323,14 @@ int grid::SolveRadiativeCooling()
        GridDimension, GridDimension+1, GridDimension+2,
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
           &HydroMethod,
-       &DualEnergyFormalism, &GridRank,
+       &DualEnergyFormalism, &GridRank, &PhotoelectricHeating,
        GridStartIndex, GridStartIndex+1, GridStartIndex+2,
           GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
-          CoolData.EquilibriumRate);
+          CoolData.EquilibriumRate, &CoolData.gammah);
   }
 
   if (HydroMethod == MHD_RK) {

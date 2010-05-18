@@ -29,7 +29,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "StarParticleData.h"
 #include "RadiativeTransferParameters.h"
 #include "hydro_rk/EOS.h"
 #include "hydro_rk/tools.h"
@@ -41,7 +40,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-extern "C" void FORTRAN_NAME(calc_dt)(
+extern "C" void PFORTRAN_NAME(calc_dt)(
                   int *rank, int *idim, int *jdim, int *kdim,
                   int *i1, int *i2, int *j1, int *j2, int *k1, int *k2,
 			     hydro_method *ihydro, float *C2,
@@ -120,7 +119,7 @@ float grid::ComputeTimeStep()
  
     /* Call fortran routine to do calculation. */
  
-    FORTRAN_NAME(calc_dt)(&GridRank, GridDimension, GridDimension+1,
+    PFORTRAN_NAME(calc_dt)(&GridRank, GridDimension, GridDimension+1,
                                GridDimension+2,
 //                        Zero, TempInt, Zero+1, TempInt+1, Zero+2, TempInt+2,
                           GridStartIndex, GridEndIndex,
@@ -425,7 +424,7 @@ float grid::ComputeTimeStep()
     if (HydroMethod != MHD_RK && NumberOfBaryonFields > 0)
       printf("Bar = %"FSYM" ", dtBaryons);
     if (HydroMethod == MHD_RK)
-      printf("dtMHD = %"FSYM" ", dtMHD);
+      printf("dtMHD = %e ", dtMHD);
     if (HydroMethod == Zeus_Hydro)
       printf("Vis = %"FSYM" ", dtViscous);
     if (ComovingCoordinates)

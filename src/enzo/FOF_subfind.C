@@ -43,7 +43,7 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
   char   particle_fname[200];
   char   halo_name[200];
 
-  int    *TempInt;
+  PINT    *TempPINT;
   double *temp;
   float  *msub, *bufmsub;
 
@@ -196,13 +196,13 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    len = D.GroupDatAll[gr-task].Len;;
 
 	    temp = new double[3*len];
-	    TempInt = new int[len];
+	    TempPINT = new PINT[len];
 	    Index = 0;
 	    for (dim = 0; dim < 3; dim++)
 	      for (i = 0; i < len; i++, Index++)
 		temp[Index] = Pbuf[i].Pos[dim] / D.BoxSize;
 	    for (i = 0; i < len; i++)
-	      TempInt[i] = Pbuf[i].PartID;
+	      TempPINT[i] = Pbuf[i].PartID;
 
 	    get_properties(D, Pbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
 			   &vrms, &spin);
@@ -261,17 +261,17 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    hdims[0] = (hsize_t) len;
 	    hdims[1] = 1;
 	    dspace_id = H5Screate_simple(1, hdims, NULL);
-	    dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
+	    dset_id = H5Dcreate(group_id, "Particle ID", HDF5_PINT, dspace_id,
 				H5P_DEFAULT);
-	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) TempInt);
+	    H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+		     (VOIDP) TempPINT);
 	    H5Sclose(dspace_id);
 	    H5Dclose(dset_id);
 
 	    H5Gclose(group_id);
 
 	    delete [] temp;
-	    delete [] TempInt;
+	    delete [] TempPINT;
 
 	  } // ENDIF output particle list
 
@@ -323,13 +323,13 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	  if (HaloFinderOutputParticleList) {
 
 	    temp = new double[3*len];
-	    TempInt = new int[len];
+	    TempPINT = new PINT[len];
 	    Index = 0;
 	    for (dim = 0; dim < 3; dim++)
 	      for (i = 0; i < len; i++, Index++)
 		temp[Index] = Pbuf[i].Pos[dim] / D.BoxSize;
 	    for (i = 0; i < len; i++)
-	      TempInt[i] = Pbuf[i].PartID;
+	      TempPINT[i] = Pbuf[i].PartID;
 
 	    get_properties(D, partbuf, len, true, cm, cmv, &mtot, &mstars, &mvir, &rvir, AM,
 			   &vrms, &spin);
@@ -393,14 +393,14 @@ void subfind(FOFData &D, int CycleNumber, FLOAT EnzoTime)
 	    dset_id = H5Dcreate(group_id, "Particle ID", HDF5_INT, dspace_id,
 				H5P_DEFAULT);
 	    H5Dwrite(dset_id, HDF5_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-		     (VOIDP) TempInt);
+		     (VOIDP) TempPINT);
 	    H5Sclose(dspace_id);
 	    H5Dclose(dset_id);
 
 	    H5Gclose(group_id);
 
 	    delete [] temp;
-	    delete [] TempInt;
+	    delete [] TempPINT;
 
 	  } // ENDIF output particle list
 
@@ -495,7 +495,8 @@ int do_subfind_in_group(FOFData &D, FOF_particle_data *pbuf, int grlen,
   int *Len_bak, *Head_bak, *Tail_bak, *Next_bak;
   FOF_particle_data *P_bak;
   int i, j, oldhead, gr;
-  int saved, offset, count, id;
+  int saved;
+  PINT offset, count, id;
 
 
 
