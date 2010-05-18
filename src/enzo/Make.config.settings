@@ -216,26 +216,22 @@
      CONFIG_PHOTON = yes
 
 #=======================================================================
-<<<<<<< local
 # CONFIG_HYPRE
-=======
-# CONFIG_NEW_GRID_IO
->>>>>>> other
 #=======================================================================
-<<<<<<< local
 #    yes           Include HYPRE bindings for implicit solvers
 #    no            Do not include HYPRE bindings
-=======
-#    yes           Use the new, simpler Grid IO routines
-#    no            Original (no checkpointing, more obtuse) Grid IO
->>>>>>> other
 #-----------------------------------------------------------------------
 
-<<<<<<< local
      CONFIG_HYPRE = no
-=======
+
+#=======================================================================
+# CONFIG_NEW_GRID_IO
+#=======================================================================
+#    yes           Use the new, simpler Grid IO routines
+#    no            Original (no checkpointing, more obtuse) Grid IO
+#-----------------------------------------------------------------------
+
      CONFIG_NEW_GRID_IO = no
->>>>>>> other
 
 #=======================================================================
 # CONFIG_FAST_SIB

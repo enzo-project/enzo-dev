@@ -230,6 +230,7 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   //    P = D-L*Mi*U.  In the code, this corresponds to the 
   //    matrix  P = D_EE + I*y_E;  we then scale the system 
   //    via  P = diag(P)^{-1}*P,  b_E = diag(P)^{-1}*b_E
+  float *s_E = s->GetData(0);
 
   //       communicate yvec to spread local corrections to neighbors
   if (yvec->exchange_component(0) == FAIL) 
@@ -282,7 +283,6 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   xBuff = ghXl-SolvOff[0];
   yBuff = (ghYl-SolvOff[1])-SolvIndices[1][0];
   zBuff = (ghZl-SolvOff[2])-SolvIndices[2][0];
-  float *s_E = s->GetData(0);
   int Zbl, Ybl;
 //   if (debug)  printf("lsolve: calling HYPRE_StructVectorSetBoxValues\n");
   for (iz=SolvIndices[2][0]; iz<=SolvIndices[2][1]; iz++) {

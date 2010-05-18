@@ -226,7 +226,6 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 #endif
 void my_exit(int status);
  
-int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
                int level);
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -561,7 +560,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     if (LevelArray[level+1] != NULL) {
-      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior
+      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif

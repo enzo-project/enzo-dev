@@ -59,8 +59,10 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   // HYPRE Struct-specific data
   Eint32 mattype;                // HYPRE matrix type for solve
   Eint32 stSize;                 // stencil size
+#ifdef USE_HYPRE
   HYPRE_StructGrid grid;         // HYPRE grid object for setup
   HYPRE_StructStencil stencil;   // stencil object
+#endif
 
   // HYPRE Solver-specific data
   Eint32 sol_zeroguess;          // use a zero initial guess
@@ -82,9 +84,11 @@ class gFLDProblem : public virtual NonlinearProblemABC {
                                  //   of Dirichlet zones in HYPRE grid.
 
   // HYPRE interface temporary data
+#ifdef USE_HYPRE
   HYPRE_StructMatrix P;          // holds Schur complement matrix
   HYPRE_StructVector rhsvec;     // holds Schur complement rhs vector
   HYPRE_StructVector solvec;     // holds Schur complement solution vector
+#endif
   Eflt64 *Ptmpvec;               // holds Schur complement matrix entries
   Eflt64 *HYPREbuff;             // holds contiguous sections of rhs/sol
 

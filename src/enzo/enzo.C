@@ -118,12 +118,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData);
 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
                  TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
                  FLOAT WriteTime = -1);
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
-         int RestartDump = FALSE);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
+		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 
 
 
@@ -335,6 +341,10 @@ Eint32 main(Eint32 argc, char *argv[])
 #ifdef MPI_INSTRUMENTATION
   char perfname[MAX_NAME_LENGTH];
  
+#ifdef TRANSFER
+  ImplicitProblemABC *ImplicitSolver;
+#endif
+
   flagging_count = 0;
   moving_count = 0;
   in_count = 0;
@@ -564,7 +574,11 @@ Eint32 main(Eint32 argc, char *argv[])
 //     }
     
 //     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
-//                      &TopGrid, MetaData, &Exterior) == FAIL) {
+//                      &TopGrid, MetaData, 
+// #ifdef TRANSFER
+//                      ImplicitSolver,
+// #endif
+//                      &Exterior) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       return FAIL;
 //     }
@@ -605,7 +619,6 @@ Eint32 main(Eint32 argc, char *argv[])
   /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
-  ImplicitProblemABC *ImplicitSolver;
   if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
 				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");

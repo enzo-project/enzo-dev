@@ -53,8 +53,10 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   // HYPRE Struct-specific data
   Eint32 mattype;                // HYPRE matrix type for solve
   Eint32 stSize;                 // stencil size
+#ifdef USE_HYPRE
   HYPRE_StructGrid grid;         // HYPRE grid object for setup
   HYPRE_StructStencil stencil;   // stencil object
+#endif
 
   // HYPRE Solver-specific data
   float  sol_tolerance;          // desired solver tolerance
@@ -75,9 +77,11 @@ class gFLDSplit : public virtual ImplicitProblemABC {
                                  //   of Dirichlet zones in HYPRE grid.
 
   // HYPRE interface temporary data
+#ifdef USE_HYPRE
   HYPRE_StructMatrix P;          // holds radiation matrix
   HYPRE_StructVector rhsvec;     // holds radiation rhs vector
   HYPRE_StructVector solvec;     // holds radiation solution vector
+#endif
   Eflt64 *matentries;            // holds radiation matrix entries
   Eflt64 *rhsentries;            // linear system rhs entries
   Eflt64 *HYPREbuff;             // holds contiguous sections of rhs/sol

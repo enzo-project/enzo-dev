@@ -36,8 +36,10 @@ gFLDSplit::gFLDSplit()
   // initialize HYPRE values to -1/NULL
   mattype = -1;
   stSize = -1;
+#ifdef USE_HYPRE
   grid = NULL;
   stencil = NULL;
+#endif
   sol_tolerance = -1.0;
   sol_maxit = -1;
   sol_rlxtype = -1;
@@ -129,9 +131,11 @@ gFLDSplit::gFLDSplit()
   HYPREbuff  = NULL;
 
   // initialize HYPRE structures to NULL
+#ifdef USE_HYPRE
   P      = NULL;
   rhsvec = NULL;
   solvec = NULL;
+#endif
 
   // initialize access to Enzo arrays to NULL
   vx = NULL;

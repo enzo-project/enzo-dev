@@ -437,8 +437,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 #else  // ifdef USE_HYPRE
 
-  fprintf(stderr,"ERROR: FSProb usage requires HYPRE to be enabled!\n");
-  return FAIL;
+  ENZO_FAIL("FSProb usage requires HYPRE to be enabled!");
 
 #endif
 

@@ -211,12 +211,12 @@ float* grid::AccessKPhHI() {
   return BaryonField[kphHINum];
 }
 
-// Gamma HI field 
-float* grid::AccessGammaHI() {
-  int GammaHINum = -1;
-  if ((GammaHINum = FindField(gammaHI, FieldType, NumberOfBaryonFields))<0) 
+// PhotoGamma field 
+float* grid::AccessPhotoGamma() {
+  int PhotoGammaNum = -1;
+  if ((PhotoGammaNum = FindField(PhotoGamma, FieldType, NumberOfBaryonFields))<0) 
     return NULL;
-  return BaryonField[GammaHINum];
+  return BaryonField[PhotoGammaNum];
 }
 
 // kphHeI field 
@@ -273,7 +273,7 @@ float* grid::AccessAcceleration0() {
   if ((Acceleration0Num = FindField(Acceleration0, FieldType, 
 				    NumberOfBaryonFields))<0) 
     return NULL;
-  return BaryonField[Acceleration0];
+  return BaryonField[Acceleration0Num];
 }
 
 // Acceleration1 field 

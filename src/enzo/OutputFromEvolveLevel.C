@@ -263,6 +263,9 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 // #else
 //     if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 // 		     Temp2->GridHierarchyEntry, *MetaData, Exterior, 
+// #ifdef TRANSFER
+// 		     ImplicitSolver,
+// #endif
 // 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       ENZO_FAIL("");

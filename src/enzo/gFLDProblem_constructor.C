@@ -38,11 +38,13 @@ gFLDProblem::gFLDProblem()
   // initialize total RT time to zero
   RTtime = 0.0;
 
-  // initialize HYPRE values to -1/NULL
+  // initialize linear solver values to -1/NULL
   mattype = -1;
   stSize = -1;
+#ifdef USE_HYPRE
   grid = NULL;
   stencil = NULL;
+#endif
   sol_zeroguess = -1;
   sol_maxit = -1;
   sol_relch = -1;

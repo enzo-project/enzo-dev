@@ -30,12 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
-<<<<<<< local
-  if ((this->type != BlackHole && ABS(this->type) != MBH) || 
-      (this->CurrentGrid == NULL))
-=======
   if (this->CurrentGrid == NULL || this->naccretions == 0)
->>>>>>> other
     return SUCCESS;
 
   int dim, i, n, count;

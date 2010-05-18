@@ -68,14 +68,9 @@ public:
 
   // Routines
   star_type ReturnType(void) { return type; };
-  FLOAT* ReturnPosition(void) { return pos; };
   int   ReturnID(void) { return Identifier; };
-<<<<<<< local
-  float ReturnMass(void) { return Mass; };
-  float ReturnBirthTime(void) { return BirthTime; };
-=======
   double ReturnMass(void) { return Mass; };
->>>>>>> other
+  float ReturnBirthTime(void) { return BirthTime; };
   float ReturnLifetime(void) { return LifeTime; };
   int   ReturnLevel(void) { return level; };
   void  ReduceLevel(void) { level--; };
@@ -95,15 +90,12 @@ public:
   { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
-<<<<<<< local
   bool  ReturnEmissivityFlag(void) { return AddedEmissivity; };
   void  AddEmissivityFlag(void) { this->AddedEmissivity = true; };
-=======
   FLOAT *ReturnPosition(void) { return pos; }
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
   float ReturnLastAccretionRate(void) { return last_accretion_rate; }
->>>>>>> other
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);

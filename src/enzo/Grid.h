@@ -1121,7 +1121,7 @@ public:
    float* AccessExtraType0();
    float* AccessExtraType1();
    float* AccessKPhHI();
-   float* AccessGammaHI();
+   float* AccessPhotoGamma();
    float* AccessKPhHeI();
    float* AccessGammaHeI();
    float* AccessKPhHeII();
