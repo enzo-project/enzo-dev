@@ -89,13 +89,17 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
-int ProjectToPlane2(char *ParameterFile,
+int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 		    TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		    int ProjectStartTemp[], int ProjectEndTemp[], 
 		    FLOAT ProjectStartCoordinate[],
 		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
 		    int ProjectionDimension, char *ProjectionFileName,
-		    int ProjectionSmooth, ExternalBoundary *Exterior);
+		    int ProjectionSmooth,
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
+		    ExternalBoundary *Exterior);
 int OutputAsParticleData(TopGridData &MetaData,
 			 LevelHierarchyEntry *LevelArray[],
 			 int RegionStart[], int RegionEnd[],
@@ -511,11 +515,14 @@ Eint32 main(Eint32 argc, char *argv[])
       sprintf(proj_name, "project_%4.4d_%c.h5", MetaData.CycleNumber, 120+dim);
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
-      if (ProjectToPlane2(ParameterFile, MetaData, LevelArray, 
+      if (ProjectToPlane2(ParameterFile, TopGrid, MetaData, LevelArray, 
 			  RegionStart, RegionEnd,
 			  RegionStartCoordinates, RegionEndCoordinates,
-			  RegionLevel, dim, proj_name,
-			  ProjectionSmooth, &Exterior) == FAIL)
+			  RegionLevel, dim, proj_name, ProjectionSmooth, 
+#ifdef TRANSFER
+			  ImplicitSolver,
+#endif
+			  &Exterior) == FAIL)
 	my_exit(EXIT_FAILURE);
       else
 	my_exit(EXIT_SUCCESS);
