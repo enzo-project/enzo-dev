@@ -557,7 +557,6 @@ OBJS_CONFIG_LIB = \
 	InexactNewton_InexactNewtonForce.o \
 	InexactNewton_LinesearchStepSize.o \
 	InexactNewton_Solve.o \
-	InitialLoadBalanceRootGrids.o \
 	InitializeCloudyCooling.o \
 	InitializeCosmicRayData.o \
 	InitializeEquilibriumCoolData.o \
@@ -824,7 +823,6 @@ POBJS_CONFIG_LIB = \
 	FindSuperSource.o \
 	FindSuperSourceByPosition.o \
 	FLDCorrectForImpulses.o \
-	GalaxySimulationInitialize.o \
 	Grid_AddH2Dissociation.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
