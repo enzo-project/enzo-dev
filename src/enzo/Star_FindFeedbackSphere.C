@@ -303,10 +303,6 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
-<<<<<<< local
-    DeltaMass = AccretedMass;
-    //type = ABS(type);  // Unmark as unborn (i.e. negative type)
-=======
 
     /* We store the accretion rate of the newly formed star in the
        accretion rate arrays.  Set accretion_time[0] to zero, so the

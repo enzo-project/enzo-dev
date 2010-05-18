@@ -48,13 +48,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 #ifdef ONE_ENERGY
   stype = (HeliumPhotons) ? 3 : 1;
 #endif
-<<<<<<< local
   if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2 && 
       !RadiativeTransferFLD) stype++;
-=======
-  if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
   if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
->>>>>>> other
 
   /* At most how many new Photon Packages should be allocated and
      created?  */

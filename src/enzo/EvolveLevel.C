@@ -561,7 +561,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     if (LevelArray[level+1] != NULL) {
-      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel, Exterior
+      if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
