@@ -44,10 +44,6 @@
 
 int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_enforceboundary");
-#endif
-  
 //   if (debug)
 //     printf("Entering gFLDProblem::EnforceBoundary routine\n");
 
@@ -328,9 +324,6 @@ int gFLDProblem::EnforceBoundary(EnzoVector *u, int flag)
 //   if (debug)
 //     printf("Exiting gFLDProblem::EnforceBoundary routine\n");
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_enforceboundary");
-#endif
   // return success
   return SUCCESS;
 

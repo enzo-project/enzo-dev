@@ -30,10 +30,6 @@
 
 int gFLDSplit::InitialGuess(EnzoVector *uvec)
 {
-#ifdef USE_JBPERF
-  JBPERF_START("gfldsplit_initialguess");
-#endif
-
   // set initial guess depending on user choice
   switch (initial_guess) {
 
@@ -66,9 +62,6 @@ int gFLDSplit::InitialGuess(EnzoVector *uvec)
 
   }
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldsplit_initialguess");
-#endif
   return SUCCESS;
 
 }

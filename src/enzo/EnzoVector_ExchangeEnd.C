@@ -41,9 +41,6 @@
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange_end()
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchangeend");
-#endif
 #ifdef USE_MPI
 
   // some local variables
@@ -202,21 +199,9 @@ int EnzoVector::exchange_end()
       return FAIL;
     }
   }
-
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangeend");
-#endif
-  return SUCCESS;
-
-
-#else
-
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangeend");
-#endif
-  return SUCCESS;
-
 #endif  // end if USE_MPI
+
+  return SUCCESS;
 }
 
 /******************************************************************/
@@ -227,9 +212,6 @@ int EnzoVector::exchange_end()
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange_end_component(int ivar)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchangeend_component");
-#endif
 #ifdef USE_MPI
 
   // some local variables
@@ -370,21 +352,9 @@ int EnzoVector::exchange_end_component(int ivar)
       return FAIL;
     }
   }
-
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangeend_component");
-#endif
-  return SUCCESS;
-
-
-#else
-
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangeend_component");
-#endif
-  return SUCCESS;
-
 #endif  // end if USE_MPI
+
+  return SUCCESS;
 }
 
 /******************************************************************/

@@ -41,9 +41,6 @@
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange()
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchange");
-#endif
 #ifdef USE_MPI
 
   //  printf("Entering EnzoVector::exchange\n");
@@ -621,11 +618,7 @@ int EnzoVector::exchange()
   //  MPI_Barrier(MPI_COMM_WORLD);
   //  printf("Exiting EnzoVector::exchange\n");
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchange");
-#endif
   return SUCCESS;
-
 
 #else
   // If MPI not used, just copy one boundary to ghosts of other boundary
@@ -710,9 +703,6 @@ int EnzoVector::exchange()
     
   }  // end for idat
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchange");
-#endif
   return SUCCESS;
 
 #endif  // end if USE_MPI
@@ -726,9 +716,6 @@ int EnzoVector::exchange()
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange_component(int ivar)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchange_component");
-#endif
 #ifdef USE_MPI
 
   //  printf("Entering EnzoVector::exchange_component\n");
@@ -1090,9 +1077,6 @@ int EnzoVector::exchange_component(int ivar)
   //  MPI_Barrier(MPI_COMM_WORLD);
   //  printf("Exiting EnzoVector::exchange_component\n");
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchange_component");
-#endif
   return SUCCESS;
 
 
@@ -1171,9 +1155,6 @@ int EnzoVector::exchange_component(int ivar)
 	  mydata[((k+x2len-Ng2r)*x1len + j)*x0len + i] = 
 	    mydata[((k+Ng2l)*x1len + j)*x0len + i];
   
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchange_component");
-#endif
   return SUCCESS;
 
 #endif  // end if USE_MPI

@@ -433,9 +433,6 @@ int EnzoVector::size(int *n0, int *n1, int *n2, int *ns, int *g0l,
 //  [operates on ghost zones as well as active data]
 int EnzoVector::copy(EnzoVector *x)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_copy");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -444,9 +441,6 @@ int EnzoVector::copy(EnzoVector *x)
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = x->data[idat][i];
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_copy");
-#endif
   return SUCCESS;
 }
 
@@ -455,9 +449,6 @@ int EnzoVector::copy(EnzoVector *x)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::copy_component(EnzoVector *x, int c)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_copy_component");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -469,9 +460,6 @@ int EnzoVector::copy_component(EnzoVector *x, int c)
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
     data[c][i] = x->data[c][i];
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_copy_component");
-#endif
   return SUCCESS;
 }
 
@@ -480,9 +468,6 @@ int EnzoVector::copy_component(EnzoVector *x, int c)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::linearsum(float a, EnzoVector *x, float b, EnzoVector *y)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_linearsum");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -495,9 +480,6 @@ int EnzoVector::linearsum(float a, EnzoVector *x, float b, EnzoVector *y)
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = a*x->data[idat][i] + b*y->data[idat][i];
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_linearsum");
-#endif
   return SUCCESS;
 }
 
@@ -506,9 +488,6 @@ int EnzoVector::linearsum(float a, EnzoVector *x, float b, EnzoVector *y)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::axpy(float a, EnzoVector *x)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_axpy");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -517,9 +496,6 @@ int EnzoVector::axpy(float a, EnzoVector *x)
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] += a*x->data[idat][i];
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_axpy");
-#endif
   return SUCCESS;
 }
 
@@ -528,9 +504,6 @@ int EnzoVector::axpy(float a, EnzoVector *x)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_axpycomponent");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -542,9 +515,6 @@ int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)
     data[c][i] += a*x->data[c][i];
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_axpycomponent");
-#endif
   return SUCCESS;
 }
 
@@ -553,18 +523,12 @@ int EnzoVector::axpy_component(float a, EnzoVector *x, int c)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::scale_component(int idat, float a)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_scalecomponent");
-#endif
   if ((idat < 0) || (idat >= Nspecies)) {
     fprintf(stderr,"scale_component error: illegal var = %"ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
     data[idat][i] *= a;
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_scalecomponent");
-#endif
   return SUCCESS;
 }
 
@@ -572,18 +536,12 @@ int EnzoVector::scale_component(int idat, float a)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::log_component(int idat)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_logcomponent");
-#endif
   if ((idat < 0) || (idat >= Nspecies)) {
     fprintf(stderr,"log_component error: illegal var = %"ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
     data[idat][i] = (data[idat][i] == 0.0) ? -1.2e4 : log(data[idat][i]);
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_logcomponent");
-#endif
   return SUCCESS;
 }
 
@@ -591,18 +549,12 @@ int EnzoVector::log_component(int idat)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::exp_component(int idat)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_expcomponent");
-#endif
   if ((idat < 0) || (idat >= Nspecies)) {
     fprintf(stderr,"exp_component error: illegal var = %"ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
     data[idat][i] = exp(data[idat][i]);
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_expcomponent");
-#endif
   return SUCCESS;
 }
 
@@ -611,15 +563,9 @@ int EnzoVector::exp_component(int idat)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::scale(float a)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_scale");
-#endif
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] *= a;
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_scale");
-#endif
   return SUCCESS;
 }
 
@@ -628,15 +574,9 @@ int EnzoVector::scale(float a)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::constant(float a)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_constant");
-#endif
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = a;
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_constant");
-#endif
   return SUCCESS;
 }
 
@@ -645,15 +585,9 @@ int EnzoVector::constant(float a)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::addconst(float a)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_addconst");
-#endif
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] += a;
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_addconst");
-#endif
   return SUCCESS;
 }
 
@@ -662,18 +596,12 @@ int EnzoVector::addconst(float a)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::addconst_component(int idat, float a)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_addconstcomponent");
-#endif
   if ((idat < 0) || (idat >= Nspecies)) {
     fprintf(stderr,"addconst_component error: illegal var = %"ISYM"\n",idat);
     return -1.0;
   }
   for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
     data[idat][i] += a;
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_addconstcomponent");
-#endif
   return SUCCESS;
 }
 
@@ -682,9 +610,6 @@ int EnzoVector::addconst_component(int idat, float a)
 //  [operates on ghost zones as well as active data]
 int EnzoVector::abs(EnzoVector *x)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_abs");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -693,9 +618,6 @@ int EnzoVector::abs(EnzoVector *x)
   for (int idat=0; idat<Nspecies; idat++)
     for (int i=0; i<((Nx0+Ng0l+Ng0r)*(Nx1+Ng1l+Ng1r)*(Nx2+Ng2l+Ng2r)); i++)  
       data[idat][i] = fabs(x->data[idat][i]);
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_abs");
-#endif
   return SUCCESS;
 }
 
@@ -704,9 +626,6 @@ int EnzoVector::abs(EnzoVector *x)
 //  [operates on active data only]
 int EnzoVector::product(EnzoVector *x, EnzoVector *y)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_product");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -727,9 +646,6 @@ int EnzoVector::product(EnzoVector *x, EnzoVector *y)
 	  idx = (k*x1len + j)*x0len + i;
 	  data[idat][idx] = (x->data[idat][idx])*(y->data[idat][idx]);
 	}
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_product");
-#endif
   return SUCCESS;
 }
 
@@ -738,9 +654,6 @@ int EnzoVector::product(EnzoVector *x, EnzoVector *y)
 //  [operates on active data only; assumes y(i)!=0]
 int EnzoVector::quotient(EnzoVector *x, EnzoVector *y)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_quotient");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -761,9 +674,6 @@ int EnzoVector::quotient(EnzoVector *x, EnzoVector *y)
 	  idx = (k*x1len + j)*x0len + i;
 	  data[idat][idx] = (x->data[idat][idx])/(y->data[idat][idx]);
 	}
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_quotient");
-#endif
   return SUCCESS;
 }
 
@@ -773,9 +683,6 @@ int EnzoVector::quotient(EnzoVector *x, EnzoVector *y)
 //  [operates on active data only]
 float EnzoVector::minquotient(EnzoVector *y)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_minquotient");
-#endif
   if ((y->Nx0 != Nx0) || (y->Nx1 != Nx1) || (y->Nx2 != Nx2) ||
       (y->Ng0l != Ng0l) || (y->Ng1l != Ng1l) || (y->Ng2l != Ng2l) ||
       (y->Ng0r != Ng0r) || (y->Ng1r != Ng1r) || (y->Ng2r != Ng2r) || 
@@ -801,9 +708,6 @@ float EnzoVector::minquotient(EnzoVector *y)
 	    else  minquot = (quotient<minquot) ? quotient : minquot;
 	  }
 	}
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_minquotient");
-#endif
   return minquot;
 }
 
@@ -812,9 +716,6 @@ float EnzoVector::minquotient(EnzoVector *y)
 //  [operates on active data only; assumes x(i)!=0]
 int EnzoVector::inverse(EnzoVector *x)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_inverse");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -833,9 +734,6 @@ int EnzoVector::inverse(EnzoVector *x)
 	  value = x->data[idat][idx];
 	  data[idat][idx] = (value != 0.0) ? 1.0/value : 1.0;
 	}
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_inverse");
-#endif
   return SUCCESS;
 }
 
@@ -850,9 +748,6 @@ int EnzoVector::inverse(EnzoVector *x)
 //  [operates on active data only]
 bool EnzoVector::constraintcheck(EnzoVector *c, EnzoVector *x)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_constraintcheck");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -891,9 +786,6 @@ bool EnzoVector::constraintcheck(EnzoVector *c, EnzoVector *x)
 	    }
 	  }
 	}
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_constraintcheck");
-#endif
   return test;
 }
 
@@ -901,9 +793,6 @@ bool EnzoVector::constraintcheck(EnzoVector *c, EnzoVector *x)
 //  Vector dot product
 float EnzoVector::dot(EnzoVector *x) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_dot");
-#endif
   if ((x->Nx0 != Nx0) || (x->Nx1 != Nx1) || (x->Nx2 != Nx2) ||
       (x->Ng0l != Ng0l) || (x->Ng1l != Ng1l) || (x->Ng2l != Ng2l) ||
       (x->Ng0r != Ng0r) || (x->Ng1r != Ng1r) || (x->Ng2r != Ng2r) || 
@@ -935,9 +824,6 @@ float EnzoVector::dot(EnzoVector *x) const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_dot");
-#endif
   return(gsum);
 }
 
@@ -945,9 +831,6 @@ float EnzoVector::dot(EnzoVector *x) const
 //  Vector rmsnorm
 float EnzoVector::rmsnorm() const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_rmsnorm");
-#endif
   float sum=0.0, gsum;
   int idx;
   int x0len = Nx0 + Ng0l + Ng0r;
@@ -972,9 +855,6 @@ float EnzoVector::rmsnorm() const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_rmsnorm");
-#endif
   return( sqrt(gsum/Nglobal) );
 }
 
@@ -982,9 +862,6 @@ float EnzoVector::rmsnorm() const
 //   Component RMS norm,  sqrt(dot(this,this)/Nglobal)
 float EnzoVector::rmsnorm_component(int idat) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_rmsnormcomponent");
-#endif
   if ((idat < 0) || (idat >= Nspecies)) {
     fprintf(stderr,"rmsnorm_component error: illegal var = %"ISYM"\n",idat);
     return -1.0;
@@ -1012,9 +889,6 @@ float EnzoVector::rmsnorm_component(int idat) const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_rmsnormcomponent");
-#endif
   return( sqrt(gsum/Nglobal*Nspecies) );
 }
 
@@ -1030,9 +904,6 @@ float EnzoVector::wrmsnorm(EnzoVector *w) const
 //  Vector weighted L-2 norm
 float EnzoVector::wl2norm(EnzoVector *w) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_wl2norm");
-#endif
   if ((w->Nx0 != Nx0) || (w->Nx1 != Nx1) || (w->Nx2 != Nx2) ||
       (w->Ng0l != Ng0l) || (w->Ng1l != Ng1l) || (w->Ng2l != Ng2l) ||
       (w->Ng0r != Ng0r) || (w->Ng1r != Ng1r) || (w->Ng2r != Ng2r) || 
@@ -1066,9 +937,6 @@ float EnzoVector::wl2norm(EnzoVector *w) const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_wl2norm");
-#endif
   return( sqrt(gsum) );
 }
 
@@ -1076,9 +944,6 @@ float EnzoVector::wl2norm(EnzoVector *w) const
 //  Vector L-1 norm
 float EnzoVector::l1norm() const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_l1norm");
-#endif
   float sum=0.0, gsum;
   int x0len = Nx0 + Ng0l + Ng0r;
   int x1len = Nx1 + Ng1l + Ng1r;
@@ -1100,9 +965,6 @@ float EnzoVector::l1norm() const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_l1norm");
-#endif
   return(gsum);
 }
 
@@ -1110,9 +972,6 @@ float EnzoVector::l1norm() const
 //  Vector infnorm
 float EnzoVector::infnorm() const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_infnorm");
-#endif
   float max=0.0, gmax;
   float tmp;
   int x0len = Nx0 + Ng0l + Ng0r;
@@ -1137,9 +996,6 @@ float EnzoVector::infnorm() const
   gmax = max;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_infnorm");
-#endif
   return(gmax);
 }
 
@@ -1147,9 +1003,6 @@ float EnzoVector::infnorm() const
 //  Component infnorm
 float EnzoVector::infnorm_component(int var) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_infnormcomponent");
-#endif
   if ((var < 0) || (var >= Nspecies)) {
     fprintf(stderr,"infnorm_component error: illegal var = %"ISYM"\n",var);
     return -1.0;
@@ -1178,9 +1031,6 @@ float EnzoVector::infnorm_component(int var) const
   gmax = max;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_infnormcomponent");
-#endif
   return(gmax);
 }
 
@@ -1188,9 +1038,6 @@ float EnzoVector::infnorm_component(int var) const
 //   Relative pointwise difference,  max(abs(this-that)/abs(this))
 float EnzoVector::relative_difference(float *x, int var) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_relativedifference");
-#endif
   if ((var < 0) || (var >= Nspecies)) {
     fprintf(stderr,"relative_difference error: illegal var = %"ISYM"\n",var);
     return -1.0;
@@ -1222,9 +1069,6 @@ float EnzoVector::relative_difference(float *x, int var) const
   gmax = max;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_relativedifference");
-#endif
   return(gmax);
 }
 
@@ -1232,9 +1076,6 @@ float EnzoVector::relative_difference(float *x, int var) const
 //   Relative volumetric difference, rmsnorm((abs(this-that)/abs(this)))
 float EnzoVector::relative_vol_difference(float *x, int var) const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_relativevoldifference");
-#endif
   if ((var < 0) || (var >= Nspecies)) {
     fprintf(stderr,"relative_vol_difference error: illegal var = %"ISYM"\n",var);
     return -1.0;
@@ -1267,9 +1108,6 @@ float EnzoVector::relative_vol_difference(float *x, int var) const
   gsum = sum;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_relativevoldifference");
-#endif
   return(sqrt(gsum/Nglobal*Nspecies));
 }
 
@@ -1277,9 +1115,6 @@ float EnzoVector::relative_vol_difference(float *x, int var) const
 //  Vector minimum value
 float EnzoVector::minval() const
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_minval");
-#endif
   float min, gmin;
   float tmp;
   int x0len = Nx0 + Ng0l + Ng0r;
@@ -1305,9 +1140,6 @@ float EnzoVector::minval() const
   gmin = min;
 #endif
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_minval");
-#endif
   return(gmin);
 }
 

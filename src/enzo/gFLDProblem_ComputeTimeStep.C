@@ -33,10 +33,6 @@
 float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, 
 				   int NewtIts, float FStep, float FResid)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_computetimestep");
-#endif
-
   // get local mesh description
   int Nx, Ny, Nz, Nvar, ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   unew->size(&Nx, &Ny, &Nz, &Nvar, &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
@@ -250,11 +246,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
     }
   }
 
-#ifdef USE_JBPERF
-  JBPERF_STOP("gfldproblem_computetimestep");
-#endif
   return dt_est;
-
 }
 
 #endif

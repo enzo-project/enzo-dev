@@ -29,10 +29,6 @@
 
 int gFLDProblem::nlresid(EnzoVector *fu, EnzoVector *u)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_nlresid");
-#endif
-  
 //   if (debug)
 //     printf("Entering gFLDProblem::nlresid routine\n");
 
@@ -107,10 +103,6 @@ int gFLDProblem::nlresid(EnzoVector *fu, EnzoVector *u)
 //     printf("\n");
 //   }
 
-
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_nlresid");
-#endif
   // return success
   return SUCCESS;
 

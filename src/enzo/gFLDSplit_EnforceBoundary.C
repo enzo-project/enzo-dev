@@ -33,10 +33,6 @@
 
 int gFLDSplit::EnforceBoundary(EnzoVector *u)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldsplit_enforceboundary");
-#endif
-  
 //   if (debug)
 //     printf("Entering gFLDSplit::EnforceBoundary routine\n");
 
@@ -208,9 +204,6 @@ int gFLDSplit::EnforceBoundary(EnzoVector *u)
 //   if (debug)
 //     printf("Exiting gFLDSplit::EnforceBoundary routine\n");
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldsplit_enforceboundary");
-#endif
   // return success
   return SUCCESS;
 

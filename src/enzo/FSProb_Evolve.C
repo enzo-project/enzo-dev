@@ -43,10 +43,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat) 
 {
-#ifdef USE_JBPERF
-  JBPERF_START("fsprob_evolve");
-#endif
-  
   //  if (debug)  printf("Entering FSProb::Evolve routine\n");
 
   // Only continue if we own this grid
@@ -457,10 +453,6 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   if (debug)
     printf("  =====================================================================\n");
-
-#ifdef USE_JBPERF
-  JBPERF_STOP("fsprob_evolve");
-#endif
 
   // return success
   return SUCCESS;

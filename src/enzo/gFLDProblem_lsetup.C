@@ -34,10 +34,6 @@
 
 int gFLDProblem::lsetup(EnzoVector *u)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_lsetup");
-#endif
-
 //   if (debug)  printf("Entering gFLDProblem::lsetup routine\n");
 
   // check that the gFLDProblem has been set up
@@ -378,9 +374,6 @@ int gFLDProblem::lsetup(EnzoVector *u)
   if ((AnalyticChem == 1) && (Model == 4))  
     (L[1])->addconst_component(1,1.0);
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_lsetup");
-#endif
   // return success
   return SUCCESS;
 }

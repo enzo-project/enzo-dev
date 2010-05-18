@@ -43,10 +43,6 @@
 
 int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_updateboundary");
-#endif
-  
 //   if (debug)
 //     printf("Entering gFLDProblem::UpdateBoundary routine\n");
 
@@ -190,10 +186,6 @@ int gFLDProblem::UpdateBoundary(EnzoVector *u, float time, int flag)
 
   } // end if (20 <= Model < 30)
 
-  
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_updateboundary");
-#endif
   // return success
   return SUCCESS;
 }

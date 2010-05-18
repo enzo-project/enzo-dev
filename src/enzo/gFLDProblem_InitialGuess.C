@@ -36,10 +36,6 @@
 
 int gFLDProblem::InitialGuess(EnzoVector *uvec)
 {
-#ifdef USE_JBPERF
-  JBPERF_START("gfldproblem_initialguess");
-#endif
-
   // set some pointers
   float *tmp3_E, *Er, *Er0;
 
@@ -96,9 +92,6 @@ int gFLDProblem::InitialGuess(EnzoVector *uvec)
 
   }
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_initialguess");
-#endif
   return SUCCESS;
 
 }

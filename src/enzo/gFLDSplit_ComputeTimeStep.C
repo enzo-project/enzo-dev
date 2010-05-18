@@ -34,10 +34,6 @@
 
 float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldsplit_computetimestep");
-#endif
-
   // get local mesh description
   int Nx, Ny, Nz, Nvar, ghXl, ghXr, ghYl, ghYr, ghZl, ghZr;
   unew->size(&Nx, &Ny, &Nz, &Nvar, &ghXl, &ghXr, &ghYl, &ghYr, &ghZl, &ghZr);
@@ -271,9 +267,6 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
   dt_est = max(dt_est, mindt);
   dt_est = min(dt_est, maxdt);
 
-#ifdef USE_JBPERF
-  JBPERF_STOP("gfldsplit_computetimestep");
-#endif
   return dt_est;
 
 }

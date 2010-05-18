@@ -41,9 +41,6 @@
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange_start()
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchangestart");
-#endif
 #ifdef USE_MPI
 
   // some local variables
@@ -479,9 +476,6 @@ int EnzoVector::exchange_start()
   }
   
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangestart");
-#endif
   return SUCCESS;
 
 
@@ -568,9 +562,6 @@ int EnzoVector::exchange_start()
     
   }  // end for idat
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("enzovector_exchangestart");
-#endif
   return SUCCESS;
 
 #endif  // end if USE_MPI
@@ -584,9 +575,6 @@ int EnzoVector::exchange_start()
 //  (may be used for parallelism, or even for single-proc. periodic BCs)
 int EnzoVector::exchange_start_component(int ivar)
 {
-#ifdef USE_JBPERF
-    JBPERF_START("enzovector_exchangestart_component");
-#endif
 #ifdef USE_MPI
 
   // some local variables
@@ -823,9 +811,6 @@ int EnzoVector::exchange_start_component(int ivar)
     }
   }
   
-#ifdef USE_JBPERF
-  JBPERF_STOP("enzovector_exchangestart_component");
-#endif
   return SUCCESS;
 
 
@@ -905,9 +890,6 @@ int EnzoVector::exchange_start_component(int ivar)
 	  mydata[((k+x2len-Ng2r)*x1len + j)*x0len + i] = 
 	    mydata[((k+Ng2l)*x1len + j)*x0len + i];
     
-#ifdef USE_JBPERF
-JBPERF_STOP("enzovector_exchangestart_component");
-#endif
 return SUCCESS;
 
 #endif  // end if USE_MPI

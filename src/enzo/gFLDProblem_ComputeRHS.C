@@ -32,10 +32,6 @@
 
 int gFLDProblem::ComputeRHS(EnzoVector *rhsvec, float time, EnzoVector *u) 
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_computerhs");
-#endif
-
 //   if (debug)  printf("Entering gFLDProblem::ComputeRHS routine\n");
 
   // get local mesh description and check input vector sizes
@@ -74,9 +70,6 @@ int gFLDProblem::ComputeRHS(EnzoVector *rhsvec, float time, EnzoVector *u)
   //   combine pieces together and delete temporary storage
   rhsvec->axpy_component(1.0,tmp1,0);
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_computerhs");
-#endif
   // return success
   return SUCCESS;
 }

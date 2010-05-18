@@ -29,10 +29,6 @@
 
 int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u) 
 {
-#ifdef USE_JBPERF
-    JBPERF_START("gfldproblem_locrhs");
-#endif
-
 //   if (debug)  printf("Entering gFLDProblem::LocRHS routine\n");
 
   // get local mesh description
@@ -158,9 +154,6 @@ int gFLDProblem::LocRHS(EnzoVector *locrhs, float time, EnzoVector *u)
 		     n_HI, n_HeI, n_HeII) != SUCCESS) 
     ENZO_FAIL("LocRHS: Error in LocalRHS routine");
 
-#ifdef USE_JBPERF
-    JBPERF_STOP("gfldproblem_locrhs");
-#endif
   // return success
   return SUCCESS;
 }
