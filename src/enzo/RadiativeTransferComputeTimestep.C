@@ -105,8 +105,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
        fluctuate significantly.  It gets even worse if the dtPhoton is
        allowed to vary a lot (>factor of a few). */
     
-    printf("dtPhoton=%g, LastPhotonDT=%g %g\n", dtPhoton, 
-	   LastPhotonDT[0], LastPhotonDT[1]); 
+//    printf("dtPhoton=%g, LastPhotonDT=%g %g\n", dtPhoton, 
+//	   LastPhotonDT[0], LastPhotonDT[1]); 
 
     if (LastPhotonDT[0] > 0 && LastPhotonDT[1] > 0 && dtPhoton < huge_number) {
       AvgLastTimestep = 0.5 * (LastPhotonDT[0]+LastPhotonDT[1]);
