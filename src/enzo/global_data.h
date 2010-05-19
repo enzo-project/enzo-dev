@@ -822,4 +822,6 @@ EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+EXTERN char current_error[255];
+
 #endif
