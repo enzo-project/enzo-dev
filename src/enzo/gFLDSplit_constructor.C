@@ -29,6 +29,9 @@ gFLDSplit::gFLDSplit()
 
 //   if (debug)  printf("\nEntering gFLDSplit::constructor routine\n");
   int dim, face;
+#ifndef USE_MPI
+  int MPI_PROC_NULL = -3;
+#endif
 
   // initialize total RT time to zero
   RTtime = 0.0;

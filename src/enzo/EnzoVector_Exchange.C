@@ -625,6 +625,7 @@ int EnzoVector::exchange()
 
   // some local variables
   int i, j, k;
+  int MPI_PROC_NULL = -3;
   int x0len = Nx0 + Ng0l + Ng0r;
   int x1len = Nx1 + Ng1l + Ng1r;
   int x2len = Nx2 + Ng2l + Ng2r;
@@ -1085,6 +1086,7 @@ int EnzoVector::exchange_component(int ivar)
 
   // some local variables
   int i, j, k;
+  int MPI_PROC_NULL = -3;
   int x0len = Nx0 + Ng0l + Ng0r;
   int x1len = Nx1 + Ng1l + Ng1r;
   int x2len = Nx2 + Ng2l + Ng2r;

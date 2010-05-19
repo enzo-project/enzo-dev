@@ -29,6 +29,9 @@ FSProb::FSProb()
 
 //   if (debug)  printf("\nEntering FSProb::constructor routine\n");
   int dim, face;
+#ifndef USE_MPI
+  int MPI_PROC_NULL = -3;
+#endif
 
   // initialize total solver time to zero
   FStime = 0.0;
