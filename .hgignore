@@ -5,6 +5,7 @@ syntax: glob
 *.f
 *~
 
+bin/enzo
 DEPEND
 DEPEND.bak
 auto_show_*.C
