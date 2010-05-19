@@ -27,7 +27,7 @@ GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-dtDataDump             = 10.0
+dtDataDump             = 100.0
 #
 #  set hydro parameters
 #
