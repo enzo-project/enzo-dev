@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 # Calculate
 # 1. Ionization front propagation and compare to Stroemgren solution
-# 2. Deviation from 1/r^2 in the photo-ionization field in the last output
+# 2. Slice of photo-ionization field
+# 3. Deviation from 1/r^2 in the photo-ionization field in the last output
 
 first = 1
 last = 25
@@ -79,9 +80,22 @@ p.set_xlabel("Time (Myr)")
 plt.savefig("StroemgrenRadius.png")
 
 ########################################################################
+# Some basic analysis on the final output
+########################################################################
+
+pf = load("DD%4.4d/data%4.4d" % (last,last))
+
+pc = PlotCollection(pf, center=[0.5,0.5,1.0/64])
+pc.add_slice('kph',2)
+pc.add_slice('Neutral_Fraction',2)
+pc.add_slice('Electron_Fraction',2)
+pc.save()
+del pc
+
+########################################################################
 # Calculate deviation from 1/r^2 in the last output (inside 0.5*anyl_radius)
 ########################################################################
-pf = load("DD%4.4d/data%4.4d" % (last,last))
+
 x_bins_1d = 32
 r_min = 2*pf.h.get_smallest_dx()
 r_max = 0.5*anyl_radius[-1] / pf['cm']
