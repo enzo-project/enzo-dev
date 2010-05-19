@@ -8,7 +8,7 @@ ProblemType             = 50
 TopGridRank             = 3
 StopTime                = 25
 
-TopGridDimensions       = 32 32 32
+TopGridDimensions       = 16 16 16
 
 MultiSpecies            = 1
 RadiativeCooling        = 1
@@ -29,13 +29,14 @@ HydroMethod             = 0
 DualEnergyFormalism     = 1 
 
 TopGridGravityBoundary     = 0
-LeftFaceBoundaryCondition  = 0 0 0       // 
-RightFaceBoundaryCondition = 0 0 0
+LeftFaceBoundaryCondition  = 0 0 0       // reflecting
+RightFaceBoundaryCondition = 1 1 1       // outflow
 
 StaticHierarchy            = 0        // AMR
 MaximumRefinementLevel     = 2        // use up to __ levels
 RefineBy                   = 2        // refinement factor
 CellFlaggingMethod         = 2        // use baryon mass for refinement 
+MinimumEfficiency          = 0.4      // good for 3D
 
 GravitationalConstant      = 1
 SelfGravity                = 0
@@ -64,5 +65,6 @@ PhotonTestSphereTemperature[0] = 1.e2
 PhotonTestSphereCoreRadius[0]  = 0.114375
 PhotonTestSpherePosition[0]    = 1e-3 1e-3 1e-3
 
-dtDataDump = 0.25                        // one every 1 Myr
+dtDataDump = 1.0                        // one every 1 Myr
 Initialdt  = 0.01
+OutputTemperature = 1
