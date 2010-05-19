@@ -106,6 +106,9 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionHM,
 			  float CosmologySimulationInitialFractionH2I,
 			  float CosmologySimulationInitialFractionH2II,
+#ifdef TRANSFER
+			  float RadHydroRadiation,
+#endif
 			  int   UseMetallicityField,
 			  PINT &CurrentParticleNumber,
 			  int CosmologySimulationManuallySetParticleMassRatio,
@@ -117,7 +120,12 @@ int grid::CosmologySimulationInitializeGrid(
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum, MetalNum;
-
+#ifdef TRANSFER
+  int EgNum;
+#endif
+#ifdef EMISSIVITY
+  int EtaNum;
+#endif
   int CRNum, MachNum, PSTempNum, PSDenNum;
  
   int ExtraField[2];
@@ -225,6 +233,10 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity2;
     if (GridRank > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
+#ifdef TRANSFER
+    if (RadiativeTransferFLD > 1)
+      FieldType[NumberOfBaryonFields++] = RadiationFreq0;
+#endif
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
       FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
@@ -256,6 +268,10 @@ int grid::CosmologySimulationInitializeGrid(
     }
     if (WritePotential)
       FieldType[NumberOfBaryonFields++] = GravPotential;
+#ifdef EMISSIVITY
+    if (StarMakerEmissivityField > 0)
+      FieldType[NumberOfBaryonFields++] = Emissivity0;
+#endif
     if(CRModel){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
       if(StorePreShockFields){
@@ -375,6 +391,15 @@ int grid::CosmologySimulationInitializeGrid(
       }
     } // ENDFOR dim
   } // ENDIF grid velocities
+
+#ifdef TRANSFER
+  // if using FLD-based radiation energy density, set the field
+  if ((RadiativeTransferFLD > 1) && ReadData) {
+    float RadScaled = RadHydroRadiation/DensityUnits/VelocityUnits/VelocityUnits;
+    for (i=0; i<size; i++)
+      BaryonField[EgNum][i] = RadScaled;
+  }
+#endif
  
   // If using multi-species, set the fields
  
@@ -457,6 +482,12 @@ int grid::CosmologySimulationInitializeGrid(
       for (i = 0; i < size; i++)
         BaryonField[ForbidNum][i] = 0.0;
     }
+
+#ifdef EMISSIVITY
+    // If using an emissivity field, initialize to zero
+    if ((StarMakerEmissivityField > 0) && ReadData)
+      for (i=0; i<size; i++)  BaryonField[EtaNum][i] = 0.0;
+#endif
  
   // If they were not read in above, set the total & gas energy fields now
  

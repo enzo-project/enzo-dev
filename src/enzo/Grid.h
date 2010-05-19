@@ -1811,6 +1811,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			  float CosmologySimulationInitialFrctionHM,
 			  float CosmologySimulationInitialFrctionH2I,
 			  float CosmologySimulationInitialFrctionH2II,
+#ifdef TRANSFER
+			  float RadHydroInitialRadiationEnergy,
+#endif
 			  int   CosmologySimulationUseMetallicityField,
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,

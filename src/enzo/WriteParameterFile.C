@@ -246,6 +246,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     fprintf(fptr, "RadHydroParamfile = %s\n", MetaData.RadHydroParameterFname);
 #endif
   fprintf(fptr, "ImplicitProblem = %"ISYM"\n", ImplicitProblem);
+#ifdef EMISSIVITY
+  fprintf(fptr, "StarMakerEmissivityField = %"ISYM"\n", StarMakerEmissivityField);
+  fprintf(fptr, "uv_param = %"GSYM"\n", uv_param);
+#endif
   fprintf(fptr, "RadiativeTransferFLD   = %"ISYM"\n", RadiativeTransferFLD);
 
   fprintf(fptr, "ParticleBoundaryType   = %"ISYM"\n",MetaData.ParticleBoundaryType);
