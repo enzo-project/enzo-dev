@@ -1737,7 +1737,9 @@ int CollapseTestInitializeGrid(int NumberOfSpheres,
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
-			  int CosmologySimulationCalculatePositions);
+			  int CosmologySimulationCalculatePositions,
+			  FLOAT SubDomainLeftEdge[],
+			  FLOAT SubDomainRightEdge[]);
 
 
 /* Initialization for isolated galaxy sims */
