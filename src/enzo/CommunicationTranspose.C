@@ -43,9 +43,9 @@ extern "C" void FORTRAN_NAME(copy3drt)(float *source, float *dest,
                                    int *sstart1, int *sstart2, int *sstart3,
                                    int *dstart1, int *dstart2, int *dststart3);
 
+int CommunicationBarrier(void);
 #ifdef USE_MPI
 int CommunicationBufferPurge(void);
-int CommunicationBarrier(void);
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Target,
 			      int Tag, MPI_Comm CommWorld, int BufferSize);
 #endif
@@ -783,7 +783,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 			   region *ToRegion, int NumberOfToRegions,
 			   int TransposeOrder)
 {
-
+#ifdef USE_MPI
   /* Declarations. */
  
   int dim, n, ni, i, ii, j, jj, size, index, Zero[] = {0,0,0};
@@ -794,7 +794,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
   int SendSize, ReceiveSize;
   int NumberOfRequests = 0;
 
-#ifdef USE_MPI
   MPI_Request RequestHandle[PROCS_PER_LOOP];
   MPI_Status ListOfStatuses[PROCS_PER_LOOP];
   MPI_Arg ListOfIndices[PROCS_PER_LOOP];
@@ -807,7 +806,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
   char error_string[1024];
   MPI_Arg length_of_error_string, error_class;
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#endif
  
 #ifdef DEBUG_NONBLOCKCT
     fprintf(stderr, "CT(%"ISYM"): start From=%"ISYM"  To=%"ISYM"\n", 
@@ -964,8 +962,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
  
       ReceiveBuffer[ni] = new float[ReceiveSize];
  
-#ifdef USE_MPI
- 
       int ToProc = (MyProcessorNumber + n) % NumberOfProcessors;
       int FromProc = (MyProcessorNumber - n + NumberOfProcessors) %
 	NumberOfProcessors;
@@ -1015,8 +1011,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
       CommunicationTime += endtime-starttime;
 #endif /* MPI_INSTRUMENTATION */
  
-#endif /* USE_MPI */
- 
     } else {
       //MPI_Request_free(RequestHandle+ni);
       ReceiveBuffer[ni] = SendBuffer[ni];
@@ -1044,14 +1038,13 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 
 	if (n > 0) {
 	  CompletedRequests = 0;
-#ifdef USE_MPI
 	  MPI_Waitsome(NumberOfRequests, RequestHandle, &CompletedRequests,
 		       ListOfIndices, ListOfStatuses);
-#endif
 #ifdef DEBUG_NONBLOCKCT
 	  printf("P%d: CompletedRequests = %d/%d\n", MyProcessorNumber, 
 		 CompletedRequests, NumberOfRequests);
 #endif
+
 	  /* Check for any errors */
 
 #ifdef UNUSED
@@ -1079,7 +1072,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	     processed the first call, otherwise always process it. */
 
 	  if (n == 0 && request > 0) break;
-#ifdef USE_MPI
 	  if ((RequestHandle[request] == MPI_REQUEST_NULL &&
 	      ReceiveBuffer[request] != NULL) || 
 	      (n == 0 && request == 0)) {
@@ -1136,7 +1128,6 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	    TotalCompletedRequests++;
 
 	  } // ENDIF completed request
-#endif /* USE_MPI */
 	} // ENDFOR requests
 #ifdef DEBUG_NONBLOCKCT
 	printf("CT(%"ISYM"): (n=%d) -- completed %d out of %d requests\n",
@@ -1180,10 +1171,12 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
     delete [] commNB[i].Receives;
   }
 
-#ifdef USE_MPI
   CommunicationBarrier();
   CommunicationBufferPurge();
-#endif
+
+#else
+  ENZO_FAIL("UnigridTranspose = 2 can only be used with use-mpi-yes.");
+#endif /* USE_MPI */
  
   return SUCCESS;
 };
