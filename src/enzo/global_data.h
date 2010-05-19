@@ -783,6 +783,10 @@ EXTERN int RadiativeTransferFLD;
 EXTERN int ImplicitProblem;
 
 
+/* Star-Maker emissivity field generator */
+EXTERN int StarMakerEmissivityField;
+EXTERN float uv_param;
+
 /* Shearing Boundary Conditions */
 
 EXTERN float AngularVelocity;

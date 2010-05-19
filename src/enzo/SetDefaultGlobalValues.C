@@ -305,6 +305,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiativeTransfer           = 0;                 // off
   RadiativeTransferFLD        = 0;                 // off
   ImplicitProblem             = 0;                 // off
+  StarMakerEmissivityField    = 0;                 // off
+  uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
+
   MultiSpecies                = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
