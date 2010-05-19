@@ -182,7 +182,12 @@ help-config:
 	@echo
 	@echo "      gmake hypre-yes"
 	@echo "      gmake hypre-no"
-	@echo 
+	@echo
+	@echo "   Include emissivity field"
+	@echo
+	@echo "      gmake emissivity-yes"
+	@echo "      gmake emissivity-no"
+	@echo
 	@echo "   Set whether to use CUDA (GPU-computing)"
 	@echo
 	@echo "      gmake cuda-yes"
@@ -246,6 +251,7 @@ show-config:
 	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
 	@echo "   CONFIG_HYPRE:                 $(CONFIG_HYPRE)"
+	@echo "   CONFIG_EMISSIVITY:            $(CONFIG_EMISSIVITY)"
 	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
 	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
 	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
@@ -706,6 +712,23 @@ CONFIG_HYPRE-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_HYPRE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE) show-config | grep CONFIG_HYPRE:
+	@echo
+
+#-----------------------------------------------------------------------
+
+VALID_EMISSIVITY = emissivity-yes emissivity-no
+.PHONY: $(VALID_EMISSIVITY)
+
+emissivity-yes: CONFIG_EMISSIVITY-yes
+emissivity-no: CONFIG_EMISSIVITY-no
+emissivity-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_EMISSIVITY)]\n\n"
+CONFIG_EMISSIVITY-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_EMISSIVITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_EMISSIVITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_EMISSIVITY:
 	@echo
 
 #-----------------------------------------------------------------------

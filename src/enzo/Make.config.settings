@@ -30,7 +30,14 @@
 #    CONFIG_OPT
 #    CONFIG_TESTING
 #    CONFIG_TPVEL
+#    CONFIG_PHOTON
+#    CONFIG_HYPRE
+#    CONFIG_EMISSIVITY
+#    CONFIG_NEW_GRID_IO
+#    CONFIG_FAST_SIB
+#    CONFIG_FLUX_FIX
 #    CONFIG_USE_HDF4	
+#    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
 #
 #=======================================================================
@@ -223,6 +230,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_HYPRE = no
+
+#=======================================================================
+# CONFIG_EMISSIVITY
+#=======================================================================
+#    yes           Include emissivity field allocation
+#    no            Do not include emissivity field allocation
+#-----------------------------------------------------------------------
+
+     CONFIG_EMISSIVITY = no
 
 #=======================================================================
 # CONFIG_NEW_GRID_IO

@@ -782,8 +782,8 @@ EXTERN int RadiativeTransferFLD;
 */
 EXTERN int ImplicitProblem;
 
+/* Star-Maker emissivity field generator and uv_param used in calculating Geoffrey's Emissivity0 baryon field */
 
-/* Star-Maker emissivity field generator */
 EXTERN int StarMakerEmissivityField;
 EXTERN float uv_param;
 

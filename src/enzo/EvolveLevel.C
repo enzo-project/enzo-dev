@@ -294,6 +294,23 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   AdjustRefineRegion(LevelArray, MetaData, level);
 
+#ifdef EMISSIVITY
+/* reset Emissivity array here before next step calculate the new values */
+  if (StarMakerEmissivityField > 0) {
+  /* 
+     clear the Emissivity of the level below, after the level below 
+     updated the current level (it's parent) and before the next 
+     timestep at the current level.
+  */
+    LevelHierarchyEntry *Temp;
+    Temp = LevelArray[level+1];
+    while (Temp != NULL) {
+      Temp->GridData->ClearEmissivity();
+      Temp = Temp->NextGridThisLevel;
+    }
+  }
+#endif
+
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.
                     b) copy any overlapping zones.  */
@@ -469,7 +486,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level);
+	(Grids[grid1]->NextGridNextLevel, level
+#ifdef EMISSIVITY
+	/* adding the changed StarParticleHandler prototype */
+							,dtLevelAbove
+#endif
+        );
 
       /* Include shock-finding and cosmic ray acceleration */
 

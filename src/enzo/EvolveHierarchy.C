@@ -479,6 +479,20 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     CommunicationBarrier();
     tlev0 = MPI_Wtime();
 #endif
+
+    /* Zeroing out the rootgrid Emissivity before EvolveLevel is called 
+       so when rootgrid emissivity values are calculated they are put in 
+       clean rootgrid array */
+#ifdef EMISSIVITY
+    if(StarMakerEmissivityField > 0){
+      LevelHierarchyEntry *RootTemp;
+      RootTemp = LevelArray[0];
+      while (RootTemp != NULL) {
+	RootTemp->GridData->ClearEmissivity();
+	RootTemp = RootTemp->NextGridThisLevel;
+      }
+    }
+#endif
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||

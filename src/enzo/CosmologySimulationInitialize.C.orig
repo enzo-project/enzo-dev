@@ -118,15 +118,25 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
-
+<<<<<<< local
+=======
 #ifdef TRANSFER
   char *RadName    = "Grey_Radiation_Energy";
 #endif
 #ifdef EMISSIVITY
   char *EtaName    = "Emissivity";
 #endif
+>>>>>>> other
  
+<<<<<<< local
+#ifdef EMISSIVITY
+  // RAD_HYDRO or PHOTON name goes above here
+  // names Geoffrey's emissivity field
+  char *EtaName   = "Emissivity0";
+#endif
 
+=======
+>>>>>>> other
   char line[MAX_LINE_LENGTH];
   int i, j, dim, gridnum, ret, SubgridsAreStatic, region;
   HierarchyEntry *Subgrid;
@@ -650,7 +660,12 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   if (WritePotential)
-    DataLabel[i++] = GPotName;  
+    DataLabel[i++] = GPotName;
+
+#ifdef EMISSIVITY
+  if (StarMakerEmissivityField > 0)
+    DataLabel[i++] = EtaName;
+#endif  
 
   if (CRModel) {
     DataLabel[i++] = MachName;
@@ -660,6 +675,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
     DataLabel[i++] = CRName;
   } 
+
 
 #ifdef EMISSIVITY
   if (StarMakerEmissivityField > 0)

@@ -141,6 +141,24 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		, ImplicitProblemABC *ImplicitSolver
 #endif
 		)
+
+#ifdef EMISSIVITY
+/* reset Emissivity array here before next step calculate the new values */
+  if (StarMakerEmissivityField > 0) {
+  /* 
+     clear the Emissivity of the level below, after the level below 
+     updated the current level (it's parent) and before the next 
+     timestep at the current level.
+  */
+    LevelHierarchyEntry *Temp;
+    Temp = LevelArray[level+1];
+    while (Temp != NULL) {
+      Temp->GridData->UnigridClearEmissivity();
+      Temp = Temp->NextGridThisLevel;
+    }
+  }
+#endif
+
  
       SubgridFluxesEstimate[grid] = new fluxes *[NumberOfSubgrids[grid]];
  
@@ -441,7 +459,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
       if (StarParticleCreation || StarParticleFeedback) {
-	if (Grids[grid]->GridData->StarParticleHandler(level) == FAIL) {
+	if (Grids[grid]->GridData->StarParticleHandler(level
+#ifdef EMISSIVITY
+	/* adding the changed StarParticleHandler prototype */
+						       ,dtLevelAbove
+#endif
+           ) == FAIL) {
 	  fprintf(stderr, "Error in grid->StarParticleWrapper");
 	  ENZO_FAIL("");
 	}

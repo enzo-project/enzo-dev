@@ -516,6 +516,12 @@ public:
 
    int DebugCheck(char *message = "Debug");
 
+#ifdef EMISSIVITY
+   /* define function prototype as a grid member function */
+   int ClearEmissivity();
+   int CheckEmissivity();
+#endif
+
 // -------------------------------------------------------------------------
 // Functions used for analysis
 //
@@ -937,7 +943,7 @@ public:
    };
 
    void PrintBaryonFieldValues(int field, int index)
-     {fprintf(stdout, "Baryonfield[field = %d][index = %d] = %g\n", 
+     {fprintf(stdout, "Baryonfield[field = %"ISYM"][index = %"ISYM"] = %g\n", 
 	      field, index, BaryonField[field][index]);};
 
 // -------------------------------------------------------------------------
@@ -2033,7 +2039,12 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* Star Particle handler routine. */
 
-  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level);
+  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level
+#ifdef EMISSIVITY
+			  // pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
+			  , float dtLevelAbove
+#endif
+                         );
 
 /* Particle splitter routine. */
 

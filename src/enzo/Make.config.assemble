@@ -640,6 +640,34 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE EMISSIVITY FIELD SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_EMISSIVITY = 1
+
+    # Settings to turn emissivity field ON
+
+    ifeq ($(CONFIG_EMISSIVITY),yes)
+        ERROR_EMISSIVITY = 0
+        ASSEMBLE_EMISSIVITY_DEFINES = -DEMISSIVITY
+    endif
+
+    # Settings to turn emissivity field OFF
+
+    ifeq ($(CONFIG_EMISSIVITY),no)
+        ERROR_EMISSIVITY = 0
+        ASSEMBLE_EMISSIVITY_DEFINES =
+    endif
+
+    # error if CONFIG_EMISSIVITY is incorrect
+
+    ifeq ($(ERROR_EMISSIVITY),1)
+       .PHONY: error_emissivity
+       error_emissivity:
+	$(error Illegal value '$(CONFIG_EMISSIVITY)' for $$(CONFIG_EMISSIVITY))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE GRID IO SETTINGS
 #-----------------------------------------------------------------------
 
@@ -900,6 +928,7 @@
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_HYPRE_DEFINES) \
+              $(ASSEMBLE_EMISSIVITY_DEFINES) \
               $(ASSEMBLE_NEW_GRID_IO_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_BITWISE_IDENTICALITY_DEFINES) \

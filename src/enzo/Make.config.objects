@@ -35,6 +35,9 @@ OBJS_CONFIG_LIB = \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
+        CalcEmiss.o \
+        CheckEmissivity.o \
+        ClearEmissivity.o \
         CallProblemSpecificRoutines.o \
         CallPython.o \
         CheckEnergyConservation.o \
