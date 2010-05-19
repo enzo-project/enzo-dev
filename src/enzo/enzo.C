@@ -342,13 +342,13 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (flow_trace_on) flow_trace1("ENZO");
  
-#ifdef MPI_INSTRUMENTATION
-  char perfname[MAX_NAME_LENGTH];
- 
 #ifdef TRANSFER
   ImplicitProblemABC *ImplicitSolver;
 #endif
 
+#ifdef MPI_INSTRUMENTATION
+  char perfname[MAX_NAME_LENGTH];
+ 
   flagging_count = 0;
   moving_count = 0;
   in_count = 0;

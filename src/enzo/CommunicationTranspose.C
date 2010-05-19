@@ -1044,13 +1044,14 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 
 	if (n > 0) {
 	  CompletedRequests = 0;
+#ifdef USE_MPI
 	  MPI_Waitsome(NumberOfRequests, RequestHandle, &CompletedRequests,
 		       ListOfIndices, ListOfStatuses);
+#endif
 #ifdef DEBUG_NONBLOCKCT
 	  printf("P%d: CompletedRequests = %d/%d\n", MyProcessorNumber, 
 		 CompletedRequests, NumberOfRequests);
 #endif
-
 	  /* Check for any errors */
 
 #ifdef UNUSED
@@ -1078,6 +1079,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	     processed the first call, otherwise always process it. */
 
 	  if (n == 0 && request > 0) break;
+#ifdef USE_MPI
 	  if ((RequestHandle[request] == MPI_REQUEST_NULL &&
 	      ReceiveBuffer[request] != NULL) || 
 	      (n == 0 && request == 0)) {
@@ -1134,6 +1136,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	    TotalCompletedRequests++;
 
 	  } // ENDIF completed request
+#endif /* USE_MPI */
 	} // ENDFOR requests
 #ifdef DEBUG_NONBLOCKCT
 	printf("CT(%"ISYM"): (n=%d) -- completed %d out of %d requests\n",
@@ -1177,8 +1180,10 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
     delete [] commNB[i].Receives;
   }
 
+#ifdef USE_MPI
   CommunicationBarrier();
   CommunicationBufferPurge();
+#endif
  
   return SUCCESS;
 };

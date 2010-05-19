@@ -202,9 +202,9 @@ int CreateSUBlingList(TopGridData *MetaData,
     delete [] MPI_SharedListCount;
     delete [] MPI_SharedListDisplacements;
 
+#endif /* USE_MPI */
   } // ENDELSE (NumberOfProcessors == 1)
 
-#endif /* USE_MPI */
 
   /*****************************************************************/
   /* Create the SUBlingList now that we have all of the SUBlingIDs */

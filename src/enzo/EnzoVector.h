@@ -54,7 +54,7 @@ class EnzoVector {
   
   // parallelism information (see EnzoVector_Exchange* for more info.)
   int Nbors[3][2];  // neighbor procs in each direction 
-                    // (set to MPI_PROC_NULL for none)
+                    // (set to MPI_PROC_NULL (or -3) for none)
   int NborGhosts[3][2];  // ghost zones that each neighbor expects
                     // size of each send/recv buffer
   int x0Lsendsize, x0Rsendsize, x0Lrecvsize, x0Rrecvsize;

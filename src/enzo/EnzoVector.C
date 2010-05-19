@@ -23,7 +23,7 @@
 #ifdef USE_MPI
 #include <mpi.h>
 #else
-typedef int MPI_Request 
+typedef int MPI_Request;
 #endif
 
 #include <stdio.h>
