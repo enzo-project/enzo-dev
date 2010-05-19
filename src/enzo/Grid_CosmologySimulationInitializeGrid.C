@@ -270,7 +270,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = GravPotential;
 #ifdef EMISSIVITY
     if (StarMakerEmissivityField > 0)
-      FieldType[NumberOfBaryonFields++] = Emissivity0;
+      FieldType[EtaNum = NumberOfBaryonFields++] = Emissivity0;
 #endif
     if(CRModel){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
