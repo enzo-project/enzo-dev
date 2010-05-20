@@ -110,9 +110,15 @@ int WriteTracerParticleData(char *basename, int filenumber,
 		   FLOAT WriteTime);
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
 		 FLOAT WriteTime = -1);
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
 		 FLOAT WriteTime = -1);
 
 void my_exit(int status);
@@ -129,7 +135,30 @@ static float TopGridTimeStep = 0.0; //AK
  
 /* EvolveGrid function */
  
-int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
+int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
+		int level, float dtLevelAbove, ExternalBoundary *Exterior
+#ifdef TRANSFER
+		, ImplicitProblemABC *ImplicitSolver
+#endif
+		)
+
+#ifdef EMISSIVITY
+/* reset Emissivity array here before next step calculate the new values */
+  if (StarMakerEmissivityField > 0) {
+  /* 
+     clear the Emissivity of the level below, after the level below 
+     updated the current level (it's parent) and before the next 
+     timestep at the current level.
+  */
+    LevelHierarchyEntry *Temp;
+    Temp = LevelArray[level+1];
+    while (Temp != NULL) {
+      Temp->GridData->UnigridClearEmissivity();
+      Temp = Temp->NextGridThisLevel;
+    }
+  }
+#endif
+
  
       SubgridFluxesEstimate[grid] = new fluxes *[NumberOfSubgrids[grid]];
  
@@ -430,7 +459,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHieraR7V&w&–BfÇW†W2this grid. */
 	}
       }
       if (StarParticleCreation || StarParticleFeedback) {
-	if (Grids[grid]->GridData->StarParticleHandler(level) == FAIL) {
+	if (Grids[grid]->GridData->StarParticleHandler(level
+#ifdef EMISSIVITY
+	/* adding the changed StarParticleHandler prototype */
+						       ,dtLevelAbove
+#endif
+           ) == FAIL) {
 	  fprintf(stderr, "Error in grid->StarParticleWrapper");
 	  ENZO_FAIL("");
 	}
@@ -598,6 +632,9 @@ if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
       //#ifdef USE_HDF5_GROUPS
       if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 		       Temp2->GridHierarchyEntry, *MetaData, Exterior,
+#ifdef TRANSFER
+		       ImplicitSolver,
+#endif
 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 	fprintf(stderr, "Error in Group_WriteAllData.\n");
 	ENZO_FAIL("");
@@ -605,6 +642,9 @@ if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 // #else
 //       if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 // 		       Temp2->GridHierarchyEntry, *MetaData, Exterior, 
+// #ifdef TRANSFER
+// 		       ImplicitSolver,
+// #endif
 // 		       LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 // 	fprintf(stderr, "Error in WriteAllData.\n");
 // 	ENZO_FAIL("");

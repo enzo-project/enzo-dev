@@ -14,6 +14,8 @@
 /    doing a new run, a restart, an extraction, or a projection.
 /
 ************************************************************************/
+
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include "mpi.h"
@@ -45,6 +47,7 @@
 #include "CommunicationUtilities.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
+#include "ImplicitProblemABC.h"
 #endif
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
@@ -68,6 +71,9 @@ int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
 		    LevelHierarchyEntry *Array[], float Initialdt);
 
 void ExtractSection(HierarchyEntry &TopGrid, TopGridData &tgd,
@@ -83,13 +89,17 @@ int ProjectToPlane(TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		   FLOAT ProjectEndCoordinates[], int ProjectLevel,
 		   int ProjectionDimension, char *ProjectionFileName,
 		   int ProjectionSmooth, ExternalBoundary *Exterior);
-int ProjectToPlane2(char *ParameterFile,
+int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 		    TopGridData &MetaData, LevelHierarchyEntry *LevelArray[],
 		    int ProjectStartTemp[], int ProjectEndTemp[], 
 		    FLOAT ProjectStartCoordinate[],
 		    FLOAT ProjectEndCoordinate[], int ProjectLevel,
 		    int ProjectionDimension, char *ProjectionFileName,
-		    int ProjectionSmooth, ExternalBoundary *Exterior);
+		    int ProjectionSmooth,
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
+		    ExternalBoundary *Exterior);
 int OutputAsParticleData(TopGridData &MetaData,
 			 LevelHierarchyEntry *LevelArray[],
 			 int RegionStart[], int RegionEnd[],
@@ -112,12 +122,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData);
 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
                  TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
                  FLOAT WriteTime = -1);
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
-         int RestartDump = FALSE);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
+		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 
 
 
@@ -169,8 +185,11 @@ int GetNodeFreeMemory(void);
 #endif
 
 #ifdef TRANSFER
-int RadiativeTransferInitialize(char *ParameterFile, TopGridData &MetaData,
+int RadiativeTransferInitialize(char *ParameterFile, 
+				HierarchyEntry &TopGrid, 
+				TopGridData &MetaData,
 				ExternalBoundary &Exterior, 
+				ImplicitProblemABC* &ImplicitSolver,
 				LevelHierarchyEntry *LevelArray[]);
 #endif
 
@@ -323,6 +342,10 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (flow_trace_on) flow_trace1("ENZO");
  
+#ifdef TRANSFER
+  ImplicitProblemABC *ImplicitSolver;
+#endif
+
 #ifdef MPI_INSTRUMENTATION
   char perfname[MAX_NAME_LENGTH];
  
@@ -492,11 +515,14 @@ Eint32 main(Eint32 argc, char *argv[])
       sprintf(proj_name, "project_%4.4d_%c.h5", MetaData.CycleNumber, 120+dim);
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("ProjectToPlane: dimension %d.  Output %s\n", dim, proj_name);
-      if (ProjectToPlane2(ParameterFile, MetaData, LevelArray, 
+      if (ProjectToPlane2(ParameterFile, TopGrid, MetaData, LevelArray, 
 			  RegionStart, RegionEnd,
 			  RegionStartCoordinates, RegionEndCoordinates,
-			  RegionLevel, dim, proj_name,
-			  ProjectionSmooth, &Exterior) == FAIL)
+			  RegionLevel, dim, proj_name, ProjectionSmooth, 
+#ifdef TRANSFER
+			  ImplicitSolver,
+#endif
+			  &Exterior) == FAIL)
 	my_exit(EXIT_FAILURE);
       else
 	my_exit(EXIT_SUCCESS);
@@ -555,7 +581,11 @@ Eint32 main(Eint32 argc, char *argv[])
 //     }
     
 //     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber-1,
-//                      &TopGrid, MetaData, &Exterior) == FAIL) {
+//                      &TopGrid, MetaData, 
+// #ifdef TRANSFER
+//                      ImplicitSolver,
+// #endif
+//                      &Exterior) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       return FAIL;
 //     }
@@ -593,24 +623,11 @@ Eint32 main(Eint32 argc, char *argv[])
 
   }
 
-
-/*
-
-  // Perform local initialization (even for restart, may just return, depends on problem)
-
-  if (InitializeLocal(restart, TopGrid, MetaData) == FAIL) {
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Error in Local Initialization.\n");
-    my_exit(EXIT_FAILURE); 
-  }
-
-*/ 
-
   /* Initialize the radiative transfer */
 
 #ifdef TRANSFER
-  if (RadiativeTransferInitialize(ParameterFile, MetaData, Exterior, 
-				  LevelArray) == FAIL) {
+  if (RadiativeTransferInitialize(ParameterFile, TopGrid, MetaData, Exterior, 
+				  ImplicitSolver, LevelArray) == FAIL) {
     fprintf(stderr, "Error in RadiativeTransferInitialize.\n");
     my_exit(EXIT_FAILURE);
   }
@@ -628,7 +645,11 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
-  if (EvolveHierarchy(TopGrid, MetaData, &Exterior, LevelArray, Initialdt) == FAIL) {
+  if (EvolveHierarchy(TopGrid, MetaData, &Exterior, 
+#ifdef TRANSFER
+		      ImplicitSolver,
+#endif
+		      LevelArray, Initialdt) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Error in EvolveHierarchy.\n");
     }

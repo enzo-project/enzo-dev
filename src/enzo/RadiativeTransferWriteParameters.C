@@ -39,6 +39,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferCoupledRateSolver);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2          = %"ISYM"\n", 
 	  RadiativeTransferOpticallyThinH2);
+  fprintf(fptr, "RadiativeTransferFLDCallOnLevel           = %"ISYM"\n", 
+	  RadiativeTransferFLDCallOnLevel);
   fprintf(fptr, "RadiativeTransferPeriodicBoundary         = %"ISYM"\n", 
 	  RadiativeTransferPeriodicBoundary);
   fprintf(fptr, "RadiativeTransferSplitPhotonRadius        = %"FSYM"\n", 

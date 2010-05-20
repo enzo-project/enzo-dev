@@ -15,6 +15,7 @@
 /      the appropriate routine.
 /
 ************************************************************************/
+#include "preincludes.h"
  
 #include <stdio.h>
 
@@ -30,16 +31,25 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
  
 /* function prototypes */
 //#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+	         ImplicitProblemABC *ImplicitSolver,
+#endif
 		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 //#else
 /* 
 int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+	         ImplicitProblemABC *ImplicitSolver,
+#endif
 		 FLOAT WriteTime = -1);
 */
 //#endif
@@ -48,7 +58,11 @@ double ReturnWallTime(void);
 
 
 int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
-		   ExternalBoundary *Exterior, int &WroteData)
+		   ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+	           ImplicitProblemABC *ImplicitSolver,
+#endif
+		   int &WroteData)
 {
  
   /* Declarations. */
@@ -74,7 +88,11 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 
     if (debug) printf("Writing restart dump.\n");
     Group_WriteAllData(MetaData.RestartDumpName, MetaData.RestartDumpNumber++,
-		       TopGrid, MetaData, Exterior);
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
 
     /* On the root processor, write the restart parameter filename to
        a file that will be read by a (batch) script to restart enzo.
@@ -110,10 +128,18 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 
     //#ifdef USE_HDF5_GROUPS
     Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior);
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 		        TopGrid, MetaData, Exterior
+//#ifdef TRANSFER
+//			, ImplicitSolver
+//#endif
+//		        ) == FAIL {
 // 	fprintf(stderr, "Error in WriteAllData.\n");
 // 	ENZO_FAIL("");
 //     }
@@ -131,10 +157,18 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 
     //#ifdef USE_HDF5_GROUPS
     Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior);
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 		        TopGrid, MetaData, Exterior
+//#ifdef TRANSFER
+//			, ImplicitSolver
+//#endif
+//                      ) == FAIL) {
 // 	fprintf(stderr, "Error in WriteAllData.\n");
 // 	ENZO_FAIL("");
 //     }
@@ -162,10 +196,18 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (debug) printf("CPUtime-based output!\n");
 //#ifdef USE_HDF5_GROUPS
     Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior);
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-// 		     TopGrid, MetaData, Exterior) == FAIL) {
+// 		        TopGrid, MetaData, Exterior
+//#ifdef TRANSFER
+//			, ImplicitSolver
+//#endif
+//                      ) == FAIL) {
 // 	fprintf(stderr, "Error in WriteAllData.\n");
 // 	ENZO_FAIL("");
 //     }
@@ -190,9 +232,17 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	  }
 
 	  //#ifdef USE_HDF5_GROUPS
-	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior);
+	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+			     , ImplicitSolver
+#endif
+			     );
 // #else
-// 	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior) == FAIL) {
+// 	  if (WriteAllData(Name, Number, TopGrid, MetaData, Exterior
+//#ifdef TRANSFER
+//			   , ImplicitSolver
+//#endif
+//                         ) == FAIL) {
 // 	    fprintf(stderr, "Error in WriteAllData.\n");
 // 	    ENZO_FAIL("");
 // 	  }

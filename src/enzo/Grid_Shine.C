@@ -48,7 +48,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 #ifdef ONE_ENERGY
   stype = (HeliumPhotons) ? 3 : 1;
 #endif
-  if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2) stype++;
+  if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2 && 
+      !RadiativeTransferFLD) stype++;
   if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
 
   /* At most how many new Photon Packages should be allocated and
@@ -69,10 +70,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
-  }
+                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL)
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
 
   /* allocate temporary array of pointers */
   FLOAT AllCellWidth[3];
@@ -139,6 +138,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 //      ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
 //	      MultiSpecies > 1) ? 3 : i;
       ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
+	      !RadiativeTransferFLD &&
 	      MultiSpecies > 1 && RS->Type == PopIII) ? 3 : i;
 
       photons_per_package = RampPercent * RS->Luminosity * 

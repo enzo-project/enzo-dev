@@ -48,9 +48,18 @@ EXTERN float RadiativeTransferTimestepVelocityLimit;
 
 EXTERN int RadiationPressure;
 
+/* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
+
 EXTERN int RadiativeTransferOpticallyThinH2;
 
+/* Periodic boundary conditions for the photon packages */
+
 EXTERN int RadiativeTransferPeriodicBoundary;
+
+/* Which level, i.e. the frequency it's called, we call the FLD
+   solver */
+
+EXTERN int RadiativeTransferFLDCallOnLevel;
 
 /* Flag to use timestepping to restrict HII fraction change to 50% */
 

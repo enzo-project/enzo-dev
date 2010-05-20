@@ -9,6 +9,8 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#ifndef STAR_PARTICLE_DATA_DEFINED__
+#define STAR_PARTICLE_DATA_DEFINED__
 
 #ifdef DEFINE_STORAGE
 # define SPEXTERN
@@ -79,3 +81,5 @@ SPEXTERN float  StarClusterRegionRightEdge[3];
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
+
+#endif

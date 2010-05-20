@@ -1,0 +1,78 @@
+<# -*-C++-*-
+ProblemType             = 50
+TopGridRank             = 3
+StopTime                = 10
+
+TopGridDimensions       = 32 32 32
+
+MultiSpecies            = 2
+RadiativeCooling        = 1
+RadiativeTransfer       = 1
+RadiationFieldType      = 0
+RadiativeTransferFLD    = 1
+RadiativeTransferFLDCallOnLevel = 0
+RadHydroParamfile      = FSMultiSourceParameters
+
+RadiativeTransferRaysPerCell = 5.1
+
+ComovingCoordinates     = 0
+DensityUnits = 1.673e-27
+TimeUnits = 3.1557e13
+LengthUnits = 2.03676e22
+
+HydroMethod             = -1
+DualEnergyFormalism     = 1 
+#InterpolationMethod     = 4
+
+CourantSafetyNumber = 0.5
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3       // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+StaticHierarchy            = 1
+MaximumRefinementLevel     = 0        // use up to __ levels
+RefineBy                   = 2        // refinement factor
+CellFlaggingMethod         = 2        // use baryon mass for refinement 
+MinimumOverDensityForRefinement = 1.1 // times the initial density
+
+GravitationalConstant      = 1
+SelfGravity                = 1
+
+PhotonTestNumberOfSources     = 1
+
+PhotonTestRefineAtStart       = 1
+
+PhotonTestSourceType[0]       = 1
+PhotonTestSourcePosition[0]   = 1e-3 1e-3 1e-3
+PhotonTestSourceLuminosity[0] = 5e48       // photon number flux [#/s]
+PhotonTestSourceLifeTime[0]   = 1e10
+PhotonTestSourceEnergyBins[0] = 4
+#PhotonTestSourceEnergy[0] = 23.2686
+PhotonTestSourceEnergy[0] = 13.6 30 55 12.6
+PhotonTestSourceSED[0] = 0.5 0 0 0.5
+
+PhotonTestOmegaBaryonNow   = 1.0
+PhotonTestInitialTemperature = 1e4
+
+PhotonTestNumberOfSpheres      = 0
+
+PhotonTestInitialFractionHII  = 1.2e-3
+
+PhotonTestSphereType[0]        = 1 
+PhotonTestSphereRadius[0]      = 0.5
+PhotonTestSphereDensity[0]     = 2.
+PhotonTestSphereTemperature[0] = 1.e3
+PhotonTestSphereCoreRadius[0]  = 0.05
+PhotonTestSpherePosition[0]    = 0.5 0.5 0.5
+
+dtDataDump = 5
+Initialdt  = 0.01
+
+
+#CosmologyInitialRedshift   = 48.
+#CosmologyFinalRedshift     = 47.99
+#CosmologyMaxExpansionRate = 0.0003
+#CosmologyComovingBoxSize   = 1e-3
+#CosmologyHubbleConstantNow = 1.
+#CosmologyOmegaMatterNow    = 1.
+#CosmologyOmegaLambdaNow    = 0.
