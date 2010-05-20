@@ -598,28 +598,30 @@ int Group_WriteAllData(char *basename, int filenumber,
   CheckpointRestart = CheckpointDump;
  
 #ifdef TRANSFER
-  // Output ImplicitSolver module parameter file
+  if (ImplicitProblem) {
+    // Output ImplicitSolver module parameter file
 
-  //    Reset MetaData.RadHydroParameterFname
-  if (MetaData.RadHydroParameterFname != NULL)
-    delete MetaData.RadHydroParameterFname;
-  MetaData.RadHydroParameterFname = new char[MAX_LINE_LENGTH];
-  strcpy(MetaData.RadHydroParameterFname, name);
-  strcat(MetaData.RadHydroParameterFname, RTSuffix);
-  
-  // Open RT module parameter file
-  if ((fptr = fopen(MetaData.RadHydroParameterFname, "w")) == NULL) {
-    fprintf(stderr, "Error opening RT module parameter file: %s\n",
-	    MetaData.RadHydroParameterFname);
-    return FAIL;
+    //    Reset MetaData.RadHydroParameterFname
+    if (MetaData.RadHydroParameterFname != NULL)
+      delete MetaData.RadHydroParameterFname;
+    MetaData.RadHydroParameterFname = new char[MAX_LINE_LENGTH];
+    strcpy(MetaData.RadHydroParameterFname, name);
+    strcat(MetaData.RadHydroParameterFname, RTSuffix);
+    
+    // Open RT module parameter file
+    if ((fptr = fopen(MetaData.RadHydroParameterFname, "w")) == NULL) {
+      fprintf(stderr, "Error opening RT module parameter file: %s\n",
+	      MetaData.RadHydroParameterFname);
+      return FAIL;
+    }
+    
+    // Write RT module parameters to file
+    if (ImplicitSolver->WriteParameters(fptr) == FAIL) {
+      fprintf(stderr, "Error in ImplicitSolver::WriteParameters\n");
+      return FAIL;
+    }
+    fclose(fptr);
   }
-  
-  // Write RT module parameters to file
-  if (ImplicitSolver->WriteParameters(fptr) == FAIL) {
-    fprintf(stderr, "Error in ImplicitSolver::WriteParameters\n");
-    return FAIL;
-  }
-  fclose(fptr);
 #endif		 
 
   // Output TopGrid data
