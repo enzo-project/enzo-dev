@@ -28,6 +28,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+#define MAX_ENERGY_BINS 10
+
 int grid::AddH2Dissociation(Star *AllStars)
 {
 
@@ -35,9 +37,9 @@ int grid::AddH2Dissociation(Star *AllStars)
   FLOAT DomainWidth[MAX_DIMENSION];
   FLOAT *ddr2[MAX_DIMENSION];
   FLOAT innerFront, outerFront, innerFront2, outerFront2;
-  double Luminosity[4];
-  float energies[4], kdiss_r2;
-  int ipart, dim, i, j, k, index, indixe;
+  double Luminosity[MAX_ENERGY_BINS];
+  float energies[MAX_ENERGY_BINS], kdiss_r2;
+  int ipart, dim, i, j, k, index, indixe, nbins;
   int ActiveDims[MAX_DIMENSION];
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
@@ -111,7 +113,7 @@ int grid::AddH2Dissociation(Star *AllStars)
 
     /* Determine H2 emission rate */
 
-    if (cstar->ComputePhotonRates(energies, Luminosity) == FAIL) {
+    if (cstar->ComputePhotonRates(nbins, energies, Luminosity) == FAIL) {
       fprintf(stderr, "Error in ComputePhotonRates.\n");
       ENZO_FAIL("");
     }

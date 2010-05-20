@@ -62,6 +62,7 @@ SPEXTERN float PopIIIBHLuminosityEfficiency;
 SPEXTERN float PopIIIOverDensityThreshold;
 SPEXTERN float PopIIIH2CriticalFraction;
 SPEXTERN float PopIIIMetalCriticalFraction;
+SPEXTERN int   PopIIIHeliumIonization;
 SPEXTERN float PopIIISupernovaRadius;
 SPEXTERN int   PopIIISupernovaUseColour;
 SPEXTERN int   PopIIISupernovaMustRefine;

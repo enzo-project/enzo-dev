@@ -99,7 +99,7 @@ public:
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
-  int	ComputePhotonRates(float E[], double Q[]);
+  int	ComputePhotonRates(int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS
