@@ -14,18 +14,21 @@
 /
 ************************************************************************/
 
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef USE_HDF4
 #include <df.h>
+#endif /* USE_HDF4 */
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
-#include "../enzo/macros_and_parameters.h"
-#include "../enzo/typedefs.h"
 #define DEFINE_STORAGE
 #include "../enzo/ErrorExceptions.h"
+#include "../enzo/macros_and_parameters.h"
+#include "../enzo/units.h"
+#include "../enzo/typedefs.h"
 #include "../enzo/global_data.h"
 #include "../enzo/Fluxes.h"
 #include "../enzo/GridList.h"
@@ -36,7 +39,6 @@
 #include "../enzo/TopGridData.h"
 #include "../enzo/CosmologyParameters.h"  
 #include "../enzo/communication.h"
-#include "../enzo/units.h"
 #include "../enzo/flowdefs.h"
 #include "../enzo/PhotonCommunication.h"
 
@@ -68,7 +70,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 			  SiblingGridList SiblingList[],
 			  int level, TopGridData *MetaData, 
 			  ExternalBoundary *Exterior, LevelHierarchyEntry *Level);
-int CommunicationInitialize(int *argc, char **argv[]);
+int CommunicationInitialize(Eint32 *argc, char **argv[]);
 int CommunicationFinalize();
 int CommunicationSumValues(FLOAT *values, int number);
 int CommunicationAllSumValues(FLOAT *values, int number);
@@ -84,7 +86,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
               float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-main(int argc, char *argv[])
+main(Eint32 argc, char *argv[])
 {
   CommunicationInitialize(&argc, &argv);
 
@@ -893,6 +895,7 @@ main(int argc, char *argv[])
 	  if (ProfileWeight[j][i] > 0) 
 	    ProfileValue[j][i] /= ProfileWeight[j][i];  
 
+#ifdef USE_HDF4
       /* Save disk image. */
 
       Eint32 OutDims[2];
@@ -926,6 +929,7 @@ main(int argc, char *argv[])
       /* Clean up. */
 
       delete float_temp;
+#endif  //USE_HDF4
 
       } // end: if (MyProcessorNumber == ROOT_PROCESSOR)
 
@@ -1086,6 +1090,8 @@ main(int argc, char *argv[])
 	    RvirValue[0][17], RvirValue[0][18], RvirValue[0][19]);
     fprintf(fptrs[0], "# L (dm)             = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
 	    RvirValue[0][35], RvirValue[0][36], RvirValue[0][37]);
+    fprintf(fptrs[0], "# L (star)           = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM" (Mpc km/s)\n",
+	    RvirValue[0][65], RvirValue[0][66], RvirValue[0][67]);
     fprintf(fptrs[0], "# InnerEdge = %g Mpc  OuterEdge = %g Mpc\n\n",    
 	  InnerEdge*BoxSize, OuterEdge*BoxSize);
 
@@ -1216,13 +1222,15 @@ main(int argc, char *argv[])
 
     if (parameters.PrintGlobalProfileValues) { 
 
-      FILE *fpLKS, *fpGKS, *fpMvirEv;
+      FILE *fpLKS, *fpGKS, *fpSSD;
       double AverageGasSurfaceDensity = 0.0;  
       double AverageSFRSurfaceDensity = 0.0;  
       FLOAT ObservableDiskRadiusForKS = ProfileRadius[NumberOfPoints-1];
 
       fpLKS = fopen("local_KS.dat","w");      
       fpGKS = fopen("global_KS.dat","a");
+      fpSSD = fopen("stellar_surface_density.dat", "a");
+//      fprintf(fpGKS, "# time  Sigma_gas  Sigma_SFR  R_vir  M_vir  M_vir_star  M_vir_gas  M_vir_DM\n");
 
       /* Print gas surface density and SFR surface density for local K-S law.  
 	 Msun/pc^2 vs. Msun/yr/kpc^2 */
@@ -1241,21 +1249,29 @@ main(int argc, char *argv[])
       /* Print disk-averaged gas surface density and disk-averaged SFR surface
 	 density for global K-S law.  Msun/pc^2 vs. Msun/yr/kpc^2  */
 
-      fprintf(fpGKS, "%"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", LevelArray[0]->GridData->ReturnTime(),
+      fprintf(fpGKS, "%g   %"GOUTSYM"   %"GOUTSYM"    %g    %g    %g    %g    %g\n", 
+	      MetaData.Time,
 	      log10( AverageGasSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e6, 2) ),
-	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) )); 
+	      log10( AverageSFRSurfaceDensity/pi/POW((ObservableDiskRadiusForKS*BoxSize),2)/POW(1e3, 2) ),
+	      rvir*BoxSize, mvir, mvir_star, mvir_gas, mvir - mvir_gas - mvir_star); 
+
+      /* Print stellar/gas/SFR surface density w.r.t. time and radius (in Msun/pc^2, Msun/yr/kpc^2) */
+
+      for (j = 1; j < NumberOfPoints; j++) {
+
+	if (ProfileValue[j][114] != 0)
+	  fprintf(fpSSD, "%g   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"   %"GOUTSYM"\n", 
+		  MetaData.Time, ProfileRadius[j],
+		  log10( (ProfileValue[j][114] == 0) ? tiny_number : ProfileValue[j][114]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][106] == 0) ? tiny_number : ProfileValue[j][106]/POW(1e6, 2) ),
+		  log10( (ProfileValue[j][116] == 0) ? tiny_number : ProfileValue[j][116]/POW(1e3, 2) ));
+
+      }
 
       fclose(fpLKS);
       fclose(fpGKS);
+      fclose(fpSSD);
       
-      /* Print the evolution of M_vir  (order: z, rvir, mvir(total, gas, dm, star)) */
-
-      fpMvirEv = fopen("MvirEvolution.dat","a");
-      fprintf(fpMvirEv, "%"GOUTSYM" %g  %g  %g  %g  %g  %g \n", 
-	      CurrentRedshift, MetaData.Time, rvir*BoxSize, 
-	      mvir, mvir_gas, mvir - mvir_gas - mvir_star, mvir_star);         
-      fclose(fpMvirEv);
-
     } // end: if (parameters.PrintGlobalProfileValues)
 
     } // end: if (MyProcessorNumber == ROOT_PROCESSOR)

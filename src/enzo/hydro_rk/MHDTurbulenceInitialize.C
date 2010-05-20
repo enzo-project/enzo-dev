@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1: Tom Abel, parallelized and enabled setup for nested grids
 /
 /
 ************************************************************************/
@@ -82,7 +82,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 
   /* Convert to code units */
   
-  printf(" RAW:  rho_medium = %g,cs = %g, mach = %g, Bnaught = %g \n",rho_medium,cs,mach,Bnaught);
+  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
@@ -95,9 +95,9 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   cs /= velu;
   Bnaught /= bfieldu;
 
-  printf("rhou=%g,velu=%g,lenu=%g,tu=%g,presu=%g,bfieldu=%g, tempu=%g\n", 
+  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM",bfieldu=%"GSYM", tempu=%"GSYM"\n", 
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
-  printf("rho_medium=%g, cs=%g, Bnaught=%g\n", rho_medium, cs, Bnaught);
+  printf("rho_medium=%"GSYM", cs=%"GSYM", Bnaught=%"GSYM"\n", rho_medium, cs, Bnaught);
 
 
   HierarchyEntry *CurrentGrid;
@@ -126,14 +126,15 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 	return FAIL;
       }
       CurrentGrid = CurrentGrid->NextGridThisLevel;
-      fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
     }
     
 #ifdef USE_MPI
+    CommunicationBarrier(); 
     CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
     CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-    fprintf(stderr, "v_rms, Volume: %g  %g\n", v_rms, Volume);
+    fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
     
   /* Convert minimum initial overdensity for refinement to mass
@@ -161,7 +162,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
        and re-initialize the level after it is created. */
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
-      printf("In level %i\n", level);
+      printf("In level %"ISYM"\n", level);
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
 	fprintf(stderr, "Error in RebuildHierarchy.\n");
 	return FAIL;

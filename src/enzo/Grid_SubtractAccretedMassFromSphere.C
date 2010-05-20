@@ -10,6 +10,8 @@
 /  PURPOSE: Subtract mass from gas grids after accreting onto MBH,
 /           For BlackHole, a different approach is used at the moment;
 /           see Star_SubtractAccretedMassFromCell.C
+/ 
+/           This file is based on the logic of Grid_AddFeedbackSphere.C
 /
 ************************************************************************/
 
@@ -31,7 +33,7 @@ int FindField(int field, int farray[], int numfields);
 
 int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits, 
 					 float LengthUnits, float VelocityUnits, 
-					 float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+					 float TemperatureUnits, float TimeUnits, double Subtraction, 
 					 int &CellsModified)
 {
 
@@ -99,12 +101,13 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
                   MASS SUBTRACTION AFTER ACCRETION ONTO MBH
   ************************************************************************/
 
-  // Correct if the volume with 27 cells is larger than the energy bubble volume
+  // Correct if the volume with 27 cells is larger than the bubble volume 
+  // from which we subtract the mass
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
   float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
   if (BoxVolume > BubbleVolume) {
-    //printf("Reducing ejecta density by %g\n", BubbleVolume / BoxVolume);
-    EjectaDensity *= BubbleVolume / BoxVolume;
+    fprintf(stdout, "grid::SAMFS: level(%d) probably too coarse, rescaling Subtraction!\n", level);
+    Subtraction *= BubbleVolume/BoxVolume;
   }
 
   for (k = 0; k < GridDimension[2]; k++) {
@@ -128,15 +131,16 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 	
 	radius2 = delx*delx + dely*dely + delz*delz;
 	if (radius2 <= radius*radius) {
-	  
-	  /* Update density */
 
-	  increase = max(BaryonField[DensNum][index] + EjectaDensity, 0.90*BaryonField[DensNum][index]) 
+	  increase = max(1-Subtraction, 0.9); 
+
+#ifdef SUBTRACTION_UNIFORM 
+	  // check CalculateSubtractionParameters.C if you want this
+	  increase = max(BaryonField[DensNum][index] + Subtraction, 0.90*BaryonField[DensNum][index]) 
 	    / BaryonField[DensNum][index];
-
-#ifdef UNUSED  //failed attempt; see Star_CalculateSubtractionParameters.C
-	  increase = EjectaDensity / BaryonField[DensNum][index];
 #endif
+
+	  /* Update density */
 	  BaryonField[DensNum][index] *= increase;
 	  // this "increase" method could be potentially problematic when the accretion rate is too low
 //	  printf("grid::SAMFS: increase = %lf\n", increase); 
@@ -194,6 +198,11 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
       }  // END i-direction
     }  // END j-direction
   }  // END k-direction
+
+
+//  printf("grid::SAMFS: radius (pc) = %lf, increase = %lf, mass subtracted (Msun) = %lf\n", 
+//	 radius * LengthUnits / 3.086e18, increase, 
+//	 Subtraction * (4*M_PI/3.0 * pow(radius*LengthUnits, 3)) * DensityUnits / Msun); 
   
   return SUCCESS;
 

@@ -849,9 +849,9 @@
 	$(error Illegal value '$(CONFIG_FLUX_FIX)' for $$(CONFIG_FLUX_FIX))
     endif
 
-#=======================================================================
+#-----------------------------------------------------------------------
 # DETERMINE HDF4 USAGE
-#=======================================================================
+#-----------------------------------------------------------------------
 
     ERROR_USE_HDF4 = 1
 
@@ -875,6 +875,34 @@
        .PHONY: error_compilers
        error_compilers:
 	$(error Illegal value '$(CONFIG_USE_HDF4)' for $$(CONFIG_USE_HDF4))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE GRAVITY SOLVER
+#-----------------------------------------------------------------------
+
+    ERROR_GRAVITY_4S = 1
+
+    # compilers and settings if GRAVITY_4S is yes
+
+    ifeq ($(CONFIG_GRAVITY_4S),yes)
+        ERROR_GRAVITY_4S = 0
+        ASSEMBLE_GRAVITY_4S_DEFINES  = -DGRAVITY_4S 
+    endif
+
+    # compilers and settings if GRAVITY_4S is no
+
+    ifeq ($(CONFIG_GRAVITY_4S),no)
+        ERROR_GRAVITY_4S = 0
+        ASSEMBLE_GRAVITY_4S_DEFINES  =
+    endif
+
+    # error if CONFIG_GRAVITY_4S is incorrect
+
+    ifeq ($(ERROR_GRAVITY_4S),1)
+       .PHONY: error_compilers
+       error_compilers:
+	$(error Illegal value '$(CONFIG_GRAVITY_4S)' for $$(CONFIG_GRAVITY_4S))
     endif
 
 
@@ -935,7 +963,8 @@
               $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
-              $(ASSEMBLE_HDF4_DEFINES)
+              $(ASSEMBLE_HDF4_DEFINES) \
+              $(ASSEMBLE_GRAVITY_4S_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \

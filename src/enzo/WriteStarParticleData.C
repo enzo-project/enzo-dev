@@ -50,10 +50,11 @@ int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
 
       // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum
       for (int i = 0; i < G_TotalNumberOfStars; i++) { 
-	fprintf(fptr2, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"\n", 
+	fprintf(fptr2, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf\n", 
 		MetaData.Time, NumberOfStarParticles, (int)(MBHParticleIOTemp[i][0]), 
 		MBHParticleIOTemp[i][1], (float)(MBHParticleIOTemp[i][2]), 
-		(float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]));
+		(float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]),
+		MBHParticleIOTemp[i][5]);
       }
 
       fclose(fptr2);

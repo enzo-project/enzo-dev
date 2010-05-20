@@ -127,6 +127,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoresPerNode = 1;
   PreviousMaxTask = 0;
   LoadBalancingMinLevel = 0;     //All Levels
+  LoadBalancingMaxLevel = MAX_DEPTH_OF_HIERARCHY;  //All Levels
 
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;
@@ -184,6 +185,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MustRefineRegionMinRefinementLevel = -1;        // unused if negative
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
+  MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
@@ -365,6 +367,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
+  MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
@@ -409,6 +412,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }
 
   PopIIIStarMass                   = 100;
+  PopIIIInitialMassFunction        = FALSE;
+  PopIIILowerMassCutoff            = 1.0;
+  PopIIIUpperMassCutoff            = 300.0;
+  PopIIIInitialMassFunctionSlope   = -1.3;         // high mass slope
   PopIIIBlackHoles                 = FALSE;
   PopIIIBHLuminosityEfficiency     = 0.1;
   PopIIIOverDensityThreshold       = 1e6;          // times mean total density
@@ -420,16 +427,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  IMFData                          = NULL;
 
-  MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1e6;          // Msun
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
-  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretiob = 3
+  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretion = 3
   MBHTurnOffStarFormation          = FALSE;        // check Grid_StarParticleHandler.C
   MBHCombineRadius                 = 50;           // pc
+  MBHMinDynamicalTime              = 10e6;         // in years
+  MBHMinimumMass                   = 1e3;          // Msun
 
   MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
@@ -442,6 +450,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
   MBHParticleIO                    = FALSE;
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
+  MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
+  OutputWhenJetsHaveNotEjected     = FALSE;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
@@ -458,6 +468,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.MovieTimestepCounter      = 0;
 
   ran1_init = 0;
+  rand_init = 0;
 
   SinkMergeDistance     = 1e16;
   SinkMergeMass         = 0.1;
@@ -657,7 +668,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoxProblemType = 0; 
   useMHD=0;
 
-  MoveParticlesBetweenSiblings = FALSE;
+  MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
 

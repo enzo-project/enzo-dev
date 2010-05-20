@@ -78,22 +78,26 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
-      if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
-	if (debug) {
-	  printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
-	  printf("ThisStar:\n");
-	  ThisStar->PrintInfo();
-	  printf("OtherStar:\n");
-	  OtherStar->PrintInfo();
-	}
-	ENZO_FAIL("");
-      }
       if (ThisStar->Mergable(OtherStar))
 	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
-	  ThisStar->Merge(OtherStar);
-	  OtherStar->MarkForDeletion();
+	  if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
+	    if (debug) {
+	      printf("%"ISYM" -- merging duplicate particle??\n", 
+		     ThisStar->ReturnID());
+	      printf("ThisStar:\n");
+	      ThisStar->PrintInfo();
+	      printf("OtherStar:\n");
+	      OtherStar->PrintInfo();
+	    }
+	    //ENZO_FAIL("");
+	  } // ENDIF samd ID
+	  else {
+	    ThisStar->Merge(OtherStar);
+	    OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
 //		 OtherStar->ReturnID());
+	  }
+
 	} // ENDIF radius2 < rmerge2
     } // ENDFOR OtherStar
   } // ENDFOR ThisStar

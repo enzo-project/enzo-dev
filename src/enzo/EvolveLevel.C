@@ -208,11 +208,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int TotalStarParticleCountPrevious[]);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
-int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
-		     float *dtThisLevelSoFar, float *dtThisLevel,
-		     float dtLevelAbove);
-int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -224,6 +220,12 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *AllStars, 
 			     ImplicitProblemABC *ImplicitSolver);
 #endif
+
+int SetLevelTimeStep(HierarchyEntry *Grids[],
+        int NumberOfGrids, int level,
+        float *dtThisLevelSoFar, float *dtThisLevel,
+        float dtLevelAbove);
+
 void my_exit(int status);
  
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -288,8 +290,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
-  /* On the top grid, adjust the refine region so that only the finest
-     particles are included.  We don't want the more massive particles
+  /* Adjust the refine region so that only the finest particles 
+     are included.  We don't want the more massive particles
      to contaminate the high-resolution region. */
 
   AdjustRefineRegion(LevelArray, MetaData, level);
@@ -310,6 +312,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
   }
 #endif
+  /* Adjust MustRefineParticlesRefineToLevel parameter if requested */
+  AdjustMustRefineParticlesRefineToLevel(MetaData, level);
 
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.
@@ -499,8 +503,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       /* Gravity: clean up AccelerationField. */
 
-      if (level != MaximumGravityRefinementLevel ||
-	  MaximumGravityRefinementLevel == MaximumRefinementLevel)
+      if ((level != MaximumGravityRefinementLevel ||
+	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
+	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
@@ -613,6 +618,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] == NULL) {
       MetaData->SubcycleNumber++;
       MetaData->MovieTimestepCounter++;
+    }
+
+    /* Once MBH particles are inserted throughout the whole grid hierarchy,
+       turn off MBH creation (at the bottom of the hierarchy) */
+
+    if (STARMAKE_METHOD(MBH_PARTICLE) && (LevelArray[level+1] == NULL)) { 
+      StarParticleCreation -= pow(2, MBH_PARTICLE);  
     }
 
     /* ------------------------------------------------------- */

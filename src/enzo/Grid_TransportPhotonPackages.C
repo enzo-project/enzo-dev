@@ -225,10 +225,12 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       NewEntry->ToLevel  = level + DeltaLevel;
       NewEntry->ToProcessor = MoveToGrid->ReturnProcessorNumber();
 
-      if (NewEntry->ToProcessor >= NumberOfProcessors)
-	printf("TransportPH(P%"ISYM" :: G%"ISYM"): WARNING BAD TO_PROC -- P%"ISYM"->P%"ISYM".\n",
-	       MyProcessorNumber, GridNum, ProcessorNumber, 
-	       NewEntry->ToProcessor);
+      if (NewEntry->ToProcessor >= NumberOfProcessors ||
+	  NewEntry->ToProcessor < 0) {
+	PP->PrintInfo();
+	ENZO_VFAIL("Grid %d, Invalid ToProcessor P%d", GridNum, 
+		   NewEntry->ToProcessor)
+      }
 
       if (PP->PreviousPackage != NULL) 
 	PP->PreviousPackage->NextPackage = PP->NextPackage;
@@ -258,8 +260,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
-	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM"\n",
-	    tcount, dcount, pcount);
+	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
+	    tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
   /* For safety, clean up paused photon list */

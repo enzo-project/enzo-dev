@@ -49,6 +49,9 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
   int GridPosition[MAX_DIMENSION];
   int *ToGrid;
   Star *cstar, *MoveStar;
+
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    GridPosition[dim] = 0;
  
   /* ----------------------------------------------------------------- */
   /* Copy stars out of grid. */

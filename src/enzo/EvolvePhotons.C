@@ -35,19 +35,27 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
+#include "GroupPhotonList.h"
+#include "PhotonCommunication.h"
 #include "CommunicationUtilities.h"
 
 /* function prototypes */
 void my_exit(int status);
+int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
+				 bool local_transport,
+				 int &keep_transporting);
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
-				 ListOfPhotonsToMove **AllPhotons,
+				 ListOfPhotonsToMove **AllPhotons, 
+				 char *kt_global,
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int InitiateKeepTransportingCheck(int keep_transporting);
-int StopKeepTransportingCheck();
-int InitializePhotonCommunication();
-int KeepTransportingCheck(int &keep_transporting);
+int InitializePhotonCommunication(void);
+int FinalizePhotonCommunication(void);
+int KeepTransportingInitialize(char* &kt_global, bool initial_call);
+int KeepTransportingFinalize(char* &kt_global, int keep_transporting);
+int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
+int KeepTransportingSend(int keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
@@ -58,6 +66,32 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
 void PrintMemoryUsage(char *str);
+void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
+double ReturnWallTime();
+
+#ifdef USE_MPI
+int InitializePhotonReceive(int max_size, bool local_transport,
+			    MPI_Datatype MPI_PhotonType);
+static int FirstTimeCalled = TRUE;
+static MPI_Datatype MPI_PhotonList;
+#endif
+
+#define NONBLOCKING
+#define REPORT_PERF_OFF
+#define MAX_ITERATIONS 5
+
+#ifdef REPORT_PERF
+#define START_PERF() tt0 = ReturnWallTime();
+#else
+#define START_PERF() ;
+#endif
+#ifdef REPORT_PERF
+#define END_PERF(A) \
+  tt1 = ReturnWallTime(); \
+  PerfCounter[A] += tt1-tt0;
+#else
+#define END_PERF(A) ;
+#endif
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -65,6 +99,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 {
 
   bool FirstTime = true;
+
+#ifdef REPORT_PERF
+  double ep0, tt0, tt1, PerfCounter[14];
+  ep0 = ReturnWallTime();
+  for (int i = 0; i < 14; i++)
+    PerfCounter[i] = 0;
+#endif
 
   if (!RadiativeTransfer)
     return SUCCESS;
@@ -77,21 +118,23 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //  printf("GridTime = %f, PhotonTime = %f, dtPhoton = %g (Loop = %d)\n",
 //	 GridTime, PhotonTime, dtPhoton, (GridTime >= PhotonTime));
 
-  //if (dtPhoton < 0)
-  //  return SUCCESS;
+  if (dtPhoton < 0)
+    return SUCCESS;  
 
   /* Declarations */
 
+#ifdef USE_MPI
+  if (FirstTimeCalled) {
+    MPI_Type_contiguous(sizeof(GroupPhotonList), MPI_BYTE, &MPI_PhotonList);
+    MPI_Type_commit(&MPI_PhotonList);
+    FirstTimeCalled = FALSE;
+  }
+#endif
+
+  int lvl;
   grid *Helper;
-  int lvl, RefinementFactors[MAX_DIMENSION];
-    
-  /* Create an array (Grids) of all the grids. */
-
-  typedef HierarchyEntry* HierarchyEntryPointer;
-  HierarchyEntry **Grids;
-  HierarchyEntry **Parents;
   LevelHierarchyEntry *Temp;
-
+    
   //while (GridTime >= PhotonTime) {
   while (GridTime > PhotonTime) {
 
@@ -108,8 +151,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
-    int GridNum = 0, value, i, proc;
-    int NumberOfGrids = 0;  
+    int i, GridNum = 0;
 
     // delete source if we are passed (or before) their lifetime (only
     // if not restarting)
@@ -133,17 +175,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
 
-    int Rank, Dims[MAX_DIMENSION];
-    FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
-  
     /* Initialize radiation fields */
 
+    START_PERF();
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
 	  fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
 	  ENZO_FAIL("");
 	}
+    END_PERF(0);
 
     /* create temperature fields for Compton heating */  
 
@@ -170,14 +211,17 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        creating tree (type SuperSource), compute position of the super
        source in each leaf. */
 
+    START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(NULL, NULL, LevelArray);
       //PrintSourceClusteringTree(SourceClusteringTree);
     }
+    END_PERF(1);
 
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
- 
+
+    START_PERF(); 
     while (RS != NULL) {
       int Continue = 1;
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; (lvl >= 0 && Continue); lvl--) {
@@ -203,6 +247,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }    // Loop through levels 
       RS = RS->NextSource;
     }    // while still sources 
+    END_PERF(2);
 
 #ifdef USE_MPI
     if (RadiativeTransferInterpolateField)
@@ -225,9 +270,11 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ListOfPhotonsToMove *PhotonsToMove = new ListOfPhotonsToMove;
     PhotonsToMove->NextPackageToMove = NULL;
 
-    int loop_count = 0;
     int keep_transporting = 1;
-    int ThisProcessor;
+    int local_keep_transporting = 1, last_keep_transporting;
+    int secondary_kt_check = TRUE, iteration = 0;
+    bool initial_call = true;
+    char *kt_global = NULL;
 
     HierarchyEntry **Temp0;
     int nGrids0 = GenerateGridArray(LevelArray, 0, &Temp0);
@@ -235,38 +282,48 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (i = 0; i < nGrids0; i++)
       Grids0[i] = Temp0[i]->GridData;
 
-    /* Initialize nonblocking MPI routine */
+    /* Initialize nonblocking communication */
 
+    START_PERF();
     InitializePhotonCommunication();
+    END_PERF(3);
 
     /* Transport the rays! */
 
-    while (keep_transporting) {
+    while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
+    KeepTransportingInitialize(kt_global, initial_call);
+    initial_call = false;
+
+    while (keep_transporting != NO_TRANSPORT && 
+	   keep_transporting != HALT_TRANSPORT) {
+      last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
       PrintMemoryUsage("EvolvePhotons -- loop");
+      START_PERF();
+      if (local_keep_transporting)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
-	NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
-	for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
+	//NumberOfGrids = GenerateGridArray(LevelArray, lvl, &Grids);
+	for (Temp = LevelArray[lvl], GridNum = 0;
+	     Temp; Temp = Temp->NextGridThisLevel, GridNum++) {
+	  //for (GridNum = 0; GridNum < NumberOfGrids; GridNum++) {
 
-	  if (Grids[GridNum]->ParentGrid != NULL) 
-	    Helper = Grids[GridNum]->ParentGrid->GridData;
+	  if (Temp->GridHierarchyEntry->ParentGrid != NULL) 
+	    Helper = Temp->GridHierarchyEntry->ParentGrid->GridData;
 	  else
 	    Helper = NULL;
-	  if (Grids[GridNum]->GridData->TransportPhotonPackages
-	      (lvl, &PhotonsToMove, GridNum, Grids0, 
-	       nGrids0, Helper, Grids[GridNum]->GridData) == FAIL) {
-	    fprintf(stderr, "Error in %"ISYM" th grid. "
-		    "grid->TransportPhotonPackages.\n",GridNum);
-	    ENZO_FAIL("");
-	  }
+
+	  Temp->GridData->TransportPhotonPackages
+	    (lvl, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
+	     Temp->GridData);
 
 	} // ENDFOR grids
 
-	delete [] Grids;
+	//delete [] Grids;
 
       }                          // loop over levels
+      END_PERF(4);
 
       if (PhotonsToMove->NextPackageToMove != NULL)
 	keep_transporting = 1;
@@ -276,26 +333,43 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
-      CommunicationTransferPhotons(LevelArray, &PhotonsToMove,
+      START_PERF();
+      CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
+
 				   keep_transporting);
+      END_PERF(5);
 
       /* Receive keep_transporting messages and take the MAX */
 
+      START_PERF();
 #ifdef NONBLOCKING
-      InitiateKeepTransportingCheck(keep_transporting);
-      KeepTransportingCheck(keep_transporting);
-#else /* NON_BLOCKING */
+      local_keep_transporting = keep_transporting;
+      if (keep_transporting != last_keep_transporting)
+	KeepTransportingSend(keep_transporting);
+      KeepTransportingCheck(kt_global, keep_transporting);
+#else /* NONBLOCKING */
       keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
+      END_PERF(6);
 
     }                           //  end while keep_transporting
+    
+    KeepTransportingFinalize(kt_global, keep_transporting);
+#ifdef USE_MPI
+    InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
+#endif
+    CommunicationReceiverPhotons(LevelArray, false, local_keep_transporting);
+    secondary_kt_check = CommunicationMaxValue(local_keep_transporting);
 
-    //  StopKeepTransportingCheck();
+    }  // ENDWHILE secondary keep_transporting check
+
+    FinalizePhotonCommunication();
 
     /* Move all finished photon packages back to their original place,
        PhotonPackages.  For the adaptive timestep, we don't carryover
        any photons to the next timestep. */
 
+    START_PERF();
     if (RadiativeTransferAdaptiveTimestep)  
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
@@ -304,6 +378,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->MoveFinishedPhotonsBack();
+    END_PERF(7);
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
@@ -360,11 +435,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     // Divide the photo-ionization and photo-heating rates by the
     // number of particles (rho * dx^3)
+    START_PERF();
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->RadiationPresent() == TRUE)
 	  Temp->GridData->FinalizeRadiationFields();
+    END_PERF(8);
 
+    START_PERF();
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->RadiationPresent() == TRUE) {
@@ -381,15 +459,18 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Temp->GridData->DeleteInterpolatedFields();
 
 	} /* ENDIF radiation */
+    END_PERF(9);
 
     /* For the non-coupled (i.e. cells without radiation) rate & energy
        solver, we have to set the H2 dissociation rates */
 
+    START_PERF();
     if (RadiativeTransferOpticallyThinH2)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == FALSE)
 	    Temp->GridData->AddH2Dissociation(AllStars);
+    END_PERF(10);
 
     /* Clean up temperature field */
 
@@ -407,11 +488,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        aren't synchronized across processors.  But in RebuildHierarchy, 
        this number is needed.  Synchronize them now. */
 
+    START_PERF();
     CommunicationSyncNumberOfPhotons(LevelArray);
+    END_PERF(11);
 
     /* If we're using the HII restricted timestep, get the global
        maximum kph in I-fronts. */
 
+    START_PERF();
     if (RadiativeTransferHIIRestrictedTimestep) {
       float LocalMaximumkph = -1e20;
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
@@ -421,6 +505,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       LocalMaximumkph = CommunicationMaxValue(LocalMaximumkph);
       MetaData->GlobalMaximumkphIfront = LocalMaximumkph;
     }
+    END_PERF(12);
 
 #ifdef DEBUG
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
@@ -438,6 +523,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Cleanup photon memory pool if we're deleting all photons between
      timesteps, i.e. no need to save photons */
 
+  START_PERF();
 #ifdef MEMORY_POOL
   const int PhotonMemorySize = MEMORY_POOL_SIZE;
   int PhotonSize = sizeof(PhotonPackageEntry);
@@ -454,6 +540,22 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Temp->GridData->InitializePhotonPackages();
   }
 #endif
+  END_PERF(13);
+
+#ifdef REPORT_PERF
+  if (!FirstTime) {
+    if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
+    for (int i = 0; i < NumberOfProcessors; i++) {
+      CommunicationBarrier();
+      if (MyProcessorNumber == i) {
+	printf("P%d:", MyProcessorNumber);
+	fpcol(PerfCounter, 14, 14, stdout);
+	fflush(stdout);
+      }
+    }
+  }
+#endif
+
 
   return SUCCESS;
 

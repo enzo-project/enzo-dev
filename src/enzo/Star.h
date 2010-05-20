@@ -71,7 +71,10 @@ public:
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
   float ReturnBirthTime(void) { return BirthTime; };
+  double ReturnFinalMass(void) { return FinalMass; };
+  void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
+  float ReturnBirthtime(void) { return BirthTime; };
   int   ReturnLevel(void) { return level; };
   void  ReduceLevel(void) { level--; };
   void  IncreaseLevel(void) { level++; };
@@ -86,6 +89,7 @@ public:
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
   void  ResetNotEjectedMass(void) { NotEjectedMass = 0.0; };
+  double ReturnNotEjectedMass(void) { return NotEjectedMass; };
   void  ResetAccretionPointers(void) 
   { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
@@ -143,12 +147,6 @@ public:
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar);
-  void  CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], float &Radius, 
-				       float RootCellWidth,
-				       double &EjectaDensity,
-				       float DensityUnits, float LengthUnits, 
-				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits, float dtForThisStar);
   int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
 				      float DensityUnits, float LengthUnits,
 				      int &CellsModified);
@@ -159,6 +157,10 @@ public:
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
 			 float VelocityUnits, FLOAT Time);
+
+  int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
+		      float Radius);
+  int AssignFinalMassFromIMF(void);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

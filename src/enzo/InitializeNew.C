@@ -48,7 +48,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 // Initialization function prototypes
  
-int ShockTubeInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid);
+int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -169,8 +170,6 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
 #endif /* TRANSFER */
 
 
-int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
@@ -199,6 +198,9 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
 void PrintMemoryUsage(char *str);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
  
@@ -334,7 +336,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 1) Shocktube problem
  
   if (ProblemType == 1)
-    ret = ShockTubeInitialize(fptr, Outfptr, TopGrid);
+    ret = HydroShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 2) Wave pool
  
@@ -491,12 +493,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
+  // Insert new problem intializer here...
 
-
-
-  /* 100) 1D HD Test */
-  if (ProblemType == 100) {
-    ret = Hydro1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+  if (ProblemType ==300) {
+    ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
   /* 101) 3D Collapse */
@@ -634,7 +634,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+    printf("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
 	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
 	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
@@ -741,7 +741,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ProblemType != 27 &&
       ProblemType != 30 &&
       ProblemType != 31 &&  // BWO (isolated galaxies)
-      ProblemType != 60) //AK
+      ProblemType != 60 &&
+      ProblemType != 106 ) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
  
   // If using StarParticles, set the number to zero 
@@ -752,7 +753,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
-
 
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
@@ -845,12 +845,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
             ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
     }
  
- if (ProblemType == 106)
-   if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
+  if (ProblemType == 106){
+    if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
-     ENZO_FAIL("");
-   }
+      fprintf(stderr, "Error in TurbulenceReInitialize.\n");
+      ENZO_FAIL("");}
+    //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
+  }
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.

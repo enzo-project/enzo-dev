@@ -218,6 +218,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ResetLoadBalancing = %"ISYM, &ResetLoadBalancing);
     ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
     ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
+    ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
  
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;
@@ -305,8 +306,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MustRefineRegionMinRefinementLevel);
     ret += sscanf(line, "MetallicityRefinementMinLevel = %"ISYM,
 		  &MetallicityRefinementMinLevel);
-    ret += sscanf(line, "MetallicityRefinementMinMetallicity      = %"FSYM, 
+    ret += sscanf(line, "MetallicityRefinementMinMetallicity = %"FSYM, 
 		  &MetallicityRefinementMinMetallicity);
+    ret += sscanf(line, "MetallicityRefinementMinDensity = %"FSYM, 
+		  &MetallicityRefinementMinDensity);
 
     ret += sscanf(line, "DomainLeftEdge        = %"PSYM" %"PSYM" %"PSYM, DomainLeftEdge,
 		  DomainLeftEdge+1, DomainLeftEdge+2);
@@ -454,6 +457,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
+    ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
+                  &MustRefineParticlesRefineToLevelAutoAdjust);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
@@ -678,6 +683,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  StarClusterRegionRightEdge+2);
 
     ret += sscanf(line, "PopIIIStarMass = %"FSYM, &PopIIIStarMass);
+    ret += sscanf(line, "PopIIIInitialMassFunction = %"ISYM, 
+		  &PopIIIInitialMassFunction);
+    ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
+		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
+    ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 
+		  &PopIIIInitialMassFunctionSlope);
     ret += sscanf(line, "PopIIIBlackHoles = %"ISYM, &PopIIIBlackHoles);
     ret += sscanf(line, "PopIIIBHLuminosityEfficiency = %"FSYM, 
 		  &PopIIIBHLuminosityEfficiency);
@@ -700,8 +711,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
 
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
     ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
@@ -709,6 +718,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
     ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
     ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
+    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
+    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
 
     ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
     ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
@@ -722,6 +733,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MBHParticleIO);
     if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
       MBHParticleIOFilename = dummy;
+    if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
+      MBHInsertLocationFilename = dummy;
 
     /* Read Movie Dump parameters */
 
@@ -818,6 +831,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
+    ret += sscanf(line, "ComovingRiemannSolver = %"ISYM, &ComovingRiemannSolver);
+    ret += sscanf(line, "LagrangeReconstruction = %"ISYM, &LagrangeReconstruction);
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
@@ -969,23 +984,28 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
       printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
 	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;
       }
-    }
-    
+
   }
 
-  
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+  /* For !restart, this only ruins the units because MinimumOverDensityForRefinement is already 
+     set in SetDefaultGlobalValues and not FLOAT_UNDEFINED.
+     For restart, MinimumOverDensityForRefinement is not even needs to be read because only 
+     MinimumMassForRefinement is used for CellFlagging.  
+     So, why did we have to do this in the first place?  - Ji-hoon Kim in Apr.2010
+     (The counterpart in WriteParameterFile is also commented out) */   //#####
+
+  /*
+  if (!ComovingCoordinates && UsePhysicalUnit) 
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumOverDensityForRefinement[i] /= DensityUnits;
       }
-    }
-  }
-
+  */
+  
   /* If RefineRegionTimeType is 0 or 1, read in the input file. */
   if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
       if (ReadEvolveRefineFile() == FAIL) {

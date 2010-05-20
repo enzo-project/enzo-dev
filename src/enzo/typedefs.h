@@ -272,4 +272,9 @@ struct star_data {
   int proc;
 };
 
+struct hilbert_data {
+  double hkey;
+  int grid_num;
+};
+
 #endif

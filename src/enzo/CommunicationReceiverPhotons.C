@@ -1,4 +1,3 @@
-#define DEBUG 0
 /***********************************************************************
 /
 /  COMMUNICATION ROUTINE: TRANSFER PHOTONS
@@ -34,6 +33,11 @@
 #ifdef USE_MPI
 static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
 static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
+void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
+				 char *msg=NULL);
+int CommunicationFindOpenRequest(MPI_Request *requests, Eint32 last_free,
+				 Eint32 nrequests, Eint32 index, 
+				 Eint32 &max_index);
 #endif /* USE_MPI */
 
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
@@ -42,7 +46,11 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int FindSuperSource(PhotonPackageEntry **PP, int &LeafID, 
 		    int SearchNewTree = TRUE);
 
+#define NO_DEBUG_CRP
+#define NO_DEBUG_CRP2
+
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
+				 bool local_transport,
 				 int &keep_transporting)
 {
 
@@ -52,198 +60,198 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   int NoErrorSoFar = TRUE;
   int FirstTime = TRUE;
-  Eint32 ReceivesCompletedToDate = 0, NumberOfCompletedRequests, index, errcode;
-  Eint32 TotalReceives = PH_CommunicationReceiveIndex;
+  MPI_Arg ReceivesCompletedToDate = 0, NumberOfCompletedRequests, index, errcode;
+  MPI_Arg TotalReceives = PH_CommunicationReceiveMaxIndex;
   int TotalReceivedPhotons = 0;
-  int *CompletedRequests = new int[TotalReceives];
-  PhotonPackageEntry *NewPack = NULL;
-  PhotonPackageEntry *ToPP = NULL;
+  bool *CompletedRequests = NULL;
+  PhotonPackageEntry *NewPack, *ToPP;
   int lvl, gi, dim, i, count, NumberOfActiveRequests;
   grid *ToGrid;
-  int ret;
+  int ret, level;
 
   HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
   int nGrids[MAX_DEPTH_OF_HIERARCHY];
-  int level;
 
-  if (DEBUG)
-    printf("P(%"ISYM") in PH_CRH with %"ISYM" requests\n", MyProcessorNumber,
-	   PH_CommunicationReceiveIndex);
+  if (TotalReceives == 0)
+    return SUCCESS;
 
+#ifdef DEBUG_CRP
+  printf("P(%"ISYM") in PH_CRH with %"ISYM" requests (local=%d)\n", 
+	 MyProcessorNumber, TotalReceives, local_transport);
+#endif
+
+  CompletedRequests = new bool[TotalReceives];
   for (i = 0; i < TotalReceives; i++)
-    CompletedRequests[i] = FALSE;
+    CompletedRequests[i] = false;
 
-  while (ReceivesCompletedToDate < TotalReceives) {
+  NumberOfCompletedRequests = 0;
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
-    /* Call the MPI wait handler */
+  /* Wait for >1 receives */
 
-    NumberOfCompletedRequests = 0;
-    if (DEBUG) {
-      printf("PH_CRH[%"ISYM"][a] : %"ISYM" %"ISYM" %"ISYM"\n", MyProcessorNumber, TotalReceives, 
-	     ReceivesCompletedToDate, NumberOfCompletedRequests);
-      printf("PH_CRH[%"ISYM"][a1]: %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", MyProcessorNumber,
-	     PH_CommunicationReceiveMPI_Request[0],
-	     PH_CommunicationReceiveMPI_Request[1],
-	     PH_CommunicationReceiveMPI_Request[2],
-	     PH_CommunicationReceiveMPI_Request[3],
-	     PH_CommunicationReceiveMPI_Request[4]);
-      fflush(stdout);
-    }
+  if (local_transport)
+    MPI_Testsome(TotalReceives, PH_CommunicationReceiveMPI_Request,
+		 &NumberOfCompletedRequests, 
+		 PH_ListOfIndices, PH_ListOfStatuses);
+  else
     MPI_Waitsome(TotalReceives, PH_CommunicationReceiveMPI_Request,
 		 &NumberOfCompletedRequests, 
 		 PH_ListOfIndices, PH_ListOfStatuses);
-
-    if (DEBUG) {
-      printf("PH_CRH[%"ISYM"][b]: %"ISYM" %"ISYM" %"ISYM" (%"ISYM" %"ISYM" %"ISYM")\n", MyProcessorNumber,
-	     TotalReceives, ReceivesCompletedToDate, NumberOfCompletedRequests, 
-	     PH_ListOfIndices[0], PH_ListOfIndices[1], PH_ListOfIndices[2]);
-      fflush(stdout);
-    }
-
-    /* Loop over receive handles, looking for completed (i.e. null)
-       requests. */
-
-    GroupPhotonList *RecvBuffer = NULL;
-    int irecv, NumberReceives, ToCount;
-
-    for (irecv = 0; irecv < NumberOfCompletedRequests; irecv++) {
-
-      index = PH_ListOfIndices[irecv];
-
-      if (PH_ListOfStatuses[index].MPI_ERROR != 0) {
-	fprintf(stderr, "MPI Error on processor %"ISYM". "
-		"Error number %"ISYM" on request %"ISYM"\n",
-		MyProcessorNumber, PH_ListOfStatuses[index].MPI_ERROR, index);
-	fprintf(stdout, "P(%"ISYM") index %"ISYM" -- mpi error %"ISYM"\n", MyProcessorNumber,
-		index, PH_ListOfStatuses[index].MPI_ERROR);
-      }
-
-      if (CompletedRequests[index] == TRUE)
-	continue;
-
-      if (DEBUG) {
-	printf("PH_CRH[P%"ISYM"][%"ISYM"]: processing request %"ISYM" (addr %"ISYM")\n",
-	       MyProcessorNumber, irecv, index, 
-	       PH_CommunicationReceiveMPI_Request[index]);
-	fflush(stdout);
-      }
-
-      /* Get grid lists */
   
-      if (FirstTime == TRUE) {
-	for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-	  if (LevelArray[level] != NULL)
-	    nGrids[level] = 
-	      GenerateGridArray(LevelArray, level, &Grids[level]);
-	FirstTime = FALSE;
-      }
+#ifdef DEBUG_CRP
+  printf("PH_CRH[%"ISYM"][b]: %"ISYM" %"ISYM" %"ISYM" (%"ISYM" %"ISYM" %"ISYM")\n", 
+	 MyProcessorNumber, TotalReceives, ReceivesCompletedToDate, 
+	 NumberOfCompletedRequests, 
+	 PH_ListOfIndices[0], PH_ListOfIndices[1], PH_ListOfIndices[2]);
+  fflush(stdout);
+#endif
 
-      /* Locate received data */
+  if (NumberOfCompletedRequests > 0)
+    CommunicationCheckForErrors(TotalReceives, PH_ListOfStatuses,
+				"CommunicationReceiverPhotons");
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
 
-      RecvBuffer = (GroupPhotonList *) PH_CommunicationReceiveBuffer[index];
+  /* Get grid lists */
 
-      /* Count photons first ... in case, I figure out a way to
-	 allocate the memory in a contiguous block (i.e. new
-	 photon_t[NumberReceives]).  I believe this will be much
-	 faster. */
+  if (NumberOfCompletedRequests > 0) {
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      if (LevelArray[level] != NULL)
+	nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
+  }
 
-      NumberReceives = 0;
-      while (RecvBuffer[NumberReceives].ToLevel != BUFFER_END)
-	NumberReceives++;
-      TotalReceivedPhotons += NumberReceives;
+  /* Loop over receive handles, looking for completed (i.e. null)
+     requests. */
 
-      if (DEBUG)
-	printf("CTPhR(P%"ISYM"): Received %"ISYM" photons\n", MyProcessorNumber, 
-	       NumberReceives);
+  GroupPhotonList *RecvBuffer = NULL;
+  int irecv, NumberReceives, ToCount;
 
-      /* Insert received photons in the photon list of the receiving
-	 grid */
+  for (irecv = 0; irecv < NumberOfCompletedRequests; irecv++) {
 
-      for (i = 0; i < NumberReceives; i++) {
+    index = PH_ListOfIndices[irecv];
+    if (CompletedRequests[index])
+      continue;
+
+#ifdef DEBUG_CRP
+    printf("PH_CRH[P%"ISYM"][%"ISYM"]: processing request %"ISYM"\n",
+	   MyProcessorNumber, irecv, index);
+    fflush(stdout);
+#endif
+
+    /* Locate received data */
+
+    RecvBuffer = (GroupPhotonList *) PH_CommunicationReceiveBuffer[index];
+
+    /* Count photons first ... in case, I figure out a way to allocate
+       the memory in a contiguous block (i.e. new
+       photon_t[NumberReceives]).  I believe this will be much
+       faster. */
+
+    NumberReceives = 0;
+    while (RecvBuffer[NumberReceives].ToLevel != BUFFER_END)
+      NumberReceives++;
+    TotalReceivedPhotons += NumberReceives;
+
+#ifdef DEBUG_CRP
+    printf("CTPhR(P%"ISYM"): Received %"ISYM" photons\n", MyProcessorNumber, 
+	   NumberReceives);
+#endif
+
+    /* Insert received photons in the photon list of the receiving
+       grid */
+
+    for (i = 0; i < NumberReceives; i++) {
 	  
-	lvl	 = RecvBuffer[i].ToLevel;
-	gi	 = RecvBuffer[i].ToGrid;
-	ToGrid = Grids[lvl][gi]->GridData;
-	ToPP	 = ToGrid->ReturnPhotonPackagePointer();
+      lvl	 = RecvBuffer[i].ToLevel;
+      gi	 = RecvBuffer[i].ToGrid;
 
-	NewPack = new PhotonPackageEntry;
-	NewPack->Photons		= RecvBuffer[i].buffer.Photons;
-	NewPack->Type			= RecvBuffer[i].buffer.Type;
-	NewPack->Energy		= RecvBuffer[i].buffer.Energy;
-	NewPack->EmissionTimeInterval = 
-	  RecvBuffer[i].buffer.EmissionTimeInterval;
-	NewPack->EmissionTime		= RecvBuffer[i].buffer.EmissionTime;
-	NewPack->CurrentTime		= RecvBuffer[i].buffer.CurrentTime;
-	NewPack->ColumnDensity	= RecvBuffer[i].buffer.ColumnDensity;
-	NewPack->CrossSection		= RecvBuffer[i].buffer.CrossSection;
-	NewPack->Radius		= RecvBuffer[i].buffer.Radius;
-	NewPack->ipix			= RecvBuffer[i].buffer.ipix;
-	NewPack->level		= RecvBuffer[i].buffer.level;
+      // Double check if the grids exists on this processor
+      if (gi >= nGrids[lvl]) {
+      }
+      ToGrid = Grids[lvl][gi]->GridData;
+      ToPP	 = ToGrid->ReturnPhotonPackagePointer();
 
-	for (dim = 0; dim < MAX_DIMENSION; dim++)
-	  NewPack->SourcePosition[dim] = 
-	    RecvBuffer[i].buffer.SourcePosition[dim];
+      NewPack = new PhotonPackageEntry;
+      NewPack->Photons		= RecvBuffer[i].buffer.Photons;
+      NewPack->Type			= RecvBuffer[i].buffer.Type;
+      NewPack->Energy		= RecvBuffer[i].buffer.Energy;
+      NewPack->EmissionTimeInterval = 
+	RecvBuffer[i].buffer.EmissionTimeInterval;
+      NewPack->EmissionTime		= RecvBuffer[i].buffer.EmissionTime;
+      NewPack->CurrentTime		= RecvBuffer[i].buffer.CurrentTime;
+      NewPack->ColumnDensity	= RecvBuffer[i].buffer.ColumnDensity;
+      NewPack->CrossSection		= RecvBuffer[i].buffer.CrossSection;
+      NewPack->Radius		= RecvBuffer[i].buffer.Radius;
+      NewPack->ipix			= RecvBuffer[i].buffer.ipix;
+      NewPack->level		= RecvBuffer[i].buffer.level;
 
-	NewPack->SourcePositionDiff = RecvBuffer[i].buffer.SourcePositionDiff;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	NewPack->SourcePosition[dim] = 
+	  RecvBuffer[i].buffer.SourcePosition[dim];
 
-	/* Search for the corresponding SuperSource, given a source ID
-	   on the tree */
+      NewPack->SourcePositionDiff = RecvBuffer[i].buffer.SourcePositionDiff;
 
-//	printf("CTPhR(P%"ISYM"): Photon %"ISYM" :: lvl %"ISYM", grid %"ISYM", srcid=%"ISYM", L = %"GSYM"\n",
-//	       MyProcessorNumber, i, lvl, gi, 
-//	       RecvBuffer[i].buffer.SuperSourceID, NewPack->Photons);
+      /* Search for the corresponding SuperSource, given a source ID
+	 on the tree */
 
-	if (RadiativeTransferSourceClustering) {
-	  if (FindSuperSource(&NewPack, RecvBuffer[i].buffer.SuperSourceID) 
-	      == FAIL) {
-	    fprintf(stderr, "Error in FindSuperSource.\n");
-	    ENZO_FAIL("");
-	  }
-	} else
-	  NewPack->CurrentSource = NULL;
+#ifdef DEBUG_CRP2
+      printf("CTPhR(P%"ISYM"): Photon %"ISYM" :: lvl %"ISYM", grid %"ISYM
+	     ", srcid=%"ISYM", L = %"GSYM"\n",
+	     MyProcessorNumber, i, lvl, gi, 
+	     RecvBuffer[i].buffer.SuperSourceID, NewPack->Photons);
+#endif
 
-	InsertPhotonAfter(ToPP, NewPack);
+      if (RadiativeTransferSourceClustering)
+	FindSuperSource(&NewPack, RecvBuffer[i].buffer.SuperSourceID);
+      else
+	NewPack->CurrentSource = NULL;
 
-	/* Update photon count */
+      InsertPhotonAfter(ToPP, NewPack);
 
-	ToCount = ToGrid->ReturnNumberOfPhotonPackages();
-	ToGrid->SetNumberOfPhotonPackages(ToCount+1);
+      /* Update photon count */
 
-	if (DEBUG > 1)
-	  printf("CTPhR(P%"ISYM"): Photon %"ISYM" :: lvl %"ISYM", grid %"ISYM", srcid=%"ISYM", L = %"GSYM" (%"GSYM")\n",
-		 MyProcessorNumber, i, lvl, gi, 
-		 RecvBuffer[i].buffer.SuperSourceID, NewPack->Photons,
-		 ToPP->NextPackage->Photons);
+      ToCount = ToGrid->ReturnNumberOfPhotonPackages();
+      ToGrid->SetNumberOfPhotonPackages(ToCount+1);
 
-      } // ENDFOR transferred photons (i)
+#ifdef DEBUG_CRP2
+      printf("CTPhR(P%"ISYM"): Photon %"ISYM" :: lvl %"ISYM", grid %"ISYM
+	     ", srcid=%"ISYM", L = %"GSYM" (%"GSYM")\n",
+	     MyProcessorNumber, i, lvl, gi, 
+	     RecvBuffer[i].buffer.SuperSourceID, NewPack->Photons,
+	     ToPP->NextPackage->Photons);
+#endif
 
-      delete [] RecvBuffer;
-      CompletedRequests[index] = TRUE;
-      //      if (PH_CommunicationReceiveMPI_Request[index] != MPI_REQUEST_NULL)
-      //        MPI_Request_free(PH_CommunicationReceiveMPI_Request+index);
-      //      PH_CommunicationReceiveMPI_Request[index] = NULL;
-      ReceivesCompletedToDate++;
+    } // ENDFOR transferred photons (i)
 
-    } // ENDFOR completed requests (index)
+    delete [] RecvBuffer;
+    CompletedRequests[index] = true;
+    //      if (PH_CommunicationReceiveMPI_Request[index] != MPI_REQUEST_NULL)
+    //        MPI_Request_free(PH_CommunicationReceiveMPI_Request+index);
+    //      PH_CommunicationReceiveMPI_Request[index] = NULL;
+    ReceivesCompletedToDate++;
 
-  } // ENDWHILE receiving  
+  } // ENDFOR completed requests (index)
 
-  PH_CommunicationReceiveIndex = 0;  
+  //PH_CommunicationReceiveIndex = 0;
+  PH_CommunicationReceiveIndex = 
+    CommunicationFindOpenRequest(PH_CommunicationReceiveMPI_Request, NO_HINT,
+				 MAX_PH_RECEIVE_BUFFERS,
+				 PH_CommunicationReceiveIndex,
+				 PH_CommunicationReceiveMaxIndex);
 
-  if (FirstTime == FALSE)
+  if (NumberOfCompletedRequests > 0)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       if (LevelArray[level] != NULL)
 	delete [] Grids[level];
 
-  if (TotalReceives > 0)
-    delete [] CompletedRequests;
-
+  delete [] CompletedRequests;
   if (TotalReceivedPhotons > 0)
     keep_transporting = 1;
   
-//  if (DEBUG)
-//    printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests\n", MyProcessorNumber,
-//	   PH_CommunicationReceiveIndex);
+#ifdef DEBUG_CRP
+  printf("P(%"ISYM") out of PH_CRH with %"ISYM" requests. nphotons=%d, kt=%d\n",
+	 MyProcessorNumber, PH_CommunicationReceiveMaxIndex, 
+	 TotalReceivedPhotons, keep_transporting);
+#endif
 
 #endif /* USE_MPI */
 

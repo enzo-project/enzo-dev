@@ -283,8 +283,8 @@ class grid
                             char *base_name, int grid_id, HDF5_hid_t file_id);
 
    int ComputeVectorAnalysisFields(field_type fx, field_type fy, field_type fz,
-                                   float *curl_x, float *curl_y, float *curl_z,
-                                   float *div);
+                                   float* &curl_x, float* &curl_y, float* &curl_z,
+                                   float* &div);
 
 private:
    int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
@@ -590,7 +590,15 @@ public:
 			 AMRHDF5Writer &AmiraGrid,
 			 int lastMovieStep, int TopGridCycle, 
 			 int WriteMe, int MovieTimestepCounter, int open, 
-			 FLOAT WriteTime);
+			 FLOAT WriteTime,
+			 int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
+			 int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
+
+   int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
+					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
+					  int lastMovieStep, int WriteMe, 
+					  FLOAT WriteTime, int alreadyopened[],
+					  int NumberOfStarParticlesOnProc[]);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 
@@ -1595,15 +1603,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* PPM Direct Euler Solver. */
 
-  int PPMDirectEuler(int CycleNumber, int NumberOfSubgrids, 
-                     fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-                     long_int GridGlobalStart[], int GravityOn,
-		     int NumberOfColours, int colnum[]);
+int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
+		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+		Elong_int GridGlobalStart[], int GravityOn, 
+		int NumberOfColours, int colnum[]);
 
-  int euler_sweep(int dim, int iter, int CycleNumber, int NumberOfSubgrids, 
-                  fluxes *SubgridFluxes[], float *CellWidthTemp[],
-                  long_int GridGlobalStart[], int GravityOn,
-		  int NumberOfColours, int colnum[], float *temp, int tempsize);
+int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
 
 // AccelerationHack
 
@@ -1635,10 +1650,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 					 float CoreRadius,
 					 float AngularVelocity);
 
-/* ShockTube problem: initialize grid (returns SUCCESS or FAIL) */
+/* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
-  int ShockTubeInitializeGrid(int Direction, float Boundary, float Density[],
-			      float Pressure[], float Velocity[]);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float LeftDensity, float RightDensity, 
+				    float LeftVelocityX, float RightVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float LeftPressure, float RightPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -2200,7 +2219,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 		      float AvgVelocity[]);
   int GetEnclosedMass(FLOAT star_pos[], float radius, float &mass,
 		      float &metallicity, float &coldgas_mass, 
-		      float AvgVelocity[]);
+		      float AvgVelocity[], float &OneOverRSquaredSum);
+  int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
+			     float &mass, float &metallicity, 
+			     float &coldgas_mass, float AvgVelocity[]);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -2322,10 +2344,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
-  int Hydro1DTestInitializeGrid(float rhol, float rhor,
-				float vxl,  float vxr,
-				float vyl,  float vyr,
-				float pl,   float pr);
   int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);
@@ -2363,7 +2381,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
   int SourceTerms(float **dU);
-  int MHD1DTestInitializeGrid(float rhol, float rhor,
+  int MHD1DTestInitializeGrid(float RampWidth,
+			      float rhol, float rhor,
 			      float vxl,  float vxr,
 			      float vyl,  float vyr,
 			      float vzl,  float vzr,

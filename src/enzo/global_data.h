@@ -41,6 +41,7 @@ EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
+EXTERN int LoadBalancingMaxLevel;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
@@ -136,9 +137,9 @@ EXTERN int MustRefineRegionMinRefinementLevel;
    will refine up to (does not prevent refinement to higher levels) */
 EXTERN int MetallicityRefinementMinLevel;
 
-/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+/* threshold metallicity and density for FlagGridCellsToBeRefinedByMetallicity */
 EXTERN float MetallicityRefinementMinMetallicity;
-
+EXTERN float MetallicityRefinementMinDensity;
 
 /* Velocity to limit timesteps */
 
@@ -471,10 +472,15 @@ EXTERN float JeansRefinementColdTemperature;
 
 EXTERN int   MustRefineParticlesRefineToLevel;
 
+/* For CellFlaggingMethod = 8,
+   The physical length (in pc) to which the must refine particles apply 
+   The above parameter will be automatically adjusted to match this length */
+
+EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
+
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
-
 
 EXTERN float MinimumShearForRefinement;
 
@@ -619,6 +625,8 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
+EXTERN int ComovingRiemannSolver;
+EXTERN int LagrangeReconstruction;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;
@@ -691,6 +699,10 @@ EXTERN int UseCUDA;
 /* ran1 initialization flag for star_maker5 */
 
 EXTERN int ran1_init;
+
+/* random number initialization flag */
+
+EXTERN int rand_init;
 
 /* test problem stuff */
 EXTERN TestProblemDataType TestProblemData;
@@ -820,6 +832,8 @@ EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 EXTERN int MBHParticleIO;
 EXTERN char *MBHParticleIOFilename;
 EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN char *MBHInsertLocationFilename;
+EXTERN int OutputWhenJetsHaveNotEjected;
 
 /* Vorticity Calculations */
 

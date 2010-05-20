@@ -29,7 +29,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
 #include "ImplicitProblemABC.h"
+#endif
 
 
 int WriteTracerParticleData(char *basename, int filenumber,
@@ -277,6 +279,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     if (MovieSkipTimestep != INT_UNDEFINED) {
       fprintf(stderr, "Closing movie file.\n");
       MetaData->AmiraGrid.AMRHDF5Close();
+      MetaData->AmiraGrid.AMRHDF5CloseSeparateParticles();
     }
     if (MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);

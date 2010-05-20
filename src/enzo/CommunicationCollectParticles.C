@@ -51,8 +51,8 @@ int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
 
 #define NO_DEBUG_CCP
-#define GRIDS_PER_LOOP 20000
-#define PARTICLES_PER_LOOP 10000000
+#define GRIDS_PER_LOOP 50000
+#define PARTICLES_PER_LOOP 100000000
  
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 				  int level, bool ParticlesAreLocal, 
@@ -65,6 +65,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   int NumberOfGrids = 0, NumberOfSubgrids = 0;
   HierarchyEntry *SubgridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
   HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
+  HierarchyEntry *Subgrid;
   LevelHierarchyEntry *Temp;
 
   Temp = LevelArray[level];
@@ -76,6 +77,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   if (level < MAX_DEPTH_OF_HIERARCHY-1) {
     Temp = LevelArray[level+1];
     while (Temp != NULL) {
+      Temp->GridData->SetGridID(NumberOfSubgrids);
       SubgridHierarchyPointer[NumberOfSubgrids++] = Temp->GridHierarchyEntry;
       Temp = Temp->NextGridThisLevel;
     }
@@ -99,7 +101,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
 
-  int proc, i, j, k, jstart, jend;
+  int proc, i, j, k, jstart, jend, ThisID;
   int particle_data_size, star_data_size;
   int Zero = 0;
 
@@ -156,11 +158,13 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 	  ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD, 1.0, 
 				   ZeroOnAllProcs);
  
-	for (k = 0; k < NumberOfSubgrids; k++)
-	  if (SubgridHierarchyPointer[k]->ParentGrid == GridHierarchyPointer[j])
-	    GridHierarchyPointer[j]->GridData->ZeroSolutionUnderSubgrid
-	      (SubgridPointers[k], ZERO_UNDER_SUBGRID_FIELD, float(k+1),
-	       ZeroOnAllProcs);
+	for (Subgrid = GridHierarchyPointer[j]->NextGridNextLevel;
+	     Subgrid; Subgrid = Subgrid->NextGridThisLevel) {
+	  ThisID = Subgrid->GridData->GetGridID();
+	  GridHierarchyPointer[j]->GridData->ZeroSolutionUnderSubgrid
+	    (Subgrid->GridData, ZERO_UNDER_SUBGRID_FIELD, float(ThisID+1),
+	     ZeroOnAllProcs);
+	}
 
 	if (MoveStars)
 	  GridHierarchyPointer[j]->GridData->TransferSubgridStars

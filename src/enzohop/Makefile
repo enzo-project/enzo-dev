@@ -70,12 +70,43 @@ MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
 include $(MAKE_CONFIG_OVERRIDE)
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# ENZOHOP ONLY: override the override, since enzohop doesn't compile for 64-bits
-# on DataStar
+# ENZOHOP ONLY: Check for 32-bit settings.  Use:
+#  make precision-32
+#  make particles-32
+#  make integers-32
+#  make particle-id-32
+# 
 
-CONFIG_INTEGERS = 32
-CONFIG_USE_MPI  = no
-CONFIG_LCAPERF  = no
+ifneq ($(CONFIG_INTEGERS),32)
+  .PHONY: error_integers32
+  error_integers32:
+	$(error CONFIG_INTEGERS must be 32 - change and recompile enzo)
+endif
+
+ifneq ($(CONFIG_PRECISION),32)
+  .PHONY: error_precision32
+  error_precision32:
+	$(error CONFIG_PRECISION must be 32 - change and recompile enzo)
+endif
+
+ifneq ($(CONFIG_PARTICLES),32)
+  .PHONY: error_particles32
+  error_particles32:
+	$(error CONFIG_PARTICLES must be 32 - change and recompile enzo)
+endif
+
+ifneq ($(CONFIG_PARTICLE_IDS),32)
+  .PHONY: error_particle_ids32
+  error_particle_ids32:
+	$(error CONFIG_PARTICLE_IDS must be 32 - change and recompile enzo)
+endif
+
+ifeq ($(CONFIG_LCAPERF),yes)
+  .PHONY: error_use_lcaperf
+  error_use_lcaperf:
+	$(error CONFIG_LCAPERF must be no - change and recompile enzo)
+endif
+
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #-----------------------------------------------------------------------
@@ -102,19 +133,29 @@ include Make.config.objects
 # MAIN TARGET
 #-----------------------------------------------------------------------
 
-$(EXE).exe: $(MODULES) dep $(OBJS_LIB)
+$(EXE).exe: $(MODULES) dep $(OBJS_LIB) purge_main
 	@rm -f $@
 	@echo "Linking"
-	-@$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
+	-@$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_LIB) $(ENZO_DIR)/*.o \
+            $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
              echo "Success!"; \
          else \
-             echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_LIB) $(LIBS)" >> temp1; \
+             echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_LIB) $(ENZO_DIR)/*.o $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS)" >> temp1; \
              cat temp1 $(OUTPUT) > temp2; \
              rm -f temp1; \
              mv -f temp2 $(OUTPUT); \
              echo "Failed! See $(OUTPUT) for error messages"; \
          fi)
+
+.PHONY: purge_main
+purge_main:
+	if [ -e $(ENZO_DIR)/enzo.o ]; then \
+		/bin/rm $(ENZO_DIR)/enzo.o; \
+		fi
+	if [ -e $(ENZO_DIR)/EvolveHierarchy.o ]; then \
+		/bin/rm $(ENZO_DIR)/EvolveHierarchy.o; \
+		fi
 
 #-----------------------------------------------------------------------
 # Implicit rules

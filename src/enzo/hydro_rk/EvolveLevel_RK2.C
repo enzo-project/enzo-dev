@@ -75,7 +75,7 @@ int CommunicationReduceValues(float *Values, int Number, MPI_Op ReduceOperation)
 int CommunicationAllSumValues(float *Values, int Number);
 float CommunicationMinValue(float Value);
 float CommunicationMaxValue(float Value);
-int CommunicationBarrier();
+
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
@@ -280,7 +280,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
-  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %d, NSpecies = %d\n", NColor, NSpecies); 
+  //  fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
@@ -384,12 +384,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
     if (debug && HydroMethod == MHD_RK) 
-      fprintf(stderr, "wave speeds: timestep: %g  C_h: %g  C_p: %g\n ", 
+      fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
 	       dt0, C_h, C_p);
 
 
     When = 0.5;
-    RK2SecondStepBaryonDeposit = 0;
+//    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -462,7 +462,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // Recompute potential and accelerations with time centered baryon Field
     // this also does the particles again at the moment so could be made more efficient.
 
-    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step
+    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;

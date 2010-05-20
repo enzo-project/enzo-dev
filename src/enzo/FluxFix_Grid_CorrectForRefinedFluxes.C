@@ -19,7 +19,7 @@
 /
 /  PURPOSE:    Ensures conservation of stuff.
 /
-/  RETURNS: SUCCESS or FAIL
+/  RETURNS: SUCCESS or FAIL 
 /
 ************************************************************************/
  
@@ -80,7 +80,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
   int CorrectLeftBaryonField, CorrectRightBaryonField;
   //For correction of the Parent Grid (this grid) boundary flux.
   int CorrectLeftBoundaryFlux, CorrectRightBoundaryFlux;
-  float CorrectionAmount; 
+  float CorrectionAmountLeft, CorrectionAmountRight; 
  
   long_int GlobalDim;
  
@@ -435,48 +435,48 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      + (k - GridFluxStartIndex[2])*GridFluxDim[1]*GridFluxDim[0];
 		
 		
-		    if (CorrectLeftBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
-			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+// 		    if (CorrectLeftBoundaryFlux)
+//		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
+//			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 		
 		    if(CorrectLeftBaryonField){
 		
 		      if( SUBlingGrid == FALSE ){
-			CorrectionAmount = 
+			CorrectionAmountLeft = 
 			  InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
 			  RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
-			BaryonField[field][FieldIndex] += CorrectionAmount;
+			BaryonField[field][FieldIndex] += CorrectionAmountLeft;
 			
 		      }else{ /* if( SUBlingGrid == False) */
 			
-			CorrectionAmount = 
+			CorrectionAmountLeft = 
 			  -(InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
 			    RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex]);
-			BaryonField[field][FieldIndex] += CorrectionAmount;
+			BaryonField[field][FieldIndex] += CorrectionAmountLeft;
 			
 		      }
 		    }
 		
-		    if (CorrectRightBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
-			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
+// 		    if (CorrectRightBoundaryFlux)
+//		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
+//			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
 		
 		    /* update only if necessary */
 		    if(CorrectRightBaryonField){
 		
 		      if( SUBlingGrid == FALSE ){
 
-			CorrectionAmount = 
+			CorrectionAmountRight = 
 			  -(InitialFluxes->RightFluxes[field][dim][FluxIndex] -
 			    RefinedFluxes->RightFluxes[field][dim][FluxIndex]);
 			  
-			BaryonField[field][FieldIndex + Offset] += CorrectionAmount;
+			BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
 		      }else{ /* if( SUBlingGrid == FALSE ){ */
-			  CorrectionAmount = 
+			  CorrectionAmountRight = 
 			    InitialFluxes->RightFluxes[field][dim][FluxIndex] -
 			    RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex];
-			  BaryonField[field][FieldIndex + Offset] += CorrectionAmount;
+			  BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
 		      } // else{ /* if( SUBlingGrid == FALSE ){ */
 		    } // if(CorrectRightBaryonField)
@@ -490,54 +490,58 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
 		      if (CorrectLeftBaryonField &&
 			  BaryonField[field][FieldIndex] <= 0) {
-			BaryonField[field][FieldIndex] -= CorrectionAmount;
+			BaryonField[field][FieldIndex] -= CorrectionAmountLeft;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+				 CorrectionAmountLeft,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex],
+				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				 CorrectionAmountLeft,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
+			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} // ENDELSE (SUBlingGrid == FALSE)
 		      } // ENDIF CorrectLeftBaryonField
 
 		      if (CorrectRightBaryonField &&
 			  BaryonField[field][FieldIndex+Offset] <= 0) {
-			BaryonField[field][FieldIndex+Offset] -= CorrectionAmount;
+			BaryonField[field][FieldIndex+Offset] -= CorrectionAmountRight;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+				 CorrectionAmountRight,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				 CorrectionAmountRight,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
+			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			}
 		      } // ENDIF CorrectRightBaryonField

@@ -6,7 +6,7 @@
 /  date:       April, 2009
 /  modified1:
 /
-/ PURPOSE:
+/  PURPOSE:
 /
 ************************************************************************/
 
@@ -37,7 +37,8 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 		       TopGridData *MetaData, int EL_level)
 {
 
-  if (!(RefineRegionAutoAdjust && EL_level == 0))
+//if (!(RefineRegionAutoAdjust && EL_level == 0))
+  if (!(RefineRegionAutoAdjust >= 1 && EL_level == RefineRegionAutoAdjust-1)) 
     return SUCCESS;
 
   if (RefineRegionLeftEdge[0] == DomainLeftEdge[0] &&
@@ -164,7 +165,10 @@ int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[],
 
   nRemoveTotal = INT_UNDEFINED;
   ParticlesLeft = TotalNumberOfParticles;
-  srand( time(NULL) );
+  if (rand_init == 0) {
+    srand( time(NULL) );
+    rand_init = 1;
+  }
 
   while (ParticlesLeft > 0) {
 

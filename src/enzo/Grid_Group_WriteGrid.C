@@ -62,7 +62,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 #define io_type float32
 #endif
  
-  io_type *temp;
+  io_type *temp, *temp_VelAnyl;
  
   FILE *log_fptr;
   FILE *procmap_fptr;
@@ -544,7 +544,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       int tFields=4;
       if (GridRank==2) tFields=2;
 
-      for (int field=0; field<=tFields; field++){
+      for (int field=0; field<tFields; field++){
 
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -571,17 +571,20 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       switch (field) {
       case 0:
-	temp=div;
+	temp_VelAnyl=div;
+	break;
       case 1:
-	temp=curlz;
+	temp_VelAnyl=curlz;
+	break;
       case 2:
-	temp=curly;
+	temp_VelAnyl=curly;
+	break;
       case 3:
-	temp=curlx;
-
+	temp_VelAnyl=curlx;
+	break;
       }
  
-      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp_VelAnyl);
         if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  

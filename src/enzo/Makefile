@@ -102,13 +102,16 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: $(EXE).exe
+all: MACHNOTES $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+MACHNOTES: 
+	@echo $(MACHINE_NOTES)
+
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
 	@echo "Linking"
 	@(if [ $(VERBOSE) -eq 0 ]; then \
@@ -394,7 +397,7 @@ help:
 #-----------------------------------------------------------------------
 
 clean:
-	-@rm -f *.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
+	-@rm -f *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
           auto_show*.C svn_version.def hydro_rk/*.o
 
 #-----------------------------------------------------------------------

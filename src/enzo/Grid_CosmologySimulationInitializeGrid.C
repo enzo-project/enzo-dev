@@ -281,7 +281,12 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
- 
+  /* 
+    printf("XXXXXXXXXXXXXXX NumberOfBaryonFields : %i \n", NumberOfBaryonFields); 
+    for (i=0; i<NumberOfBaryonFields; i++) 
+      printf("FieldType[%i] = %i \n", i, FieldType[i]);
+  */
+
   // Set the subgrid static flag
  
   SubgridsAreStatic = CosmologySimulationSubgridsAreStatic;
@@ -472,7 +477,8 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData)
     for (i = 0; i < size; i++) {
-      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];
+      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];  
+      //BaryonField[MetalNum][i] = 3e-3 * 0.0204 * BaryonField[0][i];    // Z = 1e-4Zs  //#####
       if(MultiMetals){
 	BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
 	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];

@@ -7,6 +7,7 @@
 # AUTHOR:      Alexei Kritsuk
 #
 # DATE:        2008-05-31
+# MODIFIED1:   John Wise (April 2010)
 #
 #=======================================================================
 
@@ -24,7 +25,7 @@ MACH_FILE  = Make.mach.nics-kraken
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt5/hdf5/1.6.7/cnl2.1_pgi7.2.3
+LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_pgi9.0.1/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_SPRNG_INSTALL  = /sw/xt5/sprng/2.0b/cnl2.1_pgi7.2.3
@@ -40,7 +41,7 @@ MACH_CPP       = /lib/cpp
 # With MPI
 
 MACH_CC_MPI    = cc
-MACH_CXX_MPI   = CC -DMPICH_IGNORE_CXX_SEEK
+MACH_CXX_MPI   = CC
 MACH_FC_MPI    = ftn
 MACH_F90_MPI   = ftn
 MACH_LD_MPI    = CC
@@ -59,7 +60,7 @@ MACH_LD_NOMPI  = CC
 
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
-MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING -DFAST_SIB -DFLUX_FIX
+MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -71,6 +72,7 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl,-static 
+MACH_OPENMP   = -mp
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -98,8 +100,11 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O1
-MACH_OPT_AGGRESSIVE  = -O1 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch -Kieee
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+#MACH_OPT_AGGRESSIVE  = -O1 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch -Kieee
+#MACH_OPT_AGGRESSIVE = -fast -Mipa=fast -Minline=levels:10
+#MACH_OPT_AGGRESSIVE = -fast -Mpfo
 
 #-----------------------------------------------------------------------
 # Includes
@@ -134,13 +139,11 @@ LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
 #LOCAL_LIBS_SPRNG  =
 LOCAL_LIBS_PNG    = 
 
-LOCAL_LIBS_MACH   =  $(LOCAL_LIBS_SPRNG) \
-                    -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
-                    -L/usr/local/lib -lz \
-                    -L/opt/acml/4.0.1a/pgi64/lib -lacml -lm \
+LOCAL_LIBS_MACH   = -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
+		    -L/usr/local/lib -lz \
+		    -L/opt/acml/4.3.0/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \
-                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl 
-#                    -L/usr/local/packages/gmp-4.1.4/lib -lgmp
+                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

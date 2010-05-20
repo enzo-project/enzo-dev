@@ -88,7 +88,7 @@ int CreateSUBlingList(TopGridData *MetaData,
      needed.  Array of coarse and SUBling grid IDs (packed together).
      We use NumberOfSUBlings[] for the displacements. */
 
-  const int SUBlingArrayIncr = NumberOfChildGrids;
+  const int SUBlingArrayIncr = 2*NumberOfChildGrids;
   int SUBlingArraySize = SUBlingArrayIncr;
   int *SUBlingIDs = new int[SUBlingArraySize];
 

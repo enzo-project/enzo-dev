@@ -46,7 +46,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
  
-  int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField)?
+  int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField ||
+		CopyFunction == &grid::SetSubgridMarkerFromSibling)?
     TRUE : FALSE;
   int FullPeriod = (CopyFunction == &grid::CopyPotentialField)?
     TRUE : FALSE;
@@ -97,7 +98,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   bool BoundaryCheck[2*MAX_DIMENSION];
   bool ycheck, zcheck;
   FLOAT DomainWidth[MAX_DIMENSION];
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+  for (dim = 0; dim < GridRank; dim++) {
 
     BoundaryCheck[2*dim] = 
       ((LeftFaceBoundaryCondition[dim] == periodic || 
@@ -112,6 +113,12 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	ShearingVelocityDirection==dim ));
 
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+  }
+
+  for (dim = GridRank; dim < MAX_DIMENSION; dim++) {
+    BoundaryCheck[2*dim] = TRUE;
+    BoundaryCheck[2*dim+1] = TRUE;
+    DomainWidth[dim] = 0.0;
   }
 
   /* For periodic boundary conditions, do some extra checks.  This insures

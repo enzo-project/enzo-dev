@@ -50,6 +50,8 @@ int CommunicationShareGrids(HierarchyEntry *GridHierarchyPointer[], int grids,
 			    int ShareParticles = TRUE); 
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
+int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
+			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
@@ -480,12 +482,16 @@ int RebuildHierarchy(TopGridData *MetaData,
       case 1:
       case 2:
       case 3:
-	if (i >= LoadBalancingMinLevel)
+	if (i >= LoadBalancingMinLevel && i <= LoadBalancingMaxLevel)
 	  CommunicationLoadBalanceGrids(SubgridHierarchyPointer, subgrids, 
 					MoveParticles);
 	break;
+      case 4:
+	if (i >= LoadBalancingMinLevel && i <= LoadBalancingMaxLevel)
+	  LoadBalanceHilbertCurve(SubgridHierarchyPointer, subgrids, 
+				  MoveParticles);
+	break;
       default:
-	
 	break;
       }
       tt1 = ReturnWallTime();
@@ -604,19 +610,18 @@ int RebuildHierarchy(TopGridData *MetaData,
  
   } // end: if (StaticHierarchy == TRUE)
 
-
-  /* update all SubgridMarkers */
-
-#ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, 0) == FAIL)
-    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
-#endif /* TRANSFER  */
-
   /* set grid IDs */
 
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)
     for (Temp = LevelArray[i], j = 0; Temp; Temp = Temp->NextGridThisLevel, j++)
       Temp->GridData->SetGridID(j);
+
+  /* update all SubgridMarkers */
+
+#ifdef TRANSFER
+  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
+    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+#endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();
