@@ -1,0 +1,39 @@
+#
+# gFLDProblem Parameter File:
+#   Iliev et al. isothermal, monochromatic ionization test
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadHydroVelocity = 0.0 0.0 0.0       // initial velocity [cm/s]
+RadHydroDensity = 1.67262171e-27     // initial density [g] (desired nH=1e-3)
+RadHydroTemperature = 1.0e4          // initial temperature [K]
+RadHydroRadiationEnergy = 1.0e-20    // initial radiation energy [erg/cm^3]
+RadHydroInitialFractionHII = 0.0012  // initial 0.12% HII fraction
+RadiationBoundaryX0Faces = 2 2       // Neumann
+RadiationBoundaryX1Faces = 2 2       // Neumann
+RadiationBoundaryX2Faces = 2 2       // Neumann
+NGammaDot = 5.0e48                   // ionization rate [photons/sec]
+EtaRadius = 1.0e0                    // radius for emissivity source [cells]
+#
+# General module and solver parameters
+# 
+RadHydroESpectrum       = -1         // monochromatic spectrum at nu_HI
+RadHydroModel           = 4          // isothermal, case-B HII recomb coeff
+EnergyCorrectionScaling = 1.0e4      // for Model 4, this holds the Temperature
+RadHydroMaxDt           = 1.0e-2
+RadHydroMinDt           = 1.0e-8
+RadHydroInitDt          = 1.0e-8
+RadHydroDtNorm          = 3.0        // p-norm for time error estimate
+RadHydroDtRadFac        = 0.04       // 4% desired change/step
+RadHydroDtChemFac       = 0.04
+RadHydroTheta           = 0.51       // nearly centered to avoid C-N "ringing"
+RadHydroInitialGuess    = 2          // use full explicit predictor
+RadHydroINConst         = 1.0e-9     // Inexact Newton constant
+RadHydroMGPreRelax      = 2          // MG pre-relaxation sweeps
+RadHydroMGPostRelax     = 2          // MG post-relaxation sweeps
+
+#############################

@@ -1,0 +1,34 @@
+#
+# gFLDSplit Parameter File:
+#   1D Streaming Radiation Test
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadiationBoundaryX0Faces = 1 2        // Dirichlet left; Neumann right
+RadStreamDim = 0                      // x-dimension for streaming problem
+RadStreamDir = 0                      // left->right streaming radiation
+PlanckOpacityC0 = 1.0e-4              // kappa = C0 * (rho/C1)^C2
+PlanckOpacityC1 = 1.0
+PlanckOpacityC2 = 0.0
+EnergyOpacityC0 = 1.0e-4
+EnergyOpacityC1 = 1.0
+EnergyOpacityC2 = 0.0
+#
+# General module and solver parameters
+# 
+RadHydroChemistry   = 0               // no chemistry
+RadHydroModel       = 10              // LTE coupling
+RadHydroMaxDt       = 1.0e-13
+RadHydroMinDt       = 1.0e-18
+RadHydroInitDt      = 1.0e-18
+RadHydroDtNorm      = 0.0             // max-norm for time error estimate
+RadHydroDtRadFac    = 0.01            // 1% desired change/step
+RadHydroMGPreRelax  = 5               // MG pre-relaxation sweeps
+RadHydroMGPostRelax = 5               // MG post-relaxation sweeps
+
+#############################
+

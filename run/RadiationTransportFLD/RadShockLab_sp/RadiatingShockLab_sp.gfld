@@ -1,0 +1,39 @@
+#
+# gFLDSplit Parameter File:
+#   Lowrie & Edwards Radiating Shock Test (lab volume)
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadiationBoundaryX2Faces = 2 2        // Neumann
+DensityConstant  = 1.0                // initial density [g/cm^3]
+GasTempConstant  = 121.6              // initial gas temperature [eV]
+RadTempConstant  = 121.6              // initial rad temperature [eV]
+VelocityConstant = 1.94745e+07        // velocity of inflowing matter [cm/s]
+ShockDir = 2                          // propagation along Z coordinate
+CGSType  = 2                          // use eV in temperature/energy conversion
+PlanckOpacityC0 = 577.3503            // kappa = C0 * (rho/C1)^C2
+PlanckOpacityC1 = 1.0
+PlanckOpacityC2 = 0.0
+EnergyOpacityC0 = 577.3503
+EnergyOpacityC1 = 1.0
+EnergyOpacityC2 = 0.0
+#
+# General module and solver parameters
+# 
+RadHydroChemistry     = 0            // no chemistry
+RadHydroModel         = 10           // LTE coupling
+RadHydroMaxDt         = 1.0e-2
+RadHydroInitDt        = 1.0e-6
+RadHydroDtNorm        = 0.0          // max-norm for time error estimate
+RadHydroDtRadFac      = 0.005        // 0.5% desired change/step
+RadHydroMGPreRelax    = 5            // MG pre-relaxation sweeps
+RadHydroMGPostRelax   = 5            // MG post-relaxation sweeps
+RadiationScaling      = 0.1
+EnergyCorrectionScaling = 0.01
+
+#############################
+
