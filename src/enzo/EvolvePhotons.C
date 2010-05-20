@@ -213,10 +213,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
-      if (CreateSourceClusteringTree(NULL, NULL, LevelArray) == FAIL) {
-	fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
-	ENZO_FAIL("");
-      }
+      CreateSourceClusteringTree(NULL, NULL, LevelArray);
       //PrintSourceClusteringTree(SourceClusteringTree);
     }
     END_PERF(1);
@@ -232,10 +229,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     Temp = Temp->NextGridThisLevel)
 	  if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	    if (Temp->GridData->PointInGrid(RS->Position)) {
-	      if (Temp->GridData->Shine(RS) == FAIL) {
-		fprintf(stderr, "Error in Shine.\n");
-		ENZO_FAIL("");
-	      }
+	      Temp->GridData->Shine(RS);
 	      Continue = FALSE; // do not continue with this source
 	    } // If source in grid
 
@@ -340,11 +334,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
       START_PERF();
-      if (CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
-				       keep_transporting) == FAIL) {
-	fprintf(stderr, "Error in CommunicationTransferPhotons.\n");
-	ENZO_FAIL("");
-      }
+      CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
+
+				   keep_transporting);
       END_PERF(5);
 
       /* Receive keep_transporting messages and take the MAX */
@@ -434,7 +426,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] Grids0;
     delete [] Temp0;
 
-    /* Coupled rate & energy solver */
+    /************************************************************************/
+    /********************* Coupled rate & energy solver *********************/
+    /************************************************************************/
 
     int debug_store = debug;
     debug = FALSE;
@@ -445,10 +439,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	if (Temp->GridData->RadiationPresent() == TRUE)
-	  if (Temp->GridData->FinalizeRadiationFields() == FAIL) {
-	    fprintf(stderr, "Error in FinalizeRadiationFields.\n");
-	    ENZO_FAIL("");
-	  }
+	  Temp->GridData->FinalizeRadiationFields();
     END_PERF(8);
 
     START_PERF();
@@ -458,16 +449,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	  if (RadiativeTransferCoupledRateSolver && 
 	      RadiativeTransferOpticallyThinH2)
-	    if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
-	      fprintf(stderr, "Error in AddH2Dissociation.\n");
-	      ENZO_FAIL("");
-	    }
+	    Temp->GridData->AddH2Dissociation(AllStars);
 
 	  if (RadiativeTransferCoupledRateSolver)
-	    if (Temp->GridData->SolveCoupledRateEquations() == FAIL) {
-	      fprintf(stderr, "Error in grid->SolveCoupledRateEquations.\n");
-	      ENZO_FAIL("");
-	    }
+	    Temp->GridData->SolveCoupledRateEquations();
 
 	  if (RadiativeTransferCoupledRateSolver &&
 	      RadiativeTransferInterpolateField)
@@ -484,10 +469,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == FALSE)
-	    if (Temp->GridData->AddH2Dissociation(AllStars) == FAIL) {
-	      fprintf(stderr, "Error in AddH2Dissociation.\n");
-	      ENZO_FAIL("");
-	    }
+	    Temp->GridData->AddH2Dissociation(AllStars);
     END_PERF(10);
 
     /* Clean up temperature field */

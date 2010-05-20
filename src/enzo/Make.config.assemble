@@ -635,8 +635,36 @@
 
     ifeq ($(ERROR_PHOTON),1)
        .PHONY: error_transfer
-       error_tpvel:
+       error_transfer:
 	$(error Illegal value '$(CONFIG_PHOTON)' for $$(CONFIG_PHOTON))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE EMISSIVITY FIELD SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_EMISSIVITY = 1
+
+    # Settings to turn emissivity field ON
+
+    ifeq ($(CONFIG_EMISSIVITY),yes)
+        ERROR_EMISSIVITY = 0
+        ASSEMBLE_EMISSIVITY_DEFINES = -DEMISSIVITY
+    endif
+
+    # Settings to turn emissivity field OFF
+
+    ifeq ($(CONFIG_EMISSIVITY),no)
+        ERROR_EMISSIVITY = 0
+        ASSEMBLE_EMISSIVITY_DEFINES =
+    endif
+
+    # error if CONFIG_EMISSIVITY is incorrect
+
+    ifeq ($(ERROR_EMISSIVITY),1)
+       .PHONY: error_emissivity
+       error_emissivity:
+	$(error Illegal value '$(CONFIG_EMISSIVITY)' for $$(CONFIG_EMISSIVITY))
     endif
 
 #-----------------------------------------------------------------------
@@ -666,6 +694,39 @@
        error_NEW_GRID_IO:
 	$(error Illegal value '$(CONFIG_NEW_GRID_IO)' for $$(CONFIG_NEW_GRID_IO))
     endif
+
+#-----------------------------------------------------------------------
+# DETERMINE HYPRE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_HYPRE = 1
+
+    # Settings to turn HYPRE bindings on
+
+    ifeq ($(CONFIG_HYPRE),yes)
+        ERROR_HYPRE = 0
+        ASSEMBLE_HYPRE_DEFINES = -DUSE_HYPRE
+        ASSEMBLE_HYPRE_INCLUDES = $(MACH_INCLUDES_HYPRE)
+        ASSEMBLE_HYPRE_LIBS     = $(MACH_LIBS_HYPRE)
+    endif
+
+    # Settings to turn HYPRE bindings OFF
+
+    ifeq ($(CONFIG_HYPRE),no)
+        ERROR_HYPRE = 0
+        ASSEMBLE_HYPRE_DEFINES =
+        ASSEMBLE_HYPRE_INCLUDES =
+        ASSEMBLE_HYPRE_LIBS =
+    endif
+
+    # error if CONFIG_HYPRE is incorrect
+
+    ifeq ($(ERROR_HYPRE),1)
+       .PHONY: error_hypre
+       error_hypre:
+	$(error Illegal value '$(CONFIG_HYPRE)' for $$(CONFIG_HYPRE))
+    endif
+
 
 #-----------------------------------------------------------------------
 # DETERMINE FAST SIBLING SETTINGS
@@ -894,6 +955,8 @@
               $(ASSEMBLE_TESTING_DEFINES) \
               $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
+              $(ASSEMBLE_HYPRE_DEFINES) \
+              $(ASSEMBLE_EMISSIVITY_DEFINES) \
               $(ASSEMBLE_NEW_GRID_IO_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_BITWISE_IDENTICALITY_DEFINES) \

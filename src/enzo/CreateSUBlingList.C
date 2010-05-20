@@ -161,8 +161,8 @@ int CreateSUBlingList(TopGridData *MetaData,
   }
 
   // Parallel
-#ifdef USE_MPI
   else {
+#ifdef USE_MPI
 
     /* First gather the number of SUBlings on each processor to all
        processors. */
@@ -202,8 +202,8 @@ int CreateSUBlingList(TopGridData *MetaData,
     delete [] MPI_SharedListCount;
     delete [] MPI_SharedListDisplacements;
 
-  } // ENDELSE (NumberOfProcessors == 1)
 #endif /* USE_MPI */
+  } // ENDELSE (NumberOfProcessors == 1)
 
 
   /*****************************************************************/

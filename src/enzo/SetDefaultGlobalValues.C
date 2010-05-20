@@ -155,6 +155,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.BoundaryConditionName = NULL;
  
   MetaData.GravityBoundary        = TopGridPeriodic;
+
+#ifdef TRANSFER
+  MetaData.RadHydroParameterFname = NULL;
+#endif
  
   MetaData.ParticleBoundaryType   = periodic;  // only one implemented!
   MetaData.NumberOfParticles      = 0;         // no particles
@@ -265,6 +269,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MemoryLimit                 = 4000000000L;
  
+  ExternalGravity             = FALSE;             // off
+  ExternalGravityDensity      = 0.0;
+  ExternalGravityRadius       = 0.0;
+
   UniformGravity              = FALSE;             // off
   UniformGravityDirection     = 0;                 // x-direction
   UniformGravityConstant      = 1.0;
@@ -296,6 +304,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
   GadgetEquilibriumCooling    = FALSE;             // off
+  RadiativeTransfer           = 0;                 // off
+  RadiativeTransferFLD        = 0;                 // off
+  ImplicitProblem             = 0;                 // off
+  StarMakerEmissivityField    = 0;                 // off
+  uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
+
   MultiSpecies                = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02

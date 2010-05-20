@@ -294,9 +294,28 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
                                    int *sstart1, int *sstart2, int *sstart3,
                                    int *dstart1, int *dstart2, int *dststart3);
  
+// declaring Geoffrey's Emissivity field prototype
+#ifdef EMISSIVITY
+  int CalcEmiss(int *nx, int *ny, int *nz,
+             float *d, float *dm, float *te, float *ge, float *u, float *v,
+		       float *w, float *metal,
+             int *idual, int *imetal, hydro_method *imethod, float *dt,
+		       float *r, float *dx, FLOAT *t, float *z,
+             float *d1, float *x1, float *v1, float *t1,
+                       float *sn_param, float *m_eject, float *yield,
+             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+		       int *ibuff,
+             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+             float *mp, float *tdp, float *tcp, float *metalf,
+	      float *justburn, float *EmissivityArray, float dtLevelAbove);
+#endif 
  
- 
-int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
+int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
+// pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
+#ifdef EMISSIVITY
+			     , float dtLevelAbove
+#endif
+                             )
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
@@ -450,7 +469,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
      density so that species fractions are maintained. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)
-    if (FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1 )
+    if (FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1)
+#ifdef EMISSIVITY
+      /* 
+         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
+         baryons field is used, but no longer needed since it is set to <=ExtraType1
+         so the values will scale inside StarParticleHandler 
+      */
+#endif
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  index = (k*GridDimension[1] + j)*GridDimension[0] +
@@ -980,7 +1006,34 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
     //    if (debug) printf("StarParticle: end\n");
  
   }
- 
+#ifdef EMISSIVITY
+    if (StarMakerEmissivityField > 0) {
+
+      /* where values of the emissivity field is calculated */
+
+      int EtaNum = FindField(Emissivity0, FieldType, NumberOfBaryonFields);
+
+      CalcEmiss(GridDimension, GridDimension+1, GridDimension+2,
+          BaryonField[DensNum], dmfield,
+          BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+       &DualEnergyFormalism, &MetallicityField, &HydroMethod,
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
+          &Time, &zred,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+          &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
+          &StarMetalYield,
+       &NumberOfParticles,
+          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       ParticlePosition[0], ParticlePosition[1],
+          ParticlePosition[2],
+       ParticleVelocity[0], ParticleVelocity[1],
+          ParticleVelocity[2],
+       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+	  ParticleAttribute[2], &RadiationData.IntegratedStarFormation, 
+       BaryonField[EtaNum], dtLevelAbove);
+    }
+#endif 
 
   /* ------------------------------------------------------------------- */
   /* 2) StarParticle feedback. */
@@ -1174,6 +1227,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level)
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if (FieldType[field] >= ElectronDensity && 
 	FieldType[field] <= ExtraType1 ) {
+#ifdef EMISSIVITY
+      /* 
+         it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
+         baryons field is used, but no longer needed since it is set to <=ExtraType1
+         so the values will scale inside StarParticleHandler 
+      */
+#endif
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
 	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	  index = (k*GridDimension[1] + j)*GridDimension[0] +

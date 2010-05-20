@@ -28,67 +28,68 @@
  
 float CommunicationMinValue(float Value);
 
-int SetLevelTimeStep(HierarchyEntry *Grids[],
-        int NumberOfGrids, int level,
-        float *dtThisLevelSoFar, float *dtThisLevel,
-        float dtLevelAbove)
+int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
+		     float *dtThisLevelSoFar, float *dtThisLevel,
+		     float dtLevelAbove)
 {
-    float dtGrid, dtActual, dtLimit;
-    int grid1;
-    LCAPERF_START("SetLevelTimeStep"); // SetTimeStep()
+  float dtGrid, dtActual, dtLimit;
+  int grid1;
 
-    if (level == 0) {
- 
-      /* For root level, use dtLevelAbove. */
- 
-      *dtThisLevel      = dtLevelAbove;
-      *dtThisLevelSoFar = dtLevelAbove;
-      dtActual          = dtLevelAbove;
- 
-    } else {
- 
-      /* Compute the mininum timestep for all grids. */
- 
-      *dtThisLevel = huge_number;
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-	dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
-	*dtThisLevel = min(*dtThisLevel, dtGrid);
-      }
-      *dtThisLevel = CommunicationMinValue(*dtThisLevel);
+  LCAPERF_START("SetLevelTimeStep"); // SetTimeStep()
 
-      dtActual = *dtThisLevel;
+  if (level == 0) {
+ 
+    /* For root level, use dtLevelAbove. */
+ 
+    *dtThisLevel      = dtLevelAbove;
+    *dtThisLevelSoFar = dtLevelAbove;
+    dtActual          = dtLevelAbove;
+ 
+  } else {
+ 
+    /* Compute the mininum timestep for all grids. */
+ 
+    *dtThisLevel = huge_number;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      dtGrid      = Grids[grid1]->GridData->ComputeTimeStep();
+      *dtThisLevel = min(*dtThisLevel, dtGrid);
+    }
+    *dtThisLevel = CommunicationMinValue(*dtThisLevel);
+
+    dtActual = *dtThisLevel;
 
 #ifdef USE_DT_LIMIT
 
-//    dtLimit = LevelZeroDeltaT/(4.0)/POW(RefineBy,level);
+    //    dtLimit = LevelZeroDeltaT/(4.0)/POW(RefineBy,level);
 
-      dtLimit = 0.5/(4.0)/POW(2.0,level);
+    dtLimit = 0.5/(4.0)/POW(2.0,level);
 
-      if ( dtActual < dtLimit ) {
-        *dtThisLevel = dtLimit;
-      }
+    if ( dtActual < dtLimit )
+      *dtThisLevel = dtLimit;
 
 #endif
  
-      /* Advance dtThisLevelSoFar (don't go over dtLevelAbove). */
+    /* Advance dtThisLevelSoFar (don't go over dtLevelAbove). */
  
-      if (*dtThisLevelSoFar+*dtThisLevel*1.05 >= dtLevelAbove) {
-	*dtThisLevel      = dtLevelAbove - *dtThisLevelSoFar;
-	*dtThisLevelSoFar = dtLevelAbove;
-      }
-      else
-	*dtThisLevelSoFar += *dtThisLevel;
- 
+    if (*dtThisLevelSoFar+*dtThisLevel*1.05 >= dtLevelAbove) {
+      *dtThisLevel      = dtLevelAbove - *dtThisLevelSoFar;
+      *dtThisLevelSoFar = dtLevelAbove;
     }
+    else
+      *dtThisLevelSoFar += *dtThisLevel;
+ 
+  }
 
-    if (debug) printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM" (%"GSYM"/%"GSYM")\n", 
-              level, *dtThisLevel, dtActual,
-		      *dtThisLevelSoFar, dtLevelAbove);
+  if (debug) 
+    printf("Level[%"ISYM"]: dt = %"GSYM"  %"GSYM" (%"GSYM"/%"GSYM")\n", 
+	   level, *dtThisLevel, dtActual, *dtThisLevelSoFar, dtLevelAbove);
  
-    /* Set all grid's timestep to this minimum dt. */
+  /* Set all grid's timestep to this minimum dt. */
  
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      Grids[grid1]->GridData->SetTimeStep(*dtThisLevel);
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    Grids[grid1]->GridData->SetTimeStep(*dtThisLevel);
  
-    LCAPERF_STOP("SetLevelTimeStep"); // SetTimeStep()
+
+  LCAPERF_STOP("SetLevelTimeStep"); // SetTimeStep()
+  return SUCCESS;
 }
