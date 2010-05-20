@@ -170,11 +170,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        creating tree (type SuperSource), compute position of the super
        source in each leaf. */
 
-    if (RadiativeTransferSourceClustering == TRUE) {
-      CreateSourceClusteringTree(NULL, NULL, LevelArray);
-      //PrintSourceClusteringTree(SourceClusteringTree);
-    }
-
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
  

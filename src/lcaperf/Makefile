@@ -27,8 +27,6 @@ jb-region: jb-region.o jb.o
 jb-rename: jb-rename.o jb.o
 	$(CXX) -o jb-rename jb-rename.o jb.o
 
-install: $(EXES)
-	-@cp $(EXES) ../../bin
 clean:
 	-@rm -f $(EXES)
 	-@rm -f *.o

@@ -344,8 +344,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  if (HydroMethod != Zeus_Hydro) {
 
 	    for (field = 0; field < NumberOfBaryonFields; field++) 
-	      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
-		  FieldTypeIsDensity(FieldType[field]) == FALSE &&
+	      if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
 		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		  FieldType[field] != Bfield1 &&
 		  FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
@@ -380,7 +379,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
 		FieldType[field] < FieldUndefined &&
-		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
@@ -401,8 +399,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  if (Coordinate == Cartesian) {
 	  for (field = 0; field < NumberOfBaryonFields; field++){
-	    if ((FieldTypeNoInterpolate(FieldType[field]) == FALSE) &&
-		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+	    if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					   FieldType[field] != InternalEnergy))
 		&& (FieldType[field] < ElectronDensity) && 
 		FieldType[field] != DrivingField1 &&
@@ -436,8 +433,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		
 		
 		    if (CorrectLeftBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
-			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+//		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
+//			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 		
 		    if(CorrectLeftBaryonField){
 		
@@ -458,8 +455,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    }
 		
 		    if (CorrectRightBoundaryFlux)
-		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
-			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
+//		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
+//			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
 		
 		    /* update only if necessary */
 		    if(CorrectRightBaryonField){
@@ -493,24 +490,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex] -= CorrectionAmount;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+				 CorrectionAmount,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex],
+				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				 CorrectionAmount,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
+			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} // ENDELSE (SUBlingGrid == FALSE)
 		      } // ENDIF CorrectLeftBaryonField
@@ -520,24 +519,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex+Offset] -= CorrectionAmount;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
 				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+				 CorrectionAmount,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %"ISYM
+			  printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
 				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
 				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				 CorrectionAmount,
 				 i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
+			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			}
 		      } // ENDIF CorrectRightBaryonField
@@ -673,7 +674,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  if (HydroMethod != Zeus_Hydro)
 	    for (field = 0; field < NumberOfBaryonFields; field++)
 	      if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-		  FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
 		  (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					     FieldType[field] != InternalEnergy)) && 
@@ -747,7 +747,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
 		FieldType[field] < FieldUndefined &&
-		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {

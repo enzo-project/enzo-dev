@@ -46,18 +46,6 @@ EXTERN int RadiativeTransferInterpolateField;
 
 EXTERN float RadiativeTransferTimestepVelocityLimit;
 
-/* Flag whether to cluster sources on a binary tree and merge rays at
-   a certain radii with associated SuperSources */
-
-EXTERN int RadiativeTransferSourceClustering;
-
-/* Radius to merge rays in units of separation of the two sources
-   associated with a super source. */
-
-EXTERN float RadiativeTransferPhotonMergeRadius;
-
-/* Radiative pressure flag */
-
 EXTERN int RadiationPressure;
 
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */

@@ -102,13 +102,16 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: $(EXE).exe
+all: MACHNOTES $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+MACHNOTES: 
+	@echo $(MACHINE_NOTES)
+
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
 	@echo "Linking"
 	@(if [ $(VERBOSE) -eq 0 ]; then \
@@ -119,6 +122,8 @@ all: $(EXE).exe
 	fi)
 	@(if [ -e $@ ]; then \
 	   echo "Success!"; \
+           if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+           cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
 	   echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
 	   cat temp1 $(OUTPUT) > temp2; \
@@ -347,26 +352,6 @@ include DEPEND
 #	+(cd photons/ ; make photon)
 
 #-----------------------------------------------------------------------
-# INSTALL TARGET
-#-----------------------------------------------------------------------
-
-install: $(TOP_DIR)/bin
-	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
-	-@cp $(EXE).exe $(TOP_DIR)/bin/$(EXE)
-	-@cp gridtests.exe $(TOP_DIR)/bin/gridtests
-	-@cp ealfloattests.exe $(TOP_DIR)/bin/ealfloattests
-	-@cp ealinttests.exe $(TOP_DIR)/bin/ealinttests
-	-@cp readgridtests.exe $(TOP_DIR)/bin/readgridtests
-	-@cp analysisbaseclasstests.exe $(TOP_DIR)/bin/analysisbaseclasstests
-	-$(MAKE) -s show-flags   >& $(TOP_DIR)/bin/$(EXE).show-flags
-	-$(MAKE) -s show-config  >& $(TOP_DIR)/bin/$(EXE).show-config
-	-$(MAKE) -s show-version >& $(TOP_DIR)/bin/$(EXE).show-version
-	-$(MAKE) -s show-diff    >& $(TOP_DIR)/bin/$(EXE).show-diff
-
-$(TOP_DIR)/bin:
-	mkdir $(TOP_DIR)/bin
-
-#-----------------------------------------------------------------------
 # HELP TARGET
 #-----------------------------------------------------------------------
 
@@ -377,7 +362,6 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'enzo.exe'"
-	@echo "   gmake install        Copy the executable to bin/enzo"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
@@ -394,7 +378,7 @@ help:
 #-----------------------------------------------------------------------
 
 clean:
-	-@rm -f *.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
+	-@rm -f *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
           auto_show*.C svn_version.def hydro_rk/*.o
 
 #-----------------------------------------------------------------------

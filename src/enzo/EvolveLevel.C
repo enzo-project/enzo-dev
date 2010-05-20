@@ -37,8 +37,6 @@
 /  modified9:  June, 2009 by MJT, DC, JHW, TA
 /                Cleaned up error handling and created new routines for
 /                computing the timestep, output, handling fluxes
-/  modified10: July, 2009 by Sam Skillman
-/                Added shock and cosmic ray analysis
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -493,14 +491,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
         );
 
-      /* Include shock-finding and cosmic ray acceleration */
-
-      Grids[grid1]->GridData->ShocksHandler();
- 
       /* Gravity: clean up AccelerationField. */
 
-      if (level != MaximumGravityRefinementLevel ||
-	  MaximumGravityRefinementLevel == MaximumRefinementLevel)
+      if ((level != MaximumGravityRefinementLevel ||
+	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
+	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();

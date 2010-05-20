@@ -15,7 +15,7 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, 
      &                      xpold, ypold, zpold, 
-     &                      typeold, ctype, option)
+     &                      typeold)
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -37,9 +37,6 @@ C    imported star_maker2.src as of 12 June 2009 and changed the followings:
 c    [1] removed Jeans mass criteria (just like star_maker3.src)
 c    [2] removed stochastic star formation (unlike star_maker3.src)
 c    [3] removed dt dependence in stellar mass created 
-c    [4] prevents SF or feedback when there is a MBH particle in the cell
-c        MBH particle will suck out the gas later in StarParticleFinalize,
-c        - item [4] was still a test as of Nov.2009.
 c
 c  INPUTS:
 c
@@ -65,8 +62,6 @@ c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    type  - particle types (currently in the grid)
-c    ctype - MBHParticleType
-c    option - whether to stop star formation in the cell MBH resides in
 c
 c  OUTPUTS:
 c
@@ -89,7 +84,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
-      integer procnum, ctype, option
+      integer procnum
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -119,28 +114,10 @@ c
 c
       ii = np
 c
-c  check whether we have MBH particle here, in which case we store the index 
-c  so we can skip the star formation in that cell in which the MBH resides
-c
-      i_c = -99999
-      j_c = -99999
-      k_c = -99999
-c
-      if (option .eq. 1) then
-         do n=1, npart
-            if (typeold(n) .eq. ctype) then
-               i_c = int((xpold(n) - xstart)/dx) + 1
-               j_c = int((ypold(n) - ystart)/dx) + 1
-               k_c = int((zpold(n) - zstart)/dx) + 1
-            endif
-         enddo
-      endif
-c
 c
 c  for each zone, : "star" particle is created if answers to all the
 c  following questions are affirmative:
 c
-c    is this cell containing no MBH particle ?
 c    is this the finest level of refinement ?
 c    is the density greater than a critical density ?
 c    is the flow convergent ?
@@ -149,12 +126,6 @@ c
       do k=1+ibuff,nz-ibuff
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
-c
-c              0) is this containing a MBH particle?
-               if (i .eq. i_c .and. j .eq. j_c .and. k .eq. k_c) then
-c                  write(6,*) 'star_maker7: the cell has a MBH; move on'
-                  goto 10
-               endif
 c
 c              1) is this finest level of refinement?
 c
@@ -312,8 +283,7 @@ c
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
      &                      npart, xstart, ystart, zstart, ibuff, level,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn, 
-     &                      ctype, mbhradius)
+     &                      mp, tdp, tcp, metalf, type, justburn)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -361,7 +331,6 @@ c    sn_param - fraction of stellar rest mass that goes to feedback
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c    type  - particle types (currently in the cell)
-c    ctype - MBHParticleType
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -379,13 +348,12 @@ c
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
       real    dt, dx, z
-      real    d1, x1, v1, t1, justburn, mbhradius
+      real    d1, x1, v1, t1, justburn
       REALSUB xstart, ystart, zstart, t
       REALSUB xp(npart), yp(npart), zp(npart)
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       integer type(npart)
-      integer ctype
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -396,17 +364,6 @@ c
       parameter (clight = 3e10, msolar_e51 = 1800.0)
 c
 c-----------------------------------------------------------------------
-c
-c  check whether we have MBH particle here AND whether MBHFeedbackRadius 
-c  is bigger than the cell size, in which case we skip the star feedback 
-c  routine [test by Ji-hoon Kim Nov.2009]
-c
-c      do n=1, npart
-c         if (type(n) .eq. ctype .and. mbhradius .ge. dx) then
-c            write(6,*) 'star_feedback7: the grid has a MBH: move on?'
-c            goto 200
-c         endif
-c      enddo
 c
 c     Loop over particles
 c

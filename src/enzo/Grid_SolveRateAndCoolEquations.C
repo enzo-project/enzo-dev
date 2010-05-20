@@ -25,7 +25,6 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
-#include "Gadget.h"
 
 /* This parameter controls whether the cooling function recomputes
    the metal cooling rates.  It is reset by RadiationFieldUpdate. */
@@ -204,10 +203,8 @@ int grid::SolveRateAndCoolEquations()
 
   /* Calculate the rates due to the radiation field. */
 
-  if (!GadgetEquilibriumCooling) {
-    if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-        ENZO_FAIL("Error in RadiationFieldCalculateRates.");
-    }
+  if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
+      ENZO_FAIL("Error in RadiationFieldCalculateRates.");
   }
 
   /* Set up information for rates which depend on the radiation field. 

@@ -129,7 +129,7 @@ int FindSinkParticles(LevelHierarchyEntry *LevelArray[])
 #endif /* USE_MPI */
 
   if (debug)
-    printf("FindShiningParticles: found %d shining particles\n", 
+    printf("FindShiningParticles: found %"ISYM" shining particles\n", 
 	   NumberOfShineParticles);
   
   return SUCCESS;

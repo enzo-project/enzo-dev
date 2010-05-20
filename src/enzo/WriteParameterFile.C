@@ -93,12 +93,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     }
     */
 
+    /* Check ReadParameterFile for the reason why this is commented out. 
+       - Ji-hoon Kim in Apr.2010 */
+    /*
     if (!ComovingCoordinates && UsePhysicalUnit) {
       for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
 	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
 	  MinimumOverDensityForRefinement[i] *= rhou;
       }
     }
+    */
 
   }
 
@@ -387,7 +391,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
-  fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
   fprintf(fptr, "CIECooling                     = %"ISYM"\n", CIECooling);
@@ -404,10 +407,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);
   fprintf(fptr, "RadiationXRaySecondaryIon      = %"ISYM"\n", RadiationXRaySecondaryIon);
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
-  fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
-  fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
-  fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
-  fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
@@ -571,12 +570,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
-  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
-         ShockwaveRefinementMinMach);
-  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
-         ShockwaveRefinementMinVelocity);
-  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
-         ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
   fprintf(fptr, "StarParticleCreation                  = %"ISYM"\n",
@@ -676,29 +669,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIColorDensityThreshold);
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
           PopIIIColorMass);
-
-  fprintf(fptr, "MBHMinDynamicalTime                   = %"GSYM"\n", MBHMinDynamicalTime);
-  fprintf(fptr, "MBHMinimumMass                        = %"GSYM"\n", MBHMinimumMass);
-  fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
-  fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
-  fprintf(fptr, "MBHAccretingMassRatio                 = %"GSYM"\n", MBHAccretingMassRatio);
-  fprintf(fptr, "MBHAccretionFixedTemperature          = %"GSYM"\n", MBHAccretionFixedTemperature);
-  fprintf(fptr, "MBHAccretionFixedRate                 = %"GSYM"\n", MBHAccretionFixedRate);
-  fprintf(fptr, "MBHTurnOffStarFormation               = %"ISYM"\n", MBHTurnOffStarFormation);
-  fprintf(fptr, "MBHCombineRadius                      = %"GSYM"\n\n", MBHCombineRadius);
-
-  fprintf(fptr, "MBHFeedback                           = %"ISYM"\n", MBHFeedback);
-  fprintf(fptr, "MBHFeedbackRadiativeEfficiency        = %"GSYM"\n", MBHFeedbackRadiativeEfficiency);
-  fprintf(fptr, "MBHFeedbackEnergyCoupling             = %"GSYM"\n", MBHFeedbackEnergyCoupling);
-  fprintf(fptr, "MBHFeedbackMassEjectionFraction       = %"GSYM"\n", MBHFeedbackMassEjectionFraction);
-  fprintf(fptr, "MBHFeedbackMetalYield                 = %"GSYM"\n", MBHFeedbackMetalYield);
-  fprintf(fptr, "MBHFeedbackThermalRadius              = %"GSYM"\n", MBHFeedbackThermalRadius);
-  fprintf(fptr, "MBHFeedbackJetsThresholdMass          = %"GSYM"\n\n", MBHFeedbackJetsThresholdMass);
-
-  fprintf(fptr, "MBHParticleIO                         = %"ISYM"\n",
-	  MBHParticleIO);
-  if (MBHParticleIOFilename != NULL)
-    fprintf(fptr, "MBHParticleIOFilename               = %s\n\n", MBHParticleIOFilename);
 
   /* Most Stanford additions: */
 
@@ -822,12 +792,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     }
     */
 
+    /*
     if (!ComovingCoordinates && UsePhysicalUnit) {
       for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
 	if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) 
 	  MinimumOverDensityForRefinement[i] /= rhou;
       }
     }
+    */
 
   }
 

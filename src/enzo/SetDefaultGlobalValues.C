@@ -301,7 +301,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
-  GadgetEquilibriumCooling    = FALSE;             // off
   RadiativeTransfer           = 0;                 // off
   RadiativeTransferFLD        = 0;                 // off
   ImplicitProblem             = 0;                 // off
@@ -316,10 +315,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
-  CRModel                     = 0;                 // off
-  ShockMethod                 = 0;                 // temperature unsplit
-  ShockTemperatureFloor       = 1.0;               // Set to 1K
-  StorePreShockFields         = 0;
   RadiationFieldType          = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -361,15 +356,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RefineByJeansLengthSafetyFactor  = 4.0;
   JeansRefinementColdTemperature  = -1.0;
   RefineByResistiveLengthSafetyFactor  = 2.0;
-  ShockwaveRefinementMinMach = 1.3; // Only above M=1.3
-  ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
-  ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
-  StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
@@ -420,28 +411,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
-
-  MBHMinDynamicalTime              = 10e6;         // in years
-  MBHMinimumMass                   = 1e6;          // Msun
-  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
-  MBHAccretionRadius               = 50;           // pc
-  MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
-  MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
-  MBHAccretionFixedRate            = 1e-3;         // Msun/yr, for MBHAccretiob = 3
-  MBHTurnOffStarFormation          = FALSE;        // check Grid_StarParticleHandler.C
-  MBHCombineRadius                 = 50;           // pc
-
-  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
-  MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
-  MBHFeedbackEnergyCoupling        = 0.05;         // Springel (2005), Di Matteo (2005)
-  MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackMetalYield            = 0.02;         // 2%, check Star_CalculateFeedbackParameters.C
-  MBHFeedbackThermalRadius         = 50;           // pc
-  MBHFeedbackJetsThresholdMass     = 10;           // Msun
-
-  /* Star Class MBH Paricle IO (PARTICLE_TYPE_MBH) */
-  MBHParticleIO                    = FALSE;
-  MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
@@ -657,7 +626,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoxProblemType = 0; 
   useMHD=0;
 
-  MoveParticlesBetweenSiblings = FALSE;
+  MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
 

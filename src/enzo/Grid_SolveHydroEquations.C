@@ -71,7 +71,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* initialize */
 
-    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];   // MAX_COLOR is defined in fortran.def
+    // MAX_COLOR is defined in fortran.def
+    int dim, i, j, field, size, subgrid, n, colnum[MAX_COLOR];
     Elong_int GridGlobalStart[MAX_DIMENSION];
     FLOAT a = 1, dadt;
 
@@ -254,43 +255,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       
     } // if(TestProblemData.GloverChemistryModel)
 
-
-    /* Add shock/cosmic ray variables as a colour variable. */
-
-    if(CRModel){
-      int MachNum, CRNum, PSTempNum,PSDenNum;
-      
-      if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
-	ENZO_FAIL("Error in IdentifyCRSpeciesFields.")
-      }
-      
-      colnum[NumberOfColours++] = MachNum;
-      if(StorePreShockFields){
-	colnum[NumberOfColours++] = PSTempNum;
-	colnum[NumberOfColours++] = PSDenNum;
-      }
-      colnum[NumberOfColours++] = CRNum;
-      
-      /*  Zero out Mach number array so that we don't get strange advection */
-      
-      float *mach = BaryonField[MachNum];
-      if(StorePreShockFields){
-	float *pstemp = BaryonField[PSTempNum];
-	float *psden = BaryonField[PSDenNum];
-	for (i = 0; i < size; i++){
-	  pstemp[i] = tiny_number;
-	  psden[i] = tiny_number;
-	}
-      }
-      for (i = 0; i < size; i++)
-	mach[i] = tiny_number;
-      if(CRModel == 2){  //zero out CR to get instantanous injection
-	float *cr = BaryonField[CRNum];
-	for (i = 0; i < size; i++)
-	  cr[i] = tiny_number;
-      }
-    }
-    
     /* Determine if Gamma should be a scalar or a field. */
     
     int UseGammaField = FALSE;
@@ -427,10 +391,9 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* note: Start/EndIndex are zero based */
         
     if (HydroMethod == PPM_DirectEuler)
-      this->PPMDirectEuler(CycleNumber, NumberOfSubgrids, 
-			   SubgridFluxes, CellWidthTemp, 
-			   GridGlobalStart, GravityOn,
-			   NumberOfColours, colnum);
+      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
+			CellWidthTemp, GridGlobalStart, GravityOn, 
+			NumberOfColours, colnum);
 
     /* PPM LR has been withdrawn. */
 

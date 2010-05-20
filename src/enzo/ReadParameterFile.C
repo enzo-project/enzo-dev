@@ -48,10 +48,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
 int InitializeCloudyCooling(FLOAT Time);
-int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
-int InitializeGadgetEquilibriumCoolData(FLOAT Time);
 int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -385,7 +383,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
-    ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
     ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
     ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
@@ -405,11 +402,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MetalCoolingTable = dummy;
       ret++;
     }
-
-    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
-    ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
-    ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
-    ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
 
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
@@ -581,12 +573,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
 		  &MinimumEnergyRatioForRefinement);
-    ret += sscanf(line, "ShockwaveRefinementMinMach = %"FSYM,
-                 &ShockwaveRefinementMinMach);
-    ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
-                 &ShockwaveRefinementMinVelocity);
-    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"FSYM,
-                 &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
@@ -699,29 +685,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
-
-    ret += sscanf(line, "MBHMinDynamicalTime = %"FSYM, &MBHMinDynamicalTime);
-    ret += sscanf(line, "MBHMinimumMass = %"FSYM, &MBHMinimumMass);
-    ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
-    ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
-    ret += sscanf(line, "MBHAccretingMassRatio = %"FSYM, &MBHAccretingMassRatio);
-    ret += sscanf(line, "MBHAccretionFixedTemperature = %"FSYM, &MBHAccretionFixedTemperature);
-    ret += sscanf(line, "MBHAccretionFixedRate = %"FSYM, &MBHAccretionFixedRate);
-    ret += sscanf(line, "MBHTurnOffStarFormation = %"ISYM, &MBHTurnOffStarFormation);
-    ret += sscanf(line, "MBHCombineRadius = %"FSYM, &MBHCombineRadius);
-
-    ret += sscanf(line, "MBHFeedback = %"ISYM, &MBHFeedback);
-    ret += sscanf(line, "MBHFeedbackRadiativeEfficiency = %"FSYM, &MBHFeedbackRadiativeEfficiency);
-    ret += sscanf(line, "MBHFeedbackEnergyCoupling = %"FSYM, &MBHFeedbackEnergyCoupling);
-    ret += sscanf(line, "MBHFeedbackMassEjectionFraction = %"FSYM, &MBHFeedbackMassEjectionFraction);
-    ret += sscanf(line, "MBHFeedbackMetalYield = %"FSYM, &MBHFeedbackMetalYield);
-    ret += sscanf(line, "MBHFeedbackThermalRadius = %"FSYM, &MBHFeedbackThermalRadius);
-    ret += sscanf(line, "MBHFeedbackJetsThresholdMass = %"FSYM, &MBHFeedbackJetsThresholdMass);
-
-    ret += sscanf(line, "MBHParticleIO = %"ISYM,
-		  &MBHParticleIO);
-    if (sscanf(line, "MBHParticleIOFilename = %s", dummy) == 1)
-      MBHParticleIOFilename = dummy;
 
     /* Read Movie Dump parameters */
 
@@ -969,51 +932,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
       printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
 	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;
       }
-    }
-    
+
   }
 
-  
-  if (!ComovingCoordinates && UsePhysicalUnit) {
-    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
+  /* For !restart, this only ruins the units because MinimumOverDensityForRefinement is already 
+     set in SetDefaultGlobalValues and not FLOAT_UNDEFINED.
+     For restart, MinimumOverDensityForRefinement is not even needs to be read because only 
+     MinimumMassForRefinement is used for CellFlagging.  
+     So, why did we have to do this in the first place?  - Ji-hoon Kim in Apr.2010
+     (The counterpart in WriteParameterFile is also commented out) */   
+
+  /*
+  if (!ComovingCoordinates && UsePhysicalUnit) 
+    for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumOverDensityForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumOverDensityForRefinement[i] /= DensityUnits;
       }
-    }
-  }
-
+  */
+  
   /* If RefineRegionTimeType is 0 or 1, read in the input file. */
   if ((RefineRegionTimeType == 0) || (RefineRegionTimeType == 1)) {
       if (ReadEvolveRefineFile() == FAIL) {
         ENZO_FAIL("Error in ReadEvolveRefineFile.");
       }
-  }
-
-  /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
-     or RadiationFieldType to be on - both are taken care of in
-     the Gadget cooling routine.  Therefore, we turn them off!
-     Also, initialize the Gadget equilibrium cooling data. */
-
-  if(GadgetEquilibriumCooling == TRUE){
-
-    if(MyProcessorNumber == ROOT_PROCESSOR ) {
-      fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
-      fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
-      fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
-    }
-
-    RadiationFieldType = 0;
-    MultiSpecies       = 0;
-    RadiativeCooling   = 1;
-
-    // initialize Gadget equilibrium cooling
-    if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
-            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
-    } 
   }
 
   /* If set, initialize the RadiativeCooling and RateEquations data. */
@@ -1029,18 +974,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   if (MultiSpecies             == 0 && 
       MetalCooling             == 0 &&
-      GadgetEquilibriumCooling == 0 &&
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialze Cosmic Ray Efficiency Models */
-
-  if (CRModel){
-    if (InitializeCosmicRayData() == FAIL){
-      ENZO_FAIL("Error in Initialize CosmicRayData.");
     }
   }
 
@@ -1057,12 +993,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
-  /* If using MBHFeedback = 2 or 3 (Star->FeedbackFlag = MBH_JETS), 
-     you need MBHParticleIO for angular momentum */
-
-  if (MBHFeedback == 2 || MBHFeedback == 3) 
-    MBHParticleIO = TRUE;
-
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */
  
   if (HydroMethod == Zeus_Hydro) {

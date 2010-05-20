@@ -283,8 +283,8 @@ class grid
                             char *base_name, int grid_id, HDF5_hid_t file_id);
 
    int ComputeVectorAnalysisFields(field_type fx, field_type fy, field_type fz,
-                                   float *curl_x, float *curl_y, float *curl_z,
-                                   float *div);
+                                   float* &curl_x, float* &curl_y, float* &curl_z,
+                                   float* &div);
 
 private:
    int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
@@ -466,16 +466,6 @@ public:
 
    int ComputeTemperatureField(float *temperature);
 
-/* Baryons: compute the temperature at the requested time using
-   Gadget equilibrium cooling. */
-
-   int GadgetComputeTemperature(FLOAT time, float *temperature);
-
-/* Baryons: compute the temperatre at the requested time using the dual energy
-   formalism when using Gadget equilibrium cooling. */
-
-   int GadgetComputeTemperatureDEF(FLOAT time, float *temperature);
-
 /* Baryons: compute X-ray emissivity in specified band. */
 
    int ComputeXrayEmissivity(float *temperature,
@@ -631,69 +621,6 @@ public:
    int RadiationComputeDensities(int level);
 
 // -------------------------------------------------------------------------
-// Functions for Gadget cooling
-
-/* Driving routine for Gadget equilibrium cooling */
-
-   int GadgetCalculateCooling(float *d, float *e, float *ge,
-			      float *u, float *v, float *w,
-			      int *in, int *jn, int *kn,
-			      int *iexpand, hydro_method *imethod, 
-			      int *idual, int *idim,
-			      int *is, int *js, int *ks, int *ie, int *je,
-			      int *ke, float *dt, float *aye,
-			      float *fh, float *utem, float *uxyz,
-			      float *uaye, float *urho, float *utim,
-			      float *gamma);
-
-/* Computes cooling time using gadget equilibrium cooling */
-
-   int GadgetCoolingTime(float *d, float *e, float *ge,
-			 float *u, float *v, float *w,
-			 float *cooltime,
-			 int *in, int *jn, int *kn,
-			 int *iexpand, hydro_method *imethod, int *idual, int *idim,
-			 int *is, int *js, int *ks, int *ie, int *je,
-			 int *ke, float *dt, float *aye,
-			 float *fh, float *utem, float *uxyz,
-			 float *uaye, float *urho, float *utim,
-			 float *gamma);
-
-
-/* calculates abundances and rates using Gadget equilibrium cooling */
-
-   void Gadgetfind_abundances_and_rates(float logT, float rho, float *ne_guess);
-
-/* calculates temperature using Gadget equilibrium cooling */
-
-   float Gadgetconvert_u_to_temp(float u, float rho, float *ne_guess);
-
-/* calculates cooling rates (not cooling time) using Gadget equilibrium cooling 
-   and gas temperature */
-
-   float GadgetCoolingRate(float logT, float rho, float *nelec, float redshift);
-
-/* wrapper for GadgetCoolingRate */
-
-   float Gadget_EquilibriumCooling(float u_old, float rho, float dt,
-				   float *ne_guess, float *utem, float *uxyz, 
-				   float *uaye, float *urho,
-				   float *utim, float redshift);
-
-/* calculates cooling rate (not cooling time) using energy instead of temperature 
-   for Gadget equil. cooling */
-
-   float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
-				float redshift);
-
-// Functions for shock finding and cosmic ray acceleration
-//
-   int FindShocks();
-   int FindTempSplitShocks();
-   int FindVelShocks();
-   int FindVelSplitShocks();
-
-// -------------------------------------------------------------------------
 // Functions for grid (re)generation.
 //
 
@@ -774,10 +701,6 @@ public:
      (gg #4) */
 
    int FlagCellsToBeRefinedByShocks();
-
-/* Flag all points based on the Mach number of the shock. */
-
-   int FlagCellsToBeRefinedByShockwaves(int level);
 
 /* Flag all points that require refining by the Jean's length criterion. */
 
@@ -1570,9 +1493,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
-/* Identify shock/cosmic ray fields. */
-  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
-			      int &PSTempNum, int &PSDenNum);
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,
@@ -1595,15 +1515,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* PPM Direct Euler Solver. */
 
-  int PPMDirectEuler(int CycleNumber, int NumberOfSubgrids, 
-                     fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-                     long_int GridGlobalStart[], int GravityOn,
-		     int NumberOfColours, int colnum[]);
+int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
+		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+		Elong_int GridGlobalStart[], int GravityOn, 
+		int NumberOfColours, int colnum[]);
 
-  int euler_sweep(int dim, int iter, int CycleNumber, int NumberOfSubgrids, 
-                  fluxes *SubgridFluxes[], float *CellWidthTemp[],
-                  long_int GridGlobalStart[], int GravityOn,
-		  int NumberOfColours, int colnum[], float *temp, int tempsize);
+int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
+
+int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
+		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
+		int GravityOn, int NumberOfColours, int colnum[]);
 
 // AccelerationHack
 
@@ -1635,10 +1562,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 					 float CoreRadius,
 					 float AngularVelocity);
 
-/* ShockTube problem: initialize grid (returns SUCCESS or FAIL) */
+/* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
-  int ShockTubeInitializeGrid(int Direction, float Boundary, float Density[],
-			      float Pressure[], float Velocity[]);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float LeftDensity, float RightDensity, 
+				    float LeftVelocityX, float RightVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float LeftPressure, float RightPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -2210,11 +2141,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			double EjectaMetalDensity, double EjectaThermalEnergy,
 			int &CellsModified);
 
-  int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
-				     float LengthUnits, float VelocityUnits, 
-				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
-				     int &CellsModified);
-
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
   int MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
@@ -2322,10 +2248,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
   void ZeroFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids);
-  int Hydro1DTestInitializeGrid(float rhol, float rhor,
-				float vxl,  float vxr,
-				float vyl,  float vyr,
-				float pl,   float pr);
   int RungeKutta2_1stStep(fluxes *SubgridFluxes[],
                           int NumberOfSubgrids, int level,
                           ExternalBoundary *Exterior);

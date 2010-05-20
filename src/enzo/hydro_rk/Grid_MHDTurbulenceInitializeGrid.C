@@ -109,7 +109,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
   }
 
   if (debug) 
-    printf("Begin generating turbulent velocity spectrum... %i %i %i\n", 
+    printf("Begin generating turbulent velocity spectrum... %"ISYM" %"ISYM" %"ISYM"\n", 
 	   GridDimension[0]-2*DEFAULT_GHOST_ZONES,
 	   GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 	   GridDimension[2]-2*DEFAULT_GHOST_ZONES);
@@ -232,7 +232,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
     }
 
   /* Initialize driving force field = efficiency * density * velocity / t_ff*/
-  printf("UseDrivingField =%d\n",UseDrivingField);
+  printf("UseDrivingField =%"ISYM"\n",UseDrivingField);
   if (UseDrivingField) {
     float k1, k2, dk;
     k1 = 3.0;
@@ -280,7 +280,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 	     RandomForcingField[0][igrid] = DrivingField[0][n]*DrivingEfficiency;
 	     RandomForcingField[1][igrid] = DrivingField[1][n]*DrivingEfficiency;
 	     RandomForcingField[2][igrid] = DrivingField[2][n]*DrivingEfficiency;
-	     //	     fprintf(stderr, "%g\t",RandomForcingField[0][igrid]);
+	     //	     fprintf(stderr, "%"GSYM"\t",RandomForcingField[0][igrid]);
 	  }
 	}
       }

@@ -109,13 +109,13 @@ int hll(float **FluxLine, float **priml, float **primr, int ActiveSize)
     }
 
     /*if (fabs(FluxLine[iEint][n])>1e6) {
-      printf("F[ieint] NaN at n=%d: fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
+      printf("F[ieint] NaN at n=%"ISYM": fl[iS1]=%lf, fr[iS1]=%lf, Ul[iS1]=%lf, Ur[iS1]=%lf, ap=%lf, am = %lf\n",
 	     n, Fl[iEint], Fr[iEint], Ul[iEint], Ur[iEint], ap, am);
       printf("lp_l=%lf, lm_l=%lf, lp_r=%lf, lm_r=%lf, cs_l=%lf, cs_r=%lf\n",
 	     lp_l, lm_l, lp_r, lm_r, cs_l, cs_r);
-      printf("priml: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("priml: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     priml[0][n], priml[1][n], priml[2][n], priml[3][n], priml[4][n]);
-      printf("primr: rho = %g, eint = %g, vx = %g, vy = %g, vz = %g\n",
+      printf("primr: rho = %"GSYM", eint = %"GSYM", vx = %"GSYM", vy = %"GSYM", vz = %"GSYM"\n",
 	     primr[0][n], primr[1][n], primr[2][n], primr[3][n], primr[4][n]);
       return FAIL;
       }*/

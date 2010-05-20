@@ -26,7 +26,6 @@
 
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
-int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 				  int TotalStarParticleCountPrevious[]);
@@ -75,13 +74,6 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
-  }
-
-  /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
-
-  if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeMBH.\n");
-    ENZO_FAIL("");
   }
 
   /* 

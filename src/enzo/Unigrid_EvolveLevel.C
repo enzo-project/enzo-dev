@@ -375,7 +375,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling && GadgetEquilibriumCooling == 0) {
+      if (MultiSpecies && RadiativeCooling) {
  
 	LCAPERF_START("evolve-level-14"); // change this?
 

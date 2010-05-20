@@ -46,7 +46,7 @@ int grid::SetNumberOfColours(void)
   }
   
   /*
-  fprintf(stdout, "grid:SetNumberOfColours: %d %d %d %d %d \n", 
+  fprintf(stdout, "grid:SetNumberOfColours: %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n", 
   	  SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum); 
   */
 
@@ -72,7 +72,7 @@ int grid::SetNumberOfColours(void)
   NSpecies += _nc;
 
   /*
-  fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %d, NSpecies = %d, NColor = %d\n", 
+  fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %"ISYM", NSpecies = %"ISYM", NColor = %"ISYM"\n", 
   	  NEQ_HYDRO, NSpecies, NColor); 
   */
 

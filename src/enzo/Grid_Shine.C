@@ -127,12 +127,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 //	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
 //	       PhotonTime-RS->CreationTime+dtPhoton);
       break;
-    case MBH:
-      if (MyProcessorNumber == ProcessorNumber)
-	printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
-	       PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
-	       RS->Luminosity);
-      break;
     } // ENDSWITCH type
 
     int ebin;
@@ -188,14 +182,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  NewPack->Photons = photons_per_package;
 
 	  // Type 4 = X-Ray
-	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
-
-	  // Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
-	  if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
-
-//	  if (DEBUG)
-//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
-//		   MBH, RS->Type, NewPack->Type);  
+	  NewPack->Type = ((RS->Type == BlackHole) && i == 0) ? 4 : ebin;
 
 	  NewPack->EmissionTimeInterval = dtPhoton;
 	  NewPack->EmissionTime = PhotonTime;

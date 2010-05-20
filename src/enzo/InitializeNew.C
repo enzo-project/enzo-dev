@@ -48,7 +48,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 // Initialization function prototypes
  
-int ShockTubeInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid);
+int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -169,8 +170,6 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
 #endif /* TRANSFER */
 
 
-int Hydro1DTestInitialize(FILE *fptr, FILE *Outfptr,
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
@@ -199,6 +198,9 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
 void PrintMemoryUsage(char *str);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
  
@@ -334,7 +336,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 1) Shocktube problem
  
   if (ProblemType == 1)
-    ret = ShockTubeInitialize(fptr, Outfptr, TopGrid);
+    ret = HydroShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 2) Wave pool
  
@@ -492,13 +494,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
 
-
-
-  /* 100) 1D HD Test */
-  if (ProblemType == 100) {
-    ret = Hydro1DTestInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
-
   /* 101) 3D Collapse */
   if (ProblemType == 101) {
     ret = Collapse3DInitialize(fptr, Outfptr, TopGrid, MetaData);
@@ -634,7 +629,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    printf("NumberOfBaryonFields (%"ISYM") exceeds "
+    printf("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
 	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
 	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
     ENZO_FAIL("");
@@ -752,7 +747,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // Convert minimum initial overdensity for refinement to mass
   // (unless MinimumMass itself was actually set)
-
 
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (MinimumMassForRefinement[i] == FLOAT_UNDEFINED) {
