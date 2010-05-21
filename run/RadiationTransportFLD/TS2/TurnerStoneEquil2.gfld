@@ -1,0 +1,39 @@
+#
+# gFLDProblem Parameter File:
+#   Turner & Stone equilibration test, hot->cold 
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadHydroVelocity = 0.0 0.0 0.0       // initial velocity [cm/s]
+RadHydroDensity  = 1.0e-7            // initial density  [g/cm^3]
+RadHydroIEnergy  = 1.0e17            // initial specific energy [erg/g]
+RadHydroRadiationEnergy = 1.0e12     // initial radiation energy [erg/cm^3]
+PlanckOpacityC0 = 4.0e-8             // kappa = C0 * (rho/C1)^C2 * (Temp/C3)^C4
+PlanckOpacityC1 = 1.0
+PlanckOpacityC2 = 0.0
+PlanckOpacityC3 = 1.0
+PlanckOpacityC4 = 0.0
+EnergyOpacityC0 = 4.0e-8
+EnergyOpacityC1 = 1.0
+EnergyOpacityC2 = 0.0
+EnergyOpacityC3 = 1.0
+EnergyOpacityC4 = 0.0
+#
+# General module and solver parameters
+# 
+RadHydroChemistry   = 0              // no chemistry
+RadHydroModel       = 10             // LTE coupling
+RadHydroMaxDt       = 5.0e-3
+RadHydroMinDt       = 1.0e-8
+RadHydroInitDt      = 1.0e-8
+RadHydroDtRadFac    = 0.05           // 5% desired change/step
+RadHydroDtGasFac    = 0.05
+RadHydroDtChemFac   = 0.05
+RadHydroMGPreRelax  = 5              // MG pre-relaxation sweeps
+RadHydroMGPostRelax = 5              // MG post-relaxation sweeps
+
+#############################

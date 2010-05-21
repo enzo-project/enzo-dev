@@ -1,0 +1,33 @@
+#
+# gFLDSplit Parameter File:
+#   Iliev et al. static ionization test
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadHydroVelocity = 0.0 0.0 0.0       // initial velocity [cm/s]
+RadHydroDensity = 1.67262171e-27     // initial density [g] (desired nH=1e-3)
+RadHydroTemperature = 1.0e2          // initial temperature [K]
+RadHydroRadiationEnergy = 1.0e-20    // initial radiation energy [erg/cm^3]
+RadHydroInitialFractionHII = 0.0012  // initial 0.12% HII fraction
+RadiationBoundaryX0Faces = 2 2       // Neumann
+RadiationBoundaryX1Faces = 2 2       // Neumann
+RadiationBoundaryX2Faces = 2 2       // Neumann
+NGammaDot = 5.0e48                   // ionization rate [photons/sec]
+EtaRadius = 1.0e0                    // radius for emissivity source [cells]
+#
+# General module and solver parameters
+# 
+RadHydroMaxDt        = 1.0e-2
+RadHydroMinDt        = 1.0e-8
+RadHydroInitDt       = 1.0e-8
+RadHydroDtRadFac     = 0.001         // 0.1% desired change/step
+RadHydroDtGasFac     = 0.001
+RadHydroDtChemFac    = 0.001
+RadHydroMGPreRelax   = 2             // MG pre-relaxation sweeps
+RadHydroMGPostRelax  = 2             // MG post-relaxation sweeps
+
+#############################
