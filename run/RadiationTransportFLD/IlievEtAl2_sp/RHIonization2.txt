@@ -47,6 +47,18 @@ Test files:
 - analysis: iliev2_makeplots.py
 
 
+Problem-Specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroDensity -- initial density [g/cm^3]
+- RadHydroTemperature -- initial temperature [K]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+- RadHydroInitialFractionHII -- initial HII fraction (out of total H)
+- NGammaDot -- ionization source emission rate [photons/sec]
+- EtaRadius -- radius for emissivity source [cells], 0 gives a
+  single-cell source
+- EtaCenter -- location of emissivity source (0.0, 0.0, 0.0)
+
+
 References:
 
 I.T. Iliev, B. Ciardi, M.A. Alvarez, A. Maselli, A. Ferrara,

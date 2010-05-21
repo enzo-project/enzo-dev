@@ -30,7 +30,6 @@ RadHydroModel       = 10              // LTE coupling
 RadHydroMaxDt       = 1.0e-13
 RadHydroMinDt       = 1.0e-18
 RadHydroInitDt      = 1.0e-18
-RadHydroDtNorm      = 0.0             // max-norm for time error estimate
 RadHydroDtRadFac    = 0.01            // 1% desired change/step
 RadHydroTheta       = 0.5             // trapezoidal time integration
 RadHydroMGPreRelax  = 5               // MG pre-relaxation sweeps

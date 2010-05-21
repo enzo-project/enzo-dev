@@ -10,8 +10,7 @@
 ProblemType                = 405           // RadHydroRadShockInitialize init
 RadiativeTransferFLD       = 2             // use FLD solver for radiation
 ImplicitProblem            = 3             // use gFLDSplit module
-StaticHierarchy            = 0             // dynamic hierarchy
-MaximumRefinementLevel     = 0             // no refinement
+Unigrid                    = 1             // unigrid run
 RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
 RadHydroParamfile = RadiatingShockLab1D_sp.gfld
 #

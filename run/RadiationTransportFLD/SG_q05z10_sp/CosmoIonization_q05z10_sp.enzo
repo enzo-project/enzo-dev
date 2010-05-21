@@ -12,8 +12,7 @@ RadiativeTransferFLD       = 2             // use FLD solver for radiation
 ImplicitProblem            = 3             // use gFLDSplit module
 ComovingCoordinates        = 1             // Expansion ON
 UseHydro                   = 0             // no hydro
-StaticHierarchy            = 0             // dynamic hierarchy
-MaximumRefinementLevel     = 0             // no refinement
+Unigrid                    = 1             // unigrid run
 RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
 RadHydroParamfile = CosmoIonization_q05z10_sp.gfld
 #

@@ -50,6 +50,11 @@ plots of these profiles as they propagate through the domain.
 - analysis: rstream1d_makeplots.py
 
 
+Problem-specific Input Parameters:
+- RadStreamDim -- dimension for streaming problem (0,1,2)
+- RadStreamDir -- direction for streaming radiation (0 is left->right,
+  1 is right->left)
+
 
 References:
 

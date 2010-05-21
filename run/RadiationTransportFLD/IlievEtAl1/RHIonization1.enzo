@@ -11,8 +11,7 @@ ProblemType                = 410           // RHIonizationTestInitialize init
 RadiativeTransferFLD       = 2             // use FLD solver for radiation
 ImplicitProblem            = 1             // use gFLDProblem module
 UseHydro                   = 0             // no hydro
-StaticHierarchy            = 0             // dynamic hierarchy
-MaximumRefinementLevel     = 0             // no refinement
+Unigrid                    = 1             // unigrid run
 RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
 RadHydroParamfile = RHIonization1.gfld
 #

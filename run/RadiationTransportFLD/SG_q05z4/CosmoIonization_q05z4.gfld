@@ -34,7 +34,6 @@ RadHydroDtRadFac        = 0.01       // 1% desired change/step
 RadHydroDtGasFac        = 0.01
 RadHydroDtChemFac       = 0.01
 RadHydroTheta           = 1.0
-RadHydroInitialGuess    = 0
 RadHydroNewtIters       = 40         // max Newton iterations
 RadHydroINConst         = 1.0e-13    // Inexact Newton constant
 RadHydroNewtTolerance   = 1.0e-5     // Inexact Newton tolerance

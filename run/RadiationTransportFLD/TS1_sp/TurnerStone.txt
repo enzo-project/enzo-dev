@@ -51,6 +51,13 @@ Test files:
 - analysis: ts_makeplots.py (all tests)
 
 
+Problem-specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroDensity -- initial density [g/cm^3]
+- RadHydroIEnergy -- initial specific energy [erg/g]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+
+
 References:
 
 N.J. Turner, J.M. Stone, "A module for radiation hydrodynamic

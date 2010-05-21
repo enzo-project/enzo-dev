@@ -77,6 +77,17 @@ Test 4 files [q0 = 0.05, z0 = 10]:
 - analysis: sg_q05z10_makeplots.py
 
 
+Problem-Specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroTemperature --initial temperature [K]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+- RadHydroOmegaBaryonNow -- baryonic fraction of total Omega
+- NGammaDot -- ionization source emission rate [photons/sec]
+- EtaRadius -- radius for emissivity source [cells], 0 gives a
+  single-cell source
+- EtaCenter -- center of emissivity source (0.0, 0.0, 0.0)
+
+
 References:
 
 P.R. Shapiro and M.L. Giroux, "Cosmological HII regions and the

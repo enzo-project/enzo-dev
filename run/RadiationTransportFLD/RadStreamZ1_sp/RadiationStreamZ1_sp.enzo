@@ -10,8 +10,7 @@
 ProblemType                = 401           // RadHydroStreamTest initializer
 RadiativeTransferFLD       = 2             // FLD radiation solver 
 ImplicitProblem            = 3             // use gFLDSplit module
-StaticHierarchy            = 0             // dynamic hierarchy
-MaximumRefinementLevel     = 0             // no refinement
+Unigrid                    = 1             // unigrid run
 RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
 RadHydroParamfile = RadiationStreamZ1_sp.gfld
 #
