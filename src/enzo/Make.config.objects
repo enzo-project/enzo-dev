@@ -136,6 +136,7 @@ OBJS_CONFIG_LIB = \
 	EnzoVector_test.o \
         euler.o \
         EvolveHierarchy.o \
+	execinfo_local.o \
         expand_terms.o \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
