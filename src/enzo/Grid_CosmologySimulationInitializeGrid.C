@@ -235,7 +235,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity3;
 #ifdef TRANSFER
     if (RadiativeTransferFLD > 1)
-      FieldType[NumberOfBaryonFields++] = RadiationFreq0;
+      FieldType[EgNum = NumberOfBaryonFields++] = RadiationFreq0;
 #endif
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
