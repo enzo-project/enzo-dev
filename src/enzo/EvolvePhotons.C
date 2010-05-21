@@ -50,6 +50,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
+int InitializePhotonMessages(void);
 int InitializePhotonCommunication(void);
 int FinalizePhotonCommunication(void);
 int KeepTransportingInitialize(char* &kt_global, bool initial_call);
@@ -76,7 +77,7 @@ static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_PhotonList;
 #endif
 
-#define NONBLOCKING
+//#define NONBLOCKING_RT_OFF  // moved to a compile-time define
 #define REPORT_PERF_OFF
 #define MAX_ITERATIONS 5
 
@@ -297,11 +298,17 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Transport the rays! */
 
     while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
+
+#ifdef NONBLOCKING_RT
     KeepTransportingInitialize(kt_global, initial_call);
     initial_call = false;
+#endif
 
     while (keep_transporting != NO_TRANSPORT && 
 	   keep_transporting != HALT_TRANSPORT) {
+#ifndef NONBLOCKING_RT
+      InitializePhotonMessages();
+#endif
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
@@ -350,24 +357,28 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Receive keep_transporting messages and take the MAX */
 
       START_PERF();
-#ifdef NONBLOCKING
       local_keep_transporting = keep_transporting;
+#ifdef NONBLOCKING_RT
       if (keep_transporting != last_keep_transporting)
 	KeepTransportingSend(keep_transporting);
       KeepTransportingCheck(kt_global, keep_transporting);
-#else /* NONBLOCKING */
+#else /* NONBLOCKING_RT */
       keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
       END_PERF(6);
 
     }                           //  end while keep_transporting
-    
+
+#ifdef NONBLOCKING_RT    
     KeepTransportingFinalize(kt_global, keep_transporting);
 #ifdef USE_MPI
     InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
 #endif
     CommunicationReceiverPhotons(LevelArray, false, local_keep_transporting);
     secondary_kt_check = CommunicationMaxValue(local_keep_transporting);
+#else /* NONBLOCKING_RT */
+    secondary_kt_check = FALSE;
+#endif
 
     }  // ENDWHILE secondary keep_transporting check
 

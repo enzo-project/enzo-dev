@@ -306,7 +306,11 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
      completed messages, post receive calls from all processors with
      photons to receive */
 
+#ifdef NONBLOCKING_RT
   InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
+#else
+  InitializePhotonReceive(PHOTON_BUFFER_SIZE, false, MPI_PhotonList);
+#endif
 
   /* Second stage: post sends to processors */
      
@@ -333,6 +337,9 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Third stage: finally receive the data and transfer them to their
      respective grids  */
 
+#ifndef NONBLOCKING_RT
+  local_transport = false;
+#endif
   CommunicationReceiverPhotons(LevelArray, local_transport, 
 			       keep_transporting);
 
