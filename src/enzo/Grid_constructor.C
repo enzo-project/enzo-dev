@@ -143,8 +143,21 @@ grid::grid()
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
+
   MaximumkphIfront                = 0;
   IndexOfMaximumkph               = INT_UNDEFINED;
+
+  /* Initialize top level parallelism information */
+  for (i=0; i<MAX_DIMENSION; i++) {
+    ProcLayout[i]       = 1;
+    ProcLocation[i]     = 0;
+    ProcNeighbors[i][0] = 0;
+    ProcNeighbors[i][1] = 0;
+  }
+
+  /* Initialize maximum radiation time step size */
+  MaxRadiationDt = huge_number;
+
 #endif
 
   /* Star particles */

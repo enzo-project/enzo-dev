@@ -1,0 +1,147 @@
+#=======================================================================
+#
+# FILE:        Make.mach.reynolds-math
+#
+# DESCRIPTION: Makefile settings for Dan Reynolds' Math Workstation
+#
+# AUTHOR:      Daniel Reynolds (reynolds@smu.edu)
+#
+# DATE:        2008-08-11
+#
+#=======================================================================
+
+MACH_TEXT  = Dan's math workstation (Make.mach.reynolds-math)
+MACH_VALID = 1
+MACH_FILE  = Make.mach.reynolds-math
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    = /usr/local/mpich2-1.0.7/intel
+LOCAL_FC_INSTALL     = /opt/intel/fce/10.1.014/lib
+LOCAL_HDF5_INSTALL   = /usr/local/hdf5-1.6.9/intel_serial
+LOCAL_SZIP_INSTALL   = /usr/local
+LOCAL_HYPRE_INSTALL  = /usr/local/hypre-2.4.0b/intel
+LOCAL_JBPERF_INSTALL = 
+
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx -DMPICH_IGNORE_CXX_SEEK
+MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif77
+MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90
+MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif90
+
+# Without MPI
+
+MACH_CC_NOMPI  = $(MACH_CC_MPI)
+MACH_CXX_NOMPI = $(MACH_CXX_MPI)
+MACH_FC_NOMPI  = $(MACH_FC_MPI)
+MACH_F90_NOMPI = $(MACH_F90_MPI)
+MACH_LD_NOMPI  = $(MACH_LD_MPI)
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DOVERLOAD_NEW
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = -I/usr/lib/ -static-intel -static-libgcc
+MACH_CXXFLAGS = -I/usr/lib/ -static-intel -static-libgcc
+MACH_FFLAGS   = -static-intel -static-libcxa
+MACH_F90FLAGS = -static-intel -static-libcxa
+MACH_LDFLAGS  = -cxxlib -nofor_main
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -integer-size 32
+MACH_FFLAGS_INTEGER_64 = -integer-size 64
+MACH_FFLAGS_REAL_32    = -real-size 32
+MACH_FFLAGS_REAL_64    = -real-size 64
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+# MACH_OPT_C_WARN        = -Wall -g -O0
+# MACH_OPT_C_DEBUG       = -g -O0
+# MACH_OPT_C_HIGH        = -O2 -fexceptions
+# MACH_OPT_C_AGGRESSIVE  = -O3 -fno-exceptions
+
+# MACH_OPT_CXX_WARN        = -Wall -g -O0
+# MACH_OPT_CXX_DEBUG       = -g -O0 -fexceptions
+# MACH_OPT_CXX_HIGH        = -O2 -fexceptions
+# MACH_OPT_CXX_AGGRESSIVE  = -O3 -fno-exceptions
+
+# MACH_OPT_F_WARN        = -Wall -g -O0
+# MACH_OPT_F_DEBUG       = -g -O0 -fpe0 -CB
+# MACH_OPT_F_HIGH        = -O2
+# MACH_OPT_F_AGGRESSIVE  = -O3 -fpe1
+
+# MACH_OPT_F90_WARN        = -Wall -g -O0
+# MACH_OPT_F90_DEBUG       = -g -O0 -fpe0 -CB
+# MACH_OPT_F90_HIGH        = -O2
+# MACH_OPT_F90_AGGRESSIVE  = -O3 -fpe1
+
+# MACH_OPT_LD_WARN        = $(MACH_OPT_CXX_WARN)
+# MACH_OPT_LD_DEBUG       = $(MACH_OPT_CXX_DEBUG)
+# MACH_OPT_LD_HIGH        = $(MACH_OPT_CXX_HIGH)
+# MACH_OPT_LD_AGGRESSIVE  = $(MACH_OPT_CXX_AGGRESSIVE)
+
+MACH_OPT_WARN        = -Wall -g -O0
+MACH_OPT_DEBUG       = -g -O0
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_JBPERF = -I$(LOCAL_JBPERF_INSTALL)/include
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_JBPERF  = $(LOCAL_INCLUDES_JBPERF)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_JBPERF = -L$(LOCAL_JBPERF_INSTALL)/lib -ljbperf
+LOCAL_LIBS_PAPI   = # PAPI libraries
+
+LOCAL_LIBS_MACH  = -L$(LOCAL_FC_INSTALL) -lifcore -lirc -lifport
+
+MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_JBPERF = $(LOCAL_LIBS_JBPERF)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+
+

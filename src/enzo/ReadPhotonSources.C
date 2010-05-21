@@ -197,6 +197,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     RadSources->EnergyBins     = PhotonTestSourceEnergyBins[i];
     RadSources->Energy         = new float[PhotonTestSourceEnergyBins[i]];
     RadSources->SED            = new float[PhotonTestSourceEnergyBins[i]];
+    RadSources->AddedEmissivity = false;
     for (int j=0; j<PhotonTestSourceEnergyBins[i]; j++){
       RadSources->Energy[j] = PhotonTestSourceEnergy[i][j];
       RadSources->SED[j]    = PhotonTestSourceSED[i][j];

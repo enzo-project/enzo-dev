@@ -27,7 +27,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#define MAX_ENERGY_BINS 10
 #define NO_MEAN_ENERGY
 
 int GetUnits(float *DensityUnits, float *LengthUnits,

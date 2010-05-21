@@ -5,7 +5,7 @@
 // date      : June 10, 2009, 3:37 pm
 // 
 // Purpose   : Control various outputs from the EvolveLevel routine.
-
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include "mpi.h"
@@ -29,6 +29,10 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
+
 
 int WriteTracerParticleData(char *basename, int filenumber,
 		   LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -36,10 +40,16 @@ int WriteTracerParticleData(char *basename, int filenumber,
 //#ifdef USE_HDF5_GROUPS
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		       TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		       ImplicitProblemABC *ImplicitSolver,
+#endif
 		       FLOAT WriteTime = -1, int CheckpointDump = FALSE);
 // #else
 // int WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 //                  TopGridData &MetaData, ExternalBoundary *Exterior,
+//#ifdef TRANSFER
+//	            ImplicitProblemABC *ImplicitSolver,
+//#endif
 //                  FLOAT WriteTime = -1);
 // #endif
 void my_exit(int status);
@@ -54,7 +64,11 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-			  int level, ExternalBoundary *Exterior){
+			  int level, ExternalBoundary *Exterior
+#ifdef TRANSFER
+			  , ImplicitProblemABC *ImplicitSolver
+#endif
+			  ){
 
   int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
   int PackedStatus = 0;
@@ -242,12 +256,18 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 			   Temp2->GridHierarchyEntry, *MetaData, Exterior,
+#ifdef TRANSFER
+			   ImplicitSolver,
+#endif
 			   LevelArray[level]->GridData->ReturnTime(), CheckpointDump) == FAIL) {
             ENZO_FAIL("Error in Group_WriteAllData.");
     }
 // #else
 //     if (WriteAllData(MetaData->DataDumpName, MetaData->DataDumpNumber++,
 // 		     Temp2->GridHierarchyEntry, *MetaData, Exterior, 
+// #ifdef TRANSFER
+// 		     ImplicitSolver,
+// #endif
 // 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       ENZO_FAIL("");
@@ -268,7 +288,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     }
     my_exit(EXIT_SUCCESS);
   }
-  
   
   return SUCCESS;
 }

@@ -28,8 +28,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-#define MAX_ENERGY_BINS 10
-
 int grid::AddH2Dissociation(Star *AllStars)
 {
 
@@ -77,9 +75,9 @@ int grid::AddH2Dissociation(Star *AllStars)
   for (i = 0; i < size; i++)
     BaryonField[kdissH2INum][i] = 0;
   
-  /* Exit if no shining particles */
+  /* Exit if no star particles and not Photon Test */
 
-  if (AllStars == NULL)
+  if (AllStars == NULL && ProblemType != 50)
     return SUCCESS;
 
   /* If using cosmology, get units. */
@@ -87,11 +85,8 @@ int grid::AddH2Dissociation(Star *AllStars)
   float TemperatureUnits, DensityUnits, LengthUnits, VelocityUnits, 
     TimeUnits, aUnits = 1;
 
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
-  }
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, PhotonTime);
 
   // Absorb the unit conversions into the cross-section
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
@@ -102,77 +97,122 @@ int grid::AddH2Dissociation(Star *AllStars)
     ddr2[dim] = new FLOAT[ActiveDims[dim]];
   }
 
-  /* Loop over shining particles in the grid */
+  // Dilution factor (prevent breaking in the rate solver near the star)
+  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilRadius2 = dilutionRadius * dilutionRadius;
+  float LightTravelDist = TimeUnits * clight / LengthUnits;
 
-  for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+  // Convert from #/s to RT units
+  double LConv = (double) TimeUnits / pow(LengthUnits,3);
 
-    // Skip if not 'living'
-    if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
-	  cstar->FeedbackFlag == CONT_SUPERNOVA)) 
-      continue;
+  /* Loop over radiation sources or star particles in the grid */
 
-    /* Determine H2 emission rate */
+  if (ProblemType == 50) {
 
-    if (cstar->ComputePhotonRates(nbins, energies, Luminosity) == FAIL) {
-      fprintf(stderr, "Error in ComputePhotonRates.\n");
-      ENZO_FAIL("");
-    }
-    H2Luminosity = Luminosity[3];
+    RadiationSourceEntry *RS;
+    for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
 
-    // Dilution factor (prevent breaking in the rate solver near the star)
-    float dilutionRadius = 10.0 * pc / (double) LengthUnits;
-    float dilRadius2 = dilutionRadius * dilutionRadius;
-    float LightTravelDist = TimeUnits * clight / LengthUnits;
+      if (PhotonTime < RS->CreationTime && 
+	  PhotonTime > RS->CreationTime + RS->LifeTime)
+	continue;
 
-#ifdef UNUSED
-    // Determine the inner and outer radiation fronts
-    outerFront = (PhotonTime - cstar->BirthTime) * LightTravelDist;
-    outerFront2 = outerFront*outerFront;
+      H2Luminosity = RS->SED[3] * RS->Luminosity / LConv;
 
-    if (PhotonTime > (cstar->BirthTime + cstar->LifeTime))
-      innerFront = (PhotonTime - cstar->BirthTime - cstar->LifeTime)
-	* LightTravelDist;
-    else
-      innerFront = 0;
-    innerFront2 = innerFront * innerFront;
-#endif /* UNUSED */
+      /* Pre-calculate distances from cells to source */
 
-    /* Pre-calculate distances from cells to source */
+      for (dim = 0; dim < GridRank; dim++)
+	for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
+	     i++, index++) {
 
-    for (dim = 0; dim < GridRank; dim++)
-      for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
-	   i++, index++) {
+	  // Calculate dr_i first, then square it
+	  ddr2[dim][i] = 
+	    fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] - 
+		 RS->Position[dim]);
+	  ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+	  ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+	}
 
-	// Calculate dr_i first, then square it
-	ddr2[dim][i] = fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
-			    cstar->pos[dim]);
-	ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
-	ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+      /* Loop over cells */
+
+      double radius2, radius2_yz;
+
+      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
+      for (k = 0; k < ActiveDims[2]; k++) {
+	for (j = 0; j < ActiveDims[1]; j++) {
+	  radius2_yz = ddr2[1][j] + ddr2[2][k];
+	  index = GRIDINDEX(0, j, k);
+	  for (i = 0; i < ActiveDims[0]; i++, index++) {
+	    radius2 = radius2_yz + ddr2[0][i];
+	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
+	    //radius2 = max(radius2, dilRadius2);
+	    if (radius2 < dilRadius2)
+	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
+	    else
+	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+	    //} // ENDIF
+	  } // END: i-direction
+	} // END: j-direction
+      } // END: k-direction
+      
+    } // ENDFOR sources
+
+  } // ENDIF ProblemType == 50
+
+  else {
+
+    for (cstar = AllStars; cstar; cstar = cstar->NextStar) {
+
+      // Skip if not 'living'
+      if (!(cstar->FeedbackFlag == NO_FEEDBACK ||
+	    cstar->FeedbackFlag == CONT_SUPERNOVA)) 
+	continue;
+      
+      /* Determine H2 emission rate */
+
+      if (cstar->ComputePhotonRates(nbins, energies, Luminosity) == FAIL) {
+	fprintf(stderr, "Error in ComputePhotonRates.\n");
+	ENZO_FAIL("");
       }
+      H2Luminosity = Luminosity[3];
 
-    /* Loop over cells */
+      /* Pre-calculate distances from cells to source */
 
-    double radius2, radius2_yz;
+      for (dim = 0; dim < GridRank; dim++)
+	for (i = 0, index = GridStartIndex[dim]; i < ActiveDims[dim]; 
+	     i++, index++) {
+	  
+	  // Calculate dr_i first, then square it
+	  ddr2[dim][i] = 
+	    fabs(CellLeftEdge[dim][index] + 0.5*CellWidth[dim][index] -
+		 cstar->pos[dim]);
+	  ddr2[dim][i] = min(ddr2[dim][i], DomainWidth[dim]-ddr2[dim][i]);
+	  ddr2[dim][i] = ddr2[dim][i] * ddr2[dim][i];
+	}
 
-    kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
-    for (k = 0; k < ActiveDims[2]; k++) {
-      for (j = 0; j < ActiveDims[1]; j++) {
-	radius2_yz = ddr2[1][j] + ddr2[2][k];
-	index = GRIDINDEX(0, j, k);
-	for (i = 0; i < ActiveDims[0]; i++, index++) {
-	  radius2 = radius2_yz + ddr2[0][i];
-	  //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	  //radius2 = max(radius2, dilRadius2);
-	  if (radius2 < dilRadius2)
-	    BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
-	  else
-	    BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
-	  //} // ENDIF
-	} // END: i-direction
-      } // END: j-direction
-    } // END: k-direction
+      /* Loop over cells */
 
-  } // END: stars
+      double radius2, radius2_yz;
+
+      kdiss_r2 = (float) (H2Luminosity * H2ISigma / (4.0 * M_PI));
+      for (k = 0; k < ActiveDims[2]; k++) {
+	for (j = 0; j < ActiveDims[1]; j++) {
+	  radius2_yz = ddr2[1][j] + ddr2[2][k];
+	  index = GRIDINDEX(0, j, k);
+	  for (i = 0; i < ActiveDims[0]; i++, index++) {
+	    radius2 = radius2_yz + ddr2[0][i];
+	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
+	    //radius2 = max(radius2, dilRadius2);
+	    if (radius2 < dilRadius2)
+	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
+	    else
+	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;
+	    //} // ENDIF
+	  } // END: i-direction
+	} // END: j-direction
+      } // END: k-direction
+    } // ENDFOR stars
+
+  } // ENDELSE ProblemType == 50
 
   for (dim = 0; dim < GridRank; dim++)
     delete [] ddr2[dim];

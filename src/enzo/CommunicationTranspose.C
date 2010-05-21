@@ -1175,7 +1175,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
   CommunicationBufferPurge();
 
 #else
-  ENZO_FAIL("UnigridTranspose = 3 can only be used with use-mpi-yes.");
+  ENZO_FAIL("UnigridTranspose = 2 can only be used with use-mpi-yes.");
 #endif /* USE_MPI */
  
   return SUCCESS;

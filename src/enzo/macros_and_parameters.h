@@ -82,6 +82,8 @@
 
 #define MAX_POTENTIAL_ITERATIONS            8
 
+#define MAX_ENERGY_BINS                    10
+
 #define ROOT_PROCESSOR                      0
 
 #define VERSION                           1.3  /* current version number */

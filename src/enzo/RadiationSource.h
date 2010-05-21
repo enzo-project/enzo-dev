@@ -34,6 +34,8 @@ struct RadiationSourceEntry  {
   float *Energy;                  // Energy bins
   float *SED;                     // fractional Spectral energy distribution
   FLOAT *Position;                // Position of source
+  bool  AddedEmissivity;          // flag to show that we've added
+                                  // emissivity for FS solver.
 };
 
 struct SuperSourceData {
