@@ -21,6 +21,7 @@
  
 // This function writes out the data hierarchy (TopGrid), the External
 //   Boundary (Exterior), the TopGridData, and the global_data.
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include "mpi.h"
@@ -45,6 +46,9 @@
 #include "TopGridData.h"
 #include "CosmologyParameters.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
 #include "BinaryHierarchy.h"
 
 void my_exit(int status);
@@ -79,6 +83,8 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
+ 
+ 
 int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
 
 void InitializeHierarchyArrayStorage(int grid_count);
@@ -92,6 +98,9 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif 
 
 
+#ifdef TRANSFER
+extern char RTSuffix[];
+#endif
 extern char BCSuffix[];
 extern char GridSuffix[];
 extern char HierarchySuffix[];
@@ -111,8 +120,12 @@ extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1, 
-         int CheckpointDump = FALSE)
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif
+		 FLOAT WriteTime = -1, 
+		 int CheckpointDump = FALSE)
 {
  
   char id[MAX_CYCLE_TAG_SIZE], *cptr, name[MAX_LINE_LENGTH];
@@ -584,6 +597,33 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   CheckpointRestart = CheckpointDump;
  
+#ifdef TRANSFER
+  if (ImplicitProblem) {
+    // Output ImplicitSolver module parameter file
+
+    //    Reset MetaData.RadHydroParameterFname
+    if (MetaData.RadHydroParameterFname != NULL)
+      delete MetaData.RadHydroParameterFname;
+    MetaData.RadHydroParameterFname = new char[MAX_LINE_LENGTH];
+    strcpy(MetaData.RadHydroParameterFname, name);
+    strcat(MetaData.RadHydroParameterFname, RTSuffix);
+    
+    // Open RT module parameter file
+    if ((fptr = fopen(MetaData.RadHydroParameterFname, "w")) == NULL) {
+      fprintf(stderr, "Error opening RT module parameter file: %s\n",
+	      MetaData.RadHydroParameterFname);
+      return FAIL;
+    }
+    
+    // Write RT module parameters to file
+    if (ImplicitSolver->WriteParameters(fptr) == FAIL) {
+      fprintf(stderr, "Error in ImplicitSolver::WriteParameters\n");
+      return FAIL;
+    }
+    fclose(fptr);
+  }
+#endif		 
+
   // Output TopGrid data
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {

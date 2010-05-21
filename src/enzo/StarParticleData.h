@@ -9,6 +9,8 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#ifndef STAR_PARTICLE_DATA_DEFINED__
+#define STAR_PARTICLE_DATA_DEFINED__
 
 #ifdef DEFINE_STORAGE
 # define SPEXTERN
@@ -102,3 +104,5 @@ SPEXTERN float  MBHFeedbackJetsThresholdMass;
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
+
+#endif

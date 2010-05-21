@@ -3,8 +3,10 @@ syntax: glob
 
 *.o
 *.f
+*.f90
 *~
 
+bin/enzo
 DEPEND
 DEPEND.bak
 auto_show_*.C

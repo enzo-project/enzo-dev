@@ -72,7 +72,7 @@ int grid::PPMDirectEuler
 
   float *temp = new float[tempsize*(31+NumberOfColours*4)];
 
-  //  Loop over directions, using a Strange-type splitting
+  //  Loop over directions, using a Strang-type splitting
 
   ixyz = CycleNumber % GridRank;
 

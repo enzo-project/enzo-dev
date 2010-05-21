@@ -127,6 +127,13 @@ struct TopGridData
 
   gravity_boundary_type GravityBoundary;
 
+#ifdef TRANSFER
+  /* Implicit solver data */
+  char *RadHydroParameterFname;
+  FLOAT FLDTime;
+  float dtFLD;
+#endif
+
   /* Particle and Particle boundary data. (real one in ExternalBoundary). */
 
   boundary_type ParticleBoundaryType;

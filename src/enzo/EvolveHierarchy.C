@@ -29,6 +29,7 @@
 /    yet been implemented).
 /
 ************************************************************************/
+#include "preincludes.h"
  
 #ifdef USE_MPI
 #include <mpi.h>
@@ -51,6 +52,9 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
  
 // function prototypes
  
@@ -58,26 +62,46 @@ int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		int level, float dtLevelAbove, ExternalBoundary *Exterior);
+		int level, float dtLevelAbove, ExternalBoundary *Exterior
+#ifdef TRANSFER
+		, ImplicitProblemABC *ImplicitSolver
+#endif
+		);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-                    int level, float dtLevelAbove, ExternalBoundary *Exterior, FLOAT dt0);
+                    int level, float dtLevelAbove, ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver, 
+#endif
+		    FLOAT dt0);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		 FLOAT WriteTime = -1);
 
 int Group_WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
-		 ExternalBoundary *Exterior, FLOAT WriteTime = -1,
-         int RestartDump = FALSE);
+		 ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		 ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		 FLOAT WriteTime = -1,
+		 int RestartDump = FALSE);
 
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData,
 			 LevelHierarchyEntry *LevelArray[], int level);
 int TestGravityCheckResults(LevelHierarchyEntry *LevelArray[]);
 int TestGravitySphereCheckResults(LevelHierarchyEntry *LevelArray[]);
 int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
-		   ExternalBoundary *Exterior, int &WroteData);
+		   ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		   ImplicitProblemABC *ImplicitSolver,
+#endif		 
+		   int &WroteData);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
@@ -123,6 +147,9 @@ int CallPython();
  
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
                     ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		    ImplicitProblemABC *ImplicitSolver,
+#endif
 		    LevelHierarchyEntry *LevelArray[], float Initialdt)
 {
  
@@ -243,7 +270,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Check for output. */
  
-  CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
+  CheckForOutput(&TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+		 ImplicitSolver,
+#endif		 
+		 WroteData);
 
   PrintMemoryUsage("Output");
  
@@ -448,29 +479,59 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     CommunicationBarrier();
     tlev0 = MPI_Wtime();
 #endif
+
+    /* Zeroing out the rootgrid Emissivity before EvolveLevel is called 
+       so when rootgrid emissivity values are calculated they are put in 
+       clean rootgrid array */
+#ifdef EMISSIVITY
+    if(StarMakerEmissivityField > 0){
+      LevelHierarchyEntry *RootTemp;
+      RootTemp = LevelArray[0];
+      while (RootTemp != NULL) {
+	RootTemp->GridData->ClearEmissivity();
+	RootTemp = RootTemp->NextGridThisLevel;
+      }
+    }
+#endif
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
 	HydroMethod < 0) {
-      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior) == FAIL) {
+      if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
+#ifdef TRANSFER
+		      , ImplicitSolver
+#endif
+		      ) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
           fprintf(stderr, "--> Dumping data (output number %d).\n",
                   MetaData.DataDumpNumber);
 	Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-		     &TopGrid, MetaData, Exterior);
+		     &TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		     , ImplicitSolver
+#endif		 
+		     );
         }
         return FAIL;
       }
     } else {
       if (HydroMethod == HD_RK || HydroMethod == MHD_RK)
-	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, dt) == FAIL) {
+	if (EvolveLevel_RK2(&MetaData, LevelArray, 0, dt, Exterior, 
+#ifdef TRANSFER
+			    ImplicitSolver, 
+#endif
+			    dt) == FAIL) {
 	  if (NumberOfProcessors == 1) {
 	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
 		    MetaData.DataDumpNumber);
 	    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-			       &TopGrid, MetaData, Exterior);
+			       &TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+			       , ImplicitSolver
+#endif		 
+			       );
 	  }
         return FAIL;
       }
@@ -541,7 +602,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     /* Check for output. */
  
-    CheckForOutput(&TopGrid, MetaData, Exterior, WroteData);
+    CheckForOutput(&TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+		   ImplicitSolver,
+#endif		 
+		   WroteData);
 
     /* Check for resubmission */
     
@@ -654,11 +719,19 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       !WroteData)
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-			   &TopGrid, MetaData, Exterior, -666) == FAIL)
+			   &TopGrid, MetaData, Exterior, 
+#ifdef TRANSFER
+			   ImplicitSolver, 
+#endif		 
+			   -666) == FAIL)
       ENZO_FAIL("Error in Group_WriteAllData.");
 // #else
 //     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
-// 		     &TopGrid, MetaData, Exterior, -666) == FAIL) {
+// 		     &TopGrid, MetaData, Exterior, 
+//#ifdef TRANSFER
+//		     ImplicitSolver, 
+//#endif		 
+//                   -666) == FAIL) {
 //       fprintf(stderr, "Error in WriteAllData.\n");
 //       ENZO_FAIL("");
 //     }
