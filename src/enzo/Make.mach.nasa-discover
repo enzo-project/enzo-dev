@@ -125,6 +125,7 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 
+LOCAL_LIBS_MACH  = -L$(LOCAL_FC_INSTALL)/lib64 -lifcore -lifport
 LOCAL_LIBS_HDF5  =  -L$(LOCAL_HDF5_INSTALL)/lib -L$(HOME)/local/lib \
 	-lhdf5 -lsz -lz
 
