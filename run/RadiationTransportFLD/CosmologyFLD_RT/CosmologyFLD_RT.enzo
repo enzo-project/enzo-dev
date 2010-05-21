@@ -1,0 +1,124 @@
+#
+# LBC 1024^3 with star formation and feedback
+# Revised sf parameters January 28th 2005
+#
+ProblemType                = 30      // cosmology simulation
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+#
+#  problem parameters
+#
+CosmologySimulationInitialTemperature   = 140
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities
+CosmologySimulationVelocity2Name        = GridVelocities
+CosmologySimulationVelocity3Name        = GridVelocities
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+CosmologySimulationUseMetallicityField = 0
+
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologySimulationOmegaBaryonNow       = 0.04
+CosmologySimulationOmegaCDMNow                = 0.26 
+CosmologyOmegaMatterNow                        = 0.3 
+CosmologyOmegaLambdaNow                        = 0.7  
+CosmologyHubbleConstantNow = 0.7    // in km/s/Mpc
+CosmologyComovingBoxSize   = 5.6  // in Mpc/h
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 99.0      // 
+CosmologyFinalRedshift     = 5.0     //
+GravitationalConstant      = 1       // this must be true for cosmology
+
+#
+#  set I/O and stop/start parameters
+#
+StopCycle = 999999
+#dtDataDump = 0.5
+dtDataDump = 0.2
+RedshiftDumpName = RD
+RedshiftDumpDir = RD
+DataDumpName = DD
+DataDumpDir = DD
+#GlobalDir =  /dsgpfs2/harkness/SF2
+SRBprefix = /none
+#
+CosmologyOutputRedshift[0] = 99.0 
+CosmologyOutputRedshift[1] = 50.0
+CosmologyOutputRedshift[2] = 40.0  
+CosmologyOutputRedshift[3] = 35.0
+CosmologyOutputRedshift[4] = 30.0
+CosmologyOutputRedshift[5] = 25.0
+CosmologyOutputRedshift[6] = 20.0
+CosmologyOutputRedshift[7] = 15.0
+CosmologyOutputRedshift[8] = 10
+CosmologyOutputRedshift[9] = 7.5
+CosmologyOutputRedshift[10] = 5.0
+CosmologyOutputRedshift[11] = 4.0
+CosmologyOutputRedshift[12] = 3.0
+
+#
+#  set hydro parameters
+#
+Gamma                  = 1.6666666666666667
+PPMDiffusionParameter  = 0       // diffusion off
+DualEnergyFormalism    = 1       // use total & internal energy
+InterpolationMethod    = 1     // SecondOrderA
+CourantSafetyNumber    = 0.4
+ParticleCourantSafetyNumber = 0.6
+FluxCorrection         = 1
+ConservativeInterpolation = 0
+HydroMethod            = 0
+
+#
+#  set cooling parameters
+#
+RadiativeCooling       = 1
+MultiSpecies           = 1
+RadiationFieldType     = 0
+CoolDataParameterFile = CoolDataParameters
+
+StarParticleCreation   = 2
+StarParticleFeedback   = 1
+StarMakerOverDensityThreshold         = 50
+StarMakerMassEfficiency               = 0.1
+StarMakerMinimumMass                  = 260
+StarMakerMinimumDynamicalTime         = 1e+07
+StarMassEjectionFraction              = 0.25
+StarMetalYield                        = 0.02
+StarEnergyToThermalFeedback           = 1e-06
+StarEnergyToStellarUV                 = 3e-06
+StarEnergyToQuasarUV                  = 5e-06
+
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy = 1    // Not dynamic hierarchy
+#Unigrid = 1
+Unigrid = 0
+ParallelParticleIO = 1
+ParallelRootGridIO = 1
+
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 100   // # of greens function at any one time
+
+#
+#  radiation parameters
+#
+RadiationHydrodynamics = 1           // use Rad-Hydro solver (w/ Enzo hydro)
+StarMakerEmissivityField = 1         // use Geoffrey's emissivity generator
+ImplicitProblem = 3                  // use the gFLDSplit module
+RadHydroParamfile = RHParameters     // RHD module input parameters
+
+RadiativeTransferOpticallyThinH2 = 0
+RadiativeTransferFLD             = 2
