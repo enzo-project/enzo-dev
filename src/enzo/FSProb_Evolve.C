@@ -62,6 +62,9 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
     ENZO_FAIL(" ");
   }
 #endif
+#ifndef MPI_INT
+  int MPI_COMM_WORLD = 0;
+#endif
 
   // start MPI timer
 #ifdef USE_MPI

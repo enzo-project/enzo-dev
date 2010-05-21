@@ -78,6 +78,11 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   // check that the gFLDProblem has been set up
   if (!prepared) 
     ENZO_FAIL("lsolve error: gFLDProblem not yet prepared");
+
+  // in case MPI is not included
+#ifndef MPI_INT
+  int MPI_COMM_WORLD = 0;
+#endif
   
   // have b communicate neighbor information and enforce BCs
 //   if (b->exchange() == FAIL) 

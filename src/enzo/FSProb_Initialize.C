@@ -268,8 +268,9 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   //   for non-periodic domain, unset neighbor info.
-#ifndef USE_MPI
+#ifndef MPI_INT
   int MPI_PROC_NULL = -3;
+  int MPI_COMM_WORLD = 0;
 #endif
   for (dim=0; dim<rank; dim++) {
     if ((OnBdry[dim][0]) && (BdryType[dim][0] != 0))

@@ -1,4 +1,5 @@
 #ifdef ENABLE_TASKMAP
+#ifdef USE_MPI
 
 /***********************************************************************
 /
@@ -361,4 +362,5 @@ int AssignGridToTaskMap(Eint64 GridIndex[], Eint64 Memory[], int Ntask)
   return SUCCESS;
 }
 
-#endif
+#endif  /* USE_MPI */
+#endif  /* ENABLE_TASKMAP */
