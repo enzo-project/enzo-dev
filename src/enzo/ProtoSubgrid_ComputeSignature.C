@@ -32,8 +32,7 @@ int ProtoSubgrid::ComputeSignature(int dim)
   /* Error check. */
  
   if (dim >= GridRank) {
-    fprintf(stderr, "Project: dim = %"ISYM" > GridRank = %"ISYM"\n", dim, GridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Project: dim = %"ISYM" > GridRank = %"ISYM"\n", dim, GridRank)
   }
  
   /* Already done? */
@@ -58,6 +57,7 @@ int ProtoSubgrid::ComputeSignature(int dim)
 			  GridFlaggingField, Signature[dim]);
  
   /*  if (debug) {
+
       printf ("sig[%"ISYM"]=%"ISYM": ", dim, GridDimension[dim]);
       for (int j = 0; j < GridDimension[dim]; j++)
       printf("%"ISYM" ", Signature[dim][j]);

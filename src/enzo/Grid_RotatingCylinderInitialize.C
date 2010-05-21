@@ -64,8 +64,7 @@ int grid::RotatingCylinderInitializeGrid(FLOAT RotatingCylinderRadius,
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   int MetallicityField = FALSE;
@@ -163,6 +162,7 @@ int grid::RotatingCylinderInitializeGrid(FLOAT RotatingCylinderRadius,
       } // for (i = 0; i < GridDimension[0]; i++)
 
   if(debug){
+
     printf("Exiting RotatingCylinderInitialize\n");
     fflush(stdout);
   }

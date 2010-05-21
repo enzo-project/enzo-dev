@@ -43,8 +43,7 @@ int grid::RestoreEnergyConsistency(int Region)
   /* Error check */
  
   if (Region != ENTIRE_REGION && Region != ONLY_BOUNDARY) {
-    fprintf(stderr, "Region type %"ISYM" unknown.\n", Region);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Region type %"ISYM" unknown.\n", Region)
   }
  
   /* If there is no work, we're done. */
@@ -125,6 +124,7 @@ int grid::RestoreEnergyConsistency(int Region)
 	         0.5*(BaryonField[Vel3Num][n])*(BaryonField[Vel3Num][n]);
  
 	    if (HydroMethod == MHD_RK) {
+
 	      float B2; 
 	      B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) +
 		pow(BaryonField[B3Num][n],2);

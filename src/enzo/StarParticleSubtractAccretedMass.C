@@ -90,8 +90,8 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	 not to bother John or others at the moment! */ 
 
       if (cstar->SubtractAccretedMassFromCell() == FAIL) {
-	fprintf(stderr, "Error in star::SubtractAccretedMass.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in star::SubtractAccretedMass.\n");
+
       }
 
       break;

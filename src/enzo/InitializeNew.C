@@ -238,8 +238,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((Outfptr = fopen(outfilename, "w")) == NULL) {
-      fprintf(stderr, "Error opening parameter output file %s\n", outfilename);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening parameter output file %s\n", outfilename)
     }
  
   // set the default MetaData values
@@ -276,17 +275,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Error check the rank
  
   if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
-    fprintf(stderr, "TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
   }
  
   // Error check the dimensions and at the same time add ghost zones
  
   for (dim = 0; dim < MetaData.TopGridRank; dim++) {
     if (MetaData.TopGridDims[dim] < 1 || MetaData.TopGridDims[dim] > 8192) {
-      fprintf(stderr, "TopGridDims[%"ISYM"] = %"ISYM" ill defined.\n", dim,
-	      MetaData.TopGridDims[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("TopGridDims[%"ISYM"] = %"ISYM" ill defined.\n", dim,
+	      MetaData.TopGridDims[dim])
     }
     MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
                      MetaData.TopGridDims[dim] + 2*DEFAULT_GHOST_ZONES : 1;
@@ -607,8 +604,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   
   if (ret == INT_UNDEFINED) {
-    fprintf(stderr, "Problem Type %"ISYM" undefined.\n", ProblemType);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Problem Type %"ISYM" undefined.\n", ProblemType)
   }
  
   if (ret == FAIL) {
@@ -629,10 +625,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
-    printf("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
+    ENZO_VFAIL("NumberOfBaryonFields (%"ISYM") + 1 exceeds "
 	   "MAX_NUMBER_OF_BARYON_FIELDS (%"ISYM").\n", 
-	   nFields, MAX_NUMBER_OF_BARYON_FIELDS);
-    ENZO_FAIL("");
+	   nFields, MAX_NUMBER_OF_BARYON_FIELDS)
   }
 
   PrintMemoryUsage("1st Initialization done");
@@ -650,9 +645,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (MetaData.BoundaryConditionName != NULL) {
 
       if ((BCfptr = fopen(MetaData.BoundaryConditionName, "r")) == NULL) {
-	fprintf(stderr, "Error opening BC file: %s\n",
-		MetaData.BoundaryConditionName);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error opening BC file: %s\n",
+		MetaData.BoundaryConditionName)
       }
 
       fprintf(stderr, "Opened BC file mode r\n");
@@ -842,8 +836,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  if (ProblemType == 106)
    if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in TurbulenceReInitialize.\n");
-     ENZO_FAIL("");
+     ENZO_FAIL("Error in TurbulenceReInitialize.\n");
    }
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
@@ -851,8 +844,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  if (ProblemType == 203)
    if (MHDTurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)
        == FAIL) {
-     fprintf(stderr, "Error in MHDTurbulenceReInitialize.\n");
-     ENZO_FAIL("");
+     ENZO_FAIL("Error in MHDTurbulenceReInitialize.\n");
    }
    
  
@@ -884,6 +876,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid)
 {
   if (Grid != NULL) {
+
     Grid->GridData->ConvertTotalEnergyToGasEnergy();
     ConvertTotalEnergyToGasEnergy(Grid->NextGridThisLevel);
     ConvertTotalEnergyToGasEnergy(Grid->NextGridNextLevel);

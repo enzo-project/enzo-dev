@@ -56,8 +56,7 @@ int grid::OutputStarParticleInformation(FILE *StarFile)
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
@@ -84,6 +83,7 @@ int grid::OutputStarParticleInformation(FILE *StarFile)
 	buffer[4] *= TimeUnits;
 	buffer[5] *= TimeUnits;
 	if (fwrite( (void*) buffer,  sizeof(float32),
+
 		    NumberOfParticleAttributes+4, StarFile) !=
 	    NumberOfParticleAttributes+4)
 	  perror("error in fwrite");

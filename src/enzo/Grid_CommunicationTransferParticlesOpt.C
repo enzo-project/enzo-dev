@@ -216,8 +216,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	Attribute[i] = new float[TotalNumberOfParticles];
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
-	fprintf(stderr, "malloc error (out of memory?)\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("malloc error (out of memory?)\n");
       }
 
 #ifdef USE_MPI
@@ -303,6 +302,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     //         T1-t00, T2-T1, T3-T2, T4-T3, t01-T4);
 
   } // end: if (COPY_IN)
+
 
  
   return SUCCESS;

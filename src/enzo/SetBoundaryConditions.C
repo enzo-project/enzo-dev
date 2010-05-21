@@ -142,7 +142,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	   handle. */
 
       if (CommunicationReceiveHandler() == FAIL)
-	ENZO_FAIL("");
+	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
 
     } // ENDFOR grid batches
      }
@@ -199,7 +199,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       /* -------------- THIRD PASS ----------------- */
 
       if (CommunicationReceiveHandler() == FAIL)
-	ENZO_FAIL("");
+	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
 
     } // end loop over batchs of grids
 

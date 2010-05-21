@@ -36,8 +36,7 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *Grid,
   OriginalID = GridID;
  
   if (Grid->GridData->WriteMemoryMap(fptr, base_name, GridID) == FAIL) {
-    fprintf(stderr, "Error in grid->WriteMemoryMap.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->WriteMemoryMap.\n");
   }
  
   NextGridThisLevelID = GridID + 1;
@@ -46,8 +45,8 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *Grid,
   if (NextGridThisLevelID != 0) {
     GridID++;
     if (WriteMemoryMap(fptr, Grid->NextGridThisLevel, base_name, GridID, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteMemoryMap (1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteMemoryMap (1).\n");
+
     }
   }
  

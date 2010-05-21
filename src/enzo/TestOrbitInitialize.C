@@ -97,8 +97,7 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 						TestOrbitTestMass,
 						TestOrbitUseBaryons
 						  ) == FAIL){
-    fprintf(stderr, "Error in TestOrbitInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in TestOrbitInitializeGrid.\n");
   }
 
   /* set up field names and units */
@@ -122,6 +121,7 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "TestOrbitNumberOfParticles = %"ISYM"\n",
 	    TestOrbitNumberOfParticles);
     fprintf(Outfptr, "TestOrbitRadius            = %"GOUTSYM"\n",

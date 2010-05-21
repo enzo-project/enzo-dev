@@ -1,4 +1,3 @@
-
 /***********************************************************************
 /
 /  GRID: ADD SPHERICAL STAR PARTICLE FEEDBACK TO CELLS
@@ -96,8 +95,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -493,6 +491,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
+
 
 	    BaryonField[ColorField][index] =
             BaryonField[DensNum][index];

@@ -158,8 +158,7 @@ void set_units(FOFData &AllVars) {
 
   if (AllVars.DesDensityNgb > AllVars.GroupMinLen) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Must have DesDensityNgb <= GroupMinLen\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Must have DesDensityNgb <= GroupMinLen\n");
   }
 
   AllVars.UnitTime_in_s	= AllVars.UnitLength_in_cm / 
@@ -477,8 +476,7 @@ int get_particles(int dest, int minid, int len, FOF_particle_data *buf,
   delete [] localbuf;
 
   if (MyProcessorNumber == dest && nlocal != len) {
-    fprintf(stderr, "local= %"ISYM"  len=%"ISYM"\n", nlocal, len);
-    ENZO_FAIL("");
+    ENZO_VFAIL("local= %"ISYM"  len=%"ISYM"\n", nlocal, len)
   }
 
   return len;
@@ -940,19 +938,17 @@ void exchange_shadow(FOFData &AllVars, int TopGridResolution, bool SmoothData)
   } // ENDFOR particles
 
   if (nl != AllVars.NtoLeft[MyProcessorNumber]) {
-    fprintf(stderr, "[proc %"ISYM"] error: shadows don't match! "
+    ENZO_VFAIL("[proc %"ISYM"] error: shadows don't match! "
 	    "nl = %"ISYM", NtoLeft[%"ISYM"] = %"ISYM"\n", 
 	    MyProcessorNumber, nl, MyProcessorNumber, 
-	    AllVars.NtoLeft[MyProcessorNumber]);
-    ENZO_FAIL("");
+	    AllVars.NtoLeft[MyProcessorNumber])
   }
   
   if (nr != AllVars.NtoRight[MyProcessorNumber]) {
-    fprintf(stderr, "[proc %"ISYM"] error: shadows don't match! "
+    ENZO_VFAIL("[proc %"ISYM"] error: shadows don't match! "
 	    "nr = %"ISYM", NtoRight[%"ISYM"] = %"ISYM"\n",
 	    MyProcessorNumber, nr, MyProcessorNumber, 
-	    AllVars.NtoRight[MyProcessorNumber]);
-    ENZO_FAIL("");
+	    AllVars.NtoRight[MyProcessorNumber])
   }
 
   rightTask = MyProcessorNumber + 1;
@@ -1381,9 +1377,8 @@ void *mymalloc(size_t size)
   p = malloc(size);
   
   if (!p) {
-    fprintf(stderr, "Failed to alloc %"ISYM" bytes on process %"ISYM".\n", 
-	    (int) size, MyProcessorNumber);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Failed to alloc %"ISYM" bytes on process %"ISYM".\n", 
+	    (int) size, MyProcessorNumber)
   }
   return p;
 }
@@ -1402,6 +1397,7 @@ void write_ascii_catalog(char *catalogue_fname, char *fofprop_fname,
   float RootBoxSize[3];
 
   if (MyProcessorNumber == 0) {
+
 
     for (i = 0; i < 3; i++)
       RootBoxSize[i] = BoxSize / (rightEdge[i] - leftEdge[i]);

@@ -185,8 +185,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 	e[IDX(i,j,k)] = (e[IDX(i,j,k)]*d[IDX(i,j,k)] + dt*(f5[j] - f5[j+1])/dy[j])/dnew;
 
 	if (e[IDX(i,j,k)] <= 0.0 || dnew <= 0.0) {
-	  printf("zeus_y negative e or d error: d,e,dnew,dt=%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n",d[IDX(i,j,k)],e[IDX(i,j,k)],dnew,dt);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("zeus_y negative e or d error: d,e,dnew,dt=%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n",d[IDX(i,j,k)],e[IDX(i,j,k)],dnew,dt)
 	}
 
 	d[IDX(i,j,k)] = dnew;
@@ -204,7 +203,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 	  for (j1=0; j1 < jn; j1++)
 	    printf("%"ISYM" d,u,v,e,w,d-1,f2,u*,f1,uav=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", 
 		   j1, d[IDX(i,j1,k)],u[IDX(i,j1,k)],v[IDX(i,j1,k)], e[IDX(i,j1,k)],w[IDX(i,j1,k)],d[IDX(i,j1-1,k)], f2[j1],ustar[j1],f1[IDX(i,j1,k)],uavgi[j1]);
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Velocity too fast!\n");
 	}
       }
 
@@ -269,6 +268,7 @@ int Zeus_yTransport(float *d, float *e, float *u, float *v, float *w,
 	  printf("zeus_y ux warning: u,d,d-1=%"GSYM",%"GSYM",%"GSYM"\n", u[IDX(i,j,k)],d[IDX(i,j,k)],d[IDX(im1,j,k)]);
 	}
 	if (fabs(w[IDX(i,j,k)]) > dy[j]/dt) {
+
 	  printf("zeus_y wx warning: i,j,k=%"ISYM",%"ISYM",%"ISYM"  ie,je,ke,km1 = %"ISYM",%"ISYM",%"ISYM",%"ISYM"\n",
 		 i,j,k,ie,je,ke,km1);
 	  printf("zeus_y wx warning: v,d,d-1=%"GSYM",%"GSYM",%"GSYM"\n", w[IDX(i,j,k)],d[IDX(i,j,k)],d[IDX(i,j,km1)]);

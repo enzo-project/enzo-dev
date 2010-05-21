@@ -47,8 +47,7 @@ int FastFourierTransformPrepareComplex(float *buffer, int Rank,
   // Error check.
  
   if (Rank < 1 || Rank > 3) {
-    fprintf(stderr, "Does not support Rank = %"ISYM"\n", Rank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Does not support Rank = %"ISYM"\n", Rank)
   }
  
   // Copy passed dims to Real dims to make sure they are at least 3d.
@@ -107,6 +106,7 @@ int FastFourierTransformPrepareComplex(float *buffer, int Rank,
    // Scale on inverse.
  
 //    if (direction == FFT_INVERSE) {
+
 //      float factor = 1.0/size;
 //      for (int i = 0; i < size*2; i++)
 //        buffer[i] *= factor;

@@ -144,10 +144,8 @@ int grid::FindPhotonNewGrid(grid **Grids0, int nGrids0, FLOAT *r,
 
   case GravityUndefined:
   default:
-    fprintf(stdout, "grid::WalkPhotonPackage: "
-	    "GravityBoundaryType = RadiationBoundary undefined %"ISYM".\n",
-	    GravityBoundaryType);
-    ENZO_FAIL("");
+    ENZO_VFAIL("GravityBoundaryType = RadiationBoundary undefined %"ISYM".\n", GravityBoundaryType)
+
   } // ENDSWITCH
 
   return TRUE;

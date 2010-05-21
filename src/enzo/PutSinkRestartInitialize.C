@@ -117,8 +117,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   /* More error checking. */
  
   if (PutSinkRestartName == NULL) {
-    fprintf(stderr, "Missing restart file name.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Missing restart file name.\n");
   }
 
   /* -------------------------------------------------------------------- */
@@ -129,8 +128,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   if (ReadAllData(PutSinkRestartName, &TopGrid, MetaData, &Exterior, &dummyf)
       == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Error in ParameterFile %s.\n", PutSinkRestartName);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error in ParameterFile %s.\n", PutSinkRestartName)
   }
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stderr, "Successfully read restart file %s.\n",
@@ -157,8 +155,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   FLOAT Time = TopGrid.GridData->ReturnTime();
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   if (ComovingCoordinates) {
@@ -199,8 +196,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
     while (Temp != NULL) {
  
       if (Temp->GridData->PutSinkRestartInitialize(level,&NumberOfCellsSet) == FAIL) {
-	fprintf(stderr, "Error in grid->PutSinkRestartInitialize\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->PutSinkRestartInitialize\n");
       }
       Temp = Temp->NextGridThisLevel;
     }
@@ -217,8 +213,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
     while (Temp != NULL) {
       if (Temp->GridData->ProjectSolutionToParentGrid(
                 *(Temp->GridHierarchyEntry->ParentGrid->GridData)) == FAIL) {
-	fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ProjectSolutionToParentGrid.\n");
       }
       Temp2 = Temp->NextGridThisLevel;
       delete Temp;   // clean up as we go along
@@ -231,6 +226,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
 //     fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
 // 	    SupernovaRestartEjectaMass);
 //     fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",

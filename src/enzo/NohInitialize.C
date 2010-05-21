@@ -110,8 +110,7 @@ int NohInitialize(FILE *fptr,
   if (TopGrid.GridData->NohInitializeGrid(NohDensity,
 					  NohPressure,
 					  NohVelocity) == FAIL) {
-    fprintf(stderr, "Error in NohInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in NohInitializeGrid.\n");
   }
 
   /* If requested, create a subgrid */
@@ -151,8 +150,7 @@ int NohInitialize(FILE *fptr,
 					  NohPressure,
 					  NohVelocity)
 	== FAIL) {
-      fprintf(stderr, "Error in NohInitializeGrid (subgrid).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in NohInitializeGrid (subgrid).\n");
     }			   
   }
 
@@ -184,6 +182,7 @@ int NohInitialize(FILE *fptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "NohSubgridLeft  = %"GOUTSYM"\n"  , NohSubgridLeft);
     fprintf(Outfptr, "NohSubgridRight = %"GOUTSYM"\n\n", NohSubgridRight);
   }

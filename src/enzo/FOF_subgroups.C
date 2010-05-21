@@ -65,7 +65,7 @@ void find_subgroups(FOFData &D)
 		   D.Density[ind], D.Density[D.Index[i]], 
 		   D.Density[ind] - D.Density[D.Index[i]]);
 	    fprintf(stderr, "\n%"ISYM" %"ISYM"\n", ind, D.Index[i] );
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in FOF_subgroups!\n");
 	  } // ENDELSE
 	} // ENDIF larger density
       } // ENDIF
@@ -111,8 +111,8 @@ void find_subgroups(FOFData &D)
 	if (D.Len[head_s] >= D.DesLinkNgb && D.Len[head_p] >= D.DesLinkNgb) {
 	  D.AnzNodes++;
 	  if (D.AnzNodes >= D.MaxNodes) {
-	    fprintf(stderr, "MaxNodes=%"ISYM" reached.\n", D.MaxNodes);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("MaxNodes=%"ISYM" reached.\n", D.MaxNodes)
+
 	  }
 		  
 	  D.GroupTree[D.AnzNodes].leftlen   = D.Len[head_s];

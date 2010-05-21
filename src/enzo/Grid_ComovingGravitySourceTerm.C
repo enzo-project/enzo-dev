@@ -36,8 +36,7 @@ int grid::ComovingGravitySourceTerm()
      CosmologyUnits.  This means that GravitationalConstant must be 1. */
  
   if (GravitationalConstant != 1) {
-    fprintf(stderr, "GravitationalConstant must be 1!.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("GravitationalConstant must be 1!.\n");
   }
  
   /* Set AverageDensity (held in global_data.h). */
@@ -46,6 +45,7 @@ int grid::ComovingGravitySourceTerm()
   float AverageDensity = 1.0;
 
   if (ProblemType == 50 || ProblemType == 60 || ProblemType == 61) //AK
+
     AverageDensity = 0.0;
  
   /* Loop over the field, subracting off the mean field. */

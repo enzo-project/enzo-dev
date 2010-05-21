@@ -86,8 +86,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 
       // Calculate photon luminosity
       if (cstar->ComputePhotonRates(energies, Q) == FAIL) {
-	fprintf(stderr, "Error in ComputePhotonRates.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
 
       QTotal = 0;
@@ -129,6 +128,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       }
 
       if (GlobalRadiationSources->NextSource != NULL)
+
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
       

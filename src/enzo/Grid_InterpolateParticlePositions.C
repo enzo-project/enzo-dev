@@ -28,9 +28,6 @@
 int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
 {
  
-//  if (this != FromGrid)
-//    ENZO_FAIL("");
- 
   FLOAT HoldLeftEdge[MAX_DIMENSION];
  
   /* Loop over all active dimensions */
@@ -49,8 +46,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
       if (FromGrid->InterpolatePositions(ParticlePosition, dim,
 					 ParticleAcceleration[dim],
 					 NumberOfParticles) == FAIL) {
-	fprintf(stderr, "Error in grid->InterpolatePositions.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->InterpolatePositions.\n");
       }
  
       if(ProblemType==29){
@@ -65,6 +61,7 @@ int grid::InterpolateParticlePositions(grid *FromGrid, int DifferenceType)
       /* Adjust back. */
  
       if ( DifferenceType == DIFFERENCE_TYPE_STAGGERED &&
+
 	  dim != GridRank)
 	FromGrid->CellLeftEdge[dim][0] = HoldLeftEdge[dim];
     }

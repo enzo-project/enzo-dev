@@ -125,8 +125,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
       if (MetaData->StaticHierarchy == FALSE) {
 	Temp->GridData->ClearFlaggingField();
 	if (Temp->GridData->SetFlaggingField(dummy, level-1) == FAIL) {
-	  if (isRoot) fprintf(stderr, "Error in grid->SetFlaggingField.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->SetFlaggingField!\n");
 	}
 	CellsFlagged[level] += Temp->GridData->FlagBufferZones();
 	Temp->GridData->DeleteFlaggingField();
@@ -248,6 +247,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 #endif
 
   if (isRoot) fprintf(fptr, "\n");
+
  
   return SUCCESS;
 }

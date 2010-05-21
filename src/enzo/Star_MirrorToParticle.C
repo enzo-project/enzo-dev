@@ -54,7 +54,7 @@ void Star::MirrorToParticle(void)
     }
 
   if (place < 0) {
-    printf("Star_MirrorToParticle: Cannot find matching particle.\n"
+    ENZO_VFAIL("Star_MirrorToParticle: Cannot find matching particle.\n"
 	   "StarID = %d, grid::NumberOfParticles = %d\n"
 	   "Position        = %"FSYM" %"FSYM" %"FSYM"\n"
 	   "Grid Left Edge  = %"FSYM" %"FSYM" %"FSYM"\n"
@@ -64,8 +64,8 @@ void Star::MirrorToParticle(void)
 	   CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1],
 	   CurrentGrid->GridLeftEdge[2],
 	   CurrentGrid->GridRightEdge[0], CurrentGrid->GridRightEdge[1],
-	   CurrentGrid->GridRightEdge[2]);
-    ENZO_FAIL("");
+	   CurrentGrid->GridRightEdge[2])
+
   }
 
   // Change all particle data in favor of updated Star particle

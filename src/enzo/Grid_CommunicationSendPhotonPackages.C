@@ -116,11 +116,10 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	buffer[index].SuperSourceID = -1;
       
       if (PP->CurrentTime < 0 || PP->CurrentTime > 1e10) {
-	fprintf(stderr, "CTPhotons[0][P%"ISYM"->P%"ISYM"]: "
+	ENZO_VFAIL("CTPhotons[0][P%"ISYM"->P%"ISYM"]: "
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, NumberOfPhotonPackages, 
-		PP->CurrentTime);
-	ENZO_FAIL("");
+		PP->CurrentTime)
       }
 
       // Next photon
@@ -149,7 +148,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       FromNumber = min(index, FromNumber);
       fprintf(stdout, "CommSendPhotons: Correcting FromNumber to %"ISYM"\n", 
 	      FromNumber);
-      //ENZO_FAIL("");
+      //ENZO_FAIL("Photon package mismatch!\n");
     }
 
   } /* ENDIF PackPhotons */
@@ -219,8 +218,7 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 	  char errstr[MPI_MAX_ERROR_STRING];
 	  Eint32 errlen;
 	  MPI_Error_string(status.MPI_ERROR, errstr, &errlen);
-	  fprintf(stderr, "MPI Error: %s\n", errstr);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("MPI Error %s\n",errstr)
 	}
 
     } /* ENDIF (MyProcessorNumber == ToProcessor) */
@@ -264,11 +262,11 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
       NewPP->SourcePositionDiff   = buffer[index].SourcePositionDiff;
 
       if (NewPP->CurrentTime < 0 || NewPP->CurrentTime > 1e10) {
-	fprintf(stderr, "CTPhotons[1][P%"ISYM"->P%"ISYM"]: "
+	ENZO_VFAIL("CTPhotons[1][P%"ISYM"->P%"ISYM"]: "
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
-		NewPP->CurrentTime);
-	ENZO_FAIL("");
+		NewPP->CurrentTime)
+
       }
 
       NewPP->CurrentSource = NULL;

@@ -234,8 +234,7 @@ int grid::ComputeElementalDensity(float *temperature,
   /* Find Density, if possible. */
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Cannot find density.\n");
   }
  
   /* Find metallicity field and set flag. */
@@ -254,8 +253,7 @@ int grid::ComputeElementalDensity(float *temperature,
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   /* Set lookup table pointer and size. */
@@ -269,8 +267,7 @@ int grid::ComputeElementalDensity(float *temperature,
   case 5: LookupTable = FeXXVILookupTable; break;
   case 6: break; /* general Oxygen */
   default:
-    fprintf(stderr, "Unrecognized element type: %"ISYM"\n", Type);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Unrecognized element type: %"ISYM"\n", Type)
   }
  
   if (Type < 6) {
@@ -293,16 +290,13 @@ int grid::ComputeElementalDensity(float *temperature,
  
       printf("reading %s\n", filename);
       if ((fptr = fopen(filename, "r")) == NULL) {
-	fprintf(stderr, "Erroring opening %s.\n", filename);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Erroring opening %s.\n", filename)
       }
       if (fscanf(fptr, "NumberOfDensityPoints = %"ISYM"\n", TableSize) != 1) {
-	fprintf(stderr, "Erroring reading number of density points\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Erroring reading number of density points\n");
       }
       if (fscanf(fptr, "NumberOfTemperaturePoints = %"ISYM"\n", TableSize+1) != 1) {
-	fprintf(stderr, "Erroring reading number of temperature points\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Erroring reading number of temperature points\n");
       }
       printf("NumberOfBins (temp,dens) = %"ISYM",%"ISYM"\n", TableSize[0], TableSize[1]);
  
@@ -314,8 +308,7 @@ int grid::ComputeElementalDensity(float *temperature,
 	  if (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM,
 		     TableDensity+i, TableTemperature+j,
 		     LookupTable+n, &DummyFloat) != 4) {
-	    fprintf(stderr, "Error reading table %"ISYM" %"ISYM"\n", i, j);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error reading table %"ISYM" %"ISYM"\n", i, j)
 	  }
       fclose(fptr);
       TableRead = TRUE;
@@ -426,6 +419,7 @@ int grid::ComputeElementalDensity(float *temperature,
  
       LogFraction = 20.0; /* something very small. */
       if (j > 0 && j < TableSize) {
+
 	delTemp = LookupTable[j*2] - LookupTable[j*2-2];
 	LogFraction = LookupTable[j*2-1]+(temp - LookupTable[j*2-2])/delTemp*
 	  (LookupTable[j*2+1]-LookupTable[j*2-1]);

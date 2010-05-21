@@ -73,9 +73,8 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
   else if (ThisFlaggingMethod == 4)
     ffield = ParticleMassFlaggingField;
   else {
-    fprintf(stderr, "Unrecognized mass refinement flagging method (%"ISYM")\n", 
-	    method);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Unrecognized mass refinement flagging method (%"ISYM")\n", 
+	    method)
   }
  
   for (i = 0; i < size; i++)
@@ -94,6 +93,7 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
     delete [] MassFlaggingField;
     MassFlaggingField = NULL;
   } else if (ThisFlaggingMethod == 4) {
+
     delete [] ParticleMassFlaggingField;
     ParticleMassFlaggingField = NULL;
   }

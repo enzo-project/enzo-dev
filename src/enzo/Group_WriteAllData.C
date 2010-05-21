@@ -776,7 +776,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     if ((optr = fopen(configurename, "w")) == NULL) {
       fprintf(stdout, "Error opening configure file %s\n", configurename);
       fprintf(stdout, "Not crucial but worrysome. Will continue.\n" );
-      //      ENZO_FAIL("");
+      //      ENZO_VFAIL("Error opening configure file %s\n", configurename)
     }
 
     WriteConfigure(optr);
@@ -840,8 +840,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     strcat(radiationname, RadiationSuffix);
  
     if ((Radfptr = fopen(radiationname, "w")) == NULL) {
-      fprintf(stdout, "Error opening radiation file %s\n", radiationname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening radiation file %s\n", radiationname)
     }
     if (WriteRadiationData(Radfptr) == FAIL)
       ENZO_FAIL("Error in WriteRadiationData");
@@ -923,6 +922,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry)
 {
   if (GridEntry->NextGridThisLevel != NULL)
+
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;

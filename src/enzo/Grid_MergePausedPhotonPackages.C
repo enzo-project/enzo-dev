@@ -103,9 +103,8 @@ int grid::MergePausedPhotonPackages() {
 
     // Calculate original unit directional vector
     if (pix2vec_nest((long) (1 << PP->level), PP->ipix, original_vec) == FAIL) {
-      fprintf(stderr, "grid::MergePausedPhotonPackages -- pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	      (long) (1 << PP->level), PP->ipix, PP->Photons);
-      ENZO_FAIL("");
+      ENZO_VFAIL("grid::MergePausedPhotonPackages -- pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
+	      (long) (1 << PP->level), PP->ipix, PP->Photons)
     }
 
     length = 0.0;
@@ -137,9 +136,8 @@ int grid::MergePausedPhotonPackages() {
 
     // Calculate new pixel number with the super source
     if (vec2pix_nest( (long) (1 << PP->level), vec, &(PP->ipix) ) == FAIL) {
-      fprintf(stderr, "grid::MergePausedPhotonPackages -- vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	      (long) (1 << PP->level), PP->ipix, PP->Photons);
-      ENZO_FAIL("");
+      ENZO_VFAIL("grid::MergePausedPhotonPackages -- vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
+	      (long) (1 << PP->level), PP->ipix, PP->Photons)
     }
     //      printf("after %x:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
     //	     PP, PP->level, PP->ipix, PP->Radius,
@@ -283,6 +281,7 @@ int grid::MergePausedPhotonPackages() {
   delete [] TempPP;
 
   if (DEBUG)
+
     printf("P%d: MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", 
 	   MyProcessorNumber, nphotons, merges);
 

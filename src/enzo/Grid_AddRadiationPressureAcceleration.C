@@ -56,8 +56,7 @@ int grid::AddRadiationPressureAcceleration()
   int RPresNum1, RPresNum2, RPresNum3;
   if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
       == FAIL) {
-    fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyRadiationPressureFields.\n");
   }
 
   /* Add acceleration fields from radiation pressure */
@@ -70,6 +69,7 @@ int grid::AddRadiationPressureAcceleration()
 	for (dim = 0; dim < GridRank; dim++) {
 	  AccelerationField[dim][index] += BaryonField[RPresNum1+dim][index];
 //	  if (BaryonField[RPresNum1+dim][index] > tiny_number)
+
 //	    fprintf(stdout, "AddRPAccel[dim %"ISYM" :: %"ISYM" %"ISYM" %"ISYM"]: "
 //		    "Accel = %"GSYM", RPAccel = %"GSYM"\n", 
 //		    dim, i, j, k, AccelerationField[dim][index],

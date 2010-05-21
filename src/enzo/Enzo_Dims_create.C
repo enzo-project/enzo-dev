@@ -64,7 +64,8 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
 
   //#else /* USE_MPI */
 
-  //ENZO_FAIL("");
+  //ENZO_FAIL("Enzo_Dims_create requires MPI!\n");
+
 
   //#endif /* USE_MPI */
 

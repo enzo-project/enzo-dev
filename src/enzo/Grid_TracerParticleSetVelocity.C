@@ -57,8 +57,7 @@ int grid::TracerParticleSetVelocity()
   int Vel1Num;
   float *VelocityFields[MAX_DIMENSION];
   if ((Vel1Num = FindField(Velocity1, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "Could not find baryon velocity.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Could not find baryon velocity.\n");
   }
   for (dim = 0; dim < GridRank; dim++)
     VelocityFields[dim] = BaryonField[Vel1Num+dim];
@@ -272,6 +271,7 @@ int InterpolateTracerValues(FLOAT *Position[MAX_DIMENSION],
 	    Field[field][index4  ]*     dx *(1.0-dy)*(1.0-dz) +
 	    Field[field][index4+1]*(1.0-dx)*(1.0-dy)*(1.0-dz);
 	  if (FillMode == 0)
+
 	    InterpolatedValue[field][n] = value;
 	  else
 	    InterpolatedValue[0][fillindex++] = value;

@@ -47,8 +47,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
   /* Error check. */
  
   if (!ComovingCoordinates) {
-    fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ComovingCoordinates must be TRUE!\n");
   }
  
   if (!SelfGravity)
@@ -103,8 +102,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
 					  ZeldovichPancakeCollapseRedshift,
 					  ZeldovichPancakeInitialTemperature
 						       ) == FAIL) {
-    fprintf(stderr, "Error in ZeldovichPancakeInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ZeldovichPancakeInitializeGrid.\n");
   }
  
   /* set up field names and units */
@@ -127,6 +125,7 @@ int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "ZeldovichPancakeDirection          = %"ISYM"\n",
 	    ZeldovichPancakeDirection);
     fprintf(Outfptr, "ZeldovichPancakeCentralOffset      = %"FSYM"\n",
