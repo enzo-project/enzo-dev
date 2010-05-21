@@ -83,7 +83,8 @@ int grid::SetMinimumSupport(float &MinimumSupportEnergyCoefficient)
 	  BaryonField[GENum][i] = max(BaryonField[GENum][i],
 				      MinimumSupportEnergyCoefficient *
 				      BaryonField[DensNum][i]);
-	if (GridRank != 3) ENZO_FAIL("");
+	if (GridRank != 3)
+	  ENZO_FAIL("GridRank != 3!\n");
 	for (i = 0; i < size; i++)
 	  BaryonField[TENum][i] = max(BaryonField[GENum][i] + 0.5*
 		       (BaryonField[Vel1Num][i]*BaryonField[Vel1Num][i] +
