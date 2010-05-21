@@ -56,6 +56,16 @@ far-field postshock value.
 - analysis: rshock1D_makeplots.py
 
 
+Problem-specific Input Parameters:
+- DensityConstant -- initial density [g/cm^3]
+- GasTempConstant -- initial gas temperature [eV or K]
+- RadTempConstant -- initial radiation temperature [eV or K]
+- VelocityConstant -- velocity of inflowing matter [cm/s]
+- ShockDir -- shock propagation direction (0, 1, 2)
+- CGSType -- flag to determine between K and eV for gas and radiation
+  temp inputs, (1 is K, 2 is eV)
+
+
 References:
 
 R.B. Lowrie and J.D. Edwards, "Radiative shock solutions with grey

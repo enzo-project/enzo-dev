@@ -28,8 +28,8 @@ RadHydroMaxDt           = 1.0e-2
 RadHydroMinDt           = 1.0e-8
 RadHydroInitDt          = 1.0e-8
 RadHydroDtNorm          = 3.0        // p-norm for time error estimate
-RadHydroDtRadFac        = 0.01       // 1% desired change/step
-RadHydroDtChemFac       = 0.01
+RadHydroDtRadFac        = 0.005      // 0.5% desired change/step
+RadHydroDtChemFac       = 0.005
 RadHydroMGPreRelax      = 2          // MG pre-relaxation sweeps
 RadHydroMGPostRelax     = 2          // MG post-relaxation sweeps
 
