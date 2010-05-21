@@ -9,17 +9,19 @@ space and the last data output slice should be DD0273
 = General Information =
 (Please refer to the parameter files for more detailed description)
 
+-machine name: SDSC Triton
+-core count: 8
 -Grid: 64 cube
 -LambdaCDM cosmology
 -Final Redshift z = 5
 -Radiation Solver = Daniel Reynolds' operator split FLD solver
 -Star maker method 1, feedback method 0
 
-The output should include Geoffrey's Emissivity field once star formation occurs, and 
-this will source the Grey_Radiation_Energy field.  The values of the output will depend
-on many factors, including but not exclusive to machine hardware (which affects the
-way initial conditions are generated due to the random seed), compilers used to 
-compile Enzo, different versions of software i.e. hypre.
+The output should create non-zero values in Geoffrey's Emissivity field once star 
+formation occurs, and this will source the Grey_Radiation_Energy field.  The values of the 
+output will depend on many factors, including but not exclusive to machine hardware (which 
+affects the way initial conditions are generated), compilers used to compile Enzo, and 
+different versions of software i.e. hypre.
 
 
 = Comparing the maximum Emissivity value and its location of DD0273 =
