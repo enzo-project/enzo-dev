@@ -250,7 +250,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   rewind(fptr);
   if (ProblemType == 50)
     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
-"Error in ReadPhotonSources.\n");      ENZO_FAIL(;
+      ENZO_FAIL("Error in ReadPhotonSources.\n");      
     }
 
   PhotonTime = InitialTimeInCodeUnits;
