@@ -36,8 +36,7 @@ int grid::CopyOverlappingMassField(grid *OtherGrid,
     return SUCCESS;
  
   if (OtherGrid == NULL) {
-    fprintf(stderr, "Grid_CopyOverlappingMassField: NULL OtherGrid!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Grid_CopyOverlappingMassField: NULL OtherGrid!\n");
   }
 
   this->DebugCheck("CopyOverlappingMassField");
@@ -163,6 +162,7 @@ int grid::CopyOverlappingMassField(grid *OtherGrid,
   /* Clean up if we have transfered data. */
  
   if (MyProcessorNumber != OtherGrid->ProcessorNumber)
+
     OtherGrid->DeleteAllFields();
  
   return SUCCESS;

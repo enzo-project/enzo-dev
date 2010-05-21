@@ -60,8 +60,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   char line[MAX_LINE_LENGTH];
@@ -179,6 +178,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		       i, PhotonTestSourceLuminosity[i], TimeUnits, LengthUnits);
     PhotonTestSourceLuminosity[i] *= TimeUnits/pow(LengthUnits,3);
     if (debug) fprintf(stdout, "ReadPhotonSources: %"ISYM"  %"GSYM"\n", 
+
 		       i, PhotonTestSourceLuminosity[i]);
     RadiationSourceEntry *RadSources;
     RadSources = new RadiationSourceEntry;

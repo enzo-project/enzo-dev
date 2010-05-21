@@ -333,8 +333,7 @@ int grid::WriteGridX(FILE *fptr, char *base_name, int grid_id)
  
       float *temperature = new float[size];
       if (this->ComputeTemperatureField(temperature) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
       }
  
       /* Copy active part of field into grid */
@@ -781,6 +780,7 @@ if ( 0 == 1 )
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
+
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
  
   /* Clean up. */

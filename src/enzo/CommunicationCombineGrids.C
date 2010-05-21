@@ -107,8 +107,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       if (NewGrid->CommunicationReceiveRegion(OldGrid, OldProc, ALL_FIELDS,
 			      ((WriteTime < 0) ? NEW_ONLY : NEW_AND_OLD),
 			      StartIndex, TempDims, FALSE) == FAIL) {
-	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->CommunicationReceiveRegion.\n");
       }
 
     /* Copy interpolated (particle) regions */
@@ -124,8 +123,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       }
       if (NewGrid->CommunicationReceiveRegion(OldGrid, OldProc, INTERPOLATED_FIELDS,
 			      NEW_ONLY, StartIndex, TempDims, FALSE) == FAIL) {
-	fprintf(stderr, "Error in grid->CommunicationReceiveRegion.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->CommunicationReceiveRegion.\n");
       }
     }
  
@@ -134,8 +132,8 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 //    if (MyProcessorNumber == NewProc || MyProcessorNumber == OldProc)
       if (OldGrid->CommunicationSendParticles(NewGrid, NewProc, 0,
 			    OldGrid->ReturnNumberOfParticles(), -1) == FAIL) {
-	fprintf(stderr, "Error in grid->CommunicationSendParticles.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->CommunicationSendParticles.\n");
+
       }
  
     /* Next Grid */

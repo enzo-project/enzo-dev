@@ -141,8 +141,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	if (Temp->GridData->InitializeRadiativeTransferFields() == FAIL) {
-	  fprintf(stderr, "Error in InitializeRadiativeTransferFields.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in InitializeRadiativeTransferFields.\n");
 	}
 
     /* create temperature fields for Compton heating */  
@@ -151,8 +150,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) 
 	  if (Temp->GridData->InitializeTemperatureFieldForComptonHeating() == FAIL) {  
-	    fprintf(stderr, "Error in InitializeTemperatureFieldForComptonHeating.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in InitializeTemperatureFieldForComptonHeating.\n");
 	  }	
 
     for (i = 0; i < 4; i++)
@@ -190,10 +188,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Continue = CommunicationMinValue(Continue);
 
 	if (lvl == 0 && Continue) {  // this should never happen ... 
-	  fprintf(stderr, "Could not find grid for source %x: "
+	  ENZO_VFAIL("Could not find grid for source %x: "
 		  "Pos: %"FSYM" %"FSYM" %"FSYM"\n",
-		  RS, RS->Position[0], RS->Position[1], RS->Position[2]);
-	  ENZO_FAIL("");
+		  RS, RS->Position[0], RS->Position[1], RS->Position[2])
 	}
       }    // Loop through levels 
       RS = RS->NextSource;
@@ -211,8 +208,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     //    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
     //      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
     //	if (Temp->GridData->AllocateInterpolatedRadiation() == FAIL) {
-    //	  fprintf(stderr, "Error in grid->AllocateInterpolatedRadiation.\n");
-    //	  ENZO_FAIL("");
+    //	  ENZO_FAIL("Error in grid->AllocateInterpolatedRadiation.\n");
     //	}
 
     /* Evolve all photons by fixed timestep. */
@@ -252,9 +248,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Grids[GridNum]->GridData->TransportPhotonPackages
 	      (lvl, &PhotonsToMove, GridNum, Grids0, 
 	       nGrids0, Helper, Grids[GridNum]->GridData) == FAIL) {
-	    fprintf(stderr, "Error in %"ISYM" th grid. "
-		    "grid->TransportPhotonPackages.\n",GridNum);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error in %"ISYM" th grid. "
+		    "grid->TransportPhotonPackages.\n",GridNum)
 	  }
 
 	} // ENDFOR grids
@@ -313,15 +308,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	if (TotalEscapedPhotonCount[0] <= 0) {
 	  if ((fptr = fopen(PhotonEscapeFilename, "w")) == NULL) {
-	    fprintf(stderr, "Error opening file %s\n", PhotonEscapeFilename);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error opening file %s\n", PhotonEscapeFilename)
 	  }
 	  fprintf(fptr, 
 		  "# Time TotalPhotons fesc(0.5rvir) fesc(rvir) fesc(2rvir)\n");
 	} else {
 	  if ((fptr = fopen(PhotonEscapeFilename, "a")) == NULL) {
-	    fprintf(stderr, "Error opening file %s\n", PhotonEscapeFilename);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error opening file %s\n", PhotonEscapeFilename)
 	  }
 	}
 
@@ -392,8 +385,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->FinalizeTemperatureFieldForComptonHeating() == FAIL) {  
-	    fprintf(stderr, "Error in FinalizeTemperatureFieldForComptonHeating.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in FinalizeTemperatureFieldForComptonHeating.\n");
 	  }	
     
     debug = debug_store;
@@ -437,6 +429,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   const int PhotonMemorySize = MEMORY_POOL_SIZE;
   int PhotonSize = sizeof(PhotonPackageEntry);
   if (RadiativeTransferAdaptiveTimestep) {
+
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
       for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	Temp->GridData->DeletePhotonPackages(TRUE);

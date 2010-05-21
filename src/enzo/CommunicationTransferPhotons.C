@@ -319,8 +319,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
      respective grids  */
 
   if (CommunicationReceiverPhotons(LevelArray, keep_transporting) == FAIL) {
-    fprintf(stderr, "Error in CommunicationReceiverPhotons.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in CommunicationReceiverPhotons.\n");
+
   }
       
   /* Clean up */

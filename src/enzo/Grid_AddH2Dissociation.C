@@ -54,8 +54,7 @@ int grid::AddH2Dissociation(Star *AllStars)
   if (this->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				  HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				  DIINum, HDINum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
   /* Get photo-ionization fields */
@@ -157,8 +156,7 @@ int grid::AddH2Dissociation(Star *AllStars)
       /* Determine H2 emission rate */
 
       if (cstar->ComputePhotonRates(energies, Luminosity) == FAIL) {
-	fprintf(stderr, "Error in ComputePhotonRates.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       H2Luminosity = Luminosity[3];
 
@@ -186,6 +184,7 @@ int grid::AddH2Dissociation(Star *AllStars)
 	    delx = min(delx, DomainWidth[0]-delx);
 	    radius2 = delx*delx + dely*dely + delz*delz;
 	    if (radius2 > outerFront*outerFront || radius2 < innerFront*innerFront)
+
 	      continue;
 
 	    radius2 = max(radius2, dilRadius2);

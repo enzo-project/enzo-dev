@@ -67,8 +67,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
     TemperatureUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, WriteTime) == FAIL) {
-    fprintf(stderr,"Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(WriteTime, &a, &dadt);
@@ -87,8 +86,7 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
   /* Open file. */
  
   if ((fptr = fopen(name, "ab")) == NULL) {
-    fprintf(stderr, "Error opening output file %s\n", name);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening output file %s\n", name)
   }
  
   /* Output header information to the file :
@@ -135,8 +133,8 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
       /* Write out grid info (also deletes the under subgrid field). */
  
       if (Temp->GridData->TracerParticleOutputData(fptr, WriteTime) == FAIL) {
-	fprintf(stderr, "Error in grid->OutputTracerParticleData.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->OutputTracerParticleData.\n");
+
       }
  
       /* Next grid on this level. */

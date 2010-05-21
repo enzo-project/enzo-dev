@@ -77,8 +77,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* set up grid */
  
   if (TopGrid.GridData->DoubleMachInitializeGrid(d0, e0, u0, v0, w0) == FAIL) {
-    fprintf(stderr, "Error in DoubleMachInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in DoubleMachInitializeGrid.\n");
   }
  
   /* If requested, create a subgrid */
@@ -116,8 +115,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				   LeftEdge, RightEdge, 0);
     if (Subgrid->GridData->DoubleMachInitializeGrid(d0, e0, u0, v0, w0)
 	== FAIL) {
-      fprintf(stderr, "Error in DoubleMachInitializeGrid (subgrid).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DoubleMachInitializeGrid (subgrid).\n");
     }			
   }
  
@@ -134,8 +132,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
-    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in InitializeExternalBoundaryFace.\n");
     }
  
   Exterior.InitializeExternalBoundaryFace(1, inflow, inflow, InflowValue,
@@ -161,6 +158,7 @@ int DoubleMachInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "DoubleMachSubgridLeft  = %"GOUTSYM"\n"  ,DoubleMachSubgridLeft);
     fprintf(Outfptr, "DoubleMachSubgridRight = %"GOUTSYM"\n\n",DoubleMachSubgridRight);
   }

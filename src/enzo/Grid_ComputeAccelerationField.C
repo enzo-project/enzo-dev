@@ -55,8 +55,7 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
   FLOAT a = 1, dadt;
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.\n");
     }
  
   /* Set cell size. */
@@ -97,6 +96,7 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
 #ifdef SMOOTH_ACCEL
   int nsmooth = max(level - MaximumGravityRefinementLevel, 0);
   if (nsmooth > 0) {
+
  
     nsmooth = nint(0.5*POW(RefineBy, nsmooth-1));
     FORTRAN_NAME(smooth)(AccelerationField[0], AccelerationField[1],

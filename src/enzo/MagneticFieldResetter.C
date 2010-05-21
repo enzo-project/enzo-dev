@@ -61,8 +61,8 @@ int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       
       if (Grids[grid1]->GridData->MagneticFieldResetter(level) == FAIL) {
-	fprintf(stderr, "Error in grid::MagneticFieldResetter.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid::MagneticFieldResetter.\n");
+
       }
       
     }  // loop for grid1

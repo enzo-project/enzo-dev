@@ -52,8 +52,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   float coef1 = 0, coef2 = 1;
   if (Time != WriteTime) {
     if (Time <= OldTime) {
-      fprintf(stderr, "WGI: fields are at the same time or worse.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("WGI: fields are at the same time or worse.\n");
     } else {
       coef1 = max((Time - WriteTime)/
 		  (Time - OldTime), 0.0);
@@ -77,8 +76,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
  
   float TimeDifference = WriteTime - Time;
   if (this->UpdateParticlePosition(TimeDifference) == FAIL) {
-    fprintf(stderr, "Error in grid->UpdateParticlePosition.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->UpdateParticlePosition.\n");
   }
  
   /* Write grid (temporarily replace Time with WriteTime). */
@@ -86,8 +84,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   FLOAT SavedTime = Time;
   Time = WriteTime;
   if (this->WriteGrid(fptr, base_name, grid_id) == FAIL) {
-    fprintf(stderr, "Error in grid->WriteGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->WriteGrid.\n");
   }
   Time = SavedTime;
  
@@ -98,6 +95,7 @@ int grid::WriteGridInterpolate(FLOAT WriteTime, FILE *fptr, char *base_name,
   /* Copy saved baryon fields back. */
  
   if (coef2 != 1 && MyProcessorNumber == ProcessorNumber)
+
     for (field = 0; field < NumberOfBaryonFields; field++) {
       delete [] BaryonField[field];
       BaryonField[field] = SavedBaryonField[field];

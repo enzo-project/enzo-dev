@@ -42,8 +42,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
   /* error check */
 
   if (FlaggingField == NULL) {
-    fprintf(stderr, "Flagging Field is undefined.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Flagging Field is undefined.\n");
   }
 
   /* compute size */
@@ -58,8 +57,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
       DINum, DIINum, HDINum;
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
   /* Find radiative transfer fields. */
@@ -75,8 +73,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   /* Calculate conversion factor to optical depth */
@@ -152,6 +149,7 @@ int grid::FlagCellsToBeRefinedByOpticalDepth()
       NumberOfFlaggedCells++;
 
   if (NumberOfFlaggedCells_TAU) {
+
     fprintf(stdout, "FlagCellsOpticalDepth: %"ISYM"\n", NumberOfFlaggedCells_TAU);
     fprintf(stdout, "FlagCellsOpticalDepth: avg(kph) = %"GSYM", avg(tau) = %"GSYM"\n",
 	    avg_kph/(NumberOfFlaggedCells_TAU), avgTau/NumberOfFlaggedCells_TAU);

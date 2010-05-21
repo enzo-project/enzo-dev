@@ -526,8 +526,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
       float *temperature = new float[tsize];
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
       }
  
       // Copy active part of field into grid
@@ -1393,6 +1392,7 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   if (MyProcessorNumber == ProcessorNumber)
   {
     if (io_log) fclose(log_fptr);
+
     //  fprintf(stderr, "Call Barrier 4 on task %"ISYM", grid %"ISYM"\n", MyProcessorNumber, grid_id);
     CommunicationBarrier();
     //  fprintf(stderr, "Call Barrier 4 on task %"ISYM", grid %"ISYM" complete\n", MyProcessorNumber, grid_id);

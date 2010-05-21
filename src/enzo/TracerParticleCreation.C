@@ -112,8 +112,8 @@ int TracerParticleCreation(FILE *fptr, HierarchyEntry &TopGrid,
                                        TracerParticleCreationRightEdge,
                                        TracerParticleCreationSpacing,
                                        MetaData.NumberOfParticles) == FAIL) {
-        fprintf(stderr, "Error in grid->TracerParticleCreateParticles.\n");
-        ENZO_FAIL("");
+        ENZO_FAIL("Error in grid->TracerParticleCreateParticles.\n");
+
       }
     }
   }

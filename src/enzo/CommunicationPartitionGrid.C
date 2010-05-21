@@ -254,9 +254,8 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     } // ENDELSE ThisLevel == 1
 
     if (ParentGridNum == INT_UNDEFINED) {
-      fprintf(stderr, "CommunicationPartitionGrid: grid %d (%d), Parent not found?\n",
-	      gridnum, ThisLevel);
-      ENZO_FAIL("");
+      ENZO_VFAIL("CommunicationPartitionGrid: grid %d (%d), Parent not found?\n",
+	      gridnum, ThisLevel)
     }
 
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -619,6 +618,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   }
 
   if (debug) printf("Exit CommunicationPartitionGrid.\n");
+
   CommunicationBarrier();
  
   return SUCCESS;

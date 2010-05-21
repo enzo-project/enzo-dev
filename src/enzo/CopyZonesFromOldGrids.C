@@ -143,7 +143,7 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     /* Receive data */
 
     if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+      ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
 
     /* Delete old grids and increase total grid count and then advance
        FirstGrid pointer */

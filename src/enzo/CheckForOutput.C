@@ -140,8 +140,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //		        ) == FAIL {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
 
@@ -169,8 +168,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //                      ) == FAIL) {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
 
@@ -208,8 +206,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //                      ) == FAIL) {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
     WroteData = TRUE;
@@ -243,8 +240,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			   , ImplicitSolver
 //#endif
 //                         ) == FAIL) {
-// 	    fprintf(stderr, "Error in WriteAllData.\n");
-// 	    ENZO_FAIL("");
+// 	    ENZO_FAIL("Error in WriteAllData.\n");
+
 // 	  }
 // #endif
 

@@ -250,8 +250,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   rewind(fptr);
   if (ProblemType == 50)
     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in ReadPhotonSources.\n");;
-      ENZO_FAIL("");
+"Error in ReadPhotonSources.\n");      ENZO_FAIL(;
     }
 
   PhotonTime = InitialTimeInCodeUnits;
@@ -281,8 +280,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
 	     RefineByOpticalDepth) == FAIL) {
-    fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
   }
 
   /* Convert minimum initial overdensity for refinement to mass
@@ -312,8 +310,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 
     for (level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in RebuildHierarchy.\n");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -337,8 +334,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 	     RefineByOpticalDepth) == FAIL) {
-	  fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	}
 	Temp = Temp->NextGridThisLevel;
       }
@@ -359,8 +355,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       int level2;
       for (level2 = level-1; level2 < MaximumRefinementLevel; level2++) {
 	if (RebuildHierarchy(&MetaData, LevelArray, level2) == FAIL) {
-	  fprintf(stderr, "Error in RebuildHierarchy.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in RebuildHierarchy.\n");
 	}	
 
 	if (LevelArray[level2+1] == NULL)
@@ -386,8 +381,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
 		    RefineByOpticalDepth) == FAIL) {
-	    fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -400,8 +394,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	while (Temp != NULL) {
 	  if (Temp->GridData->ProjectSolutionToParentGrid(
 				  *LevelArray[level-1]->GridData) == FAIL) {
-	    fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->ProjectSolutionToParentGrid.\n");
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}
@@ -470,6 +463,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "PhotonTestNumberOfSpheres    = %"ISYM"\n",
 	    PhotonTestNumberOfSpheres);
     fprintf(Outfptr, "PhotonTestRefineAtStart      = %"ISYM"\n",

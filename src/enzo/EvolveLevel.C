@@ -450,8 +450,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComputePotential)
 	if (CheckEnergyConservation(Grids, grid, NumberOfGrids, level,
 				    dtThisLevel) == FAIL) {
-	  fprintf(stderr, "Error in CheckEnergyConservation.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in CheckEnergyConservation.\n");
 	}
 */
 #ifdef SAB
@@ -582,8 +581,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		      , ImplicitSolver
 #endif
 		      ) == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
     }
 
@@ -696,6 +694,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Clean up the sibling list. */
 
   if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       delete [] SiblingList[grid1].GridList;
     delete [] SiblingList;

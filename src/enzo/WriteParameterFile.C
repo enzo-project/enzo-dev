@@ -60,8 +60,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
@@ -745,14 +744,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (ComovingCoordinates) {
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
-      fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyWriteParameters.\n");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
-      fprintf(stderr, "Error in WriteUnits.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteUnits.\n");
     }
   }
 
@@ -761,14 +758,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
-    fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiativeTransferWriteParameters.\n");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in WritePhotonSources.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WritePhotonSources.\n");
     }
 #endif
 
@@ -825,6 +820,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	    MetaData.RestartDatasetUUID);
   }
   if(MetaData.InitialConditionsUUID != NULL){
+
     fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
 	    MetaData.InitialConditionsUUID);
   }

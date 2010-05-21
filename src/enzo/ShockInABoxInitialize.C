@@ -117,8 +117,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 // 						ShockInABoxDensity,
 // 						ShockInABoxPressure,
 // 						ShockInABoxVelocity) == FAIL) {
-//     fprintf(stderr, "Error in ShockTubeInitializeGrid.\n");
-//     ENZO_FAIL("");
+//     ENZO_FAIL("Error in ShockTubeInitializeGrid.\n");
 //   }
 
   if (TopGrid.GridData->
@@ -189,8 +188,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
-    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in InitializeExternalBoundaryFace.\n");
     }
  
   if (MetaData.TopGridRank > 1)
@@ -218,6 +216,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "ShockInABoxDirection     = %"ISYM"\n", ShockInABoxDirection);
     fprintf(Outfptr, "ShockInABoxBoundary      = %"GOUTSYM"\n\n",
 	    ShockInABoxBoundary);

@@ -40,8 +40,8 @@ int grid::AddFields(int TypesToAdd[], int NumberOfFields)
 
     if (ProcessorNumber == MyProcessorNumber) {
       if (BaryonField[n] != NULL) {
-	fprintf(stderr, "BaryonField[%"ISYM"] already assigned?\n", n);
-	ENZO_FAIL("");
+	ENZO_VFAIL("BaryonField[%"ISYM"] already assigned?\n", n)
+
       }
       BaryonField[n] = new float[size];
       value = (TypesToAdd[i] == SNColour || TypesToAdd[i] == Metallicity) ?

@@ -44,8 +44,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
   /* Error Check */
  
   if (time < OldTime || time > Time) {
-    fprintf(stderr, "requested time is outside available range.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("requested time is outside available range.\n");
   }
  
   /* Compute interpolation coefficients. */
@@ -68,8 +67,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Loop over the grid, compute the thermal energy, then the pressure,
@@ -120,16 +118,14 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
         H2IINum, DINum, DIINum, HDINum;
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
  
     /* Find the temperature units. */
  
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 		 &TimeUnits, &VelocityUnits, Time) == FAIL) {
-      fprintf(stderr, "Error in GetUnits.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in GetUnits.\n");
     }
  
     for (i = 0; i < size; i++) {
@@ -169,6 +165,7 @@ int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
     } // end: loop over i
  
   } // end: if (MultiSpecies > 1)
+
  
   return SUCCESS;
 }

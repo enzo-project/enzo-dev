@@ -108,8 +108,7 @@ int grid::SolveCoupledRateEquations()
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -117,8 +116,7 @@ int grid::SolveCoupledRateEquations()
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   /* Find photo-ionization fields */
@@ -146,8 +144,7 @@ int grid::SolveCoupledRateEquations()
 
     if (CosmologyComputeExpansionFactor(PhotonTime+0.5*dtFixed, &a, &dadt) 
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
 
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -156,8 +153,7 @@ int grid::SolveCoupledRateEquations()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   float afloat = float(a);
@@ -197,8 +193,7 @@ int grid::SolveCoupledRateEquations()
   /* Calculate the rates due to the radiation field. */
 
   if (RadiationFieldCalculateRates(PhotonTime+0.5*dtFixed) == FAIL) {
-    fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiationFieldCalculateRates.\n");
   }
 
   /* Set up information for rates which depend on the radiation field. 
@@ -280,14 +275,14 @@ int grid::SolveCoupledRateEquations()
     CloudyCoolingData.CloudyMeanMolecularWeight);
 
   if (ierr) {
-      fprintf(stdout, "Error in FORTRAN rate/cool solver\n");
       fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
       fprintf(stdout, "GridRightEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
+
   }
 
   return SUCCESS;

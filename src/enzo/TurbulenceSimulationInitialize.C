@@ -202,8 +202,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* More error checking. */
  
   if (TurbulenceSimulationVelocityNames[0] == NULL) {
-    fprintf(stderr, "Missing initial data.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Missing initial data.\n");
   }
  
   if (CellFlaggingMethod[0] != 3)
@@ -279,8 +278,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
 			   GasEnergyName, VelocityNames, RandomForcingNames,
 			   TurbulenceSimulationSubgridsAreStatic,
 			   TotalRefinement) == FAIL) {
-      fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->TurbulenceSimulationInitializeGrid.\n");
   }
  
   /* Set boundary conditions if necessary. */
@@ -418,8 +416,8 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
 		        GasEnergyName, VelocityNames, RandomForcingNames,
 			TurbulenceSimulationSubgridsAreStatic,
 			TotalRefinement) == FAIL) {
-      fprintf(stderr, "Error in grid->TurbulenceSimulationInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->TurbulenceSimulationInitializeGrid.\n");
+
     }
  
     Temp = Temp->NextGridThisLevel;

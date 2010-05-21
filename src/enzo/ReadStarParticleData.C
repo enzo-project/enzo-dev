@@ -34,8 +34,8 @@ int ReadStarParticleData(FILE *fptr)
   if (!AddParticleAttributes) {
     if (fscanf(fptr, "NumberOfStarParticles = %"ISYM"\n",
 	       &NumberOfStarParticles) != 1) {
-      fprintf(stderr, "Error reading NumberOfStarParticles.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading NumberOfStarParticles.\n");
+
     }
   } else 
     NumberOfStarParticles = 0;

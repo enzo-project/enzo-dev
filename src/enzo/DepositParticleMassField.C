@@ -48,16 +48,13 @@ int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
  
     if (Grid->GridData->InitializeGravitatingMassFieldParticles(RefineBy)
                                                                   == FAIL) {
-      fprintf(stderr,
-	      "Error in grid->InitializeGravitatingMassFieldParticles.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->InitializeGravitatingMassFieldParticles.\n");
     }
  
     /* Clear the GravitatingMassFieldParticles. */
  
     if (Grid->GridData->ClearGravitatingMassFieldParticles() == FAIL) {
-      fprintf(stderr, "Error in grid->ClearGravitatingMassFieldParticles.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->ClearGravitatingMassFieldParticles.\n");
     }
  
 //  fprintf(stderr, "--DepositParticleMassField (Send) Initialize & Clear\n");
@@ -70,8 +67,7 @@ int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
  
   if (Grid->GridData->DepositParticlePositions(Grid->GridData, TimeMidStep,
 				 GRAVITATING_MASS_FIELD_PARTICLES) == FAIL) {
-    fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
  
   /* Recursively deposit particles in children (at TimeMidStep). */
@@ -80,8 +76,7 @@ int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
     if (DepositParticleMassFieldChildren(Grid, Grid->NextGridNextLevel,
 					 TimeMidStep)
 	== FAIL) {
-      fprintf(stderr, "Error in DepositParticleMassFieldChildren.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositParticleMassFieldChildren.\n");
     }
  
   return SUCCESS;
@@ -98,8 +93,7 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
  
   if (Grid->GridData->DepositParticlePositions(DepositGrid->GridData,
 		     DepositTime, GRAVITATING_MASS_FIELD_PARTICLES) == FAIL) {
-    fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
  
   /* Next grid on this level. */
@@ -107,8 +101,7 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
   if (Grid->NextGridThisLevel != NULL)
     if (DepositParticleMassFieldChildren(DepositGrid, Grid->NextGridThisLevel,
 					 DepositTime) == FAIL) {
-      fprintf(stderr, "Error in DepositParticleMassFieldChildren(1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositParticleMassFieldChildren(1).\n");
     }
  
   /* Recursively deposit particles in children. */
@@ -116,8 +109,8 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
   if (Grid->NextGridNextLevel != NULL)
     if (DepositParticleMassFieldChildren(DepositGrid, Grid->NextGridNextLevel,
 					 DepositTime) == FAIL) {
-      fprintf(stderr, "Error in DepositParticleMassFieldChildren(2).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositParticleMassFieldChildren(2).\n");
+
     }
  
  

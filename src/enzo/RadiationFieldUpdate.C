@@ -147,8 +147,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
   float dt = Time - RadiationData.TimeFieldLastUpdated;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
@@ -156,14 +155,12 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
     aUnits = 1.0/(1.0 + InitialRedshift);
  
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
     aaanew = float(a)*aUnits;
  
     if (CosmologyComputeExpansionFactor(Time-dt, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
     aaa    = float(a)*aUnits;
     afloat = float(a);
@@ -332,6 +329,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
      to recompute it's rates. */
  
   if (RadiationData.IntegratedStarFormation > 0)
+
     RadiationFieldRecomputeMetalRates = TRUE;
  
   /* Clear star formation. */

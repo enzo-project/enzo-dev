@@ -37,8 +37,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
   /* error check */
  
   if (FlaggingField == NULL) {
-    fprintf(stderr, "Flagging Field is undefined.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Flagging Field is undefined.\n");
   }
  
   /* compute size */
@@ -83,6 +82,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
       } // end: if (Overlap)
  
     } // end: if (StaticRefineRegionLevel[dim] == level)
+
  
   /* Count up the number of flagged cells & report. */
  
