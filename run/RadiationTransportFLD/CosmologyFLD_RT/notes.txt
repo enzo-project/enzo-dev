@@ -1,0 +1,45 @@
+= Notes on the output =
+
+(Geoffrey So May 21, 2010)
+
+This is a small cosmology test which requires ~16GB of disk 
+space and the last data output slice should be DD0273
+
+
+= General Information =
+(Please refer to the parameter files for more detailed description)
+
+-Grid: 64 cube
+-LambdaCDM cosmology
+-Final Redshift z = 5
+-Radiation Solver = Daniel Reynolds' operator split FLD solver
+-Star maker method 1, feedback method 0
+
+The output should include Geoffrey's Emissivity field once star formation occurs, and 
+this will source the Grey_Radiation_Energy field.  The values of the output will depend
+on many factors, including but not exclusive to machine hardware (which affects the
+way initial conditions are generated due to the random seed), compilers used to 
+compile Enzo, different versions of software i.e. hypre.
+
+
+= Comparing the maximum Emissivity value and its location of DD0273 =
+running the included YT analysis script with python in the same directory with Enzo to
+check for the maximum Emissivity field value
+
+1.5 with pgi compiler before sofware update of May 18, 2010:
+yt.lagos   INFO       2010-05-20 21:10:14,542 Max Value is 4.37391e-27 at 0.4765625000000000
+0.9609375000000000 0.3515625000000000 in grid EnzoGrid_0007 at level 0 (30, 29, 22)
+4.37390767068e-27 [ 0.4765625  0.9609375  0.3515625]
+
+2.0 with intel compiler after software update of May 18, 2010:
+yt.lagos   INFO       2010-05-20 21:10:38,545 Max Value is 4.40269e-27 at 0.4765625000000000
+0.9609375000000000 0.3515625000000000 in grid EnzoGrid_0007 at level 0 (30, 29, 22)
+4.40269237729e-27 [ 0.4765625  0.9609375  0.3515625]
+
+
+= Conclusion =
+The results are within 1% of each other (~0.7%), so considering the many differences between
+the two versions, I'm surprised that the result is not much more different.  As a new user
+of Enzo, I would check that the value is not many of orders of magnitude off when running
+this particular set of parameters on a different machine.  And if it was ran on SDSC Triton
+where this test was conducted, it should give results within ~1%.
