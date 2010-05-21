@@ -23,13 +23,12 @@
 #ifdef TRANSFER
 #include "FSProb.h"
 
-
 FSProb::FSProb()
 {
 
 //   if (debug)  printf("\nEntering FSProb::constructor routine\n");
   int dim, face;
-#ifndef USE_MPI
+#ifndef MPI_INT
   int MPI_PROC_NULL = -3;
 #endif
 

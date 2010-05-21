@@ -91,6 +91,12 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     ENZO_FAIL("Error in gFLDProblem_Initialize");
   }
 
+#ifndef MPI_INT
+  // in case MPI is not included
+  int MPI_PROC_NULL = -3;
+  int MPI_COMM_WORLD = 0;
+#endif
+
   // set rank of self-gravity problem to 3
 //   rank = 3;
   rank = MetaData.TopGridRank;
@@ -455,9 +461,6 @@ int gFLDProblem::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   //   for non-periodic domain, unset neighbor info.
-#ifndef USE_MPI
-  int MPI_PROC_NULL = -3;
-#endif
   for (dim=0; dim<rank; dim++) {
     if ((OnBdry[dim][0]) && (BdryType[dim][0] != 0))
       NBors[dim][0] = MPI_PROC_NULL;

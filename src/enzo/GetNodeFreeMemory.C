@@ -1,4 +1,5 @@
 #ifdef ENABLE_TASKMAP
+#ifdef USE_MPI
 
 /***********************************************************************
 /
@@ -139,4 +140,5 @@ int GetNodeFreeMemory(void)
   return SUCCESS;
 
 }
-#endif
+#endif  /* USE_MPI */
+#endif  /* ENABLE_TASKMAP */
