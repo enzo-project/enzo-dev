@@ -62,8 +62,6 @@ int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
-
 int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float *ge, 
 		float *u, float *v, float *w, float *bx, float *by, float *bz,
 		float *dt, float *r, float *dx, FLOAT *t, 
@@ -96,6 +94,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
   printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
   printf("Star Maker 8: time = %g\n", *t);
+
 
   /* Compute Units. */
   
@@ -135,9 +134,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
 
   for (n=0; n<nsinks; n++){
+    printf("sink index = %"ISYM"\n", sink_index[n]);
     printf("sink mass = %g\n", dmold[n]);
     printf("sink position = %"FSYM",%"FSYM", %"FSYM" \n", xpold[n], ypold[n],  zpold[n] );
-    printf("Sink number = %"FSYM"\n",(4*(xpold[n]-0.125122)+16*(ypold[n]-0.125122)+64*(zpold[n]-0.125122)));
     printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" \n", upold[n], vpold[n],  wpold[n] );
   }
 
@@ -306,6 +305,10 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       /* Subtract mass from Grid */
       dens_sum = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
+	//printf(" ic = %"ISYM"\n", ic);
+	//printf("ind_cell[ic]  = %"ISYM"\n",ind_cell[ic]);
+	//printf("d[ind_cell[ic]] = %g = %g cgs \n",d[ind_cell[ic]],d[ind_cell[ic]]*(*d1)  );
+	//printf("weight_cell[ic]  = %g\n",weight_cell[ic] );
 	if (d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho < SmallRho) 
 	  printf("DENSITY lower limit reached, d[ind_cell[ic]] = %g, (weight_cell[ic]/weight_total)*drho = %g,SmallRho = %g\n",d[ind_cell[ic]],(weight_cell[ic]/weight_total)*drho, SmallRho);
 	del_rho = d[ind_cell[ic]]- max(SmallRho,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
@@ -313,7 +316,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	dens_sum += del_rho;
 	 } 
       printf("   star_maker8 CHECK: dens_sum/drho = %"FSYM"\n", dens_sum/drho );
-      printf("star_maker8: Accretion routine, mass added = %g = %g Msun, drho = %g cgs\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho*(*d1) );
+      printf("star_maker8: Accretion routine, mass added = %g = %g Msun, drho = %g\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho );
       printf("   star_maker8 CHECK: dens_sum/mpold[bb] = %g\n", dens_sum/mpold[bb] );
       upold[bb] = (mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
       vpold[bb] = (mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
@@ -786,32 +789,32 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    ypos = *ystart + ((float) j - 0.5)*(*dx);
 	    zpos = *zstart + ((float) k - 0.5)*(*dx);
 
+	    nearestdx2 = 1e20;
 	    //float BigStarSeparation = (*x1)/4;
-	   //  printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
-// 	    nearestdx2 = BigStarSeparation/2.0;
-// 	    if (nsinks > 0) nearestdx2 = 1e20;
+	    printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
 
-// 	    for (cc = 0; cc < nsinks; cc++) {
-// 	      n = sink_index[cc];
-// 	      printf("n = %"ISYM", mpold[n]*POW(*dx,3)*umass = %g \n", n, mpold[n]*POW(*dx,3)*umass);
-// 	      if (mpold[n]*POW(*dx,3)*umass < 3.0) continue;
-// 	      delx = xpos - xpold[n];
-// 	      dely = ypos - ypold[n];
-// 	      delz = zpos - zpold[n];
-// 	      dist2 = delx*delx + dely*dely + delz*delz;
+	    for (cc = 0; cc < nsinks; cc++) {
+	      
+	      n = sink_index[cc];
+	      if (mpold[n]*umass < 3.0) continue;
+	      delx = xpos - xpold[n];
+	      dely = ypos - ypold[n];
+	      delz = zpos - zpold[n];
+	      dist2 = delx*delx + dely*dely + delz*delz;
 
-// 	      if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
-// 		nearestdx2 = dist2;
-// 		closest = n;		  
-// 	      }
+		/* If sink is within 5 cells and closest one, then add to it */
+	      if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
+		nearestdx2 = dist2;
+		closest = n;		  
+	      }
 
-// 	    } // ENDFOR old particles
-	    //printf("star_maker8: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
+	    } // ENDFOR old particles
+	      //printf("star_maker8: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
 
-	    printf("BigStarFormation = %i\n",BigStarFormation);
+
 	    // PUT BIG STAR FORMATION IF STATEMENT HERE
-	    if(nsinks == 0 && BigStarFormation > 0){
-	      printf("BigStarFormation running...\n");
+	    if(nearestdx2 > POW(BigStarSeparation,2) && BigStarFormation){
+
 	      /* Calculate change in density */
 
 	      if (*jlrefine > 0)
@@ -819,13 +822,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	      else
 		maxdens = densthresh;
 	      oldrho = d[index];
-	      adddens = 3.415/(umass*POW(*dx,3));
-	      ugrid = 0.0;
-	      vgrid = 0.0;
-	      wgrid = 0.0;
-	      BigStarFormation = 0;
-	      CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
-	      printf("BigStarFormation: created mass from nowhere! \n");
+	      adddens = 3.415/umass;
+	      printf("BigStarFormation: created mass from nowhere!");
 	    
 	      /* Remove mass from grid */
 	    
@@ -1005,7 +1003,8 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   }
 
   delete sink_index;
-   *np = ii;
+
+  *np = ii;
   return SUCCESS;
 
 }

@@ -32,8 +32,8 @@ EXTERN MPI_Request PhotonMessageRequest[MAX_PH_RECEIVE_BUFFERS];
 EXTERN Eint32 PhotonMessageIndex;
 EXTERN Eint32 PhotonMessageMaxIndex;
 
-EXTERN char KeepTransMessageBuffer[100*MAX_PH_RECEIVE_BUFFERS];
-EXTERN MPI_Request KeepTransMessageRequest[100*MAX_PH_RECEIVE_BUFFERS];
+EXTERN char KeepTransMessageBuffer[MAX_PH_RECEIVE_BUFFERS];
+EXTERN MPI_Request KeepTransMessageRequest[MAX_PH_RECEIVE_BUFFERS];
 EXTERN Eint32 KeepTransMessageIndex;
 EXTERN Eint32 KeepTransMessageMaxIndex;
 

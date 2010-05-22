@@ -113,11 +113,10 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Get grid lists */
 
-  if (NumberOfCompletedRequests > 0) {
+  if (NumberOfCompletedRequests > 0)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       if (LevelArray[level] != NULL)
 	nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
-  }
 
   /* Loop over receive handles, looking for completed (i.e. null)
      requests. */
@@ -163,10 +162,6 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	  
       lvl	 = RecvBuffer[i].ToLevel;
       gi	 = RecvBuffer[i].ToGrid;
-
-      // Double check if the grids exists on this processor
-      if (gi >= nGrids[lvl]) {
-      }
       ToGrid = Grids[lvl][gi]->GridData;
       ToPP	 = ToGrid->ReturnPhotonPackagePointer();
 

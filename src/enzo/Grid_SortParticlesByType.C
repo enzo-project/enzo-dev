@@ -5,7 +5,6 @@
 /  written by: Greg Bryan
 /  date:       Jan, 2001
 /  modified1:  Matthew Turk
-/  modified2:  John Wise (May 2010) -- Use shell sort
 /
 /  PURPOSE:
 /
@@ -26,7 +25,7 @@
  
 /* function prototypes */
  
-void ShellSortAndDrag(int List[], int N,
+void QuickSortAndDrag(int List[], int left, int right,
 		      int NumberToDrag1, float *DragList1[],
 		      int NumberToDrag2, FLOAT *DragList2[],
 		      int NumberToDrag3, PINT  *DragList3[]);
@@ -59,7 +58,7 @@ void grid::SortParticlesByType()
  
   /* Sort by particle index, dragging the data along. */
  
-  ShellSortAndDrag(ParticleType, NumberOfParticles,
+  QuickSortAndDrag(ParticleType, 0, NumberOfParticles-1,
 		   GridRank+1+NumberOfParticleAttributes, DragList1,
 		   GridRank, DragList2, 1, DragList3);
  

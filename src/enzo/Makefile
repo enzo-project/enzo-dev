@@ -102,16 +102,13 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: MACHNOTES $(EXE).exe
+all: $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-MACHNOTES: 
-	@echo $(MACHINE_NOTES)
-
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
 	@rm -f $@
 	@echo "Linking"
 	@(if [ $(VERBOSE) -eq 0 ]; then \

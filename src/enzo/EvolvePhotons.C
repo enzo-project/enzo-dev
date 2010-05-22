@@ -35,25 +35,19 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
-#include "GroupPhotonList.h"
 #include "PhotonCommunication.h"
 #include "CommunicationUtilities.h"
 
 /* function prototypes */
 void my_exit(int status);
-int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
-				 bool local_transport,
-				 int &keep_transporting);
 int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[], 
 				 ListOfPhotonsToMove **AllPhotons, 
 				 char *kt_global,
 				 int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int InitializePhotonCommunication(void);
-int FinalizePhotonCommunication(void);
-int KeepTransportingInitialize(char* &kt_global, bool initial_call);
-int KeepTransportingFinalize(char* &kt_global, int keep_transporting);
+int InitializePhotonCommunication(char* &kt_global);
+int FinalizePhotonCommunication(char* &kt_global, int keep_transporting);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
 int KeepTransportingSend(int keep_transporting);
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
@@ -69,16 +63,8 @@ void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
 
-#ifdef USE_MPI
-int InitializePhotonReceive(int max_size, bool local_transport,
-			    MPI_Datatype MPI_PhotonType);
-static int FirstTimeCalled = TRUE;
-static MPI_Datatype MPI_PhotonList;
-#endif
-
 #define NONBLOCKING
 #define REPORT_PERF_OFF
-#define MAX_ITERATIONS 5
 
 #ifdef REPORT_PERF
 #define START_PERF() tt0 = ReturnWallTime();
@@ -122,14 +108,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     return SUCCESS;  
 
   /* Declarations */
-
-#ifdef USE_MPI
-  if (FirstTimeCalled) {
-    MPI_Type_contiguous(sizeof(GroupPhotonList), MPI_BYTE, &MPI_PhotonList);
-    MPI_Type_commit(&MPI_PhotonList);
-    FirstTimeCalled = FALSE;
-  }
-#endif
 
   int lvl;
   grid *Helper;
@@ -278,8 +256,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     int keep_transporting = 1;
     int local_keep_transporting = 1, last_keep_transporting;
-    int secondary_kt_check = TRUE, iteration = 0;
-    bool initial_call = true;
     char *kt_global = NULL;
 
     HierarchyEntry **Temp0;
@@ -291,14 +267,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Initialize nonblocking communication */
 
     START_PERF();
-    InitializePhotonCommunication();
+    InitializePhotonCommunication(kt_global);
     END_PERF(3);
 
     /* Transport the rays! */
-
-    while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
-    KeepTransportingInitialize(kt_global, initial_call);
-    initial_call = false;
 
     while (keep_transporting != NO_TRANSPORT && 
 	   keep_transporting != HALT_TRANSPORT) {
@@ -360,18 +332,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
       END_PERF(6);
 
-    }                           //  end while keep_transporting
-    
-    KeepTransportingFinalize(kt_global, keep_transporting);
-#ifdef USE_MPI
-    InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
+#ifdef UNUSED
+      if (debug) puts("End of keep_transporting loop\n");
+      printf("P%d:", MyProcessorNumber);
+      fflush(stdout);
+      fpcol(PerfCounter, 14, 14, stdout);
 #endif
-    CommunicationReceiverPhotons(LevelArray, false, local_keep_transporting);
-    secondary_kt_check = CommunicationMaxValue(local_keep_transporting);
+    }                           //  end while keep_transporting
 
-    }  // ENDWHILE secondary keep_transporting check
-
-    FinalizePhotonCommunication();
+    FinalizePhotonCommunication(kt_global, keep_transporting);
+    //  StopKeepTransportingCheck();
 
     /* Move all finished photon packages back to their original place,
        PhotonPackages.  For the adaptive timestep, we don't carryover

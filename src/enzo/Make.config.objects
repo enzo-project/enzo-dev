@@ -614,7 +614,6 @@ OBJS_CONFIG_LIB = \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \
         ShearingBoxStratifiedInitialize.o \
-	ShellSortAndDrag.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
         sink_maker.o \
