@@ -46,6 +46,7 @@ void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 void PrintMemoryUsage(char *str);
+int InitializeRateData(FLOAT Time);
 
 
 // Cosmology Parameters (that need to be shared)
@@ -78,6 +79,10 @@ static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
 static float CosmologySimulationManualParticleMassRatio = 1.0;
 
 static int   CosmologySimulationCalculatePositions   = FALSE; 
+
+#ifdef TRANSFER
+static float RadHydroInitialRadiationEnergy = 1.0e-32;
+#endif
 
 #define MAX_INITIAL_GRIDS 10
  
@@ -113,8 +118,15 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
+
+#ifdef TRANSFER
+  char *RadName    = "Grey_Radiation_Energy";
+#endif
+#ifdef EMISSIVITY
+  char *EtaName    = "Emissivity";
+#endif
  
- 
+
   char line[MAX_LINE_LENGTH];
   int i, j, dim, gridnum, ret, SubgridsAreStatic, region;
   HierarchyEntry *Subgrid;
@@ -269,6 +281,33 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
+
+#ifdef TRANSFER
+  // if using FLD-based solver for radiation, initialize the relevant fields
+  if (RadiativeTransferFLD > 1) {
+    // Read RadHydro input from secondary input file
+    if (MetaData.RadHydroParameterFname != NULL) {
+      FILE *RHfptr;
+      if ((RHfptr = fopen(MetaData.RadHydroParameterFname, "r")) != NULL) {
+	while (fgets(line, MAX_LINE_LENGTH, RHfptr) != NULL) {
+	  ret = 0;
+	  // read relevant problem parameters
+	  ret += sscanf(line, "RadHydroRadiationEnergy = %"FSYM, 
+			&RadHydroInitialRadiationEnergy);
+	} // end input from parameter file
+	fclose(RHfptr);
+      }
+    }
+    
+    // set up CoolData object if not already set up
+    if (CoolData.ceHI == NULL) 
+      if (InitializeRateData(MetaData.Time) == FAIL) {
+	fprintf(stderr,"Error in InitializeRateData.\n");
+	return FAIL;
+      }
+  }
+
+#endif
  
   // More error checking
  
@@ -527,6 +566,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionHM,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
+#ifdef TRANSFER
+			     RadHydroInitialRadiationEnergy,
+#endif
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
@@ -574,6 +616,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
+#ifdef TRANSFER
+  if (RadiativeTransferFLD > 1)
+    DataLabel[i++] = RadName;
+#endif
   if (MultiSpecies) {
     DataLabel[i++] = ElectronName;
     DataLabel[i++] = HIName;
@@ -604,7 +650,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   if (WritePotential)
-    DataLabel[i++] = GPotName;
+    DataLabel[i++] = GPotName;  
 
   if (CRModel) {
     DataLabel[i++] = MachName;
@@ -614,6 +660,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
     DataLabel[i++] = CRName;
   } 
+
+#ifdef EMISSIVITY
+  if (StarMakerEmissivityField > 0)
+    DataLabel[i++] = EtaName;
+#endif
  
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
@@ -808,6 +859,9 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationInitialFractionHM,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
+#ifdef TRANSFER
+			     RadHydroInitialRadiationEnergy,
+#endif
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,

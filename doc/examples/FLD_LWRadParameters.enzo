@@ -1,0 +1,13 @@
+#
+# FSProb parameters [Lyman-Werner free-streaming radiation]
+#
+FSRadiationOpacity = 1e-31           // opacity
+FSRadiationScaling = 1.0e0           // no unit scaling
+FSRadiationTheta   = 1.0             // implicit Euler
+FSRadiationLimiterType = 4           // Zeus limiter
+FSRadiationInitialGuess = 0          // use old time step
+FSRadiationTolerance = 1.0e-7        // linear solver tolerance (absolute)
+FSRadiationMaxMGIters = 50           // allowed Multigrid iters
+FSRadiationMGRelaxType = 1           // MG relaxation type (see HYPRE SysPFMG)
+FSRadiationMGPreRelax = 2            // MG pre-relaxation sweeps
+FSRadiationMGPostRelax = 2           // MG post-relaxation sweeps

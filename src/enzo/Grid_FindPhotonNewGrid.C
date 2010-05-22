@@ -44,10 +44,10 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
   MoveToGrid = SubgridMarker[cindex];
   PP->Radius += PFLOAT_EPSILON;
 
-  switch (GravityBoundaryType) {
+  /***** Root grids *****/
 
-  case TopGridIsolated: 
-  case TopGridPeriodic:
+  if (ParentGrid == NULL) {
+
     if (RayInsideGrid) {
       // Inside root grid -> Child grid
       DeltaLevel = +1;
@@ -75,9 +75,13 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
 	
       } // ENDIF !InsideDomain
     } // ENDELSE inside grid
-    break;
+
+  } // ENDIF parent grid
+
+  /***** Subgrids *****/
+
+  else {
       
-  case SubGridIsolated:
     if (RayInsideGrid) {
       DeltaLevel = +1;
     } else {
@@ -115,15 +119,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
     if (DEBUG) 
       fprintf(stdout, "Walk: left grid: sent photon to grid %d (DeltaL = %d)\n", 
 	      MoveToGrid->ID, DeltaLevel);
-    break;
 
-  case GravityUndefined:
-  default:
-    fprintf(stdout, "grid::WalkPhotonPackage: "
-	    "GravityBoundaryType = RadiationBoundary undefined %"ISYM".\n",
-	    GravityBoundaryType);
-    ENZO_FAIL("");
-  } // ENDSWITCH
+  } // ENDELSE (subgrid)
 
   /* Error check */
 
