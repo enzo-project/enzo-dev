@@ -25,13 +25,12 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-#define ONE_ENERGY
-
 RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 FLOAT FindCrossSection(int type, float energy);
 
 int grid::Shine(RadiationSourceEntry *RadiationSource)
 {
+  RadiationSourceEntry *RS = RadiationSource;
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim;
   int count=0;
@@ -42,14 +41,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
   BasePackages = 12*(int)pow(4,min_level);
 
-  int stype = 3;
-  bool HeliumPhotons = (StarClusterHeliumIonization == TRUE);
-#ifdef ONE_ENERGY
-  stype = (HeliumPhotons) ? 3 : 1;
-#endif
-  if (MultiSpecies>1 && !RadiativeTransferOpticallyThinH2 && 
-      !RadiativeTransferFLD) stype++;
-  if (RadiativeTransferHydrogenOnly == TRUE) stype = 1;
+  int stype = RS->EnergyBins;
 
   /* At most how many new Photon Packages should be allocated and
      created?  */
@@ -67,10 +59,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   /* Find Multi-species fields. */
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum;
-  if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL)
-    ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
+    DINum, DIINum, HDINum;
+  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+			HMNum, H2INum, H2IINum, DINum, DIINum, HDINum);
 
   /* allocate temporary array of pointers */
   FLOAT AllCellWidth[3];
@@ -86,167 +77,152 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
   int ebin;
-  RadiationSourceEntry *RS;
   FLOAT FuzzyLength;
   FLOAT ShakeSource[3];
   double RampPercent = 1;
-  RS = RadiationSource;
-  if (RS != NULL) {
 
-#ifdef ONE_ENERGY
-    //    RS->SED[0] = 1.0;
-#endif
+  if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
+    float t = PhotonTime-RS->CreationTime+dtPhoton;
+    float frac = t / (RS->RampTime+dtPhoton);
+    RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
+    RampPercent = max(min(RampPercent, 1), 0);
+  }
 
-    if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
-      float t = PhotonTime-RS->CreationTime+dtPhoton;
-      float frac = t / (RS->RampTime+dtPhoton);
-      RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
-      RampPercent = max(min(RampPercent, 1), 0);
-    }
+  /* Shake source within the grid cell every time it shines */
 
-    /* Shake source within the grid cell every time it shines */
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    //ShakeSource[dim] = 0.0;
+    ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
 
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      //ShakeSource[dim] = 0.0;
-      ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
+  switch (RS->Type) {
+  case PopII:
+    break;
+  case PopIII:
+    if (MyProcessorNumber == ProcessorNumber)
+      printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent,
+	     PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
+	     RS->Luminosity);
+    break;
+  case BlackHole:
+    break;
+  case MBH:
+    if (MyProcessorNumber == ProcessorNumber)
+      printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
+	     PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
+	     RS->Luminosity);
+    break;
+  } // ENDSWITCH type
 
-    switch (RS->Type) {
-    case PopII:
-      break;
-    case PopIII:
-      if (MyProcessorNumber == ProcessorNumber)
-	printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent,
-	       PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
-	       RS->Luminosity);
-      break;
-    case BlackHole:
-//      if (RadiativeTransferInterpolateField) {
-//	FieldsToInterpolate[HINum] = TRUE;
-//	FieldsToInterpolate[HeINum] = TRUE;
-//	FieldsToInterpolate[HeIINum] = TRUE;
-//      } // ENDIF interpolate fields
-//      if (MyProcessorNumber == ProcessorNumber)
-//	printf("Shine: ramp = %lf, lapsed = %lf\n", RampPercent,
-//	       PhotonTime-RS->CreationTime+dtPhoton);
-      break;
-    case MBH:
-      if (MyProcessorNumber == ProcessorNumber)
-	printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent, 
-	       PhotonTime-RS->CreationTime+dtPhoton, RS->LifeTime, 
-	       RS->Luminosity);
-      break;
-    } // ENDSWITCH type
+  for (i=0; i < stype; i++) {
 
-    int ebin;
+    float photons_per_package;
 
-    for (i=0; i < stype; i++) {
+    // Type 3 = H2I_LW
+    if (!RadiativeTransferOpticallyThinH2)
+      ebin = (i == stype-1) ? 3 : i;
+    else
+      ebin = i;
 
-      float photons_per_package;
-      // Type 3 = H2I_LW
-//      ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
-//	      MultiSpecies > 1) ? 3 : i;
-      ebin = (i == stype-1 && !RadiativeTransferOpticallyThinH2 && 
-	      !RadiativeTransferFLD &&
-	      MultiSpecies > 1 && RS->Type == PopIII) ? 3 : i;
+    photons_per_package = RampPercent * RS->Luminosity * 
+      RS->SED[ebin] * dtPhoton / float(BasePackages);
 
-      photons_per_package = RampPercent * RS->Luminosity * 
-	RS->SED[ebin] * dtPhoton / float(BasePackages);
+    if (ebin == 0)
+      EscapedPhotonCount[0] += photons_per_package * BasePackages;
 
-      if (ebin == 0)
-	EscapedPhotonCount[0] += photons_per_package * BasePackages;
+    if (DEBUG)
+      printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 
+	     ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
+	     RS->SED[ebin], photons_per_package);
 
-      if (DEBUG)
-	printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 
-	       ebin, RS->Energy[ebin], RS->Luminosity, RampPercent*RS->Luminosity, 
-	       RS->SED[ebin], photons_per_package);
-
-      if (RadiativeTransferInterpolateField)
-	switch (ebin) {
-	case 0:
-	  FieldsToInterpolate[HINum] = TRUE;
-	  break;
-	case 1:
-	  FieldsToInterpolate[HeINum] = TRUE;
-	  break;
-	case 2:
-	  FieldsToInterpolate[HeIINum] = TRUE;
-	  break;
-	case 3:
-	  FieldsToInterpolate[H2INum] = TRUE;
-	  break;
-	} // ENDSWITCH ebin
+    if (RadiativeTransferInterpolateField)
+      switch (ebin) {
+      case 0:
+	FieldsToInterpolate[HINum] = TRUE;
+	break;
+      case 1:
+	FieldsToInterpolate[HeINum] = TRUE;
+	break;
+      case 2:
+	FieldsToInterpolate[HeIINum] = TRUE;
+	break;
+      case 3:
+	FieldsToInterpolate[H2INum] = TRUE;
+	break;
+      } // ENDSWITCH ebin
       
-      // DEBUG fudge
-      for (j=0; j<BasePackages; j++) {
-	//      for (j=0; j<1; j++) {
-//	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
-	if (!isnan(photons_per_package)) { 
-	  PhotonPackageEntry *NewPack = new PhotonPackageEntry;
-	  NewPack->NextPackage = PhotonPackages->NextPackage;
-	  PhotonPackages->NextPackage = NewPack;
-	  NewPack->PreviousPackage = PhotonPackages;
-	  if (NewPack->NextPackage != NULL) 
-	    NewPack->NextPackage->PreviousPackage  = NewPack;
-	  NewPack->Photons = photons_per_package;
+    // DEBUG fudge
+    for (j=0; j<BasePackages; j++) {
+      //      for (j=0; j<1; j++) {
+      //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
+      if (!isnan(photons_per_package)) { 
+	PhotonPackageEntry *NewPack = new PhotonPackageEntry;
+	NewPack->NextPackage = PhotonPackages->NextPackage;
+	PhotonPackages->NextPackage = NewPack;
+	NewPack->PreviousPackage = PhotonPackages;
+	if (NewPack->NextPackage != NULL) 
+	  NewPack->NextPackage->PreviousPackage  = NewPack;
+	NewPack->Photons = photons_per_package;
 
-	  // Type 4 = X-Ray
-	  NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
+	// Type 4 = X-Ray
+	NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
 
-	  // Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
-	  if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
+	// Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
+	if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
 
-//	  if (DEBUG)
-//	    printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
-//		   MBH, RS->Type, NewPack->Type);  
+	// Override if we're only doing hydrogen ionization
+	if (RadiativeTransferHydrogenOnly) NewPack->Type = 0;
 
-	  NewPack->EmissionTimeInterval = dtPhoton;
-	  NewPack->EmissionTime = PhotonTime;
-	  NewPack->CurrentTime  = PhotonTime;
-	  NewPack->ColumnDensity = 0;
-	  NewPack->Radius = 0.;
-	  NewPack->ipix = j;
-	  NewPack->level = min_level;
-	  NewPack->Energy = RS->Energy[ebin];
-	  FLOAT dir_vec[3];
-	  if (pix2vec_nest((long) (1<<NewPack->level), NewPack->ipix, 
-			   dir_vec) == FAIL) {
-	    fprintf(stderr, 
-		    "grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
-		    (long) (pow(2,NewPack->level)), NewPack->ipix, 
-		    NewPack->Photons, NewPack );
-	    NewPack->Photons=-1;
-	    ENZO_FAIL("");
-	  }
+	//if (DEBUG)
+	//  printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
+	//         MBH, RS->Type, NewPack->Type);  
 
-	  NewPack->CrossSection = 
-	    FindCrossSection(NewPack->Type, NewPack->Energy);
+	NewPack->EmissionTimeInterval = dtPhoton;
+	NewPack->EmissionTime = PhotonTime;
+	NewPack->CurrentTime  = PhotonTime;
+	NewPack->ColumnDensity = 0;
+	NewPack->Radius = 0.;
+	NewPack->ipix = j;
+	NewPack->level = min_level;
+	NewPack->Energy = RS->Energy[ebin];
+	FLOAT dir_vec[3];
+	if (pix2vec_nest((long) (1<<NewPack->level), NewPack->ipix, 
+			 dir_vec) == FAIL) {
+	  fprintf(stderr, 
+		  "grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
+		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
+		  NewPack->Photons, NewPack );
+	  NewPack->Photons=-1;
+	  ENZO_FAIL("");
+	}
 
-	  /* Set the photon origin to the source radius (0 = point src) */
+	NewPack->CrossSection = 
+	  FindCrossSection(NewPack->Type, NewPack->Energy);
 
-	  NewPack->SourcePositionDiff = 0.0;
+	/* Set the photon origin to the source radius (0 = point src) */
 
-	  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-	    FuzzyLength = RadiativeTransferSourceRadius * dir_vec[dim] * 
-	      AllCellWidth[dim] + ShakeSource[dim];
-	    NewPack->SourcePosition[dim] = RS->Position[dim] + FuzzyLength;
-	    NewPack->SourcePositionDiff += FuzzyLength * FuzzyLength;
-	  }
-	  NewPack->SourcePositionDiff = sqrt(NewPack->SourcePositionDiff);
-	  NewPack->CurrentSource = RS->SuperSource;
-	  count++;
-	} // if enough photons
-      } // Loop over BasePackages
-    } //Loop over energy bins
-    RS = RS->NextSource;
-  }; // if it is valid Sources (not NULL)
+	NewPack->SourcePositionDiff = 0.0;
+
+	for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	  FuzzyLength = RadiativeTransferSourceRadius * dir_vec[dim] * 
+	    AllCellWidth[dim] + ShakeSource[dim];
+	  NewPack->SourcePosition[dim] = RS->Position[dim] + FuzzyLength;
+	  NewPack->SourcePositionDiff += FuzzyLength * FuzzyLength;
+	}
+	NewPack->SourcePositionDiff = sqrt(NewPack->SourcePositionDiff);
+	NewPack->CurrentSource = RS->SuperSource;
+	count++;
+      } // if enough photons
+    } // Loop over BasePackages
+  } //Loop over energy bins
+
   if (DEBUG) printf("grid::Shine: created %"ISYM" packages \n", count);
 
   // Set the new number of photon packages on this grid
   NumberOfPhotonPackages += NumberOfNewPhotonPackages;
 
-  PhotonPackageEntry *PP ;
-  PP = PhotonPackages;
   if (DEBUG) {
+    PhotonPackageEntry *PP;
+    PP = PhotonPackages;
     count = 0;
     while ((PP->NextPackage) != NULL) {
       count++;

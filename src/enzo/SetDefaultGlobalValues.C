@@ -402,6 +402,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderLastTime               = 0.0;
 
   StarClusterUseMetalField         = FALSE;
+  StarClusterHeliumIonization      = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun
   StarClusterSNEnergy              = 6.8e48;       // erg / Msun (Woosley&Weaver86)
@@ -416,6 +417,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
+  PopIIIHeliumIonization           = FALSE;
   PopIIILowerMassCutoff            = 1.0;
   PopIIIUpperMassCutoff            = 300.0;
   PopIIIInitialMassFunctionSlope   = -1.3;         // high mass slope

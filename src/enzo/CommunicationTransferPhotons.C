@@ -306,8 +306,11 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
      completed messages, post receive calls from all processors with
      photons to receive */
 
-  InitializePhotonReceive(PHOTON_BUFFER_SIZE, local_transport, 
-			  MPI_PhotonList);
+#ifdef NONBLOCKING_RT
+  InitializePhotonReceive(PHOTON_BUFFER_SIZE, true, MPI_PhotonList);
+#else
+  InitializePhotonReceive(PHOTON_BUFFER_SIZE, false, MPI_PhotonList);
+#endif
 
   /* Second stage: post sends to processors */
      
@@ -334,24 +337,19 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
   /* Third stage: finally receive the data and transfer them to their
      respective grids  */
 
+#ifndef NONBLOCKING_RT
+  local_transport = false;
+#endif
   CommunicationReceiverPhotons(LevelArray, local_transport, 
 			       keep_transporting);
 
-  bool dbg = false;
-  for (proc = 0; proc < NumberOfProcessors; proc++)
-    if (proc != MyProcessorNumber && nPhoton[proc] > 0) {
-      if (kt_global[proc] != HALT_TRANSPORT) {
+  if (kt_global != NULL)
+    for (proc = 0; proc < NumberOfProcessors; proc++)
+      if (proc != MyProcessorNumber && nPhoton[proc] > 0 &&
+	  kt_global[proc] != HALT_TRANSPORT) {
 	kt_global[proc] = SENT_DATA;
 	keep_transporting = 1;
       }
-      dbg = true;
-    }
-
-  if (DEBUG && dbg)
-    printf("P%d: 222keep_transporting = %d, kt_global = %d %d %d %d %d %d %d %d\n",
-	   MyProcessorNumber, keep_transporting, kt_global[0],
-	   kt_global[1], kt_global[2], kt_global[3], kt_global[4], 
-	   kt_global[5], kt_global[6], kt_global[7]);
 
   /* Clean up */
 

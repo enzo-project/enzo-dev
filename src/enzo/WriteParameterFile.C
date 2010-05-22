@@ -676,6 +676,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
   fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
           PopIIIInitialMassFunctionSlope);
+  fprintf(fptr, "PopIIIHeliumIonization                = %"ISYM"\n",
+	  PopIIIHeliumIonization);
   fprintf(fptr, "PopIIIBlackHoles                      = %"ISYM"\n",
           PopIIIBlackHoles);
   fprintf(fptr, "PopIIIBHLuminosityEfficiency          = %"FSYM"\n",

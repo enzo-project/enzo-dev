@@ -33,9 +33,9 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
     return SUCCESS;
 
   Star *cstar;
-  int i, j, k, index, dim, size, EtaNum;
-  float energies[4], E_LW, TimeFraction;
-  double Luminosity[4], L_LW, CellVolume;
+  int i, j, k, index, dim, size, EtaNum, nbins;
+  float energies[MAX_ENERGY_BINS], E_LW, TimeFraction;
+  double Luminosity[MAX_ENERGY_BINS], L_LW, CellVolume;
   const float ev_erg = 1.602176e-12;
 
   /* Allocate and compute emissivity field */
@@ -85,7 +85,7 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	else
 	  TimeFraction = 1.0;
 
-	cstar->ComputePhotonRates(energies, Luminosity);
+	cstar->ComputePhotonRates(nbins, energies, Luminosity);
 	E_LW = energies[3];
 	L_LW = Luminosity[3];
 

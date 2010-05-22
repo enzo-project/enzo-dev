@@ -84,6 +84,14 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
   for (i = 0; i < TotalReceives; i++)
     CompletedRequests[i] = false;
 
+#ifndef NONBLOCKING_RT
+  if (TotalReceives > 0)
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      if (LevelArray[level] != NULL)
+	nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
+  while (ReceivesCompletedToDate < TotalReceives) {
+#endif
+
   NumberOfCompletedRequests = 0;
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
@@ -113,10 +121,13 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   /* Get grid lists */
 
-  if (NumberOfCompletedRequests > 0)
+#ifdef NONBLOCKING_RT
+  if (NumberOfCompletedRequests > 0) {
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       if (LevelArray[level] != NULL)
 	nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
+  }
+#endif
 
   /* Loop over receive handles, looking for completed (i.e. null)
      requests. */
@@ -162,6 +173,22 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	  
       lvl	 = RecvBuffer[i].ToLevel;
       gi	 = RecvBuffer[i].ToGrid;
+
+      // Double check if the grids exists on this processor and if the
+      // grid number is valid.  If not, skip and warn the user.
+      if (gi >= nGrids[lvl]) {
+	printf("P%d: WARNING: CommunicationReceiverPhotons: Bad grid number = %d\n"
+	       "\t Receive %d, level %d, NumberOfGrids = %d.  SKIPPING!\n",
+	       MyProcessorNumber, gi, i, lvl, nGrids[lvl]);
+	continue;
+      }
+      else if (Grids[lvl][gi]->GridData->ReturnProcessorNumber() != 
+	       MyProcessorNumber) {
+	printf("P%d: WARNING: CommunicationReceiverPhotons: Bad grid number = %d\n"
+	       "\t Receive %d, level %d, NumberOfGrids = %d.  SKIPPING!\n",
+	       MyProcessorNumber, gi, i, lvl, nGrids[lvl]);
+	continue;
+      }
       ToGrid = Grids[lvl][gi]->GridData;
       ToPP	 = ToGrid->ReturnPhotonPackagePointer();
 
@@ -226,14 +253,23 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 
   } // ENDFOR completed requests (index)
 
-  //PH_CommunicationReceiveIndex = 0;
+#ifndef NONBLOCKING_RT
+  } // ENDWHILE receiving
+  PH_CommunicationReceiveIndex = 0;
+  PH_CommunicationReceiveMaxIndex = 0;
+#else
   PH_CommunicationReceiveIndex = 
     CommunicationFindOpenRequest(PH_CommunicationReceiveMPI_Request, NO_HINT,
 				 MAX_PH_RECEIVE_BUFFERS,
 				 PH_CommunicationReceiveIndex,
 				 PH_CommunicationReceiveMaxIndex);
+#endif
 
+#ifdef NONBLOCKING_RT
   if (NumberOfCompletedRequests > 0)
+#else
+  if (TotalReceives > 0)
+#endif
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       if (LevelArray[level] != NULL)
 	delete [] Grids[level];
