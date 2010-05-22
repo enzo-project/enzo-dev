@@ -115,14 +115,14 @@
       real dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
-     &     gphdl1, factor
+     &     gphdl1, factor, dom_inv
       double precision coolunit, dbase1, tbase1, xbase1, rtunits
 
 !  Slice locals
  
       integer indixe(in)
       real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
-     &     tgas(in), tgasold(in), tdef_inv(in)
+     &     tgas(in), tgasold(in)
       double precision edot(in)
 
 !  Cooling/heating slice locals
@@ -172,6 +172,7 @@
 !     Set units
 
       dom      = urho*(aye**3)/mh
+      dom_inv  = 1.0/dom
       tbase1   = utim
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
@@ -313,35 +314,34 @@
      &                   max(1,int((logtem(i)-logtem0)/dlogtem)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
-         tdef(i) = t2(i) - t1(i)
-         tdef_inv(i) = 1.0 / tdef(i)
+         tdef(i) = (logtem(i) - t1(i) / (t2(i) - t1(i))
 
 !        Lookup cooling values and do a linear temperature in log(T)
 
-         ceHI(i) = ceHIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))*tdef_inv(i)
-         ceHeI(i) = ceHeIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))*tdef_inv(i)
-         ceHeII(i) = ceHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))*tdef_inv(i)
-         ciHI(i) = ciHIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))*tdef_inv(i)
-         ciHeI(i) = ciHeIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))*tdef_inv(i)
-         ciHeIS(i) = ciHeISa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ciHeISa(indixe(i)+1) -ciHeISa(indixe(i)))*tdef_inv(i)
-         ciHeII(i) = ciHeIIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))*tdef_inv(i)
-         reHII(i) = reHIIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(reHIIa(indixe(i)+1) -reHIIa(indixe(i)))*tdef_inv(i)
-         reHeII1(i)=reHeII1a(indixe(i)) + (logtem(i) - t1(i))
-     &        *(reHeII1a(indixe(i)+1)-reHeII1a(indixe(i)))*tdef_inv(i)
-         reHeII2(i)=reHeII2a(indixe(i)) + (logtem(i) - t1(i))
-     &        *(reHeII2a(indixe(i)+1)-reHeII2a(indixe(i)))*tdef_inv(i)
-         reHeIII(i)=reHeIIIa(indixe(i)) + (logtem(i) - t1(i))
-     &        *(reHeIIIa(indixe(i)+1)-reHeIIIa(indixe(i)))*tdef_inv(i)
-         brem(i) = brema(indixe(i)) + (logtem(i) - t1(i))
-     &         *(brema(indixe(i)+1) -brema(indixe(i)))*tdef_inv(i)
+         ceHI(i) = ceHIa(indixe(i)) + tdef(i)
+     &         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))
+         ceHeI(i) = ceHeIa(indixe(i)) + tdef(i)
+     &         *(ceHeIa(indixe(i)+1) -ceHeIa(indixe(i)))
+         ceHeII(i) = ceHeIIa(indixe(i)) + tdef(i)
+     &         *(ceHeIIa(indixe(i)+1) -ceHeIIa(indixe(i)))
+         ciHI(i) = ciHIa(indixe(i)) + tdef(i)
+     &         *(ciHIa(indixe(i)+1) -ciHIa(indixe(i)))
+         ciHeI(i) = ciHeIa(indixe(i)) + tdef(i)
+     &         *(ciHeIa(indixe(i)+1) -ciHeIa(indixe(i)))
+         ciHeIS(i) = ciHeISa(indixe(i)) + tdef(i)
+     &         *(ciHeISa(indixe(i)+1) -ciHeISa(indixe(i)))
+         ciHeII(i) = ciHeIIa(indixe(i)) + tdef(i)
+     &         *(ciHeIIa(indixe(i)+1) -ciHeIIa(indixe(i)))
+         reHII(i) = reHIIa(indixe(i)) + tdef(i)
+     &         *(reHIIa(indixe(i)+1) -reHIIa(indixe(i)))
+         reHeII1(i)=reHeII1a(indixe(i)) + tdef(i)
+     &        *(reHeII1a(indixe(i)+1)-reHeII1a(indixe(i)))
+         reHeII2(i)=reHeII2a(indixe(i)) + tdef(i)
+     &        *(reHeII2a(indixe(i)+1)-reHeII2a(indixe(i)))
+         reHeIII(i)=reHeIIIa(indixe(i)) + tdef(i)
+     &        *(reHeIIIa(indixe(i)+1)-reHeIIIa(indixe(i)))
+         brem(i) = brema(indixe(i)) + tdef(i)
+     &         *(brema(indixe(i)+1) -brema(indixe(i)))
 
          end if
       enddo
@@ -374,11 +374,11 @@
 
 !                    Compton cooling or heating
 
-     &             - comp1*(tgas(i)-comp2)*de(i,j,k)/dom
+     &             - comp1*(tgas(i)-comp2)*de(i,j,k)*dom_inv
 
 !                    X-ray compton heating
 
-     &             - comp_xraya*(tgas(i)-comp_temp)*de(i,j,k)/dom
+     &             - comp_xraya*(tgas(i)-comp_temp)*de(i,j,k)*dom_inv
 
 !                    Bremsstrahlung
 
@@ -387,8 +387,8 @@
 
 !                    Photoelectric heating by UV-irradiated dust
 
-     &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))/dom
-     &             )
+     &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))
+     &             *dom_inv)
         
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
@@ -409,18 +409,18 @@
 #ifdef USE_GLOVER_ABEL2008
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            gaHI(i) = gaHIa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gaHIa(indixe(i)+1) - gaHIa(indixe(i)))*tdef_inv(i)
-            gaH2(i) = gaH2a(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gaH2a(indixe(i)+1) - gaH2a(indixe(i)))*tdef_inv(i)
-            gaHe(i) = gaHea(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gaHea(indixe(i)+1) - gaHea(indixe(i)))*tdef_inv(i)
-            gaHp(i) = gaHpa(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))*tdef_inv(i)
-            gael(i) = gaela(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))*tdef_inv(i)
-            gphdl(i) = gphdla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))*tdef_inv(i)
+            gaHI(i) = gaHIa(indixe(i)) + tdef(i)
+     &         *(gaHIa(indixe(i)+1) - gaHIa(indixe(i)))
+            gaH2(i) = gaH2a(indixe(i)) + tdef(i)
+     &         *(gaH2a(indixe(i)+1) - gaH2a(indixe(i)))
+            gaHe(i) = gaHea(indixe(i)) + tdef(i)
+     &         *(gaHea(indixe(i)+1) - gaHea(indixe(i)))
+            gaHp(i) = gaHpa(indixe(i)) + tdef(i)
+     &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))
+            gael(i) = gaela(indixe(i)) + tdef(i)
+     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))
+            gphdl(i) = gphdla(indixe(i)) + tdef(i)
+     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
             end if
          enddo
 
@@ -457,10 +457,10 @@
 
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            gpldl(i) = gpldla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gpldla(indixe(i)+1) - gpldla(indixe(i)))*tdef_inv(i)
-            gphdl(i) = gphdla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))*tdef_inv(i)
+            gpldl(i) = gpldla(indixe(i)) + tdef(i)
+     &         *(gpldla(indixe(i)+1) - gpldla(indixe(i)))
+            gphdl(i) = gphdla(indixe(i)) + tdef(i)
+     &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
             end if
          enddo
 
@@ -489,16 +489,16 @@
 
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            hyd01k(i) = hyd01ka(indixe(i)) + (logtem(i) - t1(i))
-     &         *(hyd01ka(indixe(i)+1)-hyd01ka(indixe(i)))*tdef_inv(i)
-            h2k01(i) = h2k01a(indixe(i)) + (logtem(i) - t1(i))
-     &         *(h2k01a(indixe(i)+1) - h2k01a(indixe(i)))*tdef_inv(i)
-            vibh(i) = vibha(indixe(i)) + (logtem(i) - t1(i))
-     &         *(vibha(indixe(i)+1) - vibha(indixe(i)))*tdef_inv(i)
-            roth(i) = rotha(indixe(i)) + (logtem(i) - t1(i))
-     &         *(rotha(indixe(i)+1) - rotha(indixe(i)))*tdef_inv(i)
-            rotl(i) = rotla(indixe(i)) + (logtem(i) - t1(i))
-     &         *(rotla(indixe(i)+1) - rotla(indixe(i)))*tdef_inv(i)
+            hyd01k(i) = hyd01ka(indixe(i)) + tdef(i)
+     &         *(hyd01ka(indixe(i)+1)-hyd01ka(indixe(i)))
+            h2k01(i) = h2k01a(indixe(i)) + tdef(i)
+     &         *(h2k01a(indixe(i)+1) - h2k01a(indixe(i)))
+            vibh(i) = vibha(indixe(i)) + tdef(i)
+     &         *(vibha(indixe(i)+1) - vibha(indixe(i)))
+            roth(i) = rotha(indixe(i)) + tdef(i)
+     &         *(rotha(indixe(i)+1) - rotha(indixe(i)))
+            rotl(i) = rotla(indixe(i)) + tdef(i)
+     &         *(rotla(indixe(i)+1) - rotla(indixe(i)))
             end if
          enddo
 
@@ -540,10 +540,10 @@
             if ( itmask(i) ) then
 c CMB cooling floor
                if (tgas(i) .gt. comp2) then
-                  hdlte(i) = hdltea(indixe(i)) + (logtem(i) - t1(i))
-     &            *(hdltea(indixe(i)+1) - hdltea(indixe(i)))*tdef_inv(i)
-                  hdlow(i) = hdlowa(indixe(i)) + (logtem(i) - t1(i))
-     &            *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))*tdef_inv(i)
+                  hdlte(i) = hdltea(indixe(i)) + tdef(i)
+     &            *(hdltea(indixe(i)+1) - hdltea(indixe(i)))
+                  hdlow(i) = hdlowa(indixe(i)) + tdef(i)
+     &            *(hdlowa(indixe(i)+1) - hdlowa(indixe(i)))
                else
                   hdlte(i) = tiny
                   hdlow(i) = tiny
@@ -694,7 +694,7 @@ c               if (tgas(i) .lt. 1e4) xe = min(xe, 1e-2)
                xe_idx = min(n_xe-1,
      $              max(1, int((log_xe - logxe0)/dlogxea)+1))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
-               dlogT = (logtem(i) - t1(i)) * tdef(i)
+               dlogT = tdef(i)
                dlogxe = (log_xe - xe1) / dlogxea
 c
 c  Interpolate metal cooling in temperature and electron fraction
