@@ -36,7 +36,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
 
@@ -91,17 +91,18 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
     ENZO_FAIL("FSProb Evolve: vector exchange_start error");
 
   // get internal Enzo units (old and new time steps)
+  double MassUnits;
   float TempUnits, VelUnits, RadUnits;
   LenUnits0 = TimeUnits0 = LenUnits = TimeUnits = 1.0;
-  DenUnits0 = TempUnits = VelUnits = RadUnits = 1.0;
+  DenUnits0 = TempUnits = VelUnits = MassUnits = RadUnits = 1.0;
   if (GetUnits(&DenUnits0, &LenUnits0, &TempUnits, 
-	       &TimeUnits0, &VelUnits, told) == FAIL) 
+	       &TimeUnits0, &VelUnits, &MassUnits, told) == FAIL) 
     ENZO_FAIL("FSProb Evolve: Error in GetUnits.");
   RadUnits = DenUnits0*VelUnits*VelUnits;
   EUnits0 = RadUnits*EScale;
-  DenUnits = TempUnits = VelUnits = 1.0;
+  DenUnits = TempUnits = VelUnits = MassUnits = 1.0;
   if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	       &TimeUnits, &VelUnits, tnew) == FAIL) 
+	       &TimeUnits, &VelUnits, &MassUnits, tnew) == FAIL) 
     ENZO_FAIL("FSProb Evolve: Error in GetUnits.");
   RadUnits = DenUnits*VelUnits*VelUnits;
   EUnits = RadUnits*EScale;
@@ -131,12 +132,13 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   // fill in the emissivity source array
   int src_set = 0;
   float *RadSrc = extsrc->GetData(0);
+  float *EmissivitySource;
   if (RadSrc == NULL)
     ENZO_FAIL("FSProb Evolve: could not access Radiation source.");
   //   access emissivity field provided by RadiativeTransfer module (John Wise)
   if (RadiativeTransfer > 0) {
     // access external emissivity field 
-    float *EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
+    EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
     if (EmissivitySource == NULL) 
       ENZO_FAIL("FSProb Evolve: could not access emissivity field");
     // copy data
@@ -144,6 +146,19 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
       RadSrc[i] = EmissivitySource[i];
     src_set = 1;
   }
+#ifdef EMISSIVITY
+  //   access emissivity field provided by StarMaker routines (Geoffrey So)
+  if (StarMakerEmissivityField) {
+    // access external emissivity field 
+    EmissivitySource = ThisGrid->GridData->AccessEmissivity0();
+    if (EmissivitySource == NULL) 
+      ENZO_FAIL("FSProb Evolve: could not access emissivity field");
+    // copy data
+    for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)
+      RadSrc[i] = EmissivitySource[i];
+    src_set = 1;
+  }
+#endif
   //   if left unset, call the local routine to set up the emissivity field 
   //   (based on ProblemType)
   if (src_set == 0) {
@@ -174,7 +189,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 	   Efs_rms, Efs_rms*EUnits0, Efs_max, Efs_max*EUnits0);
   }
 
-  // enforce boundry conditions on the state U0
+  // enforce boundary conditions on the state U0
   if (this->EnforceBoundary(U0) != SUCCESS) 
       ENZO_FAIL("FSProb Evolve: Error in EnforceBoundary routine");
 
@@ -186,7 +201,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   if (this->InitialGuess(sol,U0,extsrc) != SUCCESS) 
     ENZO_FAIL("FSProb Evolve: Error in InitialGuess routine");
 
-  // enforce boundry conditions on new time step initial guess
+  // enforce boundary conditions on new time step initial guess
   if (this->EnforceBoundary(sol) != SUCCESS) 
       ENZO_FAIL("FSProb Evolve: Error in EnforceBoundary routine");
 
