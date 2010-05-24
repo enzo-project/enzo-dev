@@ -7,7 +7,7 @@
  
 #include "macros_and_parameters.h"
 
-extern "C" void FORTRAN_NAME(ran1)(int *idim);
+extern "C" FLOAT FORTRAN_NAME(ran1)(int *idim);
  
 /*
   amd    trailing underscore_            nec    trailing underscore_
@@ -37,7 +37,7 @@ extern "C" FLOAT enzo_ranf(int *irangen)
     return ((FLOAT) drand48());
 
   if (*irangen == 1)
-    FORTRAN_NAME(ran1)(&Zero);
+    return FORTRAN_NAME(ran1)(&Zero);
 
   if (*irangen < 0 || *irangen > 1) {
     printf("Value of RandomNumberGenerator = %d is unknown.\n", *irangen);

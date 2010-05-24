@@ -40,7 +40,7 @@ extern "C" void enzo_seed_(int *seed, int *irangen)
   }
 
   if (*irangen == 1) {
-    printf("RAN1 Seed value %d\n", seed);
+    printf("RAN1 Seed value %d\n", *seed);
     FORTRAN_NAME(ran1)(seed);
   }
 
