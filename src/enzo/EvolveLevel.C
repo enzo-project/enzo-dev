@@ -296,14 +296,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   AdjustRefineRegion(LevelArray, MetaData, level);
 
-#ifdef EMISSIVITY
-/* reset Emissivity array here before next step calculate the new values */
-  if (StarMakerEmissivityField > 0) {
+  /* reset Emissivity array here before next step calculate the new values */
+
   /* 
      clear the Emissivity of the level below, after the level below 
      updated the current level (it's parent) and before the next 
      timestep at the current level.
   */
+
+  /* disabling clear of Emissivity field until a way to do it in AMR is found */
+
+#ifdef EMISSIVITY
+  /*
+  if (StarMakerEmissivityField > 0) {
     LevelHierarchyEntry *Temp;
     Temp = LevelArray[level+1];
     while (Temp != NULL) {
@@ -311,6 +316,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Temp = Temp->NextGridThisLevel;
     }
   }
+  */
 #endif
   /* Adjust MustRefineParticlesRefineToLevel parameter if requested */
   AdjustMustRefineParticlesRefineToLevel(MetaData, level);
