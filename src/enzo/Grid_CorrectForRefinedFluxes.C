@@ -273,7 +273,12 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == InternalEnergy) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  if (debug)
- 
+		    printf("CFRFl warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			   BaryonField[field][FieldIndex],
+			   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+			   i, j, k, dim, field);
+
 		  /* If new density is < 0 then stop the flux correction. */
  
 		  BaryonField[field][FieldIndex] -=
@@ -283,11 +288,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
-//		  ENZO_VFAIL("CFRFl warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-			 BaryonField[field][FieldIndex],
-			 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-			 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
-			 i, j, k, dim, field)
+
+		  ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 		/* Right side */
@@ -307,21 +309,23 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == InternalEnergy) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  if (debug)
- 
+		    printf("CFRFl warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			   BaryonField[field][FieldIndex],
+			   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+			   i, j, k, dim, field);
+
 		  /* If new density is < 0 then stop the flux correction. */
  
 		  BaryonField[field][FieldIndex + Offset] +=
-		     (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
-		      RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
+		    (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
+		     RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
 
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
-//		  ENZO_VFAIL("CFRFr warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" (%"ISYM") [%"ISYM"]\n",
-			 BaryonField[field][FieldIndex + Offset],
-			 InitialFluxes->RightFluxes[field][dim][FluxIndex],
-			 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
-			 i, j, k, dim, Offset, field)
+
+		  ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 	      }
