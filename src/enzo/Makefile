@@ -110,21 +110,21 @@ all: $(EXE).exe
 
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
 	@rm -f $@
-	@echo "Linking"
-	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
+	@echo "Linking enzo executable."
+#	@(if [ $(VERBOSE) -eq 0 ]; then \
+#		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
+#	else \
+#		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
+#		2>&1 ; \
+#	fi)
+	@(if [ -e $@ ] ; then  \
+		echo "Success!" ; \
 	else \
-	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
-	    2>&1 ; \
-	fi)
-	@(if [ -e $@ ]; then \
-	   echo "Success!"; \
-	else \
-	   echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
-	   cat temp1 $(OUTPUT) > temp2; \
-	   rm -f temp1; \
-	   mv -f temp2 $(OUTPUT); \
-	   echo "Failed! See $(OUTPUT) for error messages"; \
+		echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
+		cat temp1 $(OUTPUT) > temp2 ;\
+		rm -f temp1; \
+		mv -f temp2 $(OUTPUT); \
+		echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
 
 #-----------------------------------------------------------------------
