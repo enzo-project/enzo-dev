@@ -35,6 +35,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 {
 
   int dim = 2, idim = 0, jdim = 1;
+  int dim_p1 = dim+1;   // To match definition in calcdiss
 
   /* Find fields: density, total energy, velocity1-3. */
   
@@ -75,7 +76,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int i, k, n, ncolour, index2, index3;
 
-  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (i = 0; i < GridDimension[0]; i++) {
     index2 = i * GridDimension[2];
     for (k = 0; k < GridDimension[2]; k++) {
       index3 = (k*GridDimension[1] + j) * GridDimension[0] + i;
@@ -164,8 +165,8 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   is = GridStartIndex[2] + 1;
   ie = GridEndIndex[2] + 1;
-  js = GridStartIndex[0] + 1;
-  je = GridEndIndex[0] + 1;
+  js = 1;
+  je = GridDimension[0];
   is_m3 = is - 3;
   ie_p1 = ie + 1;
   ie_p3 = ie + 3;
@@ -192,7 +193,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   CellWidthTemp[0], CellWidthTemp[1], 
 			   &GridDimension[2], &GridDimension[0], 
 			   &GridDimension[1], &is, &ie, &js, &je, &k_p1,
-			   &nyz, &dim, &GridDimension[0],
+			   &nyz, &dim_p1, &GridDimension[0],
 			   &GridDimension[1], &GridDimension[2],
 			   &dtFixed, &Gamma, &PPMDiffusionParameter,
 			   &PPMFlatteningParameter, diffcoef, flatten);
@@ -314,7 +315,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Copy from slice to field */
 
-  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (i = 0; i < GridDimension[0]; i++) {
     index2 = i * GridDimension[2];
     for (k = 0; k < GridDimension[2]; k++) {
       index3 = (k*GridDimension[1] + j)*GridDimension[0] + i;

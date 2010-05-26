@@ -403,3 +403,11 @@ int ReassignSuperSources(void);
 
 int CorrectRadiationIncompleteness(void);
 int FinalizeRadiationFields(void);
+
+//***********************************************************************
+// Routines for coupling to FLD solver
+
+int DeleteEmissivity(void);
+int CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD);
+int AddRadiationImpulse(int field, double Luminosity, double sigma, 
+			FLOAT BirthTime, FLOAT* pos);

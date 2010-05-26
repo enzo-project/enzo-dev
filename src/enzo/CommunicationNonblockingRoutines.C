@@ -37,6 +37,7 @@ void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
 				 char *msg=NULL);
 int KeepTransportingSend(int keep_transporting);
 int KeepTransportingCheck(char* &kt_global, int &keep_transporting);
+int InitializePhotonMessages(void);
 static Eint32 PH_ListOfIndices[MAX_PH_RECEIVE_BUFFERS];
 static MPI_Status PH_ListOfStatuses[MAX_PH_RECEIVE_BUFFERS];
 #endif /* USE_MPI */
@@ -51,10 +52,12 @@ int InitializePhotonCommunication(void)
   /* Receive any orphaned messages from the last RT call, so they
      don't interfere with this cycle. */
 
+#ifdef NONBLOCKING_RT
   char *dummy = new char[NumberOfProcessors];
   KeepTransportingCheck(dummy, i);
   delete [] dummy;
   CommunicationBarrier();
+#endif /* NONBLOCKING_RT */
 
   /* Initialize */
 
@@ -70,6 +73,20 @@ int InitializePhotonCommunication(void)
   
   /* Anticipate the first call for the number of messages to receive */
 
+#ifdef NONBLOCKING_RT
+  InitializePhotonMessages();
+#endif
+
+#endif /* USE_MPI */
+    return SUCCESS;
+}
+
+/**********************************************************************/
+int InitializePhotonMessages(void)
+{
+  int proc;
+  PhotonMessageIndex = 0;
+  PhotonMessageMaxIndex = 0;
   for (proc = 0; proc < NumberOfProcessors; proc++)
     if (proc != MyProcessorNumber) {
       MPI_Irecv(PhotonMessageBuffer+PhotonMessageIndex,
@@ -78,11 +95,8 @@ int InitializePhotonCommunication(void)
       PhotonMessageIndex++;
       PhotonMessageMaxIndex++;
     } // ENDIF other processor
-
-#endif /* USE_MPI */
-    return SUCCESS;
+  return SUCCESS;
 }
-
 /**********************************************************************/
 
 int KeepTransportingInitialize(char* &kt_global, bool initial_call)
@@ -104,7 +118,7 @@ int KeepTransportingInitialize(char* &kt_global, bool initial_call)
       } else {
 	KeepTransMessageIndex =
 	  CommunicationFindOpenRequest(KeepTransMessageRequest, NO_HINT,
-				       100*MAX_PH_RECEIVE_BUFFERS,
+				       10*MAX_PH_RECEIVE_BUFFERS,
 				       KeepTransMessageIndex,
 				       KeepTransMessageMaxIndex);
       }
@@ -200,7 +214,11 @@ int CommunicationNumberOfPhotonSends(int *nPhoton, int size)
   Eint32 NumberOfMessages, proc;
 
   for (proc = 0; proc < NumberOfProcessors; proc++)
+#ifdef NONBLOCKING_RT
     if (proc != MyProcessorNumber && nPhoton[proc] > 0) {
+#else
+    if (proc != MyProcessorNumber) {
+#endif
       NumberOfMessages = nPhoton[proc] / size;
       if (nPhoton[proc] % size > 0) NumberOfMessages++;
       if (DEBUG)
@@ -240,11 +258,16 @@ int PostPhotonReceives(Eint32 index, Eint32 proc, int size, MPI_Datatype type)
     PH_CommunicationReceiveBuffer[PH_CommunicationReceiveIndex] =
       (char *) ReceiveBuffer;
 
+#ifdef NONBLOCKING_RT
     PH_CommunicationReceiveIndex = 
       CommunicationFindOpenRequest(PH_CommunicationReceiveMPI_Request,
 				   NO_HINT, MAX_PH_RECEIVE_BUFFERS,
 				   PH_CommunicationReceiveIndex,
 				   PH_CommunicationReceiveMaxIndex);
+#else
+    PH_CommunicationReceiveIndex++;
+    PH_CommunicationReceiveMaxIndex++;
+#endif
 
     if (DEBUG)
       printf("P%d: PHCRIndex/Max = %d/%d\n", MyProcessorNumber, 
@@ -306,9 +329,11 @@ int InitializePhotonReceive(int max_size, bool local_transport,
   if (local_transport)
     MPI_Testsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
 		 PH_ListOfIndices, PH_ListOfStatuses);
-  else
-    MPI_Waitsome(PhotonMessageMaxIndex, PhotonMessageRequest, &NumberOfReceives,
-		 PH_ListOfIndices, PH_ListOfStatuses);
+  else {
+    MPI_Waitall(PhotonMessageMaxIndex, PhotonMessageRequest,
+		PH_ListOfStatuses);
+    NumberOfReceives = PhotonMessageMaxIndex;
+  }
   if (NumberOfReceives > 0)
     CommunicationCheckForErrors(PhotonMessageMaxIndex, PH_ListOfStatuses,
 				"Testsome InitializePhotonReceive");
@@ -320,8 +345,12 @@ int InitializePhotonReceive(int max_size, bool local_transport,
 	   PhotonMessageMaxIndex);
 
   for (i = 0; i < NumberOfReceives; i++) {
-    
+
+#ifdef NONBLOCKING_RT    
     index = PH_ListOfIndices[i];
+#else
+    index = i;
+#endif
     RecvProc = PH_ListOfStatuses[i].MPI_SOURCE;
 
     if (DEBUG)
@@ -336,6 +365,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
        there's already a message waiting.  If so, post another
        receive.  Repeat until no more messages. */
 
+#ifdef NONBLOCKING_RT
     do {
       PhotonMessageIndex =
 	CommunicationFindOpenRequest(PhotonMessageRequest, index,
@@ -354,6 +384,7 @@ int InitializePhotonReceive(int max_size, bool local_transport,
       }
 
     } while (MessageReceived);
+#endif /* NONBLOCKING_RT */
 
   } // ENDFOR i (receives)
 
@@ -443,7 +474,7 @@ int KeepTransportingCheck(char* &kt_global, int &keep_transporting)
     do {
       KeepTransMessageIndex =
 	CommunicationFindOpenRequest(KeepTransMessageRequest, NO_HINT,
-				     100*MAX_PH_RECEIVE_BUFFERS,
+				     10*MAX_PH_RECEIVE_BUFFERS,
 				     KeepTransMessageIndex,
 				     KeepTransMessageMaxIndex);
       MPI_Irecv(KeepTransMessageBuffer + KeepTransMessageIndex, 

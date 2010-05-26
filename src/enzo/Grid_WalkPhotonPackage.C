@@ -155,19 +155,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
-    if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      (*PP)->PrintInfo();
-      printf("Grid cell = %d %d %d\n", g[0], g[1], g[2]);
-      printf("Grid left edge = %"PSYM" %"PSYM" %"PSYM"\n",
-	     GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      printf("Grid right edge = %"PSYM" %"PSYM" %"PSYM"\n",
-	     GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
-      printf("Sending to parent grid.\n");
-      *MoveToGrid = ParentGrid;
-      DeltaLevel = -1;
-      return SUCCESS;
-      //ENZO_FAIL("Ray out of grid?");
-    }
+    if (g[dim] < 0 || g[dim] >= GridDimension[dim])
+      ENZO_FAIL("Ray out of grid?");
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions
@@ -460,10 +449,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
        not completely cover the cell */
 
     midpoint = oldr + 0.5f*ddr - PFLOAT_EPSILON;
-    nearest_edge = -1e20;
     for (dim = 0; dim < 3; dim++)
       m[dim] = fabs(s[dim] + midpoint * u[dim] - (ce[dim] + dxhalf));
-    nearest_edge = max(max(m[0], m[1]), m[2]);
+    for (dim = 1, nearest_edge = m[0]; dim < 3; dim++)
+      if (m[dim] > nearest_edge) nearest_edge = m[dim];
     sangle_inv = 1.0 / (dtheta*radius);
     slice_factor = min(0.5f + (dxhalf-nearest_edge) * sangle_inv, 1.0f);
     slice_factor2 = slice_factor * slice_factor;

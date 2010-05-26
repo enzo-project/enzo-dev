@@ -409,6 +409,11 @@ float grid::ComputeTimeStep()
       (TimestepSafetyVelocity*1e5 / VelocityUnits);    // parameter in km/s
 
   dt = min(dt, dtSafetyVelocity);
+
+
+  /* 9) FLD Radiative Transfer timestep limitation */
+  if (RadiativeTransferFLD)
+    dt = min(dt, MaxRadiationDt);
   
 #endif /* TRANSFER */
  

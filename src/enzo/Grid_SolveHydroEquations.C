@@ -86,7 +86,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        (note: the solver has been modified to treat these as density vars). */
 
     int NumberOfColours = 0, ColourNum;
-    if (MultiSpecies > 0) {
+
+    // use different color fields for RadiativeTransferFLD problems
+    //   first, the standard Enzo color field advection
+    if (MultiSpecies > 0 && RadiativeTransferFLD != 2) {
       NumberOfColours = 6 + 3*(MultiSpecies-1);
 
       if ((ColourNum =
@@ -100,6 +103,68 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       for (i = 0; i < NumberOfColours; i++)
         colnum[i] = ColourNum+i;
 
+    }
+    // second, the color field advection if using RadiativeTransferFLD for 
+    // a radiation propagation problem (i.e. not using ray-tracing)
+    if (RadiativeTransferFLD == 2) {
+      if (ImplicitProblem < 4)  {  // grey radiation problem
+	
+	// set the grey radiation field (required)
+	if ((ColourNum =
+	     FindField(RadiationFreq0, FieldType, NumberOfBaryonFields)) < 0) 
+	  ENZO_FAIL("Could not find RadiationFreq0.");
+	colnum[0] = ColourNum;
+
+	// check for other chemistry fields; add if they're present
+	//   ElectronDensity
+	if ((ColourNum =
+	     FindField(ElectronDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HIDensity
+	if ((ColourNum =
+	     FindField(HIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HIIDensity
+	if ((ColourNum =
+	     FindField(HIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HeIDensity
+	if ((ColourNum =
+	     FindField(HeIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HeIIDensity
+	if ((ColourNum =
+	     FindField(HeIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HeIIIDensity
+	if ((ColourNum =
+	     FindField(HeIIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HMDensity
+	if ((ColourNum =
+	     FindField(HMDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   H2IDensity
+	if ((ColourNum =
+	     FindField(H2IDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   H2IIDensity
+	if ((ColourNum =
+	     FindField(H2IIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   DIDensity
+	if ((ColourNum =
+	     FindField(DIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   DIIDensity
+	if ((ColourNum =
+	     FindField(DIIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+	//   HDIDensity
+	if ((ColourNum =
+	     FindField(HDIDensity, FieldType, NumberOfBaryonFields)) >= 0) 
+	  colnum[++NumberOfColours] = ColourNum;
+      }
     }
 
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */

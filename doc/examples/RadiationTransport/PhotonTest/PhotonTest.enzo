@@ -1,0 +1,73 @@
+#  RADIATIVE TRANSFER TEST PROBLEM
+#
+#  ** Test 1 from Iliev et al. (2006), MNRAS, 371, 1057 **
+#
+#  - Source at the origin
+#  - Luminosity = 5e48 ph/s
+#  - Fixed temperature, no hydro
+#  - Density = 1e-3 cm^-3
+#
+ProblemType             = 50
+TopGridRank             = 3
+StopTime                = 250
+
+TopGridDimensions       = 32 32 32
+
+MultiSpecies            = 1
+RadiativeCooling        = 1
+Gamma = 1.0001  // isothermal
+
+RadiativeTransfer       = 1
+RadiativeTransferRaysPerCell = 5.1
+RadiativeTransferInitialHEALPixLevel = 3
+RadiativeTransferHIIRestrictedTimestep = 1
+RadiativeTransferAdaptiveTimestep = 1
+RadiativeTransferHydrogenOnly = 1
+
+ComovingCoordinates     = 0
+DensityUnits = 1.673e-27    // 1e-3 cm^-3
+TimeUnits = 3.1557e13   // Myr
+LengthUnits = 2.03676e22  // 6.6 kpc
+
+HydroMethod             = -1   // no hydro
+DualEnergyFormalism     = 1 
+
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3       // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+StaticHierarchy            = 1        // No AMR
+MaximumRefinementLevel     = 0        // use up to __ levels
+RefineBy                   = 2        // refinement factor
+CellFlaggingMethod         = 2        // use baryon mass for refinement 
+
+GravitationalConstant      = 1
+SelfGravity                = 1
+
+PhotonTestOmegaBaryonNow   = 1.0
+PhotonTestInitialTemperature = 1e4
+PhotonTestInitialFractionHII  = 1.2e-3
+
+PhotonTestNumberOfSources     = 1
+
+PhotonTestSourceType[0]       = 1
+PhotonTestSourcePosition[0]   = 1e-3 1e-3 1e-3
+PhotonTestSourceLuminosity[0] = 5e48       // photon number flux [#/s]
+PhotonTestSourceLifeTime[0]   = 1e10
+PhotonTestSourceEnergyBins[0] = 1
+#PhotonTestSourceEnergy[0] = 23.2686
+PhotonTestSourceEnergy[0] = 13.60001
+
+PhotonTestNumberOfSpheres      = 0
+
+#PhotonTestSphereType[0]        = 1 
+#PhotonTestSphereRadius[0]      = 0.5
+#PhotonTestSphereDensity[0]     = 2.
+#PhotonTestSphereTemperature[0] = 1.e3
+#PhotonTestSphereCoreRadius[0]  = 0.05
+#PhotonTestSpherePosition[0]    = 0.5 0.5 0.5
+
+dtDataDump = 10.0                        // one every 10 Myr
+Initialdt  = 0.01
+
+

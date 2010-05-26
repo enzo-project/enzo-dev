@@ -35,6 +35,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 {
 
   int dim = 1, idim = 0, jdim = 2;
+  int dim_p1 = dim+1;   // To match definition in calcdiss
 
   /* Find fields: density, total energy, velocity1-3. */
   
@@ -74,7 +75,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   }
 
   int j, k, n, ncolour, index2, index3;
-  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+  for (k = 0; k < GridDimension[2]; k++) {
 
     index2 = k * GridDimension[1];
 
@@ -166,8 +167,8 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   is = GridStartIndex[1] + 1;
   ie = GridEndIndex[1] + 1;
-  js = GridStartIndex[2] + 1;
-  je = GridEndIndex[2] + 1;
+  js = 1;
+  je = GridDimension[2];
   is_m3 = is - 3;
   ie_p1 = ie + 1;
   ie_p3 = ie + 3;
@@ -194,7 +195,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   CellWidthTemp[2], CellWidthTemp[0], 
 			   &GridDimension[1], &GridDimension[2],
 			   &GridDimension[0], &is, &ie, &js, &je, &k_p1,
-			   &nxz, &dim, &GridDimension[0],
+			   &nxz, &dim_p1, &GridDimension[0],
 			   &GridDimension[1], &GridDimension[2],
 			   &dtFixed, &Gamma, &PPMDiffusionParameter,
 			   &PPMFlatteningParameter, diffcoef, flatten);
@@ -316,7 +317,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Copy from slice to field */
 
-  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+  for (k = 0; k < GridDimension[2]; k++) {
     index2 = k * GridDimension[1];
     for (j = 0; j < GridDimension[1]; j++) {
       index3 = (k*GridDimension[1] + j)*GridDimension[0] + i;

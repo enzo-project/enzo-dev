@@ -41,6 +41,7 @@ class Star
   PINT		 Identifier;
   int		 level;
   int		 GridID;
+  bool           AddedEmissivity;
   star_type	 type;
   float          accreted_angmom[MAX_DIMENSION];  // used for MBH_JETS feedback
   double         NotEjectedMass;                  // Msun, used for MBH_JETS feedback
@@ -69,6 +70,7 @@ public:
   star_type ReturnType(void) { return type; };
   int   ReturnID(void) { return Identifier; };
   double ReturnMass(void) { return Mass; };
+  float ReturnBirthTime(void) { return BirthTime; };
   double ReturnFinalMass(void) { return FinalMass; };
   void  AssignFinalMass(double value) { FinalMass = value; };
   float ReturnLifetime(void) { return LifeTime; };
@@ -92,6 +94,8 @@ public:
   { accretion_rate = NULL; accretion_time = NULL; }
   bool  IsActive(void) { return type >= 0; }
   bool  IsUnborn(void) { return type < 0; }
+  bool  ReturnEmissivityFlag(void) { return AddedEmissivity; };
+  void  AddEmissivityFlag(void) { this->AddedEmissivity = true; };
   FLOAT *ReturnPosition(void) { return pos; }
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
@@ -99,7 +103,7 @@ public:
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int	CalculateMassAccretion(void);
-  int	ComputePhotonRates(float E[], double Q[]);
+  int	ComputePhotonRates(int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS

@@ -40,7 +40,7 @@ int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 {
 
   /* Return if this does not concern us */
-  if (!(RadiativeTransfer)) return SUCCESS;
+  if (!RadiativeTransfer) return SUCCESS;
 
   FLOAT GridTime, dt;
   GridTime = LevelArray[level]->GridData->ReturnTime();

@@ -26,15 +26,7 @@
 // This must be included BEFORE macros_and_parameters.h
 // so we use int here
 
-#ifdef DEFINE_STORAGE
-# define EXTERN
-#else /* DEFINE_STORAGE */
-# define EXTERN extern
-#endif
-
-EXTERN char current_error[255];
-
-#undef EXTERN
+extern char current_error[255];
 
  class EnzoFatalException
  {

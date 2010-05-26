@@ -234,8 +234,6 @@ int grid::ComputeAccelerationFieldExternal()
 
 	}  // if (PointSourceGravity == 1)
 
-
-
 	if (PointSourceGravity == 2) {
 
 	  /* (2) NFW Profile: assume CoreRadius is rs in cm and Constant
@@ -265,8 +263,9 @@ int grid::ComputeAccelerationFieldExternal()
       
   } // end: if (PointSourceGravity)
 
+
   /* -----------------------------------------------------------------
-     ExternalGraivty 1: NFW profile
+     ExternalGravity 1: another similar way for a NFW profile
      ----------------------------------------------------------------- */
 
   if (ExternalGravity == 1) {
@@ -371,7 +370,7 @@ int grid::ComputeAccelerationFieldExternal()
 
   }
 
- 
+
   /* -----------------------------------------------------------------
      Uniform gravity field
      ----------------------------------------------------------------- */

@@ -18,6 +18,13 @@ MACH_TEXT  = NASA GSFC Discover
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nasa-discover
 
+MACHINE_NOTES = "MACHINE_NOTES for Discover at NASA/GSFC: \
+	No modules are needed to compile. \
+	In the PBS script, first add this line (or the bash equiv.), \
+	'setenv LD_LIBRARY_PATH /home/jhwise/local/hdf5/1.8.4s/lib' \
+	and then load these modules, \
+	'module add comp/intel-11.1.056 mpi/impi-3.2.2.006'"
+
 #-----------------------------------------------------------------------
 # Commands to run test executables
 #-----------------------------------------------------------------------
@@ -27,11 +34,12 @@ MACH_FILE  = Make.mach.nasa-discover
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_PACKAGES       = /home/jwise/local
+LOCAL_PACKAGES       = /home/jhwise/local
 
-LOCAL_MPI_INSTALL    = /usr/local/intel/mpi/3.2.1.009
-LOCAL_FC_INSTALL     = /usr/local/intel/fc/10.1.021
-LOCAL_HDF5_INSTALL   = /home/jwise/local/hdf5/1.8.2s
+LOCAL_MPI_INSTALL    = /usr/local/intel/mpi/3.2.2.006
+#LOCAL_MPI_INSTALL    = /usr/local/other/mvapich2/1.4.1_intel-11.1.056
+LOCAL_FC_INSTALL     = /usr/local/intel/Compiler/11.1/056/
+LOCAL_HDF5_INSTALL   = /home/jhwise/local/hdf5/1.8.4s
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
@@ -44,11 +52,11 @@ MACH_CPP       = /usr/bin/cpp
 
 # With MPI
 
-MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin64/mpiicc
-MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin64/mpiicpc
-MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin64/mpiifort
-MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin64/mpiifort
-MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin64/mpiicpc
+MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpiicc
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpiicpc
+MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpiifort
+MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpiifort
+MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpiicpc
 
 # Without MPI
 
@@ -66,9 +74,7 @@ MACH_LD_NOMPI  = icpc # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DFAST_SIB \
-	        -DSTATIC_SIBLING_LIST -DNO_FLUX_FIX -DNO_IO_LOG \
-		-DENABLE_LOAD_BALANCE -DOPTIMIZED_CTP -DNO_DEBUG_MPI
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -96,8 +102,9 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = -Wall -g
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O3
-MACH_OPT_AGGRESSIVE  = -ipo -prof-use -prof-dir /home/jwise/codes/opt-prof
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+#MACH_OPT_AGGRESSIVE  = -ipo -O3
 
 #-----------------------------------------------------------------------
 # Includes
@@ -119,9 +126,8 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MACH  = -L$(LOCAL_FC_INSTALL)/lib64 -lifcore -lifport
-#LOCAL_LIBS_HDF5  =  -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lsz
 LOCAL_LIBS_HDF5  =  -L$(LOCAL_HDF5_INSTALL)/lib -L$(HOME)/local/lib \
-			-lhdf5 -lsz -lz
+	-lhdf5 -lsz -lz
 
 MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
