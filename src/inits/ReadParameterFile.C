@@ -24,8 +24,7 @@
 #include "global_data.h"
 #include "Parameters.h"
  
- 
- 
+int intpow(int base, int exponent);
  
 int ReadParameterFile(FILE *fptr, parmstruct *Parameters)
 {
@@ -81,11 +80,24 @@ int ReadParameterFile(FILE *fptr, parmstruct *Parameters)
     ret += sscanf(line, "RootGridDims = %"ISYM" %"ISYM" %"ISYM"\n",
 		  Parameters->RootGridDims, Parameters->RootGridDims+1,
 		  Parameters->RootGridDims+2);
- 
+    ret += sscanf(line, "RefineRegionLeftEdge = %"FSYM" %"FSYM" %"FSYM, 
+		  Parameters->RefineRegionLeftEdge,
+		  Parameters->RefineRegionLeftEdge+1,
+		  Parameters->RefineRegionLeftEdge+2);
+    ret += sscanf(line, "RefineRegionRightEdge = %"FSYM" %"FSYM" %"FSYM,
+		  Parameters->RefineRegionRightEdge,
+		  Parameters->RefineRegionRightEdge+1, 
+		  Parameters->RefineRegionRightEdge+2);
+
     ret += sscanf(line, "WaveNumberCutoff = %"ISYM,&Parameters->WaveNumberCutoff);
     ret += sscanf(line, "InitializeParticles = %"ISYM,
 		  &Parameters->InitializeParticles);
     ret += sscanf(line, "InitializeGrids = %"ISYM, &Parameters->InitializeGrids);
+    ret += sscanf(line, "RandomNumberGenerator = %"ISYM, &Parameters->RandomNumberGenerator);
+    ret += sscanf(line, "RefineBy = %"ISYM, &Parameters->RefineBy);
+    ret += sscanf(line, "MaximumInitialRefinementLevel = %"ISYM, 
+		  &Parameters->MaximumInitialRefinementLevel);
+
  
     if (sscanf(line, "ParticlePositionName = %s", dummy) == 1)
       Parameters->ParticlePositionName = dummy;
@@ -132,6 +144,40 @@ int ReadParameterFile(FILE *fptr, parmstruct *Parameters)
     printf("Check: Parameters->TopGridStart[%"ISYM"] = %"ISYM"\n", dim, Parameters->TopGridStart[dim]);
     printf("Check: Parameters->TopGridEnd[%"ISYM"] = %"ISYM"\n", dim, Parameters->TopGridEnd[dim]);
   }
+
+  /* If MaximumInitialRefinementLevel is being used, then set MaxDims and
+     root grid dims. */
+
+  if (Parameters->MaximumInitialRefinementLevel != INT_UNDEFINED) {
+
+    /* Set RootGridDims so that NewCenterFloat will work. */
+
+    for (dim = 0; dim < Parameters->Rank; dim++) 
+      if (Parameters->RootGridDims[dim] == INT_UNDEFINED) {
+	if (Parameters->GridDims[dim] == INT_UNDEFINED)
+	  Parameters->RootGridDims[dim] = Parameters->ParticleDims[dim];
+	else
+	  Parameters->RootGridDims[dim] = Parameters->GridDims[dim];
+      }
+    if (debug) printf("RootGridDims = %"ISYM" %"ISYM" %"ISYM"\n", Parameters->RootGridDims[0],
+		      Parameters->RootGridDims[1], Parameters->RootGridDims[2]);
+
+    /* Set MaxDims based on RootGridDims and max refinement level (N*r^l). */
+
+    for (dim = 0; dim < Parameters->Rank; dim++) {
+      int dim_temp = Parameters->RootGridDims[dim]*
+	intpow(Parameters->RefineBy, Parameters->MaximumInitialRefinementLevel);
+      if (Parameters->MaxDims[dim] != INT_UNDEFINED && 
+	  Parameters->MaxDims[dim] != dim_temp) {
+	fprintf(stderr, "Do not set MaxDims with MaximumInitialRefinementLevel\n");
+	return FAIL;
+      }
+      Parameters->MaxDims[dim] = dim_temp;
+    }
+    if (debug) printf("MaxDims = %"ISYM" %"ISYM" %"ISYM"\n", Parameters->MaxDims[0],
+		      Parameters->MaxDims[1], Parameters->MaxDims[2]);
+
+  } // end: if using AutomaticSubgridGeneration
 
   // Set parameters that were left undefined
  
