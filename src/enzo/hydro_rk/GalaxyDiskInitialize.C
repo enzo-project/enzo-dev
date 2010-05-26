@@ -22,6 +22,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -89,6 +90,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     HaloAngVel[MAX_SPHERES],
     DiskDensity[MAX_SPHERES],
     DiskTemperature[MAX_SPHERES],
+    DiskMassFraction[MAX_SPHERES],
     UniformVelocity[MAX_DIMENSION];
   FLOAT HaloRadius[MAX_SPHERES],
     HaloCoreRadius[MAX_SPHERES],
@@ -196,6 +198,11 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "DiskTemperature[%"ISYM"] = %"FSYM, &sphere,
 		    &DiskTemperature[sphere]);
 
+    if (sscanf(line, "DiskMassFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskMassFraction[%"ISYM"] = %"FSYM, &sphere,
+		    &DiskMassFraction[sphere]);
+
+
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxyDisk") 
@@ -218,7 +225,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 
   printf("timeu=%g(year)\n", TimeUnits/3.1558e7);
   printf("temp=%g, radius=%g, height=%g, density=%g\n",
-	 DiskTemperature[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
+	 DiskTemperature[0], DiskMassFraction[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
 
   if (UsePhysicalUnit) {
     MediumDensity /= DensityUnits;
@@ -235,6 +242,17 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
   HaloConcentration = HaloVirialRadius/HaloCoreRadius[0]/LengthUnits;
   HaloCentralDensity = HaloDensity[0]*DensityUnits;
 
+  if (DiskTemperature[0] > 0 && EOSSoundSpeed <= 0) {
+    double tgamma = Gamma;
+    if (EOSType == 3)
+      tgamma = 1.;
+    double c_s = sqrt(tgamma/Mu/mh * kboltz * DiskTemperature[0])/VelocityUnits;
+    printf("EOSSoundSpeed was not set.\n");
+    printf("Setting EOSSoundSpeed based on DiskTemperature[0]=%g K to %g (%g in code units)\n",
+	   DiskTemperature[0], c_s*VelocityUnits, c_s);
+    EOSSoundSpeed = c_s;
+  }
+
   /* set up grid */
 
   if (TopGrid.GridData->GalaxyDiskInitializeGrid(
@@ -244,7 +262,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature,
+	     DiskDensity, DiskTemperature, DiskMassFraction,
 	     GalaxyType, UseParticles,
 	     UseGas,
              UniformVelocity,
@@ -293,7 +311,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature,
+	     DiskDensity, DiskTemperature, DiskMassFraction, 
 	     GalaxyType, UseParticles,
 	     UseGas,
 	     UniformVelocity,

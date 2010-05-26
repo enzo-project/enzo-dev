@@ -41,6 +41,10 @@ int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridLis
 		     int StaticLevelZero,TopGridData * MetaData,int level){
 
   int grid1;
+
+  if (NumberOfGrids <= 1)   // no siblings to find?
+    return SUCCESS;
+
 #ifdef STATIC_SIBLING_LIST
   if ( StaticLevelZero == 1 && level == 0 ) {
     

@@ -491,18 +491,20 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Grids[grid1]->GridData->AddResistivity();
 	
 	  time1 = ReturnWallTime();
-	  
-	 
+	   
 	
 	} // ENDIF MHD_RK
-      } // ENDIF UseHydro
 
       /* Add viscosity */
 
-      if (UseViscosity) {
+      if (UseViscosity) 
 	Grids[grid1]->GridData->AddViscosity();
 
-      }
+      /* If using comoving co-ordinates, do the expansion terms now. */
+      if (ComovingCoordinates)
+	Grids[grid1]->GridData->ComovingExpansionTerms();
+
+      } // ENDIF UseHydro
 
 
       /* Solve the cooling and species rate equations. */
@@ -531,10 +533,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (UseFloor) 
 	Grids[grid1]->GridData->SetFloor();
 
-      /* If using comoving co-ordinates, do the expansion terms now. */
-
-      if (ComovingCoordinates)
-	Grids[grid1]->GridData->ComovingExpansionTerms();
 
     }  // end loop over grids
 
@@ -546,11 +544,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
       
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) 
 	Grids[grid1]->GridData->PoissonSolver(level);
-      }
-      
+    
     }
     
 #ifdef FAST_SIB

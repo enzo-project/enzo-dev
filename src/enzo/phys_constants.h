@@ -53,5 +53,7 @@
 /* Megaparsec [cm] */
 
 #define Mpc                             3.0857e24
+#define kpc                             3.0857e21
+#define pc                              3.0857e18
 
 #endif

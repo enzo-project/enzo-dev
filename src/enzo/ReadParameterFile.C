@@ -913,7 +913,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
-  //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
   /* Even if this is not cosmology, due to a check for nested grid cosmology
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
@@ -946,6 +945,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     rewind(fptr);
   }
+
+  /*
+    if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
+    Gamma = 1; 
+  */
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
     TimeUnits = 1.0, VelocityUnits = 1.0, PressureUnits = 1.0;

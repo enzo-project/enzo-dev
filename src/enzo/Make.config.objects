@@ -796,6 +796,7 @@ POBJS_CONFIG_LIB = \
         WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
+      	hydro_rk/ModifiedBesselFunctions.o \
       	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
