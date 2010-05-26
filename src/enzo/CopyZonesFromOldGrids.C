@@ -155,8 +155,9 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     }
 
     FirstGrid = Temp;
+#ifdef USE_MPI
     CommunicationBufferPurge();
-
+#endif /* USE_MPI */
   } // ENDWHILE grid batches
 
   return SUCCESS;

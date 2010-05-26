@@ -50,6 +50,7 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 				   float DiskDensity[MAX_SPHERES],
 				   float DiskTemperature[MAX_SPHERES],
 				   float DiskMassFraction[MAX_SPHERES],
+				   float DiskFlaringParameter[MAX_SPHERES],
 				   int   GalaxyType[MAX_SPHERES],
 				   int   UseParticles, int UseGas,
 				   float UniformVelocity[MAX_DIMENSION],
@@ -296,12 +297,14 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
     
     // this sets up an isothermal disk in equilbrium vertically and radially within a static NFW halo
     // Central gas surface density Sigma_0 using DiskRadius for DiskScale Radius
-    // from M_disk = 6 Pi Sigma_0 R_D^2  from  Sigma(R) = 2 rho_0 h_0 (1 + R/R_D) Exp[ -R/R_D ]
+    // from M_disk = 6 Pi Sigma_0 R_D^2  from  Sigma(R) = 2 rho_0 h_0 (1 + R/R_D/F) Exp[ -R/R_D ]
+    // where F is the DiskFlaringParameter; 
     // rho_0 is central midplane density; h_0 is central scale height and R_D is the disk scale radius
     // R: is the cylindrical radius not spherical
     
     double R_D = DiskRadius[sphere] * LengthUnits;
-    double Sigma_0 = DiskMassFraction[sphere]*NFWMass[0]/(R_D*R_D*6*M_PI);
+    double F = DiskFlaringParameter[sphere];
+    double Sigma_0 = DiskMassFraction[sphere]*NFWMass[0]/(R_D*R_D*2*M_PI)*F/(2+F);
     double c_s;
     double tgamma = Gamma;
     if (EOSType == 3)

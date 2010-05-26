@@ -91,6 +91,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     DiskDensity[MAX_SPHERES],
     DiskTemperature[MAX_SPHERES],
     DiskMassFraction[MAX_SPHERES],
+    DiskFlaringParameter[MAX_SPHERES],
     UniformVelocity[MAX_DIMENSION];
   FLOAT HaloRadius[MAX_SPHERES],
     HaloCoreRadius[MAX_SPHERES],
@@ -111,6 +112,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       HaloVelocity[sphere][dim] = 0;
     }
     GalaxyType[sphere]       = 0;
+    DiskMassFraction[sphere] = 0.;
+    DiskFlaringParameter[sphere] = 10.;
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     UniformVelocity[dim] = 0;
@@ -188,6 +191,10 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "DiskMassFraction[%"ISYM"] = %"FSYM, &sphere,
 		    &DiskMassFraction[sphere]);
 
+    if (sscanf(line, "DiskFlaringParameter[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskFlaringParameter[%"ISYM"] = %"FSYM, &sphere,
+		    &DiskFlaringParameter[sphere]);
+
 
     /* if the line is suspicious, issue a warning */
 
@@ -247,7 +254,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature, DiskMassFraction,
+	     DiskDensity, DiskTemperature, DiskMassFraction, DiskFlaringParameter, 
 	     GalaxyType, UseParticles,
 	     UseGas,
              UniformVelocity,
@@ -296,7 +303,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature, DiskMassFraction, 
+	     DiskDensity, DiskTemperature, DiskMassFraction, DiskFlaringParameter, 
 	     GalaxyType, UseParticles,
 	     UseGas,
 	     UniformVelocity,
