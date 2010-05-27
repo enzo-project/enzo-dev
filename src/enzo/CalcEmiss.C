@@ -191,8 +191,9 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 
 
 	    /* update the Emissivity_Array with <UV energy weighted by time> */
+	    printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
 	    EmissivityArray[i + *nx * (j + *ny * k)] += uv_energy;
-
+	    printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
 	  }
 	}
 	else {
