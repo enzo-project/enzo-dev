@@ -37,8 +37,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !                 D_i(Eg) = c/sigT/R_i/omega*[coth(R_i)-1/R_i],
 !             [rational approx. to above, Levermore-Pomraning, 1981],
 !                 D_i(Eg) = c/sigT/omega*(2+R_i)/(6+3*R_i+R_i**2),
-!             [Reynolds approximation to LP],
-!                 D_i(Eg) = 2/pi*c/sigT/R_i/omega*atan(R_i*pi/6).
+!             [Larsen n=2 limiter],
+!                 D_i(Eg) = c/sqrt((3*sigT)**2 + R**2)
 !             [Zeus form of rational approx. to LP],
 !                 D_i(Eg) = 2/pi*c/sigT/R_i*atan(R_i*pi/6),
 !                 R_i = |Grad(Eg)_i|/sigT/Eg,
@@ -56,7 +56,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
-!                       2 -> Reynolds approx to LP lim.
+!                       2 -> Larsen n=2 limiter
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
 !     a          - cosmological expansion parameter
@@ -115,7 +115,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
   integer :: i, j, k
   real :: c, pi, StBz, dxi, dyi, dzi, dtfac
   real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: GradEg, Dlim
+  real :: Dlim
   real :: Rmin, acoef
 
 !=======================================================================
@@ -150,9 +150,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i,j,k) - EgOld(i-1,j,k))*dxi
 
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i,j,k) - EgCur(i-1,j,k))*dxi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i-1,j,k))/2.d0
 
@@ -160,7 +157,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i-1,j,k))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -176,8 +173,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -199,9 +196,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i+1,j,k) - EgOld(i,j,k))*dxi
            
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i+1,j,k) - EgCur(i,j,k))*dxi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i+1,j,k))/2.d0
            
@@ -209,7 +203,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i+1,j,k))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -225,8 +219,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -254,9 +248,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i,j,k) - EgOld(i,j-1,k))*dyi
 
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i,j,k) - EgCur(i,j-1,k))*dyi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i,j-1,k))/2.d0
 
@@ -264,7 +255,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i,j-1,k))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -280,8 +271,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -303,9 +294,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i,j+1,k) - EgOld(i,j,k))*dyi
 
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i,j+1,k) - EgCur(i,j,k))*dyi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i,j+1,k))/2.d0
 
@@ -313,7 +301,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i,j+1,k))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -329,8 +317,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -358,9 +346,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i,j,k) - EgOld(i,j,k-1))*dzi
 
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i,j,k) - EgCur(i,j,k-1))*dzi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i,j,k-1))/2.d0
 
@@ -368,7 +353,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i,j,k-1))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -384,8 +369,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -407,9 +392,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    radiation energy gradient on face
            AGradEg = abs(EgOld(i,j,k+1) - EgOld(i,j,k))*dzi
 
-           !    compute gradients of current Eg
-           GradEg = (EgCur(i,j,k+1) - EgCur(i,j,k))*dzi
-
            !    face-centered radiation energy value
            Egf = (EgOld(i,j,k) + EgOld(i,j,k+1))/2.d0
 
@@ -417,7 +399,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            sigT = (kappaE(i,j,k)+kappaE(i,j,k+1))/2.d0
 
            !    compute R for limiter based on LimType
-           if (LimType == 4) then           ! Zeus limiter
+           if ((LimType == 4) .or. (LimType == 2)) then
               R = AGradEg/Egf
               R = max(R,Rmin)
            else                             ! all others
@@ -433,8 +415,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
               Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R) 
-           else if (LimType == 2) then  ! Reynolds approx to LP lim.
-              Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+           else if (LimType == 2) then  ! Larsen n=2 lim.
+              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
               Dlim = c/sigT/3.d0
            else if (LimType == 4) then  ! Zeus limiter
@@ -498,8 +480,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !                 D_i(Eg) = c/sigT/R_i/omega*[coth(R_i)-1/R_i],
 !             [rational approx. to above, Levermore-Pomraning, 1981],
 !                 D_i(Eg) = c/sigT/omega*(2+R_i)/(6+3*R_i+R_i**2),
-!             [Reynolds approximation to LP],
-!                 D_i(Eg) = 2/pi*c/sigT/R_i/omega*atan(R_i*pi/6).
+!             [Larsen n=2 limiter],
+!                 D_i(Eg) = c/sqrt((3*sigT)**2 + R**2)
 !             [Zeus form of rational approx. to LP],
 !                 D_i(Eg) = 2/pi*c/sigT/R_i*atan(R_i*pi/6),
 !                 R_i = |Grad(Eg)_i|/sigT/Eg,
@@ -517,7 +499,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
-!                       2 -> Reynolds approx to LP lim.
+!                       2 -> Larsen n=2 limiter
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
 !     a          - cosmological expansion parameter
@@ -574,7 +556,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
   integer :: i, j
   real :: c, pi, StBz, dxi, dyi, dtfac
   real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: GradEg, Dlim
+  real :: Dlim
   real :: Rmin, acoef
 
 !=======================================================================
@@ -607,9 +589,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    radiation energy gradient on face
         AGradEg = abs(EgOld(i,j) - EgOld(i-1,j))*dxi
 
-        !    compute gradients of current Eg
-        GradEg = (EgCur(i,j) - EgCur(i-1,j))*dxi
-
         !    face-centered radiation energy value
         Egf = (EgOld(i,j) + EgOld(i-1,j))/2.d0
 
@@ -617,7 +596,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         sigT = (kappaE(i,j)+kappaE(i-1,j))/2.d0
 
         !    compute R for limiter based on LimType
-        if (LimType == 4) then           ! Zeus limiter
+        if ((LimType == 4) .or. (LimType == 2)) then
            R = AGradEg/Egf
            R = max(R,Rmin)
         else                             ! all others
@@ -633,8 +612,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+        else if (LimType == 2) then  ! Larsen n=2 lim.
+           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
         else if (LimType == 4) then  ! Zeus limiter
@@ -656,9 +635,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    radiation energy gradient on face
         AGradEg = abs(EgOld(i+1,j) - EgOld(i,j))*dxi
         
-        !    compute gradients of current Eg
-        GradEg = (EgCur(i+1,j) - EgCur(i,j))*dxi
-
         !    face-centered radiation energy value
         Egf = (EgOld(i,j) + EgOld(i+1,j))/2.d0
         
@@ -666,7 +642,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         sigT = (kappaE(i,j)+kappaE(i+1,j))/2.d0
 
         !    compute R for limiter based on LimType
-        if (LimType == 4) then           ! Zeus limiter
+        if ((LimType == 4) .or. (LimType == 2)) then
            R = AGradEg/Egf
            R = max(R,Rmin)
         else                             ! all others
@@ -682,8 +658,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+        else if (LimType == 2) then  ! Larsen n=2 lim.
+           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
         else if (LimType == 4) then  ! Zeus limiter
@@ -711,9 +687,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    radiation energy gradient on face
         AGradEg = abs(EgOld(i,j) - EgOld(i,j-1))*dyi
 
-        !    compute gradients of current Eg
-        GradEg = (EgCur(i,j) - EgCur(i,j-1))*dyi
-
         !    face-centered radiation energy value
         Egf = (EgOld(i,j) + EgOld(i,j-1))/2.d0
 
@@ -721,7 +694,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         sigT = (kappaE(i,j)+kappaE(i,j-1))/2.d0
 
         !    compute R for limiter based on LimType
-        if (LimType == 4) then           ! Zeus limiter
+        if ((LimType == 4) .or. (LimType == 2)) then
            R = AGradEg/Egf
            R = max(R,Rmin)
         else                             ! all others
@@ -737,8 +710,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+        else if (LimType == 2) then  ! Larsen n=2 lim.
+           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
         else if (LimType == 4) then  ! Zeus limiter
@@ -760,9 +733,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    radiation energy gradient on face
         AGradEg = abs(EgOld(i,j+1) - EgOld(i,j))*dyi
 
-        !    compute gradients of current Eg
-        GradEg = (EgCur(i,j+1) - EgCur(i,j))*dyi
-
         !    face-centered radiation energy value
         Egf = (EgOld(i,j) + EgOld(i,j+1))/2.d0
 
@@ -770,7 +740,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         sigT = (kappaE(i,j)+kappaE(i,j+1))/2.d0
 
         !    compute R for limiter based on LimType
-        if (LimType == 4) then           ! Zeus limiter
+        if ((LimType == 4) .or. (LimType == 2)) then
            R = AGradEg/Egf
            R = max(R,Rmin)
         else                             ! all others
@@ -785,8 +755,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
            Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-        else if (LimType == 2) then  ! Reynolds approx to LP lim.
-           Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+        else if (LimType == 2) then  ! Larsen n=2 lim.
+           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
            Dlim = c/sigT/3.d0
         else if (LimType == 4) then  ! Zeus limiter
@@ -847,8 +817,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !                 D_i(Eg) = c/sigT/R_i/omega*[coth(R_i)-1/R_i],
 !             [rational approx. to above, Levermore-Pomraning, 1981],
 !                 D_i(Eg) = c/sigT/omega*(2+R_i)/(6+3*R_i+R_i**2),
-!             [Reynolds approximation to LP],
-!                 D_i(Eg) = 2/pi*c/sigT/R_i/omega*atan(R_i*pi/6).
+!             [Larsen n=2 limiter],
+!                 D_i(Eg) = c/sqrt((3*sigT)**2 + R**2)
 !             [Zeus form of rational approx. to LP],
 !                 D_i(Eg) = 2/pi*c/sigT/R_i*atan(R_i*pi/6),
 !                 R_i = |Grad(Eg)_i|/sigT/Eg,
@@ -866,7 +836,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !     LimType    - integer flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
-!                       2 -> Reynolds approx to LP lim.
+!                       2 -> Larsen n=2 limiter
 !                       3 -> turns off the limiter (constant of 1/3)
 !                       4 -> Zeus limiter
 !     a          - cosmological expansion parameter
@@ -920,7 +890,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   integer :: i
   real :: c, pi, StBz, dxi, dtfac
   real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: GradEg, Dlim
+  real :: Dlim
   real :: Rmin, acoef
 
 !=======================================================================
@@ -951,9 +921,6 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      !    radiation energy gradient on face
      AGradEg = abs(EgOld(i) - EgOld(i-1))*dxi
 
-     !    compute gradients of current Eg
-     GradEg = (EgCur(i) - EgCur(i-1))*dxi
-
      !    face-centered radiation energy value
      Egf = (EgOld(i) + EgOld(i-1))/2.d0
 
@@ -961,7 +928,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      sigT = (kappaE(i)+kappaE(i-1))/2.d0
 
      !    compute R for limiter based on LimType
-     if (LimType == 4) then           ! Zeus limiter
+     if ((LimType == 4) .or. (LimType == 2)) then
         R = AGradEg/Egf
         R = max(R,Rmin)
      else                             ! all others
@@ -977,8 +944,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      !    compute limiter
      if (LimType == 1) then        ! rational approx. to LP lim. (LP, 1981)
         Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+     else if (LimType == 2) then  ! Larsen n=2 lim.
+        Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
      else if (LimType == 3) then  ! no limiter
         Dlim = c/sigT/3.d0
      else if (LimType == 4) then  ! Zeus limiter
@@ -1000,9 +967,6 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      !    radiation energy gradient on face
      AGradEg = abs(EgOld(i+1) - EgOld(i))*dxi
      
-     !    compute gradients of current Eg
-     GradEg = (EgCur(i+1) - EgCur(i))*dxi
-
      !    face-centered radiation energy value
      Egf = (EgOld(i) + EgOld(i+1))/2.d0
      
@@ -1010,7 +974,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      sigT = (kappaE(i)+kappaE(i+1))/2.d0
 
      !    compute R for limiter based on LimType
-     if (LimType == 4) then           ! Zeus limiter
+     if ((LimType == 4) .or. (LimType == 2)) then
         R = AGradEg/Egf
         R = max(R,Rmin)
      else                             ! all others
@@ -1026,8 +990,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      !    compute limiter
      if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
         Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
-     else if (LimType == 2) then  ! Reynolds approx to LP lim.
-        Dlim = 2.d0*c/pi/omega*datan(R*pi/6.d0/sigT)/R
+     else if (LimType == 2) then  ! Larsen n=2 lim.
+        Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
      else if (LimType == 3) then  ! no limiter
         Dlim = c/sigT/3.d0
      else if (LimType == 4) then  ! Zeus limiter

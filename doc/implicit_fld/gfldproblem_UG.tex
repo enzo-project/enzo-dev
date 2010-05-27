@@ -306,9 +306,9 @@ this document.
   \item[0.] specifies the original Levermore-Pomraning limiter,
     \eqref{eq:LP_limiter} \cite{Levermore1984,LevermorePomraning1981}.
   \item[1.] specifies the rational approximation to the
-    Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
-  \item[2.] specifies to use a new approximation to the
-    Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
+    Levermore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
+  \item[2.] specifies to use the Larsen $n=2$ flux limiter,
+    \eqref{eq:Larsen_n2_limiter}. 
   \item[3.] specifies to use no limiter, \eqref{eq:no_limiter}.
   \item[4.] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
   \end{itemize}
@@ -420,9 +420,8 @@ where the directional limiters $D_i(E)$ are chosen to be one of
 \begin{align}
   \label{eq:ratLP_limiter}
    D_i(E) &= \frac{c(2\kappa+R_i)}{\omega(6\kappa^2+3\kappa R_i + R_i^2)}, \\
-  \label{eq:Reynolds_limiter}
-   D_i(E) &= \frac{2 c \tan^{-1}\left(\frac{R_i \pi}{6 \kappa}\right)}{\pi
-     \omega R_i},  \\
+  \label{eq:Larsen_n2_limiter}
+   D_i(E) &= \frac{c}{\left((3\kappa)^2 + R_i^2\right)^{1/2}},  \\
   \label{eq:no_limiter}
    D_i(E) &= \frac{c}{3\kappa}, \\
   \label{eq:Zeus_limiter}
@@ -438,11 +437,11 @@ In all of the above, the ``effective albedo'' is given by
 and the limiter factor $R_i$ is given by either
 \begin{align}
   \label{eq:R_zeus}
-   R_i &= \max\left\{\frac{|\partial_i E|}{E}, 10^{-20}\right\},
-     \qquad\text{[Zeus limiter, 
-     \eqref{eq:Zeus_limiter}]},\\ 
    R_i &= \max\left\{\frac{|\partial_i E|}{\omega E},
-     10^{-20}\right\}, \qquad\text{[all others]}. 
+     10^{-20}\right\}, \qquad\text{[Levermore-Pomraning limiters,
+     \eqref{eq:ratLP_limiter} \& \eqref{eq:LP_limiter}]}, \\
+   R_i &= \max\left\{\frac{|\partial_i E|}{E}, 10^{-20}\right\},
+     \qquad\text{[all others]}.
 \end{align}
 
 
