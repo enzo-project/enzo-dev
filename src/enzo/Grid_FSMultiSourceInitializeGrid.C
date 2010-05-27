@@ -69,8 +69,8 @@ int grid::FSMultiSourceInitializeGrid(float DensityConstant,
 
   // Get various units
   double MassUnits = 1.0;
-  float DensityUnits = LengthUnits = TemperatureUnits = TimeUnits
-    = VelocityUnits = 1.0;
+  float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, 
+    TimeUnits=1.0, VelocityUnits=1.0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
