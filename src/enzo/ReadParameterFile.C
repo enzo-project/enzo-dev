@@ -35,7 +35,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
- 
+#include "phys_constants.h" 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
 
@@ -995,7 +995,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumMassForRefinement[i] /= MassUnits;
+	MinimumMassForRefinement[i] *= SolarMass/MassUnits;
       }
 
   }
