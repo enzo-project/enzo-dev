@@ -12,7 +12,6 @@ RadiationBoundaryX0Faces = 1 2        // Dirichlet left; Neumann right
 RadStreamDim = 0                      // x-dimension for streaming problem
 RadStreamDir = 0                      // left->right streaming radiation
 PlanckOpacityC0 = 1.0e-4              // kappa = C0 * (rho/C1)^C2 * (Temp/C3)^C4
-PlanckOpacityC0 = 1.0e-4
 PlanckOpacityC1 = 1.0
 PlanckOpacityC2 = 0.0
 PlanckOpacityC3 = 1.0
