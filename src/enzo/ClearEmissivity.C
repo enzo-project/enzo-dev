@@ -40,8 +40,11 @@ int grid::ClearEmissivity(){
     fprintf(stderr, "Cannot find EmissivityField.\n");
     return FAIL;
   }
-  for(int i=0; i<size; i++)
+  for(int i=0; i<size; i++) {
+    if (BaryonField[EtaNum][i] > 1e-40)
+      printf("before clear was %22.16e\n", BaryonField[EtaNum][i]);
     BaryonField[EtaNum][i] = 0;
+  }
   return SUCCESS;
 }
 #endif
