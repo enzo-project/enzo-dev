@@ -31,7 +31,6 @@ typedef int star_type;
 typedef int enum_type;
 typedef int staggering;
 typedef int fieldtype;
-typedef int nativeTypeId;
 #endif
 
 #ifdef LARGE_INTS
@@ -44,7 +43,6 @@ typedef long_int star_type;
 typedef long_int enum_type;
 typedef long_int staggering;
 typedef long_int fieldtype;
-typedef long_int nativeTypeId;
 #endif
 
 const field_type 
@@ -246,8 +244,6 @@ const enum_type Neumann = 0, Dirichlet = 1;
 
 const staggering VERTEX_CENTERED = 0, CELL_CENTERED = 1;
 const fieldtype SCALAR = 1, VECTOR = 3;
-const nativeTypeId NTID_unknown = -1, NTID_float = 0, NTID_double = 1, 
-  NTID_int16 = 2, NTID_int32 = 3, NDTI_uint8 = 4, NTID_uint16 = 5;
 
 /* Star particle types */
 
