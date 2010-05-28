@@ -26,9 +26,6 @@
 ///// HDF5 wrapper functionality
 ////////////////////////////////////////////////////
 
-
-typedef enum nativeTypeId { NTID_unknown=-1, NTID_float=0, NTID_double, NTID_int16, NTID_int32, NDTI_uint8, NTID_uint16 } nativeTypeId;
-
 int checkErr( int err, const char* name, const bool callAssert=false );
 
    

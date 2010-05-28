@@ -37,8 +37,6 @@
 
 FLOAT FindCrossSection(int type, float energy);
 
-enum species {iHI, iHeI, iHeII};
-
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, 
 				    int mode)
 {
