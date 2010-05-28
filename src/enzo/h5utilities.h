@@ -22,6 +22,10 @@
 
 #include <hdf5.h>
 
+typedef int nativeTypeId;
+const nativeTypeId NTID_unknown = -1, NTID_float = 0, NTID_double = 1, 
+  NTID_int16 = 2, NTID_int32 = 3, NDTI_uint8 = 4, NTID_uint16 = 5;
+
 ////////////////////////////////////////////////////
 ///// HDF5 wrapper functionality
 ////////////////////////////////////////////////////
