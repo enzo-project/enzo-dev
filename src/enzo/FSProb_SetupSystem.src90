@@ -173,7 +173,7 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   !--------------
   ! locals
   integer :: i, j, k
-  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu, upTol
+  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
   real*8  :: c, dxi, dxi0, dyi, dyi0, dzi, dzi0
   real*8  :: afac, afac0, Edir(3), Emax, delta_nU
   real*8  :: E0d_x, Ed_x, E0d_y, Ed_y, E0d_z, Ed_z
@@ -198,8 +198,7 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dyi0   = a0/dy/lUn0
   dzi0   = a0/dz/lUn0
   eps    = 1.d-12
-  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
-  upTol  = 1.d-5             ! tolerance for determining upwind direction
+  mu     = 1.d-2/(dxi+dyi+dzi) ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
@@ -244,21 +243,16 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
            ! z-directional differencing
            !    compute direction of radiation propagation
            !    and gradients of old E and guess
-           if (Edir(3) < -upTol) then     ! left
+           if (Edir(3) < 0.d0) then     ! left
               E0d_z = Edir(3)*(E0(i,j,k) - E0(i,j,k-1))*dzi0 
               Ed_z  = Edir(3)*(E(i,j,k)  - E(i,j,k-1))*dzi 
               mat(1,i,j,k) = mat(1,i,j,k) + Edir(3)*dtfac*c*dzi
               mat(4,i,j,k) = mat(4,i,j,k) - Edir(3)*dtfac*c*dzi
-           elseif (Edir(3) > upTol) then  ! right
+           else                         ! right
               E0d_z = Edir(3)*(E0(i,j,k+1) - E0(i,j,k))*dzi0
               Ed_z  = Edir(3)*(E(i,j,k+1)  - E(i,j,k))*dzi
               mat(7,i,j,k) = mat(7,i,j,k) - Edir(3)*dtfac*c*dzi
               mat(4,i,j,k) = mat(4,i,j,k) + Edir(3)*dtfac*c*dzi
-           else                           ! center
-              E0d_z = Edir(3)*(E0(i,j,k+1) - E0(i,j,k-1))*dzi0*0.5d0
-              Ed_z  = Edir(3)*(E(i,j,k+1)  - E(i,j,k-1))*dzi*0.5d0
-              mat(1,i,j,k) = mat(1,i,j,k) + Edir(3)*dtfac*c*dzi*0.5d0
-              mat(7,i,j,k) = mat(7,i,j,k) - Edir(3)*dtfac*c*dzi*0.5d0
            endif
            E0d_z = E0d_z + mu*(E0(i,j,k+1) - 2.d0*E0(i,j,k) + E0(i,j,k-1))*dzi0*dzi0
            Ed_z  = Ed_z  + mu*(E(i,j,k+1) - 2.d0*E(i,j,k) + E(i,j,k-1))*dzi*dzi
@@ -268,21 +262,16 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
            ! y-directional differencing
            !    compute direction of radiation propagation
            !    and gradients of old E and guess
-           if (Edir(2) < -upTol) then     ! left
+           if (Edir(2) < 0.d0) then     ! left
               E0d_y = Edir(2)*(E0(i,j,k) - E0(i,j-1,k))*dyi0
               Ed_y  = Edir(2)*(E(i,j,k)  - E(i,j-1,k))*dyi
               mat(2,i,j,k) = mat(2,i,j,k) + Edir(2)*dtfac*c*dyi
               mat(4,i,j,k) = mat(4,i,j,k) - Edir(2)*dtfac*c*dyi
-           elseif (Edir(2) > upTol) then  ! right
+           else                         ! right
               E0d_y = Edir(2)*(E0(i,j+1,k) - E0(i,j,k))*dyi0
               Ed_y  = Edir(2)*(E(i,j+1,k)  - E(i,j,k))*dyi
               mat(6,i,j,k) = mat(6,i,j,k) - Edir(2)*dtfac*c*dyi
               mat(4,i,j,k) = mat(4,i,j,k) + Edir(2)*dtfac*c*dyi
-           else                           ! center
-              E0d_y = Edir(2)*(E0(i,j+1,k) - E0(i,j-1,k))*dyi0*0.5d0
-              Ed_y  = Edir(2)*(E(i,j+1,k)  - E(i,j-1,k))*dyi*0.5d0
-              mat(2,i,j,k) = mat(2,i,j,k) + Edir(2)*dtfac*c*dyi*0.5d0
-              mat(6,i,j,k) = mat(6,i,j,k) - Edir(2)*dtfac*c*dyi*0.5d0
            endif
            E0d_y = E0d_y + mu*(E0(i,j+1,k) - 2.d0*E0(i,j,k) + E0(i,j-1,k))*dyi0*dyi0
            Ed_y  = Ed_y  + mu*(E(i,j+1,k) - 2.d0*E(i,j,k) + E(i,j-1,k))*dyi*dyi
@@ -292,21 +281,16 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
            ! x-directional differencing
            !    compute direction of radiation propagation
            !    and gradients of old E and guess
-           if (Edir(1) < -upTol) then     ! left
+           if (Edir(1) < 0.d0) then     ! left
               E0d_x = Edir(1)*(E0(i,j,k) - E0(i-1,j,k))*dxi0
               Ed_x  = Edir(1)*(E(i,j,k)  - E(i-1,j,k))*dxi
               mat(3,i,j,k) = mat(3,i,j,k) + Edir(1)*dtfac*c*dxi
               mat(4,i,j,k) = mat(4,i,j,k) - Edir(1)*dtfac*c*dxi
-           elseif (Edir(1) > upTol) then  ! right
+           else                         ! right
               E0d_x = Edir(1)*(E0(i+1,j,k) - E0(i,j,k))*dxi0
               Ed_x  = Edir(1)*(E(i+1,j,k)  - E(i,j,k))*dxi
               mat(5,i,j,k) = mat(5,i,j,k) - Edir(1)*dtfac*c*dxi
               mat(4,i,j,k) = mat(4,i,j,k) + Edir(1)*dtfac*c*dxi
-           else                           ! center
-              E0d_x = Edir(1)*(E0(i+1,j,k) - E0(i-1,j,k))*dxi0*0.5d0
-              Ed_x  = Edir(1)*(E(i+1,j,k)  - E(i-1,j,k))*dxi*0.5d0
-              mat(1,i,j,k) = mat(1,i,j,k) + Edir(1)*dtfac*c*dxi*0.5d0
-              mat(5,i,j,k) = mat(5,i,j,k) - Edir(1)*dtfac*c*dxi*0.5d0
            endif
            E0d_x = E0d_x + mu*(E0(i+1,j,k) - 2.d0*E0(i,j,k) + E0(i-1,j,k))*dxi0*dxi0
            Ed_x  = Ed_x  + mu*(E(i+1,j,k) - 2.d0*E(i,j,k) + E(i-1,j,k))*dxi*dxi
@@ -526,7 +510,7 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dxi0   = a0/dx/lUn0
   dyi0   = a0/dy/lUn0
   eps    = 1.d-12
-  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
+  mu     = 1.d-2/(dxi+dyi)   ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
@@ -543,35 +527,6 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
         Edir(2) = sign(max(abs(Edir(2)), eps*Emax), Edir(2))
         Edir = Edir / sqrt(Edir(1)**2 + Edir(2)**2)
 
-        !--------------
-        ! y-directional differencing
-        !    compute direction of radiation propagation
-        !    and gradients of old E and guess
-        if (Edir(2) < 0.d0) then     ! left
-           E0d_y = Edir(2)*(E0(i,j) - E0(i,j-1))*dyi0
-           Ed_y  = Edir(2)*(E(i,j)  - E(i,j-1))*dyi
-        else     ! right
-           E0d_y = Edir(2)*(E0(i,j+1) - E0(i,j))*dyi0
-           Ed_y  = Edir(2)*(E(i,j+1)  - E(i,j))*dyi
-        endif
-        E0d_y = E0d_y + mu*(E0(i,j+1) - 2.d0*E0(i,j) + E0(i,j-1))*dyi0*dyi0
-        Ed_y  = Ed_y  + mu*(E(i,j+1) - 2.d0*E(i,j) + E(i,j-1))*dyi*dyi
-
-        !--------------
-        ! x-directional differencing
-        !    compute direction of radiation propagation
-        !    and gradients of old E and guess
-        if (Edir(1) < 0.d0) then     ! left
-           E0d_x = Edir(1)*(E0(i,j) - E0(i-1,j))*dxi0
-           Ed_x  = Edir(1)*(E(i,j)  - E(i-1,j))*dxi
-        else     ! right
-           E0d_x = Edir(1)*(E0(i+1,j) - E0(i,j))*dxi0
-           Ed_x  = Edir(1)*(E(i+1,j)  - E(i,j))*dxi
-        endif
-        E0d_x = E0d_x + mu*(E0(i+1,j) - 2.d0*E0(i,j) + E0(i-1,j))*dxi0*dxi0
-        Ed_x  = Ed_x  + mu*(E(i+1,j) - 2.d0*E(i,j) + E(i-1,j))*dxi*dxi
-
-
         ! compute the cell-centered opacity
         if (kappa_h2on == 1) then
            kap = kappa(i,j)
@@ -579,38 +534,55 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
            kap = kappa_c
         endif
         kap0 = kap * delta_nU
+        
+        ! initialize matrix/rhs at this point
+        mat(:,i,j) = (/ -dtfac*c*mu*dyi*dyi, &
+                        -dtfac*c*mu*dxi*dxi, &
+                        1.d0 + dtfac*(afac + kap  &
+                             + c*mu*2.d0*(dxi*dxi + dyi*dyi)), &
+                        -dtfac*c*mu*dxi*dxi, &
+                        -dtfac*c*mu*dyi*dyi /)
+        rhs(i,j) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j)     &
+                 + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j)   &
+                 - (1.d0 + dtfac*(afac+kap))*E(i,j)
 
-
-        ! set the matrix entries.  Note: the derivatives need
-        ! not be rescaled, since scaling and chain rule cancel 
-        !     center
-        mat(:,i,j) = 0.d0
-        mat(3,i,j) = 1.d0 + dtfac*(afac + kap + c*( &
-                abs(Edir(1))*dxi+abs(Edir(2))*dyi     &
-                + mu*2.d0*(dxi*dxi + dyi*dyi)))
-        !     y direction
-        if (Edir(2) < 0.d0) then     ! left-differencing
-           mat(1,i,j) =  Edir(2)*dtfac*c*dyi         ! y-left
-        else  ! right-differencing
-           mat(5,i,j) = -Edir(2)*dtfac*c*dyi         ! y-right
+        !--------------
+        ! y-directional differencing
+        !    compute direction of radiation propagation
+        !    and gradients of old E and guess
+        if (Edir(2) < 0.d0) then     ! left
+           E0d_y = Edir(2)*(E0(i,j) - E0(i,j-1))*dyi0
+           Ed_y  = Edir(2)*(E(i,j)  - E(i,j-1))*dyi
+           mat(1,i,j) = mat(1,i,j) + Edir(2)*dtfac*c*dyi
+           mat(3,i,j) = mat(3,i,j) - Edir(2)*dtfac*c*dyi
+        else                         ! right
+           E0d_y = Edir(2)*(E0(i,j+1) - E0(i,j))*dyi0
+           Ed_y  = Edir(2)*(E(i,j+1)  - E(i,j))*dyi
+           mat(5,i,j) = mat(5,i,j) - Edir(2)*dtfac*c*dyi
+           mat(3,i,j) = mat(3,i,j) + Edir(2)*dtfac*c*dyi
         endif
-        mat(1,i,j) = mat(1,i,j) - dtfac*c*mu*dyi*dyi
-        mat(5,i,j) = mat(5,i,j) - dtfac*c*mu*dyi*dyi
-        !     x direction
-        if (Edir(1) < 0.d0) then     ! left-differencing
-           mat(2,i,j) =  Edir(1)*dtfac*c*dxi         ! x-left
-        else  ! right-differencing
-           mat(4,i,j) = -Edir(1)*dtfac*c*dxi         ! x-right
+        E0d_y = E0d_y + mu*(E0(i,j+1) - 2.d0*E0(i,j) + E0(i,j-1))*dyi0*dyi0
+        Ed_y  = Ed_y  + mu*(E(i,j+1) - 2.d0*E(i,j) + E(i,j-1))*dyi*dyi
+        rhs(i,j) = rhs(i,j) + c*dtfac0*E0d_y + c*dtfac*Ed_y
+        
+        !--------------
+        ! x-directional differencing
+        !    compute direction of radiation propagation
+        !    and gradients of old E and guess
+        if (Edir(1) < 0.d0) then     ! left
+           E0d_x = Edir(1)*(E0(i,j) - E0(i-1,j))*dxi0
+           Ed_x  = Edir(1)*(E(i,j)  - E(i-1,j))*dxi
+           mat(2,i,j) = mat(2,i,j) + Edir(1)*dtfac*c*dxi
+           mat(3,i,j) = mat(3,i,j) - Edir(1)*dtfac*c*dxi
+        else                         ! right
+           E0d_x = Edir(1)*(E0(i+1,j) - E0(i,j))*dxi0
+           Ed_x  = Edir(1)*(E(i+1,j)  - E(i,j))*dxi
+           mat(4,i,j) = mat(4,i,j) - Edir(1)*dtfac*c*dxi
+           mat(3,i,j) = mat(3,i,j) + Edir(1)*dtfac*c*dxi
         endif
-        mat(2,i,j) = mat(2,i,j) - dtfac*c*mu*dxi*dxi
-        mat(4,i,j) = mat(4,i,j) - dtfac*c*mu*dxi*dxi
-
-        ! set the rhs entries
-        rhs(i,j) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j)        &
-                     + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j)    &
-                     - (1.d0 + dtfac*(afac+kap))*E(i,j)        &
-                     + c*dtfac0*(E0d_y + E0d_x)                  &
-                     + c*dtfac *(Ed_y  + Ed_x)
+        E0d_x = E0d_x + mu*(E0(i+1,j) - 2.d0*E0(i,j) + E0(i-1,j))*dxi0*dxi0
+        Ed_x  = Ed_x  + mu*(E(i+1,j) - 2.d0*E(i,j) + E(i-1,j))*dxi*dxi
+        rhs(i,j) = rhs(i,j) + c*dtfac0*E0d_x + c*dtfac*Ed_x
 
      enddo
   enddo
@@ -739,7 +711,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   integer :: i
   real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
   real*8  :: c, dxi, dxi0
-  real*8  :: afac, afac0, Edir, Emax, delta_nU
+  real*8  :: afac, afac0, Edir, delta_nU
   real*8  :: E0d_x, Ed_x
 
 !=======================================================================
@@ -758,7 +730,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dxi    = a/dx/lUn
   dxi0   = a0/dx/lUn0
   eps    = 1.d-12
-  mu     = 1.d0/3.d0         ! artificial viscosity (multiplied by c)
+  mu     = 1.d-2/dxi         ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
 
   ! iterate over the active domain
@@ -768,24 +740,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
      ! correcting for case of zero gradients (need at least 
      ! a bit of diffusion in each direction for MG solver)
      Edir = (E0(i+1) - E0(i-1))*0.5d0*dxi / abs(E0(i))
-     Emax = max(abs(Edir), eps*1.0e-3)
-     Edir = sign(max(abs(Edir), eps*Emax), Edir)
-     Edir = Edir / abs(Edir)
-
-     !--------------
-     ! x-directional differencing
-     !    compute direction of radiation propagation
-     !    and gradients of old E and guess
-     if (Edir < 0.d0) then     ! left
-        E0d_x = Edir*(E0(i) - E0(i-1))*dxi0
-        Ed_x  = Edir*(E(i)  - E(i-1))*dxi
-     else     ! right
-        E0d_x = Edir*(E0(i+1) - E0(i))*dxi0
-        Ed_x  = Edir*(E(i+1)  - E(i))*dxi
-     endif
-     E0d_x = E0d_x + mu*(E0(i+1) - 2.d0*E0(i) + E0(i-1))*dxi0*dxi0
-     Ed_x  = Ed_x  + mu*(E(i+1) - 2.d0*E(i) + E(i-1))*dxi*dxi
-
+     Edir = sign(1.d0, Edir)
 
      ! compute the cell-centered opacity
      if (kappa_h2on == 1) then
@@ -794,27 +749,34 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
         kap = kappa_c
      endif
      kap0 = kap * delta_nU
+     
+     ! initialize matrix/rhs at this point
+     mat(:,i) = (/ -dtfac*c*mu*dxi*dxi, &
+                   1.d0 + dtfac*(afac + kap   &
+                        + c*mu*2.d0*dxi*dxi), &
+                   -dtfac*c*mu*dxi*dxi /)
+     rhs(i) = (dtfac/rUn + dtfac0/rUn0)*eta(i)     &
+              + (1.d0 - dtfac0*(afac0+kap0))*E0(i) &
+              - (1.d0 + dtfac*(afac+kap))*E(i)
 
-
-     ! set the matrix entries.  Note: the derivatives need
-     ! not be rescaled, since scaling and chain rule cancel 
-     !     center
-     mat(:,i) = 0.d0
-     mat(2,i) = 1.d0 + dtfac*(afac + kap + c*dxi*(abs(Edir) + mu*2.d0*dxi))
-     !     x direction
-     if (Edir < 0.d0) then     ! left-differencing
-        mat(1,i) =  Edir*dtfac*c*dxi         ! x-left
-     else  ! right-differencing
-        mat(3,i) = -Edir*dtfac*c*dxi         ! x-right
+     !--------------
+     ! x-directional differencing
+     !    compute direction of radiation propagation
+     !    and gradients of old E and guess
+     if (Edir < 0.d0) then     ! left
+        E0d_x = Edir*(E0(i) - E0(i-1))*dxi0
+        Ed_x  = Edir*(E(i)  - E(i-1))*dxi
+        mat(1,i) = mat(1,i) + Edir*dtfac*c*dxi
+        mat(2,i) = mat(2,i) - Edir*dtfac*c*dxi
+     else                         ! right
+        E0d_x = Edir*(E0(i+1) - E0(i))*dxi0
+        Ed_x  = Edir*(E(i+1)  - E(i))*dxi
+        mat(3,i) = mat(3,i) - Edir*dtfac*c*dxi
+        mat(2,i) = mat(2,i) + Edir*dtfac*c*dxi
      endif
-     mat(1,i) = mat(1,i) - dtfac*c*mu*dxi*dxi
-     mat(3,i) = mat(3,i) - dtfac*c*mu*dxi*dxi
-
-     ! set the rhs entries
-     rhs(i) = (dtfac/rUn + dtfac0/rUn0)*eta(i)        &
-                + (1.d0 - dtfac0*(afac0+kap0))*E0(i)  &
-                - (1.d0 + dtfac*(afac+kap))*E(i)      &
-                + c*(dtfac0*E0d_x + dtfac*Ed_x)
+     E0d_x = E0d_x + mu*(E0(i+1) - 2.d0*E0(i) + E0(i-1))*dxi0*dxi0
+     Ed_x  = Ed_x  + mu*(E(i+1) - 2.d0*E(i) + E(i-1))*dxi*dxi
+     rhs(i) = rhs(i) + c*dtfac0*E0d_x + c*dtfac*Ed_x
 
   enddo
 

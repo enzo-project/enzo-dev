@@ -264,6 +264,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
 //   if (debug)  printf("Writing out matrix to file J.mat\n");
 //   HYPRE_StructMatrixPrint("J.mat",J,0);
+//   ENZO_FAIL("FSProb Evolve: stopping prematurely after writing matrix.");
 
 //   if (debug)  printf("Writing out rhs to file b.vec\n");
 //   HYPRE_StructVectorPrint("b.vec",rhsvec,0);
