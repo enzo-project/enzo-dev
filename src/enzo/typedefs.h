@@ -28,6 +28,10 @@ typedef int gravity_boundary_type;
 typedef int interpolation_type;
 typedef int hydro_method;
 typedef int star_type;
+typedef int enum_type;
+typedef int staggering;
+typedef int fieldtype;
+typedef int nativeTypeId;
 #endif
 
 #ifdef LARGE_INTS
@@ -37,6 +41,10 @@ typedef long_int gravity_boundary_type;
 typedef long_int interpolation_type;
 typedef long_int hydro_method;
 typedef long_int star_type;
+typedef long_int enum_type;
+typedef long_int staggering;
+typedef long_int fieldtype;
+typedef long_int nativeTypeId;
 #endif
 
 const field_type 
@@ -216,18 +224,30 @@ const hydro_method
   MHD_RK               = 4,
   HydroMethodUndefined = 5;
 
+// enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
+
+const enum_type iHI = 0, iHeI = 1, iHeII = 2, iH2I = 3, iHII = 4;
+const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
+const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4;
+const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
+  LLF = 3, HLLC = 4;
+const enum_type Neumann = 0, Dirichlet = 1;
+
+
 /* Stanford RK MUSCL solvers support */ 
-enum {Cartesian, Spherical, Cylindrical};
-enum {PLM, PPM, CENO, WENO3, WENO5};
-enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
+//enum {Cartesian, Spherical, Cylindrical};
+//enum {PLM, PPM, CENO, WENO3, WENO5};
+//enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
 
 /* These are the different types of poisson cleaining boundary conditions. */
-enum{Neumann, Dirichlet};
+//enum{Neumann, Dirichlet};
 
+/* Definitions for streaming format */
 
-
-
-// enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
+const staggering VERTEX_CENTERED = 0, CELL_CENTERED = 1;
+const fieldtype SCALAR = 1, VECTOR = 3;
+const nativeTypeId NTID_unknown = -1, NTID_float = 0, NTID_double = 1, 
+  NTID_int16 = 2, NTID_int32 = 3, NDTI_uint8 = 4, NTID_uint16 = 5;
 
 /* Star particle types */
 

@@ -30,10 +30,6 @@
 
 #define _CHECK_CONSISTENCY_
 
-typedef enum staggering  { VERTEX_CENTERED=0, CELL_CENTERED=1} staggering;
-typedef enum fieldtype   { SCALAR=1, /*VECTOR=3*/} fieldtype;
-
-
 class AMRHDF5Writer
 {
 
