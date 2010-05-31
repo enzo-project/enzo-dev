@@ -41,7 +41,8 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		ExternalBoundary *Exterior, float *Initialdt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		      ExternalBoundary *Exterior, float *Initialdt);
+		      ExternalBoundary *Exterior, float *Initialdt,
+		      bool ReadParticlesOnly=false);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
