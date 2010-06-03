@@ -219,6 +219,17 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			 pbar, ubar, &GravityOn, grslice,
 			 &DualEnergyFormalism, &DualEnergyFormalismEta1);
 
+  FORTRAN_NAME(flux_twoshock)(dslice, eslice, geslice, uslice, vslice, wslice,
+			      CellWidthTemp[2], diffcoef, 
+			      &GridDimension[2], &GridDimension[0],
+			      &is, &ie, &js, &je, &dtFixed, &Gamma,
+			      &PPMDiffusionParameter, &DualEnergyFormalism,
+			      &DualEnergyFormalismEta1,
+			      dls, drs, pls, prs, gels, gers, uls, urs,
+			      vls, vrs, wls, wrs, pbar, ubar,
+			      df, ef, uf, vf, wf, gef,
+			      &NumberOfColours, colslice, colls, colrs, colf);
+
   /* Compute Eulerian fluxes and update zone-centered quantities */
 
   FORTRAN_NAME(euler)(dslice, eslice, grslice, geslice, uslice, vslice, wslice,
@@ -227,8 +238,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &is, &ie, &js, &je, &dtFixed, &Gamma, 
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
-		      dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
-		      wls, wrs, pbar, ubar, df, ef, uf, vf, wf, gef,
+		      df, ef, uf, vf, wf, gef,
 		      &NumberOfColours, colslice, colls, colrs, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
