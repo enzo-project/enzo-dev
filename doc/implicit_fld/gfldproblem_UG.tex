@@ -571,21 +571,21 @@ system of nonlinear PDEs that must be solved in each time step to find
 the updated solution.  This solve is coupled to Enzo's existing
 operator-split solver framework in the following manner:
 \begin{itemize}
-\item[(i)] Project the dark matter particles onto the finite-volume
+\item[(i)] Evolve the radiation, gas energy correction and Hydrogen I
+  number density implicitly in time [{\tt gFLDProblem}].
+\item[(ii)] Project the dark matter particles onto the finite-volume
   mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
-\item[(ii)] Solve for the gravitational potential $\phi$ using a
+\item[(iii)] Solve for the gravitational potential $\phi$ using a
   Poisson equation [Enzo];
-\item[(iii)] Advect the dark matter particles with the Particle-Mesh
+\item[(iv)] Advect the dark matter particles with the Particle-Mesh
   method [Enzo];
-\item[(iv)] Evolve the hydrodynamics equations using an up to
+\item[(v)] Evolve the hydrodynamics equations using an up to
   second-order explicit method, and have the velocity $\vb$ advect
   both the Hydrogen I number density $\mn_{HI}$ and the grey radiation
   field $E$ [Enzo]; 
-\item[(v)] Evolve the radiation, gas energy correction and Hydrogen I
-  number density implicitly in time [{\tt gFLDProblem}].
 \end{itemize}
 
-The implicit solution approach for step (v) is described in detail in 
+The implicit solution approach for step (i) is described in detail in 
 \cite{ReynoldsHayesPaschosNorman2009}; here we describe only enough
 to point out the available user parameters, and more fully describe
 some additional options available in the solver.
