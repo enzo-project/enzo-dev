@@ -77,11 +77,11 @@ c
       do i = i1-2, i2+2
          qplus = qslice(i+1)-qslice(i  )
          qmnus = qslice(i  )-qslice(i-1)
-         qcent = c1(i)*qplus + c2(i)*qmnus
-         temp1 = min(abs(qcent), 2.0*abs(qmnus), 2.0*abs(qplus))
          if (qplus*qmnus .gt. 0) then
+            qcent = c1(i)*qplus + c2(i)*qmnus
             qvanl = 2.0*qplus*qmnus/(qmnus+qplus)
-            temp1 = min(temp1, qvanl)
+            temp1 = min(abs(qcent), abs(qvanl), 2.0*abs(qmnus), 
+     $           2.0*abs(qplus))
             dq(i) = temp1*sign(1.0, qcent)
          else
             dq(i) = 0.0
@@ -95,19 +95,6 @@ c
      &           c5(i)*    dq(i-1)   + c6(i)*dq(i)
          qr(i-1) = ql(i)
       enddo
-c
-c     Ensure that the L/R values lie between neighboring cell-centered 
-c     values (Taken from ATHENA, lr_states)
-c
-#define CHECK_LR
-#ifdef CHECK_LR
-      do i = i1-1, i2+2
-         ql(i) = max(min(qslice(i), qslice(i-1)), ql(i))
-         ql(i) = min(max(qslice(i), qslice(i-1)), ql(i))
-         qr(i) = max(min(qslice(i), qslice(i+1)), qr(i))
-         qr(i) = min(max(qslice(i), qslice(i+1)), qr(i))
-      enddo
-#endif
 c
 c     Steepen if asked for (use precomputed steepening parameter)
 c
@@ -146,6 +133,19 @@ c
             qr(i) = qslice(i)*flatten(i) + qr(i)*(1.0-flatten(i))
          enddo
       endif
+c
+c     Ensure that the L/R values lie between neighboring cell-centered 
+c     values (Taken from ATHENA, lr_states)
+c
+#define CHECK_LR
+#ifdef CHECK_LR
+      do i = i1-1, i2+2
+         ql(i) = max(min(qslice(i), qslice(i-1)), ql(i))
+         ql(i) = min(max(qslice(i), qslice(i-1)), ql(i))
+         qr(i) = max(min(qslice(i), qslice(i+1)), qr(i))
+         qr(i) = min(max(qslice(i), qslice(i+1)), qr(i))
+      enddo
+#endif
 c
 c    Now construct left and right interface values (eqn 1.12 and 3.3)
 c
