@@ -505,27 +505,27 @@ more tightly-coupled gas energy correction and chemistry equations
 which are evolved together.  These solves are coupled to Enzo's
 existing operator-split solver framework in the following manner:
 \begin{itemize}
-\item[(i)] Project the dark matter particles onto the finite-volume
+\item[(i)] Evolve the radiation implicitly in time [{\tt gFLDSplit}].
+\item[(ii)] Evolve the gas energy correction and Hydrogen I number
+  density implicitly in time [{\tt gFLDSplit}]. 
+\item[(iii)] Project the dark matter particles onto the finite-volume
   mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
-\item[(ii)] Solve for the gravitational potential $\phi$ using a
+\item[(iv)] Solve for the gravitational potential $\phi$ using a
   Poisson equation [Enzo];
-\item[(iii)] Advect the dark matter particles with the Particle-Mesh
+\item[(v)] Advect the dark matter particles with the Particle-Mesh
   method [Enzo];
-\item[(iv)] Evolve the hydrodynamics equations using an up to
+\item[(vi)] Evolve the hydrodynamics equations using an up to
   second-order explicit method, and have the velocity $\vb$ advect
   both the Hydrogen I number density $\mn_{HI}$ and the grey radiation
   field $E$ [Enzo]; 
-\item[(v)] Evolve the radiation implicitly in time [{\tt gFLDSplit}].
-\item[(vi)] Evolve the gas energy correction and Hydrogen I number
-  density implicitly in time [{\tt gFLDSplit}]. 
 \end{itemize}
 
-The implicit solution approach for step (v) is similar to the one from 
+The implicit solution approach for step (i) is similar to the one from 
 \cite{ReynoldsHayesPaschosNorman2009}; here we describe only enough
 to point out the available user parameters, and more fully describe
 some additional options available in the solver.
 
-In solving the steps (v) and (vi), we first discretize the
+In solving the steps (i) and (ii), we first discretize the
 equations \eqref{eq:radiation_PDE}, \eqref{eq:cons_energy_correction}
 and \eqref{eq:hydrogen_ionization} in space and time before we solve
 them computationally.  We use a method of lines approach for the
@@ -582,7 +582,7 @@ As with the radiation equation, we also assume that the advective
 portion of \eqref{eq:hydrogen_ionization} is taken care of using
 Enzo's hydrodynamics solvers.  Therefore, since the remainder of the
 gas energy and chemistry equations is spatially local, the solver for
-step (vi) is performed separately on a cell-by-cell basis.  To this
+step (ii) is performed separately on a cell-by-cell basis.  To this
 end, we employ a new implicit-time version of the 
 {\em quasi-steady-state approximation}.  In this approach, instead of
 approximating the solution to the exact ODEs, we exactly solve
