@@ -272,10 +272,12 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 						     MyProcessorNumber);
 	  break;
 
+#ifdef TRANSFER
 	case 19:
 	  level = CommunicationReceiveArgumentInt[0][index];
 	  errcode = grid_one->SetSubgridMarkerFromParent(grid_two, level);
 	  break;
+#endif
 
 	default:
 	  fprintf(stderr, "Unrecognized call type %"ISYM"\n", 
