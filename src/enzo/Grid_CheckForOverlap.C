@@ -45,10 +45,16 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
- 
+  
+#ifndef TRANSFER
+  int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField)?
+    TRUE : FALSE;
+#else 
   int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField ||
 		CopyFunction == &grid::SetSubgridMarkerFromSibling)?
     TRUE : FALSE;
+#endif
+
   int FullPeriod = (CopyFunction == &grid::CopyPotentialField)?
     TRUE : FALSE;
  

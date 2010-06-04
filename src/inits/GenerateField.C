@@ -25,12 +25,12 @@
 extern "C" void FORTRAN_NAME(make_field_kpreserving)
              (FLOAT *field, int *nx, int *ny, int *nz,
 	      int *in, int *jn, int *kn, int *itype, int *iseed, FLOAT *box,
-	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff);
+	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff, int *irangen);
 extern "C" void FORTRAN_NAME(make_field)
              (FLOAT *field, int *nx, int *ny, int *nz,
 	      int *nxmax, int *nymax, int *nzmax,
 	      int *in, int *jn, int *kn, int *itype, int *iseed, FLOAT *box,
-	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff);
+	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff, int *irangen);
  
 #ifdef SHIFT_FOR_LARS
 extern "C" void FORTRAN_NAME(shift)
@@ -46,7 +46,8 @@ int FastFourierTransform(FLOAT *buffer, int Rank, int DimensionReal[],
  
 int GenerateField(int Rank, int Dims[3], int MaxDims[3], int WaveNumberCutoff,
 		  FLOAT *Field, int FieldType, int NewCenter[3],
-		  int Refinement, int StartIndex[3], int Species)
+		  int Refinement, int StartIndex[3], int RandomNumberGenerator,
+		  int Species)
 {
  
   FLOAT *Temp, k1, k2, delk, box;
@@ -92,14 +93,14 @@ int GenerateField(int Rank, int Dims[3], int MaxDims[3], int WaveNumberCutoff,
 			   RealDims, RealDims+1, RealDims+2, &FieldType,
 			      &RandomSeed, &box,
 			   PSLookUpTable[Species], &k1, &delk,
-			      &WaveNumberCutoff);
+			      &WaveNumberCutoff, &RandomNumberGenerator);
   else
     FORTRAN_NAME(make_field)(Temp, TempDims, TempDims+1, TempDims+2,
 			     MaxDims, MaxDims+1, MaxDims+2,
 			   RealDims, RealDims+1, RealDims+2, &FieldType,
 			      &RandomSeed, &box,
 			   PSLookUpTable[Species], &k1, &delk,
-			      &WaveNumberCutoff);
+			     &WaveNumberCutoff, &RandomNumberGenerator);
  
   // Perform an inverse FFT
  

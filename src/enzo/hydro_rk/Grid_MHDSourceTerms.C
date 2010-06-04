@@ -247,7 +247,7 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][n];
 	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][n];
 	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][n];
-	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][n]*BaryonField[B1Num][n]+
+	  dU[iEtot][n] += dtFixed*coef*(BaryonField[B1Num][n]*BaryonField[B1Num][n]+
 					BaryonField[B2Num][n]*BaryonField[B2Num][n]+
 					BaryonField[B3Num][n]*BaryonField[B3Num][n]);
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....

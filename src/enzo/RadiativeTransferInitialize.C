@@ -62,8 +62,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
   FILE *fptr;
   LevelHierarchyEntry *Temp;
 
-  if (RadiativeTransfer == 0) return SUCCESS;
-
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {

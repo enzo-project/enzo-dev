@@ -14,15 +14,6 @@ MACH_TEXT  = SciNet
 MACH_VALID = 1
 MACH_FILE  = Make.mach.scinet
 
-MACHINE_NOTES = "MACHINE_NOTES for SciNet:   \
-	In ~/.bashrc  \
-	after 'do things for the GPC machine' (in the else part of the if statement) add the lines: \
-	module load intel openmpi and \
-	module load valgrind. \
-	Also, after the if statement is closed add the lines: \
-	module load hdf5 and \
-	module load python. "
-
 #-----------------------------------------------------------------------
 # Commands to run test executables
 #-----------------------------------------------------------------------

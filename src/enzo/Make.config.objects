@@ -719,7 +719,6 @@ OBJS_CONFIG_LIB = \
         ShearingBoxInitialize.o \
         ShearingBox2DInitialize.o \
         ShearingBoxStratifiedInitialize.o \
-	ShellSortAndDrag.o \
         ShockInABoxInitialize.o \
         ShockPoolInitialize.o \
         sink_maker.o \
@@ -907,6 +906,7 @@ POBJS_CONFIG_LIB = \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
+      	hydro_rk/ModifiedBesselFunctions.o \
       	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
@@ -950,7 +950,6 @@ OBJS_HYDRO_RK = \
         hydro_rk/Riemann_HLL.o \
         hydro_rk/Riemann_HLLC.o \
         hydro_rk/Riemann_LLF.o \
-        hydro_rk/Riemann_rLLF.o \
         hydro_rk/TurbulenceInitialize.o \
         hydro_rk/CollapseMHD3DInitialize.o \
         hydro_rk/Grid_AddAmbipolarDiffusion.o \

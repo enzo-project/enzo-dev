@@ -32,14 +32,14 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch1, int *imatch2);
+					int *imatch1, int *imatch2, int *buffersize);
  
  
 int grid::FlagCellsToBeRefinedByMustRefineParticles()
 {
   /* declarations */
  
-  int i, dim, ParticleTypeToMatch1, ParticleTypeToMatch2, size = 1;
+  int i, dim, ParticleTypeToMatch1, ParticleTypeToMatch2, buffersize = 16, size = 1;
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
  
   /* error check */
@@ -66,7 +66,7 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
-	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2);
+	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2,&buffersize);
  
   /* Count number of flagged Cells. */
  

@@ -1881,7 +1881,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
-			  int CosmologySimulationCalculatePositions);
+			  int CosmologySimulationCalculatePositions,
+			  FLOAT SubDomainLeftEdge[],
+			  FLOAT SubDomainRightEdge[]);
 
 
   /* Initialization for isolated galaxy sims */
@@ -2382,8 +2384,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
   int SourceTerms(float **dU);
-  int MHD1DTestInitializeGrid(float RampWidth,
-			      float rhol, float rhor,
+  int MHD1DTestInitializeGrid(float rhol, float rhor,
 			      float vxl,  float vxr,
 			      float vyl,  float vyr,
 			      float vzl,  float vzr,
@@ -2436,6 +2437,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			       FLOAT DiskHeight[MAX_SPHERES],
 			       float DiskDensity[MAX_SPHERES],
 			       float DiskTemperature[MAX_SPHERES],
+			       float DiskMassFraction[MAX_SPHERES],
+			       float DiskFlaringParameter[MAX_SPHERES],
 			       int   GalaxyType[MAX_SPHERES],
 			       int   UseParticles, int UseGas,
 			       float UniformVelocity[MAX_DIMENSION],

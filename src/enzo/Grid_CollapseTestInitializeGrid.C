@@ -653,7 +653,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		
 	      } // ENDIF type 9
 	    
-	      /* 10) disk (ok, it's not a sphere, so shoot me) */
+	      /* 10) disk (ok, it's not a sphere, ... ) */
 
 	      if (SphereType[sphere] == 10) {
 
@@ -691,7 +691,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		  //		if (zheight > max(5.0*ScaleHeightz, 2.0*CellWidth[0][0]))
 		  //		  continue;
 
-		  /* Compute density (Kruit & Searle 1982). */
+		  /* Compute density (van der Kruit & Searle 1982  1982A&A...110...61V ). */
 
 		  if (dim == 0)
 		    dens1 = SphereDensity[sphere]*PEXP(-drad/ScaleHeightR)/

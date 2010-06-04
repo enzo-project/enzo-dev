@@ -880,7 +880,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      if(StellarWindFeedback|| HydroMethod == MHD_RK || HydroMethod == HD_RK ){
+      if(StellarWindFeedback || HydroMethod == MHD_RK || HydroMethod == HD_RK || ProblemType == 107){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;

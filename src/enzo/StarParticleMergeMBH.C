@@ -69,10 +69,8 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   rmerge2 = powf(MBHCombineRadius * pc / LengthUnits, 2.0f);
 
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
-
-    if (ThisStar->ReturnType() != MBH || ThisStar->IsUnborn() || ThisStar->MarkedToDelete())
+    if (ThisStar->ReturnType() != MBH || ThisStar->IsActive() || ThisStar->MarkedToDelete())
       continue;
-
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
@@ -80,35 +78,22 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	ENZO_FAIL("");
       }
 
+
       /* To merge two MBH particles you should satisfy 3 conditions 
          (1) the same types 
          (2) separation less than MBHCombineRadius 
          (3) relative velocity less than the circular velocity */
 
-      /* Find the circular velocity using reduced mass dynamics, in code velocity unit */
       vcirc2 = Grav * (ThisStar->ReturnMass() + OtherStar->ReturnMass()) * Msun / 
-	ThisStar->Separation(OtherStar) / LengthUnits / (VelocityUnits*VelocityUnits) ; 
-
-      /*
-      printf("Merging stars candidates: %d (%g, %g, %g) and %d (%g, %g, %g)\n", 
-	     ThisStar->ReturnID(), ThisStar->ReturnPosition()[0], ThisStar->ReturnPosition()[1], ThisStar->ReturnPosition()[2],
-	     OtherStar->ReturnID(), OtherStar->ReturnPosition()[0], OtherStar->ReturnPosition()[0], OtherStar->ReturnPosition()[0]);
-      printf("Merging stars candidates: mergableMBH = %d, Separation2 = %g, rmerge2 = %g, RelVel2 = %g, vcirc2 = %g \n", 
-	     ThisStar->MergableMBH(OtherStar), ThisStar->Separation2(OtherStar), rmerge2,
-	     ThisStar->RelativeVelocity2(OtherStar), vcirc2);
-      */
+	ThisStar->Separation(OtherStar); // reduced mass dynamics
 
       if (ThisStar->MergableMBH(OtherStar) == 1 &&
 	  ThisStar->Separation2(OtherStar) < rmerge2 &&
 	  ThisStar->RelativeVelocity2(OtherStar) < vcirc2) {
 	ThisStar->Merge(OtherStar);
 	OtherStar->MarkForDeletion();
-
-	printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
-	       OtherStar->ReturnID());  
-	printf("Merging stars candidates: mergableMBH = %d, Separation2 = %g, rmerge2 = %g, RelVel2 = %g, vcirc2 = %g \n", 
-	       ThisStar->MergableMBH(OtherStar), ThisStar->Separation2(OtherStar), rmerge2,
-	       ThisStar->RelativeVelocity2(OtherStar), vcirc2); //#####
+//	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
+//		 OtherStar->ReturnID());
       } 
 
     } // ENDFOR OtherStar

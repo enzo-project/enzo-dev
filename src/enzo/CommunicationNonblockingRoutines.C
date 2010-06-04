@@ -84,6 +84,7 @@ int InitializePhotonCommunication(void)
 /**********************************************************************/
 int InitializePhotonMessages(void)
 {
+#ifdef USE_MPI
   int proc;
   PhotonMessageIndex = 0;
   PhotonMessageMaxIndex = 0;
@@ -95,6 +96,7 @@ int InitializePhotonMessages(void)
       PhotonMessageIndex++;
       PhotonMessageMaxIndex++;
     } // ENDIF other processor
+#endif /* USE_MPI */
   return SUCCESS;
 }
 /**********************************************************************/

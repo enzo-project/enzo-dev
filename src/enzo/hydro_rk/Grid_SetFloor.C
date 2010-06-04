@@ -83,27 +83,29 @@ int grid::SetFloor()
   }
 #endif
 
-  const float ca_min = MaximumAlvenSpeed;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-
-	int igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
-	float rho = BaryonField[DensNum][igrid];
-	float Bx = BaryonField[B1Num][igrid];
-	float By = BaryonField[B2Num][igrid];
-	float Bz = BaryonField[B3Num][igrid];
-
-	float B2 = Bx*Bx + By*By + Bz*Bz;
-	float ca = sqrt(B2)/sqrt(rho);
-
-	if (ca > ca_min) {
-	  BaryonField[TENum][igrid] -= 0.5*B2/rho;
-	  float rho1 = B2/pow(ca_min,2);
-	  BaryonField[DensNum][igrid] = rho1;
-	  BaryonField[TENum][igrid] += 0.5*B2/rho1;
-	  printf("floor set based on MaximumAlvenSpeed: (%"GSYM" %"GSYM" %"GSYM"), rho: %"GSYM"->%"GSYM"\n", CellLeftEdge[0][i],
-	   CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
+  if (HydroMethod == MHD_RK) {
+    const float ca_min = MaximumAlvenSpeed;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	  
+	  int igrid = (k * GridDimension[1] + j) * GridDimension[0] + i;
+	  float rho = BaryonField[DensNum][igrid];
+	  float Bx = BaryonField[B1Num][igrid];
+	  float By = BaryonField[B2Num][igrid];
+	  float Bz = BaryonField[B3Num][igrid];
+	  
+	  float B2 = Bx*Bx + By*By + Bz*Bz;
+	  float ca = sqrt(B2)/sqrt(rho);
+	  
+	  if (ca > ca_min) {
+	    BaryonField[TENum][igrid] -= 0.5*B2/rho;
+	    float rho1 = B2/pow(ca_min,2);
+	    BaryonField[DensNum][igrid] = rho1;
+	    BaryonField[TENum][igrid] += 0.5*B2/rho1;
+	    printf("floor set based on MaximumAlvenSpeed: (%"GSYM" %"GSYM" %"GSYM"), rho: %"GSYM"->%"GSYM"\n", CellLeftEdge[0][i],
+		   CellLeftEdge[1][j], CellLeftEdge[2][k], rho*DensityUnits, rho1*DensityUnits);
+	  }
 	}
       }
     }

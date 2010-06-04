@@ -4,7 +4,9 @@
 /
 /  written by: Greg Bryan
 /  date:       February, 1999
-/  modified1:
+/  modified1: chummels 5.24.2010 - added additional output of HopParticles.out
+/     for use in tracking halos from timestep to timestep. must define: 
+/     PARTICLE_OUTPUT.
 /
 /  PURPOSE:
 /
@@ -12,6 +14,8 @@
 
 //
 //
+// Define PARTICLE_OUTPUT for output of HopParticles.out file.
+// #define PARTICLE_OUTPUT
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -213,14 +217,14 @@ main(int argc, char *argv[])
   // First expect to read in packed-HDF5
   float dummy;
 #ifdef USE_HDF5_GROUPS
-  if (Group_ReadAllData(argv[1], &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
+  if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", argv[1]);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
       }
 #endif
       // If not packed-HDF5, then try usual HDF5 or HDF4
-      if (ReadAllData(argv[1], &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
+      if (ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &dummy) == FAIL) {
 	if (MyProcessorNumber == ROOT_PROCESSOR) {
 	  fprintf(stderr, "Error in ReadAllData %s.\n", argv[1]);
 	}
@@ -480,6 +484,10 @@ main(int argc, char *argv[])
   /* Read the group membership and compute group properties. */
 
   FILE *fptr;
+#ifdef PARTICLE_OUTPUT
+  FILE *fparticles;
+#endif /* PARTICLE_OUTPUT */
+
   if ((fptr = fopen("zregroup.tag", "r")) == NULL) {
     fprintf(stderr, "Error opening regroup output zregroup.hop\n");
     my_exit(EXIT_FAILURE);
@@ -513,6 +521,16 @@ main(int argc, char *argv[])
   }
   fclose(fptr);
 
+#ifdef PARTICLE_OUTPUT
+  /* Output particle file properties. */
+  if ((fparticles = fopen("HopParticles.out", "w")) == NULL) {
+    fprintf(stderr, "Error opening regroup output HopParticles.out\n");
+    my_exit(EXIT_FAILURE);
+  }
+
+  fprintf(fparticles, "#ParticleID GroupID Density\n");
+#endif /* PARTICLE_OUTPUT */
+
   /* Allocate and initialize group information. */
 
   int const NumberOfGroupProperties = 14;
@@ -526,6 +544,9 @@ main(int argc, char *argv[])
   /* Loop over particles, adding to group properties. */
 
   int itype, index;
+#ifdef PARTICLE_OUTPUT
+  int ParticleIndex, GroupIndex, DensityValue;
+#endif /* PARTICLE_OUTPUT */
   float Luminosity, Mass;
   for (i = 0; i < nActive; i++)
     if ((j = GroupID[i]) >= 0) {
@@ -536,6 +557,13 @@ main(int argc, char *argv[])
       index = i;
       while (index >= TotalNumberOfParticles[itype])
 	index -= TotalNumberOfParticles[itype++];
+
+#ifdef PARTICLE_OUTPUT
+      ParticleIndex = FullList[itype].ParticleIndex[index];
+      GroupIndex = j;
+      DensityValue = Density[i];
+      fprintf(fparticles, "%d     %d     %d\n",ParticleIndex, GroupIndex, DensityValue);
+#endif /* PARTICLE_OUTPUT */
 
       /* Total mass. */
 
@@ -614,6 +642,10 @@ main(int argc, char *argv[])
   }
 
   fclose(fptr);
+
+#ifdef PARTICLE_OUTPUT
+  fclose(fparticles);
+#endif /* PARTICLE_OUTPUT */
 
   my_exit(EXIT_SUCCESS);
 }

@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1: Tom Abel, parallelized and enabled setup for nested grids
+/  modified1:
 /
 /
 ************************************************************************/
@@ -130,7 +130,6 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     }
     
 #ifdef USE_MPI
-    CommunicationBarrier(); 
     CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
     CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
