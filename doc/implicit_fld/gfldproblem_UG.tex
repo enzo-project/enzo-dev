@@ -202,7 +202,7 @@ module, and that a user may access to obtain information on the
 grey radiation field. 
 
 Furthermore, the {\tt gFLDProblem} module currently computes its own
-emissivity field $\eta_f(\xvec)$, in the routine 
+emissivity field $\eta(\xvec)$, in the routine 
 {\tt gFLDProblem\_RadiationSource.src90}.  A user may edit this file
 to add in an emissivity field corresponding to their own 
 {\tt ProblemType}.  Alternatively, a user may separately fill in the
@@ -308,7 +308,7 @@ this document.
   \item[1.] specifies the rational approximation to the
     Levermore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
   \item[2.] specifies to use the Larsen $n=2$ flux limiter,
-    \eqref{eq:Larsen_n2_limiter}. 
+    \eqref{eq:Larsen_n2_limiter} \cite{Morel2000}. 
   \item[3.] specifies to use no limiter, \eqref{eq:no_limiter}.
   \item[4.] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
   \end{itemize}
