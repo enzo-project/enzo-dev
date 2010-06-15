@@ -40,10 +40,10 @@
   int FindMaximumBaryonDensity(FLOAT Position[MAX_DIMENSION],
 			       float *MaxDensity);
 
-  int FindMeanVelocity(FLOAT SphereCenter[MAX_DIMENSION], 
-		       float SphereRadius,
-		       FLOAT MeanVelocity[MAX_DIMENSION][3],
-		       FLOAT MeanVelocityWeight[MAX_DIMENSION][3]);
+  int FindMeanVelocityAndCenter(FLOAT SphereCenter[MAX_DIMENSION], float SphereRadius,
+				FLOAT NewCenter[MAX_DIMENSION], FLOAT &NewCenterWeight,
+				FLOAT MeanVelocity[MAX_DIMENSION][3],
+				FLOAT MeanVelocityWeight[MAX_DIMENSION][3]);
 
   int CollectParticleInfo(FLOAT SphereCenter[MAX_DIMENSION],
 			  float SphereRadius, int *ParticleCount,
