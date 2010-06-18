@@ -31,8 +31,8 @@
 #include "gFLDProblem.h"
 #include "gFLDSplit.h"
 #include "FSProb.h"
-#include "MFProb.h"
-#include "MFSplit.h"
+// #include "MFProb.h"
+// #include "MFSplit.h"
 #include "NullProblem.h"
 
 int RadiativeTransferReadParameters(FILE *fptr);
@@ -307,10 +307,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
       ImplicitSolver = new FSProb; 
     else if (ImplicitProblem == 3)
       ImplicitSolver = new gFLDSplit; 
-    else if (ImplicitProblem == 4)
-      ImplicitSolver = new MFProb; 
-    else if (ImplicitProblem == 5)
-      ImplicitSolver = new MFSplit; 
+//     else if (ImplicitProblem == 4)
+//       ImplicitSolver = new MFProb; 
+//     else if (ImplicitProblem == 5)
+//       ImplicitSolver = new MFSplit; 
     else
       ImplicitSolver = new NullProblem;
   }
