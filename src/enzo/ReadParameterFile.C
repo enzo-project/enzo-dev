@@ -925,6 +925,22 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
+  /* Now we know which hydro solver we're using, we can assign the
+     default Riemann solver and flux reconstruction methods.  These
+     parameters aren't used for PPM_LagrangeRemap and Zeus. */
+
+  if (HydroMethod == PPM_DirectEuler) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = TwoShock;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PPM;
+  } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = HLL;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PLM;
+  }
+
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
   /* Even if this is not cosmology, due to a check for nested grid cosmology

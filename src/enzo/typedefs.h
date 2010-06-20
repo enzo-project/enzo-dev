@@ -219,7 +219,7 @@ const hydro_method
 /* Stanford RK MUSCL solvers support */ 
 enum {Cartesian, Spherical, Cylindrical};
 enum {PLM, PPM, CENO, WENO3, WENO5};
-enum {FluxReconstruction, HLL, Marquina, LLF, HLLC};
+enum {FluxReconstruction, HLL, Marquina, LLF, HLLC, TwoShock};
 
 /* These are the different types of poisson cleaining boundary conditions. */
 enum{Neumann, Dirichlet};

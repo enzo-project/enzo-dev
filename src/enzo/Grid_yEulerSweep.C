@@ -202,35 +202,55 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Compute Eulerian left and right states at zone edges via interpolation */
 
-  FORTRAN_NAME(inteuler)(dslice, pslice, &GravityOn, grslice, geslice, uslice,
-			 vslice, wslice, CellWidthTemp[1], flatten,
-			 &GridDimension[1], &GridDimension[2],
-			 &is, &ie, &js, &je, &DualEnergyFormalism, 
-			 &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
-			 &PPMSteepeningParameter, &PPMFlatteningParameter,
-			 &dtFixed, &Gamma, &PressureFree, 
-			 dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
-			 wls, wrs, &NumberOfColours, colslice, colls, colrs);
+  if (ReconstructionMethod == PPM)
+    FORTRAN_NAME(inteuler)(dslice, pslice, &GravityOn, grslice, geslice, uslice,
+			   vslice, wslice, CellWidthTemp[1], flatten,
+			   &GridDimension[1], &GridDimension[2],
+			   &is, &ie, &js, &je, &DualEnergyFormalism, 
+			   &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
+			   &PPMSteepeningParameter, &PPMFlatteningParameter,
+			   &dtFixed, &Gamma, &PressureFree, 
+			   dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
+			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
 
   /* Compute (Lagrangian part of the) Riemann problem at each zone boundary */
 
-  FORTRAN_NAME(twoshock)(dls, drs, pls, prs, uls, urs,
-			 &GridDimension[1], &GridDimension[2],
-			 &is, &ie_p1, &js, &je,
-			 &dtFixed, &Gamma, &MinimumPressure, &PressureFree,
-			 pbar, ubar, &GravityOn, grslice,
-			 &DualEnergyFormalism, &DualEnergyFormalismEta1);
+  switch (RiemannSolver) {
+  case TwoShock:
+    FORTRAN_NAME(twoshock)(dls, drs, pls, prs, uls, urs,
+			   &GridDimension[1], &GridDimension[2],
+			   &is, &ie_p1, &js, &je,
+			   &dtFixed, &Gamma, &MinimumPressure, &PressureFree,
+			   pbar, ubar, &GravityOn, grslice,
+			   &DualEnergyFormalism, &DualEnergyFormalismEta1);
 
-  FORTRAN_NAME(flux_twoshock)(dslice, eslice, geslice, uslice, vslice, wslice,
-			      CellWidthTemp[1], diffcoef, 
-			      &GridDimension[1], &GridDimension[2],
-			      &is, &ie, &js, &je, &dtFixed, &Gamma,
-			      &PPMDiffusionParameter, &DualEnergyFormalism,
-			      &DualEnergyFormalismEta1,
-			      dls, drs, pls, prs, gels, gers, uls, urs,
-			      vls, vrs, wls, wrs, pbar, ubar,
-			      df, ef, uf, vf, wf, gef,
-			      &NumberOfColours, colslice, colls, colrs, colf);
+    FORTRAN_NAME(flux_twoshock)(dslice, eslice, geslice, uslice, vslice, wslice,
+				CellWidthTemp[1], diffcoef, 
+				&GridDimension[1], &GridDimension[2],
+				&is, &ie, &js, &je, &dtFixed, &Gamma,
+				&PPMDiffusionParameter, &DualEnergyFormalism,
+				&DualEnergyFormalismEta1,
+				dls, drs, pls, prs, gels, gers, uls, urs,
+				vls, vrs, wls, wrs, pbar, ubar,
+				df, ef, uf, vf, wf, gef,
+				&NumberOfColours, colslice, colls, colrs, colf);
+  break;
+
+  case HLLC:
+    FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,
+			    CellWidthTemp[1], diffcoef, 
+			    &GridDimension[1], &GridDimension[2],
+			    &is, &ie, &js, &je, &dtFixed, &Gamma,
+			    &PPMDiffusionParameter, &DualEnergyFormalism,
+			    &DualEnergyFormalismEta1,
+			    dls, drs, pls, prs, uls, urs,
+			    vls, vrs, wls, wrs, gels, gers,
+			    df, uf, vf, wf, ef, gef,
+			    &NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
+  } // ENDCASE
+
 
   /* Compute Eulerian fluxes and update zone-centered quantities */
 
@@ -241,7 +261,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 		      df, ef, uf, vf, wf, gef,
-		      &NumberOfColours, colslice, colls, colrs, colf);
+		      &NumberOfColours, colslice, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 

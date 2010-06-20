@@ -10,7 +10,7 @@ c
      &            idim, jdim, i1, i2, j1, j2, dt, 
      &            gamma, idiff, gravity, idual, eta1, eta2,
      &            df, ef, uf, vf, wf, gef,
-     &            ncolor, colslice, colls, colrs, colf
+     &            ncolor, colslice, colf
      &                 )
 c
 c  SOLVES THE EULERIAN CONSERVATION LAWS USING FLUXES FROM THE RIEMANN SOLVER
@@ -86,8 +86,7 @@ c
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
       real df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
      &     vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
-      real colslice(idim,jdim,ncolor),   colls(idim,jdim,ncolor),
-     &        colrs(idim,jdim,ncolor),    colf(idim,jdim,ncolor)
+      real colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
 c
 c  local declarations
 c

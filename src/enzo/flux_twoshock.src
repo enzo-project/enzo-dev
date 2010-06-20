@@ -15,7 +15,7 @@ c
 c
 c-----------------------------------------------------------------------
 c
-c  COMPUTE FLUXES FOR THE TWO-SHOCK RIEMANN SOLVER
+c  COMPUTE EULERIAN FLUXES FOR THE (LAGRANGIAN) TWO-SHOCK RIEMANN SOLVER
 c
 c  written by: Jim Stone
 c  date:       January, 1991
@@ -385,6 +385,7 @@ c
              gef(i,j) = dt*dugeb(i)
           enddo
        endif
+
 c
 c     Check here for negative densities and energies
 c
@@ -401,8 +402,8 @@ c
              else
                 write (6,*) 'flux_twoshock: dnu <= 0:', i, j
              endif
-             write (6,*) 'a', df(i,j)-df(i+1,j), dslice(i,j), qc, dt, 
-     $            lbar(i),l0(i)
+             write (6,*) 'a', df(i,j)-df(i+1,j), dslice(i,j), 
+     $            dt/dx(i), dt, lbar(i),l0(i)
              write (6,*) 'b', db(i-1), db(i), db(i+1)
              write (6,*) 'c', ub(i-1), ub(i), ub(i+1)
              write (6,*) 'd', pb(i-1), pb(i), pb(i+1)
