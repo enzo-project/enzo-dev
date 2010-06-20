@@ -82,10 +82,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   /* declarations */
 
   char  line[MAX_LINE_LENGTH];
+  char *dummy = new char[MAX_LINE_LENGTH];
   int   dim, ret, level, sphere, i, source;
 
   /* set default parameters */
 
+  char *PhotonTestDensityFilename = NULL;
   int PhotonTestNumberOfSpheres = 1;
   int PhotonTestUseParticles    = FALSE;
   int PhotonTestUseColour       = FALSE;
@@ -156,6 +158,10 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &PhotonTestUseColour);
     ret += sscanf(line, "PhotonTestInitialTemperature = %"FSYM, 
 		  &PhotonTestInitialTemperature);
+    if (sscanf(line, "PhotonTestDensityFilename = %s", dummy) == 1) {
+      ret++;
+      PhotonTestDensityFilename = dummy;
+    }
     ret += sscanf(line, "PhotonTestUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
 		  PhotonTestUniformVelocity, PhotonTestUniformVelocity+1,
 		  PhotonTestUniformVelocity+2);
@@ -280,7 +286,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
-	     RefineByOpticalDepth) == FAIL) {
+	     RefineByOpticalDepth, PhotonTestDensityFilename) == FAIL) {
     fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
     ENZO_FAIL("");
   }
@@ -299,6 +305,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   /* If requested, refine the grid to the desired level. */
 
   if (PhotonTestRefineAtStart) {
+
+    if (PhotonTestDensityFilename != NULL)
+      ENZO_FAIL("External density field not supported with RefineAtStart yet.");
 
     /* Declare, initialize and fill out the LevelArray. */
 
@@ -336,7 +345,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-	     RefineByOpticalDepth) == FAIL) {
+	     RefineByOpticalDepth, NULL) == FAIL) {
 	  fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
 	  ENZO_FAIL("");
 	}
@@ -385,7 +394,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-		    RefineByOpticalDepth) == FAIL) {
+		    RefineByOpticalDepth, NULL) == FAIL) {
 	    fprintf(stderr, "Error in PhotonTestInitializeGrid.\n");
 	    ENZO_FAIL("");
 	  }
@@ -522,6 +531,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
               PhotonTestSphereNumShells[sphere]);
     }
   }
+
+  delete [] dummy;
 
   return SUCCESS;
 
