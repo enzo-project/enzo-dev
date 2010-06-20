@@ -86,6 +86,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, m_cell;
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
+  double        DensityFloor;
   double        Pi = 3.1415926;
   float nx_cell[MAX_SUPERCELL_NUMBER], 
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
@@ -163,7 +164,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   FLOAT weight_cell[MAX_SUPERCELL_NUMBER];
 
-  if (ProblemType == 106 || ProblemType == 107 ){ // KERNAL SECTION
+  if (AccretionKernal == 2 ){
+  }
+  else if (AccretionKernal == 1 ){ // KERNAL SECTION
     for (n = 0; n < nsinks; n++) {
 
       bb = sink_index[n];
@@ -215,7 +218,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    ind_cell[n_cell] = i+ii+(j+jj+(k+kk)*(*ny))*(*nx);
 	    if (radius > 4.0*(*dx)) weight_cell[n_cell] = 0.0;
 	    else{
-	      weight_cell[n_cell] = exp((-radius2_cell[n_cell])/POW(r_k,2));
+	      weight_cell[n_cell] = d[ind_cell[n_cell]]*exp((-radius2_cell[n_cell])/POW(r_k,2));
 	      density_sum += d[ind_cell[n_cell]]*weight_cell[n_cell];
 	      ugridc += u[ind_cell[n_cell]]*weight_cell[n_cell];
 	      vgridc += v[ind_cell[n_cell]]*weight_cell[n_cell];
@@ -303,24 +306,27 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	printf("drho  = %g\n",drho );
 
       /* Subtract mass from Grid */
+	DensityFloor = 1.e-34/(*d1);
       dens_sum = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
 	//printf(" ic = %"ISYM"\n", ic);
 	//printf("ind_cell[ic]  = %"ISYM"\n",ind_cell[ic]);
 	//printf("d[ind_cell[ic]] = %g = %g cgs \n",d[ind_cell[ic]],d[ind_cell[ic]]*(*d1)  );
 	//printf("weight_cell[ic]  = %g\n",weight_cell[ic] );
-	if (d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho < SmallRho) 
-	  printf("DENSITY lower limit reached, d[ind_cell[ic]] = %g, (weight_cell[ic]/weight_total)*drho = %g,SmallRho = %g\n",d[ind_cell[ic]],(weight_cell[ic]/weight_total)*drho, SmallRho);
-	del_rho = d[ind_cell[ic]]- max(SmallRho,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
-	d[ind_cell[ic]] = max(SmallRho,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
+	//printf("DensityFloor =%g = %g cgs \n",DensityFloor, DensityFloor*(*d1));
+	if (d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho < DensityFloor) 
+	  printf("DENSITY lower limit reached,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho = %g, d[ind_cell[ic]] = %g, (weight_cell[ic]/weight_total)*drho = %g,DensityFloor = %g\n",d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho , d[ind_cell[ic]],(weight_cell[ic]/weight_total)*drho, DensityFloor);
+	del_rho = min((weight_cell[ic]/weight_total)*drho,d[ind_cell[ic]]-DensityFloor);
+	d[ind_cell[ic]] = max(DensityFloor,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
+	//printf("DEL_RHO = %g \n",del_rho );
 	dens_sum += del_rho;
 	 } 
       printf("   star_maker8 CHECK: dens_sum/drho = %"FSYM"\n", dens_sum/drho );
       printf("star_maker8: Accretion routine, mass added = %g = %g Msun, drho = %g\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho );
       printf("   star_maker8 CHECK: dens_sum/mpold[bb] = %g\n", dens_sum/mpold[bb] );
-      upold[bb] = (mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
-      vpold[bb] = (mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
-      wpold[bb] = (mpold[bb]*wsink + drho*wgridc) / (mpold[bb] + drho);
+      upold[bb] = 0.0; //(mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
+      vpold[bb] = 0.0; //(mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
+      wpold[bb] = 0.0; //(mpold[bb]*wsink + drho*wgridc) / (mpold[bb] + drho);
       mpold[bb] += dens_sum;
       dmold[bb] += dens_sum*POW(*dx,3);
 

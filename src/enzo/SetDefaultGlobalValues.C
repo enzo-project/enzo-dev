@@ -283,6 +283,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
+  AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1

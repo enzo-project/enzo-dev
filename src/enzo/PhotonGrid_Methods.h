@@ -393,7 +393,8 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float PhotonTestInitialFractionHM,
 			     float PhotonTestInitialFractionH2I, 
 			     float PhotonTestInitialFractionH2II,
-			     int RefineByOpticalDepth);
+			     int RefineByOpticalDepth,
+			     char *DensityFilename);
 
 /************************************************************************/
 

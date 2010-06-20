@@ -401,7 +401,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Solve the radiative transfer */
 
 #ifdef TRANSFER
-    FLOAT GridTime = Grids[0]->GridData->ReturnTime();
+    FLOAT GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel;
     EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
 #endif /* TRANSFER */
 

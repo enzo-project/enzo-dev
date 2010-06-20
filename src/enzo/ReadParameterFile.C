@@ -363,6 +363,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
+    ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
     ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
     ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);
@@ -991,8 +992,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     float h, cs, dpdrho, dpde;
     EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
     if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
-      printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
-	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
+      printf("smallrho=%g, smallp=%g, smalleint=%g, DensityUnits = %g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
+	     SmallRho, SmallP, SmallEint,DensityUnits, PressureUnits, MaximumAlvenSpeed);
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;
