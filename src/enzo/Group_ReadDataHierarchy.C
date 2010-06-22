@@ -49,7 +49,8 @@ static int ReadDataGridCounter = 0;
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 			    HierarchyEntry *ParentGrid, hid_t file_id,
-			    int NumberOfRootGrids, int *RootGridProcessors)
+			    int NumberOfRootGrids, int *RootGridProcessors,
+			    bool ReadParticlesOnly)
 {
  
   int TestGridID, NextGridThisLevelID, NextGridNextLevelID;
@@ -180,7 +181,8 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
 
   /* We pass in the global here as a parameter to the function */
   if(LoadGridDataAtStart){ 
-    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, TRUE
+    if (Grid->GridData->Group_ReadGrid(fptr, GridID, file_id, TRUE, TRUE,
+				       ReadParticlesOnly
 #ifdef NEW_GRID_IO
                 , CheckpointRestart
 #endif
@@ -232,7 +234,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
     Grid->NextGridThisLevel = new HierarchyEntry;
     if (Group_ReadDataHierarchy(fptr, Grid->NextGridThisLevel, NextGridThisLevelID,
 				ParentGrid, file_id, NumberOfRootGrids,
-				RootGridProcessors) == FAIL)
+				RootGridProcessors, ReadParticlesOnly) == FAIL)
       ENZO_FAIL("Error in Group_ReadDataHierarchy(1).");
   }
  
@@ -256,7 +258,7 @@ int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
     Grid->NextGridNextLevel = new HierarchyEntry;
     if (Group_ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID, 
 				Grid, file_id, NumberOfRootGrids, 
-				RootGridProcessors) == FAIL)
+				RootGridProcessors, ReadParticlesOnly) == FAIL)
       ENZO_FAIL("Error in Group_ReadDataHierarchy(2).");
   }
  

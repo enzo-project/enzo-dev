@@ -194,10 +194,11 @@ class grid
 
 #ifndef NEW_GRID_IO
   int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
-			 int ReadText, int ReadData);
+		     int ReadText, int ReadData, bool ReadParticlesOnly=false);
 #else
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
-		      int ReadText = TRUE, int ReadData = TRUE, int ReadEverything = FALSE);
+		      int ReadText = TRUE, int ReadData = TRUE, 
+		      bool ReadParticlesOnly=false, int ReadEverything = FALSE);
 #endif
 
 /* Get field or particle data based on name or integer 

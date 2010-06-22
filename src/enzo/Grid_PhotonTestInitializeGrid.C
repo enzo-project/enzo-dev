@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -73,15 +74,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float PhotonTestInitialFractionHM,
 			     float PhotonTestInitialFractionH2I, 
 			     float PhotonTestInitialFractionH2II,
-			     int RefineByOpticalDepth)
+			     int RefineByOpticalDepth,
+			     char *DensityFilename)
 {
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size, index;
+  int dim, i, j, k, m, field, sphere, size, active_size, index, cindex;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3; 
-
+  float *density_field = NULL;
 
   /* create fields */
   NumberOfBaryonFields = 0;
@@ -245,8 +247,13 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   /* Set up the baryon field. */
   /* compute size of fields */
   size = 1;
-  for (dim = 0; dim < GridRank; dim++)
+  active_size = 1;
+  int ActiveDims[MAX_DIMENSION];
+  for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
+    ActiveDims[dim] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+    active_size *= ActiveDims[dim];
+  }
 
   /* allocate fields */
   if (SetupLoopCount == 0)
@@ -262,6 +269,30 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     fprintf(stderr, "\nError in InitializeRadiativeTransferFields.\n");
     ENZO_FAIL("");
   }
+
+  /* Read density field, if given */
+
+  if (DensityFilename != NULL) {
+    char *data_filename, *dataset_name;
+    hsize_t OutDims[MAX_DIMENSION];
+    herr_t h5error;
+    hid_t file_id;
+
+    // Parse DensityFilename into filename and dataset name
+    char *delim = "/";
+    data_filename = strtok(DensityFilename, delim);
+    dataset_name = strtok(NULL, delim);
+
+    file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if (file_id == -1) ENZO_FAIL("Error closing density field.");
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+    density_field = new float[active_size];
+    this->read_dataset(GridRank, OutDims, dataset_name, file_id,
+		       HDF5_REAL, density_field, FALSE, NULL, NULL);
+    h5error = H5Fclose(file_id);
+    if (h5error == -1) ENZO_FAIL("Error closing density field.");
+  } // ENDIF DensityFilename
 
   /* Loop over the mesh. */
   float density, dens1, Velocity[MAX_DIMENSION],
@@ -344,7 +375,17 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	/* Loop over spheres. */
 
-	density = 1.0;
+	if (density_field != NULL && 
+	    i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
+	    j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
+	    k >= GridStartIndex[2] && k <= GridEndIndex[2]) {
+	  cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
+	    ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
+	  density = density_field[cindex];
+	} else {
+	  density = 1.0;
+	}
+
 	temperature = temp1 = InitialTemperature;
 	sigma = sigma1 = 0;
 	colour = 1.0e-10;
@@ -732,6 +773,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   if (SphereUseParticles && debug)
     printf("PhotonTestInitialize: DM NumberOfParticles = %"ISYM"\n", 
 	   NumberOfParticles);
+
+  if (density_field != NULL)
+    delete [] density_field;
   
   return SUCCESS;
 }

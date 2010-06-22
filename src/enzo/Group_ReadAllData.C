@@ -52,7 +52,8 @@ void my_exit(int status);
  
 int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
 			    HierarchyEntry *ParentGrid, hid_t file_id,
-			    int NumberOfRootGrids, int *RootGridProcessors);
+			    int NumberOfRootGrids, int *RootGridProcessors,
+			    bool ReadParticlesOnly=false);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
 int ReadStarParticleData(FILE *fptr);
 int ReadRadiationData(FILE *fptr);
@@ -70,7 +71,8 @@ extern char CPUSuffix[];
 
  
 int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
-		      ExternalBoundary *Exterior, float *Initialdt)
+		      ExternalBoundary *Exterior, float *Initialdt,
+		      bool ReadParticlesOnly)
  
 {
  
@@ -287,7 +289,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   GridID = 1;
   if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id,
-			      NumberOfRootGrids, RootGridProcessors) == FAIL) {
+			      NumberOfRootGrids, RootGridProcessors,
+			      ReadParticlesOnly) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     return FAIL;
   }

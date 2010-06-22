@@ -59,15 +59,15 @@ Eint64 mused(void)
   int ps = getpagesize();
 
   char procname[120];
-  Eint64 kb;
+  Eint64 kb, res;
   FILE* ptr;
 
   sprintf(procname, "/proc/%lld/statm", ((Eint64) this_pid));
   ptr = fopen(procname, "r");
-  fscanf(ptr, "%lld", &kb);
+  fscanf(ptr, "%lld %lld", &kb, &res);
   fclose(ptr);
   //fprintf(stderr, "Proc statm Bytes: %lld\n", ((Eint64) kb*ps));
-  return ((Eint64) ps*kb);
+  return ((Eint64) ps*res);
 #else
   return ((Eint64) 0);
 #endif

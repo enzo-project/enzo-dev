@@ -51,7 +51,7 @@ int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			    int &NumberOfReceives, star_data* &SharedList);
 
 #define NO_DEBUG_CCP
-#define GRIDS_PER_LOOP 50000
+#define GRIDS_PER_LOOP 100000
 #define PARTICLES_PER_LOOP 100000000
  
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],

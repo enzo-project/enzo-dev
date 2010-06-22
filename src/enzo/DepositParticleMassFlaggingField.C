@@ -38,7 +38,7 @@
    total number of cells on the level. */
 
 #define CELLS_PER_LOOP 3e8
-#define GRIDS_PER_LOOP 50000
+#define GRIDS_PER_LOOP 100000
 
 void my_exit(int status);
 double ReturnWallTime(void);

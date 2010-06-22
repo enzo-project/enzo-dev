@@ -157,7 +157,8 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
        faster. */
 
     NumberReceives = 0;
-    while (RecvBuffer[NumberReceives].ToLevel != BUFFER_END)
+    while (RecvBuffer[NumberReceives].ToLevel != BUFFER_END &&
+	   NumberReceives < PHOTON_BUFFER_SIZE)
       NumberReceives++;
     TotalReceivedPhotons += NumberReceives;
 
