@@ -207,6 +207,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   &is, &ie, &js, &je, &DualEnergyFormalism, 
 			   &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 			   &PPMSteepeningParameter, &PPMFlatteningParameter,
+			   &ConservativeReconstruction,
 			   &dtFixed, &Gamma, &PressureFree, 
 			   dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
 			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
@@ -232,6 +233,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				vls, vrs, wls, wrs, pbar, ubar,
 				df, ef, uf, vf, wf, gef,
 				&NumberOfColours, colslice, colls, colrs, colf);
+    break;
 
   case HLLC:
     FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,

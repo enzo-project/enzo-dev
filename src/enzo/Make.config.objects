@@ -33,6 +33,7 @@ OBJS_CONFIG_LIB = \
         calcdiss.o \
         calc_dt.o \
         calc_dt_c.o \
+	calc_eigen.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -592,6 +593,7 @@ OBJS_CONFIG_LIB = \
         int_lin3d.o \
         intrmp.o \
         int_spline.o \
+	intprim.o \
         intvar.o \
         Isdigit.o \
         KHInitialize.o \

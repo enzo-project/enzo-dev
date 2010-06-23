@@ -209,6 +209,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   &is, &ie, &js, &je, &DualEnergyFormalism, 
 			   &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 			   &PPMSteepeningParameter, &PPMFlatteningParameter,
+			   &ConservativeReconstruction,
 			   &dtFixed, &Gamma, &PressureFree, 
 			   dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
 			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
@@ -223,7 +224,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   &dtFixed, &Gamma, &MinimumPressure, &PressureFree,
 			   pbar, ubar, &GravityOn, grslice,
 			   &DualEnergyFormalism, &DualEnergyFormalismEta1);
-
+    
     FORTRAN_NAME(flux_twoshock)(dslice, eslice, geslice, uslice, vslice, wslice,
 				CellWidthTemp[1], diffcoef, 
 				&GridDimension[1], &GridDimension[2],
@@ -234,7 +235,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				vls, vrs, wls, wrs, pbar, ubar,
 				df, ef, uf, vf, wf, gef,
 				&NumberOfColours, colslice, colls, colrs, colf);
-  break;
+    break;
 
   case HLLC:
     FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,

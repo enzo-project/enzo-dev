@@ -23,8 +23,8 @@ extern "C" void FORTRAN_NAME(inteuler)(
 		float *geslice, float *uslice, float *vslice, float *wslice, 
 		float *dxi, float *flatten, int *idim, int *jdim, int *i1, 
 		int *i2, int *j1, int *j2, int *idual, float *eta1, 
-		float *eta2, int *isteep, int *iflatten, float *dt, 
-		float *gamma, int *ipresfree, float *dls, float *drs, 
+		float *eta2, int *isteep, int *iflatten, int *iconsrec, 
+		float *dt, float *gamma, int *ipresfree, float *dls, float *drs, 
 		float *pls, float *prs, float *gels, float *gers, float *uls, 
 		float *urs, float *vls, float *vrs, float *wls, float *wrs, 
 		int *ncolor, float *colslice, float *colls, float *colrs);

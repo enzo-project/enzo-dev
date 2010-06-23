@@ -83,7 +83,7 @@ c
       integer i, j, n
       real sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
      $     hroe, tl, tr, dl, dr, q1, dub, delu, energy, qc,
-     $     gamma1i
+     $     gamma1i, csl0, csr0
       real cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
      $     cw(ijkn), cp(ijkn), diffd(ijkn), diffuu(ijkn), diffuv(ijkn),
      $     diffuw(ijkn), diffue(ijkn), diffuge(ijkn), 
@@ -135,14 +135,13 @@ c     Compute the min/max wave speeds
 c
       do i = i1,i2+1
 
-         csl(i) = sqrt(gamma*pls(i,j)/dls(i,j))
-         csl(i) = min(char1(i), (uls(i,j) - csl(i)), 
-     $        (urs(i,j) - csr(i)))
-         bm(i) = min(csl(i), 0.0)
+         csl0 = sqrt(gamma*pls(i,j)/dls(i,j))
+         csr0 = sqrt(gamma*prs(i,j)/drs(i,j))
 
-         csr(i) = sqrt(gamma*prs(i,j)/drs(i,j))
-         csr(i) = max(char2(i), (uls(i,j) + csl(i)), 
-     $        (urs(i,j) + csr(i)))
+         csl(i) = min(uls(i,j)-csl0, char1(i))
+         csr(i) = max(urs(i,j)+csr0, char2(i))
+
+         bm(i) = min(csl(i), 0.0)
          bp(i) = max(csr(i), 0.0)
 
       enddo
@@ -159,11 +158,6 @@ c
          q1 = 1.0 / (dl+dr)
          cw(i) = (tr - tl)*q1
          cp(i) = (dl*tr + dr*tl)*q1
-         if (cp(i) < 0.0) then
-            write(6,*) 'flux_hllc: Negative contact pressure = ',i,cp(i)
-            WARNING_MESSAGE
-            cp(i) = 0.0
-         endif
          if (cw(i) .ge. 0.0) then
             sl(i) =  cw(i) / (cw(i) - bm(i))
             sr(i) = 0.0
@@ -172,6 +166,11 @@ c
             sl(i) = 0.0
             sr(i) = -cw(i) / (bp(i) - cw(i))
             sm(i) =  bp(i) / (bp(i) - cw(i))
+         endif
+         if (sm(i) .gt. 0.0 .and. cp(i) .lt. 0.0) then
+            write(6,*) 'flux_hllc: Negative contact pressure = ',i,cp(i)
+            WARNING_MESSAGE
+            cp(i) = 0.0
          endif
       enddo
 c

@@ -176,7 +176,7 @@ verbose: $(EXE).exe
 	  fi ; \
 	fi)
 	@(if [ -e $@ ]; then \
-             rm -f $*.f; \
+             touch -f $*.f; \
           fi)
 
 .src90.f90:
