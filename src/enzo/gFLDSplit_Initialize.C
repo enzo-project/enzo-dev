@@ -306,7 +306,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
 
   // dt gives the time step size (initialize to zero)
-  dt = 0.0;
+  dt = initdt;
   dtchem = huge_number;  // initially use the radiation dt
 
   // a, adot give cosmological expansion & rate

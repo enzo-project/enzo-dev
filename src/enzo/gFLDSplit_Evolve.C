@@ -350,7 +350,6 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     ENZO_FAIL("ERROR: EnforceBoundary failure!!");
 
   //   obtain initial guess for time-evolved solution
-  sol->copy(U0);
   if (this->InitialGuess(sol) == FAIL) {
     this->Dump(sol);
     ENZO_FAIL("ERROR: InitialGuess failure!!");
