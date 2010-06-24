@@ -390,7 +390,7 @@ c
 c     Check here for negative densities and energies
 c
        do i=i1, i2
-          if (dslice(i,j) .le. (df(i,j)-df(i+1,j)) .or.
+          if (dslice(i,j) + (df(i,j)-df(i+1,j)) .le. 0.0 .or.
      $         eslice(i,j) .lt. 0.0) then
              if (eslice(i,j) .lt. 0.0) then
                 write (6,*) 'flux_twoshock: eslice < 0: ', i, j
@@ -437,21 +437,25 @@ c     Now check for negative colors (Warning only)
 c
        do n=1, ncolor
           do i=i1, i2
-             if (colslice(i,j,n) .lt.
-     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i)) then
+             if (colslice(i,j,n) +
+     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0.0) then
                 write(6,*) 'flux_twoshock: negative color',i,j,n
                 write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $               colf(i+1,j,n)
-                write(6,*) 'b', colslice(i-1,j,n),colslice(i,j,n),
+                write(6,*) 'b', colslice(i,j,n)+(colf(i,j,n)-
+     $               colf(i+1,j,n))/dx(i),
+     $               colslice(i,j,n),
+     $               (colf(i,j,n)-colf(i+1,j,n))/dx(i)
+                write(6,*) 'c', colslice(i-1,j,n),colslice(i,j,n),
      $               colslice(i+1,j,n)
-                write(6,*) 'c', colb(i-1,n),colb(i,n),colb(i+1,n)
-                write(6,*) 'd', colls(i-1,j,n),colls(i,j,n),
+                write(6,*) 'd', colb(i-1,n),colb(i,n),colb(i+1,n)
+                write(6,*) 'e', colls(i-1,j,n),colls(i,j,n),
      $               colls(i+1,j,n)
-                write(6,*) 'e', colrs(i-1,j,n),colrs(i,j,n),
+                write(6,*) 'f', colrs(i-1,j,n),colrs(i,j,n),
      $               colrs(i+1,j,n)
-                write(6,*) 'f', ub(i-1),ub(i),ub(i+1)
-                write(6,*) 'g', u0(i-1),u0(i),u0(i+1)
-                write(6,*) 'h', ubar(i-1,j),ubar(i,j),ubar(i+1,j)
+                write(6,*) 'g', ub(i-1),ub(i),ub(i+1)
+                write(6,*) 'h', u0(i-1),u0(i),u0(i+1)
+                write(6,*) 'i', ubar(i-1,j),ubar(i,j),ubar(i+1,j)
                 WARNING_MESSAGE
              endif
           enddo

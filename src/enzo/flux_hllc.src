@@ -237,8 +237,8 @@ c     Gas energy is treated like an advected quantity
 c
       if (idual .eq. 1) then
          do i = i1,i2+1
-            gefl(i) = dfl(i) * gels(i,j)
-            gefr(i) = dfr(i) * gers(i,j)
+            gefl(i) = (uls(i,j)-bm(i)) * gels(i,j)
+            gefr(i) = (urs(i,j)-bp(i)) * gers(i,j)
          enddo
       endif
 c
@@ -246,8 +246,8 @@ c     Now for the colors
 c
       do n=1,ncolor
          do i=i1,i2+1
-            colfl(i,n) = dfl(i) * colls(i,j,n)
-            colfr(i,n) = dfr(i) * colrs(i,j,n)
+            colfl(i,n) = (uls(i,j)-bm(i)) * colls(i,j,n)
+            colfr(i,n) = (urs(i,j)-bp(i)) * colrs(i,j,n)
          enddo                  ! i
       enddo                     ! colors
 c
@@ -357,12 +357,17 @@ c     Now check for negative colors (Warning only)
 c
       do n=1, ncolor
          do i=i1, i2
-            if (colslice(i,j,n) .lt.
-     $           (colf(i,j,n)-colf(i+1,j,n))/dx(i)) then
-               write(6,*) 'flux_twoshock: negative color',i,j,n
+            if (colslice(i,j,n) +
+     $           (colf(i,j,n)-colf(i+1,j,n))/dx(i)
+     $           .lt. 0.0) then
+               write(6,*) 'flux_hllc: negative color',i,j,n
                write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $              colf(i+1,j,n)
-               write(6,*) 'b', colslice(i-1,j,n),colslice(i,j,n),
+               write(6,*) 'b', colslice(i,j,n)+(colf(i,j,n)-
+     $              colf(i+1,j,n))/dx(i),
+     $              colslice(i,j,n),
+     $              (colf(i,j,n)-colf(i+1,j,n))/dx(i)
+               write(6,*) 'c', colslice(i-1,j,n),colslice(i,j,n),
      $              colslice(i+1,j,n)
                write(6,*) 'd', colls(i-1,j,n),colls(i,j,n),
      $              colls(i+1,j,n)

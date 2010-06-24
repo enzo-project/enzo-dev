@@ -141,7 +141,7 @@ c
          c2(i) = qa*(2.0*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
       enddo
 c
-      do i=i1-2,i2+2
+      do i=i1-1,i2+2
          qa    = dxi(i-2) + dxi(i-1) + dxi(i) + dxi(i+1)
          qb    = dxi(i-1)/(dxi(i-1) + dxi(i))
          qc    = (dxi(i-2) + dxi(i-1))/(2.0*dxi(i-1) + dxi(i  ))
@@ -432,7 +432,7 @@ c
 c     Correct advected quantities for wave subtraction (similar as d,p,u
 c     correction above).
 c
-c#ifdef UNUSED
+#ifdef UNUSED
       do i = i1,i2+1
          if (uslice(i,j) .gt. 0.0) then
             c7(i) = dt*dx2i(i) * cs(i)
@@ -462,7 +462,7 @@ c#ifdef UNUSED
             endif
          enddo
       enddo
-c#endif
+#endif
 c
 c  Dual energy formalism: if sound speed squared is less than eta1*v^2 
 c    then discard the corrections and use pla, ula, dla.  This amounts
