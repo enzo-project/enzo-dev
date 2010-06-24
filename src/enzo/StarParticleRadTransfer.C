@@ -108,6 +108,9 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       float ramptime = 0.0;   // zero for no ramp
       if (cstar->ReturnType() == PopII)
 	ramptime = TimeInYears * StarClusterMinDynamicalTime;
+      else if (cstar->ReturnType() == PopIII)
+	// should be an parameter or determined from the data
+	ramptime = TimeInYears * 50e3;
 
       /* Transfer the shining particle properties to the radiative
 	 transfer source particle */
