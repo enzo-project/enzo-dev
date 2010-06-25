@@ -1,3 +1,8 @@
+# Creates 2D projection of the Emissivity field
+#
+###############################################
+
+
 from yt.config import ytcfg
 ytcfg["lagos","serialize"] = "False"
 
