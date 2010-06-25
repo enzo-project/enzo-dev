@@ -1,3 +1,8 @@
+# Creates 2D projection of the Density field
+#
+############################################
+
+
 from yt.config import ytcfg
 ytcfg["lagos","serialize"] = "False"
 
@@ -22,18 +27,13 @@ for i in range(min_output_number, max_output_number+1, skip):
 
     pf = EnzoStaticOutput(basename)
 
-#    conv = pf.conversion_factors["Density"]
-
     proj = pf.h.proj(0, field, weight_field=field)
 
     frb = raven.FixedResolutionBuffer(proj, (0.0, 1.0, 0.0, 1.0), (res, res))
 
-#    cgsDens = frb[field]*conv
-
     z = pf["CosmologyCurrentRedshift"]
     yr = pf["InitialTime"] * pf["years"]
 
-#    pylab.imshow( na.log10(cgsDens), interpolation='nearest', origin='lower')
     pylab.imshow( na.log10(frb[field]), interpolation='nearest', origin='lower')
     pylab.clim(-28.5,-24.9)
     pylab.title('z = %2.2f, t = %2.2e yr' % (z,yr))
