@@ -540,13 +540,22 @@ $\text{ce}_{HI}$, $\text{ci}_{HI}$, $\text{re}_{HII}$, $\text{brem}$,
 $\text{comp}_1$, $\text{comp}_2$, $\text{comp}_{X}$ and
 $\text{comp}_{T}$ are all taken from Enzo's built-in rate tables.
 
-Moreover, the frequency-integrated opacity is now chemistry-dependent,
+The photo-ionization rate is calculated as
+\begin{align}
+  \label{eq:phHI}
+  \Gamma_{HI}^{ph} \ = \ \int_{\nu_{HI}}^{\infty}
+    \frac{c\,E_{\nu}\,\sigma_{HI}}{h\nu}\, d\nu 
+  \ = \ \frac{c\,E}{h} 
+    \left[\int_{\nu_{HI}}^{\infty} \frac{\sigma_{HI}\, \chi_E}{\nu}\,
+      d\nu\right] \bigg/ \left[\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right].
+\end{align}
+Similarly, the frequency-integrated opacity is now chemistry-dependent,
 \begin{equation}
 \label{eq:opacityHI}
   \kappa \ = \ 
   \left[\int_{\nu_{HI}}^{\infty} \kappa_{\nu}\,E_{\nu}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} E_{\nu}\,d\nu\right] \ = \ 
-  \left[\mn_{HI} \int_{\nu_{HI}}^{\infty}
+  \mn_{HI} \left[\int_{\nu_{HI}}^{\infty}
     \chi_E\,\sigma_{HI}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right],
 \end{equation}
