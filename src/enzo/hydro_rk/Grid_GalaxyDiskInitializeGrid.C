@@ -484,22 +484,22 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 		// if the central density in the midplane is not linearly decreasing with radius
 		// you do not have enough resolution for your parameter choice
 		density += rhoc
-		  /pow(cosh(zpos/max(hr/LengthUnits,CellWidth[0][0])), 2)/DensityUnits;
+		  /pow(cosh(zpos/(hr/LengthUnits)), 2)/DensityUnits;
 		  //		  /pow(cosh(zpos/(hr/LengthUnits)), 2)/DensityUnits;
 
-		if (R < CellWidth[0][0])
-		  density = 1e5;
+		if ((r < CellWidth[0][0]) && (CellWidth[0][0] > R_D)) 
+		    density = 2*MinimumMassForRefinement[0]/CellWidth[0][0]/CellWidth[0][0]/CellWidth[0][0];
 
 
 		// rotational velocity added by disk:
 		yd = R/DiskRadius[0];
-		vphidisk = sqrt(4.*M_PI*GravConst*Sigma_0*R_D*yd*yd
+		vphidisk = sqrt(4.*M_PI*GravConst*Sigma_0*R_D*LengthUnits*yd*yd
 				       *(BESSI0(yd)*BESSK0(yd)-BESSI1(yd)*BESSK1(yd)));
 		// printf("%g : %g %g %g %g \n", yd,BESSI0(yd),BESSK0(yd),BESSI1(yd),BESSK1(yd)); // works!
 
 		
 		// pressure gradient subtracts some from the rotational velocity
-		vpress = sqrt(2*R*(R+(F-1)*R_D)/(R_D*(R+F*R_D)))*c_s;
+		    vpress = sqrt(2*R*(R+(F-1)*R_D)/(R_D*(R+F*R_D)))*c_s;
 
 		double vphi=0.;
 		temperature = DiskTemperature[0];
@@ -514,8 +514,8 @@ int grid::GalaxyDiskInitializeGrid(int NumberOfHalos,
 		  }
 		}
 
-		vphi += vphidisk; // + disk mass 
-		vphi += vpress;    // - pressure gradient
+		    vphi += vphidisk; //  disk mass 
+		    //		    vphi -= vpress;    // - pressure gradient
 		
 		vphi /= VelocityUnits;
 

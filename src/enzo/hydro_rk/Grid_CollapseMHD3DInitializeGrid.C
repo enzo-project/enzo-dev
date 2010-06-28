@@ -218,7 +218,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      FLOAT cos2phi = cosphi*cosphi -sinphi*sinphi;
 	      //	      rho *= (1.0 + 0.2*cos2phi);
 	      // Burkert & Bodenheimer (1993) m=2 perturbation: 	      
-	      float m2mode = 1. + 0.5*cos(2.*phi);
+	      float m2mode = 1. + 0.1*cos(2.*phi);
 	      rho *= m2mode;
 	      // BUT keep the pressure constant everywhere
 	      // to avoid discontinuities at the sphere boundaries
