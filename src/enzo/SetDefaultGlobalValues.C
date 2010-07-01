@@ -282,6 +282,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PointSourceGravityCoreRadius = 0.0;
 
   SelfGravity                 = FALSE;             // off
+  SelfGravityGasOff           = FALSE;             // off
+  AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
@@ -371,6 +373,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
+  BigStarFormation                 = FALSE;
+  BigStarSeparation                = 0.25;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;

@@ -99,7 +99,7 @@ void ppm_dissipation(float **prim, float **p0l, float **p0r, int ActiveSize, int
       am1 = prim[field][iprim-1];
       am2 = prim[field][iprim-2];
      
-      if (0) {
+      if (1) {
 	// 1) Contact steeping
 	if (Gamma*K0*fabs(rho_p1-rho_m1)/min(rho_p1,rho_m1) >= 
 	    fabs(p_p1-p_m1)/min(p_p1, p_m1)) {

@@ -33,8 +33,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *VelocityUnits, FLOAT Time);
 
 
-int grid::FindMeanVelocity(FLOAT SphereCenter[MAX_DIMENSION], 
-			   float SphereRadius,
+int grid::FindMeanVelocityAndCenter(FLOAT SphereCenter[MAX_DIMENSION], float SphereRadius,
+			   FLOAT NewCenter[MAX_DIMENSION], FLOAT &NewCenterWeight,
 			   FLOAT MeanVelocity[MAX_DIMENSION][3],
 			   FLOAT MeanVelocityWeight[MAX_DIMENSION][3])
 {
@@ -145,6 +145,11 @@ int grid::FindMeanVelocity(FLOAT SphereCenter[MAX_DIMENSION],
 	    MeanVelocityWeight[dim][0] += 
 	                            BaryonField[DensNum][index]*CellVolume;
 	  }
+          NewCenter[0] += BaryonField[DensNum][index]*CellVolume * delx;
+          NewCenter[1] += BaryonField[DensNum][index]*CellVolume * dely;
+          NewCenter[2] += BaryonField[DensNum][index]*CellVolume * delz;
+          NewCenterWeight += BaryonField[DensNum][index]*CellVolume;
+
 	} // end: if (radius2 <= SphereRadius*SphereRadius)
 	
       }
@@ -161,13 +166,18 @@ int grid::FindMeanVelocity(FLOAT SphereCenter[MAX_DIMENSION],
       radius2 += (ParticlePosition[dim][i] - SphereCenter[dim])*
 	         (ParticlePosition[dim][i] - SphereCenter[dim]);
 
-    if (radius2 <= SphereRadius*SphereRadius)
+    if (radius2 <= SphereRadius*SphereRadius) {
       for (dim = 0; dim < GridRank; dim++) {
-	MeanVelocity[dim][1] += ParticleMass[i]*CellVolume *
+	    MeanVelocity[dim][1] += ParticleMass[i]*CellVolume *
 	                        ParticleVelocity[dim][i]*VelocityConversion;
-	MeanVelocityWeight[dim][1] += ParticleMass[i]*CellVolume;
+	    MeanVelocityWeight[dim][1] += ParticleMass[i]*CellVolume;
       }
-    
+
+      for (dim = 0; dim < GridRank; dim++)
+        NewCenter[dim] += ParticleMass[i]*CellVolume * (ParticlePosition[dim][i] - SphereCenter[dim]);
+      NewCenterWeight += ParticleMass[i]*CellVolume;
+    } // end: if (radius2 <= SphereRadius*SphereRadius)
+
   }
 
   return SUCCESS;

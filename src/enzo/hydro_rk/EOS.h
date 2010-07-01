@@ -9,6 +9,8 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
      eostype: 
        0: ideal gas
        1: polytropic EOS
+       2: another polytropic EOS
+       3: isothermal 
      mode:  
        1: given p and rho, calculate others.
        2: given rho and e, calculate others.

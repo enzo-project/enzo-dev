@@ -33,10 +33,18 @@ struct parmstruct {
   int TopGridEnd[3];
   int RootGridDims[3];
 
+  /* Parameters used to automatically generate hierarchy. */
+
+  FLOAT RefineRegionLeftEdge[3];
+  FLOAT RefineRegionRightEdge[3];
+  int RefineBy;
+  int MaximumInitialRefinementLevel;
+
   /* Boolean flags. */
 
   int InitializeParticles;
   int InitializeGrids;
+  int RandomNumberGenerator;
 
   /* Names. */
 

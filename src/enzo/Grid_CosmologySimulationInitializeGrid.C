@@ -235,7 +235,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity3;
 #ifdef TRANSFER
     if (RadiativeTransferFLD > 1)
-      FieldType[NumberOfBaryonFields++] = RadiationFreq0;
+      FieldType[EgNum = NumberOfBaryonFields++] = RadiationFreq0;
 #endif
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
@@ -281,12 +281,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
-  /* 
-    printf("XXXXXXXXXXXXXXX NumberOfBaryonFields : %i \n", NumberOfBaryonFields); 
-    for (i=0; i<NumberOfBaryonFields; i++) 
-      printf("FieldType[%i] = %i \n", i, FieldType[i]);
-  */
-
+ 
   // Set the subgrid static flag
  
   SubgridsAreStatic = CosmologySimulationSubgridsAreStatic;

@@ -81,6 +81,11 @@ static int   CosmologySimulationCalculatePositions   = FALSE;
 
 #define MAX_INITIAL_GRIDS 10
  
+static  int   CosmologySimulationGridDimension[MAX_INITIAL_GRIDS][MAX_DIMENSION];
+static  int   CosmologySimulationGridLevel[MAX_INITIAL_GRIDS];
+static  FLOAT CosmologySimulationGridLeftEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
+static  FLOAT CosmologySimulationGridRightEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
+ 
  
 int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       		HierarchyEntry &TopGrid, TopGridData &MetaData)
@@ -134,11 +139,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     CosmologySimulationVelocityNames[dim]       = NULL;
- 
-  int   CosmologySimulationGridDimension[MAX_INITIAL_GRIDS][MAX_DIMENSION];
-  int   CosmologySimulationGridLevel[MAX_INITIAL_GRIDS];
-  FLOAT CosmologySimulationGridLeftEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
-  FLOAT CosmologySimulationGridRightEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
  
   for (i = 0; i < MAX_INITIAL_GRIDS; i++)
     CosmologySimulationGridLevel[i] = 1;
@@ -549,7 +549,9 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
 			     CosmologySimulationManualParticleMassRatio,
-			     CosmologySimulationCalculatePositions
+			     CosmologySimulationCalculatePositions,
+			     CosmologySimulationGridLeftEdge[gridnum],
+			     CosmologySimulationGridRightEdge[gridnum]
 						       ) == FAIL) {
       fprintf(stderr, "Error in grid->NestedCosmologySimulationInitializeGrid.\n");
       ENZO_FAIL("");
@@ -753,93 +755,94 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
   HierarchyEntry *CurrentGrid;
   HierarchyEntry *Temp;
  
- 
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
     *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
     *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];;
  
- for (dim = 0; dim < MAX_DIMENSION; dim++) {
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticleVelocityNames[dim] = NULL;
     VelocityNames[dim] = NULL;
   }
  
   CurrentGrid = TopGrid;
- 
+
+  /* Loop over initial grids and reinitialize each one. */
+
+  PINT ParticleCount = 0, ParticleTempCount;
   for (gridnum = 0; gridnum < CosmologySimulationNumberOfInitialGrids; gridnum++) {
  
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("NestedCosmologySimulation: ReInitializing grid %"ISYM"\n", gridnum);
  
-  // If there is more than one grid, add the grid number to the name
+    // If there is more than one grid, add the grid number to the name
  
-  if (CosmologySimulationNumberOfInitialGrids > 1) {
+    if (CosmologySimulationNumberOfInitialGrids > 1) {
  
-    if (CosmologySimulationDensityName)
-      sprintf(DensityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationDensityName)
+	sprintf(DensityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationDensityName, gridnum);
-    if (CosmologySimulationTotalEnergyName)
-      sprintf(TotalEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationTotalEnergyName)
+	sprintf(TotalEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationTotalEnergyName, gridnum);
-    if (CosmologySimulationGasEnergyName)
-      sprintf(GasEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationGasEnergyName)
+	sprintf(GasEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationGasEnergyName, gridnum);
  
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      if (CosmologySimulationVelocityNames[dim])
-	sprintf(VelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	if (CosmologySimulationVelocityNames[dim])
+	  sprintf(VelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationVelocityNames[dim], gridnum);
  
-    if (CosmologySimulationParticlePositionName)
-      sprintf(ParticlePositionName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationParticlePositionName)
+	sprintf(ParticlePositionName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticlePositionName, gridnum);
-    if (CosmologySimulationParticleVelocityName)
-      sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationParticleVelocityName)
+	sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticleVelocityName, gridnum);
-    if (CosmologySimulationParticleMassName)
-      sprintf(ParticleMassName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationParticleMassName)
+	sprintf(ParticleMassName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticleMassName, gridnum);
-    if (CosmologySimulationParticleTypeName)
-      sprintf(ParticleTypeName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      if (CosmologySimulationParticleTypeName)
+	sprintf(ParticleTypeName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
               CosmologySimulationParticleTypeName, gridnum);
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      if (CosmologySimulationParticleVelocityNames[dim])
-	sprintf(ParticleVelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	if (CosmologySimulationParticleVelocityNames[dim])
+	  sprintf(ParticleVelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleVelocityNames[dim], gridnum);
  
-  } else {
+    } else {
  
-    DensityName            = CosmologySimulationDensityName;
-    TotalEnergyName        = CosmologySimulationTotalEnergyName;
-    GasEnergyName          = CosmologySimulationGasEnergyName;
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
-    ParticlePositionName   = CosmologySimulationParticlePositionName;
-    ParticleVelocityName   = CosmologySimulationParticleVelocityName;
-    ParticleMassName       = CosmologySimulationParticleMassName;
-    ParticleTypeName       = CosmologySimulationParticleTypeName;
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
+      DensityName            = CosmologySimulationDensityName;
+      TotalEnergyName        = CosmologySimulationTotalEnergyName;
+      GasEnergyName          = CosmologySimulationGasEnergyName;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
+      ParticlePositionName   = CosmologySimulationParticlePositionName;
+      ParticleVelocityName   = CosmologySimulationParticleVelocityName;
+      ParticleMassName       = CosmologySimulationParticleMassName;
+      ParticleTypeName       = CosmologySimulationParticleTypeName;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
  
-  }
+    }
  
-  // If there is a subgrid, use CosmologySimulationSubgridsAreStatic,
-  // otherwise just set to false
+    // If there is a subgrid, use CosmologySimulationSubgridsAreStatic,
+    // otherwise just set to false
  
-  int SubgridsAreStatic = (CurrentGrid->NextGridNextLevel == NULL) ?
-    FALSE : CosmologySimulationSubgridsAreStatic;
+    int SubgridsAreStatic = (CurrentGrid->NextGridNextLevel == NULL) ?
+      FALSE : CosmologySimulationSubgridsAreStatic;
  
-  // Call grid initializer.  Use TotalRefinement = -1 to flag real read
+    // Call grid initializer.  Use TotalRefinement = -1 to flag real read
  
-  int TotalRefinement = -1;
+    int TotalRefinement = -1;
  
-  // Loop over level zero grid
+    // Loop over all grids on this level
  
-  Temp = CurrentGrid;
- 
-  while (Temp != NULL) {
- 
-    if (Temp->GridData->NestedCosmologySimulationInitializeGrid(gridnum,
+    Temp = CurrentGrid;
+    while (Temp != NULL) {
+      ParticleTempCount = ParticleCount; // set particle count to beginning of this level (not used for ring IO)
+      if (Temp->GridData->NestedCosmologySimulationInitializeGrid(gridnum,
 			     CosmologySimulationOmegaBaryonNow,
 			       CosmologySimulationOmegaCDMNow,
 			       CosmologySimulationInitialTemperature,
@@ -856,55 +859,69 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationUseMetallicityField,
-			     MetaData.NumberOfParticles,
+			     ParticleTempCount,
 			     CosmologySimulationManuallySetParticleMassRatio,
 			     CosmologySimulationManualParticleMassRatio,
-			     CosmologySimulationCalculatePositions
+			     CosmologySimulationCalculatePositions,
+			     CosmologySimulationGridLeftEdge[gridnum],
+			     CosmologySimulationGridRightEdge[gridnum]
 						       ) == FAIL) {
-      fprintf(stderr, "Error in grid->NestedCosmologySimulationInitializeGrid.\n");
-      ENZO_FAIL("");
-    }
+	fprintf(stderr, "Error in grid->NestedCosmologySimulationInitializeGrid.\n");
+	ENZO_FAIL("");
+      }
  
-    Temp = Temp->NextGridThisLevel;
-  }
+      Temp = Temp->NextGridThisLevel;
+    } // end: loop over grids on this level
+
+    /* Once we have read in all the grids, update the current particle count
+       by the number returned, which is the total number of particles on that level
+       (this only works for one initial sub-region per level). */
+
+    ParticleCount = ParticleTempCount; // set particle count (not used for ring IO)
+
+    // Go down to the grid(s) on the next level
  
-  CurrentGrid = CurrentGrid->NextGridNextLevel;
+    CurrentGrid = CurrentGrid->NextGridNextLevel;
  
   } // end loop over initial grid levels
+
+  // Create tracer particles (on top grid)
+  
+  if (TracerParticleCreationSpacing > 0) {
+
+    // Not sure if this works.
+    if (ParallelRootGridIO) 
+      printf("Warning: Tracer particles with parallel IO not tested.\n");
  
-  // Create tracer particles
+    PINT DummyNumberOfParticles = 0;
  
-  PINT DummyNumberOfParticles = 0;
- 
-  Temp = TopGrid;
- 
-  while (Temp != NULL) {
-    if (Temp->GridData->TracerParticleCreateParticles(
+    Temp = TopGrid;
+    while (Temp != NULL) {
+      if (Temp->GridData->TracerParticleCreateParticles(
                                      TracerParticleCreationLeftEdge,
                                      TracerParticleCreationRightEdge,
                                      TracerParticleCreationSpacing,
                                      DummyNumberOfParticles) == FAIL) {
-      fprintf(stderr, "Error in grid->TracerParticleCreateParticles\n");
-      ENZO_FAIL("");
+	fprintf(stderr, "Error in grid->TracerParticleCreateParticles\n");
+	ENZO_FAIL("");
+      }
+ 
+      Temp = Temp->NextGridThisLevel;
     }
- 
-    Temp = Temp->NextGridThisLevel;
-  }
- 
+
+  } // end: if (TracerParticleCreationSpacing > 0)
  
   // Get the global particle count
  
-  int LocalNumberOfParticles;
+  int LocalNumberOfParticles;;
+  ParticleCount = 0;
  
   CurrentGrid = TopGrid;
- 
   while (CurrentGrid != NULL) {
  
     Temp = CurrentGrid;
- 
     while (Temp != NULL) {
  
-      LocalNumberOfParticles = 0;
       LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
       // printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
  
@@ -913,8 +930,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 #endif /* USE_MPI */
       Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
  
-      LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
+      //LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
       // printf("NewLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
+      ParticleCount += LocalNumberOfParticles;
  
       Temp = Temp->NextGridThisLevel;
     }
@@ -923,12 +941,17 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   }
  
-  // Loop over grids and set particle ID number
+  // Loop over grids and set particle ID number.
+  // This is done for ring IO but is not necessary for regular IO
+  //  (particle IDs are set during read and do not depend on grid distribution)
+
+  if (ParallelParticleIO || CosmologySimulationCalculatePositions) {
+    Temp = TopGrid;
+    ParticleCount = 0;
  
-  Temp = TopGrid;
-  PINT ParticleCount = 0;
- 
-  NestedRecursivelySetParticleCount(Temp, &ParticleCount);
+    NestedRecursivelySetParticleCount(Temp, &ParticleCount);
+
+  }
  
   if (debug)
     printf("FinalParticleCount = %"PISYM"\n", ParticleCount);

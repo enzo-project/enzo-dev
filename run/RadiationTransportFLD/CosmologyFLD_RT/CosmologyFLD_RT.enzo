@@ -1,0 +1,115 @@
+#
+# LBC 1024^3 with star formation and feedback
+# Revised sf parameters January 28th 2005
+#
+#  Geoffrey So & Daniel R. Reynolds
+#
+#############################
+# 
+# problem and general modules 
+# 
+ProblemType                = 30      // CosmologySimulationInitialize init
+TopGridRank                = 3
+SelfGravity                = 1       // gravity on
+#
+# grid and boundary 
+#
+TopGridDimensions          = 64 64 64
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+#
+#  problem parameters
+#
+CosmologySimulationInitialTemperature   = 140
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities
+CosmologySimulationVelocity2Name        = GridVelocities
+CosmologySimulationVelocity3Name        = GridVelocities
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+CosmologySimulationUseMetallicityField  = 0
+#
+# runtime and I/O
+#
+StopCycle        = 999999
+dtDataDump       = 0.2
+RedshiftDumpName = RD
+RedshiftDumpDir  = RD
+DataDumpName     = DD
+DataDumpDir      = DD
+#
+#  cosmology
+#
+ComovingCoordinates               = 1      // Expansion ON
+CosmologySimulationOmegaBaryonNow = 0.04
+CosmologySimulationOmegaCDMNow    = 0.26 
+CosmologyOmegaMatterNow           = 0.3 
+CosmologyOmegaLambdaNow           = 0.7  
+CosmologyHubbleConstantNow        = 0.7    // in km/s/Mpc
+CosmologyComovingBoxSize          = 5.6    // in Mpc/h
+CosmologyMaxExpansionRate         = 0.015  // maximum allowed delta(a)/a
+CosmologyInitialRedshift          = 99.0
+CosmologyFinalRedshift            = 5.0
+GravitationalConstant             = 1
+CosmologyOutputRedshift[0]        = 99.0 
+CosmologyOutputRedshift[1]        = 50.0
+CosmologyOutputRedshift[2]        = 40.0  
+CosmologyOutputRedshift[3]        = 35.0
+CosmologyOutputRedshift[4]        = 30.0
+CosmologyOutputRedshift[5]        = 25.0
+CosmologyOutputRedshift[6]        = 20.0
+CosmologyOutputRedshift[7]        = 15.0
+CosmologyOutputRedshift[8]        = 10
+CosmologyOutputRedshift[9]        = 7.5
+CosmologyOutputRedshift[10]       = 5.0
+CosmologyOutputRedshift[11]       = 4.0
+CosmologyOutputRedshift[12]       = 3.0
+#
+#  hydro 
+#
+DualEnergyFormalism         = 1       // use total & internal energy
+CourantSafetyNumber         = 0.4
+ParticleCourantSafetyNumber = 0.6
+ConservativeInterpolation   = 0
+#
+#  set cooling parameters
+#
+RadiativeCooling   = 1
+MultiSpecies       = 1
+RadiationFieldType = 0
+#
+#  star particle parameters
+#
+StarParticleCreation          = 2
+StarParticleFeedback          = 1
+StarMakerOverDensityThreshold = 50
+StarMakerMassEfficiency       = 0.1
+StarMakerMinimumMass          = 260
+StarMakerMinimumDynamicalTime = 1.0e7
+StarMassEjectionFraction      = 0.25
+StarMetalYield                = 0.02
+StarEnergyToThermalFeedback   = 1.0e-6
+StarEnergyToStellarUV         = 3.0e-6
+StarEnergyToQuasarUV          = 5.0e-6
+#
+#  set grid refinement parameters
+#
+StaticHierarchy    = 1    // Not dynamic hierarchy
+ParallelParticleIO = 1
+ParallelRootGridIO = 1
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 100   // # of greens function at any one time
+#
+#  radiation parameters
+#
+StarMakerEmissivityField         = 1                     // use G.So's emissivity generator
+ImplicitProblem                  = 3                     // use the gFLDSplit module
+RadiativeTransferOpticallyThinH2 = 0                     // disable 1/r^2 background LW rad
+RadiativeTransferFLD             = 2                     // use FLD for radiation
+RadHydroParamfile                = CosmologyFLD_RT.gfld  // RHD module input parameters
+
+#############################

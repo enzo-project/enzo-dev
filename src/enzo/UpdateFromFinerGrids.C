@@ -48,7 +48,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int FluxFlag = FALSE,
 				TopGridData* MetaData = NULL);
 
-#define GRIDS_PER_LOOP 50000
+#define GRIDS_PER_LOOP 100000
  
  
 #ifdef FLUX_FIX

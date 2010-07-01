@@ -526,7 +526,7 @@ typedef int            HDF5_hid_t;
 #ifdef USE_MPI
 #define MPI_INSTRUMENTATION
 #else /* USE_MPI */
-#undef MEM_TRACE
+//#undef MEM_TRACE
 #undef MPI_TRACE
 #endif
 

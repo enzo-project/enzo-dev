@@ -81,7 +81,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
  
 extern int CopyPotentialFieldAverage;
  
-#define GRIDS_PER_LOOP 50000
+#define GRIDS_PER_LOOP 100000
 
  
 #ifdef FAST_SIB

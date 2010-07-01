@@ -113,7 +113,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Only call on the finest level */
 
-  if (LevelArray[level+1] != NULL)
+  if (LevelArray[level+1] != NULL && LoopTime)
     return SUCCESS;
 
 //  printf("GridTime = %f, PhotonTime = %f, dtPhoton = %g (Loop = %d)\n",

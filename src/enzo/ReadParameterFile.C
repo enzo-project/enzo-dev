@@ -359,7 +359,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PointSourceGravityCoreRadius = %"FSYM,
 		  &PointSourceGravityCoreRadius);
  
+    ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
+
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
+    ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
+    ret += sscanf(line, "AccretionKernal       = %"ISYM, &AccretionKernal);
     ret += sscanf(line, "GravitationalConstant = %"FSYM, &GravitationalConstant);
     ret += sscanf(line, "S2ParticleSize        = %"FSYM, &S2ParticleSize);
     ret += sscanf(line, "GravityResolution     = %"FSYM, &GravityResolution);
@@ -594,6 +598,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                  &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
+    ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
+    ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
@@ -833,8 +839,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
-    ret += sscanf(line, "ComovingRiemannSolver = %"ISYM, &ComovingRiemannSolver);
-    ret += sscanf(line, "LagrangeReconstruction = %"ISYM, &LagrangeReconstruction);
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
@@ -975,6 +979,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     rewind(fptr);
   }
 
+  /*
+    if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
+    Gamma = 1; 
+  */
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
     TimeUnits = 1.0, VelocityUnits = 1.0, PressureUnits = 1.0;
   double MassUnits = 1.0;
@@ -1000,8 +1009,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     float h, cs, dpdrho, dpde;
     EOS(SmallP, SmallRho, SmallEint, h, cs, dpdrho, dpde, EOSType, 1);
     if (debug && (HydroMethod == HD_RK || HydroMethod == MHD_RK))
-      printf("smallrho=%g, smallp=%g, smalleint=%g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
-	     SmallRho, SmallP, SmallEint, PressureUnits, MaximumAlvenSpeed);
+      printf("smallrho=%g, smallp=%g, smalleint=%g, DensityUnits = %g, PressureUnits=%g, MaximumAlvenSpeed=%g\n",
+	     SmallRho, SmallP, SmallEint,DensityUnits, PressureUnits, MaximumAlvenSpeed);
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;

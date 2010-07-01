@@ -206,6 +206,8 @@ EXTERN float PointSourceGravityCoreRadius;
 /* SelfGravity (TRUE or FALSE) */
 
 EXTERN int SelfGravity;
+EXTERN int SelfGravityGasOff;
+EXTERN int AccretionKernal;
 
 /* CopyGravPotential (TRUE or FALSE) */
 
@@ -512,6 +514,9 @@ EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
+EXTERN int   BigStarFormation;
+EXTERN float BigStarSeparation;
+
 
 /* Parameters governing certain time or redshift-dependent actions. */
 
@@ -567,9 +572,6 @@ EXTERN double timer[MAX_COUNTERS];
 EXTERN int counter[MAX_COUNTERS];
 EXTERN FILE *filePtr;
 EXTERN char tracename[MAX_NAME_LENGTH];
-EXTERN char memtracename[MAX_NAME_LENGTH];
-EXTERN FILE *memtracePtr;
-EXTERN int traceMEM;
 EXTERN double starttime, endtime;
 EXTERN double Start_Wall_Time, End_Wall_Time, WallTime;
 EXTERN int flagging_count, in_count, out_count, moving_count;
@@ -578,6 +580,11 @@ EXTERN float flagging_pct, moving_pct;
 EXTERN char name[MAX_NAME_LENGTH];
 EXTERN FILE *tracePtr;
 EXTERN int traceMPI;
+#ifdef MEM_TRACE
+EXTERN FILE *memtracePtr;
+EXTERN int traceMEM;
+EXTERN char memtracename[MAX_NAME_LENGTH];
+#endif
 
 /* New Movie Data */
 
@@ -625,8 +632,6 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int RiemannSolver;
-EXTERN int ComovingRiemannSolver;
-EXTERN int LagrangeReconstruction;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
 EXTERN float EOSSoundSpeed;

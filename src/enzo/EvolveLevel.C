@@ -296,22 +296,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   AdjustRefineRegion(LevelArray, MetaData, level);
 
-#ifdef EMISSIVITY
-/* reset Emissivity array here before next step calculate the new values */
-  if (StarMakerEmissivityField > 0) {
-  /* 
-     clear the Emissivity of the level below, after the level below 
-     updated the current level (it's parent) and before the next 
-     timestep at the current level.
-  */
-    LevelHierarchyEntry *Temp;
-    Temp = LevelArray[level+1];
-    while (Temp != NULL) {
-      Temp->GridData->ClearEmissivity();
-      Temp = Temp->NextGridThisLevel;
-    }
-  }
-#endif
+  //EMISSIVITY if cleared here will not reach the FLD solver in 2.0, finding better place
   /* Adjust MustRefineParticlesRefineToLevel parameter if requested */
   AdjustMustRefineParticlesRefineToLevel(MetaData, level);
 
@@ -390,6 +375,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RadiativeTransferCallFLD(LevelArray, level, MetaData, AllStars, 
 			     ImplicitSolver);
 #endif /* TRANSFER */
+
+    /* trying to clear Emissivity here after FLD uses it, doesn't work */
  
     CreateFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 
@@ -486,6 +473,24 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Update particle positions (if present). */
  
       UpdateParticlePositions(Grids[grid1]->GridData);
+
+    /*Trying after solving for radiative transfer */
+#ifdef EMISSIVITY
+    /*                                                                                                           
+        clear the Emissivity of the level below, after the level below                                            
+        updated the current level (it's parent) and before the next
+        timestep at the current level.                                                                            
+    */
+      /*    if (StarMakerEmissivityField > 0) {
+    LevelHierarchyEntry *Temp;
+    Temp = LevelArray[level];
+    while (Temp != NULL) {
+      Temp->GridData->ClearEmissivity();
+      Temp = Temp->NextGridThisLevel;
+      }
+      }*/
+#endif
+
 
       /* Include 'star' particle creation and feedback. */
 

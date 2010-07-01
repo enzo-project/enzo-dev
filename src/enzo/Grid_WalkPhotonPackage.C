@@ -37,7 +37,6 @@ int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
-enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
 			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
 			    grid **Grids0, int nGrids0, int DensNum, int DeNum,
@@ -155,19 +154,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
-    if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      (*PP)->PrintInfo();
-      printf("Grid cell = %d %d %d\n", g[0], g[1], g[2]);
-      printf("Grid left edge = %"PSYM" %"PSYM" %"PSYM"\n",
-	     GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
-      printf("Grid right edge = %"PSYM" %"PSYM" %"PSYM"\n",
-	     GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
-      printf("Sending to parent grid.\n");
-      *MoveToGrid = ParentGrid;
-      DeltaLevel = -1;
-      return SUCCESS;
-      //ENZO_FAIL("Ray out of grid?");
-    }
+    if (g[dim] < 0 || g[dim] >= GridDimension[dim])
+      ENZO_FAIL("Ray out of grid?");
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions

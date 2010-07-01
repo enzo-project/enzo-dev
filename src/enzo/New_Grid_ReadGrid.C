@@ -53,7 +53,8 @@ static int GridReadDataGridCounter = 0;
  
 #ifdef NEW_GRID_IO
 int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
-			 int ReadText, int ReadData, int ReadEverything)
+			 int ReadText, int ReadData, bool ReadParticlesOnly,
+			 int ReadEverything)
 {
  
   int i, j, k, field, size, active_size, dim;
@@ -217,7 +218,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
-  if (NumberOfBaryonFields > 0 && ReadData &&
+  if (NumberOfBaryonFields > 0 && ReadData && !ReadParticlesOnly &&
       (MyProcessorNumber == ProcessorNumber)) {
 
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT
@@ -364,7 +365,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* Open file if not already done (note: particle name must = grid name). */
  
-    if (NumberOfBaryonFields == 0) {
+    if (NumberOfBaryonFields == 0 || ReadParticlesOnly) {
  
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT 
       file_id = H5Fopen(procfilename, H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -457,7 +458,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   /* Close file. */
  
   if ( (MyProcessorNumber == ProcessorNumber) &&
-       (NumberOfParticles > 0 || NumberOfBaryonFields > 0)
+       (NumberOfParticles > 0 || 
+	(NumberOfBaryonFields > 0 && !ReadParticlesOnly))
        && ReadData ){
  
     if (ReadEverything == TRUE) this->ReadExtraFields(group_id);

@@ -58,6 +58,16 @@ int CalcEmiss(int *nx, int *ny, int *nz,
   //float uv_param = 1e-5;
   //printf("UV_PARAM IS %"FSYM" \n", uv_param);
 
+  /* disabling clear of Emissivity field until a way to do it in AMR is found 
+     in EvolveHierarchy and EvolveLevel.  Instead put the clear here manually
+   */
+  n = 0;
+  int ArraySize = *nx * *ny * *nz;
+  while (n < ArraySize) {
+    EmissivityArray[n]=0;
+    n++; 
+  }
+
   // check initial EmissivityArray values 
 
   /*  
@@ -181,8 +191,9 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 
 
 	    /* update the Emissivity_Array with <UV energy weighted by time> */
+	    printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
 	    EmissivityArray[i + *nx * (j + *ny * k)] += uv_energy;
-
+	    printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
 	  }
 	}
 	else {

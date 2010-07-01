@@ -144,7 +144,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
     RadiativeTransferOpticallyThinH2 = FALSE;
   }
 
-  /* Check if we're not using FLD and 1/r^2 Lyman-Werner radiation */
+  /* Check if we're simultaneously using FLD and 1/r^2 Lyman-Werner radiation */
 
   if (RadiativeTransferOpticallyThinH2 && RadiativeTransferFLD) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -168,6 +168,27 @@ int RadiativeTransferReadParameters(FILE *fptr)
 	      "RadiativeTransfer.  Turning ray-tracing solver OFF.\n");
     RadiativeTransfer = FALSE;
   }
+
+
+  // If RadiativeTransferFLD > 1, turn off RadiativeCooling
+  if (RadiativeTransferFLD > 1  &&  RadiativeCooling) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: RadiativeTransferFLD > 1 cannot be used with "
+	      "RadiativeCooling solver.  Turning RadiativeCooling OFF.\n");
+    RadiativeCooling = 0;
+  }
+
+  // If RadiativeTransferFLD > 1, reset RadiationFieldType (if necessary)
+  if (RadiativeTransferFLD > 1  &&  (RadiationFieldType != 0)) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "Warning: RadiativeTransferFLD > 1 cannot be used with "
+	      "RadiationFieldType != 0.  Resetting RadiationFieldType.\n");
+    RadiationFieldType = 0;
+  }
+
+  // If RadiativeTransferFLD > 1, ensure that ImplicitProblem > 0
+  if (RadiativeTransferFLD > 1  &&  (ImplicitProblem == 0)) 
+    ENZO_FAIL("Error: RadiativeTransferFLD > 1 requires ImplicitProblem > 0!")
 
 
   delete [] dummy;

@@ -1,0 +1,46 @@
+#
+# gFLDProblem Parameter File:
+#   Shapiro & Giroux, isothermal, cosmological I-front test
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadHydroVelocity = 0.0 0.0 0.0       // initial velocity [cm/s]
+RadHydroTemperature      = 1.0e4     // initial temperature [K]
+RadHydroRadiationEnergy  = 1.0e-35   // initial radiation energy [erg/cm^3]
+RadHydroOmegaBaryonNow   = 0.1       // baryonic fraction of total Omega
+RadiationBoundaryX0Faces = 2 2       // neumann
+RadiationBoundaryX1Faces = 2 2       // neumann
+RadiationBoundaryX2Faces = 2 2       // neumann
+NGammaDot = 5.0e48                   // ionization rate [photons/sec]
+EtaRadius = 1.0e0                    // radius for emissivity source [cells]
+EtaCenter = 0.0e0 0.0e0 0.0e0        // center of emissivity source
+#
+# General module and solver parameters
+# 
+RadHydroESpectrum       = -1         // monochromatic spectrum at nu_HI
+RadHydroModel           = 4          // isothermal, case-B HII recomb. coeff
+EnergyCorrectionScaling = 1.0e4      // for Model 4, this holds the Temperature
+RadiationScaling        = 1.0e-1  
+ChemistryScaling        = 1.0e0
+RadHydroMaxDt           = 1.0e-2
+RadHydroMinDt           = 1.0e-6
+RadHydroInitDt          = 1.0e-6
+RadHydroDtNorm          = 2.5        // p-norm for time error estimate
+RadHydroDtRadFac        = 0.01       // 1% desired change/step
+RadHydroDtGasFac        = 0.01
+RadHydroDtChemFac       = 0.01
+RadHydroTheta           = 1.0
+RadHydroNewtIters       = 40         // max Newton iterations
+RadHydroINConst         = 1.0e-13    // Inexact Newton constant
+RadHydroNewtTolerance   = 1.0e-5     // Inexact Newton tolerance
+RadHydroMGPreRelax      = 3          // MG pre-relaxation sweeps
+RadHydroMGPostRelax     = 3          // MG post-relaxation sweeps
+
+#############################
+
+
+

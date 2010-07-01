@@ -58,6 +58,11 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   }
 #endif
 
+  // in case MPI is not included
+#ifndef MPI_INT
+  int MPI_COMM_WORLD = 0;
+#endif
+
   // start MPI timer
 #ifdef USE_MPI
   float stime = MPI_Wtime();
@@ -345,7 +350,6 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     ENZO_FAIL("ERROR: EnforceBoundary failure!!");
 
   //   obtain initial guess for time-evolved solution
-  sol->copy(U0);
   if (this->InitialGuess(sol) == FAIL) {
     this->Dump(sol);
     ENZO_FAIL("ERROR: InitialGuess failure!!");
@@ -659,6 +663,47 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
     if (tchem >= tnew)  break;
 
   }
+
+
+//   // output typical/maximum values
+//   UTypVals[0] = sol->rmsnorm_component(0);
+//   UMaxVals[0] = sol->infnorm_component(0);
+//   for (ns=1; ns<=Nchem; ns++) {
+//     UTypVals[1+ns] = U0->rmsnorm_component(ns+1);
+//     UMaxVals[1+ns] = U0->infnorm_component(ns+1);
+//   }
+//   UTypVals[1] = 0.0;  UMaxVals[1] = 0.0;
+//   for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) {
+//     UTypVals[1] += eh_tot[i]*eh_tot[i];
+//     UMaxVals[1] = max(UMaxVals[1],eh_tot[i]*eh_tot[i]);
+//   }
+//   UTypVals[1] = sqrt(UTypVals[1]/ArrDims[0]/ArrDims[1]/ArrDims[2]);
+//   UMaxVals[1] = sqrt(UMaxVals[1]);
+// #ifdef USE_MPI
+//   MPI_Allreduce(&(UMaxVals[1]), &dtmp, one, DataType, MPI_MAX, MPI_COMM_WORLD);
+//   UMaxVals[1] = dtmp;
+//   MPI_Allreduce(&(UTypVals[1]), &dtmp, one, DataType, MPI_SUM, MPI_COMM_WORLD);
+//   UTypVals[1] = dtmp/NumberOfProcessors;  // estimate based on equidistribution
+// #endif
+//   UTypVals[1] /= ecScale;
+//   UMaxVals[1] /= ecScale;
+//   if (debug) {
+//     printf("   resulting internal (physical) quantities:\n");
+//     printf("      Eg rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+// 	   UTypVals[0],UTypVals[0]*ErUnits0, UMaxVals[0],UMaxVals[0]*ErUnits0);
+//     printf("      ec rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+// 	   UTypVals[1],UTypVals[1]*ecUnits, UMaxVals[1],UMaxVals[1]*ecUnits);
+//     if (Nchem == 1) {
+//       printf("     nHI rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+// 	     UTypVals[2],UTypVals[2]*NiUnits0, UMaxVals[2],UMaxVals[2]*NiUnits0);
+//     }
+//     if (Nchem == 3) {
+//       printf("    nHeI rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+// 	     UTypVals[3],UTypVals[3]*NiUnits0, UMaxVals[3],UMaxVals[3]*NiUnits0);
+//       printf("   nHeII rms = %13.7e (%8.2e), max = %13.7e (%8.2e)\n",
+// 	     UTypVals[4],UTypVals[4]*NiUnits0, UMaxVals[4],UMaxVals[4]*NiUnits0);
+//     }
+//   }
 
 
   ////////////////////////////////////

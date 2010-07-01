@@ -14,6 +14,8 @@
 
 #define MAX_PS_NAMES               2
 
+#define MAX_LEVELS                10 /* Used by AutomaticSubgridGeneration */
+
 #define NO_SHIFT_FOR_LARS
 
 #define MAX_DIMENSION              3  /* don't change this */
