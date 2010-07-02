@@ -16,7 +16,7 @@ HydroMethod            = 0
 #  set boundary conditions
 #
 LeftFaceBoundaryCondition   = 0 0 0 //  reflecting
-RightFaceBoundaryCondition  = 5 5 5 //  undefined
+RightFaceBoundaryCondition  = 6 6 6 //  undefined
 #
 #  set I/O and stop/start parameters
 #
