@@ -831,8 +831,10 @@ int Group_WriteAllData(char *basename, int filenumber,
     fclose(mptr);
   }
 
+#ifdef TASKMAP
   fclose(tptr);
- 
+#endif
+
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
