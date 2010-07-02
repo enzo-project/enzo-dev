@@ -92,7 +92,8 @@ include $(ENZO_DIR)/Make.config.assemble
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
+-include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
 #=======================================================================
 # OBJECT FILES
