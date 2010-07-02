@@ -17,7 +17,7 @@ RightFaceBoundaryCondition = 3 3 3
 #  define intialization parameters
 #
 SphericalInfallInitialPerturbation = 0.5
-SphericalInfallNumberOfParticles   = 0
+SphericalInfallNumberOfParticles   = 1
 SphericalInfallUseBaryons          = 1
 #SphericalInfallSubgridLeft        = 0.4375   // start of subgrid
 #SphericalInfallSubgridRight       = 0.5625   // end of subgrid
@@ -38,6 +38,7 @@ CosmologyOmegaLambdaNow    = 0.0
 #
 #StopTime               = 0.0
 #StopCycle              = 10
+#dtDataDump             = 10
 dtDataDump             = 50000
 DataDumpName           = data
 #
