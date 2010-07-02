@@ -15,6 +15,8 @@ MACH_TEXT  = NICS Kraken
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nics-kraken
 
+MACHINE_NOTES = "Building on NICS's Kraken requires no special modules"
+
 #-----------------------------------------------------------------------
 # Commands to run test executables
 #-----------------------------------------------------------------------
