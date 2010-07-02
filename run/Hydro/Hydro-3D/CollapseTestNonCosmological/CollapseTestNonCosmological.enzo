@@ -1,0 +1,84 @@
+#
+#  AMR PROBLEM DEFINITION FILE: Non-cosmological Collapse test
+#  Description: a sphere collapses until becoming pressure supported.
+#
+#  define problem
+#
+ProblemType                = 27         // Collapse test
+TopGridRank                = 3
+TopGridDimensions          = 16 16 16
+SelfGravity                = 1          // gravity on
+TopGridGravityBoundary     = 0          // periodic
+LeftFaceBoundaryCondition  = 3 3 3      // periodic
+RightFaceBoundaryCondition = 3 3 3
+#
+# problem parameters
+#
+CollapseTestRefineAtStart   = 1         // check refinement before running
+CollapseTestNumberOfSpheres = 1
+CollapseTestUseParticles    = 0
+CollapseTestInitialTemperature = 500    // temperature of the background gas
+CollapseTestSpherePosition[0]   = 0.5 0.5 0.5
+CollapseTestSphereVelocity[0]   = 0.0 0.0 0.0
+CollapseTestSphereRadius[0]     = 0.15
+CollapseTestSphereCoreRadius[0] = 0.05  // only used with sphere type 5
+CollapseTestSphereDensity[0]    = 100   // sphere density, the background density is 1
+CollapseTestSphereTemperature[0] = 5    // put sphere in pressure equilibrium (rho * T is constant)
+CollapseTestSphereType[0]       = 1     // constant density
+                                        // 1: uniform
+					// 2: r^-2 power-law
+					// 3: NFW
+					// 4: Gaussian
+					// 5: r^-2 power-law with a core
+#
+#  no cosmology for this run
+#
+ComovingCoordinates   = 0              // Expansion OFF
+#
+#  units
+#
+DensityUnits          = 1.673e-20      // 10^4 g cm^-3
+LengthUnits           = 3.0857e+18     // 1 pc in cm
+TimeUnits             = 3.1557e+11     // 10^4 yrs
+GravitationalConstant = 1.39698e-3     // 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
+#
+#  set I/O and stop/start parameters
+#
+StopTime          = 7
+dtDataDump        = 0.1
+DataDumpDir       = DD
+DataDumpName      = DD
+OutputTemperature = 1                  // Output temperature field.
+#
+#  set hydro parameters
+#
+Gamma                       = 1.6667
+PPMDiffusionParameter       = 0        // diffusion off
+DualEnergyFormalism         = 1        // use total & internal energy
+InterpolationMethod         = 1        // SecondOrderA
+CourantSafetyNumber         = 0.3
+FluxCorrection              = 1
+ConservativeInterpolation   = 0
+HydroMethod                 = 0        // PPM
+#
+#  chemistry/cooling
+#
+MultiSpecies                = 0        // chemistry off
+RadiativeCooling            = 0        // cooling off
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0          // dynamic hierarchy
+MaximumRefinementLevel    = 10         // use up to 10 levels
+RefineBy                  = 2          // refinement factor
+CellFlaggingMethod        = 2 6        // use baryon mass and Truelove criterion for refinement 
+MinimumEfficiency         = 0.3
+#OutputFirstTimeAtLevel    = 4         // output when level 4, 5, 6, etc reached (commented out for now)
+StopFirstTimeAtLevel      = 10         // stop if/when level 10 reached
+MinimumOverDensityForRefinement = 8    // times the initial density
+RefineByJeansLengthSafetyFactor = 4    // resolve Jeans length by 4 cells (used with CellFlaggingMethod 6)
+MinimumMassForRefinementLevelExponent = -0.3  // see definition in user guide
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10         // # of greens function at any one time
