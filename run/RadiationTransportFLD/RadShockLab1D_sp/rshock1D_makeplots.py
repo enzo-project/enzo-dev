@@ -5,6 +5,9 @@
 from pylab import *
 import numpy as np
 
+# set the graphics output type
+pictype = '.png'
+
 # store exact solution values
 xi = [8.000838354813387e-02, 8.284041833623391e-02, 8.394370939772287e-02, 
       8.501057335585425e-02, 8.604153195060078e-02, 8.700271757035795e-02,
@@ -148,7 +151,7 @@ def load_vals(tdump):
     import h5py
     import numpy as np
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/RShockL_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     dUnit, tUnit, lUnit, vUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
@@ -198,4 +201,4 @@ ylabel('T');
 title('Analytical and Computed Solutions')
 axis([-0.01, 0.01, 1.0, 2.25])
 grid()
-savefig('rshock_sol.pdf')
+savefig('rshock_sol' + pictype)

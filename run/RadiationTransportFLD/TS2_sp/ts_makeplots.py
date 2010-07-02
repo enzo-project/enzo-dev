@@ -8,6 +8,9 @@ from scipy.integrate import *
 # set the total number of snapshots
 nt = 100
 
+# set the graphics output type
+pictype = '.png'
+
 # define some helpful functions
 def get_params(file):
     """Returns t, dUnit, tUnit, lUnit from a given parameter file"""
@@ -29,7 +32,7 @@ def load_vals(tdump):
     """Returns Eg, etot, tval from a given data dump"""
     import h5py
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/pc_amr_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     tval, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
@@ -80,4 +83,4 @@ legend( ('computed', 'true') )
 grid()
 ax = axis()
 axis([ ax[0], ax[1], 10.0**(13.2), 10.0**(15.2) ])
-savefig('equil_history.pdf')
+savefig('equil_history' + pictype)

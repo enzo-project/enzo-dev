@@ -534,6 +534,7 @@ int WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
+#ifdef TASKMAP
   if ((tptr = fopen(taskmapname, "w")) == NULL) {
     ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
   }
@@ -541,6 +542,7 @@ int WriteAllData(char *basename, int filenumber,
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL) {
     ENZO_FAIL("Error in WriteTaskMap\n");
   }
+#endif
  
   int TGdims[3];
  
