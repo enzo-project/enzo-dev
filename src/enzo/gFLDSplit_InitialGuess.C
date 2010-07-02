@@ -45,12 +45,10 @@ int gFLDSplit::InitialGuess(EnzoVector *uvec)
   case 3:
   case 4:
   case 5:  // analytical initial guess for full reaction network
-           // (only use for models 1 & 4, otherwise just use old solution)
     //   Note: extsrc is available thanks to the last call to ComputeRHS.
     uvec->copy(U0);
-    if ((Model == 1) || (Model == 4))
-      if (this->AnalyticInitGuess(uvec,dt) == FAIL) 
-	ENZO_FAIL("InitialGuess Error: AnalyticInitGuess failure");
+    if (this->AnalyticInitGuess(uvec,dt) == FAIL) 
+      ENZO_FAIL("InitialGuess Error: AnalyticInitGuess failure");
     break;
 
 

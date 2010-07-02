@@ -1,3 +1,11 @@
+# Can be modified to create 2D projection of the following fields:
+# 1) IonizationFraction
+# 2) LogIonizationFraction
+# 3) NeutralFraction
+# 4) LogNeutralFraction
+#
+#################################################################
+
 from yt.mods import *
 
 def NeutralFraction(field, data):

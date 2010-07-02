@@ -1,3 +1,9 @@
+# Creates 2D projection of the Grey_Radiation_Energy field
+#
+##########################################################
+
+
+
 from yt.mods import *
 
 min_output_number = 273
