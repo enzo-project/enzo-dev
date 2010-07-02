@@ -27,7 +27,6 @@ TopGridDimensions          = 16 16 16
 #
 StopCycle                  = 999999
 dtDataDump                 = 0.25
-DataDumpName               = pc_amr_
 ParallelRootGridIO         = 1
 # 
 # cosmology

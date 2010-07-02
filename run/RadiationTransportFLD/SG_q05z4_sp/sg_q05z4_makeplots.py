@@ -64,8 +64,8 @@ def analytical_solution(q0,Nph,aval):
     import h5py
     import numpy as np
     import scipy.integrate as sp
-    z0, z, xR, t0, H0, dUnit, tUnit, lUnit = get_params('DD0000/pc_amr_0000')
-    f = h5py.File('DD0000/pc_amr_0000.cpu0000','r')
+    z0, z, xR, t0, H0, dUnit, tUnit, lUnit = get_params('DD0000/data0000')
+    f = h5py.File('DD0000/data0000.cpu0000','r')
     rho_data = f.get('/Grid00000001/Density')
     rho = rho_data[0][0][0]*dUnit
     del(rho_data)
@@ -129,7 +129,7 @@ def load_vals(tdump):
     import h5py
     import numpy as np
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/pc_amr_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     z0, z, xR, tval, H0, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')

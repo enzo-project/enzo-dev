@@ -148,7 +148,7 @@ def load_vals(tdump):
     import h5py
     import numpy as np
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/RShockL_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     dUnit, tUnit, lUnit, vUnit = get_params(pfile)
     f = h5py.File(hfile,'r')

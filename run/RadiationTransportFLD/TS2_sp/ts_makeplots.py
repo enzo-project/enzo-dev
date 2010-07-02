@@ -29,7 +29,7 @@ def load_vals(tdump):
     """Returns Eg, etot, tval from a given data dump"""
     import h5py
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/pc_amr_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     tval, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
