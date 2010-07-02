@@ -1,0 +1,15 @@
+= Notes on the output =
+
+(John Wise, July 2010)
+
+This test simulates a blastwave in the free expansion phase.  In the
+initial setup, the interior region has a uniform density and a
+linearly increasing radial velocity.  The blastwave should advect
+outwards, and create a high entropy shell and have little oscillations
+in the shock.  
+
+This test runs to completion and creates 41 outputs.  This test
+problem is new for version 2.0.  It uses the new hydro_rk solver.
+
+The initial setup is taken from Truelove & McKee, 1999, ApJS, 120,
+299.
