@@ -48,7 +48,8 @@ Test files:
 - implicit solver, test 2: TurnerStoneEquil2.enzo, TurnerStoneEquil2.gfld
 - split solver, test 1: TurnerStoneEquil1_sp.enzo, TurnerStoneEquil1_sp.gfld
 - split solver, test 2: TurnerStoneEquil2_sp.enzo, TurnerStoneEquil2_sp.gfld
-- analysis: ts_makeplots.py (all tests)
+- analysis: ts_makeplots.py (all tests); requires matplotlib, h5py and
+  scipy
 
 
 Problem-specific Input Parameters:

@@ -36,7 +36,7 @@ compares the computed solution with these analytical values.
 Test files:
 - implicit solver: RHIonization1.enzo, RHIonization1.gfld
 - split solver: RHIonization1_sp.enzo, RHIonization1_sp.gfld
-- analysis: iliev1_makeplots.py
+- analysis: iliev1_makeplots.py; requires matplotlib, numpy and h5py
 
 
 Problem-Specific Input Parameters:
