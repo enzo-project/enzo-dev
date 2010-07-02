@@ -8,6 +8,9 @@ from pylab import *
 # set the total number of snapshots
 te = 50
 
+# set the graphics output type
+pictype = '.png'
+
 # set some constants
 Ngammadot = 5.0e48     # ionization source strength [photons/sec]
 aHII = 2.52e-13        # recombination rate coefficient
@@ -120,7 +123,7 @@ for tstep in range(te+1):
         h = imshow(sl, hold=False, extent=(0.0, 1.0, 0.0, 1.0), origin='lower')
         colorbar(h)
         title('log HI fraction, t =' + Myr + ' Myr')
-        savefig('HIcontour_' + Myr + 'Myr.pdf')
+        savefig('HIcontour_' + Myr + 'Myr' + pictype)
         
         # Eg slice through z=0
         figure()
@@ -128,7 +131,7 @@ for tstep in range(te+1):
         h = imshow(sl, hold=False, extent=(0.0, 1.0, 0.0, 1.0), origin='lower')
         colorbar(h)
         title('log radiation density, t =' + Myr + ' Myr')
-        savefig('Econtour_' + Myr + 'Myr.pdf')
+        savefig('Econtour_' + Myr + 'Myr' + pictype)
         
         # spherically-averaged profiles for xHI, xHII
         Nradii = nx*3/2
@@ -161,7 +164,7 @@ for tstep in range(te+1):
         title('HI, HII Profiles, t =' + Myr + ' Myr')
         legend( ('xHI','xHII') )
         axis([ 0.0, 1.2, -7.0, 1.0 ])
-        savefig('profiles_' + Myr + 'Myr.pdf')
+        savefig('profiles_' + Myr + 'Myr' + pictype)
 
 
 # I-front radius/velocity plots
@@ -173,7 +176,7 @@ title('Propagation of HII Region')
 legend( ('computed', 'analytical'), loc=4 )
 grid()
 axis([ 0.0, 4.5, 0.0, 1.1 ])
-savefig('rad_vs_time.pdf')
+savefig('rad_vs_time' + pictype)
 
 figure()
 times = (rdata[0][1:te] + rdata[0][2:te+1])/2.0
@@ -186,4 +189,4 @@ title('Velocity of HII Region')
 legend( ('computed', 'analytical') )
 grid()
 axis([ 0.0, 4.5, -0.2, 1.2 ])
-savefig('vel_vs_time.pdf')
+savefig('vel_vs_time' + pictype)

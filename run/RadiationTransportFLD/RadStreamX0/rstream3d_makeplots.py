@@ -4,6 +4,9 @@
 import h5py
 from pylab import *
 
+# set the graphics output type
+pictype = '.png'
+
 # load first dataset, and put 3D radiation field into 'Eg'
 f = h5py.File('DD0001/data0001.cpu0000','r')
 Eg3D = f.get('/Grid00000001/Grey_Radiation_Energy')
@@ -137,4 +140,4 @@ f.close()
 
 # finish off plot and save to file
 #legend( ('t1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9', 't10') )
-savefig('rad_snapshots.pdf')
+savefig('rad_snapshots' + pictype)
