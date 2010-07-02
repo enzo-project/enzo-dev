@@ -572,6 +572,7 @@ int WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
+#ifdef TASKMAP
   if ((tptr = fopen(taskmapname, "w")) == NULL) {
     fprintf(stderr, "Error opening task map file %s\n", taskmapname);
     ENZO_FAIL("");
@@ -581,6 +582,7 @@ int WriteAllData(char *basename, int filenumber,
     fprintf(stderr, "Error in WriteTaskMap\n");
     ENZO_FAIL("");
   }
+#endif
  
   int TGdims[3];
  
