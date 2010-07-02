@@ -48,12 +48,12 @@ far-field postshock value.
 3D Test files:
 - implicit solver: RadiatingShockLab.enzo, RadiatingShockLab.gfld
 - split solver: RadiatingShockLab_sp.enzo, RadiatingShockLab_sp.gfld
-- analysis: rshock3D_makeplots.py
+- analysis: rshock3D_makeplots.py; requires matplotlib, numpy and h5py
 
 1D Test files:
 - implicit solver: RadiatingShockLab1D.enzo, RadiatingShockLab1D.gfld
 - split solver: RadiatingShockLab1D_sp.enzo, RadiatingShockLab1D_sp.gfld
-- analysis: rshock1D_makeplots.py
+- analysis: rshock1D_makeplots.py; requires matplotlib, numpy and h5py
 
 
 Problem-specific Input Parameters:
