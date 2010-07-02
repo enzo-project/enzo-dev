@@ -16,8 +16,8 @@ ShockPoolMachNumber     = 2.0
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 0.2
-#dtDataDump             = 0.05
+StopTime               = 2.00
+dtDataDump             = 0.05
 #
 #  set Hydro parameters
 #
@@ -40,3 +40,4 @@ MinimumEfficiency         = 0.8  // good value for 2d
 #
 tiny_number               = 1.0e-6  // fixes velocity slope problem
 
+DataDumpName = DD
