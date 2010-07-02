@@ -34,6 +34,12 @@ MACH_TEXT  = TACC Ranger
 MACH_VALID = 1
 MACH_FILE  = Make.mach.tacc-ranger
 
+MACHINE_NOTES = "MACHINE_NOTES for Ranger at UT-Austin/TACC: \
+	The following modules are needed to compile enzo here with \
+	the default machine file. \
+	intel/11.1 mvapich/1.0.1 \
+	(or do this command, "module swap pgi intel/11.1")."
+
 #-----------------------------------------------------------------------
 # Commands to run test executables
 #-----------------------------------------------------------------------
