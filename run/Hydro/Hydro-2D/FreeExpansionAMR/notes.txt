@@ -1,0 +1,20 @@
+= Notes on the output =
+
+(John Wise, July 2010)
+
+This test simulates a blastwave in the free expansion phase.  In the
+initial setup, the interior region has a uniform density and a
+linearly increasing radial velocity.  The blastwave should advect
+outwards, and create a high entropy shell and have little oscillations
+in the shock.  It is exactly the same as the FreeExpansion 1D test,
+but in two dimensions and with 2 levels of AMR.  There is usually some
+non-spherical in the reverse shock, but the main outer shock should
+always be nearly spherical.  The artifacts in the reverse shock
+originate from the initial discretization and decreases if the
+resolution is increased.
+
+This test runs to completion and creates 21 outputs.  This test
+problem is new for version 2.0.  It uses the new hydro_rk solver.
+
+The initial setup is taken from Truelove & McKee, 1999, ApJS, 120,
+299.
