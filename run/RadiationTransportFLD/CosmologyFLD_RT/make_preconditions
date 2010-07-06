@@ -1,0 +1,4 @@
+gmake hypre-yes
+gmake photon-yes
+gmake use-mpi-yes
+gmake emissivity-yes

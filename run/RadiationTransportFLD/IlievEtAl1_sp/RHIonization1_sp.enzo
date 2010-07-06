@@ -29,7 +29,6 @@ DomainRightEdge            = 1.0 1.0 1.0
 StopTime                   = 1.57788e0     // 500 Myr
 StopCycle                  = 99999
 dtDataDump                 = 3.15576e-2    // 10 Myr
-DataDumpName               = pc_amr_
 ParallelRootGridIO         = 1
 # 
 # units

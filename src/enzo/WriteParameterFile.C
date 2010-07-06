@@ -675,6 +675,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIStarMass);
   fprintf(fptr, "PopIIIInitialMassFunction             = %"ISYM"\n",
           PopIIIInitialMassFunction);
+  fprintf(fptr, "PopIIIInitialMassFunctionSeed         = %"ISYM"\n",
+          PopIIIInitialMassFunctionSeed);
   fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
           PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
   fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
@@ -732,6 +734,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   /* Most Stanford additions: */
 
+  fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
   fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
