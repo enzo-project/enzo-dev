@@ -1,9 +1,5 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest, run
+from yt.extensions.enzo_test import YTStaticOutputTest
 
 class TestShockImage(YTStaticOutputTest):
     name = "shock_image"
@@ -38,6 +34,3 @@ class TestMaxValue(YTStaticOutputTest):
     def plot(self):
         # There's not much to plot, so we just return an empty list.
         return []
-
-if __name__ == "__main__":
-    run()
