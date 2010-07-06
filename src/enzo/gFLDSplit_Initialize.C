@@ -305,10 +305,6 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     initdt = huge_number;  // default is no limit
   }
 
-  // dt gives the time step size (initialize to zero)
-  dt = initdt;
-  dtchem = huge_number;  // initially use the radiation dt
-
   // a, adot give cosmological expansion & rate
   a = 1.0;
   a0 = 1.0;
@@ -399,6 +395,24 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     printf("gFLDSplit::Initialize p%"ISYM": BdryType = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,BdryType[0][0],BdryType[0][1],BdryType[1][0],BdryType[1][1],BdryType[2][0],BdryType[2][1]);
     printf("gFLDSplit::Initialize p%"ISYM": NBors = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,NBors[0][0],NBors[0][1],NBors[1][0],NBors[1][1],NBors[2][0],NBors[2][1]);
   }
+
+  // get the current units values (used to help set the time step size)
+  double MassUnits;
+  float TempUnits;
+  DenUnits=LenUnits=TempUnits=MassUnits=TimeUnits=VelUnits=aUnits=1.0;
+  if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
+	       &TimeUnits, &VelUnits, &MassUnits, MetaData.Time) == FAIL) 
+    ENZO_FAIL("Error in GetUnits.");
+  a = 1.0; adot = 0.0;
+  if (ComovingCoordinates) {
+    if (CosmologyComputeExpansionFactor(MetaData.Time, &a, &adot) == FAIL) 
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
+    aUnits = 1.0/(1.0 + InitialRedshift);
+  }
+
+  // dt gives the time step size
+  dt = initdt;
+  dtchem = 0.1*initdt*TimeUnits;  // use the radiation dt/10 (raw units)
 
   // set initial time step into TopGrid
   ThisGrid->GridData->SetMaxRadiationDt(initdt);
@@ -493,20 +507,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       ENZO_FAIL("Error in InitializeRateData.");
   // un-scale rates for use within RadHydro solver (handles its own units)
   {
-    double MassUnits;
-    float TempUnits;
-    DenUnits=LenUnits=TempUnits=MassUnits=TimeUnits=VelUnits=aUnits=1.0;
-    if (GetUnits(&DenUnits, &LenUnits, &TempUnits, 
-	         &TimeUnits, &VelUnits, &MassUnits, MetaData.Time) == FAIL) 
-      ENZO_FAIL("Error in GetUnits.");
     float mp = 1.67262171e-24;   // Mass of a proton [g]
-    a = 1.0; adot = 0.0;
-    if (ComovingCoordinates) {
-      if (CosmologyComputeExpansionFactor(MetaData.Time, &a, &adot) == FAIL) 
-        ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
-      aUnits = 1.0/(1.0 + InitialRedshift);
-    }
-    
     float tbase1 = TimeUnits;
     float xbase1 = LenUnits/(a*aUnits);
     float dbase1 = DenUnits*a*a*a*aUnits*aUnits*aUnits;
