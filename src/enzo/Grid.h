@@ -61,7 +61,11 @@ struct LevelHierarchyEntry;
 
 class grid
 {
+#ifdef NEW_PROBLEM_TYPES
+ protected:
+#else
  private:
+#endif
 //
 //  General grid class data
 //
