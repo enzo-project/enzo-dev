@@ -40,6 +40,10 @@ struct HierarchyEntry;
 #include "ListOfPhotonsToMove.h"
 #endif /* TRANSFER */
 
+#ifdef NEW_PROBLEM_TYPES
+#include "ProblemType.h"
+#endif
+
 //extern int CommunicationDirection;
 
 //struct ParticleEntry {
@@ -166,6 +170,9 @@ class grid
   friend int ExternalBoundary::Prepare(grid *TopGrid);
   friend int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid);
   friend class Star;
+#ifdef NEW_PROBLEM_TYPES
+  friend class ProblemType;
+#endif
 
 #ifdef TRANSFER
 #include "PhotonGrid_Variables.h"
