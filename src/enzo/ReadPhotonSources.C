@@ -108,7 +108,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceSED[%"ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before SED!");
-      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]+1];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
@@ -121,7 +121,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceEnergy[%"ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before Energies!");
-      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]+1];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
