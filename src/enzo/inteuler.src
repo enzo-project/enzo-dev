@@ -256,6 +256,14 @@ c
      &        char1, char2, c0,
      &        dw, wl, wr, w6, wla, wra, wl0, wr0)
 
+         if (iposrec .eq. 1) then
+            call intpos(dslice(1,j), uslice(1,j), pslice(1,j), 
+     &           idim, i1, i2, dxdt2, gamma,
+     &           tmp1, tmp2, tmp3, dla, dra, dl0, dr0,
+     &           du, ul, ur, ula, ura, ul0, ur0,
+     &           dp, pl, pr, pla, pra, pl0, pr0)
+         endif
+
       endif                     ! iconsrec
 
 c

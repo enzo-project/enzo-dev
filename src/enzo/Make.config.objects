@@ -593,6 +593,7 @@ OBJS_CONFIG_LIB = \
         int_lin3d.o \
         intrmp.o \
         int_spline.o \
+	intpos.o \
 	intprim.o \
         intvar.o \
         Isdigit.o \
