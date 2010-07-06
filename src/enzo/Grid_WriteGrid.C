@@ -538,7 +538,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       }
  
     
-      fprintf(stderr,  DataLabelN[field]);
+      fprintf(stderr,  "%s\n", DataLabelN[field]);
 
       WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
     
