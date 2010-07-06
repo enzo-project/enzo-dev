@@ -500,6 +500,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = INT_UNDEFINED;
   ReconstructionMethod	     = INT_UNDEFINED;
+  PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;

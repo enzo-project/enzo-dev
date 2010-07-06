@@ -209,7 +209,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   &is, &ie, &js, &je, &DualEnergyFormalism, 
 			   &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 			   &PPMSteepeningParameter, &PPMFlatteningParameter,
-			   &ConservativeReconstruction,
+			   &ConservativeReconstruction, &PositiveReconstruction,
 			   &dtFixed, &Gamma, &PressureFree, 
 			   dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
 			   wls, wrs, &NumberOfColours, colslice, colls, colrs);

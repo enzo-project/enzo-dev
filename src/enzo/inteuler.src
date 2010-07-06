@@ -6,7 +6,8 @@ c
      &            dslice, pslice, gravity, grslice, geslice,
      &            uslice, vslice, wslice, dxi, flatten,
      &            idim, jdim, i1, i2, j1, j2, idual, eta1, eta2,
-     &            isteep, iflatten, iconsrec, dt, gamma, ipresfree,
+     &            isteep, iflatten, iconsrec, iposrec, 
+     &            dt, gamma, ipresfree,
      &            dls, drs, pls, prs, gels, gers,
      &            uls, urs, vls, vrs, wls, wrs,
      &            ncolor, colslice, colls, colrs
@@ -76,7 +77,7 @@ c
 c  argument declarations
 c
       integer gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
-     &        j1, j2, jdim, ncolor, iconsrec
+     &        j1, j2, jdim, ncolor, iconsrec, iposrec
       real    dt, eta1, eta2, gamma
       real   dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
@@ -117,7 +118,7 @@ c
      &    ,coll0(ijkn,MAX_COLOR),colr0(ijkn,MAX_COLOR)
      &    ,dcol(ijkn,MAX_COLOR),coll(ijkn,MAX_COLOR)
      &    ,colr(ijkn,MAX_COLOR),col6(ijkn,MAX_COLOR)
-      real lem(idim,5,5),rem(idim,5,5)
+      real lem(idim,5,5),rem(idim,5,5), dxdt2(ijkn)
 c
 c  parameters
 c
@@ -139,6 +140,7 @@ c
          qa    = dxi(i)/(dxi(i-1) + dxi(i) + dxi(i+1))
          c1(i) = qa*(2.0*dxi(i-1) + dxi(i))/(dxi(i+1) + dxi(i))
          c2(i) = qa*(2.0*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
+         dxdt2(i) = 0.5*dt/dxi(i)
       enddo
 c
       do i=i1-1,i2+2
@@ -218,14 +220,14 @@ c       (steepening, if requested, is only applied to density)
 c
          call intprim(dslice(1,j), uslice(1,j), vslice(1,j), 
      &        wslice(1,j), pslice(1,j), 
-     &        idim, i1, i2, isteep, steepen, iflatten, 
-     &        flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
+     &        idim, i1, i2, isteep, steepen, iflatten, flatten, 
+     &        iposrec, c1, c2, c3, c4, c5, c6, char1, char2, c0,
      &        tmp1, tmp2, tmp3, tmp4, dla, dra, dl0, dr0, 
      &        du, ul, ur, u6, ula, ura, ul0, ur0,
      &        dv, vl, vr, v6, vla, vra, vl0, vr0,
      &        dw, wl, wr, w6, wla, wra, wl0, wr0,
      &        dp, pl, pr, p6, pla, pra, pl0, pr0,
-     &        lem, rem)
+     &        lem, rem, dxdt2, gamma)
 
       else                      ! iconsrec
 
