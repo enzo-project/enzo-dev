@@ -675,6 +675,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIStarMass);
   fprintf(fptr, "PopIIIInitialMassFunction             = %"ISYM"\n",
           PopIIIInitialMassFunction);
+  fprintf(fptr, "PopIIIInitialMassFunctionSeed         = %"ISYM"\n",
+          PopIIIInitialMassFunctionSeed);
   fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
           PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
   fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
