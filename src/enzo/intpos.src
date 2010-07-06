@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "error.def"
 c=======================================================================
 c///////////////////////  SUBROUTINE INTPOS  \\\\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -72,6 +73,9 @@ c
             dra(i) = dslice(i) + 0.5*drho(i)
             dl0(i) = dla(i)
             dr0(i) = dra(i)
+            print*, 'Enforcing positive pressure by limiting ' ,
+     $           'density slope', i, dslice(i), drho(i)
+            WARNING_MESSAGE
          endif
       enddo
 c
@@ -86,6 +90,9 @@ c
             ura(i) = uslice(i) + 0.5*du(i)
             ul0(i) = ula(i)
             ur0(i) = ura(i)
+            print*, 'Enforcing positive pressure by limiting ' ,
+     $           'velocity slope', i, uslice(i), du(i)
+            WARNING_MESSAGE
          endif
       enddo
 c
@@ -99,6 +106,9 @@ c
             pra(i) = pslice(i) + 0.5*dp(i)
             pl0(i) = pla(i)
             pr0(i) = pra(i)
+            print*, 'Enforcing positive pressure by limiting ' ,
+     $           'pressure slope', i, pslice(i), dp(i)
+            WARNING_MESSAGE
          endif
       enddo
 
