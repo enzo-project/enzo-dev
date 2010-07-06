@@ -167,11 +167,12 @@ c
             sr(i) = -cw(i) / (bp(i) - cw(i))
             sm(i) =  bp(i) / (bp(i) - cw(i))
          endif
-         if (sm(i) .gt. 0.0 .and. cp(i) .lt. 0.0) then
-            write(6,*) 'flux_hllc: Negative contact pressure = ',i,cp(i)
-            WARNING_MESSAGE
-            cp(i) = 0.0
-         endif
+         cp(i) = max(cp(i), 0.0)
+c         if (sm(i) .gt. 0.0 .and. cp(i) .lt. 0.0) then
+c            write(6,*) 'flux_hllc: Negative contact pressure = ',i,cp(i)
+c            WARNING_MESSAGE
+c            cp(i) = 0.0
+c         endif
       enddo
 c
 c     Compute diffusion terms
