@@ -31,25 +31,25 @@ protected:
     virtual ~EnzoProblemType()
     {}
 
-    /*
-       float **GetBaryonFields(grid *thisgrid) { return thisgrid->BaryonField; }
-       int GetGridRank(grid *thisgrid) { return thisgrid->GridRank; }
-       int OwnGrid(grid *thisgrid) {
-       return (thisgrid->ProcessorNumber == MyProcessorNumber); }
-       int *GetGridDimension(grid *thisgrid) { return thisgrid->GridDimension; }
-       int GridIdentifyPhysicalQuantities(grid *thisgrid, int &DensNum, int &GENum,
-       int &Vel1Num, int &Vel2Num, int &Vel3Num, int &TENum);
+    grid *CreateNewUniformGrid(grid *ParentGrid,
+            int Rank, int Dimensions[], 
+		    FLOAT LeftEdge[], FLOAT RightEdge[], int NumParticles,
+            float UniformDensity,
+			float UniformTotalEnergy,
+			float UniformInternalEnergy,
+			float UniformVelocity[], 
+			float UniformBField[]);
 
-       int GridIdentifyPhysicalQuantities(grid *thisgrid, int &DensNum, int &GENum,
-       int &Vel1Num, int &Vel2Num, int &Vel3Num, int &TENum,
-       int &B1Num, int &B2Num, int &B3Num);
+    int InitializeUniformGrid(
+                grid *thisgrid,
+                float UniformDensity,
+				float UniformTotalEnergy,
+				float UniformInternalEnergy,
+                float UniformVelocity[], 
+                float UniformBField[]);
 
-       int GridIdentifyPhysicalQuantities(grid *thisgrid, int &DensNum, int &GENum,
-       int &Vel1Num, int &Vel2Num, int &Vel3Num, int &TENum,
-       int &B1Num, int &B2Num, int &B3Num, int &PhiNum)
-       { thisgrid->
-     */
-
+    void FinalizeGrids(HierarchyEntry **RefLevels, HierarchyEntry &TopGrid,
+                       TopGridData &MetaData);
 };
 
 /*!

@@ -147,13 +147,12 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
       } // end input from parameter file
 
 
-      if (TopGrid.GridData->InitializeUniformGrid(RotatingCylinderDensity,
+      this->InitializeUniformGrid(TopGrid.GridData,
+            RotatingCylinderDensity,
             RotatingCylinderTotalEnergy,
             RotatingCylinderTotalEnergy,
             RotatingCylinderVelocity,
-            RotatingCylinderBField) == FAIL) {
-        ENZO_FAIL("Error in InitializeUniformGrid.");
-      }
+            RotatingCylinderBField);
 
       /* Create as many subgrids as there are refinement levels
          needed to resolve the initial explosion region upon the start-up. */
@@ -207,25 +206,20 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
 
           /* create a new subgrid and initialize it */
 
-          Subgrid[lev]->GridData = new grid;
-          Subgrid[lev]->GridData->InheritProperties(TopGrid.GridData);
-          Subgrid[lev]->GridData->PrepareGrid(MetaData.TopGridRank, SubgridDims,
-              LeftEdge, RightEdge, 0);
-          if (Subgrid[lev]->GridData->InitializeUniformGrid(RotatingCylinderDensity,
-                RotatingCylinderTotalEnergy,
-                RotatingCylinderTotalEnergy,
-                RotatingCylinderVelocity,
-                RotatingCylinderBField) == FAIL) {
-            ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
-          }
+          Subgrid[lev]->GridData = this->CreateNewUniformGrid(
+                                        TopGrid.GridData,
+                                        MetaData.TopGridRank, SubgridDims,
+                                        LeftEdge, RightEdge, 0,
+                                        RotatingCylinderDensity,
+                                        RotatingCylinderTotalEnergy,
+                                        RotatingCylinderTotalEnergy,
+                                        RotatingCylinderVelocity,
+                                        RotatingCylinderBField);
 
           /* set up the initial explosion area on the finest resolution subgrid */
 
           if (lev == MaximumRefinementLevel - 1)
-            if (Subgrid[lev]->GridData->RotatingCylinderInitializeGrid(RotatingCylinderRadius,
-                  RotatingCylinderCenterPosition,
-                  RotatingCylinderLambda,
-                  RotatingCylinderOverdensity) 
+            if (this->InitializeGrid(Subgrid[lev]->GridData, TopGrid, MetaData)
                 == FAIL) {
               ENZO_FAIL("Error in RotatingCylinderInitialize[Sub]Grid.");
             }
@@ -236,28 +230,7 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
         }
       }
 
-
-      /* set up subgrids from level 1 to max refinement level -1 */
-
-      for (lev = MaximumRefinementLevel - 1; lev > 0; lev--)
-        if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
-              *(Subgrid[lev-1]->GridData))
-            == FAIL) {
-          ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
-        }
-
-      /* set up the root grid */
-
-      if (MaximumRefinementLevel > 0) {
-        if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
-            == FAIL) {
-          ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
-        }
-      }
-      else
-        if (this->InitializeGrid(TopGrid.GridData, TopGrid, MetaData) == FAIL) {
-          ENZO_FAIL("Error in RotatingCylinderInitializeGrid.");
-        }
+      this->FinalizeGrids(Subgrid, TopGrid, MetaData);
 
       /* set up field names and units -- NOTE: these absolutely MUST be in 
          the same order that they are in Grid_InitializeUniformGrids.C, or 
@@ -308,6 +281,11 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
 
     }
 
+/*
+
+This is the grid-by-grid initializer.
+
+*/
     int InitializeGrid(grid *thisgrid_orig,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {

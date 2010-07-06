@@ -275,6 +275,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* read global Parameters */
  
     ret += sscanf(line, "ProblemType            = %"ISYM, &ProblemType);
+#ifdef NEW_PROBLEM_TYPES
+    if (sscanf(line, "ProblemTypeName = %s", dummy) == 1) {
+      ProblemTypeName = dummy;
+      ProblemType = -978;
+      ret = 1;
+    }
+#endif
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
     if (HydroMethod==MHD_RK) useMHD = 1;
 
