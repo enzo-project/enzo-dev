@@ -1654,11 +1654,23 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
   int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
-				    float LeftDensity, float RightDensity, 
+				    float LeftDensity, float RightDensity,
 				    float LeftVelocityX, float RightVelocityX,
 				    float LeftVelocityY, float RightVelocityY,
 				    float LeftVelocityZ, float RightVelocityZ,
 				    float LeftPressure, float RightPressure);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float SecondDiscontinuity,
+				    float LeftDensity, float RightDensity,
+				    float CenterDensity,
+				    float LeftVelocityX, float RightVelocityX,
+				    float CenterVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float CenterVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float CenterVelocityZ,
+				    float LeftPressure, float RightPressure,
+				    float CenterPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
