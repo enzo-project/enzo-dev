@@ -503,6 +503,44 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      }
 	    }
 
+	    /* 6) Free expansion blastwave (see FreeExpansionInitialize) */
+
+	    if (SphereType[sphere] == 6) {
+
+	      const float DensitySlope = 9.0;
+	      double M_ej, E_ej, r_max, v_max, BlastTime, v_core, normalization,
+		speed;
+
+	      M_ej = SphereDensity[sphere] * (4.0*M_PI/3.0) * 
+		POW(SphereRadius[sphere]*LengthUnits, 3.0) * DensityUnits;
+	      E_ej = M_ej * kboltz * SphereTemperature[sphere] / (mh*mu);
+	      r_max = LengthUnits * SphereRadius[sphere];
+
+	      // Temperature parameter is a proxy for total energy
+	      // (convert to velocity)
+	      v_max = 0.333333 * sqrt(2.0 * SphereTemperature[sphere] / 
+				      TemperatureUnits / ((Gamma-1.0)*mu));
+	      BlastTime = SphereRadius[sphere] / v_max;
+	      v_core = sqrt( (10.0 * E_ej * (DensitySlope-5)) /
+			     (3.0 * M_ej * (DensitySlope-3)) );
+	      normalization = (10.0 * (DensitySlope-5) * E_ej) / 
+		(4.0 * M_PI * DensitySlope) / POW(v_core, 5.0);
+	      
+	      v_core /= VelocityUnits;
+	      speed = r / BlastTime;
+	      if (speed <= v_core)
+		density = normalization / POW(BlastTime*TimeUnits, 3.0) / DensityUnits;
+	      else
+		density = normalization / POW(BlastTime*TimeUnits, 3.0) /
+		  POW(speed/v_core, DensitySlope) / DensityUnits;
+	      density = max(density, SphereDensity[sphere]);
+	      Velocity[0] = speed * xpos / r;
+	      Velocity[1] = speed * ypos / r;
+	      Velocity[2] = speed * zpos / r;
+	      temperature = 100.0;  // low temperature inside; will be shocked
+
+	    } // ENDIF SphereType 6
+
 	    /* 10) disk (ok, it's not a sphere, so shoot me) */
 
 	    if (SphereType[sphere] == 10) {
