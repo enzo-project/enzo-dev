@@ -25,6 +25,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 #include "ProblemType.h"
+#include "EventHooks.h"
 
 class ProblemType_RotatingCylinder;
 
@@ -33,6 +34,11 @@ class RotatingCylinderGrid : private grid {
 };
 
 int FindField(int field, int farray[], int numfields);
+
+void JustPrintSomething(HierarchyEntry *Grids[], TopGridData &MetaData)
+{
+    std::cout << "I am being called!" << std::endl;
+}
 
 class ProblemType_RotatingCylinder : public EnzoProblemType
 {
@@ -52,6 +58,8 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
     ProblemType_RotatingCylinder() : EnzoProblemType()
     { 
         std::cout << "Creating problem type Rotating Cylinder" << std::endl;
+        RegisterEventPlugin("Printing", &JustPrintSomething);
+        RegisterEventHook("EvolveLevelTop", "Printing");
     }
 
     ~ProblemType_RotatingCylinder()

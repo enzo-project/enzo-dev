@@ -30,8 +30,6 @@
 
 #include "ProblemType.h"
 
-/* This will return a map associating strings with plugin_creator structs,
-   and the main plugin map will be declared statically.  */
 std::map< std::string, EnzoProblemType_creator *>& 
 get_problem_types()
 {
