@@ -1,0 +1,32 @@
+MHD2DRotorTest
+=============
+From
+ G. Toth, J. Comput. Phys. 161 (2000) 605
+
+Initially discussed in 
+ D. Balsara & D. Spicer, J. Comput. Phys. 149, 270292 (1999) 
+
+Run: dcollins, July 2010
+
+Test Description
+================
+
+A cylander of gas is set rotating in a uniform medium, with uniform magnetic
+field perpandicular to the rotation axis.  A torsional Alfven wave is launched
+from the surface, and propogates to the simulation boundary at the end of the
+simulation.
+
+This test is useful as it can and will cause negative densities for some
+solvers; it also demonstrates physics unique to the MHD system, providing a
+useful comparison.
+
+Visual comparison to the plots in Toth (2000) shows that the general morphology
+and extent of the Alfven wave is similar.  Round contours in the mach number
+field indicate solid body rotation, without the artifacts seen in some other
+solvers.  
+
+Success in test_rotor.py is determined by nearly exact match (1e-12) in L1 norm between
+Density, Bx, P, and Mach number. 
+
+This test generates 11 outputs, and snapshots for the 4 above fields for each
+snapshot.  The 11th snapshot should be compared to figure 18 from Toth (2000)
