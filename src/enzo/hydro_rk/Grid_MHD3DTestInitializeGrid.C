@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -44,10 +45,13 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  FieldType[NumberOfBaryonFields++] = Bfield1;
-  FieldType[NumberOfBaryonFields++] = Bfield2;
-  FieldType[NumberOfBaryonFields++] = Bfield3;
-  FieldType[NumberOfBaryonFields++] = PhiField;
+  
+  if (HydroMethod == MHD_RK) {
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield2;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
 
   /* Return if this doesn't concern us. */
 
@@ -172,8 +176,88 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     }
   }
   
-  
-  
-  
+  /* Rayleigh-Taylor problem with a single-mode (2) or multiple modes
+     (3) */
+
+  int i, j, k, index, seed;
+  float pres, rho, ramp, dpdrho, dpde, h, cs, vz, eintl, eintu;
+  FLOAT DomainWidth[MAX_DIMENSION];
+  const float delz = 5e-3;  // range in z to apply ramp
+  const float amplitude = 0.01; // perturbation amplitude
+
+  if (MHD3DProblemType == 2 || MHD3DProblemType == 3) {
+    if (HydroMethod == MHD_RK)
+      ENZO_FAIL("Rayleigh-Taylor problem in 3D not setup for MHD yet.");
+
+    seed = 123456789;
+    srand(seed);
+
+    for (i = 0; i < MAX_DIMENSION; i++)
+      DomainWidth[i] = DomainRightEdge[i] - DomainLeftEdge[i];
+
+    for (k = 0; k < GridDimension[2]; k++) {
+      z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+
+      // Calculate pressure from hydrostatic equilibrium
+      ramp = 1.0 / (1.0 + exp(-2.0*z / delz));
+      rho = rhol + ramp * (rhou-rhol);
+      pres = pl + ConstantAcceleration[2] * rho * z;
+      if (z <= 0)
+	EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
+      else
+	EOS(pres, rho, eintu, h, cs, dpdrho, dpde, 0, 1);
+
+      for (j = 0; j < GridDimension[1]; j++) {
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	index = GRIDINDEX_NOGHOST(0,j,k);
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+
+	  // Generate perturbation (2==single, 3==multiple)
+	  if (MHD3DProblemType == 2)
+	    vz = 0.125*amplitude * 
+	      (1.0 + cos(2.0*M_PI*x / DomainWidth[0])) *
+	      (1.0 + cos(2.0*M_PI*y / DomainWidth[1])) *
+	      (1.0 + cos(2.0*M_PI*z / DomainWidth[2]));
+	  else
+	    vz = amplitude * 
+	      ((float) (rand()) / (float) (RAND_MAX) - 0.5) *
+	      (1.0 + cos(2.0*M_PI*z / DomainWidth[2]));
+
+	  // Lower domain
+	  if (z <= 0.0) {
+
+	    etotl = eintl + 0.5*(vxl*vxl + vyl*vyl + vz*vz);
+	    BaryonField[iden][index] = rhol;
+	    BaryonField[ivx][index] = vxl;
+	    BaryonField[ivy][index] = vyl;
+	    BaryonField[ivz][index] = vz;
+	    BaryonField[ietot][index] = etotl;
+
+	    if (DualEnergyFormalism)
+	      BaryonField[ieint][igrid] = pl / ((Gamma-1.0)*rho);
+
+	  } // ENDIF (lower)
+
+	  // Upper domain
+	  else {
+
+	    etotu = eintu + 0.5*(vxu*vxu + vyu*vyu + vz*vz);
+	    BaryonField[iden][index] = rhou;
+	    BaryonField[ivx][index] = vxu;
+	    BaryonField[ivy][index] = vyu;
+	    BaryonField[ivz][index] = vz;
+	    BaryonField[ietot][index] = etotu;
+
+	    if (DualEnergyFormalism)
+	      BaryonField[ieint][igrid] = pu / ((Gamma-1.0)*rho);
+
+	  } // ENDELSE (upper)
+	  
+	} // ENDFOR i
+      } // ENDFOR j
+    } // ENDFOR k
+  } // ENDIF type == 2||3
+
   return SUCCESS;
 }

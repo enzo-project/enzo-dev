@@ -207,10 +207,13 @@ int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  DataLabel[count++] = BxName;
-  DataLabel[count++] = ByName;
-  DataLabel[count++] = BzName;
-  DataLabel[count++] = PhiName;
+
+  if (HydroMethod == MHD_RK) {
+    DataLabel[count++] = BxName;
+    DataLabel[count++] = ByName;
+    DataLabel[count++] = BzName;
+    DataLabel[count++] = PhiName;
+  }
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
