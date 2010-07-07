@@ -480,6 +480,11 @@ EXTERN int   MustRefineParticlesRefineToLevel;
 
 EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
 
+/* For CellFlaggingMethod = 8,
+   For new particle system only refine around particles above the minimum mass */
+
+EXTERN float MustRefineParticlesMinimumMass;
+
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */

@@ -209,6 +209,17 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       }
       break;
     /* ==== undefined ==== */
+
+    /* ==== METHOD 18: BY POSITION OF MUST-REFINE PARTICLES ONLY ABOVE A CERTAIN MASS  ==== */
+  case 18:
+
+    /* Searching for must-refine particles now done in
+       grid::SetParticleMassFlaggingField and stored in
+       ParticleMassFlaggingField.  This is checked in method #4, which
+       is automatically turned if method #8 is specified. */
+
+    break;
+ 
  
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  

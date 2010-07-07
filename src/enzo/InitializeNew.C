@@ -62,6 +62,8 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -391,6 +393,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 12) Free expansion blast wave
   if (ProblemType == 12)
     ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 13) RotatingSphere
+ 
+  if (ProblemType == 13)
+    ret = RotatingSphereInitialize(fptr, Outfptr, TopGrid, MetaData);
+
  
   // 20) Zeldovich Pancake
  
@@ -737,6 +745,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (HydroMethod == Zeus_Hydro &&
       ProblemType != 10 &&  // BWO (Rotating cylinder)
       ProblemType != 11 &&  // BWO (radiating shock)
+      ProblemType != 13 &&  // BWO (Rotating Sphere)
       ProblemType != 20 &&
       ProblemType != 27 &&
       ProblemType != 30 &&

@@ -463,6 +463,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
+    ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,
+                  &MustRefineParticlesMinimumMass);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
@@ -888,6 +890,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Units")               ) ret++;
     if (strstr(line, "RadiatingShock")      ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
+    if (strstr(line, "RotatingSphere")    ) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
@@ -967,6 +970,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     Gamma = 1; 
   */
 
+  /* convert MustRefineParticlesMinimumMass from a mass into a density, 
+     ASSUMING CUBE simulation space */
+
+  MustRefineParticlesMinimumMass /= (float(MetaData.TopGridDims[0])*POW(float(RefineBy), float(MustRefineParticlesRefineToLevel)));
+
+    /* Use Physical units stuff */
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
     TimeUnits = 1.0, VelocityUnits = 1.0, PressureUnits = 1.0;
   double MassUnits = 1.0;
@@ -977,7 +987,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /*IMOPORTANT: If change anything here must change both equivilant parts in WriteParameterFile.C as well */
 
     /* Change input physical parameters into code units */
-
+    MustRefineParticlesMinimumMass /= MassUnits*pow(LengthUnits,3);
     StarMakerOverDensityThreshold /= DensityUnits;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     

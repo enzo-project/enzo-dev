@@ -1,10 +1,10 @@
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
 c
-      subroutine cic_flag(posx, posy, posz, ndim, npositions, 
+      subroutine cic_flag(posx, posy, posz, partmass, ndim, npositions, 
      &                    itype, ffield, leftedge, 
      &                    dim1, dim2, dim3, cellsize, imatch1, 
-     &                    imatch2, buffersize)
+     &                    imatch2, minmassmust, buffersize)
 #ifndef CONFIG_PFLOAT_16
 #include "fortran.def"
 c
@@ -25,8 +25,10 @@ c     dim1,2,3   - real dimensions of field
 c     leftedge   - the left edge(s) of field
 c     npositions - number of particles
 c     posx,y,z   - particle positions
+c     partmass   - particle masses
 c     itype      - 1D field (length npositions) of types
 c     imatch1,2  - integer(s) indicating type of particle to match
+c     minmassmust - minimum mass for MustRefine particles to refine around
 c     buffersize - how many cells to flag around the particle
 c
 c  OUTPUT ARGUMENTS: 
@@ -45,9 +47,10 @@ c
 c  argument declarations
 c
       integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
+      real minmassmust
       integer buffersize
-      REALSUB posx(npositions), posy(npositions), posz(npositions),
-     &        leftedge(3)
+      REALSUB posx(npositions), posy(npositions), posz(npositions), 
+     &        partmass(npositions), leftedge(3)
       REALSUB cellsize
       integer itype(npositions)
       integer ffield(dim1, dim2, dim3)
@@ -78,31 +81,36 @@ c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
-	    write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
+c	    only for particles above minimum mass
 c
-c           Compute the position of the central cell
+	      if (partmass(n) .gt. minmassmust) then
 c
-            xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
+	      write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
 c
-c           Convert this into an integer index
+c             Compute the position of the central cell
 c
-            i1  = int(xpos + 0.5)
+              xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
 c
-c           set flagging field
+c             Convert this into an integer index
 c
-c           keep default option unrolled!
-            if (buffersize .eq. 1) then
-               ffield(i1  ,1,1) = 1
-               ffield(i1+1,1,1) = 1
-            else
-               istart = max(i1-buffersize+1, 1)
-               iend = min(i1+buffersize, dim1)
-               do ii = istart, iend
-                  ffield(ii,1,1) = 1
-               enddo
+              i1  = int(xpos + 0.5)
+c
+c             set flagging field
+c
+c             keep default option unrolled!
+              if (buffersize .eq. 1) then
+                 ffield(i1  ,1,1) = 1
+                 ffield(i1+1,1,1) = 1
+              else
+                 istart = max(i1-buffersize+1, 1)
+                 iend = min(i1+buffersize, dim1)
+                 do ii = istart, iend
+                    ffield(ii,1,1) = 1
+                 enddo
+              endif
+c
             endif
-c
-            endif
+	    endif
 c
          enddo
 c
@@ -118,36 +126,41 @@ c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
-c           Compute the position of the central cell
+c	    only for particles above minimum mass
 c
-            xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
-            ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
+	      if (partmass(n) .gt. minmassmust) then
 c
-c           Convert this into an integer index
+c             Compute the position of the central cell
 c
-            i1  = int(xpos + 0.5)
-            j1  = int(ypos + 0.5)
+              xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
+              ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
 c
-c           Interpolate from field into sumfield
+c             Convert this into an integer index
 c
-c           keep default option unrolled!
-            if (buffersize .eq. 1) then
-               ffield(i1  ,j1  ,1) = 1
-               ffield(i1+1,j1  ,1) = 1
-               ffield(i1  ,j1+1,1) = 1
-               ffield(i1+1,j1+1,1) = 1
-            else
-               istart = max(i1-buffersize+1, 1)
-               iend = min(i1+buffersize, dim1)
-               jstart = max(j1-buffersize+1, 1)
-               jend = min(j1+buffersize, dim2)
-               do jj = jstart, jend
-                  do ii = istart, iend
-                     ffield(ii,jj,1) = 1
-                  enddo
-               enddo
-            endif
+              i1  = int(xpos + 0.5)
+              j1  = int(ypos + 0.5)
 c
+c             Interpolate from field into sumfield
+c
+c             keep default option unrolled!
+              if (buffersize .eq. 1) then
+                 ffield(i1  ,j1  ,1) = 1
+                 ffield(i1+1,j1  ,1) = 1
+                 ffield(i1  ,j1+1,1) = 1
+                 ffield(i1+1,j1+1,1) = 1
+              else
+                 istart = max(i1-buffersize+1, 1)
+                 iend = min(i1+buffersize, dim1)
+                 jstart = max(j1-buffersize+1, 1)
+                 jend = min(j1+buffersize, dim2)
+                 do jj = jstart, jend
+                    do ii = istart, iend
+                       ffield(ii,jj,1) = 1
+                    enddo
+                 enddo
+              endif
+c
+              endif
             endif
 c
          enddo
@@ -164,48 +177,53 @@ c           only do this for must-refine particles
 c
             if (itype(n) .eq. imatch1 .or. itype(n) .eq. imatch2) then
 c
-c           Compute the position of the central cell
+c	      only for particles above minimum mass
 c
-            xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
-            ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
-            zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
+	      if (partmass(n) .gt. minmassmust) then 
 c
-c           Convert this into an integer index
+c             Compute the position of the central cell
 c
-            i1  = int(xpos + 0.5)
-            j1  = int(ypos + 0.5)
-            k1  = int(zpos + 0.5)
+              xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
+              ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
+              zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
+c  
+c             Convert this into an integer index
+c  
+              i1  = int(xpos + 0.5)
+              j1  = int(ypos + 0.5)
+              k1  = int(zpos + 0.5)
 c
-c           Set flagging field
+c             Set flagging field
 c     
-c           keep default option unrolled!
-            if (buffersize .eq. 1) then
-               ffield(i1  ,j1  ,k1  ) = 1
-               ffield(i1+1,j1  ,k1  ) = 1
-               ffield(i1  ,j1+1,k1  ) = 1
-               ffield(i1+1,j1+1,k1  ) = 1
-               ffield(i1  ,j1  ,k1+1) = 1
-               ffield(i1+1,j1  ,k1+1) = 1
-               ffield(i1  ,j1+1,k1+1) = 1
-               ffield(i1+1,j1+1,k1+1) = 1
-            else
-               istart = max(i1-buffersize+1, 1)
-               iend = min(i1+buffersize, dim1)
-               jstart = max(j1-buffersize+1, 1)
-               jend = min(j1+buffersize, dim2)
-               kstart = max(k1-buffersize+1, 1)
-               kend = min(k1+buffersize, dim3)
-c	       print*,'cic_flag: buffersize is:',buffersize
-               do kk = kstart, kend
-                  do jj = jstart, jend
-                     do ii = istart, iend
-                        ffield(ii,jj,kk) = 1
-                     enddo
-                  enddo
-               enddo
-            endif
+c             keep default option unrolled!
+              if (buffersize .eq. 1) then
+                 ffield(i1  ,j1  ,k1  ) = 1
+                 ffield(i1+1,j1  ,k1  ) = 1
+                 ffield(i1  ,j1+1,k1  ) = 1
+                 ffield(i1+1,j1+1,k1  ) = 1
+                 ffield(i1  ,j1  ,k1+1) = 1
+                 ffield(i1+1,j1  ,k1+1) = 1
+                 ffield(i1  ,j1+1,k1+1) = 1
+                 ffield(i1+1,j1+1,k1+1) = 1
+              else
+                 istart = max(i1-buffersize+1, 1)
+                 iend = min(i1+buffersize, dim1)
+                 jstart = max(j1-buffersize+1, 1)
+                 jend = min(j1+buffersize, dim2)
+                 kstart = max(k1-buffersize+1, 1)
+                 kend = min(k1+buffersize, dim3)
+c	         print*,'cic_flag: buffersize is:',buffersize
+                 do kk = kstart, kend
+                    do jj = jstart, jend
+                       do ii = istart, iend
+                          ffield(ii,jj,kk) = 1
+                       enddo
+                    enddo
+                 enddo
+              endif
 c
-            endif
+              endif
+	  endif
 c
          enddo
 c
