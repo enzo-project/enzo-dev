@@ -666,7 +666,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarEnergyToThermalFeedback);
     ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
- 
+    ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
+    ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM, 
 		  &StarClusterUseMetalField);
@@ -1123,6 +1124,32 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ConservativeInterpolation = FALSE;
     DualEnergyFormalism       = FALSE;
     //    FluxCorrection            = FALSE;
+  }
+
+  /* Set some star feedback parameters. */
+
+  if (STARFEED_METHOD(UNIGRID_STAR) && (StarFeedbackDistRadius > 0)) {
+
+    // Calculate number of cells in the shape over which to distribute feedback.
+    StarFeedbackDistRadius = min(StarFeedbackDistRadius,
+				 StarFeedbackDistCellStep);
+    int i, j, k, cell_step;
+
+    StarFeedbackDistTotalCells = 0;
+    for (k = -StarFeedbackDistCellStep;k <= StarFeedbackDistCellStep;k++) {
+      for (j = -StarFeedbackDistCellStep;j <= StarFeedbackDistCellStep;j++) {
+	for (i = -StarFeedbackDistCellStep;i <= StarFeedbackDistCellStep;i++) {
+	  cell_step = fabs(k) + fabs(j) + fabs(i);
+	  if (cell_step <= StarFeedbackDistCellStep) {
+	    StarFeedbackDistTotalCells++;
+	  }
+       }
+      }
+    }
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stderr,"Total cells for star feedback smoothing: %"ISYM".\n",
+	      StarFeedbackDistTotalCells);
+    }
   }
  
   /* For rk_hydro, we need to set some variables */

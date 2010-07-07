@@ -388,6 +388,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarEnergyToThermalFeedback      = 1.0e-5;
   StarEnergyToStellarUV            = 3.0e-6;
   StarEnergyToQuasarUV             = 5.0e-6;
+  StarFeedbackDistRadius           = 0;
+  StarFeedbackDistCellStep         = 0;
+  StarFeedbackDistTotalCells       = 1;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
