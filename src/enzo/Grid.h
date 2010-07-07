@@ -636,7 +636,7 @@ public:
 
 /* Solve the joint rate and radiative cooling/heating equations  */
 
-   int SolveRateAndCoolEquations();
+   int SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep);
 
 /* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
 

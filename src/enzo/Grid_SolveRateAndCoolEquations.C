@@ -85,7 +85,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
  	int *clDataSize, float *clCooling, float *clHeating, float *clMMW);
 
 
-int grid::SolveRateAndCoolEquations()
+int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
 {
   /* Return if this doesn't concern us. */
   if (!(MultiSpecies && RadiativeCooling)) return SUCCESS;
@@ -241,16 +241,6 @@ int grid::SolveRateAndCoolEquations()
   /* Call the fortran routine to solve cooling equations. */
 
   int ierr = 0;
-  int RTCoupledSolverIntermediateStep = FALSE;
-
-  int testsize[3];
-  testsize[0] = 3;
-  testsize[1] = 3;
-  testsize[2] = 3;
-  float testarray[testsize[0]];
-  testarray[0] = 12.3;
-  testarray[1] = 45.6;
-  testarray[2] = 78.9;
 
   FORTRAN_NAME(solve_rate_cool)(
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,

@@ -462,8 +462,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	      RadiativeTransferOpticallyThinH2)
 	    Temp->GridData->AddH2Dissociation(AllStars);
 
-	  if (RadiativeTransferCoupledRateSolver)
-	    Temp->GridData->SolveCoupledRateEquations();
+	  if (RadiativeTransferCoupledRateSolver) {
+	    int RTCoupledSolverIntermediateStep = TRUE;
+	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+	  }
 
 	  if (RadiativeTransferCoupledRateSolver &&
 	      RadiativeTransferInterpolateField)

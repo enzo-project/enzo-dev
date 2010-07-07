@@ -71,10 +71,6 @@
 
   int AddRadiationPressureAcceleration(void);
 
-/* Solve cooling/rate equations coupled to the radiative transfer */
-
-  int SolveCoupledRateEquations();
-
 /* Initialize ionized sphere around a source */
 
   int InitializeSource(RadiationSourceEntry *RS);

@@ -34,8 +34,10 @@ int grid::MultiSpeciesHandler()
   if (MultiSpecies && RadiativeCooling ) {
       if((MultiSpecies == 3) && (PrimordialChemistrySolver == 1))
         this->SolveHighDensityPrimordialChemistry();
-      else
-	this->SolveRateAndCoolEquations();
+      else {
+	int RTCoupledSolverIntermediateStep = FALSE;
+	this->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+      }
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();

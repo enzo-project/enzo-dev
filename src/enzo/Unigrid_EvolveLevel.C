@@ -379,7 +379,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 	LCAPERF_START("evolve-level-14"); // change this?
 
-	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
+	int RTCoupledSolverIntermediateStep = FALSE;
+	if (Grids[grid1]->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep) == FAIL) {
 	  fprintf(stderr, "Error in grid->SolveRateEquations.\n");
 	  ENZO_FAIL("");
 	}
