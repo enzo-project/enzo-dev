@@ -191,7 +191,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   if(GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight){
-    ENZO_VFAIL("GalaxySimulationSubgridLeft (%"GOUTSYM") > GalaxySimulationSubgridRight (%"GOUTSYM")!\n");
+    ENZO_VFAIL("GalaxySimulationSubgridLeft (%"GOUTSYM") > GalaxySimulationSubgridRight (%"GOUTSYM")!\n")
   }
  
   // Initialize the top grid

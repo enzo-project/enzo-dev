@@ -993,8 +993,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 
     int *tempint = new int[NumberOfParticles];
  
-    if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
- 
     if (ParticleType == NULL)
       ENZO_FAIL("Undefined ParticleType!\n");
  

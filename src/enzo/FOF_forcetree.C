@@ -184,10 +184,7 @@ int force_treebuild(FOFData &D, int first, int len, float thetamax)
 	nfree++;
 
 	if (_TopData.numnodestotal >= D.MaxNodes) {
-	  fprintf(stderr, "FOF: maximum number %"ISYM" of tree-nodes reached.\n",
-		  _TopData.numnodestotal);
-	  fprintf(stderr, "i=%"ISYM" ip=%"ISYM"\n", i, ip);
-	  ENZO_FAIL("Maximum number of tree-nodes reached!\n");
+	  ENZO_VFAIL("FOF: maximum number %"ISYM" of tree-nodes reached.\n", _TopData.numnodestotal)
 	}
 
 	for (j = 0, subi = 0, fak = 1; j < 3; j++, fak<<=1)
