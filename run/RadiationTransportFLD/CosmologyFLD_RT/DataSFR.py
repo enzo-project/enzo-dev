@@ -8,9 +8,8 @@
 # 6) total number of stars
 #
 # REMEMBER TO RENAME THE OLD STARFORMATIONRATE.TXT BEFORE RUNNING
-
-from yt.config import ytcfg
-ytcfg["lagos","serialize"] = "False"
+#
+#################################################################################################################
 
 from yt.mods import *
 
@@ -72,7 +71,6 @@ for i in range(min_output_number, max_output_number+1, skip):
     if num_star == 0:
         yt.funcs.only_on_root(flush, "StarFormationRate.txt", "%12.12e %12.12e %12.12e %12.12i %12.12e %12.12i\n" % (yr, TotEmis, redshift, num_sources, 0, num_star))
     else:
-        # Take log here to get masses/ages in log space
         num_cells_zero = dd.quantities["TotalQuantity"]("ZeroEmissivity")[0]
         TotEmis = dd.quantities["TotalQuantity"]("TotEmissivity")[0]
         num_sources = resolution**3-num_cells_zero

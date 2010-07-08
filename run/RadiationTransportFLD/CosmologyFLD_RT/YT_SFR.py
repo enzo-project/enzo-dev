@@ -1,3 +1,9 @@
+# This calculates the Star Formation Rate in units of Msun/yt/Mpc^3 (proper) in column 5
+# Divide by (1+z)^3 to get it to comoving distances
+#
+########################################################################################
+
+
 from yt.mods import *
 from yt.extensions.StarAnalysis import *
 
