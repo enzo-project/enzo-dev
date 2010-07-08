@@ -70,8 +70,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   /*
   if (!ComovingCoordinates) {   
-    fprintf(stderr, "RadiationField only defined for cosmology.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("RadiationField only defined for cosmology.\n");
   }  
   */
 
@@ -82,8 +81,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");    
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
@@ -387,15 +385,13 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
 /* ------------------------------------------------------------------ */
   if (RadiationFieldType < 0 || RadiationFieldType > 12) {
-    fprintf(stderr, "RadiationFieldType %"ISYM" not recognized.\n", 
-	    RadiationFieldType);
-    ENZO_FAIL("");
+    ENZO_VFAIL("RadiationFieldType %"ISYM" not recognized.\n", 
+	    RadiationFieldType)
    }
 
   if (AdjustUVBackground < 0 || AdjustUVBackground > 2 ) {
-   fprintf(stderr, "AdjustUVBackground Type %"ISYM" not recognized.\n",
-            AdjustUVBackground);
-   ENZO_FAIL("");
+   ENZO_VFAIL("AdjustUVBackground Type %"ISYM" not recognized.\n",
+            AdjustUVBackground)
   }
 
   if (AdjustUVBackground == 0 ) {
@@ -413,6 +409,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
   CoolData.piHeII *= (SetUVBAmplitude * SetHeIIHeatingScale);
   }
   if (AdjustUVBackground == 2) {
+
 /* Alters the HM-type rates by the user supplied values.
 If some are not supplied then it uses the default 
 values defined in the previous if statement and set

@@ -64,12 +64,10 @@ int grid::ConvertToCellCenteredRadiation()
       } // ENDSWITCH field
 
       if (InterpolatedField[rkph] == NULL) {
-	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rkph);
-	ENZO_FAIL("");
+	ENZO_VFAIL("InterpolatedField[%"ISYM"] not allocated.\n", rkph)
       }
       if (InterpolatedField[rgamma] == NULL) {
-	fprintf(stderr, "InterpolatedField[%"ISYM"] not allocated.\n", rgamma);
-	ENZO_FAIL("");
+	ENZO_VFAIL("InterpolatedField[%"ISYM"] not allocated.\n", rgamma)
       }
 
       if (rkph != FieldUndefined)
@@ -83,6 +81,7 @@ int grid::ConvertToCellCenteredRadiation()
   /* Clean up :: these are defined in ComputeCellCenteredField */
 
   if (BaryonField[NumberOfBaryonFields] != NULL) {
+
     delete [] BaryonField[NumberOfBaryonFields];
     delete [] InterpolatedField[NumberOfBaryonFields];
     BaryonField[NumberOfBaryonFields] = NULL;

@@ -122,8 +122,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
  
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Find Multi-species fields. */
@@ -134,8 +133,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
  
   /* Find photo-ionization fields */
@@ -192,8 +190,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
   /* Calculate the rates due to the radiation field. */
  
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-    fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiationFieldCalculateRates.\n");
   }
  
   /* Set up information for rates which depend on the radiation field. 
@@ -277,6 +274,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &TemperatureUnits,&LengthUnits,
        &aUnits,&DensityUnits,&TimeUnits,&Gamma);
     if (result == FAIL )  {
+
       ENZO_FAIL("Error in GadgetCoolingTime.  Exiting.");
     }
   } else { // if not multispecies or Gadget cooling, must be generic cooling.

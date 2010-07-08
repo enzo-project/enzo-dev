@@ -49,8 +49,7 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   if (level == 0) {  // set it up on level zero and make it mustrefine
@@ -169,6 +168,7 @@ int grid::PutSinkRestartInitialize(int level, int *NumberOfCellsSet)
 // 	  (*NumberOfCellsSet)++;
  
 // 	} // end: if (radius2 < EjectaRadius*EjectaRadius)
+
  
 //       } // next i
 //     } // next j

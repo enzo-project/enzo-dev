@@ -41,8 +41,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -53,8 +52,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   /* Get units. */
@@ -64,8 +62,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   int pos[3], rmin[3], radius = 1000000, dim, i, j, k;;
@@ -155,6 +152,7 @@ int grid::InitializeSource(RadiationSourceEntry *RS)
 //	te[index+i] = 1e4 / TemperatureUnits;
 //
 //	if (DualEnergyFormalism)
+
 //	  ge[index+i] = te[index+i];
 
       } /* ENDFOR i */

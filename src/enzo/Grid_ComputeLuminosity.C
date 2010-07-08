@@ -100,8 +100,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -109,8 +108,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
 		      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   /* Find photo-ionization fields */
@@ -185,8 +183,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
   /* Calculate the rates due to the radiation field. */
 
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-    fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiationFieldCalculateRates.\n");
   }
 
   /* Set up information for rates which depend on the radiation field. 
@@ -262,8 +259,8 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
 
     // TODO: Convert cooling time to luminosity
 
-    fprintf(stderr, "Grid_ComputeLuminosity not ready for MultiSpecies = 0\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Grid_ComputeLuminosity not ready for MultiSpecies = 0\n");
+
   }
 
   return SUCCESS;

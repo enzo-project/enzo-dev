@@ -58,8 +58,7 @@ int Star::CalculateMassAccretion(void)
 
   if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					      Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -69,8 +68,7 @@ int Star::CalculateMassAccretion(void)
 	IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
 	== FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   int igrid[MAX_DIMENSION], dim, index, size = 1;
@@ -85,8 +83,7 @@ int Star::CalculateMassAccretion(void)
 
   temperature = new float[size];
   if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-    fprintf(stderr, "Error in ComputeTemperatureField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeTemperatureField.\n");
   }
 
   /* Reset the accretion rate (DeltaMass) */
@@ -208,9 +205,9 @@ int Star::CalculateMassAccretion(void)
   
   if (AccretionType == BONDI_ACCRETION ||
       AccretionType == RADIAL_ACCRETION) {
-    fprintf(stderr, "AccretionType = %"ISYM" not implemented yet.\n", 
-	    AccretionType);
-    ENZO_FAIL("");
+    ENZO_VFAIL("AccretionType = %"ISYM" not implemented yet.\n", 
+	    AccretionType)
+
   }
 
   delete [] temperature;

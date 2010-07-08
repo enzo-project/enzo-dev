@@ -90,8 +90,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   if (CosmologyComputeTimeFromRedshift(InitialRedshift,
 				       &InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeTimeFromRedshift.\n");
   }
   if (*InitTime == 0.0)
     *InitTime = InitialTimeInCodeUnits;
@@ -99,8 +98,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
   /* Now find the time at the end of the simulation. */
  
   if (CosmologyComputeTimeFromRedshift(FinalRedshift, StopTime) == FAIL) {
-    fprintf(stderr, "Error in ComputeTimeFromRedshift.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeTimeFromRedshift.\n");
   }
  
   /* Convert the output redshifts into time, for later convenience. */
@@ -114,6 +112,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   for (i = 0; i < MAX_TIME_ACTIONS; i++)
     if (TimeActionRedshift[i] != -1)
+
       CosmologyComputeTimeFromRedshift(TimeActionRedshift[i],
 				       &TimeActionTime[i]);
 

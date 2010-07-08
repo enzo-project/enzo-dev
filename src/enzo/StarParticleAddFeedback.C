@@ -148,8 +148,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 				    SphereContainedNextLevel, dummy, DensityUnits, 
 				    LengthUnits, TemperatureUnits, TimeUnits, 
 				    VelocityUnits, Time) == FAIL) {
-	fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in star::FindFeedbackSphere\n");
       }
     }
 
@@ -216,6 +215,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 		"Radius = %"GSYM" pc\n",
 		cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
       if (cstar->ReturnFeedbackFlag() == DEATH || 
+
 	  cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA ||
 	  cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	  cstar->ReturnFeedbackFlag() == MBH_JETS )

@@ -46,8 +46,7 @@ int grid::ComputeEnergy(float EnergySum[])
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
  
     /* Sum over mesh. */
@@ -114,6 +113,7 @@ int grid::ComputeEnergy(float EnergySum[])
  
   // BUG?? PotentialSum never defined??
   if (ComputePotential)
+
     EnergySum[3] += PotentialSum;
  
   return SUCCESS;

@@ -41,8 +41,7 @@ int grid::CollectParticleMassFlaggingField(void)
   /* error check */
  
   if (ParticleMassFlaggingField == NULL) {
-    fprintf(stderr, "ParticleMassFlaggingField is undefined.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ParticleMassFlaggingField is undefined.\n");
   }
 
   /* compute size */
@@ -72,6 +71,7 @@ int grid::CollectParticleMassFlaggingField(void)
   /* Delete MassFlaggingField if this isn't the main processor */
 
   if (MyProcessorNumber != ProcessorNumber) {
+
     delete [] ParticleMassFlaggingField;
     ParticleMassFlaggingField = NULL;
   }

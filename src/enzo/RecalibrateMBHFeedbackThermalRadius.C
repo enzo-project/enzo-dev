@@ -137,8 +137,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
     CommunicationAllSumValues(AvgVelocity, 3);
 
     if (MassEnclosed == 0) {
-      printf("RecalibrateMFTR: MassEnclosed = 0; something is wrong!\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("RecalibrateMFTR: MassEnclosed = 0, something is wrong!\n");
     }
 
     Metallicity /= MassEnclosed;

@@ -93,8 +93,7 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
 
     for (int level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in RebuildHierarchy.\n");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -125,6 +124,7 @@ int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = BzName;
   DataLabel[count++] = PhiName;
   if(UseDivergenceCleaning){
+
     DataLabel[count++] = Phi_pName;
   }
 

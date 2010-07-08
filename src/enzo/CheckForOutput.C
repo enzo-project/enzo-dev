@@ -142,8 +142,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //		        ) == FAIL {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
 
@@ -171,8 +170,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //                      ) == FAIL) {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
 
@@ -210,8 +208,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			, ImplicitSolver
 //#endif
 //                      ) == FAIL) {
-// 	fprintf(stderr, "Error in WriteAllData.\n");
-// 	ENZO_FAIL("");
+// 	ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
     WroteData = TRUE;
@@ -245,8 +242,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //			   , ImplicitSolver
 //#endif
 //                         ) == FAIL) {
-// 	    fprintf(stderr, "Error in WriteAllData.\n");
-// 	    ENZO_FAIL("");
+// 	    ENZO_FAIL("Error in WriteAllData.\n");
 // 	  }
 // #endif
 
@@ -258,6 +254,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
                        this is currently a test - Ji-hoon Kim, Mar.2010 */  
  
   if ((MBHFeedback == 2 || MBHFeedback == 3) && 
+
       OutputWhenJetsHaveNotEjected == TRUE) {
 
     fprintf(stdout, "CheckForOutput: MBH_JETS - file output complete; restart with the dump!\n");

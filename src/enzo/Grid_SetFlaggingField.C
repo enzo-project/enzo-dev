@@ -223,9 +223,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     break;
  
   default:
-    fprintf(stderr, "CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
-	    CellFlaggingMethod[method]);
-    ENZO_FAIL("");
+    ENZO_VFAIL("CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
+	    CellFlaggingMethod[method])
  
   }
 
@@ -244,6 +243,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 #endif /* MPI_INSTRUMENTATION */
  
   if (debug1)
+
     printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
 	   method, NumberOfFlaggedCells);
  

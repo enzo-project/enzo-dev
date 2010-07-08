@@ -125,8 +125,7 @@ int ShearingBoxStratifiedInitialize (FILE *fptr, FILE *Outfptr,
 
     for (int level = 0; level < MaximumRefinementLevel; level++) {
       if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in RebuildHierarchy.\n");
       }
       if (LevelArray[level+1] == NULL)
 	break;
@@ -155,6 +154,7 @@ int ShearingBoxStratifiedInitialize (FILE *fptr, FILE *Outfptr,
     DataLabel[count++] =  (char*) GEName;
   }
   if(useMHD){
+
   DataLabel[count++] =  (char*) BxName;
   DataLabel[count++] =  (char*) ByName;
   DataLabel[count++] =  (char*) BzName;

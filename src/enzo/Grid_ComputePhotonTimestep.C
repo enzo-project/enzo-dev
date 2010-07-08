@@ -74,8 +74,7 @@ float grid::ComputePhotonTimestep()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   /* Compute the field size. */
@@ -228,8 +227,7 @@ float grid::ComputePhotonTimestep()
     int RPresNum1, RPresNum2, RPresNum3;
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
 	== FAIL) {
-      fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyRadiationPressureFields.\n");
     }
 
     for (i = 0; i < size; i++)
@@ -288,6 +286,7 @@ float grid::ComputePhotonTimestep()
 //    if (RadiationPressure && RadiativeTransfer && dtRadPressure < 100)
 //      printf("Rad = %"GSYM" ", dtRadPressure);
 //    if (dtSafetyVelocity != huge_number)
+
 //      printf("Saf = %"GSYM" ", dtSafetyVelocity); 
 //#endif /* TRANSFER */
 //    printf(")\n");

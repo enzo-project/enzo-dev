@@ -189,8 +189,7 @@ int grid::ZeroSolutionUnderSubgrid(grid *Subgrid, int FieldsToZero,
   }
  
   else {
-    fprintf(stderr, "FieldsToZero = %"ISYM" not recognized.\n", FieldsToZero);
-    ENZO_FAIL("");
+    ENZO_VFAIL("FieldsToZero = %"ISYM" not recognized.\n", FieldsToZero)
   }
  
   return SUCCESS;

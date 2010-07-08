@@ -265,18 +265,15 @@ int ReadGridFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check
  
   if (Rank < 1 || Rank > 3) {
-    fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank %"ISYM" not supported.\n", Rank)
   }
  
   if (Npart != component_rank_attr) {
-    fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Npart and Component_Rank do not agree!\n");
   }
  
   if (TempInt != Rank) {
-    fprintf(stderr, "Rank mismatch in %s.\n", name);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank mismatch in %s.\n", name)
   }
  
   // Compute size of the expected HDF5 field
@@ -289,8 +286,7 @@ int ReadGridFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Check that size = xfer_size
 
   if (size != xfer_size ) {
-    fprintf(stderr, "Expected size and HDF5 grid file size do not agree.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Expected size and HDF5 grid file size do not agree.\n");
   }
 
   for (dim = 0; dim < Rank; dim++) {
@@ -431,6 +427,7 @@ int ReadGridFile(char *name, int Rank, int Dim[], int StartIndex[],
   delete [] (*tempbuffer);
  
   if (io_log) fclose(log_fptr);
+
  
   return SUCCESS;
  

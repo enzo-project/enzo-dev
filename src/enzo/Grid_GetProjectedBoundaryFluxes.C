@@ -188,8 +188,7 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
   if (ProcessorNumber != MyProcessorNumber) {
     if (CommunicationReceiveFluxes(&ProjectedFluxes, ProcessorNumber,
 				   NumberOfBaryonFields, GridRank) == FAIL) {
-      fprintf(stderr, "Error in CommunicationReceiveFluxes.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CommunicationReceiveFluxes.\n");
     }
     return SUCCESS;
   }
@@ -200,8 +199,8 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
     if (CommunicationSendFluxes(&ProjectedFluxes, 
 				ParentGrid->ProcessorNumber,
 				NumberOfBaryonFields, GridRank) == FAIL) {
-      fprintf(stderr, "Error in CommunicationSendFluxes.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CommunicationSendFluxes.\n");
+
     }
     DeleteFluxes(&ProjectedFluxes);
   }

@@ -37,16 +37,14 @@ int ExternalBoundary::SetExternalBoundaryParticles(int FieldRank,
   /* Error check: grid ranks. */
  
   if (FieldRank != BoundaryRank) {
-    fprintf(stderr, "FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
-            FieldRank, BoundaryRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("FieldRank(%"ISYM") != BoundaryRank(%"ISYM").\n",
+            FieldRank, BoundaryRank)
   }
  
   /* Error check: allowed boundary types. */
  
   if (ParticleBoundaryType != periodic) {
-    fprintf(stderr, "only periodic particle boundary conditions supported.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("only periodic particle boundary conditions supported.\n");
   }
  
   /* PERIODIC BOUNDARY: wrap particles in each dimension. */
@@ -61,6 +59,7 @@ int ExternalBoundary::SetExternalBoundaryParticles(int FieldRank,
 	  Position[dim][i] += DomainRightEdge[dim] - DomainLeftEdge[dim];
  
 	if (Position[dim][i] > DomainRightEdge[dim])
+
 	  Position[dim][i] -= DomainRightEdge[dim] - DomainLeftEdge[dim];
  
       }	

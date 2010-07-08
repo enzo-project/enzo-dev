@@ -366,8 +366,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       float *temperature = new float[size];
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
       }
  
       /* Copy active part of field into grid */
@@ -623,8 +622,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 	       &TimeUnits, &VelocityUnits, Time);
 
       if (this->ComputeCoolingTime(cooling_time) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeCoolingTime.\n");
       }
 
       // Make all cooling time values positive and convert to seconds.
@@ -873,8 +871,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     // Get gridded star particle field
     if (this->InterpolateStarParticlesToGrid(NumberOfSPFields) == FAIL) {
-      fprintf(stderr, "Error in grid->InterpolateStarParticlesToGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->InterpolateStarParticlesToGrid.\n");
     }
 
     for (field = NumberOfInterpolatedFieldsForDM; 
@@ -1102,10 +1099,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     int *tempint = new int[NumberOfParticles];
 
-    if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
- 
     if (ParticleType == NULL)
-      ENZO_FAIL("");
+      ENZO_FAIL("Undefined ParticleType!\n");
  
     for (i = 0; i < NumberOfParticles; i++)
       tempint[i] = ParticleType[i];
@@ -1200,6 +1195,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
+
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
  
   /* Clean up. */

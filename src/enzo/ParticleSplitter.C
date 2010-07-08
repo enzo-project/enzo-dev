@@ -108,8 +108,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 #endif
 	
 	if (Grids[grid1]->GridData->ParticleSplitter(level) == FAIL) {
-	  fprintf(stderr, "Error in grid::ParticleSplitter.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid::ParticleSplitter.\n");
 	}
 
       }  // loop for grid1
@@ -122,8 +121,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
       if (CommunicationUpdateStarParticleCount(Grids, MetaData,
 					       NumberOfGrids, 
 					       TotalStarParticleCountPrevious) == FAIL) {
-	fprintf(stderr, "Error in CommunicationUpdateStarParticleCount.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in CommunicationUpdateStarParticleCount.\n");
       }
 
     }  // loop for level
@@ -199,6 +197,7 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
   for (grid = 0; grid < NumberOfGrids; grid++) {
     TotalStarParticleCountPrevious[grid] = 0;
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
+
       PartialStarParticleCountPrevious[grid] =
 	Grids[grid]->GridData->ReturnNumberOfStarParticles();
     }

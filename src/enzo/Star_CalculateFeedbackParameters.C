@@ -108,7 +108,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   case MBH_THERMAL:
     if (this->type != MBH) 
-      ENZO_FAIL("");
+      ENZO_FAIL("Applying MBH_THERMAL feedback to non-MBH particle!");
 
     /* find mdot */
     mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
@@ -156,7 +156,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   case MBH_JETS:
     if (this->type != MBH) 
-      ENZO_FAIL("");
+      ENZO_FAIL("Applying MBH_JETS feedback to non-MBH particle!");
 
     /* find mdot */
     mdot = isnan(this->last_accretion_rate) ? 0.0 : this->last_accretion_rate;  
@@ -178,6 +178,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
       mdot * Msun * c * c * dtForThisStar * TimeUnits / 
       (EjectaDensity * DensityUnits) / EjectaVolume / (VelocityUnits * VelocityUnits);
     if (isnan(EjectaThermalEnergy)) EjectaThermalEnergy = 0.0;
+
     
     break;
 

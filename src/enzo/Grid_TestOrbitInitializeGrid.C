@@ -39,8 +39,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   int dim, i;
 
   if (UseBaryons) {
-    fprintf(stderr, "UseBaryons not implemented yet.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("UseBaryons not implemented yet.\n");
   }
 
   NumberOfParticles = NumberOfTestParticles + 1;
@@ -58,8 +57,7 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   /* Set number of particles for this grid and allocate space. */
@@ -99,8 +97,8 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
   /* Create test particle(s). */
 
   if (NumberOfTestParticles != 1) {
-    fprintf(stderr, "Only 1 test particle may be created (for now).\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Only 1 test particle may be created (for now).\n");
+
   }
 
   /* This is an orbit in the x-y plane. */

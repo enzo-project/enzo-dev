@@ -49,8 +49,7 @@ int grid::FinalizeRadiationFields(void)
       DINum, DIINum, HDINum;
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
   /* Find radiative transfer fields. */
@@ -65,8 +64,7 @@ int grid::FinalizeRadiationFields(void)
     DensityUnits; 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
-    fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   float DensityConversion = DensityUnits / 1.673e-24;
@@ -95,6 +93,7 @@ int grid::FinalizeRadiationFields(void)
       } // ENDFOR j
   
   if (RadiativeTransferHIIRestrictedTimestep &&
+
       this->IndexOfMaximumkph >= 0)
     this->MaximumkphIfront /= (factor * BaryonField[HINum][IndexOfMaximumkph]);
 

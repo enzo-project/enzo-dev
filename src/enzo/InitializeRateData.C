@@ -228,16 +228,14 @@ int InitializeRateData(FLOAT Time)
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
  
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -280,9 +278,8 @@ int InitializeRateData(FLOAT Time)
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *outfptr;
     if ((outfptr = fopen(outfilename, "a")) == NULL) {
-      fprintf(stderr,"Error opening parameter output file %s.\n", 
-	      outfilename);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening parameter output file %s.\n", 
+	      outfilename)
     }
 
     fprintf(outfptr,"RadiationSpectrumNormalization = %"FSYM"\n",
@@ -322,8 +319,8 @@ int InitializeRateData(FLOAT Time)
   if (MetalCooling == JHW_METAL_COOLING)
     if (ReadMetalCoolingRates(TemperatureUnits, LengthUnits, aUnits, 
 			      DensityUnits, TimeUnits, afloat) == FAIL) {
-      fprintf(stderr, "Error in ReadMetalCoolingRates.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ReadMetalCoolingRates.\n");
+
     }
 
   return SUCCESS;

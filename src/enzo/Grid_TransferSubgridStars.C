@@ -114,9 +114,8 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 	NumberToMove[proc]++;
       }
       if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
-	fprintf(stderr, "star subgrid (%"ISYM"/%"ISYM") out of range\n", 
-		subgrid[i], NumberOfSubgrids);
-	ENZO_FAIL("");
+	ENZO_VFAIL("star subgrid (%"ISYM"/%"ISYM") out of range\n", 
+		subgrid[i], NumberOfSubgrids)
       }
       
     } // ENDFOR stars
@@ -203,6 +202,7 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
     NumberOfStars = TotalNumberOfStars;
   
   } // end: if (COPY_IN)
+
  
   return SUCCESS;
 }

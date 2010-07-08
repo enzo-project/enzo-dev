@@ -86,7 +86,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	  printf("OtherStar:\n");
 	  OtherStar->PrintInfo();
 	}
-	ENZO_FAIL("");
+	ENZO_FAIL("Merging Duplicate Particle!?\n");
       }
       if (ThisStar->Mergable(OtherStar))
 	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
@@ -104,6 +104,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   ThisStar = AllStars;
   while (ThisStar)
     if (ThisStar->MarkedToDelete()) {
+
       ThisStar->DeleteCopyInGrid();
       ThisStar->DisableParticle(LevelArray); // convert to a massless particle
       DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()

@@ -120,8 +120,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
  
 	if (this->DepositParticlePositionsLocal(this->ReturnTime(),
 					PARTICLE_MASS_FLAGGING_FIELD) == FAIL) {
-	  fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
 	}
 
 	DepositParticleMaximumParticleMass = 0;
@@ -137,8 +136,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	    this->DepositMustRefineParticles(ParticleMassMethod, level);
 	  //printf(" Level <  MustRefineParticlesRefineToLevel = %d   \n",MustRefineParticlesRefineToLevel );
 	  if (NumberOfFlaggedCells < 0) {
-	    fprintf(stderr, "Error in grid->DepositMustRefineParticles.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
 	  }
 	}
 	
@@ -241,6 +239,7 @@ void InitializeParticleMassFlaggingFieldCommunication(void)
   for (i = 0; i < MAX_REQUEST_HANDLES; i++) {
     FlagRequestHandle[i] = NULL;
     if (FlagBuffer[i] != NULL)
+
       delete [] FlagBuffer[i];
     FlagBuffer[i] = NULL;
   }

@@ -173,8 +173,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
     }
 
     if (MetalNum != -1) {
@@ -468,7 +467,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 			   SubgridFluxes,
 			   NumberOfColours, colnum, LowestLevel,
 			   MinimumSupportEnergyCoefficient) == FAIL)
-	ENZO_FAIL("");
+	ENZO_FAIL("ZeusSolver() failed!\n");
 	
 
     /* Clean up allocated fields. */
@@ -489,6 +488,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
   }  // end: if (NumberOfBaryonFields > 0)
+
 
   this->DebugCheck("SolveHydroEquations (after)");
 

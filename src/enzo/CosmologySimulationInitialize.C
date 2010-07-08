@@ -162,8 +162,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   CosmologySimulationGridLevel[0] = 0;
  
   if (!ComovingCoordinates) {
-    fprintf(stderr, "ComovingCoordinates must be TRUE!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ComovingCoordinates must be TRUE!\n");
   }
  
   if (DualEnergyFormalism == FALSE && HydroMethod != Zeus_Hydro)
@@ -314,8 +313,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (CosmologySimulationDensityName == NULL &&
       (CosmologySimulationParticlePositionName == NULL &&
        !CosmologySimulationCalculatePositions)) {
-    fprintf(stderr, "Missing initial data.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Missing initial data.\n");
   }
  
   if (CosmologySimulationDensityName != NULL && CellFlaggingMethod[0] != 2)
@@ -327,8 +325,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(stderr, "CosmologySimulation: check CellFlaggingMethod.\n");
  
   if (CosmologySimulationNumberOfInitialGrids > MAX_INITIAL_GRIDS) {
-    fprintf(stderr, "Too many InitialGrids! increase MAX_INITIAL_GRIDS\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Too many InitialGrids! increase MAX_INITIAL_GRIDS\n");
   }
  
   if (CosmologySimulationDensityName == NULL &&
@@ -339,9 +336,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL &&
       !CosmologySimulationCalculatePositions) {
-    fprintf(stderr, "CosmologySimulation: 1-component files only valid for use with "
+    ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
 	    "CosmologySimualtionCalculatePositions.\n");
-    ENZO_FAIL("");
   }
  
   // If temperature is left unset, set it assuming that T=550 K at z=200
@@ -377,8 +373,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	}
  
     if (ParentGrid == INT_UNDEFINED) {
-      fprintf(stderr, "Grid %"ISYM" has no valid parent.\n", gridnum);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Grid %"ISYM" has no valid parent.\n", gridnum)
     }
  
     // Insert this grid at the appropriate position in the subgrid chain
@@ -417,7 +412,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	fprintf(stderr, " subgrid: %"GOUTSYM" -> %"GOUTSYM", CellSize = %"GOUTSYM"\n",
 	      CosmologySimulationGridLeftEdge[gridnum][dim],
 	      CosmologySimulationGridRightEdge[gridnum][dim], SubgridCellSize);
-	ENZO_FAIL("");
+	ENZO_FAIL("Subgrid Inconsistency!");
       }
  
       // Check if left/right edge fall on Parent cell boundary
@@ -431,7 +426,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	fprintf(stderr, "Subgrid inconsistency: grid %"ISYM", dim %"ISYM"\n",
 		gridnum, dim);
 	fprintf(stderr, "left or right edges are not on parent cell edge.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Subgrid Inconsistency!");
       }
  
       // Add ghost zones
@@ -469,8 +464,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	  break;
 	}
       if (region == MAX_STATIC_REGIONS) {
-	fprintf(stderr, "Out of static refine regions\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Out of static refine regions\n");
       }
     }
  
@@ -575,8 +569,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions
 						       ) == FAIL) {
-      fprintf(stderr, "Error in grid->CosmologySimulationInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
  
     // Set boundary conditions if necessary
@@ -868,8 +861,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions
 						       ) == FAIL) {
-      fprintf(stderr, "Error in grid->CosmologySimulationInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
  
     Temp = Temp->NextGridThisLevel;
@@ -889,8 +881,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 		TracerParticleCreationRightEdge,
 		TracerParticleCreationSpacing,
 		DummyNumberOfParticles) == FAIL) {
-	fprintf(stderr, "Error in grid->TracerParticleCreateParticles\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->TracerParticleCreateParticles\n");
       }
       
       Temp = Temp->NextGridThisLevel;
@@ -954,6 +945,7 @@ void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count)
     RecursivelySetParticleCount(GridPoint->NextGridThisLevel, Count);
  
   if (GridPoint->NextGridNextLevel != NULL)
+
     RecursivelySetParticleCount(GridPoint->NextGridNextLevel, Count);
  
   return;

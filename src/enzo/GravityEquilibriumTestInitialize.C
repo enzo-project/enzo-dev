@@ -81,8 +81,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->GravityEquilibriumTestInitializeGrid(
 				GravityEquilibriumTestScaleHeight
 						  ) == FAIL){
-    fprintf(stderr, "Error in GravityEquilibriumTestInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GravityEquilibriumTestInitializeGrid.\n");
   }
  
   /* set up field names and units */
@@ -106,6 +105,7 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
+
     fprintf(Outfptr, "GravityEquilibriumTestScaleHeight = %"GSYM"\n",
 	    GravityEquilibriumTestScaleHeight);
  

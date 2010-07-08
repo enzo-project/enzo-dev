@@ -43,9 +43,8 @@ int grid::ComputeVertexCenteredField(int Num)
   /* Error Check */
 
   if (BaryonField[Num] == NULL) {
-    fprintf(stderr, "grid::ComputeVertexCenteredField called with inconsistent "
+    ENZO_FAIL("grid::ComputeVertexCenteredField called with inconsistent "
 	    "field number");
-    ENZO_FAIL("");
   }
 
   /* Compute the size of the new grid adds one cell to the active region */
@@ -97,6 +96,7 @@ float grid::ComputeInterpolatedValue(int Num, int vci, int vcj, int vck,
 {
 
   if (InterpolatedField[Num] == NULL)
+
     return FLOAT_UNDEFINED;
 
   float *vc = InterpolatedField[Num];

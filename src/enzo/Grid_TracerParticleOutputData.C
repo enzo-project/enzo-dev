@@ -74,16 +74,14 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
  
   float *FieldsToInterpolate[2], *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
-    fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
   }
  
   /* Set up an array of pointers (of size 2) pointing to the fields
      to be interpolated from: currently density and temperature. */
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "failed to find density field.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("failed to find density field.\n");
   }
   FieldsToInterpolate[0] = BaryonField[DensNum];
   FieldsToInterpolate[1] = temperature;
@@ -101,8 +99,7 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
 			      NumberOfParticles, LeftEdge, CellSize,
 			      GridDimension, GridRank,
 			      FieldsToInterpolate, 2, 1) == FAIL) {
-    fprintf(stderr, "Error in InterpolateTracerValies.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in InterpolateTracerValies.\n");
   }
  
 #ifdef TP_VELOCITY
@@ -113,8 +110,7 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
 
   /* get updated velocity data */
   if (this->TracerParticleSetVelocity() == FAIL) {
-    fprintf(stderr, "Error in grid->TracerParticleSetVelocity.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->TracerParticleSetVelocity.\n");
   }
 
   /* Go through particle list.  We've already allocated a buffer that's the
@@ -139,9 +135,8 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
   // double check to make sure we didn't screw up
   if((numberofcountedparticles != NumberOfTracerParticles) ||
      (fillindex/GridRank != NumberOfTracerParticles)){
-    fprintf(stderr,"error in grid->TracerParticleOutputData:  Particle num wrong! %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
-	    numberofcountedparticles, NumberOfTracerParticles, fillindex, GridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("error in grid->TracerParticleOutputData:  Particle num wrong! %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	    numberofcountedparticles, NumberOfTracerParticles, fillindex, GridRank)
   }
 
 #endif   /* TP_VELOCITY */
@@ -155,9 +150,8 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
  
   if (fwrite((void*) TracerParticleData, sizeof(float), BufferSize, fptr) !=
       BufferSize) {
-    fprintf(stderr, "P(%"ISYM") Error writing tracer particle data\n",
-	    MyProcessorNumber);
-    ENZO_FAIL("");
+    ENZO_VFAIL("P(%"ISYM") Error writing tracer particle data\n",
+	    MyProcessorNumber)
   }
   delete [] TracerParticleData;
  
@@ -167,9 +161,8 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
      happens to be particle velocity. */
   if (fwrite((void*) TracerParticleVelocityData, sizeof(float), PartVelBufferSize, fptr) !=
       PartVelBufferSize) {
-    fprintf(stderr, "P(%"ISYM") Error writing tracer particle data (2)\n", 
-	    MyProcessorNumber);
-    ENZO_FAIL("");
+    ENZO_VFAIL("P(%"ISYM") Error writing tracer particle data (2)\n", 
+	    MyProcessorNumber)
   }
 
   delete [] TracerParticleVelocityData;
@@ -182,6 +175,7 @@ int grid::TracerParticleOutputData(FILE *fptr, FLOAT WriteOutTime)
   int index = 0;
   for (n = 0; n < NumberOfParticles; n++)
     if (ParticleType[n] == PARTICLE_TYPE_TRACER)
+
       int_buffer[index++] = ParticleNumber[n];
   fwrite((void*) int_buffer, sizeof(int), NumberOfTracerParticles, fptr);
   delete [] int_buffer;

@@ -41,8 +41,8 @@ int grid::IdentifyColourFields(int &SNColourNum, int &MetalNum, int &MBHColourNu
   /*
   if ((SNColourNum < 0) && (MetalNum < 0) && (MBHColourNum < 0) && 
       (Galaxy1ColourNum < 0) && (Galaxy2ColourNum < 0)) {
-    fprintf(stdout, "No colour field identified; while this could happen, check if it was expected.\n");
-    ENZO_FAIL("");
+"No colour field identified;    ENZO_FAIL( while this could happen, check if it was expected.\n");
+
   }
   */
 

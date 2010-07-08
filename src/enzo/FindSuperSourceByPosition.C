@@ -26,9 +26,8 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
   while (1) {
 
     if (temp == NULL) {
-      fprintf(stderr, "FindSuperSourceByPosition: NULL leaf in clustering tree.  "
-	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID);
-      ENZO_FAIL("");
+      ENZO_VFAIL("FindSuperSourceByPosition: NULL leaf in clustering tree.  "
+	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID)
     }
 
     dim_search = loop_count % MAX_DIMENSION;
@@ -47,6 +46,7 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
       if (temp->ChildSource[1] == NULL)
 	break;
       if (temp->ChildSource[1]->ClusteringRadius < SearchRadius)
+
 	break;
       temp = temp->ChildSource[1];
     } // ENDELSE right left

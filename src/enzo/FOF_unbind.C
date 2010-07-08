@@ -54,8 +54,7 @@ void walk_tree_and_unbind(FOFData &D)
 
   for (i = 1; i <= D.NumInGroup; i++)
     if (D.NewHead[i] == 1) {
-      fprintf(stderr, "FOF: can't be!\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("FOF: can't be!\n");
     }
   
   /* mark_old_subgroups(); 
@@ -104,8 +103,7 @@ void walk_tree_and_unbind(FOFData &D)
       unbind(D, start, len);
       
     if (groupid == 1) {
-      fprintf(stderr, "FOF: that must be wrong\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("FOF: that must be wrong\n");
     }
   } // ENDFOR groups
 
@@ -305,6 +303,7 @@ int unbind(FOFData &D, int head, int len)
   } // ENDIF
 
   if (num >= D.DesLinkNgb)
+
     return 1;
 
   return 0;
