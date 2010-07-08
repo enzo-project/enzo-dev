@@ -93,7 +93,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   theta   = 1.0;        // backwards euler implicit time discret.
   LimType = 4;          // Zeus limiter
   EScale  = 1.0;        // no radiation equation scaling
-  kappa0  = 0.0;        // no background opacity
+  kappa0  = 1.0e-31;    // negligible opacity
   kappa_h2on = 0;       // no spatially dependent (use background) opacity
   for (dim=0; dim<rank; dim++)       // set default radiation boundaries to 
     for (face=0; face<2; face++)     // periodic in each direction
@@ -246,8 +246,8 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   if (kappa0 < 0.0) {
     fprintf(stderr,"FSProb Initialize: illegal FSRadiationOpacity = %g < 0\n",
 	    kappa0);
-    fprintf(stderr,"   re-setting to 0\n");
-    kappa0 = 0.0;
+    fprintf(stderr,"   re-setting to 1e-31\n");
+    kappa0 = 1.0e-31;
   }
 
   // unless this is used for LW radiation, disable spatially-dependent opacity
@@ -553,6 +553,7 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // running a multi-frequency problem, don't initialize data but do set up BCs
   case 460:
+  case 462:
 
     // set BCs based on input, 0 implies periodic, otherwise set to zero-valued
     if (BdryType[0][0] != 0) {

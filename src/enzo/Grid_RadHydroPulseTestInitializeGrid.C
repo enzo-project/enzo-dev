@@ -48,6 +48,10 @@ int grid::RadHydroPulseTestInitializeGrid(float DensityConstant,
   if ((ParallelRootGridIO == TRUE) && (local == 0))
     NewData = FALSE;
 
+  // if grids allocated and already set up (i.e. restart), return
+  if ((NumberOfBaryonFields > 5) && (BaryonField[5] != NULL))
+    return SUCCESS;
+
   // create necessary baryon fields
   int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum;
   NumberOfBaryonFields = 0;

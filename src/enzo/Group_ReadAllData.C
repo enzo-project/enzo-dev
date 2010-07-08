@@ -106,19 +106,9 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   // store the original parameter file name, in case we need it later
   strcpy(PrevParameterFileName, name);
 
-#ifdef USE_MPI
-  double io_start, io_stop;
-  char io_logfile[MAX_NAME_LENGTH];
-  FILE *xptr;
-#endif /* USE_MPI */
   char pid[MAX_TASK_TAG_SIZE];
 
-//  Start I/O timing
-
-#ifdef USE_MPI
   CommunicationBarrier();
-  io_start = MPI_Wtime();
-#endif /* USE_MPI */
  
   /* Read TopGrid data. */
  
@@ -404,23 +394,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
      it to propagate to later datadumps. */
 
   if (ResetLoadBalancing)
-
     ResetLoadBalancing = FALSE;
-
-//  Stop I/O timing
-
-#ifdef USE_MPI
-  io_stop = MPI_Wtime();
-#endif /* USE_MPI */
-
-#ifdef USE_MPI
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
-  strcpy(io_logfile, "IN_perf.");
-  strcat(io_logfile, pid);
-  xptr = fopen(io_logfile, "a");
-  fprintf(xptr, "IN %12.4e  %s\n", (io_stop-io_start), name);
-  fclose(xptr);
-#endif /* USE_MPI */
 
   delete [] RootGridProcessors;
 

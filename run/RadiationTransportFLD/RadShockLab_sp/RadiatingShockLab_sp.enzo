@@ -28,7 +28,6 @@ DomainRightEdge            = 0.1 0.1 1.0
 StopTime                   = 1.733250e0   // (scaled units)
 StopCycle                  = 100000
 dtDataDump                 = 1.733250e-2
-DataDumpName               = RShockL_
 ParallelRootGridIO         = 1
 # 
 # units

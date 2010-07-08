@@ -187,12 +187,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
       if (debug)
-      ENZO_VFAIL("ERROR: "
+	fprintf(stderr, "ERROR: "
 		"\tTo use the optimized CommunicationTransferParticles routine,\n"
 		"\tthe top grid must be split evenly, "
 		"i.e. mod(Dims[i], Layout[i]) != 0\n"
 		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
-		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim])
+		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim]);
+      ENZO_FAIL("");
     }
 #endif /* OPTIMIZED_CTP */
 
@@ -223,7 +224,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
-      //      ENZO_FAIL("Error in grid->SetExternalBoundaryValues.\n");
+      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
+      //      ENZO_FAIL("");
       Exterior->Prepare(Temp->GridData);
 
     }
@@ -478,14 +480,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     tlev0 = MPI_Wtime();
 #endif
 
-       /* 
-       Zeroing out the rootgrid Emissivity before EvolveLevel is called 
+    /* Zeroing out the rootgrid Emissivity before EvolveLevel is called 
        so when rootgrid emissivity values are calculated they are put in 
-       clean rootgrid array 
-       */
-    /* disabling clear of Emissivity field until a way to do it in AMR is found */
+       clean rootgrid array */
 #ifdef EMISSIVITY
-    /*
+/*
     if(StarMakerEmissivityField > 0){
       LevelHierarchyEntry *RootTemp;
       RootTemp = LevelArray[0];
@@ -494,7 +493,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	RootTemp = RootTemp->NextGridThisLevel;
       }
     }
-    */
+*/
 #endif
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
@@ -735,7 +734,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 //		     ImplicitSolver, 
 //#endif		 
 //                   -666) == FAIL) {
-//       ENZO_FAIL("Error in WriteAllData.\n");
+//       fprintf(stderr, "Error in WriteAllData.\n");
+//       ENZO_FAIL("");
 //     }
 // #endif
  
@@ -750,7 +750,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 
   if (NumberOfProcessors > 1)
-
     printf("Communication: processor %"ISYM" CommunicationTime = %"FSYM"\n",
 	   MyProcessorNumber, CommunicationTime);
  

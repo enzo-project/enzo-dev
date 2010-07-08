@@ -13,6 +13,11 @@
 MACH_TEXT  = Orange
 MACH_VALID = 1
 MACH_FILE  = Make.mach.orange
+MACHINE_NOTES = "MACHINE_NOTES for Orange at KIPAC/SLAC/Stanford: \
+       No modules are needed to compile. \
+       In the script, first add this line (or the bash equiv.), \
+       'setenv LD_LIBRARY_PATH /usr/lib64/openmpi/1.4-gcc/lib' \
+       'setenv LD_LIBRARY_PATH /afs/slac/g/ki/software/hdf5/lib/'"
 
 #-----------------------------------------------------------------------
 # Commands to run test executables

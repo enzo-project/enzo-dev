@@ -1,4 +1,0 @@
-
-MAX_ANY_SINGLE_DIRECTION = max dimension + 7
-
-MAX_COLOR = enough for each species when MultiSpecies > 0

@@ -15,6 +15,9 @@
 MACH_TEXT  = NASA Pleiades
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nasa-pleiades
+MACHINE_NOTES = "To build on Pleiades, be sure that these modules are loaded:\\n\
+                 'hdf5/1.6.5/serial' \\n\
+                 'sgi/mpt/1.23.nas'"
 
 #-----------------------------------------------------------------------
 # Commands to run test executables

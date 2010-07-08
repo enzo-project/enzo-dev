@@ -32,10 +32,12 @@ int gFLDSplit::WriteParameters(FILE *fptr)
   fprintf(fptr, "RadHydroModel = %"ISYM"\n", Model);
 
   // set restart initial time step to current time step
-  if (dt == 0.0) 
+  if (dt == 0.0) {
     fprintf(fptr, "RadHydroInitDt = %22.16e\n", initdt);
-  else
+  }
+  else {
     fprintf(fptr, "RadHydroInitDt = %22.16e\n", dt);
+  }
   fprintf(fptr, "RadHydroMaxDt = %22.16e\n", maxdt);
   fprintf(fptr, "RadHydroMinDt = %22.16e\n", mindt);
   fprintf(fptr, "RadHydroDtNorm = %22.16e\n", dtnorm);

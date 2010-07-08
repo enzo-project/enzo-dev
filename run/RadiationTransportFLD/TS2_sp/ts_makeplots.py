@@ -8,6 +8,9 @@ from scipy.integrate import *
 # set the total number of snapshots
 nt = 100
 
+# set the graphics output type
+pictype = '.png'
+
 # define some helpful functions
 def get_params(file):
     """Returns t, dUnit, tUnit, lUnit from a given parameter file"""
@@ -29,17 +32,16 @@ def load_vals(tdump):
     """Returns Eg, etot, tval from a given data dump"""
     import h5py
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/pc_amr_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     tval, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
     Eg3D = f.get('/Grid00000001/Grey_Radiation_Energy')
     et3D = f.get('/Grid00000001/Total_Energy')
     nx, ny, nz = Eg3D.shape
-    result = []
-    result.append(sum(Eg3D)/ny/nz/nx*dUnit*lUnit*lUnit/tUnit/tUnit)
-    result.append(sum(et3D)/ny/nz/nx*lUnit*lUnit/tUnit/tUnit)
-    result.append(tval*tUnit)
+    Egval = sum(sum(sum(Eg3D)))/ny/nz/nx*dUnit*lUnit*lUnit/tUnit/tUnit
+    etval = sum(sum(sum(et3D)))/ny/nz/nx*lUnit*lUnit/tUnit/tUnit
+    result = [Egval, etval, tval*tUnit]
     return result
 
 
@@ -80,4 +82,5 @@ legend( ('computed', 'true') )
 grid()
 ax = axis()
 axis([ ax[0], ax[1], 10.0**(13.2), 10.0**(15.2) ])
-savefig('equil_history.pdf')
+savefig('equil_history' + pictype)
+

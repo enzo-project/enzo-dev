@@ -1,0 +1,22 @@
+AMRShockPool2D
+--------------
+
+The Shock Pool test sets up a system which introduces a shock from the left
+boundary. The initial active region is uniform, and the shock wave enters via
+inflow boundary conditions. (D. Mihalas & B.W.
+Mihalas, Foundations of Radiation Hydrodynamics, 1984, p. 236, eq. 56-40.)
+
+This is a calculation of an oblique shock, at a 45 degree angle, moving from
+one corner to the opposite corner.  The parameter file, as written, allows for
+the shock to reach the opposite corner and should output ~42 outputs.
+
+These results signify correctness if the shock hits the opposite corner at
+approximately 0.55.  When this happens, the density contrast throughout the
+domain will be greatly reduced, and large fans should be visible on the top and
+bottom.
+
+Before the shock hits the wall, the unshocked gas should be of density exactly
+1.0, and the shocked gas should be of density ~2.7.  At roughly 10*dx up and
+downstream, these values should be correct within a percent.  In plot.py, we
+calculate the shock location and overplot that on top of a "ray" plot from
+corner-to-corner.

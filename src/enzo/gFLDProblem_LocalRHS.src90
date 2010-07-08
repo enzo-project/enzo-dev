@@ -190,9 +190,9 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   afac  = adot/a               ! adot/a
   alpha = -0.4910454d0         ! exponent in emissivity fitting
   beta  = 2.17748887d-24       ! scaling in emissivity fitting
-  nu0_HI = 13.6*ev2erg/hp      ! ionization frequency of HI   [hz]
-  nu0_HeI = 24.6*ev2erg/hp     ! ionization frequency of HeI  [hz]
-  nu0_HeII = 54.4*ev2erg/hp    ! ionization frequency of HeII [hz]
+  nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
+  nu0_HeI = 24.6d0*ev2erg/hp   ! ionization frequency of HeI  [hz]
+  nu0_HeII = 54.4d0*ev2erg/hp  ! ionization frequency of HeII [hz]
   grey = 1.d0                  ! grey vs monochromatic coeff for eqns
   if (ESpectrum == -1)  grey = 0.d0
 
@@ -205,8 +205,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   dxi2 = 0.5d0*a/(dx*LenUnits)  ! convert to proper units during division
   dyi2 = 0.5d0*a/(dy*LenUnits)
   dzi2 = 0.5d0*a/(dz*LenUnits)
-  HIconst   = c*(IsEsHI - nu0_HI*IsEsHInu)/IsE
-  HeIconst  = c*(IsEsHeI - nu0_HeI*IsEsHeInu)/IsE
+  HIconst   = c*(IsEsHI   - nu0_HI*IsEsHInu)/IsE
+  HeIconst  = c*(IsEsHeI  - nu0_HeI*IsEsHeInu)/IsE
   HeIIconst = c*(IsEsHeII - nu0_HeII*IsEsHeIInu)/IsE
   if (aval .ne. 1.d0) then        ! Compton cooling coefficients
      Comp1 = CompA*(1.d0 + zr)**4
