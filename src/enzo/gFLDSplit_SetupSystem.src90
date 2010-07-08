@@ -243,15 +243,17 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            Ed_zl  = E(i,j,k) - E(i,j,k-1)
            E0avg  = (E0(i,j,k) + E0(i,j,k-1))*0.5d0
 
-           !    compute R for limiters
-           R  = max(dzi *abs(E0d_zl)/E0avg, Rmin)
-           R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin)
 
            !    compute average opacity over face
            kap = (kappa(i,j,k) + kappa(i,j,k-1))*0.5d0*nUn
            kap0 = (kappa(i,j,k) + kappa(i,j,k-1))*0.5d0*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn0
+
+           !    compute R for limiters
+           R  = max(dzi *abs(E0d_zl)/E0avg, Rmin*kap)
+           R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin*kap0)
+
            
            !    compute limiter
 !!$           D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)

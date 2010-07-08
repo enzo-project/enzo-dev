@@ -17,20 +17,13 @@ space and the last data output slice should be DD0273
 -Radiation Solver = Daniel Reynolds' operator split FLD solver
 -Star maker method 1, feedback method 0
 
-<<<<<<< local
 The output should create non-zero values in Geoffrey's Emissivity field once star 
 formation occurs, and this will source the Grey_Radiation_Energy field.  The values of the 
 output will depend on many factors, including but not exclusive to machine hardware (which 
 affects the way initial conditions are generated), compilers used to compile Enzo, whether the 
 simulation was restarted in the middle, precision of the data output, and different versions 
-of software i.e. hypre.
-=======
-The output should create non-zero values in Geoffrey's Emissivity
-field once star formation occurs, and this will source the
-Grey_Radiation_Energy field.  The values of the output will depend on
-many factors, including but not exclusive to machine hardware (which
-affects the way initial conditions are generated), compilers used to
-compile Enzo, and different versions of software i.e. hypre. 
+of software i.e. hypre.  Keep in mind that these differences will be small, and should not
+cause answers to change by orders of magnitude.
 
 
 = Running =
@@ -39,34 +32,22 @@ compile Enzo, and different versions of software i.e. hypre.
       inits.exe CosmologyFLD_RT.inits
 2. Second run ring.exe (from src/ring) on the newly-created output
    files:
-      ring.exe pv ParticlePositions ParticleVelocities
+      mpirun -np (# of cores) ring.exe pv ParticlePositions ParticleVelocities
 3. Run enzo.exe (from src/enzo) with the main enzo parameter file:
-      enzo.exe -d CosmologyFLD_RT.enzo
->>>>>>> other
+      mpirun -np (# of cores) enzo.exe -d CosmologyFLD_RT.enzo
 
+(replace mpirun to the mpi distribution of your particular machine)
 
-<<<<<<< local
 == Comparing the statistics in DD0273 ==
 running the included YT analysis script (findextrema.py and variance.py) with python in the 
 same directory with the Enzo simulationfield value gives the following
-=======
-= Comparing the maximum Emissivity value and its location of DD0273 =
-running the included YT analysis script with python in the same
-directory with Enzo to check for the maximum Emissivity field value.
->>>>>>> other
 
-<<<<<<< local
 1.5 with some modded 2.0 calc_rates.src values:
+
 Density
 min 5.3446543648750223e-30
 max 6.9461703218095086e-26
 mean 7.9628078330319984e-29
-=======
-1.5 with pgi compiler before sofware update of May 18, 2010: 
-yt.lagos   INFO       2010-05-20 21:10:14,542 Max Value is 4.37391e-27 at 0.4765625000000000
-0.9609375000000000 0.3515625000000000 in grid EnzoGrid_0007 at level 0 (30, 29, 22)
-4.37390767068e-27 [ 0.4765625  0.9609375  0.3515625]
->>>>>>> other
 
 Gas_Energy
 min 1.2381154569473240e+08
@@ -78,9 +59,8 @@ min 1.0339176646822077e+00
 max 3.2818819351443002e+05
 mean 3.6687690136109541e+02
 
-<<<<<<< local
+2.0 (beta):
 
-2.0:
 Density
 min 5.3446741064028825e-30
 max 6.8250612214715350e-26
@@ -117,7 +97,6 @@ Since Enzo 1.5+RT was not a public release, the comparisons between 2.0 and 1.5+
 strictly just for checking consistencies between the two codes to make sure they behave correctly.  
 With the corrections, bug fixes, additions of new physics in 2.0, we believe we should trust the    
 2.0 results more and use it as the new code base for future work.
-
 
 == Visual Inspection ==
 Included in the folder are other YT scripts that will generate 2D projections of different fields.
@@ -183,13 +162,13 @@ This file will have the 7 columns
 # 6) Stars formed in this time bin (Msol)
 # 7) Cumulative stars formed up to this time bin (Msol)
 ==>Note: This is the recommended way for users who want strictly just the star formation rate
-=======
+
 = Conclusion =
-The results are within 1% of each other (~0.7%), so considering the
-many differences between the two versions, I'm surprised that the
-result is not much more different.  As a new user of Enzo, I would
-check that the value is not many of orders of magnitude off when
-running this particular set of parameters on a different machine.  And
-if it was ran on SDSC Triton where this test was conducted, it should
-give results within ~1%. 
->>>>>>> other
+Comparing the mean values of the fields, they are well within 1% of each other for Density 
+and Temperature, ~7% of each other for Gas_Energy and so considering the many differences 
+between the two versions, I'm surprised that the result is not much more different.  As a new 
+user of Enzo, I would check that the value is not many of orders of magnitude off when running 
+this particular set of parameters on a different machine.  And if it was ran on SDSC Triton 
+where this test was conducted, it should give similar results to 2.0.  I would not look for
+bitwise identicality since the 2.0 run was the beta release, so the bug fixes along the way or
+small modifications will definitely change things a little bit.
