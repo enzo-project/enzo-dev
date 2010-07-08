@@ -50,8 +50,8 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 {
  
-
-
+  MustRefineParticlesMinimumMass *= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   int dim;
  
@@ -73,7 +73,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     presu = rhou*lenu*lenu/tu/tu;
 
     /* Change input physical parameters into real units */
-    MustRefineParticlesMinimumMass *= massu*POW(lenu,3);
+    MustRefineParticlesMinimumMass *= massu;
     StarMakerOverDensityThreshold *= rhou;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     
@@ -108,7 +108,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   }
 
-  MustRefineParticlesMinimumMass *= (float(MetaData.TopGridDims[0])*POW(float(RefineBy), float(MustRefineParticlesRefineToLevel)));
 
   /* write data to Parameter output file */
  
@@ -850,6 +849,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
+    MustRefineParticlesMinimumMass /= massu;
     /*
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
@@ -868,6 +868,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
 
   }
+
+  MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   /* Output current time */
   time_t ID;
