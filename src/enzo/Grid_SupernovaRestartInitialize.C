@@ -38,8 +38,7 @@ int grid::SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
   /* Set up colour field. */
  
   if (ColourField) {
-    fprintf(stderr, "ColourField not implemented yet.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ColourField not implemented yet.\n");
   }
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -47,8 +46,7 @@ int grid::SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Loop over grid and set quantities. */
@@ -94,6 +92,7 @@ int grid::SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
 	  (*NumberOfCellsSet)++;
  
 	} // end: if (radius2 < EjectaRadius*EjectaRadius)
+
  
       } // next i
     } // next j

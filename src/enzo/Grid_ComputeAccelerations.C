@@ -48,15 +48,13 @@ int grid::ComputeAccelerations(int level)
     /* Compute the acceleration field for particles from potential. */
  
     if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
-      fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->ComputeAccelerationField.\n");
     }
  
     /* Add any fixed (external) acceleration to field. */
 /*
     if (this->AddExternalAcceleration() == FAIL) {
-      fprintf(stderr, "Error in grid->AddFixedAcceleration.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->AddFixedAcceleration.\n");
     }
 */
     /* Clear particle accelerations. */
@@ -92,11 +90,11 @@ int grid::ComputeAccelerations(int level)
       DIFFERENCE_TYPE_STAGGERED : DIFFERENCE_TYPE_NORMAL;
 
      if (this->ComputeAccelerationField(DiffType, level) == FAIL) {
-      fprintf(stderr, "Error in grid->ComputeAccelerationField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->ComputeAccelerationField.\n");
     }
 
   } // end: if (NumberOfBaryonFields > 0)
+
 
   return SUCCESS;
 }

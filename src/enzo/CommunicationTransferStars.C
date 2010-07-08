@@ -179,8 +179,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
       MPI_SendListCount[i] = SendListCount[i];
     }
     if (NumberOfSharedGrids != NumberOfGrids) {
-      fprintf(stderr, "CTP error\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("CTP error\n");
     }
 
 /*
@@ -402,6 +401,7 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
     printf("CommunicationTransferStars: moved = %"ISYM"\n",
 	   NumberOfStarsMoved);
   if (NumberOfStarsMoved == 0)
+
     Done = TRUE;
  
   }

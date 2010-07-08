@@ -13,6 +13,7 @@
 MACH_TEXT  = NCSA Abe
 MACH_VALID = 1
 MACH_FILE  = Make.mach.ncsa-abe
+MACHINE_NOTES = "To build on Abe, no special modules need to be loaded."
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)

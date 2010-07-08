@@ -37,17 +37,17 @@ plots of these profiles as they propagate through the domain.
 3D Propagation, X-direction, Left to Right, Test files:
 - implicit solver: RadiationStreamX0.enzo, RadiationStreamX0.gfld
 - split solver: RadiationStreamX0_sp.enzo, RadiationStreamX0_sp.gfld
-- analysis: rstream3d_makeplots.py
+- analysis: rstream3d_makeplots.py; requires matplotlib and h5py
 
 3D Propagation, Y-direction, Right to Left, Test files:
 - implicit solver: RadiationStreamY1.enzo, RadiationStreamY1.gfld
 - split solver: RadiationStreamY1_sp.enzo, RadiationStreamY1_sp.gfld
-- analysis: rstream3d_makeplots.py
+- analysis: rstream3d_makeplots.py; requires matplotlib and h5py
 
 1D Propagation, Left to Right, Test files:
 - implicit solver: RadiationStream1D.enzo, RadiationStream1D.gfld
 - split solver: RadiationStream1D_sp.enzo, RadiationStream1D_sp.gfld
-- analysis: rstream1d_makeplots.py
+- analysis: rstream1d_makeplots.py; requires matplotlib and h5py
 
 
 Problem-specific Input Parameters:

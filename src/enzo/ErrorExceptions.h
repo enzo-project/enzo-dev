@@ -22,6 +22,15 @@
 
 #include <exception>
 
+// If we are using the new problem type initializers, we need to include these
+// in a file that we know will be included before macros_and_parameters.h.
+#ifdef NEW_PROBLEM_TYPES
+#include <stdlib.h>
+#include <stdio.h>
+#include <map>
+#include <string>
+#endif
+
 // Example from 
 //
 // http://www.ibm.com/developerworks/linux/library/l-cppexcep.html

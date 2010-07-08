@@ -48,11 +48,7 @@ int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
 
     if (kphHINum<0 || gammaNum<0 || kphHeINum<0 || kphHeIINum<0 || 
 	kdissH2INum<0) {
-      fprintf(stderr, "Grid_IdentifyRadiativeTransferFields: failed\n");
-      fprintf(stderr, "kphHI=%"ISYM", gamma=%"ISYM", kphHeI=%"ISYM", "
-	      "kphHeII=%"ISYM", kdissH2I=%"ISYM"\n",
-	      kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Could not identify a RadiativeTransferField!  kphHI=%"ISYM", gamma=%"ISYM", kphHeI=%"ISYM", kphHeII=%"ISYM", kdissH2I=%"ISYM"\n", kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum)
     }
   }
 

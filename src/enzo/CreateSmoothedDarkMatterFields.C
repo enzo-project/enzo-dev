@@ -136,7 +136,8 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   // Wait for the receives and sum fields
 
   if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+  
 
   // Reset to default
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;

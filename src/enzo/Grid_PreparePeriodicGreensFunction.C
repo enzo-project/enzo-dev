@@ -35,9 +35,8 @@ int grid::PreparePeriodicGreensFunction(region *GreensRegion)
   /* Error check. */
  
   if (GravityBoundaryType != TopGridPeriodic) {
-    fprintf(stderr, "GravityBoundaryType %"ISYM" not supported.\n",
-	    GravityBoundaryType);
-    ENZO_FAIL("");
+    ENZO_VFAIL("GravityBoundaryType %"ISYM" not supported.\n",
+	    GravityBoundaryType)
   }
  
   /* -------------------------------------------------- */
@@ -129,6 +128,7 @@ int grid::PreparePeriodicGreensFunction(region *GreensRegion)
     }
  
   } // end: if (MyProcessor)
+
  
   return SUCCESS;
 }

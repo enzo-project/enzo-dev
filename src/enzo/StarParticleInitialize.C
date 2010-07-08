@@ -86,8 +86,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
 
   if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeMBH.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in StarParticleMergeMBH.\n");
   }
 
   /* 
@@ -99,6 +98,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   */
 
 //  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
 //    for (cstar = AllStars; cstar; cstar = cstar->NextStar)
 //      cstar->PrintInfo();
 //  }

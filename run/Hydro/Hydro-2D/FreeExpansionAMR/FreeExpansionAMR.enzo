@@ -1,0 +1,55 @@
+#
+# PROBLEM DEFINITION FILE: Free Expansion Blastwave (2D AMR version)
+#
+#  A 2D explosion test problem.
+#
+#
+#  problem setup
+#
+ProblemType               =  12       // Free expansion blastwave
+Gamma                     =  1.6667
+#
+#  grid setup
+#
+TopGridRank               = 2
+TopGridDimensions         = 64 64
+FreeExpansionSubgridLeft     = 0
+FreeExpansionSubgridRight    = 0.15
+#
+#  set I/O and stop/start parameters
+#
+#StopCycle = 5
+StopTime                  = 60
+StopCycle                 = 10000
+dtDataDump                = 3
+DataDumpName              = output_
+#
+#  set hydro parameters
+#
+HydroMethod               = 3       // PPM - 0; ZEUS - 2; MUSCL - 3
+PPMDiffusionParameter     = 1       
+PPMFlatteningParameter    = 1
+PPMSteepeningParameter    = 1
+CourantSafetyNumber       = 0.5     // ppm - 0.8; zeus - 0.5
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0       // dynamic hierarchy
+MaximumRefinementLevel    = 2
+CellFlaggingMethod        = 1 3     // shocks & slope (density, total energy)
+MinimumSlopeForRefinement = 0.4 0.4
+NumberOfBufferZones       = 2
+RefineBy                  = 2
+FluxCorrection            = 0
+MinimumEfficiency         = 0.9     // good value for 2D
+DualEnergyFormalism       = 1
+#
+#
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-6
+
+DensityUnits = 1.673e-24
+LengthUnits = 3.086e18
+TimeUnits = 3.1557e7

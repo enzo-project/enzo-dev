@@ -253,14 +253,13 @@ int grid::SolveHighDensityPrimordialChemistry()
     );
 
   if (ErrCode) {
-      fprintf(stdout, "Error in FORTRAN rate/cool solver\n");
       fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
       fprintf(stdout, "GridRightEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
   }
 
   if (HydroMethod == MHD_RK) {
@@ -270,6 +269,7 @@ int grid::SolveHighDensityPrimordialChemistry()
 
       /* Always trust gas energy in cooling routine */
       if (DualEnergyFormalism) {
+
 	v2 = pow(BaryonField[Vel1Num][n],2) + 
 	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
 	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];

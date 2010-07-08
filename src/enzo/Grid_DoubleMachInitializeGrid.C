@@ -34,8 +34,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
   /* error check */
  
   if (GridRank < 2) {
-    fprintf(stderr, "GridRank must be > 1\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("GridRank must be > 1\n");
   }
  
   /* create fields */
@@ -78,6 +77,7 @@ int grid::DoubleMachInitializeGrid(float d0, float e0, float u0, float v0,
 	  BaryonField[2][index+i] = 0.0;
 	  BaryonField[3][index+i] = 0.0;
 	  if (GridRank > 2) BaryonField[4][index+i] = 0.0;
+
 	}
       }
     }

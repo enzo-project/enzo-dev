@@ -393,8 +393,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   /* If both metal fields exist, make a total metal field */
@@ -1256,6 +1255,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
   BaryonField[NumberOfBaryonFields] = NULL;
  
   //if (debug) printf("StarParticle: end\n");
+
 
   LCAPERF_STOP("grid_StarParticleHandler");
   return SUCCESS;

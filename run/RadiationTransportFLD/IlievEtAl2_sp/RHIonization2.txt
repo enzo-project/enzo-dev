@@ -44,7 +44,7 @@ behavior:
 Test files:
 - implicit solver: RHIonization2.enzo, RHIonization2.gfld
 - split solver: RHIonization2_sp.enzo, RHIonization2_sp.gfld
-- analysis: iliev2_makeplots.py
+- analysis: iliev2_makeplots.py; requires matplotlib, numpy and h5py
 
 
 Problem-Specific Input Parameters:

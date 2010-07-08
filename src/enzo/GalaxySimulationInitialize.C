@@ -63,8 +63,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* make sure it is 3D */
   
   if (MetaData.TopGridRank != 3) {
-    printf("Cannot do GalaxySimulation in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot do GalaxySimulation in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
 
   /* set default parameters */
@@ -188,20 +187,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   // do a couple of quick error checks
   
   if(GalaxySimulationInitialRefinementLevel > MaximumRefinementLevel){
-    fprintf(stderr,"GalaxySimulationInitialize:  \n");
-    fprintf(stderr,"    GalaxySimulationInitialRefinementLevel > MaximumRefinementLevel\n");
-    fprintf(stderr,"    GalaxySimulationInitialRefinementLevel = %"ISYM"\n",GalaxySimulationInitialRefinementLevel);
-    fprintf(stderr,"    MaximumRefinementLevel = %"ISYM"\n", MaximumRefinementLevel);
-    fprintf(stderr,"\nexiting...\n");
-    ENZO_FAIL("");
+    ENZO_VFAIL("GalaxySimulationInitialRefinementLevel (%"ISYM") > MaximumRefinementLevel (%"ISYM")!\n",GalaxySimulationInitialRefinementLevel,MaximumRefinementLevel)
   }
 
   if(GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight){
-    fprintf(stderr,"GalaxySimulationInitialize:  \n\n");
-    fprintf(stderr,"  GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight\n");
-    fprintf(stderr,"  GalaxySimulationSubgridLeft = %"GOUTSYM"\n",GalaxySimulationSubgridLeft);
-    fprintf(stderr,"  GalaxySimulationSubgridRight = %"GOUTSYM"\n",GalaxySimulationSubgridRight);
-    ENZO_FAIL("");
+    ENZO_VFAIL("GalaxySimulationSubgridLeft (%"GOUTSYM") > GalaxySimulationSubgridRight (%"GOUTSYM")!\n")
   }
  
   // Initialize the top grid
@@ -371,6 +361,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
  /* Write parameters to parameter output file */
 
  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
    fprintf(Outfptr, "GalaxySimulationRefineAtStart      = %"ISYM"\n",
 	   GalaxySimulationRefineAtStart);
    fprintf(Outfptr, "GalaxySimulationInitialRefinementLevel      = %"ISYM"\n",

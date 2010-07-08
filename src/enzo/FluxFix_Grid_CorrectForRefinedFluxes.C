@@ -104,8 +104,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     //    FLOAT a = 1, dadt;
     //    if (ComovingCoordinates)
     //      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-    //        fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-    //        ENZO_FAIL("");
+    //        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     //      }
  
  
@@ -129,8 +128,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 //		     RefinedFluxes->LeftFluxStartGlobalIndex[dim][j],
 //		     InitialFluxes->LeftFluxEndGlobalIndex[dim][j],
 //		     RefinedFluxes->LeftFluxEndGlobalIndex[dim][j]);
-	      fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
-	      ENZO_FAIL("");
+	      ENZO_FAIL("InitialFluxes & RefinedFluxes are different.\n");
 	    }
 	  /* Error check Fluxes to make sure they all exist. */
 	  for (field = 0; field < NumberOfBaryonFields; field++)
@@ -257,7 +255,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %lld\n",
 		      CellLeftEdge[i][0], CellWidth[i][0],
 		      InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
-	      ENZO_FAIL("");
+	      ENZO_FAIL("Error in FluxFix_Grid_CorrectForRefinedFluxes!\n");
 	    }
 	  }
 	
@@ -545,12 +543,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			}
 		      } // ENDIF CorrectRightBaryonField
-
-		      
-//		      fprintf(stderr,"ERROR: CorrectForRefinedFluxes causing problems.\n");
-//		      fprintf(stderr,"      Density or Energy is negative.\n");
-//		      fprintf(stderr,"      Please contact your Enzo service professional.\n");
-//		      ENZO_FAIL("");
 		    }
 		  }// for (i = Start[0]; i <= End[0]; i++) {
 		} // for (j = Start[1]; j <= End[1]; j++){
@@ -764,6 +756,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		}
 	
 	} // if( CorrectLeftBaryonField || CorrectRightBaryonField){
+
       } // end: if GridDimension[dim] > 1
       /* delete Refined fluxes as they're not needed anymore. */
  

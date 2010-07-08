@@ -42,8 +42,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
 {
 
   if (mode < 0 || mode > 3) {
-    fprintf(stderr, "ReturnValuesFromSpectrumTable: mode unrecognized\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ReturnValuesFromSpectrumTable: mode unrecognized\n");
   }
     
   int index_in, index_out;
@@ -114,10 +113,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
     return photon_fraction;
 
   } else {
-
-    fprintf(stderr, "ReturnValuesFromSpectrumTable: mode unrecognized\n");
-    ENZO_FAIL("");
-
+    ENZO_FAIL("Unreconized Mode!\n");
   }
 
 
@@ -150,8 +146,8 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity,
 
   } else {
 
-    fprintf(stderr, "ReturnValuesFromSpectrumTable: mode unrecognized\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ReturnValuesFromSpectrumTable: mode unrecognized\n");
+
 
   }
 

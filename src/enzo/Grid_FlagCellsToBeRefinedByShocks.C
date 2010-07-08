@@ -63,8 +63,7 @@ int grid::FlagCellsToBeRefinedByShocks()
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* loop over active dimensions */
@@ -127,6 +126,7 @@ int grid::FlagCellsToBeRefinedByShocks()
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++)
     if (FlaggingField[i] > 0)
+
       NumberOfFlaggedCells++;
  
   return NumberOfFlaggedCells;

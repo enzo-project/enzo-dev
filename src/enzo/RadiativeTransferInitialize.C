@@ -70,8 +70,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
-    fprintf(stderr, "Error opening ParameterFile %s\n", ParameterFile);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening ParameterFile %s\n", ParameterFile)
   }
 
   RadiativeTransferReadParameters(fptr);
@@ -96,8 +95,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 //  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
 //    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 //      if (Temp->GridData->FindNewStarParticles(level) == FAIL) {
-//	fprintf(stderr, "Error in grid::FindStarParticles.\n");
-//	ENZO_FAIL("");
+//	ENZO_FAIL("Error in grid::FindStarParticles.\n");
 //      }
 
   /* If we're restarting from a non-radiative run, create radiation
@@ -335,6 +333,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   }
 #else
   if (RadiativeTransferFLD)
+
     ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
 #endif
 

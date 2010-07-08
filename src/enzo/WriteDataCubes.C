@@ -39,14 +39,12 @@ int WriteDataCubes(HierarchyEntry *Grid, int TGdims[],
  
   if (WriteTime < 0) {
     if (Grid->GridData->WriteCube(base_name, GridID, TGdims) == FAIL) {
-      fprintf(stderr, "Error in grid->WriteCube.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->WriteCube.\n");
     }
   }
   else
     if (Grid->GridData->WriteCubeInterpolate(WriteTime, base_name, GridID, TGdims) == FAIL) {
-      fprintf(stderr, "Error in grid->WriteCubeInterpolate.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->WriteCubeInterpolate.\n");
     }
  
   NextGridThisLevelID = GridID + 1;
@@ -55,8 +53,8 @@ int WriteDataCubes(HierarchyEntry *Grid, int TGdims[],
   if (NextGridThisLevelID != 0) {
     GridID++;
     if (WriteDataCubes(Grid->NextGridThisLevel, TGdims, base_name, GridID, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteDataCubes (1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteDataCubes (1).\n");
+
     }
   }
  

@@ -419,6 +419,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
+  PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
   PopIIIHeliumIonization           = FALSE;
   PopIIILowerMassCutoff            = 1.0;
   PopIIIUpperMassCutoff            = 300.0;

@@ -43,8 +43,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
 
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "GARF: Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("GARF: Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* error check. */
@@ -76,6 +75,7 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   /* do not do the update if using ZEUS */
  
   if (HydroMethod != Zeus_Hydro)
+
     for (i = 0; i < size; i++)
       for (dim = 0; dim < GridRank; dim++)
 	BaryonField[TENum][i] +=

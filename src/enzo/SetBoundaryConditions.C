@@ -142,8 +142,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	   handle. */
 
       if (CommunicationReceiveHandler() == FAIL)
-	ENZO_FAIL("");
-
+	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+      
     } // ENDFOR grid batches
      }
     TIME_MSG("Copying zones in SetBoundaryConditions");
@@ -199,7 +199,8 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       /* -------------- THIRD PASS ----------------- */
 
       if (CommunicationReceiveHandler() == FAIL)
-	ENZO_FAIL("");
+	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+      
 
     } // end loop over batchs of grids
 

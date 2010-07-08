@@ -143,8 +143,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
     if (ToGrid->ParticleNumber == NULL) {
       ToGrid->AllocateNewParticles(NewNumber);
       if (ToStart > 0) {
-	fprintf(stderr, "Unallocated Number, yet FromStart = %"ISYM"\n", FromStart);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Unallocated Number, yet FromStart = %"ISYM"\n", FromStart)
       }
     }
  
@@ -288,6 +287,7 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
     delete [] buffer;
     			
   } // end: if (MyProcessorNumber...)
+
  
 #endif /* USE_MPI */ 
   return SUCCESS;

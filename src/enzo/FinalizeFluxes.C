@@ -38,8 +38,8 @@ int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
 	if (Grids[grid1]->GridData->AddToBoundaryFluxes
 	    (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1])
 	    == FAIL) {
-	  fprintf(stderr, "Error in grid->AddToBoundaryFluxes.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->AddToBoundaryFluxes.\n");
+
 	}
       
       /* Delete fluxes pointed to by SubgridFluxesEstimate[subgrid]. */

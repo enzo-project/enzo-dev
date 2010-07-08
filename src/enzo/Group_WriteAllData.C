@@ -147,14 +147,6 @@ int Group_WriteAllData(char *basename, int filenumber,
   int file_status;
   int ii, pe, nn;
  
-#ifdef USE_MPI
-  double io_start, io_stop;
-  double dc_start, dc_stop;
-  double ttenter, ttexit;
-  double iot1a, iot1b, iot2a, iot2b, iot3a, iot3b, iot4a, iot4b;
-  char io_logfile[MAX_NAME_LENGTH];
-  FILE *xptr;
-#endif /* USE_MPI */
   char pid[MAX_TASK_TAG_SIZE];
  
   FILE *fptr;
@@ -177,10 +169,6 @@ int Group_WriteAllData(char *basename, int filenumber,
   int GridKD = 1;
   int GridLD = 1;
  
-#ifdef USE_MPI
-  ttenter = MPI_Wtime();
-#endif /* USE_MPI */
-
   /* If this is an interpolated time step, then temporary replace  the time
      in MetaData.  Note:  Modified 6 Feb 2006 to fix interpolated  data outputs. */
 
@@ -419,12 +407,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 //  Synchronization point for directory creation
  
-#ifdef USE_MPI
-  iot1a = MPI_Wtime();
   CommunicationBarrier();
-  dc_start = MPI_Wtime();
-  iot1b = MPI_Wtime();
-#endif /* USE_MPI */
  
 //  Get cwd
 //  Generate command
@@ -549,19 +532,10 @@ int Group_WriteAllData(char *basename, int filenumber,
   
 //  fprintf(stdout, "Sync point ok\n");
  
-#ifdef USE_MPI
-  iot2a = MPI_Wtime();
   CommunicationBarrier();
-  dc_stop = MPI_Wtime();
-  iot2b = MPI_Wtime();
-#endif /* USE_MPI */
  
 //  Start I/O timing
  
-#ifdef USE_MPI
-  io_start = MPI_Wtime();
-#endif /* USE_MPI */
-
 #ifdef USE_HDF5_OUTPUT_BUFFERING
 
   memory_increment = 1024*1024;
@@ -776,7 +750,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     if ((optr = fopen(configurename, "w")) == NULL) {
       fprintf(stdout, "Error opening configure file %s\n", configurename);
       fprintf(stdout, "Not crucial but worrysome. Will continue.\n" );
-      //      ENZO_FAIL("");
+      //      ENZO_VFAIL("Error opening configure file %s\n", configurename)
     }
 
     WriteConfigure(optr);
@@ -786,11 +760,13 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
+#ifdef TASKMAP
   if ((tptr = fopen(taskmapname, "w")) == NULL)
     ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL)
     ENZO_FAIL("Error in WriteTaskMap");
+#endif
  
   int TGdims[3];
  
@@ -840,8 +816,7 @@ int Group_WriteAllData(char *basename, int filenumber,
     strcat(radiationname, RadiationSuffix);
  
     if ((Radfptr = fopen(radiationname, "w")) == NULL) {
-      fprintf(stdout, "Error opening radiation file %s\n", radiationname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening radiation file %s\n", radiationname)
     }
     if (WriteRadiationData(Radfptr) == FAIL)
       ENZO_FAIL("Error in WriteRadiationData");
@@ -855,8 +830,10 @@ int Group_WriteAllData(char *basename, int filenumber,
     fclose(mptr);
   }
 
+#ifdef TASKMAP
   fclose(tptr);
- 
+#endif
+
   // Replace the time in metadata with the saved value (above)
  
   MetaData.Time = SavedTime;
@@ -871,50 +848,19 @@ int Group_WriteAllData(char *basename, int filenumber,
  
 //  Stop I/O timing
  
-#ifdef USE_MPI
-  io_stop = MPI_Wtime();
-#endif /* USE_MPI */
- 
 //  Synchronization point for SRB
  
-#ifdef USE_MPI
-  iot3a = MPI_Wtime();
   CommunicationBarrier();
-  iot3b = MPI_Wtime();
-#endif /* USE_MPI */
  
   ContinueExecution();
  
-#ifdef USE_MPI
-  iot4a = MPI_Wtime();
   CommunicationBarrier();
-  iot4b = MPI_Wtime();
-#endif /* USE_MPI */
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
     fprintf(sptr, "DATASET WRITTEN %s \n", name);
     fclose(sptr);
   }
- 
-#ifdef USE_MPI
-  ttexit = MPI_Wtime();
-#endif /* USE_MPI */
- 
-#ifdef USE_MPI
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
-  strcpy(io_logfile, "IO_perf.");
-  strcat(io_logfile, pid);
-  xptr = fopen(io_logfile, "a");
-  fprintf(xptr, "IO %12.4e  %s\n", (io_stop-io_start), name);
-  fprintf(xptr, "DC %12.4e  %s\n", (dc_stop-dc_start), name);
-  fprintf(xptr, "XX %12.4e  %12.4e  %12.4e  %12.4e\n",
-                (iot1b-iot1a), (iot2b-iot2a), (iot3b-iot3a), (iot4b-iot4a));
-  fprintf(xptr, "TT %12.4e\n", (ttexit-ttenter));
-  fclose(xptr);
-#endif /* USE_MPI */
- 
-  //  fprintf(stdout,"Safe exit from WriteAllData\n");
  
   return SUCCESS;
 }
@@ -923,6 +869,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry)
 {
   if (GridEntry->NextGridThisLevel != NULL)
+
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;

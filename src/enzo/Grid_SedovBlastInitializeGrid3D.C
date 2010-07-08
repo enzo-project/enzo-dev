@@ -33,7 +33,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
     return SUCCESS;
 
   if (GridRank != 3)
-    ENZO_FAIL("");
+    ENZO_FAIL("GridRank != 3!\n");
 
   /* declarations */
 
@@ -46,9 +46,8 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
 
   FILE *fptr;
   if ((fptr = fopen(SedovBlastFileName, "r")) == NULL) {
-    printf("Cannot open SedovBlast Initial Data File %s\n", 
-	   SedovBlastFileName);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot open SedovBlast Initial Data File %s\n", 
+	   SedovBlastFileName)
   }
 
   int nl = 0, nlines;
@@ -130,6 +129,7 @@ int grid::SedovBlastInitializeGrid3D(char * SedovBlastFileName)
 
     int num = nint((radius - r0)/dr);
     if (num < nlines) {
+
       BaryonField[0][i] = den[num];
       BaryonField[1][i] = pre[num]/den[num]/(Gamma-1.0) + 
 	vel[num]*vel[num]/2.0; 

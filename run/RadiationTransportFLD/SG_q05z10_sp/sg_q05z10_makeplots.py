@@ -8,6 +8,9 @@ from pylab import *
 # set the total number of snapshots
 te = 21
 
+# set the graphics output type
+pictype = '.png'
+
 # set some constants
 q0 = 0.05              # deceleration parameter
 Nph = 5.0e48           # ionization source strength [photons/sec]
@@ -64,8 +67,8 @@ def analytical_solution(q0,Nph,aval):
     import h5py
     import numpy as np
     import scipy.integrate as sp
-    z0, z, xR, t0, H0, dUnit, tUnit, lUnit = get_params('DD0000/pc_amr_0000')
-    f = h5py.File('DD0000/pc_amr_0000.cpu0000','r')
+    z0, z, xR, t0, H0, dUnit, tUnit, lUnit = get_params('DD0000/data0000')
+    f = h5py.File('DD0000/data0000.cpu0000','r')
     rho_data = f.get('/Grid00000001/Density')
     rho = rho_data[0][0][0]*dUnit
     del(rho_data)
@@ -129,7 +132,7 @@ def load_vals(tdump):
     import h5py
     import numpy as np
     sdump = repr(tdump).zfill(4)
-    pfile = 'DD' + sdump + '/pc_amr_' + sdump
+    pfile = 'DD' + sdump + '/data' + sdump
     hfile = pfile + '.cpu0000'
     z0, z, xR, tval, H0, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
@@ -202,7 +205,7 @@ for tstep in range(te+1):
         h = imshow(sl, hold=False, extent=(0.0, 1.0, 0.0, 1.0), origin='lower')
         colorbar(h)
         title('log HI fraction, z = ' + repr(z))
-        savefig('HIcontour_' + repr(tstep).zfill(2) + '.pdf')
+        savefig('HIcontour_' + repr(tstep).zfill(2) + pictype)
         
         # Eg slice through z=0
         figure()
@@ -210,7 +213,7 @@ for tstep in range(te+1):
         h = imshow(sl, hold=False, extent=(0.0, 1.0, 0.0, 1.0), origin='lower')
         colorbar(h)
         title('log radiation density, z = ' + repr(z))
-        savefig('Econtour_' + repr(tstep).zfill(2) + '.pdf')
+        savefig('Econtour_' + repr(tstep).zfill(2) + pictype)
         
         # spherically-averaged profiles for xHI, xHII
         Nradii = nx*3/2
@@ -243,7 +246,7 @@ for tstep in range(te+1):
         title('HI, HII Profiles, z = ' + repr(z))
         legend( ('xHI','xHII') )
         axis([ 0.0, 1.2, -7.0, 1.0 ])
-        savefig('profiles_' + repr(tstep).zfill(2) + '.pdf')
+        savefig('profiles_' + repr(tstep).zfill(2) + pictype)
 
 
 # I-front radius/velocity plots vs analytical solutions
@@ -271,7 +274,7 @@ title('r_i(t)/r_s(t) vs redshift, q_0 =' + repr(q0))
 legend( ('computed', 'analytical'), loc=4 )
 grid()
 axis([ 0.0, 3.0, 0.0, 1.0 ])
-savefig('radius.pdf')
+savefig('radius' + pictype)
 
 #   i-front velocity vs redshift plot
 figure()
@@ -285,4 +288,4 @@ title('v_{pec}(t)/(r_{s,i}/t_i) vs redshift, q_0 =' + repr(q0))
 legend( ('computed', 'analytical') )
 grid()
 axis([ 0.0, 3.0, -0.5, 1.0 ])
-savefig('velocity.pdf')
+savefig('velocity' + pictype)

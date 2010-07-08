@@ -83,8 +83,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   if (this != OtherGrid || DoSelf)
     if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-      printf("Error in grid->*CopyFunction\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->*CopyFunction\n");
     }
  
 
@@ -190,8 +189,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 
 	    
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-	      printf("Error in grid->*CopyFunction (3)\n");
-	      ENZO_FAIL("");
+	      ENZO_FAIL("Error in grid->*CopyFunction (3)\n");
 	    }
 	  }
 
@@ -202,6 +200,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	  }
 
 	} // end: if (periodic bc's)
+
  
       } // end: loop of i
 

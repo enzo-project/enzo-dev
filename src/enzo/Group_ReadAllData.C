@@ -108,25 +108,14 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   // store the original parameter file name, in case we need it later
   strcpy(PrevParameterFileName, name);
 
-#ifdef USE_MPI
-  double io_start, io_stop;
-  char io_logfile[MAX_NAME_LENGTH];
-  FILE *xptr;
-#endif /* USE_MPI */
   char pid[MAX_TASK_TAG_SIZE];
 
-//  Start I/O timing
-
-#ifdef USE_MPI
   CommunicationBarrier();
-  io_start = MPI_Wtime();
-#endif /* USE_MPI */
  
   /* Read TopGrid data. */
  
   if ((fptr = fopen(name, "r")) == NULL) {
-    fprintf(stderr, "Error opening input file %s.\n", name);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening input file %s.\n", name)
   }
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
         ENZO_FAIL("Error in ReadParameterFile.");
@@ -201,8 +190,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #ifdef TASKMAP
   if ((mptr = fopen(memorymapname, "r")) == NULL) {
-    fprintf(stderr, "Error opening MemoryMap file %s.\n", memorymapname);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening MemoryMap file %s.\n", memorymapname)
   }
 
   Eint64 GridIndex[MAX_NUMBER_OF_TASKS], OldPN, Mem[MAX_NUMBER_OF_TASKS];
@@ -229,8 +217,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* scan data hierarchy for maximum task number */
  
   if ((fptr = fopen(hierarchyname, "r")) == NULL) {
-    fprintf(stderr, "Error opening hierarchy file %s.\n", hierarchyname);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening hierarchy file %s.\n", hierarchyname)
   }
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
@@ -390,8 +377,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);
     if ((Radfptr = fopen(radiationname, "r")) == NULL) {
-      fprintf(stderr, "Error opening radiation file %s.\n", name);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening radiation file %s.\n", name)
     }
     if (ReadRadiationData(Radfptr) == FAIL) {
             ENZO_FAIL("Error in ReadRadiationData.");
@@ -411,22 +397,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
      it to propagate to later datadumps. */
 
   if (ResetLoadBalancing)
+
     ResetLoadBalancing = FALSE;
-
-//  Stop I/O timing
-
-#ifdef USE_MPI
-  io_stop = MPI_Wtime();
-#endif /* USE_MPI */
-
-#ifdef USE_MPI
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
-  strcpy(io_logfile, "IN_perf.");
-  strcat(io_logfile, pid);
-  xptr = fopen(io_logfile, "a");
-  fprintf(xptr, "IN %12.4e  %s\n", (io_stop-io_start), name);
-  fclose(xptr);
-#endif /* USE_MPI */
 
   delete [] RootGridProcessors;
 

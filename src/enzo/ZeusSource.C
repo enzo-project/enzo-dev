@@ -101,7 +101,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	    printf("%"ISYM"\n", IDX(i,j,k));
 	    fprintf(stderr, "zeus_source1: e,d=%"GSYM",%"GSYM" i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
 		    e[IDX(i,j,k)],d[IDX(i,j,k)],i,j,k);
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Negative energy or density!\n");
 	  }
 	}
       }
@@ -334,7 +334,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	  fprintf(stderr, "grav_z=%"GSYM",%"GSYM",%"GSYM"\n", gr_zacc[IDX(i,j,k-1)],gr_zacc[IDX(i,j,k)], gr_zacc[IDX(i,j,k+1)]);
 	  for (n=is; n <= ie; n++)
 	    fprintf(stderr, "d,e,u,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Negative energy or density!\n");
 	}
 
       } // end: loop over i
@@ -350,9 +350,9 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
       for (i = is-2; i <= ie+2; i++) {
 	p[IDX(i,j,k)] = max((gamma-1.0)*d[IDX(i,j,k)]*e[IDX(i,j,k)], pmin);
 	if (e[IDX(i,j,k)] <= 0.0 || d[IDX(i,j,k)] <= 0.0) {
-	  fprintf(stderr, "zeus_source2: e,d=%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
-		  e(i,j,j),d[IDX(i,j,k)],i,j,k);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("zeus_source2: e,d=%"GSYM",%"GSYM"  i,j,k=%"ISYM",%"ISYM",%"ISYM"\n",
+		  e(i,j,j),d[IDX(i,j,k)],i,j,k)
+
 	}
       }
     }

@@ -80,8 +80,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 					      Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -91,8 +90,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 	IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
 			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
 	== FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   /* Find temperature */
@@ -105,8 +103,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   temperature = new float[size];
   if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-    fprintf(stderr, "Error in ComputeTemperatureField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeTemperatureField.\n");
   }
 
   /* Calculate mu inside cell */
@@ -223,8 +220,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
     CommunicationAllSumValues(AvgVelocity, 3);
     
     if (MassEnclosed == 0) {
-      printf("CSP: MassEnclosed = 0; something is wrong!\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("CSP: MassEnclosed = 0, something is wrong!\n");
     }
 
     Metallicity /= MassEnclosed;
@@ -242,8 +238,8 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
   Subtraction = (double)(AccretedMass) / (double)(MassEnclosed); 
 
   if (Subtraction < 0) {
-    fprintf(stderr, "CSP: parameters (most likely MBHAccretionRadius) set wrongly.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("CSP: parameters (most likely MBHAccretionRadius) set wrongly.\n");
+
   }
 
 

@@ -36,8 +36,7 @@ int grid::ComputeCellCenteredField(int Num)
   /* Error Check */
 
   if (InterpolatedField[Num] == NULL) {
-    fprintf(stderr, "Interpolated field #%"ISYM" does not exist.\n", Num);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Interpolated field #%"ISYM" does not exist.\n", Num)
   }
 
   /* declarations */
@@ -132,6 +131,7 @@ int grid::ComputeCellCenteredField(int Num)
 	      InterpolatedField[Num][vi[7]+i];
 
 	    if (weight > 0)
+
 	      BaryonField[Num][index] /= weight;
 	    
 	  } // ENDFOR i

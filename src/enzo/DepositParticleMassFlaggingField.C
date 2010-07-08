@@ -108,8 +108,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
 	if (Temp->GridData->SetParticleMassFlaggingField
 	    (Zero, Zero, level, ParticleMassMethod) == FAIL) {
-	  fprintf(stderr, "Error in grid->SetParticleMassFlaggingField(send).\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	}
 
     CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
@@ -346,9 +345,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	      if (Grids[grid1]->GridData->SetParticleMassFlaggingField
 		  (StartProc, EndProc, level, ParticleMassMethod, SendProcs,
 		   nSends) == FAIL) {
-		fprintf(stderr, "Error in grid->SetParticleMassFlaggingField"
+		ENZO_FAIL("Error in grid->SetParticleMassFlaggingField"
 			"(receive).\n");
-		ENZO_FAIL("");
 	      }
 	      delete [] SendProcs;
 	    } // ENDIF nSends > 0
@@ -361,15 +359,14 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 	for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
 	  if (Grids[grid1]->GridData->SetParticleMassFlaggingField
 	      (StartProc, EndProc, level, ParticleMassMethod) == FAIL) {
-	    fprintf(stderr, "Error in grid->SetParticleMassFlaggingField(send).\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->SetParticleMassFlaggingField(send).\n");
 	  }
 
 	/* Wait for the receives and sum field */
 
 	if (CommunicationReceiveHandler() == FAIL)
-	  ENZO_FAIL("");
-
+	  ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+	
 #ifdef TIMING
 	tt1 = ReturnWallTime();
 	if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -420,6 +417,7 @@ Eint32 compare_proc1(const void *a, const void *b)
   if (ia->proc - ib->proc < 0)
     return -1;
   else if (ia->proc - ib->proc > 0)
+
     return 1;
   return 0;
 }

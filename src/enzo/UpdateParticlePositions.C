@@ -33,8 +33,7 @@ int UpdateParticlePositions(grid *Grid)
  
   Grid->DebugCheck("UpdateParticlePosition step 1");
   if (Grid->UpdateParticleVelocity(0.5*dt) == FAIL) {
-    fprintf(stderr, "Error in grid->UpdateParticleVelocity./\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->UpdateParticleVelocity./\n");
   }
  
   /* If there are any tracer particles (which follow fluid flow),
@@ -49,16 +48,15 @@ int UpdateParticlePositions(grid *Grid)
   Grid->DebugCheck("UpdateParticlePosition step 2");
   if (ProblemType != 23)
     if (Grid->UpdateParticlePosition(dt) == FAIL) {
-      fprintf(stderr, "Error in grid->UpdateParticlePosition./\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->UpdateParticlePosition./\n");
     }
  
   /* 3) v(n+1/2) --> v(n+1) with a(n+1/2) */
  
   Grid->DebugCheck("UpdateParticlePosition step 3");
   if (Grid->UpdateParticleVelocity(0.5*dt) == FAIL) {
-    fprintf(stderr, "Error in grid->UpdateParticleVelocity./\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->UpdateParticleVelocity./\n");
+
   }
  
  

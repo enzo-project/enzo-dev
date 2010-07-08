@@ -41,10 +41,8 @@ int grid::IdentifyRadiationPressureFields(int &RPresNum1, int &RPresNum2,
     RPresNum3 = FindField(RadPressure2, FieldType, NumberOfBaryonFields); 
 
     if (RPresNum1 < 0 || RPresNum2 < 0 || RPresNum3 < 0) {
-      fprintf(stderr, "Grid_IdentifyRadiationPressureFields: failed\n");
-      fprintf(stderr, "RadPressure0 = %"ISYM", RadPressure1 = %"ISYM", RadPressure2 = %"ISYM"\n",
-	      RPresNum1, RPresNum2, RPresNum3);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Could not identify a RadiationPressureField! RadPressure0 = %"ISYM", RadPressure1 = %"ISYM", RadPressure2 = %"ISYM"\n",RPresNum1, RPresNum2, RPresNum3)
+
     }
   }
 

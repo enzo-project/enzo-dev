@@ -84,8 +84,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
     size *= GridDimension[dim];
  
     if (GridOffset[dim] < 0) {
-      fprintf(stderr, "GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim, GridOffset[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim, GridOffset[dim])
     }
   }
  
@@ -204,6 +203,7 @@ int grid::InterpolateAccelerations(grid *FromGrid)
   /* Clean up if we have transfered data. */
 
   if (MyProcessorNumber != FromGrid->ProcessorNumber)
+
     FromGrid->DeleteAllFields();
  
   return SUCCESS;

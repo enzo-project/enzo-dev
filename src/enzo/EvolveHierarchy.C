@@ -187,13 +187,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
       if (debug)
-	fprintf(stderr, "ERROR: "
+      ENZO_VFAIL("ERROR: "
 		"\tTo use the optimized CommunicationTransferParticles routine,\n"
 		"\tthe top grid must be split evenly, "
 		"i.e. mod(Dims[i], Layout[i]) != 0\n"
 		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
-		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim]);
-      ENZO_FAIL("");
+		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim])
     }
 #endif /* OPTIMIZED_CTP */
 
@@ -224,8 +223,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   while (Temp != NULL) {
     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
-      fprintf(stderr, "Error in grid->SetExternalBoundaryValues.\n");
-      //      ENZO_FAIL("");
+      //      ENZO_FAIL("Error in grid->SetExternalBoundaryValues.\n");
       Exterior->Prepare(Temp->GridData);
 
     }
@@ -734,8 +732,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 //		     ImplicitSolver, 
 //#endif		 
 //                   -666) == FAIL) {
-//       fprintf(stderr, "Error in WriteAllData.\n");
-//       ENZO_FAIL("");
+//       ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
  
@@ -750,6 +747,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   }
 
   if (NumberOfProcessors > 1)
+
     printf("Communication: processor %"ISYM" CommunicationTime = %"FSYM"\n",
 	   MyProcessorNumber, CommunicationTime);
  

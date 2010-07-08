@@ -98,8 +98,7 @@ int grid::ParticleSplitter(int level)
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -232,6 +231,7 @@ int grid::ParticleSplitter(int level)
 #endif
     
   } // end: if (NumberOfNewParticles > 0)
+
 
 
   /* Clean up. */

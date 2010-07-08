@@ -79,16 +79,14 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Error check: subgrid covering field must exist on entry. */
  
   if (MyProcessorNumber == ProcessorNumber &&
       BaryonField[NumberOfBaryonFields] == NULL) {
-    fprintf(stderr, "subgrid covering field missing\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("subgrid covering field missing\n");
   }
  
   /* Compute refinement factors. */
@@ -141,15 +139,13 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     size *= RegionDim[dim];
  
     if (TargetGrid != this && GridStart[dim] < 0) {
-      fprintf(stderr, "GridStart[%"ISYM"] = %"GSYM" < 0.\n", dim,GridStart[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("GridStart[%"ISYM"] = %"GSYM" < 0.\n", dim,GridStart[dim])
     }
  
     if (RegionDim[dim] < 2) {
-      fprintf(stderr, "RegionDim[%"ISYM"] = %"ISYM" < 2\n", dim, RegionDim[dim]);
       fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
       fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("RegionDim[%"ISYM"] = %"ISYM" < 2!\n", dim, RegionDim[dim])
     }
  
   }
@@ -172,8 +168,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(0.5*(Time+DepositTime), &a, &dadt)
 	  == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
     float dt = (DepositTime - Time)/a;
     //    if (HydroMethod < 3) dt = 0;
@@ -309,6 +304,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   /* Return if this is not our concern. */
  
   if (CommunicationDirection == COMMUNICATION_POST_RECEIVE ||
+
       MyProcessorNumber != TargetGrid->ProcessorNumber)
     return SUCCESS;
  

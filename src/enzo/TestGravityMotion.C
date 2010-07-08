@@ -71,12 +71,12 @@ int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   if (TopGrid.GridData->TestGravityMotionInitializeGrid(
                                   TestGravityParticleVelocity) == FAIL) {
-    fprintf(stderr, "Error in TestGravityMotionInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in TestGravityMotionInitializeGrid.\n");
   }
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "TestGravityMotionParticleVelocity = %"GSYM"\n",
 	    TestGravityParticleVelocity);
   }

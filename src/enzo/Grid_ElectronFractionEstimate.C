@@ -66,15 +66,13 @@ int grid::ElectronFractionEstimate(float dt)
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
 
     if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
 
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -221,6 +219,7 @@ int grid::ElectronFractionEstimate(float dt)
 	  //	  printf("edotplus = %"GSYM" (%"GSYM")\n", edotplus, max_edotplus);
 
 	  if (DualEnergyFormalism)
+
 	    BaryonField[GENum][index] += edot / proper_d * dt;
 	  BaryonField[TENum][index] += edot / proper_d * dt;
 #endif /* UNUSED */

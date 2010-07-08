@@ -263,9 +263,8 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
 	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
 	       &status) != MPI_SUCCESS) {
-	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
-		status.MPI_ERROR);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+		status.MPI_ERROR)
       }
  
 #ifdef MPI_INSTRUMENTATION
@@ -297,6 +296,7 @@ int CommunicationTranspose(region *FromRegion, int NumberOfFromRegions,
 	      ToRegion[j].RegionDim[1]*ToRegion[j].RegionDim[2]];
  
       if (TransposeOrder == TRANSPOSE_FORWARD)
+
 	FORTRAN_NAME(copy3dft)(ReceiveBuffer+index, ToRegion[j].Data,
 		       Receives[i].RegionDim, Receives[i].RegionDim+1,
 			   Receives[i].RegionDim+2,

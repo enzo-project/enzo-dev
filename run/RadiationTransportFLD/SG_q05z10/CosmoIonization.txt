@@ -59,22 +59,26 @@ computed solution with these analytical values.
 Test 1 files [q0 = 0.5, z0 = 4]:
 - implicit solver: CosmoIonization_q5z4.enzo, CosmoIonization_q5z4.gfld
 - split solver: CosmoIonization_q5z4_sp.enzo, CosmoIonization_q5z4_sp.gfld
-- analysis: sg_q5z4_makeplots.py
+- analysis: sg_q5z4_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
 
 Test 2 files [q0 = 0.05, z0 = 4]:
 - implicit solver: CosmoIonization_q05z4.enzo, CosmoIonization_q05z4.gfld
 - split solver: CosmoIonization_q05z4_sp.enzo, CosmoIonization_q05z4_sp.gfld
-- analysis: sg_q05z4_makeplots.py
+- analysis: sg_q05z4_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
 
 Test 3 files [q0 = 0.5, z0 = 10]:
 - implicit solver: CosmoIonization_q5z10.enzo, CosmoIonization_q5z10.gfld
 - split solver: CosmoIonization_q5z10_sp.enzo, CosmoIonization_q5z10_sp.gfld
-- analysis: sg_q5z10_makeplots.py
+- analysis: sg_q5z10_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
 
 Test 4 files [q0 = 0.05, z0 = 10]:
 - implicit solver: CosmoIonization_q05z10.enzo, CosmoIonization_q05z10.gfld
 - split solver: CosmoIonization_q05z10_sp.enzo, CosmoIonization_q05z10_sp.gfld
-- analysis: sg_q05z10_makeplots.py
+- analysis: sg_q05z10_makeplots.py; requires matplotlib, h5py, numpy and
+  scipy
 
 
 Problem-Specific Input Parameters:

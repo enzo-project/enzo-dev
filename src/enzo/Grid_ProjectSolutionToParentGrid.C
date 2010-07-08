@@ -106,8 +106,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.\n");
   }
  
   /* Compute the ratio Volume[ThisGridCell]/Volume[ParentCell]. */
@@ -315,6 +314,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   /* Clean up the fake ParentGrid. */
  
   if (ParentGrid.ProcessorNumber != MyProcessorNumber)
+
     for (field = 0; field < NumberOfBaryonFields; field++) {
       delete ParentGrid.BaryonField[field];
       ParentGrid.BaryonField[field] = NULL;
