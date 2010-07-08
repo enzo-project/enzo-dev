@@ -36,7 +36,7 @@ cause answers to change by orders of magnitude.
 3. Run enzo.exe (from src/enzo) with the main enzo parameter file:
       mpirun -np (# of cores) enzo.exe -d CosmologyFLD_RT.enzo
 
-(replace mpirun to the mpi distribution of your particular machine)
+(replace mpirun to the mpi distribution installed on your particular machine)
 
 == Comparing the statistics in DD0273 ==
 running the included YT analysis script (findextrema.py and variance.py) with python in the 
@@ -103,10 +103,12 @@ Included in the folder are other YT scripts that will generate 2D projections of
 They may be used to generate a projection from inidvidual output or from all the outputs for a
 movie rendering later.
 
-to use the YT scripts to generate the fields first make a folder named frames
+to use the YT scripts to generate the fields first make a folder named "frames"
 >mkdir frames
 then run the YT script with the python installation you installed YT with
 >python <script name>
+for example
+>python moviesDens.py
 
 running script moviesDens.py give:
 movieDensity_0273.png     
