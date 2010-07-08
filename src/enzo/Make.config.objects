@@ -491,7 +491,6 @@ OBJS_CONFIG_LIB = \
 	Grid_RHIonizationSteepInitializeGrid.o \
 	Grid_RHIonizationTestInitializeGrid.o \
 	Grid_RotatingCylinderInitialize.o \
-	Grid_RotatingSphereInitialize.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
 	Grid_SetExternalBoundaryValues.o \
@@ -708,7 +707,6 @@ OBJS_CONFIG_LIB = \
         rotate2d.o \
         rotate3d.o \
         RotatingCylinderInitialize.o \
-        RotatingSphereInitialize.o \
         s66_st1.o \
         s90_st1.o \
         SedovBlastInitialize.o \
