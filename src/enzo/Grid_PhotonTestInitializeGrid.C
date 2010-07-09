@@ -120,8 +120,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     FieldType[NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
-    fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
-    ENZO_FAIL("");
+    ENZO_FAIL("Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
   }
 
   //   Allocate fields for photo ionization and heating rates
@@ -266,8 +265,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   /* Initialize radiation fields */
 
   if (this->InitializeRadiativeTransferFields() == FAIL) {
-    fprintf(stderr, "\nError in InitializeRadiativeTransferFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("\nError in InitializeRadiativeTransferFields.\n");
   }
 
   /* Read density field, if given */
@@ -834,6 +832,7 @@ float ph_gasdev()
 {
   float v1, v2, r = 0, fac, ph_gasdev_ret;
   if (ph_gasdev_iset == 0) {
+
     while (r >= 1 || r == 0) {
       v1 = 2.0*float(rand())/(float(RAND_MAX)) - 1.0;
       v2 = 2.0*float(rand())/(float(RAND_MAX)) - 1.0;

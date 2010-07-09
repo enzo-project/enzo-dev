@@ -209,8 +209,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "CubeDump[%"ISYM"] = %s", &dim, dummy) == 2) {
       ret++; CubeDumps[dim] = dummy;
       if (dim >= MAX_CUBE_DUMPS) {
-        fprintf(stderr, "CubeDump %"ISYM" > maximum allowed.\n", dim);
-        ENZO_FAIL("");
+        ENZO_VFAIL("CubeDump %"ISYM" > maximum allowed.\n", dim)
       }
     }
 
@@ -223,8 +222,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
       ret++; TimeActionType[dim] = int_dummy;
       if (dim >= MAX_TIME_ACTIONS-1) {
-	fprintf(stderr, "Time action %"ISYM" > maximum allowed.\n", dim);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Time action %"ISYM" > maximum allowed.\n", dim)
       }
     }
     if (sscanf(line, "TimeActionRedshift[%"ISYM"] = ", &dim) == 1)
@@ -463,14 +461,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                   &MustRefineParticlesRefineToLevel);
     ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
+    ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,
+                  &MustRefineParticlesMinimumMass);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
  
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
-        fprintf(stderr, "StaticRegion number %"ISYM" > MAX allowed\n", dim);
-        ENZO_FAIL("");
+        ENZO_VFAIL("StaticRegion number %"ISYM" > MAX allowed\n", dim)
       }
       ret++;
       StaticRefineRegionLevel[dim] = int_dummy;
@@ -891,6 +890,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Units")               ) ret++;
     if (strstr(line, "RadiatingShock")      ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
+    if (strstr(line, "RotatingSphere")    ) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
@@ -970,8 +970,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     if (CosmologyReadParameters(fptr, &MetaData.StopTime, &MetaData.Time)
 	== FAIL) {
-      fprintf(stderr, "Error in ReadCosmologyParameters.\n");;
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ReadCosmologyParameters.\n");
     }
     rewind(fptr);
   }
@@ -987,6 +986,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     Gamma = 1; 
   */
 
+  /* convert MustRefineParticlesMinimumMass from a mass into a density, 
+     ASSUMING CUBE simulation space */
+    MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
+
+
+    /* Use Physical units stuff */
+
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
     TimeUnits = 1.0, VelocityUnits = 1.0, PressureUnits = 1.0;
   double MassUnits = 1.0;
@@ -997,7 +1004,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /*IMOPORTANT: If change anything here must change both equivilant parts in WriteParameterFile.C as well */
 
     /* Change input physical parameters into code units */
-
+    MustRefineParticlesMinimumMass /= MassUnits; 
     StarMakerOverDensityThreshold /= DensityUnits;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     
@@ -1381,6 +1388,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
+
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 }

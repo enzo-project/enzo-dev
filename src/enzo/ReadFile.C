@@ -126,9 +126,10 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   // Error check name
  
-  if (name == NULL)
-    ENZO_FAIL("");
- 
+  if (name == NULL) {
+    ENZO_FAIL("Undefined Name!\n");
+  }
+
   // Open the HDF5 file
  
   if (io_log) fprintf(log_fptr, "H5Fopen with Name = %s\n", name);
@@ -191,18 +192,15 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check
  
   if (Rank < 1 || Rank > 3) {
-    fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank %"ISYM" not supported.\n", Rank)
   }
  
   if (Npart != component_rank_attr) {
-    fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Npart and Component_Rank do not agree!\n");
   }
  
   if (TempInt != Rank) {
-    fprintf(stderr, "Rank mismatch in %s.\n", name);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank mismatch in %s.\n", name)
   }
  
   // Check dimensions
@@ -219,7 +217,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
 	       EndIndex[0]-StartIndex[0]+1, 
 	       EndIndex[1]-StartIndex[1]+1, 
 	       EndIndex[2]-StartIndex[2]+1);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Dimension mismatch in %s!\n",name)
       }
  
   // Compute size of HDF5 field
@@ -486,5 +484,6 @@ void ReadAttribute(hid_t dset_id, int *Attribute, char *AttributeName, FILE *log
   h5_status = H5Aclose(attr_id);
   if (io_log) fprintf(log_fptr, "H5Aclose: %"ISYM"\n", h5_status);
   if( h5_status == h5_error ){ENZO_FAIL("IO Problem");}
+
  
 }

@@ -885,7 +885,6 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromParent.o \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
-        Grid_SolveCoupledRateEquations.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \

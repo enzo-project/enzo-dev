@@ -48,8 +48,7 @@ int ReadRadiationData(FILE *fptr)
  
   if (fscanf(fptr, "TimeFieldLastUpdated = %"PSYM,
 	     &RadiationData.TimeFieldLastUpdated) != 1) {
-    fprintf(stderr, "Error reading TimeFieldLastUpdated.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error reading TimeFieldLastUpdated.\n");
   }
     
   /* read in field. */
@@ -61,8 +60,7 @@ int ReadRadiationData(FILE *fptr)
 		 RadiationData.Spectrum[0]+i, RadiationData.Spectrum[1]+i,
 		 RadiationData.Spectrum[2]+i, RadiationData.Spectrum[3]+i)
 	  != 4) {
-	fprintf(stderr, "Error reading RadiationData line %"ISYM"\n", i);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading RadiationData line %"ISYM"\n", i)
       }
 
   }
@@ -76,15 +74,14 @@ int ReadRadiationData(FILE *fptr)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, 
 	       RadiationData.TimeFieldLastUpdated) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
     if (CosmologyComputeExpansionFactor(RadiationData.TimeFieldLastUpdated,
 					&a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+
     }
     aUnits = 1.0/(1.0 + InitialRedshift);
   }

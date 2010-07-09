@@ -157,7 +157,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
     float *niold, *ninew;
     for (l=2; l<=Nchem+1; l++) {
       loc_est[l] = 0.0;
-      if (dtfac[l] != huge_number) {
+      if (dtfac[2] != huge_number) {
 	niold = uold->GetData(l);
 	ninew = unew->GetData(l);
 	atol = 0.001; // assumes values are normalized
@@ -165,7 +165,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfac[2]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i] 
@@ -178,7 +178,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfac[2]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i]

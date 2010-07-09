@@ -209,6 +209,17 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       }
       break;
     /* ==== undefined ==== */
+
+    /* ==== METHOD 18: BY POSITION OF MUST-REFINE PARTICLES ONLY ABOVE A CERTAIN MASS  ==== */
+  case 18:
+
+    /* Searching for must-refine particles now done in
+       grid::SetParticleMassFlaggingField and stored in
+       ParticleMassFlaggingField.  This is checked in method #4, which
+       is automatically turned if method #8 is specified. */
+
+    break;
+ 
  
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  
@@ -223,9 +234,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     break;
  
   default:
-    fprintf(stderr, "CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
-	    CellFlaggingMethod[method]);
-    ENZO_FAIL("");
+    ENZO_VFAIL("CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
+	    CellFlaggingMethod[method])
  
   }
 
@@ -244,6 +254,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 #endif /* MPI_INSTRUMENTATION */
  
   if (debug1)
+
     printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
 	   method, NumberOfFlaggedCells);
  

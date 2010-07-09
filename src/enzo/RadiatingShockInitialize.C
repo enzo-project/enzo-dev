@@ -105,8 +105,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* make sure it is 2D or 3D */
  
   if (MetaData.TopGridRank < 2 || MetaData.TopGridRank > 3) {
-    printf("Cannot do RadiatingShock in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot do RadiatingShock in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
  
   /* There are many parameters:  geometry (cylindrical or spherical symmetry),
@@ -322,8 +321,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (TestProblemData.UseMassInjection) {
     // Make sure total mass is not zero.
     if ((TestProblemData.InitialHydrogenMass <= 0.0) && (TestProblemData.InitialHeliumMass <= 0.0)) {
-      fprintf(stderr,"Hydrogen and helium mass cannot both be zero.  That would be zero mass in the center.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Hydrogen and helium mass cannot both be zero.  That would be zero mass in the center.\n");
     }
 
     // 2D
@@ -770,6 +768,7 @@ int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     fprintf(Outfptr, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM"\n", TestProblemData.MultiMetalsField2_Fraction);
 
   } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
+
  
   return SUCCESS;
  

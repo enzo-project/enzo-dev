@@ -87,8 +87,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       DeleteSourceClusteringTree(OldSourceClusteringTree);
     OldSourceClusteringTree = SourceClusteringTree;
     if (ReassignSuperSources(LevelArray) == FAIL) {
-      fprintf(stderr, "Error in ReassignSuperSources.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in ReassignSuperSources.\n");
     }
     SourceClusteringTree = NULL;
 //    if (SourceClusteringTree != NULL)
@@ -170,9 +169,8 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     qsort(SourceList, nShine, sizeof(SuperSourceData), compare_z);
     break;
   default:
-    fprintf(stderr, "sort_dim = %"ISYM" ?!  This should never be greater than 2.\n",
-	    sort_dim);
-    ENZO_FAIL("");
+    ENZO_VFAIL("sort_dim = %"ISYM" ?!  This should never be greater than 2.\n",
+	    sort_dim)
   } // ENDSWITCH
   loop_count++;
 
@@ -265,6 +263,7 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf)
 
   for (i = 0; i < MAX_LEAF; i++)
     if (leaf->ChildSource[i] != NULL)
+
       PrintSourceClusteringTree(leaf->ChildSource[i]);
 
 }

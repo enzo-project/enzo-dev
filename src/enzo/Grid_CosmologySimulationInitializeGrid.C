@@ -386,8 +386,7 @@ int grid::CosmologySimulationInitializeGrid(
       if (READFILE(CosmologySimulationVelocityNames[dim], GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   BaryonField[vel+dim], &tempbuffer, idim, ndim) == FAIL) {
-	fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
       }
     } // ENDFOR dim
   } // ENDIF grid velocities
@@ -560,9 +559,8 @@ int grid::CosmologySimulationInitializeGrid(
     // Error check
  
     if (TempInt != 1) {
-      fprintf(stderr, "Rank (%"ISYM") is not one in file %s.\n", TempInt,
-	      CosmologySimulationParticlePositionName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Rank (%"ISYM") is not one in file %s.\n", TempInt,
+	      CosmologySimulationParticlePositionName)
     }
  
     // If doing parallel root grid IO then read in the full list of particle
@@ -807,8 +805,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   if ( TotParticleCount != TotalParticleCount )
   {
-    printf("DISASTER! Inconsistent particle count\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("DISASTER! Inconsistent particle count\n");
   }
  
   NumberOfParticles = NumSortedParticles;
@@ -1484,8 +1481,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
  
         if ( Slab_Rank != 2 )
         {
-          printf(" MAJOR ERROR!! Particle Slab_Rank != 2\n");
-          ENZO_FAIL("");
+          ENZO_FAIL(" MAJOR ERROR!! Particle Slab_Rank != 2\n");
         }
  
         Slab_Dims[0] = component_rank_attr;
@@ -2456,8 +2452,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
       for (dim = 0; dim < GridRank; dim++) {
 	if (READFILE(CosmologySimulationParticlePositionName, 1, Dim,
 		     Start, End, Zero, NULL, &tempbuffer, dim, 3) == FAIL) {
-	  fprintf(stderr, "Error reading particle position %"ISYM".\n", dim);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error reading particle position %"ISYM".\n", dim)
 	}
 	for (i = Start[0]; i <= End[0]; i++)
 	  ParticlePosition[dim][i] = FLOAT(tempbuffer[i]);
@@ -2473,8 +2468,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
 	for (dim = 0; dim < GridRank; dim++) {
 	  if (READFILE(CosmologySimulationParticleVelocityName, 1, Dim,
 	     Start, End, Zero, ParticleVelocity[dim], &tempbuffer, dim, 3) == FAIL) {
-	    fprintf(stderr, "Error reading particle velocity %"ISYM".\n", dim);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error reading particle velocity %"ISYM".\n", dim)
 	  }
 //        fcol(ParticleVelocity[dim], NumberOfParticles, 10, log_fptr);
 	}
@@ -2624,6 +2618,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
   OldTime = Time;
  
   if (io_log) fclose(log_fptr);
+
  
   return SUCCESS;
 }

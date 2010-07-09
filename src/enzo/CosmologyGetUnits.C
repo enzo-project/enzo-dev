@@ -53,8 +53,8 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
  
   FLOAT a, dadt;
   if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-    fprintf(stderr, "Error in ComputeExpansionFactor.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeExpansionFactor.\n");
+
   }
  
   /* Compute the current redshift (remember a(init) = 1). */

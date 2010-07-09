@@ -60,8 +60,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   char line[MAX_LINE_LENGTH];
@@ -219,8 +218,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   
   if (RadiativeTransferSourceClustering == TRUE)
     if (CreateSourceClusteringTree(NULL, NULL, NULL) == FAIL) {
-      fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CreateSourceClusteringTree.\n");
+
     }
   
   return SUCCESS;

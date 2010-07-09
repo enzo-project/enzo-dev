@@ -71,8 +71,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
     int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifyPhysicalQuantities.\n");
     }
  
     /* If using comoving coordinates, compute a(t) because we'll need it
@@ -82,8 +81,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 //    FLOAT a = 1, dadt;
 //    if (ComovingCoordinates)
 //      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-//        fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-//        ENZO_FAIL("");
+//        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
 //      }
  
     /* Main loop over all faces. */
@@ -101,8 +99,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	       RefinedFluxes->LeftFluxStartGlobalIndex[dim][j])  ||
 	      (InitialFluxes->LeftFluxEndGlobalIndex[dim][j] !=
 	       RefinedFluxes->LeftFluxEndGlobalIndex[dim][j])) {
-	    fprintf(stderr,"InitialFluxes & RefinedFluxes are different.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("InitialFluxes & RefinedFluxes are different.\n");
 	  }
  
 	/* Error check Fluxes to make sure they all exist. */
@@ -112,8 +109,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      (RefinedFluxes->LeftFluxes[field][dim] == NULL) ||
 	      (InitialFluxes->RightFluxes[field][dim] == NULL) ||
 	      (RefinedFluxes->RightFluxes[field][dim] == NULL)) {
-	    fprintf(stderr,"Some Flux data is not present.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Some Flux data is not present.\n");
 	  }
  
 	/* Compute Start and end indicies of flux region (with respect to
@@ -139,7 +135,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    fprintf(stderr, "%"GOUTSYM" %"GOUTSYM" %ld\n",
 		    CellLeftEdge[i][0], CellWidth[i][0],
 		    InitialFluxes->LeftFluxStartGlobalIndex[dim][i]);
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in Grid_CorrectForRefinedFluxes!\n");
 	  }
 	}
  
@@ -278,22 +274,23 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == InternalEnergy) &&
 		    BaryonField[field][FieldIndex] <= 0) {
 		  if (debug)
-		  printf("CFRFl warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-			 BaryonField[field][FieldIndex],
-			 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-			 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
-			 i, j, k, dim, field);
- 
+		    printf("CFRFl warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+			   BaryonField[field][FieldIndex],
+			   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+			   i, j, k, dim, field);
+		  
 		  /* If new density is < 0 then stop the flux correction. */
  
 		  BaryonField[field][FieldIndex] -=
-		     (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-		      RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
+		    (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
+		     RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
 
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
-//		  ENZO_FAIL("");
+		  
+		  ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 		/* Right side */
@@ -313,11 +310,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     FieldType[field] == InternalEnergy) &&
 		    BaryonField[field][FieldIndex + Offset] <= 0.0) {
 		  if (debug)
-		  printf("CFRFr warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" (%"ISYM") [%"ISYM"]\n",
-			 BaryonField[field][FieldIndex + Offset],
-			 InitialFluxes->RightFluxes[field][dim][FluxIndex],
-			 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
-			 i, j, k, dim, Offset, field);
+		    printf("CFRFr warn: %e %e %e %"ISYM" %"ISYM" %"ISYM" %"ISYM" (%"ISYM") [%"ISYM"]\n",
+			   BaryonField[field][FieldIndex + Offset],
+			   InitialFluxes->RightFluxes[field][dim][FluxIndex],
+			   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+			   i, j, k, dim, Offset, field);
  
 		  /* If new density is < 0 then stop the flux correction. */
  
@@ -328,7 +325,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
-//		  ENZO_FAIL("");
+
+		  ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 	      }
@@ -409,6 +407,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
+
 	      FieldType[field] < FieldUndefined &&
 	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)

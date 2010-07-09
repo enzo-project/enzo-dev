@@ -283,8 +283,8 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   /* Receive grids */
 
   if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("");
-
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+  
   /* Update processor numbers */
   
   for (i = 0; i < NumberOfGrids; i++) {
@@ -302,6 +302,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 #ifdef UNUSED
   CommunicationSumValues(ProcessorComputeTime, NumberOfProcessors);
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
     float norm = ProcessorComputeTime[0];
     for (i = 1; i < NumberOfProcessors; i++)

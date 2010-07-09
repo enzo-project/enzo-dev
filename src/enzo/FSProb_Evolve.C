@@ -272,11 +272,11 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
 //   if (debug)  printf("Writing out initial guess to file x.vec\n");
 //   HYPRE_StructVectorPrint("x.vec",solvec,0);
 
-  //       set up the solver [BiCGStab] and preconditioner [PFMG]
+  //       set up the solver [GMRES] and preconditioner [PFMG]
   //          create the solver & preconditioner
   HYPRE_StructSolver solver;
   HYPRE_StructSolver preconditioner;
-  HYPRE_StructBiCGSTABCreate(MPI_COMM_WORLD, &solver);
+  HYPRE_StructGMRESCreate(MPI_COMM_WORLD, &solver);
   HYPRE_StructPFMGCreate(MPI_COMM_WORLD, &preconditioner);
 
   //          set preconditioner options
@@ -286,30 +286,30 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   HYPRE_StructPFMGSetNumPostRelax(preconditioner, sol_npost);
 
   //          set solver options
-  HYPRE_StructBiCGSTABSetPrintLevel(solver, sol_printl);
-  HYPRE_StructBiCGSTABSetLogging(solver, sol_log);
+  HYPRE_StructGMRESSetPrintLevel(solver, sol_printl);
+  HYPRE_StructGMRESSetLogging(solver, sol_log);
   if (rank > 1) {
-    HYPRE_StructBiCGSTABSetMaxIter(solver, sol_maxit);
-    HYPRE_StructBiCGSTABSetPrecond(solver, 
+    HYPRE_StructGMRESSetMaxIter(solver, sol_maxit);
+    HYPRE_StructGMRESSetPrecond(solver, 
 		     (HYPRE_PtrToStructSolverFcn) HYPRE_StructPFMGSolve,  
 		     (HYPRE_PtrToStructSolverFcn) HYPRE_StructPFMGSetup, 
 		      preconditioner);
   }
-  else {    // ignore smg preconditioner for 1D tests (bug); increase CG its
-    HYPRE_StructBiCGSTABSetMaxIter(solver, sol_maxit*500);
+  else {    // ignore preconditioner for 1D tests (bug); increase CG its
+    HYPRE_StructGMRESSetMaxIter(solver, sol_maxit*500);
   }
-  if (delta != 0.0)  HYPRE_StructBiCGSTABSetTol(solver, delta);
-  HYPRE_StructBiCGSTABSetup(solver, J, rhsvec, solvec);
+  if (delta != 0.0)  HYPRE_StructGMRESSetTol(solver, delta);
+  HYPRE_StructGMRESSetup(solver, J, rhsvec, solvec);
 
   //       solve the linear system
-  HYPRE_StructBiCGSTABSolve(solver, J, rhsvec, solvec);
+  HYPRE_StructGMRESSolve(solver, J, rhsvec, solvec);
 
   //       extract solver & preconditioner statistics
   Eflt64 finalresid=1.0;
   Eint32 Sits=0;
   Eint32 Pits=0;
-  HYPRE_StructBiCGSTABGetFinalRelativeResidualNorm(solver, &finalresid);
-  HYPRE_StructBiCGSTABGetNumIterations(solver, &Sits);
+  HYPRE_StructGMRESGetFinalRelativeResidualNorm(solver, &finalresid);
+  HYPRE_StructGMRESGetNumIterations(solver, &Sits);
   HYPRE_StructPFMGGetNumIterations(preconditioner, &Pits);
   totIters += Sits;
   if (debug)
@@ -341,7 +341,7 @@ int FSProb::Evolve(HierarchyEntry *ThisGrid, float deltat)
   }
 
   //       destroy HYPRE solver structures
-  HYPRE_StructBiCGSTABDestroy(solver);
+  HYPRE_StructGMRESDestroy(solver);
   HYPRE_StructPFMGDestroy(preconditioner);
 
 #else  // ifdef USE_HYPRE

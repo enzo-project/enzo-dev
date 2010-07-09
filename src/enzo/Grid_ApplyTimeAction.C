@@ -47,8 +47,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   /* Determine the size of the grids. */
@@ -63,8 +62,7 @@ int grid::ApplyTimeAction(int Type, float Parameter)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* ----------------------------------------------------------------
@@ -98,8 +96,8 @@ int grid::ApplyTimeAction(int Type, float Parameter)
  
     /* Type unknown. */
  
-    fprintf(stderr, "TimeAction Type %"ISYM" unknown.\n", Type);
-    ENZO_FAIL("");
+    ENZO_VFAIL("TimeAction Type %"ISYM" unknown.\n", Type)
+
   }
  
   return SUCCESS;

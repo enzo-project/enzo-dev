@@ -148,8 +148,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 					 SphericalInfallOmegaCDMNow,
 					 SphericalInfallSubgridIsStatic
 						  ) == FAIL){
-    fprintf(stderr, "Error in SphericalInfallInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in SphericalInfallInitializeGrid.\n");
   }
  
   /* If requested, create a subgrid */
@@ -206,8 +205,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 				   SphericalInfallOmegaCDMNow,
 				   FALSE)
 	== FAIL) {
-      fprintf(stderr, "Error in SphericalInfallInitializeGrid (2).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in SphericalInfallInitializeGrid (2).\n");
     }			
   }
  
@@ -255,6 +253,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "SphericalInfallInitialPerturbation = %"GSYM"\n",
 	    SphericalInfallInitialPerturbation);
     fprintf(Outfptr, "SphericalInfallSubgridLeft         = %"GOUTSYM"\n",

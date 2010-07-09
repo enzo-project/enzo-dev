@@ -66,10 +66,10 @@ int FindRootGrid(int &dummy, grid **Grids0, int nGrids0,
     
   }
 
-  fprintf(stderr, "FindRootGrid: Couldn't find root grid.\n"
-	  "x y z = %"FSYM" %"FSYM" %"FSYM"\n", 
-	  BumpPos[0], BumpPos[1], BumpPos[2]);
   dummy = nGrids0-1;
-  ENZO_FAIL("");
+  ENZO_VFAIL("FindRootGrid: Couldn't find root grid.\n"
+	  "x y z = %"FSYM" %"FSYM" %"FSYM"\n", 
+	  BumpPos[0], BumpPos[1], BumpPos[2])
+
 
 }

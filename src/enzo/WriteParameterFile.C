@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -28,6 +29,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
+
  
 /* function prototypes */
  
@@ -48,8 +50,8 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 {
  
-
-
+  MustRefineParticlesMinimumMass *= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   int dim;
  
@@ -60,8 +62,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
@@ -71,7 +72,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     presu = rhou*lenu*lenu/tu/tu;
 
     /* Change input physical parameters into real units */
-
+    MustRefineParticlesMinimumMass *= massu;
     StarMakerOverDensityThreshold *= rhou;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     
@@ -105,6 +106,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
 
   }
+
 
   /* write data to Parameter output file */
  
@@ -467,6 +469,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
           MustRefineParticlesRefineToLevelAutoAdjust);
+  fprintf(fptr, "MustRefineParticlesMinimumMass = %"FSYM"\n",
+          MustRefineParticlesMinimumMass);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
@@ -809,14 +813,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (ComovingCoordinates) {
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
-      fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyWriteParameters.\n");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
-      fprintf(stderr, "Error in WriteUnits.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteUnits.\n");
     }
   }
 
@@ -825,14 +827,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
-    fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiativeTransferWriteParameters.\n");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in WritePhotonSources.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WritePhotonSources.\n");
     }
 #endif
 
@@ -848,6 +848,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
+    MustRefineParticlesMinimumMass /= massu;
     /*
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
@@ -866,6 +867,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
 
   }
+
+  MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   /* Output current time */
   time_t ID;
@@ -889,6 +893,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	    MetaData.RestartDatasetUUID);
   }
   if(MetaData.InitialConditionsUUID != NULL){
+
     fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
 	    MetaData.InitialConditionsUUID);
   }

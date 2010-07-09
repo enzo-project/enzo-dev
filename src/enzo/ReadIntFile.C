@@ -128,7 +128,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check name
  
   if (name == NULL) {
-    ENZO_FAIL("");
+    ENZO_FAIL("Undefined Name!\n");
   }
  
   // Open the HDF5 file and dataset
@@ -271,18 +271,15 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   // Error check
  
   if (Rank < 1 || Rank > 3) {
-    fprintf(stderr, "Rank %"ISYM" not supported.\n", Rank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank %"ISYM" not supported.\n", Rank)
   }
  
   if (Npart != component_rank_attr) {
-    fprintf(stderr, "Npart and Component_Rank do not agree!\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Npart and Component_Rank do not agree!\n");
   }
  
   if (TempInt != Rank) {
-    fprintf(stderr, "Rank mismatch in %s.\n", name);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Rank mismatch in %s.\n", name)
   }
  
   // Check dimensions
@@ -290,8 +287,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   if (ParallelRootGridIO == FALSE)
     for (dim = 0; dim < Rank; dim++)
       if (TempIntArray[dim] != (EndIndex[dim]-StartIndex[dim]+1)) {
-	fprintf(stderr, "Dimension mismatch in %s.\n", name);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Dimension mismatch in %s.\n", name)
       }
  
   // Compute size of HDF5 field
@@ -541,6 +537,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   delete [] (*tempbuffer);
  
   if (io_log) fclose(log_fptr);
+
  
   return SUCCESS;
  

@@ -370,6 +370,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
+  MustRefineParticlesMinimumMass   = 0.0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;

@@ -39,10 +39,9 @@ def load_vals(tdump):
     Eg3D = f.get('/Grid00000001/Grey_Radiation_Energy')
     et3D = f.get('/Grid00000001/Total_Energy')
     nx, ny, nz = Eg3D.shape
-    result = []
-    result.append(sum(Eg3D)/ny/nz/nx*dUnit*lUnit*lUnit/tUnit/tUnit)
-    result.append(sum(et3D)/ny/nz/nx*lUnit*lUnit/tUnit/tUnit)
-    result.append(tval*tUnit)
+    Egval = sum(sum(sum(Eg3D)))/ny/nz/nx*dUnit*lUnit*lUnit/tUnit/tUnit
+    etval = sum(sum(sum(et3D)))/ny/nz/nx*lUnit*lUnit/tUnit/tUnit
+    result = [Egval, etval, tval*tUnit]
     return result
 
 

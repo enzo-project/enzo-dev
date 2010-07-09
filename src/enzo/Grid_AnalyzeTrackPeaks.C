@@ -67,8 +67,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
-    fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
   }
  
   /* Find fields: density, total energy, velocity1-3. */
@@ -76,8 +75,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Open output file. */
@@ -85,8 +83,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
   sprintf(PeakOutputName, "%s.L%1.1"ISYM, "PeakData", level);
  
   if ((fptr = fopen(PeakOutputName, "a")) == FAIL) {
-    fprintf(stderr, "Error opening %s.\n", PeakOutputName);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening %s.\n", PeakOutputName)
   }
  
   /* Compute the MinimumPeakDensity. */
@@ -216,6 +213,7 @@ int grid::AnalyzeTrackPeaks(int level, int ReportLevel)
 */
 	
 	  if (SelfGravity && GravitatingMassFieldParticles != NULL) {
+
 	    int gdims[3], gindex;
 	    for (dim = 0; dim < 3; dim++)
 	      gdims[dim] =

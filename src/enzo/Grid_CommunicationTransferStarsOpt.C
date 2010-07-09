@@ -36,17 +36,19 @@ Star* StarBufferToList(StarBuffer buffer);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
  
 int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-				     int ThisGridNum, int *&NumberToMove, 
+				     int ThisGridNum, int TopGridDims[],
+				     int *&NumberToMove, 
 				     int StartIndex, int EndIndex, 
-				     star_data *&List,
-				     int *Layout, int *GridMap, 
+				     star_data *&List, int *Layout, 
+				     int *GStartIndex[], int *GridMap, 
 				     int CopyDirection)
 {
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num;
+  int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
   int GridPosition[MAX_DIMENSION];
+  FLOAT r[MAX_DIMENSION];
   int *ToGrid;
   Star *cstar, *MoveStar;
 
@@ -77,11 +79,9 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
     ToGrid = new int[NumberOfStars];
 
     float DomainWidth[MAX_DIMENSION], DomainWidthInv[MAX_DIMENSION];
-    float LayoutFloat[MAX_DIMENSION];
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
       DomainWidthInv[dim] = 1.0/DomainWidth[dim];
-      LayoutFloat[dim] = (float) Layout[dim];
     }
 
     // Periodic boundaries
@@ -95,13 +95,43 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 
     for (cstar = Stars, i = 0; cstar; cstar = cstar->NextStar, i++) {
 
-      for (dim = 0; dim < GridRank; dim++) {
-	GridPosition[dim] = 
-	  (int) (LayoutFloat[dim] * 
-		 (cstar->pos[dim] - DomainLeftEdge[dim]) *
-		 DomainWidthInv[dim]);
-	GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+      if (this->PointInGrid(cstar->pos) == TRUE) {
+	grid = ThisGridNum;
       }
+
+      /* Star outside grid.  Find new grid. */
+
+      else {
+
+      for (dim = 0; dim < GridRank; dim++) {
+	CenterIndex = 
+	  (int) (TopGridDims[dim] * 
+		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
+		 DomainWidthInv[dim]);
+
+	// Binary search in the StartIndex to see where this grid lies
+	// in the partitions
+	width = bin = Layout[dim]/2;
+	if (width <= 1) {
+	  for (bin = 1; bin < Layout[dim]; bin++)
+	    if (CenterIndex < GStartIndex[dim][bin])
+	      break;
+	  bin = min(bin-1, Layout[dim]-1);
+	} else {
+	  while (width > 1) {
+	    width >>= 1;
+	    if (CenterIndex > GStartIndex[dim][bin])
+	      bin += width;
+	    else if (CenterIndex < GStartIndex[dim][bin])
+	      bin -= width;
+	    else
+	      break;
+	  } // ENDWHILE
+	} // ENDELSE (width == 1)
+
+	GridPosition[dim] = bin;
+	//GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+      } // ENDFOR dim
 
       grid_num = GridPosition[0] + 
 	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
@@ -110,7 +140,11 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
       }
+
+      } // ENDELSE PointInGrid()
+
       ToGrid[i] = grid;
+
     } // ENDFOR stars
 
     /* Allocate space. */

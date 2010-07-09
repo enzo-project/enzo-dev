@@ -30,16 +30,15 @@ int CosmologyComputeExpansionTimestep(FLOAT time, float *dtExpansion)
   /* Error check. */
  
   if (InitialTimeInCodeUnits == 0) {
-    fprintf(stderr, "The cosmology parameters seem to be improperly set.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("The cosmology parameters seem to be improperly set.\n");
   }
  
   /* Compute the expansion factors. */
  
   FLOAT a, dadt;
   if (CosmologyComputeExpansionFactor(time, &a, &dadt) == FAIL) {
-    fprintf(stderr, "Error in ComputeExpnasionFactors.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in ComputeExpnasionFactors.\n");
+
   }
  
   /* Compute the maximum allwed timestep given the maximum allowed

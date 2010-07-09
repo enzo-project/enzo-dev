@@ -38,8 +38,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
   /* Loop over all the grids in the queue SubgridList. */
 
   if ( NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS ) {
-    fprintf(stderr, "PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber);
-    ENZO_FAIL("");
+    ENZO_VFAIL("PE %"ISYM" NumberOfSubgrids > MAX_NUMBER_OF_SUBGRIDS in IdentifyNewSubgridsBySignature\n", MyProcessorNumber)
   }
  
   int index = 0;
@@ -123,8 +122,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	
 	  if (Subgrid->ComputeSecondDerivative(dim, TempInt,
 					       &GridEnds[dim*2]) == FAIL) {
-	   fprintf(stderr,"Error in ProtoSubgrid->ComputeSecondDerivative.\n");
-	   ENZO_FAIL("");
+	   ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
 	  }
 	
 	  if (TempInt > MaxZeroCrossingStrength) {
@@ -168,6 +166,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
       /* Shrink this subgrid (if necessary) to produce the smallest box. */
  
       if (Subgrid->ShrinkToMinimumSize() == FAIL) {
+
 	ENZO_FAIL("Error in ProtoSubgrid->ShrinkToMinimumSize.");
       }
  

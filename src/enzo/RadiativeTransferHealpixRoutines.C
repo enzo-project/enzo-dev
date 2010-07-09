@@ -118,13 +118,11 @@ int pix2vec_nest(long nside, long ipix, FLOAT *v, double (*vertex)[3]=0)
   int jpll[12]={1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7}; // coordinate of the lowest corner of each face in unit of nside/2
 
   if( nside<1 || nside>ns_max ) {
-    fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    ENZO_FAIL("");
+    ENZO_VFAIL("%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside)
   }
   npix = 12 * nside*nside;
   if( ipix<0 || ipix>npix-1 ) {
-    fprintf(stderr, "%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix);
-    ENZO_FAIL("");
+    ENZO_VFAIL("%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix)
   }
 
   /* initiates the array for the pixel number -> (x,y) mapping */
@@ -271,9 +269,8 @@ int vec2pix_nest( const long nside, FLOAT *vec, long *ipix) {
   //  static char setup_done = 0;
 
   if( nside<1 || nside>ns_max ) {
-    fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", 
-	    __FILE__, __LINE__, nside);
-    ENZO_FAIL("");
+    ENZO_VFAIL("%s (%"ISYM"): nside out of range: %ld\n", 
+	    __FILE__, __LINE__, nside)
   }
   //  if( !setup_done ) {
   //    mk_xy2pix(x2pix,y2pix);
@@ -378,13 +375,11 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
   int jrll[12]={2,2,2,2,3,3,3,3,4,4,4,4}, jpll[12]={1,3,5,7,0,2,4,6,1,3,5,7};
 
   if( nside<1 || nside>ns_max ) {
-    fprintf(stderr, "%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside);
-    ENZO_FAIL("");
+    ENZO_VFAIL("%s (%"ISYM"): nside out of range: %ld\n", __FILE__, __LINE__, nside)
   }
   npix = 12 * nside*nside;
   if( ipix<0 || ipix>npix-1 ) {
-    fprintf(stderr, "%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix);
-    ENZO_FAIL("");
+    ENZO_VFAIL("%s (%"ISYM"): ipix out of range: %ld\n", __FILE__, __LINE__, ipix)
   }
 
   /* initiates the array for the pixel number -> (x,y) mapping */
@@ -632,6 +627,7 @@ int pix2coord_nest( long nside, long ipix, int xsize, int ysize,
 	tempx[npts] = (int) (xcenter - dxdy*(yrange[1]-i) + 0.5);
       else { // polar 1/phi^2 curve
 	if (pole > 0) {
+
 	  sqr_fact = kprime[1]*cc;
 	  tempx[npts] = xoffset + 
 	    (int) (xfactor * (piover2 - sqr_fact / sqrt(1-ycoord)) + 0.5);

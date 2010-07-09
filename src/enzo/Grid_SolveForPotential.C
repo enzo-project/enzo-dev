@@ -65,8 +65,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   FLOAT a = 1, dadt;
   if (ComovingCoordinates)
     if (CosmologyComputeExpansionFactor(PotentialTime, &a, &dadt) == FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactor.\n");
     }
  
   /* Compute right hand side. */
@@ -125,8 +124,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   if (MultigridSolver(rhs, PotentialField, GridRank,
 		      GravitatingMassFieldDimension, norm, mean,
 		      GravitySmooth, tol_dim, MAX_ITERATION) == FAIL) {
-    fprintf(stderr, "Error in MultigridDriver.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in MultigridDriver.\n");
   }
  
 #ifdef UNUSED
@@ -134,13 +132,11 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     if (MultigridSolver(rhs, PotentialField, GridRank,
 			GravitatingMassFieldDimension, norm, mean,
 			GravitySmooth) == FAIL) {
-      fprintf(stderr, "Error in MultigridDriver.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in MultigridDriver.\n");
     }
     printf("%"ISYM" %"GSYM"\n", iteration, norm/mean);
     if (iteration++ > MAX_ITERATION) {
-      fprintf(stderr, "exceeding iteration count (%"ISYM")\n", iteration);
-      ENZO_FAIL("");
+      ENZO_VFAIL("exceeding iteration count (%"ISYM")\n", iteration)
     }
   }
 #endif /* UNUSED */
@@ -160,6 +156,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     minPot = min(minPot,PotentialField[i]);
   }
   if (debug1) printf("SolvedPotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
+
 #endif
  
   LCAPERF_STOP("grid_SolveForPotential");

@@ -269,8 +269,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 // 		     ImplicitSolver,
 // #endif
 // 		     LevelArray[level]->GridData->ReturnTime()) == FAIL) {
-//       fprintf(stderr, "Error in WriteAllData.\n");
-//       ENZO_FAIL("");
+//       ENZO_FAIL("Error in WriteAllData.\n");
 //     }
 // #endif
   }//WriteOutput == TRUE
@@ -282,6 +281,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       MetaData->AmiraGrid.AMRHDF5CloseSeparateParticles();
     }
     if (MyProcessorNumber == ROOT_PROCESSOR) {
+
       fprintf(stderr, "Stopping due to request on level %"ISYM"\n", level);
       Exit_fptr = fopen("RunFinished", "w");
       fclose(Exit_fptr);

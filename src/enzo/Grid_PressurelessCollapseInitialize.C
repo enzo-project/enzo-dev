@@ -34,8 +34,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
  
   if (PressurelessCollapseDirection > GridRank-1 ||
       GridDimension[PressurelessCollapseDirection] == 1) {
-    fprintf(stderr, "PressurelessCollapseDirection not properly defined.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("PressurelessCollapseDirection not properly defined.\n");
   }
  
   /* create fields */
@@ -85,6 +84,7 @@ int grid::PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
     if (GridRank > 1)
       *(BaryonField[3] + i) = 0;
     if (GridRank > 2)
+
       *(BaryonField[4] + i) = 0;
   }
  

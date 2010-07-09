@@ -37,13 +37,11 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 {
  
   if (BaryonField[NumberOfBaryonFields] == NULL) {
-    fprintf(stderr, "UNDER_SUBGRID_FLAG field not set.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.\n");
   }
  
   if (SelfGravity && GravityResolution != 1) {
-    fprintf(stderr, "OutputAsParticleData assumes GravityResolution == 1.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("OutputAsParticleData assumes GravityResolution == 1.\n");
   }
  
   /* Declarations */
@@ -60,8 +58,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
@@ -109,16 +106,14 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
  
     /* Compute the temperature. */
  
     float *temperature = new float[size];
     if (this->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
     }
  
     /* Find the start and stop indicies in the ProjectionDimension of this
@@ -308,6 +303,7 @@ int grid::OutputAsParticleData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   } // end: loop over particles
  
   if (debug)
+
     printf("Grid %"ISYM" %"ISYM" %"ISYM": NumberOfParticles = %"ISYM" %"ISYM"\n", GridDimension[0],
 	   GridDimension[1], GridDimension[2],
 	   ParticleList[0]->NumberOfParticles,

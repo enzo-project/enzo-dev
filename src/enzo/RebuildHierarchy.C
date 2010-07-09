@@ -54,8 +54,15 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
+#ifdef OPTIMIZED_CTP
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[]);
+int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
+			       int TopGridDims[]);
+#else
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
+#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -230,8 +237,13 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
+#ifdef OPTIMIZED_CTP
+    CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
+    CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
+#else
     CommunicationTransferParticles(GridPointer, grids);
     CommunicationTransferStars(GridPointer, grids);
+#endif
 
     /* We need to collect particles again */
 

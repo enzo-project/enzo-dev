@@ -440,15 +440,13 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(name, "w")) == NULL) {
-      fprintf(stderr, "Error opening output file %s\n", name);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening output file %s\n", name)
     }
     if (WriteTime >= 0)
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     if (WriteParameterFile(fptr, MetaData) == FAIL) {
-      fprintf(stderr, "Error in WriteParameterFile\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteParameterFile\n");
     }
     fclose(fptr);
   
@@ -458,15 +456,13 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) {
-      fprintf(stderr, "Error opening boundary condition file: %s\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening boundary condition file: %s\n",
+	      MetaData.BoundaryConditionName)
     }
     strcat(MetaData.BoundaryConditionName, hdfsuffix);
     if (Exterior->WriteExternalBoundary(fptr, MetaData.BoundaryConditionName)
 	== FAIL) {
-      fprintf(stderr, "Error in WriteExternalBoundary\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteExternalBoundary\n");
     }
     fclose(fptr);
   
@@ -500,41 +496,35 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) {
-      fprintf(stderr, "Error opening hierarchy file %s\n", hierarchyname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
     }
  
   if (WriteDataHierarchy(fptr, MetaData, TempTopGrid, gridbasename, GridID, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteDataHierarchy\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteDataHierarchy\n");
   }
 
   // Output StarParticle data (actually just number of stars)
  
   if (WriteStarParticleData(fptr, MetaData) == FAIL) {
-    fprintf(stderr, "Error in WriteStarParticleData\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteStarParticleData\n");
   }
  
   // Output memory map
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((mptr = fopen(memorymapname, "w")) == NULL) {
-      fprintf(stderr, "Error opening memory map file %s\n", memorymapname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening memory map file %s\n", memorymapname)
     }
 
   if (WriteMemoryMap(mptr, TempTopGrid, gridbasename, GridKD, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteMemoryMap\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteMemoryMap\n");
   }
 
   // Output configure
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((optr = fopen(configurename, "w")) == NULL) {
-      fprintf(stderr, "Error opening configure file %s\n", configurename);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening configure file %s\n", configurename)
     }
 
     WriteConfigure(optr);
@@ -546,13 +536,11 @@ int WriteAllData(char *basename, int filenumber,
 
 #ifdef TASKMAP
   if ((tptr = fopen(taskmapname, "w")) == NULL) {
-    fprintf(stderr, "Error opening task map file %s\n", taskmapname);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
   }
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteTaskMap\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteTaskMap\n");
   }
 #endif
  
@@ -566,8 +554,7 @@ int WriteAllData(char *basename, int filenumber,
  
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteDataCubes\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteDataCubes\n");
     }
   }
  
@@ -592,12 +579,10 @@ int WriteAllData(char *basename, int filenumber,
     strcat(radiationname, RadiationSuffix);
  
     if ((Radfptr = fopen(radiationname, "w")) == NULL) {
-      fprintf(stderr, "Error opening radiation file %s\n", radiationname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening radiation file %s\n", radiationname)
     }
     if (WriteRadiationData(Radfptr) == FAIL) {
-      fprintf(stderr, "Error in WriteRadiationData\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteRadiationData\n");
     }
  
     fclose(Radfptr);
@@ -609,7 +594,9 @@ int WriteAllData(char *basename, int filenumber,
     fclose(mptr);
   }
 
+#ifdef TASKMAP
   fclose(tptr);
+#endif
  
   // Replace the time in metadata with the saved value (above)
  
@@ -639,6 +626,7 @@ int WriteAllData(char *basename, int filenumber,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry)
 {
   if (GridEntry->NextGridThisLevel != NULL)
+
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;

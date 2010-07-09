@@ -62,8 +62,7 @@ int grid::SphericalInfallGetProfile(int level, int ReportLevel)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* If using comoving coordinates, compute the expansion factor a.  Otherwise,
@@ -144,8 +143,7 @@ int grid::SphericalInfallGetProfile(int level, int ReportLevel)
   }
  
   if ((fptr = fopen(SphericalInfallReportName, mode)) == FAIL) {
-    fprintf(stderr, "Error opening %s.\n", SphericalInfallReportName);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening %s.\n", SphericalInfallReportName)
   }
  
   fprintf(fptr, "# l %"ISYM" t = %"FSYM" L = %"GSYM" %"GSYM" %"GSYM" %"GSYM" d(max) = %"GSYM" S(min) = %"GSYM" v_dmax = %"GSYM" div_v_max = %"GSYM"  dt/dt_divv = %"GSYM"\n",
@@ -168,6 +166,7 @@ int grid::SphericalInfallGetProfile(int level, int ReportLevel)
   /* Loop from center to right edge of grid. */
  
   if (ReportLevel > 1) {
+
     int Offset = GridDimension[0]*(Index[1] + Index[2]*GridDimension[1]);
     for (i = Index[0]; i < GridDimension[0]; i++) {
       fprintf(fptr, "%"FSYM" ", CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -

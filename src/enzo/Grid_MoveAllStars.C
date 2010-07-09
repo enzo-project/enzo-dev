@@ -35,8 +35,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
   Star *NewStar, *cstar;
 
   if (NumberOfGrids < 1) {
-    fprintf(stderr, "NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids);
-    ENZO_FAIL("");
+    ENZO_VFAIL("NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids)
   }
 
   /* Determine total number of stars. */
@@ -84,8 +83,7 @@ int grid::MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension
 //      if (MyProcessorNumber == ProcessorNumber ||
 //          MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
 //	if (FromGrid[grid]->CommunicationSendStars(this, ProcessorNumber) == FAIL) {
-//	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-//	  ENZO_FAIL("");
+//	  ENZO_FAIL("Error in grid->CommunicationSendStars.\n");
 //        }
 //
 //    } // ENDELSE same processor
@@ -131,8 +129,7 @@ int grid::MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimens
   Star *NewStar, *cstar;
 
   if (NumberOfGrids < 1) {
-    fprintf(stderr, "NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids);
-    ENZO_FAIL("");
+    ENZO_VFAIL("NumberOfGrids(%"ISYM") must be > 0.\n", NumberOfGrids)
   }
 
   /* Determine total number of stars. */
@@ -180,8 +177,7 @@ int grid::MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimens
       if (MyProcessorNumber == ProcessorNumber ||
           MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
 	if (FromGrid[grid]->CommunicationSendStars(this, ProcessorNumber) == FAIL) {
-	  fprintf(stderr, "Error in grid->CommunicationSendStars.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->CommunicationSendStars.\n");
         }
 
     } // ENDELSE same processor
@@ -200,6 +196,7 @@ int grid::MoveAllStarsOld(int NumberOfGrids, grid* FromGrid[], int TopGridDimens
   for (grid = 0; grid < NumberOfGrids; grid++) {
     FromGrid[grid]->NumberOfStars = 0;
     if (MyProcessorNumber == FromGrid[grid]->ProcessorNumber)
+
       DeleteStarList(FromGrid[grid]->Stars);
   }
 

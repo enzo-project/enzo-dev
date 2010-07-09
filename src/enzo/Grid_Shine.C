@@ -187,12 +187,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	FLOAT dir_vec[3];
 	if (pix2vec_nest((long) (1<<NewPack->level), NewPack->ipix, 
 			 dir_vec) == FAIL) {
-	  fprintf(stderr, 
-		  "grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
-		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
-		  NewPack->Photons, NewPack );
 	  NewPack->Photons=-1;
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
+		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
+		  NewPack->Photons, NewPack )
 	}
 
 	NewPack->CrossSection = 
@@ -233,6 +231,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   }
 
   if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %"ISYM"   NextPackage  %"ISYM"\n", 
+
 		     PhotonPackages, PhotonPackages->NextPackage);
   
   return SUCCESS;

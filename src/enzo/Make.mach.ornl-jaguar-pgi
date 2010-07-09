@@ -5,14 +5,19 @@
 # DESCRIPTION: Makefile settings for ORNL's Jaguar Cray XT
 #
 # AUTHOR:      James Bordner/Robert Harkness/Alexei Kritsuk
+#              (updated by Michael Kuhlen on 2010-07-02)
 #
 # DATE:        2008-04-14
 #
 #=======================================================================
 
 MACH_TEXT  = ORNL Jaguar
-MACH_VALID = 0
-MACH_FILE  = Make.mach.ornl-jaguar
+MACH_FILE  = Make.mach.ornl-jaguar-pgi
+
+MACHINE_NOTES = "MACHINE_NOTES for Jaguar at ORNL \\n\
+        Load the following modules in addition to the system default ones: \\n\
+	1) 'hdf5'" \\n\
+
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -26,7 +31,7 @@ MACH_FILE  = Make.mach.ornl-jaguar
 LOCAL_MPI_INSTALL    = 
 LOCAL_HDF5_INSTALL   = 
 
-LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
+LOCAL_HDF4_INSTALL   =
 LOCAL_SPRNG_INSTALL  = 
 LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = 
@@ -40,7 +45,7 @@ MACH_CPP       = /lib/cpp
 # With MPI
 
 MACH_CC_MPI    = cc
-MACH_CXX_MPI   = CC -DMPICH_IGNORE_CXX_SEEK
+MACH_CXX_MPI   = CC
 MACH_FC_MPI    = ftn
 MACH_F90_MPI   = ftn
 MACH_LD_MPI    = CC
@@ -57,9 +62,7 @@ MACH_LD_NOMPI  = CC
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
-MACH_DEFINES   = -DXT3 -DUSE_IOBUF_MACROS -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG
+MACH_DEFINES   = -DXT3 -DSYSCALL -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -70,7 +73,6 @@ MACH_CFLAGS   =
 MACH_CXXFLAGS = 
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
-#MACH_LDFLAGS  = -Wl,-static -lgmalloc
 MACH_LDFLAGS  = -Wl,-static
 
 #-----------------------------------------------------------------------
@@ -88,15 +90,9 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-#MACH_OPT_CRASHES        = -fastsse
-#MACH_OPT_HIGH        = -O2 -Mprof=func
-#MACH_OPT_HIGH        = -O2 -Mbounds -gopt
 MACH_OPT_HIGH        = -O2
-# DO NOT USE AGGRESSIVE OPTIMIZATION ON BIGBEN IF SF ANALYSIS IS ON !!!
-#MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch
 MACH_OPT_AGGRESSIVE  = -O3 \
-                       -fastsse \
-                       -mcmodel=medium
+                       -fastsse
                      
 
 #-----------------------------------------------------------------------
@@ -104,18 +100,11 @@ MACH_OPT_AGGRESSIVE  = -O3 \
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = 
-LOCAL_INCLUDES_HDF5   = $(HDF5_CLIB)
-LOCAL_INCLUDES_IOBUF  = 
+LOCAL_INCLUDES_HDF5   =
 LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
-LOCAL_INCLUDES_SPRNG  = 
 LOCAL_INCLUDES_PNG    =
 
-#MACH_INCLUDES         = -I/opt/pgi/6.1.4/linux86-64/6.1/include/CC \
-#                         $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
-
-MACH_INCLUDES         = $(LOCAL_INCLUDES_IOBUF) $(HDF5_CLIB) $(LOCAL_INCLUDES_SPRNG)
-#MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -124,28 +113,14 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 #
-# make sure to "load module iobuf" before compiling, only then IOBUF environment
-# variables will be properly set
-#
 
 LOCAL_LIBS_MPI    = 
-LOCAL_LIBS_HDF5   = $(HDF5_CLIB)
-LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
-#LOCAL_LIBS_IOBUF  = -L$(IOBUF_DIR)/lib/cnos64 -liobuf
-LOCAL_LIBS_IOBUF  = 
+LOCAL_LIBS_HDF5   =
+LOCAL_LIBS_HDF4   = 
 LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
-LOCAL_LIBS_SPRNG  =
 LOCAL_LIBS_PNG    = 
 
-LOCAL_LIBS_MACH   = $(LOCAL_LIBS_SPRNG) \
-                    -L/usr/local/packages/szip/lib -lsz \
-                    -L/usr/local/packages/zlib/lib -lz \
-                    -L/opt/acml/2.6/pgi64/lib -lacml -lm \
-                    -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/6.1/lib \
-                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl \
-                    -L/usr/local/packages/gmp-4.1.4/lib -lgmp
+MACH_LIBS         = -lacml $(LOCAL_LIBS_HDF5)
 
-MACH_LIBS         = $(LOCAL_LIBS_IOBUF) $(HDF5_CLIB) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)

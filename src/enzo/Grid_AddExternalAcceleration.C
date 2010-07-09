@@ -50,8 +50,7 @@ int grid::AddExternalAcceleration()
       if (ComovingCoordinates)
 	if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	    == FAIL) {
-	  fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in CosmologyComputeExpansionFactor.\n");
 	}
  
       /* Loop over grid, adding acceleration to field. */
@@ -100,6 +99,7 @@ int grid::AddExternalAcceleration()
       /* DO PARTICLES! */
  
     } // end: if (SphericalInfallFixedAcceleration)
+
  
   } // end: SphericalInfall
  

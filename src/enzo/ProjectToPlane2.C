@@ -175,8 +175,7 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
   /* Error check. */
 
   if (ProjectionDimension < 0 || ProjectionDimension > MetaData.TopGridRank) {
-    fprintf(stderr, "Invalid ProjectionDimension (%d).\n",ProjectionDimension);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Invalid ProjectionDimension (%d).\n",ProjectionDimension)
   }
 
   /* Check to see if a metal cooling rates (and ratios of line and total
@@ -620,25 +619,22 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 				  &total_lum);
 
       if (err)
-	fprintf(stderr, "Error writing attributes for %s.\n", FieldName);
+	ENZO_VFAIL("Error writing attributes for %s!\n", FieldName)
       
       if ((status = H5Dclose(dset_id)) < 0)
-	fprintf(stderr, "Error in closing dataset for %s.\n", FieldName);
-
-      if (status || err)
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error in closing dataset for %s!\n", FieldName)
 
     } // ENDFOR fields
 
     if (H5Fclose(file_id) < 0) {
-      fprintf(stderr, "Error closing HDF file %s.\n", ProjectionFileName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error closing HDF file %s.\n", ProjectionFileName)
     }
 
 	//    delete [] float_temp;
     delete [] density_squared;
 
   } // end: if (MyProcessNumber == ROOT_PROCESSOR)
+
 
   for (field = 0; field < NumberOfProjectedFields; field++)
     delete [] ProjectedField[field];

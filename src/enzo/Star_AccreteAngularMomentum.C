@@ -41,8 +41,7 @@ int Star::AccreteAngularMomentum(void)
     return SUCCESS;
 
   if (CurrentGrid->GridRank != MAX_DIMENSION) {
-    fprintf(stderr, "star:AccreteAngularMomentum: 1 or 2 dimension is not implemented\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("star:AccreteAngularMomentum: 1 or 2 dimension is not implemented\n");
   }
 
   int dim, i, j, k, index, ibuff = DEFAULT_GHOST_ZONES;
@@ -82,6 +81,7 @@ int Star::AccreteAngularMomentum(void)
   k = (int)((pos[2] - CurrentGrid->CellLeftEdge[2][0]) / CellWidthTemp);
 
   if (i < ibuff+1 || i > CurrentGrid->GridDimension[0]-ibuff-2 || 
+
       j < ibuff+1 || j > CurrentGrid->GridDimension[1]-ibuff-2 ||
       k < ibuff+1 || k > CurrentGrid->GridDimension[2]-ibuff-2) {
     fprintf(stdout, "star::AAM: 27 cells around MBH not contained; moving on.\n"); 

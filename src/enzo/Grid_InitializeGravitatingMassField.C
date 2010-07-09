@@ -44,8 +44,7 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
   /* Error check */
  
   if (RefinementFactor < 1 || RefinementFactor > RefineBy) {
-    fprintf(stderr, "RefinementFactor = %"ISYM" out of range.\n", RefinementFactor);
-    ENZO_FAIL("");
+    ENZO_VFAIL("RefinementFactor = %"ISYM" out of range.\n", RefinementFactor)
   }
  
   /* Check to see if the field was already initialized. */
@@ -73,6 +72,7 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
     //      BufferSize = min(RefinementFactor*GravityBufferSize, DimTemp);
     BufferSize = RefinementFactor*GravityBufferSize;
     //      if (int(DimTemp/4)*4 != DimTemp && RefinementFactor == 2)
+
     //	BufferSize += 1;
  
     GravitatingMassFieldDimension[dim] = DimTemp +

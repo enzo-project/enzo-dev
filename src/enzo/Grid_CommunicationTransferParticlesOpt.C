@@ -32,18 +32,21 @@
  
  
 int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-					 int ThisGridNum, int *&NumberToMove, 
+					 int ThisGridNum, int TopGridDims[],
+					 int *&NumberToMove, 
 					 int StartIndex, int EndIndex, 
 					 particle_data *&List,
-					 int *Layout, int *GridMap, 
+					 int *Layout, int *GStartIndex[], 
+					 int *GridMap, 
 					 int CopyDirection)
 {
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num;
+  int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
   int GridPosition[MAX_DIMENSION];
   int *ToGrid;
+  FLOAT r[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     GridPosition[dim] = 0;
@@ -73,11 +76,9 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     ToGrid = new int[NumberOfParticles];
 
     float DomainWidth[MAX_DIMENSION], DomainWidthInv[MAX_DIMENSION];
-    float LayoutFloat[MAX_DIMENSION];
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
       DomainWidthInv[dim] = 1.0/DomainWidth[dim];
-      LayoutFloat[dim] = (float) Layout[dim];
     }
 
     // Periodic boundaries
@@ -91,13 +92,46 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
     for (i = 0; i < NumberOfParticles; i++) {
 
+      for (dim = 0; dim < GridRank; dim++)
+	r[dim] = ParticlePosition[dim][i];
+      
+      
+      if (this->PointInGrid(r) == TRUE) {
+	grid = ThisGridNum;
+      } 
+
+      /* Particle outside grid.  Find new grid. */
+
+      else {
       for (dim = 0; dim < GridRank; dim++) {
-	GridPosition[dim] = 
-	  (int) (LayoutFloat[dim] * 
+	CenterIndex = 
+	  (int) (TopGridDims[dim] * 
 		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
-	GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
-      }
+
+	// Binary search in the StartIndex to see where this grid lies
+	// in the partitions
+	width = bin = Layout[dim]/2;
+	if (width <= 1) {
+	  for (bin = 1; bin < Layout[dim]; bin++)
+	    if (CenterIndex < GStartIndex[dim][bin])
+	      break;
+	  bin = min(bin-1, Layout[dim]-1);
+	} else {
+	  while (width > 1) {
+	    width >>= 1;
+	    if (CenterIndex > GStartIndex[dim][bin])
+	      bin += width;
+	    else if (CenterIndex < GStartIndex[dim][bin])
+	      bin -= width;
+	    else
+	      break;
+	  } // ENDWHILE
+	} // ENDELSE (width == 1)
+
+	GridPosition[dim] = bin;
+	//GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+      } // ENDFOR dim
 
       grid_num = GridPosition[0] + 
 	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
@@ -106,7 +140,11 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
       }
+
+      } // ENDELSE PointInGrid()
+
       ToGrid[i] = grid;
+
     } // ENDFOR particles
 
     /* Allocate space. */
@@ -151,7 +189,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	  List[n1].proc = MyProcessorNumber;
 	  ParticleMass[i] = FLOAT_UNDEFINED;
 	  n1++;
-	} // ENDIF different processor
+	} // ENDIF different grid
       } // ENDFOR particles
 
     } // ENDIF TotalToMove > PreviousTotalToMove
@@ -216,8 +254,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	Attribute[i] = new float[TotalNumberOfParticles];
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
-	fprintf(stderr, "malloc error (out of memory?)\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("malloc error (out of memory?)\n");
       }
 
 #ifdef USE_MPI
@@ -303,6 +340,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     //         T1-t00, T2-T1, T3-T2, T4-T3, t01-T4);
 
   } // end: if (COPY_IN)
+
 
  
   return SUCCESS;
