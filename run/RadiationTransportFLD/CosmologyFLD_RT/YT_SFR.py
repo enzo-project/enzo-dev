@@ -1,3 +1,16 @@
+# 1) Time (yrs)
+# 2) Look-back time (yrs)
+# 3) Redshift
+# 4) Star formation rate in this bin per year (Msol/yr)
+# 5) Star formation rate in this bin per year per Mpc**3 (Msol/yr/Mpc**3) (in proper Mpc)
+# 6) Stars formed in this time bin (Msol)
+# 7) Cumulative stars formed up to this time bin (Msol)
+#
+# Divide column 5 by (1+z)^3 to get it to comoving distances
+#
+########################################################################################
+
+
 from yt.mods import *
 from yt.extensions.StarAnalysis import *
 

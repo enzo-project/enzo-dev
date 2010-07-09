@@ -1,11 +1,10 @@
 # this script calculates the min, max, mean value of the specified field
+#
+########################################################################
 
 from yt.mods import *
 pf = EnzoStaticOutput("DD0273/DD0273")
 dd = pf.h.all_data()
-
-# res the resolution is the cell count on a side of the unigrid simulation
-res=64
 
 # uncomment the wanted field for analysis
 #field = "Emissivity"
