@@ -157,17 +157,17 @@ verbose: $(EXE).exe
 	@echo "Compiling $<"
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F >& $(OUTPUT) ; \
+	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F"; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F"; \
              echo; \
-             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F; \
+             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F; \
              echo; \
              exit 1; \
           fi ; \
 	else \
-	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $(CPPFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.f >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
@@ -180,17 +180,17 @@ verbose: $(EXE).exe
 .F90.o:
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $(CPPFLAGS) $*.F90 >& $(OUTPUT) ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(F90) -c -o $@ $(DEFINES) $(CPPFLAGS) $(F90FLAGS) $*.F90"; \
+             echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
              echo; \
              $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
 	else \
-	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $(CPPFLAGS) $*.F90 >> $(OUTPUT) 2>&1 ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
