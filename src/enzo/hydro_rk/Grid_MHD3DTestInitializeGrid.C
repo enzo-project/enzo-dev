@@ -35,6 +35,22 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 				  float Byl,  float Byu)
 {  
 
+  const float HIIFraction = 1.2e-5;
+  const float HeIIFraction = 1.0e-14;
+  const float HeIIIFraction = 1.0e-17;
+  const float HMFraction = 2.0e-9;
+  const float H2IFraction = 2.0e-20;
+  const float H2IIFraction = 3.0e-14;
+  float HIFraction, HeIFraction, eFraction;
+  HIFraction = CoolData.HydrogenFractionByMass - HIIFraction;
+  if (MultiSpecies > 1)
+    HIFraction -= HMFraction + H2IFraction + H2IIFraction;
+  HeIFraction = 1.0 - CoolData.HydrogenFractionByMass - 
+    HeIIFraction - HeIIIFraction;
+  eFraction = HIIFraction + 0.25*HeIIFraction + 0.5*HeIIIFraction;
+  if (MultiSpecies > 1)
+    eFraction += 0.5*H2IIFraction - HMFraction;
+
   /* create fields */
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
@@ -45,7 +61,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  
+
   if (HydroMethod == MHD_RK) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
@@ -53,6 +69,28 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, 
+    H2INum, H2IINum, DINum, DIINum, HDINum;
+
+  if (MultiSpecies) {
+    FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
+    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
+    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
+    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+    if (MultiSpecies > 1) {
+      FieldType[HMNum    = NumberOfBaryonFields++] = HMDensity;
+      FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
+      FieldType[H2IINum  = NumberOfBaryonFields++] = H2IIDensity;
+    }
+    if (MultiSpecies > 2) {
+      FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
+      FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
+      FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
+    }
+  }
+  
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -235,7 +273,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	    BaryonField[ietot][index] = etotl;
 
 	    if (DualEnergyFormalism)
-	      BaryonField[ieint][igrid] = pl / ((Gamma-1.0)*rho);
+	      BaryonField[ieint][index] = pl / ((Gamma-1.0)*rho);
 
 	  } // ENDIF (lower)
 
@@ -250,7 +288,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	    BaryonField[ietot][index] = etotu;
 
 	    if (DualEnergyFormalism)
-	      BaryonField[ieint][igrid] = pu / ((Gamma-1.0)*rho);
+	      BaryonField[ieint][index] = pu / ((Gamma-1.0)*rho);
 
 	  } // ENDELSE (upper)
 	  
@@ -258,6 +296,44 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
       } // ENDFOR j
     } // ENDFOR k
   } // ENDIF type == 2||3
+
+  /* Set uniform species fractions */
+
+  if (MultiSpecies > 0) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[DeNum][index] = eFraction * BaryonField[0][index];
+	  BaryonField[HINum][index] = HIFraction * BaryonField[0][index];
+	  BaryonField[HIINum][index] = HIIFraction * BaryonField[0][index];
+	  BaryonField[HeINum][index] = HeIFraction * BaryonField[0][index];
+	  BaryonField[HeIINum][index] = HeIIFraction * BaryonField[0][index];
+	  BaryonField[HeIIINum][index] = HeIIIFraction * BaryonField[0][index];
+	}
+  }
+
+  if (MultiSpecies > 1) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[HMNum][index] = HMFraction * BaryonField[0][index];
+	  BaryonField[H2INum][index] = H2IFraction * BaryonField[0][index];
+	  BaryonField[H2IINum][index] = H2IIFraction * BaryonField[0][index];
+	}
+  }
+
+  if (MultiSpecies > 2) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[DINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[HINum][index];
+	  BaryonField[DIINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[HIINum][index];
+	  BaryonField[HDINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[H2INum][index];
+	}
+  }
 
   return SUCCESS;
 }

@@ -668,11 +668,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[HIINum][n]* pow(temperature,float(0.88));
 	  BaryonField[H2IINum][n] = PhotonTestInitialFractionH2II*
 	    2.0*BaryonField[HIINum][n]* pow(temperature,float(1.8));
-	  BaryonField[H2INum][n] = H2I_Fraction *
-	    BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
-	    pow(OmegaMatterNow, float(1.5))/
-	    (OmegaMatterNow*BaryonMeanDensity)/
-	    HubbleConstantNow*2.0;
+	  if (ComovingCoordinates)
+	    BaryonField[H2INum][n] = H2I_Fraction *
+	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
+	      pow(OmegaMatterNow, float(1.5))/
+	      (OmegaMatterNow*BaryonMeanDensity)/
+	      HubbleConstantNow*2.0;
+	  else
+	    BaryonField[H2INum][n] = H2I_Fraction *
+	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)/
+	      (2.0*BaryonMeanDensity);
 	}
 	
 	BaryonField[HINum][n] = 

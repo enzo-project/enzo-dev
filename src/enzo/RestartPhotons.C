@@ -124,6 +124,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   } /* ENDWHILE evolve photon */
   
   RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
+  dtPhoton = SavedPhotonTimestep;
 
   /* Optically thin Lyman-Werner (H2) radiation field */
 

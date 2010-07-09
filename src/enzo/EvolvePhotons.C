@@ -160,8 +160,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     RS = GlobalRadiationSources->NextSource;
     int NumberOfSources = 0;
     while (RS != NULL) {
-      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
-	    (RS->CreationTime > PhotonTime + dtPhoton)) && LoopTime == TRUE) {  
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE) {  
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
@@ -169,7 +168,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
 	RS = DeleteRadiationSource(RS);
       } else {
-	NumberOfSources++;                 // count sources
+	if (RS->CreationTime < PhotonTime)
+	  NumberOfSources++;                 // count sources
 	RS = RS->NextSource;
       }
     }
@@ -224,6 +224,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF(); 
     while (RS != NULL) {
+      // skip sources that aren't born for PhotonTest
+      if (RS->CreationTime > PhotonTime && ProblemType == 50)
+	continue;
       int Continue = 1;
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; (lvl >= 0 && Continue); lvl--) {
 	for (Temp = LevelArray[lvl]; (Temp && Continue); 
