@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       October, 1996
-/  modified1:
+/  modified1:  Dan Reynolds, July 2010; added case-B recombination rates
 /
 /  PURPOSE:
 /    For multi-species runs (with cooling), initialize both the
@@ -32,7 +32,7 @@ int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits,
 			  float aye);
 extern "C" void FORTRAN_NAME(calc_rates)(
      int *nratec, float *aye, float *temstart, float *temend, float *alpha0,
-        float *f3, int *iradtype, int *threebody,
+     float *f3, int *iradtype, int *casebrates, int *threebody,
      float *utem, float *uxyz, float *uaye, float *urho, float *utim,
      float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
      float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a,
@@ -84,6 +84,7 @@ int InitializeRateData(FLOAT Time)
   CoolData.TemperatureEnd          = 1.0e8;
   CoolData.comp_xray               = 0;
   CoolData.temp_xray               = 0;
+  RateData.CaseBRecombination      = 0;   // default to case A rates
 
 
   // over-write defaults if CoolData Parameter file is provided
@@ -132,6 +133,8 @@ int InitializeRateData(FLOAT Time)
 		      &CoolData.comp_xray);
 	ret += sscanf(line, "CoolDataTempXray = %"FSYM,
 		      &CoolData.temp_xray);
+	ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM,
+		      &RateData.CaseBRecombination);
       }
 
       // clean up
@@ -249,7 +252,7 @@ int InitializeRateData(FLOAT Time)
   FORTRAN_NAME(calc_rates)(
      &CoolData.NumberOfTemperatureBins, &afloat, &CoolData.TemperatureStart,
         &CoolData.TemperatureEnd, &CoolData.alpha0, &CoolData.f3,
-        &RadiationFieldType, &ThreeBodyRate,
+        &RadiationFieldType, &RateData.CaseBRecombination, &ThreeBodyRate,
      &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
      CoolData.ceHI, CoolData.ceHeI, CoolData.ceHeII, CoolData.ciHI,
         CoolData.ciHeI,
