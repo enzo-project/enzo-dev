@@ -120,12 +120,12 @@ C     ------- Compute various values of T.
       ENDIF
 
 c     redefine k4 if case B recombination rates are requested
-      if (casebrates) then
+      if (casebrates.eq.1) then
          k4 = 1.26d-14 * (5.7067d5/T)**(0.75d0)
       endif
 
 c     set HII recombination rate as either case A or case B
-      IF (casebrates) THEN
+      IF (casebrates.eq.1) THEN
          IF (T < 1.0d9) then
             k2 = 4.881357d-6*T**(-1.5d0) 
      &           * (1.d0+1.14813d2*T**(-0.407d0))**(-2.242d0) / kunit
@@ -150,7 +150,7 @@ c     set HII recombination rate as either case A or case B
       ENDIF
       
 c     set HeIII recombination rate as either case A or case B
-      IF (casebrates) THEN
+      IF (casebrates.eq.1) THEN
          IF (T < 1.0d9) then
             k6 = 7.8155d-5*T**(-1.5d0) 
      &           * (1.d0+2.0189d2*T**(-0.407d0))**(-2.242d0) / kunit
