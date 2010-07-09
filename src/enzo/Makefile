@@ -109,7 +109,7 @@ all: MACHNOTES $(EXE).exe
 #-----------------------------------------------------------------------
 
 MACHNOTES: 
-	@echo $(MACHINE_NOTES)
+	@echo -e $(MACHINE_NOTES)
 
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
