@@ -94,17 +94,6 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
     for (i = 0; i < NumberOfParticles; i++) {
 
-      for (dim = 0; dim < GridRank; dim++)
-	r[dim] = ParticlePosition[dim][i];
-      
-      
-      if (this->PointInGrid(r) == TRUE) {
-	grid = ThisGridNum;
-      } 
-
-      /* Particle outside grid.  Find new grid. */
-
-      else {
       for (dim = 0; dim < GridRank; dim++) {
 
 	if (Layout[dim] == 1) {
@@ -133,8 +122,6 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
       }
-
-      } // ENDELSE PointInGrid()
 
       ToGrid[i] = grid;
 

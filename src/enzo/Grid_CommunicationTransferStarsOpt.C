@@ -97,14 +97,6 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 
     for (cstar = Stars, i = 0; cstar; cstar = cstar->NextStar, i++) {
 
-      if (this->PointInGrid(cstar->pos) == TRUE) {
-	grid = ThisGridNum;
-      }
-
-      /* Star outside grid.  Find new grid. */
-
-      else {
-
       for (dim = 0; dim < GridRank; dim++) {
 
 	if (Layout[dim] == 1) {
@@ -133,8 +125,6 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
       }
-
-      } // ENDELSE PointInGrid()
 
       ToGrid[i] = grid;
 
