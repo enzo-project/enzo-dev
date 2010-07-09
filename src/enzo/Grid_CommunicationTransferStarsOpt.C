@@ -20,6 +20,8 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+using namespace std;
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -49,7 +51,7 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
   int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
   int GridPosition[MAX_DIMENSION];
   FLOAT r[MAX_DIMENSION];
-  int *ToGrid;
+  int *ToGrid, *pbin;
   Star *cstar, *MoveStar;
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -104,33 +106,24 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
       else {
 
       for (dim = 0; dim < GridRank; dim++) {
-	CenterIndex = 
+
+	if (Layout[dim] == 1) {
+	  GridPosition[dim] = 0;
+	} else {
+
+	  CenterIndex = 
 	  (int) (TopGridDims[dim] * 
 		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
 
-	// Binary search in the StartIndex to see where this grid lies
-	// in the partitions
-	width = bin = Layout[dim]/2;
-	if (width <= 1) {
-	  for (bin = 1; bin < Layout[dim]; bin++)
-	    if (CenterIndex < GStartIndex[dim][bin])
-	      break;
-	  bin = min(bin-1, Layout[dim]-1);
-	} else {
-	  while (width > 1) {
-	    width >>= 1;
-	    if (CenterIndex > GStartIndex[dim][bin])
-	      bin += width;
-	    else if (CenterIndex < GStartIndex[dim][bin])
-	      bin -= width;
-	    else
-	      break;
-	  } // ENDWHILE
-	} // ENDELSE (width == 1)
+	  pbin = lower_bound(GStartIndex[dim], GStartIndex[dim]+Layout[dim]+1,
+			     CenterIndex);
+	  GridPosition[dim] = pbin-GStartIndex[dim];
+	  if (*pbin != CenterIndex) GridPosition[dim]--;
+	  GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
 
-	GridPosition[dim] = bin;
-	//GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+	} // ENDELSE Layout
+
       } // ENDFOR dim
 
       grid_num = GridPosition[0] + 

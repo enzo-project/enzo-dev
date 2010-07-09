@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
+using namespace std;
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -60,7 +62,8 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   int *GridMap = new int[NumberOfGrids];
   int *StartIndex[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
-  int Rank, grid_num, width, bin, CenterIndex;
+  int Rank, grid_num, bin, CenterIndex;
+  int *pbin;
   int GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
 
@@ -103,32 +106,22 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   for (grid = 0; grid < NumberOfGrids; grid++) {
     GridPointer[grid]->ReturnGridInfo(&Rank, Dims, Left, Right);
     for (dim = 0; dim < Rank; dim++) {
-      CenterIndex = 
-	int(TopGridDims[dim] *
-	    (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
-	    (DomainRightEdge[dim] - DomainLeftEdge[dim]));
 
-      // Binary search (for Layout[dim] > 3) in the StartIndex to see
-      // where this grid lies in the partitions
-      width = bin = Layout[dim]/2;
-      if (width <= 1) {
-	for (bin = 1; bin < Layout[dim]; bin++)
-	  if (CenterIndex < StartIndex[dim][bin])
-	    break;
-	bin = min(bin-1, Layout[dim]-1);
+      if (Layout[dim] == 1) {
+	GridPosition[dim] = 0;
       } else {
-	while (width > 1) {
-	  width >>= 1;
-	  if (CenterIndex > StartIndex[dim][bin])
-	    bin += width;
-	  else if (CenterIndex < StartIndex[dim][bin])
-	    bin -= width;
-	  else
-	    break;
-	} // ENDWHILE
-      } // ENDELSE (width == 1)
 
-      GridPosition[dim] = bin;
+	CenterIndex = 
+	  int(TopGridDims[dim] *
+	      (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
+	      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
+      
+	pbin = lower_bound(StartIndex[dim], StartIndex[dim]+Layout[dim]+1,
+			   CenterIndex);
+	GridPosition[dim] = pbin-StartIndex[dim];
+	if (*pbin != CenterIndex) GridPosition[dim]--;
+
+      } // ENDELSE
 
     } // ENDFOR dim
     grid_num = GridPosition[0] + 

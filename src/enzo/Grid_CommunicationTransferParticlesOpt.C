@@ -19,6 +19,8 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+using namespace std;
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -43,9 +45,9 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num, width, bin, CenterIndex;
+  int i, j, k, dim, grid, proc, grid_num, bin, CenterIndex;
   int GridPosition[MAX_DIMENSION];
-  int *ToGrid;
+  int *ToGrid, *pbin;
   FLOAT r[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -104,33 +106,24 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
       else {
       for (dim = 0; dim < GridRank; dim++) {
-	CenterIndex = 
+
+	if (Layout[dim] == 1) {
+	  GridPosition[dim] = 0;
+	} else {
+
+	  CenterIndex = 
 	  (int) (TopGridDims[dim] * 
 		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
 
-	// Binary search in the StartIndex to see where this grid lies
-	// in the partitions
-	width = bin = Layout[dim]/2;
-	if (width <= 1) {
-	  for (bin = 1; bin < Layout[dim]; bin++)
-	    if (CenterIndex < GStartIndex[dim][bin])
-	      break;
-	  bin = min(bin-1, Layout[dim]-1);
-	} else {
-	  while (width > 1) {
-	    width >>= 1;
-	    if (CenterIndex > GStartIndex[dim][bin])
-	      bin += width;
-	    else if (CenterIndex < GStartIndex[dim][bin])
-	      bin -= width;
-	    else
-	      break;
-	  } // ENDWHILE
-	} // ENDELSE (width == 1)
+	  pbin = lower_bound(GStartIndex[dim], GStartIndex[dim]+Layout[dim]+1,
+			     CenterIndex);
+	  GridPosition[dim] = pbin-GStartIndex[dim];
+	  if (*pbin != CenterIndex) GridPosition[dim]--;
+	  GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+	    
+	} // ENDELSE
 
-	GridPosition[dim] = bin;
-	//GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
       } // ENDFOR dim
 
       grid_num = GridPosition[0] + 
@@ -341,8 +334,6 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
   } // end: if (COPY_IN)
 
-
- 
   return SUCCESS;
 }
 #endif /* OPTIMIZED_CTP */
