@@ -145,67 +145,57 @@ verbose: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
+.SUFFIXES: .c .C .F .F90 .o .cu
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f %.f90
+.PRECIOUS: %.o
 
-.src.f:
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
-.f.o:
+#.src.f:
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
+.F.o:
 	@echo "Compiling $<"
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >& $(OUTPUT) ; \
+	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
-             echo "$(FC) -c -o $@ $(FFLAGS) $*.f"; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f; \
-             $(FC) -c -o $@ $(FFLAGS) $*.f; \
+             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $(CPPFLAGS) $*.F; \
              echo; \
              exit 1; \
           fi ; \
 	else \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $(CPPFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f; \
-          fi)
 
-.src90.f90:
-	@echo "Compiling $<"
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
-.f90.o:
+#.src90.f90:
+#	@echo "Compiling $<"
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
+.F90.o:
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >& $(OUTPUT) ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $(CPPFLAGS) $*.F90 >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \
-             echo "$(F90) -c -o $@ $(F90FLAGS) $*.f90"; \
+             echo "$(F90) -c -o $@ $(DEFINES) $(CPPFLAGS) $(F90FLAGS) $*.F90"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90; \
-             $(F90) -c -o $@ $(F90FLAGS) $*.f90; \
+             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
 	else \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >> $(OUTPUT) 2>&1 ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $(CPPFLAGS) $*.F90 >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f90; \
-          fi)
 
 .c.o:
 	@rm -f $@
