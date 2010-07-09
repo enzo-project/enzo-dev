@@ -45,21 +45,25 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 #define NO_DEBUG_CTP
 #define KEEP_PARTICLES_LOCAL
  
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[])
 {
 
   if (NumberOfGrids == 1)
     return SUCCESS;
  
-  int i, j, jstart, jend, dim, grid, proc;
+  int i, j, jstart, jend, dim, grid, proc, DisplacementCount, ThisCount;
+  float ExactDims, ExactCount;
 
   /* Assume that the grid was split by Enzo_Dims_create, and create a
      map from grid number to an index that is determined from (i,j,k)
      of the grid partitions. */
 
   int *GridMap = new int[NumberOfGrids];
+  int *StartIndex[MAX_DIMENSION];
   int Layout[MAX_DIMENSION], LayoutTemp[MAX_DIMENSION];
-  int Rank, grid_num, GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
+  int Rank, grid_num, CenterIndex, width, bin;
+  int GridPosition[MAX_DIMENSION], Dims[MAX_DIMENSION];
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -76,12 +80,60 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   for (dim = Rank; dim < MAX_DIMENSION; dim++)
     Layout[Rank-1-dim] = 0;
 
+  /* For unequal splits of the topgrid, we need the start indices of
+     the partitions.  It's easier to recalculate than to search for
+     them. */
+
+  for (dim = 0; dim < Rank; dim++) {
+
+    StartIndex[dim] = new int[Layout[dim]];
+    ExactDims = float(TopGridDims[dim]) / float(Layout[dim]);
+    ExactCount = 0.0;
+    DisplacementCount = 0;
+
+    for (i = 0; i < Layout[dim]; i++) {
+      ExactCount += ExactDims;
+      if (dim == 0)
+	ThisCount = nint(0.5*ExactCount)*2 - DisplacementCount;
+      else
+	ThisCount = nint(ExactCount) - DisplacementCount;
+      StartIndex[dim][i] = DisplacementCount;
+      DisplacementCount += ThisCount;
+    } // ENDFOR i    
+
+  } // ENDFOR dim
+
   for (grid = 0; grid < NumberOfGrids; grid++) {
     GridPointer[grid]->ReturnGridInfo(&Rank, Dims, Left, Right);
-    for (dim = 0; dim < Rank; dim++)
-      GridPosition[dim] = 
-	int(Layout[dim] * (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
+    for (dim = 0; dim < Rank; dim++) {
+      CenterIndex = 
+	int(TopGridDims[dim] *
+	    (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
 	    (DomainRightEdge[dim] - DomainLeftEdge[dim]));
+
+      // Binary search (for Layout[dim] > 3) in the StartIndex to see
+      // where this grid lies in the partitions
+      width = bin = Layout[dim]/2;
+      if (width <= 1) {
+	for (bin = 1; bin < Layout[dim]; bin++)
+	  if (CenterIndex < StartIndex[dim][bin])
+	    break;
+	bin = min(bin-1, Layout[dim]-1);
+      } else {
+	while (width > 1) {
+	  width >>= 1;
+	  if (CenterIndex > StartIndex[dim][bin])
+	    bin += width;
+	  else if (CenterIndex < StartIndex[dim][bin])
+	    bin -= width;
+	  else
+	    break;
+	} // ENDWHILE
+      } // ENDELSE (width == 1)
+
+      GridPosition[dim] = bin;
+
+    } // ENDFOR dim
     grid_num = GridPosition[0] + 
       Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
     GridMap[grid_num] = grid;
@@ -107,8 +159,9 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   for (grid = 0; grid < NumberOfGrids; grid++)
     if (GridPointer[grid]->
 	CommunicationTransferParticles(GridPointer, NumberOfGrids, grid, 
-				       NumberToMove, Zero, Zero, SendList, 
-				       Layout, GridMap, COPY_OUT) == FAIL) {
+				       TopGridDims, NumberToMove, Zero, 
+				       Zero, SendList, Layout, StartIndex, 
+				       GridMap, COPY_OUT) == FAIL) {
       ENZO_FAIL("Error in grid->CommunicationTransferParticles(OUT).\n");
     }
 
@@ -152,8 +205,9 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
 	if (jend == NumberOfReceives) break;
       }
       if (GridPointer[j]->CommunicationTransferParticles
-	  (GridPointer, NumberOfGrids, j, NumberToMove, jstart, jend, 
-	   SharedList, Layout, GridMap, COPY_IN) == FAIL) {
+	  (GridPointer, NumberOfGrids, j, TopGridDims,
+	   NumberToMove, jstart, jend, 
+	   SharedList, Layout, StartIndex, GridMap, COPY_IN) == FAIL) {
 	ENZO_FAIL("Error in grid->CommunicationTransferParticles(IN).\n");
       }
       jstart = jend;
@@ -214,6 +268,8 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids)
   delete [] SharedList;
   delete [] NumberToMove;
   delete [] GridMap;
+  for (dim = 0; dim < Rank; dim++)
+    delete [] StartIndex[dim];
 
   CommunicationSumValues(&TotalNumberToMove, 1);
   if (debug)

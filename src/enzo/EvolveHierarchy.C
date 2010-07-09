@@ -176,7 +176,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
 
-#ifdef OPTIMIZED_CTP
+#ifdef UNUSED
+  //#ifdef OPTIMIZED_CTP
   int NumberOfGrids = 0, Layout[MAX_DIMENSION] = {1,1,1};
   Temp = LevelArray[0];
   while (Temp != NULL) {
