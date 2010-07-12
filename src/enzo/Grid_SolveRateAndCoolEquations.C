@@ -238,8 +238,10 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
   float HeIIShieldFactor = RadiationData.HeIIAveragePhotoHeatingCrossSection * 
                            double(LengthUnits) * CellWidth[0][0];
 
-  float dtCool;
+  float dtCool = dtFixed;
+#ifdef TRANSFER
   dtCool = (RTCoupledSolverIntermediateStep == TRUE) ? dtPhoton : dtFixed;
+#endif
 
   /* Call the fortran routine to solve cooling equations. */
 
