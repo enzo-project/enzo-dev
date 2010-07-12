@@ -238,6 +238,9 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
   float HeIIShieldFactor = RadiationData.HeIIAveragePhotoHeatingCrossSection * 
                            double(LengthUnits) * CellWidth[0][0];
 
+  float dtCool;
+  dtCool = (RTCoupledSolverIntermediateStep == TRUE) ? dtPhoton : dtFixed;
+
   /* Call the fortran routine to solve cooling equations. */
 
   int ierr = 0;
@@ -252,7 +255,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2, 
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
     &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
-    &dtFixed, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
+    &dtCool, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
     &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
     &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
        &CoolData.HydrogenFractionByMass, &CoolData.DeuteriumToHydrogenRatio,
