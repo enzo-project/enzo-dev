@@ -22,7 +22,7 @@
 #include "ExternalBoundary.h"
 #include "Fluxes.h"
 #include "GridList.h"
-#include "../src/Grid.h"
+#include "Grid.h"
 
 int grid::TraceRay(int NumberOfSegments,
 		   FLOAT r,

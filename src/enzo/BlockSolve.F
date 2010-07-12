@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c  Copyright 2006 Daniel R. Reynolds
 c  Copyright 2006 Laboratory for Computational Astrophysics
@@ -25,7 +26,6 @@ c     xvec       - solution NxM matrix
 c     ier        - integer return flag (0=>failure, 1=>success)
 c
 c=======================================================================
-#include "fortran.def"
       implicit none
 c
 c  argument declarations
@@ -79,7 +79,6 @@ c
 c
       SUBROUTINE UGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
-#include "fortran.def"
 *     .. Scalar Arguments ..
       CHARACTER*1        TRANSA, TRANSB
       INTEGER            M, N, K, LDA, LDB, LDC
@@ -208,7 +207,6 @@ c
 *     Sven Hammarling, Numerical Algorithms Group Ltd.
 *
 *
-#include "fortran.def"
 *     .. External Functions ..
       LOGICAL            LSAME
       EXTERNAL           LSAME
@@ -397,7 +395,6 @@ c=======================================================================
 c
       SUBROUTINE UGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
-#include "fortran.def"
 *     .. Scalar Arguments ..
       REALSUB            ALPHA, BETA
       INTEGER            INCX, INCY, LDA, M, N
@@ -497,7 +494,6 @@ c
 *     Richard Hanson, Sandia National Labs.
 *
 *
-#include "fortran.def"
 *     .. Parameters ..
       REALSUB            ONE         , ZERO
       PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
@@ -662,7 +658,6 @@ c
 c=======================================================================
 c
       SUBROUTINE UGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
-#include "fortran.def"
 *     .. Scalar Arguments ..
       REALSUB            ALPHA
       INTEGER            INCX, INCY, LDA, M, N
@@ -740,7 +735,6 @@ c
 *     Richard Hanson, Sandia National Labs.
 *
 *
-#include "fortran.def"
 *     .. Parameters ..
       REALSUB            ZERO
       PARAMETER        ( ZERO = 0.0D+0 )
@@ -830,7 +824,6 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1992
 *
-#include "fortran.def"
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, M, N
 *     ..
@@ -884,7 +877,6 @@ c
 *
 *  =====================================================================
 *
-#include "fortran.def"
 *     .. Parameters ..
       REALSUB            ONE, ZERO
       PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
@@ -970,7 +962,6 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
 *
-#include "fortran.def"
 *     .. Scalar Arguments ..
       INTEGER            INFO, LDA, M, N
 *     ..
@@ -1024,7 +1015,6 @@ c
 *
 *  =====================================================================
 *
-#include "fortran.def"
 *     .. Parameters ..
       REALSUB            ONE
       PARAMETER          ( ONE = 1.0D+0 )
@@ -1135,7 +1125,6 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
 *
-#include "fortran.def"
 *     .. Scalar Arguments ..
       CHARACTER          TRANS
       INTEGER            INFO, LDA, LDB, N, NRHS
@@ -1193,7 +1182,6 @@ c
 *
 *  =====================================================================
 *
-#include "fortran.def"
 *     .. Parameters ..
       REALSUB            ONE
       PARAMETER          ( ONE = 1.0D+0 )
@@ -1290,7 +1278,6 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1999
 *
-#include "fortran.def"
 *     .. Scalar Arguments ..
       INTEGER            INCX, K1, K2, LDA, N
 *     ..
@@ -1344,7 +1331,6 @@ c
 *
 * =====================================================================
 *
-#include "fortran.def"
 *     .. Local Scalars ..
       INTEGER            I, I1, I2, INC, IP, IX, IX0, J, K, N32
       REALSUB            TEMP
@@ -1414,7 +1400,6 @@ c     interchanges two vectors.
 c     uses unrolled loops for increments equal one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 12/3/93, array(1) declarations changed to array(*)
-#include "fortran.def"
 c
       REALSUB dx(*),dy(*),dtemp
       integer i,incx,incy,ix,iy,m,mp1,n
@@ -1476,7 +1461,6 @@ c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-#include "fortran.def"
       REALSUB da,dx(*)
       integer i,incx,m,mp1,n,nincx
 c
@@ -1517,7 +1501,6 @@ c=======================================================================
 c
       SUBROUTINE UTRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
-#include "fortran.def"
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTEGER            M, N, LDA, LDB
@@ -1645,7 +1628,6 @@ c
 *     Sven Hammarling, Numerical Algorithms Group Ltd.
 *
 *
-#include "fortran.def"
 *     .. External Functions ..
       LOGICAL            LSAME
       EXTERNAL           LSAME
@@ -1905,7 +1887,6 @@ c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-#include "fortran.def"
       REALSUB dx(*),dmax
       integer i,incx,ix,n
 c
