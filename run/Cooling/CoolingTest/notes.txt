@@ -1,0 +1,31 @@
+CoolingTest
+----------
+
+These test problems will set up a single grid that varies smoothly in density, 
+metallicity, and temperature, then iterate the rate equations in the chemisty 
+module for 50,000 years with hydro deactivated.  The code will make an 
+output at the end of the run that includes the cooling time.  This problem 
+type did not exist in Enzo 1.5, so there is no comparison.
+
+The cooling tests will run in a few minutes on a single processor.
+
+The three parameter files are:
+CoolingTest_MS1.enzo - uses the MultiSpecies = 1 atomic H/He chemisty
+CoolingTest_JHW.enzo - uses John Wise's metal cooling along with 
+		       	    	 	the MultiSpecies = 1 chemitry.
+CoolingTest_Cloudy.enzo - uses Cloudy cooling along with the 
+			       	      	    MultiSpecies = 1 chemistry.  The input data 
+					    provided is a three dimensional table that 
+					    varies in density, metallicity, and temperature.
+
+Cooling data files:
+primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
+		     	 	 Black (1981).
+cool_rates.in - analytic cooling rates for Z = 0.5 and 1 Zsun from 
+	      		Sarazin & White (1987).
+metal_cool.dat - input data for John Wise's metal cooling.
+solar_2008_3D_metals.h5 - input data for Cloudy cooling.
+
+The script plot.py will plot cooling rates from the three cooling tests 
+along with the H/He cooling rate from Black (1981) and the Z = Zsun 
+rate from Sarazin & White (1987)
