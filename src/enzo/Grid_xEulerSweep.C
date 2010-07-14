@@ -240,6 +240,19 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				&NumberOfColours, colslice, colls, colrs, colf);
     break;
 
+  case HLL:
+    FORTRAN_NAME(flux_hll)(dslice, eslice, geslice, uslice, vslice, wslice,
+			   CellWidthTemp[0], diffcoef, 
+			   &GridDimension[0], &GridDimension[1],
+			   &is, &ie, &js, &je, &dtFixed, &Gamma,
+			   &PPMDiffusionParameter, &DualEnergyFormalism,
+			   &DualEnergyFormalismEta1,
+			   dls, drs, pls, prs, uls, urs,
+			   vls, vrs, wls, wrs, gels, gers,
+			   df, uf, vf, wf, ef, gef, ges,
+			   &NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
   case HLLC:
     FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,
 			    CellWidthTemp[0], diffcoef, 

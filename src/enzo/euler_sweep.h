@@ -51,6 +51,19 @@ extern "C" void FORTRAN_NAME(flux_twoshock)(
 	   float *ges,
            int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
 
+extern "C" void FORTRAN_NAME(flux_hll)(
+           float *dslice, float *eslice, float *geslice, float *uslice, 
+	   float *vslice, float *wslice, float *dx,
+           float *diffcoef, int *idim, int *jdim, int *i1, int *i2, 
+	   int *j1, int *j2, float *dt, float *gamma,
+	   int *idiff, int *idual, float *eta1,
+           float *dls, float *drs, float *pls, float *prs, 
+           float *uls, float *urs, float *vls, float *vrs, 
+	   float *wls, float *wrs, float *gels, float *gers, 
+           float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
+           int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
+
 extern "C" void FORTRAN_NAME(flux_hllc)(
            float *dslice, float *eslice, float *geslice, float *uslice, 
 	   float *vslice, float *wslice, float *dx,

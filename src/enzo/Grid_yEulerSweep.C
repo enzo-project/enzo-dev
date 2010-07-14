@@ -239,6 +239,19 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				&NumberOfColours, colslice, colls, colrs, colf);
     break;
 
+  case HLL:
+    FORTRAN_NAME(flux_hll)(dslice, eslice, geslice, uslice, vslice, wslice,
+			   CellWidthTemp[1], diffcoef, 
+			   &GridDimension[1], &GridDimension[2],
+			   &is, &ie, &js, &je, &dtFixed, &Gamma,
+			   &PPMDiffusionParameter, &DualEnergyFormalism,
+			   &DualEnergyFormalismEta1,
+			   dls, drs, pls, prs, uls, urs,
+			   vls, vrs, wls, wrs, gels, gers,
+			   df, uf, vf, wf, ef, gef, ges,
+			   &NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
   case HLLC:
     FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,
 			    CellWidthTemp[1], diffcoef, 
