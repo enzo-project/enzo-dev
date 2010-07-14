@@ -25,12 +25,12 @@
 
 /*	Bertrand from vmutils -> CF -> System */
 
-#import <libc.h>
-#import <pthread.h>
-#import <mach/mach.h>
+#include <libc.h>
+#include <pthread.h>
+#include <mach/mach.h>
 #include <mach/vm_statistics.h>
-#import <malloc/malloc.h>
-#import <stdlib.h>
+#include <malloc/malloc.h>
+#include <stdlib.h>
 
 extern void spin_lock(int *);
 extern void spin_unlock(int *);
