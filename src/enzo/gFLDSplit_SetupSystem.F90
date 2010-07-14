@@ -251,15 +251,15 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn0
 
            !    compute R for limiters
-           R  = max(dzi *abs(E0d_zl)/E0avg, Rmin*kap)
-           R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin*kap0)
+           R  = max(dzi *abs(E0d_zl)/E0avg, Rmin)
+           R0 = max(dzi0*abs(E0d_zl)/E0avg, Rmin)
 
            
            !    compute limiter
 !!$           D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
 !!$           D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
            D_zl = c/sqrt(9.d0*kap*kap + R*R)
-           D0_zl = c/sqrt(9.0*kap0*kap0 + R0*R0)
+           D0_zl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
 
            !--------------
            ! y-directional limiter, lower face
