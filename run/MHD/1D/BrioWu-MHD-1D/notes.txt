@@ -6,6 +6,7 @@ From
 
 Run: Ji-hoon Kim, July 2010
 
+
 Test Description
 ================
 
@@ -14,10 +15,10 @@ standard test for any MHD solver.  Detailed description of the initial set up ca
 found in the papers above.  This test problem is new for enzo2.0.  It uses the new 
 Stanford hydro_rk solver.
 
-This test runs to completion while generating 11 outputs, and scripts.py will 
-produce the plots for Density, x-velocity, By, Internal Energy for the 11th snapshot 
-(t=0.1).  This 11th snapshot should be compared to figure 18 from Figure 2 of Brio & 
+This test runs to completion while generating 12 outputs, and scripts.py will 
+produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot 
+(t=0.1).  This last snapshot should be compared to figure 18 from Figure 2 of Brio & 
 Wu (1988) or Figure 15 of Wang & Abel (2009)
 
-Success in test_briowu.py is determined by nearly exact match (3e-5) in Density and By. 
+Success in test_briowu.py is determined by nearly exact match (5e-3) in Density and By. 
 

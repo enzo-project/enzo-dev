@@ -22,7 +22,7 @@ RightFaceBoundaryCondition = 3 3
 #
 StopTime = 0.02
 #StopCycle = 5
-dtDataDump             = 0.0025
+dtDataDump             = 0.002
 DataDumpName           = data
 
 #
