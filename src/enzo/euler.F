@@ -9,7 +9,7 @@ c
      &            uslice, vslice, wslice, dx, diffcoef,
      &            idim, jdim, i1, i2, j1, j2, dt, 
      &            gamma, idiff, gravity, idual, eta1, eta2,
-     &            df, ef, uf, vf, wf, gef,
+     &            df, ef, uf, vf, wf, gef, ges,
      &            ncolor, colslice, colf
      &                 )
 c
@@ -23,7 +23,10 @@ c                                information into the argument line
 c  modified3:  July, 1994 by GB; moved diffusion coefficient to own routine
 c  modified4:  Febuary, 2005 by Alexei Kritsuk; fixed a bug in RAREFACTION1
 c                            and a bug in update eq. 3.1 with idiff != 0.
-c  modified5:  Sept. 2005 by DC, fixed the flux array to work with cosmology and AMR
+c  modified5:  Sept. 2005 by DC, fixed the flux array to work with cosmology 
+c                         and AMR
+c  modified6:  June, 2010 by JHW; put two-shock flux calculations into 
+c                         flux_twoshock()      
 c
 c  PURPOSE:  Updates the conservation laws in Eulerian form using
 c    fluxes in the sweep-direction computed by the Riemann solver.  This
@@ -85,7 +88,8 @@ c
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
       real df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
-     &     vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
+     &     vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim),
+     &     ges(idim,jdim)
       real colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
 c
 c  local declarations
@@ -176,31 +180,17 @@ c            compute the pressure at the center of zone i.  This is needed
 c            for the source term in the gas energy equation.
 c
        if (idual .eq. 1) then
-          do i=i1-1, i2+1
-             eratio(i) = (eslice(i,j) - 
-     &         0.5*(uslice(i,j)**2 + vslice(i,j)**2 + wslice(i,j)**2)
-     &                    )/eslice(i,j)
-          enddo
-          do i=i1, i2
-c             if (max(eratio(i-1),eratio(i),eratio(i+1)) .gt. eta2) then
-             pcent(i) = max((gamma-1.0)*geslice(i,j)*dslice(i,j)
-     &                      ,tiny)
-c             else
-c                pcent(i) = 0.5*(pb(i)+pb(i+1))
-c             endif
-          enddo
           do i=i1, i2
              if (geslice(i,j) .lt. 0.0) 
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
-             qc = dt/dx(i)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
-     $            (gef(i,j) - gef(i+1,j))) * dnuinv(i)
+     $            (gef(i,j) - gef(i+1,j))/dx(i) + ges(i,j)) * dnuinv(i)
      $            ,0.5*geslice(i,j))
 c             if (geslice(i,j) .lt. tiny) geslice(i,j) = tiny
              if (geslice(i,j) .lt. 0.0) then
                 write(6,*) i,j,dslice(i,j),dnu(i),pcent(i),eslice(i,j),
-     &               gef(i,j), gef(i+1,j),
-     &               geslice(i,j)*dslice(i,j),qc,
+     &               gef(i,j), gef(i+1,j), ges(i,j),
+     &               geslice(i,j)*dslice(i,j),
      &               uslice(i,j),uslice(i+1,j)
 c                write(6,*) pb(i),pb(i+1),p0(i),p0(i+1),
 c     &               pbar(i,j),pbar(i+1,j),lbar(i),l0(i),

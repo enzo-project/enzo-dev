@@ -9,7 +9,7 @@ c
      $     idual, eta1,
      $     dls, drs, pls, prs, gels, gers, 
      $     uls, urs, vls, vrs, wls, wrs, pbar, ubar,
-     $     df, ef, uf, vf, wf, gef, 
+     $     df, ef, uf, vf, wf, gef, ges,
      $     ncolor, colslice, colls, colrs, colf
      $     )
 c
@@ -50,7 +50,7 @@ c
      $     colslice(idim,jdim,ncolor)
       real df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
      $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
-     $     colf(idim,jdim,ncolor)
+     $     colf(idim,jdim,ncolor), ges(idim,jdim)
 
 c
 c-----------------------------------------------------------------------
@@ -63,7 +63,7 @@ c
      $     ub(ijkn), vb(ijkn), wb(ijkn), db(ijkn), pb(ijkn), 
      $     cb(ijkn), eb(ijkn), geb(ijkn), colb(ijkn,MAX_COLOR),
      $     upb(ijkn), dub(ijkn), duub(ijkn), duvb(ijkn), duwb(ijkn),
-     $     dueb(ijkn), dugeb(ijkn)
+     $     dueb(ijkn), dugeb(ijkn), pcent(ijkn)
 c
 c-----------------------------------------------------------------------
 c
@@ -379,10 +379,17 @@ c             colf(i,j,n) = dt*dub(i)*colb(i,n)   ! color*dens conserved
 c
 c      Do the same for the gas energy if using the dual energy formalism
 c         (note that we do not include the source term)
+c      JHW (Jul 2010): Moved the source term to here.
 c
        if (idual .eq. 1) then
           do i=i1, i2+1
+             pcent(i) = max((gamma-1.0)*geslice(i,j)*dslice(i,j), 
+     $            tiny)
+          enddo
+          do i=i1, i2+1
+             qc = dt/dx(i)
              gef(i,j) = dt*dugeb(i)
+             ges(i,j) = qc * pcent(i) * (ub(i) - ub(i+1))
           enddo
        endif
 

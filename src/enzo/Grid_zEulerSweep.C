@@ -132,7 +132,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   float *dls, *drs, *flatten, *pbar, *pls, *prs, *ubar, *uls, *urs, *vls, 
     *vrs, *gels, *gers, *wls, *wrs, *diffcoef, *df, *ef, *uf, *vf, *wf, *gef,
-    *colf, *colls, *colrs;
+    *ges, *colf, *colls, *colrs;
 
   dls = new float[size];	
   drs = new float[size];	
@@ -156,6 +156,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   vf = new float[size];		
   wf = new float[size];		
   gef = new float[size];	
+  ges = new float[size];
   colf = new float[NumberOfColours*size];  
   colls = new float[NumberOfColours*size];  
   colrs = new float[NumberOfColours*size];  
@@ -232,7 +233,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				&DualEnergyFormalismEta1,
 				dls, drs, pls, prs, gels, gers, uls, urs,
 				vls, vrs, wls, wrs, pbar, ubar,
-				df, ef, uf, vf, wf, gef,
+				df, ef, uf, vf, wf, gef, ges,
 				&NumberOfColours, colslice, colls, colrs, colf);
     break;
 
@@ -259,7 +260,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &is, &ie, &js, &je, &dtFixed, &Gamma, 
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
-		      df, ef, uf, vf, wf, gef,
+		      df, ef, uf, vf, wf, gef, ges,
 		      &NumberOfColours, colslice, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
@@ -420,6 +421,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   delete [] vf;
   delete [] wf;
   delete [] gef;
+  delete [] ges;
   delete [] colf;
   delete [] colls;
   delete [] colrs;

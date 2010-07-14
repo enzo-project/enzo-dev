@@ -48,6 +48,7 @@ extern "C" void FORTRAN_NAME(flux_twoshock)(
            float *uls, float *urs, float *vls, float *vrs, 
 	   float *wls, float *wrs, float *pbar, float *ubar,
            float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
            int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
 
 extern "C" void FORTRAN_NAME(flux_hllc)(
@@ -69,4 +70,5 @@ extern "C" void FORTRAN_NAME(euler)(
 		int *i2, int *j1, int *j2, float *dt, float *gamma, int *idiff, 
 		int *gravity, int *idual, float *eta1, float *eta2, float *df, 
 		float *ef, float *uf, float *vf, float *wf, float *gef,
+		float *ges,
 		int *ncolor, float *colslice, float *colf);
