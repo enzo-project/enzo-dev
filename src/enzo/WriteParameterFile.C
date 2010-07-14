@@ -741,6 +741,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "RiemannSolverFallback      = %d\n", RiemannSolverFallback);
   fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
   fprintf(fptr, "PositiveReconstruction     = %d\n", PositiveReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);

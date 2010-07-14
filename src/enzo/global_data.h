@@ -637,6 +637,7 @@ EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
 EXTERN int PositiveReconstruction;
+EXTERN int RiemannSolverFallback;
 EXTERN int RiemannSolver;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;

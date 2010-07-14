@@ -6,7 +6,7 @@ c////////////////////////  SUBROUTINE FLUX_HLL \\\\\\\\\\\\\\\\\\\\\\\\
       subroutine flux_hll(
      &     dslice, eslice, geslice, uslice, vslice, wslice, dx,diffcoef,
      &     idim, jdim, i1, i2, j1, j2, dt, gamma,
-     &     idiff, idual, eta1,
+     &     idiff, idual, eta1, ifallback,
      &     dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs, gels, gers,
      &     df, uf, vf, wf, ef, gef, ges,
      &     ncolor, colslice, colls, colrs, colf
@@ -62,7 +62,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual
+      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual, 
+     $     ifallback
       real gamma, dt, eta1
       real dx(idim)
       real uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
@@ -372,6 +373,8 @@ c
      &           geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
 c     if (gravity .eq. 1) 
 c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
+            if (ifallback .eq. 1) 
+     $           write(0,*) 'Cannot fallback anymore.  Already in HLL.'
             write(0,*) 'stop in euler with e < 0'
             ERROR_MESSAGE
          endif

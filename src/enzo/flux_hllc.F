@@ -6,7 +6,7 @@ c////////////////////////  SUBROUTINE FLUX_HLLC \\\\\\\\\\\\\\\\\\\\\\\\
       subroutine flux_hllc(
      &     dslice, eslice, geslice, uslice, vslice, wslice, dx,diffcoef,
      &     idim, jdim, i1, i2, j1, j2, dt, gamma,
-     &     idiff, idual, eta1,
+     &     idiff, idual, eta1, ifallback,
      &     dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs, gels, gers,
      &     df, uf, vf, wf, ef, gef, ges,
      &     ncolor, colslice, colls, colrs, colf
@@ -62,7 +62,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual
+      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
+     $     ifallback
       real gamma, dt, eta1
       real dx(idim)
       real uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
@@ -367,8 +368,20 @@ c
      &           geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
 c     if (gravity .eq. 1) 
 c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
-            write(0,*) 'stop in euler with e < 0'
-            ERROR_MESSAGE
+            if (ifallback.eq.0) then
+               write(0,*) 'stop in euler with e < 0'
+               ERROR_MESSAGE
+            else
+               write(0,*) 'Falling back to a more diffusive Riemann',
+     $              'solver, HLL'
+               WARNING_MESSAGE
+               call flux_hll(dslice, eslice, geslice, uslice, vslice,
+     $              dx, diffcoef, idim, jdim, i, i, j, j, dt, gamma,
+     $              idiff, idual, eta1, ifallback,
+     $              dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs,
+     $              gels, gers, df, uf, vf, wf, ef, gef, ges, 
+     $              ncolor, colslice, colls, colrs, colf)
+            endif
          endif
       enddo
 c
