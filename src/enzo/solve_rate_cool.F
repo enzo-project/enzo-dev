@@ -266,7 +266,7 @@
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, imetal, aye**(-3))
 
-      call ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+      call ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, metal,
      &                     is, ie, js, je, ks, ke,
      &                     in, jn, kn, ispecies, imetal)
@@ -704,7 +704,7 @@ c -------------------------------------------------------------------
 c -----------------------------------------------------------
 !   This routine ensures that the species aren't below tiny.
 
-      subroutine ceiling_species(de, HI, HII, HeI, HeII, HeIII,
+      subroutine ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
      &                           HM, H2I, H2II, DI, DII, HDI, metal,
      &                           is, ie, js, je, ks, ke,
      &                           in, jn, kn, ispecies, imetal)
@@ -715,6 +715,7 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      real     d(in,jn,kn)
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
@@ -765,7 +766,8 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  metal(i,j,k) = max(metal(i,j,k), tiny)
+                  metal(i,j,k) = min(max(metal(i,j,k), tiny),
+     $                               0.9*d(i,j,k))
                enddo
             enddo
          enddo
