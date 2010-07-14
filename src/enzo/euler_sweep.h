@@ -61,6 +61,7 @@ extern "C" void FORTRAN_NAME(flux_hllc)(
            float *uls, float *urs, float *vls, float *vrs, 
 	   float *wls, float *wrs, float *gels, float *gers, 
            float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
            int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
 
 extern "C" void FORTRAN_NAME(euler)(

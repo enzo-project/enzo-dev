@@ -8,7 +8,7 @@ c////////////////////////  SUBROUTINE FLUX_HLLC \\\\\\\\\\\\\\\\\\\\\\\\
      &     idim, jdim, i1, i2, j1, j2, dt, gamma,
      &     idiff, idual, eta1,
      &     dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs, gels, gers,
-     &     df, uf, vf, wf, ef, gef,
+     &     df, uf, vf, wf, ef, gef, ges,
      &     ncolor, colslice, colls, colrs, colf
      &     )
 
@@ -74,7 +74,7 @@ c
      $     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      $     eslice(idim,jdim), geslice(idim,jdim),
      $     colslice(idim,jdim,ncolor)
-      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
+      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim), ges(idim,jdim),
      $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
      $     colf(idim,jdim,ncolor)
 c
@@ -87,10 +87,11 @@ c
       real cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
      $     cw(ijkn), cp(ijkn), diffd(ijkn), diffuu(ijkn), diffuv(ijkn),
      $     diffuw(ijkn), diffue(ijkn), diffuge(ijkn), 
-     $     bp(ijkn), bm(ijkn), el(ijkn), er(ijkn)
+     $     bp(ijkn), bm(ijkn), el(ijkn), er(ijkn), pcent(ijkn)
       real dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
      $     vfl(ijkn), vfr(ijkn), wfl(ijkn), wfr(ijkn),
      $     efl(ijkn), efr(ijkn), gefl(ijkn), gefr(ijkn),
+     $     gesl(ijkn), gesr(ijkn),
      $     colfl(ijkn,MAX_COLOR), colfr(ijkn,MAX_COLOR)
       real sl(ijkn), sr(ijkn), sm(ijkn)
       real dubl, dubr
@@ -238,8 +239,10 @@ c     Gas energy is treated like an advected quantity
 c
       if (idual .eq. 1) then
          do i = i1,i2+1
-            gefl(i) = (uls(i,j)-bm(i)) * gels(i,j)
-            gefr(i) = (urs(i,j)-bp(i)) * gers(i,j)
+            gefl(i) = (uls(i,j)-bm(i)) * gels(i,j) * dls(i,j)
+            gefr(i) = (urs(i,j)-bp(i)) * gers(i,j) * drs(i,j)
+            gesl(i) = uls(i,j)-bm(i)
+            gesr(i) = urs(i,j)-bp(i)
          enddo
       endif
 c
@@ -281,6 +284,21 @@ c
          uf(i,j) = uf(i,j) + sm(i) * cp(i)
          ef(i,j) = ef(i,j) + sm(i) * cp(i) * cw(i)
       enddo
+c
+c     Calculate source term for gas energy
+c
+      if (idual .eq. 1) then
+         do i=i1, i2+1
+            pcent(i) = max((gamma-1.0)*geslice(i,j)*dslice(i,j), 
+     $           tiny)
+         enddo
+         do i=i1, i2+1
+            qc = dt/dx(i)
+            ges(i,j) = qc * pcent(i) * 
+     $           (sl(i  )*gesl(i  ) + sr(i  )*gesr(i  ) -
+     $            sl(i+1)*gesl(i+1) - sr(i+1)*gesr(i+1))
+         enddo
+      endif
 c
 c     Finally absorb dt/dx into fluxes.  Advected quantities (including
 c     the gas energy) are only multiplied by dt.

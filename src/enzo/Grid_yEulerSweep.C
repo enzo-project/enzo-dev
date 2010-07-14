@@ -248,7 +248,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			    &DualEnergyFormalismEta1,
 			    dls, drs, pls, prs, uls, urs,
 			    vls, vrs, wls, wrs, gels, gers,
-			    df, uf, vf, wf, ef, gef,
+			    df, uf, vf, wf, ef, gef, ges,
 			    &NumberOfColours, colslice, colls, colrs, colf);
     break;
 
