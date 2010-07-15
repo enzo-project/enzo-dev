@@ -122,6 +122,8 @@ MACHNOTES:
 	fi)  
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
+                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+                cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
 		echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" > temp1; \
 		cat temp1 $(OUTPUT) > temp2 ;\
