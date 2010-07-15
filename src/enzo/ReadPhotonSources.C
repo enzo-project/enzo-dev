@@ -42,7 +42,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   // Set defaults
 
   for (source = 0; source < MAX_SOURCES; source++) {
-    PhotonTestSourceType[source] = 0;
+    PhotonTestSourceType[source] = Isotropic;
     PhotonTestSourceLuminosity[source] = 0.;
     PhotonTestSourceLifeTime[source] = 0.;
     PhotonTestSourceCreationTime[source] = CurrentTime;
@@ -201,7 +201,16 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       RadSources->Energy[j] = PhotonTestSourceEnergy[i][j];
       RadSources->SED[j]    = PhotonTestSourceSED[i][j];
     }
+
+    if (RadSources->Type < Isotropic || RadSources->Type > Beamed) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stderr, "PhotonTestSourceType must be 1 or 2\n",
+		"\tChanging to 1 (isotropic)\n");
+      RadSources->Type = Isotropic;
+    }
+
     GlobalRadiationSources->NextSource = RadSources;
+
   }  
 
   /* Delete allocated memory for temporary (for I/O) photon sources */
