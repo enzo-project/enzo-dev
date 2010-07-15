@@ -323,7 +323,7 @@ get-version:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.src *src90 *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.F *.F90 *.h) >& out.make.DEPEND
 
 include DEPEND
 
@@ -375,3 +375,4 @@ clean:
 #-----------------------------------------------------------------------
 
 include $(ENZO_DIR)/Make.config.targets
+# DO NOT DELETE

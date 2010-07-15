@@ -31,8 +31,6 @@
 #include "StarParticleData.h"
 #undef DEFINE_STORAGE
 
-#include <stdio.h>
-
 #ifndef USE_MPI
 #define MyProcessorNumber 0
 #define ROOT_PROCESSOR 0
