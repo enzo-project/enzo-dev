@@ -375,7 +375,8 @@ c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
                write(0,*) 'Falling back to a more diffusive Riemann',
      $              'solver, HLL'
                WARNING_MESSAGE
-               call flux_hll(dslice, eslice, geslice, uslice, vslice,
+               call flux_hll(dslice, eslice, geslice, 
+     $              uslice, vslice, wslice,
      $              dx, diffcoef, idim, jdim, i, i, j, j, dt, gamma,
      $              idiff, idual, eta1, ifallback,
      $              dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs,
