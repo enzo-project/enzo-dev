@@ -105,7 +105,7 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 
 	  CenterIndex = 
 	  (int) (TopGridDims[dim] * 
-		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
+		 (cstar->pos[dim] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
 
 	  pbin = lower_bound(GStartIndex[dim], GStartIndex[dim]+Layout[dim]+1,
