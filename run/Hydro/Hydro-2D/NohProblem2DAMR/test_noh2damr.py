@@ -56,7 +56,7 @@ class TestRadialDensity(YTStaticOutputTest):
     def compare(self, old_result):
         current_buffer = na.array(self.result)
         old_buffer = na.array(old_result)
-
+        
         # We want our arrays to agree to some delta
         self.compare_array_delta(current_buffer, old_buffer, 5e-3)
 
@@ -70,13 +70,13 @@ class TestRadialDensity(YTStaticOutputTest):
         postshock_r = na.linspace(t*1./3., na.sqrt(2))
         postshock_den = (1 + t/postshock_r)
 
-        pl.plot(r,dd['Density'],'b.',ms=4,alpha=0.2)
+        all = pl.plot(r,dd['Density'],'b.',ms=4,alpha=0.2)
         diag_r = r[(x==y)]
         diag_den = dd['Density'][(x==y)]
-        pl.plot(diag_r,diag_den,'r.',ms=6,alpha=0.8)
-        pl.plot(postshock_r, postshock_den, 'k-')
+        diag = pl.plot(diag_r,diag_den,'r.',ms=6,alpha=0.8)
+        analy = pl.plot(postshock_r, postshock_den, 'k-')
 
-        pl.legend(['Simulation All','Simulation Diagonal','Analytical'])
+        pl.legend([all, diag, analy],['Simulation All','Simulation Diagonal','Analytical'])
         im = pl.plot([0.0,t*1./3.],[16.0,16.0],'k-')
         pl.xlim(0.0,na.sqrt(2.0))
         pl.xlabel('r')
