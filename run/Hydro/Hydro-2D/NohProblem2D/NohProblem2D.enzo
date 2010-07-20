@@ -9,7 +9,7 @@
 #
 ProblemType            = 9
 TopGridRank            = 2
-TopGridDimensions      = 400 400
+TopGridDimensions      = 100 100
 HydroMethod            = 0
 #
 #  set I/O and stop/start parameters
