@@ -72,13 +72,13 @@ class TestRadialDensity(YTStaticOutputTest):
         postshock_r = na.linspace(t*1./3., na.sqrt(3))
         postshock_den = (1 + t/postshock_r)**2
 
-        pl.plot(r,dd['Density'],'b.',ms=4,alpha=0.2)
+        all = pl.plot(r,dd['Density'],'b.',ms=4,alpha=0.2)
         diag_r = r[(x==y)*(y==z)]
         diag_den = dd['Density'][(x==y)*(y==z)]
-        pl.plot(diag_r,diag_den,'r.',ms=6,alpha=0.8)
-        pl.plot(postshock_r, postshock_den, 'k-')
+        diag = pl.plot(diag_r,diag_den,'r.',ms=6,alpha=0.8)
+        analy = pl.plot(postshock_r, postshock_den, 'k-')
 
-        pl.legend(['Simulation All','Simulation Diagonal','Analytical'])
+        pl.legend([all, diag, analy],['Simulation All','Simulation Diagonal','Analytical'])
         im = pl.plot([0.0,t*1./3.],[64.0,64.0],'k-')
         pl.xlim(0.0,na.sqrt(3.0))
         pl.xlabel('r')
