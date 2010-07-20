@@ -1,4 +1,4 @@
-NohProblem2D (See Noh (1987) J. Comp. Phys. 72, 78)
+NohProblem2DAMR (See Noh (1987) J. Comp. Phys. 72, 78)
 Tested by: Sam Skillman, 7/19/2010
 Versions Tested:
 Enzo-1.5
@@ -41,10 +41,6 @@ Lagrangian schemes. Numerically, this is a difficult problem.
 Results
 ------
 
-These results discuss the performance with a 100x100 uniform grid.
-Dramatically increased accuracy is seen at 400x400, but takes ~4096
-times longer.  
-
 Enzo-1.5 : This test problem runs to completion.  We check the
 accuracy by producing a scatter plot of the density as a function of
 radius for all the zones in the simulation as well as only the zones
@@ -52,11 +48,15 @@ along the x=y=z diagonal, and compare them to the analytical result.
 The location of the shock as well as the pre-shock behavior is very
 accurate for all zones.  The diagonal zones match up very well in the
 postshock-region with the analytical result.  A scatter plot of all
-the zones shows small amounts of scatter around the analytical result.
-This is acceptable error.
+the zones shows small amounts of scatter around the analytical
+result. The zones along the x=0 and y=0 boundaries are artificially
+higher than the analytical result.  This seems to be a systematic
+result, so there may be an issue here.
 
-Enzo-2.0 : This test problem runs to completion.  It produces
-identical results to Enzo-1.5
+Enzo-2.0 : This test problem runs to completion.  It improves upon the
+results from Enzo-1.5, getting rid of the boundary effects.  Now other
+than the post-shock oscillations, the result is very accurate with
+respect to the analytical result, with acceptable errors.
 
 Testing
 ------
@@ -73,9 +73,9 @@ analytical result
 Regression Testing
 ---------------
 There are three tests:
-noh2d_image: Tests a fixed resolution image (400x400) of Density to delta's of 5.0e-3
-noh2d_max: Tests the maximum density value with a delta of 5.0e-3
-noh2d_radial: Tests density radial profile with the shape to exact accuracy and delta to 5.0e-3
+noh2damr_image: Tests a fixed resolution image (400x400) of Density to delta's of 5.0e-3
+noh2damr_max: Tests the maximum density value with a delta of 5.0e-3
+noh2damr_radial: Tests density radial profile with the shape (subject to AMR differences) to exact accuracy and delta to 5.0e-3
 
 $ ./enzo-1.5 -d NohProblem2D.enzo
 $ enzo_test store enzo-1.5 test_noh2d.py
@@ -83,4 +83,5 @@ $ rm -rf DD* OutputLog
 $ ./enzo-2.0 -d NohProblem2D.enzo
 $ enzo_test compare enzo-1.5 enzo-2.0 $ test_noh2d.py
 
-
+Note that regression between enzo-1.5 and enzo-2.0 fails for all t >
+0.  However, enzo-2.0 is the preferred result.
