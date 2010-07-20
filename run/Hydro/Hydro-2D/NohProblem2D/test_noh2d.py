@@ -48,7 +48,6 @@ class TestRadialDensity(YTStaticOutputTest):
         postshock_r = na.linspace(t*1./3., na.sqrt(2))
         postshock_den = (1 + t/postshock_r)
 
-        pl.plot(r,dd['Density'],'b.',ms=4,alpha=0.2)
         diag_r = r[(x==y)]
         diag_den = dd['Density'][(x==y)]
         self.result = na.array(diag_den)
@@ -83,7 +82,6 @@ class TestRadialDensity(YTStaticOutputTest):
         pl.ylabel('Density')
         pl.savefig('%s_density.png'%self.pf)
         pl.clf()
-        self.result = [diag_r, diag_den]
         
         return ['%s_density.png'%self.pf]
         # There's not much to plot, so we just return an empty list.
