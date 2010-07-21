@@ -154,7 +154,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     for (j=0; j<BasePackages; j++) {
       //      for (j=0; j<1; j++) {
       //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
-      if (!isnan(photons_per_package)) { 
+      if (!isnan(photons_per_package) && photons_per_package > 0) { 
 	PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	NewPack->NextPackage = PhotonPackages->NextPackage;
 	PhotonPackages->NextPackage = NewPack;

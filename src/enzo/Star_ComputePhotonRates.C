@@ -33,6 +33,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, i
 int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
 {
 
+  int i;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
@@ -64,6 +65,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
       Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
       Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
     } // ENDELSE
+    else {
+      for (i = 0; i < nbins; i++) Q[i] = 0.0;
+    }
     break;
 
     /* Average energy from Schaerer (2003) */
