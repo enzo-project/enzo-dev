@@ -290,7 +290,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 		  
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 		/* Right side */
@@ -326,7 +326,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 	      }
