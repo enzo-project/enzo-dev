@@ -1,0 +1,17 @@
+TestOrbit
+---------
+
+(Greg Bryan, July 2010)
+
+This test places two particles in an otherwise empty box, one at the
+center (0.5 0.5 0.5) with mass 1.0, and a second at position 0.2 0.5
+0.5 with mass 1.0e-6.  The initial velocity is set such that the
+second particle is in a circular orbit around the first.  The system
+is evolved for 2.0 time units without AMR but with isolated gravity
+boundary conditions.  This makes it complete a bit over 1 orbit.
+The test is to check the final particle positions.
+
+For the test to run with enzo 1.5 compile with:
+  make isolated-bcs-yes
+  make unigrid-transpose-no
+
