@@ -190,7 +190,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   if (PPMDiffusionParameter != 0 || PPMFlatteningParameter != 0)
     FORTRAN_NAME(calcdiss)(dslice, eslice, uslice, BaryonField[Vel1Num],
-			   BaryonField[Vel2Num], pslice, CellWidthTemp[1],
+			   BaryonField[Vel2Num], pslice, CellWidthTemp[2],
 			   CellWidthTemp[0], CellWidthTemp[1], 
 			   &GridDimension[2], &GridDimension[0], 
 			   &GridDimension[1], &is, &ie, &js, &je, &k_p1,
