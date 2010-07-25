@@ -35,31 +35,52 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 				  float Byl,  float Byu)
 {  
 
+  // Neutral
   const float HIIFraction = 1.2e-5;
   const float HeIIFraction = 1.0e-14;
   const float HeIIIFraction = 1.0e-17;
   const float HMFraction = 2.0e-9;
   const float H2IFraction = 2.0e-20;
   const float H2IIFraction = 3.0e-14;
+
+  // Ionized
+  const float HIIFractionIon = 0.99 * CoolData.HydrogenFractionByMass;
+  const float HeIIFractionIon = 1.0e-14;
+  const float HeIIIFractionIon = 0.99 * (1.0-CoolData.HydrogenFractionByMass);
+
   float HIFraction, HeIFraction, eFraction;
+  float HIFractionIon, HeIFractionIon, eFractionIon;
   HIFraction = CoolData.HydrogenFractionByMass - HIIFraction;
+  HIFractionIon = CoolData.HydrogenFractionByMass - HIIFractionIon;
   if (MultiSpecies > 1)
     HIFraction -= HMFraction + H2IFraction + H2IIFraction;
   HeIFraction = 1.0 - CoolData.HydrogenFractionByMass - 
     HeIIFraction - HeIIIFraction;
+  HeIFractionIon = 1.0 - CoolData.HydrogenFractionByMass - 
+    HeIIFractionIon - HeIIIFractionIon;
   eFraction = HIIFraction + 0.25*HeIIFraction + 0.5*HeIIIFraction;
+  eFractionIon = HIIFractionIon + 0.25*HeIIFractionIon + 0.5*HeIIIFractionIon;
   if (MultiSpecies > 1)
     eFraction += 0.5*H2IIFraction - HMFraction;
 
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
+    VelocityUnits;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
+	   &VelocityUnits, Time);
+  const float IonizedThreshold = 1e4 / TemperatureUnits / (Gamma-1.0);
+
   /* create fields */
+
+  int GENum, TENum;
+
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism) {
-    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+    FieldType[GENum = NumberOfBaryonFields++] = InternalEnergy;
   }
 
   if (HydroMethod == MHD_RK) {
@@ -220,7 +241,8 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
   int i, j, k, index, seed;
   float pres, rho, ramp, dpdrho, dpde, h, cs, vz, eintl, eintu;
   FLOAT DomainWidth[MAX_DIMENSION];
-  const float delz = 5e-3;  // range in z to apply ramp
+  //const float delz = 5e-3;  // range in z to apply ramp
+  const float delz = 5e-10;  // range in z to apply ramp
   const float amplitude = 0.01; // perturbation amplitude
 
   if (MHD3DProblemType == 2 || MHD3DProblemType == 3) {
@@ -303,12 +325,24 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     for (k = 0, index = 0; k < GridDimension[2]; k++)
       for (j = 0; j < GridDimension[1]; j++)
 	for (i = 0; i < GridDimension[0]; i++, index++) {
-	  BaryonField[DeNum][index] = eFraction * BaryonField[0][index];
-	  BaryonField[HINum][index] = HIFraction * BaryonField[0][index];
-	  BaryonField[HIINum][index] = HIIFraction * BaryonField[0][index];
-	  BaryonField[HeINum][index] = HeIFraction * BaryonField[0][index];
-	  BaryonField[HeIINum][index] = HeIIFraction * BaryonField[0][index];
-	  BaryonField[HeIIINum][index] = HeIIIFraction * BaryonField[0][index];
+
+	  // Assume the velocity perturbations are small and that
+	  // thermal energy dominates
+	  if (BaryonField[TENum][index] > IonizedThreshold) {
+	    BaryonField[DeNum][index] = eFractionIon * BaryonField[0][index];
+	    BaryonField[HINum][index] = HIFractionIon* BaryonField[0][index];
+	    BaryonField[HIINum][index] = HIIFractionIon * BaryonField[0][index];
+	    BaryonField[HeINum][index] = HeIFractionIon * BaryonField[0][index];
+	    BaryonField[HeIINum][index] = HeIIFractionIon * BaryonField[0][index];
+	    BaryonField[HeIIINum][index] = HeIIIFractionIon * BaryonField[0][index];
+	  } else {
+	    BaryonField[DeNum][index] = eFraction * BaryonField[0][index];
+	    BaryonField[HINum][index] = HIFraction * BaryonField[0][index];
+	    BaryonField[HIINum][index] = HIIFraction * BaryonField[0][index];
+	    BaryonField[HeINum][index] = HeIFraction * BaryonField[0][index];
+	    BaryonField[HeIINum][index] = HeIIFraction * BaryonField[0][index];
+	    BaryonField[HeIIINum][index] = HeIIIFraction * BaryonField[0][index];
+	  }
 	}
   }
 
