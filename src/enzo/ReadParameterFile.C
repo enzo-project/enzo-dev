@@ -942,6 +942,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RiemannSolver = TwoShock;
     if (ReconstructionMethod == INT_UNDEFINED)
       ReconstructionMethod = PPM;
+    if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("RiemannSolver = HLL, ReconstructionMethod = PLM.\n"
+	       "These are the defaults for the MUSCL (hydro_rk) solvers,\n"
+	       "but don't exist for the FORTRAN solvers.  Changing to the\n"
+	       "old FORTRAN default, two-shock and PPM.\n"
+	       "-- To override this, set RiemannSolver = -1\n");
+      RiemannSolver = TwoShock;
+      ReconstructionMethod = PPM;
+    }
+    if (RiemannSolver == -HLL) RiemannSolver = HLL;
   } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
     if (RiemannSolver == INT_UNDEFINED) 
       RiemannSolver = HLL;
