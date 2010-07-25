@@ -52,7 +52,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   const float PhotonCourantFactor = 1.0;
 
   // Restrict the increase in dtPhoton to this factor
-  const float MaxDTChange = 3.0;
+  const float MaxDTChange = 30.0;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
@@ -110,7 +110,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
     if (LastPhotonDT[0] > 0 && LastPhotonDT[1] > 0 && dtPhoton < huge_number) {
       AvgLastTimestep = 0.5 * (LastPhotonDT[0]+LastPhotonDT[1]);
-      if (dtPhoton > (1.0+MaxDTChange) * AvgLastTimestep)
+      if (dtPhoton > (1.0+MaxDTChange) * AvgLastTimestep ||
+	  dtPhoton < 0.01*AvgLastTimestep)
 	dtPhoton = AvgLastTimestep;
       else
 	dtPhoton = 0.5*(dtPhoton + AvgLastTimestep);

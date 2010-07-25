@@ -36,22 +36,34 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *DebugName = "Debug";
-  char *Phi_pName = "Phip";
-  char *GravPotenName = "PotentialField";
-  char *Acce1Name = "AccelerationField1";
-  char *Acce2Name = "AccelerationField2";
-  char *Acce3Name = "AccelerationField3";
+  const char *DensName = "Density";
+  const char *TEName   = "TotalEnergy";
+  const char *GEName   = "GasEnergy";
+  const char *Vel1Name = "x-velocity";
+  const char *Vel2Name = "y-velocity";
+  const char *Vel3Name = "z-velocity";
+  const char *ElectronName = "Electron_Density";
+  const char *HIName    = "HI_Density";
+  const char *HIIName   = "HII_Density";
+  const char *HeIName   = "HeI_Density";
+  const char *HeIIName  = "HeII_Density";
+  const char *HeIIIName = "HeIII_Density";
+  const char *HMName    = "HM_Density";
+  const char *H2IName   = "H2I_Density";
+  const char *H2IIName  = "H2II_Density";
+  const char *DIName    = "DI_Density";
+  const char *DIIName   = "DII_Density";
+  const char *HDIName   = "HDI_Density";
+  const char *BxName = "Bx";
+  const char *ByName = "By";
+  const char *BzName = "Bz";
+  const char *PhiName = "Phi";
+  const char *DebugName = "Debug";
+  const char *Phi_pName = "Phip";
+  const char *GravPotenName = "PotentialField";
+  const char *Acce1Name = "AccelerationField1";
+  const char *Acce2Name = "AccelerationField2";
+  const char *Acce3Name = "AccelerationField3";
 
   /* declarations */
 
@@ -65,6 +77,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   int UseParticles    = FALSE;
   float MediumDensity = 1.0, 
     MediumPressure = 1.0;
+  float MediumTemperature = FLOAT_UNDEFINED;
   int   SphereType[MAX_SPHERES];
   float SphereDensity[MAX_SPHERES],
     SpherePressure[MAX_SPHERES],
@@ -82,6 +95,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     SpherePosition[MAX_SPHERES][MAX_DIMENSION];
   float Bnaught = 0.0;
   float theta_B = 0.0;
+  int Bdirection = 2;
 
   for (sphere = 0; sphere < MAX_SPHERES; sphere++) {
     SphereRadius[sphere]     = 1.0;
@@ -119,11 +133,13 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "UseParticles = %"ISYM, &UseParticles);
     ret += sscanf(line, "MediumDensity = %"FSYM, &MediumDensity);
     ret += sscanf(line, "MediumPressure = %"FSYM, &MediumPressure);
+    ret += sscanf(line, "MediumTemperature = %"FSYM, &MediumTemperature);
     ret += sscanf(line, "UniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
 		  UniformVelocity, UniformVelocity+1,
 		  UniformVelocity+2);
     ret += sscanf(line, "InitialBField = %"FSYM, &Bnaught);
     ret += sscanf(line, "theta_B = %"FSYM, &theta_B);
+    ret += sscanf(line, "Bdirection = %"ISYM, &Bdirection);
  
     if (sscanf(line, "SphereType[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "SphereType[%"ISYM"] = %"ISYM, &sphere,
@@ -208,7 +224,18 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 
 
   MediumDensity /= rhou;
-  MediumPressure /= presu;
+  if (MediumTemperature > 0) {
+    float MediumEnergy;
+    float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
+      VelocityUnits;
+    float tmp1, tmp2, tmp3;
+    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
+	     &VelocityUnits, MetaData.Time);
+    MediumEnergy = MediumTemperature / TemperatureUnits / ((Gamma-1.0)*Mu);
+    MediumPressure = (Gamma-1.0) * MediumDensity * MediumEnergy;
+  } else {
+    MediumPressure /= presu;
+  }
 
   Bnaught /= bfieldu;
 
@@ -228,7 +255,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 	     n_sphere, SphereRadius,
 	     SphereCoreRadius, SphereDensity,
 	     SpherePressure, SphereSoundVelocity, SpherePosition, 
-	     SphereAngVel, Bnaught, theta_B, 
+	     SphereAngVel, Bnaught, theta_B, Bdirection,
 	     SphereType,
              MediumDensity, MediumPressure, 0) == FAIL) {
     fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
@@ -273,7 +300,9 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 	if (Temp->GridData->CollapseMHD3DInitializeGrid(
 				n_sphere, SphereRadius,
 				SphereCoreRadius, SphereDensity,
-				SpherePressure, SphereSoundVelocity, SpherePosition, SphereAngVel, Bnaught,theta_B,
+				SpherePressure, SphereSoundVelocity, 
+				SpherePosition, SphereAngVel, 
+				Bnaught, theta_B, Bdirection,
 				SphereType, MediumDensity, MediumPressure, level+1) == FAIL) {
 	  fprintf(stderr, "Error in Collapse3DInitializeGrid.\n");
 	  return FAIL;
@@ -301,31 +330,50 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   /* set up field names and units */
 
   int count = 0;
-  DataLabel[count++] = DensName;
-  DataLabel[count++] = Vel1Name;
-  DataLabel[count++] = Vel2Name;
-  DataLabel[count++] = Vel3Name;
-  DataLabel[count++] = TEName;
+  DataLabel[count++] = (char*) DensName;
+  DataLabel[count++] = (char*) Vel1Name;
+  DataLabel[count++] = (char*) Vel2Name;
+  DataLabel[count++] = (char*) Vel3Name;
+  DataLabel[count++] = (char*) TEName;
   if (DualEnergyFormalism) {
-    DataLabel[count++] = GEName;
+    DataLabel[count++] = (char*) GEName;
   }
   if (HydroMethod == MHD_RK) {
-    DataLabel[count++] = BxName;
-    DataLabel[count++] = ByName;
-    DataLabel[count++] = BzName;
-    DataLabel[count++] = PhiName;
+    DataLabel[count++] = (char*) BxName;
+    DataLabel[count++] = (char*) ByName;
+    DataLabel[count++] = (char*) BzName;
+    DataLabel[count++] = (char*) PhiName;
   }
 
+  if (MultiSpecies) {
+    DataLabel[count++] = (char*) ElectronName;
+    DataLabel[count++] = (char*) HIName;
+    DataLabel[count++] = (char*) HIIName;
+    DataLabel[count++] = (char*) HeIName;
+    DataLabel[count++] = (char*) HeIIName;
+    DataLabel[count++] = (char*) HeIIIName;
+    if (MultiSpecies > 1) {
+      DataLabel[count++] = (char*) HMName;
+      DataLabel[count++] = (char*) H2IName;
+      DataLabel[count++] = (char*) H2IIName;
+    }
+    if (MultiSpecies > 2) {
+      DataLabel[count++] = (char*) DIName;
+      DataLabel[count++] = (char*) DIIName;
+      DataLabel[count++] = (char*) HDIName;
+    }
+  }  // if Multispecies
+
   if(UseDivergenceCleaning){
-    DataLabel[count++] = Phi_pName;
-    DataLabel[count++] = DebugName;
+    DataLabel[count++] = (char*) Phi_pName;
+    DataLabel[count++] = (char*) DebugName;
   }
 
   if (WritePotential) {
-    DataLabel[count++] = GravPotenName;
-    DataLabel[count++] = Acce1Name;
-    DataLabel[count++] = Acce2Name;
-    DataLabel[count++] = Acce3Name;
+    DataLabel[count++] = (char*) GravPotenName;
+    DataLabel[count++] = (char*) Acce1Name;
+    DataLabel[count++] = (char*) Acce2Name;
+    DataLabel[count++] = (char*) Acce3Name;
   }
 
   for (i = 0; i < count; i++) {
