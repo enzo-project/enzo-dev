@@ -7,22 +7,20 @@
 #  problem setup
 #
 ProblemType               =  10
-Gamma                     =  1.001 
+Gamma                     =  1.667
 
 #
 #  grid setup
 #
 TopGridRank               = 3
-TopGridDimensions         = 64 64 64 
-
-
+TopGridDimensions         = 32 32 32
 
 #
 #  set I/O and stop/start parameters
 #
-StopTime                  = 15.0
+StopTime                  = 50.0
 StopCycle                 = 100000
-dtDataDump                = 0.05
+dtDataDump                = 2.0
 DataDumpName              = DD
 
 #
@@ -30,20 +28,19 @@ DataDumpName              = DD
 #
 HydroMethod               = 0       // PPM - 0; ZEUS - 2
 DualEnergyFormalism       = 1
-PPMDiffusionParameter     = 1
-PPMFlatteningParameter    = 3
-PPMSteepeningParameter    = 1
-CourantSafetyNumber       = 0.8     // ppm - 0.8; zeus - 0.5
+PPMDiffusionParameter     = 0
+PPMFlatteningParameter    = 0
+PPMSteepeningParameter    = 0
+CourantSafetyNumber       = 0.5     
 
 #
 #  set grid refinement parameters
 #
 StaticHierarchy           = 0       // dynamic hierarchy
-MaximumRefinementLevel    = 4       // use 0 AMR levels
+MaximumRefinementLevel    = 1       // use 0 AMR levels
 RefineBy = 2
 CellFlaggingMethod = 2
 MinimumOverDensityForRefinement = 8.0
-MinimumMassForRefinementLevelExponent = 0.0
 FluxCorrection = 1
 InterpolationMethod = 1
 MinimumEfficiency = 0.4
@@ -63,20 +60,21 @@ TimeUnits = 3.1557e+13    # one megayear in seconds
 
 SelfGravity                = 1
 GravitationalConstant      = 0.0139394         # 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
-TopGridGravityBoundary = 1       // Isolated BCs
+TopGridGravityBoundary = 0       // Periodic BCs
 
 # other stuff (controlling chemistry, etc.)
 
 RadiativeCooling = 0
 
-RotatingCylinderOverdensity = 20.0
+RotatingCylinderOverdensity = 200.0
 RotatingCylinderLambda = 0.05
 RotatingCylinderRadius = 0.1
 RotatingCylinderCenterPosition = 0.5 0.5 0.5
 RotatingCylinderSubgridLeft = 0.375
 RotatingCylinderSubgridRight = 0.625
+RotatingCylinderTotalEnergy = 0.5
 
-TestProblemUseMetallicityField = 1
+TestProblemUseMetallicityField = 0
 TestProblemInitialMetallicityFraction = 0.1
 
 #####
