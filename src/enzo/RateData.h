@@ -7,6 +7,7 @@
 struct RateDataType
 {
   int NumberOfTemperatureBins;   
+  int CaseBRecombination;
   float TemperatureStart;        // range of temperature in K
   float TemperatureEnd;
 

@@ -1,0 +1,19 @@
+AMRZeldovichPancake
+----------
+
+(John Wise, July 2010)
+
+This test simulates a collapsing sinusoidal cosmological pertubation
+in one-dimension, commonly known as a Zel'dovich pancake.  This
+problem tests both the hydrodynamics and gravity solvers and the
+implementation of cosmological expansion.  The system will form a
+caustic in the center of the domain with a density and temperature
+peak.  There should be a small dip in temperature at the center of the
+broad peak.  In flat cosmology, there exists an analytical solution in
+the linear phase of collapse and is given in Zel'dovich (1970).
+
+This test runs to completion and creates 2 outputs -- the initial
+(z=20) and final (z=0) states.  There are two levels of refinement by
+factors of 4.  The finest resolution element is the same as the
+non-AMR version of this test.  There are some small differences between
+Enzo v1.5 and v2.0 at the parent-child grid boundaries.

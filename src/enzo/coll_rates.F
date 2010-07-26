@@ -4,13 +4,14 @@ c/////////////////////  SUBROUTINE COLL_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
       SUBROUTINE coll_rates(T, k1, k2, k3, k4, k5, k6, k7, k8, k9,
      $     k10, k11, k12, k13, k14, k15, k16, k17, k18, k19, k23,
-     $     kunit )
+     $     kunit, casebrates)
 c
 c  COMPUTE MULTISPECIES COLLISIONAL RATES
 c
 c  written by: Tom Abel
 c  date:       
 c  modified1: Feb, 2000 by Greg Bryan; adapted to AMR
+c  modified2: July, 2010 by Dan Reynolds; added case-B recombination rates
 c
 c  PURPOSE:
 c    Computes various collisional rates (from Tom Abels web page)
@@ -58,6 +59,7 @@ c
       REAL  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13,
      $     k14, k15, k16, k17, k18, k19, k23
       double precision kunit, T
+      INTEGER casebrates
 c
 c  Parameters
 c
@@ -116,24 +118,49 @@ C     ------- Compute various values of T.
          k4 = 3.92e-13/T_eV**0.6353 / kunit
          k5 = tiny
       ENDIF
-      
-      IF ( T .GT. 5500.0 ) THEN
-         k2 = exp(-28.61303380689232
-     &        - 0.7241125657826851*log_T_eV
-     &        - 0.02026044731984691*log_T_eV**2
-     &        - 0.002380861877349834*log_T_eV**3
-     &        - 0.0003212605213188796*log_T_eV**4
-     &        - 0.00001421502914054107*log_T_eV**5
-     &        + 4.989108920299513e-6*log_T_eV**6
-     &        + 5.755614137575758e-7*log_T_eV**7
-     &        - 1.856767039775261e-8*log_T_eV**8
-     &        - 3.071135243196595e-9*log_T_eV**9) / kunit
+
+c     redefine k4 if case B recombination rates are requested
+      if (casebrates.eq.1) then
+         k4 = 1.26d-14 * (5.7067d5/T)**(0.75d0)
+      endif
+
+c     set HII recombination rate as either case A or case B
+      IF (casebrates.eq.1) THEN
+         IF (T < 1.0d9) then
+            k2 = 4.881357d-6*T**(-1.5d0) 
+     &           * (1.d0+1.14813d2*T**(-0.407d0))**(-2.242d0) / kunit
+         ELSE
+            k2 = tiny
+         ENDIF
       ELSE
-         k2 = k4
+         IF ( T .GT. 5500.0 ) THEN
+            k2 = exp(-28.61303380689232
+     &           - 0.7241125657826851*log_T_eV
+     &           - 0.02026044731984691*log_T_eV**2
+     &           - 0.002380861877349834*log_T_eV**3
+     &           - 0.0003212605213188796*log_T_eV**4
+     &           - 0.00001421502914054107*log_T_eV**5
+     &           + 4.989108920299513e-6*log_T_eV**6
+     &           + 5.755614137575758e-7*log_T_eV**7
+     &           - 1.856767039775261e-8*log_T_eV**8
+     &           - 3.071135243196595e-9*log_T_eV**9) / kunit
+         ELSE
+            k2 = k4
+         ENDIF
       ENDIF
       
-      k6 = 3.36e-10/sqrt(T)/(T/1.e3)**0.2/(1+(T/1.e6)
-     $     **0.7) / kunit
+c     set HeIII recombination rate as either case A or case B
+      IF (casebrates.eq.1) THEN
+         IF (T < 1.0d9) then
+            k6 = 7.8155d-5*T**(-1.5d0) 
+     &           * (1.d0+2.0189d2*T**(-0.407d0))**(-2.242d0) / kunit
+         ELSE
+            k6 = tiny
+         ENDIF
+      ELSE
+         k6 = 3.36e-10/sqrt(T)/(T/1.e3)**0.2/(1+(T/1.e6)
+     $        **0.7) / kunit
+      ENDIF
       
       k7 = 6.77e-15*T_eV**0.8779 / kunit
       

@@ -25,9 +25,9 @@ RightFaceBoundaryCondition = 3 3
 #
 #  set I/O and stop/start parameters
 #
-StopTime = .05
+StopTime = 0.05
 #StopCycle = 5
-dtDataDump             = 0.0025
+dtDataDump             = 0.005
 DataDumpName           = data
 
 #

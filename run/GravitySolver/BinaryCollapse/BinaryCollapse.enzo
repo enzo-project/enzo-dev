@@ -34,12 +34,12 @@ MediumPressure      = 5.95e-09  #
 SpherePosition[0]   = 0.5 0.5 0.5
 SphereAngVel[0]    = 1.6e-12
 UniformVelocity     = 0.0 0.0 0.0 //0.6 0.6 0.6
-InitialBField      = 1e-4
+InitialBField      = 0.0
 #
 #  set I/O and stop/start parameters
 #
-StopTime               = 2.5
-CycleSkipDataDump      = 5
+StopTime               = 0.05
+CycleSkipDataDump      = 15
 #dtDataDump             = 0.001
 DataDumpName           = data
 OutputFirstTimeAtLevel = 4
@@ -64,7 +64,7 @@ Initialdt                   = 1e-6
 #  set grid refinement parameters
 #
 StaticHierarchy           = 0    // dynamic hierarchy
-MaximumRefinementLevel    = 18
+MaximumRefinementLevel    = 6
 RefineBy                  = 2    // refinement factor
 CellFlaggingMethod        = 2 6   // use baryon mass for refinement 
 RefineByJeansLengthSafetyFactor = 8

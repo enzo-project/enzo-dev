@@ -1,0 +1,15 @@
+GravityTest
+----------
+
+(Greg Bryan, July 2010)
+
+This test places a sphere with radius 0.01 and a very
+large overdensity in an AMR box with size 1.0 and
+computes the resulting velocity change due to gravity.
+It is similar to TestGravity but uses a sphere and
+baryons instead of a single particle.  No analytic
+solution is computed.  More work on this test should
+be done to compare to an analytic solution.
+
+
+

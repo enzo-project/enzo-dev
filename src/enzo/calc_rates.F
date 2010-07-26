@@ -4,7 +4,7 @@ c//////////////////////  SUBROUTINE CALC_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine calc_rates(
      &             nratec, aye, temstart, temend, alpha0, f3, 
-     &             iradtype, threebody,
+     &             iradtype, casebrates, threebody,
      &             utem, uxyz, uaye, urho, utim,
      &             ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &             ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
@@ -27,6 +27,7 @@ c  date:
 c  modified1: January, 1996 by Greg Bryan; adapted to KRONOS
 c  modified2: October, 1996 by GB; moved to AMR
 c  modified3: February, 2000 by GB; added Toms new collisional rates
+c  modified4: July, 2010 by Dan Reynolds; added case-B recombination rates
 c
 c  PURPOSE:
 c    Construct tables for rate coefficients and some cooling functions 
@@ -69,6 +70,7 @@ c    f3       = amplitude of external flux at z = 3
 c    iradtype = radiation field type (0 - none,
 c                8 - hard spectrum w/ absorption,
 c                otherwise ignored)
+c    casebrates = use case-B recombination rates for k2, k4 and k6
 c
 c  RATES:
 c
@@ -146,7 +148,7 @@ c
 c
 c  Arguments
 c
-      integer nratec, iradtype, threebody
+      integer nratec, iradtype, casebrates, threebody
       real    aye, temstart, temend, alpha0, f3,
      &        utem, uxyz, uaye, urho, utim
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
@@ -371,7 +373,7 @@ c
      &                  k6a(i), k7a(i), k8a(i), k9a(i), k10a(i),
      &                  k11a(i), k12a(i), k13a(i), k14a(i), k15a(i), 
      &                  k16a(i), k17a(i), k18a(i), k19a(i), k23a(i),
-     &                  kunit)
+     &                  kunit, casebrates)
 c
 #else /* USE_NEW_COLLISIONAL_RATES */
 c
@@ -419,23 +421,50 @@ c
           k5a(i) = tiny
         endif
 c
-        if ( ttt .gt. 5500.0 ) then
-          k2a(i) = exp(-28.61303380689232
-     &           - 0.7241125657826851*logtev
-     &           - 0.02026044731984691*logtev**2
-     &           - 0.002380861877349834*logtev**3
-     &           - 0.0003212605213188796*logtev**4
-     &           - 0.00001421502914054107*logtev**5
-     &           + 4.989108920299513d-6*logtev**6
-     &           + 5.755614137575758d-7*logtev**7
-     &           - 1.856767039775261d-8*logtev**8
-     &           - 3.071135243196595d-9*logtev**9) / kunit
-        else
-          k2a(i) = k4a(i)
+c       redefine k4a if case B recombination rates are requested
+        if (casebrates) then
+           k4a(i) = 1.26d-14 * (5.7067d5/ttt)**(0.75d0)
         endif
-
-        k6a(i) = 3.36d-10/sqrt(ttt)/(ttt/1.d3)**0.2/(1+(ttt/1.d6)**0.7)
-     &           / kunit
+c
+c       compute the HII rec. rate using either the case A or case B formula
+        if (casebrates) then
+           if (ttt < 1.0d9) then
+              k2a(i) = 4.881357d-6*ttt**(-1.5d0) 
+     &             * (1.d0+1.14813d2*ttt**(-0.407d0))**(-2.242d0)
+     &             / kunit
+           else
+              k2a(i) = tiny
+           endif
+        else
+           if ( ttt .gt. 5500.0 ) then
+              k2a(i) = exp(-28.61303380689232
+     &             - 0.7241125657826851*logtev
+     &             - 0.02026044731984691*logtev**2
+     &             - 0.002380861877349834*logtev**3
+     &             - 0.0003212605213188796*logtev**4
+     &             - 0.00001421502914054107*logtev**5
+     &             + 4.989108920299513d-6*logtev**6
+     &             + 5.755614137575758d-7*logtev**7
+     &             - 1.856767039775261d-8*logtev**8
+     &             - 3.071135243196595d-9*logtev**9) / kunit
+           else
+              k2a(i) = k4a(i)
+           endif
+        endif
+c
+c       compute the HeIII rec. rate using either the case A or case B formula
+        if (casebrates) then
+           if (ttt < 1.0d9) then
+              k6a(i) = 7.8155d-5*ttt**(-1.5d0) 
+     &             * (1.d0+2.0189d2*ttt**(-0.407d0))**(-2.242d0)
+     &             / kunit
+           else
+              k6a(i) = tiny
+           endif
+        else
+           k6a(i) = 3.36d-10/sqrt(ttt)/(ttt/1.d3)**0.2
+     &          / (1+(ttt/1.d6)**0.7) / kunit
+        endif
 c
 c       Molecular hydrogen and associated rates
 c

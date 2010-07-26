@@ -1,0 +1,17 @@
+The rotating cylinder is a test of the conservation of the
+angular momentum in Enzo.
+
+The test sets up a rotating gas cyclinder in the center of the box at 0.5 0.5
+0.5 with an overdensity of 200. The default set up is with a root grid
+of 32^3 and a single level of refinement. 
+
+The cyclinder collapses towards its center and oscillates before
+settling. 
+
+The results signify correctness if the net change in the total angular
+momentum of the system is low (< 5%). The percentage change per output
+should be less than 1% and should decrease over time as the collapse
+ reaches equilibrium. 
+
+In plots.py, we image slices in the x-direction and plot the angular
+momentum evolution of the system. 

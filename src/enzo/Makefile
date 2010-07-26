@@ -122,6 +122,8 @@ MACHNOTES:
 	fi)  
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
+                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+                cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
 		echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" > temp1; \
 		cat temp1 $(OUTPUT) > temp2 ;\
@@ -323,7 +325,7 @@ get-version:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.src *src90 *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.F *.F90 *.h) >& out.make.DEPEND
 
 include DEPEND
 
@@ -375,3 +377,4 @@ clean:
 #-----------------------------------------------------------------------
 
 include $(ENZO_DIR)/Make.config.targets
+# DO NOT DELETE

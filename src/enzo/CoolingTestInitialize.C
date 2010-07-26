@@ -74,10 +74,7 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   int  i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
     SubgridDims[MAX_DIMENSION];
 
-  if (MaximumRefinementLevel > 0) {
-    fprintf(stderr,"Cooling Test problem needs MaximumRefinementLevel = 0.\n");
-    return FAIL;
-  }
+  MaximumRefinementLevel = 0;
 
   float dx = (DomainRightEdge[0] - DomainLeftEdge[0])/
      MetaData.TopGridDims[0];

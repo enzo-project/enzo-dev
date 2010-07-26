@@ -1,0 +1,30 @@
+SedovBlast-MHD-2D-Gardiner
+==========================
+From
+ Gardiner, T. A., & Stone, J. M. 2005, J. Comput. Phys., 205, 509
+ Wang, P., & Abel, T. 2009, Astrophysical Journal, 696:96-109
+
+Run: Ji-hoon Kim, July 2010
+
+
+Test Description
+================
+
+This test sets up a two-dimensional blast wave problem for MHD, and has become a useful 
+standard test for any MHD solver.  While the initial condition  essentially describes 
+a circular overpressurized region in a low-pressure magnetized medium, more detailed 
+description of the initial set up can be found in the papers above.  This test problem 
+is new for enzo2.0.  It uses the new Stanford hydro_rk solver.  
+
+Unfortunately for some users, most of the key parameters are hard-coded in 
+Grid_MHD2DTestInitializeGrid.C.  With zero B-field, this test should be a pure Sedov 
+blast wave problem.    
+
+This test runs to completion while generating 12 outputs, and scripts.py will 
+produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot 
+(t=0.02).  This last snapshot should be compared to Figure 13 of Gardiner & Stone (2005)
+or Figure 16 of Wang & Abel (2009)
+
+Success in test_gardiner.py is determined by nearly exact match (3e-5) in Density, 
+Pressure, Bx, and By. 
+
