@@ -465,6 +465,7 @@ void Star::PrintInfo(void)
   printf("\t FeedbackFlag = %"ISYM"\n", FeedbackFlag);
   printf("\t accreted_angmom = %"FSYM" %"FSYM" %"FSYM"\n", accreted_angmom[0],
 	 accreted_angmom[1], accreted_angmom[2]);
+  printf("\t this = %x, NextStar = %x\n", this, NextStar);
   return;
 }
 
