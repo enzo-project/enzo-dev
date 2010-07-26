@@ -540,11 +540,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      else
 		dens1 = normalization / POW(BlastTime*TimeUnits, 3.0) /
 		  POW(speed/v_core, DensitySlope) / DensityUnits;
-	      dens1 = max(density, SphereDensity[sphere]);
+	      dens1 = max(dens1, SphereDensity[sphere]);
 	      Velocity[0] = speed * xpos / r;
 	      Velocity[1] = speed * ypos / r;
 	      Velocity[2] = speed * zpos / r;
-	      temp1 = 100.0;  // low temperature inside; will be shocked
+	      temp1 = 10.0;
 
 	    } // ENDIF SphereType 6
 
@@ -648,7 +648,8 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		temp1 = SphereTemperature[sphere];
 	      temperature = temp1;
 	      sigma = sigma1;
-	      if (SphereType[sphere] != 10 &&
+	      if (SphereType[sphere] != 6 &&
+		  SphereType[sphere] != 10 &&
 		  SphereRotationalPeriod[sphere] <= 0)
 		for (dim = 0; dim < GridRank; dim++)
 		  Velocity[dim] = SphereVelocity[sphere][dim];
