@@ -90,8 +90,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   /*
   if ( NumberOfProcessors > 64 )
     if (ParallelRootGridIO != TRUE) {
-      fprintf(stderr, "ParallelRootGridIO MUST be set for > 64 cpus!\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("ParallelRootGridIO MUST be set for > 64 cpus!\n");
     }
   */
  
@@ -190,8 +189,7 @@ int grid::TurbulenceSimulationInitializeGrid(
     if (ReadFile(TurbulenceSimulationDensityName, GridRank, GridDimension,
               GridStartIndex, GridEndIndex, Offset, BaryonField[0],
               &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading density field.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading density field.\n");
     }
  
   /* Read the total energy field. */
@@ -200,8 +198,7 @@ int grid::TurbulenceSimulationInitializeGrid(
     if (ReadFile(TurbulenceSimulationTotalEnergyName, GridRank,
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
 		    BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading total energy field.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading total energy field.\n");
     }
  
   /* Read the gas energy field. */
@@ -211,8 +208,7 @@ int grid::TurbulenceSimulationInitializeGrid(
     if (ReadFile(TurbulenceSimulationGasEnergyName, GridRank, GridDimension,
 		     GridStartIndex, GridEndIndex, Offset, BaryonField[2],
 		     &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading gas energy field.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading gas energy field.\n");
     }
  
   /* Read the velocity fields. */
@@ -223,8 +219,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   BaryonField[vel+dim], &tempbuffer, 0, 1) == FAIL) {
 	//	   BaryonField[vel+dim], &tempbuffer, dim, 3) == FAIL) {
-	fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
       }
  
   /* Get RandomForcing data */
@@ -239,8 +234,7 @@ int grid::TurbulenceSimulationInitializeGrid(
 			  GridDimension, GridStartIndex, GridEndIndex, Offset,
 			  RandomForcingField[dim], &tempbuffer, 0, 1) == FAIL) {
 	  //		  RandomForcingField[dim], &tempbuffer, dim, 3) == FAIL) {
-	  fprintf(stderr, "Error reading RandomForcing field %"ISYM".\n", dim);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error reading RandomForcing field %"ISYM".\n", dim)
       }
   }
  
@@ -284,6 +278,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   OldTime = Time;
  
   if (io_log) fclose(log_fptr);
+
  
   return SUCCESS;
 }

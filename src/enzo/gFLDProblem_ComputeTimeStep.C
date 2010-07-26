@@ -75,7 +75,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
   //    If dtfac is not set for any species, use a heuristic to shoot 
   //    for 2 to 3 newton iterations per time step, with linesearch 
   //    step length equal to 1.
-  float dt_est;    // max time step (normalized units)
+  float dt_est = huge_number;
   float test = dtfac[0];
   int i;
   for (i=0; i<2+Nchem; i++)  test = min(dtfac[i],test);
@@ -157,7 +157,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
     float *niold, *ninew;
     for (l=2; l<=Nchem+1; l++) {
       loc_est[l] = 0.0;
-      if (dtfac[l] != huge_number) {
+      if (dtfac[2] != huge_number) {
 	niold = uold->GetData(l);
 	ninew = unew->GetData(l);
 	atol = 0.001; // assumes values are normalized
@@ -165,7 +165,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfac[2]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i] 
@@ -178,7 +178,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
 	      for (i=ghXl; i<Nx+ghXl; i++) {
-		w = dtfac[l]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
+		w = dtfac[2]*(sqrt(fabs(ninew[(k*x1len + j)*x0len + i]
 				       *niold[(k*x1len + j)*x0len + i])) 
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i]
@@ -245,6 +245,10 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
       printf(")\ngFLDProblem_ComputeTimeStep: dt_est = %g\n",dt_est);
     }
   }
+
+  // account for min/max time step size (according to user)
+  dt_est = max(dt_est, mindt);
+  dt_est = min(dt_est, maxdt);
 
   return dt_est;
 }

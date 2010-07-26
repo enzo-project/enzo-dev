@@ -115,14 +115,6 @@ int WriteAllData(char *basename, int filenumber,
   int file_status;
   int ii, pe, nn;
  
-#ifdef USE_MPI
-  double io_start, io_stop;
-  double dc_start, dc_stop;
-  double ttenter, ttexit;
-  double iot1a, iot1b, iot2a, iot2b, iot3a, iot3b, iot4a, iot4b;
-  char io_logfile[MAX_NAME_LENGTH];
-  FILE *xptr;
-#endif /* USE_MPI */
   char pid[MAX_TASK_TAG_SIZE];
  
   FILE *fptr;
@@ -136,10 +128,6 @@ int WriteAllData(char *basename, int filenumber,
   int GridKD = 1;
   int GridLD = 1;
  
-#ifdef USE_MPI
-  ttenter = MPI_Wtime();
-#endif /* USE_MPI */
-
   /* If this is an interpolated time step, then temporary replace  the time
      in MetaData.  Note:  Modified 6 Feb 2006 to fix interpolated  data outputs. */
 
@@ -317,12 +305,7 @@ int WriteAllData(char *basename, int filenumber,
  
 //  Synchronization point for directory creation
  
-#ifdef USE_MPI
-  iot1a = MPI_Wtime();
   CommunicationBarrier();
-  dc_start = MPI_Wtime();
-  iot1b = MPI_Wtime();
-#endif /* USE_MPI */
  
 //  Get cwd
 //  Generate command
@@ -416,18 +399,7 @@ int WriteAllData(char *basename, int filenumber,
  
 //  fprintf(stderr, "Sync point ok\n");
  
-#ifdef USE_MPI
-  iot2a = MPI_Wtime();
   CommunicationBarrier();
-  dc_stop = MPI_Wtime();
-  iot2b = MPI_Wtime();
-#endif /* USE_MPI */
- 
-//  Start I/O timing
- 
-#ifdef USE_MPI
-  io_start = MPI_Wtime();
-#endif /* USE_MPI */
  
   // Set MetaData.BoundaryConditionName
  
@@ -468,15 +440,13 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(name, "w")) == NULL) {
-      fprintf(stderr, "Error opening output file %s\n", name);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening output file %s\n", name)
     }
     if (WriteTime >= 0)
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     if (WriteParameterFile(fptr, MetaData) == FAIL) {
-      fprintf(stderr, "Error in WriteParameterFile\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteParameterFile\n");
     }
     fclose(fptr);
   
@@ -486,15 +456,13 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((fptr = fopen(MetaData.BoundaryConditionName, "w")) == NULL) {
-      fprintf(stderr, "Error opening boundary condition file: %s\n",
-	      MetaData.BoundaryConditionName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening boundary condition file: %s\n",
+	      MetaData.BoundaryConditionName)
     }
     strcat(MetaData.BoundaryConditionName, hdfsuffix);
     if (Exterior->WriteExternalBoundary(fptr, MetaData.BoundaryConditionName)
 	== FAIL) {
-      fprintf(stderr, "Error in WriteExternalBoundary\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteExternalBoundary\n");
     }
     fclose(fptr);
   
@@ -528,41 +496,35 @@ int WriteAllData(char *basename, int filenumber,
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) {
-      fprintf(stderr, "Error opening hierarchy file %s\n", hierarchyname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
     }
  
   if (WriteDataHierarchy(fptr, MetaData, TempTopGrid, gridbasename, GridID, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteDataHierarchy\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteDataHierarchy\n");
   }
 
   // Output StarParticle data (actually just number of stars)
  
   if (WriteStarParticleData(fptr, MetaData) == FAIL) {
-    fprintf(stderr, "Error in WriteStarParticleData\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteStarParticleData\n");
   }
  
   // Output memory map
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((mptr = fopen(memorymapname, "w")) == NULL) {
-      fprintf(stderr, "Error opening memory map file %s\n", memorymapname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening memory map file %s\n", memorymapname)
     }
 
   if (WriteMemoryMap(mptr, TempTopGrid, gridbasename, GridKD, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteMemoryMap\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteMemoryMap\n");
   }
 
   // Output configure
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     if ((optr = fopen(configurename, "w")) == NULL) {
-      fprintf(stderr, "Error opening configure file %s\n", configurename);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening configure file %s\n", configurename)
     }
 
     WriteConfigure(optr);
@@ -572,15 +534,15 @@ int WriteAllData(char *basename, int filenumber,
 
   // Output task map
 
+#ifdef TASKMAP
   if ((tptr = fopen(taskmapname, "w")) == NULL) {
-    fprintf(stderr, "Error opening task map file %s\n", taskmapname);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening task map file %s\n", taskmapname)
   }
 
   if (WriteTaskMap(tptr, TempTopGrid, gridbasename, GridLD, WriteTime) == FAIL) {
-    fprintf(stderr, "Error in WriteTaskMap\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in WriteTaskMap\n");
   }
+#endif
  
   int TGdims[3];
  
@@ -592,8 +554,7 @@ int WriteAllData(char *basename, int filenumber,
  
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteDataCubes\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteDataCubes\n");
     }
   }
  
@@ -618,12 +579,10 @@ int WriteAllData(char *basename, int filenumber,
     strcat(radiationname, RadiationSuffix);
  
     if ((Radfptr = fopen(radiationname, "w")) == NULL) {
-      fprintf(stderr, "Error opening radiation file %s\n", radiationname);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error opening radiation file %s\n", radiationname)
     }
     if (WriteRadiationData(Radfptr) == FAIL) {
-      fprintf(stderr, "Error in WriteRadiationData\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteRadiationData\n");
     }
  
     fclose(Radfptr);
@@ -635,7 +594,9 @@ int WriteAllData(char *basename, int filenumber,
     fclose(mptr);
   }
 
+#ifdef TASKMAP
   fclose(tptr);
+#endif
  
   // Replace the time in metadata with the saved value (above)
  
@@ -647,23 +608,11 @@ int WriteAllData(char *basename, int filenumber,
  
 //  Stop I/O timing
  
-#ifdef USE_MPI
-  io_stop = MPI_Wtime();
-#endif /* USE_MPI */
- 
-#ifdef USE_MPI
-  iot3a = MPI_Wtime();
   CommunicationBarrier();
-  iot3b = MPI_Wtime();
-#endif /* USE_MPI */
  
   ContinueExecution();
  
-#ifdef USE_MPI
-  iot4a = MPI_Wtime();
   CommunicationBarrier();
-  iot4b = MPI_Wtime();
-#endif /* USE_MPI */
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
@@ -671,31 +620,13 @@ int WriteAllData(char *basename, int filenumber,
     fclose(sptr);
   }
  
-#ifdef USE_MPI
-  ttexit = MPI_Wtime();
-#endif /* USE_MPI */
- 
-#ifdef USE_MPI
-  sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
-  strcpy(io_logfile, "IO_perf.");
-  strcat(io_logfile, pid);
-  xptr = fopen(io_logfile, "a");
-  fprintf(xptr, "IO %12.4e  %s\n", (io_stop-io_start), name);
-  fprintf(xptr, "DC %12.4e  %s\n", (dc_stop-dc_start), name);
-  fprintf(xptr, "XX %12.4e  %12.4e  %12.4e  %12.4e\n",
-                (iot1b-iot1a), (iot2b-iot2a), (iot3b-iot3a), (iot4b-iot4a));
-  fprintf(xptr, "TT %12.4e\n", (ttexit-ttenter));
-  fclose(xptr);
-#endif /* USE_MPI */
-
-  //  fprintf(stderr,"Safe exit from WriteAllData\n");
- 
   return SUCCESS;
 }
  
 void DeleteGridHierarchy(HierarchyEntry *GridEntry)
 {
   if (GridEntry->NextGridThisLevel != NULL)
+
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;

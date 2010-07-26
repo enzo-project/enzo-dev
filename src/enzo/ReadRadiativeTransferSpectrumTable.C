@@ -40,9 +40,8 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
   // open the file
 
   if ((fptr = fopen(RadiativeTransferTraceSpectrumTable, "r")) == NULL) {
-    fprintf(stderr, "Error opening spectrum table %s\n", 
-	    RadiativeTransferTraceSpectrumTable);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening spectrum table %s\n", 
+	    RadiativeTransferTraceSpectrumTable)
   }
 
   // The second line gives the number of lines in this file
@@ -50,8 +49,7 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
   fgets(line, MAX_LINE_LENGTH, fptr); // pass the first line
   fgets(line, MAX_LINE_LENGTH, fptr);
   if ((sscanf(line, "# %"ISYM, &nbins)) != 1) {
-    fprintf(stderr, "Error reading number of bins (line 2)\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error reading number of bins (line 2)\n");
   }
 
   // Initialize
@@ -73,8 +71,8 @@ int ReadRadiativeTransferSpectrumTable(float TemperatureUnits, float LengthUnits
 		 &RadiativeTransferSpectrumTable.fractionphotons_table[2][i],
 		 &RadiativeTransferSpectrumTable.meanenergy_table[i])
 	  != 5) {
-	fprintf(stderr, "Error reading RadiationData line %"ISYM"\n", i);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading RadiationData line %"ISYM"\n", i)
+
       }
   }
 

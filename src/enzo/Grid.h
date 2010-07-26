@@ -40,6 +40,10 @@ struct HierarchyEntry;
 #include "ListOfPhotonsToMove.h"
 #endif /* TRANSFER */
 
+#ifdef NEW_PROBLEM_TYPES
+#include "ProblemType.h"
+#endif
+
 //extern int CommunicationDirection;
 
 //struct ParticleEntry {
@@ -166,6 +170,9 @@ class grid
   friend int ExternalBoundary::Prepare(grid *TopGrid);
   friend int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid);
   friend class Star;
+#ifdef NEW_PROBLEM_TYPES
+  friend class ProblemType;
+#endif
 
 #ifdef TRANSFER
 #include "PhotonGrid_Variables.h"
@@ -194,10 +201,11 @@ class grid
 
 #ifndef NEW_GRID_IO
   int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
-			 int ReadText, int ReadData);
+		     int ReadText, int ReadData, bool ReadParticlesOnly=false);
 #else
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
-		      int ReadText = TRUE, int ReadData = TRUE, int ReadEverything = FALSE);
+		      int ReadText = TRUE, int ReadData = TRUE, 
+		      bool ReadParticlesOnly=false, int ReadEverything = FALSE);
 #endif
 
 /* Get field or particle data based on name or integer 
@@ -628,7 +636,7 @@ public:
 
 /* Solve the joint rate and radiative cooling/heating equations  */
 
-   int SolveRateAndCoolEquations();
+   int SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep);
 
 /* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
 
@@ -1455,16 +1463,18 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 #ifdef OPTIMIZED_CTP
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-				     int ThisGridNum, int *&NumberToMove, 
+				     int ThisGridNum, int TopGridDims[],
+				     int *&NumberToMove, 
 				     int StartIndex, int EndIndex, 
 				     particle_data *&List,
-				     int *Layout, int *GridMap, 
-				     int CopyDirection);
+				     int *Layout, int *GStartIndex[],
+				     int *GridMap, int CopyDirection);
   int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-				 int ThisGridNum, int *&NumberToMove, 
+				 int ThisGridNum, int TopGridDims[],
+				 int *&NumberToMove, 
 				 int StartIndex, int EndIndex, 
-				 star_data *&List,
-				 int *Layout, int *GridMap, 
+				 star_data *&List, int *Layout, 
+				 int *GStartIndex[], int *GridMap, 
 				 int CopyDirection);
 #else
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
@@ -1708,6 +1718,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION],
 				     float RotatingCylinderLambda,
 				     float RotatingCylinderOverdensity);
+
+  int RotatingSphereInitializeGrid(FLOAT RotatingSphereRadius,
+				     FLOAT RotatingSphereCenterPosition[MAX_DIMENSION],
+				     float RotatingSphereLambda,
+				     float RotatingSphereOverdensity);
 
   /* Initialize a grid for the KH instability problem. */
 

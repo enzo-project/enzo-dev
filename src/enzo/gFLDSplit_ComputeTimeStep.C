@@ -58,10 +58,14 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
   for (i=0; i<2+Nchem; i++)  dtfactor[i]=huge_number;
   if (flag == 0)  
     dtfactor[0] = dtfac[0];
-  if (flag == 1)  
-    for (i=1; i<2+Nchem; i++)  dtfactor[i]=dtfac[i];
-  if (flag == 2)
-    for (i=0; i<2+Nchem; i++)  dtfactor[i]=dtfac[i];
+  if (flag == 1)  {
+    dtfactor[1]=dtfac[1];
+    for (i=2; i<2+Nchem; i++)  dtfactor[i]=dtfac[2];
+  }
+  if (flag == 2) {
+    for (i=0; i<2; i++)        dtfactor[i]=dtfac[i];
+    for (i=2; i<2+Nchem; i++)  dtfactor[i]=dtfac[2];
+  }
 
 
   // Set time step depending on how it has been set up by the user:

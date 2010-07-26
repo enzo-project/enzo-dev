@@ -283,6 +283,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
+  AccretionKernal             = FALSE;             // off
   CopyGravPotential           = FALSE;             // off
   PotentialIterations         = 4;                 // ~4 is reasonable
   GravitationalConstant       = 4*Pi;              // G = 1
@@ -369,6 +370,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
+  MustRefineParticlesMinimumMass   = 0.0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
@@ -417,6 +419,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
+  PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
   PopIIIHeliumIonization           = FALSE;
   PopIIILowerMassCutoff            = 1.0;
   PopIIIUpperMassCutoff            = 300.0;

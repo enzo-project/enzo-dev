@@ -31,6 +31,7 @@ FLOAT FindCrossSection(int type, float energy);
 int grid::Shine(RadiationSourceEntry *RadiationSource)
 {
   RadiationSourceEntry *RS = RadiationSource;
+  FLOAT min_beam_zvec, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim;
   int count=0;
@@ -40,6 +41,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
      photon packages per source */
 
   BasePackages = 12*(int)pow(4,min_level);
+
+  /* If using a beamed source, calculate the minimum z-component of
+     the ray normal (always beamed in the polar coordinate). */
+
+  if (RS->Type == Beamed)
+    min_beam_zvec = cos(M_PI * RadiativeTransferSourceBeamAngle / 180.0);
 
   int stype = RS->EnergyBins;
 
@@ -118,7 +125,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     float photons_per_package;
 
     // Type 3 = H2I_LW
-    if (!RadiativeTransferOpticallyThinH2)
+    if (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1)
       ebin = (i == stype-1) ? 3 : i;
     else
       ebin = i;
@@ -152,9 +159,17 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       
     // DEBUG fudge
     for (j=0; j<BasePackages; j++) {
+
+      if (RS->Type == Beamed) {
+	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
+	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
+	if (fabs(vec[2]) < min_beam_zvec)
+	  continue;
+      }
+
       //      for (j=0; j<1; j++) {
       //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
-      if (!isnan(photons_per_package)) { 
+      if (!isnan(photons_per_package)) {
 	PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	NewPack->NextPackage = PhotonPackages->NextPackage;
 	PhotonPackages->NextPackage = NewPack;
@@ -187,12 +202,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	FLOAT dir_vec[3];
 	if (pix2vec_nest((long) (1<<NewPack->level), NewPack->ipix, 
 			 dir_vec) == FAIL) {
-	  fprintf(stderr, 
-		  "grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
-		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
-		  NewPack->Photons, NewPack );
 	  NewPack->Photons=-1;
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("grid::WalkPhotonPackage:  pix2vec_nest outor %"ISYM" %"ISYM" %"GSYM" %"ISYM"\n",
+		  (long) (pow(2,NewPack->level)), NewPack->ipix, 
+		  NewPack->Photons, NewPack )
 	}
 
 	NewPack->CrossSection = 
@@ -233,6 +246,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   }
 
   if (DEBUG) fprintf(stdout, "Shine: PhotonPackages : %"ISYM"   NextPackage  %"ISYM"\n", 
+
 		     PhotonPackages, PhotonPackages->NextPackage);
   
   return SUCCESS;

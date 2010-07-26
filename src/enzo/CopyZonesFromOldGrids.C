@@ -33,7 +33,7 @@
 #include "CommunicationUtilities.h"
 #include "communication.h"
 
-#define GRIDS_PER_LOOP 50000
+#define GRIDS_PER_LOOP 100000
 #define CELLS_PER_LOOP 100000000
 
 int CommunicationBufferPurge(void);
@@ -141,7 +141,8 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     /* Receive data */
 
     if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
+      ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+
 
     /* Delete old grids and increase total grid count and then advance
        FirstGrid pointer */

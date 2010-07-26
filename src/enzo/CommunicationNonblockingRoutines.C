@@ -579,7 +579,8 @@ void CommunicationCheckForErrors(int NumberOfStatuses, MPI_Status *statuses,
       fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
       MPI_Error_string(statuses[i].MPI_ERROR, error_string, &length);
       fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
-      ENZO_FAIL("");
+      ENZO_FAIL("MPI communication error!");
+
     } // ENDIF MPI_ERROR
   return;
 }

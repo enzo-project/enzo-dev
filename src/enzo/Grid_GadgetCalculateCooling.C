@@ -213,8 +213,7 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 	   gives us a negative energy density, so return an error */
 	
 	if(u_new < 0.0){
-	  printf("GadgetCalculateCooling:  incorrect internal energy calculated:  %e  Exiting.\n",u_new);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("GadgetCalculateCooling:  incorrect internal energy calculated:  %e  Exiting.\n",u_new)
 	}	
 	
 	/* store the new energy value - basically reverse the process above.
@@ -252,6 +251,7 @@ int grid::GadgetCalculateCooling(float *d, float *e, float *ge,
 	}  /* end of if(hydro... */
 
 	if(i==j && j==k && GADGETDEBUG){
+
 	  printf("Gadget: %"ISYM" %"ISYM" %"ISYM" finishing loop!\n",i,j,k);
 	}
 	

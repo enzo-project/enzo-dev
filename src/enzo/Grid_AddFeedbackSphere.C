@@ -99,8 +99,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -661,10 +660,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 				      / MBHFeedbackMassEjectionFraction ) / VelocityUnits;
 
     if (MBHJetsVelocity * VelocityUnits > 0.99*c) {
-      fprintf(stderr, "grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
+      ENZO_VFAIL("grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
 	      MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
-	      MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c);
-      ENZO_FAIL("");
+	      MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c)
     }
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
@@ -962,6 +960,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
+
 
 	    BaryonField[ColorField][index] =
             BaryonField[DensNum][index];

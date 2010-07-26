@@ -86,7 +86,7 @@
 
 #define ROOT_PROCESSOR                      0
 
-#define VERSION                           1.3  /* current version number */
+#define VERSION                             2.0  /* current version number */
 
 /* Unmodifiable Parameters */
 
@@ -526,7 +526,7 @@ typedef int            HDF5_hid_t;
 #ifdef USE_MPI
 #define MPI_INSTRUMENTATION
 #else /* USE_MPI */
-#undef MEM_TRACE
+//#undef MEM_TRACE
 #undef MPI_TRACE
 #endif
 

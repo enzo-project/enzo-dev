@@ -50,8 +50,7 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
  
   if (BaryonField[NumberOfBaryonFields] == NULL &&
       MyProcessorNumber == ProcessorNumber) {
-    fprintf(stderr, "Subgrid field not present.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Subgrid field not present.\n");
   }
  
   /* Loop over particles and count the number in each subgrid. */
@@ -80,9 +79,8 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
       if (subgrid >= 0)
 	ParticlesToMove[subgrid]++;
       if (subgrid < -1 || subgrid > NumberOfSubgrids-1) {
-	fprintf(stderr, "particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid,
-		NumberOfSubgrids);
-	ENZO_FAIL("");
+	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", subgrid,
+		NumberOfSubgrids)
       }
  
     }  // end: loop over particles
@@ -94,20 +92,17 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
     for (subgrid = 0; subgrid < NumberOfSubgrids; subgrid++)
       if (CommunicationBroadcastValue(&ParticlesToMove[subgrid],
 				      ProcessorNumber) == FAIL) {
-	fprintf(stderr, "Error in CommunicationBroadcastValue.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in CommunicationBroadcastValue.\n");
       }
 /*
     if ((MyProcessorNumber == ProcessorNumber ||
 	 MyProcessorNumber == ToGrids[subgrid]->ProcessorNumber) &&
 	ProcessorNumber != ToGrids[subgrid]->ProcessorNumber) {
-      fprintf(stderr, "this routine not parallelized.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("this routine not parallelized.\n");
       if (CommunicationSendInt(MyProcessorNumber,
 			       ToGrids[subgrid]->ProcessorNumber,
 			       &ParticlesToMove[subgrid]) == FAIL) {
-        fprintf(stderr, "Error in CommunicationSendInt.\n");
-        ENZO_FAIL("");
+        ENZO_FAIL("Error in CommunicationSendInt.\n");
       }
     }
 */
@@ -121,10 +116,9 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
  
 	if (ToGrids[subgrid]->ParticlePosition[0] != NULL ||
 	    ToGrids[subgrid]->NumberOfParticles != 0) {
-	  fprintf(stderr, "Particles already in subgrid %"ISYM" (n=%"ISYM", nm=%"ISYM")\n",
+	  ENZO_VFAIL("Particles already in subgrid %"ISYM" (n=%"ISYM", nm=%"ISYM")\n",
 		  subgrid, ToGrids[subgrid]->NumberOfParticles,
-		  ParticlesToMove[subgrid]);
-	  ENZO_FAIL("");
+		  ParticlesToMove[subgrid])
 	}
  
 	ToGrids[subgrid]->AllocateNewParticles(ParticlesToMove[subgrid]);
@@ -207,10 +201,10 @@ int grid::MoveSubgridParticlesFast(int NumberOfSubgrids, grid* ToGrids[],
 	if (this->CommunicationSendParticles(ToGrids[subgrid],
              ToGrids[subgrid]->ProcessorNumber, 0, ParticlesToMove[subgrid], 0)
 	    == FAIL) {
-	  fprintf(stderr, "Error in grid->CommunicationSendParticles.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in grid->CommunicationSendParticles.\n");
 	}
 	if (MyProcessorNumber == ProcessorNumber)
+
 	  ToGrids[subgrid]->DeleteAllFields();
       }
  

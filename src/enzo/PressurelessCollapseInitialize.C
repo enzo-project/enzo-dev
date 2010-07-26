@@ -91,8 +91,7 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 					  PressurelessCollapseInitialDensity,
 					  PressurelessCollapseNumberOfCells
 						       ) == FAIL) {
-    fprintf(stderr, "Error in PressurelessCollapseInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in PressurelessCollapseInitializeGrid.\n");
   }
  
   /* set up field names and units */
@@ -112,6 +111,7 @@ int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "PressurelessCollapseDirection      = %"ISYM"\n",
 	    PressurelessCollapseDirection);
     fprintf(Outfptr, "PressurelessCollapseInitialDensity = %"FSYM"\n\n",

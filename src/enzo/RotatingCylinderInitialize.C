@@ -60,8 +60,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   /* make sure it is 3D */
  
   if (MetaData.TopGridRank != 3) {
-    printf("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot do RotatingCylinder in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }
  
   for(i=0; i<MAX_DIMENSION; i++)
@@ -277,6 +276,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
 
   if(debug){
+
     printf("Exiting RotatingCylinderInitialize\n");
     fflush(stdout);
   }

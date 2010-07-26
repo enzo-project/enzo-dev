@@ -85,7 +85,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
  	int *clDataSize, float *clCooling, float *clHeating, float *clMMW);
 
 
-int grid::SolveRateAndCoolEquations()
+int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
 {
   /* Return if this doesn't concern us. */
   if (!(MultiSpecies && RadiativeCooling)) return SUCCESS;
@@ -238,19 +238,14 @@ int grid::SolveRateAndCoolEquations()
   float HeIIShieldFactor = RadiationData.HeIIAveragePhotoHeatingCrossSection * 
                            double(LengthUnits) * CellWidth[0][0];
 
+  float dtCool = dtFixed;
+#ifdef TRANSFER
+  dtCool = (RTCoupledSolverIntermediateStep == TRUE) ? dtPhoton : dtFixed;
+#endif
+
   /* Call the fortran routine to solve cooling equations. */
 
   int ierr = 0;
-  int RTCoupledSolverIntermediateStep = FALSE;
-
-  int testsize[3];
-  testsize[0] = 3;
-  testsize[1] = 3;
-  testsize[2] = 3;
-  float testarray[testsize[0]];
-  testarray[0] = 12.3;
-  testarray[1] = 45.6;
-  testarray[2] = 78.9;
 
   FORTRAN_NAME(solve_rate_cool)(
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
@@ -262,7 +257,7 @@ int grid::SolveRateAndCoolEquations()
     &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2, 
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
     &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
-    &dtFixed, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
+    &dtCool, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
     &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
     &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
        &CoolData.HydrogenFractionByMass, &CoolData.DeuteriumToHydrogenRatio,
@@ -316,14 +311,13 @@ int grid::SolveRateAndCoolEquations()
     CloudyCoolingData.CloudyMeanMolecularWeight);
 
   if (ierr) {
-      fprintf(stdout, "Error in FORTRAN rate/cool solver\n");
       fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
       fprintf(stdout, "GridRightEdge = %"FSYM" %"FSYM" %"FSYM"\n",
 	      GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
       fprintf(stdout, "GridDimension = %"ISYM" %"ISYM" %"ISYM"\n",
 	      GridDimension[0], GridDimension[1], GridDimension[2]);
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
   }
 
   if (HydroMethod == MHD_RK) {
@@ -333,6 +327,7 @@ int grid::SolveRateAndCoolEquations()
 
       /* Always trust gas energy in cooling routine */
       if (DualEnergyFormalism) {
+
 	v2 = pow(BaryonField[Vel1Num][n],2) + 
 	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
 	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];

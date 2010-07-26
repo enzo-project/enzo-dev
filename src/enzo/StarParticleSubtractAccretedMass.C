@@ -98,8 +98,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	 not to bother John or others at the moment! */ 
 
       if (cstar->SubtractAccretedMassFromCell() == FAIL) {
-	fprintf(stderr, "Error in star::SubtractAccretedMass.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in star::SubtractAccretedMass.\n");
       }
 
       break;
@@ -149,8 +148,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 				      SphereContainedNextLevel, dummy, DensityUnits, 
 				      LengthUnits, TemperatureUnits, TimeUnits, 
 				      VelocityUnits, Time) == FAIL) {
-	  fprintf(stderr, "Error in star::FindFeedbackSphere\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in star::FindFeedbackSphere\n");
 	}
       }
 
@@ -190,6 +188,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       if (debug) {
 	if (cstar->ReturnFeedbackFlag() != FORMATION)
+
 	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		  "Radius = %"GSYM" pc\n",
 		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);

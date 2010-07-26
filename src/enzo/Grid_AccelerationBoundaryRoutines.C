@@ -137,23 +137,21 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
     if( Grids[grid1]->GridData->AttachAcceleration() == FAIL ) {
-      fprintf(stderr,"Error in AttachAcceleration \n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in AttachAcceleration \n");
     }
     if( Grids[grid1]->ParentGrid->GridData->AttachAcceleration() ==FAIL ){
-      fprintf(stderr,"Error in AttachAcceleration, Parent \n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in AttachAcceleration, Parent \n");
     }
   }
 
 #ifdef FAST_SIB
   if (SetBoundaryConditions(Grids, NumberOfGrids, SiblingList, level, MetaData,
 			    NULL, NULL) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("SetBoundaryConditions() failed!\n");
 #else
   if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, 
 			    NULL, NULL) == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("SetBoundaryConditions() failed!\n");
 #endif
   
 
@@ -161,12 +159,11 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
     if( Grids[grid1]->GridData->DetachAcceleration() == FAIL ) {
-      fprintf(stderr,"Error in DetachAcceleration\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DetachAcceleration\n");
     }
     if( Grids[grid1]->ParentGrid->GridData->DetachAcceleration() == FAIL ) {
-      fprintf(stderr,"Error in DetachAcceleration, parent\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DetachAcceleration, parent\n");
+
     }
 
   }

@@ -86,14 +86,15 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   float		densthresh, maxdens, adddens, ugrid, vgrid, wgrid, m_cell;
   double	jeansthresh, jlsquared, dx2, dist2, total_density, nearestdx2;
   FLOAT		xpos, ypos, zpos, delx, dely, delz;
+  double        DensityFloor;
   double        Pi = 3.1415926;
   float nx_cell[MAX_SUPERCELL_NUMBER], 
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
 
 
-  printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
+  /*printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
   printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
-  printf("Star Maker 8: time = %g\n", *t);
+  printf("Star Maker 8: time = %g\n", *t); */
 
 
   /* Compute Units. */
@@ -112,7 +113,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   densthresh = *massthresh / POW(*dx,3);
   //densthresh = 1e-12/(*d1);
   dx2 = (*dx)*(*dx);
-  printf("Star Maker 8: densthresh = %g\n", densthresh);
+  //printf("Star Maker 8: densthresh = %g\n", densthresh);
   if (*jlrefine > 0) {
     jlsquared = ((double)((*gamma) * 3.14159 * 1.38e-16 / 6.673e-08) / 
 		 ((double)(*d1) * 1.673e-24)) / POW(*x1,2) / (*mu) / POW((*jlrefine),2);
@@ -131,14 +132,14 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       sink_index[nsinks++] = n;
     }
   }
-  printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
+  /*printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
 
   for (n=0; n<nsinks; n++){
     printf("sink index = %"ISYM"\n", sink_index[n]);
     printf("sink mass = %g\n", dmold[n]);
     printf("sink position = %"FSYM",%"FSYM", %"FSYM" \n", xpold[n], ypold[n],  zpold[n] );
     printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" \n", upold[n], vpold[n],  wpold[n] );
-  }
+    } */
 
 
 
@@ -163,7 +164,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   FLOAT radius2_cell[MAX_SUPERCELL_NUMBER];
   FLOAT weight_cell[MAX_SUPERCELL_NUMBER];
 
-  if (ProblemType == 106 || ProblemType == 107 ){ // KERNAL SECTION
+  if (AccretionKernal == 2 ){
+  }
+  else if (AccretionKernal == 1 ){ // KERNAL SECTION
     for (n = 0; n < nsinks; n++) {
 
       bb = sink_index[n];
@@ -184,17 +187,17 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       usink     = upold[bb];
       vsink     = vpold[bb];
       wsink     = wpold[bb];
-      printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" cgs \n", usink*(*v1), vsink*(*v1),  wsink*(*v1) );
-      printf("gas velocity = %g, %g, %g cgs \n", ugrid*(*v1), vgrid*(*v1),  wgrid*(*v1) );
+      // printf("sink velocity = %"FSYM",%"FSYM", %"FSYM" cgs \n", usink*(*v1), vsink*(*v1),  wsink*(*v1) );
+      // printf("gas velocity = %g, %g, %g cgs \n", ugrid*(*v1), vgrid*(*v1),  wgrid*(*v1) );
       csgrid2 = 1.38e-16 * tempgrid / 1.673e-24 / POW(*v1,2); 
       vrel2 = POW(ugrid-usink,2) + POW(vgrid-vsink,2) + POW(wgrid-wsink,2);
       r_bh = G*msink / (csgrid2 + vrel2);
-      printf("star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrel = %g cm/s \n", msink, msink*umass, G, csgrid2, vrel2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
-      printf("star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+      // printf("star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrel = %g cm/s \n", msink, msink*umass, G, csgrid2, vrel2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
+      // printf("star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
       if (r_bh/(*dx) < 0.25) r_k = (*dx)/4.0;
       else if (r_bh/(*dx) <= 2.0 ) r_k = r_bh;
       else r_k = 2*(*dx); 
-      printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
+      // printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
 
       n_cell = 0;      
       m_cell = 0;
@@ -215,7 +218,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    ind_cell[n_cell] = i+ii+(j+jj+(k+kk)*(*ny))*(*nx);
 	    if (radius > 4.0*(*dx)) weight_cell[n_cell] = 0.0;
 	    else{
-	      weight_cell[n_cell] = exp((-radius2_cell[n_cell])/POW(r_k,2));
+	      weight_cell[n_cell] = d[ind_cell[n_cell]]*exp((-radius2_cell[n_cell])/POW(r_k,2));
 	      density_sum += d[ind_cell[n_cell]]*weight_cell[n_cell];
 	      ugridc += u[ind_cell[n_cell]]*weight_cell[n_cell];
 	      vgridc += v[ind_cell[n_cell]]*weight_cell[n_cell];
@@ -232,7 +235,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       vgridc /= weight_total;
       wgridc /= weight_total;
       vrelc2 = POW(ugridc-usink,2) + POW(vgridc-vsink,2) + POW(wgridc-wsink,2);
-      printf("averaged gas velocity = %g, %g, %g cgs, vrelc2 = %g , vrel2 = %g \n", ugridc*(*v1), vgridc*(*v1),  wgridc*(*v1), vrelc2, vrel2 );
+      // printf("averaged gas velocity = %g, %g, %g cgs, vrelc2 = %g , vrel2 = %g \n", ugridc*(*v1), vgridc*(*v1),  wgridc*(*v1), vrelc2, vrel2 );
 
 /* Loop for finding correct vrel */
       int nloops = 0;
@@ -241,12 +244,12 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	vrel2 = vrelc2;
 	printf("\n XXX star_maker8: recalculate r_bh XXX  \n");
 	r_bh = G*msink / (csgrid2 + vrel2);
-	printf("    star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrelc = %g cm/s \n", msink, msink*umass, G, csgrid2, vrelc2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
-	printf("    star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+	// printf("    star_maker8: msink = %g = %g Msun, G = %g, csgrid2 = %g, vrel2 = %g, csgrid = %g cm/s, vrelc = %g cm/s \n", msink, msink*umass, G, csgrid2, vrelc2, pow(csgrid2,0.5)*(*v1), pow(vrel2,0.5)*(*v1));
+	// printf("    star_maker8: Accretion routine, r_bh = %g = %g pc, dx = %g = %g pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
 	if (r_bh/(*dx) < 0.25) r_k = (*dx)/4.0;
 	else if (r_bh/(*dx) <= 2.0 ) r_k = r_bh;
 	else r_k = 2*(*dx); 
-	printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
+	// printf("    star_maker8: Accretion routine, r_k = %g = %g pc, dx = %g = %g pc, r_k/dx = %"FSYM"\n",r_k, r_k*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_k/(*dx));
 
 	n_cell = 0;      
 	m_cell = 0;
@@ -283,7 +286,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	vgridc /= weight_total;
 	wgridc /= weight_total;
 	vrelc2 = POW(ugridc-usink,2) + POW(vgridc-vsink,2) + POW(wgridc-wsink,2);
-	printf("averaged gas velocity = %g, %g, %g cgs, vrelc2 = %g , vrel2 = %g \n", ugridc*(*v1), vgridc*(*v1), wgridc*(*v1), vrelc2, vrel2 );
+	// printf("averaged gas velocity = %g, %g, %g cgs, vrelc2 = %g , vrel2 = %g \n", ugridc*(*v1), vgridc*(*v1), wgridc*(*v1), vrelc2, vrel2 );
 	if(vrelc2/vrel2 < 0.5 || vrel2/vrelc2 < 0.5 )printf("XXXX need another loop!!! \n");
 	if(vreld2/vrel2 > 0.95 && vrel2/vreld2 > 0.95) {
 	  vrelc2 = 0.5*(vrelc2 + vrel2);
@@ -297,30 +300,33 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       densgrid *= min(POW((*dx)/r_bh, 1.5), 1.0);
       mdot = 4.0 * pi * densgrid * POW(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
       drho = mdot * (*dt) / POW(*dx,3);
-      printf("dt = %g, mdot * (*dt) / POW(*dx,3) = %g, 0.25 * d[index] =%g  \n",(*dt),mdot * (*dt) / POW(*dx,3),0.25 * d[index] );
+      /* printf("dt = %g, mdot * (*dt) / POW(*dx,3) = %g, 0.25 * d[index] =%g  \n",(*dt),mdot * (*dt) / POW(*dx,3),0.25 * d[index] );
       printf("    star_maker8: densgrid = %g cgs \n",densgrid*(*d1));
 	printf("weight_total  = %"FSYM"\n",weight_total);
-	printf("drho  = %g\n",drho );
+	printf("drho  = %g\n",drho ); */
 
       /* Subtract mass from Grid */
+	DensityFloor = 1.e-34/(*d1);
       dens_sum = 0.0;
       for (int ic = 0; ic < n_cell; ic++) {
 	//printf(" ic = %"ISYM"\n", ic);
 	//printf("ind_cell[ic]  = %"ISYM"\n",ind_cell[ic]);
 	//printf("d[ind_cell[ic]] = %g = %g cgs \n",d[ind_cell[ic]],d[ind_cell[ic]]*(*d1)  );
 	//printf("weight_cell[ic]  = %g\n",weight_cell[ic] );
-	if (d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho < SmallRho) 
-	  printf("DENSITY lower limit reached, d[ind_cell[ic]] = %g, (weight_cell[ic]/weight_total)*drho = %g,SmallRho = %g\n",d[ind_cell[ic]],(weight_cell[ic]/weight_total)*drho, SmallRho);
-	del_rho = d[ind_cell[ic]]- max(SmallRho,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
-	d[ind_cell[ic]] = max(SmallRho,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
+	//printf("DensityFloor =%g = %g cgs \n",DensityFloor, DensityFloor*(*d1));
+	if (d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho < DensityFloor) 
+	  printf("DENSITY lower limit reached,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho = %g, d[ind_cell[ic]] = %g, (weight_cell[ic]/weight_total)*drho = %g,DensityFloor = %g\n",d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho , d[ind_cell[ic]],(weight_cell[ic]/weight_total)*drho, DensityFloor);
+	del_rho = min((weight_cell[ic]/weight_total)*drho,d[ind_cell[ic]]-DensityFloor);
+	d[ind_cell[ic]] = max(DensityFloor,d[ind_cell[ic]]-(weight_cell[ic]/weight_total)*drho);
+	//printf("DEL_RHO = %g \n",del_rho );
 	dens_sum += del_rho;
 	 } 
-      printf("   star_maker8 CHECK: dens_sum/drho = %"FSYM"\n", dens_sum/drho );
+      /* printf("   star_maker8 CHECK: dens_sum/drho = %"FSYM"\n", dens_sum/drho );
       printf("star_maker8: Accretion routine, mass added = %g = %g Msun, drho = %g\n",drho*POW(*dx,3),drho*POW(*dx,3)*umass,drho );
-      printf("   star_maker8 CHECK: dens_sum/mpold[bb] = %g\n", dens_sum/mpold[bb] );
-      upold[bb] = (mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
-      vpold[bb] = (mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
-      wpold[bb] = (mpold[bb]*wsink + drho*wgridc) / (mpold[bb] + drho);
+      printf("   star_maker8 CHECK: dens_sum/mpold[bb] = %g\n", dens_sum/mpold[bb] ); */
+      upold[bb] = 0.0; //(mpold[bb]*usink + drho*ugridc) / (mpold[bb] + drho);
+      vpold[bb] = 0.0; //(mpold[bb]*vsink + drho*vgridc) / (mpold[bb] + drho);
+      wpold[bb] = 0.0; //(mpold[bb]*wsink + drho*wgridc) / (mpold[bb] + drho);
       mpold[bb] += dens_sum;
       dmold[bb] += dens_sum*POW(*dx,3);
 
@@ -356,14 +362,14 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       //printf("star_maker8: Accretion routine, CGS csgrid = %"FSYM", vrel = %"FSYM"\n", POW(csgrid2*POW(*v1,2),0.5), POW(vrel2*POW(*v1,2),0.5));
       //printf("star_maker8: Accretion routine, msink = %"FSYM" = %"FSYM" Msun\n", msink, msink*umass );
       r_bh = G*msink / (csgrid2 + vrel2);
-      printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
+      // printf("star_maker8: Accretion routine, r_bh = %"FSYM" = %"FSYM" pc, dx = %"FSYM" = %"FSYM" pc, r_bh/dx = %"FSYM"\n",r_bh, r_bh*(*x1)/3.0857e18,*dx, *dx*(*x1)/3.0857e18, r_bh/(*dx));
       densgrid *= min(POW((*dx)/r_bh, 1.5), 1.0);
       mdot = 4.0 * pi * densgrid * POW(r_bh, 2) * sqrt(1.2544*csgrid2 + vrel2);
       drho = min(mdot * (*dt) / POW(*dx,3), 0.25 * d[index]);
     
       /*maxdens = jlsquared * temp[index] / dx2;
 	drho = max(0.0, d[index] - maxdens);*/        
-      printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*POW(*dx,3)*umass,drho );
+      //printf("star_maker8: Accretion routine, mass added = %"FSYM" Msun, drho = %"FSYM"\n",drho*POW(*dx,3)*umass,drho );
 
       upold[bb] = (mpold[bb]*usink + drho*ugrid) / (mpold[bb] + drho);
       vpold[bb] = (mpold[bb]*vsink + drho*vgrid) / (mpold[bb] + drho);
@@ -569,7 +575,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       }
       //printf("StellarWindFeedback = 2 l351\n");
       /* Find the supercell and caclualte its total mass */
-  printf("%f\n",*nx_jet);
+      //printf("%f\n",*nx_jet);
       for (int kk = -2; kk <= 2; kk++) {
 	for (int jj = -2; jj <= 2; jj++) {
 	  for (int ii = -2; ii <= 2; ii++) {
@@ -748,7 +754,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	te[ind_cell[ic]] += 0.5*v_wind*v_wind;
       }
 
-      if (m_wind > 0.0) printf("  density in cells changed, dt = %e, t = %e\n",(*dt),(*t));
+      // if (m_wind > 0.0) printf("  density in cells changed, dt = %e, t = %e\n",(*dt),(*t));
       /* Substract the ejected mass and set dm to be zero */
       /*printf("Iso-wind injected: dt = %e s, vwind=%g, n_cell=%"ISYM", xp=(%g, %g, %g),m_star = %e, m_cell=%e, m_wind=%e, rho=%e, umass = %e\n", 
 	     (*dt)*(*t1),v_wind*(*v1), n_cell, xpold[bb], ypold[bb], zpold[bb],mpold[bb]*umass , m_cell*umass,m_wind*umass, rho_wind*(*d1),umass);
@@ -791,7 +797,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 	    nearestdx2 = 1e20;
 	    //float BigStarSeparation = (*x1)/4;
-	    printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
+	    // printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
 
 	    for (cc = 0; cc < nsinks; cc++) {
 	      

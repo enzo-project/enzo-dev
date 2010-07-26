@@ -1,0 +1,20 @@
+PhotonShadowing
+----------
+
+This problem tests shadowing capabilities of the ray tracing module
+with an optically-thick clump absorbing radiation from a source at the
+opposite edge.  It has the same parameters (at lower resolution but
+with AMR) as Test 3 in Iliev et al. (2006) MNRAS, 371, 1057.  The
+ambient medium is optically-thin and the radiation should immediately
+hit the clump and start ionizing and heating it.  The ionization front
+should reach slightly past halfway in the clump at the end of the
+simulation.  In this setup, there is a analytic solution and can be
+found in Shapiro et al. (2004), MNRAS, 348, 753.
+
+
+This test produces 15 outputs at intervals of 1 Myr.  The analysis
+script (1) calculates the average temperature and ionized fraction of the
+clump in each output, (2) gives line cuts through the clump center at
+1,3,5,10,15 Myr, and (3) produces slices through the clump center at
+the final time.
+

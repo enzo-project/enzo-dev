@@ -23,10 +23,10 @@ int WriteUnits(FILE *fptr)
 
   /* write output to file */
 
-  fprintf(fptr, "MassUnits = %"GSYM"\n", GlobalMassUnits);
-  fprintf(fptr, "DensityUnits    = %"GSYM"\n", GlobalDensityUnits);
-  fprintf(fptr, "TimeUnits    = %"GSYM"\n", GlobalTimeUnits);
-  fprintf(fptr, "LengthUnits  = %"GSYM"\n", GlobalLengthUnits);
+  fprintf(fptr, "MassUnits = %"GOUTSYM"\n", GlobalMassUnits);
+  fprintf(fptr, "DensityUnits    = %"GOUTSYM"\n", GlobalDensityUnits);
+  fprintf(fptr, "TimeUnits    = %"GOUTSYM"\n", GlobalTimeUnits);
+  fprintf(fptr, "LengthUnits  = %"GOUTSYM"\n", GlobalLengthUnits);
      
   return SUCCESS;
 }

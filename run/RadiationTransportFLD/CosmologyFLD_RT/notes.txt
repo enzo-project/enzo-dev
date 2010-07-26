@@ -1,0 +1,176 @@
+== Notes on the output ==
+
+(Geoffrey So May 21, 2010)
+
+This is a small cosmology test which requires ~16GB of disk 
+space and the last data output slice should be DD0273
+
+
+== General Information ==
+(Please refer to the parameter files for more detailed description)
+
+-machine name: SDSC Triton
+-core count: 8
+-Grid: 64 cube
+-LambdaCDM cosmology
+-Final Redshift z = 5
+-Radiation Solver = Daniel Reynolds' operator split FLD solver
+-Star maker method 1, feedback method 0
+
+The output should create non-zero values in Geoffrey's Emissivity field once star 
+formation occurs, and this will source the Grey_Radiation_Energy field.  The values of the 
+output will depend on many factors, including but not exclusive to machine hardware (which 
+affects the way initial conditions are generated), compilers used to compile Enzo, whether the 
+simulation was restarted in the middle, precision of the data output, and different versions 
+of software i.e. hypre.  Keep in mind that these differences will be small, and should not
+cause answers to change by orders of magnitude.
+
+
+= Running =
+1. First run inits.exe (from src/inits) on the file
+   CosmologyFLD_RT.inits:
+      inits.exe CosmologyFLD_RT.inits
+2. Second run ring.exe (from src/ring) on the newly-created output
+   files:
+      mpirun -np (# of cores) ring.exe pv ParticlePositions ParticleVelocities
+3. Run enzo.exe (from src/enzo) with the main enzo parameter file:
+      mpirun -np (# of cores) enzo.exe -d CosmologyFLD_RT.enzo
+
+(replace mpirun to the mpi distribution installed on your particular machine)
+
+== Comparing the statistics in DD0273 ==
+running the included YT analysis script (findextrema.py and variance.py) with python in the 
+same directory with the Enzo simulationfield value gives the following
+
+1.5 with some modded 2.0 calc_rates.src values:
+
+Density
+min 5.3446543648750223e-30
+max 6.9461703218095086e-26
+mean 7.9628078330319984e-29
+
+Gas_Energy
+min 1.2381154569473240e+08
+max 7.8588534729877453e+13
+mean 6.7799971086326431e+10
+
+Temperature
+min 1.0339176646822077e+00
+max 3.2818819351443002e+05
+mean 3.6687690136109541e+02
+
+2.0 (beta):
+
+Density
+min 5.3446741064028825e-30
+max 6.8250612214715350e-26
+mean 7.9596530693859327e-29
+
+Gas_Energy
+min 1.2375534760334292e+08
+max 9.5206639276487609e+13
+mean 7.2557573510591309e+10
+
+Temperature
+min 1.0000000000000000e+00
+max 3.8299331439023715e+05
+mean 3.6828336061188998e+02
+
+== Variance ==
+The variances were calculated from taking the difference of the corresponding cell between 
+the 1.5 and 2.0 run, summed over the differences squared, divided by the number of cells, 
+then took the square-rooted value at the end.
+
+Density Variance     1.1659504614412593e-29
+Gas_Energy Variance  9.4472590875724991e+10
+Temperature Variance 3.9217566588040341e+02
+
+-------------------------------------------
+The variances of the different fields show that the simulation cells of 1.5 and 2.0 differ
+from each other not just by machine noise. On average, values from cell to cell are of the 
+same order of magnitude, which is reflected by the mean values being the same order of 
+magnitude as the variance.  The differences can be attributed to a couple of changes from
+1.5 to 2.0.  Namely the updated way gas cools and the slight modification to the star maker
+routines.
+
+Since Enzo 1.5+RT was not a public release, the comparisons between 2.0 and 1.5+RT are
+strictly just for checking consistencies between the two codes to make sure they behave correctly.  
+With the corrections, bug fixes, additions of new physics in 2.0, we believe we should trust the    
+2.0 results more and use it as the new code base for future work.
+
+== Visual Inspection ==
+Included in the folder are other YT scripts that will generate 2D projections of different fields.
+They may be used to generate a projection from inidvidual output or from all the outputs for a
+movie rendering later.
+
+to use the YT scripts to generate the fields first make a folder named "frames"
+>mkdir frames
+then run the YT script with the python installation you installed YT with
+>python <script name>
+for example
+>python moviesDens.py
+
+running script moviesDens.py give:
+movieDensity_0273.png     
+This should show filamentry structure of dense hydrogen, and where the filaments intersect
+will show orange or red dots indicating the highest concentration of matter.  The voids in
+between the filaments should occupy the most volume and be of the color blue and purple.
+
+running script moviesEmis.py give:
+movieEmissivity_0273.png  
+This should show just a couple of dots on the screen, indicating where the star that is
+contributing to the radiation feedback are located.
+
+running script moviesGrey.py give:
+movieGrey_Radiation_Energy_0273.png
+This should show radiation energy centered around the same location of Emissivity projection.
+The radiation will be the highest near the sources of Emissivity, and lower as radial distances
+increases away from the source.  This snapshot should be before radiation energy evelops the
+simulation volume, so one should expect a lot of purple region devoid of radiation energy.
+
+running script moviesIon.py give:
+movieIonizationFraction_0273.png
+This should show ionized regions centered around the same location of Emissivity projection.
+Due to the possibility of collisional ionization, one might see some ionization occur in region
+besides where the radaition energy has propagated to.  However, most of the ionization should
+still be caused by radiation energy, so expect the largest region of ionization correspond to
+the distribution like in the projection of Grey_Radiation_Energy field.
+
+running script moviesTemp.py give:
+movieTemperature_0273.png
+This should show roughly the same picture as the IonizationFraction.  It should also have 
+some area of hot temperature but not hot enough to cause significant ionization.
+
+running script DataSFR.py give:
+StarFormationRate.txt
+This file will have the 6 columns
+# 1) years after big bang
+# 2) total emissivity contributing to feedback (actually emissivity density) values in the box in units erg/s/cm^3 (in proper cm)
+# 3) redshift
+# 4) number of cells with feedback sources
+# 5) total mass of all star particles
+# 6) total number of stars
+==>Note: not all stars contribute to Emissivity field or feedback, please see star_maker2.src, 
+   CalcEmiss.C, used more to track ionization instead of star formation rate.
+       
+running YT_SFR.py give:
+YTStarFormationRate.out
+This file will have the 7 columns
+# 1) Time (yrs)
+# 2) Look-back time (yrs)
+# 3) Redshift
+# 4) Star formation rate in this bin per year (Msol/yr)
+# 5) Star formation rate in this bin per year per Mpc**3 (Msol/yr/Mpc**3) (in proper Mpc)
+# 6) Stars formed in this time bin (Msol)
+# 7) Cumulative stars formed up to this time bin (Msol)
+==>Note: This is the recommended way for users who want strictly just the star formation rate
+
+= Conclusion =
+Comparing the mean values of the fields, they are well within 1% of each other for Density 
+and Temperature, ~7% of each other for Gas_Energy and so considering the many differences 
+between the two versions, I'm surprised that the result is not much more different.  As a new 
+user of Enzo, I would check that the value is not many of orders of magnitude off when running 
+this particular set of parameters on a different machine.  And if it was ran on SDSC Triton 
+where this test was conducted, it should give similar results to 2.0.  I would not look for
+bitwise identicality since the 2.0 run was the beta release, so the bug fixes along the way or
+small modifications will definitely change things a little bit.

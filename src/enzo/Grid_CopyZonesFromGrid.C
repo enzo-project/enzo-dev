@@ -38,6 +38,12 @@
 #include "Grid.h"
 #include "communication.h"
 
+extern "C" void FORTRAN_NAME(copy3drel)(float *source, float *dest,
+                                   int *dim1, int *dim2, int *dim3,
+                                   int *sdim1, int *sdim2, int *sdim3,
+                                   int *ddim1, int *ddim2, int *ddim3,
+                                   int *sstart1, int *sstart2, int *sstart3,
+                                   int *dstart1, int *dstart2, int *dstart3);
 
 int FindField(int field, int farray[], int numfields);
 
@@ -237,7 +243,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   
   if (ProcessorNumber != OtherGrid->ProcessorNumber) {
     OtherGrid->CommunicationSendRegion(OtherGrid, ProcessorNumber,
-				       ALL_FIELDS, NEW_ONLY, StartOther, ShearingCommunicationDims);
+				       ALL_FIELDS, NEW_ONLY, StartOther, 
+				       ShearingCommunicationDims);
     
     if (CommunicationDirection == COMMUNICATION_POST_RECEIVE ||
 	CommunicationDirection == COMMUNICATION_SEND)
@@ -278,8 +285,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     
 
 
-//   PrintToScreenBoundaries(BaryonField[ieint], "Eint before a copy");
-//   PrintToScreenBoundaries(BaryonField[ietot], "Etot before a copy");
+  //   PrintToScreenBoundaries(BaryonField[ieint], "Eint before a copy");
+  //   PrintToScreenBoundaries(BaryonField[ietot], "Etot before a copy");
 
   /* Copy zones */
 
@@ -287,22 +294,27 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
+  int Zero[3] = {0,0,0};
 
- 
-  for (int field = 0; field < NumberOfBaryonFields; field++)
-    for (int k = 0; k < Dim[2]; k++)
-      for (int j = 0; j < Dim[1]; j++) {
-	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
-	  (k + Start[2])*GridDimension[0]*GridDimension[1];
-	otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
-	  (k + StartOther[2])*OtherDim[0]*OtherDim[1];
-	for (int i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
+  if (!isShearing)
+    for (int field = 0; field < NumberOfBaryonFields; field++)
+      FORTRAN_NAME(copy3drel)(OtherGrid->BaryonField[field], BaryonField[field],
+			      Dim, Dim+1, Dim+2,
+			      OtherDim, OtherDim+1, OtherDim+2,
+			      GridDimension, GridDimension+1, GridDimension+2,
+			      StartOther, StartOther+1, StartOther+2,
+			      Start, Start+1, Start+2);
 
-	 
-	  if (!isShearing) {  
-	    BaryonField[field][thisindex] = OtherGrid->BaryonField[field][otherindex];
-	  }
-	  else {
+  if (isShearing) {
+    for (int field = 0; field < NumberOfBaryonFields; field++)
+      for (int k = 0; k < Dim[2]; k++)
+	for (int j = 0; j < Dim[1]; j++) {
+	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
+	    (k + Start[2])*GridDimension[0]*GridDimension[1];
+	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
+	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
+	  for (int i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
+
 	    int otherindexB=otherindex+ addDim[ShearingVelocityDirection];
 	    
 	    val1=OtherGrid->BaryonField[field][otherindex];
@@ -349,17 +361,13 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	      }
 	      else if (shiftPos){
 		BaryonField[field][thisindex] +=delta;
-	      }}}}}
-	      
+	      }
+	    }
+	  } // ENDFOR i
+	} // ENDFOR j
+  } // ENDIF isShearing	      
 
- 
-  //Update the energys due to sheared boundaries
-
-
-	
-
-
-  //Update the energys due to sheared boundaries
+   //Update the energys due to sheared boundaries
   if (isShearing){
     
     for (int k = 0; k < Dim[2]; k++)

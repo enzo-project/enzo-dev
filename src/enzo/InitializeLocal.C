@@ -64,13 +64,11 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
     if (ParallelRootGridIO == TRUE && ProblemType == 30) {
       if (PartitionNestedGrids) {
 	if (NestedCosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-	  fprintf(stderr, "Error in NestedCosmologySimulationReInitialize.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in NestedCosmologySimulationReInitialize.\n");
 	}
       } else {
 	if (CosmologySimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-	  fprintf(stderr, "Error in CosmologySimulationReInitialize.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in CosmologySimulationReInitialize.\n");
 	}
       }
     }
@@ -82,14 +80,14 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid, TopGridData &MetaData)
   if (!restart) {
     if (ParallelRootGridIO == TRUE && ProblemType == 60)
       if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
-	fprintf(stderr, "Error in TurbulenceSimulationReInitialize.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in TurbulenceSimulationReInitialize.\n");
       }
   }
 
   // Insert new problem intializer here...
  
   if (debug)
+
     printf("InitializeLocal: Finished problem initialization.\n");
  
 

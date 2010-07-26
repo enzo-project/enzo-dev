@@ -21,6 +21,7 @@
 #include "h5utilities.h"
 
 #include "macros_and_parameters.h"
+#include "typedefs.h"
 #include "AMRH5writer.h"
 #include "StarParticleData.h"
 

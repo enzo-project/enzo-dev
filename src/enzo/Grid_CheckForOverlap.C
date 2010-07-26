@@ -45,10 +45,16 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
- 
+  
+#ifndef TRANSFER
+  int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField)?
+    TRUE : FALSE;
+#else 
   int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField ||
 		CopyFunction == &grid::SetSubgridMarkerFromSibling)?
     TRUE : FALSE;
+#endif
+
   int FullPeriod = (CopyFunction == &grid::CopyPotentialField)?
     TRUE : FALSE;
  
@@ -77,8 +83,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   if (this != OtherGrid || DoSelf)
     if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-      printf("Error in grid->*CopyFunction\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->*CopyFunction\n");
     }
  
 
@@ -184,8 +189,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 
 	    
 	    if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
-	      printf("Error in grid->*CopyFunction (3)\n");
-	      ENZO_FAIL("");
+	      ENZO_FAIL("Error in grid->*CopyFunction (3)\n");
 	    }
 	  }
 
@@ -196,6 +200,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
 	  }
 
 	} // end: if (periodic bc's)
+
  
       } // end: loop of i
 

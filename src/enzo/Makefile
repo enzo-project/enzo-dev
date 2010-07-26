@@ -102,13 +102,16 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: $(EXE).exe
+all: MACHNOTES $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB)
+MACHNOTES: 
+	@echo -e $(MACHINE_NOTES)
+
+%.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
 	@echo "Linking enzo executable. Type  cat $(OUTPUT)  in case it fails."
 	@(if [ $(VERBOSE) -eq 0 ]; then \
@@ -119,6 +122,8 @@ all: $(EXE).exe
 	fi)  
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
+                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+                cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
 		echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" > temp1; \
 		cat temp1 $(OUTPUT) > temp2 ;\
@@ -142,67 +147,57 @@ verbose: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
+.SUFFIXES: .c .C .F .F90 .o .cu
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f %.f90
+.PRECIOUS: %.o
 
-.src.f:
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
-.f.o:
+#.src.f:
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
+.F.o:
 	@echo "Compiling $<"
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >& $(OUTPUT) ; \
+	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
-             echo "$(FC) -c -o $@ $(FFLAGS) $*.f"; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f; \
-             $(FC) -c -o $@ $(FFLAGS) $*.f; \
+             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F; \
              echo; \
              exit 1; \
           fi ; \
 	else \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.f >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f; \
-          fi)
 
-.src90.f90:
-	@echo "Compiling $<"
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
-.f90.o:
+#.src90.f90:
+#	@echo "Compiling $<"
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
+.F90.o:
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >& $(OUTPUT) ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \
-             echo "$(F90) -c -o $@ $(F90FLAGS) $*.f90"; \
+             echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90; \
-             $(F90) -c -o $@ $(F90FLAGS) $*.f90; \
+             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
 	else \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >> $(OUTPUT) 2>&1 ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f90; \
-          fi)
 
 .c.o:
 	@rm -f $@
@@ -330,7 +325,7 @@ get-version:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.src *src90 *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.F *.F90 *.h) >& out.make.DEPEND
 
 include DEPEND
 
@@ -345,26 +340,6 @@ include DEPEND
 #photon:
 #	@echo "Making radiative transfer module"
 #	+(cd photons/ ; make photon)
-
-#-----------------------------------------------------------------------
-# INSTALL TARGET
-#-----------------------------------------------------------------------
-
-install: $(TOP_DIR)/bin
-	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
-	-@cp $(EXE).exe $(TOP_DIR)/bin/$(EXE)
-	-@cp gridtests.exe $(TOP_DIR)/bin/gridtests
-	-@cp ealfloattests.exe $(TOP_DIR)/bin/ealfloattests
-	-@cp ealinttests.exe $(TOP_DIR)/bin/ealinttests
-	-@cp readgridtests.exe $(TOP_DIR)/bin/readgridtests
-	-@cp analysisbaseclasstests.exe $(TOP_DIR)/bin/analysisbaseclasstests
-	-$(MAKE) -s show-flags   >& $(TOP_DIR)/bin/$(EXE).show-flags
-	-$(MAKE) -s show-config  >& $(TOP_DIR)/bin/$(EXE).show-config
-	-$(MAKE) -s show-version >& $(TOP_DIR)/bin/$(EXE).show-version
-	-$(MAKE) -s show-diff    >& $(TOP_DIR)/bin/$(EXE).show-diff
-
-$(TOP_DIR)/bin:
-	mkdir $(TOP_DIR)/bin
 
 #-----------------------------------------------------------------------
 # HELP TARGET
@@ -402,3 +377,4 @@ clean:
 #-----------------------------------------------------------------------
 
 include $(ENZO_DIR)/Make.config.targets
+# DO NOT DELETE

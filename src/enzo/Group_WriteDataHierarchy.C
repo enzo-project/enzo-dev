@@ -62,14 +62,12 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
             , CheckpointDump
 #endif
         ) == FAIL) {
-      fprintf(stderr, "Error in grid->Group_WriteGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->Group_WriteGrid.\n");
     }
   }
   else
     if (Grid->GridData->Group_WriteGridInterpolate(WriteTime, fptr, base_name, GridID, file_id) == FAIL) {
-      fprintf(stderr, "Error in grid->Group_WriteGridInterpolate.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->Group_WriteGridInterpolate.\n");
     }
  
   /* Write out pointer information for the next grid this level */
@@ -84,8 +82,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
     GridID++;
     if (Group_WriteDataHierarchy(fptr, MetaData, Grid->NextGridThisLevel,
             base_name, GridID, WriteTime, file_id, CheckpointDump) == FAIL) {
-      fprintf(stderr, "Error in Group_WriteDataHierarchy(1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in Group_WriteDataHierarchy(1).\n");
     }
   }
  
@@ -102,8 +99,8 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
     GridID++;
     if (Group_WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel,
                 base_name, GridID, WriteTime, file_id, CheckpointDump) == FAIL) {
-      fprintf(stderr, "Error in Group_WriteDataHierarchy(1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in Group_WriteDataHierarchy(1).\n");
+
     }
   }
  

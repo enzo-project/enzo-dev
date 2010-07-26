@@ -48,12 +48,12 @@ void Star::AssignAccretedAngularMomentum(void)
 		   &dummy[0], &dummy_int[0], &dummy_int[1], &dummy_double[0], 
 		   &AccretedAngularMomentum[0], &AccretedAngularMomentum[1], 
 		   &AccretedAngularMomentum[2], &dummy_double[1]) != 8) {
-	  fprintf(stderr, "star::AAAM: File structure wrong: %s\n", MBHParticleIOFilename);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("star::AAAM: File structure wrong: %s\n", MBHParticleIOFilename)
 	}
 
 	// go through the file and pick the right one that matches the ID
 	if (Identifier == dummy_int[1]) {
+
 	  // accreted angular momentum
 	  for (dim = 0; dim < MAX_DIMENSION; dim++) 
 	    accreted_angmom[dim] = AccretedAngularMomentum[dim];

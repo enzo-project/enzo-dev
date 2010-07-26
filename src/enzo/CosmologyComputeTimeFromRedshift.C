@@ -72,8 +72,8 @@ int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits)
   /* 5) Someday, we'll implement the general case... */
  
   if (TimeHubble0 == FLOAT_UNDEFINED) {
-    fprintf(stderr, "Cosmology selected is not implemented.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Cosmology selected is not implemented.\n");
+
   }
  
   /* Now convert from Time * H0 to code units (see also CosmologyGetUnits). */

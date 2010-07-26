@@ -1,0 +1,71 @@
+# AMR RADIATIVE TRANSFER TEST
+# 
+# Test 6 from Iliev et al. (2009), MNRAS, 400, 1283
+#
+# - Source and isothermal sphere centered at origin
+#
+ProblemType             = 50
+TopGridRank             = 3
+StopTime                = 25
+
+TopGridDimensions       = 16 16 16
+
+MultiSpecies            = 1
+RadiativeCooling        = 1
+
+RadiativeTransfer       = 1
+RadiativeTransferRaysPerCell = 5.1
+RadiativeTransferInitialHEALPixLevel = 3
+RadiativeTransferHIIRestrictedTimestep = 1
+RadiativeTransferAdaptiveTimestep = 1
+RadiativeTransferHydrogenOnly = 1
+
+ComovingCoordinates     = 0
+DensityUnits = 7.0033871e-26    // 3.2 cm^-3 at r=91.5pc
+TimeUnits = 3.1557e13   // Myr
+LengthUnits = 2.4688e21  // 800 pc
+
+HydroMethod             = 0
+DualEnergyFormalism     = 1 
+
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 0 0 0       // reflecting
+RightFaceBoundaryCondition = 1 1 1       // outflow
+
+StaticHierarchy            = 0        // AMR
+MaximumRefinementLevel     = 2        // use up to __ levels
+RefineBy                   = 2        // refinement factor
+CellFlaggingMethod         = 2        // use baryon mass for refinement 
+MinimumEfficiency          = 0.4      // good for 3D
+
+GravitationalConstant      = 1
+SelfGravity                = 0
+
+PhotonTestOmegaBaryonNow   = 1.0
+PhotonTestInitialTemperature = 1e2
+PhotonTestInitialFractionHII  = 1e-6
+PhotonTestRefineAtStart = 1
+
+PhotonTestNumberOfSources     = 1
+
+PhotonTestSourceType[0]       = 1
+PhotonTestSourcePosition[0]   = 1e-3 1e-3 1e-3
+PhotonTestSourceLuminosity[0] = 1e50       // photon number flux [#/s]
+PhotonTestSourceLifeTime[0]   = 1e10
+PhotonTestSourceCreationTime[0]   = -1
+PhotonTestSourceEnergyBins[0] = 1
+PhotonTestSourceEnergy[0] = 23.2686
+#PhotonTestSourceEnergy[0] = 13.60001
+
+PhotonTestNumberOfSpheres      = 1
+
+PhotonTestSphereType[0]        = 5
+PhotonTestSphereRadius[0]      = 1.0
+PhotonTestSphereDensity[0]     = 1.0
+PhotonTestSphereTemperature[0] = 1.e2
+PhotonTestSphereCoreRadius[0]  = 0.114375
+PhotonTestSpherePosition[0]    = 1e-3 1e-3 1e-3
+
+dtDataDump = 1.0                        // one every 1 Myr
+Initialdt  = 0.01
+OutputTemperature = 1

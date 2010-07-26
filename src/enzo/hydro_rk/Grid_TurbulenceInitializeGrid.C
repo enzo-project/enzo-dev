@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -283,7 +284,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	     protostar in the center */
 
 	  if (CloudType == 4) {
-	    Density = 5.0*CloudDensity / (1.0 + pow(9.0*r/CloudRadius,2));
+	    Density = 4.2508525*CloudDensity / (1.0 + pow(9.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	    Velx = -CloudAngularVelocity * ypos;
 	    Vely =  CloudAngularVelocity * xpos;
@@ -303,7 +304,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  /* Type 6: flattened 1/r^2 profile with large core and with ambient medium. */
 
 	  if (CloudType == 6) {
-	    Density = CloudDensity / (1.0 + 6.0*pow(r/CloudRadius,2));
+	    Density = 1.0522054*CloudDensity / (1.0 + pow(4.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -331,13 +332,13 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	  }
 
 	  if (CloudType == 4) {
-	    Density = CloudDensity/20.0;
+	    Density = max(DensityUnits,0.5*4.25*CloudDensity/(1.0 + pow(9.0*r/CloudRadius,2)));
 	    eint = CloudInternalEnergy;
 	  }
 
 
           if (CloudType ==6) {
-	    Density = max(DensityUnits, CloudDensity/(1.0 + pow(6.0*r/CloudRadius,2)));
+	    Density = max(DensityUnits, 0.5*CloudDensity/(1.0 + pow(4.0*r/CloudRadius,2)));
 	    eint = CloudInternalEnergy;
 	  }
 
@@ -443,13 +444,11 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       k2 = 10.0;
       dk = 1.0;
     }
-
-    if (CloudType == 6) {
+    if (CloudType == 4 || CloudType == 6) {
       k1 = 2.0;
-      k2 = 10.0;
-      dk = 1.0;
+      k2 = 34.0;
+      dk = 3.0;
     }
-
     if (CloudType == 7) {
       k1 = 1.0;
       k2 = 2.0;

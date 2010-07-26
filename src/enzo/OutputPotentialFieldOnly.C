@@ -32,12 +32,16 @@
 
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		       TopGridData &MetaData, ExternalBoundary *Exterior,
+
+int Group_WriteAllData(char *basename, int filenumber,
+		       HierarchyEntry *TopGrid, TopGridData &MetaData,
+		       ExternalBoundary *Exterior, 
 #ifdef TRANSFER
 		       ImplicitProblemABC *ImplicitSolver,
-		       FLOAT WriteTime = -1, int CheckpointDump = FALSE);
 #endif
+		       FLOAT WriteTime = -1, 
+		       int CheckpointDump = FALSE);
+
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 #ifdef FAST_SIB

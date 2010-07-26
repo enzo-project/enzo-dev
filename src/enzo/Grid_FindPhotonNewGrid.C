@@ -89,7 +89,7 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
       // or some other grid
       if (MoveToGrid == ParentGrid)
 	DeltaLevel = -1;
-      else {
+      else if (MoveToGrid != NULL) {
 	Refinement = nint( MoveToGrid->CellWidth[0][0] /
 			   CellWidth[0][0] );
 	DeltaLevel = 0;
@@ -97,6 +97,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
 	  Refinement /= RefineBy;
 	  DeltaLevel--;
 	}
+      } else if (RadiativeTransferPeriodicBoundary == FALSE) {
+	DeleteMe = TRUE; // photon has left the domain
       }
 
       for (dim = 0, InsideDomain = true; dim < MAX_DIMENSION; dim++)

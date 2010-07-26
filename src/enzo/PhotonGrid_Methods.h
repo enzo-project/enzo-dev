@@ -71,10 +71,6 @@
 
   int AddRadiationPressureAcceleration(void);
 
-/* Solve cooling/rate equations coupled to the radiative transfer */
-
-  int SolveCoupledRateEquations();
-
 /* Initialize ionized sphere around a source */
 
   int InitializeSource(RadiationSourceEntry *RS);
@@ -393,7 +389,8 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float PhotonTestInitialFractionHM,
 			     float PhotonTestInitialFractionH2I, 
 			     float PhotonTestInitialFractionH2II,
-			     int RefineByOpticalDepth);
+			     int RefineByOpticalDepth,
+			     char *DensityFilename);
 
 /************************************************************************/
 

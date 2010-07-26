@@ -13,6 +13,7 @@
 MACH_TEXT  = NCSA Cobalt
 MACH_VALID = 1
 MACH_FILE  = Make.mach.ncsa-cobalt
+MACHINE_NOTES = "To build on Cobalt, no modules need to be loaded."
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)

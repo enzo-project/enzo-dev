@@ -152,10 +152,10 @@ int grid::IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
       (SiIIINum < 0) || (CHINum < 0) || (CH2INum < 0) || (CH3IINum < 0) || (C2INum < 0) || 
       (COINum < 0) || (HCOIINum < 0) || (OHINum < 0) || (H2OINum < 0) || (O2INum < 0)) {
 
-    fprintf(stderr,"Error identifying species for GloverChemistryModel = %"ISYM".\n",
-	    GloverChemistryModel);
 
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error identifying species for GloverChemistryModel = %"ISYM".\n",
+	    GloverChemistryModel)
+
   }
 
   return SUCCESS;

@@ -39,16 +39,15 @@ int grid::AddFieldMassToMassFlaggingField()
     /* Error check */
  
     if (MassFlaggingField == NULL) {
-      fprintf(stderr, "MassFlaggingField not present.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("MassFlaggingField not present.\n");
     }
  
     /* Find density field */
  
     if ((DensField = FindField(Density, FieldType,
                                NumberOfBaryonFields)) < 0) {
-      fprintf(stderr, "Cannot find density.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Cannot find density.\n");
+
     }
  
     /* calculate grid size */

@@ -1,0 +1,46 @@
+#
+#  1D Lowrie & Edwards Radiating Shock Test (lab volume)
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+# 
+# problem and general modules 
+# 
+ProblemType                = 405           // RadHydroRadShockInitialize init
+RadiativeTransferFLD       = 2             // use FLD solver for radiation
+ImplicitProblem            = 3             // use gFLDSplit module
+Unigrid                    = 1             // unigrid run
+RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
+RadHydroParamfile = RadiatingShockLab1D_sp.gfld
+#
+# grid and boundary 
+#
+TopGridRank                = 1
+TopGridDimensions          = 512
+LeftFaceBoundaryCondition  = 1             // outflow
+RightFaceBoundaryCondition = 0             // reflecting
+DomainLeftEdge             = 0.0           // (scaled units)
+DomainRightEdge            = 1.0
+#
+# runtime and I/O
+#
+StopTime                   = 1.733250e0   // (scaled units)
+StopCycle                  = 100000
+dtDataDump                 = 1.733250e-2
+ParallelRootGridIO         = 1
+# 
+# units
+#
+DensityUnits               = 1.0e-4
+LengthUnits                = 1.0e-1
+TimeUnits                  = 1.0e-9
+#
+# hydro
+#
+CourantSafetyNumber        = 0.5
+PPMDiffusionParameter      = 1
+PPMFlatteningParameter     = 3
+PPMSteepeningParameter     = 1
+
+#############################

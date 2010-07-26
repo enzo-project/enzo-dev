@@ -45,7 +45,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
   case PopIII:
     nbins = (PopIIIHeliumIonization &&
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
+#ifdef TRANSFER    
     if (!RadiativeTransferOpticallyThinH2) nbins++;
+#endif
     E[0] = 28.0;
     E[1] = 30.0;
     E[2] = 58.0;
@@ -69,7 +71,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
   case PopII:
     nbins = (StarClusterHeliumIonization && 
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
+#ifdef TRANSFER    
     if (!RadiativeTransferOpticallyThinH2) nbins++;
+#endif
     EnergyFractionLW   = 0.01;
     EnergyFractionHeI  = 0.295;
     EnergyFractionHeII = 2.81e-4;
@@ -161,8 +165,8 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     break;
 
   default:
-    fprintf(stderr, "Star type = %"ISYM" not understood.\n", this->type);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Star type = %"ISYM" not understood.\n", this->type)
+
   } // ENDSWITCH
 
   return SUCCESS;

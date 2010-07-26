@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -45,6 +46,10 @@ int grid::RadHydroGreyMarshakWaveInitializeGrid(float DensityConstant,
   int NewData = TRUE;
   if ((ParallelRootGridIO == TRUE) && (local == 0))
     NewData = FALSE;
+
+  // if grids allocated and already set up (i.e. restart), return
+  if ((NumberOfBaryonFields > 5) && (BaryonField[5] != NULL))
+    return SUCCESS;
 
 
   // create necessary baryon fields

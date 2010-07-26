@@ -31,7 +31,7 @@ gFLDProblem::gFLDProblem()
 
 //   if (debug)  printf("\nEntering gFLDProblem::constructor routine\n");
   int dim, face;
-#ifndef USE_MPI
+#ifndef MPI_INT
   int MPI_PROC_NULL = -3;
 #endif
 

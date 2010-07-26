@@ -12,11 +12,24 @@
 #ifndef __ENZO_EXCEPTIONS__
 #define __ENZO_EXCEPTIONS__
 
+#ifndef OSX10_4
 #include <execinfo.h>
+#else
+#include "execinfo_local.h"
+#endif
 #include <signal.h>
 #include <stdio.h>
 
 #include <exception>
+
+// If we are using the new problem type initializers, we need to include these
+// in a file that we know will be included before macros_and_parameters.h.
+#ifdef NEW_PROBLEM_TYPES
+#include <stdlib.h>
+#include <stdio.h>
+#include <map>
+#include <string>
+#endif
 
 // Example from 
 //

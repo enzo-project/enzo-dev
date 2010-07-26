@@ -30,8 +30,7 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
  
   FLOAT a, dadt, FinalRedshift, CurrentRedshift;
   if (CosmologyComputeExpansionFactor(StopTime, &a, &dadt) == FAIL) {
-    fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in CosmologyComputeExpansionFactor.\n");
   }
   FinalRedshift = (1 + InitialRedshift)/a - 1;
  
@@ -47,6 +46,7 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
       fprintf(fptr, "CosmologyOutputRedshift[%"ISYM"] = %"GOUTSYM"\n", i,
 	      CosmologyOutputRedshift[i]);
       if (CosmologyOutputRedshiftName[i] != NULL)
+
 	fprintf(fptr, "CosmologyOutputRedshiftName[%"ISYM"] = %s\n", i,
 		CosmologyOutputRedshiftName[i]);
     }

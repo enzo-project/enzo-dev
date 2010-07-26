@@ -60,7 +60,7 @@ static MPI_Datatype MPI_ParticleEntry;
 int CommunicationMergeStarParticle(HierarchyEntry *Grids[],				   
 				   int NumberOfGrids)
 {
-  printf("CommunicationMergeStarParticle running......................\n");
+  //printf("CommunicationMergeStarParticle running......................\n");
 #ifdef USE_MPI
   double time1 = ReturnWallTime();
 
@@ -173,19 +173,19 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   int NumberOfGroups = 0;
 
   /* first, merge small particles to big ones */
-  printf("Merge small particles to big ones \n");
+  //printf("Merge small particles to big ones \n");
   ParticleMergeSmallToBig(SharedList, NumberOfSharedParticles, 
 			  SinkMergeMass/MassUnits, SinkMergeDistance, 
 			  MergeFlagList, NumberOfGroups);
 
   /* second, group small particles using FOF and merge */
-  printf("Merge small particles together \n");
+  //printf("Merge small particles together \n");
   ParticleMergeSmallGroup(SharedList, NumberOfSharedParticles, 
 			  SinkMergeMass/MassUnits, SinkMergeDistance,
 			  MergeFlagList, NumberOfGroups);
 
   /* delete merged old particles */
-  printf("Delete old particles \n");
+  //printf("Delete old particles \n");
   for (int grid = 0; grid < NumberOfGrids; grid++) {
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
       Grids[grid]->GridData->RemoveMergedParticles(SharedList, NumberOfSharedParticles, 

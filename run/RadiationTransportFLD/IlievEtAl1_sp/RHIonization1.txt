@@ -1,0 +1,64 @@
+Iliev et al. Ionization Test 1
+[Isothermal, radiative ionization in a static medium]
+
+
+In this problem we couple E and nHI together in an isothermal,
+hydrodynamically-static environment. The physical situation of
+interest is the expansion of an ionized hydrogen (HII) region in a
+uniform gas around a single monochromatic ionizing source emitting
+5e48 photons per second at the ionization frequency of hydrogen (h\nu
+= 13.6 eV).  We enforce a fixed gas temperature of T=1e4 K.  In such a
+problem, the radiation source should rapidly ionize the surrounding
+hydrogen, and then should develop a spherically-propagating ionization
+front (I-front) that propages quickly at first, slows, and then
+eventually stagnates at an equilibrium position referred to as the
+Stromgren radius, where ionization (HI -> HII) and recombinations 
+(HII -> HI) balance.  
+
+We have the following problem parameters: 
+- the domain size is L=6.6 kpc in each direction,
+- the initial gas number density is nH = 1e-3 cm^{-3},
+- the initial radiation energy density is E=1e-20 erg cm^{-3},
+- the initial ionization fraction (HII/H) is 0.0012,
+- the ionization source is located in the lower corner of the box (the
+  (1,1,1) cell),
+- we use reflecting boundary conditions at the x-, y- and z-left
+  boundaries, and outflow conditions at the corresponding right
+  boundaries.  
+- the total simulation time is 500 Myr.
+
+For this scenario, Iliev et al. provide an analytical solution for the
+I-front position as a function of time.  This analytical solution has
+been coded into the analysis script iliev1_makeplots.py, which
+compares the computed solution with these analytical values.
+
+
+Test files:
+- implicit solver: RHIonization1.enzo, RHIonization1.gfld
+- split solver: RHIonization1_sp.enzo, RHIonization1_sp.gfld
+- analysis: iliev1_makeplots.py; requires matplotlib, numpy and h5py
+
+
+Problem-Specific Input Parameters:
+- RadHydroVelocity -- initial velocity in each direction [cm/s]
+- RadHydroDensity -- initial density [g/cm^3]
+- RadHydroTemperature -- initial temperature [K]
+- RadHydroRadiationEnergy -- initial radiation energy [erg/cm^3]
+- RadHydroInitialFractionHII -- initial HII fraction (out of total H)
+- NGammaDot -- ionization source emission rate [photons/sec]
+- EtaRadius -- radius for emissivity source [cells], 0 gives a
+  single-cell source
+- EtaCenter -- location of emissivity source (0.0, 0.0, 0.0)
+
+
+References:
+
+I.T. Iliev, B. Ciardi, M.A. Alvarez, A. Maselli, A. Ferrara,
+N.Y. Gnedin, G. Mellema, T. Nakamoto, M.L. Norman, A.O. Razoumov,
+E.-J. Rijkhorst, J. Ritzerveld, P.R. Shapiro, H. Susa, M. Umemura and
+D.J. Whalen, "Cosmological radiative transfer codes comparison
+project-I. The static density field tests," MNRAS, 371: 1057-1086, 2006.
+
+D.R. Reynolds, J.C. Hayes, P. Paschos and M.L. Norman,
+"Self-consistent solution of cosmological radiation-hydrodynamics and
+chemical ionization," J. Comp. Phys., 228: 6833-6854, 2009.

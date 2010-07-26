@@ -211,13 +211,14 @@ int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[],
     /* Receive grids */
 
     if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("");
-
+      ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+    
     /* Update processor numbers */
     
     for (i = StartGrid; i < EndGrid; i++) {
       Grids[i]->GridData->SetProcessorNumber(RootProcessors[i]);
       if (RandomForcing)  //AK
+
 	Grids[i]->GridData->RemoveForcingFromBaryonFields();
     }
 

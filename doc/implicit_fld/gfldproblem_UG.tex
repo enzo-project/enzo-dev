@@ -131,7 +131,7 @@ the current solver, and that are under active development include:
 
 In order to use the implicit FLD radiation solver module, and to
 allow optimal control over the nonlinear and linear solution methods
-used, there are a number of parameters than may be supplied to Enzo.
+used, there are a number of parameters that may be supplied to Enzo.
 We group these into two categories, those associated with the general
 startup of the module via the Enzo infrastructure, and those that may
 be supplied to the module itself.  However, prior to embarking on a
@@ -188,10 +188,6 @@ must be set (their default values are in brackets):
   value will attempt to use Enzo's built-in explicit subcycled gas
   cooling modules instead of the coupled radiative-ionization provided
   by {\tt gFLDProblem}, which has not yet been enabled to work together. 
-\item {\tt GadgetEquilibriumCooling} [0] -- this must be set to 0.  A
-  nonzero value will attempt to use Enzo's built-in equilibrium cooling
-  modules instead of the coupled radiative-ionization provided by 
-  {\tt gFLDProblem}, which have also not been set up to work together. 
 \end{itemize}
 
 In addition, if a user wishes to set up a new {\tt ProblemType} that
@@ -202,7 +198,7 @@ module, and that a user may access to obtain information on the
 grey radiation field. 
 
 Furthermore, the {\tt gFLDProblem} module currently computes its own
-emissivity field $\eta_f(\xvec)$, in the routine 
+emissivity field $\eta(\xvec)$, in the routine 
 {\tt gFLDProblem\_RadiationSource.src90}.  A user may edit this file
 to add in an emissivity field corresponding to their own 
 {\tt ProblemType}.  Alternatively, a user may separately fill in the
@@ -306,9 +302,9 @@ this document.
   \item[0.] specifies the original Levermore-Pomraning limiter,
     \eqref{eq:LP_limiter} \cite{Levermore1984,LevermorePomraning1981}.
   \item[1.] specifies the rational approximation to the
-    Leveromore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
-  \item[2.] specifies to use a new approximation to the
-    Levermore-Pomraning limiter, \eqref{eq:Reynolds_limiter}.
+    Levermore-Pomraning limiter, \eqref{eq:ratLP_limiter}.
+  \item[2.] specifies to use the Larsen $n=2$ flux limiter,
+    \eqref{eq:Larsen_n2_limiter} \cite{Morel2000}. 
   \item[3.] specifies to use no limiter, \eqref{eq:no_limiter}.
   \item[4.] specifies to use the ZEUS limiter, \eqref{eq:Zeus_limiter}.
   \end{itemize}
@@ -420,9 +416,8 @@ where the directional limiters $D_i(E)$ are chosen to be one of
 \begin{align}
   \label{eq:ratLP_limiter}
    D_i(E) &= \frac{c(2\kappa+R_i)}{\omega(6\kappa^2+3\kappa R_i + R_i^2)}, \\
-  \label{eq:Reynolds_limiter}
-   D_i(E) &= \frac{2 c \tan^{-1}\left(\frac{R_i \pi}{6 \kappa}\right)}{\pi
-     \omega R_i},  \\
+  \label{eq:Larsen_n2_limiter}
+   D_i(E) &= \frac{c}{\left((3\kappa)^2 + R_i^2\right)^{1/2}},  \\
   \label{eq:no_limiter}
    D_i(E) &= \frac{c}{3\kappa}, \\
   \label{eq:Zeus_limiter}
@@ -438,11 +433,11 @@ In all of the above, the ``effective albedo'' is given by
 and the limiter factor $R_i$ is given by either
 \begin{align}
   \label{eq:R_zeus}
-   R_i &= \max\left\{\frac{|\partial_i E|}{E}, 10^{-20}\right\},
-     \qquad\text{[Zeus limiter, 
-     \eqref{eq:Zeus_limiter}]},\\ 
    R_i &= \max\left\{\frac{|\partial_i E|}{\omega E},
-     10^{-20}\right\}, \qquad\text{[all others]}. 
+     10^{-20}\right\}, \qquad\text{[Levermore-Pomraning limiters,
+     \eqref{eq:ratLP_limiter} \& \eqref{eq:LP_limiter}]}, \\
+   R_i &= \max\left\{\frac{|\partial_i E|}{E}, 10^{-20}\right\},
+     \qquad\text{[all others]}.
 \end{align}
 
 
@@ -545,13 +540,22 @@ $\text{ce}_{HI}$, $\text{ci}_{HI}$, $\text{re}_{HII}$, $\text{brem}$,
 $\text{comp}_1$, $\text{comp}_2$, $\text{comp}_{X}$ and
 $\text{comp}_{T}$ are all taken from Enzo's built-in rate tables.
 
-Moreover, the frequency-integrated opacity is now chemistry-dependent,
+The photo-ionization rate is calculated as
+\begin{align}
+  \label{eq:phHI}
+  \Gamma_{HI}^{ph} \ = \ \int_{\nu_{HI}}^{\infty}
+    \frac{c\,E_{\nu}\,\sigma_{HI}}{h\nu}\, d\nu 
+  \ = \ \frac{c\,E}{h} 
+    \left[\int_{\nu_{HI}}^{\infty} \frac{\sigma_{HI}\, \chi_E}{\nu}\,
+      d\nu\right] \bigg/ \left[\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right].
+\end{align}
+Similarly, the frequency-integrated opacity is now chemistry-dependent,
 \begin{equation}
 \label{eq:opacityHI}
   \kappa \ = \ 
   \left[\int_{\nu_{HI}}^{\infty} \kappa_{\nu}\,E_{\nu}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} E_{\nu}\,d\nu\right] \ = \ 
-  \left[\mn_{HI} \int_{\nu_{HI}}^{\infty}
+  \mn_{HI} \left[\int_{\nu_{HI}}^{\infty}
     \chi_E\,\sigma_{HI}\,d\nu\right] \bigg/
   \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right],
 \end{equation}
@@ -572,21 +576,21 @@ system of nonlinear PDEs that must be solved in each time step to find
 the updated solution.  This solve is coupled to Enzo's existing
 operator-split solver framework in the following manner:
 \begin{itemize}
-\item[(i)] Project the dark matter particles onto the finite-volume
+\item[(i)] Evolve the radiation, gas energy correction and Hydrogen I
+  number density implicitly in time [{\tt gFLDProblem}].
+\item[(ii)] Project the dark matter particles onto the finite-volume
   mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
-\item[(ii)] Solve for the gravitational potential $\phi$ using a
+\item[(iii)] Solve for the gravitational potential $\phi$ using a
   Poisson equation [Enzo];
-\item[(iii)] Advect the dark matter particles with the Particle-Mesh
+\item[(iv)] Advect the dark matter particles with the Particle-Mesh
   method [Enzo];
-\item[(iv)] Evolve the hydrodynamics equations using an up to
+\item[(v)] Evolve the hydrodynamics equations using an up to
   second-order explicit method, and have the velocity $\vb$ advect
   both the Hydrogen I number density $\mn_{HI}$ and the grey radiation
   field $E$ [Enzo]; 
-\item[(v)] Evolve the radiation, gas energy correction and Hydrogen I
-  number density implicitly in time [{\tt gFLDProblem}].
 \end{itemize}
 
-The implicit solution approach for step (v) is described in detail in 
+The implicit solution approach for step (i) is described in detail in 
 \cite{ReynoldsHayesPaschosNorman2009}; here we describe only enough
 to point out the available user parameters, and more fully describe
 some additional options available in the solver.

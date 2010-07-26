@@ -247,7 +247,7 @@
 #    no            Original (no checkpointing, more obtuse) Grid IO
 #-----------------------------------------------------------------------
 
-     CONFIG_NEW_GRID_IO = no
+     CONFIG_NEW_GRID_IO = yes
 
 #=======================================================================
 # CONFIG_FAST_SIB
@@ -283,7 +283,7 @@
 #    no            Allow non-blocking, potentially divergent summations
 #----------------------------------------------------------------------- 
  
-     CONFIG_BITWISE_IDENTICALITY = no
+     CONFIG_BITWISE_IDENTICALITY = yes
 
 #======================================================================= 
 # CONFIG_ECUDA

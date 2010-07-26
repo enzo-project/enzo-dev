@@ -37,7 +37,6 @@ int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
-enum species { iHI, iHeI, iHeII, iH2I, iHII };
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
 			    grid **MoveToGrid, grid *ParentGrid, grid *CurrentGrid, 
 			    grid **Grids0, int nGrids0, int DensNum, int DeNum,
@@ -90,11 +89,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   }
 
   if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
-    fprintf(stderr, "Called grid::WalkPhotonPackage with an invalid pointer.\n"
+    ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
 	    "\t %x %x %x %x\n",
 	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages);
-    ENZO_FAIL("");
+	    PhotonPackages)
   }
 
   /* This controls the splitting condition, where this many rays must
@@ -122,9 +120,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   /* Calculate the normal direction (HEALPix) */
 
   if (pix2vec_nest((long) (1 << (*PP)->level), (*PP)->ipix, dir_vec)==FAIL) {
-    fprintf(stdout,"WalkPhotonPackage: pix2vec_nest outor %ld %ld %g %x\n",
-	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, (*PP) );
-    ENZO_FAIL("");
+    ENZO_VFAIL("WalkPhotonPackage: pix2vec_nest outor %ld %ld %g %x\n",
+	    (long) (1 << (*PP)->level), (*PP)->ipix, (*PP)->Photons, (*PP) )
   }
 
   if (DEBUG) 
@@ -758,6 +755,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     
     // are we done ? 
     if (((*PP)->CurrentTime) >= EndTime) {
+
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
       return SUCCESS;

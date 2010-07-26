@@ -214,9 +214,8 @@ int NonUnigridCommunicationTranspose(region *FromRegion, int NumberOfFromRegions
 //	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
 //	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
 //	       &status) != MPI_SUCCESS) {
-//	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
-//		status.MPI_ERROR);
-//	ENZO_FAIL("");
+//	ENZO_VFAIL("Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+//		status.MPI_ERROR)
 //      }
 
       MPI_Irecv((void*) ReceiveBuffer, RecvCount, DataType, Source, 
@@ -688,9 +687,8 @@ int OptimizedUnigridCommunicationTranspose(
 	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
 	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
 	       &Status) != MPI_SUCCESS) {
-	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
-		Status.MPI_ERROR);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+		Status.MPI_ERROR)
       }
 */
 
@@ -984,9 +982,8 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 //	       MPI_TRANSPOSE_TAG, (void*) ReceiveBuffer, RecvCount,
 //	       DataType, Source, MPI_TRANSPOSE_TAG, MPI_COMM_WORLD,
 //	       &status) != MPI_SUCCESS) {
-//	fprintf(stderr, "Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
-//		status.MPI_ERROR);
-//	ENZO_FAIL("");
+//	ENZO_VFAIL("Proc %"ISYM" MPI_Sendrecv error %"ISYM"\n", MyProcessorNumber,
+//		status.MPI_ERROR)
 //      }
 
       /* Post receive call */
@@ -1059,7 +1056,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	      MPI_Error_string(ListOfStatuses[index].MPI_ERROR, error_string, 
 			       &length_of_error_string);
 	      fprintf(stderr, "P%d: %s\n", MyProcessorNumber, error_string);
-	      ENZO_FAIL("");
+	      ENZO_FAIL("MPI Error in CommunicationTranspose!\n");
 	    }
 	  }
 #endif
@@ -1100,6 +1097,7 @@ int NonBlockingCommunicationTranspose(region *FromRegion, int NumberOfFromRegion
 	      }
 
 	      if (TransposeOrder == TRANSPOSE_FORWARD)
+
 		FORTRAN_NAME(copy3dft)(ReceiveBuffer[request]+index, 
 				 ToRegion[j].Data,
 				 Receives[i].RegionDim, Receives[i].RegionDim+1,

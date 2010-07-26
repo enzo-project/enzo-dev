@@ -1,0 +1,36 @@
+SedovBlast-MHD-2D-Fryxell
+=========================
+From
+ Fryxell et al, 2000, ApJS, 131, 273 (Section 7.4)
+
+Run: Ji-hoon Kim, July 2010
+
+
+Test Description
+================
+
+This test sets up a two-dimensional blast wave problem for MHD.  While the initial 
+condition  essentially describes a circular overpressurized region in a low-pressure 
+magnetized medium, more detailed description of the initial set up can be found in 
+the papers above.  This test problem is new for enzo2.0.  It uses the new Stanford 
+hydro_rk solver.  
+
+Unfortunately for some users, some of the key parameters are hard-coded in 
+Grid_MHD2DTestInitializeGrid.C.  Depending on B-field values, this test can be a 
+pure Sedov blast wave problem, or a Gardiner blast wave problem.  The current 
+parameter will give Sedov blast wave solution. 
+
+(1) Setting LowerBx=LowerBy=0 will give the traditional Sedov test 
+    with no B-field, essentially very similar to SedovBlast-AMR.enzo; 
+    but with different hydro solver (Stanford HD/MHD)
+(2) Setting LowerBx=LowerBy=5 will give the Sedov blast with the 
+    presence of B-field, very similar to SedovBlast-MHD-2D-Gardiner.enzo;
+    but the exact setup is somewhat different (see the code)
+
+This test runs to completion while generating 12 outputs, and scripts.py will 
+produce the plots and slices for Density and Pressure of the last snapshot (t=0.05).  
+This last snapshot should be compared to Figure 29 and 30 of Fryxell (2000).
+
+Success in test_fryxell.py is determined by nearly exact match (3e-5) in Density and 
+Pressure. 
+

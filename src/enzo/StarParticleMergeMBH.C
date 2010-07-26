@@ -74,8 +74,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
-	printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
-	ENZO_FAIL("");
+	ENZO_VFAIL("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID())
       }
 
 
@@ -105,6 +104,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   ThisStar = AllStars;
   while (ThisStar)
     if (ThisStar->MarkedToDelete()) {
+
       ThisStar->DeleteCopyInGrid();
       ThisStar->DisableParticle(LevelArray);
       DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()

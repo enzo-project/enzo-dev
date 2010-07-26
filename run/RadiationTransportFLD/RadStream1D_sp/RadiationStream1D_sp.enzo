@@ -1,0 +1,45 @@
+#
+#  1D Streaming Radiation Test
+#
+#  Daniel R. Reynolds, reynolds@smu.edu
+#
+#############################
+# 
+# problem and general modules 
+# 
+ProblemType                = 401           // RadHydroStreamTest initializer
+RadiativeTransferFLD       = 2             // FLD radiation solver 
+ImplicitProblem            = 3             // use gFLDSplit module
+Unigrid                    = 1             // unigrid run
+RadiativeTransferOpticallyThinH2 = 0       // no 1/r^2 LW background
+RadHydroParamfile = RadiationStream1D_sp.gfld
+#
+# grid and boundary 
+#
+TopGridRank                = 1
+TopGridDimensions          = 1000
+LeftFaceBoundaryCondition  = 3             // periodic
+RightFaceBoundaryCondition = 3
+DomainLeftEdge             = 0.0           // (scaled units)
+DomainRightEdge            = 1.0 
+#
+# runtime and I/O
+#
+StopTime                   = 3.3333e-11    // (scaled units)
+StopCycle                  = 99999
+dtDataDump                 = 3.3333e-12
+ParallelRootGridIO         = 1
+# 
+# units
+#
+DensityUnits               = 1.0e0
+LengthUnits                = 1.0e0
+TimeUnits                  = 1.0e0
+#
+# hydro
+#
+CourantSafetyNumber        = 0.5
+PPMDiffusionParameter      = 1
+PPMFlatteningParameter     = 3
+
+#############################

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -609,6 +610,9 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
   /* MHD2DProblemType 7: Cylindrical Sedov-Taylor Blast Wave 
    * Reference: Fryxell et al, 2000, ApJS, 131, 273
+   * (I don't think this could be used in 2D test - comments by
+   *  Ji-hoon Kim, Apr.2010)
+   * (Some parameters fixed - comments by Ji-hoon Kim, Jul.2010)
    */
 
   if (MHD2DProblemType == 7) { 

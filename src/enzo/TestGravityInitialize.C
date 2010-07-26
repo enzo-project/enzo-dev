@@ -94,8 +94,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 				                  TestGravityNumberOfParticles,
 						  TestGravityUseBaryons
 						  ) == FAIL){
-    fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in TestGravityInitializeGrid.\n");
   }
  
   /* If requested, create a subgrid */
@@ -134,8 +133,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     if (Subgrid->GridData->TestGravityInitializeGrid(TestGravityDensity*
 	 POW(float(RefineBy), MetaData.TopGridRank), 0, TestGravityUseBaryons)
 	== FAIL) {
-      fprintf(stderr, "Error in TestGravityInitializeGrid.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in TestGravityInitializeGrid.\n");
     }			
  
     /* Generate a static refine region. */
@@ -169,6 +167,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "TestGravityDensity           = %"FSYM"\n",
 	    TestGravityDensity);
     fprintf(Outfptr, "TestGravitySubgridLeft       = %"GOUTSYM"\n",

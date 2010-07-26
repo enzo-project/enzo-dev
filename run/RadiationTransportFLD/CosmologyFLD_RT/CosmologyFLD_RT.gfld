@@ -1,0 +1,30 @@
+#
+# gFLDSplit Parameter File:
+#   Small cosmology test where FLD solver interacts with a
+#   starmaker-based emissivity field
+#
+#  Geoffrey So & Daniel R. Reynolds
+#
+#############################
+#
+# Problem-specific initialization parameters
+# 
+RadHydroRadiationEnergy = 1.0e-35    // initial radiation energy [erg/cm^3]
+#
+# General module and solver parameters
+# 
+RadiationScaling        = 1.0e-7     // rescaling for radiation energy
+EnergyCorrectionScaling = 1.0e-4     // rescaling for gas energy correction
+ChemistryScaling        = 1.0e3      // rescaling for HI density
+RadHydroMaxDt           = 1.0e-1
+RadHydroMinDt           = 1.0e-7
+RadHydroInitDt          = 1.0e-7
+RadHydroDtRadFac        = 0.01       // 1% desired change/step
+RadHydroDtGasFac        = 0.1        // 10% desired change/step
+RadHydroDtChemFac       = 0.1        // 10% desired change/step
+RadHydroInitialGuess    = 5          // analytical initial guess
+RadHydroSolTolerance    = 1.0e-5     // linear solver tolerance
+RadHydroMGPreRelax      = 5          // MG pre-relaxation sweeps
+RadHydroMGPostRelax     = 5          // MG post-relaxation sweeps
+
+#############################

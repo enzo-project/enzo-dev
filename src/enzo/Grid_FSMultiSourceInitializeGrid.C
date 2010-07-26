@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,7 +29,7 @@
 // function prototypes
 int GetUnits(float *DensityUnits, float *LengthUnits, 
 	     float *TemperatureUnits, float *TimeUnits, 
-	     float *VelocityUnits, FLOAT Time);
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 
 
@@ -58,14 +59,7 @@ int grid::FSMultiSourceInitializeGrid(float DensityConstant,
   FieldType[V0Num = NumberOfBaryonFields++]  = Velocity1;
   FieldType[V1Num = NumberOfBaryonFields++]  = Velocity2;
   FieldType[V2Num = NumberOfBaryonFields++]  = Velocity3;
-  if (RadiativeTransferFLD == 1)
-    FieldType[RadNum = NumberOfBaryonFields++] = kdissH2I;
-  else if (RadiativeTransferFLD > 1)
-    FieldType[RadNum = NumberOfBaryonFields++] = RadiationFreq0;
-  else {
-    fprintf(stderr,"Grid_FSMultiSourceInitializeGrid: FLD solver not enabled!\n");
-    return FAIL;
-  }
+  FieldType[RadNum = NumberOfBaryonFields++] = RadiationFreq0;
 
   // set the subgrid static flag (necessary??)
   SubgridsAreStatic = FALSE;  // no subgrids
@@ -75,16 +69,18 @@ int grid::FSMultiSourceInitializeGrid(float DensityConstant,
     return SUCCESS;
 
   // Get various units
-  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1;
+  double MassUnits = 1.0;
+  float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, 
+    TimeUnits=1.0, VelocityUnits=1.0;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     fprintf(stderr,"Error in GetUnits.\n");
     return FAIL;
   }
   if (debug) {
     fprintf(stdout,"  Internal Unit Conversion Factors:\n");
     fprintf(stdout,"         length = %g\n",LengthUnits);
+    fprintf(stdout,"           mass = %g\n",MassUnits);
     fprintf(stdout,"           time = %g\n",TimeUnits);
   }
 

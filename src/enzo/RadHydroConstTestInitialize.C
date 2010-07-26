@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -79,7 +80,7 @@ int RadHydroConstTestInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroX1Velocity           = 0.0;
   float RadHydroX2Velocity           = 0.0;
   float RadHydroDensity              = 10.0;
-  float RadHydroTemperature          = -1.0;
+  float RadHydroTemperature          = 1.0;
   float RadHydroIEnergy              = -1.0;
   float RadHydroRadiationEnergy      = 10.0;
   float RadHydroHydrogenMassFraction = 1.0;

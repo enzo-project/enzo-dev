@@ -17,8 +17,6 @@ extern "C" Eint32 XXMPI_Dims_create(Eint32 nnodes, Eint32 ndims, Eint32 dims[]);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims)
 {
  
-  //#ifdef USE_MPI
-
   int nn, mm, i;
   double xn, yn, eps, one_third;
 
@@ -61,11 +59,4 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims)
   }
 
   return SUCCESS;
-
-  //#else /* USE_MPI */
-
-  //ENZO_FAIL("");
-
-  //#endif /* USE_MPI */
-
 }

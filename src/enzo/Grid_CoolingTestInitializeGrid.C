@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -25,6 +26,7 @@
 
 #define MH 1.67e-24
 #define DEFAULT_MU 0.6
+#define METALLICITY_NORM 0.0204
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -145,7 +147,7 @@ int grid::CoolingTestInitializeGrid()
 	  TestProblemData.HydrogenFractionByMass / DensityUnits;
 
 	BaryonField[MetalNum][index] = pow(10,((metallicitySlope * (j-GridStartIndex[1])) + log10(TestProblemData.MinimumMetallicity))) *
-	  TestProblemData.HydrogenFractionByMass * CloudyCoolingData.CloudyMetallicityNormalization * BaryonField[0][index];
+	  METALLICITY_NORM * BaryonField[0][index];
 
       }
     }

@@ -61,8 +61,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   /* make sure it is 3D */
 
   if (MetaData.TopGridRank != 3) {
-    printf("Cannot do ProtostellarCollapse in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot do ProtostellarCollapse in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }    
 
   /* Setup and parameters:
@@ -296,6 +295,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "ProtostellarCollapseCoreDensity     = %"FSYM"\n"  , 
 	              ProtostellarCollapseCoreDensity);
     fprintf(Outfptr, "ProtostellarCollapseCoreEnergy      = %"FSYM"\n"  , 

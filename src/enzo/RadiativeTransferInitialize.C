@@ -31,6 +31,8 @@
 #include "gFLDProblem.h"
 #include "gFLDSplit.h"
 #include "FSProb.h"
+// #include "MFProb.h"
+// #include "MFSplit.h"
 #include "NullProblem.h"
 
 int RadiativeTransferReadParameters(FILE *fptr);
@@ -56,7 +58,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*RadAccel3Name = "RadAccel3";
   const char	*MetalName     = "Metal_Density";
   const char	*ColourName    = "SN_Colour";
-  const char    *FSRadName     = "FS_Radiation";
+  const char    *Rad0Name      = "Radiation0";
+  const char    *Rad1Name      = "Radiation1";
+  const char    *Rad2Name      = "Radiation2";
+  const char    *Rad3Name      = "Radiation3";
 
   int i, j, k, level;
   FILE *fptr;
@@ -65,8 +70,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
-    fprintf(stderr, "Error opening ParameterFile %s\n", ParameterFile);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening ParameterFile %s\n", ParameterFile)
   }
 
   RadiativeTransferReadParameters(fptr);
@@ -91,8 +95,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
 //  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
 //    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 //      if (Temp->GridData->FindNewStarParticles(level) == FAIL) {
-//	fprintf(stderr, "Error in grid::FindStarParticles.\n");
-//	ENZO_FAIL("");
+//	ENZO_FAIL("Error in grid::FindStarParticles.\n");
 //      }
 
   /* If we're restarting from a non-radiative run, create radiation
@@ -147,11 +150,20 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
 
   // do the same thing as above, but now for the FLD solver
+  // Note: do nothing unless the problem initializer forgot
+  //       to set up the relevant fields
   if (!RadiativeTransfer && (RadiativeTransferFLD>1)) {
 
-    // FSProb needs RadiationFreq0
-    if (ImplicitProblem == 2)
+    // all of FSProb, gFLDProblem, gFLDSplit, MFProb and MFSplit need RadiationFreq0
+    if (ImplicitProblem > 0)
       TypesToAdd[FieldsToAdd++] = RadiationFreq0;
+
+    // MFProb and MFSplit need RadiationFreq1-RadiationFreq3
+    if ((ImplicitProblem == 4) || (ImplicitProblem == 5)) {
+      TypesToAdd[FieldsToAdd++] = RadiationFreq1;
+      TypesToAdd[FieldsToAdd++] = RadiationFreq2;
+      TypesToAdd[FieldsToAdd++] = RadiationFreq3;
+    }
 
     // don't use the rest
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
@@ -189,7 +201,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
       Temp->GridData->AddFields(TypesToAdd, FieldsToAdd);
-
 
   // Add external boundaries
   for (i = 0; i < FieldsToAdd; i++) {
@@ -231,7 +242,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
       DataLabel[OldNumberOfBaryonFields+i] = (char*) ColourName;
       break;
     case RadiationFreq0:
-      DataLabel[OldNumberOfBaryonFields+i] = (char*) FSRadName;
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad0Name;
+      break;
+    case RadiationFreq1:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad1Name;
+      break;
+    case RadiationFreq2:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad2Name;
+      break;
+    case RadiationFreq3:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad3Name;
       break;
     } // ENDSWITCH
   } // ENDFOR fields
@@ -259,7 +279,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   /* Initialize SubgridMarker (do we need to do this?  it's already
      done in RebuildHierarchy) */
-
 
   // Initialize HEALPix arrays
   if (RadiativeTransfer) {
@@ -305,14 +324,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
 
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
-  if (RadiativeTransferFLD)
+  if (RadiativeTransferFLD) {
     // first get parallelism information for implicit system
     if (DetermineParallelism(&TopGrid, MetaData) == FAIL)
       ENZO_FAIL("Error in DetermineParallelism.");
-  // initialize the implicit solver
-  ImplicitSolver->Initialize(TopGrid, MetaData);
+    // initialize the implicit solver
+    ImplicitSolver->Initialize(TopGrid, MetaData);
+  }
 #else
   if (RadiativeTransferFLD)
+
     ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
 #endif
 

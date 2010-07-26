@@ -54,8 +54,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
   if (CommunicationDirection == COMMUNICATION_POST_RECEIVE ||
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
     if (CurrentGrid->InitializeGravitatingMassField(RefinementFactor) == FAIL){
-      fprintf(stderr, "Error in grid->InitializeGravitatingMassField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->InitializeGravitatingMassField.\n");
     }
     CurrentGrid->ClearGravitatingMassField();
   }
@@ -68,8 +67,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
   if (Grid->ParentGrid != NULL)
    if (CurrentGrid->CopyParentToGravitatingFieldBoundary(
 				         Grid->ParentGrid->GridData) == FAIL) {
-     fprintf(stderr, "Error in grid->CopyParentToGravitatingFieldBoundary.\n");
-     ENZO_FAIL("");
+     ENZO_FAIL("Error in grid->CopyParentToGravitatingFieldBoundary.\n");
    }
   //  if (CommunicationReceiveIndex != CommunicationReceiveIndexLast)
   //    CommunicationReceiveCurrentDependsOn = CommunicationReceiveIndex-1;
@@ -104,8 +102,7 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
   // IF STATEMENT HERE TO MAKE IT SO NO GAS CONTRIBUTES TO GRAVITY
   if(!SelfGravityGasOff){
     if (DepositBaryons(Grid, When) == FAIL) {
-      fprintf(stderr, "Error in DepositBaryons\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositBaryons\n");
       printf("      Potential calculated for the gas\n");
     }
   }
@@ -128,16 +125,14 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 #else
   if (CopyOverlappingParticleMassFields(CurrentGrid, MetaData,
                                         LevelArray, level) == FAIL) {
-    fprintf(stderr, "Error in CopyOverlappingParticleMassFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in CopyOverlappingParticleMassFields.\n");
   }
 #endif
  
 #ifdef UNUSED
   FLOAT Zero[] = {0,0,0};
   if (CurrentGrid->AddOverlappingParticleMassField(CurrentGrid,Zero) == FAIL) {
-    fprintf(stderr, "Error in grid->AddOverlappingParticleMassField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->AddOverlappingParticleMassField.\n");
   }
 #endif /* UNUSED */
  
@@ -155,8 +150,7 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
  
     if (Grid->ParentGrid->GridData->DepositParticlePositions(CurrentGrid,
 			       TimeMidStep, GRAVITATING_MASS_FIELD) == FAIL) {
-      fprintf(stderr, "Error in grid->DepositParticlePositions.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
     }
   }
 #endif /* UNUSED */
@@ -168,8 +162,7 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
 
     if (ComovingCoordinates)
       if (CurrentGrid->ComovingGravitySourceTerm() == FAIL) {
-	fprintf(stderr, "Error in grid->ComovingGravitySourceTerm.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComovingGravitySourceTerm.\n");
       }
  
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
@@ -188,6 +181,7 @@ int PrepareGravitatingMassField2b(HierarchyEntry *Grid, int level)
 
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
   if (level > 0)
+
     CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData);
  
   return SUCCESS;

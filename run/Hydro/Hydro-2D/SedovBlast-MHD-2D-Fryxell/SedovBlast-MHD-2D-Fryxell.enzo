@@ -1,0 +1,80 @@
+#
+# AMR PROBLEM DEFINITION FILE: Sedov shock test                           (Tom Abel 09)
+# 
+# Reference: Fryxell et al, 2000, ApJS, 131, 273 Section 7.4, Figure 30 
+#  
+# (1) Setting LowerBx=LowerBy=0 will give the traditional Sedov test 
+#     with no B-field, essentially very similar to SedovBlast-AMR.enzo; 
+#     but with different hydro solver (Stanford HD/MHD)
+# (2) Setting LowerBx=LowerBy=5 will give the Sedov blast with the 
+#     presence of B-field, very similar to SedovBlast-MHD-2D-Gardiner.enzo;
+#     but the exact setup is somewhat different (see the code)
+#
+#  define problem
+# 
+ProblemType                = 201
+MHD2DProblemType           = 7                       
+VelAnyl                    = 0
+TopGridRank                = 2
+TopGridDimensions          = 100 100 
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 
+RightFaceBoundaryCondition = 3 3
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime = 0.05
+#StopCycle = 5
+dtDataDump             = 0.005
+DataDumpName           = data
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy             = 0
+FluxCorrection              = 0
+MaximumRefinementLevel      = 2
+RefineBy                    = 2
+CellFlaggingMethod          = 1 
+MinimumSlopeForRefinement   = 0.1 0.01
+MinimumEfficiency           = 0.9     // good value for 2D
+InterpolationMethod         = 1
+ConservativeInterpolation   = 1
+NumberOfBufferZones         = 3
+
+#
+#  set hydro parameters
+#
+Gamma                       = 1.66667
+Mu                          = 1
+HydroMethod                 = 4
+CourantSafetyNumber         = 0.3
+Theta_Limiter               = 1.5
+RiemannSolver               = 3
+ReconstructionMethod        = 0
+DualEnergyFormalism         = 0           // Should stay 0 for isothermal problems
+RKOrder                     = 2
+SmallRho                    = 1e-4
+SmallP                      = 1e-10
+SmallT                      = 5
+EOSType                     = 0
+
+#
+# problem parameters
+#
+UsePhysicalUnit = 0
+RefineAtStart = 1
+
+#
+# additional parameters
+#
+LowerBx = 0
+LowerBy = 0
+Debug1 = 1
+UseDivergenceCleaning       = 3
+PoissonApproximationThreshold = 1e-3
+DivergenceCleaningThreshold = 1e-2
+BAnyl			    = 1
+PoissonBoundaryType	    = 1

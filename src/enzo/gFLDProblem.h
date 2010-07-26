@@ -147,7 +147,7 @@ class gFLDProblem : public virtual NonlinearProblemABC {
   int LimType;         // flux limiter formulation:
                        //    0 -> standard Levermore-Pomraning limiter (LP, 1981)
                        //    1 -> rational approx. to LP limiter (LP, 1981)
-                       //    2 -> Reynolds approx. to LP limiter
+                       //    2 -> Larsen n=2 limiter
                        //    3 -> no limiter
                        //    4 -> ZEUS limiter (like 1, but no 'albedo')
   EnzoVector *sol;     // solution vector

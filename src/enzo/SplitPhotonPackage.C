@@ -49,10 +49,10 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->CurrentSource   = PP->CurrentSource;
 
     if ((NewPack->PreviousPackage->NextPackage != NewPack)) {
-      fprintf(stdout, "SplitPhotonPackage: Problem splitting %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
+      ENZO_VFAIL("SplitPhotonPackage: Problem splitting %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" \n",
 	      PP, NewPack, NewPack->PreviousPackage,
-	      NewPack->PreviousPackage->NextPackage, NewPack->NextPackage);
-      ENZO_FAIL("");
+	      NewPack->PreviousPackage->NextPackage, NewPack->NextPackage)
+
     }
   } // for childrays=0,3
     
