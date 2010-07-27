@@ -102,8 +102,8 @@ MACH_FFLAGS_REAL_64    = -r8
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
-MACH_OPT_AGGRESSIVE  = -O3
+MACH_OPT_HIGH        = -O1
+MACH_OPT_AGGRESSIVE  = -fast -Kieee -Mfptrap
 #MACH_OPT_AGGRESSIVE  = -O1 -Mfptrap -Mflushz -Mdaz -Mnontemporal -Mfprelaxed -Mvect=altcode,assoc,prefetch -Kieee
 #MACH_OPT_AGGRESSIVE = -fast -Mipa=fast -Minline=levels:10
 #MACH_OPT_AGGRESSIVE = -fast -Mpfo

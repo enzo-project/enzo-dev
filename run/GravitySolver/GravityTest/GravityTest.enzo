@@ -20,7 +20,7 @@ TestGravitySubgridRight      = 0.5625   // end of subgrid
 #  set I/O and stop/start parameters
 #
 StopTime               = 0.001
-dtDataDump             = 0.0
+dtDataDump             = 0.002
 #
 #  set hydro parameters
 #

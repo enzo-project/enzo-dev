@@ -102,10 +102,7 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   HierarchyEntry &TopGrid,
 				   TopGridData &MetaData);
 int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, 
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
-int CoolingTestInitialize_BDS(FILE *fptr, FILE *Outfptr, 
-			  HierarchyEntry &TopGrid, TopGridData &MetaData);
- 
+			  HierarchyEntry &TopGrid, TopGridData &MetaData); 
 int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                   HierarchyEntry &TopGrid,
                                   TopGridData &MetaData);

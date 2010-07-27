@@ -59,6 +59,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferSourceClustering);
   fprintf(fptr, "RadiativeTransferPhotonMergeRadius        = %"FSYM"\n", 
 	  RadiativeTransferPhotonMergeRadius);
+  fprintf(fptr, "RadiativeTransferSourceBeamAngle          = %"FSYM"\n", 
+	  RadiativeTransferSourceBeamAngle);
   fprintf(fptr, "RadiativeTransferHIIRestrictedTimestep    = %"ISYM"\n", 
 	  RadiativeTransferHIIRestrictedTimestep);
   fprintf(fptr, "RadiativeTransferAdaptiveTimestep         = %"ISYM"\n",

@@ -1,0 +1,43 @@
+GravityTest
+----------
+
+(Greg Bryan, July 2010)
+
+This test places a single, massive particle at the center of the box
+and then places 5000 nearly massless particles throughout the rest
+of the box, randomly spaced in log radius from the center, and
+randomly placed in angle.  A single small step is taken, and the
+velocity is then divided by the timestep to measure the acceleration.
+A single subgrid is placed in the center from 0.4375 to 0.5625
+(in units where the box size is 1.0). 
+
+This tests the acceleration of the particles from a single point
+mass and so can be directed compared to the r^-2 expected
+result.  An output file is generated, called TestGravityCheckResults.out,
+which contains four columns with one entry for each of the
+5000 particles.  The columns are the radius (in units of the
+cell length of the most refined grid), the tangential component
+of the measured force, as computed by the code, 
+the radial component of the computed force, and finally
+the "true" (unsoftened) force.  
+
+The trangential component of the force should be zero; the
+radial component should follow the r^-2 law, but is softened
+for radii less than about one cell length (or slightly larger).
+It also falls below r^-2 are large distances because this
+problem uses periodic boundary conditions (The code has
+been modified since this problem was originally written
+to use isolated boundary conditions, but this problem
+has not been changed).
+
+The test for this problem is to compute the rms force
+error between 1 and 8 cell distances from the center.
+For CIC, this is measured to be about 5%.  The test
+checks to make sure this has not changed by more than 1%.
+This is not an ideal check, as many errors could
+conceivably escape undetected (e.g. those having to do
+with force errors at small and large radii); however, the problem
+with a bitwise comparison is that the positions of
+the 5000 particles are random (with no setable seed).
+
+

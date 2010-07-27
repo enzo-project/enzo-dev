@@ -230,7 +230,7 @@ const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
   LLF = 3, HLLC = 4, TwoShock = 5;
 const enum_type Neumann = 0, Dirichlet = 1;
-
+const enum_type Isotropic = 1, Beamed = 2;
 
 /* Stanford RK MUSCL solvers support */ 
 //enum {Cartesian, Spherical, Cylindrical};

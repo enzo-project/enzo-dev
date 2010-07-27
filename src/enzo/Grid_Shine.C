@@ -31,6 +31,7 @@ FLOAT FindCrossSection(int type, float energy);
 int grid::Shine(RadiationSourceEntry *RadiationSource)
 {
   RadiationSourceEntry *RS = RadiationSource;
+  FLOAT min_beam_zvec, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim;
   int count=0;
@@ -40,6 +41,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
      photon packages per source */
 
   BasePackages = 12*(int)pow(4,min_level);
+
+  /* If using a beamed source, calculate the minimum z-component of
+     the ray normal (always beamed in the polar coordinate). */
+
+  if (RS->Type == Beamed)
+    min_beam_zvec = cos(M_PI * RadiativeTransferSourceBeamAngle / 180.0);
 
   int stype = RS->EnergyBins;
 
@@ -152,6 +159,14 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       
     // DEBUG fudge
     for (j=0; j<BasePackages; j++) {
+
+      if (RS->Type == Beamed) {
+	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
+	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
+	if (fabs(vec[2]) < min_beam_zvec)
+	  continue;
+      }
+
       //      for (j=0; j<1; j++) {
       //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
       if (!isnan(photons_per_package) && photons_per_package > 0) { 
