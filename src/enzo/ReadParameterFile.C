@@ -35,7 +35,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
-#include "phys_constants.h" 
+ 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
 
@@ -911,9 +911,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "CoolingTest")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
     if (strstr(line, "PoissonSolverTest")) ret++;
+    /* 7.22.10 - CBH: Added 5 following lines to avoid runtime warnings from 
+    extra params previously added to code (but not read_params) by others.*/
+    if (strstr(line, "Cloudy")              ) ret++;
+    if (strstr(line, "IsothermalSoundSpeed")) ret++;
+    if (strstr(line, "dtPhoton")            ) ret++;
+    if (strstr(line, "CurrentTimeIdentifier")) ret++;
+    if (strstr(line, "MetaDataRestart")     ) ret++;
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
+
 #endif
 
     if (strstr(line, "\"\"\"")              ) comment_count++;
@@ -1005,7 +1013,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	     SmallRho, SmallP, SmallEint,DensityUnits, PressureUnits, MaximumAlvenSpeed);
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) 
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
-	MinimumMassForRefinement[i] *= SolarMass/MassUnits;
+	MinimumMassForRefinement[i] /= MassUnits;
       }
 
   }
