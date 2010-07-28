@@ -918,6 +918,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "dtPhoton")            ) ret++;
     if (strstr(line, "CurrentTimeIdentifier")) ret++;
     if (strstr(line, "MetaDataRestart")     ) ret++;
+    if (strstr(line, "MustRefine") ) ret++;
+    if (strstr(line, "AccretionKernal")     ) ret++;
+    if (strstr(line, "PopIII")              ) ret++;
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
