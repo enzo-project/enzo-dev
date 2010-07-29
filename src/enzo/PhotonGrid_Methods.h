@@ -18,6 +18,8 @@
    float ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
 				  float VelocityUnits, float aye, 
 				  float Ifront_kph);
+   float ComputePhotonTimestepTau(float DensityUnits, float LengthUnits,
+				  float VelocityUnits, float aye);
 
 /* Photons: return number of PhotonPackages. */
 

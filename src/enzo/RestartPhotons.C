@@ -114,7 +114,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
 
     if ((PhotonCount == 0 && LastPhotonCount == 0) ||
-	RadiativeTransferAdaptiveTimestep == TRUE) {
+	RadiativeTransferAdaptiveTimestep > 0) {
       PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
       break;
     }
