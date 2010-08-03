@@ -692,6 +692,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIInitialMassFunction);
     ret += sscanf(line, "PopIIIInitialMassFunctionSeed = %"ISYM, 
 		  &PopIIIInitialMassFunctionSeed);
+    ret += sscanf(line, "PopIIIInitialMassFunctionCalls = %"ISYM, 
+		  &PopIIIInitialMassFunctionCalls);
     ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
 		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
     ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 

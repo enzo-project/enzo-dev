@@ -79,6 +79,8 @@ int Star::AssignFinalMassFromIMF(void)
 //  printf("random_num = %f, mass = %f Msun, lifetime = %f Myr\n",
 //	 x, this->FinalMass, this->LifeTime * TimeUnits / 3.1557e13);
 
+  PopIIIInitialMassFunctionCalls++;
+
   return SUCCESS;
 
 }

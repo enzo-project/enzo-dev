@@ -45,7 +45,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
   int i, level, GridNum, TotalNumberOfStars, LocalNumberOfStars;
-  LevelHierarchyEntry *Temp;
+  int SavedP3IMFCalls;
   Star *LocalStars = NULL, *GridStars = NULL, *cstar = NULL, *lstar = NULL;
   HierarchyEntry **Grids;
   int NumberOfGrids, *NumberOfStarsInGrids;
@@ -53,6 +53,11 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   minStarLifetime = 1e20;
   TotalNumberOfStars = 0;
   LocalNumberOfStars = 0;
+
+  if (PopIIIInitialMassFunction == TRUE) {
+    SavedP3IMFCalls = PopIIIInitialMassFunctionCalls;
+    PopIIIInitialMassFunctionCalls = 0;
+  }
 
   if (AllStars != NULL)
     DeleteStarList(AllStars);
@@ -193,6 +198,15 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   /* Store in global variable */
   
   G_TotalNumberOfStars = TotalNumberOfStars;
+
+  /* Take max of the number of new calls to the IMF, so we can have
+     reproducibility.  Then add to the previous count. */
+
+  if (PopIIIInitialMassFunction == TRUE) {
+    PopIIIInitialMassFunctionCalls = 
+      CommunicationMaxValue(PopIIIInitialMassFunctionCalls);
+    PopIIIInitialMassFunctionCalls += SavedP3IMFCalls;
+  }
 
   return SUCCESS;
 

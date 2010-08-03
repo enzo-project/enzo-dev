@@ -57,6 +57,7 @@ SPEXTERN float StarEnergyToQuasarUV;
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
 SPEXTERN int   PopIIIInitialMassFunctionSeed;
+SPEXTERN int   PopIIIInitialMassFunctionCalls;
 SPEXTERN float PopIIILowerMassCutoff;
 SPEXTERN float PopIIIUpperMassCutoff;
 SPEXTERN float PopIIIInitialMassFunctionSlope;
