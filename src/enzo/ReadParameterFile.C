@@ -640,7 +640,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     if (sscanf(line, "VersionNumber = %"FSYM, &TempFloat) == 1) {
       ret++;
-      if (fabs(TempFloat - VERSION) >= 1.0e-3)
+      if (fabs(TempFloat - VERSION) >= 1.0e-3 &&
+	  MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Warning: Incorrect version number.\n");
     }
  
