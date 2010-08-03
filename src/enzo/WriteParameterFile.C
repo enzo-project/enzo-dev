@@ -274,27 +274,30 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
  
   /* write global Parameters */
  
-  fprintf(fptr, "ProblemType            = %"ISYM"\n", ProblemType);
-  fprintf(fptr, "HydroMethod            = %"ISYM"\n", HydroMethod);
-  fprintf(fptr, "huge_number            = %e\n", huge_number);
-  fprintf(fptr, "tiny_number            = %e\n", tiny_number);
-  fprintf(fptr, "Gamma                  = %"GSYM"\n", Gamma);
-  fprintf(fptr, "PressureFree           = %"ISYM"\n", PressureFree);
-  fprintf(fptr, "RefineBy               = %"ISYM"\n", RefineBy);
-  fprintf(fptr, "MaximumRefinementLevel = %"ISYM"\n", MaximumRefinementLevel);
-  fprintf(fptr, "MaximumGravityRefinementLevel = %"ISYM"\n",
+  fprintf(fptr, "ProblemType                    = %"ISYM"\n", ProblemType);
+  fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
+  fprintf(fptr, "huge_number                    = %e\n", huge_number);
+  fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
+  fprintf(fptr, "Gamma                          = %"GSYM"\n", Gamma);
+  fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
+  fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
+  fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
+  fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
 	  MaximumGravityRefinementLevel);
   fprintf(fptr, "MaximumParticleRefinementLevel = %"ISYM"\n",
 	  MaximumParticleRefinementLevel);
-  fprintf(fptr, "CellFlaggingMethod     = ");
+  fprintf(fptr, "CellFlaggingMethod             = ");
   WriteListOfInts(fptr, MAX_FLAGGING_METHODS, CellFlaggingMethod);
-  fprintf(fptr, "FluxCorrection         = %"ISYM"\n", FluxCorrection);
-  fprintf(fptr, "InterpolationMethod    = %"ISYM"\n", InterpolationMethod);
-  fprintf(fptr, "ConservativeInterpolation = %"ISYM"\n", ConservativeInterpolation);
-  fprintf(fptr, "MinimumEfficiency      = %"GSYM"\n", MinimumEfficiency);
-  fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
-  fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
-  fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
+  fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
+  fprintf(fptr, "InterpolationMethod            = %"ISYM"\n", InterpolationMethod);
+  fprintf(fptr, "ConservativeInterpolation      = %"ISYM"\n", ConservativeInterpolation);
+  fprintf(fptr, "MinimumEfficiency              = %"GSYM"\n", MinimumEfficiency);
+  fprintf(fptr, "SubgridSizeAutoAdjust          = %"ISYM"\n", SubgridSizeAutoAdjust);
+  fprintf(fptr, "OptimalSubgridsPerProcessor    = %"ISYM"\n", 
+	  OptimalSubgridsPerProcessor);
+  fprintf(fptr, "MinimumSubgridEdge             = %"ISYM"\n", MinimumSubgridEdge);
+  fprintf(fptr, "MaximumSubgridSize             = %"ISYM"\n", MaximumSubgridSize);
+  fprintf(fptr, "NumberOfBufferZones            = %"ISYM"\n\n", NumberOfBufferZones);
 
   fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
 	  FastSiblingLocatorEntireDomain);
