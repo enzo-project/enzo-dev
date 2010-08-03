@@ -60,9 +60,9 @@ int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
   }
 
   Grids[changedGrid]->GridData->NumberOfStars--;
-  G_TotalNumberOfStars--;
-  NumberOfStarParticles--;
-  NumberOfOtherParticles++;
+//  G_TotalNumberOfStars--;
+//  NumberOfStarParticles--;
+//  NumberOfOtherParticles++;
 
   delete [] Grids;
 
