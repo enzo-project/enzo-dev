@@ -201,7 +201,7 @@ int grid::SolveRadiativeCooling()
   // the solver)
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-  MetalFieldPresent = (MetalNum != -1 || SNColour != -1);
+  MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
 
   // Double check if there's a metal field when we have metal cooling
   if (MetalCooling && MetalFieldPresent == FALSE) {
@@ -217,7 +217,7 @@ int grid::SolveRadiativeCooling()
   float *MetalPointer;
   float *TotalMetals = NULL;
 
-  if (MetalNum != -1 && SNColour != -1) {
+  if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
       TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
