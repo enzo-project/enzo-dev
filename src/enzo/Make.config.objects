@@ -124,6 +124,7 @@ OBJS_CONFIG_LIB = \
         DepositParticleMassFlaggingField.o \
 	DetermineNumberOfNodes.o \
 	DetermineParallelism.o \
+	DetermineSubgridSizeExtrema.o \
         DoubleMachInitialize.o \
         E_ColumnFormat.o \
         ealFloat.o \

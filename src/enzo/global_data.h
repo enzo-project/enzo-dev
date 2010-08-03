@@ -159,6 +159,13 @@ EXTERN int ConservativeInterpolation;
 
 EXTERN float MinimumEfficiency;
 
+/* This flag will automatically adjust MinimumSubgridEdge and
+   MaximumSubgridSize.  It will select MaximumSubgridSize from
+   OptimalSubgridPerProcessor. */
+
+EXTERN int SubgridSizeAutoAdjust;
+EXTERN int OptimalSubgridsPerProcessor;
+
 /* This is the minimum allowable edge size for a new subgrid (>=4) */
 
 EXTERN int MinimumSubgridEdge;

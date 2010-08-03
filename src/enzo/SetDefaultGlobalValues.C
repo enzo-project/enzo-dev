@@ -190,8 +190,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
-  MinimumSubgridEdge        = 4;                 // min for acceptable subgrid
-  MaximumSubgridSize        = 2000;              // max for acceptable subgrid
+  MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
+  MaximumSubgridSize        = 32768;             // max for acceptable subgrid
+  SubgridSizeAutoAdjust     = FALSE; // true for adjusting maxsize and minedge
+  OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
