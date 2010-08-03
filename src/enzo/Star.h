@@ -160,7 +160,7 @@ public:
 
   int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
 		      float Radius);
-  int AssignFinalMassFromIMF(void);
+  int AssignFinalMassFromIMF(float TimeUnits);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

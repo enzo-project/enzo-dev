@@ -155,6 +155,21 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     } else
       ThisStar = ThisStar->NextStar;
 
+  /* After we've merged new star particles, we can assign the masses
+     to Pop III stars, if using an IMF.  Only assign the mass once.
+     The only time a Pop III star particle has a negative type and no
+     feedback flag is the first timestep it exists. */
+
+  if (PopIIIInitialMassFunction == TRUE) {
+    ThisStar = AllStars;
+    while (ThisStar) {
+      if (ThisStar->ReturnType() == -PopIII &&
+	  ThisStar->ReturnFeedbackFlag() == NO_FEEDBACK)
+	ThisStar->AssignFinalMassFromIMF(TimeUnits);
+      ThisStar = ThisStar->NextStar;
+    }
+  }
+
   return SUCCESS;
 
 }
