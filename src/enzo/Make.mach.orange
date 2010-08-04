@@ -13,11 +13,14 @@
 MACH_TEXT  = Orange
 MACH_VALID = 1
 MACH_FILE  = Make.mach.orange
-MACHINE_NOTES = "MACHINE_NOTES for Orange at KIPAC/SLAC/Stanford: \
-       No modules are needed to compile. \
-       In the script, first add this line (or the bash equiv.), \
-       'setenv LD_LIBRARY_PATH /usr/lib64/openmpi/1.4-gcc/lib' \
-       'setenv LD_LIBRARY_PATH /afs/slac/g/ki/software/hdf5/lib/'"
+
+MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
+	No modules are needed to compile. \
+	In the script, first add this line (or the bash equiv.), \
+	'setenv LD_LIBRARY_PATH /afs/slac/g/ki/software/hdf5/lib/' \
+	Depending on your preference of the compiler, choose wisely \
+        for LOCAL_MPI_INSTALL, MACH_FFLAGS, MACH_FFLAGS_REAL_64,  \
+	and MACH_FFLAGS_INTEGER_64. "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -31,8 +34,9 @@ MACHINE_NOTES = "MACHINE_NOTES for Orange at KIPAC/SLAC/Stanford: \
 INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1
 
 #LOCAL_MPI_INSTALL    = /afs/slac/Packages/OpenMPI
-#LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
-LOCAL_MPI_INSTALL    = /usr/lib64/openmpi/1.4-gcc
+LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
+#LOCAL_MPI_INSTALL    = /afs/slac/g/ki/software/openmpi/amd64_linux26
+#LOCAL_MPI_INSTALL    = /usr/lib64/openmpi/1.4-gcc
 #LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.6.6/amd64_linux26
 #LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64
 #LOCAL_HDF5_INSTALL   = /u/ki/mornkr/nfs12/yt-x86_64
@@ -71,7 +75,8 @@ MACH_LD_NOMPI  = icc
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
 #MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DSFGEN_PERF -DHAVE_SPRNG -DUSE_STOCHASTIC_FORCING
-MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON
+MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON -DNO_IO_LOG -DOPTIMIZED_CTP
+#MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON -DNO_IO_LOG 
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -80,7 +85,8 @@ MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON
 MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = -I/usr/local/include/
 MACH_CXXFLAGS = -DOMPI_SKIP_MPICXX
-MACH_FFLAGS   = -132
+MACH_FFLAGS   = -ffixed-line-length-132
+#MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl 
 # -static 
@@ -90,9 +96,11 @@ MACH_LDFLAGS  = -Wl
 #-----------------------------------------------------------------------
 
 MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
+#MACH_FFLAGS_INTEGER_64 = -i8
 MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
+MACH_FFLAGS_REAL_64    = -fdefault-real-8
+#MACH_FFLAGS_REAL_64    = -r8
 
 #-----------------------------------------------------------------------
 # Optimization flags
