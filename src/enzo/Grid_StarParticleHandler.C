@@ -396,27 +396,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
-  /* If both metal fields exist, make a total metal field */
-
-  float *MetalPointer;
-  float *TotalMetals = NULL;
-  int MetallicityField;
-
-  MetallicityField = (MetalNum != -1 || SNColourNum != -1);
-
-  if (MetalNum != -1 && SNColourNum != -1) {
-    TotalMetals = new float[size];
-    for (i = 0; i < size; i++)
-      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
-    MetalPointer = TotalMetals;
-  } // ENDIF both metal types
-  else {
-    if (MetalNum != -1)
-      MetalPointer = BaryonField[MetalNum];
-    else if (SNColourNum != -1)
-      MetalPointer = BaryonField[SNColourNum];
-  } // ENDELSE both metal types
-
   /* Set variables to type defines to pass to FORTRAN routines */
 
   int NormalStarType = PARTICLE_TYPE_STAR;
@@ -497,6 +476,28 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
+
+  /* If both metal fields exist, make a total metal field */
+
+  float *MetalPointer;
+  float *TotalMetals = NULL;
+  int MetallicityField;
+
+  MetallicityField = (MetalNum != -1 || SNColourNum != -1);
+
+  if (MetalNum != -1 && SNColourNum != -1) {
+    TotalMetals = new float[size];
+    for (i = 0; i < size; i++)
+      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+    MetalPointer = TotalMetals;
+  } // ENDIF both metal types
+  else {
+    if (MetalNum != -1)
+      MetalPointer = BaryonField[MetalNum];
+    else if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } // ENDELSE both metal types
+
   //printf("Star type \n");
   /* Set the units. */
  

@@ -37,6 +37,8 @@ class Star
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
+  float          Metallicity;
+  float          deltaZ;
   int		 FeedbackFlag;
   PINT		 Identifier;
   int		 level;

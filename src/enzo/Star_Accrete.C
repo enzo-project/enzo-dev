@@ -74,11 +74,14 @@ int Star::Accrete(void)
   if (type != MBH || type != BlackHole) {
     ratio2 = DeltaMass / Mass;
     ratio1 = 1.0 - ratio2;
+    Metallicity = ratio1 * Metallicity + ratio2 * deltaZ;
+    deltaZ = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
       delta_vel[dim] = 0.0;
     }
   } else {
+    deltaZ = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       delta_vel[dim] = 0.0;
     }
