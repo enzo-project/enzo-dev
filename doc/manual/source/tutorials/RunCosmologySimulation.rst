@@ -198,6 +198,95 @@ Here is an example compatible with the inits file above:
     #
     #  problem parameters
     #
-    CosmologySimulationOmegaBar
+    CosmologySimulationOmegaBaryonNow       = 0.044
+    CosmologySimulationOmegaCDMNow      = 0.226 
+    CosmologyOmegaMatterNow         = 0.27 
+    CosmologyOmegaLambdaNow         = 0.73  
+    CosmologySimulationDensityName          = GridDensity
+    CosmologySimulationVelocity1Name        = GridVelocities
+    CosmologySimulationVelocity2Name        = GridVelocities
+    CosmologySimulationVelocity3Name        = GridVelocities
+    CosmologySimulationParticlePositionName = ParticlePositions
+    CosmologySimulationParticleVelocityName = ParticleVelocities
+    CosmologySimulationNumberOfInitialGrids = 1
+    #
+    #  define cosmology parameters
+    #
+    ComovingCoordinates        = 1       // Expansion ON
+    CosmologyHubbleConstantNow = 0.71    // in km/s/Mpc
+    CosmologyComovingBoxSize   = 10.0  // in Mpc/h
+    CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+    CosmologyInitialRedshift   = 60.0      // 
+    CosmologyFinalRedshift     = 3.0     //
+    GravitationalConstant      = 1       // this must be true for cosmology
+    #
+    #  set I/O and stop/start parameters
+    #
+    CosmologyOutputRedshift[0] = 25.0 
+    CosmologyOutputRedshift[1] = 10.0
+    CosmologyOutputRedshift[2] = 5.0  
+    CosmologyOutputRedshift[3] = 3.0
+    #
+    #  set hydro parameters
+    #
+    Gamma                  = 1.6667
+    PPMDiffusionParameter  = 0       // diffusion off
+    DualEnergyFormalism    = 1       // use total & internal energy
+    InterpolationMethod    = 1     // SecondOrderA
+    CourantSafetyNumber    = 0.5
+    ParticleCourantSafetyNumber = 0.8
+    FluxCorrection         = 1
+    ConservativeInterpolation = 0
+    HydroMethod            = 0
+    #
+    #  set cooling parameters
+    #
+    RadiativeCooling       = 0
+    MultiSpecies           = 0
+    RadiationFieldType     = 0
+    StarParticleCreation   = 0
+    StarParticleFeedback   = 0
+    #
+    #  set grid refinement parameters
+    #
+    StaticHierarchy           = 0    // AMR turned on!
+    MaximumRefinementLevel    = 3
+    MaximumGravityRefinementLevel = 3
+    RefineBy                  = 2
+    CellFlaggingMethod        = 2 4
+    MinimumEfficiency         = 0.35
+    MinimumOverDensityForRefinement = 4.0 4.0
+    MinimumMassForRefinementLevelExponent = -0.1
+    MinimumEnergyRatioForRefinement = 0.4 
+    
+    #
+    #  set some global parameters
+    #
+    GreensFunctionMaxNumber   = 100   // # of greens function at any one time
+    
+    
+    #
+    # IO parameters
+    #
+    
+    ParallelRootGridIO = 1
+    ParallelParticleIO = 1
+
+Once you've saved this, you start enzo by typing:
+
+% mpirun -n 4 ./enzo.exe -d Example\_Cosmology\_Sim.param >
+output.log
+
+The simulation will now run. The -d flag ensures a great deal of
+output, so you may redirect it into a log file called output.log
+for later examination. This particular simulation shouldn't take
+too long, so you can run this in the same 30 minute interactive job
+you started when you ran inits. When the simulation is done, enzo
+will display the message "Successful run, exiting."
+
+Congratulations! If you've made it this far, you have now
+successfully run a cosmology simulation using Enzo! If you want a
+more in-depth tutorial on running Enzo,
+`go here? </wiki/Tutorials/CosmologyStepByStep>`_.
 
 
