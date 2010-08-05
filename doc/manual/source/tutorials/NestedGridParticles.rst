@@ -93,6 +93,25 @@ must therefore also be specified as an input in the enzo parameter
 file.
 
 Attached below is a simple ` Python <http://python.org/>`_ script
-that will fix the initial condition files. After running the scri
+that will fix the initial condition files. After running the
+script, run ring on the new initial condition files. The script
+requires a Python installation that has both
+` Numpy <http://numpy.scipy.org/>`_ and
+` h5py <http://code.google.com/p/h5py/>`_. A simple way to gain an
+installation of Python with these modules is to use
+` yt <http://yt.enzotools.org/>`_, which is one of the
+`data analysis tools? </wiki/Tutorials/DataAnalysisBasics>`_
+available for enzo.
+
+Procedure
+---------
+
+Save a copy of the script to the same directory as your nested
+initial condition files. Edit the top of the file, where noted, to
+match your setup. Please note the order items should be entered.
+Once the settings are correct, invoke python inits\_sort.py. The
+updated initial condition files will be placed inside the directory
+new\_ICs. Then run ring on the new initial condition files, and use
+the results with enzo.
 
 

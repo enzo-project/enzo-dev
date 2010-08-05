@@ -87,6 +87,90 @@ sphere immediate after the star object is flagged for feedback.
 Accretion / Mass Loss
 ~~~~~~~~~~~~~~~~~~~~~
 
-Star objects can store up to 100 (#define MAX\_ACCR) accreti
+Star objects can store up to 100 (#define MAX\_ACCR) accretion
+rates as
+a function of time. Alternatively, currently in the black hole
+particles, they can have an instantaneous accretion rate. This is
+done in
+Star::`CalculateMassAccretion? </wiki/CalculateMassAccretion>`_.
+The actual accretion to the
+star object is done in Star::Accrete.
+
+How to add a new particle type
+------------------------------
+
+(copied from an email)
+
+
+#. Set the particle type to the negative of the particle type in
+   the
+
+star maker routine. Be sure not to overwrite the type like what's
+done
+in the regular star\_maker routines.
+
+
+2. Add the particle type to the if-statement in
+   grid::`FindNewStarParticles? </wiki/FindNewStarParticles>`_.
+
+
+3. Then the particles merge if any exist within
+
+`StarClusterCombineRadius? </wiki/StarClusterCombineRadius>`_. I
+should really restrict this to only star
+cluster (radiating) particles. Even if there is any merging, the
+particle shouldn't disappear.
+
+
+4. At the end of
+   `StarParticleInitialize? </wiki/StarParticleInitialize>`_, the
+   routine checks if any stars
+
+should be activated in Star\_SetFeedbackFlag. This is where I would
+check first for errors or omissions. You'll have to add a new case
+to
+the switch statement. Something as simple as
+
+::
+
+    case NEW_PARTICLE_TYPE:
+      if (this->type < 0)
+         this->FeedbackFlag = FORMATION;
+      else
+         this->FeedbackFlag = NO_FEEDBACK;
+
+will work.
+
+After this, the particle is still negative but will be flipped
+after the
+feedback to the grid is applied in Star\_ActivateNewStar that's
+called
+from `StarParticleFinalize? </wiki/StarParticleFinalize>`_. Here
+for Pop II and III stars, I use a mass
+criterion. For Pop III stars, I set the mass to zero in the
+pop3\_maker() f77 routine, then only set the mass after I've
+applied the
+feedback sphere. Perhaps you could use a similar approach... or
+something more clever :)
+
+
+5. The grid feedback is added in
+   `StarParticleAddFeedback? </wiki/StarParticleAddFeedback>`_ that
+   is
+
+called in `StarParticleFinalize? </wiki/StarParticleFinalize>`_. In
+Star\_CalculateFeedbackParameters,
+you'll want to add an extra case to the switch statement that
+specifies the radius of the feedback sphere and its color (metal)
+density.
+
+
+6. If the feedback sphere is covered by grids on the level calling
+
+`StarParticleAddFeedback? </wiki/StarParticleAddFeedback>`_ (i.e.
+all of the cells will be at the same
+time), then Grid\_AddFeedbackSphere will be called. Here you'll
+have to
+add another if-block to add your color field to the grid.
 
 

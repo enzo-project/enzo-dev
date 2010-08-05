@@ -1,3 +1,5 @@
+.. _CompilationRequirements:
+
 Enzo Compilation Requirements
 =============================
 

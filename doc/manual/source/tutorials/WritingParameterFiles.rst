@@ -518,6 +518,70 @@ When using the star formation and feedback algorithms it is
 important to consider the regime of validity of our assumptions.
 Each "star particle" is supposed to represent an ensemble of stars,
 which we can characterize with the free parameters described above.
-This purely phenomeno
+This purely phenomenological model is only reasonable as long as
+the typical mass of the star particles is much greater than the
+mass of the heaviest stars so that the assumption of averaging over
+a large population is valid. When the typical star particle mass
+drops to the point where it is comparable to the mass of a large
+star, these assumptions must be reexamined and our algorithms
+reformulated.
+
+IO Parallelization Options
+--------------------------
+
+One of Enzo's great strengths is that it is possible to do
+extremely large simulations on distributed memory machines. For
+example, it is possible to intialize a 1024\ :sup:`3`\  root grid
+simulation on a linux cluster where any individual node has 1 or 2
+GB of memory, which is on the order of 200 times less than the
+total dataset size! This is possible because the reading of initial
+conditions and writing out of data dumps is fully parallelized - at
+startup, when the parameter ParallelRootGridIO is turned on each
+processor only reads the portion of the root grid which is within
+its computational domain, and when ParallelParticleIO is turned on
+each processor only reads in the particles within its domain
+(though preprocessing is needed - see below). Additionally, the
+parameter Unigrid should be turned on for simulations without AMR,
+as it saves roughly a factor of two in memory on startup, allowing
+the code to perform even larger simulations for a given computer
+size. If we wish to perform an extremely large unigrid simulation
+with parallel root grid and particle IO, we would set the following
+parameters:
+
+::
+
+    ParallelParticleIO = 1
+    ParallelRootGridIO = 1
+    Unigrid = 1
+
+AMR simulations can be run with ParallelRootGridIO and
+ParallelParticleIO on, though you must be careful to turn off the
+Unigrid parameter. In addition, it is important to note that in the
+current version of enzo you must run the program called "ring" on
+the particle position and velocity files before enzo is started in
+order to take advantage of the parallel particle IO. Assuming the
+particle position and velocity files are named ParticlePositions
+and ParticleVelocities, respectively, this is done by running:
+
+::
+
+    mpirun -np [N] ring ParticlePositions ParticleVelocities
+
+Where mpirun is the executable responsible for running MPI programs
+and "-np [N]" tells the machine that there are [N] processors. This
+number of processors must be the same as the number which enzo will
+be run with!
+
+Notes
+-----
+
+This page is intended to help novice Enzo users put together
+parameter files for their first simulation and therefore is not
+intended to be an exhaustive list of parameters nor a complete
+description of each parameter mentioned. It would be wise to refer
+to the Enzo user guide's
+`parameter list? </wiki/UserGuide/EnzoParameters>`_ page for a
+more-or-less complete list of AMR parameters, some of which may be
+extremely useful for your specific application.
 
 

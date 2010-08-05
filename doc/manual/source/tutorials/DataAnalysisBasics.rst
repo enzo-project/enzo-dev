@@ -1,33 +1,32 @@
+.. _DataAnalysisBasics:
+
 Data Analysis Basics
 ====================
 
-Data analysis in Enzo can be complicated. There are excellent
-premade packages available for doing Enzo data analysis (see the
-`SupportingCodes? </wiki/SupportingCodes>`_ page). However, it is
-likely that your data analysis needs will grow beyond these tools.
+Data analysis in Enzo can be complicated. There are excellent premade packages
+available for doing Enzo data analysis (see :ref:`SupportingCodes`.). However,
+it is likely that your data analysis needs will grow beyond these tools.
 
-HDF 5 Tools
------------
+HDF5 Tools
+----------
 
-Enzo reads in initial conditions files and outputs simulation data
-using the ` HDF 5 <http://www.hdfgroup.org>`_ structured data
-format (created and maintained by the NCSA HDF group). Though this
-format takes a bit more effort to code than pure C/C++ binary
-output, we find that the advantages are worth it. Unlike raw
-binary, HDF 5 is completely machine-portable and the HDF 5 library
-takes care of error checking. There are many useful standalone
-utilities included in the HDF 5 package that allow a user to
-examine the contents and structure of a dataset. In addition, there
-are several visualization and data analysis packages that are HDF
-5-compatible. See the page on Data Vizualization for more
-information about this. The NCSA HDF group has an excellent
-tutorial on working with HDF 5.
+Enzo reads in initial conditions files and outputs simulation data using the
+` HDF 5 <http://www.hdfgroup.org>`_ structured data format (created and
+maintained by the NCSA HDF group). Though this format takes a bit more effort
+to code than pure C/C++ binary output, we find that the advantages are worth
+it. Unlike raw binary, HDF 5 is completely machine-portable and the HDF 5
+library takes care of error checking. There are many useful standalone
+utilities included in the HDF 5 package that allow a user to examine the
+contents and structure of a dataset. In addition, there are several
+visualization and data analysis packages that are HDF 5-compatible. See the
+page on Data Vizualization for more information about this. The NCSA HDF group
+has an excellent tutorial on working with HDF 5.
 
-Note that as of the February 2004 code release, Enzo still supports
-the HDF 4 data format. We strongly suggest that new users
-completely avoid this and use the HDF 5 version instead. Enzo's
-parallel IO only works with HDF 5, and subsequent releases of Enzo
-will not have any legacy support for HDF 4 at all.
+Note that as of the Enzo 2.0 code release, Enzo still supports reading the HDF4
+data format, but not writing to it. We strongly suggest that new users
+completely avoid this and use the HDF 5 version instead. Enzo's parallel IO
+only works with HDF5, and we are encouraging users migrate as soon as is
+feasible.
 
 Using YT to Analyze Data
 ------------------------

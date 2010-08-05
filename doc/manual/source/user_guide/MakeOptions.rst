@@ -308,6 +308,11 @@ need to be modified.
 The Make.config.assemble file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This file contains all the makefile magic to c
+This file contains all the makefile magic to convert configuration
+settings (defined by $(CONFIG\_\*) make variables) into appropriate
+compiler flags (such as $(DEFINES), $(INCLUDES), etc.). When adding
+a new configuration setting, this file will need to be modified.
+
+James Bordner (jobordner at ucsd.edu)
 
 

@@ -1,3 +1,5 @@
+.. _AddingANewTestProblem:
+
 Adding a new Test Problem.
 ==========================
 
