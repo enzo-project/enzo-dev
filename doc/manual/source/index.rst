@@ -20,11 +20,10 @@ Contents:
    :maxdepth: 2
 
    EnzoLicense.rst
-   EnzoPrimaryReferences.rst
-   user_guide/index.rst
    tutorials/index.rst
-   GuideForDevelopers.rst
-   ProgrammingGuide.rst
+   user_guide/index.rst
+   developer_guide/index.rst
+   reference/index.rst
    
 
 Enzo Users Mailing List
