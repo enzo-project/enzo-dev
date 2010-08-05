@@ -1,5 +1,5 @@
-Enzo Tutorials
-==============
+Getting Started with Enzo
+=========================
 
 .. toctree::
    :maxdepth: 1
