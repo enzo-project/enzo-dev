@@ -1,7 +1,7 @@
+.. _RunningEnzo:
+
 Running Enzo
 ============
-
-`TOC(heading=This Page)? </wiki/TOC(heading=This%20Page)>`_
 
 Once the code is compiled and a parameter file is prepared,
 starting the simulation is easy:
@@ -16,12 +16,10 @@ implementation that is initiated by the 'mpirun' command, and
 implies the use of a single processors (the argument after the -np
 flag indicates the number of processors.
 
-Once again, the -d flag triggers a debug option that produces a
-substantial amount of output. See the
-`Tutorials? </wiki/Tutorials>`_ for more detailed information on
-running simulations. You may also need to use
-`ring? </wiki/Devel/UserGuide/ExecutablesArgumentsOutputs>`_ if you
-are using parallel I/O.
+Once again, the -d flag triggers a debug option that produces a substantial
+amount of output. See :ref:`Tutorials` for more detailed information on running
+simulations. You may also need to use ring (see
+:ref:`ExecutablesArgumentsOptions`) if you are using parallel I/O.
 
 Restarting
 ----------
@@ -91,15 +89,14 @@ otherwise.
 Test Problems
 -------------
 
-There are a number of built-in tests, which can be used to debug
-the system or characterize how well it solves a particular problem.
-(The `Enzo Test Suite page? </wiki/Devel/UserGuide/EnzoTestSuite>`_
-has a complete list.) Note that Enzo can run any problem after
-compilation, since no compilation flags affect simulation
-parameters (unlike the hydrodynamics code KRONOS for example) To
-run a particular test, cd to the [browser:public/trunk/doc/examples
-doc/examples] subdirectory of the Enzo source distribution (after
-compiling enzo) and use the following command-line:
+There are a number of built-in tests, which can be used to debug the system or
+characterize how well it solves a particular problem.  (see
+:ref:`EnzoTestSuite` for a complete list.) Note that Enzo can run any problem
+after compilation, since no compilation flags affect simulation parameters
+(unlike the hydrodynamics code KRONOS for example) To run a particular test, cd
+to the [browser:public/trunk/doc/examples doc/examples] subdirectory of the
+Enzo source distribution (after compiling enzo) and use the following
+command-line:
 
 ::
 
@@ -116,8 +113,7 @@ ascii, and can be edited. A complete
 
 It consists of a series of lines (and optional comments) each of
 which specifies the value of one parameter. The parameters are
-discussed in more detail in the
-`parameters page? </wiki/Devel/UserGuide/EnzoParameters>`_.
+discussed in more detail in :ref:`EnzoParameters`.
 
 If you just type enzo without any arguments, or if the number of
 arguments is incorrect, the program should respond with a summary
