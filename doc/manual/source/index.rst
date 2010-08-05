@@ -22,6 +22,7 @@ Contents:
    EnzoLicense.rst
    tutorials/index.rst
    user_guide/index.rst
+   EnzoParameters.rst
    developer_guide/index.rst
    reference/index.rst
    

@@ -1,7 +1,7 @@
 .. _user_guide:
 
-Enzo User Guide
-===============
+User Guide
+==========
 
 This document provides a brief description of the compilation and operation of
 Enzo, a structured `Adaptive Mesh Refinement
@@ -39,7 +39,6 @@ comments should be directed to the `Enzo Users' List
    :maxdepth: 2
 
    ExecutablesArgumentsOutputs.rst
-   EnzoParameters.rst
    RunningEnzo.rst
    EnzoTestSuite.rst
    RunningInits.rst
