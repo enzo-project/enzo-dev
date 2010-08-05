@@ -38,10 +38,6 @@ comments should be directed to the `Enzo Users' List
 .. toctree::
    :maxdepth: 2
 
-   CompilationRequirements.rst
-   CheckOutInstructions.rst
-   BuildingEnzo.rst
-   MakeOptions.rst
    ExecutablesArgumentsOutputs.rst
    EnzoParameters.rst
    RunningEnzo.rst
@@ -50,8 +46,7 @@ comments should be directed to the `Enzo Users' List
    RunningMPgrafic.rst
    EnzoOutputFormat.rst
    AnalyzingWithYT.rst
+   SimulationNamesAndIdentifiers.rst
+   EmbeddedPython.rst
    HierarchyFile.rst
-   EnzoInternalUnits.rst
-   EnzoParticleMass.rst
-   GridFieldArrays.rst
    FlowChart.rst

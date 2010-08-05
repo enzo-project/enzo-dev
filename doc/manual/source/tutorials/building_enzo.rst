@@ -1,5 +1,132 @@
+.. _obtaining_and_building_enzo:
+
+Obtaining and Building Enzo
+===========================
+
+
+.. _CompilationRequirements:
+
+Enzo Compilation Requirements
+-----------------------------
+
+Enzo can be compiled on any POSIX-compatible operating system, such as Linux,
+BSD (including Mac OS X), and AIX.  In addition to a C/C++ and Fortran-90
+compiler, the following libraries are necessary:
+
+   * `HDF5 <http://hdf.ncsa.uiuc.edu/HDF5/>`_, the hierarchical data format.
+     Note that HDF5 also may require the szip and zlib libraries, which can be
+     found at the HDF5 website.  Note that compiling with HDF5 1.8 or greater
+     requires that the compiler directive ``H5_USE_16_API`` be specified;
+     typically this is done with ``-DH5_USE_16_API`` and it's set in most of
+     the provided makefiles.
+   * `MPI <http://www-unix.mcs.anl.gov/mpi/>`_, for multi-processor parallel
+     jobs.  Note that Enzo will compile without MPI, but it's fine to compile
+     with MPI and only run oon a single processor.
+
+Subversion Check Out Instructions
+---------------------------------
+
+The latest public version of Enzo is available for anonymous
+checkout using ` Subversion <http://subversion.tigris.org/>`_. This
+is where bug fixes and new features will appear between releases.
+
+You also browse the source tree, either through the
+` default Subversion HTTP interface <http://mngrid.ucsd.edu/svn/Enzo/public>`_,
+or the nicer [browser:public Trac browser].
+
+*A hint*: Before you try to build Enzo, you might want to make sure
+you meet the
+`compilation requirements? </wiki/Devel/UserGuide/CompilationRequirements>`_.
+
+Subversion Clients
+++++++++++++++++++
+
+To check out a local copy of the Enzo source, you need a
+` Subversion <http://subversion.tigris.org/>`_ client. These are
+available as part of all recent Linux distributions; for other
+operating systems (OS X, AIX, etc.), binaries are available
+(there's a list of third-party clients on the
+` Subversion front page <http://subversion.tigris.org/>`_), or the
+client can be built from source. GUI clients are available, but
+these instructions assume you're using a command line client.
+
+To see if you already have the client installed, use which.
+
+::
+
+    $ which svn
+    /usr/local/bin/svn
+
+If you don't have the client, and are a shared shared resource (a
+cluster, or supercomputer), please ask the system administrator to
+install Subversion for everyone. This will make things easier for
+the next user who comes along.
+
+Getting a Copy
+++++++++++++++
+
+FYI: Checking out Enzo will also get you a copy
+` YT <http://yt.enzotools.org/>`_, the
+` Python <http://www.python.org>`_ based analysis toolkit. Check
+the ` YT website <http://yt.enzotools.org/>`_ for instructions on
+compiling and using ` YT <http://yt.enzotools.org/>`_.
+
+Once you have the client, you can use it *checkout* a local copy.
+
+::
+
+    $ svn checkout http://mngrid.ucsd.edu/svn/Enzo/public/trunk enzo
+    A    enzo/configure
+    A    enzo/doc
+    A    enzo/doc/flowchart
+    ...
+    A    enzo/src/enzo/Grid_FastSiblingLocatorFindSiblings.C
+    A    enzo/src/enzo/AnalyzeClusters.h
+    A    enzo/src/Makefile
+    A    enzo/bin
+    
+    Fetching external item into 'enzo/src/yt'
+    A    enzo/src/yt/LICENSE.txt
+    A    enzo/src/yt/epydoc.cfg
+    A    enzo/src/yt/tests
+    ...
+    A    enzo/src/yt/examples/test_parallel_projection.py
+    A    enzo/src/yt/setup.cfg
+     U   enzo/src/yt
+    Checked out external at revision 731.
+    
+    Checked out revision 1761.
+
+And now you have a copy of the latest public version. Time to work
+on `building Enzo? </wiki/Devel/UserGuide/BuildingEnzo>`_.
+
+Updating
+++++++++
+
+To update your local copy, you can use svn to pull down only the
+latest changes.
+
+*Note*: If you've modified any files in your copy, this will merge
+changes from the trunk in to your working copy, which may generate
+conflicts. If you're doing development on Enzo itself, you may want
+to check the [log:public/trunk revision log] before doing an
+update.
+
+::
+
+    $ cd enzo/
+    $ svn update
+    A    README
+    
+    Fetching external item into 'src/yt'
+    Updated external to revision 731.
+    
+    Updated to revision 1762.
+
+Now, you can do a make clean; make and get back to work.
+
 Building enzo
-=============
+-------------
 
 This is a quick, line by line example of checking out and building
 Enzo using current build system. A comprehensive list of the make
@@ -11,7 +138,7 @@ there, and for more detailed information about the structure of the Enzo source
 control repository, see :ref:`CheckOutInstructions`.
 
 Initializing the Build System
------------------------------
++++++++++++++++++++++++++++++
 
 This just clears any existing configurations left over from a previous machine,
 and creates a couple of files for building.
@@ -26,7 +153,7 @@ initialized.  To confirm that it ran, there should be a file called
 Make.config.machine in the src/enzo subdirectory.
 
 Go to the Source Directory
---------------------------
+++++++++++++++++++++++++++
 
 The source code for the various Enzo components are laid out in the
 src/ directory.
@@ -47,7 +174,7 @@ does the simulations), so we need the ``enzo/`` directory.
     ~/enzo/src $ cd enzo/
 
 Find the Right Machine File
----------------------------
++++++++++++++++++++++++++++
 
 We've chosen to go with configurations files based on specific
 machines. This means we can provide configurations files for most
@@ -73,7 +200,7 @@ We will select the makefile ``Make.mach.darwin``, as I'm running on an OSX
 laptop.
 
 Porting
--------
++++++++
 
 If there's no machine file for the machine you're on, you will have
 to do a small amount of porting. However, we have attempted to
@@ -99,7 +226,7 @@ Enzo users), please post your file to `the Enzo mailing list
 considered for inclusion with the base Enzo distribution.
 
 HDF5 Versions
--------------
++++++++++++++
 
 If your system uses a version of HDF5 greater than or equal to 1.8, you
 probably need to add a flag to your compile settings, unless your HDF5 library
@@ -121,7 +248,7 @@ This will ensure that the HDF5 header files expose the correct API
 for Enzo.
 
 Build the Makefile
-------------------
+++++++++++++++++++
 
 Now that you have your configuration file, tell the build system to
 use it:
@@ -183,7 +310,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
     ~/enzo/src/enzo $ 
 
 Build Enzo
-----------
+++++++++++
 
 The default build target is the main executable, enzo.
 
@@ -214,7 +341,7 @@ After compiling, you will have ``enzo.exe`` in the current directory.
 
 
 Building other Tools
---------------------
+++++++++++++++++++++
 
 Building other tools is typically very straightforward; they rely on the same
 Makefiles, and so should require no porting or modifications to configuration.
