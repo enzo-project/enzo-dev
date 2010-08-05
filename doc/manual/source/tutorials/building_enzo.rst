@@ -204,7 +204,7 @@ Porting
 
 If there's no machine file for the machine you're on, you will have
 to do a small amount of porting. However, we have attempted to
-provide a wipe base of Makefiles, so you should be able to find one
+provide a wide base of Makefiles, so you should be able to find one
 that is close, if not identical, to the machine you are attempting
 to run Enzo on. The basic steps are as follows:
 
