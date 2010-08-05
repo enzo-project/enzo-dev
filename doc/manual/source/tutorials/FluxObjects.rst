@@ -1,3 +1,5 @@
+.. _TheFluxObject:
+
 The Flux Object
 ===============
 
@@ -191,5 +193,99 @@ the pointers themselves are freed.
           delete [] SubgridFluxesEstimate[grid];
          }
 
-h2 id="grid.Bounda
+grid.BoundaryFluxes
+-------------------
 
+Each instance of each grid has a fluxes BoundaryFluxes object that
+stores the flux across the surface of that grid. It's used to
+correct it's Parent Grid.
+
+Allocation
+~~~~~~~~~~
+
+BoundaryFluxes is allocated immediately *before* the timestep loop
+in EvolveLevel by the routine ClearBoundaryFluxes
+
+Usage
+~~~~~
+
+For each grid, BoundaryFluxes is filled at the end of the
+EvolveLevel timestep loop by the last element of the array
+SubgridFluxesEstimate[grid]}} for that grid. This is additive,
+since each grid will have multiple timesteps that it must correct
+its parent for. This is done by {{{AddToBoundaryFluxes, as
+described above.
+
+BoundaryFluxes is used in UpdateFromFinerGrids to populate anoter
+fluxes object, SubgridFluxesRefined. This is done in
+GetProjectedBoundaryFluxes. The values in SubgridFluxesRefined are
+area weighted averages of the values in BoundaryFluxes, coarsened
+by the refinement factor of the simulation. (So for factor of 2
+refinement, SubgridFluxesRefined has half the number of zones in
+each direction than BoundaryFluxes, and matches the cell width of
+the parent grid.)
+
+BoundaryFluxes is also updated from subgrids in
+CorrectForRefinedFluxes. This happens when a subgrid boundary lines
+up exactly with a parent grid boundary. However, in many versions
+of Enzo, this is deactivated by the following code:
+
+::
+
+            CorrectLeftBoundaryFlux = FALSE;
+            CorrectRightBoundaryFlux = FALSE;
+    #ifdef UNUSED
+            if (Start[dim] == GridStartIndex[dim]-1)
+              CorrectLeftBoundaryFlux = TRUE;
+            if (Start[dim] + Offset == GridEndIndex[dim]+1)
+              CorrectRightBoundaryFlux = TRUE;
+    #endif /* UNUSED */
+
+It is unclear why this is, but removal of the UNUSED lines restores
+conservation in the code, and is essential for proper functioning
+of the MHD version of the code (which will be released in the
+future.) I have seen no problems from removing this code.
+
+Many implementations of block structured AMR require a layer of
+zones between parent and subgrid boundaries. Enzo is not one of
+these codes.
+
+Deallocation
+~~~~~~~~~~~~
+
+BoundaryFluxes is only deleted once the grid itself is deleted.
+This happens mostly in RebuildHierarchy.
+
+SubgridFluxesRefined
+--------------------
+
+The final instance of a fluxes object is fluxes
+SubgridFluxesRefined . This object takes the fine grid fluxes,
+resampled to the coarse grid resolution, and is used to perform the
+flux correction itself. This section is short, as its existance has
+been largely documented in the previous sections.
+
+Allocation
+~~~~~~~~~~
+
+SubgridFluxesRefined is declared in UpdateFromFinerGrids. The
+actual allocation occurs in Grid\_GetProjectedBoundaryFluxes, where
+it's passed in as ProjectedFluxes.
+
+Usage
+~~~~~
+
+SubgridFluxesRefined is also filled in
+Grid\_GetProjectedBoundaryFluxes, as the area weighted average of
+the subgrid boundary flux.
+
+It is then passed into Grid\_CorrectForRefinedFluxes, Here, it is
+used to update the coarse grid zones that need updating.
+
+Deallocation
+~~~~~~~~~~~~
+
+SubgridFluxesRefined is deleted after it is used in
+Grid\_CorrectForRefinedFluxes
+
+For questions with this document, contact David Collins.

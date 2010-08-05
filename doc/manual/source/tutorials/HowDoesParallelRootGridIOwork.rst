@@ -1,5 +1,7 @@
-The details of ParallelRootGridIO
-=================================
+.. _ParallelRootGridIO:
+
+ParallelRootGridIO
+==================
 
 ParallelRootGridIO is a set of Enzo behaviors that allow the user
 to run problems who's root grids are larger than the available
@@ -177,6 +179,32 @@ ExternalBoundary::Prepare is nice enough to set
 NumberOfBaryonFields to zero, so when the allocate comes around
 it's allocating Zero fields.
 
-Why is it i
+Why is it in ExternalBoundary::Prepare? A look at the lines
+immediately preceding the 'kludge' help:
+
+::
+
+      BoundaryRank = TopGrid->GridRank;
+      NumberOfBaryonFields = TopGrid->NumberOfBaryonFields;
+      if (ParallelRootGridIO == TRUE)
+        TopGrid->NumberOfBaryonFields = 0; /* bad kludge! */
+
+In order to do its job properly, the ExternalBoundary objects need
+to know how many BaryonFields there are in the simulation. So
+ExternalBoundary::Prepare records the data, and because that's the
+last place NumberOfBaryonFields is needed, sets it to zero.
+
+So now, when CommunicationPartitionGrid gets to the point where it
+allocates the data, NumberOfBaryonFields is now zero, so it
+allocates no data. These empty root grid tiles are then distributed
+to the other processors.
+
+Finally, CosmologyReInitialize is called, which calls
+CosmologyInitializeGrid. This code then resets NumberOfBaryonFields
+to its proper value, and since TotalRefinement = -1 allocates all
+the data.
+
+Then the simulation continues on, only aware of PRGIO when it comes
+time to not collect the data again.
 
 

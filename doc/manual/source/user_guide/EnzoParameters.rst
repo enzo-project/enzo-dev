@@ -2635,7 +2635,97 @@ CoolingTestMaximumHNumberDensity (external)
 CoolingTestMinimumMetallicity (external)
     The minimum metallicity at y=0. Default: 1e-6 [Z\ :sub:`sun`\ ].
 CoolingTestMaximumMetallicity (external)
-    The maximum metallicity at y=
-    a class="missing wiki" href="/wiki/DomainRightEdge" rel="nofollow"
+    The maximum metallicity at
+    y=`DomainRightEdge? </wiki/DomainRightEdge>`_[2]. Default: 1
+    [Z\ :sub:`sun`\ ].
+CoolingTestMinimumTemperature (external)
+    The minimum temperature in Kelvin at z=0. Default: 10.0 [K].
+CoolingTestMaximumTemperature (external)
+    The maximum temperature in Kelvin at
+    z=`DomainRightEdge? </wiki/DomainRightEdge>`_[1]. Default: 1e7 [K].
+CoolingTestResetEnergies (external)
+    An integer flag (0 or 1) to determine whether the grid energies
+    should be continually reset after every iteration of the chemistry
+    solver such that the temperature remains constant as the mean
+    molecular weight varies slightly. Default: 1.
+
+Other External Parameters
+-------------------------
+
+huge\_number (external)
+    The largest reasonable number. Rarely used. Default: 1e+20
+tiny\_number (external)
+    A number which is smaller than all physically reasonable numbers.
+    Used to prevent divergences and divide-by-zero in the following C++
+    functions: ComputeElementalDensity(), ComputePressure(),
+    ComputePressureDualEnergyFormalism(), ComputeTemperatureField(),
+    ComputeTimeStep(), CorrectForRefinedFluxes(). Problem dependent.
+    Modify with caution! Default: 1e-20.
+
+    A currently independent analog, tiny, defined in fortran.def, does
+    the same job for a large family of FORTRAN routines: calcdiss(),
+    calc\_dt(), calc\_rates(), colh2diss(), coll\_rates(),
+    cool1d\_multi(), cool1d(), cool\_multi\_time(), cool\_time(),
+    euler(), grid\_cic(), interp3d(), inteuler(), int\_lin3d(),
+    intrmp(), lgrg(), multi\_cool(), ppm\_de(), ppm\_lr(),
+    solve\_cool(), solve\_rate(), tscint![123]d(), zeus\_main(),
+    zeus\_source(). Modification of tiny must be done with caution and
+    currently requires recompiling the code, since tiny is not a
+    parameter yet.
+
+
+TimeActionParameter[#]
+    Reserved for future use.
+TimeActionRedshift[#]
+    Reserved for future use.
+TimeActionTime[#]
+    Reserved for future use.
+TimeActionType[#]
+    Reserved for future use.
+
+Other Internal Parameters
+-------------------------
+
+TimeLastRestartDump
+    Reserved for future use.
+TimeLastDataDump (internal)
+    The code time at which the last time-based output occurred.
+TimeLastHistoryDump
+    Reserved for future use.
+TimeLastMovieDump (internal)
+    The code time at which the last movie dump occurred.
+CycleLastRestartDump
+    Reserved for future use.
+CycleLastDataDump (internal)
+CycleLastHistoryDump
+    Reserved for future use.
+InitialCPUTime
+    Reserved for future use.
+InitialCycleNumber (internal)
+RestartDumpNumber
+    Reserved for future use.
+DataLabel[#] (internal)
+    These are printed out into the restart dump parameter file. One
+    Label is produced per baryon field with the name of that baryon
+    field. The same labels are used to name data sets in HDF files.
+DataUnits[#]
+    Reserved for future use.
+DataDumpNumber (internal)
+    The identification number of the next output file (the 0000 part of
+    the output name). This is used and incremented by both the cycle
+    based and time based outputs. Default: 0
+HistoryDumpNumber
+    Reserved for future use.
+MovieDumpNumber (internal)
+    The identification number of the next movie output file. Default: 0
+VersionNumber (internal)
+    Sets the version number of the code which is written out to restart
+    dumps.
+
+Parameters to be Described
+--------------------------
+
+    PointSourceGravityCoreRadius (external)
+
 
 

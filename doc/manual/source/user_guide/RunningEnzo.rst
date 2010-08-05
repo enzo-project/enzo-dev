@@ -93,6 +93,63 @@ Test Problems
 
 There are a number of built-in tests, which can be used to debug
 the system or characterize how well it solves a particular problem.
-(The
-a class="missing wiki" href="/wiki/Devel/UserGuide/EnzoTestSu
+(The `Enzo Test Suite page? </wiki/Devel/UserGuide/EnzoTestSuite>`_
+has a complete list.) Note that Enzo can run any problem after
+compilation, since no compilation flags affect simulation
+parameters (unlike the hydrodynamics code KRONOS for example) To
+run a particular test, cd to the [browser:public/trunk/doc/examples
+doc/examples] subdirectory of the Enzo source distribution (after
+compiling enzo) and use the following command-line:
+
+::
+
+    mpirun -np 1 enzo [-d] test_name
+
+The syntax of the mpirun various from mpi implementation. The
+example given here comes from the Origin2000 and implies a single
+processor (the argument after the -np flag indicates the number of
+processors.
+
+The parameter test\_name corresponds to the parameter file that
+specifies the type of test and the test particulars. This file is
+ascii, and can be edited. A complete
+
+It consists of a series of lines (and optional comments) each of
+which specifies the value of one parameter. The parameters are
+discussed in more detail in the
+`parameters page? </wiki/Devel/UserGuide/EnzoParameters>`_.
+
+If you just type enzo without any arguments, or if the number of
+arguments is incorrect, the program should respond with a summary
+of the command-line usage.
+
+The -d flag turns on a rather verbose debug option.
+
+For example, to run the shock tube test, use:
+
+::
+
+    mpirun -np 1 enzo ShockTube
+
+or
+
+::
+
+    enzo ShockTube
+
+The response should be:
+
+::
+
+    Successfully read in parameter file ShockTube.
+    Successful completion...
+
+How do you know if the results are correct? We hope to add the
+ability for the code to check against pre-computed results, but for
+the moment, if the code doesn't crash, it's probably a reasonable
+bet that it is working correctly (the other good check is that the
+shock tube run takes 68 or 69 steps). You may also wish to plot the
+results (output as HDF files). This section will be expanded in
+later editions of this manual.
+
 

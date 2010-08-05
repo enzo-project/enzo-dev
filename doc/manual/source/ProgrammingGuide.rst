@@ -15,22 +15,21 @@ Remember that other programmers will read your code
     chapter 2
 
 
-`Funciton/File? </wiki/Funciton/File>`_ Names
----------------------------------------------
+File Naming Convention
+----------------------
 
-With very few exceptions, Enzo has a one function per file layout,
-with the file name being the function name. Object methods have the
-object name prepended to the beginning, such as the member of the
-grid class SolveHydroEquations lives in the file
-Grid\_SolveHydroEquations.
+With very few exceptions, Enzo has a one function per file layout, with the
+file name being the function name. Object methods have the object name
+prepended to the beginning, such as the member of the grid class
+``SolveHydroEquations`` lives in the file ``Grid_SolveHydroEquations``.
 
-This does create a large number of files. Familiarity with grep or
-ack and pipes like ls -1 \|grep are essential.
+This does create a large number of files. Familiarity with ``grep`` or ``ack``
+and pipes like ``ls -1 |grep`` are essential.
 
-Internal capitalization is used for C files, all lowercase with
-underscores for fortran files and header files. Due to the
-preprocessing method for fortran used in Enzo, all fortran files
-must be named .src or .src90
+Internal capitalization is used for C files, all lowercase with underscores for
+fortran files and header files. Due to the preprocessing method for fortran
+used in Enzo, all fortran files must be named .src or .src90.  This will change
+in the next release of Enzo.
 
 Comments
 --------
@@ -60,15 +59,15 @@ float is double
 
 One must constantly be wary of the possibility of built in C types
 to be re-defined to higher precision types. This is outlined
-`in this page? </wiki/Tutorials/FloatIsDouble>`_
+in :ref:`FloatIsDouble`.
 
 Header Files
 ------------
 
-Header files must be included in the correct order. This is due,
-among other things, to the redefinition of float which is done in
-macros\_and\_parameters.h. This must be done before Enzo headers,
-but after external libraries. The order should be as follows:
+Header files must be included in the correct order. This is due, among other
+things, to the redefinition of float which is done in
+``macros_and_parameters.h``. This must be done before Enzo headers, but after
+external libraries. The order should be as follows:
 
 ::
 
@@ -94,40 +93,37 @@ Accessing BaryonField
 ---------------------
 
 Access data in the BaryonField array as is described in the page on
-`Accessing the Baryon Field? </wiki/Tutorials/BaryonFieldAccess>`_.
+:ref:`BaryonFieldAccess`.
 
 Accessing the Hierarchy
 -----------------------
 
 The hierarchy should be traversed as described in
-`this page on the linked lists? </wiki/Tutorials/LinkedLists>`_
+:ref:`LinkedLists`.
 
 enum
 ----
 
 The enum construct in C has no standardized size, which can cause
 problems when using 64 bit integers. Direct integer assignment
-should be used instean
-Here we plot the number of "cell/particle operations" per processor
-per second, which is proportional to FLOPS per processor. This
-quantity is roughly sum\_over\_level [ (number of timesteps) x
-(number\_of\_cells + number\_of\_particles) ]. It is computed in
-EvolveLevel as
+should be used instead. This also has the added advantage of making
+explicit the values of parameters that are also used in parameter
+files. The typical idiom should be:
 
 ::
 
-    if (level == 0) CPOP = 0;
-    while (TimeThisLevel < TimeLevelAbove) {
-      for (grid = FirstGrid; grid != NULL; grid = grid->NextGrid)
-         CPOP += grid->NumberOfCells + grid->NumberOfParticles;
-      TimeThisLevel += dt;
-    }
-
-`Image(allmachines.png, 25%)? </wiki/Image(allmachines.png,%2025%)>`_
-
-Because enzo parallelizes over grids, it is also useful to plot
-this quantity versus the maximum number of grids on a given level.
-
-`Image(allmachines\_grids.png, 25%)? </wiki/Image(allmachines_grids.png,%2025%)>`_
+    #ifdef SMALL_INTS
+    typedef int hydro_method;
+    #endif
+    #ifdef LARGE_INTS
+    typedef long_int hydro_method;
+    #endif
+    const hydro_method
+      PPM_DirectEuler      = 0,
+      PPM_LagrangeRemap    = 1,
+      Zeus_Hydro           = 2,
+      HD_RK                = 3,
+      MHD_RK               = 4,
+      HydroMethodUndefined = 5;
 
 

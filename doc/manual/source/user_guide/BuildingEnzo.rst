@@ -227,5 +227,79 @@ to a bin/ directory at the top level.
 
 Now that you've got things build, maybe you'll want to check out
 some
-a class="missing wiki" href="/wiki/Tutorials#Cont
+`Tutorials on running simulations? </wiki/Tutorials#ControllingEnzoSimulations>`_.
+
+Building other Tools
+--------------------
+
+Here's the quick steps to building ring, inits and
+[http;*yt.enzotools.org/ yt].*
+
+Inits
+~~~~~
+
+::
+
+    ~/enzo/src/ring $ cd ../inits/
+    ~/enzo/src/inits $ make
+    Compiling enzo_module.src90
+    Updating DEPEND
+    Compiling acml_st1.src
+    ...
+    Compiling XChunk_WriteIntField.C
+    Linking
+    Success!
+    ~/enzo/src/inits $ make install 
+    if [ ! -e ../../bin ]; then mkdir ../../bin; fi
+    make show-flags   >& ../../bin/inits.show-flags
+    make show-config  >& ../../bin/inits.show-config
+    make show-version >& ../../bin/inits.show-version
+    ~/enzo/src/inits $
+
+Ring
+~~~~
+
+::
+
+    ~/enzo/src/enzo $ cd ../ring/
+    ~/enzo/src/ring $ make
+    Updating DEPEND
+    Compiling Ring_Decomp.C
+    Compiling Enzo_Dims_create.C
+    Compiling Mpich_V1_Dims_create.c
+    Linking
+    Success!
+    ~/enzo/src/ring $ make install 
+    if [ ! -e ../../bin ]; then mkdir ../../bin; fi
+    make show-flags   >& ../../bin/ring.show-flags
+    make show-config  >& ../../bin/ring.show-config
+    make show-version >& ../../bin/ring.show-version
+
+YT
+~~
+
+YT comes with an installer script which will run from within the
+Enzo source distribution, obtaining all needed dependencies. If you
+are comfortable with installing software, you should feel free to
+follow the standard installation instructions (which are available
+in the ` documentation <http://yt.enzotools.org/doc/>`_ or
+` wiki <http://yt.enzotools.org/wiki/InstallationInstructions>`_)
+but otherwise you should be able to set the variable DEST\_DIR
+inside the installer script and execute it to have it handle all of
+those steps for you. (If you're going to run on OSX, the
+instructions are
+` slightly different <http://yt.enzotools.org/wiki/OSXInstallation>`_
+and the installation script is not recommended.)
+
+::
+
+    ~/enzo/src/yt $ nano doc/install_script.sh  # Or your favorite editor!
+    ~/enzo/src/yt $ bash doc/install_script.sh
+
+If you run into problems with linking or compilation, common
+solutions include requesting YT to install zlib and HDF5. Please
+also feel free to post requests for help with installation or usage
+on the yt-users
+` mailing list <http://lists.spacepope.org/listinfo.cgi/yt-users-spacepope.org>`_!
+
 

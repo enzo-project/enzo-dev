@@ -1,25 +1,20 @@
 Cosmology Step by Step
 ======================
 
-This is a step-by-step guide to getting Enzo compiled and a test
-problem run on your computer of choice. We assume no previous
-experience with the code. The only assumption is that the computer
-that you are installing Enzo on meets the
-`compilation requirements? </wiki/UserGuide/CompilationRequirements>`_
-(i.e., MPI and HDF5 are installed), and that you have GNU Make
-installed.
+This is a step-by-step guide to getting Enzo compiled and a test problem run on
+your computer of choice. We assume no previous experience with the code. The
+only assumption is that the computer that you are installing Enzo on meets the
+:ref:`CompilationRequirements`, (i.e., MPI and HDF5 are installed), and that
+you have GNU Make installed.
 
-This page shows actual inputs and outputs from an Enzo installation
-performed on
-` SDSC's DataStar <http://www.sdsc.edu/us/resources/datastar/>`_ on
-one of its final days. (It will be missed.) Though we show inputs
-from this machine, they should be generally applicable to your
-machine of choice, as long as it runs a
-` POSIX <http://en.wikipedia.org/wiki/POSIX>`_ operating system. We
-have successfully compiled and run Enzo on Sun, SGI, IBM, Compaq,
-Hewlett-Packard and Cray machines, as well as Apple computers
-running OS X and a wide variety of machines running the Linux
-operating system.
+This page shows actual inputs and outputs from an Enzo installation performed
+on ` SDSC's DataStar <http://www.sdsc.edu/us/resources/datastar/>`_ on one of
+its final days. Though we show inputs from this machine, they should be
+generally applicable to your machine of choice, as long as it runs a ` POSIX
+<http://en.wikipedia.org/wiki/POSIX>`_ operating system. We have successfully
+compiled and run Enzo on Sun, SGI, IBM, Compaq, Hewlett-Packard and Cray
+machines, as well as Apple computers running OS X and a wide variety of
+machines running the Linux operating system.
 
 Obtaining the Enzo package
 --------------------------

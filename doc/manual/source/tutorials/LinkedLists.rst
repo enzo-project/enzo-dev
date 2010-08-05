@@ -1,3 +1,5 @@
+.. _LinkedLists:
+
 Getting Around the Hierarchy: Linked Lists in Enzo
 ==================================================
 
@@ -200,7 +202,75 @@ the main loop for HierarchyEntry lists.
 
 This calls MyCode for each grid on level.
 
-Gene
-~~~~
+Generation of LevelHierarchyEntry and LevelArray
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is done in two places in the code: in
+[source:/public/trunk/src/enzo/main.C main.C] and
+[source:/public/trunk/src/enzo/RebuildHierarchy.C
+RebuildHierarchy.C]. It's done by the code
+[source:/public/trunk/src/enzo/LevelHierarchy\_AddLevel.C
+LevelHierarchy\_AddLevel.C], which I'll spend a moment with.
+
+The setup:
+
+::
+
+    Prep in main.C:
+      for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+        LevelArray[level] = NULL;
+
+The call in main:
+
+::
+
+    AddLevel(LevelArray, &TopGrid, 0);
+
+The fill:
+
+::
+
+     1   void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
+     2                 int level)
+     3   {
+     4      LevelHierarchyEntry *ThisLevel;
+     5
+     6     /* create a new LevelHierarchyEntry for the HierarchyEntry Grid                                          
+     7        and insert it into the head of the linked list (LevelArray[level]). */
+     8
+     9     ThisLevel = new LevelHierarchyEntry;
+    10     ThisLevel->GridData = Grid->GridData;
+    11     ThisLevel->NextGridThisLevel = LevelArray[level];
+    12     ThisLevel->GridHierarchyEntry = Grid;
+    13     LevelArray[level] = ThisLevel;
+    14
+    15     /* recursively call this for the next grid on this level. */
+    16
+    17     if (Grid->NextGridThisLevel != NULL)
+    18       AddLevel(LevelArray, Grid->NextGridThisLevel, level);
+    19  
+    20     /* ... and then descend the tree. */
+    21
+    22     if (Grid->NextGridNextLevel != NULL)
+    23       AddLevel(LevelArray, Grid->NextGridNextLevel, level+1);
+    }
+
+This is a recursive function that takes LevelArray that's to be
+filled, the HierarchyEntry list that fills it, and a counter for
+the level. It's recursive in both HierarchyEntry's lists, both
+NextGridNextLevel and NextGridThisLevel. The most notable lines are
+11, 13, and 17. In lines 11 and 13, one can see that the current
+HierarchyEntry is attached to the HEAD of the list, but line 17
+shows that the HierarchyEntry list is traversed from its head to
+its tail: so the LevelArray list is backwards from the
+HierarchyEntry. This is only really needed information on the top
+grid.
+
+Traversing the Entire Hierarchy
+-------------------------------
+
+Sometimes the user needs to traverse the entire hierarchy. This is
+done with a recursive function call on the HierarchyEntry. This
+should be done in a manner akin to the AddLevel code above.
 
 

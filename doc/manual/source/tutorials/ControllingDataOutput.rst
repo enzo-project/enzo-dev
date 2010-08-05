@@ -1,5 +1,3 @@
-`TOC? </wiki/TOC>`_
-
 Controlling Enzo data output
 ============================
 
@@ -205,6 +203,49 @@ useful for very deep simulations that spend the majority of their
 time on lower levels.
 
 To force an output as soon as the simulation finished the next step
-on the finest resolut
+on the finest resolution, make a file called outputNow:
+
+::
+
+    touch outputNow
+
+This will remove the file as soon as the output has finished.
+
+Sub Cycle Based Output
+~~~~~~~~~~~~~~~~~~~~~~
+
+To get the simulation to output every 10 subsycles (again at the
+finest level of resolution) put the number of subcycles to skip in
+a file called subcycleCount:
+
+::
+
+    echo 10 > subcycleCount
+
+Time Based Interpolated Output
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Even when you are running simulations with a long dtDataDump, sometimes you may
+want to see or analyze the interim datadumps.  Using dtInterpolatedDataDump,
+you can control enzo to check if it should start outputting interpolated data
+based on the time passed (dtInterpolatedDataDump < dtDataDump).
+
+::
+
+    dtDataDump = 1e-4
+    dtInterpolatedDataDump = 1e-5
+
+This is mostly for making movies or looking at the interim data where the
+TopGrid dt is too long, and in principle, this output shouldn't be used for
+restart.
+
+Friendly Note on Data Output
+----------------------------
+
+Enzo is content to output enough data to fill up a hard drive --
+for instance, your home directory. This should be noted before
+output parameters are set, particularly the Sub Cycle outputs, as
+Enzo has no prohibition against causing problems with quotas and
+file system size.
 
 

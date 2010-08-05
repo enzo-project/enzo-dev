@@ -99,6 +99,19 @@ because we do the communication in one MPI\_Alltoallv call.
 #. DepositParticleMassFlaggingField -- If level <= L\ :sub:`sub`\ ,
    then the particles are distributed across processor. This causes
    complications when creating the mass refinement flagging field for
-   particles. Therefore, we must sum
+   particles. Therefore, we must sum this particle mass field over
+   these processors. For each grid, only processors with particles
+   contribute to this sum to reduce the amount of computation and
+   communication. In short, this routine performs a non-blocking
+   MPI\_SUM over a select number of processors.
+#. CommunicationCollectParticles(SUBGRIDS\_LOCAL) -- This routine
+   replaces grid::MoveSubgridParticlesFast. It keeps the particles on
+   the same processor, but this doesn't matter here because the
+   children grids are always created on the same processor as its
+   parent and then moved to another processor during load balancing.
+#. CommunicationCollectParticles(SIBLINGS\_ONLY) -- After load
+   balancing is complete on level L\_sub\_, we can safely move the
+   particles to their host processor without the worry of running out
+   of memory.
 
 

@@ -76,5 +76,107 @@ The conversion factor is also given in the ascii output file
 has its own conversation factor, which converts that field to cgs
 units. Users can also set completely arbitrary internal units, as
 long as they are self-consistent: to see how to do this, go to
-a class="missing wiki" href="/wiki/Devel/UserGuide/EnzoIntern
+`EnzoInternalUnits? </wiki/Devel/UserGuide/EnzoInternalUnits>`_.
+
+File Schema
+-----------
+
+Parameter Files
+~~~~~~~~~~~~~~~
+
+Hierarchy
+~~~~~~~~~
+
+Grid Files
+~~~~~~~~~~
+
+Streaming Data Format
+---------------------
+
+**Purpose:** To provide data on every N-th timestep of each AMR
+level.
+
+Method
+~~~~~~
+
+We keep track of the elapsed timesteps on every AMR level.
+Every N-th timestep on a particular level L, all grids on levels >=
+L
+are written for the baryon fields (specified by the user in
+`MovieDataField? </wiki/MovieDataField>`_) and particles. The
+integers in `MovieDataField? </wiki/MovieDataField>`_
+correspond to the field element in
+`BaryonField? </wiki/BaryonField>`_, i.e. 0 = Density, 7 =
+HII density. Temperature has a special value of 1000.
+
+See the parameter index for a full description of the streaming
+data
+format parameters.
+
+File format
+~~~~~~~~~~~
+
+All files are written in HDF5 with one file per processor per
+top-level timestep. The filename is named AmiraDataXXXX\_PYYY.hdf5
+where XXXX is the file counter, which should equal the cycle
+number, and YYY is the processor number. Each file has a header
+indicating
+
+
+-  whether the data are cell-centered (1) or vertex-centered (0)
+   [int]
+-  number of baryon fields written [int]
+-  number of particle fields written [int]
+-  field names with the baryon fields first, followed by the
+   particle fields [array of variable-length strings]
+
+The group names (grid-%d) are unique only in the file. Unique grids
+are identified by their timestep number attribute and position.
+Each
+grid has the following attributes:
+
+
+-  AMR level [int]
+-  Timestep [int]
+-  Code time [double]
+-  Redshift [double]
+-  Ghost zones flag for each grid face [6 x int]
+-  Number of ghost zones in each dimension [3 x int]
+-  Cell width [3 x double]
+-  Grid origin in code units [3 x double]
+-  Grid origin in units of cell widths [3 x long long]
+
+In addition to the HDF5 files, a binary index file is created for
+fast
+I/O in post-processing. The filenames of the these files are the
+same as the main data files but with the extension .idx. The header
+consists of
+
+
+-  pi (to indicate endianness) [float]
+-  cell width on the top level [float]
+-  number of fields [char]
+-  cell-centered (1) or vertex-centered (0) [char]
+-  field names [number of fields x (64 char)]
+
+For every grid written, an index entry is created with
+
+
+-  grid ID [int]
+-  code time [double]
+-  timestep [int]
+-  redshift [double]
+-  level [char]
+-  grid origin in units of cell widths [long long]
+-  grid dimensions [short]
+-  number of particles [int]
+
+Lastly, we output an ASCII file with the code times and redshifts
+of
+every top level timestep for convenience when choosing files to
+read
+afterwards.
+
+**Current readers:** local KIPAC version of Amira and Jacques
+
 

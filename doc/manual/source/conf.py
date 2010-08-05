@@ -25,7 +25,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.pngmath']
+extensions = ['sphinx.ext.pngmath',  'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -214,3 +214,12 @@ man_pages = [
     ('index', 'enzo', u'Enzo Documentation',
      [u'Enzo Developers'], 1)
 ]
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'http://docs.python.org/': None,
+                       'http://ipython.scipy.org/doc/manual/html/': None,
+                       'http://docs.scipy.org/doc/numpy/': None,
+                       'http://matplotlib.sourceforge.net/': None,
+                       'http://yt.enzotools.org/doc': None,
+                       }
+

@@ -1,50 +1,30 @@
-Machine Specific Notes
-======================
+Branching and Merging: The Short Version
+========================================
 
-Here we will mention some miscellaneous notes on specific machines.
-This is merely a list of pitfalls or things we have found useful,
-and by no means a replacement to the documentation.
+This is short version of branching and merging for experienced
+developers with no long term memory. (And can't keep trunk/devel
+and devel/trunk straight.)
 
-SDSC: Datastar
---------------
-
-Important
-~~~~~~~~~
-
-Datastar is dead. :(
-
-NICS: Kraken
-------------
-
-` http://www.nics.tennessee.edu/table-of-contents <http://www.nics.tennessee.edu/table-of-contents>`_
-
-Important
-~~~~~~~~~
-
-Serious errors have been found with a few enzo routines when using
--O2 and the PGI compilers on Kraken. Use with caution.
-
-Trace Trap Flags
-~~~~~~~~~~~~~~~~
-
-Useful for debugging, but slows the code down. You can find this
-info in the pgCC man page. (Not all compilers have decent trace
-trapping, so it deserves a mention here.)
+Short, single line copy and commit:
 
 ::
 
-     -Ktrap=[option,[option]...]
-            Controls the behavior of the processor when
-            exceptions occur.  Possible options include
-            -Ktrap=divz  Trap on divide by zero.
-            -Ktrap=fp  Trap on floating point exceptions.          
-            -Ktrap=align Trap on memory alignment errors, currently ignored
-            -Ktrap=denorm Trap on denormalized operands.
-            -Ktrap=inexact Trap on inexact result.
-            -Ktrap=inv Trap on invalid operands.
-            -Ktrap=none (default)   Disable all traps.
-            -Ktrap=ovf Trap on floating point overflow.
-            -Ktrap=unf Trap on floating point underflow.
-                          
+    svn copy -m "branch for testing NewBaryon, NewProblemGen" http://lca.ucsd.edu/svn/Enzo/devel/trunk http://lca.ucsd.edu/svn/Enzo/devel/branches/TestingForDocument
+
+Then check out:
+
+::
+
+    svn co http://lca.ucsd.edu/svn/Enzo/devel/branches/TestingForDocument
+
+Then merge back (into trunk sandbox)
+
+::
+
+    svn merge -r1157:HEAD   http://lca.ucsd.edu/svn/Enzo/devel/branches/TestingForDocument .
+
+Make sure it builds and whatnot.
+
+Then check in.
 
 
