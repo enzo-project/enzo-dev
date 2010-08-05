@@ -1,20 +1,16 @@
 Enzo Parameter List
 ===================
 
-`TOC? </wiki/TOC>`_
+The following is a largely complete list of the parameters that enzo
+understands, and a brief description of what they mean. They are grouped
+roughly by meaning; an alphabetical list is also available. Parameters for
+individual test problems are also listed here.
 
-The following is a largely complete list of the parameters that
-enzo understands, and a brief description of what they mean. They
-are grouped roughly by meaning; an alphabetical list is also
-available. Parameters for individual test problems are also listed
-here.
-
-This parameter list has two purposes. The first is to describe and
-explain the parameters that can be put into the initial parameter
-file that begins a run. The second is to provide a comprehensive
-list of all parameters that the code uses, including those that go
-into an output file (which contains a complete list of all
-parameters), so that users can better understand these output
+This parameter list has two purposes. The first is to describe and explain the
+parameters that can be put into the initial parameter file that begins a run.
+The second is to provide a comprehensive list of all parameters that the code
+uses, including those that go into an output file (which contains a complete
+list of all parameters), so that users can better understand these output
 files.
 
 The parameters fall into a number of categories:
@@ -32,15 +28,13 @@ The parameters fall into a number of categories:
 **reserved**
     To be used later.
 
-Generally the external parameters are the only ones that are
-modified or set, but the internal parameters can provide useful
-information and can sometimes be modified so I list them here as
-well. Some parameters are true/false or on/off boolean flags.
-Eventually, these may be parsed, but in the meantime, I use the
+Generally the external parameters are the only ones that are modified or set,
+but the internal parameters can provide useful information and can sometimes be
+modified so I list them here as well. Some parameters are true/false or on/off
+boolean flags.  Eventually, these may be parsed, but in the meantime, we use the
 common convention of 0 meaning false or off and 1 for true or on.
 
-This list includes parameters for current version as of February
-2004 (the revision number v1\_0\_0).
+This list includes parameters for the Enzo 2.0 release.
 
 Stopping Parameters
 -------------------
@@ -88,28 +82,44 @@ ProblemType (external)
     30.] Default: none. For other problem-specific parameters follow
     the links below.
 
-1 - Shock Tube
-12 - Free Expansion
-25 - Test Gravity: Sphere
-50 - Photon Test
-2 - Wave Pool
-20 - Zeldovich Pancake
-26 - Gravity Equilibrium Test
-62 - Cooling Test
-3 - Shock Pool
-21 - Pressureless Collapse
-27 - Collapse Test
-4 - Double Mach Reflection
-22 - Adiabatic Expansion
-30 - Cosmology Simulation
-35 - Shearing Box
-5 - Shock In A Box
-23 - Test Gravity
-31 - Galaxy Simulation
-10 - Rotating Cylinder
-24 - Spherical Infall
-40 - Supernova Restart
-11 - Radiating Shock
+   - 1. Shocktube problem
+   - 2. Wave pool
+   - 3. Shock pool
+   - 4. Double Mach reflection
+   - 5. ShockInABox
+   - 6. Implosion
+   - 7. SedovBlast
+   - 8. KH Instability
+   - 9. 2D/3D Noh Problem
+   - 10. RotatingCylinder
+   - 11. RadiatingShock
+   - 12. Free expansion blast wave
+   - 20. Zeldovich Pancake
+   - 21. 1D Pressureless collapse
+   - 22. Adiabatic expansion
+   - 23. GravityTest
+   - 24. Spherical Infall
+   - 25. TestGravitySphere
+   - 26. GravityEquilibriumTest
+   - 27. CollapseTest
+   - 28. TestGravityMotion
+   - 29. TestOrbit
+   - 30. Cosmology Simulation
+   - 31. GalaxySimulation
+   - 35. Shearing Box Simulation
+   - 40. Supernova Explosion from restart
+   - 50. Photon Test
+   - 60. Turbulence Simulation.
+   - 61. Protostellar Collapse
+   - 62. Cooling test problem
+   - 107. Put Sink from restart
+   - 400. Radiation-Hydrodynamics test 1 -- constant fields
+   - 401. Radiation-Hydrodynamics test 2 -- stream test
+   - 402. Radiation-Hydrodynamics test 3 -- pulse test
+   - 403. Radiation-Hydrodynamics test 4 -- grey Marshak test
+   - 412. Radiation-Hydrodynamics test 12 -- HI ionization of a clump
+   - 413. Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
+
 TopGridRank (external)
     This specified the dimensionality of the root grid and by extension
     the entire hierarchy. It should be 1,2 or 3. Default: none
@@ -170,13 +180,12 @@ GridVelocity (obsolete)
 Simulation Identifiers and UUIDs
 --------------------------------
 
-These parameters help to track, identify and group datasets. For
-reference,
-` Universally Unique Identifiers <http://en.wikipedia.org/wiki/Universally_Unique_Identifier>`_
-(UUIDs) are opaque identifiers using random 128-bit numbers, with
-an extremely low chance of collision. (See
-`Simulation Names and Identifiers? </wiki/Devel/UserGuide/SimulationNamesAndIdentifiers>`_
-for a longer description of these parameters.)
+These parameters help to track, identify and group datasets. For reference,
+` Universally Unique Identifiers
+<http://en.wikipedia.org/wiki/Universally_Unique_Identifier>`_ (UUIDs) are
+opaque identifiers using random 128-bit numbers, with an extremely low chance
+of collision. (See :ref:`SimulationNamesAndIdentifiers` for a longer
+description of these parameters.)
 
 MetaDataIdentifier (external)
     This is a character string without spaces (specifically, something
@@ -205,8 +214,7 @@ There are three ways to specify the frequency of outputs:
 time-based, cycle-based (a cycle is a top-grid timestep), and, for
 cosmology simulations, redshift-based. There is also a shortened
 output format intended for visualization (movie format). Please
-have a look at the tutorial on different ways of output:
-` http://lca.ucsd.edu/projects/enzo/wiki/Tutorials/ControllingDataOutput#ControllingEnzodataoutput <http://lca.ucsd.edu/projects/enzo/wiki/Tutorials/ControllingDataOutput#ControllingEnzodataoutput>`_
+have a look at :ref:`ControllingDataOutput` for more information.
 
 dtDataDump (external)
     The time interval, in code units, between time-based outputs. A
@@ -327,8 +335,7 @@ Streaming Data Format
 NewMovieLeftEdge, NewMovieRightEdge (external)
     These two parameters control the region for which the streaming
     data are written. Default:
-    `DomainLeftEdge? </wiki/DomainLeftEdge>`_ and
-    `DomainRightEdge? </wiki/DomainRightEdge>`_
+    DomainLeftEdge and DomainRightEdge.
 MovieSkipTimestep (external)
     Controls how many timesteps on a level are skipped between outputs
     in the streaming data. Streaming format is off if this equals
@@ -348,7 +355,7 @@ MovieTimestepCounter (internal)
 MovieDataField (external)
     A maximum of 6 data fields can be written in the streaming format.
     The data fields are specified by the array element of
-    `BaryonField? </wiki/BaryonField>`_, i.e. 0 = Density, 7 = HII
+    BaryonField, i.e. 0 = Density, 7 = HII
     Density. For writing temperature, a special value of 1000 is used.
     This should be improved to be more transparent in which fields will
     be written. Any element that equals INT\_UNDEFINED indicates no
@@ -486,7 +493,7 @@ MinimumSlopeForRefinement (external)
     causes problems if q(i) is near zero. This is a single integer (as
     opposed to the list of five for the above parameters). Entering
     multiple numbers here correspond to the fields listed in
-    `SlopeFlaggingFields? </wiki/SlopeFlaggingFields>`_. Default: 0.3
+    SlopeFlaggingFields. Default: 0.3
 MinimumPressureJumpForRefinement (external)
     If refinement is done by shocks, then this is the minimum
     (relative) pressure jump in one-dimension to qualify for a shock.
@@ -1118,7 +1125,7 @@ StarMakerOverDensityThreshold (external)
     considered. For StarParticleCreation method 7 in "cosmological"
     simulations, however, StarMakerOverDensity should be in
     particles/cc, so it is not the ratio with respect to the
-    `DensityUnits? </wiki/DensityUnits>`_ (unlike most other
+    DensityUnits (unlike most other
     star\_maker's). This way one correctly represents the Jeans
     collapse and molecular cloud scale physics even in cosmological
     simulations. Default: 100
@@ -1260,18 +1267,15 @@ RadiationFieldType (external)
     (i.e. no molecular H support). The following values are used.
     Default: 0
     
-    -  (1) - Haardt & Madau spectrum with q\_alpha=1.5
-    -  (2) - Haardt & Madau spectrum with q\_alpha = 1.8
-    -  (3) - reserved for experimentation
-    -  (4) - H&M spectrum (q\_alpha=1.5) supplemented with an X-ray
-       Compton heating background from Madau & Efstathiou (see
-       astro-ph/9902080)
-    -  (9) - a constant molecular H2 photo-dissociation rate
-    -  (10) - internally computed radiation field using the algorithm
-       of Cen & Ostriker
-    -  (11) - same as previous, but with very, very simple optical
-       shielding fudge
-    -  (12) - Haardt & Madau spectrum with q\_alpha=1.57
+    - 1. Haardt & Madau spectrum with q\_alpha=1.5
+    - 2. Haardt & Madau spectrum with q\_alpha = 1.8
+    - 3. reserved for experimentation
+    - 4. H&M spectrum (q\_alpha=1.5. supplemented with an X-ray Compton heating
+         background from Madau & Efstathiou (see astro-ph/9902080)
+    - 9. a constant molecular H2 photo-dissociation rate
+    - 10. internally computed radiation field using the algorithm of Cen & Ostriker
+    - 11. same as previous, but with very, very simple optical shielding fudge
+    - 12. Haardt & Madau spectrum with q\_alpha=1.57
 
 RadiationFieldLevelRecompute (external)
     This integer parameter is used only if the previous parameter is
@@ -2008,8 +2012,7 @@ Radiating Shock (11)
     including the ability to initialize with random density
     fluctuations outside of the explosion region, use a Sedov blast
     wave instead of just thermal energy, and some other goodies (as
-    documented below). Written by Brian O'Shea
-    (` oshea@msu.edu <mailto:oshea@msu.edu>`_).
+    documented below).
 
 
 RadiatingShockInnerDensity (external)
@@ -2355,10 +2358,9 @@ CosmologySimulationParticleVelocity[123]Name (external)
     This is the name of the file which contains initial data for
     particle velocities but only has one component per file. This is
     more useful with very large (≥2048\ :sup:`3`\ ) datasets. Currently
-    can only use in conjunction with
-    `CosmologySimulationCalculatePositions? </wiki/CosmologySimulationCalculatePositions>`_
-    because it expects a 3D grid structure instead of a 1D list of
-    particles. Default: None.
+    can only use in conjunction with CosmologySimulationCalculatePositions.
+    because it expects a 3D grid structure instead of a 1D list of particles.
+    Default: None.
 CosmologySimulationCalculatePositions (external)
     If set to 1, enzo will calculate the particle positions from a
     Zeldo'vich approximation based on the particle velocities and a
@@ -2517,11 +2519,9 @@ FluctuationAmplitudeFraction (external)
     The magnitude of the sinusoidal velocity perturbations as a
     fraction of the angular velocity. Default: 0.1
 ShearingBoxGeometry (external)
-    Defines the radius of the sphere for
-    `ShearingBoxProblemType? </wiki/ShearingBoxProblemType>`_=0, and
-    the frequency of the velocity fluctuations (in units of 2pi) for
-    `ShearingBoxProblemType? </wiki/ShearingBoxProblemType>`_=1.
-    Default: 2.0
+    Defines the radius of the sphere for ShearingBoxProblemType=0, and the
+    frequency of the velocity fluctuations (in units of 2pi) for
+    ShearingBoxProblemType=1.  Default: 2.0
 
 Supernova Restart Simulation (40)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2529,7 +2529,6 @@ Supernova Restart Simulation (40)
     All of the supernova parameters are to be put into a restart dump's
     parameter file. Note that ProblemType must be reset to 40,
     otherwise these are ignored.
-
 
 SupernovaRestartEjectaCenter[#] (external)
     Input is a trio of coordinates in code units where the supernova's
@@ -2567,9 +2566,7 @@ PhotonTestNumberOfSources (external)
 PhotonTestSourceType (external)
     Sets the source type. No different types at the moment. Default: 0.
 PhotonTestSourcePosition (external)
-    Sets the source position. Default:
-    0.5\*(`DomainLeftEdge? </wiki/DomainLeftEdge>`_ +
-    `DomainRightEdge? </wiki/DomainRightEdge>`_)
+    Sets the source position. Default: 0.5\*(DomainLeftEdge + DomainRightEdge)
 PhotonTestSourceLuminosity (external)
     Sets the source luminosity in units of photons per seconds.
     Default: 0.
@@ -2608,21 +2605,16 @@ PhotonTestOmegaBaryonNow (obsolete)
 Cooling Test (62)
 ~~~~~~~~~~~~~~~~~
 
-    This test problem sets up a 3D grid varying smoothly in log-space
-    in H number density (x dimension), metallicity (y-dimension), and
-    temperature (z-dimension). The hydro solver is turned off. By
-    varying the `RadiativeCooling? </wiki/RadiativeCooling>`_ and
-    `CoolingTestResetEnergies? </wiki/CoolingTestResetEnergies>`_
-    parameters, two different cooling tests can be run. 1) Keep
-    temperature constant, but iterate chemistry to allow species to
-    converge. This will allow you to make plots of Cooling rate vs. T.
-    For this, set `RadiativeCooling? </wiki/RadiativeCooling>`_ to 0
-    and `CoolingTestResetEnergies? </wiki/CoolingTestResetEnergies>`_
-    to 1. 2) Allow gas to cool, allowing one to plot Temperature vs.
-    time. For this, set `RadiativeCooling? </wiki/RadiativeCooling>`_
-    to 1 and
-    `CoolingTestResetEnergies? </wiki/CoolingTestResetEnergies>`_ to
-    0.
+    This test problem sets up a 3D grid varying smoothly in log-space in H
+    number density (x dimension), metallicity (y-dimension), and temperature
+    (z-dimension). The hydro solver is turned off. By varying the
+    RadiativeCooling and CoolingTestResetEnergies parameters, two different
+    cooling tests can be run. 1) Keep temperature constant, but iterate
+    chemistry to allow species to converge. This will allow you to make plots
+    of Cooling rate vs. T.  For this, set RadiativeCooling to 0 and
+    CoolingTestResetEnergies to 1. 2) Allow gas to cool, allowing one to plot
+    Temperature vs.  time. For this, set RadiativeCooling to 1 and
+    CoolingTestResetEnergies to 0.
 
 
 CoolingTestMinimumHNumberDensity (external)
@@ -2673,7 +2665,6 @@ tiny\_number (external)
     currently requires recompiling the code, since tiny is not a
     parameter yet.
 
-
 TimeActionParameter[#]
     Reserved for future use.
 TimeActionRedshift[#]
@@ -2697,11 +2688,13 @@ TimeLastMovieDump (internal)
 CycleLastRestartDump
     Reserved for future use.
 CycleLastDataDump (internal)
+    The last cycle on which a cycle dump was made
 CycleLastHistoryDump
     Reserved for future use.
 InitialCPUTime
     Reserved for future use.
 InitialCycleNumber (internal)
+    The current cycle
 RestartDumpNumber
     Reserved for future use.
 DataLabel[#] (internal)

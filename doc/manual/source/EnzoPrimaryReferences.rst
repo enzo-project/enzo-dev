@@ -1,6 +1,6 @@
 .. _EnzoPrimaryReferences:
 
-Enzo primary references
+Enzo Primary References
 =======================
 
 The Enzo method paper is not yet complete. However, there are several papers
