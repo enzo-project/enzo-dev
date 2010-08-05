@@ -32,6 +32,7 @@
 #define MAX_COLUMN_DENSITY 1e25
 #define MIN_TAU_IFRONT 0.1
 #define TAU_DELETE_PHOTON 10.0
+#define GEO_CORRECTION
 
 int SplitPhotonPackage(PhotonPackageEntry *PP);
 FLOAT FindCrossSection(int type, float energy);
@@ -449,6 +450,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     /* Geometric correction factor because the ray's solid angle could
        not completely cover the cell */
 
+#ifdef GEO_CORRECTION
     midpoint = oldr + 0.5f*ddr - PFLOAT_EPSILON;
     for (dim = 0; dim < 3; dim++)
       m[dim] = fabs(s[dim] + midpoint * u[dim] - (ce[dim] + dxhalf));
@@ -457,6 +459,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     sangle_inv = 1.0 / (dtheta*radius);
     slice_factor = min(0.5f + (dxhalf-nearest_edge) * sangle_inv, 1.0f);
     slice_factor2 = slice_factor * slice_factor;
+#else
+    slice_factor2 = 1.0;
+#endif
 
     // Adjust length and energy due to cosmological expansion
     // assumes that da/a=dl/l=2/3 dt/t which is strictly only true for OmegaM=1

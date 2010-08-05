@@ -715,7 +715,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* Clean up the sibling list. */
 
-  if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
+  if ((NumberOfGrids >1) || ( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       delete [] SiblingList[grid1].GridList;

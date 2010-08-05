@@ -370,7 +370,8 @@ help:
 
 clean:
 	-@rm -f *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def hydro_rk/*.o
+          auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
+          uuid/*.oo
 
 #-----------------------------------------------------------------------
 # Include configuration targets
