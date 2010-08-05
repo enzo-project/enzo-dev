@@ -41,8 +41,7 @@ comments should be directed to the `Enzo Users' List
    ExecutablesArgumentsOutputs.rst
    RunningEnzo.rst
    EnzoTestSuite.rst
-   RunningInits.rst
-   RunningMPgrafic.rst
+   CosmologicalInitialConditions.rst
    EnzoOutputFormat.rst
    AnalyzingWithYT.rst
    SimulationNamesAndIdentifiers.rst
