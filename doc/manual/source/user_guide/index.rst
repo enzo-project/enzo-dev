@@ -17,8 +17,8 @@ input parameters (as of September 2008). For more detailed information on the
 Enzo algorithms and on running Enzo on different platforms, you should refer to
 the :ref:`tutorials`. Detailed information on the algorithms
 used in Enzo will be available in the method paper (unreleased as of September
-2008). In the meantime, look at the [wiki:EnzoPrimaryReferences reference list]
-for more concrete Enzo information.
+2008). In the meantime, see the :ref:`EnzoPrimaryReferences` for more concrete
+Enzo information.
 
 This guide (and Enzo itself) was originally written by Greg Bryan. Since the
 original writing of both the simulation code and the User's Guide, the
@@ -33,7 +33,7 @@ thecode is driven by working researchers, and we encourage everyone who has
 made useful changes to contribute those changes back to the community and to
 participate in the collaborative development of the code.   Email inquiries and
 comments should be directed to the `Enzo Users' List
-http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_. Thank you!
+<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_. Thank you!
 
 .. toctree::
    :maxdepth: 2

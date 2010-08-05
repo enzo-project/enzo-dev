@@ -1,3 +1,5 @@
+.. _ExecutablesArgumentsOutputs:
+
 Executables, Arguments, and Outputs
 ===================================
 
@@ -9,9 +11,8 @@ of the manual that describe a particular binary are also included.
 enzo
 ----
 
-This is the main simulation code executable. See the
-`page on running Enzo? </wiki/Devel/UserGuide/RunningEnzo>`_ for
-more detailed information.
+This is the main simulation code executable. See :ref:`RunningEnzo`
+for more detailed information.
 
 When an Enzo simulation is run, at every datastep several files are
 output. There is an ascii file which has no extension (ie, if your
@@ -32,44 +33,34 @@ are where all of the simulation data is actually contained.
 
 ::
 
-    usage: enzo [options] <param_file>
-    
-       general options:
-          -d                            display debug information
-          -r                            restart
-          -x                            extract
-          -l <level>                    level of extract
-          -p <dimension>                project to plane
-          -m                            smooth projection
-          -o                            output as particle data
-          -h                            help
-          -i                            information output
-          -s <dim0> [<dim1> [<dim2>]]   start index region
-          -e <dim0> [<dim1> [<dim2>]]   end index region
-          -b <dim0> [<dim1> [<dim2>]]   begin coordinates
-          -f <dim0> [<dim1> [<dim2>]]   finish coordinate region
-    
-       performance options:
-          -P mode <modeval>             set jbPerf mode
-          -P event <eventname>          set jbPerf event
-          -P dir <directory>            set jbPerf directory
-
-
+   usage: ./enzo.exe [options] param_file
+      options are:
+         -d(ebug)
+         -r(estart)
+         -x(extract)
+            -l(evel_of_extract) level
+         -p(roject_to_plane) dimension
+         -P(roject_to_plane version 2) dimension
+            -m(smooth projection)
+         -o(utput as particle data)
+         -h(elp)
+         -i(nformation output)
+         -s(tart  index region) dim0 [dim1] [dim2]
+         -e(nd    index region) dim0 [dim1] [dim2]
+         -b(egin  coordinate region) dim0 [dim1] [dim2]
+         -f(inish coordinate region) dim0 [dim1] [dim2]
 
 inits
 -----
 
-This is the initial conditions generator. See
-`this page? </wiki/Devel/UserGuide/RunningInits>`_ for more
-detailed information. Initial conditions with a single initial grid
-or multiple nested grids can be created with this executable.
-Output file names are user-specified, but in a standard cosmology
-simulation with a single initial grid there should be a file
-containing baryon density information, another containing baryon
-velocity information, and two more files containing particle
-position and velocity information. Simulations with multiple grids
-will have a set of these files for each level, appended with
-numbers to make them unique.
+This is the initial conditions generator. See :ref:`RunningInits` for more
+detailed information. Initial conditions with a single initial grid or multiple
+nested grids can be created with this executable.  Output file names are
+user-specified, but in a standard cosmology simulation with a single initial
+grid there should be a file containing baryon density information, another
+containing baryon velocity information, and two more files containing particle
+position and velocity information. Simulations with multiple grids will have a
+set of these files for each level, appended with numbers to make them unique.
 
 ::
 
@@ -89,32 +80,56 @@ ParallelParticleIO is set to 1. Running ring generates files called
 PPos.nnnn PVel.nnnn where nnnn goes from 0001 to the total number
 of processors that are used for the simulation. These files contain
 the particle position and velocity information for particles that
-belong to each processor ind style="text-align: right"> Sedov Blast
-(2D unigrid version)
-[browser:public/trunk/doc/examples/ShockPool2D.enzo
-ShockPool2D.enzo]
-2D Shock Propogation test
-[browser:public/trunk/doc/examples/ShockPool3D.enzo
-ShockPool3D.enzo]
-3D Shock Propogation test
-[browser:public/trunk/doc/examples/ShockTube.enzo ShockTube.enzo]
-ShockTube test (unigrid version)
-[browser:public/trunk/doc/examples/SphericalInfall.enzo
-SphericalInfall.enzo]
-Spherical Infall Test Problem
-[browser:public/trunk/doc/examples/StripTest.enzo StripTest.enzo]
-Stripping (Collapse) test
-[browser:public/trunk/doc/examples/WavePool.enzo WavePool.enzo]
-Wave Propogation test
-[browser:public/trunk/doc/examples/ZeldovichPancake.enzo
-ZeldovichPancake.enzo]
-Zeldovich Pancake (unigrid)
-Some of these test files include more detailed descriptions as
-header comments.
+belong to each processor individually, and will be read into the
+code instead of the monolithic particle position and velocity
+files. Note that if ParallelParticleIO is on and ring is NOT run,
+the simulation will crash.
 
-All Enzo test files are also included in the
-` lcatest <http://lca.ucsd.edu/projects/lcatest>`_ distribution.
-lcatest is a parallel software testing environment, also developed
-at LCA but distributed separately.
+::
+
+    usage:  ring [string] <particle position file> <particle velocity file>
+
+[string] can be one of the following: pv, pvm, pvt, or pvmt. p, v,
+m and t correspond to position, velocity, mass, and type,
+respectively. Odds are very good that you'll never use anything
+except for 'pv'. In that case, and if you use the default names for
+the particle position and velocity files, your usage will look
+like:
+
+::
+
+    ring pv ParticlePositions ParticleVelocities
+
+
+
+enzohop
+-------
+
+The second (and generally favored) method used for finding density peaks in an
+Enzo simulation. More information can be found here. A file called
+``HopAnalysis.out`` is output which contains halo position and mass
+information.
+
+::
+
+    enzohop [-b #] [-f #] [-t #] [-g] [-d] amr_file
+      -b)egin region
+      -f)inish region
+      -t)hreshold for hop (default 160)
+      -g)as particles also used (normally just dm)
+      -d)ebug
+
+anyl
+----
+
+anyl is the analysis package written in C, previously known as enzo\_anyl.
+Although the analysis toolkit for enzo that's being constantly updated is YT,
+anyl has its own value for some users. It creates radial, disk, vertical
+profiles for baryon (each species), dark matter, and star particles. Works with
+all amr formats including HDF4 and packed HDF5.
+
+::
+
+    usage: anyl.exe <amr file> <anyl parameter file>
 
 

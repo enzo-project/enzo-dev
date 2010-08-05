@@ -1,3 +1,5 @@
+.. _MakeOptions:
+
 The Enzo Makefile System
 ========================
 
@@ -19,13 +21,13 @@ Make.config.\*
 If you have a Make.mach.\* file for the particular machine you want
 to compile on, and you just want to compile Enzo with the default
 configuration, then compiling is straightforward. For example, to
-compile Enzo on SDSC's `DataStar? </wiki/DataStar>`_ platform:
+compile Enzo on NICS's Kraken platform:
 
 ::
 
        ./configure
        cd src/enzo
-       gmake machine-sdsc-datastar
+       gmake machine-nics-kraken
        gmake
 
 Note that gmake is required--standard make will generally not
@@ -75,9 +77,9 @@ only.
 The list of MACH\_ variables that can be set are listed below:
 
 MACH\_FILE
-    Name of the makefile, e.g. *Make.mach.sdsc-datastar*
+    Name of the makefile, e.g. *Make.mach.nics-kraken*
 MACH\_TEXT
-    Description of the platform, e.g. *SDSC Datastar*
+    Description of the platform, e.g. *NICS Kraken*
 MACH\_VALID
     Should be set to 1, though not currently accessed
 
@@ -215,7 +217,7 @@ External libraries
 ~~~~~~~~~~~~~~~~~~
 
 use-mpi-[yes\|no]
-    Set whether to use MPI. [REQUIRED FOR ENZO]
+    Set whether to use MPI.
 isolated-bcs-[yes\|no]
     Set whether to compile in isolated boundary conditions code
 tpvel-[yes\|no]
