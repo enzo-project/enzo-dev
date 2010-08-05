@@ -1501,7 +1501,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	} else {
 	  for (i = 0; i < NumberOfParticles; i++)
 	    ParticleNumber[i] = CurrentParticleNumber + i + Offset[0]; // Unique ID's calculated here!
-	  CurrentParticleNumber = TotalParticleCount; // set this so the calling routine knows the total number of particles on this level
+          printf("P(%d): CurrentParticleNumber = %d  Offset = %d\n", MyProcessorNumber, CurrentParticleNumber, Offset[0]);
+	  CurrentParticleNumber += TotalParticleCount; // set this so the calling routine knows the total number of particles on this level
 	}
       } else {
 	for (i = 0; i < NumberOfParticles; i++)

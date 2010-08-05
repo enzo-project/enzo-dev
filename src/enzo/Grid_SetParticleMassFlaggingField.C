@@ -103,7 +103,9 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
       /***********************************************************************/
       /* beginning of Cell flagging criterion routine                        */
- 
+      if(level >= MustRefineParticlesRefineToLevel ||
+	 CellFlaggingMethod[method] == 8 || 
+	 MustRefineParticlesCreateParticles != 1){
       switch (CellFlaggingMethod[method]) {
  
 	/* ==== METHOD 4: BY PARTICLE MASS ==== */
@@ -132,9 +134,10 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
       case 8:
  
 	if (level < MustRefineParticlesRefineToLevel) {
-	  NumberOfFlaggedCells = 
-	    this->DepositMustRefineParticles(ParticleMassMethod, level);
-	  //printf(" Level <  MustRefineParticlesRefineToLevel = %d   \n",MustRefineParticlesRefineToLevel );
+	  
+	    NumberOfFlaggedCells = 
+	      this->DepositMustRefineParticles(ParticleMassMethod, level);
+
 	  if (NumberOfFlaggedCells < 0) {
 	    ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
 	  }
@@ -148,6 +151,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	break;
   
       } // ENDSWITCH method
+ }
     } // ENDFOR methods
   
     /* End of Cell flagging criterion routine                              */

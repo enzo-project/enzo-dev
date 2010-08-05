@@ -76,7 +76,7 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
   for (i = 0; i < size; i++)
     if (FlaggingField[i] > 0)
       NumberOfFlaggedCells++;
-
+  
   return NumberOfFlaggedCells;
  
 }
