@@ -52,18 +52,16 @@ int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
 #endif
 
   if (changedGrid == INT_UNDEFINED) {
-    if (debug) {
-      fprintf(stdout, "DisableParticle: WARNING -- "
-	      "particle %"ISYM" not found...\n", this->Identifier);
+    if (debug)
       this->PrintInfo();
-    }
-  } else {
-    NumberOfStarParticles--;
-    NumberOfOtherParticles++;
+    ENZO_VFAIL("DisableParticle: WARNING -- "
+	       "particle %"ISYM" not found...\n", this->Identifier)
   }
 
   Grids[changedGrid]->GridData->NumberOfStars--;
-  G_TotalNumberOfStars--;
+//  G_TotalNumberOfStars--;
+//  NumberOfStarParticles--;
+//  NumberOfOtherParticles++;
 
   delete [] Grids;
 
