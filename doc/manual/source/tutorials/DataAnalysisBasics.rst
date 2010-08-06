@@ -11,34 +11,34 @@ HDF5 Tools
 ----------
 
 Enzo reads in initial conditions files and outputs simulation data using the
-` HDF 5 <http://www.hdfgroup.org>`_ structured data format (created and
+`HDF5 <http://www.hdfgroup.org>`_ structured data format (created and
 maintained by the NCSA HDF group). Though this format takes a bit more effort
 to code than pure C/C++ binary output, we find that the advantages are worth
-it. Unlike raw binary, HDF 5 is completely machine-portable and the HDF 5
+it. Unlike raw binary, HDF5 is completely machine-portable and the HDF5
 library takes care of error checking. There are many useful standalone
-utilities included in the HDF 5 package that allow a user to examine the
+utilities included in the HDF5 package that allow a user to examine the
 contents and structure of a dataset. In addition, there are several
-visualization and data analysis packages that are HDF 5-compatible. See the
+visualization and data analysis packages that are HDF5-compatible. See the
 page on Data Vizualization for more information about this. The NCSA HDF group
-has an excellent tutorial on working with HDF 5.
+has an excellent tutorial on working with HDF5.
 
 Note that as of the Enzo 2.0 code release, Enzo still supports reading the HDF4
 data format, but not writing to it. We strongly suggest that new users
-completely avoid this and use the HDF 5 version instead. Enzo's parallel IO
+completely avoid this and use the HDF5 version instead. Enzo's parallel IO
 only works with HDF5, and we are encouraging users migrate as soon as is
 feasible.
 
 Using YT to Analyze Data
 ------------------------
 
-If you have installed ` YT <http://yt.enzotools.org/>`_ along with
+If you have installed `YT <http://yt.enzotools.org/>`_ along with
 Enzo (as per the
 `build instructions? </wiki/UserGuide/BuildingEnzo#YT>`_), you
 should be able to use it to find halos, examine profiles, prepare
 plots and handle data directly via physically meaningful objects.
-` Documentation <http://yt.enzotools.org/doc/>`_, a
-` wiki <http://yt.enzotools.org/wiki>`_ and a
-` mailing list <http://lists.spacepope.org/listinfo.cgi/yt-users-spacepope.org>`_
+`Documentation <http://yt.enzotools.org/doc/>`_, a
+`wiki <http://yt.enzotools.org/wiki>`_ and a
+`mailing list <http://lists.spacepope.org/listinfo.cgi/yt-users-spacepope.org>`_
 are available for support and assistance with installation and
 usage.
 
@@ -46,10 +46,10 @@ Analysis with VisIt
 -------------------
 
 Another tool that has a native reader for Enzo data is
-` VisIt <https://wci.llnl.gov/codes/visit/>`_, a parallel VTK-based
+`VisIt <https://wci.llnl.gov/codes/visit/>`_, a parallel VTK-based
 visualization and analysis tool.
 
-From the ` VisIt Users website <http://visitusers.org/>`_:
+From the `VisIt Users website <http://visitusers.org/>`_:
 
     VisIt is a free interactive parallel visualization and graphical
     analysis tool for viewing scientific data on Unix and PC platforms.
@@ -145,22 +145,22 @@ grid that looks something like this:
     GravityBoundaryType = 2
     Pointer: Grid[26]->NextGridThisLevel = 27
 
-GridRank gives the dimensionality of the grid (this one is 3D),
-GridDimension gives the grid size in grid cells, including ghost
-zones. GridStartIndex and GridEndIndex give the starting and ending
+``GridRank`` gives the dimensionality of the grid (this one is 3D),
+``GridDimension`` gives the grid size in grid cells, including ghost
+zones. ``GridStartIndex`` and ``GridEndIndex`` give the starting and ending
 indices of the non-ghost zone cells, respectively. The total size
 of the baryon datasets in each grid along dimension i is (1+
-GridEndIndex[i] - GridStartIndex[i]). GridLeftEdge and
-GridRightEdge give the physical edges of the grids (without ghost
-zones) in each dimension. NumberOfParticles gives the number of
+``GridEndIndex[i]`` - ``GridStartIndex[i]``). ``GridLeftEdge`` and
+``GridRightEdge`` give the physical edges of the grids (without ghost
+zones) in each dimension. ``NumberOfParticles`` gives the number of
 dark matter particles (and/or star particles, for simulations
 containing star particles) in a given grid. Note that when there
 are multiple grids covering a given region of space at various
 levels of resolution, particles are stored in the most highly
-refined grid. BaryonFileName is the name of the actual grid file,
-and should be the same as ParticleFileName. Time is the simulation
-time, and should be the same as InitialTime in the parameter file
-for the same data dump.}}} The other parameters for each entry are
+refined grid. ``BaryonFileName`` is the name of the actual grid file,
+and should be the same as ``ParticleFileName``. ``Time`` is the simulation
+time, and should be the same as ``InitialTime`` in the parameter file
+for the same data dump. The other parameters for each entry are
 more advanced and probably not relevant for simple data analysis.
 
 Possibly the greatest source of potential confusion in Enzo's
@@ -191,40 +191,47 @@ some subtleties:
 **Density fields**
     All density fields are in the units described in the amr guide
     **except** electron density. Electron density is only output when
-    MultiSpecies is turned on, and in order to convert the electron
+    ``MultiSpecies`` is turned on, and in order to convert the electron
     density to cgs it must be multiplied by the code density conversion
-    factor and then (m\_e/m\_p), where m\_e and m\_p are the electron
+    factor and then (m\:sub:`e`\/m\:sub:`p`\), where
+    m\:sub:`e`\ and m\:sub:`p`\ are the electron
     and proton rest masses (making electron density units different
-    from the other fields by a factor of m\_e/m\_p). The reason this is
+    from the other fields by a factor of m\:sub:`e`\/m\:sub:`p`\).
+    The reason this is
     done is so that in the code the electron density can be computed
     directly from the abundances of the ionized species.
 **Energy fields**
     There are two possible energy fields that appear in the code - Gas
     energy and total energy. Both are in units of **specific energy**,
     ie, energy per unit mass. When Zeus hydro is being used
-    (HydroMethod = 2, there should be only one energy field - "total
+    (``HydroMethod`` = 2, there should be only one energy field - "total
     energy". This is a misnomer - the Zeus hydro method only follows
     the specific internal (ie, thermal) energy of the gas explicitly.
     When the total energy is needed, it is calculated from the
-    velocities. When PPM is used (HydroMethod = 0) the number of energy
-    fields depends on whether or not DualEnergyFormalism is turned on
+    velocities. When PPM is used (``HydroMethod`` = 0) the number of energy
+    fields depends on whether or not ``DualEnergyFormalism`` is turned on
     or off. If it is ON (1), there is a "gas energy" field and a "total
     energy" field, where "gas energy" is the specific internal energy
     and "total energy" is "gas energy" plus the specific kinetic energy
-    of the gas in that cell. If DualEnergyFormalism is OFF (0), there
+    of the gas in that cell. If ``DualEnergyFormalism`` is OFF (0), there
     should only be "total energy", which is kinetic+internal specific
     energies. Confused yet?
 **Particle mass field**
     Particle "masses" are actually stored as densities. This is to
     facilitate calculation of the gravitational potential. The net
     result of this is that, in order to calculate the stored particle
-    "mass" to a physical mass, you must first multiply by the volume of
-    a cell on thehe simulation is done, Enzo will display the message
-    "Successful run, exiting."
-    Enzo is a complicated code, with a similarly complicated output
-    format. See the Enzo User Guide page on
-    `the Enzo output format? </wiki/UserGuide/EnzoOutputFormat>`_ for
-    more information on the data outputs.
+    "mass" to a physical mass, you must first multiply this field by the volume of
+    a cell in which the particle resides.
+    Remember that particle data is only stored in the most refined grid that
+    covers that portion of the simulational volume.
+    
+    
+When the simulation is done, Enzo will display the message
+"Successful run, exiting."
+Enzo is a complicated code, with a similarly complicated output
+format. See the Enzo User Guide page on
+`the Enzo output format? </wiki/UserGuide/EnzoOutputFormat>`_ for
+more information on the data outputs.
 
 Congratulations! If you've made it this far, you have now
 successfully run a simulation using Enzo!
@@ -233,9 +240,9 @@ Example Data and Analysis
 -------------------------
 
 The sample data generated by this simulation is
-` available online <http://lca.ucsd.edu/software/enzo/data/cookbook/>`_.
+`available online <http://lca.ucsd.edu/software/enzo/data/cookbook/>`_.
 You can use it as sample data for the the
-` YT tutorial <http://yt.enzotools.org/doc/tutorial/>`_.
+`YT tutorial <http://yt.enzotools.org/doc/tutorial/>`_.
 
 
 

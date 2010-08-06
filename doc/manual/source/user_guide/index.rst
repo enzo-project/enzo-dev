@@ -29,7 +29,7 @@ time largely driven by the `Laboratory for Computational Astrophysics
 developers from Stanford, Columbia, Princeton, UCSD, University of Colorado,
 Michigan State, UC Berkeley, and many other universities.  Your input in
 improving both the code and the User's Guide is appreciated -- developement of
-thecode is driven by working researchers, and we encourage everyone who has
+the code is driven by working researchers, and we encourage everyone who has
 made useful changes to contribute those changes back to the community and to
 participate in the collaborative development of the code.   Email inquiries and
 comments should be directed to the `Enzo Users' List

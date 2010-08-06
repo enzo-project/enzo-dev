@@ -9,7 +9,7 @@ Adaptive Mesh Refinement data, specifically as output from Enzo. YT
 is completely free and open source, with an active and expanding
 development community, and it presents to the user both high-level
 and low-level APIs. The
-` documentation <http://yt.enzotools.org/doc/>`_ contains a
+`documentation <http://yt.enzotools.org/doc/>`_ contains a
 tutorial as well as an API reference, but here we will step through
 some simple steps toward creating script to make simple plots of a
 cosmological simulation.
@@ -17,7 +17,7 @@ cosmological simulation.
 This brief tutorial presupposes that you have run the installation script
 (See :ref:`installation`) and are comfortable launching python.  (The install
 script will tell you how!) It's also encouraged to launch the special
-YT-enhanced ` IPython <http://ipython.scipy.org/>`_ shell via the command
+YT-enhanced `IPython <http://ipython.scipy.org/>`_ shell via the command
 ``iyt``, which (thanks to IPython!) features filesystem navigation and tab
 completion, along with interactive plotting capabilities.
 
@@ -39,9 +39,9 @@ the maximum density location, with a width of 100 kpc.
    pc.set_width(100.0,'kpc')
    pc.save("z35_100kpc")
 
-If you put this into a file called my\_script.py, you can execute
-it with python2.5 my\_script.py and it will save out a set of
-images prefixed with z35\_100kpc in PNG format.
+If you put this into a file called ``my\_script.py``, you can execute
+it with ``python2.5 my\_script.py`` and it will save out a set of
+images prefixed with ``z35\_100kpc`` in PNG format.
 
 Making Simple Radial Profiles
 -----------------------------

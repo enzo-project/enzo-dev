@@ -1,10 +1,6 @@
 Simulation Names and Identifiers
 ================================
 
-(Note: As of r2990, this applies to [browser:devel/trunk
-devel/trunk]. It can be moved to [browser:public/trunk
-public/trunk] whenever.)
-
 To help track and identify simulations and datasets, a few new
 lines have been added to the parameter file:
 
@@ -44,9 +40,9 @@ Example:
 MetaDataSimulationUUID
 ----------------------
 
-The MetaDataSimulationUUID is a globally unique identifier for a
+The ``MetaDataSimulationUUID`` is a globally unique identifier for a
 collection of datasets.
-` Universally Unique Identifiers <http://en.wikipedia.org/wiki/Universally_Unique_Identifier>`_
+`Universally Unique Identifiers <http://en.wikipedia.org/wiki/Universally_Unique_Identifier>`_
 (UUIDs) are opaque identifiers using random 128-bit numbers, with
 an extremely low chance of collision. Therefore, they are very
 useful when trying to label data coming from multiple remote
@@ -58,11 +54,11 @@ Example:
 
     MetaDataSimulationUUID             = e5f72b77-5258-45ba-a376-ffe11907fae1
 
-Like the MetaDataIdentifier, the MetaDataSimulationUUID is read in
+Like the ``MetaDataIdentifier``, the ``MetaDataSimulationUUID`` is read in
 at the beginning of a run, and then re-written with each output.
 However, if one is not found initially, a new one will be
 generated, using code from the
-` ooid library <http://sourceforge.net/projects/ooid/>`_ included
+`ooid library <http://sourceforge.net/projects/ooid/>`_ included
 in Enzo.
 
 If you want to define one up front, there are several ways. The
@@ -87,7 +83,7 @@ Some examples:
 MetaDataDatasetUUID
 -------------------
 
-A MetaDataDatasetUUID is created at each output.
+A ``MetaDataDatasetUUID`` is created at each output.
 
 Example:
 
@@ -98,8 +94,8 @@ Example:
 MetaDataRestartDatasetUUID
 --------------------------
 
-While reading the parameter file, if a MetaDataDatasetUUID line is
-found, it is stored, and re-written as MetaDataRestartDatasetUUID.
+While reading the parameter file, if a ``MetaDataDatasetUUID`` line is
+found, it is stored, and re-written as ``MetaDataRestartDatasetUUID``.
 The intention of this is help track datasets across restarts and
 parameter tweaks.
 
