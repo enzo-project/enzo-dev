@@ -408,9 +408,13 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
           group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     // Read ParticleType if present
+
+    H5E_BEGIN_TRY{
+      dset_id = H5Dopen(group_id, "particle_type");
+    }H5E_END_TRY
  
-    if (ParticleTypeInFile == TRUE) {
- 
+    if (ParticleTypeInFile == TRUE && dset_id != h5_error) {
+
       /* Read ParticleType into temporary buffer and Copy to ParticleType. */
       this->read_dataset(1, TempIntArray, "particle_type",
             group_id, HDF5_INT, (VOIDP) ParticleType, FALSE);
