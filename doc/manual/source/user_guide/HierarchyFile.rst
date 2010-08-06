@@ -35,8 +35,8 @@ complicated and will be discussed below.
 
     Grid = 1
 
-        This is the ID of the grid. Enzo grids are indexed-by-one
-        internall.
+        This is the ID of the grid. Enzo grids are indexed internally
+        starting at 1.
 
 
     GridRank = 3
@@ -131,7 +131,7 @@ complicated and will be discussed below.
     ParticleFileName =
     /scratch/username/RD0005/RedshiftOutput0005.cpu0000
 
-        The HDF5 file in which the baryons fields are stored.
+        The HDF5 file in which the baryon fields and particle data are stored.
 
 
     GravityBoundaryType = 0

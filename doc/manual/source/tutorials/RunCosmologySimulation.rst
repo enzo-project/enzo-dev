@@ -15,8 +15,8 @@ Creating initial conditions
 
 The first step in preparing the simulation is to create the initial
 conditions. The file inits uses is a text file which contains a
-list of parameter file names with their associated values. These
-values tell the initial conditions generator useful information
+list of parameters with their associated values. These
+values tell the initial conditions generator necessary information
 like the simulation box size, the cosmological parameters and the
 size of the root grid. The code then takes that information and
 creates a set of initial conditions. Here is an example inits
@@ -70,13 +70,15 @@ file:
 
 inits is run by typing this command:
 
-% ./inits.exe -d Example\_Cosmology\_Sim.inits
+::
+
+    ./inits.exe -d Example_Cosmology_Sim.inits
 
 inits will produce some output to the screen to tell you what it is
-doing, and will write five files: GridDensity, GridVelocities,
-ParticlePositions, ParticleVelocities and PowerSpectrum.out. The
+doing, and will write five files: ``GridDensity``, ``GridVelocities``,
+``ParticlePositions``, ``ParticleVelocities`` and ``PowerSpectrum.out``. The
 first four files contain information on initial conditions for the
-baryon and dark matter componenets of the simulation, and are HDF 5
+baryon and dark matter componenets of the simulation, and are HDF5
 files. The last file is an ascii file which contains information on
 the power spectrum used to generate the initial conditions.
 
@@ -120,34 +122,35 @@ each processor to perform its own IO, which greatly decreases the
 amount of time the code spends performing IO.
 
 The process for parallelizing grid and particle information is
-quite different. Since we know exactly where every grid cell in a
+quite different. Since it is known exactly where every grid cell in a
 structured Eulerian grid is in space, and these cells are stored in
 a regular and predictable order in the initial conditions files,
-turning on !ParallelRootGridIO simply tells each processor to
+turning on ``ParallelRootGridIO`` simply tells each processor to
 figure out which portions of the arrays in the GridDensity and
-GridVelocities belong to it, and then read in only that part of the
-file. The particle files (ParticlePositions and ParticleVelocities)
-store the particle information in no particular order, so in order
+``GridVelocities`` belong to it, and then read in only that part of the
+file. The particle files (``ParticlePositions`` and ``ParticleVelocities``)
+store the particle information in no particular order.
+In order
 to efficiently parallelize the particle IO the ring tool is used.
 ring is run on the same number of processors as the simulation that
-you intend to run, and can be used right before the simulation
-itself is run. In ring, each processor reads in an equal fraction
+you intend to run, and is typically run just before enzo is called for this reason.
+In ring, each processor reads in an equal fraction
 of the particle position and velocity information into a list,
 flags the particles that belong in its simulation spatial domain,
 and then passes its portion of the total list on to another
 processor. After each portion of the list has made its way to every
 processor, each processor then collects all of the particle and
 velocity information that belongs to it and writes them out into
-files called PPos.nnnn and PVel.nnnn, where nnnn is the processor
-number. Turning on the ParallelParticleIO flag in the Enzo
+files called ``PPos.nnnn`` and ``PVel.nnnn``, where nnnn is the processor
+number. Turning on the ``ParallelParticleIO`` flag in the Enzo
 parameter file instructs Enzo to look for these files.
 
 There are lots more details on
 `this page? </wiki/Tutorials/HowDoesParallelRootGridIOwork>`_.
 
 For the purpose of this example, you're going to run ring and Enzo
-on 4 processors (they ALWAYS have to be run on the same number of
-processors). The number of processors used in an MPI job is set
+on 4 processors (this is a fixed requirement).
+The number of processors used in an MPI job is set
 differently on each machine, so you'll have to figure out how that
 works for you. On some machines, you can request an 'interactive
 queue' to run small MPI jobs. On others, you may have to submit a
@@ -155,19 +158,23 @@ job to the batch queue, and wait for it to run.
 
 To start an interactive run, it might look something like this:
 
-% qsub -I -V -l walltime=00:30:00,size=4
+::
 
-This tells the machine that you want four processors total for a
+    qsub -I -V -l walltime=00:30:00,size=4
+
+This tells the queuing system that you want four processors total for a
 half hour of wall clock time. You may have to wait a bit until
 nodes become available, and then you will probably start out back
 in your home directory. You then run ring on the particle files by
 typing something like this:
 
-% mpirun -n 4 ./ring.exe pv ParticlePositions ParticleVelocities
+::
+
+    mpirun -n 4 ./ring.exe pv ParticlePositions ParticleVelocities
 
 This will then produce some output to your screen, and will
-generate 8 files: PPos.0000 through PPos.0003 and PVel.0000 through
-PVel.0003. Note that the 'mpirun' command may actually be 'aprun'
+generate 8 files: ``PPos.0000`` through ``PPos.0003`` and ``PVel.0000`` through
+``PVel.0003``. Note that the 'mpirun' command may actually be 'aprun'
 or something similar. Consult your supercomputer's documentation to
 figure out what this command should really be.
 
@@ -274,11 +281,12 @@ Here is an example compatible with the inits file above:
 
 Once you've saved this, you start enzo by typing:
 
-% mpirun -n 4 ./enzo.exe -d Example\_Cosmology\_Sim.param >
-output.log
+::
+
+    mpirun -n 4 ./enzo.exe -d Example_Cosmology_Sim.param >& output.log
 
 The simulation will now run. The -d flag ensures a great deal of
-output, so you may redirect it into a log file called output.log
+output, so you may redirect it into a log file called ``output.log``
 for later examination. This particular simulation shouldn't take
 too long, so you can run this in the same 30 minute interactive job
 you started when you ran inits. When the simulation is done, enzo

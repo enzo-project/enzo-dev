@@ -3,8 +3,7 @@ Embedded Python
 
 Python can now be embedded inside enzo, for inline analysis as well
 as interaction. This comes with several shortcomings, but some
-compelling strong points. This page will serve as a starting point
-for documentation.
+compelling strong points.
 
 How To Compile
 --------------
@@ -22,7 +21,7 @@ or to turn it off,
 
     make python-no
 
-This will look for the following variables:
+This will look for the following variables in the machine-specific Makefile:
 
 ::
 
@@ -38,34 +37,34 @@ How it Works
 On enzo startup, the Python interface will be initialized. This
 constitutes the creation of an interpreter within the memory-space
 of each enzo process, as well as import and construct the
-` NumPy <http://numpy.scipy.org/>`_ function table. Several
+`NumPy <http://numpy.scipy.org/>`_ function table. Several
 enzo-global data objects for storing grid parameters and simulation
 parameters will be initialized and the enzo module will be created
 and filled with those data objects.
 
 Once the Python interface and interpreter have finished
 initializing, the module user\_script will be imported -- typically
-this means that a script named user\_script.py in the current
+this means that a script named ``user\_script.py`` in the current
 directory will be imported, but it will search the entire import
-path as well. Every PythonSubcycleSkip subcycles, at the bottom of
-the hierarchy in EvolveLevel the entire grid hierarchy and the
+path as well. Every ``PythonSubcycleSkip`` subcycles, at the bottom of
+the hierarchy in ``EvolveLevel.C`` the entire grid hierarchy and the
 current set of parameters will be exported to the enzo module and
 then user\_script.main() will be called.
 
 How to Run
 ----------
 
-By constructing a script inside user\_script.py, the enzo hierarchy
+By constructing a script inside ``user\_script.py``, the enzo hierarchy
 can be accessed and modified. The analysis toolkit
-` yt <http://yt.enzotools.org/>`_ has functionality that can
+`yt <http://yt.enzotools.org/>`_ has functionality that can
 abstract much of the data-access and handling. Currently several
 different plotting methods -- profiles, phase plots, slices and
 cutting planes -- along with all derived quantities can be accessed
-and calculated. Projections cannot yet be made, nor can halos be
-identified and located. The following script is an example of a
+and calculated. Projections cannot yet be made, but halo finding
+can be performed with Parallel HOP only. The following script is an example of a
 script that will save a slice as well as print some information
 about the simulation. Note that, other than the instantiation of
-lagos.EnzoStaticOutputInMemory, this script is identical to one
+``lagos.EnzoStaticOutputInMemory``, this script is identical to one
 that would be run on an output located on disk.
 
 Recipes and convenience functions are being created to make every

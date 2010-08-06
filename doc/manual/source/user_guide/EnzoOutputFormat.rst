@@ -28,8 +28,7 @@ Summary of Files
 **base\_name0000.hierarchy**
     This ascii file specifies the hierarchy structure as well as the
     names of the grid files, their sizes, and what they contain. It
-    should not be modified and was not intended for general human
-    consumption.
+    should not be modified.
 **base\_name0000.cpu00001**
     The field information for each cpu (padded with zeros) is contained
     in separate files with a root 'Node' for each grid, padded with
@@ -37,7 +36,7 @@ Summary of Files
     (HDF) version 5, a self-describing machine-independent data format
     developed and supported by the National Center for Supercomputing
     Applications (NCSA). More information can be found on their
-    ` home page <http://www.hdfgroup.org>`_. Most scientific
+    `home page <http://www.hdfgroup.org>`_. Most scientific
     visualization packages support this format. Each field is stored as
     it's own one-, two- or three-dimensional Scientific Data Set (SDS),
     and is named for identification. Particles (if any) are included
@@ -72,7 +71,7 @@ km/s/Mpc)\ :sup:`2`\ /(8\*Pi\*G)).
    independent)
 
 The conversion factor is also given in the ascii output file
-(base\_name0000): search for DataCGSConversionFactor. Each field
+(base\_name0000): search for ``DataCGSConversionFactor``. Each field
 has its own conversation factor, which converts that field to cgs
 units. Users can also set completely arbitrary internal units, as
 long as they are self-consistent: to see how to do this, go to
@@ -100,8 +99,7 @@ Method
 ~~~~~~
 
 We keep track of the elapsed timesteps on every AMR level.
-Every N-th timestep on a particular level L, all grids on levels >=
-L
+Every N-th timestep on a particular level L, all grids on levels >= L
 are written for the baryon fields (specified by the user in
 `MovieDataField? </wiki/MovieDataField>`_) and particles. The
 integers in `MovieDataField? </wiki/MovieDataField>`_
@@ -110,8 +108,7 @@ correspond to the field element in
 HII density. Temperature has a special value of 1000.
 
 See the parameter index for a full description of the streaming
-data
-format parameters.
+data format parameters.
 
 File format
 ~~~~~~~~~~~
@@ -147,8 +144,7 @@ grid has the following attributes:
 -  Grid origin in units of cell widths [3 x long long]
 
 In addition to the HDF5 files, a binary index file is created for
-fast
-I/O in post-processing. The filenames of the these files are the
+fast I/O in post-processing. The filenames of the these files are the
 same as the main data files but with the extension .idx. The header
 consists of
 

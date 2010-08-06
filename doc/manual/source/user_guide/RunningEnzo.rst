@@ -14,9 +14,9 @@ The syntax of the mpirun varies between mpi implementations. The
 example given here comes from a machine using a standard MPI
 implementation that is initiated by the 'mpirun' command, and
 implies the use of a single processors (the argument after the -np
-flag indicates the number of processors.
+flag indicates the number of processors).
 
-Once again, the -d flag triggers a debug option that produces a substantial
+The -d flag triggers a debug option that produces a substantial
 amount of output. See :ref:`Tutorials` for more detailed information on running
 simulations. You may also need to use ring (see
 :ref:`ExecutablesArgumentsOptions`) if you are using parallel I/O.
@@ -25,9 +25,9 @@ Restarting
 ----------
 
 During a run, there are a number of forms of output. The largest
-will probably be the output of the grid hierarchy as specified by
-parameters such as dtDataDump and the CosmologyOutputRedshift. Such
-outputs contain a number of different files (sometimes many files
+will probably be the output of the full dataset as specified by
+parameters such as ``dtDataDump`` and the ``CosmologyOutputRedshift``.
+Such outputs contain a number of different files (sometimes many files
 if there are a large number of grids) and are explained elsewhere.
 It is useful to have a fairly large number of such outputs if the
 run is a long one, both to provide more information to analyze, but
@@ -50,7 +50,7 @@ general information about the entire run. Within these six numbers,
 the first is the maximum level currently in use, the second is the
 number of grids, the third is a number proportional to the memory
 used, the fourth is the mean axis ratio of all grids, and the last
-two are reserved for future use. Then, there will be three spaces,
+two are reserved for future use. Then, there are three spaces,
 and another group of numbers, all providing information about the
 first (top grid) level. This pattern of three spaces and six
 numbers is repeated for every level. The information for each level
@@ -71,20 +71,17 @@ Debugging information
 ---------------------
 
 It is often useful to run with the debug flag turned on,
-particularly if the code is crashing for unknown reasons (which
-never happens of course). However, the amount of output is quite
+particularly if the code is crashing for unknown reasons.
+However, the amount of output is quite
 large so it is useful to redirect this to a log file, such as:
 
 ::
 
-    mpirun -np 1 enzo -d -r output_name > log_file
+    mpirun -np 1 enzo -d -r output_name >& log_file
 
 Some modules (the cooling unit is particularly bad for this),
 produce their own debugging logs in the form of fort.?? files.
-These can be ignored unless problems occur. We hould probably
-stress again that this code is not guaranteed to bug-free and is
-offered without any assurances or warranties, implied or
-otherwise.
+These can be ignored unless problems occur.
 
 Test Problems
 -------------
@@ -105,12 +102,11 @@ command-line:
 The syntax of the mpirun various from mpi implementation. The
 example given here comes from the Origin2000 and implies a single
 processor (the argument after the -np flag indicates the number of
-processors.
+processors).
 
 The parameter test\_name corresponds to the parameter file that
 specifies the type of test and the test particulars. This file is
-ascii, and can be edited. A complete
-
+ascii, and can be edited.
 It consists of a series of lines (and optional comments) each of
 which specifies the value of one parameter. The parameters are
 discussed in more detail in :ref:`EnzoParameters`.
