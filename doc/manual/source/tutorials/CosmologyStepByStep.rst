@@ -8,9 +8,9 @@ only assumption is that the computer that you are installing Enzo on meets the
 you have GNU Make installed.
 
 This page shows actual inputs and outputs from an Enzo installation performed
-on ` SDSC's DataStar <http://www.sdsc.edu/us/resources/datastar/>`_ on one of
+on `SDSC's DataStar <http://www.sdsc.edu/us/resources/datastar/>`_ on one of
 its final days. Though we show inputs from this machine, they should be
-generally applicable to your machine of choice, as long as it runs a ` POSIX
+generally applicable to your machine of choice, as long as it runs a `POSIX
 <http://en.wikipedia.org/wiki/POSIX>`_ operating system. We have successfully
 compiled and run Enzo on Sun, SGI, IBM, Compaq, Hewlett-Packard and Cray
 machines, as well as Apple computers running OS X and a wide variety of
@@ -145,13 +145,13 @@ Running an Enzo Cosmology Simulation
 After compiling, you should create a directory to run the
 simulation in. This is because Enzo cosmology simulations create
 quite a few output files, so it's best to store them in their own
-directory. For the purposes of this example I'm going to assume
-that you have created a directory called EnzoTestSim in your home
+directory. For the purposes of this example we assume
+that you have created a directory called ``EnzoTestSim`` in your home
 directory. You should then download a set of sample parameter
 files. The example set used for this tutorial are
-` available here <http://lca.ucsd.edu/software/enzo/data/cookbook/>`_.
-Download the files called Example\_Cosmology\_Sim.inits and
-Example\_Cosmology\_Sim.param, which are the inits and enzo
+`available here <http://lca.ucsd.edu/software/enzo/data/cookbook/>`_.
+Download the files called ``Example\_Cosmology\_Sim.inits`` and
+``Example\_Cosmology\_Sim.param``, which are the inits and enzo
 parameter files, respectively. This tutorial assumes that you have
 downloaded these two files and put them on whatever computer you
 are using to perform your simulation.
@@ -160,12 +160,12 @@ Creating Initial Conditions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first step in preparing the simulation is to create the initial
-conditions. The file Example\_Cosmology\_Sim.inits is a text file
+conditions. The file ``Example\_Cosmology\_Sim.inits`` is a text file
 that contains a list of parameter file names with their associated
-values. These values tell the initial conditions generator useful
+values. These values tell the initial conditions generator necessary
 information like the simulation box size, the cosmological
 parameters and the size of the root grid. The code then takes that
-information and creates a set of initial conditions. {{inits}}} is
+information and creates a set of initial conditions. ``inits`` is
 run by typing this command:
 
 ::
@@ -176,18 +176,17 @@ run by typing this command:
     Reading parameter file
     ...
     successful completion.
-    cable:~/tmp/ExampleCosmologySimulation rpwagner$ ls
+    ds100 $ ls
     Example_Cosmology_Sim.inits ParticlePositions
     Example_Cosmology_Sim.param ParticleVelocities
     GridDensity                 PowerSpectrum.out
     GridVelocities
-    cable:~/tmp/ExampleCosmologySimulation rpwagner$ 
 
 inits will produce some output to the screen to tell you what it is
-doing, and will write five files: GridDensity, GridVelocities,
-ParticlePositions, ParticleVelocities and PowerSpectrum.out. The
+doing, and will write five files: ``GridDensity``, ``GridVelocities``,
+``ParticlePositions``, ``ParticleVelocities`` and ``PowerSpectrum.out``. The
 first four files contain information on initial conditions for the
-baryon and dark matter componenets of the simulation, and are HDF 5
+baryon and dark matter componenets of the simulation, and are HDF5
 files (formatted binary files). The last file is an ASCII file that
 contains information on the power spectrum used to generate the
 initial conditions.
@@ -210,10 +209,8 @@ Enzo parameter file:
     ParallelRootGridIO = 1
     ParallelParticleIO = 1
 
-    These two parameters turn on parallel IO for both grids and
-    particles. In a serial IO simulation where multiple
-
-
+These two parameters turn on parallel IO for both grids and
+particles. In a serial IO simulation where multiple
 processors are being used, the master processor reads
 in all of the grid and particle initial condition information and
 parcels out portions of the data to the other processors.
@@ -226,10 +223,8 @@ Turning on the parallel IO options allows each processor
 to perform its own IO, which greatly decreases the amount of time
 the code spends performing IO.
 
-    The process for parallelizing grid and particle information is
-    quite different. Since we know exactly where every
-
-
+The process for parallelizing grid and particle information is
+quite different. Since we know exactly where every
 grid cell in a structured Eulerian grid is in space, and these
 cells are stored in a regular and predictable order
 in the initial conditions files, turning on ParallelRootGridIO

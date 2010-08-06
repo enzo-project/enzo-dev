@@ -1,7 +1,9 @@
 Controlling Enzo data output
 ============================
 
-There are 5 timing methods, 2 output formats, two pitfalls when
+How and when Enzo outputs data is described below.
+There are five ways to control when data is output,
+two output formats, and two pitfalls when
 determining how to output data from your Enzo simulation.
 
 Data Formats and Files
@@ -50,7 +52,7 @@ description of them.
 Packed AMR
 ~~~~~~~~~~
 
-This is the default. Each processor outputs all the grids it owns.
+This is the default output format. Each processor outputs all the grids it owns.
 This is done to avoid the hassle that comes with a 500,000 grid,
 512 processor AMR sim. 512 files are much easier to deal with than
 500,000

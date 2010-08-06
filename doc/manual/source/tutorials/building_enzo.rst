@@ -27,11 +27,11 @@ Subversion Check Out Instructions
 ---------------------------------
 
 The latest public version of Enzo is available for anonymous
-checkout using ` Subversion <http://subversion.tigris.org/>`_. This
+checkout using `Subversion <http://subversion.tigris.org/>`_. This
 is where bug fixes and new features will appear between releases.
 
 You also browse the source tree, either through the
-` default Subversion HTTP interface <http://mngrid.ucsd.edu/svn/Enzo/public>`_,
+`default Subversion HTTP interface <http://mngrid.ucsd.edu/svn/Enzo/public>`_,
 or the nicer [browser:public Trac browser].
 
 *A hint*: Before you try to build Enzo, you might want to make sure
@@ -42,11 +42,11 @@ Subversion Clients
 ++++++++++++++++++
 
 To check out a local copy of the Enzo source, you need a
-` Subversion <http://subversion.tigris.org/>`_ client. These are
+`Subversion <http://subversion.tigris.org/>`_ client. These are
 available as part of all recent Linux distributions; for other
 operating systems (OS X, AIX, etc.), binaries are available
 (there's a list of third-party clients on the
-` Subversion front page <http://subversion.tigris.org/>`_), or the
+`Subversion front page <http://subversion.tigris.org/>`_), or the
 client can be built from source. GUI clients are available, but
 these instructions assume you're using a command line client.
 
@@ -66,10 +66,10 @@ Getting a Copy
 ++++++++++++++
 
 FYI: Checking out Enzo will also get you a copy
-` YT <http://yt.enzotools.org/>`_, the
-` Python <http://www.python.org>`_ based analysis toolkit. Check
-the ` YT website <http://yt.enzotools.org/>`_ for instructions on
-compiling and using ` YT <http://yt.enzotools.org/>`_.
+`YT <http://yt.enzotools.org/>`_, the
+`Python <http://www.python.org>`_ based analysis toolkit. Check
+the `YT website <http://yt.enzotools.org/>`_ for instructions on
+compiling and using `YT <http://yt.enzotools.org/>`_.
 
 Once you have the client, you can use it *checkout* a local copy.
 
@@ -181,9 +181,7 @@ machines. This means we can provide configurations files for most
 of the major NSF resources, and examples for many of the one-off
 (clusters, laptops, etc.).
 
-These machine-specific configuration files are named:
-Make.mach.machinename. For this example, I'm working on my laptop,
-which is still suitable for small test problems.
+These machine-specific configuration files are named ``Make.mach.machinename``.
 
 ::
 
@@ -196,8 +194,8 @@ which is still suitable for small test problems.
     Make.mach.sunnyvale       Make.mach.triton-intel
     ~/enzo/src/enzo $ 
 
-We will select the makefile ``Make.mach.darwin``, as I'm running on an OSX
-laptop.
+In this example, we choose ``Make.mach.darwin``, which is appropriate for Mac
+OS X machines.
 
 Porting
 +++++++
@@ -217,7 +215,7 @@ to run Enzo on. The basic steps are as follows:
 
 If you expect that you will have multiple checkouts of the enzo source code,
 you should feel free to create the directory $HOME/.enzo/ and place your custom
-makefiles there, as Enzo's build system will use any machine name-matching
+makefiles there, and Enzo's build system will use any machine name-matching
 Makefile in that directory to provide or override Make settings.
 
 Make sure you save your configuration file! If you're on a big system (multiple
@@ -264,7 +262,7 @@ use it:
     ~/enzo/src/enzo $ 
 
 You may also to know the settings (precision, etc.) that's being
-use. You can find this out using make show-config. For a detailed
+use. You can find this out using ``make show-config``. For a detailed
 explanation of what these mean, see :ref:`MakeOptions`.
 
 ::
@@ -321,7 +319,7 @@ The default build target is the main executable, enzo.
     pdating DEPEND
     Compiling enzo.C
     Compiling acml_st1.src
-    ...
+    ... (skipping) ...
     Compiling Zeus_zTransport.C
     Linking
     Success!

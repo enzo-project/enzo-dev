@@ -4,8 +4,8 @@ Executables, Arguments, and Outputs
 ===================================
 
 This page is a summary of all of the binaries that are created
-after make; make install is run in the Enzo code bundle. They
-should be located in the bin/ directory. Links to the various pages
+after ``make; make install`` is run in the Enzo code bundle. They
+should be located in the ``bin`` directory. Links to the various pages
 of the manual that describe a particular binary are also included.
 
 enzo
@@ -75,14 +75,14 @@ ring
 ----
 
 ring must be run on the simulation particle position and velocity
-information before a simulation is executed when the parameter
-ParallelParticleIO is set to 1. Running ring generates files called
+information before a simulation is executed when the Enzo runtime parameter
+``ParallelParticleIO`` is set to 1. Running ring generates files called
 PPos.nnnn PVel.nnnn where nnnn goes from 0001 to the total number
 of processors that are used for the simulation. These files contain
 the particle position and velocity information for particles that
 belong to each processor individually, and will be read into the
 code instead of the monolithic particle position and velocity
-files. Note that if ParallelParticleIO is on and ring is NOT run,
+files. Note that if ``ParallelParticleIO`` is on and ring is NOT run,
 the simulation will crash.
 
 ::
@@ -91,8 +91,8 @@ the simulation will crash.
 
 [string] can be one of the following: pv, pvm, pvt, or pvmt. p, v,
 m and t correspond to position, velocity, mass, and type,
-respectively. Odds are very good that you'll never use anything
-except for 'pv'. In that case, and if you use the default names for
+respectively. The most common [string] choice is 'pv'.
+In that case, and if you use the default names for
 the particle position and velocity files, your usage will look
 like:
 
@@ -126,7 +126,7 @@ anyl is the analysis package written in C, previously known as enzo\_anyl.
 Although the analysis toolkit for enzo that's being constantly updated is YT,
 anyl has its own value for some users. It creates radial, disk, vertical
 profiles for baryon (each species), dark matter, and star particles. Works with
-all amr formats including HDF4 and packed HDF5.
+all AMR formats including HDF4 and packed HDF5.
 
 ::
 

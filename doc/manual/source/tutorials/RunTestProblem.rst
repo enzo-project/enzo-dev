@@ -1,17 +1,15 @@
 How to run an Enzo test problem
 ===============================
 
-`TOC? </wiki/TOC>`_
-
 Enzo comes with a set of pre-written parameter files which are used
 to test Enzo. This is useful when migrating to a new machine with
 different compilers, or when new versions of compilers and
 libraries are introduced. Also, all the test problems should run to
 completion, which is generally not a guarantee!
 
-At the top of each enzo parameter file is a line like ProblemType =
-23, which tells enzo the type of problem. You can see how this
-affects enzo by inspecting src/enzo/InitializeNew.C. In this
+At the top of each enzo parameter file is a line like ``ProblemType =
+23``, which tells enzo the type of problem. You can see how this
+affects enzo by inspecting ``src/enzo/InitializeNew.C``. In this
 example, this gets called:
 
 ::
@@ -19,7 +17,7 @@ example, this gets called:
       if (ProblemType == 23)
         ret = TestGravityInitialize(fptr, Outfptr, TopGrid, MetaData);
 
-which then calls the routine in src/enzo/TestGravityInitialize.C,
+which then calls the routine in ``src/enzo/TestGravityInitialize.C``,
 and so on. By inspecting the initializing routine for each kind of
 problem, you can see what and how things are being included in the
 simulation.
@@ -39,27 +37,28 @@ The ShockPool3D is a purely hydrodynamical simulation testing a
 shock with non-periodic boundary conditions. Once you've
 `compiled enzo? </wiki/UserGuide/BuildingEnzo>`_, make a directory
 to run the test problem in. Copy enzo.exe and ShockPool3D.enzo into
-that directory. On
-` Kraken <http://www.nics.tennessee.edu/computing-resources/kraken>`_,
+that directory.
+This example test will be run using an interactive session.
+On `Kraken <http://www.nics.tennessee.edu/computing-resources/kraken>`_,
 to run in an interactive queue, type:
 
 ::
 
-    qsub -I -V -q debug -lwalltime=2:00:00,size=16
+    qsub -I -V -q debug -lwalltime=2:00:00,size=12
 
-16 cores (four nodes) are requested for two hours. Of course, this
+12 cores (one node) is requested for two hours. Of course, this
 procedure may differ on your machine. Once you're in the
 interactive session, inside your test run directory, enter:
 
 ::
 
-    aprun -n 16 ./enzo.exe -d ShockPool3D.enzo > 01.out
+    aprun -n 12 ./enzo.exe -d ShockPool3D.enzo > 01.out
 
-The test problem is run on 16 processors, the debug flag (-d) is
+The test problem is run on 12 processors, the debug flag (-d) is
 on, and the standard output is piped to a file (01.out). This took
 about an hour and twenty minutes to run on Kraken. When it's
-finished, you should see Successful run, exiting. printed to
-stderr. Note that if you use other supercomputers, 'aprun' may be
+finished, you should see ``Successful run, exiting.`` printed to
+stderr. Note that if you use other supercomputers, ``aprun`` may be
 replaced by 'mpirun', or possibly another command. Consult your
 computer's documentation for the exact command needed.
 
@@ -94,9 +93,6 @@ should take less than a second, even on one processor:
     Successfully read in parameter file GravityTest.enzo.
     INITIALIZATION TIME =   6.04104996e-03
     Successful run, exiting.
-
-Attached is a file below showing the output from this test problem
-on Kraken. You may wish to compare your results.
 
 Other Tests & Notes
 -------------------
@@ -167,39 +163,5 @@ Outputs
    - 5.6 MB
 -  ` ImplosionAMR.tar.gz <http://lca.ucsd.edu/software/enzo/data/ImplosionAMR.tar.gz>`_
    - 3.5 MB
--   NoyonNow = 0.044 CosmologySimulationOmegaCDMNow = 0.226
-   CosmologyOmegaMatterNow = 0.27 CosmologyOmegaLambdaNow = 0.73
-   CosmologySimulationDensityName = GridDensity
-   CosmologySimulationVelocity1Name = GridVelocities
-   CosmologySimulationVelocity2Name = GridVelocities
-   CosmologySimulationVelocity3Name = GridVelocities
-   CosmologySimulationParticlePositionName = ParticlePositions
-   CosmologySimulationParticleVelocityName = ParticleVelocities
-   CosmologySimulationNumberOfInitialGrids = 1 # # define cosmology
-   parameters # ComovingCoordinates = 1 // Expansion ON
-   CosmologyHubbleConstantNow = 0.71 // in km/s/Mpc
-   CosmologyComovingBoxSize = 10.0 // in Mpc/h
-   CosmologyMaxExpansionRate = 0.015 // maximum allowed delta(a)/a
-   CosmologyInitialRedshift = 60.0 // CosmologyFinalRedshift = 3.0 //
-   GravitationalConstant = 1 // this must be true for cosmology # #
-   set I/O and stop/start parameters # CosmologyOutputRedshift[0] =
-   25.0 CosmologyOutputRedshift[1] = 10.0 CosmologyOutputRedshift[2] =
-   5.0 CosmologyOutputRedshift[3] = 3.0 # # set hydro parameters #
-   Gamma = 1.6667 PPMDiffusionParameter = 0 // diffusion off
-   DualEnergyFormalism = 1 // use total & internal energy
-   InterpolationMethod = 1 // SecondOrderA CourantSafetyNumber = 0.5
-   ParticleCourantSafetyNumber = 0.8 FluxCorrection = 1
-   ConservativeInterpolation = 0 HydroMethod = 0 # # set cooling
-   parameters # RadiativeCooling = 0 MultiSpecies = 0
-   RadiationFieldType = 0 StarParticleCreation = 0
-   StarParticleFeedback = 0 # # set grid refinement parameters #
-   StaticHierarchy = 0 // AMR turned on! MaximumRefinementLevel = 3
-   MaximumGravityRefinementLevel = 3 RefineBy = 2 CellFlaggingMethod =
-   2 4 MinimumEfficiency = 0.35 MinimumOverDensityForRefinement = 4.0
-   4.0 MinimumMassForRefinementLevelExponent = -0.1
-   MinimumEnergyRatioForRefinement = 0.4 # # set some global
-   parameters # GreensFunctionMaxNumber = 100 // # of greens function
-   at any one time # # IO parameters # ParallelRootGridIO = 1
-   ParallelParticleIO = 1
 
 

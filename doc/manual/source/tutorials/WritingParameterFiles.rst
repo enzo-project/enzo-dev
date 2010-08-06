@@ -45,14 +45,18 @@ sign, and the parameter value. It's fine if you use more than one
 space - after the first space, whitespace is unimportant. All lines
 which start with a # (pound sign) are treated as comments and
 ignored. In addition, you can have inline comments by using the
-same pound sign, or two forward slashes ( *).*
+same pound sign, or two forward slashes // after the parameter line.
+
+::
+
+    NumberOfBufferZones = 3 // More may be needed depending on physics used.
 
 Initialization parameters
 -------------------------
 
 Complete descriptions of all initialization parameters are given
 here. The most fundamental initialization parameter you have to set
-is ProblemType, which specifies the type of problem to be run, and
+is ``ProblemType``, which specifies the type of problem to be run, and
 therefore the way that Enzo initiates the data. A cosmology
 simulation is problem type 30. As started before, for the purposes
 of this introduction I'm assuming that you are generating a
@@ -63,8 +67,8 @@ file:
 
     ProblemType = 30
 
-TopGridRank specifies the spatial dimensionality of your problem
-(1, 2 or 3 dimensions), and must be set. TopGridDimensions
+``TopGridRank`` specifies the spatial dimensionality of your problem
+(1, 2 or 3 dimensions), and must be set. ``TopGridDimensions``
 specifies the number of root grid cells along each axis. For a 3D
 simulation with 128 grid cells along each axis on the root grid,
 put this in the parameter file:
@@ -77,15 +81,15 @@ put this in the parameter file:
 Additionally, you must specify the names of the initial conditions
 files with contain the baryon density and velocity information and
 the dark matter particle positions and velocities. These are
-controlled via the parameters CosmologySimulationDensityName,
-CosmologySimulationVelocity[123]Name (where 1, 2 and 3 correspond
+controlled via the parameters ``CosmologySimulationDensityName``,
+``CosmologySimulationVelocity[123]Name`` (where 1, 2 and 3 correspond
 to the x, y and z directions, respectively),
-CosmologySimulationParticlePositionName and
-CosmologySimulationParticleVelocityName. Assuming that the baryon
+``CosmologySimulationParticlePositionName`` and
+``CosmologySimulationParticleVelocityName``. Assuming that the baryon
 velocity information is all in a single file, and that the baryon
-density and velocity file names are GridDensity and GridVelocities,
+density and velocity file names are ``GridDensity`` and ``GridVelocities``,
 and that the particle position and velocity files are named
-ParticlePositions and ParticleVelocities, these parameters would be
+``ParticlePositions`` and ``ParticleVelocities``, these parameters would be
 set as follows:
 
 ::
@@ -106,21 +110,21 @@ Cosmology
 ---------
 
 Complete descriptions of all cosmology parameters are given here
-and here. ComovingCoordinates determines whether comoving
+and here. ``ComovingCoordinates`` determines whether comoving
 coordinates are used or not. In practice, turning this off turns
 off all of the cosmology machinery, so you want to leave it set to
-1 for a cosmology simulation. CosmologyInitialRedshift and
-CosmologyFinalRedshift control the start and end times of the
-simulation, respectively. CosmologyHubbleConstantNow sets the
+1 for a cosmology simulation. ``CosmologyInitialRedshif``t and
+``CosmologyFinalRedshift`` control the start and end times of the
+simulation, respectively. ``CosmologyHubbleConstantNow`` sets the
 Hubble parameter, and is specified at z=0 in units of 100 km/s/Mpc.
-CosmologyComovingBoxSize sets the size of the box to be simulated
-(in units of Mpc/h) at z=0. CosmologyOmegaBaryonNow,
-CosmologyOmegaMatterNow, CosmologyOmegaCDMNow and
-CosmologyOmegaLambdaNow set the amounts of baryons, total matter,
+``CosmologyComovingBoxSize`` sets the size of the box to be simulated
+(in units of Mpc/h) at z=0. ``CosmologyOmegaBaryonNow``,
+``CosmologyOmegaMatterNow``, ``CosmologyOmegaCDMNow`` and
+``CosmologyOmegaLambdaNow`` set the amounts of baryons, total matter,
 dark matter and vacuum energy (in units of the critical density at
 z=0). An addition to the standard baryon fields that can be
 initialized, one can create a metal tracer field by turning on
-CosmologySimulationUseMetallicityField. This is handy for
+``CosmologySimulationUseMetallicityField``. This is handy for
 simulations with star formation and feedback (described below). For
 example, in a cosmology simulation with box size 100 Mpc/h with
 approximately the cosmological parameters determined by WMAP, which
@@ -145,9 +149,9 @@ Gravity and Particle Parameters
 
 The parameter list sections on gravity particle positions are here
 and here, respectively. The significant gravity-related parameters
-are SelfGravity, which turns gravity on (1) or off (0) and
-GravitationalConstant, which should be 1 in cosmological
-simulations. BaryonSelfGravityApproximation controls whether
+are ``SelfGravity``, which turns gravity on (1) or off (0) and
+``GravitationalConstant``, which must be 1 in cosmological
+simulations. ``BaryonSelfGravityApproximation`` controls whether
 gravity for baryons is determined by a quick and reasonable
 approximation. It should be left on (1) in most cases. For a
 cosmological simulation with self gravity, we would put the
@@ -167,19 +171,19 @@ Adiabatic hydrodynamics parameters
 
 The parameter listing section on hydro parameters can be found
 here. The most fundamental hydro parameter that you can set is
-HydroMethod, which lets you decide between the Piecewise Parabolic
+``HydroMethod``, which lets you decide between the Piecewise Parabolic
 Method (aka PPM; option 0), or the finite-difference method used in
-the Zeus astrophysics code (option 2). PPM is the more advanced,
-not to mention optimized, method. The Zeus method uses an
+the Zeus astrophysics code (option 2). PPM is the more advanced
+and optimized method. The Zeus method uses an
 artificial viscosity-based scheme and may not be suited for some
 types of work. When using PPM in a cosmological simulation, it is
-important to turn DualEnergyFormalism on (1), which makes
+important to turn ``DualEnergyFormalism`` on (1), which makes
 total-energy schemes such as PPM stable in a regime where there are
 hypersonic fluid flows, which is quite common in cosmology. The
-final parameter that one must set is Gamma, the ratio of specific
+final parameter that one must set is ``Gamma``, the ratio of specific
 heats for an ideal gas. If `MultiSpecies? </wiki/MultiSpecies>`_
 (discussed later in this tutorial) is on, this is ignored. For a
-cosmological simulation where we wish to use PPM and have gamma =
+cosmological simulation where we wish to use PPM and have ``Gamma`` =
 5/3, we use the following parameters:
 
 ::
@@ -209,23 +213,23 @@ grid creation and refinement criteria. We'll concentrate on a
 simulation with only a single initial grid first, and then discuss
 multiple levels of initial grids in a subsection.
 
-The most fundamental AMR parameter is StaticHierarchy. When this is
+The most fundamental AMR parameter is ``StaticHierarchy``. When this is
 on (1), the code is a unigrid code. When it is off (0), adaptive
-mesh is turned on. RefineBy controls the refinement factor - for
+mesh is turned on. ``RefineBy`` controls the refinement factor - for
 example, a value of 2 means that a child grid is twice as highly
-refined as its parent grid. It is important to set RefineBy to 2
+refined as its parent grid. It is important to set ``RefineBy`` to 2
 when using cosmology simulations - this is because if you set it to
 a larger number (say 4), the ratio of particle mass to gas mass in
 a cell grows by a factor of eight during each refinement, causing
 extremely unphysical effects.
-MaximumRefinementLevel determines how many possible levels of
+``MaximumRefinementLevel`` determines how many possible levels of
 refinement a given simulation can attain, and
-MaximumGravityRefinementLevel defines the maximum level at which
+``MaximumGravityRefinementLevel`` defines the maximum level at which
 gravitational accelerations are computed. More highly refined
 levels have their gravitational accelerations interpolated from
 this level, which effectively provides smoothing of the
 gravitational force on the spatial resolution of the grids at
-MaximumGravityRefinementLevel. A simulation with AMR turned on,
+``MaximumGravityRefinementLevel``. A simulation with AMR turned on,
 where there are 6 levels of refinement (with gravity being smoothed
 on level 4) and where each child grid is twice as highly resolved
 as its parent grid would have these parameters set as follows:
@@ -239,17 +243,17 @@ as its parent grid would have these parameters set as follows:
 
 Once the AMR is turned on, you must specify how and where the
 hierarchy
-refines. The parameter CellFlaggingMethod controls the method in
+refines. The parameter ``CellFlaggingMethod`` controls the method in
 which cells are flagged, and can be set with multiple values. We
 find that refining by baryon and dark matter mass (options 2 and 4)
 are typically useful in cosmological simulations. The parameter
-MinimumOverDensityForRefinement allows you to control the
+``MinimumOverDensityForRefinement`` allows you to control the
 overdensity at which a given grid is refined, and can is set with
 multiple values as well. Another very useful parameter is
-MinimumMassForRefinementLevelExponent, which modifies the cell
+``MinimumMassForRefinementLevelExponent``, which modifies the cell
 masses/overdensities used for refining grid cells. See the
-parameter page for a more detailed explanation, but essentially
-leaving this with a value of 0.0 ensures that gas mass resolution
+parameter page for a more detailed explanation. 
+Leaving this with a value of 0.0 ensures that gas mass resolution
 in dense regions remains more-or-less Lagrangian in nature.
 Negative values make the refinement super-Lagrangian (ie, each
 level has less gas mass per cell on average than the coarser level
@@ -270,9 +274,9 @@ only a small region is adaptively refined (the default is to refine
 over an entire simulation volume). For example, if you wish to
 study the formation of a particular galaxy in a very large volume,
 you may wish to only refine in the small region around where that
-galaxy forms in your simulation, in order to save on computational
-expense and dataset size. Two parameters, RefineRegionLeftEdge and
-RefineRegionRightEdge, allow control of this. For example, if we
+galaxy forms in your simulation in order to save on computational
+expense and dataset size. Two parameters, ``RefineRegionLeftEdge`` and
+``RefineRegionRightEdge`` allow control of this. For example, if we
 only want to refine in the inner half of the volume (0.25 - 0.75
 along each axis), we would set these parameters as follows:
 
@@ -293,7 +297,7 @@ At times it is highly advantageous to use multiple nested grids.
 This is extremely useful in a situation where you are interested in
 a relatively small region of space where you need very good dark
 matter mass resolution and spatial resolution while at the same
-time still resolving large scale structure in order to get
+time still resolving large scale structure in order to preserve
 gravitational tidal forces. An excellent example of this is
 formation of the first generation of objects in the universe, where
 we are interested in a relatively small (10\ :sup:`6`\  solar mass)
@@ -323,11 +327,11 @@ more information on creating this sort of set of nested grids.
 
 When a simulation with more than one initial grid is run, the total
 number of initial grids is specified by setting
-CosmologySimulationNumberOfInitialGrids. The parameter
-CosmologySimulationGridDimension[#] is an array of three integers
+``CosmologySimulationNumberOfInitialGrids``. The parameter
+``CosmologySimulationGridDimension[#]`` is an array of three integers
 setting the grid dimensions of each nested grid, and
-CosmologySimulationGridLeftEdge[#] and
-CosmologySimulationGridRightEdge[#] specify the left and right
+``CosmologySimulationGridLeftEdge[#]`` and
+``CosmologySimulationGridRightEdge[#]`` specify the left and right
 edges of the grid spatially, in units of the box size. In the last
 three parameters, "#" is replaced with the grid number. The root
 grid is grid 0. None of the previous three parameters need to be
@@ -347,18 +351,18 @@ file would be set as follows:
     CosmologySimulationGridLevel[2] = 2
 
 Multiple initial grids can be used with or without AMR being turned
-on. If AMR is used, the parameter MinimumOverDensityForRefinement
+on. If AMR is used, the parameter ``MinimumOverDensityForRefinement``
 must be modified as well. It is advisable to carefully read the
-entry for this parameter in the parameter list (in this section),
-but in essence the desired value or values of minimum overdensity
-need to be divided by r\ :sup:`(d\*l)`\ , where r is the refinement
+entry for this parameter in the parameter list (in this section).
+The minimum overdensity
+needs to be divided by r\ :sup:`(d\*l)`\ , where r is the refinement
 factor, d is the dimensionality, and l is the zero-based highest
-level of refinement. So if we wish for the same values for
-MinimumOverDensityForRefinement used previous to apply on the most
+level of the initial grids. So if we wish for the same values for
+``MinimumOverDensityForRefinement`` used previous to apply on the most
 highly refined grid, we must divide the set values by
 2\ :sup:`(3\*2)`\  = 64. In addition, one should only refine on the
-highest level, so we must reset RefineRegionLeftEdge and
-RefineRegionRightEdge. The parameters would be reset as follows:
+highest level, so we must reset ``RefineRegionLeftEdge`` and
+``RefineRegionRightEdge``. The parameters would be reset as follows:
 
 ::
 
@@ -368,10 +372,10 @@ RefineRegionRightEdge. The parameters would be reset as follows:
 
 A note: When creating multi-level intial conditions, make sure that
 the initial conditions files for all levels have the same file name
-(ie, GridDensity), but that each file has an extension which is an
+(ie, ``GridDensity``), but that each file has an extension which is an
 integer corresponding to its level. For example, the root grid
-GridDensity file would be GridDensity.0, the level 1 file would be
-GridDensity.1, and so forth. The parameters which describe file
+``GridDensity`` file would be ``GridDensity.0``, the level 1 file would be
+``GridDensity.1``, and so forth. The parameters which describe file
 names (discussed above in the section on initialization parameters)
 should only have the file name to the left of the period the period
 (as in a simulation with a single initial grid), ie,
@@ -394,20 +398,20 @@ I/O Parameters
 These parameters, defined in more detail (here), control all
 aspects of Enzo's data output. One can output data in a
 cosmological simulation in both a time-based and redshift-based
-manner. To output data regularly in time, one sets dtDataDump to a
+manner. To output data regularly in time, one sets ``dtDataDump`` to a
 value greater than zero. The size of this number, which is in units
 of enzo's internal time variable, controls the output frequency.
 See the Enzo user's manual section on output format for more
 information on physical units. Data can be output at specific
-redshifts as controlled by CosmologyOutputRedshift[#], where # is
+redshifts as controlled by ``CosmologyOutputRedshift[#]``, where # is
 the number of the output dump (with a maximum of 10,000 zero-based
 numbers). The name of the time-based output files are controlled by
-the parameter DataDumpName and the redshift-based output files have
-filenames controlled by RedshiftDumpName. For example, if we want
+the parameter ``DataDumpName`` and the redshift-based output files have
+filenames controlled by ``RedshiftDumpName``. For example, if we want
 to output data every time the code advances by dt=2.0 (in code
-units) with file hierarchiess named time\_0000, time\_0001, etc.,
+units) with file hierarchiess named ``time\_0000, ``time\_0001``, etc.,
 and ALSO output explicitly at redshifts 10, 5, 3 and 1 with file
-hierarchy names RedshiftOutput0000, RedshiftOutput0001, etc., we
+hierarchy names ``RedshiftOutput0000``, ``RedshiftOutput0001``, etc., we
 would set these parameters as follows:
 
 ::
@@ -421,29 +425,29 @@ would set these parameters as follows:
     CosmologyOutputRedshift[3] = 1.0
 
 Note that Enzo always outputs outputs data at the end of the
-simulation, regardless of the settings of dtDataDump and
-CosmologyOutputRedshift.
+simulation, regardless of the settings of ``dtDataDump`` and
+``CosmologyOutputRedshift``.
 
 Radiative Cooling and UV Physics Parameters
 -------------------------------------------
 
 Enzo comes with multiple ways to calculate baryon cooling and a
 metagalactic UV background, as described in detail here. The
-parameter RadiativeCooling controls whether or not a radiative
+parameter ``RadiativeCooling`` controls whether or not a radiative
 cooling module is called for each grid. The cooling is calculated
 either by assuming equilibrium cooling and reading in a cooling
 curve, or by computing the cooling directly from the species
-abundances. The parameter MultiSpecies controls which cooling
-module is called - if MultiSpecies is off (0) the equilibrium model
+abundances. The parameter ``MultiSpecies`` controls which cooling
+module is called - if ``MultiSpecies`` is off (0) the equilibrium model
 is assumed, and if it is on (1 or 2) then nonequilibrium cooling is
 calculated using either 6 or 9 ionization states of hydrogen and
-helium (corresponding to MultiSpecies = 1 or 2, respectively). The
-UV background is controlled using the parameter RadiationFieldType.
+helium (corresponding to ``MultiSpecies`` = 1 or 2, respectively). The
+UV background is controlled using the parameter ``RadiationFieldType``.
 Currently there are roughly a dozen backgrounds to choose from.
-RadiationFieldType is turned off by default, and can only be used
-when !Multispecies = 1. For example, if we wish to use a
+``RadiationFieldType`` is turned off by default, and can only be used
+when ``Multispecies`` = 1. For example, if we wish to use a
 nonequilibrium cooling model with a Haardt and Madau background
-with q\_alpha = -1.8, we would set these parameters as follows:
+with q\ :sub:`alpha`\ = -1.8, we would set these parameters as follows:
 
 ::
 
@@ -456,7 +460,7 @@ Star Formation and Feedback Physics Parameters
 
 Enzo has multiple routines for star formation and feedback.
 Star particle formation and feedback are controlled separately, by
-the parameters StarParticleCreation and StarParticleFeedback. These
+the parameters ``StarParticleCreation`` and ``StarParticleFeedback``. These
 routines are disabled when these parameters are set equal to 0, and
 are turned on when they are equal to 1, 2, 3 or 4. The value of 2
 is the recommended value. The most commonly used routines (2) are
@@ -467,11 +471,11 @@ around.
 
 For the star particle creation algorithm, stars are allowed to form
 only in cells where a minimum overdensity is reached, as defined by
-StarMakerOverDensityThreshold. Additionally, gas can only turn into
-stars with an efficiency controlled by StarMakerMassEfficiency and
-at a rate limited by StarMakerMinimumDynamicalTime, and the minimum
+``StarMakerOverDensityThreshold``. Additionally, gas can only turn into
+stars with an efficiency controlled by ``StarMakerMassEfficiency`` and
+at a rate limited by ``StarMakerMinimumDynamicalTime``, and the minimum
 mass of any given particle is controlled by the parameter
-StarMakerMinimumStarMass, which serves to limit the number of star
+``StarMakerMinimumStarMass``, which serves to limit the number of star
 particles. For example, if we wish to use the "standard" star
 formation scenario where stars can only form in cells which are at
 least 100 times the mean density, with a minimum dynamical time of
@@ -488,19 +492,19 @@ parameters as follows:
     StarMakerMinimumDynamicalTime = 1.0e6
     StarMakerMinimumStarMass = 1.0e7
 
-Star particles can provide feedback into the IGM via stellar winds,
+Star particles can provide feedback into the Inter-Galactic Medium via stellar winds,
 thermal energy and metal pollution. The parameter
-StarMassEjectionFraction controls the fraction of the total initial
+``StarMassEjectionFraction`` controls the fraction of the total initial
 mass of the star particle which is eventually returned to the gas
-phase. StarMetalYield controls the mass fraction of metals produced
-by each star particle that forms, and StarEnergyToThermalFeedback
+phase. ``StarMetalYield`` controls the mass fraction of metals produced
+by each star particle that forms, and ``StarEnergyToThermalFeedback``
 controls the fraction of the rest-mass energy of the stars created
 which is returned to the gas phase as thermal energy. Note that the
 latter two parameters are somewhat constrained by theory and
 observation to be somewhere around 0.02 and 1.0e-5, respectively.
 The ejection fraction is poorly constrained as of right now. Also,
 metal feedback only takes place if the metallicity field is turned
-on (CosmologySimulationUseMetallicityField = 1). As an example, if
+on (``CosmologySimulationUseMetallicityField`` = 1). As an example, if
 we wish to use the 'standard' star feedback where 25% of the total
 stellar mass is returned to the gas phase, the yield is 0.02 and
 10\ :sup:`-5`\  of the rest mass is returned as thermal energy, we
@@ -536,12 +540,12 @@ simulation on a linux cluster where any individual node has 1 or 2
 GB of memory, which is on the order of 200 times less than the
 total dataset size! This is possible because the reading of initial
 conditions and writing out of data dumps is fully parallelized - at
-startup, when the parameter ParallelRootGridIO is turned on each
+startup, when the parameter ``ParallelRootGridIO`` is turned on each
 processor only reads the portion of the root grid which is within
-its computational domain, and when ParallelParticleIO is turned on
+its computational domain, and when ``ParallelParticleIO ``is turned on
 each processor only reads in the particles within its domain
 (though preprocessing is needed - see below). Additionally, the
-parameter Unigrid should be turned on for simulations without AMR,
+parameter ``Unigrid`` should be turned on for simulations without AMR,
 as it saves roughly a factor of two in memory on startup, allowing
 the code to perform even larger simulations for a given computer
 size. If we wish to perform an extremely large unigrid simulation
@@ -554,14 +558,14 @@ parameters:
     ParallelRootGridIO = 1
     Unigrid = 1
 
-AMR simulations can be run with ParallelRootGridIO and
-ParallelParticleIO on, though you must be careful to turn off the
-Unigrid parameter. In addition, it is important to note that in the
+AMR simulations can be run with ``ParallelRootGridIO`` and
+``ParallelParticleIO`` on, though you must be careful to turn off the
+``Unigrid`` parameter. In addition, it is important to note that in the
 current version of enzo you must run the program called "ring" on
 the particle position and velocity files before enzo is started in
 order to take advantage of the parallel particle IO. Assuming the
-particle position and velocity files are named ParticlePositions
-and ParticleVelocities, respectively, this is done by running:
+particle position and velocity files are named ``ParticlePositions``
+and ``ParticleVelocities``, respectively, this is done by running:
 
 ::
 
