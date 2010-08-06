@@ -52,17 +52,18 @@ int Star::DisableParticle(LevelHierarchyEntry *LevelArray[])
 #endif
 
   if (changedGrid == INT_UNDEFINED) {
-    if (debug)
-      fprintf(stdout, "RemoveParticles: WARNING -- "
+    if (debug) {
+      fprintf(stdout, "DisableParticle: WARNING -- "
 	      "particle %"ISYM" not found...\n", this->Identifier);
-    delete [] Grids;
-    return SUCCESS;
+      this->PrintInfo();
+    }
+  } else {
+    NumberOfStarParticles--;
+    NumberOfOtherParticles++;
   }
 
   Grids[changedGrid]->GridData->NumberOfStars--;
   G_TotalNumberOfStars--;
-  NumberOfStarParticles--;
-  NumberOfOtherParticles++;
 
   delete [] Grids;
 
