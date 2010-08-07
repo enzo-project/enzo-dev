@@ -295,12 +295,14 @@ Eint32 main(Eint32 argc, char *argv[])
      Increase the memory pool by 1/4th of the initial size as more
      memory is needed. */
 
+#ifdef TRANSFER
 #ifdef MEMORY_POOL
   const int PhotonMemorySize = MEMORY_POOL_SIZE;
   int PhotonSize = sizeof(PhotonPackageEntry);
   PhotonMemoryPool = new MPool::MemoryPool(PhotonMemorySize*PhotonSize,
 					   PhotonSize,
 					   PhotonMemorySize*PhotonSize/4);
+#endif
 #endif
 
   // Begin 

@@ -69,7 +69,7 @@ MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = 
 MACH_CXXFLAGS = 
 MACH_FFLAGS   = 
-MACH_F90LAGS  = 
+MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
 #,-static 
 

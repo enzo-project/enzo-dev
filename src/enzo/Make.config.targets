@@ -412,7 +412,7 @@ CONFIG_PRECISION-%: suggest-clean
 
 VALID_PARTICLES = particles-32 particles-64 particles-128
 .PHONY: $(VALID_PARTICLES)
-.PHONE: particles-%
+.PHONY: particles-%
 
 particles-32:  CONFIG_PARTICLES-32
 particles-64:  CONFIG_PARTICLES-64
@@ -781,7 +781,7 @@ VALID_BITWISE_IDENTICALITY = bitwise-yes bitwise-no
 
 bitwise-yes: CONFIG_BITWISE_IDENTICALITY-yes
 bitwise-no: CONFIG_BITWISE_IDENTICALITY-no
-BITWISE_IDETICALITY-%:
+bitwise-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_BITWISE_IDENTICALITY)]\n\n"
 CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	@tmp=.config.temp; \

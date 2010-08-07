@@ -311,13 +311,6 @@ svn_version.def:
 	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \
 	fi
 
-# Determine Enzo version
-
-.PHONY: get-version
-get-version:
-	@$(SVN) info $(TOP_DIR) | awk '/URL/{print $$2}'      > $(TOP_DIR)/BRANCH
-	@$(SVN) info $(TOP_DIR) | awk '/Revision/{print $$2}' > $(TOP_DIR)/REVISION
-
 #-----------------------------------------------------------------------
 # Generate dependency file
 #-----------------------------------------------------------------------
@@ -357,8 +350,8 @@ help:
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
 	@echo
-	@echo "   gmake get-version    Generate version-related files"
-	@echo "   gmake show-version   Display Subversion branch and revision"
+	@echo "   gmake show-version   Display revision control system branch and revision"
+	@echo "   gmake show-diff      Display local file modifications"
 	@echo
 	@echo "   gmake help-config    Display detailed help on configuration make targets"
 	@echo "   gmake show-config    Display the configuration settings"
