@@ -5,7 +5,7 @@ If you wish to add a new BaryonField array -- for instance, to
 track the Oxygen fraction -- you'll need to do a few things.
 
 
-#. Add it to the field\_type structure
+#. Add it to the ``field\_type`` structure
 #. Define it in your problem type.
    `(You'll probably also add a new test problem)? </wiki/Tutorials/NewTestProblem1>`_
 #. Do something with it.

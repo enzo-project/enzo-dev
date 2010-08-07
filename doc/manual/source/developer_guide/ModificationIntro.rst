@@ -11,7 +11,7 @@ likely that there will be some piece of physics that you'll want to
 model, and these span a broad range of software complexities. In
 all cases, whether it's a mildly invasive change such as a new
 background heating model or extremely invasive like adding
-relativistic non-neutral multi fluid plasma physics, we strongly
+relativistic non-neutral multi-fluid plasma physics, we strongly
 recommend taking advantage of some basic tools. These are outlined
 in the sections that follow, but the two most important ones are
 `regression with LCATest? </wiki/Tutorials/LCATestSetup>`_ and

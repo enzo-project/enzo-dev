@@ -14,9 +14,9 @@ Writing your code to flag cells
 Your code needs to do a couple things:
 
 
-#. Be named FlagCellsToBeRefinedByXXXXXX, where XXXXXX is your
+#. Be named ``FlagCellsToBeRefinedByXXXXXX``, where ``XXXXXX`` is your
    criterion.
-#. Increment FlaggingField[i]
+#. Increment ``FlaggingField[i]``
 #. Count and return the number of flaggged cells.
 #. Return -1 on error.
 
@@ -42,8 +42,8 @@ A minimal code should look like this:
 Call your method
 ----------------
 
-Edit the file Grid\_SetFlaggingField.C In this routine, there's a
-loop over the CellFlaggingMethod array. In this loop, you'll see
+Edit the file ``Grid\_SetFlaggingField.C`` In this routine, there's a
+loop over the ``CellFlaggingMethod`` array. In this loop, you'll see
 code like this:
 
 ::
@@ -63,7 +63,7 @@ So we need to add a few things.
 
 
 -  Add a new case statement to the switch construct.
--  Set NumberOfFlaggedCells via the method described above.
+-  Set ``NumberOfFlaggedCells`` via the method described above.
 -  Don't forget the break; statement.
 -  Check for errors.
 

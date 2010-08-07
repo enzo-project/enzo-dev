@@ -5,16 +5,16 @@ This section provides a very short overview of the algorithms used by the Enzo
 code. References to texts and journal articles providing a more complete
 discussion of the algorithms are included at the end of this page for the
 interested reader, or you can go to :ref:`EnzoPrimaryReferences`.
- for a more current list. As of this writing
+for a more current list. As of this writing
 (October 2008), a formal Enzo method paper has not been published, but is in
 preparation. Much of the text and images on this page have been taken from one
-of the ` Laboratory for Computational Astrophysics <http://lca.ucsd.edu>`_
-contributions to the ` 2003 University of Chicago AMR conference
+of the `Laboratory for Computational Astrophysics <http://lca.ucsd.edu>`_
+contributions to the `2003 University of Chicago AMR conference
 <http://flash.uchicago.edu/amr2003/>`_.**[1]** Enzo is written in a mixture of
 C++ and Fortran 77. High-level functions and data structures are implemented in
 C++ and computationally intensive lower-level functions are written in Fortran.
-Enzo is parallelized using the ` MPI <http://www-unix.mcs.anl.gov/mpi/>`_
-message-passing library and uses the ` HDF 5 <http://hdf.ncsa.uiuc.edu/HDF5/>`_
+Enzo is parallelized using the `MPI <http://www-unix.mcs.anl.gov/mpi/>`_
+message-passing library and uses the `HDF5 <http://hdf.ncsa.uiuc.edu/HDF5/>`_
 data format to write out data and restart files in a platform-independent
 format.
 

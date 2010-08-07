@@ -25,7 +25,7 @@ algorithms before trying to write code to extend it. It's much more
 complex than Gadget or Zeus, and much much easier to break.
 
 
-2. Open FastSib\_EvolveHierarchy.C
+2. Open ``FastSib\_EvolveHierarchy.C``
 
 
 3. Read it, and understand the structure. The flowcharts can help,
@@ -84,7 +84,6 @@ This is in the primary grid loop on this level.
 
 
 If your code isn't a grid member, you can omit the
-Grids[grid1]->GridData->
-part.
+``Grids[grid1]->GridData->`` part.
 
 

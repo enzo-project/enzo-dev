@@ -16,10 +16,10 @@ In order to have a self-consistent set of units, the user has to set
 appropriate length, time, and mass OR density scales.  Simulations that include
 gravity also need to have a self-consistent gravitational constant that is
 scaled to the other variables. The four parameters that the user can set are
-LengthUnits, TimeUnits, DensityUnits, and MassUnits. Only one of DensityUnits
-or MassUnits needs to be set, since MassUnits = DensityUnits \* LengthUnits\
-:sup:`3`\ . Additionally, if the parameter SelfGravity is turned on (set to 1),
-the parameter GravitationalConstant must be set to 4\*pi\*G, where G is
+``LengthUnits``, ``TimeUnits``, ``DensityUnits``, and ``MassUnits``. Only one of ``DensityUnits``
+or ``MassUnits`` needs to be set, since ``MassUnits = DensityUnits \* LengthUnits\
+:sup:`3`\`` . Additionally, if the parameter ``SelfGravity`` is turned on (set to 1),
+the parameter ``GravitationalConstant`` must be set to 4\*pi\*G, where G is
 Newton's gravitational constant as a dimensionless quantity (that is, with all
 units scaled out).
 
@@ -42,7 +42,7 @@ appropriate settings of the parameters would be as follows:
 If we then wish to use gravity, the gravitational constant must be set
 explicitly to 4\*pi\*G expressed in a unitless fashion. Since the gravitational
 constant in CGS has units of cm\ :sup:`3`\ /(g\*s\ :sup:`2`\ ), this means that
-the value should be 4\*pi\*G\_{cgs}\*DensityUnits\*TimeUnits\ :sup:`2`\ . So,
+the value should be 4\*pi\*G\_{cgs}\*``DensityUnits``\*``TimeUnits``\ :sup:`2`\ . So,
 in the units expressed above, that means the gravity parameters must be set as
 follows:
 
@@ -51,14 +51,11 @@ follows:
     SelfGravity                = 1
     GravitationalConstant      = 0.0139394         # 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
 
-Note that if gravity is turned on, the parameter TopGridGravityBoundary must
+Note that if gravity is turned on, the parameter ``TopGridGravityBoundary`` must
 also be set to either 0 (periodic) or 1 (isolated).
 
-If you set only LengthUnits and DensityUnits but not TimeUnits the code will
-calculate it for you using the actual Gravitational constant. You see it
+If you set only ``LengthUnits`` and ``DensityUnits`` but not ``TimeUnits`` the code will
+calculate it for you using the actual gravitational constant. You see it
 printed out in the terminal when the code starts up and you can also find it
 towards the end of the parameter file of any output.
-
-And that's all there is to setting units in Enzo!
-
 
