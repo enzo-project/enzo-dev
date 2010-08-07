@@ -3,14 +3,14 @@ Accessing Data in BaryonField
 
 For performance reasons, Enzo uses Fortran source to do all the
 important work. Because of this, it doesn't use the standard C/C++
-data structure for the 3d BaryonField array, which stores all the
+data structure for the 3D ``BaryonField array``, which stores all the
 Eulerian data.
 
-BaryonField is stored as a One Dimensional array. Typically C/C++
-data is stored in row major order. ENZO DATA IS STORED IN COLUMN
-MAJOR ORDER because of its Fortran underpinnings.
+``BaryonField`` is stored as a one dimensional array. Typically C/C++
+data is stored in row major order. **ENZO DATA IS STORED IN COLUMN
+MAJOR ORDER** because of its Fortran underpinnings.
 
-To map between One and Three dimensions, in Column Major order, use
+To map between one and three dimensions, in column major order, use
 the following:
 
 ::
@@ -25,7 +25,7 @@ in Enzo grid member functions, this can be done like this:
 
 It should also be mentioned that it is always important to access
 data in 'stride 1' order. That means accessing data in the order it
-is stored in memory. So to set all BaryonFields to the number
+is stored in memory. So to set all ``BaryonFields`` to the number
 12345.6:
 
 ::
@@ -40,8 +40,8 @@ is stored in memory. So to set all BaryonFields to the number
         }
 
 This loops over the ghost zones as well as the active zones. To
-loop over only active zones, use GridStartIndex and GridEndIndex.
-Note that this loop must include GridEndIndex
+loop over only active zones, use ``GridStartIndex`` and ``GridEndIndex``.
+Note that this loop must include ``GridEndIndex``
 
 ::
 

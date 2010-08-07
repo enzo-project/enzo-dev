@@ -6,7 +6,7 @@ understanding Enzo's internal unit system. This is explained in
 some detail `here? </wiki/Devel/UserGuide/EnzoInternalUnits>`_.
 This page focuses specifically on the particle mass, which is one
 of the least intuitive pieces of the internal code notation. The
-most important thing to realize is that Enzo's particle\_mass
+most important thing to realize is that Enzo's ``particle\_mass``
 attribute ***is not a mass*** - it is actually a ***density***.
 This is done for a very good reason - Enzo calculates the
 gravitational potential by solving Poisson's equation using a

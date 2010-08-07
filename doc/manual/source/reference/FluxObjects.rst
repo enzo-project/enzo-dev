@@ -8,18 +8,6 @@ destruction of the Fluxes object in Enzo. This will not be a
 complete description of the Flux Correction algorithm, see the
 primary references for that.
 
-**Disclaimer** This is a somewhat rough page, as this is something
-that the Author (dcollins) needs to know right now, and thought it
-would be useful to take notes in a wiki page. I expect that most
-Enzo users and developers will not need this level of detail on the
-inner working, so I wasn't nearly as careful here as with other
-document pages.
-
-In the source code snippets that follow, I have removed some code
-that didn't directly show what I was talking about. Reference the
-actual source for correct code. Apologies for unintended omissions
-and inaccuracies
-
 Purpose
 -------
 
@@ -36,17 +24,17 @@ they also see that same flux.
 To facilitate this operation, the Fluxes object is used.
 
 For each subgrid, there are two Fluxes objects, that store the flux
-computed in the solver (typically PPM\_DirectEueler or ppm\_de.)
+computed in the solver (typically ``PPM\_DirectEueler`` or ``ppm\_de``.)
 One stored the fluxes that the fine grid computes, and one stores
 the fluxes that the coarse grid computes. These are stored in two
-objects: a grid member fluxes BoundaryFluxes for the fine data, and
-fluxes \*\*\*SubgridFluxesEstimate for the coarse data.
+objects: a grid member fluxes ``BoundaryFluxes`` for the fine data, and
+fluxes ``\*\*\*SubgridFluxesEstimate`` for the coarse data.
 
 Fluxes.h
 --------
 
 The actual object can be found in
-[source:/public/trunk/src/enzo/Fluxes.h]
+``src/enzo/Fluxes.h``.
 
 ::
 
@@ -64,27 +52,27 @@ This contains two sets of arrays for the actual flux values, and 4
 arrays to describe the position of the flux in the computational
 domain. There is a flux on each face of the subgrid, and each flux
 has a vector describing its start and end. For instance,
-LeftFluxStartGlobalIndex[0][dim] describes the starting index for
-the X face left flux. LeftFluxes[densNum][0] describes the flux of
-density across the left x face. Etc.
+``LeftFluxStartGlobalIndex[0][dim]`` describes the starting index for
+the X face left flux. ``LeftFluxes[densNum][0]`` describes the flux of
+density across the left x face.
 
 SubgridFluxesEstimate
 ---------------------
 
-SubgridFluxesEstimate is a 2 dimensional array of pointers to
+``SubgridFluxesEstimate`` is a 2 dimensional array of pointers to
 Fluxes objects that a given grid patch will fill. Its indexing is
-like \*SubgridFluxesEstimate[ Grid ][ Subgrid ] , where Grid goes
-over all the grids on a level, and Subgrid goes over that grid's
+like ``\*SubgridFluxesEstimate[ Grid ][ Subgrid ]`` , where ``Grid`` goes
+over all the grids on a level, and ``Subgrid`` goes over that grid's
 subgrids PLUS ONE for the grid itself, as each grid needs to keep
 track of its own boundary flux for when it communicates with the
 parent. (This last element is used in conjunction with the
-BoundaryFluxes object, as we'll see later)
+``BoundaryFluxes`` object, as we'll see later)
 
 Allocation
 ~~~~~~~~~~
 
 Allocation of the pointer array for the grids on this level happens
-at the beginning of EvolveLevel:
+at the beginning of ``EvolveLevel``:
 
 ::
 
@@ -120,17 +108,17 @@ array allocated, and a fluxes object is allocated for each subgrid
 
 Note that in older versions of enzo are missing the processor
 check, so fluxes objects are allocated for each grid and subgrid on
-each processor, causing a bit of waste. This has been fixed in Enzo
+each processor, causing a bit of waste. This has been fixed since Enzo
 1.5.
 
-The LeftFluxes and RightFluxes are allocated in
-Grid\_SolveHydroEquations.C
+The ``LeftFluxes`` and ``RightFluxes`` are allocated in
+``Grid\_SolveHydroEquations.C``
 
 Assignment
 ~~~~~~~~~~
 
-After the LeftFluxes and RightFluxes are allocated in
-Grid\_SolveHydroEquations.C, they are filled with fluxes from the
+After the ``LeftFluxes`` and ``RightFluxes`` are allocated in
+``Grid\_SolveHydroEquations.C``, they are filled with fluxes from the
 solver. This is done with one of three mechanisms, depending on the
 hydro solver. The old Fortran version of PPM-DE, ppm\_de.src used
 some pointer juggling and passing a single element array to the
@@ -146,34 +134,34 @@ For more details, one should refer to the source code.
 Flux Correction
 ~~~~~~~~~~~~~~~
 
-After being filled with coarse grid fluxes, SubgridFluxesEstimate
-is then passed into UpdateFromFinerGrids, where it is used to
+After being filled with coarse grid fluxes, ``SubgridFluxesEstimate``
+is then passed into ``UpdateFromFinerGrids``, where it is used to
 correct the coarse grid cells and boundary fluxes. For each
-grid/subgrid, SubgridFluxesEstimate is passed into
-Grid\_CorrectForRefinedFluxes as InitialFluxes. The difference of
-InitialFluxes and RefinedFluxes is used to update the appropriate
+grid/subgrid, ``SubgridFluxesEstimate`` is passed into
+``Grid\_CorrectForRefinedFluxes`` as ``InitialFluxes``. The difference of
+``InitialFluxes`` and ``RefinedFluxes`` is used to update the appropriate
 zones. (Essentially, the coarse grid flux is removed from the
 update of those zones ex post facto, and replaced by the average of
 the (more accurate) fine grid fluxes.
 
-See the section below for the details of SubgridFluxesRefined and
-RefinedFluxes.
+See the section below for the details of ``SubgridFluxesRefined`` and
+``RefinedFluxes``.
 
 AddToBoundaryFluxes
 ~~~~~~~~~~~~~~~~~~~
 
-The last thing to be done with SubgridFluxesEstimate is to update
-the BoundaryFluxes object for each grid on the current level. Since
+The last thing to be done with ``SubgridFluxesEstimate`` is to update
+the ``BoundaryFluxes`` object for each grid on the current level. Since
 multiple fine grid timesteps are taken for each parent timestep,
 the **total** flux must be stored on the grids boundary. This is
-done in Grid\_AddToBoundaryFluxes, at the end of the EvolveLevel
+done in ``Grid\_AddToBoundaryFluxes``, at the end of the EvolveLevel
 timestep loop.
 
 Deallocation
 ~~~~~~~~~~~~
 
-In the same grid loop that BoundaryFluxes is updated, the
-SubgridFluxesEstimate object is destroyed with DeleteFluxes, and
+In the same grid loop that ``BoundaryFluxes`` is updated, the
+``SubgridFluxesEstimate`` object is destroyed with ``DeleteFluxes``, and
 the pointers themselves are freed.
 
 ::
@@ -196,37 +184,37 @@ the pointers themselves are freed.
 grid.BoundaryFluxes
 -------------------
 
-Each instance of each grid has a fluxes BoundaryFluxes object that
+Each instance of each grid has a fluxes ``BoundaryFluxes`` object that
 stores the flux across the surface of that grid. It's used to
 correct it's Parent Grid.
 
 Allocation
 ~~~~~~~~~~
 
-BoundaryFluxes is allocated immediately *before* the timestep loop
-in EvolveLevel by the routine ClearBoundaryFluxes
+``BoundaryFluxes`` is allocated immediately *before* the timestep loop
+in ``EvolveLevel`` by the routine ``ClearBoundaryFluxes``.
 
 Usage
 ~~~~~
 
-For each grid, BoundaryFluxes is filled at the end of the
-EvolveLevel timestep loop by the last element of the array
-SubgridFluxesEstimate[grid]}} for that grid. This is additive,
+For each grid, ``BoundaryFluxes`` is filled at the end of the
+``EvolveLevel`` timestep loop by the last element of the array
+``SubgridFluxesEstimate[grid]`` for that grid. This is additive,
 since each grid will have multiple timesteps that it must correct
-its parent for. This is done by {{{AddToBoundaryFluxes, as
+its parent for. This is done by ``AddToBoundaryFluxes``, as
 described above.
 
-BoundaryFluxes is used in UpdateFromFinerGrids to populate anoter
-fluxes object, SubgridFluxesRefined. This is done in
-GetProjectedBoundaryFluxes. The values in SubgridFluxesRefined are
-area weighted averages of the values in BoundaryFluxes, coarsened
+``BoundaryFluxes`` is used in ``UpdateFromFinerGrids`` to populate another
+fluxes object, ``SubgridFluxesRefined``. This is done in
+``GetProjectedBoundaryFluxes``. The values in ``SubgridFluxesRefined`` are
+area weighted averages of the values in ``BoundaryFluxes``, coarsened
 by the refinement factor of the simulation. (So for factor of 2
-refinement, SubgridFluxesRefined has half the number of zones in
-each direction than BoundaryFluxes, and matches the cell width of
+refinement, ``SubgridFluxesRefined`` has half the number of zones in
+each direction than ``BoundaryFluxes``, and matches the cell width of
 the parent grid.)
 
-BoundaryFluxes is also updated from subgrids in
-CorrectForRefinedFluxes. This happens when a subgrid boundary lines
+``BoundaryFluxes`` is also updated from subgrids in
+``CorrectForRefinedFluxes``. This happens when a subgrid boundary lines
 up exactly with a parent grid boundary. However, in many versions
 of Enzo, this is deactivated by the following code:
 
@@ -253,14 +241,14 @@ these codes.
 Deallocation
 ~~~~~~~~~~~~
 
-BoundaryFluxes is only deleted once the grid itself is deleted.
-This happens mostly in RebuildHierarchy.
+``BoundaryFluxes`` is only deleted once the grid itself is deleted.
+This happens mostly in ``RebuildHierarchy``.
 
 SubgridFluxesRefined
 --------------------
 
 The final instance of a fluxes object is fluxes
-SubgridFluxesRefined . This object takes the fine grid fluxes,
+``SubgridFluxesRefined``. This object takes the fine grid fluxes,
 resampled to the coarse grid resolution, and is used to perform the
 flux correction itself. This section is short, as its existance has
 been largely documented in the previous sections.
@@ -268,24 +256,23 @@ been largely documented in the previous sections.
 Allocation
 ~~~~~~~~~~
 
-SubgridFluxesRefined is declared in UpdateFromFinerGrids. The
-actual allocation occurs in Grid\_GetProjectedBoundaryFluxes, where
-it's passed in as ProjectedFluxes.
+``SubgridFluxesRefined`` is declared in ``UpdateFromFinerGrids``. The
+actual allocation occurs in ``Grid\_GetProjectedBoundaryFluxes``, where
+it's passed in as ``ProjectedFluxes``.
 
 Usage
 ~~~~~
 
-SubgridFluxesRefined is also filled in
-Grid\_GetProjectedBoundaryFluxes, as the area weighted average of
+``SubgridFluxesRefined`` is also filled in
+``Grid\_GetProjectedBoundaryFluxes``, as the area weighted average of
 the subgrid boundary flux.
 
-It is then passed into Grid\_CorrectForRefinedFluxes, Here, it is
+It is then passed into ``Grid\_CorrectForRefinedFluxes``, Here, it is
 used to update the coarse grid zones that need updating.
 
 Deallocation
 ~~~~~~~~~~~~
 
-SubgridFluxesRefined is deleted after it is used in
-Grid\_CorrectForRefinedFluxes
+``SubgridFluxesRefined`` is deleted after it is used in
+``Grid\_CorrectForRefinedFluxes``.
 
-For questions with this document, contact David Collins.

@@ -39,30 +39,30 @@ This list includes parameters for the Enzo 2.0 release.
 Stopping Parameters
 -------------------
 
-StopTime (external)
+``StopTime`` (external)
     This parameter specifies the time (in code units) when the
     calculation will halt. For cosmology simulations, this variable is
-    automatically set by CosmologyFinalRedshift. *No default.*
-StopCycle (external)
+    automatically set by ``CosmologyFinalRedshift``. *No default.*
+``StopCycle`` (external)
     The cycle (top grid timestep) at which the calculation stops. A
     value of zero indicates that this criterion is not be used.
     *Default: 0*
-StopFirstTimeAtLevel (external)
+``StopFirstTimeAtLevel`` (external)
     Causes the simulation to immediately stop when a specified level is
     reached. Default value 0 (off), possible values are levels 1
     through maximum number of levels in a given simulation.
-StopCPUTime (external)
-    Causes the simulation to stop if the wall time exceeds StopCPUTime.
+``StopCPUTime`` (external)
+    Causes the simulation to stop if the wall time exceeds ``StopCPUTime``.
     The simulation will output if the wall time after the next
-    top-level timestep will exceed StopCPUTime, assuming that the wall
+    top-level timestep will exceed ``StopCPUTime``, assuming that the wall
     time elapsed during a top-level timestep the same as the previous
     timestep. In units of seconds. Default: 2.592e6 (30 days)
-ResubmitOn (external)
+``ResubmitOn`` (external)
     If set to 1, the simulation will stop if the wall time will exceed
-    StopCPUTime within the next top-level timestep and run a shell
+    ``StopCPUTime`` within the next top-level timestep and run a shell
     script defined in `ResubmitCommand? </wiki/ResubmitCommand>`_ that
     should resubmit the job for the user. Default: 0.
-ResubmitCommand (external)
+``ResubmitCommand`` (external)
     Filename of a shell script that creates a queuing (e.g. PBS) script
     from two arguments, the number of processors and parameter file.
     This script is run by the root processor when stopping with
@@ -72,7 +72,7 @@ ResubmitCommand (external)
 Initialization Parameters
 -------------------------
 
-ProblemType (external)
+``ProblemType`` (external)
     This integer specifies the type of problem to be run. It's value
     causes the correct problem initializer to be called to set up the
     grid, and also may trigger certain boundary conditions or other
@@ -120,43 +120,43 @@ ProblemType (external)
    - 412. Radiation-Hydrodynamics test 12 -- HI ionization of a clump
    - 413. Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
 
-TopGridRank (external)
+``TopGridRank`` (external)
     This specified the dimensionality of the root grid and by extension
     the entire hierarchy. It should be 1,2 or 3. Default: none
-TopGridDimensions (external)
+``TopGridDimensions`` (external)
     This is the dimension of the top or root grid. It should consist of
     1, 2 or 3 integers separated by spaces. For those familiar with the
     KRONOS or ZEUS method of specifying dimensions, these values do not
     include ghost or boundary zones. A dimension cannot be less than 3
-    zones wide and more than MAX\_ANY\_SINGLE\_DIRECTION -
-    NumberOfGhostZones\*2. MAX\_ANY\_SINGLE\_DIRECTION is defined in
-    fortran.def. Default: none
-DomainLeftEdge, DomainRightEdge (external)
+    zones wide and more than ``MAX\_ANY\_SINGLE\_DIRECTION`` -
+    ``NumberOfGhostZones``\*2. ``MAX\_ANY\_SINGLE\_DIRECTION`` is defined in
+    ``fortran.def``. Default: none
+``DomainLeftEdge``, ``DomainRightEdge`` (external)
     These float values specify the two corners of the problem domain
     (in code units). The defaults are: 0 0 0 for the left edge and 1 1
     1 for the right edge.
-LeftFaceBoundaryCondition, RightFaceBoundaryCondition (external)
+``LeftFaceBoundaryCondition``, ``RightFaceBoundaryCondition`` (external)
     These two parameters each consist of vectors of integers (of length
-    TopGridRank). They specify the boundary conditions for the top grid
+    ``TopGridRank``). They specify the boundary conditions for the top grid
     (and hence the entire hierarchy). The first integer corresponds to
     the x-direction, the second to the y-direction and the third, the
     z-direction. The possible values are: 0 - reflecting, 1 - outflow,
     2 - inflow, 3 - periodic, 4 - shearing. For inflow, the inflow
     values can be set through the next parameter, or more commonly are
-    controlled by problem-specific code triggered by the ProblemType.
+    controlled by problem-specific code triggered by the ``ProblemType``.
     For shearing boundaries, the boundary pair in another direction
     must be periodic. Note that self gravity will not be consistent
     with shearing boundary conditions. Default: 0 0 0
-ShearingVelocityDirection(external)
+``ShearingVelocityDirection`` (external)
     When a shearing boundary is used and the other two boundary pairs
     are both periodic, selected the direction of the shearing velocity.
-AngularVelocity (external)
+``AngularVelocity`` (external)
     The value of the angular velocity in the shearing boundary.
     Default: 0.001
-VelocityGradient (external)
+``VelocityGradient`` (external)
     The value of the per code length gradient in the angular velocity
     in the shearing boundary. Default: 1.0
-BoundaryConditionName (external)
+``BoundaryConditionName`` (external)
     While the above parameters provide an easy way to set an entire
     side of grid to a given boundary value, the possibility exists to
     set the boundary conditions on an individual cell basis. This is
@@ -164,15 +164,15 @@ BoundaryConditionName (external)
     by specifying a file which contains the information in the
     appropriate format. This is too involved to go into here. Default:
     none
-InitialTime (internal)
+``InitialTime`` (internal)
     The time, in "code" units, of the current step. For cosmology the
     units are in free-fall times at the initial epoch (see output
     format). Default: generally 0, depends on problem
-Initialdt (internal)
+``Initialdt`` (internal)
     The timestep, in "code" units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see output
     format). Default: generally 0, depends on problem
-GridVelocity (obsolete)
+``GridVelocity`` (obsolete)
     For problems in which the grid must move. Originally implemented,
     but was never used, and so almost surely doesn't work. Default: 0 0
     0
@@ -181,29 +181,29 @@ Simulation Identifiers and UUIDs
 --------------------------------
 
 These parameters help to track, identify and group datasets. For reference,
-` Universally Unique Identifiers
+`Universally Unique Identifiers
 <http://en.wikipedia.org/wiki/Universally_Unique_Identifier>`_ (UUIDs) are
 opaque identifiers using random 128-bit numbers, with an extremely low chance
 of collision. (See :ref:`SimulationNamesAndIdentifiers` for a longer
 description of these parameters.)
 
-MetaDataIdentifier (external)
+``MetaDataIdentifier`` (external)
     This is a character string without spaces (specifically, something
     that can be picked by "%s"), that can be defined in a parameter
     file, and will be written out in every following output, if it is
     found.
-MetaDataSimulationUUID (internal)
+``MetaDataSimulationUUID`` (internal)
     A UUID that will be written out in all of the following outputs.
-    Like MetaDataIdentifier, an existing UUID will be kept, but if one
+    Like ``MetaDataIdentifier``, an existing UUID will be kept, but if one
     is not found, and new one will be generated.
-MetaDataDatasetUUID (internal)
+``MetaDataDatasetUUID`` (internal)
     A UUID created for each specific output.
-MetaDataRestartDatasetUUID (internal)
-    If a MetaDataDatasetUUID UUID is found when the parameter file is
+``MetaDataRestartDatasetUUID`` (internal)
+    If a ``MetaDataDatasetUUID`` UUID is found when the parameter file is
     read in, it will written to the following datasets. This is used to
     track simulations across restarts and parameter adjustments.
-MetaDataInitialConditionsUUID (internal)
-    This is similar to MetaDataRestartDatasetUUID, except it's used to
+``MetaDataInitialConditionsUUID`` (internal)
+    This is similar to ``MetaDataRestartDatasetUUID``, except it's used to
     track which initial conditions were used. NB: inits, ring and Enzo
     still need to be modified to support this.
 
@@ -216,18 +216,18 @@ cosmology simulations, redshift-based. There is also a shortened
 output format intended for visualization (movie format). Please
 have a look at :ref:`ControllingDataOutput` for more information.
 
-dtDataDump (external)
+``dtDataDump`` (external)
     The time interval, in code units, between time-based outputs. A
     value of 0 turns off the time-based outputs. Default: 0
-CycleSkipDataDump (external)
+``CycleSkipDataDump`` (external)
     The number of cycles (top grid timesteps) between cycle-based
     outputs. Zero turns off the cycle-based outputs. Default: 0
-DataDumpName (external)
+``DataDumpName`` (external)
     The base file name used for both time and cycle based outputs.
     Default: data
-RedshiftDumpName (external)
+``RedshiftDumpName`` (external)
     The base file name used for redshift-based outputs (this can be
-    overridden by the CosmologyOutputRedshiftName parameter). Normally
+    overridden by the ``CosmologyOutputRedshiftName`` parameter). Normally
     a four digit identification number is appended to the end of this
     name, starting from 0000 and incrementing by one for every output.
     This can be over-ridden by including four consecutive R's in the
@@ -235,27 +235,27 @@ RedshiftDumpName (external)
     will not be appended but the four R's will be converted to a
     redshift with an implied decimal point in the middle (i.e. z=1.24
     becomes 0124). Default: RedshiftOutput
-CosmologyOutputRedshift[NNNN] (external)
+``CosmologyOutputRedshift[NNNN]`` (external)
     The time and cycle-based outputs occur regularly at constant
     intervals, but the redshift outputs are specified individually.
     This is done by the use of this statement, which sets the output
     redshift for a specific identification number (this integer is
     between 0000 and 9999 and is used in forming the name). So the
-    statement CosmologyOutputRedshift[1] = 4.0 will cause an output to
+    statement ``CosmologyOutputRedshift[1] = 4.0`` will cause an output to
     be written out at z=4 with the name RedshiftOutput0001 (unless the
     base name is changed either with the previous parameter or the next
     one). This parameter can be repeated with different values for the
     number (NNNN) Default: none
-CosmologyOutputRedshiftName[NNNN] (external)
-    This parameter overrides the parameter RedshiftOutputName for this
+``CosmologyOutputRedshiftName[NNNN]`` (external)
+    This parameter overrides the parameter ``RedshiftOutputName`` for this
     (only only this) redshift output. Can be used repeatedly in the
     same manner as the previous parameter. Default: none
-OutputFirstTimeAtLevel (external)
+``OutputFirstTimeAtLevel`` (external)
     This forces enzo to output when a given level is reached, and at
     every level thereafter. Default is 0 (off). User can usefully
     specify anything up to the maximum number of levels in a given
     simulation.
-XrayLowerCutoffkeV, XrayUpperCutoffkeV, XrayTableFileName, (external)
+``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName``, (external)
     These parameters are used in 2D projections (enzo -p ...). The
     first two specify the X-ray band (observed at z=0) to be used, and
     the last gives the name of an ascii file that contains the X-ray
@@ -264,128 +264,128 @@ XrayLowerCutoffkeV, XrayUpperCutoffkeV, XrayTableFileName, (external)
     parameters are specified, then the second field is replaced with
     integrated emissivity along the line of sight in units of
     10\ :sup:`-23 erg/cm`\ 2/s.
-ExtractFieldsOnly (external)
+``ExtractFieldsOnly`` (external)
     Used for extractions (enzo -x ...) when only field data are needed
     instead of field + particle data. Default is 1 (TRUE).
-dtRestartDump
+``dtRestartDump``
     Reserved for future use.
-dtHistoryDump
+``dtHistoryDump``
     Reserved for future use.
-CycleSkipRestartDump
+``CycleSkipRestartDump``
     Reserved for future use.
-CycleSkipHistoryDump
+``CycleSkipHistoryDump``
     Reserved for future use.
-RestartDumpName
+``RestartDumpName``
     Reserved for future use.
-HistoryDumpName
+``HistoryDumpName``
     Reserved for future use.
-ParallelRootGridIO (external)
-    Normally, for the mpi version, the root grid is read into the root
-    processor and then partitioned to separate processors. However, for
+``ParallelRootGridIO`` (external)
+    Normally for the mpi version, the root grid is read into the root
+    processor and then partitioned to separate processors using communication.
+    However, for
     very large root grids (e.g. 512\ :sup:`3`\ ), the root processor
     may not have enough memory. If this toggle switch is set on (i.e.
     to the value 1), then each processor reads its own section of the
     root grid. More I/O is required (to split up the grids and
     particles), but it is more balanced in terms of memory.
-    ParallelRootGridIO and ParallelParticleIO MUST be set to 1 (TRUE)
-    for runs involving > 64 cpus! Default: 0 (FALSE). See also !Unigrid
+    ``ParallelRootGridIO`` and ``ParallelParticleIO`` MUST be set to 1 (TRUE)
+    for runs involving > 64 cpus! Default: 0 (FALSE). See also ``Unigrid``
     below.
-Unigrid (external)
+``Unigrid`` (external)
     This parameter should be set to 1 (TRUE) for large cases--AMR as
     well as non-AMR--where the root grid is 512\ :sup:`3`\  or larger.
     This prevents initialization under subgrids at start up, which is
     unnecessary in cases with simple non-nested initial conditions.
     Unigrid must be set to 0 (FALSE) for cases with nested initial
-    conditions. Default: 0 (FALSE). See also !ParallelRootGridIO above.
-UnigridTranspose (external)
+    conditions. Default: 0 (FALSE). See also ``ParallelRootGridIO`` above.
+``UnigridTranspose`` (external)
     This parameter governs the fast FFT bookkeeping for Unigrid runs.
     Does not work with isolated gravity. Default: 0 (FALSE). See also
-    !Unigrid above.
-OutputTemperature (external)
+    ``Unigrid`` above.
+``OutputTemperature`` (external)
     Set to 1 if you want to output a temperature field in the datasets.
-    Always one for cosmology simulations. Default: 0.
-OutputCoolingTime (external)
+    Always 1 for cosmology simulations. Default: 0.
+``OutputCoolingTime`` (external)
     Set to 1 if you want to output the cooling time in the datasets.
     Default: 0.
-OutputSmoothedDarkMatter (external)
+``OutputSmoothedDarkMatter`` (external)
     Set to 1 if you want to output a dark matter density field,
     smoothed by an SPH kernel. Set to 2 to also output smoothed dark
     matter velocities and velocity dispersion. Set to 0 to turn off.
     Default: 0.
-OutputGriddedStarParticle (external)
+``OutputGriddedStarParticle`` (external)
     Set to 1 or 2 to write out star particle data gridded onto mesh.
     This will be useful e.g. if you have lots of star particles in a
     galactic scale simulation. 1 will output just
-    star\_particle\_density; and 2 will dump
-    actively\_forming\_stellar\_mass\_density, SFR\_density, etc.
+    ``star\_particle\_density``; and 2 will dump
+    ``actively\_forming\_stellar\_mass\_density``, ``SFR\_density``, etc.
     Default: 0.
-VelAnyl (external)
+``VelAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     velocity. Works in 2D and 3D.
-BAnyl (external)
+``BAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
-    Bfield. Works in 2D and 3D.
-SmoothedDarkMatterNeighbors (external)
+    ``Bfield``. Works in 2D and 3D.
+``SmoothedDarkMatterNeighbors`` (external)
     Number of nearest neighbors to smooth dark matter quantities over.
     Default: 32.
 
 Streaming Data Format
 ~~~~~~~~~~~~~~~~~~~~~
 
-NewMovieLeftEdge, NewMovieRightEdge (external)
+``NewMovieLeftEdge``, ``NewMovieRightEdge`` (external)
     These two parameters control the region for which the streaming
-    data are written. Default:
-    DomainLeftEdge and DomainRightEdge.
-MovieSkipTimestep (external)
+    data are written. Default: ``DomainLeftEdge`` and ``DomainRightEdge``.
+``MovieSkipTimestep`` (external)
     Controls how many timesteps on a level are skipped between outputs
     in the streaming data. Streaming format is off if this equals
-    INT\_UNDEFINED. Default: INT\_UNDEFINED
-Movie3DVolume (external)
+    ``INT\_UNDEFINED``. Default: ``INT\_UNDEFINED``
+``Movie3DVolume`` (external)
     Set to 1 to write streaming data as 3-D arrays. This should always
     be set to 1 if using the streaming format. A previous version had
     2D maximum intensity projections, which now defunct. Default: 0.
-MovieVertexCentered (external)
+``MovieVertexCentered`` (external)
     Set to 1 to write the streaming data interpolated to vertices. Set
     to 0 for cell-centered data. Default: 0.
-NewMovieDumpNumber (internal)
+``NewMovieDumpNumber`` (internal)
     Counter for streaming data files. This should equal the cycle
     number.
-MovieTimestepCounter (internal)
+``MovieTimestepCounter ``(internal)
     Timestep counter for the streaming data files.
-MovieDataField (external)
+``MovieDataField`` (external)
     A maximum of 6 data fields can be written in the streaming format.
     The data fields are specified by the array element of
     BaryonField, i.e. 0 = Density, 7 = HII
     Density. For writing temperature, a special value of 1000 is used.
     This should be improved to be more transparent in which fields will
-    be written. Any element that equals INT\_UNDEFINED indicates no
-    field will be written. Default: INT\_UNDEFINED x 6
-NewMovieParticleOn (external)
+    be written. Any element that equals ``INT\_UNDEFINED`` indicates no
+    field will be written. Default: ``INT\_UNDEFINED`` x 6
+``NewMovieParticleOn`` (external)
     Set to 1 to write all particles in the grids. Set to 2 to write
     ONLY particles that aren't dark matter, e.g. stars. Set to 3/4 to
     write ONLY particles that aren't dark matter into a file separate
-    from the grid info. (For example, MoviePackParticle\_P000.hdf5,
+    from the grid info. (For example, ``MoviePackParticle\_P000.hdf5``,
     etc. will be the file name; this will be very helpful in speeding
     up the access to the star particle data, especially for the
-    visualization or for the star particle. See AMRH5writer.C) Set to 0
+    visualization or for the star particle. See ``AMRH5writer.C``) Set to 0
     for no particle output. Default: 0.
 
 Hierarchy Control Parameters
 ----------------------------
 
-StaticHierarchy (external)
+``StaticHierarchy`` (external)
     A flag which indicates if the hierarchy is static (1) or dynamic
-    (0). In other words, a value of 1 takes the a out of amr. Default:
+    (0). In other words, a value of 1 takes the A out of AMR. Default:
     1
-RefineBy (external)
+``RefineBy`` (external)
     This is the refinement factor between a grid and it's subgrid. For
-    cosmology simulations, I have found the number 2 to be most useful.
+    cosmology simulations, we have found a ratio of 2 to be most useful.
     Default: 4
-MaximumRefinementLevel (external)
+``MaximumRefinementLevel`` (external)
     This is the lowest (most refined) depth that the code will produce.
     It is zero based, so the total number of levels (including the root
     grid) is one more than this value. Default: 2
-CellFlaggingMethod (external)
+``CellFlaggingMethod`` (external)
     The method(s) used to specify when a cell should be refined. This
     is a list of integers, up to five, as described by the following
     table. The methods combine in an "OR" fashion: if any of them
@@ -396,19 +396,19 @@ CellFlaggingMethod (external)
     ::
 
               1 - refine by slope             5 - refine by baryon overdensity (currently disabled)
-              2 - refine by baryon mass     6 - refine by Jeans length
-              3 - refine by shocks          7 - refine if cooling time < cell width/sound speed
-              4 - refine by particle mass   11 - refine by resistive length
-                                                12 - refine by defined region "MustRefineRegion"
-                                                13 - refine by metallicity 
+              2 - refine by baryon mass       6 - refine by Jeans length
+              3 - refine by shocks            7 - refine if cooling time < cell width/sound speed
+              4 - refine by particle mass     11 - refine by resistive length
+                                              12 - refine by defined region "MustRefineRegion"
+                                              13 - refine by metallicity 
 
 
-RefineRegionLeftEdge, RefineRegionRightEdge (external)
+``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is
     permitted. Each is a vector of floats (of length given by the
     problem rank) and they specify the two corners of a volume.
-    Default: set equal to DomainLeftEdge and DomainRightEdge.
-RefineRegionAutoAdjust (external)
+    Default: set equal to ``DomainLeftEdge`` and ``DomainRightEdge``.
+``RefineRegionAutoAdjust`` (external)
     This is useful for multiresolution simulations with particles in
     which the particles have varying mass. Set to 1 to automatically
     adjust the refine region at root grid timesteps to only contain
@@ -419,18 +419,18 @@ RefineRegionAutoAdjust (external)
     (RefineRegionAutoAdjust-1)th level timesteps because sometimes the
     heavy particles are coming into the fine regions too fast that you
     need more frequent protection. Default: 0.
-RefineRegionTimeType (external)
+``RefineRegionTimeType`` (external)
     If set, this controls how the first column of a refinement region
     evolution file (see below) is interpreted, 0 for code time, 1 for
     redshift. Default: -1, which is equivalent to 'off'.
-RefineRegionFile (external)
+``RefineRegionFile`` (external)
     The name of a text file containing the corners of the time-evolving
     refinement region. The lines in the file change the values of
-    RefineRegionLeft/RightEdge during the course of the simulation, and
+    ``RefineRegionLeft/RightEdge`` during the course of the simulation, and
     the lines are ordered in the file from early times to late times.
     The first column of data is the time index (in code units or
     redshift, see the parameter above) for the next six columns, which
-    are the values of RefineRegionLeft/RightEdge. For example, this
+    are the values of ``RefineRegionLeft/RightEdge``. For example, this
     might be two lines from the text file when time is indexed by
     redshift:
     ::
@@ -438,11 +438,12 @@ RefineRegionFile (external)
         0.60 0.530 0.612 0.185 0.591 0.667 0.208
         0.55 0.520 0.607 0.181 0.584 0.653 0.201
 
-    In this case, the refinement region stays at the z=0.60 value up
+    In this case, the refinement region stays at the z=0.60 value
     until z=0.55, when the box moves slightly closer to the (0,0,0)
-    corner. There is a maximum of 300 lines in the file. Default: None.
-MinimumOverDensityForRefinement (external)
-    These float values (up to 5) are used if the CellFlaggingMethod is
+    corner. There is a maximum of 300 lines in the file and there is no
+    comment header line. Default: None.
+``MinimumOverDensityForRefinement`` (external)
+    These float values (up to 5) are used if the ``CellFlaggingMethod`` is
     2, 4, or 5 although in slightly different ways. For Method 5, this
     is the overdensity in terms of (rho/<rho> - 1), where rho is the
     density of the cell, and <rho> is the mean density. For the others,
@@ -462,94 +463,94 @@ MinimumOverDensityForRefinement (external)
     changed in a restart output; if you want to change the refinement
     mid-run you will have to modify the next parameter. Up to five
     numbers may be specified here, each corresponding to the respective
-    CellFlaggingMethod. Default: 1.5
-MinimumMassForRefinement (internal)
+    ``CellFlaggingMethod``. Default: 1.5
+``MinimumMassForRefinement`` (internal)
     This float is usually set by the parameter above and so is labeled
     internal, but it can be set by hand. It is the mass (in units such
     that the entire mass in the computational volume is 1.0) above
-    which a refinement occurs if the CellFlaggingMethod is
+    which a refinement occurs if the ``CellFlaggingMethod`` is
     appropriately set. There are five numbers here again, as per the
     above parameter. Default: none
-MinimumMassForRefinementLevelExponent (external).
+``MinimumMassForRefinementLevelExponent`` (external).
     This parameter modifies the behaviour of the above parameter. As it
-    stands, the refinement based on the MinimumMassForRefinement
+    stands, the refinement based on the ``MinimumMassForRefinement``
     (hereafter Mmin) parameter is complete Lagrangian. However, this
     can be modified. The actual mass used is
     Mmin\*r\ :sup:`(l\*alpha)`\  where r is the refinement factor, l is
     the level and alpha is the value of this parameter
-    (MinimumMassForRefinementLevelExponent). Therefore a negative value
+    (``MinimumMassForRefinementLevelExponent``). Therefore a negative value
     makes the refinement super-Lagrangian, while positive values are
     sub-Lagrangian. There are up to five values specified here, as per
     the above two parameters. Default: 0.0
-SlopeFlaggingFields[#] (external)
-    If CellFlaggingMethod is 1, and you only want to refine on the
+``SlopeFlaggingFields[#]`` (external)
+    If ``CellFlaggingMethod`` is 1, and you only want to refine on the
     slopes of certain fields then you can enter the number IDs of the
     fields. Default: Refine on slopes of all fields.
-MinimumSlopeForRefinement (external)
-    If CellFlaggingMethod is 1, then local gradients are used as the
+``MinimumSlopeForRefinement`` (external)
+    If ``CellFlaggingMethod`` is 1, then local gradients are used as the
     refinement criteria. All variables are examined and the relative
     slope is computed: abs(q(i+1)-q(i-1))/q(i). Where this value
     exceeds this parameter, the cell is marked for refinement. This
     causes problems if q(i) is near zero. This is a single integer (as
     opposed to the list of five for the above parameters). Entering
     multiple numbers here correspond to the fields listed in
-    SlopeFlaggingFields. Default: 0.3
-MinimumPressureJumpForRefinement (external)
+    ``SlopeFlaggingFields``. Default: 0.3
+``MinimumPressureJumpForRefinement`` (external)
     If refinement is done by shocks, then this is the minimum
     (relative) pressure jump in one-dimension to qualify for a shock.
     The definition is rather standard (see Colella and Woodward's PPM
     paper for example) Default: 0.33
-MinimumEnergyRatioForRefinement (external)
+``MinimumEnergyRatioForRefinement`` (external)
     For the dual energy formalism, and cell flagging by
     shock-detection, this is an extra filter which removes weak shocks
     (or noise in the dual energy fields) from triggering the shock
     detection. Default: 0.1
-MetallicityRefinementMinLevel (external)
+``MetallicityRefinementMinLevel`` (external)
     Sets the minimum level (maximum cell size) to which a cell enriched
-    with metal above a level set by MetallicityRefinementMinMetallicity
+    with metal above a level set by ``MetallicityRefinementMinMetallicity``
     will be refined. This can be set to any level up to and including
-    MaximumRefinementLevel. (No default setting)
-MetallicityRefinementMinMetallicity (external)
+    ``MaximumRefinementLevel``. (No default setting)
+``MetallicityRefinementMinMetallicity`` (external)
     This is the threshold metallicity (in units of solar metallicity)
     above which cells must be refined to a minimum level of
-    MetallicityRefinementMinLevel. Default: 1.0e-5
-MustRefineRegionMinRefinementLevel (external)
+    ``MetallicityRefinementMinLevel``. Default: 1.0e-5
+``MustRefineRegionMinRefinementLevel`` (external)
     Minimum level to which the rectangular solid volume defined by
-    MustRefineRegionLeftEdge and MustRefineRegionRightEdge will be
+    ``MustRefineRegionLeftEdge`` and ``MustRefineRegionRightEdge`` will be
     refined to at all times. (No default setting)
-MustRefineRegionLeftEdge (external)
+``MustRefineRegionLeftEdge`` (external)
     Bottom-left corner of refinement region. Must be within the overall
     refinement region. Default: 0.0 0.0 0.0
-MustRefineRegionRightEdge (external)
+``MustRefineRegionRightEdge`` (external)
     Top-right corner of refinement region. Must be within the overall
     refinement region. Default: 1.0 1.0 1.0
-MustRefineParticlesRefineToLevel (external)
-    The maximum level on which MustRefineParticles are required to
+``MustRefineParticlesRefineToLevel`` (external)
+    The maximum level on which ``MustRefineParticles`` are required to
     refine to. Currently sink particles and MBH particles are required
     to be sitting at this level at all times. Default: 0
-MustRefineParticlesRefineToLevelAutoAdjust (external)
+``MustRefineParticlesRefineToLevelAutoAdjust`` (external)
     The parameter above might not be handy in cosmological simulations
-    if you want your MustRefineParticles to be refined to a certain
+    if you want your ``MustRefineParticles`` to be refined to a certain
     physical length, not to a level whose cell size keeps changing.
     This parameter (positive integer in pc) allows you to do just that.
-    For example, if you set MustRefineParticlesRefineToLevelAutoAdjust
+    For example, if you set ``MustRefineParticlesRefineToLevelAutoAdjust``
     = 128 (pc), then the code will automatically calculate
-    MustRefineParticlesRefineToLevel using the boxsize and redshift
+    ``MustRefineParticlesRefineToLevel`` using the boxsize and redshift
     information. Default: 0 (FALSE)
-FluxCorrection (external)
+``FluxCorrection`` (external)
     This flag indicates if the flux fix-up step should be carried out
     around the boundaries of the sub-grid to preserve conservation (1 -
-    on, 0 - off). Strictly speaking this should always be used, but I
+    on, 0 - off). Strictly speaking this should always be used, but we
     have found it to lead to a less accurate solution for cosmological
     simulations because of the relatively sharp density gradients
     involved. However, it does appear to be important when radiative
-    cooling is turned on and very dense structures are created (this
-    note added sheepishly in April/99). It does work with the ZEUS
+    cooling is turned on and very dense structures are created.
+    It does work with the ZEUS
     hydro method, but since velocity is face-centered, momentum flux is
     not corrected. Species quantities are not flux corrected directly
     but are modified to keep the fraction constant based on the density
     change. Default: 1
-InterpolationMethod (external)
+``InterpolationMethod`` (external)
     There should be a whole section devoted to the interpolation
     method, which is used to generate new sub-grids and to fill in the
     boundary zones of old sub-grids, but a brief summary must suffice.
@@ -571,17 +572,17 @@ InterpolationMethod (external)
     ::
 
               0 - ThirdOrderA     3 - SecondOrderC
-              1 - SecondOrderA  4 - FirstOrderA
+              1 - SecondOrderA    4 - FirstOrderA
               2 - SecondOrderB  
 
 
-ConservativeInterpolation (external)
+``ConservativeInterpolation`` (external)
     This flag (1 - on, 0 - off) indicates if the interpolation should
     be done in the conserved quantities (e.g. momentum rather than
     velocity). Ideally, this should be done, but it can cause problems
     when strong density gradients occur. This must(!) be set off for
     ZEUS hydro (the code does it automatically). Default: 1
-MinimumEfficiency (external)
+``MinimumEfficiency`` (external)
     When new grids are created during the rebuilding process, each grid
     is split up by a recursive bisection process that continues until a
     subgrid is either of a minimum size or has an efficiency higher
@@ -589,39 +590,39 @@ MinimumEfficiency (external)
     (those requiring refinement) to the total number of zones in the
     grid. This is a number between 0 and 1 and should probably by
     around 0.4 for standard three-dimensional runs. Default: 0.2
-NumberOfBufferZones (external)
+``NumberOfBufferZones`` (external)
     Each flagged cell, during the regridding process, is surrounded by
     a number of zones to prevent the phenomenon of interest from
     leaving the refined region before the next regrid. This integer
     parameter controls the number required, which should almost always
     be one. Default: 1
-RefineByJeansLengthSafetyFactor (external)
-    If the Jeans length refinement criterion (see CellFlaggingMethod)
+``RefineByJeansLengthSafetyFactor`` (external)
+    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
     is being used, then this parameter specifies the number of cells
     which must cover one Jeans length. Default: 4
-JeansRefinementColdTemperature (external)
-    If the Jeans length refinement criterion (see CellFlaggingMethod)
+``JeansRefinementColdTemperature`` (external)
+    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
     is being used, and this parameter is greater than zero, it will be
     used in place of the temperature in all cells. Default: -1.0
-StaticRefineRegionLevel[#] (external)
+``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
-    to static refined, regardless of other parameters. This is mostly
+    to be statically refined, regardless of other parameters. This is mostly
     used as an internal mechanism to keep the initial grid hierarchy in
     place, but can be specified by the user. Up to 20 static regions
-    may be defined (this number set in macros\_and\_parameters.h), and
+    may be defined (this number set in ``macros\_and\_parameters.h``), and
     each static region is labeled starting from zero. For each static
     refined region, two pieces of information are required: (1) the
     region (see the next two parameters), and (2) the level at which
     the refinement is to occurs (0 implies a level 1 region will always
     exist). Default: none
-StaticRefineRegionLeftEdge[#], StaticRefineRegionRightEdge[#] (external)
+``StaticRefineRegionLeftEdge[#]``, ``StaticRefineRegionRightEdge[#]`` (external)
     These two parameters specify the two corners of a statically
     refined region (see the previous parameter). Default: none
-RefineByResistiveLength (external)
+``RefineByResistiveLength`` (external)
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is
     covered by this number of cells. Default: 2
-LoadBalancing (external)
+``LoadBalancing`` (external)
     Set to 0 to keep child grids on the same processor as their
     parents. Set to 1 to balance the work on one level over all
     processors. Set to 2 or 3 to load balance the grids but keep them
@@ -629,7 +630,7 @@ LoadBalancing (external)
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
     (01230123)). Default: 1
-LoadBalancingCycleSkip (external)
+``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
     for nested grid calculations. Default: 10
@@ -637,35 +638,35 @@ LoadBalancingCycleSkip (external)
 Hydrodynamic Parameters
 -----------------------
 
-HydroMethod (external)
+``HydroMethod`` (external)
     This integer specifies the hydrodynamics method that will be used.
     Currently implemented are: 0 - PPM DE (a direct-Eulerian version of
     PPM), 1 - PPM LR (a Lagrange-Remap version of PPM), 2 - ZEUS (a
     Cartesian, 3D version of Stone & Norman). The PPM LR version is not
     recommended. Note that if ZEUS is selected, it automatically turns
-    off ConservativeInterpolation and the DualEnergyFormalism flags. 3
+    off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 3
     - Runge Kutta third order based MUSCL solvers. 4 - Same as three
     but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are
-    the additional parameters RiemannSolver and ReconstructionMethod
+    the additional parameters ``RiemannSolver`` and ``ReconstructionMethod``
     you want to set. Default: 0
-Gamma (external)
+``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
-    methods). If using multiple species (i.e. MultiSpecies > 0), then
-    this value is ignored in favour of a direct calculation (except for
+    methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
+    this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
-CourantSafetyNumber (external)
+``CourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance any grid. A value greater than 1 is unstable
     (for all explicit methods). The recommended value is 0.4. Default:
     0.6.
-RootGridCourantSafetyNumber (external)
+``RootGridCourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance ONLY the root grid. When using simulations with
     star particle creation turned on, this should be set to a value of
     approximately 0.01-0.02 to keep star particles from flying all over
     the place. Otherwise, this does not need to be set, and in any case
     should never be set to a value greater than 1.0. Default: 1.0.
-DualEnergyFormalism (external)
+``DualEnergyFormalism`` (external)
     The dual energy formalism is needed to make total energy schemes
     such as PPM DE and PPM LR stable and accurate in the
     "hyper-Machian" regime (i.e. where the ratio of thermal energy to
@@ -673,91 +674,91 @@ DualEnergyFormalism (external)
     PPM LR. Automatically turned off when used with the hydro method
     ZEUS. Integer flag (0 - off, 1 - on). When turned on, there are two
     energy fields: total energy and thermal energy. Default: 0
-DualEnergyFormalismEta1, DualEnergyFormalismEta2 (external)
+``DualEnergyFormalismEta1``, ``DualEnergyFormalismEta2`` (external)
     These two parameters are part of the dual energy formalism and
     should probably not be changed. Defaults: 0.001 and 0.1
     respectively.
-PressureFree (external)
+``PressureFree`` (external)
     A flag that is interpreted by the PPM DE hydro method as an
     indicator that it should try and mimic a pressure-free fluid. A
     flag: 1 is on, 0 is off. Default: 0
-PPMFlatteningParameter (external)
+``PPMFlatteningParameter`` (external)
     This is a PPM parameter to control noise for slowly-moving shocks.
     It is either on (1) or off (0). Default: 0
-PPMDiffusionParameter (external)
+``PPMDiffusionParameter`` (external)
     This is the PPM diffusion parameter (see the Colella and Woodward
     method paper for more details). It is either on (1) or off (0).
     Default: 1 [Currently disabled (set to 0)]
-PPMSteepeningParameter (external)
+``PPMSteepeningParameter`` (external)
     A PPM modification designed to sharpen contact discontinuities. It
     is either on (1) or off (0). Default: 0
-ZEUSQuadraticArtificialViscosity (external)
+``ZEUSQuadraticArtificialViscosity`` (external)
     This is the quadratic artificial viscosity parameter C2 of Stone &
     Norman, and corresponds (roughly) to the number of zones over which
     a shock is spread. Default: 2.0
-ZEUSLinearArtificialViscosity (external)
+``ZEUSLinearArtificialViscosity`` (external)
     This is the linear artificial viscosity parameter C1 of Stone &
     Norman. Default: 0.0
 
 Magnetohydrodynamic Parameters
 ------------------------------
 
-UseDivergenceCleaning (external)
+``UseDivergenceCleaning`` (external)
     Method 1 and 2 are a failed experiment to do divergence cleaning
     using successive over relaxation. Method 3 uses conjugate gradient
     with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more
     accurate but can lead to aliasing effects. Default: 0
-DivergenceCleaningBoundaryBuffer (external)
+``DivergenceCleaningBoundaryBuffer ``(external)
     Choose to \*not\* correct in the active zone of a grid by a
     boundary of cells this thick. Default: 0
-DivergenceCleaningThreshold (external)
+``DivergenceCleaningThreshold`` (external)
     Calls divergence cleaning on a grid when magnetic field divergence
     is above this threshold. Default: 0.001
-PoissonApproximateThreshold (external)
+``PoissonApproximateThreshold`` (external)
     Controls the accuracy of the resulting solution for divergence
     cleaning Poisson solver. Default: 0.001
-ResetMagneticField (external)
+``ResetMagneticField`` (external)
     Set to 1 to reset the magnetic field in the regions that are denser
     than the critical matter density. Very handy when you want to
     re-simulate or restart the dumps with MHD. Default: 0
-ResetMagneticFieldAmplitude (external)
+``ResetMagneticFieldAmplitude`` (external)
     The magnetic field values (in Gauss) that will be used for the
     above parameter. Default: 0.0 0.0 0.0
 
 Cosmology Parameters
 --------------------
 
-ComovingCoordinates (external)
+``ComovingCoordinates`` (external)
     Flag (1 - on, 0 - off) that determines if comoving coordinates are
     used or not. In practice this turns on or off the entire cosmology
     machinery. Default: 0
-CosmologyFinalRedshift (external)
+``CosmologyFinalRedshift`` (external)
     This parameter specifies the redshift when the calculation will
     halt. Default: 0.0
-CosmologyOmegaMatterNow (external)
+``CosmologyOmegaMatterNow`` (external)
     This is the contribution of all non-relativistic matter (including
     HDM) to the energy density at the current epoch (z=0), relative to
     the value required to marginally close the universe. It includes
     dark and baryonic matter. Default: 0.279
-CosmologyOmegaLambdaNow (external)
+``CosmologyOmegaLambdaNow`` (external)
     This is the contribution of the cosmological constant to the energy
     density at the current epoch, in the same units as above. Default:
     0.721
-CosmologyComovingBoxSize (external)
+``CosmologyComovingBoxSize`` (external)
     The size of the volume to be simulated in Mpc/h (at z=0). Default:
     64.0
-CosmologyHubbleConstantNow (external)
+``CosmologyHubbleConstantNow`` (external)
     The Hubble constant at z=0, in units of 100 km/s/Mpc. Default:
     0.701
-CosmologyInitialRedshift (external)
+``CosmologyInitialRedshift`` (external)
     The redshift for which the initial conditions are to be generated.
     Default: 20.0
-CosmologyMaxExpansionRate (external)
+``CosmologyMaxExpansionRate`` (external)
     This float controls the timestep so that cosmological terms are
     accurate followed. The timestep is constrained so that the relative
     change in the expansion factor in a step is less than this value.
     Default: 0.01
-CosmologyCurrentRedshift (information only)
+``CosmologyCurrentRedshift`` (information only)
     This is not strictly speaking a parameter since it is never
     interpreted and is only meant to provide information to the user.
     Default: n/a
@@ -765,49 +766,49 @@ CosmologyCurrentRedshift (information only)
 Gravity Parameters
 ------------------
 
-TopGridGravityBoundary (external)
+``TopGridGravityBoundary`` (external)
     A single integer which specified the type of gravitational boundary
     conditions for the top grid. Possible values are 0 for periodic and
     1 for isolated (for all dimensions). The isolated boundary
     conditions have not been tested recently, so caveat emptor.
     Default: 0
-SelfGravity (external)
+``SelfGravity`` (external)
     This flag (1 - on, 0 - off) indicates if the baryons and particles
     undergo self-gravity.
-GravitationalConstant (external)
+``GravitationalConstant`` (external)
     This is the gravitational constant to be used. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
     standard units to hold. Default: 4\*pi.
-GreensFunctionMaxNumber (external)
+``GreensFunctionMaxNumber`` (external)
     The Green's functions for the gravitational potential depend on the
     grid size, so they are calculated on a as-needed basis. Since they
     are often re-used, they can be cached. This integer indicates the
     number that can be stored. They don't take much memory (only the
     real part is stored), so a reasonable number is 100. [Ignored in
     current version]. Default: 1
-GreensFunctionMaxSize
+``GreensFunctionMaxSize``
     Reserved for future use.
-S2ParticleSize (external)
+``S2ParticleSize`` (external)
     This is the gravitational softening radius, in cell widths, in
     terms of the S2 particle described by Hockney and Eastwood in their
     book Computer Simulation Using Particles. A reasonable value is
     3.0. [Ignored in current version]. Default: 3.0
-GravityResolution (external)
+``GravityResolution`` (external)
     This was a mis-guided attempt to provide the capability to increase
     the resolution of the gravitational mesh. In theory it still works,
     but has not been recently tested. Besides, it's just not a good
     idea. The value (a float) indicates the ratio of the gravitational
     cell width to the baryon cell width. [Ignored in current version].
     Default: 1
-ComputePotential (external)
+``ComputePotential`` (external)
     This flag (1 -on, 0 - off) indicates if the gravitational potential
     is to be computed on the mesh. This is necessary if the energy
     conservation is to be computed. [not tested] Default: 0
-PotentialIterations (external)
+``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
     boundaries. Default: 4.
-BaryonSelfGravityApproximation (external)
+``BaryonSelfGravityApproximation`` (external)
     This flag indicates if baryon density is derived in a strange,
     expensive but self-consistent way (0 - off), or by a completely
     reasonable and much faster approximation (1 - on). This is an
@@ -815,14 +816,14 @@ BaryonSelfGravityApproximation (external)
     very dense structures as when radiative cooling is turned on, so
     set to 0 if using many levels and radiative cooling is on [ignored
     in current version]. Default: 1
-MaximumGravityRefinementLevel (external)
+``MaximumGravityRefinementLevel`` (external)
     This is the lowest (most refined) depth that a gravitational
     acceleration field is computed. More refined levels interpolate
     from this level, provided a mechanism for instituting a minimum
-    gravitational smoothing length. Default: MaximumRefinementLevel
-    (unless HydroMethod is ZEUS and radiative cooling is on, in which
-    case it is MaximumRefinementLevel - 3).
-MaximumParticleRefinementLevel (external)
+    gravitational smoothing length. Default: ``MaximumRefinementLevel``
+    (unless ``HydroMethod`` is ZEUS and radiative cooling is on, in which
+    case it is ``MaximumRefinementLevel`` - 3).
+``MaximumParticleRefinementLevel`` (external)
     This is the level at which the dark matter particle contribution to
     the gravity is smoothed. This works in an inefficient way (it
     actually smoothes the particle density onto the grid), and so is
@@ -830,69 +831,69 @@ MaximumParticleRefinementLevel (external)
     completely baryon dominated. It is used to remove the discreteness
     effects of the few remaining dark matter particles. Not used if set
     to a value less than 0. Default: -1
-PointSourceGravity (external)
+``PointSourceGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a
     (constant) point source gravitational field. Default: 0
-PointSourceGravityConstant (external)
+``PointSourceGravityConstant`` (external)
     The magnitude of the point source acceleration at a distance of 1
     length unit. Default: 1
-PointSourceGravityPosition (external)
-    If the PointSourceGravity flag is turned on, this parameter
+``PointSourceGravityPosition`` (external)
+    If the ``PointSourceGravity`` flag is turned on, this parameter
     specifies the center of the point-source gravitational field.
     Default: 0 0 0
-UniformGravity (external)
+``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
-UniformGravityDirection (external)
+``UniformGravityDirection`` (external)
     This integer is the direction of the uniform gravitational field: 0
     - along the x axis, 1 - y axis, 2 - z axis. Default: 0
-UniformGravityConstant (external)
+``UniformGravityConstant`` (external)
     Magnitude (and sign) of the uniform gravitational acceleration.
     Default: 1
 
 Particle Parameters
 -------------------
 
-ParticleBoundaryType (external)
+``ParticleBoundaryType`` (external)
     The boundary condition imposed on particles. At the moment, this
     parameter is largely ceremonial as there is only one type
     implemented: periodic, indicated by a 0 value. Default: 0
-ParticleCourantSafetyNumber (external)
+``ParticleCourantSafetyNumber`` (external)
     This somewhat strangely named parameter is the maximum fraction of
     a cell width that a particle is allowed to travel per timestep
     (i.e. it is a constant on the timestep somewhat along the lines of
     it's hydrodynamic brother). Default: 0.5
-NumberOfParticles (obsolete)
+``NumberOfParticles`` (obsolete)
     Currently ignored by all initializers, except for TestGravity and
     TestGravitySphere where it is the number of test points. Default: 0
-NumberOfParticleAttributes (internal)
-    It is set to 3 if either StarParticleCreation or
-    StarParticleFeedback is set to 1 (TRUE). Default: 0
-AddParticleAttributes (internal)
+``NumberOfParticleAttributes`` (internal)
+    It is set to 3 if either ``StarParticleCreation`` or
+    ``StarParticleFeedback`` is set to 1 (TRUE). Default: 0
+``AddParticleAttributes`` (internal)
     If set to 1, additional particle attributes will be added and
     zeroed. This is handy when restarting a run, and the user wants to
     use star formation afterwards. Default: 0.
-ParallelParticleIO (external)
+``ParallelParticleIO`` (external)
     Normally, for the mpi version, the particle data are read into the
     root processor and then distributed to separate processors.
     However, for very large number of particles, the root processor may
     not have enough memory. If this toggle switch is set on (i.e. to
     the value 1), then Ring i/o is turned on and each processor reads
     its own part of the particle data. More I/O is required, but it is
-    more balanced in terms of memory. ParallelRootGridIO and
-    ParallelParticleIO MUST be set for runs involving > 64 cpus!
+    more balanced in terms of memory. ``ParallelRootGridIO`` and
+    ``ParallelParticleIO`` MUST be set for runs involving > 64 cpus!
     Default: 0 (FALSE).
-ParticleSplitterIterations (external)
+``ParticleSplitterIterations`` (external)
     Set to 1 to split particles into 13 particles (= 12 children+1
     parent, Kitsionas & Whitworth (2002)). This should be ideal for
     setting up an low-resolution initial condition for a relatively low
     computational cost, running it for a while, and then restarting it
     for an extremely high-resolution simulation in a focused region.
     Currently it implicitly assumes that only DM (type=1) and
-    conventional star particles (type=2) inside the RefineRegion get
+    conventional star particles (type=2) inside the ``RefineRegion`` get
     split. Other particles, which usually become Star class objects,
     seem to have no reason to be split. Default: 0
-ParticleSplitterChildrenParticleSeparation (external)
+``ParticleSplitterChildrenParticleSeparation`` (external)
     This is the spacing between the child particles placed on a
     hexagonal close-packed (HCP) array. In the unit of a cell size
     which the parent particle resides in. Default: 1.0
@@ -900,36 +901,36 @@ ParticleSplitterChildrenParticleSeparation (external)
 Parameters for Additional Physics
 ---------------------------------
 
-RadiativeCooling (external)
+``RadiativeCooling`` (external)
     This flag (1 - on, 0 - off) controls whether or not a radiative
     cooling module is called for each grid. There are currently several
     possibilities, controlled by the value of another flag. Default: 0
     
-    -  If the MultiSpecies flag is off, then equilibrium cooling is
+    -  If the ``MultiSpecies`` flag is off, then equilibrium cooling is
        assumed and one of the following two will happen. If the parameter
-       GadgetCooling is set to 1, the primordial equilibrium code is
-       called (see below). If GadgetCooling is set to 0, a file called
-       cool\_rates.in is read to set a cooling curve. This file consists
+       ``GadgetCooling`` is set to 1, the primordial equilibrium code is
+       called (see below). If ``GadgetCooling`` is set to 0, a file called
+       ``cool\_rates.in`` is read to set a cooling curve. This file consists
        of a set of temperature and the associated cgs cooling rate; a
        sample compute with a metallicity Z=0.3 Raymond-Smith code is
-       provided in input/cool\_rates.in. This has a cutoff at 10000 K
+       provided in ``input/cool\_rates.in``. This has a cutoff at 10000 K
        (Sarazin & White 1987). Another choice will be
-       input/cool\_rates.in\_300K which goes further down to 300 K (Rosen
+       ``input/cool\_rates.in\_300K`` which goes further down to 300 K (Rosen
        & Bregman 1995).
-    -  If the MultiSpecies flag is on, then the cooling rate is
+    -  If the ``MultiSpecies`` flag is on, then the cooling rate is
        computed directly by the species abundances. This routine (which
-       uses a backward differenced multi-step algorithm) was plundered
+       uses a backward differenced multi-step algorithm) is borrowed
        from the Hercules code written by Peter Anninos and Yu Zhang,
        featuring rates from Tom Abel. Other varieties of cooling are
-       controlled by the MetalCooling parameter, as discused below.
+       controlled by the ``MetalCooling`` parameter, as discused below.
 
-GadgetCooling (external)
+``GadgetCooling`` (external)
     This flag (1 - on, 0 - off) turns on (when set to 1) a set of
     routines that calculate cooling rates based on the assumption of a
     six-species primordial gas (H, He, no H2 or D) in equilibrium, and
     is valid for temperatures greater than 10,000 K. This requires the
-    file TREECOOL to execute. Default: 0
-MetalCooling (external)
+    file ``TREECOOL`` to execute. Default: 0
+``MetalCooling`` (external)
     This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007, 2
     - Cen, 3 - Cloudy cooling from Smith, Sigurdsson, & Abel 2008)
     turns on metal cooling for runs that track metallicity. Option 1 is
@@ -939,18 +940,18 @@ MetalCooling (external)
     Sutherland & Dopita (1993). Option 2 is only valid for temperatures
     above 10\ :sup:`4`\  K. Option 3 uses multi-dimensional tables of
     heating/cooling values created with Cloudy and optionally coupled
-    to the MultiSpecies chemistry/cooling solver. This method is valid
-    from 10 K to 10\ :sup:`8`\  K. See CloudyCooling parameters below.
+    to the ``MultiSpecies`` chemistry/cooling solver. This method is valid
+    from 10 K to 10\ :sup:`8`\  K. See the Cloudy Cooling parameters below.
     Default: 0.
-MetalCoolingTable (internal)
+``MetalCoolingTable`` (internal)
     This field contains the metal cooling table required for
-    MetalCooling option 1. In the top level directory input/, there are
-    two files metal\_cool.dat and metal\_cool\_pop3.dat that consider
+    ``MetalCooling`` option 1. In the top level directory input/, there are
+    two files ``metal\_cool.dat`` and ``metal\_cool\_pop3.dat`` that consider
     metal cooling for solar abundance and abundances from
     pair-instability supernovae, respectively. In the same directory,
-    one can find an IDL routine (make\_Zcool\_table.pro) that generates
-    these tables. Default: metal\_cool.dat
-MultiSpecies (external)
+    one can find an IDL routine (``make\_Zcool\_table.pro``) that generates
+    these tables. Default: ``metal\_cool.dat``
+``MultiSpecies`` (external)
     If this flag (1, 2, 3- on, 0 - off) is on, then the code follows
     not just the total density, but also the ionization states of
     Hydrogen and Helium. If set to 2, then a nine-species model
@@ -959,19 +960,16 @@ MultiSpecies (external)
     a 12 species model is followed, including D, D+ and HD. This
     routine, like the last one, is based on work done by Abel, Zhang
     and Anninos. Default: 0
-GadgetEquilibriumCooling (external)
+``GadgetEquilibriumCooling`` (external)
     An implementation of the ionization equilibrium cooling code used
-    in the GADGETcode which includes both radiative cooling and a
-    uniform metagalactic UV background specified by the TREECOOL file
-    (in the amr\_mpi/exe directory). When this parameter is turned on,
-    MultiSpecies and RadiationFieldType are forced to 0 and
-    RadiativeCooling is forced to 1.
+    in the GADGET code which includes both radiative cooling and a
+    uniform metagalactic UV background specified by the ``TREECOOL`` file
+    (in the ``amr\_mpi/exe`` directory). When this parameter is turned on,
+    ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
+    ``RadiativeCooling`` is forced to 1.
+    [Not in public release version]
 
-        [Not in public release version]
-
-
-
-MultiMetals (external)
+``MultiMetals`` (external)
     This was added so that the user could turn on or off additional
     metal fields - currently there is the standard metallicity field
     (Metal\_Density) and two additional metal fields (Z\_Field1 and
@@ -982,10 +980,10 @@ Cloudy Cooling
 
 Cloudy cooling from Smith, Sigurdsson, & Abel (2008) interpolates
 over tables of precomputed cooling data. Cloudy cooling is turned
-on by setting MetalCooling to 3. RadiativeCooling must also be set
+on by setting ``MetalCooling`` to 3. ``RadiativeCooling`` must also be set
 to 1. Depending on the cooling data used, it can be coupled with
-MultiSpecies = 1, 2, or 3 so that the metal-free cooling comes from
-the MultiSpecies machinery and the Cloudy tables provide only the
+``MultiSpecies`` = 1, 2, or 3 so that the metal-free cooling comes from
+the ``MultiSpecies`` machinery and the Cloudy tables provide only the
 metal cooling. Datasets range in dimension from 1 to 5. Dim 1:
 interpolate over temperature. Dim 2: density and temperature. Dim
 3: density, metallicity, and temperature. Dim 4: density,
@@ -994,30 +992,30 @@ metallicity, electron fraction, spectral strength, and temperature.
 See Smith, Sigurdsson, & Abel (2008) for more information on
 creating Cloudy datasets.
 
-CloudyCoolingGridFile (external)
+``CloudyCoolingGridFile`` (external)
     A string specifying the path to the Cloudy cooling dataset.
 
-IncludeCloudyHeating (external)
+``IncludeCloudyHeating`` (external)
     An integer (0 or 1) specifying whether the heating rates are to be
     included in the calculation of the cooling. Some Cloudy datasets
     are made with the intention that only the cooling rates are to be
     used. Default: 0 (off).
 
-IncludeCloudyMMW (external)
+``IncludeCloudyMMW`` (external)
     An integer (0 or 1) specifying whether the additional mean
     molecular weight contributed by the metals be used in the
     conversion from internal energy to temperature. These values will
     come from the Cloudy dataset. For metallicities less than solar,
     this addition will be negligible. Default: 0 (off).
 
-CMBTemperatureFloor (external)
+``CMBTemperatureFloor`` (external)
     An integer (0 or 1) specifying whether a temperature floor is
     created at the temperature of the cosmic microwave background
     (T\ :sub:`CMB`\  = 2.72 (1 + z) K). This is accomplished in the
     code by subtracting the cooling rate at T\ :sub:`CMB`\  such that
     Cooling = Cooling(T) - Cooling(T\ :sub:`CMB`\ ). Default: 1 (on).
 
-CloudyMetallicityNormalization (external)
+``CloudyMetallicityNormalization`` (external)
     A float value used in the conversion of metal density into
     metallicity. This value will change depending on the specific
     abundance patterns used to make the Cloudy dataset. The value of
@@ -1028,7 +1026,7 @@ CloudyMetallicityNormalization (external)
     from the latest version of Cloudy, using all metals through Zn,
     this value is 0.018477. Default: 0.018477.
 
-CloudyElectronFractionFactor (external)
+``CloudyElectronFractionFactor`` (external)
     A float value to account for additional electrons contributed by
     metals. This is only used with Cloudy datasets with dimension
     greater than or equal to 4. The value of this factor is calculated
@@ -1046,33 +1044,33 @@ friends-of-friends (FOF) halo finder and a subfind method,
 originally written by Volker Springel. All output files will be
 written in the directory FOF/.
 
-InlineHaloFinder (external)
+``InlineHaloFinder`` (external)
     Set to 1 to turn on the inline halo finder. Default: 0.
-HaloFinderSubfind (external)
+``HaloFinderSubfind`` (external)
     Set to 1 to find subhalos inside each dark matter halo found in the
     friends-of-friends method. Default: 0.
-HaloFinderOutputParticleList (external)
+``HaloFinderOutputParticleList`` (external)
     Set to 1 to output a list of particle positions and IDs for each
     (sub)halo. Written in HDF5. Default: 0.
-HaloFinderMinimumSize (external)
+``HaloFinderMinimumSize`` (external)
     Minimum number of particles to be considered a halo. Default: 50.
-HaloFinderLinkingLength (external)
+``HaloFinderLinkingLength`` (external)
     Linking length of particles when finding FOF groups. In units of
     cell width of the finest static grid, e.g. unigrid -> root cell
     width. Default: 0.1.
-HaloFinderCycleSkip (external)
+``HaloFinderCycleSkip`` (external)
     Find halos every N\ :sup:`th`\  top-level timestep, where N is this
     parameter. Not used if set to 0. Default: 3.
-HaloFinderTimestep (external)
+``HaloFinderTimestep`` (external)
     Find halos every dt = (this parameter). Only evaluated at each
     top-level timestep. Not used if negative. Default: -99999.0
-HaloFinderLastTime (internal)
+``HaloFinderLastTime`` (internal)
     Last time of a halo find. Default: 0.
 
 Inline Python
 ~~~~~~~~~~~~~
 
-PythonSubcycleSkip (external)
+``PythonSubcycleSkip`` (external)
     The number of times Enzo should reach the bottom of the hierarchy
     before exposing its data and calling Python. Only works with
     python-yes in compile settings.
@@ -1080,7 +1078,7 @@ PythonSubcycleSkip (external)
 Star Formation and Feedback Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-StarParticleCreation (external)
+``StarParticleCreation`` (external)
     This parameter is bitwise so that multiple types of star formation
     routines can be used in a single simulation. For example if methods
     1 and 3 are desired, the user would specify 10 (2\ :sup:`1`\  +
@@ -1107,134 +1105,132 @@ StarParticleCreation (external)
        Kim et al. (2010)
 
 
-StarParticleFeedback (external)
-    This parameter works the same way as StarParticleCreation but only
+``StarParticleFeedback`` (external)
+    This parameter works the same way as ``StarParticleCreation`` but only
     is valid for Methods 0, 1, 2, 7 and 8 because methods 3, 5 and 9
-    use the radiation transport module and Star\_\*.C routines to
+    use the radiation transport module and ``Star\_\*.C`` routines to
     calculate the feedback. Default: 0.
 
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in StarParticleCreation method
+The parameters below are considered in ``StarParticleCreation`` method
 0, 1, 2, 7 and 8.
 
-StarMakerOverDensityThreshold (external)
+``StarMakerOverDensityThreshold`` (external)
     The overdensity threshold (relative to the total mean density, not
     just the dark matter mean density) before star formation will be
-    considered. For StarParticleCreation method 7 in "cosmological"
-    simulations, however, StarMakerOverDensity should be in
+    considered. For ``StarParticleCreation`` method 7 in "cosmological"
+    simulations, however, ``StarMakerOverDensity`` should be in
     particles/cc, so it is not the ratio with respect to the
-    DensityUnits (unlike most other
+    ``DensityUnits`` (unlike most other
     star\_maker's). This way one correctly represents the Jeans
     collapse and molecular cloud scale physics even in cosmological
     simulations. Default: 100
-StarMakerSHDensityThreshold (external)
+``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation (\\rho\_{th} in the paper) used to determine the star
     formation timescale in units of g cm\ :sup:`-3`\ . Default: 7e-26.
-StarMakerMassEfficiency (external)
+``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
     (Mass\*dt/t\_dyn) that is converted into a star particle. Default:
     1
-StarMakerMinimumMass (external)
+``StarMakerMinimumMass`` (external)
     The minimum mass of star particle, in solar masses. Note however,
-    the star maker algorithm 2 has a "stochastic" star formation
+    the star maker algorithm 2 has a (default off) "stochastic" star formation
     algorithm that will, in a pseudo-random fashion, allow star
     formation even for very low star formation rates. It attempts to do
     so (relatively successfully according to tests) in a fashion that
     conserves the global average star formation rate. Default: 1e9
-StarMakerMinimumDynamicalTime (external)
+``StarMakerMinimumDynamicalTime``(external)
     When the star formation rate is computed, the rate is proportional
     to M\_baryon \* dt/max(t\_dyn, t\_max) where t\_max is this
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
     formation and life-time. The unit is years. Default: 1e6
-StarMassEjectionFraction (external)
+``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25
-StarMetalYield (external)
+``StarMetalYield`` (external)
     The mass fraction of metals produced by each unit mass of stars
     created (i.e. it is multiplied by mstar, not ejected). Default:
     0.02
-StarEnergyToThermalFeedback (external)
+``StarEnergyToThermalFeedback`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned to the gas phase as thermal energy. Default: 1e-5
-StarEnergyToStellarUV (external)
+``StarEnergyToStellarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a young star spectrum. Default: 3e-6
-StarEnergyToQuasarUV (external)
+``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in StarParticleCreation method
-3.
+The parameters below are considered in ``StarParticleCreation`` method 3.
 
-PopIIIStarMass (external)
+``PopIIIStarMass`` (external)
     Stellar mass of Population III stars created in
-    StarParticleCreation method 3. Units of solar masses. The
+    ``StarParticleCreation`` method 3. Units of solar masses. The
     luminosities and supernova energies are calculated from Schaerer
     (2002) and Heger & Woosley (2002), respectively.
-PopIIIBlackHoles (external)
+``PopIIIBlackHoles`` (external)
     Set to 1 to create black hole particles that radiate in X-rays for
     stars that do not go supernova (< 140 solar masses and > 260 solar
     masses). Default: 0.
-PopIIIBHLuminosityEfficiency (internal)
+``PopIIIBHLuminosityEfficiency`` (internal)
     The radiative efficiency in which the black holes convert accretion
     to luminosity. Default: 0.1.
-PopIIIOverDensityThreshold (internal)
+``PopIIIOverDensityThreshold`` (internal)
     The overdensity threshold (relative to the total mean density)
     before Pop III star formation will be considered. Default: 1e6.
-PopIIIH2CriticalFraction (internal)
+``PopIIIH2CriticalFraction`` (internal)
     The H\_2 fraction threshold before Pop III star formation will be
     considered. Default: 5e-4.
-PopIIIMetalCriticalFraction (internal)
+``PopIIIMetalCriticalFraction`` (internal)
     The metallicity threshold (relative to gas density, not solar)
     before Pop III star formation will be considered. Note: this should
     be changed to be relative to solar! Default: 1e-4.
-PopIIISupernovaRadius (internal)
+``PopIIISupernovaRadius`` (internal)
     If the Population III star will go supernova (140<M<260 solar
     masses), this is the radius of the sphere to inject the supernova
     thermal energy at the end of the star's life. Units are in parsecs.
     Default: 1.
-PopIIISupernovaUseColour (internal)
+``PopIIISupernovaUseColour`` (internal)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
 
 Jeans Resolved Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in StarParticleCreation method
-5.
+The parameters below are considered in ``StarParticleCreation`` method 5.
 
-StarClusterUseMetalField (internal)
+``StarClusterUseMetalField`` (internal)
     Set to 1 to trace ejecta from supernovae. Default: 0.
-StarClusterMinDynamicalTime (internal)
+``StarClusterMinDynamicalTime`` (internal)
     When determining the size of a star forming region, one method is
     to look for the sphere with an enclosed average density that
     corresponds to some minimum dynamical time. Observations hint that
     this value should be a few million years. Units are in years.
     Default: 1e7.
-StarClusterIonizingLuminosity (internal)
+``StarClusterIonizingLuminosity`` (internal)
     The specific luminosity of the stellar clusters. In units of
     ionizing photons per solar mass. Default: 1e47.
-StarClusterSNEnergy (internal)
+``StarClusterSNEnergy`` (internal)
     The specific energy injected into the gas from supernovae in the
     stellar clusters. In units of ergs per solar mass. Default: 6.8e48
     (Woosley & Weaver 1986).
-StarClusterSNRadius (internal)
+``StarClusterSNRadius`` (internal)
     This is the radius of the sphere to inject the supernova thermal
     energy in stellar clusters. Units are in parsecs. Default: 10.
-StarClusterFormEfficiency (internal)
+``StarClusterFormEfficiency`` (internal)
     Fraction of gas in the sphere to transfer from the grid to the star
     particle. Recall that this sphere has a minimum dynamical time set
-    by StarClusterMinDynamicalTime. Default: 0.1.
-StarClusterMinimumMass (internal)
+    by ``StarClusterMinDynamicalTime``. Default: 0.1.
+``StarClusterMinimumMass`` (internal)
     The minimum mass of a star cluster particle before the formation is
     considered. Units in solar masses. Default: 1000.
-StarClusterCombineRadius (internal)
+``StarClusterCombineRadius`` (internal)
     It is possible to merge star cluster particles together within this
     specified radius. Units in parsecs. This is probably not necessary
     if ray merging is used. Originally this was developed to reduce the
@@ -1244,26 +1240,25 @@ StarClusterCombineRadius (internal)
 Massive Black Hole Particle Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in StarParticleCreation method
-9.
+The parameters below are considered in StarParticleCreation method 9.
 
-MBHInsertLocationFilename (external)
+``MBHInsertLocationFilename`` (external)
     The mass and location of the MBH particle that has to be inserted.
     For example, the content of the file should be in the following
-    form. For details, see mbh\_maker.src. Default:
-    mbh\_insert\_location.in
+    form. For details, see ``mbh\_maker.src``. Default:
+    ``mbh\_insert\_location.in``
     ::
 
         #order: MBH mass (in Ms), MBH location[3], MBH creation time
-           100000.0      0.48530579      0.51455688      0.51467896      0.0
+        100000.0      0.48530579      0.51455688      0.51467896      0.0
 
 
 Background Radiation Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RadiationFieldType (external)
+``RadiationFieldType`` (external)
     This integer parameter specifies the type of radiation field that
-    is to be used. It can currently only be used if MultiSpecies = 1
+    is to be used. It can currently only be used if ``MultiSpecies`` = 1
     (i.e. no molecular H support). The following values are used.
     Default: 0
     
@@ -1277,35 +1272,35 @@ RadiationFieldType (external)
     - 11. same as previous, but with very, very simple optical shielding fudge
     - 12. Haardt & Madau spectrum with q\_alpha=1.57
 
-RadiationFieldLevelRecompute (external)
+``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
     set to 10 or 11. It controls how often (i.e. the level at which)
     the internal radiation field is recomputed. Default: 0
-RadiationSpectrumNormalization (external)
+``RadiationSpectrumNormalization`` (external)
     This parameter was initially used to normalize the photo-ionization
-    and photo-heating rates computed in the
-    RadiationFieldCalculateRates() and then passed on to
-    calc\_photo\_rates(), calc\_rad() and calc\_rates() routines.
+    and photo-heating rates computed in the function
+    ``RadiationFieldCalculateRates()`` and then passed on to the
+    ``calc\_photo\_rates()``, ``calc\_rad()`` and ``calc\_rates()`` routines.
     Later, the normalization as a separate input parameter was dropped
     for all cases by using the rates computed in
-    RadiationFieldCalculateRates() with one exception: The molecular
+    ``RadiationFieldCalculateRates()`` with one exception: The molecular
     hydrogen (H2) dissociation rate. There a normalization is performed
-    on the rate by multiplying it with RadiationSpectrumNormalization.
+    on the rate by multiplying it with ``RadiationSpectrumNormalization``.
     Default: 1e-21
-RadiationShield (external)
+``RadiationShield`` (external)
     This parameter specifies whether the user wants to employ
     approximate radiative-shielding. This parameter will be
     automatically turned on when RadiationFieldType is set to 11. See
-    calc\_photo\_rates.src. Default: 0
-AdjustUVBackground (external)
+    ``calc\_photo\_rates.src``. Default: 0
+``AdjustUVBackground`` (external)
     Add description. Default: 1.
-SetUVAmplitude (external)
+``SetUVAmplitude`` (external)
     Add description. Default: 1.0.
-SetHeIIHeatingScale (external)
+``SetHeIIHeatingScale`` (external)
     Add description. Default: 1.8.
-RadiationSpectrumSlope (external)
+``RadiationSpectrumSlope`` (external)
     Add description. Default: 1.5.
-PhotoelectricHeating (external)
+``PhotoelectricHeating`` (external)
     If set to be 1, Gamma\_pe = 5.1e-26 erg/s will be added uniformly
     to the gas without any shielding (Tasker & Bryan 2008). At the
     moment this is still experimental. Default: 0
@@ -1313,7 +1308,7 @@ PhotoelectricHeating (external)
 Minimum Pressure Support Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-UseMinimumPressureSupport (external)
+``UseMinimumPressureSupport`` (external)
     When radiative cooling is turned on, and objects are allowed to
     collapse to very small sizes (i.e. a few cells), and they are
     evolved for many, many dynamical times, then unfortunate things
@@ -1321,13 +1316,13 @@ UseMinimumPressureSupport (external)
     generation, and possible some resulting momentum non-conservation.
     To alleviate this problem, a very simple fudge was introduced: if
     this flag is turned on, then a minimum temperature is applied to
-    grids with level == MaximumRefinementLevel. This minimum
+    grids with level == ``MaximumRefinementLevel``. This minimum
     temperature is that required to make each cell Jeans stable
     multiplied by the parameter below. If you use this, it is advisable
     to also set the gravitational smoothing length in the form of
-    MaximumGravityRefineLevel to 2 or 3 less than
-    MaximumRefinementLevel. Default: 0
-MinimumPressureSupportParameter (external)
+    ``MaximumGravityRefineLevel`` to 2 or 3 less than
+    ``MaximumRefinementLevel``. Default: 0
+``MinimumPressureSupportParameter`` (external)
     This is the parameter alluded to above. Very roughly speaking, is
     the number of cells over which a gravitationally bound small cold
     clump, on the most refined level, will be spread over. Default:
@@ -1336,79 +1331,79 @@ MinimumPressureSupportParameter (external)
 Radiative Transfer (Ray Tracing) Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RadiativeTransfer (external)
-    Set to 1 to turn on the adaptive ray tracing à la Abel, Wise &
-    Bryan 2007. Note that you also have to compile the source first
-    after doing a make photon-yes. Default: 0.
-RadiativeTransferRadiationPressure (external)
+``RadiativeTransfer`` (external)
+    Set to 1 to turn on the adaptive ray tracing following Abel, Wise &
+    Bryan 2007. Note that Enzo must be first recompiled after setting
+    ``make photon-yes``. Default: 0.
+``RadiativeTransferRadiationPressure`` (external)
     Set to 1 to turn on radiation pressure created from absorbed photon
     packages. Default: 0
-RadiativeTransferInitialHEALPixLevel (internal)
+``RadiativeTransferInitialHEALPixLevel`` (internal)
     Chooses how many rays are emitted from radiation sources. The
     number of rays in Healpix are given through # =
     12x4\ :sup:`level`\ . Default: 3.
-RadiativeTransferRaysPerCell (external)
+``RadiativeTransferRaysPerCell`` (external)
     Determines the accuracy of the scheme by giving the minimum number
     of rays to cross cells. The more the better (slower). Default: 5.1.
-RadiativeTransferSourceRadius (external)
+``RadiativeTransferSourceRadius`` (external)
     The radius at which the photons originate from the radiation
     source. A positive value results in a radiating sphere. Default: 0.
-RadiativeTransferPropagationRadius (internal)
+``RadiativeTransferPropagationRadius`` (internal)
     The maximum distance a photon package can travel in one timestep.
     Currently unused. Default: 0.
-RadiativeTransferPropagationSpeed (internal)
+``RadiativeTransferPropagationSpeed`` (internal)
     The fraction of the speed of light at which the photons travel.
     Default: 1.
-RadiativeTransferCoupledRateSolver (internal)
+``RadiativeTransferCoupledRateSolver`` (internal)
     Set to 1 to calculate the new ionization fractions and gas energies
     after every radiative transfer timestep. This option is highly
-    recommended turned on. If not, ionization fronts will propagate too
+    recommended to be kept on. If not, ionization fronts will propagate too
     slowly. Default: 1.
-RadiativeTransferOpticallyThinH2 (external)
+``RadiativeTransferOpticallyThinH2`` (external)
     Set to 1 to include an optically-thin H\_2 dissociating
-    (Lyman-Werner) radiation field. Only used if MultiSpecies > 1. If
-    MultiSpecies > 1 and this option is off, the Lyman-Werner radiation
+    (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
+    ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
-RadiativeTransferSplitPhotonPackage (internal)
+``RadiativeTransferSplitPhotonPackage`` (internal)
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
-    always split. Default: FLOAT\_UNDEFINED.
-RadiativeTransferPhotonEscapeRadius (internal)
+    always split. Default: ``FLOAT\_UNDEFINED``.
+``RadiativeTransferPhotonEscapeRadius`` (internal)
     The number of photons that pass this distance from its source are
-    summed into the global variable EscapedPhotonCount[]. This variable
+    summed into the global variable ``EscapedPhotonCount[]``. This variable
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
     0. Default: 0.
-RadiativeTransferInterpolateField (obsolete)
+``RadiativeTransferInterpolateField`` (obsolete)
     A failed experiment in which we evaluate the density at the
     midpoint of the ray segment in each cell to calculate the optical
     depth. To interpolate, we need to calculate the vertex interpolated
     density fields. Default: 0.
-RadiativeTransferSourceClustering (internal)
+``RadiativeTransferSourceClustering`` (internal)
     Set to 1 to turn on ray merging. Not fully tested and may still be
     buggy. Default: 0.
-RadiativeTransferPhotonMergeRadius (internal)
+``RadiativeTransferPhotonMergeRadius`` (internal)
     The radius at which the rays will merge from their SuperSource,
     which is the luminosity weighted center of two sources. This radius
     is in units of the separation of two sources associated with one
     SuperSource. If set too small, there will be angular artifacts in
     the radiation field. Default: 10.
-RadiativeTransferTimestepVelocityLimit (external)
+``RadiativeTransferTimestepVelocityLimit`` (external)
     Limits the radiative transfer timestep to a minimum value that is
     determined by the cell width at the finest level divided by this
     velocity. Units are in km/s. Default: 100.
-RadiativeTransferPeriodicBoundary (external)
+``RadiativeTransferPeriodicBoundary`` (external)
     Set to 1 to turn on periodic boundary conditions for photon
     packages. Default: 0.
-RadiativeTransferTraceSpectrum (external)
+``RadiativeTransferTraceSpectrum`` (external)
     reserved for experimentation. Default: 0.
-RadiativeTransferTraceSpectrumTable (external)
-    reserved for experimentation. Default: spectrum\_table.dat
-RadiationXRaySecondaryIon (external)
+``RadiativeTransferTraceSpectrumTable`` (external)
+    reserved for experimentation. Default: ``spectrum\_table.dat``
+``RadiationXRaySecondaryIon`` (external)
     Set to 1 to turn on secondary ionizations and reduce heating from
     X-ray radiation (Shull & van Steenberg 1985). Currently only BH and
     MBH particles emit X-rays. Default: 0.
-RadiationXRayComptonHeating (external)
+``RadiationXRayComptonHeating`` (external)
     Set to 1 to turn on Compton heating on electrons from X-ray
     radiation (Ciotti & Ostriker 2001). Currently only BH and MBH
     particles emit X-rays. Default: 0.
@@ -1416,50 +1411,41 @@ RadiationXRayComptonHeating (external)
 Radiative Transfer (FLD) Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RadiativeTransferFLD (external)
-    Set to 2 to turn on the fld-based radiation solvers à la Reynolds,
+``RadiativeTransferFLD`` (external)
+    Set to 2 to turn on the fld-based radiation solvers following Reynolds,
     Hayes, Paschos & Norman, 2009. Note that you also have to compile
-    the source first after doing a make photon-yes and a \`make
-    hypre-yes'. Default: 0.
-ImplicitProblem (external)
+    the source using ``make photon-yes`` and a ``make
+    hypre-yes``. Note that if FLD is turned on, it will force
+    ``RadiativeCooling = 0``, ``GadgetEquilibriumCooling = 0``, and
+    ``RadiationFieldType = 0`` to prevent conflicts. Default: 0.
+``ImplicitProblem`` (external)
     Set to 1 to turn on the implicit FLD solver, or 3 to turn on the
     split FLD solver. Default: 0.
-RadHydroParamfile (external)
+``RadHydroParamfile`` (external)
     Names the (possibly-different) input parameter file containing
     solver options for the FLD-based solvers. These are described in
-    the relevant User Guides, located in doc/implicit\_fld and
-    doc/split\_fld. Default: NULL.
-RadiativeTransfer (external)
+    the relevant User Guides, located in ``doc/implicit\_fld`` and
+    ``doc/split\_fld``. Default: NULL.
+``RadiativeTransfer`` (external)
     Set to 0 to avoid conflicts with the ray tracing solver above.
     Default: 0.
-RadiativeTransferFLDCallOnLevel (reserved)
+``RadiativeTransferFLDCallOnLevel`` (reserved)
     The level in the static AMR hierarchy where the unigrid FLD solver
     should be called. Currently only works for 0 (the root grid).
     Default: 0.
-RadiativeTransferOpticallyThinH2 (external)
+``RadiativeTransferOpticallyThinH2`` (external)
     Set to 0 to avoid conflicts with the built-in optically-thin H\_2
     dissociating field from the ray-tracing solver. Default: 1.
-RadiativeCooling (external)
-    Set to 0 to avoid conflicts with the operator-split cooling cooling
-    routines, since cooling is handled within the FLD solver. Default:
-    0.
-GadgetEquilibriumCooling (external)
-    Set to 0 to avoid conflicts with the operator-split equilibrium
-    cooling routines, since cooling is handled within the FLD solver.
-    Default: 0.
-RadiationFieldType (external)
-    Set to 0 to avoid conflicts with background radiation
-    approximations. Default: 0
 
 Radiative Transfer (FLD) Implicit Solver Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     These parameters should be placed within the file named in
-    RadHydroParamfile in the main parameter file. All are described in
-    detail in the User Guide in doc/implicit\_fld.
+    ``RadHydroParamfile`` in the main parameter file. All are described in
+    detail in the User Guide in ``doc/implicit\_fld``.
 
 
-RadHydroESpectrum (external)
+``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
     
     -  (-1) - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
@@ -1467,12 +1453,12 @@ RadHydroESpectrum (external)
     -  (0) - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
     -  (1) - T=1e5 blackbody spectrum
 
-RadHydroChemistry (external)
+``RadHydroChemistry`` (external)
     Use of hydrogen chemistry in ionization model, set to 1 to turn on
     the hydrogen chemistry, 0 otherwise. Default: 1.
-RadHydroHFraction (external)
+``RadHydroHFraction`` (external)
     Fraction of baryonic matter comprised of hydrogen. Default: 1.0.
-RadHydroModel (external)
+``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
     
@@ -1485,16 +1471,16 @@ RadHydroModel (external)
     -  (10) - no chemistry, instead uses a model of local thermodynamic
        equilibrium to couple radiation to gas energy.
 
-RadHydroMaxDt (external)
+``RadHydroMaxDt`` (external)
     maximum time step to use in the FLD solver. Default: 1e20 (no
     limit).
-RadHydroMinDt (external)
+``RadHydroMinDt`` (external)
     minimum time step to use in the FLD solver. Default: 0.0 (no
     limit).
-RadHydroInitDt (external)
+``RadHydroInitDt`` (external)
     initial time step to use in the FLD solver. Default: 1e20 (uses
     hydro time step).
-RadHydroDtNorm (external)
+``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
     next time step. Default: 2.0.
     
@@ -1502,25 +1488,25 @@ RadHydroDtNorm (external)
     -  (>0) - use the specified p-norm.
     -  (<0) - illegal.
 
-RadHydroDtRadFac (external)
+``RadHydroDtRadFac`` (external)
     Desired time accuracy tolerance for the radiation field. Default:
     1e20 (unused).
-RadHydroDtGasFac (external)
+``RadHydroDtGasFac`` (external)
     Desired time accuracy tolerance for the gas energy field. Default:
     1e20 (unused).
-RadHydroDtChemFac (external)
+``RadHydroDtChemFac`` (external)
     Desired time accuracy tolerance for the hydrogen I number density.
     Default: 1e20 (unused).
-RadiationScaling (external)
+``RadiationScaling`` (external)
     Scaling factor for the radiation field, in case standard
     non-dimensionalization fails. Default: 1.0.
-EnergyCorrectionScaling (external)
+``EnergyCorrectionScaling`` (external)
     Scaling factor for the gas energy correction, in case standard
     non-dimensionalization fails. Default: 1.0.
-ChemistryScaling (external)
+``ChemistryScaling`` (external)
     Scaling factor for the hydrogen I number density, in case standard
     non-dimensionalization fails. Default: 1.0.
-RadiationBoundaryX0Faces (external)
+``RadiationBoundaryX0Faces`` (external)
     Boundary condition types to use on the x0 faces of the radiation
     field. Default: [0 0].
     
@@ -1528,13 +1514,13 @@ RadiationBoundaryX0Faces (external)
     -  (1) - Dirichlet.
     -  (2) - Neumann.
 
-RadiationBoundaryX1Faces (external)
+``RadiationBoundaryX1Faces`` (external)
     Boundary condition types to use on the x1 faces of the radiation
     field. Default: [0 0].
-RadiationBoundaryX2Faces (external)
+``RadiationBoundaryX2Faces`` (external)
     Boundary condition types to use on the x2 faces of the radiation
     field. Default: [0 0].
-RadHydroLimiterType (external)
+``RadHydroLimiterType`` (external)
     Type of flux limiter to use in the FLD approximation. Default: 4.
     
     -  (0) - original Levermore-Pomraning limiter, à la Levermore &
@@ -1545,17 +1531,17 @@ RadHydroLimiterType (external)
     -  (3) - no limiter.
     -  (4) - ZEUS limiter (limiter 2, but with no "effective albedo").
 
-RadHydroTheta (external)
+``RadHydroTheta`` (external)
     Time-discretization parameter to use, 0 gives explicit Euler, 1
     gives implicit Euler, 0.5 gives trapezoidal. Default: 1.0.
-RadHydroAnalyticChem (external)
+``RadHydroAnalyticChem`` (external)
     Type of time approximation to use on gas energy and chemistry
     equations. Default: 1 (if possible for model).
     
     -  (0) - use a standard theta-method.
     -  (1) - use an implicit quasi-steady state (IQSS) approximation.
 
-RadHydroInitialGuess (external)
+``RadHydroInitialGuess`` (external)
     Type of algorithm to use in computing the initial guess for the
     time-evolved solution. Default: 0.
     
@@ -1566,19 +1552,19 @@ RadHydroInitialGuess (external)
     -  (5) - use an analytic predictor based on IQSS approximation of
        spatially-local physics.
 
-RadHydroNewtTolerance (external)
+``RadHydroNewtTolerance`` (external)
     Desired accuracy for solution to satisfy nonlinear residual
     (measured in the RMS norm). Default: 1e-6.
-RadHydroNewtIters (external)
+``RadHydroNewtIters`` (external)
     Allowed number of Inexact Newton iterations to achieve tolerance
     before returning with FAIL. Default: 20.
-RadHydroINConst (external)
+``RadHydroINConst`` (external)
     Inexact Newton constant used in specifying tolerances for inner
     linear solver. Default: 1e-8.
-RadHydroMaxMGIters (external)
+``RadHydroMaxMGIters`` (external)
     Allowed number of iterations for the inner linear solver (geometric
     multigrid). Default: 50.
-RadHydroMGRelaxType (external)
+``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
     
     -  (0) - Jacobi.
@@ -1587,28 +1573,28 @@ RadHydroMGRelaxType (external)
     -  (3) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel
        (non-symmetric).
 
-RadHydroMGPreRelax (external)
+``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
     Default: 1.
-RadHydroMGPostRelax (external)
+``RadHydroMGPostRelax`` (external)
     Number of post-relaxation sweeps used by the multigrid solver.
     Default: 1.
-EnergyOpacityC0, EnergyOpacityC1, EnergyOpacityC2, EnergyOpacityC3, EnergyOpacityC4 (external)
+``EnergyOpacityC0``, ``EnergyOpacityC1``, ``EnergyOpacityC2``, ``EnergyOpacityC3``, ``EnergyOpacityC4`` (external)
     Parameters used in defining the energy-mean opacity used with
-    RadHydroModel 10. Default: [1 1 0 1 0].
-PlanckOpacityC0, PlanckOpacityC1, PlanckOpacityC2, PlanckOpacityC3, PlanckOpacityC4 (external)
+    ``RadHydroModel`` 10. Default: [1 1 0 1 0].
+``PlanckOpacityC0``, ``PlanckOpacityC1``, ``PlanckOpacityC2``, ``PlanckOpacityC3``, ``PlanckOpacityC4`` (external)
     Parameters used in defining the Planck-mean opacity used with
-    RadHydroModel 10. Default: [1 1 0 1 0].
+    ``RadHydroModel`` 10. Default: [1 1 0 1 0].
 
 Radiative Transfer (FLD) Split Solver Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     These parameters should be placed within the file named in
-    RadHydroParamfile in the main parameter file. All are described in
-    detail in the User Guide in doc/split\_fld.
+    ``RadHydroParamfile`` in the main parameter file. All are described in
+    detail in the User Guide in ``doc/split\_fld``.
 
 
-RadHydroESpectrum (external)
+``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
     
     -  (-1) - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
@@ -1616,12 +1602,12 @@ RadHydroESpectrum (external)
     -  (0) - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
     -  (1) - T=1e5 blackbody spectrum
 
-RadHydroChemistry (external)
+``RadHydroChemistry`` (external)
     Use of hydrogen chemistry in ionization model, set to 1 to turn on
     the hydrogen chemistry, 0 otherwise. Default: 1.
-RadHydroHFraction (external)
+``RadHydroHFraction`` (external)
     Fraction of baryonic matter comprised of hydrogen. Default: 1.0.
-RadHydroModel (external)
+``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
     
@@ -1632,16 +1618,16 @@ RadHydroModel (external)
     -  (10) - no chemistry, instead uses a model of local thermodynamic
        equilibrium to couple radiation to gas energy.
 
-RadHydroMaxDt (external)
+``RadHydroMaxDt`` (external)
     maximum time step to use in the FLD solver. Default: 1e20 (no
     limit).
-RadHydroMinDt (external)
+``RadHydroMinDt`` (external)
     minimum time step to use in the FLD solver. Default: 0.0 (no
     limit).
-RadHydroInitDt (external)
+``RadHydroInitDt`` (external)
     initial time step to use in the FLD solver. Default: 1e20 (uses
     hydro time step).
-RadHydroDtNorm (external)
+``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
     next time step. Default: 2.0.
     
@@ -1649,25 +1635,25 @@ RadHydroDtNorm (external)
     -  (>0) - use the specified p-norm.
     -  (<0) - illegal.
 
-RadHydroDtRadFac (external)
+``RadHydroDtRadFac`` (external)
     Desired time accuracy tolerance for the radiation field. Default:
     1e20 (unused).
-RadHydroDtGasFac (external)
+``RadHydroDtGasFac`` (external)
     Desired time accuracy tolerance for the gas energy field. Default:
     1e20 (unused).
-RadHydroDtChemFac (external)
+``RadHydroDtChemFac`` (external)
     Desired time accuracy tolerance for the hydrogen I number density.
     Default: 1e20 (unused).
-RadiationScaling (external)
+``RadiationScaling`` (external)
     Scaling factor for the radiation field, in case standard
     non-dimensionalization fails. Default: 1.0.
-EnergyCorrectionScaling (external)
+``EnergyCorrectionScaling`` (external)
     Scaling factor for the gas energy correction, in case standard
     non-dimensionalization fails. Default: 1.0.
-ChemistryScaling (external)
+``ChemistryScaling`` (external)
     Scaling factor for the hydrogen I number density, in case standard
     non-dimensionalization fails. Default: 1.0.
-RadiationBoundaryX0Faces (external)
+``RadiationBoundaryX0Faces`` (external)
     Boundary condition types to use on the x0 faces of the radiation
     field. Default: [0 0].
     
@@ -1675,22 +1661,22 @@ RadiationBoundaryX0Faces (external)
     -  (1) - Dirichlet.
     -  (2) - Neumann.
 
-RadiationBoundaryX1Faces (external)
+``RadiationBoundaryX1Faces`` (external)
     Boundary condition types to use on the x1 faces of the radiation
     field. Default: [0 0].
-RadiationBoundaryX2Faces (external)
+``RadiationBoundaryX2Faces`` (external)
     Boundary condition types to use on the x2 faces of the radiation
     field. Default: [0 0].
-RadHydroTheta (external)
+``RadHydroTheta`` (external)
     Time-discretization parameter to use, 0 gives explicit Euler, 1
     gives implicit Euler, 0.5 gives trapezoidal. Default: 1.0.
-RadHydroSolTolerance (external)
+``RadHydroSolTolerance`` (external)
     Desired accuracy for solution to satisfy linear residual (measured
     in the 2-norm). Default: 1e-8.
-RadHydroMaxMGIters (external)
+``RadHydroMaxMGIters`` (external)
     Allowed number of iterations for the inner linear solver (geometric
     multigrid). Default: 50.
-RadHydroMGRelaxType (external)
+``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
     
     -  (0) - Jacobi.
@@ -1699,13 +1685,13 @@ RadHydroMGRelaxType (external)
     -  (3) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel
        (non-symmetric).
 
-RadHydroMGPreRelax (external)
+``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
     Default: 1.
-RadHydroMGPostRelax (external)
+``RadHydroMGPostRelax`` (external)
     Number of post-relaxation sweeps used by the multigrid solver.
     Default: 1.
-EnergyOpacityC0, EnergyOpacityC1, EnergyOpacityC2 (external)
+``EnergyOpacityC0``, ``EnergyOpacityC1``, ``EnergyOpacityC2`` (external)
     Parameters used in defining the energy-mean opacity used with
     RadHydroModel 10. Default: [1 1 0].
 
@@ -1713,13 +1699,13 @@ Massive Black Hole Physics Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Following parameters are for the accretion and feedback from the
-massive black hole particle (PARTICLE\_TYPE\_MBH). More details
+massive black hole particle (``PARTICLE\_TYPE\_MBH``). More details
 will soon be described in Kim et al. (2010).
 
 Accretion Physics
 ^^^^^^^^^^^^^^^^^
 
-MBHAccretion (external)
+``MBHAccretion`` (external)
     Set to 1 to turn on accretion based on the Eddington-limited
     spherical Bondi-Hoyle formula (Bondi 1952). Set to 2 to turn on
     accretion based on the Bondi-Hoyle formula but with fixed
@@ -1728,15 +1714,15 @@ MBHAccretion (external)
     the Eddington-limited spherical Bondi-Hoyle formula, but without
     v\_rel in the denominator. Add 10 to each of these options (i.e.
     11, 12, 13, 14) to ignore the Eddington limit. See
-    Star\_CalculateMassAccretion.C. Default: 0 (FALSE)
-MBHAccretionRadius (external)
+    ``Star\_CalculateMassAccretion.C``. Default: 0 (FALSE)
+``MBHAccretionRadius`` (external)
     This is the radius (in pc) of a gas sphere from which the accreting
     mass is subtracted out at every timestep. Instead, you may want to
     try set this parameter to -1, in which case an approximate Bondi
-    radius is calculated and used (from DEFAULT\_MU and
-    MBHAccretionFixedTemperature). If set to -N, it will use N\*(Bondi
-    radius). See CalculateSubtractionParameters.C. Default: 50.0
-MBHAccretingMassRatio (external)
+    radius is calculated and used (from ``DEFAULT\_MU`` and
+    ``MBHAccretionFixedTemperature``). If set to -N, it will use N\*(Bondi
+    radius). See ``CalculateSubtractionParameters.C``. Default: 50.0
+``MBHAccretingMassRatio`` (external)
     There are three different scenarios you can utilize this parameter.
     (1) In principle this parameter is a nondimensional factor
     multiplied to the Bondi-Hoyle accretion rate; so 1.0 should give
@@ -1744,99 +1730,99 @@ MBHAccretingMassRatio (external)
     around the MBH, the local density used to calculate Mdot can be
     higher than what was supposed to be used (density at the Bondi
     radius!), resulting in the overestimation of Mdot. 0.0 <
-    MBHAccretingMassRatio < 1.0 can be used to fix this. (3) Or, one
+    ``MBHAccretingMassRatio`` < 1.0 can be used to fix this. (3) Or, one
     might try using the density profile of R\ :sup:`-1.5`\  to estimate
     the density at the Bondi radius, which is utilized when
-    MBHAccretingMassRatio is set to -1. See
-    Star\_CalculateMassAccretion.C. Default: 1.0
-MBHAccretionFixedTemperature (external)
-    This parameter (in K) is used when MBHAccretion = 2. A fixed gas
+    ``MBHAccretingMassRatio`` is set to -1. See
+    ``Star\_CalculateMassAccretion.C``. Default: 1.0
+``MBHAccretionFixedTemperature`` (external)
+    This parameter (in K) is used when ``MBHAccretion = 2``. A fixed gas
     temperature that goes into the Bondi-Hoyle accretion rate
     estimation formula. Default: 3e5
-MBHAccretionFixedRate (external)
-    This parameter (in Msun/yr) is used when MBHAccretion = 3. Default:
+``MBHAccretionFixedRate`` (external)
+    This parameter (in Msun/yr) is used when ``MBHAccretion = 3``. Default:
     1e-3
-MBHTurnOffStarFormation (external)
-    Set to 1 to turn off star formation (only for StarParicleCreation
+``MBHTurnOffStarFormation`` (external)
+    Set to 1 to turn off star formation (only for ``StarParicleCreation``
     method 7) in the cells where MBH particles reside. Default: 0
     (FALSE)
-MBHCombineRadius (external)
+``MBHCombineRadius`` (external)
     The distance (in pc) between two MBH particles in which two
     energetically-bound MBH particles merge to form one particle.
     Default: 50.0
-MBHMinDynamicalTime (external)
+``MBHMinDynamicalTime`` (external)
     Minimum dynamical time (in yr) for a MBH particle. Default: 1e7
-MBHMinimumMass (external)
+``MBHMinimumMass`` (external)
     Minimum mass (in Msun) for a MBH particle. Default: 1e3
 
 Feedback Physics
 ^^^^^^^^^^^^^^^^
 
-MBHFeedback (external)
-    Set to 1 to turn on thermal feedback of MBH particles (MBH\_THERMAL
-    / not fully tested). Set to 2 to turn on mechanical feedback of MBH
-    particles (MBH\_JETS, bipolar jets along the total angular momentum
+``MBHFeedback`` (external)
+    Set to 1 to turn on thermal feedback of MBH particles (``MBH\_THERMAL``
+    - not fully tested). Set to 2 to turn on mechanical feedback of MBH
+    particles (``MBH\_JETS``, bipolar jets along the total angular momentum
     of gas accreted onto the MBH particle so far). Set to 3 to turn on
     an experimental version of mechanical feedback of MBH particles
-    (MBH\_JETS, bipolar jets along z-axis). Note that, even when this
+    (``MBH\_JETS``, bipolar jets along z-axis). Note that, even when this
     parameter is set to 0, MBH particles still can be radiation sources
-    if RadiativeTransfer is on. Default: 0 (FALSE)
+    if ``RadiativeTransfer`` is on. Default: 0 (FALSE)
     
-    -  RadiativeTransfer = 0 & MBHFeedback = 0 : no feedback at all
-    -  RadiativeTransfer = 0 & MBHFeedback = 1 : purely thermal
+    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
+    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal
        feedback
-    -  RadiativeTransfer = 0 & MBHFeedback = 2 : purely mechanical
+    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 2`` : purely mechanical
        feedback
-    -  RadiativeTransfer = 1 & MBHFeedback = 0 : purely radiative
+    -  ``RadiativeTransfer = 1`` & ``MBHFeedback = 0`` : purely radiative
        feedback
-    -  RadiativeTransfer = 1 & MBHFeedback = 2 : radiative and
+    -  ``RadiativeTransfer = 1`` & ``MBHFeedback = 2`` : radiative and
        mechanical feedback combined (one has to change the following
-       MBHFeedbackRadiativeEfficiency parameter accordingly, say from 0.1
+       ``MBHFeedbackRadiativeEfficiency`` parameter accordingly, say from 0.1
        to 0.05, to keep the same total energy across different modes of
        feedback)
 
-MBHFeedbackRadiativeEfficiency (external)
+``MBHFeedbackRadiativeEfficiency`` (external)
     The radiative efficiency of a black hole. 10% is the widely
     accepted value for the conversion rate from the rest-mass energy of
     the accreting material to the feedback energy, at the innermost
     stable orbit of a non-spinning Schwarzschild black hole (Shakura &
     Sunyaev 1973, Booth & Schaye 2009). Default: 0.1
-MBHFeedbackEnergyCoupling (external)
+``MBHFeedbackEnergyCoupling`` (external)
     The fraction of feedback energy that is thermodynamically (for
-    MBH\_THERMAL) or mechanically (for MBH\_JETS) coupled to the gas.
+    ``MBH\_THERMAL``) or mechanically (for ``MBH\_JETS``) coupled to the gas.
     0.05 is widely used for thermal feedback (Springel et al. 2005, Di
     Matteo et al. 2005), whereas 0.0001 or less is recommended for
     mechanical feedback depending on the resolution of the simulation
     (Ciotti et al. 2009). Default: 0.05
-MBHFeedbackMassEjectionFraction (external)
+``MBHFeedbackMassEjectionFraction`` (external)
     The fraction of accreting mass that is returning to the gas phase.
-    For either MBH\_THERMAL or MBH\_JETS. Default: 0.1
-MBHFeedbackMetalYield (external)
+    For either ``MBH\_THERMAL`` or ``MBH\_JETS``. Default: 0.1
+``MBHFeedbackMetalYield`` (external)
     The mass fraction of metal in the ejected mass. Default: 0.02
-MBHFeedbackThermalRadius (external)
+``MBHFeedbackThermalRadius`` (external)
     The radius (in pc) of a sphere in which the energy from
-    MBH\_THERMAL feedback is deposited. If set to a negative value, the
+    ``MBH\_THERMAL`` feedback is deposited. If set to a negative value, the
     radius of a sphere gets bigger in a way that the sphere encloses
     the constant mass (=
-    4/3\*pi\*(-MBHFeedbackThermalRadius)\ :sup:`3`\  Msun). The latter
-    is at the moment very experimental; see Star\_FindFeedbackSphere.C.
+    4/3\*pi\*(-``MBHFeedbackThermalRadius``)\ :sup:`3`\  Msun). The latter
+    is at the moment very experimental; see ``Star\_FindFeedbackSphere.C``.
     Default: 50.0
-MBHFeedbackJetsThresholdMass (external)
-    The bipolar jets by MBH\_JETS feedback are injected every time the
-    accumulated ejecta mass surpasses MBHFeedbackJetsThresholdMas (in
+``MBHFeedbackJetsThresholdMass`` (external)
+    The bipolar jets by ``MBH\_JETS`` feedback are injected every time the
+    accumulated ejecta mass surpasses ``MBHFeedbackJetsThresholdMass`` (in
     Msun). Although continuously injecting jets into the gas cells
     might sound great, unless the gas cells around the MBH are resolved
     down to Mdot, the jets make little or no dynamical impact on the
-    surrounding gas. By imposing MBHFeedbackJetsThresholdMass, the jets
+    surrounding gas. By imposing ``MBHFeedbackJetsThresholdMass``, the jets
     from MBH particles are rendered intermittent, yet dynamically
     important. Default: 10.0
-MBHParticleIO (external)
+``MBHParticleIO`` (external)
     Set to 1 to print out basic information about MBH particles. Will
-    be automatically turned on if MBHFeedback is set to 2 or 3.
+    be automatically turned on if ``MBHFeedback`` is set to 2 or 3.
     Default: 0 (FALSE)
-MBHParticleIOFilename (external)
+``MBHParticleIOFilename`` (external)
     The name of the file used for the parameter above. Default:
-    mbh\_particle\_io.dat
+    ``mbh\_particle\_io.dat``
 
 Test Problem Parameters
 -----------------------
@@ -1855,26 +1841,26 @@ Shock Tube (1: unigrid and AMR)
 
     ::
 
-              Test    LeftDensity     LeftVelocity    LeftPressure    RightDensity    RightVelocity   RightPressure
-              1.1   1.0             0.0             1.0             0.125           0.0             0.1
-              1.2   1.0             -2.0            0.4             1.0             2.0             0.4
-              1.3   1.0             0.0             1000.0          1.0             0.0             0.01
-              1.4   1.0             0.0             0.01            1.0             0.0             100.0
-              1.5   5.99924     19.5975     460.894     5.99242     -6.19633    46.0950
+              Test  LeftDensity LeftVelocity LeftPressure RightDensity RightVelocity RightPressure
+              1.1   1.0         0.0          1.0          0.125        0.0           0.1
+              1.2   1.0         -2.0         0.4          1.0          2.0           0.4
+              1.3   1.0         0.0          1000.0       1.0          0.0           0.01
+              1.4   1.0         0.0          0.01         1.0          0.0           100.0
+              1.5   5.99924     19.5975      460.894      5.99242      -6.19633      46.0950
 
 
-ShockTubeBoundary (external)
+``ShockTubeBoundary`` (external)
     Discontinuity position. Default: 0.5
-ShockTubeDirection (external)
+``ShockTubeDirection`` (external)
     Discontinuity orientation. Type: integer. Default: 0 (shock(s) will
     propagate in x-direction)
-ShockTubeLeftDensity, ShockTubeRightDensity (external)
+``ShockTubeLeftDensity``, ``ShockTubeRightDensity`` (external)
     The initial gas density to the left and to the right of the
     discontinuity. Default: 1.0 and 0.125, respectively
-ShockTubeLeftVelocity, ShockTubeRightVelocity (external)
+``ShockTubeLeftVelocity``, ``ShockTubeRightVelocity`` (external)
     The same as above but for the velocity component in
-    ShockTubeDirection. Default: 0.0, 0.0
-ShockTubeLeftPressure, ShockTubeRightPressure (external)
+    ``ShockTubeDirection``. Default: 0.0, 0.0
+``ShockTubeLeftPressure``, ``ShockTubeRightPressure`` (external)
     The same as above but for pressure. Default: 1.0, 0.1
 
 Wave Pool (2)
@@ -1885,22 +1871,22 @@ Wave Pool (2)
     the wave is entered via inflow boundary conditions.
 
 
-WavePoolAmplitude (external)
+``WavePoolAmplitude`` (external)
     The amplitude of the wave. Default: 0.01 - a linear wave.
-WavePoolAngle (external)
+``WavePoolAngle`` (external)
     Direction of wave propagation with respect to x-axis. Default: 0.0
-WavePoolDensity (external)
+``WavePoolDensity`` (external)
     Uniform gas density in the pool. Default: 1.0
-WavePoolNumberOfWaves (external)
+``WavePoolNumberOfWaves`` (external)
     The test initialization will work for one wave only. Default: 1
-WavePoolPressure (external)
+``WavePoolPressure`` (external)
     Uniform gas pressure in the pool. Default: 1.0
-WavePoolSubgridLeft, WavePoolSubgridRight (external)
+``WavePoolSubgridLeft``, ``WavePoolSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
     subgrids)
-WavePoolVelocity1(2,3) (external)
+``WavePoolVelocity1(2,3)`` (external)
     x-,y-, and z-velocities. Default: 0.0 (for all)
-WavePoolWavelength (external)
+``WavePoolWavelength`` (external)
     The wavelength. Default: 0.1 (one-tenth of the box)
 
 Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
@@ -1913,20 +1899,20 @@ Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
     Radiation Hydrodynamics, 1984, p. 236, eq. 56-40.)
 
 
-ShockPoolAngle (external)
+``ShockPoolAngle`` (external)
     Direction of the shock wave propagation with respect to x-axis.
     Default: 0.0
-ShockPoolDensity (external)
+``ShockPoolDensity`` (external)
     Uniform gas density in the preshock region. Default: 1.0
-ShockPoolPressure (external)
+``ShockPoolPressure`` (external)
     Uniform gas pressure in the preshock region. Default: 1.0
-ShockPoolMachNumber (external)
+``ShockPoolMachNumber`` (external)
     The ratio of the shock velocity and the preshock sound speed.
     Default: 2.0
-ShockPoolSubgridLeft, ShockPoolSubgridRight (external)
+``ShockPoolSubgridLeft``, ``ShockPoolSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
     subgrids)
-ShockPoolVelocity1(2,3) (external)
+``ShockPoolVelocity1(2,3)`` (external)
     Preshock gas velocity (the Mach number definition above assumes a
     zero velocity in the laboratory reference frame. Default: 0.0 (for
     all components)
@@ -1939,9 +1925,9 @@ Double Mach Reflection (4)
     = 291.25, u0 = 8.25\*sqrt(3.0)/2.0, v0 = -8.25\*0.5, w0 = 0.0
 
 
-DoubleMachSubgridLeft (external)
+``DoubleMachSubgridLeft`` (external)
     Start position of the subgrid. Default: 0.0
-DoubleMachSubgridRight (external)
+``DoubleMachSubgridRight`` (external)
     End positions of the subgrid. Default: 0.0
 
 Shock in a Box (5)
@@ -1951,22 +1937,22 @@ Shock in a Box (5)
     1994). Initialization is done as in the Shock Tube test.
 
 
-ShockInABoxBoundary (external)
+``ShockInABoxBoundary`` (external)
     Position of the shock. Default: 0.5
-ShockInABoxLeftDensity, ShockInABoxRightDensity (external)
-    Densities to the Right and to the Left of the shock front. Default:
-    dL=1.0 and dR = dL\*((Gamma+1)\*m\*m)/((Gamma-1)\*m\*m + 2), where
-    m=2.0. speed=0.9\*sqrt(Gamma\*pL/dL)\*m.
-ShockInABoxLeftVelocity, ShockInABoxRightVelocity (external)
-    Velocities to the Right and to the Left of the shock front.
+``ShockInABoxLeftDensity``, ``ShockInABoxRightDensity`` (external)
+    Densities to the right and to the left of the shock front. Default:
+    dL=1.0 and dR = dL\*((``Gamma``+1)\*m\*m)/((``Gamma``-1)\*m\*m + 2), where
+    m=2.0. speed=0.9\*sqrt(``Gamma```\*pL/dL)\*m.
+``ShockInABoxLeftVelocity``, ``ShockInABoxRightVelocity`` (external)
+    Velocities to the right and to the left of the shock front.
     Default: vL=shockspeed and
-    vR=shockspeed-m\*sqrt(Gamma\*pL/dL)\*(1-dL/dR), where m=2.0,
-    shockspeed=0.9\*sqrt(Gamma\*pL/dL)\*m.
-ShockInABoxLeftPressure, ShockInABoxRightPressure (external)
+    vR=shockspeed-m\*sqrt(``Gamma``\*pL/dL)\*(1-dL/dR), where m=2.0,
+    shockspeed=0.9\*sqrt(``Gamma``\*pL/dL)\*m.
+``ShockInABoxLeftPressure``, ``ShockInABoxRightPressure`` (external)
     Pressures to the Right and to the Left of the shock front. Default:
-    pL=1.0 and pR=pL\*(2.0\*Gamma\*m\*m - (Gamma-1))/(Gamma+1), where
+    pL=1.0 and pR=pL\*(2.0\*``Gamma``\*m\*m - (``Gamma``-1))/(``Gamma``+1), where
     m=2.0.
-ShockInABoxSubgridLeft, ShockInABoxSubgridRight (external)
+``ShockInABoxSubgridLeft``, ``ShockInABoxSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 (for both)
 
 Rotating Cylinder (10)
@@ -1977,28 +1963,28 @@ Rotating Cylinder (10)
     (` oshea@msu.edu <mailto:oshea@msu.edu>`_).
 
 
-RotatingCylinderOverdensity (external)
-    Density that the rotating cylinder is at, with respect to the
+``RotatingCylinderOverdensity`` (external)
+    Density of the rotating cylinder with respect to the
     background. Default: 20.0
-RotatingCylinderSubgridLeft, RotatingCylinderSubgridRight (external)
+``RotatingCylinderSubgridLeft``, ``RotatingCylinderSubgridRight`` (external)
     This pair of floating point numbers creates a subgrid region at the
     beginning of the simulation that will be refined to
-    MaximumRefinementLevel. It should probably encompass the whole
+    ``MaximumRefinementLevel``. It should probably encompass the whole
     cylinder. Positions are in units of the box, and it always creates
-    a cube. No default value (not on)
-RotatingCylinderLambda (external)
+    a cube. No default value (meaning off).
+``RotatingCylinderLambda`` (external)
     Angular momentum of the cylinder as a dimensionless quantity. This
     is identical to the angular momentum parameter lambda that is
     commonly used to describe cosmological halos. A value of 0.0 is
     non-rotating, and 1.0 means that the gas is already approximately
     rotating at the Keplerian value. Default: 0.05
-RotatingCylinderTotalEnergy (external)
+``RotatingCylinderTotalEnergy`` (external)
     Sets the default gas energy of the ambient medium, in Enzo internal
     units. Default: 1.0
-RotatingCylinderRadius (external)
+``RotatingCylinderRadius`` (external)
     Radius of the rotating cylinder in units of the box size. Note that
     the height of the cylinder is equal to the diameter. Default: 0.3
-RotatingCylinderCenterPosition (external)
+``RotatingCylinderCenterPosition`` (external)
     Position of the center of the cylinder as a vector of floats.
     Default: (0.5, 0.5, 0.5)
 
@@ -2007,7 +1993,7 @@ Radiating Shock (11)
 
     This is a test problem similar to the Sedov test problem documented
     elsewhere, but with radiative cooling turned on (and the ability to
-    use MultiSpecies and all other forms of cooling). The main
+    use ``MultiSpecies`` and all other forms of cooling). The main
     difference is that there are quite a few extras thrown in,
     including the ability to initialize with random density
     fluctuations outside of the explosion region, use a Sedov blast
@@ -2015,49 +2001,49 @@ Radiating Shock (11)
     documented below).
 
 
-RadiatingShockInnerDensity (external)
+``RadiatingShockInnerDensity`` (external)
     Density inside the energy deposition area (enzo internal units).
     Default: 1.0
-RadiatingShockOuterDensity (external)
+``RadiatingShockOuterDensity`` (external)
     Density outside the energy deposition area (enzo internal units).
     Default: 1.0
-RadiatingShockPressure (external)
+``RadiatingShockPressure`` (external)
     Pressure outside the energy deposition area (enzo internal units).
     Default: 1.0e-5
-RadiatingShockEnergy (external)
+``RadiatingShockEnergy`` (external)
     Total energy deposited (in units of 1e51 ergs). Default: 1.0
-RadiatingShockSubgridLeft, RadiatingShockSubgridRight (external)
+``RadiatingShockSubgridLeft``, ``RadiatingShockSubgridRight`` (external)
     Pair of floats that defines the edges of the region where the
     initial conditions are refined to MaximumRefinementLevel. No
     default value.
-RadiatingShockUseDensityFluctuations (external)
+``RadiatingShockUseDensityFluctuation``s (external)
     Initialize external medium with random density fluctuations.
     Default: 0
-RadiatingShockRandomSeed (external)
+``RadiatingShockRandomSeed`` (external)
     Seed for random number geneator (currently using Mersenne Twister).
     Default: 123456789
-RadiatingShockDensityFluctuationLevel (external)
+``RadiatingShockDensityFluctuationLevel`` (external)
     Maximum fractional fluctuation in the density level. Default: 0.1
-RadiatingShockInitializeWithKE (external)
+``RadiatingShockInitializeWithKE`` (external)
     Initializes the simulation with some initial kinetic energy if
     turned on (0 - off, 1 - on). Whether this is a simple sawtooth or a
     Sedov profile is controlled by the parameter
-    RadiatingShockUseSedovProfile. Default: 0
-RadiatingShockUseSedovProfile (external)
+    ``RadiatingShockUseSedovProfile``. Default: 0
+``RadiatingShockUseSedovProfile`` (external)
     If set to 1, initializes simulation with a Sedov blast wave profile
     (thermal and kinetic energy components). If this is set to 1, it
     overrides all other kinetic energy-related parameters. Default: 0
-RadiatingShockSedovBlastRadius (external)
+``RadiatingShockSedovBlastRadius`` (external)
     Maximum radius of the Sedov blast, in units of the box size.
     Default: 0.05
-RadiatingShockKineticEnergyFraction (external)
+``RadiatingShockKineticEnergyFraction`` (external)
     Fraction of the total supernova energy that is deposited as kinetic
-    energy. This only is used if !RadiatingShockInitializeWithKE is set
+    energy. This only is used if ``RadiatingShockInitializeWithKE`` is set
     to 1. Default: 0.0
-RadiatingShockCenterPosition (external)
+``RadiatingShockCenterPosition`` (external)
     Vector of floats that defines the center of the explosion. Default:
     (0.5, 0.5, 0.5)
-RadiatingShockSpreadOverNumZones (external)
+``RadiatingShockSpreadOverNumZones`` (external)
     Number of cells that the shock is spread over. This corresponds to
     a radius of approximately N \* dx, where N is the number of cells
     and dx is the resolution of the highest level of refinement. This
@@ -2071,32 +2057,31 @@ is only kinetic energy in the sphere with the radial velocity
 proportional to radius. If let evolve for long enough, the problem
 should turn into a Sedov-Taylor blast wave.
 
-FreeExpansionFullBox (external)
+``FreeExpansionFullBox`` (external)
     Set to 0 to have the blast wave start at the origin with reflecting
     boundaries. Set to 1 to center the problem at the domain center
     with periodic boundaries. Default: 0
-FreeExpansionMass (external)
+``FreeExpansionMass`` (external)
     Mass of the ejecta in the blast wave in solar masses. Default: 1
-FreeExpansionRadius (external)
+``FreeExpansionRadius`` (external)
     Initial radius of the blast wave. Default: 0.1
-FreeExpansionDensity (external)
+``FreeExpansionDensity`` (external)
     Ambient density of the problem. Default: 1
-FreeExpansionEnergy (external)
+``FreeExpansionEnergy`` (external)
     Total energy of the blast wave in ergs. Default: 1e51
-FreeExpansionMaxVelocity (external)
+``FreeExpansionMaxVelocity`` (external)
     Maximum initial velocity of the blast wave (at the outer radius).
     If not set, a proper value is calculated using the formula in
-    Draine & Woods (1991). Default: FLOAT\_UNDEFINED
-FreeExpansionTemperature (external)
+    Draine & Woods (1991). Default: ``FLOAT\_UNDEFINED``
+``FreeExpansionTemperature`` (external)
     Ambient temperature of the problem in K. Default: 100
-FreeExapnsionBField (external)
+``FreeExapnsionBField`` (external)
     Initial uniform magnetic field. Default: 0 0 0
-FreeExpansionVelocity (external)
+``FreeExpansionVelocity`` (external)
     Initial velocity of the ambient medium. Default: 0 0 0
-FreeExpansionSubgridLeft (external)
-    Leftmost edge of the region to set the initial refinement. Default:
-    0
-FreeExpansionSubgridRight (external)
+``FreeExpansionSubgridLeft`` (external)
+    Leftmost edge of the region to set the initial refinement. Default: 0
+``FreeExpansionSubgridRight`` (external)
     Rightmost edge of the region to set the initial refinement.
     Default: 0
 
@@ -2108,19 +2093,19 @@ Zeldovich Pancake (20)
     Norman & Bryan (1998), Sect. 4]
 
 
-ZeldovichPancakeCentralOffset (external)
+``ZeldovichPancakeCentralOffset`` (external)
     Offset of the pancake plane. Default: 0.0 (no offset)
-ZeldovichPancakeCollapseRedshift (external)
+``ZeldovichPancakeCollapseRedshift`` (external)
     A free parameter which determines the epoch of caustic formation.
     Default: 1.0
-ZeldovichPancakeDirection (external)
+``ZeldovichPancakeDirection`` (external)
     Orientation of the pancake. Type: integer. Default: 0 (along the
     x-axis)
-ZeldovichPancakeInitialTemperature (external)
+``ZeldovichPancakeInitialTemperature`` (external)
     Initial gas temperature. Units: degrees Kelvin. Default: 100
-ZeldovichPancakeOmegaBaryonNow (external)
+``ZeldovichPancakeOmegaBaryonNow`` (external)
     Omega Baryon at redshift z=0; standard setting. Default: 1.0
-ZeldovichPancakeOmegaCDMNow (external)
+``ZeldovichPancakeOmegaCDMNow`` (external)
     Omega CDM at redshift z=0. Default: 0 (assumes no dark matter)
 
 Pressureless Collapse (21)
@@ -2133,11 +2118,11 @@ Pressureless Collapse (21)
     terms are not used in this test. (Brian et al. 1995, Sect. 3.1).
 
 
-PressurelessCollapseDirection (external)
+``PressurelessCollapseDirection`` (external)
     Coordinate direction. Default: 0 (along the x-axis).
-PressurelessCollapseInitialDensity (external)
+``PressurelessCollapseInitialDensit``y (external)
     Initial density (the fluid starts at rest). Default: 1.0
-PressurelessCollapseNumberOfCells (external)
+``PressurelessCollapseNumberOfCells`` (external)
     ???. Default: GridDimension[PressurelessCollapseDirection] - 2
 
 Adiabatic Expansion (22)
@@ -2147,14 +2132,14 @@ Adiabatic Expansion (22)
     et al. 1995, Sect. 3.3).
 
 
-AdiabaticExpansionInitialTemperature (external)
+``AdiabaticExpansionInitialTemperature`` (external)
     Initial temperature for Adiabatic Expansion test; test example
     assumes 1000 K. Default: 200. Units: degrees Kelvin
-AdiabaticExpansionInitialVelocity (external)
+``AdiabaticExpansionInitialVelocity`` (external)
     Initial expansion velocity. Default: 100. Units: km/s
-AdiabaticExpansionOmegaBaryonNow (external)
+``AdiabaticExpansionOmegaBaryonNow`` (external)
     Omega Baryon at redshift z=0; standard value 1.0. Default: 1.0
-AdiabaticExpansionOmegaCDMNow (external)
+``AdiabaticExpansionOmegaCDMNow`` (external)
     Omega CDM at redshift z=0; default setting assumes no dark matter.
     Default: 0.0
 
@@ -2167,16 +2152,16 @@ Test Gravity (23)
     Periodic boundary conditions are imposed (gravity).
 
 
-TestGravityDensity (external)
+``TestGravityDensity`` (external)
     Density of the central peak. Default: 1.0
-TestGravityMotionParticleVelocity (external)
+``TestGravityMotionParticleVelocity`` (external)
     Initial velocity of test particle(s) in x-direction. Default: 1.0
-TestGravityNumberOfParticles (external)
+``TestGravityNumberOfParticles`` (external)
     The number of test particles of a unit mass. Default: 0
-TestGravitySubgridLeft, TestGravitySubgridRight (external)
+``TestGravitySubgridLeft``, ``TestGravitySubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
     subgrids)
-TestGravityUseBaryons (external)
+``TestGravityUseBaryons`` (external)
     Boolean switch. Type: integer. Default: 0 (FALSE)
 
 Spherical Infall (24)
@@ -2187,28 +2172,28 @@ Spherical Infall (24)
     Einstein-de Sitter universe.
 
 
-SphericalInfallCenter (external)
+``SphericalInfallCenter`` (external)
     Coordinate(s) for the accretion center. Default: top grid center
-SphericalInfallFixedAcceleration (external)
+``SphericalInfallFixedAcceleration`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-SphericalInfallFixedMass (external)
+``SphericalInfallFixedMass`` (external)
     ???. Default: If SphericalInfallFixedMass is undefined and
     SphericalInfallFixedAcceleration==TRUE, then
     SphericalInfallFixedMass =
     SphericalInfallInitialPerturbation\*TopGridVolume
-SphericalInfallInitialPerturbation (external)
+``SphericalInfallInitialPerturbation`` (external)
     The perturbation of initial mass density. Default: 0.1
-SphericalInfallOmegaBaryonNow (external)
+``SphericalInfallOmegaBaryonNow`` (external)
     Omega Baryon at redshift z=0; standard setting. Default: 1.0
-SphericalInfallOmegaCDMNow (external)
+``SphericalInfallOmegaCDMNow`` (external)
     Omega CDM at redshift z=0. Default: 0.0 (assumes no dark matter)
     Default: 0.0
-SphericalInfallSubgridIsStatic (external)
+``SphericalInfallSubgridIsStatic`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-SphericalInfallSubgridLeft, SphericalInfallSubgridRight (external)
+``SphericalInfallSubgridLeft``, ``SphericalInfallSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
     subgrids)
-SphericalInfallUseBaryons (external)
+``SphericalInfallUseBaryons`` (external)
     Boolean flag. Type: integer. Default: 1 (TRUE)
 
 Test Gravity: Sphere (25)
@@ -2218,28 +2203,28 @@ Test Gravity: Sphere (25)
     to test the gravity solver.
 
 
-TestGravitySphereCenter (external)
+``TestGravitySphereCenter`` (external)
     The position of the sphere center. Default: at the center of the
     domain
-TestGravitySphereExteriorDensity (external)
-    The mass density outside the sphere. Default: tiny\_number
-TestGravitySphereInteriorDensity (external)
+``TestGravitySphereExteriorDensity`` (external)
+    The mass density outside the sphere. Default: ``tiny\_number``
+``TestGravitySphereInteriorDensity`` (external)
     The mass density at the sphere center. Default: 1.0
-TestGravitySphereRadius (external)
+``TestGravitySphereRadius`` (external)
     Radius of self-gravitating sphere. Default: 0.1
-TestGravitySphereRefineAtStart (external)
+``TestGravitySphereRefineAtStart`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-TestGravitySphereSubgridLeft, TestGravitySphereSubgridRight (external)
+``TestGravitySphereSubgridLeft``, ``TestGravitySphereSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
     subgrids)
-TestGravitySphereType (external)
+``TestGravitySphereType`` (external)
     Type of mass density distribution within the sphere. Options
     include: (0) uniform density distrubution within the sphere radius;
     (1) a power law with an index -2.0; (2) a power law with an index
     -2.25 (the exact power law form is, e.g., r\ :sup:`-2.25`\ , where
-    r is measured in units of TestGravitySphereRadius). Default: 0
+    r is measured in units of ``TestGravitySphereRadius``). Default: 0
     (uniform density)
-TestGravitySphereUseBaryons (external)
+``TestGravitySphereUseBaryons`` (external)
     Boolean flag. Type: integer . Default: 1 (TRUE)
 
 Gravity Equilibrium Test (26)
@@ -2250,7 +2235,7 @@ Gravity Equilibrium Test (26)
     acceleration (uniform gravity field).
 
 
-GravityEquilibriumTestScaleHeight (external)
+``GravityEquilibriumTestScaleHeight`` (external)
     The scale height for the exponential atmosphere . Default: 0.1
 
 Collapse Test (27)
@@ -2259,70 +2244,72 @@ Collapse Test (27)
     A self-gravity test.
 
 
-CollapseTestInitialTemperature (external)
+``CollapseTestInitialTemperature`` (external)
     Initial gas temperature. Default: 1000 K. Units: degrees Kelvin
-CollapseTestNumberOfSpheres (external)
-    Number of spheres to collapse; must be <= MAX\_SPHERES=10 (see
-    Grid.h for definition). Default: 1
-CollapseTestRefineAtStart (external)
+``CollapseTestNumberOfSpheres`` (external)
+    Number of spheres to collapse; must be <= ``MAX\_SPHERES=10`` (see
+    ``Grid.h`` for definition). Default: 1
+``CollapseTestRefineAtStart`` (external)
     Boolean flag. Type: integer. If TRUE, then initializing routine
     refines the grid to the desired level. Default: 1 (TRUE)
-CollapseTestUseColour (external)
+``CollapseTestUseColour`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-CollapseTestUseParticles (external)
+``CollapseTestUseParticles`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-CollapseTestSphereCoreRadius (external)
+``CollapseTestSphereCoreRadius`` (external)
     An array of core radii for collapsing spheres. Default: 0.1 (for
     all spheres)
-CollapseTestSphereDensity (external)
+``CollapseTestSphereDensity`` (external)
     An array of density values for collapsing spheres. Default: 1.0
     (for all spheres)
-CollapseTestSpherePosition (external)
+``CollapseTestSpherePosition`` (external)
     A two-dimensional array of coordinates for sphere centers. Type:
-    float[MAX\_SPHERES][MAX\_DIMENSION]. Default for all spheres:
-    0.5\*(DomainLeftEdge[dim] + DomainRightEdge[dim])
-CollapseTestSphereRadius (external)
+    float[``MAX\_SPHERES``][``MAX\_DIMENSION``]. Default for all spheres:
+    0.5\*(``DomainLeftEdge[dim]`` + ``DomainRightEdge[dim]``)
+``CollapseTestSphereRadius`` (external)
     An array of radii for collapsing spheres. Default: 1.0 (for all
     spheres)
-CollapseTestSphereTemperature (external)
+``CollapseTestSphereTemperature`` (external)
     An array of temperatures for collapsing spheres. Default: 1.0.
     Units: degrees Kelvin
-CollapseTestSphereType (external)
+``CollapseTestSphereType`` (external)
     An integer array of sphere types. Default: 0
-CollapseTestSphereVelocity (external)
+``CollapseTestSphereVelocity`` (external)
     A two-dimensional array of sphere velocities. Type:
-    float[MAX\_SPHERES][MAX\_DIMENSION]. Default: 0.0
-CollapseTestUniformVelocity (external)
-    Uniform velocity. Type: float[MAX\_DIMENSION]. Default: 0 (for all
+    float[``MAX\_SPHERES``][``MAX\_DIMENSION``]. Default: 0.0
+``CollapseTestUniformVelocity`` (external)
+    Uniform velocity. Type: float[``MAX\_DIMENSION``]. Default: 0 (for all
     dimensions)
-CollapseTestSphereMetallicity (external)
+``CollapseTestSphereMetallicity`` (external)
     Metallicity of the sphere in solar metallicity. Default: 0.
-CollapseTestFracKeplerianRot (external)
+``CollapseTestFracKeplerianRot`` (external)
     Rotational velocity of the sphere in units of Keplerian velocity,
     i.e. 1 is rotationally supported. Default: 0.
-CollapseTestSphereTurbulence (external)
+``CollapseTestSphereTurbulence`` (external)
     Turbulent velocity field sampled from a Maxwellian distribution
     with the temperature specified in
-    `CollapseTestSphereTemperature? </wiki/CollapseTestSphereTemperature>`_.
+    ``CollapseTestSphereTemperature``
     This parameter multiplies the turbulent velocities by its value.
     Default: 0.
-CollapseTestSphereDispersion (external)
+``CollapseTestSphereDispersion`` (external)
     If using particles, this parameter multiplies the velocity
     dispersion of the particles by its value. Only valid in sphere type
     8 (cosmological collapsing sphere from a uniform density). Default:
     0.
-CollapseTestSphereCutOff (external)
+``CollapseTestSphereCutOff`` (external)
     At what radius to terminate a Bonner-Ebert sphere. Units? Default:
     6.5
-CollapseTestSphereAng1 (external)
+``CollapseTestSphereAng1`` (external)
     Controls the initial offset (at r=0) of the rotational axis. Units
     in radians. Default: 0.
-CollapseTestSphereAng2 (external)
+``CollapseTestSphereAng2`` (external)
     Controls the outer offset (at
-    r=`SphereRadius? </wiki/SphereRadius>`_) of the rotational axis. In
-    both Ang1 and Ang2 are set, the rotational axis linearly changes
-    with radius between Ang1 and Ang2. Units in radians. Default: 0.
-CollapseTestSphereInitialLevel (external)
+    r=``SphereRadius`` of the rotational axis. In
+    both ``CollapseTestSphereAng1`` and ``CollapseTestSphereAng2`` are set,
+    the rotational axis linearly changes
+    with radius between ``CollapseTestSphereAng1`` and ``CollapseTestSphereAng2``.
+    Units in radians. Default: 0.
+``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
 
@@ -2332,117 +2319,117 @@ Cosmology Simulation (30)
     A sample cosmology simulation.
 
 
-CosmologySimulationDensityName (external)
+``CosmologySimulationDensityName`` (external)
     This is the name of the file which contains initial data for baryon
-    density. Type: string. Example: GridDensity. Default: none
-CosmologySimulationTotalEnergyName (external)
+    density. Type: string. Example: ``GridDensity``. Default: none
+``CosmologySimulationTotalEnergyName`` (external)
     This is the name of the file which contains initial data for total
     energy. Default: none
-CosmologySimulationGasEnergyName (external)
+``CosmologySimulationGasEnergyName`` (external)
     This is the name of the file which contains initial data for gas
     energy. Default: none
-CosmologySimulationVelocity[123]Name (external)
+``CosmologySimulationVelocity[123]Name`` (external)
     These are the names of the files which contain initial data for gas
-    velocities. Velocity1 - x-component; Velocity2 - y-component;
-    Velocity3 - z-component. Default: none
-CosmologySimulationParticleMassName (external)
+    velocities. ``Velocity1`` - x-component; ``Velocity2`` - y-component;
+    ``Velocity3`` - z-component. Default: none
+``CosmologySimulationParticleMassName`` (external)
     This is the name of the file which contains initial data for
     particle masses. Default: none
-CosmologySimulationParticlePositionName (external)
+``CosmologySimulationParticlePositionName`` (external)
     This is the name of the file which contains initial data for
     particle positions. Default: none
-CosmologySimulationParticleVelocityName (external)
+``CosmologySimulationParticleVelocityName`` (external)
     This is the name of the file which contains initial data for
     particle velocities. Default: none
-CosmologySimulationParticleVelocity[123]Name (external)
+``CosmologySimulationParticleVelocity[123]Name`` (external)
     This is the name of the file which contains initial data for
     particle velocities but only has one component per file. This is
     more useful with very large (≥2048\ :sup:`3`\ ) datasets. Currently
-    can only use in conjunction with CosmologySimulationCalculatePositions.
+    can only use in conjunction with ``CosmologySimulationCalculatePositions``.
     because it expects a 3D grid structure instead of a 1D list of particles.
     Default: None.
-CosmologySimulationCalculatePositions (external)
+``CosmologySimulationCalculatePositions`` (external)
     If set to 1, enzo will calculate the particle positions from a
     Zeldo'vich approximation based on the particle velocities and a
     displacement factor [dln(growth factor) / dtau, where tau is the
     conformal time], which is stored as an attribute in the initial
     condition files. Default: 0.
-CosmologySimulationNumberOfInitialGrids (external)
+``CosmologySimulationNumberOfInitialGrids`` (external)
     The number of grids at startup. 1 means top grid only. If >1, then
     nested grids are to be defined by the following parameters.
     Default: 1
-CosmologySimulationSubgridsAreStatic (external)
+``CosmologySimulationSubgridsAreStatic`` (external)
     Boolean flag, defines whether the subgrids introduced at the
     startup are static or not. Type: integer. Default: 1 (TRUE)
-CosmologySimulationGridLevel (external)
+``CosmologySimulationGridLevel`` (external)
     An array of integers setting the level(s) of nested subgrids. Max
-    dimension MAX\_INITIAL\_GRIDS is defined in
-    CosmologySimulationInitialize.C as 10. Default for all subgrids: 1,
+    dimension ``MAX\_INITIAL\_GRIDS`` is defined in
+    ``CosmologySimulationInitialize.C`` as 10. Default for all subgrids: 1,
     0 - for the top grid (grid #0)
-CosmologySimulationGridDimension[#] (external)
+``CosmologySimulationGridDimension[#]`` (external)
     An array (arrays) of 3 integers setting the dimensions of nested
     grids. Index starts from 1. Max number of subgrids
-    MAX\_INITIAL\_GRIDS is defined in CosmologySimulationInitialize.C
+    ``MAX\_INITIAL\_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
     as 10. Default: none
-CosmologySimulationGridLeftEdge[#] (external)
+``CosmologySimulationGridLeftEdge[#]`` (external)
     An array (arrays) of 3 floats setting the left edge(s) of nested
     subgrids. Index starts from 1. Max number of subgrids
-    MAX\_INITIAL\_GRIDS is defined in CosmologySimulationInitialize.C
+    ``MAX\_INITIAL\_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
     as 10. Default: none
-CosmologySimulationGridRightEdge[#] (external)
+``CosmologySimulationGridRightEdge[#]`` (external)
     An array (arrays) of 3 floats setting the right edge(s) of nested
     subgrids. Index starts from 1. Max number of subgrids
-    MAX\_INITIAL\_GRIDS is defined in CosmologySimulationInitialize.C
+    ``MAX\_INITIAL\_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
     as 10. Default: none
-CosmologySimulationUseMetallicityField (external)
+``CosmologySimulationUseMetallicityField`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-CosmologySimulationInitialFractionH2I (external)
-    The fraction of molecular hydrogen (H\_2) at InitialRedshift. This
-    and the following chemistry parameters are used if MultiSpecies is
+``CosmologySimulationInitialFractionH2I ``(external)
+    The fraction of molecular hydrogen (H\_2) at ``InitialRedshift``. This
+    and the following chemistry parameters are used if ``MultiSpecies`` is
     defined as 1 (TRUE). Default: 2.0e-20
-CosmologySimulationInitialFractionH2II (external)
+``CosmologySimulationInitialFractionH2II`` (external)
     The fraction of singly ionized molecular hydrogen (H2+) at
-    InitialRedshift. Default: 3.0e-14
-CosmologySimulationInitialFractionHeII (external)
-    The fraction of singly ionized helium at InitialRedshift. Default:
+    ``InitialRedshift``. Default: 3.0e-14
+``CosmologySimulationInitialFractionHeII`` (external)
+    The fraction of singly ionized helium at ``InitialRedshift``. Default:
     1.0e-14
-CosmologySimulationInitialFractionHeIII (external)
-    The fraction of doubly ionized helium at InitialRedshift. Default:
+``CosmologySimulationInitialFractionHeIII`` (external)
+    The fraction of doubly ionized helium at ``InitialRedshift``. Default:
     1.0e-17
-CosmologySimulationInitialFractionHII (external)
-    The fraction of ionized hydrogen at InitialRedshift. Default:
+``CosmologySimulationInitialFractionHII`` (external)
+    The fraction of ionized hydrogen at ``InitialRedshift``. Default:
     1.2e-5
-CosmologySimulationInitialFractionHM (external)
+``CosmologySimulationInitialFractionHM`` (external)
     The fraction of negatively charged hydrogen (H-) at
-    InitialRedshift. Default: 2.0e-9
-CosmologySimulationInitialTemperature (external)
-    A uniform temperature value at InitialRedshift (needed if the
+    ``InitialRedshift``. Default: 2.0e-9
+``CosmologySimulationInitialTemperature`` (external)
+    A uniform temperature value at ``InitialRedshift`` (needed if the
     initial gas energy field is not supplied). Default: 550\*((1.0 +
-    InitialRedshift)/201)\ :sup:`2`\ 
-CosmologySimulationOmegaBaryonNow (external)
+    ``InitialRedshift``)/201)\ :sup:`2`\ 
+``CosmologySimulationOmegaBaryonNow`` (external)
     This is the contribution of baryonic matter to the energy density
     at the current epoch (z=0), relative to the value required to
     marginally close the universe. Typical value 0.06. Default: 1.0
-CosmologySimulationOmegaCDMNow (external)
+``CosmologySimulationOmegaCDMNow`` (external)
     This is the contribution of CDM to the energy density at the
     current epoch (z=0), relative to the value required to marginally
     close the universe. Typical value 0.94. Default: 0.0 (no dark
     matter)
-CosmologySimulationManuallySetParticleMassRatio (external)
+``CosmologySimulationManuallySetParticleMassRatio`` (external)
     This binary flag (0 - off, 1 - on) allows the user to manually set
     the particle mass ratio in a cosmology simulation. Default: 0 (Enzo
     automatically sets its own particle mass)
-CosmologySimulationManualParticleMassRatio (external)
+``CosmologySimulationManualParticleMassRatio`` (external)
     This manually controls the particle mass in a cosmology simulation,
-    when CosmologySimulationManuallySetParticleMassRatio is set to 1.
+    when ``CosmologySimulationManuallySetParticleMassRatio`` is set to 1.
     In a standard Enzo simulation with equal numbers of particles and
     cells, the mass of a particle is set to
-    !CosmologySimulationOmegaCDMNow/CosmologySimulationOmegaMatterNow,
+    ``CosmologySimulationOmegaCDMNow``/``CosmologySimulationOmegaMatterNow``,
     or somewhere around 0.85 in a WMAP-type cosmology. When a different
     number of particles and cells are used (128 particles along an edge
     and 256 cells along an edge, for example) Enzo attempts to
     calculate the appropriate particle mass. This breaks down when
-    !ParallelRootGridIO and/or !ParallelParticleIO are turned on,
+    ``ParallelRootGridIO`` and/or ``ParallelParticleIO`` are turned on,
     however, so the user must set this by hand. If you have the ratio
     described above (2 cells per particle along each edge of a 3D
     simulation) the appropriate value would be 8.0 (in other words,
@@ -2456,49 +2443,49 @@ Isolated Galaxy Evolution (31)
     papers.
 
 
-GalaxySimulationRefineAtStart (external)
+``GalaxySimulationRefineAtStart`` (external)
     Controls whether or not the simulation is refined beyond the root
     grid at initialization. (0 - off, 1 - on). Default: 1
-GalaxySimulationInitialRefinementLevel (external)
+``GalaxySimulationInitialRefinementLevel`` (external)
     Level to which the simulation is refined at initialization,
-    assuming GalaxySimulationRefineAtStart is set to 1. Default: 0
-GalaxySimulationSubgridLeft, GalaxySimulationSubgridRight (external)
+    assuming ``GalaxySimulationRefineAtStart`` is set to 1. Default: 0
+``GalaxySimulationSubgridLeft``, ``GalaxySimulationSubgridRight`` (external)
     Vectors of floats defining the edges of the volume which is refined
     at start. No default value.
-GalaxySimulationUseMetallicityField (external)
+``GalaxySimulationUseMetallicityField`` (external)
     Turns on (1) or off (0) the metallicity field. Default: 0
-GalaxySimulationInitialTemperature (external)
+``GalaxySimulationInitialTemperature`` (external)
     Initial temperature that the gas in the simulation is set to.
     Default: 1000.0
-GalaxySimulationUniformVelocity (external)
+``GalaxySimulationUniformVelocity`` (external)
     Vector that gives the galaxy a uniform velocity in the ambient
     medium. Default: (0.0, 0.0, 0.0)
-GalaxySimulationDiskRadius (external)
+``GalaxySimulationDiskRadius`` (external)
     Radius (in Mpc) of the galax disk. Default: 0.2
-GalaxySimulationGalaxyMass (external)
+``GalaxySimulationGalaxyMass`` (external)
     Dark matter mass of the galaxy, in Msun. Needed to initialize the
     NFW gravitational potential. Default: 1.0e+12
-GalaxySimulationGasMass (external)
+``GalaxySimulationGasMass`` (external)
     Amount of gas in the galaxy, in Msun. Used to initialize the
     density field in the galactic disk. Default: 4.0e+10
-GalaxySimulationDiskPosition (external)
+``GalaxySimulationDiskPosition`` (external)
     Vector of floats defining the center of the galaxy, in units of the
     box size. Default: (0.5, 0.5, 0.5)
-GalaxySimulationDiskScaleHeightz (external)
+``GalaxySimulationDiskScaleHeightz`` (external)
     Disk scale height, in Mpc. Default: 325e-6
-GalaxySimulationDiskScaleHeightR (external)
+``GalaxySimulationDiskScaleHeightR`` (external)
     Disk scale radius, in Mpc. Default: 3500e-6
-GalaxySimulationDarkMatterConcentrationParameter (external)
+``GalaxySimulationDarkMatterConcentrationParameter`` (external)
     NFW dark matter concentration parameter. Default: 12.0
-GalaxySimulationDiskTemperature (external)
+``GalaxySimulationDiskTemperature`` (external)
     Temperature of the gas in the galactic disk. Default: 1.0e+4
-GalaxySimulationInflowTime (external)
+``GalaxySimulationInflowTime`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: -1 (off)
-GalaxySimulationInflowDensity (external)
+``GalaxySimulationInflowDensity`` (external)
     Controls inflow of gas into the box. It is strongly suggested that
     you leave this off. Default: 0.0
-GalaxySimulationAngularMomentum (external)
+``GalaxySimulationAngularMomentum`` (external)
     Unit vector that defines the angular momentum vector of the galaxy
     (in other words, this and the center position define the plane of
     the galaxy). This \_MUST\_ be set! Default: (0.0, 0.0, 0.0)
@@ -2506,48 +2493,48 @@ GalaxySimulationAngularMomentum (external)
 Shearing Box Simulation (35)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ShearingBoxProblemType (external)
+``ShearingBoxProblemType`` (external)
     Value of 0 starts a sphere advection through the shearing box test.
     Value of 1 starts a standard Balbus & Hawley shearing box
     simulation. Default: 0
-ShearingBoxRefineAtStart (external)
+``ShearingBoxRefineAtStart`` (external)
     Refine the simulation at start. Default: 1.0
-ThermalMagneticRatio (external)
-    Plasma beta (`Pressure/Magnetic? </wiki/Pressure/Magnetic>`_ Field
+``ThermalMagneticRatio`` (external)
+    Plasma beta (Pressure/Magnetic Field
     Energy) Default: 400.0
-FluctuationAmplitudeFraction (external)
+``FluctuationAmplitudeFraction`` (external)
     The magnitude of the sinusoidal velocity perturbations as a
     fraction of the angular velocity. Default: 0.1
-ShearingBoxGeometry (external)
-    Defines the radius of the sphere for ShearingBoxProblemType=0, and the
+``ShearingBoxGeometry`` (external)
+    Defines the radius of the sphere for ``ShearingBoxProblemType``=0, and the
     frequency of the velocity fluctuations (in units of 2pi) for
-    ShearingBoxProblemType=1.  Default: 2.0
+    ``ShearingBoxProblemType``=1.  Default: 2.0
 
 Supernova Restart Simulation (40)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    All of the supernova parameters are to be put into a restart dump's
+    All of the supernova parameters are to be put into a restart dump
     parameter file. Note that ProblemType must be reset to 40,
     otherwise these are ignored.
 
-SupernovaRestartEjectaCenter[#] (external)
+``SupernovaRestartEjectaCenter[#]`` (external)
     Input is a trio of coordinates in code units where the supernova's
-    energy and mass ejecta will be centered. Default: FLOAT\_UNDEFINED
-SupernovaRestartEjectaEnergy (external)
+    energy and mass ejecta will be centered. Default: ``FLOAT\_UNDEFINED``
+``SupernovaRestartEjectaEnergy`` (external)
     The amount of energy instantaneously output in the simulated
     supernova, in units of 1e51 ergs. Default: 1.0
-SupernovaRestartEjectaMass (external)
+``SupernovaRestartEjectaMass`` (external)
     The mass of ejecta in the supernova, in units of solar masses.
     Default: 1.0
-SupernovaRestartEjectaRadius (external)
+``SupernovaRestartEjectaRadius`` (external)
     The radius over which the above two parameters are spread. This is
     important because if it's too small the timesteps basically go to
     zero and the simulation takes forever, but if it's too big then you
     loose information. Units are parsecs. Default: 1.0 pc
-SupernovaRestartName (external)
+``SupernovaRestartName`` (external)
     This is the name of the restart data dump that the supernova
     problem is initializing from.
-SupernovaRestartColourField
+``SupernovaRestartColourField``
     Reserved for future use.
 
 Photon Test (50)
@@ -2561,45 +2548,44 @@ Photon Test (50)
     test. The radiation sources are fixed in space.
 
 
-PhotonTestNumberOfSources (external)
+``PhotonTestNumberOfSources`` (external)
     Sets the number of radiation sources. Default: 1.
-PhotonTestSourceType (external)
+``PhotonTestSourceType`` (external)
     Sets the source type. No different types at the moment. Default: 0.
-PhotonTestSourcePosition (external)
-    Sets the source position. Default: 0.5\*(DomainLeftEdge + DomainRightEdge)
-PhotonTestSourceLuminosity (external)
+``PhotonTestSourcePosition`` (external)
+    Sets the source position. Default: 0.5\*(``DomainLeftEdge`` + ``DomainRightEdge``)
+``PhotonTestSourceLuminosity`` (external)
     Sets the source luminosity in units of photons per seconds.
     Default: 0.
-PhotonTestSourceLifeTime (external)
+``PhotonTestSourceLifeTime`` (external)
     Sets the lifetime of the source in units of code time. Default: 0.
-PhotonTestSourceRampTime (external)
+``PhotonTestSourceRampTime`` (external)
     If non-zero, the source will exponentially increase its luminosity
     until it reaches the full luminosity when the age of the source
     equals this parameter. Default: 0.
-PhotonTestSourceEnergyBins (external)
+``PhotonTestSourceEnergyBins`` (external)
     Sets the number of energy bins in which the photons are emitted
     from the source. Default: 4.
-PhotonTestSourceSED (external)
+``PhotonTestSourceSED`` (external)
     An array with the fractional luminosity in each energy bin. The sum
     of this array must equal to one. Default: 1 0 0 0
-PhotonTestSourceEnergy (external)
+``PhotonTestSourceEnergy`` (external)
     An array with the mean energy in each energy bin. Units are in eV.
     Default: 14.6 25.6 56.4 12.0 (i.e. HI ionizing, HeI ionizing, HeII
     ionizing, Lyman-Werner)
-
-PhotonTestInitialFractionHII (external)
+``PhotonTestInitialFractionHII`` (external)
     Sets the initial ionized fraction of hydrogen. Default: 1.2e-5
-PhotonTestInitialFractionHeII (external)
+``PhotonTestInitialFractionHeII`` (external)
     Sets the initial singly-ionized fraction of helium. Default: 1e-14
-PhotonTestInitialFractionHeIII (external)
+``PhotonTestInitialFractionHeIII`` (external)
     Sets the initial doubly-ionized fraction of helium. Default: 1e-17
-PhotonTestInitialFractionHM (external)
+``PhotonTestInitialFractionHM`` (external)
     Sets the initial fraction of H\ :sup:`-`\ . Default: 2e-9
-PhotonTestInitialFractionH2I (external)
+``PhotonTestInitialFractionH2I`` (external)
     Sets the initial neutral fraction of H2. Default: 2e-20
-PhotonTestInitialFractionH2II (external)
+``PhotonTestInitialFractionH2II`` (external)
     Sets the initial ionized fraction of H2. Default: 3e-14
-PhotonTestOmegaBaryonNow (obsolete)
+``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
 
 Cooling Test (62)
@@ -2608,34 +2594,34 @@ Cooling Test (62)
     This test problem sets up a 3D grid varying smoothly in log-space in H
     number density (x dimension), metallicity (y-dimension), and temperature
     (z-dimension). The hydro solver is turned off. By varying the
-    RadiativeCooling and CoolingTestResetEnergies parameters, two different
+    ``RadiativeCooling`` and ``CoolingTestResetEnergies`` parameters, two different
     cooling tests can be run. 1) Keep temperature constant, but iterate
     chemistry to allow species to converge. This will allow you to make plots
-    of Cooling rate vs. T.  For this, set RadiativeCooling to 0 and
-    CoolingTestResetEnergies to 1. 2) Allow gas to cool, allowing one to plot
-    Temperature vs.  time. For this, set RadiativeCooling to 1 and
-    CoolingTestResetEnergies to 0.
+    of Cooling rate vs. T.  For this, set ``RadiativeCooling`` to 0 and
+    ``CoolingTestResetEnergies`` to 1. 2) Allow gas to cool, allowing one to plot
+    Temperature vs.  time. For this, set ``RadiativeCooling`` to 1 and
+    ``CoolingTestResetEnergies`` to 0.
 
 
-CoolingTestMinimumHNumberDensity (external)
+``CoolingTestMinimumHNumberDensity`` (external)
     The minimum density in code units at x=0. Default: 1
     [cm\ :sup:`-3`\ ].
-CoolingTestMaximumHNumberDensity (external)
+``CoolingTestMaximumHNumberDensity`` (external)
     The maximum density in code units at
-    x=`DomainRightEdge? </wiki/DomainRightEdge>`_[0]. Default: 1e6
+    x=``DomainRightEdge[0]``. Default: 1e6
     [cm\ :sup:`-3`\ ].
-CoolingTestMinimumMetallicity (external)
+``CoolingTestMinimumMetallicity`` (external)
     The minimum metallicity at y=0. Default: 1e-6 [Z\ :sub:`sun`\ ].
-CoolingTestMaximumMetallicity (external)
+``CoolingTestMaximumMetallicity`` (external)
     The maximum metallicity at
-    y=`DomainRightEdge? </wiki/DomainRightEdge>`_[2]. Default: 1
+    y=``DomainRightEdge[2]``. Default: 1
     [Z\ :sub:`sun`\ ].
-CoolingTestMinimumTemperature (external)
+``CoolingTestMinimumTemperature`` (external)
     The minimum temperature in Kelvin at z=0. Default: 10.0 [K].
-CoolingTestMaximumTemperature (external)
+``CoolingTestMaximumTemperature`` (external)
     The maximum temperature in Kelvin at
-    z=`DomainRightEdge? </wiki/DomainRightEdge>`_[1]. Default: 1e7 [K].
-CoolingTestResetEnergies (external)
+    z=``DomainRightEdge[1]``. Default: 1e7 [K].
+``CoolingTestResetEnergies`` (external)
     An integer flag (0 or 1) to determine whether the grid energies
     should be continually reset after every iteration of the chemistry
     solver such that the temperature remains constant as the mean
@@ -2644,74 +2630,74 @@ CoolingTestResetEnergies (external)
 Other External Parameters
 -------------------------
 
-huge\_number (external)
+``huge\_number`` (external)
     The largest reasonable number. Rarely used. Default: 1e+20
-tiny\_number (external)
+``tiny\_number`` (external)
     A number which is smaller than all physically reasonable numbers.
     Used to prevent divergences and divide-by-zero in the following C++
-    functions: ComputeElementalDensity(), ComputePressure(),
-    ComputePressureDualEnergyFormalism(), ComputeTemperatureField(),
-    ComputeTimeStep(), CorrectForRefinedFluxes(). Problem dependent.
+    functions: ``ComputeElementalDensity()``, ``ComputePressure()``,
+    ``ComputePressureDualEnergyFormalism()``, ``ComputeTemperatureField()``,
+    ``ComputeTimeStep()``, ``CorrectForRefinedFluxes()``. Problem dependent.
     Modify with caution! Default: 1e-20.
 
-    A currently independent analog, tiny, defined in fortran.def, does
-    the same job for a large family of FORTRAN routines: calcdiss(),
-    calc\_dt(), calc\_rates(), colh2diss(), coll\_rates(),
-    cool1d\_multi(), cool1d(), cool\_multi\_time(), cool\_time(),
-    euler(), grid\_cic(), interp3d(), inteuler(), int\_lin3d(),
-    intrmp(), lgrg(), multi\_cool(), ppm\_de(), ppm\_lr(),
-    solve\_cool(), solve\_rate(), tscint![123]d(), zeus\_main(),
-    zeus\_source(). Modification of tiny must be done with caution and
-    currently requires recompiling the code, since tiny is not a
+    A currently independent analog, ``tiny``, defined in ``fortran.def``, does
+    the same job for a large family of FORTRAN routines: ``calcdiss()``,
+    ``calc\_dt()``, ``calc\_rates()``, ``colh2diss()``, ``coll\_rates()``,
+    ``cool1d\_multi()``, ``cool1d()``, ``cool\_multi\_time()``, ``cool\_time()``,
+    ``euler()``, ``grid\_cic()``, ``interp3d()``, ``inteuler()``, ``int\_lin3d()``,
+    ``intrmp()``, ``lgrg()``, ``multi\_cool()``, ``ppm\_de()``, ``ppm\_lr()``,
+    ``solve\_cool()``, ``solve\_rate()``, ``tscint[123]d()``, ``zeus\_main()``,
+    ``zeus\_source()``. Modification of ``tiny`` must be done with caution and
+    currently requires recompiling the code, since ``tiny`` is not a
     parameter yet.
 
-TimeActionParameter[#]
+``TimeActionParameter[#]``
     Reserved for future use.
-TimeActionRedshift[#]
+``TimeActionRedshift[#]``
     Reserved for future use.
-TimeActionTime[#]
+``TimeActionTime[#]``
     Reserved for future use.
-TimeActionType[#]
+``TimeActionType[#]``
     Reserved for future use.
 
 Other Internal Parameters
 -------------------------
 
-TimeLastRestartDump
+``TimeLastRestartDump``
     Reserved for future use.
-TimeLastDataDump (internal)
+``TimeLastDataDump`` (internal)
     The code time at which the last time-based output occurred.
-TimeLastHistoryDump
+``TimeLastHistoryDump``
     Reserved for future use.
-TimeLastMovieDump (internal)
+``TimeLastMovieDump`` (internal)
     The code time at which the last movie dump occurred.
-CycleLastRestartDump
+``CycleLastRestartDump``
     Reserved for future use.
-CycleLastDataDump (internal)
+``CycleLastDataDump`` (internal)
     The last cycle on which a cycle dump was made
-CycleLastHistoryDump
+``CycleLastHistoryDump``
     Reserved for future use.
-InitialCPUTime
+``InitialCPUTime``
     Reserved for future use.
-InitialCycleNumber (internal)
+``InitialCycleNumber`` (internal)
     The current cycle
-RestartDumpNumber
+``RestartDumpNumber``
     Reserved for future use.
-DataLabel[#] (internal)
+``DataLabel[#]`` (internal)
     These are printed out into the restart dump parameter file. One
     Label is produced per baryon field with the name of that baryon
     field. The same labels are used to name data sets in HDF files.
-DataUnits[#]
+``DataUnits[#]``
     Reserved for future use.
-DataDumpNumber (internal)
+``DataDumpNumber`` (internal)
     The identification number of the next output file (the 0000 part of
     the output name). This is used and incremented by both the cycle
     based and time based outputs. Default: 0
-HistoryDumpNumber
+``HistoryDumpNumber``
     Reserved for future use.
-MovieDumpNumber (internal)
+``MovieDumpNumber`` (internal)
     The identification number of the next movie output file. Default: 0
-VersionNumber (internal)
+``VersionNumber`` (internal)
     Sets the version number of the code which is written out to restart
     dumps.
 

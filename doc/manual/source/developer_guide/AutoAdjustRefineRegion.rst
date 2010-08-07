@@ -22,7 +22,7 @@ region, massive particles. Below is an illustration of this new region.
 
 `Image(refine\_region.jpg, 33%)? </wiki/Image(refine_region.jpg,%2033%)>`_
 
-Here is the logic that I have taken to adjust the refine region because it is
+Here is the logic that we have taken to adjust the refine region because it is
 not a trivial min/max of the positions of the massive particles. If we were to
 take the maximum distance of the highest resolution particles from the refine
 region center, we would obtain a minimum covering volume that contains all high
@@ -37,9 +37,9 @@ region by a cell width on the level with the finest nested initial grid.
    widths, it is convenient to convert the massive particle positions to
    integers in units of these cell widths.
 #. Loop while any massive particles are contained in the refine region.
-#. Originally I looped over each face of the refine region to
-   search for massive particles, but I found that this favored the
-   first faces (x-dimension) in the loop. So I have randomized which
+#. Originally the code looped over each face of the refine region to
+   search for massive particles, but we found that this favored the
+   first faces (x-dimension) in the loop. So we have randomized which
    face we will evaluate.
 #. Search for any particles existing in the outermost slab (1 cell
    deep on the whole face) on the region face in question. If any
@@ -57,7 +57,7 @@ region by a cell width on the level with the finest nested initial grid.
         is where the randomization comes into play, so we don't favor
         the x-faces. This could be improved by making an educated guess
         on which face to move inwards by searching for particles near
-        the boundary. However, I think this might be difficult and
+        the boundary. However, this might be difficult and
         time-consuming.
 
 Below in the attachments (region.mov) is an animation showing the

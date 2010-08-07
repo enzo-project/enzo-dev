@@ -15,8 +15,7 @@ Class Description
 
 The array class is pretty simple: just enough to represent an
 N-dimensional grid, without any spatial information. Here is the
-heart of it, from [browser:/public/trunk/src/enzo/EnzoArray.h the
-header file]:
+heart of it, from ``/public/trunk/src/enzo/EnzoArray.h``:
 
 ::
 
@@ -28,7 +27,7 @@ header file]:
       EnzoArray(int rank, int *dims, int *start, int *end,
             FLOAT *cell_size=NULL, int derived=FALSE){
     
-    ...blah blah...
+    ...
     
       int Rank;                        // number of dimensions
       int Dimension[MAX_DIMENSION];    // total dimensions of all grids
@@ -43,7 +42,7 @@ header file]:
       // used for velocities and positions
       T *Vector[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
     
-    ...blah blah...
+    ...
     };
     
     #define EnzoArrayFLOAT EnzoArray<FLOAT>
@@ -56,27 +55,27 @@ the bottom of the header file will hide that from you.
 Array vs. Vector
 ~~~~~~~~~~~~~~~~
 
-In the above code block, you'll notice two pointers: T \*Array; and
-T \*Vector. Here are the rules that these attributes follow: Only
+In the above code block, you'll notice two pointers: ``T \*Array``; and
+``T \*Vector``. Here are the rules that these attributes follow: Only
 one of these will be used, and which one is used depends on the
 type of data you try to access. Namely, field data, such as
-density, will be pointed to by Array, and vector data, such as
-velocities or particle positions, will be pointed to by Vector.
+density, will be pointed to by ``Array``, and vector data, such as
+velocities or particle positions, will be pointed to by ``Vector``.
 
 Destructor (What Gets Deleted)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the destructor is called, Array and Vector get deleted
-*only if* derived is TRUE. This is to keep the usage (declare and
-delete) similar for both derived and underived data. And, we really
+When the destructor is called, ``Array`` and ``Vector`` get deleted
+*only if* ``derived`` is TRUE. This is to keep the usage (declare and
+delete) similar for both derived and underived data. We really
 don't want to delete the density field on accident.
 
 Access Methods
 --------------
 
 There are six accessor methods declared in
-[browser:/public/trunk/src/enzo/Grid.h Grid.h], two per data type
-(float, int, and FLOAT).
+``public/trunk/src/enzo/Grid.h``, two per data type
+(``float``, ``int``, and ``FLOAT``).
 
 ::
 
@@ -90,9 +89,9 @@ There are six accessor methods declared in
        EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
 
 These methods are defined in
-[browser:/public/trunk/src/enzo/Grid\_CreateFieldArray.C
-Grid\_CreateFieldArray.C]. Basically, they allocate a new
-EnzoArray, fill in the dimensions, attach the relevant pointers,
+``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+Basically, they allocate a new
+``EnzoArray``, fill in the dimensions, attach the relevant pointers,
 and hand it back to. All you need to do is delete the return
 object.
 
@@ -100,11 +99,11 @@ Field Numbers and Names
 -----------------------
 
 The arguments to are either a field number, defined in
-[browser:/public/trunk/src/enzo/typedefs.h typedefs.h], or the
+``/public/trunk/src/enzo/typedefs.h``, or the
 string version of the same. The string versions are defined in a
-long array, named field\_map in
-[browser:/public/trunk/src/enzo/Grid\_CreateFieldArray.C
-Grid\_CreateFieldArray.C]. This means you can access something as
+``long`` array, named ``field\_map`` in
+``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+This means you can access something as
 
 ::
 
@@ -117,9 +116,9 @@ or
        EnzoArrayFloat *density_array = mygrid->CreateFieldArrayFloat("Density");
 
 There are some fields which have names that are the same as grid
-attributes, like ParticlePosition. Rather than have a huge
+attributes, like ``ParticlePosition``. Rather than have a huge
 namespace conflict, these have field numbers prefixed with a "g",
-e.g., gParticlePosition. The string called is still just
+e.g., ``gParticlePosition``. The string called is still just
 "ParticlePosition", like
 
 ::
@@ -135,11 +134,10 @@ or
 The important part of the map is that it knows the data type of the
 fields, which you need to know, so you can call the right method.
 This is really pretty simple, since just about everything returned
-is a float. For a complete list of the (hopefully current) fields,
+is a ``float``. For a complete list of the (hopefully current) fields,
 see the section **Field List Reference**. For the best reference,
-check in [browser:/public/trunk/src/enzo/typedefs.h typedefs.h],
-and [browser:/public/trunk/src/enzo/Grid\_CreateFieldArray.C
-Grid\_CreateFieldArray.C].
+check in ``/public/trunk/src/enzo/typedefs.h``,
+and ``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
 
 Using the Methods
 -----------------
@@ -191,7 +189,7 @@ First, here's function to create a non-uniform grid
       return lineargrid;
     }
 
-Notice how this function uses CreateFieldArrayFloat to set the
+Notice how this function uses ``CreateFieldArrayFloat`` to set the
 values of the density array.
 
 Now, here's a program that creates a uniform grid, and looks at
@@ -225,168 +223,54 @@ some of the attributes:
     }
 
 This is a complete program,
-[browser:/public/trunk/src/enzo/field\_array\_example.C
-field\_array\_example.C]; what this snippet lacks is the fairly
+``/public/trunk/src/enzo/field\_array\_example.C``;
+what this snippet lacks is the fairly
 long list of header files that need to be included. You can compile
-this by calling make field\_array\_example.exe in source directory.
-It's also attached to this wiki page.
+this by calling ``make field\_array\_example.exe`` in source directory.
 
 Field List Reference
 --------------------
 
-Field Number
-Field Name
-Data Type
-Array or Vector
-Density
-"Density"
-float
-Array
-TotalEnergy
-"TotalEnergy"
-float
-Array
-InternalEnergy
-"InternalEnergy"
-float
-Array
-Pressure
-"Pressure"
-float
-Array
-Velocity1
-"Velocity1"
-float
-Array
-Velocity2
-"Velocity2"
-float
-Array
-Velocity3
-"Velocity3"
-float
-Array
-ElectronDensity
-"ElectronDensity"
-float
-Array
-HIDensity
-"HIDensity"
-float
-Array
-HIIDensity
-"HIIDensity"
-float
-Array
-HeIDensity
-"HeIDensity"
-float
-Array
-HeIIDensity
-"HeIIDensity"
-float
-Array
-HeIIIDensity
-"HeIIIDensity"
-float
-Array
-HMDensity
-"HMDensity"
-float
-Array
-H2IDensity
-"H2IDensity"
-float
-Array
-H2IIDensity
-"H2IIDensity"
-float
-Array
-DIDensity
-"DIDensity"
-float
-Array
-DIIDensity
-"DIIDensity"
-float
-Array
-HDIDensity
-"HDIDensity"
-float
-Array
-Metallicity
-"Metallicity"
-float
-Array
-ExtraType0
-"ExtraType0"
-float
-Array
-ExtraType1
-"ExtraType1"
-float
-Array
-GravPotential
-"GravPotential"
-float
-Array
-Acceleration0
-"Acceleration0"
-float
-Array
-Acceleration1
-"Acceleration1"
-float
-Array
-Acceleration2
-"Acceleration2"
-float
-Array
-gParticlePosition
-"ParticlePosition"
-FLOAT
-Vector
-gParticleVelocity
-"ParticleVelocity"
-float
-Vector
-gParticleMass
-"ParticleMass"
-float
-Array
-gParticleAcceleration
-"ParticleAcceleration"
-float
-Vector
-gParticleNumber
-"ParticleNumber"
-int
-Array
-gParticleType
-"ParticleType"
-int
-Array
-gParticleAttribute
-"ParticleAttribute"
-float
-Vector
-gPotentialField
-"PotentialField"
-float
-Array
-gAccelerationField
-"AccelerationField"
-float
-Vector
-gGravitatingMassField
-"GravitatingMassField"
-float
-Array
-gFlaggingField
-"FlaggingField"
-int
-Array
-gVelocity
-"Velocity"
-tt
+=====================  =====================  ==========  ===============
+Field Number            Field Name             Data Type   Array or Vector
+=====================  =====================  ==========  ===============
+Density                 "Density"               float       Array
+TotalEnergy             "TotalEnergy"           float       Array
+InternalEnergy          "InternalEnergy"        float       Array
+Pressure                "Pressure"              float       Array
+Velocity1               "Velocity1"             float       Array
+Velocity2               "Velocity2"             float       Array
+Velocity3               "Velocity3"             float       Array
+ElectronDensity         "ElectronDensity"       float       Array
+HIDensity               "HIDensity"             float       Array
+HIIDensity              "HIIDensity"            float       Array
+HeIDensity              "HeIDensity"            float       Array
+HeIIDensity             "HeIIDensity"           float       Array
+HeIIIDensity            "HeIIIDensity"          float       Array
+HMDensity               "HMDensity"             float       Array
+H2IDensity              "H2IDensity"            float       Array
+H2IIDensity             "H2IIDensity"           float       Array
+DIDensity               "DIDensity"             float       Array
+DIIDensity              "DIIDensity"            float       Array
+HDIDensity              "HDIDensity"            float       Array
+Metallicity             "Metallicity"           float       Array
+ExtraType0              "ExtraType0"            float       Array
+ExtraType1              "ExtraType1"            float       Array
+GravPotential           "GravPotential"         float       Array
+Acceleration0           "Acceleration0"         float       Array
+Acceleration1           "Acceleration1"         float       Array
+Acceleration2           "Acceleration2"         float       Array
+gParticlePosition       "ParticlePosition"      FLOAT       Vector
+gParticleVelocity       "ParticleVelocity"      float       Vector
+gParticleMass           "ParticleMass"          float       Array
+gParticleAcceleration   "ParticleAcceleration"  float       Vector
+gParticleNumber         "ParticleNumber"        int         Array
+gParticleType           "ParticleType"          int         Array
+gParticleAttribute      "ParticleAttribute"     float       Vector
+gPotentialField         "PotentialField"        float       Array
+gAccelerationField      "AccelerationField"     float       Vector
+gGravitatingMassField   "GravitatingMassField"  float       Array
+gFlaggingField          "FlaggingField"         int         Array
+gVelocity               "Velocity"              float       Vector
+======================  ====================   =========  ===============
 
