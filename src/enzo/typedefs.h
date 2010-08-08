@@ -173,6 +173,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
