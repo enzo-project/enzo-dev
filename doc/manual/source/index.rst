@@ -25,7 +25,7 @@ Contents:
    EnzoParameters.rst
    developer_guide/index.rst
    reference/index.rst
-   
+   presentations/index.rst
 
 Enzo Users Mailing List
 -----------------------
