@@ -7,14 +7,14 @@ Adding a new Test Problem.
 
 This is the best place to start your Enzo Development Career. Even
 if you're not interested in actually writing a new problem
-generator, in this page I'll discuss the basic enzo datastructures
+generator, in this page I'll discuss the basic Enzo datastructures
 and programming patterns.
 
 One deficiency in this tutorial is the lack of Particles. This is
 not an oversight, but due to the fact that the author of the
 article doesn't really use particles, as he's not a cosmologist.
 These will be added in the future, but particles are really not
-that big of a deal when it comes to the general enzo data
+that big of a deal when it comes to the general Enzo data
 structures. All the information herein is still essential.
 
 Overview

@@ -1,7 +1,7 @@
 Enzo Parameter List
 ===================
 
-The following is a largely complete list of the parameters that enzo
+The following is a largely complete list of the parameters that Enzo
 understands, and a brief description of what they mean. They are grouped
 roughly by meaning; an alphabetical list is also available. Parameters for
 individual test problems are also listed here.
@@ -18,7 +18,7 @@ The parameters fall into a number of categories:
 **external**
     These are user parameters in the sense that they can be set in the
     parameter file, and provide the primary means of communication
-    between the enzo and the user.
+    between Enzo and the user.
 **internal**
     These are mostly not set in the parameter file (although strictly
     speaking they can be) and are generally used for program to
@@ -251,12 +251,12 @@ have a look at :ref:`ControllingDataOutput` for more information.
     (only only this) redshift output. Can be used repeatedly in the
     same manner as the previous parameter. Default: none
 ``OutputFirstTimeAtLevel`` (external)
-    This forces enzo to output when a given level is reached, and at
+    This forces Enzo to output when a given level is reached, and at
     every level thereafter. Default is 0 (off). User can usefully
     specify anything up to the maximum number of levels in a given
     simulation.
 ``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName``, (external)
-    These parameters are used in 2D projections (enzo -p ...). The
+    These parameters are used in 2D projections (``enzo -p ...``). The
     first two specify the X-ray band (observed at z=0) to be used, and
     the last gives the name of an ascii file that contains the X-ray
     spectral information. A gzipped version of this file good for bands
@@ -2002,13 +2002,13 @@ Radiating Shock (11)
 
 
 ``RadiatingShockInnerDensity`` (external)
-    Density inside the energy deposition area (enzo internal units).
+    Density inside the energy deposition area (Enzo internal units).
     Default: 1.0
 ``RadiatingShockOuterDensity`` (external)
-    Density outside the energy deposition area (enzo internal units).
+    Density outside the energy deposition area (Enzo internal units).
     Default: 1.0
 ``RadiatingShockPressure`` (external)
-    Pressure outside the energy deposition area (enzo internal units).
+    Pressure outside the energy deposition area (Enzo internal units).
     Default: 1.0e-5
 ``RadiatingShockEnergy`` (external)
     Total energy deposited (in units of 1e51 ergs). Default: 1.0
@@ -2349,7 +2349,7 @@ Cosmology Simulation (30)
     because it expects a 3D grid structure instead of a 1D list of particles.
     Default: None.
 ``CosmologySimulationCalculatePositions`` (external)
-    If set to 1, enzo will calculate the particle positions from a
+    If set to 1, Enzo will calculate the particle positions from a
     Zeldo'vich approximation based on the particle velocities and a
     displacement factor [dln(growth factor) / dtau, where tau is the
     conformal time], which is stored as an attribute in the initial

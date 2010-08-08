@@ -37,7 +37,7 @@ complex than Gadget or Zeus, and much much easier to break.
 
 5. Write your new routine. This can either be a grid member
    function (old style) or a non-member function that accesses the
-   enzo data using the `Field Array? </wiki/GridFieldArrays>`_ objects
+   Enzo data using the `Field Array? </wiki/GridFieldArrays>`_ objects
    (prefered method.)
 
 

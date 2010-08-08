@@ -151,7 +151,7 @@ directory. You should then download a set of sample parameter
 files. The example set used for this tutorial are
 `available here <http://lca.ucsd.edu/software/enzo/data/cookbook/>`_.
 Download the files called ``Example\_Cosmology\_Sim.inits`` and
-``Example\_Cosmology\_Sim.param``, which are the inits and enzo
+``Example\_Cosmology\_Sim.param``, which are the inits and Enzo
 parameter files, respectively. This tutorial assumes that you have
 downloaded these two files and put them on whatever computer you
 are using to perform your simulation.
@@ -306,7 +306,7 @@ Running an Enzo cosmology simulation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After all of this preparation, running the simulation itself should
-be straightforward. You start enzo by typing:
+be straightforward. You start Enzo by typing:
 
 ::
 

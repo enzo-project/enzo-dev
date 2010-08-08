@@ -111,7 +111,7 @@ It consists of a series of lines (and optional comments) each of
 which specifies the value of one parameter. The parameters are
 discussed in more detail in :ref:`EnzoParameters`.
 
-If you just type enzo without any arguments, or if the number of
+If you just type ``enzo`` without any arguments, or if the number of
 arguments is incorrect, the program should respond with a summary
 of the command-line usage.
 

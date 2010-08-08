@@ -2,7 +2,7 @@ Enzo Output Formats
 ===================
 
 Although there are a number of ways of specifying when (and how
-often) enzo outputs information, there is only one type of output
+often) Enzo outputs information, there is only one type of output
 'dump' (well, not quite -- there are now movie dumps, see below),
 which can also be used to restart the simulation. The output format
 uses the following files, each of which begins with the output
@@ -10,8 +10,8 @@ name, here we use the example base\_name, and are then followed by
 the output number, ranging from 0000 to 9999 (if more than 10000
 grids are generated then the number goes to 10000, etc.). When
 restarting, or other times when an output filename needs to be
-specified, use the name without any extension (e.g. enzo -r
-base\_name0000).
+specified, use the name without any extension (e.g. ``enzo -r
+base\_name0000``).
 
 Summary of Files
 ----------------

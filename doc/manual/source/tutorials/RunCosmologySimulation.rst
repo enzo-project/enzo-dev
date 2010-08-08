@@ -133,7 +133,7 @@ store the particle information in no particular order.
 In order
 to efficiently parallelize the particle IO the ring tool is used.
 ring is run on the same number of processors as the simulation that
-you intend to run, and is typically run just before enzo is called for this reason.
+you intend to run, and is typically run just before Enzo is called for this reason.
 In ring, each processor reads in an equal fraction
 of the particle position and velocity information into a list,
 flags the particles that belong in its simulation spatial domain,
@@ -185,13 +185,13 @@ Running an Enzo cosmology simulation
 ------------------------------------
 
 After all of this preparation, running the simulation itself should
-be straightforward. First, you need to have an enzo parameter file.
+be straightforward. First, you need to have an Enzo parameter file.
 Here is an example compatible with the inits file above:
 
 ::
 
     #
-    # AMR PROBLEM DEFINITION FILE: Cosmology Simulation (amr version)
+    # AMR PROBLEM DEFINITION FILE: Cosmology Simulation (AMR version)
     #
     #  define problem
     #
@@ -279,7 +279,7 @@ Here is an example compatible with the inits file above:
     ParallelRootGridIO = 1
     ParallelParticleIO = 1
 
-Once you've saved this, you start enzo by typing:
+Once you've saved this, you start Enzo by typing:
 
 ::
 
@@ -289,7 +289,7 @@ The simulation will now run. The -d flag ensures a great deal of
 output, so you may redirect it into a log file called ``output.log``
 for later examination. This particular simulation shouldn't take
 too long, so you can run this in the same 30 minute interactive job
-you started when you ran inits. When the simulation is done, enzo
+you started when you ran inits. When the simulation is done, Enzo
 will display the message "Successful run, exiting."
 
 Congratulations! If you've made it this far, you have now

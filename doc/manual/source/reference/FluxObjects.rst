@@ -106,7 +106,7 @@ array allocated, and a fluxes object is allocated for each subgrid
           }
         } // end loop over grids (create Subgrid list)
 
-Note that in older versions of enzo are missing the processor
+Note that in older versions of Enzo are missing the processor
 check, so fluxes objects are allocated for each grid and subgrid on
 each processor, causing a bit of waste. This has been fixed since Enzo
 1.5.

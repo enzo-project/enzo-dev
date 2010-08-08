@@ -2,8 +2,8 @@ lcatest Tutorial
 ================
 
 This is a somewhat redundant tutorial about how to set up lcatest
-on a new machine, and run a test. Now, I say redundant, because
-most of this is in the README at the top level of the lcatest
+on a new machine, and run a test. This is redundant because
+most of this is in the ``README`` at the top level of the lcatest
 source directory. Of course, if you don't know where to check out
 the code, then you can't read the README...
 
@@ -11,17 +11,14 @@ Get lcatest
 -----------
 
 To get lcatest, head over to the
-` http://lca.ucsd.edu/projects/lcatest lcatest homepage <http://lca.ucsd.edu/projects/lcatest%20lcatest%20homepage>`_,
+`http://lca.ucsd.edu/projects/lcatest lcatest homepage <http://lca.ucsd.edu/projects/lcatest%20lcatest%20homepage>`_,
 and download the latest version.
 
 Configure lcatest
 -----------------
 
 Now we need to setup lcatest for the machine we're on. In this
-case, we have to creating a new configuration. Most of this was
-done by James, and don't be surprised if you need his help to get
-started.
-
+case, we have to creating a new configuration.
 We'll do this the classic way: copy over a config file for a
 different machine and modify it.
 
@@ -63,7 +60,7 @@ And now for a really fun question: should you set up your test
 environment first, and watch the configure and build tests fail;
 or, should you try to configure your code, so that you'll have some
 settings to configure lcatest? For this one, we happen to have an
-answer, since James configured enzo for Cobalt before I started
+answer, since James configured Enzo for Cobalt before I started
 testing.
 
 So, we were able to look at the machine configuration file

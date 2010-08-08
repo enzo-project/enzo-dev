@@ -400,7 +400,7 @@ aspects of Enzo's data output. One can output data in a
 cosmological simulation in both a time-based and redshift-based
 manner. To output data regularly in time, one sets ``dtDataDump`` to a
 value greater than zero. The size of this number, which is in units
-of enzo's internal time variable, controls the output frequency.
+of Enzo's internal time variable, controls the output frequency.
 See the Enzo user's manual section on output format for more
 information on physical units. Data can be output at specific
 redshifts as controlled by ``CosmologyOutputRedshift[#]``, where # is
@@ -561,8 +561,8 @@ parameters:
 AMR simulations can be run with ``ParallelRootGridIO`` and
 ``ParallelParticleIO`` on, though you must be careful to turn off the
 ``Unigrid`` parameter. In addition, it is important to note that in the
-current version of enzo you must run the program called "ring" on
-the particle position and velocity files before enzo is started in
+current version of Enzo you must run the program called "ring" on
+the particle position and velocity files before Enzo is started in
 order to take advantage of the parallel particle IO. Assuming the
 particle position and velocity files are named ``ParticlePositions``
 and ``ParticleVelocities``, respectively, this is done by running:
@@ -573,7 +573,7 @@ and ``ParticleVelocities``, respectively, this is done by running:
 
 Where mpirun is the executable responsible for running MPI programs
 and "-np [N]" tells the machine that there are [N] processors. This
-number of processors must be the same as the number which enzo will
+number of processors must be the same as the number which Enzo will
 be run with!
 
 Notes

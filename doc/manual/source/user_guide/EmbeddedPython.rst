@@ -1,7 +1,7 @@
 Embedded Python
 ===============
 
-Python can now be embedded inside enzo, for inline analysis as well
+Python can now be embedded inside Enzo, for inline analysis as well
 as interaction. This comes with several shortcomings, but some
 compelling strong points.
 
@@ -34,12 +34,12 @@ Make.mach.orange in the source repository.
 How it Works
 ------------
 
-On enzo startup, the Python interface will be initialized. This
+On Enzo startup, the Python interface will be initialized. This
 constitutes the creation of an interpreter within the memory-space
-of each enzo process, as well as import and construct the
+of each Enzo process, as well as import and construct the
 `NumPy <http://numpy.scipy.org/>`_ function table. Several
-enzo-global data objects for storing grid parameters and simulation
-parameters will be initialized and the enzo module will be created
+Enzo-global data objects for storing grid parameters and simulation
+parameters will be initialized and the Enzo module will be created
 and filled with those data objects.
 
 Once the Python interface and interpreter have finished
@@ -48,13 +48,13 @@ this means that a script named ``user\_script.py`` in the current
 directory will be imported, but it will search the entire import
 path as well. Every ``PythonSubcycleSkip`` subcycles, at the bottom of
 the hierarchy in ``EvolveLevel.C`` the entire grid hierarchy and the
-current set of parameters will be exported to the enzo module and
+current set of parameters will be exported to the Enzo module and
 then user\_script.main() will be called.
 
 How to Run
 ----------
 
-By constructing a script inside ``user\_script.py``, the enzo hierarchy
+By constructing a script inside ``user\_script.py``, the Enzo hierarchy
 can be accessed and modified. The analysis toolkit
 `yt <http://yt.enzotools.org/>`_ has functionality that can
 abstract much of the data-access and handling. Currently several

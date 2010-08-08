@@ -125,7 +125,7 @@ update.
 
 Now, you can do a make clean; make and get back to work.
 
-Building enzo
+Building Enzo
 -------------
 
 This is a quick, line by line example of checking out and building
@@ -213,7 +213,7 @@ to run Enzo on. The basic steps are as follows:
 #. Edit the machine-specific settings (compilers, libraries, etc.).
 #. Build and test.
 
-If you expect that you will have multiple checkouts of the enzo source code,
+If you expect that you will have multiple checkouts of the Enzo source code,
 you should feel free to create the directory $HOME/.enzo/ and place your custom
 makefiles there, and Enzo's build system will use any machine name-matching
 Makefile in that directory to provide or override Make settings.
@@ -310,7 +310,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
 Build Enzo
 ++++++++++
 
-The default build target is the main executable, enzo.
+The default build target is the main executable, Enzo.
 
 ::
 

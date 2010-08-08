@@ -60,11 +60,11 @@ This is done to avoid the hassle that comes with a 500,000 grid,
 In addition to the parameter, hierarchy, and boundary files which
 may or may not be described elsewhere, data is output in one
 basenameNNNN.taskmapCCCC} file for each processor, which contains a
-map between grid number and hdf5 file, and one basenameNNNN.cpuCCCC
+map between grid number and HDF5 file, and one basenameNNNN.cpuCCCC
 for each processor NNNN and CCCC are the dump number and cpu
 number, respectively.
 
-basenameNNNN.cpuCCCC is an hdf5 file which contains an hdf5 group
+basenameNNNN.cpuCCCC is an HDF5 file which contains an HDF5 group
 for each grid. Each grid in turn contains a dataset for each of the
 fields in the simulation.
 
@@ -77,11 +77,11 @@ fields in the simulation.
     Density                  Dataset {16, 16, 32}
     z-velocity               Dataset {16, 16, 32}
 
-Not Packed AMR
+Non-Packed AMR
 ~~~~~~~~~~~~~~
 
-The second output format is not packed. Not packed amr is included
-for legacy reasons only. It writes one hdf5 file per grid. Use is
+The second output format is not packed. Non-packed AMR is included
+for legacy reasons only. It writes one HDF5 file per grid. Use is
 strongly discouraged. It will likely be removed in subsequent
 versions.
 
@@ -133,7 +133,7 @@ adjust it for other shells.
 Timing Methods
 --------------
 
-There are 6 ways to trigger output from enzo.
+There are 6 ways to trigger output from Enzo.
 
 Cycle Based Output
 ~~~~~~~~~~~~~~~~~~
@@ -229,7 +229,7 @@ Time Based Interpolated Output
 
 Even when you are running simulations with a long dtDataDump, sometimes you may
 want to see or analyze the interim datadumps.  Using dtInterpolatedDataDump,
-you can control enzo to check if it should start outputting interpolated data
+you can control Enzo to check if it should start outputting interpolated data
 based on the time passed (dtInterpolatedDataDump < dtDataDump).
 
 ::
