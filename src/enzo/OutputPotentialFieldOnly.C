@@ -9,6 +9,7 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#include "preincludes.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,13 +25,23 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
 #include "CosmologyParameters.h"
 
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
-int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
-		 TopGridData &MetaData, ExternalBoundary *Exterior,
-		 FLOAT WriteTime = -1, int RestartDump = FALSE);
+
+int Group_WriteAllData(char *basename, int filenumber,
+		       HierarchyEntry *TopGrid, TopGridData &MetaData,
+		       ExternalBoundary *Exterior, 
+#ifdef TRANSFER
+		       ImplicitProblemABC *ImplicitSolver,
+#endif
+		       FLOAT WriteTime = -1, 
+		       int CheckpointDump = FALSE);
+
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 #ifdef FAST_SIB
@@ -50,6 +61,9 @@ int OutputPotentialFieldOnly(char *ParameterFile,
 			     HierarchyEntry *TopGrid,
 			     TopGridData &MetaData,
 			     ExternalBoundary &Exterior,
+#ifdef TRANSFER
+		         ImplicitProblemABC *ImplicitSolver,
+#endif
 			     int OutputDM)
 {
 
@@ -85,6 +99,7 @@ int OutputPotentialFieldOnly(char *ParameterFile,
 
   WritePotential = TRUE;
   CopyGravPotential = TRUE;
+  OutputParticleTypeGrouping = FALSE;
 
   /* Add the potential field pointer to BaryonField and field names */
 
@@ -136,7 +151,11 @@ int OutputPotentialFieldOnly(char *ParameterFile,
   if (OutputDM == TRUE)
     OutputSmoothedDarkMatter = -2;
 
-  Group_WriteAllData(DumpName, DumpNumber-1, TopGrid, MetaData, &Exterior);
+  Group_WriteAllData(DumpName, DumpNumber-1, TopGrid, MetaData, &Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+               );
   
 
   return SUCCESS;

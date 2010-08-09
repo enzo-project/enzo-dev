@@ -10,6 +10,8 @@
 /
 ************************************************************************/
 
+#include "preincludes.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -24,19 +26,29 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#ifdef TRANSFER
+#include "ImplicitProblemABC.h"
+#endif
 #include "CosmologyParameters.h"
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
 int Group_WriteAllData(char *basename, int filenumber, HierarchyEntry *TopGrid,
 		 TopGridData &MetaData, ExternalBoundary *Exterior,
+#ifdef TRANSFER
+		       ImplicitProblemABC *ImplicitSolver,
+#endif
 		 FLOAT WriteTime = -1, int RestartDump = FALSE);
 
 int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 				 LevelHierarchyEntry *LevelArray[], 
 				 HierarchyEntry *TopGrid,
 				 TopGridData &MetaData,
-				 ExternalBoundary &Exterior)
+				 ExternalBoundary &Exterior
+#ifdef TRANSFER
+		       , ImplicitProblemABC *ImplicitSolver
+#endif
+                )
 {
 
   int level;
@@ -74,9 +86,12 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
   // calculating the DM field so it doesn't propagate to later runs
   OutputSmoothedDarkMatter = -2;
 
-  Group_WriteAllData(DumpName, DumpNumber-1, TopGrid, MetaData, &Exterior);
+  Group_WriteAllData(DumpName, DumpNumber-1, TopGrid, MetaData, &Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+               );
   
-
   return SUCCESS;
 
 }

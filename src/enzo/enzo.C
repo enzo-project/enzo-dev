@@ -67,7 +67,8 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid,
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		      ExternalBoundary *Exterior, float *Initialdt);
+		      ExternalBoundary *Exterior, float *Initialdt,
+		      bool ReadParticlesOnly=false);
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
@@ -184,12 +185,19 @@ int OutputPotentialFieldOnly(char *ParameterFile,
 			     HierarchyEntry *TopGrid,
 			     TopGridData &MetaData,
 			     ExternalBoundary &Exterior,
+#ifdef TRANSFER
+		         ImplicitProblemABC *ImplicitSolver,
+#endif
 			     int OutputDM);
 int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 				 LevelHierarchyEntry *LevelArray[], 
 				 HierarchyEntry *TopGrid,
 				 TopGridData &MetaData,
-				 ExternalBoundary &Exterior);
+				 ExternalBoundary &Exterior
+#ifdef TRANSFER
+		       , ImplicitProblemABC *ImplicitSolver
+#endif
+                 );
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
@@ -448,7 +456,9 @@ Eint32 main(Eint32 argc, char *argv[])
   // First expect to read in packed-HDF5
 
 #ifdef USE_HDF5_GROUPS
-    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
+    bool ReadParticlesOnly = (HaloFinderOnly == TRUE);
+    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt,
+			  ReadParticlesOnly) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
@@ -561,13 +571,21 @@ Eint32 main(Eint32 argc, char *argv[])
 
   if (WritePotentialOnly) {
     OutputPotentialFieldOnly(ParameterFile, LevelArray, &TopGrid,
-			     MetaData, Exterior, SmoothedDarkMatterOnly);
+			     MetaData, Exterior, 
+#ifdef TRANSFER
+		         ImplicitSolver,
+#endif
+                SmoothedDarkMatterOnly);
     my_exit(EXIT_SUCCESS);
   }
 
   if (SmoothedDarkMatterOnly) {
     OutputSmoothedDarkMatterOnly(ParameterFile, LevelArray, &TopGrid, 
-				 MetaData, Exterior);
+				 MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+               );
     my_exit(EXIT_SUCCESS);
   }
 
