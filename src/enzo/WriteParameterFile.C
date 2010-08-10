@@ -778,7 +778,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
 #ifdef ECUDA
-  fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
+  fprintf(fptr, "UseCUDA = %"ISYM"\n", UseCUDA);
 #endif
 
   /* Poisson Solver */
