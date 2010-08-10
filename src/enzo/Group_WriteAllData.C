@@ -175,10 +175,6 @@ int Group_WriteAllData(char *basename, int filenumber,
   FLOAT SavedTime = MetaData.Time;
   MetaData.Time = ((WriteTime < 0) || (CheckpointDump == TRUE)) ? MetaData.Time : WriteTime;
 
-  /* If we're writing interpolated dark matter fields, create them now. */
-
-  CreateSmoothedDarkMatterFields(MetaData, TopGrid);
-
   // Global or local filesystem?
  
   local = 0;
@@ -274,7 +270,7 @@ int Group_WriteAllData(char *basename, int filenumber,
  
     } // if DataDumpName
 
-    /******************** RESTART BASED OUTPUTS ********************/
+    /******************** REDSHIFT BASED OUTPUTS ********************/
  
     if ( (cptr = strstr(basename, MetaData.RedshiftDumpName)) ) {
  
@@ -654,6 +650,10 @@ int Group_WriteAllData(char *basename, int filenumber,
   strcat(configurename, ConfigureSuffix);
 
  
+  /* If we're writing interpolated dark matter fields, create them now. */
+
+  CreateSmoothedDarkMatterFields(MetaData, TopGrid);
+ 
   /* Combine the top level grids into a single grid for output
      (TempTopGrid is the top of an entirely new hierarchy). */
  
@@ -693,7 +693,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 	}}}}
 #endif
   }
- 
+
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if ((fptr = fopen(hierarchyname, "w")) == NULL) 
       ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);

@@ -67,7 +67,8 @@ int InitializeLocal(int restart, HierarchyEntry &TopGrid,
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		      ExternalBoundary *Exterior, float *Initialdt);
+		      ExternalBoundary *Exterior, float *Initialdt,
+		      bool ReadParticlesOnly=false);
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
@@ -116,7 +117,10 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int RegionStart[], int RegionEnd[],
 			 FLOAT RegionStartCoordinates[],
 			 FLOAT RegionEndCoordinates[],
-			 int &Level, int MyProcessorNumber);
+			 int &Level, int &HaloFinderOnly, 
+			 int &WritePotentialOnly,
+			 int &SmoothedDarkMatterOnly,
+			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 
@@ -176,9 +180,29 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 			      HierarchyEntry **NewHierarchyPointer,
 			      FLOAT WriteTime);
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
+int OutputPotentialFieldOnly(char *ParameterFile,
+			     LevelHierarchyEntry *LevelArray[], 
+			     HierarchyEntry *TopGrid,
+			     TopGridData &MetaData,
+			     ExternalBoundary &Exterior,
+#ifdef TRANSFER
+		         ImplicitProblemABC *ImplicitSolver,
+#endif
+			     int OutputDM);
+int OutputSmoothedDarkMatterOnly(char *ParameterFile,
+				 LevelHierarchyEntry *LevelArray[], 
+				 HierarchyEntry *TopGrid,
+				 TopGridData &MetaData,
+				 ExternalBoundary &Exterior
+#ifdef TRANSFER
+		       , ImplicitProblemABC *ImplicitSolver
+#endif
+                 );
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
+int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+	int WroteData=1);
 
 #ifdef TASKMAP
 int GetNodeFreeMemory(void);
@@ -313,6 +337,9 @@ Eint32 main(Eint32 argc, char *argv[])
   int restart                  = FALSE,
     OutputAsParticleDataFlag = FALSE,
     InformationOutput        = FALSE,
+    HaloFinderOnly           = FALSE,
+    WritePotentialOnly       = FALSE,
+    SmoothedDarkMatterOnly   = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -406,7 +433,9 @@ Eint32 main(Eint32 argc, char *argv[])
 			   &ParameterFile,
 			   RegionStart, RegionEnd,
 			   RegionStartCoordinates, RegionEndCoordinates,
-			   RegionLevel, MyProcessorNumber) == FAIL) {
+			   RegionLevel, HaloFinderOnly,
+			   WritePotentialOnly, SmoothedDarkMatterOnly,
+			   MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -427,7 +456,9 @@ Eint32 main(Eint32 argc, char *argv[])
   // First expect to read in packed-HDF5
 
 #ifdef USE_HDF5_GROUPS
-    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt) == FAIL) {
+    bool ReadParticlesOnly = (HaloFinderOnly == TRUE);
+    if (Group_ReadAllData(ParameterFile, &TopGrid, MetaData, &Exterior, &Initialdt,
+			  ReadParticlesOnly) == FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR) {
 	fprintf(stderr, "Error in Group_ReadAllData %s\n", ParameterFile);
 	fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
@@ -531,7 +562,32 @@ Eint32 main(Eint32 argc, char *argv[])
     } // ENDFOR dim
   } 
  
+  if (HaloFinderOnly) {
+    InlineHaloFinder = TRUE;
+    HaloFinderSubfind = TRUE;
+    FOF(&MetaData, LevelArray);
+    my_exit(EXIT_SUCCESS);
+  }
 
+  if (WritePotentialOnly) {
+    OutputPotentialFieldOnly(ParameterFile, LevelArray, &TopGrid,
+			     MetaData, Exterior, 
+#ifdef TRANSFER
+		         ImplicitSolver,
+#endif
+                SmoothedDarkMatterOnly);
+    my_exit(EXIT_SUCCESS);
+  }
+
+  if (SmoothedDarkMatterOnly) {
+    OutputSmoothedDarkMatterOnly(ParameterFile, LevelArray, &TopGrid, 
+				 MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+               );
+    my_exit(EXIT_SUCCESS);
+  }
 
   /* Do vector analysis */
   
