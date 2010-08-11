@@ -19,6 +19,8 @@ Make.config.machine
 Make.config.override
 *.mod
 
+doc/manual/build
+
 src/inits/inits.exe
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
