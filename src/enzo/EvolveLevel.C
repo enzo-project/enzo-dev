@@ -504,7 +504,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include shock-finding and cosmic ray acceleration */
 
       Grids[grid1]->GridData->ShocksHandler();
- 
+
+      /* Compute and apply thermal conduction. */
+      if(Conduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  fprintf(stderr, "Error in grid->ConductHeat.\n");
+	  return FAIL;
+	}
+      }
+
       /* Gravity: clean up AccelerationField. */
 
       if ((level != MaximumGravityRefinementLevel ||

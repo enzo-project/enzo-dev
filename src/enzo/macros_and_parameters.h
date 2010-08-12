@@ -505,6 +505,10 @@ typedef int            HDF5_hid_t;
 #define CEN_METAL_COOLING 2
 #define CLOUDY_METAL_COOLING 3
 
+/* Definitions for grid::ComputeHeat, grid::ComputeConductionTimeStep, and grid::ConductHeat */
+
+#define ELT(a,b,c) ( (a) + GridDimension[0]*((b) + GridDimension[1]*(c)) )
+
 /* Streaming format parameters */
 
 #define ALL_PARTICLES 1

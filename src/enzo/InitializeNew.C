@@ -62,6 +62,10 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
+int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -486,6 +490,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 62) Cooling test problem
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 70) Conduction test problem with hydro disabled
+  // 71) Conduction test problem with hydro turned on
+  if (ProblemType == 70 || ProblemType == 71)
+    ret = ConductionTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 72) Conduction bubble test problem
+  if (ProblemType == 72)
+    ret = ConductionBubbleInitialize(fptr, Outfptr, TopGrid, MetaData);
   
   // Insert new problem intializer here...
   

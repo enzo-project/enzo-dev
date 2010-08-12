@@ -86,6 +86,8 @@ OBJS_CONFIG_LIB = \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
+	ConductionBubbleInitialize.o \
+	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
         ComputeRandomForcingNormalization.o \
@@ -334,15 +336,20 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeEnergy.o \
 	Grid_ComputeExternalNohBoundary.o \
 	Grid_ComputeGammaField.o \
+        Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
+	Grid_ComputeConductionTimeStep.o \
         Grid_ComputeVectorAnalysisFields.o \
 	Grid_ComputeVertexCenteredField.o \
 	Grid_ComputeXrayEmissivity.o \
+        Grid_ConductHeat.o \
+	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_ConvertToNumpy.o \
