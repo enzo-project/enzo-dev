@@ -479,6 +479,7 @@ OBJS_CONFIG_LIB = \
 	Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
 	Grid_ReadGrid.o \
+        Grid_CosmologyReadParticles3D.o \
 	Grid_ReadRandomForcingFields.o \
 	Grid_RemoveForcingFromBaryonFields.o \
 	Grid_RemoveParticle.o \

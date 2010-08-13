@@ -1842,6 +1842,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  char *CosmologySimulationParticleVelocityName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
+			  char *CosmologySimulationParticlePositionNames[],
 			  char *CosmologySimulationParticleVelocityNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
@@ -1859,6 +1860,15 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions);
+
+  int CosmologyReadParticles3D(
+		   char *CosmologySimulationParticleVelocityName,
+		   char *CosmologySimulationParticleMassName,
+		   char *CosmologySimulationParticleTypeName,
+		   char *CosmologySimulationParticleParticleNames[],
+		   char *CosmologySimulationParticleVelocityNames[],
+		   float CosmologySimulationOmegaBaryonNow,
+		   int *Offset, int level);
 
   int CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,
