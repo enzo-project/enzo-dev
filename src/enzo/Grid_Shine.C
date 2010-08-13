@@ -88,7 +88,14 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   FLOAT ShakeSource[3];
   double RampPercent = 1;
 
-  if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
+  if (RS->Type == Episodic) {
+    const float sigma_inv = 4.0;
+    float t = PhotonTime - RS->CreationTime + dtPhoton;
+    float frac = 2.0 * fabs(t - round(t/RS->RampTime) * RS->RampTime) /
+      RS->RampTime;
+    RampPercent = exp((frac-1)*sigma_inv);
+  } // ENDIF episodic
+  else if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
     float t = PhotonTime-RS->CreationTime+dtPhoton;
     float frac = t / (RS->RampTime+dtPhoton);
     RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
@@ -104,6 +111,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   switch (RS->Type) {
   case PopII:
     break;
+  case Episodic:
   case PopIII:
     if (MyProcessorNumber == ProcessorNumber)
       printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent,

@@ -764,9 +764,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     
     // are we done ? 
     if (((*PP)->CurrentTime) >= EndTime) {
-
-      (*PP)->Photons = -1;
-      DeleteMe = TRUE;
+      if (RadiativeTransferAdaptiveTimestep) {
+	(*PP)->Photons = -1;
+	DeleteMe = TRUE;
+      }
       return SUCCESS;
     }
 
