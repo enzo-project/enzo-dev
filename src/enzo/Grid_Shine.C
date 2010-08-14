@@ -88,8 +88,6 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   FLOAT ShakeSource[3];
   double RampPercent = 1;
 
-  printf("Grid_shine: Creation time = %"FSYM",PhotonTime = %"FSYM" \n",RS->CreationTime,PhotonTime );
-
   if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
     float t = PhotonTime-RS->CreationTime+dtPhoton;
     float frac = t / (RS->RampTime+dtPhoton);
