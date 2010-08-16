@@ -293,6 +293,11 @@ c	as of this writing to be for unigrid runs with star
 c	formation, and for experimentation.  See star_maker2.src
 c	for the changelog prior to 13 November 2002.
 c
+c  modified1:  Britton Smith
+c  date:       August 2010
+c              Added distributed feedback where gas, metals, and 
+c              energy are injected evenly over multiple cells.
+c
 c  INPUTS:
 c
 c    d     - density field
