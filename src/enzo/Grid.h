@@ -1947,6 +1947,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Put Sink restart initialize grid. */
   int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
 
+  /* PhotonTest restart initialize grid. */
+  int PhotonTestRestartInitialize(int level ,int *NumberOfCellsSet);
+
   /* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
   int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
 				  float V1Const, float V2Const, float TEConst, 

@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  INITIALIZE PUTTING IN SINK PARTICLES FROM A RESTART CALCULATION
+/  INITIALIZE PHOTON TEST FROM A RESTART CALCULATION
 /
 /  written by: Elizabeth Harper-Clark
 /  date:       March, 2010
@@ -44,36 +44,25 @@ int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		      ExternalBoundary *Exterior, float *Initialdt,
 		      bool ReadParticlesOnly=false);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
  
  
-int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
+int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData,
 			       ExternalBoundary &Exterior)
 {
-  printf("       PutSinkRestart STARTED\n"); 
+  printf("       PhotonTestRestart STARTED\n"); 
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
   int dim, level, ret;
   float dummyf;
-  /* Set default supernova parameters. */
  
-//   float SupernovaRestartEjectaMass   = 1.0;   // in solar masses
-//   float SupernovaRestartEjectaRadius = 1.0;   // in pc
-//   float SupernovaRestartEjectaEnergy = 1.0;   // in 10^51 erg
-//   FLOAT SupernovaRestartEjectaCenter[MAX_DIMENSION];
-//   int   SupernovaRestartColourField   = FALSE;
- 
-  char *PutSinkRestartName = NULL;
- 
-//   for (dim = 0; dim < MAX_DIMENSION; dim++)
-//     SupernovaRestartEjectaCenter[dim] = FLOAT_UNDEFINED;
- 
-  /* Error check. */
+  char *PhotonTestRestartName = NULL;
  
   /* Read input from file. */
  
@@ -84,23 +73,8 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     ret = 0;
  
-    /* Read parameters */
- 
-//     ret += sscanf(line, "SupernovaRestartEjectaMass = %"FSYM,
-// 		  &SupernovaRestartEjectaMass);
-//     ret += sscanf(line, "SupernovaRestartEjectaRadius = %"FSYM,
-// 		  &SupernovaRestartEjectaRadius);
-//     ret += sscanf(line, "SupernovaRestartEjectaEnergy = %"FSYM,
-// 		  &SupernovaRestartEjectaEnergy);
-//     ret += sscanf(line, "SupernovaRestartEjectaCenter = %"PSYM" %"PSYM" %"PSYM,
-// 		  SupernovaRestartEjectaCenter,
-// 		  SupernovaRestartEjectaCenter+1,
-// 		  SupernovaRestartEjectaCenter+2);
-//     ret += sscanf(line, "SupernovaRestartColourField = %"ISYM,
-// 		  &SupernovaRestartColourField);
- 
-    if (sscanf(line, "PutSinkRestartName = %s", dummy) == 1)
-      PutSinkRestartName = dummy;
+    if (sscanf(line, "PhotonTestRestartName = %s", dummy) == 1)
+      PhotonTestRestartName = dummy;
  
     /* If the dummy char space was used, then make another. */
  
@@ -111,7 +85,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     /* if the line is suspicious, issue a warning */
  
-    if (ret == 0 && strstr(line, "=") && strstr(line, "PutSinkRestart") &&
+    if (ret == 0 && strstr(line, "=") && strstr(line, "PhotonTestRestart") &&
 	line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
@@ -119,7 +93,7 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   /* More error checking. */
  
-  if (PutSinkRestartName == NULL) {
+  if (PhotonTestRestartName == NULL) {
     ENZO_FAIL("Missing restart file name.\n");
   }
 
@@ -127,20 +101,20 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
   /* Read the restart file. */
  
   if (debug)
-    printf("reading restart parameter file %s\n", PutSinkRestartName);
+    printf("reading restart parameter file %s\n", PhotonTestRestartName);
  
 #ifdef USE_HDF5_GROUPS
-  if (Group_ReadAllData(PutSinkRestartName, &TopGrid, MetaData, &Exterior, &dummyf) == FAIL) {
+  if (Group_ReadAllData(PhotonTestRestartName, &TopGrid, MetaData, &Exterior, &dummyf) == FAIL) {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      fprintf(stderr, "Error in Group_ReadAllData %s\n",PutSinkRestartName );
+      fprintf(stderr, "Error in Group_ReadAllData %s\n",PhotonTestRestartName );
       fprintf(stderr, "Probably not in a packed-HDF5 format. Trying other read routines.\n");
     }
 #endif
     // If not packed-HDF5, then try usual HDF5 or HDF4
-    if (ReadAllData(PutSinkRestartName, &TopGrid, MetaData, &Exterior, &dummyf)
+    if (ReadAllData(PhotonTestRestartName, &TopGrid, MetaData, &Exterior, &dummyf)
 	== FAIL) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-      ENZO_VFAIL("Error in ParameterFile %s.\n", PutSinkRestartName)
+      ENZO_VFAIL("Error in ParameterFile %s.\n", PhotonTestRestartName)
     }
 #ifdef USE_HDF5_GROUPS
   }
@@ -148,9 +122,16 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stderr, "Successfully read restart file %s.\n",
-	    PutSinkRestartName);
+	    PhotonTestRestartName);
+
+  if (ProblemType == 51)
+    if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in ReadPhotonSources.\n");
+    }
  
-  printf("    PutSinkRestartName = %s   \n",PutSinkRestartName ); 
+  PhotonTime = InitialTimeInCodeUnits;
+
+  printf("    PhotonTestRestartName = %s   \n",PhotonTestRestartName ); 
 
   LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
@@ -193,10 +174,10 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
 //   EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
  
 //   if (debug) {
-//     printf("PutSinkRestart: initial T = %"GSYM" K\n",
+//     printf("PhotonTestRestart: initial T = %"GSYM" K\n",
 // 	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
-//     printf("PutSinkRestart: r (code units) = %"GSYM"\n", EjectaRadius);
-//     printf("PutSinkRestart: density (code units) = %"GSYM"\n", EjectaDensity);
+//     printf("PhotonTestRestart: r (code units) = %"GSYM"\n", EjectaRadius);
+//     printf("PhotonTestRestart: density (code units) = %"GSYM"\n", EjectaDensity);
 //   }
  
   /* -------------------------------------------------------------------- */
@@ -211,15 +192,15 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
     while (Temp != NULL) {
  
-      if (Temp->GridData->PutSinkRestartInitialize(level,&NumberOfCellsSet) == FAIL) {
-	ENZO_FAIL("Error in grid->PutSinkRestartInitialize\n");
+      if (Temp->GridData->PhotonTestRestartInitialize(level,&NumberOfCellsSet) == FAIL) {
+	ENZO_FAIL("Error in grid->PhotonTestRestartInitialize\n");
       }
       Temp = Temp->NextGridThisLevel;
     }
  
   }
   if (debug)
-    printf("PutSinkRestart: NumberOfCellsSet = %"ISYM"\n", NumberOfCellsSet);
+    printf("PhotonTestRestart: NumberOfCellsSet = %"ISYM"\n", NumberOfCellsSet);
  
   /* -------------------------------------------------------------------- */
   /* Loop over grid and project solution to parent to maintain consistency. */
@@ -243,19 +224,8 @@ int PutSinkRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-//     fprintf(Outfptr, "SupernovaRestartEjectaMass   = %"FSYM"\n",
-// 	    SupernovaRestartEjectaMass);
-//     fprintf(Outfptr, "SupernovaRestartEjectaRadius = %"FSYM"\n",
-// 	    SupernovaRestartEjectaRadius);
-//     fprintf(Outfptr, "SupernovaRestartEjectaEnergy = %"FSYM"\n",
-// 	    SupernovaRestartEjectaEnergy);
-//     fprintf(Outfptr, "SupernovaRestartEjectaCenter = ");
-//     WriteListOfFloats(Outfptr, MetaData.TopGridRank,
-// 		      SupernovaRestartEjectaCenter);
-//     fprintf(Outfptr, "SupernovaRestartColourField  = %"ISYM"\n",
-// 	    SupernovaRestartColourField);
-    fprintf(Outfptr, "PutSinkRestartName         = %s\n",
-	    PutSinkRestartName);
+    fprintf(Outfptr, "PhotonTestRestartName         = %s\n",
+	    PhotonTestRestartName);
  
   }
  
