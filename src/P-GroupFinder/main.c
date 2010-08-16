@@ -84,15 +84,15 @@ int main(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &ThisTask);
   MPI_Comm_size(MPI_COMM_WORLD, &NTask);
 
-  if(NTask<=1)
-    {
-      if(ThisTask==0)
-	fprintf(stdout, "Number of processors MUST be a larger than 1.\n");
-      MPI_Finalize(); 
-      exit(1);
-    }
+//  if(NTask<=1)
+//    {
+//      if(ThisTask==0)
+//	fprintf(stdout, "Number of processors MUST be a larger than 1.\n");
+//      MPI_Finalize(); 
+//      exit(1);
+//    }
 
-  if(NTask&1)
+  if(NTask&1 && NTask>1)
     {
       if(ThisTask==0)
 	fprintf(stdout, "Number of processors MUST be a multiple of 2.\n");
@@ -184,22 +184,25 @@ int main(int argc, char **argv)
   /*  adjust_sfr();*/
 
   marking();
- 
-  exchange_shadow();
+
+  if (NTask>1)
+    exchange_shadow();
 
   init_coarse_grid();
   
   link_local_slab(); 
     
-  do
-    {
-      find_minids();
-    }
-  while(link_accross()>0);
+  if (NTask>1)
+    do
+      {
+	find_minids();
+      }
+    while(link_accross()>0);
   
   find_minids();
   
-  stitch_together(); 
+  if (NTask>1)
+    stitch_together(); 
 
   compile_group_catalogue();
 
@@ -468,6 +471,19 @@ int get_particles(int dest, int minid, int len, struct particle_data *buf)
   int i, imin, imax, pp, nlocal, nrecv;
   struct particle_data *localbuf;
 
+  if (NTask == 1) {
+    // No communication required.  Just created an array of particles
+    // from the linked list.
+
+    i = 0;
+    pp = Head[minid - Noffset[ThisTask]];
+    do {
+      buf[i++] = P[pp];
+    } while (pp = Next[pp]);
+
+    return len;
+  } // ENDIF
+
   MPI_Bcast(&minid,  1, MPI_INT, dest, MPI_COMM_WORLD);
   MPI_Bcast(&len,    1, MPI_INT, dest, MPI_COMM_WORLD);
 
@@ -707,8 +723,14 @@ void compile_group_catalogue(void)
 	  }
     }
 
-  MPI_Allreduce(&Ngroups,  &NgroupsAll, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(&nbound,   &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  if (NTask == 1) {
+    NgroupsAll = Ngroups;
+    Nbound = nbound;
+  }
+  else {
+    MPI_Allreduce(&Ngroups,  &NgroupsAll, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&nbound,   &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  }
 
   if(ThisTask==0)
     {
@@ -746,7 +768,10 @@ void compile_group_catalogue(void)
 
   NgroupsList= mymalloc(sizeof(int)*NTask);
 
-  MPI_Allgather(&Ngroups, 1, MPI_INT, NgroupsList, 1, MPI_INT, MPI_COMM_WORLD);
+  if (NTask == 1)
+    NgroupsList[0] = Ngroups;
+  else
+    MPI_Allgather(&Ngroups, 1, MPI_INT, NgroupsList, 1, MPI_INT, MPI_COMM_WORLD);
 
 
   GroupDatAll= mymalloc(NgroupsAll*sizeof(struct gr_data)); 
