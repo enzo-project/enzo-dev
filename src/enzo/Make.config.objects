@@ -878,6 +878,7 @@ POBJS_CONFIG_LIB = \
         Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
+        Grid_PhotonTestRestartInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromParent.o \
@@ -890,6 +891,7 @@ POBJS_CONFIG_LIB = \
         LinkedListRoutines.o \
 	PhotonPackageRoutines.o \
 	PhotonTestInitialize.o \
+	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \

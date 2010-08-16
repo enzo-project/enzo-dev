@@ -1,7 +1,7 @@
 import os
 
 filename = "Make.config.objects"
-exts = ["C", "c", "src", "src90"]
+exts = ["C", "c", "F", "F90"]
 
 # Read object names from Makefile
 lines = open(filename).readlines()
