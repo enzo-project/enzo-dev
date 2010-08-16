@@ -1,23 +1,30 @@
 #=======================================================================
 #
-# FILE:        Make.mach.red
+# FILE:        Make.mach.nasa-pleiades
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/11.1.046 mpi/mpt.1.23.nas hdf5/1.6.5
+#    modules: comp-intel/11.1.046
+#     	      mpi/mpt.1.25
+#	      hdf5/1.6.5
 #
 # AUTHOR:      John Wise
-#
 # DATE:        2010-01-22
+#
+# MODIFIED1:   Devin Silvia
+# DATE:        2010-07-02
 #
 #=======================================================================
 
 MACH_TEXT  = NASA Pleiades
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nasa-pleiades
-MACHINE_NOTES = "To build on Pleiades, be sure that these modules are loaded:\\n\
-                 'hdf5/1.6.5/serial' \\n\
-                 'sgi/mpt/1.23.nas'"
+
+MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
+	The following modules are needed to compile: \
+	    comp-intel/11.1.046 \
+	    mpi/mpt.1.25 \
+	    hdf5/1.6.5 "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -28,7 +35,7 @@ MACHINE_NOTES = "To build on Pleiades, be sure that these modules are loaded:\\n
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/1.23.nas
+LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/1.25
 LOCAL_HDF5_INSTALL   = /nasa/hdf5/1.6.5/serial
 LOCAL_PYTHON_INSTALL = /nasa/python/2.6.1
 LOCAL_INT_INSTALL    = /nasa/intel/Compiler/11.1/046

@@ -32,9 +32,9 @@ int CheckForResubmit(TopGridData &MetaData, int &Stop)
     return SUCCESS;
 
   char *cmd = new char[512];
-  double CurrentCPUTime = ReturnWallTime() - MetaData.StartCPUTime;
+  //double CurrentCPUTime = ReturnWallTime() - MetaData.StartCPUTime;
 
-  if (CurrentCPUTime + MetaData.LastCycleCPUTime > MetaData.StopCPUTime) {
+  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > MetaData.StopCPUTime) {
     if (debug)
       printf("Next topgrid timestep will exceed StopCPUTime.  Stopping.\n"
 	     "Executing resubmission script, %s\n", MetaData.ResubmitCommand);

@@ -97,6 +97,7 @@ int grid::CosmologySimulationInitializeGrid(
 			  char *CosmologySimulationParticleVelocityName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
+			  char *CosmologySimulationParticlePositionNames[],
 			  char *CosmologySimulationParticleVelocityNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
@@ -543,6 +544,7 @@ int grid::CosmologySimulationInitializeGrid(
  
  
   if ((CosmologySimulationParticlePositionName != NULL ||
+       CosmologySimulationParticlePositionNames[0] != NULL ||
        CosmologySimulationCalculatePositions) && ReadData) {
  
     // Get the number of particles by reading the file attributes
@@ -551,7 +553,8 @@ int grid::CosmologySimulationInitializeGrid(
  
     int TempIntArray[MAX_DIMENSION], TotalParticleCount;
 
-    if (!CosmologySimulationCalculatePositions) {
+    if (!CosmologySimulationCalculatePositions &&
+	CosmologySimulationParticlePositionNames[0] == NULL) {
  
     ReadAttr(CosmologySimulationParticlePositionName,
                   &TempInt, TempIntArray, &NSeg, &LSeg, log_fptr);
@@ -584,6 +587,7 @@ int grid::CosmologySimulationInitializeGrid(
     } // ENDIF ! calculate positions
  
     if (ParallelRootGridIO == TRUE && TotalRefinement == -1 &&
+	CosmologySimulationParticlePositionNames[0] == NULL &&
 	!CosmologySimulationCalculatePositions) {
  
 //    for(i=0; i<GridRank;i++)
@@ -1280,7 +1284,8 @@ int grid::CosmologySimulationInitializeGrid(
  
 // Normal ||rgio
  
-if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
+if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions &&
+    CosmologySimulationParticlePositionNames[0] == NULL)
 {
  
   printf("UnsortedParticles - ParallelRootGridIO\n");
@@ -2417,16 +2422,30 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
  
     // ENDIF: ||RootGridIO && TotalRefinement == -1 && !calculate positions
     } else {
- 
- 
-      if (CosmologySimulationCalculatePositions) {
+
+      // If provided particle positions and velocity in components,
+      // assume they're in a 3D data structure
+      if (CosmologySimulationParticlePositionNames[0] != NULL &&
+	  CosmologySimulationParticleVelocityNames[0] != NULL) {
+	if (CosmologyReadParticles3D(CosmologySimulationParticleVelocityName,
+				     CosmologySimulationParticleMassName,
+				     CosmologySimulationParticleTypeName,
+				     CosmologySimulationParticlePositionNames,
+				     CosmologySimulationParticleVelocityNames,
+				     CosmologySimulationOmegaBaryonNow,
+				     Offset, level) == FAIL)
+	  ENZO_FAIL("Error in grid::CosmologyReadParticles3D.");
+      }
+
+      // Calculate particle positions from velocities
+      else if (CosmologySimulationCalculatePositions) {
 	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName,
 					 CosmologySimulationParticleMassName,
 					 CosmologySimulationParticleTypeName,
 					 CosmologySimulationParticleVelocityNames,
 					 CosmologySimulationOmegaBaryonNow,
 					 Offset, level) == FAIL) {
-	  	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.");
+	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.");
 	}
       } else {
  
