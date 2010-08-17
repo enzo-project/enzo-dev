@@ -138,7 +138,7 @@ int grid::CosmologyReadParticles3D(
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL)
       ENZO_VFAIL("Error reading particle position field %"ISYM".\n", dim)
-    temp_pos[dim] = new float[size];
+    temp_pos[dim] = new FLOAT[size];
     for (i = 0; i < size; i++)
       temp_pos[dim][i] = (FLOAT) tempbuffer[i];
 
