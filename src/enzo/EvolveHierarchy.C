@@ -124,6 +124,8 @@ int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
+int CommunicationBroadcastValue(Eint32 *Value, int BroadcastProcessor);
+int CommunicationBroadcastValue(Eint64 *Value, int BroadcastProcessor);
 int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData); 
 int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
@@ -172,7 +174,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.CycleNumber >= MetaData.StopCycle) Stop = TRUE;
   MetaData.StartCPUTime = LastCPUTime = ReturnWallTime();
   MetaData.LastCycleCPUTime = 0.0;
- 
+
+  // Reset CPUTime, if it's very large (absolute UNIX time), which was
+  // the previous default.
+  if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)                                   
+    MetaData.CPUTime = 0.0;                                                          
+  
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
 
@@ -554,6 +561,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     MetaData.LastCycleCPUTime = ReturnWallTime() - LastCPUTime;
     MetaData.CPUTime += MetaData.LastCycleCPUTime;
     LastCPUTime = ReturnWallTime();
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
 	
     if (MetaData.Time >= MetaData.StopTime) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -580,6 +589,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       Stop = TRUE;
       Restart = TRUE;
     }
+    } // ENDIF ROOT_PROCESSOR
+
+    CommunicationBroadcastValue(&Stop, ROOT_PROCESSOR);
+    CommunicationBroadcastValue(&Restart, ROOT_PROCESSOR);
 
     /* If not restarting, rebuild the grids from level 0. */
 
