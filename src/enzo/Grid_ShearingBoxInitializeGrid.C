@@ -34,15 +34,7 @@ double Gaussian(double cs);
 
 int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, float ShearingGeometry, int InitialMagneticFieldConfiguration)
 {
-
-  //
-
-  
   /* declarations */
-
-
-  
- 
   int phip_num;
   NumberOfBaryonFields = 0;
   FieldType[iden=NumberOfBaryonFields++] = Density;
@@ -62,17 +54,10 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   }
   
   /* Return if this doesn't concern us. */
-  
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
   
-
-  
- 
-
-  
-//  int iBx, iBy, iBz;
   int iB[3]={-1,-1,-1};
   if (useMHD){
     iB[0]=iBx;
@@ -104,10 +89,8 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
   float PressureUnits = rhou*pow(velu,2);
 
-  
   float magnitude=AngularVelocity*fraction;
   float rho=1.0;
-
   float c_s=1e-3;
  
   float lengthx=DomainRightEdge[0]-DomainLeftEdge[0]; 
@@ -118,7 +101,6 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
   float bunit=sqrt(4.0*M_PI*rhou*velu*velu);
 
   FLOAT x,y,z;
-
 
   for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++) {
@@ -158,13 +140,17 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  BaryonField[iden ][n] = rho;
 	}
 	else if (ShearingBoxProblemType == 2){
-
 	    BaryonField[iden ][n]=50.0*rho*xPos[ShearingVelocityDirection];
-	    
-	
 	}
-	
-	
+        else if (ShearingBoxProblemType == 3) {
+          /* Balbus & Hawley 2006 3D Shearing wave test. 
+             ApJ, 652:1020-1027, 2006 December 1
+           */
+          float N_x = 0., N_y = 1., N_z = 4.;
+          c_s = 4.08*AngularVelocity;
+          xVel[ShearingBoundaryDirection] = magnitude*sin(2*M_PI*(N_x* xPos[ShearingBoundaryDirection] + N_y * xPos[ShearingVelocityDirection] + N_z * xPos[ShearingOtherDirection]));
+          BaryonField[iden][n] = rho;
+        }
 
 	float rhoActual=BaryonField[iden ][n];
 	pressure=c_s*c_s*rhoActual/Gamma;
@@ -182,8 +168,6 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	BaryonField[ivx  ][n] = xVel[0];
 	BaryonField[ivy  ][n] = xVel[1];
 	BaryonField[ivz  ][n] = xVel[2];
-
-	
 	
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
@@ -207,16 +191,9 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	}
 	else BaryonField[ietot][n] = eint + 0.5*v2;
 	
-	  
       } // end loop over grid
     }
   }
  
-
- 
-  return SUCCESS;
-
- 
-
- 
+  return SUCCESS; 
 }
