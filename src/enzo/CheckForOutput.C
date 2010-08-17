@@ -32,6 +32,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CosmologyParameters.h"
+#include "CommunicationUtilities.h"
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
@@ -64,7 +65,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 	           ImplicitProblemABC *ImplicitSolver,
 #endif
-		   int &WroteData)
+		   int &WroteData, int Restart)
 {
  
   /* Declarations. */
@@ -72,19 +73,46 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   char *Name;
   int i, Number;
   WroteData = FALSE;
- 
+  double SavedCPUTime;
+
+  /* Check for output: CPU time-based.  
+
+     If there is less time until (StopCPUTime - LastCycleCPUTime) than
+     the last cycle's CPU time, output the data to ensure we get the
+     last data dump for restarting! */
+
+  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
+
+  if (debug)
+    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
+	   "Last = %lg\n",
+	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
+	   MetaData.CPUTime, 
+	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
+  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
+      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
+      WroteData == FALSE) {
+    MetaData.CycleLastDataDump = MetaData.CycleNumber;
+    SavedCPUTime = MetaData.CPUTime;
+    MetaData.CPUTime = 0.0;
+    if (debug) printf("CPUtime-based output!\n");
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
+    MetaData.CPUTime = SavedCPUTime;
+    WroteData = TRUE;
+  } // ENDIF
+
   /* Check for output: restart-based. */
 
   char *param;
   FILE *pfptr;
-  double CurrentCPUTime = ReturnWallTime() - MetaData.StartCPUTime;
-  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
 
-  if ((CurrentCPUTime >= MetaData.dtRestartDump && 
-       MetaData.dtRestartDump > 0 ) ||
-      (MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
-       MetaData.CycleSkipRestartDump &&
-       MetaData.CycleSkipRestartDump > 0)) {
+  Restart = CommunicationMaxValue(Restart);
+  if (Restart == TRUE && WroteData == FALSE) {
 
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
 
@@ -126,6 +154,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   if (MetaData.Time >= MetaData.TimeLastDataDump + MetaData.dtDataDump
       && MetaData.dtDataDump > 0.0) {
+    MetaData.CPUTime = 0.0;
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
     //#ifdef USE_HDF5_GROUPS
@@ -154,6 +183,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   if (MetaData.CycleNumber >= MetaData.CycleLastDataDump +
                               MetaData.CycleSkipDataDump   &&
       MetaData.CycleSkipDataDump > 0) {
+    SavedCPUTime = MetaData.CPUTime;
+    MetaData.CPUTime = 0.0;
     MetaData.CycleLastDataDump += MetaData.CycleSkipDataDump;
 
     //#ifdef USE_HDF5_GROUPS
@@ -174,46 +205,10 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //     }
 // #endif
 
+    MetaData.CPUTime = SavedCPUTime;
     WroteData = TRUE;
   }
  
-  /* Check for output: CPU time-based.  
-
-     If there is less time until 0.9*StopCPUTime than the last cycle's
-     CPU time, output the data to ensure we get the last data dump for
-     restarting! */
-
-  //float FractionalCPUTime = 0.9;
-  if (debug)
-    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
-	   "Last = %lg\n",
-	   FractionalCPUTime, ReturnWallTime(), CurrentCPUTime, 
-	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
-  if (CurrentCPUTime + MetaData.LastCycleCPUTime > 
-      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
-      WroteData == FALSE) {
-    MetaData.CycleLastDataDump = MetaData.CycleNumber;
-    if (debug) printf("CPUtime-based output!\n");
-//#ifdef USE_HDF5_GROUPS
-    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-		       , ImplicitSolver
-#endif
-		       );
-// #else
-//     if (WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-// 		        TopGrid, MetaData, Exterior
-//#ifdef TRANSFER
-//			, ImplicitSolver
-//#endif
-//                      ) == FAIL) {
-// 	ENZO_FAIL("Error in WriteAllData.\n");
-//     }
-// #endif
-    WroteData = TRUE;
-  } // ENDIF
-
   /* Check for output: redshift-based. */
  
   if (ComovingCoordinates)
@@ -230,6 +225,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	    Number = -1;  // Don't append number (####) to end of name
 	  }
 
+	  SavedCPUTime = MetaData.CPUTime;
+	  MetaData.CPUTime = 0.0;
 	  //#ifdef USE_HDF5_GROUPS
 	  Group_WriteAllData(Name, Number, TopGrid, MetaData, Exterior
 #ifdef TRANSFER
@@ -246,6 +243,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // 	  }
 // #endif
 
+	  MetaData.CPUTime = SavedCPUTime;
 	  WroteData = TRUE;
 	}
 

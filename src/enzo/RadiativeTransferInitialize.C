@@ -105,6 +105,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
      fields.  We will check if the field already exists inside the
      grid routine. */
 
+  bool AddedMetallicity = false;
   int OldNumberOfBaryonFields = 0, FieldsToAdd = 0;
   int TypesToAdd[MAX_NUMBER_OF_BARYON_FIELDS];
   int ExistingTypes[MAX_NUMBER_OF_BARYON_FIELDS];
@@ -112,22 +113,30 @@ int RadiativeTransferInitialize(char *ParameterFile,
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
     ExistingTypes[i] = FieldUndefined;
 
-  if (RadiativeTransfer) {
-    TypesToAdd[FieldsToAdd++] = kphHI;
-    TypesToAdd[FieldsToAdd++] = PhotoGamma;
-    if (RadiativeTransferHydrogenOnly == FALSE) {
-      TypesToAdd[FieldsToAdd++] = kphHeI;
-      TypesToAdd[FieldsToAdd++] = kphHeII;
+  if (RadiativeTransfer || StarParticleFeedback) {
+
+    if (RadiativeTransfer) {
+      TypesToAdd[FieldsToAdd++] = kphHI;
+      TypesToAdd[FieldsToAdd++] = PhotoGamma;
+      if (RadiativeTransferHydrogenOnly == FALSE) {
+	TypesToAdd[FieldsToAdd++] = kphHeI;
+	TypesToAdd[FieldsToAdd++] = kphHeII;
+      }
+      if (MultiSpecies > 1)
+	TypesToAdd[FieldsToAdd++] = kdissH2I;
+      if (RadiationPressure)
+	for (i = RadPressure0; i <= RadPressure2; i++)
+	  TypesToAdd[FieldsToAdd++] = i;
+      if (PopIIISupernovaUseColour)
+	TypesToAdd[FieldsToAdd++] = SNColour;
+      if (StarClusterUseMetalField) {
+	TypesToAdd[FieldsToAdd++] = Metallicity;
+	AddedMetallicity = true;
+      }
     }
-    if (MultiSpecies > 1)
-      TypesToAdd[FieldsToAdd++] = kdissH2I;
-    if (RadiationPressure)
-      for (i = RadPressure0; i <= RadPressure2; i++)
-	TypesToAdd[FieldsToAdd++] = i;
-    if (PopIIISupernovaUseColour)
-      TypesToAdd[FieldsToAdd++] = SNColour;
-    if (StarClusterUseMetalField)
-      TypesToAdd[FieldsToAdd++] = Metallicity;
+
+    if (StarParticleFeedback && !AddedMetallicity)
+	TypesToAdd[FieldsToAdd++] = Metallicity;
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;

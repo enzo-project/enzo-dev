@@ -101,7 +101,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		   ImplicitProblemABC *ImplicitSolver,
 #endif		 
-		   int &WroteData);
+		   int &WroteData, int Restart = FALSE);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
@@ -170,8 +170,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   if (MetaData.Time        >= MetaData.StopTime ) Stop = TRUE;
   if (MetaData.CycleNumber >= MetaData.StopCycle) Stop = TRUE;
-  MetaData.StartCPUTime = MetaData.CPUTime = LastCPUTime = ReturnWallTime();
+  MetaData.StartCPUTime = LastCPUTime = ReturnWallTime();
   MetaData.LastCycleCPUTime = 0.0;
+
+  // Reset CPUTime, if it's very large (absolute UNIX time), which
+  // was the default from before.
+  if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)
+    MetaData.CPUTime = 0.0;
  
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
@@ -552,23 +557,24 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     MetaData.Time += dt;
     MetaData.CycleNumber++;
     MetaData.LastCycleCPUTime = ReturnWallTime() - LastCPUTime;
+    MetaData.CPUTime += MetaData.LastCycleCPUTime;
     LastCPUTime = ReturnWallTime();
 	
     if (MetaData.Time >= MetaData.StopTime) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("Stopping on top grid time limit.\n");
       Stop = TRUE;
-    }
+    } else
     if (MetaData.CycleNumber >= MetaData.StopCycle) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("Stopping on top grid cycle limit.\n");
       Stop = TRUE;
-    }
-    if (ReturnWallTime() - MetaData.StartCPUTime >= MetaData.StopCPUTime) {
+    } else
+    if (MetaData.CPUTime >= MetaData.StopCPUTime) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
 	printf("Stopping on CPU time limit.\n");
       Stop = TRUE;
-    }
+    } else
     if ((ReturnWallTime() - MetaData.StartCPUTime >= MetaData.dtRestartDump &&
 	 MetaData.dtRestartDump > 0) ||
 	(MetaData.CycleNumber - MetaData.CycleLastRestartDump >= 
@@ -607,7 +613,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		   ImplicitSolver,
 #endif		 
-		   WroteData);
+		   WroteData, Restart);
 
     /* Check for resubmission */
     
@@ -694,9 +700,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   lcaperf.attribute ("timestep",0, LCAPERF_NULL);
 #endif
 
-#ifdef USE_MPI
-  MetaData.CPUTime = MPI_Wtime() - MetaData.CPUTime;
-#endif
+  MetaData.CPUTime = ReturnWallTime() - MetaData.StartCPUTime;
  
   /* Done, so report on current time, etc. */
  

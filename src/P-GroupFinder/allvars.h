@@ -1,6 +1,20 @@
 #include "nrsrc/nrutil.h"
 #include "ngbtree.h"
 
+/* HDF5 definitions */
+
+#define HDF5_FILE_I4 H5T_STD_I32BE
+#define HDF5_FILE_I8 H5T_STD_I64BE
+#define HDF5_FILE_R4 H5T_IEEE_F32BE
+#define HDF5_FILE_R8 H5T_IEEE_F64BE
+#define HDF5_FILE_B8 H5T_STD_B8BE
+
+#define HDF5_I4  H5T_NATIVE_INT
+#define HDF5_I8  H5T_NATIVE_LLONG
+#define HDF5_R4  H5T_NATIVE_FLOAT
+#define HDF5_R8  H5T_NATIVE_DOUBLE
+#define HDF5_R16 H5T_NATIVE_LDOUBLE
+
 /* Definitions for controlling the integer type for particle IDs
    (8-byte needed for >2 billion particle simulations) */
 
@@ -18,6 +32,14 @@
 #define HDF5_PINT H5T_NATIVE_LLONG
 #define HDF5_FILE_PINT HDF5_STD_I64BE
 #define PISYM "lld"
+#endif
+
+#ifdef CONFIG_PFLOAT_16
+#define PSYM "Lf"
+#define GSYM "g"
+#define GOUTSYM ".21Lg"
+#define HDF5_PREC HDF5_R16
+#define HDF5_FILE_PREC HDF5_R16
 #endif
 
 #define  KERNEL_TABLE 10000
@@ -55,6 +77,7 @@
 extern int     ThisTask, NTask;
 
 extern double  Time;
+extern double  RhoCritical0;
 extern double  BoxSize;
 extern double  leftEdge[3], rightEdge[3];
 
