@@ -5,6 +5,7 @@
 
  double  Time;
  double  BoxSize;
+ double  RhoCritical0;
  double  leftEdge[3], rightEdge[3];
 
  double  SearchRadius;

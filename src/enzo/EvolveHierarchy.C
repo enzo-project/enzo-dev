@@ -175,11 +175,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   MetaData.StartCPUTime = LastCPUTime = ReturnWallTime();
   MetaData.LastCycleCPUTime = 0.0;
 
-  // Reset CPUTime, if it's very large (absolute UNIX time), which was
-  // the previous default.
-  if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)                                   
-    MetaData.CPUTime = 0.0;                                                          
-  
+  // Reset CPUTime, if it's very large (absolute UNIX time), which
+  // was the default from before.
+  if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)
+    MetaData.CPUTime = 0.0;
+ 
   /* Double-check if the topgrid is evenly divided if we're using the
      optimized version of CommunicationTransferParticles. */
 
