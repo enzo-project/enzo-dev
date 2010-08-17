@@ -1128,7 +1128,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set some star feedback parameters. */
 
-  if (STARFEED_METHOD(UNIGRID_STAR) && (StarFeedbackDistRadius > 0)) {
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) && 
+      (StarFeedbackDistRadius > 0)) {
 
     // Calculate number of cells in the shape over which to distribute feedback.
     StarFeedbackDistRadius = min(StarFeedbackDistRadius,
