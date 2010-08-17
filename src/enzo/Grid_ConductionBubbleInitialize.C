@@ -26,7 +26,7 @@
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, float *MassUnits, FLOAT Time);
+	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int FindField(int field, int farray[], int numfields);
 
@@ -66,7 +66,8 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0, MassUnits = 1.0, Time = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0;
+  double MassUnits = 1.0;
 
   float delta, this_delta;
   
@@ -102,9 +103,9 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   r_mid = 0.5*(DomainRightEdge[0] - DomainLeftEdge[0]);
   ncells = 1024;
 
-  rad = new float[ncells];
-  nofr = new float[ncells];
-  Tofr = new float[ncells];
+  rad = new double[ncells];
+  nofr = new double[ncells];
+  Tofr = new double[ncells];
 
   dKdr_cgs = dKdr * KEV_KELVIN / KPC_CGS;
   r_mid_cgs = r_mid * LengthUnits;

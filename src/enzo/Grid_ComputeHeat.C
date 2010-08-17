@@ -30,7 +30,7 @@
 // Function prototypes
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
-	      float *VelocityUnits, float *MassUnits, FLOAT Time);
+	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Member functions
 int grid::ComputeHeat (float dedt[]) {
@@ -46,7 +46,8 @@ int grid::ComputeHeat (float dedt[]) {
   // Some locals
   int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num;
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0, MassUnits = 1.0, Time = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0;
+  double MassUnits = 1.0;
   float *rho;
   double kappa_star = 6.0e-7*ConductionSpitzerFraction;
   int size = 1; 
