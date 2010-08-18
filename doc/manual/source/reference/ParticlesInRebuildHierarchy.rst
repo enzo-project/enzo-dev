@@ -1,57 +1,48 @@
-Particle storage in RebuildHierarchy for very large nested grid simulations
-===========================================================================
+Nested Grid Particle Storage in RebuildHierarchy
+================================================
 
 Problem
 -------
 
-In the previous version of ``RebuildHierarchy()``, all of the particles
-were
-moved to the parent on the level L\ :sub:`0`\  being rebuilt. This
-causes problems
-when running large simulations with nested initial grids because a
-small number of top-level grids cover the refine region, compared
-to the total number of top-level grids. This is illustrated in the
-figure below.
+In the previous version of ``RebuildHierarchy()``, all of the particles were
+moved to the parent on the level L\ :sub:`0`\  being rebuilt. This causes
+problems when running large simulations with nested initial grids because a
+small number of top-level grids cover the refine region, compared to the total
+number of top-level grids. This is illustrated in the figure below.
 
-`Image(particles\_nested.jpg, 33%)? </wiki/Image(particles_nested.jpg,%2033%)>`_
+.. image:: particles_nested.jpg
+   :width: 320
+   :align: center
 
-On distributed memory machines, only one (or more) top-level grid
-exists on one processor. The particles are stored only on the host
-processor, stored in ``grid::ProcessorNumber``. This processor will run
-out of memory if a large number of particles are moved exclusively
-to a grid on this processor.
+On distributed memory machines, only one (or more) top-level grid exists on one
+processor. The particles are stored only on the host processor, stored in
+``grid::ProcessorNumber``. This processor will run out of memory if a large
+number of particles are moved exclusively to a grid on this processor.
 
 Solution
 --------
 
-We can avoid this memory oversubscription by temporarily keeping
-the particles on the processor from the previous timestep, i.e. the
-processor of the original child grid, during the rebuild process.
-However, we still want to move the particles to the parent grid on
-level L\ :sub:`0`\  because we will be rebuilding this and finer
-levels from the
-data existing on these grids.
+We can avoid this memory oversubscription by temporarily keeping the particles
+on the processor from the previous timestep, i.e. the processor of the original
+child grid, during the rebuild process.  However, we still want to move the
+particles to the parent grid on level L\ :sub:`0`\  because we will be
+rebuilding this and finer levels from the data existing on these grids.
 
-This is only necessary on levels with static subgrids because on
-levels with dynamics hierarchies the grids will be distributed
-across
-processors sufficiently to avoid this problem. On the levels with
-static subgrids, we depart from the standard particle storage in
-Enzo,
-where the particles are stored on one processor and
-``NumberOfParticles``
-is the same on all processors. We adopt the strategy of storing
-particles on many processors for one grid, and ``NumberOfParticles``
-denotes the number of particles actually stored on the local
-processor. Once we rebuild the coarsest level with a dynamical
-hierarchy, we move all of the particles to their host processor,
-i.e. ``ProcessorNumber``, and synchronize ``NumberOfParticles`` to equal
-the
-total number of particles on the grid over all processors.
+This is only necessary on levels with static subgrids because on levels with
+dynamics hierarchies the grids will be distributed across processors
+sufficiently to avoid this problem. On the levels with static subgrids, we
+depart from the standard particle storage in Enzo, where the particles are
+stored on one processor and ``NumberOfParticles`` is the same on all
+processors. We adopt the strategy of storing particles on many processors for
+one grid, and ``NumberOfParticles`` denotes the number of particles actually
+stored on the local processor. Once we rebuild the coarsest level with a
+dynamical hierarchy, we move all of the particles to their host processor, i.e.
+``ProcessorNumber``, and synchronize ``NumberOfParticles`` to equal the total
+number of particles on the grid over all processors.
 
-Below we will outline this method to distribute memory usage from
-particles during ``RebuildHierarchy()`` on level L. Pre-existing routines
-in ``RebuildHierarchy()`` are not included in the outline.
+Below we will outline this method to distribute memory usage from particles
+during ``RebuildHierarchy()`` on level L. Pre-existing routines in
+``RebuildHierarchy()`` are not included in the outline.
 
 
 #. Set ``NumberOfParticles`` to zero on all grids on level >= L, except
