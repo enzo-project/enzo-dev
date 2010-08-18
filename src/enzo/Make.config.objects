@@ -508,6 +508,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ShocksHandler.o \
 	Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
+        Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \

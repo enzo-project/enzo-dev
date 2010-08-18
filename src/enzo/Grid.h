@@ -641,6 +641,9 @@ public:
 /* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
 
    int SolveHighDensityPrimordialChemistry();
+#ifdef USE_CVODE
+   int SolvePrimordialChemistryCVODE();
+#endif
 
 /* Compute densities of various species for RadiationFieldUpdate. */
 
