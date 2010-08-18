@@ -163,7 +163,7 @@ int grid::ConductHeat(){
   } // if(HydroMethod != Zeus_Hydro)
 
 
-  if(HydroMethod==Zeus_Hydro && DualEnergyFormalism==0)
+  if(HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0)
     delete [] e;
 
   delete [] dedt;
