@@ -111,7 +111,6 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   char *param;
   FILE *pfptr;
 
-  Restart = CommunicationMaxValue(Restart);
   if (Restart == TRUE && WroteData == FALSE) {
 
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
