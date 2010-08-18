@@ -181,6 +181,7 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
 //   }
  
   /* -------------------------------------------------------------------- */
+
   /* Loop over all the grids and call the initializer to modify them
      if necessary. */
  
