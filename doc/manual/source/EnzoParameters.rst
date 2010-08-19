@@ -350,7 +350,7 @@ Streaming Data Format
 ``NewMovieDumpNumber`` (internal)
     Counter for streaming data files. This should equal the cycle
     number.
-``MovieTimestepCounter ``(internal)
+``MovieTimestepCounter`` (internal)
     Timestep counter for the streaming data files.
 ``MovieDataField`` (external)
     A maximum of 6 data fields can be written in the streaming format.
@@ -708,8 +708,8 @@ Magnetohydrodynamic Parameters
     using successive over relaxation. Method 3 uses conjugate gradient
     with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more
     accurate but can lead to aliasing effects. Default: 0
-``DivergenceCleaningBoundaryBuffer ``(external)
-    Choose to \*not\* correct in the active zone of a grid by a
+``DivergenceCleaningBoundaryBuffer`` (external)
+    Choose to *not* correct in the active zone of a grid by a
     boundary of cells this thick. Default: 0
 ``DivergenceCleaningThreshold`` (external)
     Calls divergence cleaning on a grid when magnetic field divergence
@@ -1142,9 +1142,9 @@ The parameters below are considered in ``StarParticleCreation`` method
     formation even for very low star formation rates. It attempts to do
     so (relatively successfully according to tests) in a fashion that
     conserves the global average star formation rate. Default: 1e9
-``StarMakerMinimumDynamicalTime``(external)
+``StarMakerMinimumDynamicalTime`` (external)
     When the star formation rate is computed, the rate is proportional
-    to M\_baryon \* dt/max(t\_dyn, t\_max) where t\_max is this
+    to M_baryon \* dt/max(t_dyn, t_max) where t_max is this
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
     formation and life-time. The unit is years. Default: 1e6
@@ -1824,8 +1824,12 @@ Feedback Physics
     The name of the file used for the parameter above. Default:
     ``mbh\_particle\_io.dat``
 
+.. _testproblem_param:
+
 Test Problem Parameters
 -----------------------
+
+.. _shocktube_param:
 
 Shock Tube (1: unigrid and AMR)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1863,6 +1867,8 @@ Shock Tube (1: unigrid and AMR)
 ``ShockTubeLeftPressure``, ``ShockTubeRightPressure`` (external)
     The same as above but for pressure. Default: 1.0, 0.1
 
+.. _wavepool_param:
+
 Wave Pool (2)
 ~~~~~~~~~~~~~
 
@@ -1888,6 +1894,8 @@ Wave Pool (2)
     x-,y-, and z-velocities. Default: 0.0 (for all)
 ``WavePoolWavelength`` (external)
     The wavelength. Default: 0.1 (one-tenth of the box)
+
+.. _shockpool_param:
 
 Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1917,6 +1925,8 @@ Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
     zero velocity in the laboratory reference frame. Default: 0.0 (for
     all components)
 
+.. _doublemach_param:
+
 Double Mach Reflection (4)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1929,6 +1939,8 @@ Double Mach Reflection (4)
     Start position of the subgrid. Default: 0.0
 ``DoubleMachSubgridRight`` (external)
     End positions of the subgrid. Default: 0.0
+
+.. _shockinabox_param:
 
 Shock in a Box (5)
 ~~~~~~~~~~~~~~~~~~
@@ -1949,11 +1961,13 @@ Shock in a Box (5)
     vR=shockspeed-m\*sqrt(``Gamma``\*pL/dL)\*(1-dL/dR), where m=2.0,
     shockspeed=0.9\*sqrt(``Gamma``\*pL/dL)\*m.
 ``ShockInABoxLeftPressure``, ``ShockInABoxRightPressure`` (external)
-    Pressures to the Right and to the Left of the shock front. Default:
-    pL=1.0 and pR=pL\*(2.0\*``Gamma``\*m\*m - (``Gamma``-1))/(``Gamma``+1), where
-    m=2.0.
-``ShockInABoxSubgridLeft``, ``ShockInABoxSubgridRight`` (external)
+    Pressures to the Right and to the Left of the shock
+    front. Default: pL=1.0 and pR=pL\*(2.0\*``Gamma``\*m\*m -
+    (``Gamma``-1))/(``Gamma``+1), where m=2.0.
+    ``ShockInABoxSubgridLeft``, ``ShockInABoxSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 (for both)
+
+.. _rotatingcylinder_param:
 
 Rotating Cylinder (10)
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1988,6 +2002,8 @@ Rotating Cylinder (10)
     Position of the center of the cylinder as a vector of floats.
     Default: (0.5, 0.5, 0.5)
 
+.. _radiatingshock_param:
+
 Radiating Shock (11)
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -2016,7 +2032,7 @@ Radiating Shock (11)
     Pair of floats that defines the edges of the region where the
     initial conditions are refined to MaximumRefinementLevel. No
     default value.
-``RadiatingShockUseDensityFluctuation``s (external)
+``RadiatingShockUseDensityFluctuation`` (external)
     Initialize external medium with random density fluctuations.
     Default: 0
 ``RadiatingShockRandomSeed`` (external)
@@ -2048,6 +2064,8 @@ Radiating Shock (11)
     a radius of approximately N \* dx, where N is the number of cells
     and dx is the resolution of the highest level of refinement. This
     does not have to be an integer value. Default: 3.5
+
+.. _freeexpansion_param:
 
 Free Expansion (12)
 ~~~~~~~~~~~~~~~~~~~
@@ -2085,6 +2103,8 @@ should turn into a Sedov-Taylor blast wave.
     Rightmost edge of the region to set the initial refinement.
     Default: 0
 
+.. _zeldovichpancake_param:
+
 Zeldovich Pancake (20)
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2108,6 +2128,8 @@ Zeldovich Pancake (20)
 ``ZeldovichPancakeOmegaCDMNow`` (external)
     Omega CDM at redshift z=0. Default: 0 (assumes no dark matter)
 
+.. _pressurelesscollapse_param:
+
 Pressureless Collapse (21)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2120,10 +2142,12 @@ Pressureless Collapse (21)
 
 ``PressurelessCollapseDirection`` (external)
     Coordinate direction. Default: 0 (along the x-axis).
-``PressurelessCollapseInitialDensit``y (external)
+``PressurelessCollapseInitialDensity`` (external)
     Initial density (the fluid starts at rest). Default: 1.0
 ``PressurelessCollapseNumberOfCells`` (external)
     ???. Default: GridDimension[PressurelessCollapseDirection] - 2
+
+.. _adiabaticexpansion_param:
 
 Adiabatic Expansion (22)
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2142,6 +2166,8 @@ Adiabatic Expansion (22)
 ``AdiabaticExpansionOmegaCDMNow`` (external)
     Omega CDM at redshift z=0; default setting assumes no dark matter.
     Default: 0.0
+
+.. _testgravity_param:
 
 Test Gravity (23)
 ~~~~~~~~~~~~~~~~~
@@ -2163,6 +2189,8 @@ Test Gravity (23)
     subgrids)
 ``TestGravityUseBaryons`` (external)
     Boolean switch. Type: integer. Default: 0 (FALSE)
+
+.. _sphericalinfall_param:
 
 Spherical Infall (24)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -2196,6 +2224,8 @@ Spherical Infall (24)
 ``SphericalInfallUseBaryons`` (external)
     Boolean flag. Type: integer. Default: 1 (TRUE)
 
+.. _testgravitysphere_param:
+
 Test Gravity: Sphere (25)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2227,6 +2257,8 @@ Test Gravity: Sphere (25)
 ``TestGravitySphereUseBaryons`` (external)
     Boolean flag. Type: integer . Default: 1 (TRUE)
 
+.. _gravityequilibriumtest_param:
+
 Gravity Equilibrium Test (26)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2237,6 +2269,8 @@ Gravity Equilibrium Test (26)
 
 ``GravityEquilibriumTestScaleHeight`` (external)
     The scale height for the exponential atmosphere . Default: 0.1
+
+.. _collapsetest_param:
 
 Collapse Test (27)
 ~~~~~~~~~~~~~~~~~~
@@ -2313,6 +2347,8 @@ Collapse Test (27)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
 
+.. _cosmologysimulation_param:
+
 Cosmology Simulation (30)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2383,7 +2419,7 @@ Cosmology Simulation (30)
     as 10. Default: none
 ``CosmologySimulationUseMetallicityField`` (external)
     Boolean flag. Type: integer. Default: 0 (FALSE)
-``CosmologySimulationInitialFractionH2I ``(external)
+``CosmologySimulationInitialFractionH2I`` (external)
     The fraction of molecular hydrogen (H\_2) at ``InitialRedshift``. This
     and the following chemistry parameters are used if ``MultiSpecies`` is
     defined as 1 (TRUE). Default: 2.0e-20
@@ -2435,6 +2471,8 @@ Cosmology Simulation (30)
     simulation) the appropriate value would be 8.0 (in other words,
     this should be set to (number of cells along an edge) / (number of
     particles along an edge) cubed. Default: 1.0.
+
+.. _galaxysimulation_param:
 
 Isolated Galaxy Evolution (31)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2490,6 +2528,8 @@ Isolated Galaxy Evolution (31)
     (in other words, this and the center position define the plane of
     the galaxy). This \_MUST\_ be set! Default: (0.0, 0.0, 0.0)
 
+.. _shearingbox_param:
+
 Shearing Box Simulation (35)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2506,9 +2546,11 @@ Shearing Box Simulation (35)
     The magnitude of the sinusoidal velocity perturbations as a
     fraction of the angular velocity. Default: 0.1
 ``ShearingBoxGeometry`` (external)
-    Defines the radius of the sphere for ``ShearingBoxProblemType``=0, and the
-    frequency of the velocity fluctuations (in units of 2pi) for
-    ``ShearingBoxProblemType``=1.  Default: 2.0
+    Defines the radius of the sphere for ``ShearingBoxProblemType`` =
+    0, and the frequency of the velocity fluctuations (in units of
+    2pi) for ``ShearingBoxProblemType`` = 1.  Default: 2.0
+
+.. _supernovarestart_param:
 
 Supernova Restart Simulation (40)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2536,6 +2578,8 @@ Supernova Restart Simulation (40)
     problem is initializing from.
 ``SupernovaRestartColourField``
     Reserved for future use.
+
+.. _photontest_param:
 
 Photon Test (50)
 ~~~~~~~~~~~~~~~~
@@ -2587,6 +2631,8 @@ Photon Test (50)
     Sets the initial ionized fraction of H2. Default: 3e-14
 ``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
+
+.. _coolingtest_param:
 
 Cooling Test (62)
 ~~~~~~~~~~~~~~~~~
