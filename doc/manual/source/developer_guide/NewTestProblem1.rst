@@ -331,6 +331,8 @@ that you will be modifying.
 We will be discussing AMR problems, and large problems that require
 parallel startup later.
 
+.. _InitializeGrid:
+
 MyProblemInitializeGrid
 -----------------------
 
