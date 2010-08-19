@@ -331,6 +331,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeCellCenteredField.o \
+	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
@@ -343,7 +344,6 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputePressure.o \
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
-	Grid_ComputeConductionTimeStep.o \
         Grid_ComputeVectorAnalysisFields.o \
 	Grid_ComputeVertexCenteredField.o \
 	Grid_ComputeXrayEmissivity.o \
