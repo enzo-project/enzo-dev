@@ -58,6 +58,8 @@
 #define USE
 
 /* function prototypes */
+int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+
 int  GetUnits(float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
@@ -817,178 +819,120 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    } // ENDFOR old particles
 	      //printf("star_maker8: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
 
+	    if (ii < *nmax) {
 
-	    // PUT BIG STAR FORMATION IF STATEMENT HERE
-	    if(nearestdx2 > POW(BigStarSeparation,2) && BigStarFormation){
+	      // PUT BIG STAR FORMATION IF STATEMENT HERE
+	      if(BigStarFormation){
 
-	      /* Calculate change in density */
+		/* Calculate change in density */
 
-	      if (*jlrefine > 0)
-		maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-	      else
-		maxdens = densthresh;
-	      oldrho = d[index];
-	      adddens = 3.415/umass;
-	      printf("BigStarFormation: created mass from nowhere!");
+		if (*jlrefine > 0)
+		  maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+		else
+		  maxdens = densthresh;
+		oldrho = d[index];
+		adddens = d[index] - maxdens;
+		BigStarFormation = 0;
+		StarParticleCreation = 0;
+		CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
+		CommunicationBroadcastValue(&StarParticleCreation, MyProcessorNumber);
+		printf("BigStarFormation complete: no more star formation from now on. ");
 	    
-	      /* Remove mass from grid */
+		/* Remove mass from grid */
 	    
-	      d[index] = maxdens;
+		d[index] = maxdens;
 
-
-	    }
-	    else {
-
-	      /* Calculate change in density */
-
-	      if (*jlrefine > 0)
-		maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-	      else
-		maxdens = densthresh;
-	      oldrho = d[index];
-	      adddens = d[index] - maxdens;
+		//printf("star_maker8: making new star\n" );
+		mp[ii] = adddens;
+		type[ii] = *ctype;
+	      
+		/* Set positions and velocities */
 	    
-	      /* Remove mass from grid */
-	    
-	      d[index] = maxdens;
+		xp[ii] = xpos;
+		yp[ii] = ypos;
+		zp[ii] = zpos;;
+		up[ii] = ugrid;
+		vp[ii] = vgrid;
+		wp[ii] = wgrid;
 
-	      /* Get velocity at grid center (averaged over cells ... ONLY
-		 for PPM) */
+		/* Set creation time */
+	      
+		tcp[ii] = (float) *t;
+		tdp[ii] = 0.0;
+		dm[ii]  = adddens*POW(*dx,3);
 
-	      if (*imethod == 2) {
-		ugrid = 0.5*(u[index] + u[index+xo]);
-		vgrid = 0.5*(v[index] + v[index+yo]);
-		wgrid = 0.5*(w[index] + w[index+zo]);
-	      } else {
-		total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
-		  d[index+yo] + d[index-zo] + d[index+zo];
+		ii++;
 
-		ugrid = (u[index]*d[index] + 
-			 u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
-			 u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
-			 u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
-		  total_density;
 
-		vgrid = (v[index]*d[index] + 
-			 v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
-			 v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
-			 v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
-		  total_density;
 
-		wgrid = (w[index]*d[index] + 
-			 w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
-			 w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
-			 w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
-		  total_density;
 	      }
-	    }
+	      else {
 
-	    /* Look for a nearby OLD sink particle to add the mass to */
+		/* Calculate change in density */
+
+		if (*jlrefine > 0)
+		  maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+		else
+		  maxdens = densthresh;
+		oldrho = d[index];
+		adddens = d[index] - maxdens;
 	    
-	    inew = 1;
-// 	    nearestdx2 = 1e20;
-// 	    for (cc = 0; cc < nsinks; cc++) {
-	      
-// 	      n = sink_index[cc];
-	      
-// 	      delx = xpos - xpold[n];
-// 	      dely = ypos - ypold[n];
-// 	      delz = zpos - zpold[n];
-// 	      dist2 = delx*delx + dely*dely + delz*delz;
-
-// 	      /* If sink is within 5 cells and closest one, then add to it */
-// 	      //printf("star_maker8:  distance: dist=%"FSYM", SCD =%"FSYM" \n",POW(dist2,0.5),SinkCollapseDistance );	      
-// 	      if (dist2 < POW(SinkCollapseDistance,2) && dist2 < nearestdx2) {
-// 		nearestdx2 = dist2;
-// 		closest = n;
-// 	      }
-
-// 	    } // ENDFOR old particles
-// 	    //printf("star_maker8: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
-
-// 	    /* Add momentum and mass to nearest OLD sink */
-
-// 	    if (nearestdx2 < 1) {
+		/* Remove mass from grid */
 	    
-// 	      upold[closest] = (upold[closest] * mpold[closest] + ugrid*adddens) /
-// 		(mpold[closest] + adddens);
-// 	      vpold[closest] = (vpold[closest] * mpold[closest] + vgrid*adddens) /
-// 		(mpold[closest] + adddens);
-// 	      wpold[closest] = (wpold[closest] * mpold[closest] + wgrid*adddens) /
-// 		(mpold[closest] + adddens);
-// 	      mpold[closest] = mpold[closest] + adddens;
-// 	      dmold[closest] += adddens*POW(*dx,3);
+		d[index] = maxdens;
+
+		/* Get velocity at grid center (averaged over cells ... ONLY
+		   for PPM) */
+
+		if (*imethod == 2) {
+		  ugrid = 0.5*(u[index] + u[index+xo]);
+		  vgrid = 0.5*(v[index] + v[index+yo]);
+		  wgrid = 0.5*(w[index] + w[index+zo]);
+		} else {
+		  total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
+		    d[index+yo] + d[index-zo] + d[index+zo];
+
+		  ugrid = (u[index]*d[index] + 
+			   u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
+			   u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
+			   u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
+		    total_density;
+
+		  vgrid = (v[index]*d[index] + 
+			   v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
+			   v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
+			   v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
+		    total_density;
+
+		  wgrid = (w[index]*d[index] + 
+			   w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
+			   w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
+			   w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
+		    total_density;
+		}
+		//printf("star_maker8: making new star\n" );
+		mp[ii] = adddens;
+		type[ii] = *ctype;
+	      
+		/* Set positions and velocities */
 	    
-// 	      /* Record that a new particle is not needed */
+		xp[ii] = xpos;
+		yp[ii] = ypos;
+		zp[ii] = zpos;
+		up[ii] = ugrid;
+		vp[ii] = vgrid;
+		wp[ii] = wgrid;
+
+		/* Set creation time */
 	      
-// 	      inew = 0;
-// 	      //printf("star_maker8:  new star not needed \n" );	      
-// 	    }  // ENDIF add to particle
+		tcp[ii] = (float) *t;
+		tdp[ii] = 0.0;
+		dm[ii]  = adddens*POW(*dx,3);
 
-// 	    /* Now look for nearby NEW sinks */
+		ii++;
 
-// 	    nearestdx2 = 1e20;
-// 	    for (n = 0; n < ii; n++) {
-	      
-// 	      delx = xpos - xp[n];
-// 	      dely = ypos - yp[n];
-// 	      delz = zpos - zp[n];
-// 	      dist2 = delx*delx + dely*dely + delz*delz;
 
-// 	      /* If sink is within SinkCollapseDistance, then add to it */
-	      
-// 	      if (dist2 < POW(SinkCollapseDistance,2) && dist2 < nearestdx2) {
-// 		nearestdx2 = dist2;
-// 		closest = n;
-// 	      }
-	      
-// 	    } // ENDFOR new particles
-	  
-// 	    /* Add momentum and then mass to NEW sink*/
-
-// 	    //printf("star_maker8: nearest new star = %"FSYM"\n",POW(nearestdx2,0.5) );
-// 	    if (nearestdx2 < 1) {
-
-// 	      up[closest] = (up[closest] * mp[closest] + ugrid*adddens) /
-// 		(mp[closest] + adddens);
-// 	      vp[closest] = (vp[closest] * mp[closest] + vgrid*adddens) /
-// 		(mp[closest] + adddens);
-// 	      wp[closest] = (wp[closest] * mp[closest] + wgrid*adddens) /
-// 		(mp[closest] + adddens);
-// 	      mp[closest] = mp[closest] + adddens;
-// 	      dm[closest] += adddens*POW(*dx,3);
-	    
-// 	      /* Record that a new particle is not needed */
-	      
-// 	      inew = 0;
-// 	      //printf("star_maker8:  new star not needed \n" );
-// 	    } // ENDIF add to new particle
-
-	    /* Create a new sink particle if necessary and if there's room */
-	    //printf("inew = %i\n",inew);
-
-	    if (inew == 1 && ii < *nmax) {
-	      
-	      //printf("star_maker8: making new star\n" );
-	      mp[ii] = adddens;
-	      type[ii] = *ctype;
-	      
-	      /* Set positions and velocities */
-	    
-	      xp[ii] = xpos;
-	      yp[ii] = ypos;
-	      zp[ii] = zpos;
-	      up[ii] = ugrid;
-	      vp[ii] = vgrid;
-	      wp[ii] = wgrid;
-
-	      /* Set creation time */
-	      
-	      tcp[ii] = (float) *t;
-	      tdp[ii] = 0.0;
-	      dm[ii]  = adddens*POW(*dx,3);
-
-	      ii++;
+	      }
 
 	    } // ENDIF create a new sink
 	    

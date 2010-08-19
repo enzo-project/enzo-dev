@@ -133,6 +133,9 @@ int ShearingBoxStratifiedInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
 			    HierarchyEntry &TopGrid,
 			    TopGridData &MetaData, int local);
@@ -472,6 +475,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #ifdef TRANSFER
   if (ProblemType == 50)
     ret = PhotonTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+#endif /* TRANSFER */
+
+  // 51) PhotonTestRestart
+#ifdef TRANSFER
+  if (ProblemType == 51)
+    ret = PhotonTestRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
 #endif /* TRANSFER */
 
   // 60) Turbulence Simulation.
