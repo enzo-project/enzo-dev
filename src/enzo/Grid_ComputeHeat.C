@@ -49,7 +49,8 @@ int grid::ComputeHeat (float dedt[]) {
   float VelocityUnits = 1.0, TimeUnits = 1.0;
   double MassUnits = 1.0;
   float *rho;
-  double kappa_star = 6.0e-7*ConductionSpitzerFraction;
+  double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
+
   int size = 1; 
 
   for (int dim = 0; dim < GridRank; dim++) 
@@ -70,6 +71,11 @@ int grid::ComputeHeat (float dedt[]) {
 
   // conversion from CGS to Enzo internal units for de/dt
   double units = POW(TimeUnits, 3.0)/POW(LengthUnits, 4.0)/DensityUnits;
+
+  // for conduction saturation
+  double saturation_factor = 4.874e-20 / (DensityUnits * dx); // 4.2 * lambda_e * mH
+                                        // lambda_e from Jubelgas ea 2004
+                                        // mH for converting rho into n_e
 
   // Get field identifiers
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, 
@@ -122,6 +128,8 @@ int grid::ComputeHeat (float dedt[]) {
 	  // kappa is the spitzer conductivity, which scales as 
 	  // the temperature to the 2.5 power
 	  r.kappa = kappa_star*POW(r.T, 2.5);
+	  // conduction saturation
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
 	  r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}
@@ -140,6 +148,7 @@ int grid::ComputeHeat (float dedt[]) {
 	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
 
 	  r.kappa = kappa_star*POW(r.T, 2.5);
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
 	  r.dedt = r.kappa*r.dT;
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}
@@ -158,6 +167,7 @@ int grid::ComputeHeat (float dedt[]) {
 	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
 
 	  r.kappa = kappa_star*POW(r.T, 2.5);
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
 	  r.dedt = r.kappa*r.dT;
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}

@@ -45,6 +45,7 @@ int grid::ComputeConductionTimeStep (float &dt) {
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
   float VelocityUnits = 1.0, TimeUnits = 1.0;
   double MassUnits = 1.0;
+  float *rho;
   float dt_est;
   double all_units;
 
@@ -52,11 +53,17 @@ int grid::ComputeConductionTimeStep (float &dt) {
   for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
 
   float *Temp = new float[size];
+  FLOAT dx = CellWidth[0][0];
 
   // Get system of units
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
+
+  // for conduction saturation
+  double saturation_factor = 4.874e-20 / (DensityUnits * dx); // 4.2 * lambda_e * mH
+                                        // lambda_e from Jubelgas ea 2004
+                                        // mH for converting rho into n_e
 
   // get field identifiers
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum) == FAIL) {
@@ -68,11 +75,20 @@ int grid::ComputeConductionTimeStep (float &dt) {
     ENZO_FAIL("Error in grid->ComputeTemperatureField.");
   }
 
+  // mask for baryon density
+  rho = BaryonField[DensNum];
+
+  // Set up a struct to hold properties defined on cell faces
+  struct cellface {float T, dT, kappa, dedt;} l, r, cfzero;
+
+  // zero struct
+  cfzero.T = cfzero.dT = cfzero.kappa = cfzero.dedt = 0.0;
+
   // Find shortest time scale on the grid patch
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
   for (int dim = 0; dim<GridRank; dim++) {
-    GridStart[dim] = 0;
-    GridEnd[dim] = GridDimension[dim]-1;}
+    GridStart[dim] = 1;
+    GridEnd[dim] = GridDimension[dim]-2;}
 
   dt = huge_number;
 
@@ -84,23 +100,79 @@ int grid::ComputeConductionTimeStep (float &dt) {
      here.  We first calculate the density and temperature parts in
      the loop (this is the only stuff that varies), and then multiply
      by all of the constants necessary to put this into Enzo internal
-     units.  */
-  for (int k = GridStart[2]; k <= GridEnd[2]; k++) 
-    for (int j = GridStart[1]; j <= GridEnd[1]; j++) 
-      for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+     units.  Since the saturation coefficient requires the temperature 
+     gradients, this calculation now looks a lot like what is done in 
+     Grid_ComputeHeat. */
 
-	int idx = ELT(i,j,k);
+  if (GridRank>0) {
+    for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
+      for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+	r = cfzero;
+	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+	  l = r;
 
-	dt_est =  BaryonField[DensNum][idx] / POW(Temp[idx], 2.5);
+	  // get temperature, temperature gradient on + face of cell
+	  // (the 'l' struct has it on the right face)
+	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i+1,j,k)], 0.50);
+	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i+1,j,k)];
 
-	dt = min(dt, dt_est);
-	
+	  // kappa is the spitzer conductivity, which scales as 
+	  // the temperature to the 2.5 power
+	  r.kappa = POW(r.T, 2.5);
+	  // conduction saturation
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+
+	  dt_est = rho[ELT(i,j,k)] / r.kappa;
+	  dt = min(dt, dt_est);
+	}
       }
+    }
+  } // if (GridRank>0)
+
+  if (GridRank>1) {
+    for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+      for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
+	r = cfzero;
+	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+	  l = r;
+
+	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j+1,k)], 0.50);
+	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
+
+	  r.kappa = POW(r.T, 2.5);
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+
+	  dt_est = rho[ELT(i,j,k)] / r.kappa;
+	  dt = min(dt, dt_est);
+	}
+      }
+    }
+  } // if (GridRank>1)
+  
+  if (GridRank>2) {
+    for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+      for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+	r = cfzero;
+	for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
+	  l = r;
+
+	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j,k+1)], 0.50);
+	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
+
+	  r.kappa = POW(r.T, 2.5);
+	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+
+	  dt_est = rho[ELT(i,j,k)] / r.kappa;
+	  dt = min(dt, dt_est);
+	}
+      }
+    }
+  }  // if (GridRank>2)
 
   // all of the units required to put this into the appropriate enzo internal
   // units, scaled correctly. Note that this does NOT contain a factor
   // of 1/mu, since we don't necessarily know anything about the gas in question.
-  all_units = POW(CellWidth[0][0],2.0)*POW(LengthUnits,2.0)*DensityUnits*kboltz
+  all_units = POW(dx,2.0)*POW(LengthUnits,2.0)*DensityUnits*kboltz
     / ( 6.0e-7 * ConductionSpitzerFraction * mh * TimeUnits );
   
   dt *= float(all_units);
