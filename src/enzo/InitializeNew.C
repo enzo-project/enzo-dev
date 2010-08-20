@@ -840,10 +840,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // For PhotonTest, using ParallelGridIO, initialize data only after
   // partitioning grid.  Last argument tells it it's the 2nd pass.
- 
+
+#ifdef TRANSFER 
   if (ParallelRootGridIO == TRUE && ProblemType == 50)
     if (PhotonTestInitialize(fptr, Outfptr, TopGrid, MetaData, true) == FAIL)
       ENZO_FAIL("Error in PhotonTestInitialize(2nd pass).");
+#endif
 
   PrintMemoryUsage("After 2nd pass");
   
