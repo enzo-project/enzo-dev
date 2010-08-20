@@ -493,11 +493,16 @@ RadiationSourceEntry* Star::RadiationSourceInitialize(void)
   source->Type           = type;
   source->LifeTime       = LifeTime;
   source->CreationTime   = BirthTime;
-  source->Position       = new FLOAT[3];
-  source->Position[0]    = pos[0]; 
-  source->Position[1]    = pos[1]; 
-  source->Position[2]    = pos[2]; 
   source->AddedEmissivity = false;
+  source->Position       = new FLOAT[3];
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    if (pos[dim] < DomainLeftEdge[dim])
+      source->Position[dim] = pos[dim] + DomainRightEdge[dim] - DomainLeftEdge[dim];
+    else if (pos[dim] > DomainRightEdge[dim])
+      source->Position[dim] = pos[dim] - DomainRightEdge[dim] + DomainLeftEdge[dim];
+    else
+      source->Position[dim] = pos[dim];
+  }
   return source;
 }
 #endif

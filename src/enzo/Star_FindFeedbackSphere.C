@@ -318,7 +318,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // more gas and form the star.  If more gas is accreted, another
     // star particle will form.
     if (StarType == PopII && 
-	AccretedMass < 0.01*StarClusterMinimumMass) {
+	AccretedMass < 0.001*StarClusterMinimumMass) {
       if (debug) 
 	printf("star::FindFeedbackSphere: SMALL AccretedMass = %g. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
