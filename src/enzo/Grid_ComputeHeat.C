@@ -73,9 +73,11 @@ int grid::ComputeHeat (float dedt[]) {
   double units = POW(TimeUnits, 3.0)/POW(LengthUnits, 4.0)/DensityUnits;
 
   // for conduction saturation
-  double saturation_factor = 4.874e-20 / (DensityUnits * dx); // 4.2 * lambda_e * mH
+  double saturation_factor = 4.874e-20 / (DensityUnits * LengthUnits * dx);
+                                        // 4.2 * lambda_e * mH
                                         // lambda_e from Jubelgas ea 2004
                                         // mH for converting rho into n_e
+                                        // dx for dT/dx
 
   // Get field identifiers
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, 

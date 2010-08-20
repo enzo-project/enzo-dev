@@ -61,9 +61,11 @@ int grid::ComputeConductionTimeStep (float &dt) {
   }
 
   // for conduction saturation
-  double saturation_factor = 4.874e-20 / (DensityUnits * dx); // 4.2 * lambda_e * mH
+  double saturation_factor = 4.874e-20 / (DensityUnits * LengthUnits * dx);
+                                        // 4.2 * lambda_e * mH
                                         // lambda_e from Jubelgas ea 2004
                                         // mH for converting rho into n_e
+                                        // dx for dT/dx
 
   // get field identifiers
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum) == FAIL) {
