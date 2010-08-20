@@ -641,6 +641,9 @@ public:
 /* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
 
    int SolveHighDensityPrimordialChemistry();
+#ifdef USE_CVODE
+   int SolvePrimordialChemistryCVODE();
+#endif
 
 /* Compute densities of various species for RadiationFieldUpdate. */
 
@@ -1946,6 +1949,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Put Sink restart initialize grid. */
   int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
+
+  /* PhotonTest restart initialize grid. */
+  int PhotonTestRestartInitialize(int level ,int *NumberOfCellsSet);
 
   /* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
   int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
