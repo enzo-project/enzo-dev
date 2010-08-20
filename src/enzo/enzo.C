@@ -481,7 +481,7 @@ Eint32 main(Eint32 argc, char *argv[])
     // Removing it however lets one to restart from a single grid
     // but write parallel root grid io for all new outputs
 
-    if (restart && TopGrid.NextGridThisLevel == NULL) {
+    if (restart && TopGrid.NextGridThisLevel == NULL && !HaloFinderOnly) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
  
