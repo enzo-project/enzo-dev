@@ -46,8 +46,18 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   double vcirc2;
   FLOAT TimeNow;
   int dim, level;
+  bool MBH_Exists = false;
   const float pc = 3.086e18;
   const double Grav = 6.673e-8, Msun = 1.989e33;
+
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
+    if (ThisStar->ReturnType() == MBH) {
+      MBH_Exists = true;
+      break;
+    }
+
+  if (!MBH_Exists)
+    return SUCCESS;
 
   /* Get the time at the finest level */
   
