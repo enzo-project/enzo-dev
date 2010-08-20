@@ -61,7 +61,7 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 */
 
 void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[], 
-		  TopGridData *MetaData)
+		  TopGridData *MetaData, int FOFOnly)
 {
 
   /* Get enzo units */
@@ -97,6 +97,8 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
      variable. */
 
   delete [] D.P;
+
+  if (FOFOnly == FALSE) {
 
   /* Move the particles into their correct grids.  Just like
      RebuildHierarchy. */
@@ -145,5 +147,7 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
       CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal,
 				    SyncNumberOfParticles, MoveStars,
 				    SUBGRIDS_GLOBAL);
+
+  } // ENDIF FOFOnly == FALSE
 
 }
