@@ -350,38 +350,45 @@ int RadiationFieldCalculateRates(FLOAT Time)
     CoolData.temp_xray = RadiationData.ComptonXrayTemperature;
   }
 
-  /* ------------------------------------------------------------------ */
-  /* 12) For the Haardt and Madau (2001) QSO+GAL (alpha_q = 1.57)        */
+ /* 12) Fits to the (unpublished) Haardt & Madau (2005) model that
+        ships with Cloudy v8.00 (Michael Kuhlen, 06/02/2010).
+
+        Like RadiationFieldType=4, this model includes both a quasar
+        and a galaxy contribution, but no X-ray Compton heating. */
 
   if (RadiationFieldType == 12) {
 
-   
-    RateData.k24 = 1.04e-12 * POW(1.0+Redshift, 0.231)
-                 * exp( -0.6818 * POW(Redshift-1.855, 2.0) /
-             (1.0+0.1646 * POW(Redshift+0.3097, 2.0)) )
-      * TimeUnits * Ramp;
-    RateData.k25 = 1.84e-14 * POW(1.0+Redshift, -1.038)
-                 * exp( -1.1640 * POW(Redshift-1.973, 2.0) /
-                 (1.0+0.1940 * POW(Redshift-0.6561, 2.0)) )
-                 * TimeUnits * Ramp;
-    RateData.k26 = 5.79e-13 * POW(1.0+Redshift, 0.278)
-                 * exp( -0.8260 * POW(Redshift-1.973, 2.0) /
-                 (1.0+0.1730 * POW(Redshift+0.2880, 2.0)) )
-                 * TimeUnits * Ramp;
-    CoolData.piHI   = 8.86e-24 * POW(1.0+Redshift, -0.0290)
-                 * exp( -0.7055 * POW(Redshift-2.003, 2.0) /
-                 (1.0+0.1884 * POW(Redshift+0.2888, 2.0)) )
-                 / CoolingUnits * Ramp;
-    CoolData.piHeI  = 5.86e-24 * POW(1.0+Redshift, 0.1764)
-                 * exp( -0.8029 * POW(Redshift-2.088, 2.0) /
-                 (1.0+0.1732 * POW(Redshift+0.1362, 2.0)) )
-                 / CoolingUnits * Ramp;
-    CoolData.piHeII = 2.17e-25 * POW(1.0+Redshift, -0.2196)
-                 * exp( -1.070 * POW(Redshift-1.782, 2.0) /
-                 (1.0+0.2124 * POW(Redshift-0.9213, 2.0)) )
-                 / CoolingUnits * Ramp;
-    }
+    RateData.k24 = 4.68e-12 * POW(1.0+Redshift, -0.592) * 
+      exp( -0.7156 * POW(Redshift-2.292, 2.0) / 
+	   (1.0 + 0.2009 * POW(Redshift+0.548, 2.0)) ) *
+      TimeUnits * Ramp;
 
+    RateData.k25 = 3.67e-14 * POW(1.0+Redshift, -0.258) * 
+      exp( -1.1378 * POW(Redshift-1.875, 2.0) / 
+	   (1.0 + 0.1727 * POW(Redshift-0.607, 2.0)) ) *
+      TimeUnits * Ramp;
+
+    RateData.k26 = 1.11e-11 * POW(1.0+Redshift, -1.451) * 
+      exp( -0.7552 * POW(Redshift-2.954, 2.0) / 
+	   (1.0 + 0.2625 * POW(Redshift+0.918, 2.0)) ) *
+      TimeUnits * Ramp;
+
+    CoolData.piHI = 4.09e-23 * POW(1.0+Redshift, -0.746) * 
+      exp( -0.7469 * POW(Redshift-2.419, 2.0) / 
+	   (1.0 + 0.2120 * POW(Redshift+0.686, 2.0)) )
+      / CoolingUnits * Ramp;
+
+    CoolData.piHeII = 1.28e-24 * POW(1.0+Redshift, -0.504) * 
+      exp( -1.0742 * POW(Redshift-1.889, 2.0) / 
+	   (1.0 + 0.1919 * POW(Redshift-0.518,2.0)) ) 
+      / CoolingUnits * Ramp;
+
+    CoolData.piHeI = 4.86e-22 * POW(1.0+Redshift, -2.302) * 
+      exp( -0.5250 * POW(Redshift-3.900, 2.0) / 
+	   (1.0 + 0.3452 * POW(Redshift+0.673, 2.0)) )
+      / CoolingUnits * Ramp;
+
+ }
 
 /* ------------------------------------------------------------------ */
   if (RadiationFieldType < 0 || RadiationFieldType > 12) {
