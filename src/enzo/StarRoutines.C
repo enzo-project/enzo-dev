@@ -503,7 +503,7 @@ RadiationSourceEntry* Star::RadiationSourceInitialize(void)
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     if (pos[dim] < DomainLeftEdge[dim])
       source->Position[dim] = pos[dim] + DomainRightEdge[dim] - DomainLeftEdge[dim];
-    else if (pos[dim] > DomainRightEdge[dim])
+    else if (pos[dim] >= DomainRightEdge[dim])
       source->Position[dim] = pos[dim] - DomainRightEdge[dim] + DomainLeftEdge[dim];
     else
       source->Position[dim] = pos[dim];
