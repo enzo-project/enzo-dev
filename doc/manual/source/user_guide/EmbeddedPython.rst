@@ -43,18 +43,18 @@ parameters will be initialized and the Enzo module will be created
 and filled with those data objects.
 
 Once the Python interface and interpreter have finished
-initializing, the module user\_script will be imported -- typically
-this means that a script named ``user\_script.py`` in the current
+initializing, the module user_script will be imported -- typically
+this means that a script named ``user_script.py`` in the current
 directory will be imported, but it will search the entire import
 path as well. Every ``PythonSubcycleSkip`` subcycles, at the bottom of
 the hierarchy in ``EvolveLevel.C`` the entire grid hierarchy and the
 current set of parameters will be exported to the Enzo module and
-then user\_script.main() will be called.
+then user_script.main() will be called.
 
 How to Run
 ----------
 
-By constructing a script inside ``user\_script.py``, the Enzo hierarchy
+By constructing a script inside ``user_script.py``, the Enzo hierarchy
 can be accessed and modified. The analysis toolkit
 `yt <http://yt.enzotools.org/>`_ has functionality that can
 abstract much of the data-access and handling. Currently several

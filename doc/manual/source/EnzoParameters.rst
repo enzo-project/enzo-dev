@@ -354,6 +354,8 @@ have a look at :ref:`ControllingDataOutput` for more information.
     Number of nearest neighbors to smooth dark matter quantities over.
     Default: 32.
 
+.. _streaming_param:
+
 Streaming Data Format
 ~~~~~~~~~~~~~~~~~~~~~
 

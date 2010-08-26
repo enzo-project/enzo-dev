@@ -88,6 +88,8 @@ versions.
 Pitfall - Hard Coded Pathnames
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. attention::  This section only applies to versions prior to 2.0.
+
 Pathnames are hard coded into the parameter, boundary, and
 hierarchy files. If you need to move a simulation, put the data
 where you want it, and run the following script in the directory
