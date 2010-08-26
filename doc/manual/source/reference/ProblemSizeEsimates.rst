@@ -1,5 +1,5 @@
-Estimate of processor counts needed for different Enzo simulations and problem sizes
-====================================================================================
+Estimated Simulation Resource Requirements
+==========================================
 
 Estimating problem sizes for most Enzo calculations is at best an
 inexact science, given the nature of Adaptive Mesh Refinement (AMR)

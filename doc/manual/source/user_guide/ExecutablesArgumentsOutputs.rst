@@ -70,6 +70,7 @@ set of these files for each level, appended with numbers to make them unique.
           -s(ubgrid) param_file
 
 
+.. _ring:
 
 ring
 ----

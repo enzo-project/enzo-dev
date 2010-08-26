@@ -4,109 +4,195 @@ Header files in Enzo
 Here is a complete list of the Enzo 2.0 header files and a brief
 description of what they do.
 
-- ``src/enzo/AnalysisBaseClass.h`` *Needs to be filled in*
+``src/enzo/AnalysisBaseClass.h`` 
 
-- ``src/enzo/AnalyzeClusters.h`` *Needs to be filled in*
+  Class for inline or post-run analysis.  Provides convenience
+  functions to access the data.  Not used in v2.0 (Aug. 2010).
 
-- ``src/enzo/CoolData.h`` *Needs to be filled in*
+``src/enzo/CoolData.h`` 
 
-- ``src/enzo/CosmologyParameters.h`` *Needs to be filled in*
+  Contains parameters for cooling tables and radiation fields.  Most
+  importantly this struct has the pointers to the tabulated cooling
+  functions that are used in ``cool1d_multi.src``.  This type is used
+  for the global variable CoolData.
 
-- ``src/enzo/ealFloat.h`` *Needs to be filled in*
+``src/enzo/CosmologyParameters.h`` 
 
-- ``src/enzo/ealInt.h`` *Needs to be filled in*
+  Defines the global variables that are used in cosmology
+  simulations, e.g. cosmological parameters, initial redshift,
+  redshift outputs.
 
-- ``src/enzo/EnzoArray.h`` *Needs to be filled in*
+``src/enzo/ealFloat.h`` 
 
-- ``src/enzo/enzo\_unit\_tests.h`` *Needs to be filled in*
+  Class for floating-point arrays that supports array arithmetic.
+  Mainly used by the Enzo Analysis class.
 
-- ``src/enzo/error.h`` Houses one macro to
-check and deal with MPI errors
+``src/enzo/ealInt.h`` 
 
-- ``src/enzo/ExternalBoundary.h`` The ExternalBoundary class definition.
+  Same as ``ealFloat.h`` but for integers.
 
-- ``src/enzo/FastSiblingLocator.h`` Structure definitions for the chaining mesh
-and sibling lists
+``src/enzo/EnzoArray.h`` 
 
-- ``src/enzo/flowdefs.h`` *Needs to be filled in*
+  Templated class that is a container for grid and particle quantities
+  in the Enzo Analysis class.
 
-- ``src/enzo/Fluxes.h`` The fluxes
-structure, used to contain the Coarse and Refined fluxes for each
-parent/subgrid pair.
+``src/enzo/enzo_unit_tests.h`` 
+  
+  Framework for simple tests on Enzo.  Not used in typical
+  simulations.
 
-- ``src/enzo/global\_data.h`` This
-houses all global parameters for Enzo, which is most of them.
-Variables defined here are defined as extern in all routines but
-``src/enzo/enzo.C`` (see the
-``DEFINE\_STORAGE`` #define there) and are initialized with
-``src/enzo/SetDefaultGlobalValues.C``.
+``src/enzo/error.h`` 
 
-- ``src/enzo/Grid\_AnalyzeClusters.h``  *Needs to be filled in*
+  Houses one macro to check and deal with MPI errors.  Not used
+  anywhere in Enzo.
 
-- ``src/enzo/Grid.h`` This defines the
-primary God Class, grid
+``src/enzo/ExternalBoundary.h`` 
 
-- ``src/enzo/GridList.h`` *Needs to be filled in*
+  The ExternalBoundary class definition.
 
-- ``src/enzo/Hierarchy.h`` Defines the
-HierarchyEntry linked list structure. More can be found about this
-in the `Linked List page? </wiki/Tutorials/LinkedLists>`_
+``src/enzo/FastSiblingLocator.h`` 
 
-- ``src/enzo/ImplosionGlobalData.h`` *Needs to be filled in*
+  Structure definitions for the chaining mesh and sibling lists.
 
-- ``src/enzo/LevelHierarchy.h`` Defines the ``LevelHierarchyEntry``
-linked list structure. More can be
-found about this in the
-`Linked List page? </wiki/Tutorials/LinkedLists>`_
+``src/enzo/flowdefs.h`` 
 
-- ``src/enzo/ListOfParticles.h`` *Needs to be filled in*
+  Function prototypes and variables for FLOW_TRACE define.  Currently
+  not used.
 
-- ``src/enzo/macros\_and\_parameters.h`` This is the home for all preprocessor
-directives, and is responsible for overloading floating point
-precision keywords.
+``src/enzo/Fluxes.h`` 
 
-- ``src/enzo/message.h`` *Needs to be filled in*
+  The fluxes structure, used to contain the Coarse and Refined fluxes
+  for each parent/subgrid pair.
 
-- ``src/enzo/MTLPARAM.h`` *Needs to be filled in*
+``src/enzo/global_data.h`` 
 
-- ``src/enzo/performance.h`` *Needs to be filled in*
+  This houses all global parameters for Enzo, which is most of them.
+  Variables defined here are defined as extern in all routines but
+  ``src/enzo/enzo.C`` (see the ``DEFINE\_STORAGE`` #define there) and
+  are initialized with ``src/enzo/SetDefaultGlobalValues.C``.
 
-- ``src/enzo/phys\_constants.h`` *Needs to be filled in*
+``src/enzo/Grid.h`` 
 
-- ``src/enzo/ProtoSubgrid.h`` Defines the ProtoSubgrid class, used in
-``src/enzo/FindSubgrids.C``.
+  This defines the primary God Class, grid
 
-- ``src/enzo/RadiationFieldData.h`` *Needs to be filled in*
+``src/enzo/GridList.h`` 
 
-- ``src/enzo/RateData.h`` *Needs to be filled in*
+  Structure for a linked list of grids.  Used when identifying new
+  subgrids, ``Grid_IdentifyNewSubgrids.C`` and
+  ``Grid_IdentifyNewSubgridsSmall.C``.
 
-- ``src/enzo/region.h`` *Needs to be filled in*
+``src/enzo/Hierarchy.h`` 
 
-- ``src/enzo/SedovBlastGlobalData.h`` Problem specific data.
+  Defines the HierarchyEntry linked list structure. More can be found
+  about this in :doc:`LinkedLists`.
 
-- ``src/enzo/ShockPoolGlobalData.h`` Problem specific data.
+``src/enzo/ImplosionGlobalData.h`` 
 
-- ``src/enzo/SphericalInfall.h`` Problem specific data.
+  Contains global variables that have store the parameters in the
+  Implosion problem type.
 
-- ``src/enzo/StarParticleData.h`` Problem specific data.
+``src/enzo/LevelHierarchy.h`` 
 
-- ``src/enzo/STD\_typedefs.h`` *Needs to be filled in*
+  Defines the ``LevelHierarchyEntry`` linked list structure. More can
+  be found about this in :doc:`LinkedLists`.
 
-- ``src/enzo/TestGravitySphereGlobalData.h`` Problem specific data.
+``src/enzo/ListOfParticles.h`` 
 
-- ``src/enzo/TestProblemData.h`` *Needs to be filled in*
+  Structure for a linked list of particle lists.  Used in
+  ``OutputAsParticleData.C``.
 
-- ``src/enzo/TopGridData.h`` Defines
-the TopGrid structure, which houses the global parameters of the
-simulation.
+``src/enzo/macros_and_parameters.h`` 
 
-- ``src/enzo/typedefs.h`` Has all the
-enumerate lists used to give words to parameters. Defines types for
-field (density, etc), interpolation method, hydro method, boundary
-type, gravity boundary type.
+  This is the home for all preprocessor directives, and is responsible
+  for overloading floating point precision keywords.
 
-- ``src/enzo/units.h`` *Needs to be filled in*
+``src/enzo/message.h`` 
 
-- ``src/enzo/WavePoolGlobalData.h`` *Needs to be filled in*
+  Defines to handle error, warning, and debug messages.
+
+``src/enzo/MTLPARAM.h`` 
+
+  Common variables for the Cen's metal cooling routines,
+  ``mcooling.src``
+
+``src/enzo/performance.h`` 
+
+  Defines for the interface between Enzo and LCAperf.
+
+``src/enzo/phys_constants.h`` 
+
+  Defines for physical constants
+
+``src/enzo/ProtoSubgrid.h`` 
+
+  Defines the ProtoSubgrid class, used in ``src/enzo/FindSubgrids.C``.
+
+``src/enzo/RadiationFieldData.h`` 
+
+  Structure that contains the parameters and variables that describe
+  the background radiation field.  Only used for the global variable
+  RadiationData in ``global_data.h``.
+
+``src/enzo/RateData.h`` 
+
+  Structure that holds all of the parameters and arrays of the rate
+  equations for the non-equilibrium chemistry.  Only used for the
+  global variable RateData.
+
+``src/enzo/region.h`` 
+
+  Structures that describe a region when computing the parallel FFT.
+
+``src/enzo/SedovBlastGlobalData.h`` 
+
+  Contains global variables that have store the parameters in the
+  Sedov blast problem type.
+
+``src/enzo/ShockPoolGlobalData.h`` 
+
+  Contains global variables that have store the parameters in the
+  shock pool problem type.
+
+``src/enzo/SphericalInfall.h`` 
+
+  Contains global variables that have store the parameters in the
+  spherical infall problem type.
+
+``src/enzo/StarParticleData.h`` 
+
+  Global variables that store parameters about the star formation
+  routines.  It also has variables that keep track of the number of
+  stars.
+
+``src/enzo/TestGravitySphereGlobalData.h`` 
+
+  Contains global variables that have store the parameters in the test
+  gravity sphere problem type.
+
+``src/enzo/TestProblemData.h`` 
+
+  Structure that stores parameters that describe a problem
+  initialization.
+
+``src/enzo/TopGridData.h`` 
+
+  Defines the TopGrid structure, which houses the global parameters of
+  the simulation.
+
+``src/enzo/typedefs.h`` 
+
+  Has all the enumerate lists used to give words to
+  parameters. Defines types for field (density, etc), interpolation
+  method, hydro method, boundary type, gravity boundary type.
+
+``src/enzo/units.h`` 
+
+  Global variables that store the units in CGS.  Used when
+  ComovingCoordinates is *off*.
+
+``src/enzo/WavePoolGlobalData.h`` 
+
+  Contains global variables that have store the parameters in the wave
+  pool problem type.
 
 
