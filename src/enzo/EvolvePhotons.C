@@ -99,6 +99,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *AllStars, FLOAT GridTime, int level, int LoopTime)
 {
 
+  struct ThinGridList
+  {
+    grid *ThisGrid;
+    ThinGridList *NextGrid;
+  };
+
   bool FirstTime = true;
 
 #ifdef REPORT_PERF
@@ -132,11 +138,60 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 #endif
 
-  int lvl;
+  int i, lvl, GridNum;
   grid *Helper;
   LevelHierarchyEntry *Temp;
+  RadiationSourceEntry *RS;
+
+  /* Find the finest grid that hosts each radiation source, and store
+     them in a GridList */
+
+  ThinGridList *RS_GridList, *NewNode, *TempGridList, *TailNode;
+  HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
+  int nGrids[MAX_DEPTH_OF_HIERARCHY];
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (LevelArray[lvl] != NULL)
+      nGrids[lvl] = GenerateGridArray(LevelArray, lvl, &Grids[lvl]);
+    else
+      nGrids[lvl] = 0;
+
+  RS_GridList = new ThinGridList;
+  RS_GridList->NextGrid = NULL;
+  TailNode = RS_GridList;
+  for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
+    // Search for grid, if not defined
+    if (RS->GridID == INT_UNDEFINED) {
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--) {
+	for (GridNum = 0; GridNum < nGrids[lvl]; GridNum++) {
+	  if (MyProcessorNumber == Grids[lvl][GridNum]->GridData->ReturnProcessorNumber())
+	    if (Grids[lvl][GridNum]->GridData->PointInGrid(RS->Position)) {
+	      RS->GridID = GridNum;
+	      RS->GridLevel = lvl;
+	    } // ENDIF PointInGrid
+	} // ENDFOR grids
+      } // ENDFOR level
+    } // ENDIF undefined grid
+
+    /* Now we know which grid, we can add to the GridList */
+
+    NewNode = new ThinGridList;
+    if (RS->GridLevel != INT_UNDEFINED)
+      NewNode->ThisGrid = Grids[RS->GridLevel][RS->GridID]->GridData;
+    else
+      NewNode->ThisGrid = NULL;
+    NewNode->NextGrid = NULL;
+    TailNode->NextGrid = NewNode;
+    TailNode = NewNode;
+
+  } // ENDFOR RS
+  
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (nGrids[lvl] > 0) delete [] Grids[lvl];
+
+  /**********************************************************************
+                       MAIN RADIATION TRANSPORT LOOP
+   **********************************************************************/
     
-  //while (GridTime >= PhotonTime) {
   while (GridTime > PhotonTime) {
 
     /* Recalculate timestep if this isn't the first loop.  We already
@@ -152,11 +207,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
-    int i, GridNum = 0;
-
     // delete source if we are passed (or before) their lifetime (only
     // if not restarting)
-    RadiationSourceEntry *RS;
     RS = GlobalRadiationSources->NextSource;
     int NumberOfSources = 0;
     while (RS != NULL) {
@@ -219,30 +271,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
+    TempGridList = RS_GridList->NextGrid;
 
     START_PERF(); 
     while (RS != NULL) {
-      int Continue = 1;
-      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; (lvl >= 0 && Continue); lvl--) {
-	for (Temp = LevelArray[lvl]; (Temp && Continue); 
-	     Temp = Temp->NextGridThisLevel)
-	  if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
-	    if (Temp->GridData->PointInGrid(RS->Position)) {
-	      Temp->GridData->Shine(RS);
-	      Continue = FALSE; // do not continue with this source
-	    } // If source in grid
-
-	/* For MPI, communicate to minimum value of Continue to ensure
-	   that the source's host grid was found. */
-
-	Continue = CommunicationMinValue(Continue);
-
-	if (lvl == 0 && Continue) {  // this should never happen ... 
-	  ENZO_VFAIL("Could not find grid for source %x: "
-		  "Pos: %"FSYM" %"FSYM" %"FSYM"\n",
-		  RS, RS->Position[0], RS->Position[1], RS->Position[2])
-	}
-      }    // Loop through levels 
+      if (TempGridList->ThisGrid != NULL)
+	TempGridList->ThisGrid->Shine(RS);
+      TempGridList = TempGridList->NextGrid;
       RS = RS->NextSource;
     }    // while still sources 
     END_PERF(2);
@@ -563,6 +598,15 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 #endif
 
+  /* Delete GridList */
+
+  ThinGridList *Orphan;
+  TempGridList = RS_GridList;
+  while (TempGridList != NULL) {
+    Orphan = TempGridList;
+    TempGridList = TempGridList->NextGrid;
+    if (Orphan != NULL) delete Orphan;
+  }
 
   return SUCCESS;
 

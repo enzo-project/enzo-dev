@@ -184,6 +184,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     RadSources->PreviousSource = GlobalRadiationSources;
     RadSources->NextSource     = GlobalRadiationSources->NextSource;
     RadSources->SuperSource    = NULL;
+    RadSources->GridID         = INT_UNDEFINED;
+    RadSources->GridLevel      = INT_UNDEFINED;
     RadSources->Type           = PhotonTestSourceType[i]; 
     RadSources->Luminosity     = PhotonTestSourceLuminosity[i]; 
     RadSources->LifeTime       = PhotonTestSourceLifeTime[i]; 
