@@ -1,14 +1,13 @@
 How to run a cosmology simulation
 =================================
 
-In order to run a cosmology simulation, you'll need to
-`build enzo.exe, inits.exe and ring.exe? </wiki/UserGuide/BuildingEnzo>`_.
-inits creates the initial conditions for your simulation, and ring
-splits up the root grid which is necessary if you're using parallel
-IO. Once you have built the three executables, put them in a common
-directory where you will run your test simulation. You will also
-save the inits and param files (shown and discussed below) in this
-directory.
+In order to run a cosmology simulation, you'll need to build enzo.exe,
+inits.exe and ring.exe (see :doc:`building_enzo`) inits creates the
+initial conditions for your simulation, and ring splits up the root
+grid which is necessary if you're using parallel IO. Once you have
+built the three executables, put them in a common directory where you
+will run your test simulation. You will also save the inits and param
+files (shown and discussed below) in this directory.
 
 Creating initial conditions
 ---------------------------
@@ -91,11 +90,10 @@ Parallel IO - the ring tool
 This simulation is quite small. The root grid is only 32 cells on a
 side and we allow a maximum of three levels of mesh refinement.
 Still, we will use the ring tool, since it is important for larger
-simulations of sizes typically used for doing science.
-Additionally, if you wish to run with 64 or more processors, you
-are required to use
-`parallel root grid IO? </wiki/Tutorials/HowDoesParallelRootGridIOwork>`_,
-so it is beneficial to learn this procedure.
+simulations of sizes typically used for doing science.  Additionally,
+if you wish to run with 64 or more processors, you are required to use
+:doc:`../reference/HowDoesParallelRootGridIOwork` so it is beneficial
+to learn this procedure.
 
 The ring tool is part of the Enzo parallel IO (input-output)
 scheme. Examine the last section of the parameter file (see below)
@@ -145,16 +143,12 @@ files called ``PPos.nnnn`` and ``PVel.nnnn``, where nnnn is the processor
 number. Turning on the ``ParallelParticleIO`` flag in the Enzo
 parameter file instructs Enzo to look for these files.
 
-There are lots more details on
-`this page? </wiki/Tutorials/HowDoesParallelRootGridIOwork>`_.
-
-For the purpose of this example, you're going to run ring and Enzo
-on 4 processors (this is a fixed requirement).
-The number of processors used in an MPI job is set
-differently on each machine, so you'll have to figure out how that
-works for you. On some machines, you can request an 'interactive
-queue' to run small MPI jobs. On others, you may have to submit a
-job to the batch queue, and wait for it to run.
+For the purpose of this example, you're going to run ring and Enzo on
+4 processors (this is a fixed requirement).  The number of processors
+used in an MPI job is set differently on each machine, so you'll have
+to figure out how that works for you. On some machines, you can
+request an 'interactive queue' to run small MPI jobs. On others, you
+may have to submit a job to the batch queue, and wait for it to run.
 
 To start an interactive run, it might look something like this:
 
@@ -292,9 +286,8 @@ too long, so you can run this in the same 30 minute interactive job
 you started when you ran inits. When the simulation is done, Enzo
 will display the message "Successful run, exiting."
 
-Congratulations! If you've made it this far, you have now
-successfully run a cosmology simulation using Enzo! If you want a
-more in-depth tutorial on running Enzo,
-`go here? </wiki/Tutorials/CosmologyStepByStep>`_.
+Congratulations! If you've made it this far, you have now successfully
+run a cosmology simulation using Enzo! If you want a more in-depth
+tutorial on running Enzo, go to :doc:`CosmologyStepByStep`.
 
 
