@@ -44,6 +44,7 @@ int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		      ExternalBoundary *Exterior, float *Initialdt,
 		      bool ReadParticlesOnly=false);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int RadiativeTransferReadParameters(FILE *fptr);
 int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -59,13 +60,49 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
-  int dim, level, ret;
+  int dim,source, level, ret;
   float dummyf;
- 
+  char *numbers;
+  char *delims = (char*) " ";
+  char *value;
+  int count;
+  bool EnergyBinsDefined = false;
+
+
   char *PhotonTestRestartName = NULL;
+
+  int   PhotonTestNumberOfSources=1;
+  int   PhotonTestSourceType[MAX_SOURCES];
+  int   PhotonTestSourceEnergyBins[MAX_SOURCES];
+  double PhotonTestSourceLuminosity[MAX_SOURCES];
+  FLOAT PhotonTestSourcePosition[MAX_SOURCES][MAX_DIMENSION];
+  float PhotonTestSourceLifeTime[MAX_SOURCES];
+  float PhotonTestSourceCreationTime[MAX_SOURCES];
+  float PhotonTestSourceRampTime[MAX_SOURCES];
+  float *PhotonTestSourceSED[MAX_SOURCES];
+  float *PhotonTestSourceEnergy[MAX_SOURCES];
+
+  // Set defaults
+
+  for (source = 0; source < MAX_SOURCES; source++) {
+    PhotonTestSourceType[source] = Isotropic;
+    PhotonTestSourceLuminosity[source] = 0.;
+    PhotonTestSourceLifeTime[source] = 0.;
+    PhotonTestSourceCreationTime[source] = MetaData.Time;
+    PhotonTestSourceRampTime[source] = 0.;
+    PhotonTestSourceEnergyBins[source] = 1;
+    PhotonTestSourceSED[source] = NULL;
+    PhotonTestSourceEnergy[source] = NULL;
+    for (dim=0; dim < MAX_DIMENSION; dim++){
+      PhotonTestSourcePosition[source][dim] =
+	0.5*(DomainLeftEdge[dim] + DomainRightEdge[dim]);
+    }
+  }
+
+
+
  
   /* Read input from file. */
- 
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
  
@@ -124,10 +161,32 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, "Successfully read restart file %s.\n",
 	    PhotonTestRestartName);
 
+  /* -------------------------------------------------------------------- */
+  /* check read of the restart file. */
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++){
+  
+
+  }
+  
+  RadiativeTransferReadParameters(fptr);
+  rewind(fptr);
   if (ProblemType == 51)
-    if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in ReadPhotonSources.\n");
-    }
+    ReadPhotonSources(fptr, MetaData.Time);
+
+  PhotonTime = MetaData.Time;
+  MetaData.FLDTime = MetaData.Time;
+  MetaData.dtFLD = 0.0;
+
+  fclose(fptr);
+
+ 
+//   if (ProblemType == 51){
+//     printf("Read Photon Sources \n");
+//     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
+//       ENZO_FAIL("Error in ReadPhotonSources.\n");
+//     }
+//   }
  
   PhotonTime = InitialTimeInCodeUnits;
 
@@ -140,12 +199,9 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
  
   /* Convert Mass, Radius and Energy into code units of density, radius
      and thermal energy (by assuming mass and energy is evenly distributed
-     within radius).
-     If comoving coordinate is set then assume mass is in solar units,
-     radius in pc, and energy in 10^51 erg; otherwise do no conversion.*/
+     within radius). */
  
  
-  double MassConversion = 1, LengthConversion = 1, EnergyConversion = 1;
   float DensityUnits = 1, LengthUnits = 1, VelocityUnits = 1, TimeUnits = 1,
     TemperatureUnits = 1;
  
@@ -155,32 +211,7 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
     ENZO_FAIL("Error in GetUnits.\n");
   }
  
-  if (ComovingCoordinates) {
- 
-    LengthConversion = 3.08e18;     // pc
-    MassConversion   = 2e33;        // solar masses
-    EnergyConversion = 1.0e51;      // 10^51 erg
- 
-  }
- 
-//   float EjectaRadius = SupernovaRestartEjectaRadius * LengthConversion;
-//   float EjectaDensity = SupernovaRestartEjectaMass * MassConversion/
-//                         (4.0/3.0*3.14159*POW(EjectaRadius, 3));
-//   float EjectaThermalEnergy = SupernovaRestartEjectaEnergy * EnergyConversion /
-//         (SupernovaRestartEjectaMass * MassConversion);
- 
-//   EjectaRadius        /= LengthUnits;
-//   EjectaDensity       /= DensityUnits;
-//   EjectaThermalEnergy /= VelocityUnits*VelocityUnits;
- 
-//   if (debug) {
-//     printf("PhotonTestRestart: initial T = %"GSYM" K\n",
-// 	   EjectaThermalEnergy*TemperatureUnits*(Gamma-1.0)*0.6);
-//     printf("PhotonTestRestart: r (code units) = %"GSYM"\n", EjectaRadius);
-//     printf("PhotonTestRestart: density (code units) = %"GSYM"\n", EjectaDensity);
-//   }
- 
-  /* -------------------------------------------------------------------- */
+
 
   /* Loop over all the grids and call the initializer to modify them
      if necessary. */

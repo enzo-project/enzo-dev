@@ -36,7 +36,6 @@ int grid::InitializeRadiativeTransferFields()
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum);
-
   int i,j,k, index;
 
   /* Initialize photo and heating rates and compute number densities */

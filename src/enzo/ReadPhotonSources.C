@@ -16,6 +16,7 @@
 
 #define RT_ENERGY_BINS 4
 
+int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -56,6 +57,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     }
   }
 
+  RadiativeTransfer = 1;
+  CommunicationBroadcastValue(&RadiativeTransfer, MyProcessorNumber);
+
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -69,12 +73,15 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   char *value;
   int count;
   bool EnergyBinsDefined = false;
+  printf("MAX_LINE_LENGTH = "ISYM"\n",MAX_LINE_LENGTH);
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+    printf("Reading sources....\n");
     ret = 0;
     ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
 		  &PhotonTestNumberOfSources);
+    printf("PhotonTestNumberOfSources = %"ISYM"\n",PhotonTestNumberOfSources);
     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceType[source]);
@@ -87,9 +94,11 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		    &source, &PhotonTestSourcePosition[source][0],
 		    &PhotonTestSourcePosition[source][1],
 		    &PhotonTestSourcePosition[source][2]);
-    if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0)
+    if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0){
       ret += sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"] = %lf", &source,
 		    &PhotonTestSourceLuminosity[source]);
+      printf("PhotonTestLuminosity = %"FSYM"\n",PhotonTestSourceLuminosity);
+    }
     if (sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceCreationTime[source]);
@@ -140,6 +149,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		" interpreted:\n%s\n", line);
     
   } // ENDWHILE line
+
 
   // Set default SED and energies if not user-defined
 

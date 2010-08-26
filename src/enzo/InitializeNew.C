@@ -270,9 +270,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // If the problem reads in a restart dump, then skip over the following
  
-  if (ProblemType != 40) {
+  if (ProblemType != 40 && ProblemType != 51) {
  
   // Error check the rank
+    printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
       ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
@@ -315,7 +316,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     TopGrid.ParentGrid        = NULL;  // always true
     TopGrid.NextGridNextLevel = NULL;  // can be reset by initializer
     
-  } // end: if (ProblemType != 40)
+  } // end: if (ProblemType != 40 && ProblemType !=51)
   
   // Call problem initializer
 
