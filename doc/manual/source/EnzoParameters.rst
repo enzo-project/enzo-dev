@@ -1100,6 +1100,8 @@ Inline Python
     before exposing its data and calling Python. Only works with
     python-yes in compile settings.
 
+.. _StarParticleParameters:
+
 Star Formation and Feedback Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
