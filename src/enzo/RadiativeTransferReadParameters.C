@@ -65,6 +65,9 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
   RadiativeTransferSourceBeamAngle            = 30.0;
 
+  if (MultiSpecies == 0)
+    RadiativeTransferOpticallyThinH2 = FALSE;
+
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {

@@ -75,6 +75,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float PhotonTestInitialFractionH2I, 
 			     float PhotonTestInitialFractionH2II,
 			     int RefineByOpticalDepth,
+			     int TotalRefinement,
 			     char *DensityFilename)
 {
   /* declarations */
@@ -147,7 +148,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Return if this doesn't concern us. */
 
-  if (ProcessorNumber != MyProcessorNumber) {
+  int ReadData = (ParallelRootGridIO == FALSE ||
+		  (ParallelRootGridIO == TRUE && TotalRefinement < 0));
+
+  if (ProcessorNumber != MyProcessorNumber || !ReadData) {
     NumberOfParticles = (SphereUseParticles > 0) ? 1 : 0;
     for (dim = 0; dim < GridRank; dim++)
       NumberOfParticles *= (GridEndIndex[dim] - GridStartIndex[dim] + 1);

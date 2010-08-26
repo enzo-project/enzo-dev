@@ -110,6 +110,11 @@ help-config:
 	@echo "      gmake python-yes"
 	@echo "      gmake python-no"
 	@echo
+	@echo "   Set whether to use embedded CVODE solver"
+	@echo
+	@echo "      gmake cvode-yes"
+	@echo "      gmake cvode-no"
+	@echo
 	@echo "   Set whether to perform unigrid communication transpose"
 	@echo
 	@echo "      gmake unigrid-transpose-yes"
@@ -250,6 +255,7 @@ show-config:
 	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : $(CONFIG_OPT)"
@@ -596,6 +602,23 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_CVODE = cvode-yes cvode-no
+.PHONY: $(VALID_CVODE)
+
+cvode-yes: CONFIG_CVODE-yes
+cvode-no: CONFIG_CVODE-no
+cvode-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_CVODE)]\n\n"
+CONFIG_CVODE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_CVODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_CVODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_CVODE; \
 	echo
 
 #-----------------------------------------------------------------------
