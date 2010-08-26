@@ -312,6 +312,8 @@ this section:
 
 or else it will register as an error.
 
+.. _UnigridInitialize:
+
 Calling the Grid Initializer: Unigrid
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -425,9 +427,9 @@ linked lists, and links to examples in the code.
 Using ParallelRootGridIO
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Main article: :doc:`NewTestProblem3`
+
 ``ParallelRootGridIO`` is a fairly complex piece of code. If you absolutely
 must do this in the code, it is recommended that you read the description
 of the inner workings of ``ParallelRootGridIO`` and then cloning what's done
 for the ``CosmologyInitialize`` routines.
-
-
