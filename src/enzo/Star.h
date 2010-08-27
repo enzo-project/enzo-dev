@@ -58,7 +58,7 @@ public:
   Star(grid *_grid, int _id, int _level);
   Star(StarBuffer *buffer, int n);
   Star(StarBuffer buffer) ;
-  //~Star();
+  ~Star();
 
   // Operators
   void operator=(Star a);
