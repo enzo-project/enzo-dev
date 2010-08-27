@@ -145,6 +145,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     VelocityNames[dim] = NULL;
+    ParticlePositionNames[dim] = NULL;
     ParticleVelocityNames[dim] = NULL;
     CosmologySimulationParticlePositionNames[dim] = NULL;
     CosmologySimulationParticleVelocityNames[dim] = NULL;

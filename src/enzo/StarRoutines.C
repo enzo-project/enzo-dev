@@ -493,6 +493,8 @@ RadiationSourceEntry* Star::RadiationSourceInitialize(void)
   source->PreviousSource = GlobalRadiationSources;
   source->NextSource     = GlobalRadiationSources->NextSource;
   source->SuperSource    = NULL;  // Define this later (below)
+  source->GridID         = GridID;
+  source->GridLevel      = level;
   source->Type           = type;
   source->LifeTime       = LifeTime;
   source->CreationTime   = BirthTime;

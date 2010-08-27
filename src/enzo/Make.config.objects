@@ -512,6 +512,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ShocksHandler.o \
 	Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
+        Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
@@ -884,6 +885,7 @@ POBJS_CONFIG_LIB = \
         Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
+        Grid_PhotonTestRestartInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromParent.o \
@@ -896,6 +898,7 @@ POBJS_CONFIG_LIB = \
         LinkedListRoutines.o \
 	PhotonPackageRoutines.o \
 	PhotonTestInitialize.o \
+	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \

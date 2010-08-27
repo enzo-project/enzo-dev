@@ -403,9 +403,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       
 	dt = min(dt, Initialdt);
 	if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
-#ifdef TRANSFER
-        dtPhoton = dt;
-#endif
         Initialdt = 0;
       }
 
