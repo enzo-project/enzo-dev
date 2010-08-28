@@ -30,6 +30,10 @@ FLOAT FindCrossSection(int type, float energy);
 
 int grid::Shine(RadiationSourceEntry *RadiationSource)
 {
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
   RadiationSourceEntry *RS = RadiationSource;
   FLOAT min_beam_zvec, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;

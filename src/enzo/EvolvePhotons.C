@@ -128,6 +128,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (dtPhoton < 0)
     return SUCCESS;  
 
+  if (GridTime <= PhotonTime)
+    return SUCCESS;
+
   /* Declarations */
 
 #ifdef USE_MPI
