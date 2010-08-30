@@ -90,8 +90,8 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	}
 	ENZO_FAIL("Merging Duplicate Particle!?\n");
       }
-      if (ThisStar->Mergable(OtherStar))
-	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
+      if (ThisStar->Mergable(*OtherStar))
+	if (ThisStar->Separation2(*OtherStar) <= rmerge2) {
 	  ThisStar->Merge(OtherStar);
 	  OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
@@ -132,7 +132,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	  dx2 = dx*dx;
 	  rmerge2 = max(rmerge2o, dx2);
 
-	  if (OtherStar->Separation2(ThisStar) < rmerge2) {
+	  if (OtherStar->Separation2(*ThisStar) < rmerge2) {
 
 	    // Delete the unborn one.
 	    if (ThisStar ->IsUnborn()) ThisStar ->MarkForDeletion();

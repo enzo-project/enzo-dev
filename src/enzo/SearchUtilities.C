@@ -18,6 +18,7 @@
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
+#include "global_data.h"
 
 int search_lower_bound(int *arr, int value, int low, int high, 
 		       int total)
@@ -29,14 +30,16 @@ int search_lower_bound(int *arr, int value, int low, int high,
   width = high-low;
   mid = low + width/2;
   // First catch here if it's the last recursive call
-  //printf("low high width = %d %d %d\n", low, high, width);
+//  if (debug)
+//    printf("low high mid :: width value = %d (%d) %d (%d) %d (%d) :: %d %d\n", 
+//	   low, arr[low], high, arr[high], mid, arr[mid], width, value);
   if (width <= 1) {
-    if (mid == 0 || mid == total-1)
-      return mid;
-    else if (value >= arr[mid] && value < arr[mid+1])
-      return mid;
-    else // implied if (value >= arr[mid-1] && value < arr[mid])
-      return mid-1;
+    if (mid < total-1)
+      if (value >= arr[mid] && value < arr[mid+1])
+	return mid;
+    if (mid > 0)
+      if (value >= arr[mid-1] && value < arr[mid])
+	return mid-1;
   } // ENDIF width <= 1
   if (arr[mid] > value)
     return search_lower_bound(arr, value, low, mid-1, total);
