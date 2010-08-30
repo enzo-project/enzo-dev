@@ -128,8 +128,9 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
       } // ENDELSE
 
     } // ENDFOR dim
-//    printf("grid %d: GPos = %d %d %d\n", grid, GridPosition[0],
-//	   GridPosition[1], GridPosition[2]);
+//    if (debug)
+//      printf("grid %d: GPos = %d %d %d\n", grid, GridPosition[0],
+//	     GridPosition[1], GridPosition[2]);
     grid_num = GridPosition[0] + 
       Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
     GridMap[grid_num] = grid;
