@@ -202,7 +202,7 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
-	int WroteData=1);
+	int WroteData=1, int FOFOnly=FALSE);
 
 #ifdef TASKMAP
 int GetNodeFreeMemory(void);
@@ -565,7 +565,7 @@ Eint32 main(Eint32 argc, char *argv[])
   if (HaloFinderOnly) {
     InlineHaloFinder = TRUE;
     HaloFinderSubfind = TRUE;
-    FOF(&MetaData, LevelArray);
+    FOF(&MetaData, LevelArray, TRUE, TRUE);
     my_exit(EXIT_SUCCESS);
   }
 
