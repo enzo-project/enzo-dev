@@ -172,7 +172,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   if (SubgridMarker[cindex] != this) {
-    FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+    FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
 		      DeltaLevel, DomainWidth, DeleteMe, 
 		      ParentGrid);
     return SUCCESS;
@@ -331,7 +331,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
        DeltaLevel, and DeleteMe, and exit the loop. */
 
     if (SubgridMarker[cindex] != this) {
-      FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+      FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
 			DeltaLevel, DomainWidth, DeleteMe, 
 			ParentGrid);
       break;
