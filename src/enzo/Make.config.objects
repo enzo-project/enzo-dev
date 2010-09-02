@@ -901,6 +901,7 @@ POBJS_CONFIG_LIB = \
         RadiativeTransferPrepare.o \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
+	RadiativeTransferMoveLocalPhotons.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
@@ -913,8 +914,8 @@ POBJS_CONFIG_LIB = \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
-      	hydro_rk/ModifiedBesselFunctions.o \
-      	hydro_rk/AGNDiskInitialize.o \
+	hydro_rk/ModifiedBesselFunctions.o \
+	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
         hydro_rk/ComputeDednerWaveSpeeds.o \
