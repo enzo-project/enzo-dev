@@ -736,7 +736,7 @@ c -------------------------------------------------------------------
                HII(i,j,k)   = max(HII(i,j,k), tiny)
                HeI(i,j,k)   = max(HeI(i,j,k), tiny)
                HeII(i,j,k)  = max(HeII(i,j,k), tiny)
-               HeIII(i,j,k) = max(HeIII(i,j,k), tiny)
+               HeIII(i,j,k) = max(HeIII(i,j,k), 1e-5*tiny)
             enddo
          enddo
       enddo
@@ -1567,7 +1567,7 @@ c
          HII(i,j,k)   = max(HIIp(i), tiny)
          HeI(i,j,k)   = max(HeIp(i), tiny)
          HeII(i,j,k)  = max(HeIIp(i), tiny)
-         HeIII(i,j,k) = max(HeIIIp(i), tiny)
+         HeIII(i,j,k) = max(HeIIIp(i), 1e-5*tiny)
 
 !        de(i,j,k)    = dep(i)
 
