@@ -45,8 +45,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int kphHINum, int gammaNum, int kphHeINum, 
 			    int kphHeIINum, 
 			    int kdissH2INum, int RPresNum1, int RPresNum2, 
-			    int RPresNum3, int &DeleteMe, int &PauseMe, 
-			    int &DeltaLevel, float LightCrossingTime,
+			    int RPresNum3, int RaySegNum, int &DeleteMe, 
+			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
 			    float TimeUnits) {
@@ -737,7 +737,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
 
-    //BaryonField[kphHeIINum][index] += 1;
+    if (RadiativeTransferLoadBalance)
+      BaryonField[RaySegNum][index] += 1.0;
 
     // return in case we're pausing to merge
     if (PauseMe)

@@ -897,6 +897,7 @@ POBJS_CONFIG_LIB = \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
         RadiativeTransferReadParameters.o \

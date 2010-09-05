@@ -3,6 +3,10 @@
 /*             Methods for handling Photon Packages                */
 /*******************************************************************/
 
+void SetOriginalProcessorNumber(int num) { OriginalProcessorNumber = num; };
+int ReturnOriginalProcessorNumber() { return OriginalProcessorNumber; };
+void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
+
 /* Identify radiation pressure fields */
 
   int IdentifyRadiationPressureFields(int &RPresNum1, int &RPresNum2,
@@ -47,8 +51,9 @@
    int SetSubgridMarkerFromParent(grid *Parent, int level);
    int SetSubgridMarkerFromSibling(grid *Sibling, 
 				   FLOAT EdgeOffset[MAX_DIMENSION]);
-   int SubgridMarkerPostParallel(grid *Parent, HierarchyEntry **Grids[],
-				 int *NumberOfGrids);
+   int SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids);
+   int SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
+				   int *NumberOfGrids);
 
 /* Return Subgrid Marker for a position */
 
@@ -146,6 +151,18 @@ int MoveFinishedPhotonsBack(void) {
   FinishedPhotonPackages->NextPackage = NULL;
 
   return SUCCESS;
+}
+
+float ReturnTotalNumberOfRaySegments(int RaySegNum) {
+  float result = 0.0;
+  int i,j,k,index;
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	result += BaryonField[RaySegNum][index];
+    }  // loop over grid
+  return result;
 }
 
 /************************************************************************
@@ -340,8 +357,8 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      int kphHeINum,
 		      int kphHeIINum,
 		      int kdissH2INum, int RPresNum1, int RPresNum2, 
-		      int RPresNum3, int &DeleteMe, int &PauseMe,
-		      int &DeltaLevel, float LightCrossingTime,
+		      int RPresNum3, int RaySegNum, int &DeleteMe, 
+		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits);

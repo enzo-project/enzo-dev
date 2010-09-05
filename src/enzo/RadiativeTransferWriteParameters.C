@@ -27,6 +27,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 
   fprintf(fptr, "dtPhoton                                  = %"GOUTSYM"\n",
 	  dtPhoton);
+  fprintf(fptr, "RadiativeTransferLoadBalance              = %"ISYM"\n", 
+	  RadiativeTransferLoadBalance);
   fprintf(fptr, "RadiativeTransferRadiationPressure        = %"ISYM"\n", 
 	  RadiationPressure);
   fprintf(fptr, "RadiativeTransferSourceRadius             = %"GSYM"\n", 
