@@ -128,7 +128,7 @@ int SetSubgridMarker(TopGridData &MetaData,
 	 different processor */
       
       for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->SubgridMarkerPostParallel
+	Temp->GridData->SubgridMarkerPostParallelGZ
 	  (Temp->GridHierarchyEntry->ParentGrid->GridData, Grids,
 	   NumberOfGrids);
 

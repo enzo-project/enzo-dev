@@ -48,6 +48,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 ListOfPhotonsToMove **AllPhotons, 
 				 char *kt_global,
 				 int &keep_transporting);
+int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids);
+int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids);
 int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
 				      int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
@@ -68,6 +70,9 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
+int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int SetSubgridMarker(TopGridData &MetaData, 
+		     LevelHierarchyEntry *LevelArray[], int level);
 void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
@@ -98,7 +103,7 @@ static MPI_Datatype MPI_PhotonList;
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, FLOAT GridTime, int level, int LoopTime)
+		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime)
 {
 
   struct ThinGridList
@@ -193,9 +198,16 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TailNode = NewNode;
 
   } // ENDFOR RS
-  
-  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
-    if (nGrids[lvl] > 0) delete [] Grids[lvl];
+
+  /* Temporarily load balance grids according to the number of ray
+     segments.  We'll move the grids back at the end of this
+     routine */
+
+  if (RadiativeTransferLoadBalance &&
+      LoopTime == TRUE) { // LoopTime means it's not a restart
+    CommunicationLoadBalancePhotonGrids(Grids, nGrids);
+    SetSubgridMarker(*MetaData, LevelArray, 0);
+  }
 
   /**********************************************************************
                        MAIN RADIATION TRANSPORT LOOP
@@ -640,6 +652,20 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TempGridList = TempGridList->NextGrid;
     if (Orphan != NULL) delete Orphan;
   }
+
+  /* Delete baryon fields on temporary "fake" grid on ProcessorNumber
+     and revert it back to OriginalProcessorNumber, which was saved in
+     CommunicationLoadBalancePhotonGrids.  Photon packages must be
+     moved back, too. */
+
+  if (RadiativeTransferLoadBalance && LoopTime == TRUE) {
+    RadiativeTransferLoadBalanceRevert(Grids, nGrids);
+  } // ENDIF RTLoadBalance
+
+  /* Delete grid lists */
+
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (nGrids[lvl] > 0) delete [] Grids[lvl];
 
   return SUCCESS;
 

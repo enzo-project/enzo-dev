@@ -1455,7 +1455,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* Move a grid from one processor to another. */
 
-  int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE);
+  int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
+			    int DeleteOldFields = TRUE);
 
 /* Send particles from one grid to another. */
 
