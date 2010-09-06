@@ -94,3 +94,7 @@ EXTERN float RadiativeTransferSourceBeamAngle;
 EXTERN int RadiativeTransferTraceSpectrum;
 
 EXTERN char *RadiativeTransferTraceSpectrumTable;
+
+/* Flag for temporary load balancing for the ray tracing */
+
+EXTERN int RadiativeTransferLoadBalance;

@@ -20,8 +20,6 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <algorithm>
-using namespace std;
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -36,6 +34,8 @@ using namespace std;
 Star *PopStar(Star * &Node);
 Star* StarBufferToList(StarBuffer buffer);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
+int search_lower_bound(int *arr, int value, int low, int high, 
+		       int total);
  
 int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 				     int ThisGridNum, int TopGridDims[],
@@ -108,10 +108,9 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
 		 (cstar->pos[dim] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
 
-	  pbin = lower_bound(GStartIndex[dim], GStartIndex[dim]+Layout[dim]+1,
-			     CenterIndex);
-	  GridPosition[dim] = pbin-GStartIndex[dim];
-	  if (*pbin != CenterIndex) GridPosition[dim]--;
+	  GridPosition[dim] = 
+	    search_lower_bound(GStartIndex[dim], CenterIndex, 0, Layout[dim],
+			       Layout[dim]);
 	  GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
 
 	} // ENDELSE Layout

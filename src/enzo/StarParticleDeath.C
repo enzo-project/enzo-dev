@@ -58,6 +58,8 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
       MoveStar->DeleteCopyInGridGlobal(LevelArray);
       DeleteStar(MoveStar);
     } else if (death == KILL_ALL) {
+      // Never should be done.  Deleting particles messing the star
+      // particle counts up.
       MoveStar->DeleteCopyInGrid();
       MoveStar->DeleteParticle(LevelArray);
       DeleteStar(MoveStar);

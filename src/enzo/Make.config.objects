@@ -712,6 +712,7 @@ OBJS_CONFIG_LIB = \
         RotatingCylinderInitialize.o \
         s66_st1.o \
         s90_st1.o \
+	SearchUtilities.o \
         SedovBlastInitialize.o \
         select_fft.o \
 	SetBoundaryConditions.o \
@@ -896,10 +897,12 @@ POBJS_CONFIG_LIB = \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
+	RadiativeTransferMoveLocalPhotons.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
@@ -912,8 +915,8 @@ POBJS_CONFIG_LIB = \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
-      	hydro_rk/ModifiedBesselFunctions.o \
-      	hydro_rk/AGNDiskInitialize.o \
+	hydro_rk/ModifiedBesselFunctions.o \
+	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
         hydro_rk/ComputeDednerWaveSpeeds.o \

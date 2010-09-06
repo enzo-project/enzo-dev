@@ -31,6 +31,7 @@
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
+int FindField(int field, int farray[], int numfields);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -85,6 +86,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int RPresNum1, RPresNum2, RPresNum3;
   if (RadiationPressure)
     IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
+
+  int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
   /* Get units. */
 
@@ -158,8 +161,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
 			kphHINum, gammaNum, kphHeINum, 
 			kphHeIINum, kdissH2INum, RPresNum1,
-			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 
-			LightCrossingTime,
+			RPresNum2, RPresNum3, RaySegNum,
+			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
 			LengthUnits, TimeUnits);
       tcount++;

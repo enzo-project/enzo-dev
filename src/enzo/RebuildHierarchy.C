@@ -638,8 +638,9 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  if (RadiativeTransferLoadBalance == FALSE || MetaData->FirstTimestepAfterRestart)
+    if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
+      ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

@@ -24,6 +24,8 @@
 #include "GridList.h"
 #include "Grid.h"
 
+int FindField(int field, int farray[], int numfields);
+
 int grid::InitializeRadiativeTransferFields() 
 {
 
@@ -36,6 +38,9 @@ int grid::InitializeRadiativeTransferFields()
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum);
+
+  int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
+
   int i,j,k, index;
 
   /* Initialize photo and heating rates and compute number densities */
@@ -83,6 +88,14 @@ int grid::InitializeRadiativeTransferFields()
       }  // loop over grid
     
   }  /* ENDIF RadiationPressure */
+
+  if (RadiativeTransferLoadBalance)
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+	  BaryonField[RaySegNum][index] = 0.0;
+      }  // loop over grid
 
   HasRadiation = FALSE;
   MaximumkphIfront = 0;

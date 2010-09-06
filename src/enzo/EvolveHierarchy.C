@@ -120,7 +120,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 double ReturnWallTime(void);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
-	int WroteData);
+	int WroteData, int FOFOnly=FALSE);
 int StarParticleCountOnly(LevelHierarchyEntry *LevelArray[]);
 int CommunicationLoadBalanceRootGrids(LevelHierarchyEntry *LevelArray[], 
 				      int TopGridRank, int CycleNumber);
@@ -403,9 +403,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
       
 	dt = min(dt, Initialdt);
 	if (debug) fprintf(stderr, "dt, Initialdt: %g %g \n", dt, Initialdt);
-#ifdef TRANSFER
-        dtPhoton = dt;
-#endif
         Initialdt = 0;
       }
 
