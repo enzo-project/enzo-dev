@@ -177,16 +177,6 @@ int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
   PhotonTime = MetaData.Time;
   MetaData.FLDTime = MetaData.Time;
   MetaData.dtFLD = 0.0;
-
-  fclose(fptr);
-
- 
-//   if (ProblemType == 51){
-//     printf("Read Photon Sources \n");
-//     if (ReadPhotonSources(fptr, MetaData.Time) == FAIL) {
-//       ENZO_FAIL("Error in ReadPhotonSources.\n");
-//     }
-//   }
  
   PhotonTime = InitialTimeInCodeUnits;
 

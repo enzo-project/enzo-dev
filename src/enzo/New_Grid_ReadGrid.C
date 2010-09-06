@@ -219,14 +219,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
-  if (MyProcessorNumber == ProcessorNumber)
-     printf("P%d (%s): ReadData = %d, ReadParticlesOnly = %d, NumberOfBaryonFields = %d, NumberOfParticles = %d\n",
-       MyProcessorNumber, name, ReadData, ReadParticlesOnly, NumberOfBaryonFields,
-       NumberOfParticles);
+//   if (MyProcessorNumber == ProcessorNumber)
+//      printf("P%d (%s): ReadData = %d, ReadParticlesOnly = %d, NumberOfBaryonFields = %d, NumberOfParticles = %d\n",
+//        MyProcessorNumber, name, ReadData, ReadParticlesOnly, NumberOfBaryonFields,
+//        NumberOfParticles);
 
   if (NumberOfBaryonFields > 0 && ReadData && !ReadParticlesOnly &&
       (MyProcessorNumber == ProcessorNumber)) {
-    printf("P%d (%s): Reading %d baryon fields\n", MyProcessorNumber, name, NumberOfBaryonFields);
+    //    printf("P%d (%s): Reading %d baryon fields\n", MyProcessorNumber, name, NumberOfBaryonFields);
 
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT
     file_id = H5Fopen(procfilename,  H5F_ACC_RDONLY, H5P_DEFAULT);

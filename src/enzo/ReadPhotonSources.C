@@ -77,12 +77,10 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    printf("Reading sources....\n");
-    ret = 0;
+     ret = 0;
     ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
 		  &PhotonTestNumberOfSources);
-    printf("PhotonTestNumberOfSources = %"ISYM"\n",PhotonTestNumberOfSources);
-    if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
+     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceType[source]);
       if (debug)
@@ -94,11 +92,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		    &source, &PhotonTestSourcePosition[source][0],
 		    &PhotonTestSourcePosition[source][1],
 		    &PhotonTestSourcePosition[source][2]);
-    if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0){
+    if (sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceLuminosity[%"ISYM"] = %lf", &source,
 		    &PhotonTestSourceLuminosity[source]);
-      printf("PhotonTestLuminosity = %"FSYM"\n",PhotonTestSourceLuminosity);
-    }
     if (sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceCreationTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceCreationTime[source]);
