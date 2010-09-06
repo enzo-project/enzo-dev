@@ -45,9 +45,9 @@ int FindField(int field, int farray[], int numfields);
 void fpcol(Eflt32 *x, int n, int m, FILE *log_fptr);
 void icol(int *x, int n, int m, FILE *log_fptr);
 
-int _compare(const void * a, const void * b)
+Eint32 _compare(const void * a, const void * b)
 {
-  return ( *(float*)a - *(float*)b );
+  return ( *(Eflt32*)a - *(Eflt32*)b );
 }
 
 int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids)
@@ -81,7 +81,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
   int FieldTypes[MAX_NUMBER_OF_BARYON_FIELDS];
   float AxialRatio, GridVolume;
   float *ProcessorComputeTime = new float[NumberOfProcessors];
-  float *SortedComputeTime = new float[NumberOfProcessors];
+  Eflt32 *SortedComputeTime = new Eflt32[NumberOfProcessors];
 
   GridsMoved = 0;
   for (i = 0; i < NumberOfProcessors; i++)
@@ -174,7 +174,8 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
 
     for (i = 0; i < NumberOfProcessors; i++)
       SortedComputeTime[i] = ProcessorComputeTime[i];
-    qsort(SortedComputeTime, NumberOfProcessors, sizeof(float), _compare);
+    qsort(SortedComputeTime, (size_t) NumberOfProcessors, sizeof(Eflt32), 
+	  _compare);
     FirstNonZero = NumberOfProcessors-1;
     for (i = 0; i < NumberOfProcessors; i++)
       if (SortedComputeTime[i] > 0) {
