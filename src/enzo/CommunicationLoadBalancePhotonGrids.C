@@ -45,7 +45,7 @@ int FindField(int field, int farray[], int numfields);
 void fpcol(Eflt32 *x, int n, int m, FILE *log_fptr);
 void icol(int *x, int n, int m, FILE *log_fptr);
 
-int _compare(const void * a, const void * b)
+Eint32 _compare(const void * a, const void * b)
 {
   return ( *(float*)a - *(float*)b );
 }
