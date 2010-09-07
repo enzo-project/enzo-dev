@@ -720,6 +720,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
       // Convert into a parameter!
       float StarClusterLifeTime = 20e6;  // yr
 
+      // will be assigned lifetime = 4*tdyn
+      if (StarClusterUnresolvedModel == TRUE)
+	StarClusterLifeTime = FLOAT_UNDEFINED;
+
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(cluster_maker)

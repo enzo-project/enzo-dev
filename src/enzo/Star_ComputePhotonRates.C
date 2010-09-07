@@ -76,14 +76,15 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     nbins = (StarClusterHeliumIonization && 
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
 #ifdef TRANSFER    
-    if (!RadiativeTransferOpticallyThinH2) nbins++;
+    if (!RadiativeTransferOpticallyThinH2 &&
+	MultiSpecies > 1) nbins++;
 #endif
     EnergyFractionLW   = 0.01;
-    EnergyFractionHeI  = 0.295;
-    EnergyFractionHeII = 2.81e-4;
+    EnergyFractionHeI  = 0.4284;
+    EnergyFractionHeII = 0.0282;
     E[0] = 21.62; // eV (good for a standard, low-Z IMF)
-    E[1] = 24.6;
-    E[2] = 54.4;
+    E[1] = 30.0;
+    E[2] = 60.0;
     E[3] = 12.8;
     Q[0] = StarClusterIonizingLuminosity * this->Mass;
     if (StarClusterHeliumIonization) {

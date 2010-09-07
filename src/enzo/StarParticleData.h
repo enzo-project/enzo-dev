@@ -83,6 +83,7 @@ SPEXTERN float  StarClusterSNRadius;
 SPEXTERN float  StarClusterFormEfficiency;
 SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
+SPEXTERN int    StarClusterUnresolvedModel;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
 

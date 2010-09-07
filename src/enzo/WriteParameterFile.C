@@ -656,6 +656,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
 	  StarClusterUseMetalField);
+  fprintf(fptr, "StarClusterUnresolvedModel            = %"ISYM"\n",
+	  StarClusterUnresolvedModel);
   fprintf(fptr, "StarClusterMinDynamicalTime           = %"GSYM"\n",
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
