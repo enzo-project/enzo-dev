@@ -885,8 +885,8 @@ c
       INTEGER            J, JP
 *     ..
 *     .. External Functions ..
-      INTEGER            IDAMAX
-      EXTERNAL           IDAMAX
+      INTEGER            e_idamax
+      EXTERNAL           e_idamax
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           UGER, USCAL, USWAP, E_XERBLA
@@ -920,7 +920,7 @@ c
 *
 *        Find pivot and test for singularity.
 *
-         JP = J - 1 + IDAMAX( M-J+1, A( J, J ), 1 )
+         JP = J - 1 + e_idamax( M-J+1, A( J, J ), 1 )
          IPIV( J ) = JP
          IF( A( JP, J ).NE.ZERO ) THEN
 *
@@ -1880,7 +1880,7 @@ c
 c
 c=======================================================================
 c
-      integer function idamax(n,dx,incx)
+      integer function e_idamax(n,dx,incx)
 c
 c     finds the index of element having max. absolute value.
 c     jack dongarra, linpack, 3/11/78.
@@ -1890,9 +1890,9 @@ c
       REALSUB dx(*),dmax
       integer i,incx,ix,n
 c
-      idamax = 0
+      e_idamax = 0
       if( n.lt.1 .or. incx.le.0 ) return
-      idamax = 1
+      e_idamax = 1
       if(n.eq.1)return
       if(incx.eq.1)go to 20
 c
@@ -1903,7 +1903,7 @@ c
       ix = ix + incx
       do 10 i = 2,n
          if(abs(dx(ix)).le.dmax) go to 5
-         idamax = i
+         e_idamax = i
          dmax = abs(dx(ix))
     5    ix = ix + incx
    10 continue
@@ -1914,7 +1914,7 @@ c
    20 dmax = abs(dx(1))
       do 30 i = 2,n
          if(abs(dx(i)).le.dmax) go to 30
-         idamax = i
+         e_idamax = i
          dmax = abs(dx(i))
    30 continue
       return
