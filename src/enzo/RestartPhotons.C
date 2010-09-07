@@ -66,7 +66,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   const float clight = 2.9979e10;
 
-  float LightCrossingTime = (LengthUnits/TimeUnits) / 
+  float LightCrossingTime = (VelocityUnits) / 
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
   float SavedPhotonTimestep = dtPhoton;
