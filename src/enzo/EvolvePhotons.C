@@ -72,7 +72,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     int level);
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int SetSubgridMarker(TopGridData &MetaData, 
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level,
+		     int UpdateReplicatedGridsOnly);
 void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
@@ -206,7 +207,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (RadiativeTransferLoadBalance &&
       LoopTime == TRUE) { // LoopTime means it's not a restart
     CommunicationLoadBalancePhotonGrids(Grids, nGrids);
-    SetSubgridMarker(*MetaData, LevelArray, 0);
+    SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
   }
 
   /**********************************************************************
@@ -418,7 +419,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       
       START_PERF();
       CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
-
 				   keep_transporting);
       END_PERF(5);
 
@@ -631,7 +631,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef REPORT_PERF
   if (!FirstTime) {
     if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
-    for (int i = 0; i < NumberOfProcessors; i++) {
+    for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all
       CommunicationBarrier();
       if (MyProcessorNumber == i) {
 
