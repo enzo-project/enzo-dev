@@ -13,9 +13,8 @@ all cases, whether it's a mildly invasive change such as a new
 background heating model or extremely invasive like adding
 relativistic non-neutral multi-fluid plasma physics, we strongly
 recommend taking advantage of some basic tools. These are outlined
-in the sections that follow, but the two most important ones are
-`regression with LCATest? </wiki/Tutorials/LCATestSetup>`_ and
-`version control with SVN? </wiki/Tutorials/MergingBranches>`_.
+in the sections that follow, but the two most important one is
+`version control with hg? </wiki/Tutorials/MergingBranches>`_.
 These two tools prevent the developer from breaking existing
 features (which is far easier than one would expect), keeping track
 of your changes, and sharing those changes with others. We strongly

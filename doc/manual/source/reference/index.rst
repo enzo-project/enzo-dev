@@ -12,7 +12,6 @@ Reference Information
    Headers.rst
    MakeOptions.rst
    HowDoesParallelRootGridIOwork.rst
-   LCATestSetup.rst
    LinkedLists.rst
    MachineNotes.rst
    NestedGridParticles.rst
