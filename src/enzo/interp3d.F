@@ -264,14 +264,16 @@ c     &               delf1new,delf2new,delf3new,s
      &                   parent(pstart1+i+1, pstart2+j  , pstart3+k+1),
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k  ),
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k+1)
-                   ERROR_MESSAGE
+                   ierror = 1
+                   return
                 endif
                 if (s .ne. s) then
                    write(6,*) 'int2',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
      &               work(i+1,j+1,k+1)
-                   ERROR_MESSAGE
+                   ierror = 1
+                   return
                 endif
 c
 c              Now, find the the interpolation coefficients.
