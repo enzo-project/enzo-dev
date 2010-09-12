@@ -170,6 +170,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   RS_GridList->NextGrid = NULL;
   TailNode = RS_GridList;
   for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
+    print("RS = %"ISYM"\n",RS);
     // Search for grid, if not defined
     if (RS->GridID == INT_UNDEFINED) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--) {
@@ -234,6 +235,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     TempGridList = RS_GridList->NextGrid;
     int NumberOfSources = 0;
     while (RS != NULL) {
+      printf("EvolvePhoton:  PhotonTime = %"FSYM", ");
       if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
 	    (RS->CreationTime > PhotonTime + dtPhoton)) && LoopTime == TRUE) {  
 	if (debug) {
