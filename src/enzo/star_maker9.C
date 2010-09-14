@@ -85,6 +85,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double msun = 1.989e33;
   double umass = (*d1)*POW(*x1,3)/msun;
 
+  printf("Star Maker 9 running.......\n");
 
   /* Convert mass threshold to density */
 
@@ -110,6 +111,13 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
       sink_index[nsinks++] = n;
     }
   }
+
+  /* For a 3D->1D index, put x+1, y+1, z+1 indices into nice variables */
+
+  xo = 1;
+  yo = *nx;
+  zo = (*nx) * (*ny);
+
 
   /* Loop over grid looking for a cell with mass larger than massthres */
 

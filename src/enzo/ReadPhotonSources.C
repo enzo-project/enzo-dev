@@ -16,7 +16,6 @@
 
 #define RT_ENERGY_BINS 4
 
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -57,9 +56,6 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     }
   }
 
-  RadiativeTransfer = 1;
-  CommunicationBroadcastValue(&RadiativeTransfer, MyProcessorNumber);
-
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -73,7 +69,6 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   char *value;
   int count;
   bool EnergyBinsDefined = false;
-  printf("MAX_LINE_LENGTH = "ISYM"\n",MAX_LINE_LENGTH);
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -145,7 +140,6 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		" interpreted:\n%s\n", line);
     
   } // ENDWHILE line
-
 
   // Set default SED and energies if not user-defined
 

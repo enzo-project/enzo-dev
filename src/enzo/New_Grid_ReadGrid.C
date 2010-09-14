@@ -157,7 +157,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	       &NumberOfBaryonFields) != 1) {
             ENZO_FAIL("Error reading NumberOfBaryonFields.");
     }
-
     if (NumberOfBaryonFields > 0) {
  
       fscanf(fptr, "FieldType = ");
@@ -219,14 +218,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
-//   if (MyProcessorNumber == ProcessorNumber)
-//      printf("P%d (%s): ReadData = %d, ReadParticlesOnly = %d, NumberOfBaryonFields = %d, NumberOfParticles = %d\n",
-//        MyProcessorNumber, name, ReadData, ReadParticlesOnly, NumberOfBaryonFields,
-//        NumberOfParticles);
-
   if (NumberOfBaryonFields > 0 && ReadData && !ReadParticlesOnly &&
       (MyProcessorNumber == ProcessorNumber)) {
-    //    printf("P%d (%s): Reading %d baryon fields\n", MyProcessorNumber, name, NumberOfBaryonFields);
 
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT
     file_id = H5Fopen(procfilename,  H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -274,7 +267,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
     /* loop over fields, reading each one */
 
-
     for (field = 0; field < NumberOfBaryonFields; field++) {
       BaryonField[field] = new float[size];
       for (i = 0; i < size; i++)
@@ -299,7 +291,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
       }
 
-  
     } // end: loop over fields
  
 
@@ -498,7 +489,7 @@ int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
   hid_t dset_id;
   hid_t h5_status;
   herr_t      h5_error = -1;
-  int i, j, k, dim, inexey;
+  int i, j, k, dim;
   /* get data into temporary array */
 
   file_dsp_id = H5Screate_simple((Eint32) ndims, dims, NULL);
@@ -527,15 +518,6 @@ int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
 	      ((float *)read_to)[(i-GridStartIndex[0])                             +
 	                         (j-GridStartIndex[1])*active_dims[0]              +
 	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ];   
-/*inexey = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
-while( inexey = 91532 )   
-printf("copy to = %"FSYM", read to = %"FSYM", indexes = %"ISYM", %"ISYM", field = %s \n",copy_to[i + j*GridDimension[0] +
-            k*GridDimension[0]*GridDimension[1]], ((float *)read_to)[(i-GridStartIndex[0])                             +
-	                         (j-GridStartIndex[1])*active_dims[0]              +
-	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ], i + j*GridDimension[0] +
-            k*GridDimension[0]*GridDimension[1],(i-GridStartIndex[0])                             +
-	                         (j-GridStartIndex[1])*active_dims[0]              +
-	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ,  *name);  */
 }
   }
   return SUCCESS;
