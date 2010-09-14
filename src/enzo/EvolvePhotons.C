@@ -170,7 +170,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   RS_GridList->NextGrid = NULL;
   TailNode = RS_GridList;
   for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
-    print("RS = %"ISYM"\n",RS);
+    printf("RS = %"ISYM"\n",RS);
     // Search for grid, if not defined
     if (RS->GridID == INT_UNDEFINED) {
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--) {

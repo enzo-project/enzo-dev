@@ -164,6 +164,13 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
 
     break;
 
+  case SimpleSource:
+
+    // radiating particle that ramps with time, independant of mass
+    E[0] = 20.0;
+    Q[0] = 1.e50; // work out how to ramp........
+    break;
+
   default:
     ENZO_VFAIL("Star type = %"ISYM" not understood.\n", this->type)
 
