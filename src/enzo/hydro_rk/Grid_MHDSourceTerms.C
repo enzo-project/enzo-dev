@@ -46,6 +46,14 @@ int grid::MHDSourceTerms(float **dU)
 				   TENum, B1Num, B2Num, B3Num, PhiNum);
 
 
+  FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+    if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+	== FAIL) {
+      ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
+    }
+  
+
 #ifdef USE
   /* Dedner MHD formulation source terms */
 
@@ -91,9 +99,9 @@ int grid::MHDSourceTerms(float **dU)
 
   if (DualEnergyFormalism) {
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
-    FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0],
-      dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0] : 0.0,
-      dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0] : 0.0;
+    FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0]/a,
+      dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
+      dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
     float min_coeff = 0.0;
     if (UseMinimumPressureSupport) {
       min_coeff = MinimumPressureSupportParameter*

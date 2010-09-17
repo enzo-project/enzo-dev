@@ -64,9 +64,9 @@ int grid::SourceTerms(float **dU)
   if (DualEnergyFormalism) {   
     if (Coordinate == Cartesian) {
       int igrid, ip1, im1, jp1, jm1, kp1, km1;
-      FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0],
-	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0] : 0.0,
-	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0] : 0.0;
+      FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0]/a,
+	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
+	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
       float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
       float min_coeff = 0.0;
       if (UseMinimumPressureSupport) {

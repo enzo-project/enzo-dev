@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       November, 1994
-/  modified1:
+/  modified1: 2010 Tom Abel, added MHD part 
 /
 /  PURPOSE:
 /
@@ -154,9 +154,9 @@ float grid::ComputeTimeStep()
       exit(FAIL);
     }
 
-    FLOAT dxinv = 1.0 / CellWidth[0][0];
-    FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0] : 0.0;
-    FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0] : 0.0;
+    FLOAT dxinv = 1.0 / CellWidth[0][0]/a;
+    FLOAT dyinv = (GridRank > 1) ? 1.0 / CellWidth[1][0]/a : 0.0;
+    FLOAT dzinv = (GridRank > 2) ? 1.0 / CellWidth[2][0]/a : 0.0;
     float dt_temp = 1.e-20, dt_ltemp, dt_x, dt_y, dt_z;
     float rho, p, vx, vy, vz, v2, eint, etot, h, cs, dpdrho, dpde,
       v_signal_x, v_signal_y, v_signal_z;
