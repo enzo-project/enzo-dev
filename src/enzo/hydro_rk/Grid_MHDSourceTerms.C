@@ -46,8 +46,6 @@ int grid::MHDSourceTerms(float **dU)
 				   TENum, B1Num, B2Num, B3Num, PhiNum);
 
 
-
-
 #ifdef USE
   /* Dedner MHD formulation source terms */
 
@@ -200,8 +198,8 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
-   
-  if ((SelfGravity && GridRank == 3) || ExternalGravity) {
+
+  if ((SelfGravity) || ExternalGravity) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;
@@ -213,8 +211,9 @@ int grid::MHDSourceTerms(float **dU)
 	  rho = BaryonField[DensNum][igrid];
 	  
 	  gx = AccelerationField[0][igrid];
-	  gy = AccelerationField[1][igrid];
-	  gz = AccelerationField[2][igrid];
+	  gy = (GridRank > 1) ? (AccelerationField[1][igrid]) : 0;
+	  gz = (GridRank > 2) ? (AccelerationField[2][igrid]) : 0;
+
 	  vx = BaryonField[Vel1Num][igrid];
 	  vy = BaryonField[Vel2Num][igrid];
 	  vz = BaryonField[Vel3Num][igrid];

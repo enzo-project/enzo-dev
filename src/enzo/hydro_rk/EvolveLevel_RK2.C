@@ -437,14 +437,18 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();  
 
-      if (UseHydro) 
+      if (UseHydro) {
 	if (HydroMethod == HD_RK)
 	  Grids[grid1]->GridData->RungeKutta2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	else if (HydroMethod == MHD_RK) 
 	  Grids[grid1]->GridData->MHDRK2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-	
+
+	//	if (ComovingCoordinates)
+	//	  Grids[grid1]->GridData->ComovingExpansionTerms();
+
+      }
       /* Do this here so that we can get the correct time interpolated boundary condition */
       Grids[grid1]->GridData->SetTimeNextTimestep();
       

@@ -263,7 +263,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         this->write_dataset(GridRank, OutDims, DataLabel[field],
             group_id, file_type_id, (VOIDP) BaryonField[field],
             CopyOnlyActive, temp);
-
+	//	fprintf(stderr, "%i field\n", field);
       } else {
 
         this->write_dataset(GridRank, FullOutDims, DataLabel[field],

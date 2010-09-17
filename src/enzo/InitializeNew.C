@@ -71,7 +71,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
-			       HierarchyEntry &TopGrid);
+			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
@@ -393,7 +393,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 20) Zeldovich Pancake
  
   if (ProblemType == 20)
-    ret = ZeldovichPancakeInitialize(fptr, Outfptr, TopGrid);
+    ret = ZeldovichPancakeInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 21) 1D Pressureless collapse
  

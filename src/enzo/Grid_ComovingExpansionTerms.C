@@ -258,7 +258,7 @@ int grid::ComovingExpansionTerms()
 
 #endif /* VELOCITY_METHOD3 */
 
-//     if (HydroMethod == MHD_RK) {  THIS IS NOW DONE IN GRID_MHDSourceTerms
+//     if (HydroMethod == MHD_RK) {  THIS PART IS NOW DONE IN GRID_MHDSourceTerms
 
 //       /*************** NOT TESTED ******************************/
 //     /*    iii) semi-implicit way: */
