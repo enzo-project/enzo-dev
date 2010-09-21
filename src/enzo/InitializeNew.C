@@ -108,6 +108,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                   TopGridData &MetaData);
 int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
                                     TopGridData &MetaData);
+
+int GasolineCosmologyGalaxyInitialize(FILE *fptr, FILE *Outfptr, 
+				      HierarchyEntry &TopGrid, 
+				      TopGridData &MetaData);
  
 int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                         HierarchyEntry &TopGrid,
@@ -451,6 +455,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 31)
     ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
 
+  // 32) Gasoline IC cosmology simulation
+  if (ProblemType == 32)
+    ret = GasolineCosmologyGalaxyInitialize(fptr, Outfptr, TopGrid, MetaData);
+
 
 // 35) Shearing Box Simulation
   if (ProblemType == 35) 
@@ -733,6 +741,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ProblemType != 27 &&
       ProblemType != 30 &&
       ProblemType != 31 &&  // BWO (isolated galaxies)
+      ProblemType != 32 &&  
       ProblemType != 60 &&
       ProblemType != 106 ) //AK
     ConvertTotalEnergyToGasEnergy(&TopGrid);
