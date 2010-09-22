@@ -74,19 +74,9 @@ The conversion factor is also given in the ascii output file
 has its own conversation factor, which converts that field to cgs
 units. Users can also set completely arbitrary internal units, as
 long as they are self-consistent: to see how to do this, go to
-:doc:`../reference/EnzoInternalUnits`.
+:ref:`EnzoInternalUnits`.
 
-File Schema
------------
-
-Parameter Files
-~~~~~~~~~~~~~~~
-
-Hierarchy
-~~~~~~~~~
-
-Grid Files
-~~~~~~~~~~
+.. _StreamingDataFormat:
 
 Streaming Data Format
 ---------------------
@@ -164,12 +154,6 @@ For every grid written, an index entry is created with
 -  grid dimensions [short]
 -  number of particles [int]
 
-Lastly, we output an ASCII file with the code times and redshifts
-of
-every top level timestep for convenience when choosing files to
-read
-afterwards.
-
-**Current readers:** local KIPAC version of Amira and Jacques
-
+Lastly, we output an ASCII file with the code times and redshifts of every top
+level timestep for convenience when choosing files to read afterwards.
 
