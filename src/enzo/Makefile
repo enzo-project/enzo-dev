@@ -121,7 +121,7 @@ MACHNOTES:
 	    2>&1 ; \
 	fi)
 	@(if [ -e $@ ]; then \
-	   echo "Success!"; \
+	   echo "Success!  You have built Enzo from source tree revision `$(SVN) identify -i`"; \
            if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
            cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
 	else \
