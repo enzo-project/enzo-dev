@@ -1,3 +1,5 @@
+.. _EnzoOutputFormats:
+
 Enzo Output Formats
 ===================
 
