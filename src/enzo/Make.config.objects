@@ -653,6 +653,7 @@ OBJS_CONFIG_LIB = \
         PressurelessCollapseInitialize.o \
         ProblemType.o \
         ProblemType_RotatingCylinder.o \
+        ProblemType_CollapsingCoolingCloud.o \
         ProcMap.o \
         project.o \
         projectbool.o \
