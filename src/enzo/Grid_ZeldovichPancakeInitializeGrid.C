@@ -153,6 +153,11 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     BaryonField[0][i] = ZeldovichPancakeOmegaBaryonNow/
                         (1 - Amplitude*cos(kx*xEulerian));
  
+    // terribly fudge since the folks that do B field tests
+    // did not set up the density fields consistently ...
+    if  (ZeldovichPancakeInitialUniformBField[1] != 0)
+      BaryonField[0][i] = 1.;
+
     /* Set total energy, gas energy. */
  
     BaryonField[iTE][i] = ZeldovichPancakeInitialTemperature/TemperatureUnits *
@@ -177,11 +182,13 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
       BaryonField[iBy  ][i] = ZeldovichPancakeInitialUniformBField[1];
       BaryonField[iBz  ][i] = ZeldovichPancakeInitialUniformBField[2];
       BaryonField[iPhi ][i] = 0.0;
+      BaryonField[ietot][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
+				    BaryonField[iBy][i] * BaryonField[iBy][i]+
+				    BaryonField[iBz][i] * BaryonField[iBz][i])/
+	BaryonField[iden][i];
     }
-
   }
  
-
 
   /* set transverse velocities (i.e. erase any incorrectly set velocities). */
  

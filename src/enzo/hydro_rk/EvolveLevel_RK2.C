@@ -543,13 +543,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	     MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	     Grids[grid1]->GridData->DeleteAccelerationField();
 
-
-
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       if (UseFloor) 
 	Grids[grid1]->GridData->SetFloor();
-
 
     }  // end loop over grids
 

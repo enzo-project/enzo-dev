@@ -49,6 +49,7 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData, LevelHierarchyEntry *LevelArr
 
   int lmax;
   LevelHierarchyEntry *Temp;
+  // Determine current maximum level
   for (lmax = MAX_DEPTH_OF_HIERARCHY-1; lmax >= 0; lmax--) {
     Temp = LevelArray[lmax];
     if (Temp != NULL) 
@@ -66,7 +67,7 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData, LevelHierarchyEntry *LevelArr
   h_min = my_MIN(dx0, dy0, dz0);
   h_min /= pow(RefineBy, lmax);
   C_h = 0.1*MetaData->CourantSafetyNumber*(h_min/dt0);
-  C_h = min( C_h, 1e6/VelocityUnits); // never faster than __ cm/s (for very small dt0 a problems)
+  //  C_h = min( C_h, 1e6/VelocityUnits); // never faster than __ cm/s (for very small dt0 a problems)
   if (EOSType == 3)  // for isothermal runs just use the constant sound speed
     C_h = EOSSoundSpeed;
   

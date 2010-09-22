@@ -57,9 +57,9 @@ int grid::MHDSourceTerms(float **dU)
 #ifdef USE
   /* Dedner MHD formulation source terms */
 
-  FLOAT dtdx = dtFixed/CellWidth[0][0],
-    dtdy = (GridRank > 1) ? dtFixed/CellWidth[1][0] : 0.0,
-    dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0] : 0.0;  
+  FLOAT dtdx = dtFixed/CellWidth[0][0]/a,
+    dtdy = (GridRank > 1) ? dtFixed/CellWidth[1][0]/a : 0.0,
+    dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0]/a : 0.0;  
   float Bx, By, Bz;
   float coeff = 1.;
 
@@ -99,9 +99,10 @@ int grid::MHDSourceTerms(float **dU)
 
   if (DualEnergyFormalism) {
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
-    FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0]/a,
-      dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
-      dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
+    FLOAT coef = 1;
+    FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
+      dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
+      dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
     float min_coeff = 0.0;
     if (UseMinimumPressureSupport) {
       min_coeff = MinimumPressureSupportParameter*
@@ -252,12 +253,13 @@ int grid::MHDSourceTerms(float **dU)
 	  rho = BaryonField[DensNum][igrid];
 	  
 	  
-	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][n];
-	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][n];
-	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][n];
-	  dU[iEtot][n] += dtFixed*coef*(BaryonField[B1Num][n]*BaryonField[B1Num][n]+
-					BaryonField[B2Num][n]*BaryonField[B2Num][n]+
-					BaryonField[B3Num][n]*BaryonField[B3Num][n]);
+	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
+	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
+	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][igrid];
+
+	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid]+
+					BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
+					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
 
 
