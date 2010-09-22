@@ -279,6 +279,10 @@ have a look at :ref:`ControllingDataOutput` for more information.
     every level thereafter. Default is 0 (off). User can usefully
     specify anything up to the maximum number of levels in a given
     simulation.
+``FileDirectedOutput``
+    If this parameter is set to 1, whenever the finest level has finished
+    evolving Enzo will check for new signal files to output.  (See
+    :ref:`force_output_now`.)  Default 1.
 ``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName``, (external)
     These parameters are used in 2D projections (``enzo -p ...``). The
     first two specify the X-ray band (observed at z=0) to be used, and
