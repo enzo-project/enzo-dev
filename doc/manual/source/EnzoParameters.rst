@@ -81,11 +81,10 @@ Initialization Parameters
     processor. The list of those known to work in parallel are: 23, 25,
     30.] Default: none. 
 
-    For other problem-specific parameters follow the links below.  The
-    problems marked with "hydro_rk" originate from the MUSCL solver
-    package in ``src/enzo/hydro_rk``.  For the 4xx radiation
-    hydrodynamics problem types, see the user guides in
-    ``doc/implicit_fld`` and ``doc/split_fld``.
+For other problem-specific parameters follow the links below.  The problems
+marked with "hydro_rk" originate from the MUSCL solver package in
+``src/enzo/hydro_rk``.  For the 4xx radiation hydrodynamics problem types, see
+the user guides in ``doc/implicit_fld`` and ``doc/split_fld``.
 
 ============ ====================================
 Problem Type Description and Parameter List
@@ -228,8 +227,7 @@ description of these parameters.)
     track simulations across restarts and parameter adjustments.
 ``MetaDataInitialConditionsUUID`` (internal)
     This is similar to ``MetaDataRestartDatasetUUID``, except it's used to
-    track which initial conditions were used. NB: inits, ring and Enzo
-    still need to be modified to support this.
+    track which initial conditions were used.
 
 I/O Parameters
 --------------
@@ -2690,13 +2688,13 @@ Cooling Test (62)
     The minimum metallicity at y=0. Default: 1e-6 [Z\ :sub:`sun`\ ].
 ``CoolingTestMaximumMetallicity`` (external)
     The maximum metallicity at
-    y=``DomainRightEdge[2]``. Default: 1
+    y=``DomainRightEdge[1]``. Default: 1
     [Z\ :sub:`sun`\ ].
 ``CoolingTestMinimumTemperature`` (external)
     The minimum temperature in Kelvin at z=0. Default: 10.0 [K].
 ``CoolingTestMaximumTemperature`` (external)
     The maximum temperature in Kelvin at
-    z=``DomainRightEdge[1]``. Default: 1e7 [K].
+    z=``DomainRightEdge[2]``. Default: 1e7 [K].
 ``CoolingTestResetEnergies`` (external)
     An integer flag (0 or 1) to determine whether the grid energies
     should be continually reset after every iteration of the chemistry
@@ -2710,22 +2708,13 @@ Other External Parameters
     The largest reasonable number. Rarely used. Default: 1e+20
 ``tiny_number`` (external)
     A number which is smaller than all physically reasonable numbers.
-    Used to prevent divergences and divide-by-zero in the following C++
-    functions: ``ComputeElementalDensity()``, ``ComputePressure()``,
-    ``ComputePressureDualEnergyFormalism()``, ``ComputeTemperatureField()``,
-    ``ComputeTimeStep()``, ``CorrectForRefinedFluxes()``. Problem dependent.
+    Used to prevent divergences and divide-by-zero in C++ functions.
     Modify with caution! Default: 1e-20.
 
-    A currently independent analog, ``tiny``, defined in ``fortran.def``, does
-    the same job for a large family of FORTRAN routines: ``calcdiss()``,
-    ``calc_dt()``, ``calc_rates()``, ``colh2diss()``, ``coll_rates()``,
-    ``cool1d_multi()``, ``cool1d()``, ``cool_multi_time()``, ``cool_time()``,
-    ``euler()``, ``grid_cic()``, ``interp3d()``, ``inteuler()``, ``int_lin3d()``,
-    ``intrmp()``, ``lgrg()``, ``multi_cool()``, ``ppm_de()``, ``ppm_lr()``,
-    ``solve_cool()``, ``solve_rate()``, ``tscint[123]d()``, ``zeus_main()``,
-    ``zeus_source()``. Modification of ``tiny`` must be done with caution and
-    currently requires recompiling the code, since ``tiny`` is not a
-    parameter yet.
+    An independent analog, ``tiny``, defined in ``fortran.def``, does the same
+    job for a large family of FORTRAN routines. Modification of ``tiny`` must
+    be done with caution and currently requires recompiling the code, since
+    ``tiny`` is not a runtime parameter.
 
 ``TimeActionParameter[#]``
     Reserved for future use.
@@ -2776,11 +2765,3 @@ Other Internal Parameters
 ``VersionNumber`` (internal)
     Sets the version number of the code which is written out to restart
     dumps.
-
-Parameters to be Described
---------------------------
-
-    PointSourceGravityCoreRadius (external)
-
-
-
