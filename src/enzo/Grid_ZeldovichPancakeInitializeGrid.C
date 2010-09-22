@@ -69,10 +69,8 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     FieldType[NumberOfBaryonFields++] = Velocity3;
   int iTE = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
-
   if (DualEnergyFormalism)
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
-
   if (HydroMethod == MHD_RK) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;

@@ -1924,7 +1924,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
-			  FLOAT SubDomainRightEdge[]);
+			  FLOAT SubDomainRightEdge[],
+			  float CosmologySimulationInitialUniformBField[]);
 
 
   /* Initialization for isolated galaxy sims */
