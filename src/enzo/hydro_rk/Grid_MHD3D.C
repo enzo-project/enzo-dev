@@ -101,7 +101,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   }
 
   // compute flux at cell faces in x direction
-  FLOAT dtdx = dt/a/CellWidth[0][0];
+  FLOAT dtdx = dt/(a*CellWidth[0][0]);
   if (MHDSweepX(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
       == FAIL) {
     return FAIL;
@@ -169,7 +169,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   // Sweep Y
 
   if (GridRank > 1) {
-    dtdx = dt/a/CellWidth[1][0];
+    dtdx = dt/(a*CellWidth[1][0]);
     // compute flux in y direction
     if (MHDSweepY(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
 	== FAIL)
@@ -206,7 +206,7 @@ int grid::MHD3D(float **Prim, float **dU, float dt,
   // Sweep Z
 
   if (GridRank > 2) {
-    dtdx = dt/a/CellWidth[2][0];
+    dtdx = dt/(a*CellWidth[2][0]);
     // compute flux in z direction
     if (MHDSweepZ(Prim, Flux3D, GridDimension, GridStartIndex, CellWidth, dtdx, fallback) 
 	== FAIL)
