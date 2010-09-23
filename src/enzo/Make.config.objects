@@ -140,6 +140,7 @@ OBJS_CONFIG_LIB = \
         EvolveHierarchy.o \
 	execinfo_local.o \
         expand_terms.o \
+        expand_mhd_terms.o \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
         ExposeGridHierarchy.o \

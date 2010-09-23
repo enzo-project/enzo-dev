@@ -227,10 +227,10 @@ int grid::MHDSourceTerms(float **dU)
 	  vy = BaryonField[Vel2Num][igrid];
 	  vz = BaryonField[Vel3Num][igrid];
 	  
-	  dU[iS1  ][n] += dtFixed*gx*rho;
-	  dU[iS2  ][n] += dtFixed*gy*rho;
-	  dU[iS3  ][n] += dtFixed*gz*rho;
-	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
+	  dU[iS1  ][n] += dtFixed*gx*rho/a;
+	  dU[iS2  ][n] += dtFixed*gy*rho/a;
+	  dU[iS3  ][n] += dtFixed*gz*rho/a;
+	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz)/a;
 
 	
 	}
@@ -238,20 +238,20 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
+
   if ((ComovingCoordinates == 1)) { // add cosmological expansion terms here
 
     int igrid;
     float rho, coef=0.;
     FLOAT a, dadt;
     int n = 0;
-    CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt);
     coef = -0.5*dadt/a;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+	  //	  rho = 0.5*(BaryonField[DensNum][igrid]+OldBaryonField[DensNum][igrid]);
 	  rho = BaryonField[DensNum][igrid];
-	  
 	  
 	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
 	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
@@ -259,7 +259,8 @@ int grid::MHDSourceTerms(float **dU)
 
 	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid]+
 					BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
-					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
+					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid])/rho;
+
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
 
 
@@ -267,6 +268,7 @@ int grid::MHDSourceTerms(float **dU)
       }
     }
   }
+
 
   /* Apply external driving force */
 
