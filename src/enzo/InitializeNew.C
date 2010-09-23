@@ -235,6 +235,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("Error opening parameter file.");
   }
  
+  // Clear OutputLog
+
+  FILE *sptr;
+  if ( MyProcessorNumber == ROOT_PROCESSOR ){
+    sptr = fopen("OutputLog", "w");
+    fclose(sptr);
+  }
+
   // Open output file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
