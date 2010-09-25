@@ -343,6 +343,11 @@ public:
 
    int InterpolateBoundaryFromParent(grid *ParentGrid);
 
+/* Member functions for dealing with thermal conduction */
+   int ComputeHeat(float dedt[]);	     /* Compute Heat */
+   int ConductHeat();			     /* Conduct Heat */
+   int ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
+
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
 
@@ -1787,6 +1792,16 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Gravity Test (Sphere): check results. */
 
   int TestGravitySphereCheckResults(FILE *fptr);
+
+/* Conduction Test: initialize grid. */
+
+  int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType);
+
+/* Conducting Bubble Test: initialize grid. */
+
+  int ConductionBubbleInitialize(FLOAT BubbleRadius, int PulseType, float DeltaEntropy, 
+				 float MidpointEntropy, float EntropyGradient,
+				 float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
 
 /* Spherical Infall Test: initialize grid. */
 

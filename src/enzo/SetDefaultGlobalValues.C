@@ -393,6 +393,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleTypeInFile               = TRUE;
   OutputParticleTypeGrouping       = FALSE;
 
+  Conduction = FALSE;
+  ConductionSpitzerFraction = 1.0;
+  ConductionCourantSafetyNumber = 0.5;
+
   PythonSubcycleSkip               = 1;
 
   InlineHaloFinder                 = FALSE;
