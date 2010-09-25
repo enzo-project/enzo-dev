@@ -107,6 +107,7 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionHM,
 			  float CosmologySimulationInitialFractionH2I,
 			  float CosmologySimulationInitialFractionH2II,
+			  float CosmologySimulationInitialFractionMetal,
 #ifdef TRANSFER
 			  float RadHydroRadiation,
 #endif
@@ -472,11 +473,13 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData)
     for (i = 0; i < size; i++) {
-      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];  
-      //BaryonField[MetalNum][i] = 3e-3 * 0.0204 * BaryonField[0][i];    // Z = 1e-4Zs  //#####
+      BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
+	* BaryonField[0][i];  
       if(MultiMetals){
-	BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
-	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];
+	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
+	  * BaryonField[0][i];
+	BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
+	  * BaryonField[0][i];
       }
     }
     if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
