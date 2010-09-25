@@ -62,6 +62,10 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
+int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -235,6 +239,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("Error opening parameter file.");
   }
  
+  // Clear OutputLog
+
+  FILE *sptr;
+  if ( MyProcessorNumber == ROOT_PROCESSOR ){
+    sptr = fopen("OutputLog", "w");
+    fclose(sptr);
+  }
+
   // Open output file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -271,9 +283,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // If the problem reads in a restart dump, then skip over the following
  
-  if (ProblemType != 40) {
+  if (ProblemType != 40 && ProblemType != 51) {
  
   // Error check the rank
+    printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
       ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
@@ -316,7 +329,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     TopGrid.ParentGrid        = NULL;  // always true
     TopGrid.NextGridNextLevel = NULL;  // can be reset by initializer
     
-  } // end: if (ProblemType != 40)
+  } // end: if (ProblemType != 40 && ProblemType !=51)
   
   // Call problem initializer
 
@@ -497,6 +510,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 62) Cooling test problem
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 70) Conduction test problem with hydro disabled
+  // 71) Conduction test problem with hydro turned on
+  if (ProblemType == 70 || ProblemType == 71)
+    ret = ConductionTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 72) Conduction bubble test problem
+  if (ProblemType == 72)
+    ret = ConductionBubbleInitialize(fptr, Outfptr, TopGrid, MetaData);
   
   // Insert new problem intializer here...
   

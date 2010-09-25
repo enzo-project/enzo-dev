@@ -185,9 +185,10 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
       }
       else if (Grids[lvl][gi]->GridData->ReturnProcessorNumber() != 
 	       MyProcessorNumber) {
-	printf("P%d: WARNING: CommunicationReceiverPhotons: Bad grid number = %d\n"
-	       "\t Receive %d, level %d, NumberOfGrids = %d.  SKIPPING!\n",
-	       MyProcessorNumber, gi, i, lvl, nGrids[lvl]);
+	printf("P%d: WARNING: CommunicationReceiverPhotons: This grid isn't on this processor!\n"
+	       "\t Grid %d (P%d), Receive %d, level %d, NumberOfGrids = %d. SKIPPING!\n",
+	       MyProcessorNumber, gi, Grids[lvl][gi]->GridData->ReturnProcessorNumber(), 
+	       i, lvl, nGrids[lvl]);
 	continue;
       }
       ToGrid = Grids[lvl][gi]->GridData;

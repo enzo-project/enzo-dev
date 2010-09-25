@@ -60,23 +60,23 @@ int grid::PhotonTestRestartInitialize(int level, int *NumberOfCellsSet)
   }
 
   //   Allocate fields for photo ionization and heating rates
-  if (RadiativeTransfer)
-    if (MultiSpecies) {
-      FieldType[kphHINum    = NumberOfBaryonFields++] = kphHI;
-      FieldType[gammaNum    = NumberOfBaryonFields++] = PhotoGamma;
-      if (RadiativeTransferHydrogenOnly == FALSE) {
-	FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
-	FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
-      }
-      if (MultiSpecies > 1) 
-	FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
-    } 
+//   if (RadiativeTransfer)
+//     if (MultiSpecies) {
+//       FieldType[kphHINum    = NumberOfBaryonFields++] = kphHI;
+//       FieldType[gammaNum    = NumberOfBaryonFields++] = PhotoGamma;
+//       if (RadiativeTransferHydrogenOnly == FALSE) {
+// 	FieldType[kphHeINum   = NumberOfBaryonFields++] = kphHeI;
+// 	FieldType[kphHeIINum  = NumberOfBaryonFields++] = kphHeII;
+//       }
+//       if (MultiSpecies > 1) 
+// 	FieldType[kdissH2INum    = NumberOfBaryonFields++] = kdissH2I;
+//     } 
 
-  if (RadiationPressure && RadiativeTransfer) {
-    FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
-    FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
-    FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
-  }
+//   if (RadiationPressure && RadiativeTransfer) {
+//     FieldType[RPresNum1 = NumberOfBaryonFields++] = RadPressure0;
+//     FieldType[RPresNum2 = NumberOfBaryonFields++] = RadPressure1;
+//     FieldType[RPresNum3 = NumberOfBaryonFields++] = RadPressure2;
+//   }
 
   NumberOfPhotonPackages = 0;
   PhotonPackages-> NextPackage= NULL;
@@ -86,11 +86,11 @@ int grid::PhotonTestRestartInitialize(int level, int *NumberOfCellsSet)
                pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
 
  
-  /* Initialize radiation fields */
+  /* Initialize radiation fields - not needed in restart?? */
 
-  if (this->InitializeRadiativeTransferFields() == FAIL) {
-    ENZO_FAIL("\nError in InitializeRadiativeTransferFields.\n");
-  }
+//   if (this->InitializeRadiativeTransferFields() == FAIL) {
+//     ENZO_FAIL("\nError in InitializeRadiativeTransferFields.\n");
+//   }
 
 
 

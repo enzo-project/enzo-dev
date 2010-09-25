@@ -20,8 +20,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <algorithm>
-using namespace std;
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -41,6 +39,8 @@ void my_exit(int status);
  
 Eint32 compare_star_grid(const void *a, const void *b);
 int Enzo_Dims_create(int nnodes, int ndims, int *dims);
+int search_lower_bound(int *arr, int value, int low, int high, 
+		       int total);
 
 // Remove define.  This method will always be used.
 //#define KEEP_PARTICLES_LOCAL
@@ -119,10 +119,9 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 	      (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
 	      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
 
-	pbin = lower_bound(StartIndex[dim], StartIndex[dim]+Layout[dim]+1,
-			   CenterIndex);
-	GridPosition[dim] = pbin-StartIndex[dim];
-	if (*pbin != CenterIndex) GridPosition[dim]--;
+	GridPosition[dim] = 
+	  search_lower_bound(StartIndex[dim], CenterIndex, 0, Layout[dim],
+			     Layout[dim]);
 
       } // ENDELSE
 

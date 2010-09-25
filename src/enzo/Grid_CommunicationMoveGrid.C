@@ -33,7 +33,8 @@
  
  
  
-int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
+int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles, 
+				int DeleteOldFields)
 {
 
   int dim;
@@ -77,7 +78,7 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
     /* Copy photon packages */
 
 #ifdef TRANSFER
-    PhotonPackageEntry *PP = PhotonPackages->NextPackage;    
+    PhotonPackageEntry *PP = PhotonPackages->NextPackage;
     if (PP != NULL)
       this->CommunicationSendPhotonPackages(this, ToProcessor, 
 					    NumberOfPhotonPackages, 
@@ -86,13 +87,15 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
 
     /* Delete fields on old grid. */
  
-    if (MyProcessorNumber == ProcessorNumber && ProcessorNumber != ToProcessor &&
+    if (DeleteOldFields == TRUE &&
+	MyProcessorNumber == ProcessorNumber && ProcessorNumber != ToProcessor &&
 	(CommunicationDirection == COMMUNICATION_SEND ||
-	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE))
+	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE)) {
       if (MoveParticles == TRUE)
 	this->DeleteAllFields();
       else
 	this->DeleteAllButParticles();
+    }
     
   } // ENDIF right processor
  

@@ -654,6 +654,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarFeedbackDistCellStep);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
+  fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);
+  fprintf(fptr, "ConductionSpitzerFraction       = %"FSYM"\n", ConductionSpitzerFraction);
+  fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
   fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);

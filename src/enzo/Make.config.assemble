@@ -1001,6 +1001,7 @@
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_LCAPERF_INCLUDES) \
                $(ASSEMBLE_CVODE_INCLUDES) \
+               $(ASSEMBLE_PYTHON_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
 
@@ -1016,6 +1017,7 @@
            $(ASSEMBLE_LCAPERF_LIBS) \
            $(ASSEMBLE_PAPI_LIBS) \
            $(ASSEMBLE_CVODE_LIBS) \
+           $(ASSEMBLE_PYTHON_LIBS) \
            $(ASSEMBLE_CUDA_LIBS)
 
 
