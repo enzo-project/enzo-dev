@@ -666,9 +666,10 @@ malism`` flags.
     2              Marquina
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    5              TwoShock
     ============== ===========================
 
-    Default: 1 (HLL)
+    Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for ``HydroMethod`` = 0
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -682,7 +683,7 @@ malism`` flags.
     4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
     ===================== ====================
 
-    Default: 0 (PLM)
+    Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
