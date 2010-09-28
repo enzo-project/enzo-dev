@@ -1,3 +1,5 @@
+.. _GettingStarted:
+
 Getting Started with Enzo
 =========================
 
@@ -7,7 +9,6 @@ Getting Started with Enzo
    building_enzo.rst
    RunTestProblem.rst
    RunCosmologySimulation.rst
-   CosmologyStepByStep.rst
    SampleParameterFiles.rst
    WritingParameterFiles.rst
    DataAnalysisBasics.rst

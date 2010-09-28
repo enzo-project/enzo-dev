@@ -5,6 +5,7 @@ syntax: glob
 *.f
 *.f90
 *~
+*.pyc
 
 bin/enzo
 DEPEND
@@ -18,6 +19,8 @@ temp.show-*
 Make.config.machine
 Make.config.override
 *.mod
+
+doc/manual/build
 
 src/inits/inits.exe
 src/mpgrafic/degraf/Makefile

@@ -2,14 +2,14 @@ SetAccelerationBoundary (SAB)
 =============================
 
 One of the minor bugs in Enzo that was uncovered by the addition of
-MHD is the boundary on the gravitational acceleration field.
+MHD-CT is the boundary on the gravitational acceleration field.
 
 Enzo currently solves gravity in two phases: first by Fast Fourier
 Transform on the root grid, then by multigrid relaxation on the
 subgrids. Unfortunately, each subgrid is solved as an individual
 problem, and is not very concious of its neighbours.
 
-The problem with this is the ghost zones. Enzo MHD is not a
+The problem with this is the ghost zones. Enzo MHD-CT is not a
 divergence *free* method, but a divergence *preserving* method.
 There isn't a mechanism that reduces the divergence of the magnetic
 field. Unfortunately, inconsistencies in *any* fluid quantity can
@@ -70,11 +70,19 @@ fragmentation that has been noticed by some groups. Cosmology tests
 have been done that compare solutions both with and without this
 fix, and only negligible changes appear. So for most runs, it
 simply adds the expense of an extra boundary condition set.
-However, with MHD runs it is absolutely necessary, for explosive
-divergence will show up.
+However, with MHD-CT runs it is absolutely necessary, for explosive
+divergence will show up.  Additionally, and other simulations that 
+are extremely sensitive to overall conservation or consistency will require
+this flag.  In any condition where the user is potentially concerned about 
+we suggest running a test both with and without ``SAB``, and comparing the answers.
+``SAB`` brings the compuational expense of an additional boundary condition call, and 
+the memory expense of three global fields, since without it the ``AccelerationField`` exists
+only on a single grid at a time, while with it all three fields must be created on the entire hierarchy
+at once.  This is not a major expense on either count for most simulations.
 
 This is controled by the preprocessor directive ``SAB``. If this is
 defined, the necessary steps are taken to call the acceleration
-boundary.
+boundary.  In the file machine make file, ``Make.mach.machine-name``, this should be
+added to the variable ``MACH_DEFINES``
 
 
