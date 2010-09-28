@@ -98,6 +98,8 @@ c
       real qa, qb, qc, frac, uadvect, eold
       real dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
+      real min_color
+      parameter(min_color=1e-05*tiny)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -169,6 +171,7 @@ c             colslice(i,j,n) = (colslice(i,j,n)*dslice(i,j) +
 c     &         (colf(i,j,n)-colf(i+1,j,n))/dx(i)      )/dnu(i) ! c*d conserved
              colslice(i,j,n) =  colslice(i,j,n)              +
      &            (colf(i,j,n)-colf(i+1,j,n))/dx(i) ! c conserved
+             colslice(i,j,n) = max(colslice(i,j,n), min_color)
           enddo
        enddo
 c
