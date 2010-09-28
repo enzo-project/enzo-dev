@@ -242,7 +242,9 @@ c     &               delf1new,delf2new,delf3new,s
                    write(6,*) 'abc',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
-     &               work(i+1,j+1,k+1)
+     &               work(i+1,j+1,k+1),
+     &               work(i+1,j,k), work(i,j+1,k+1), work(i,j+1,k),
+     &               work(i+1,j,k+1), work(i,j,k+1), work(i+1,j+1,k)
                    write(6,*) i,j,k,pdim1,pdim2,pdim3,dim1,dim2,dim3,
      &               end1,end2,end3,refine1,refine2,refine3,
      &               pstart1,pstart2,pstart3
