@@ -2235,6 +2235,46 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     return TRUE;
   }
 
+  // Check to see if an integer array is inside the 
+  inline int PointInGrid( Eint32 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= GridStartIndex[i]) &&
+	  (point[i] <= GridEndIndex[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
+  // Check to see if an integer array is inside the real zones.
+  inline int PointInGrid( Eint64 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= GridStartIndex[i]) &&
+	  (point[i] <= GridEndIndex[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
+  // Check to see if an integer array is inside the 
+  inline int PointInGridGZ( Eint32 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= 0) &&
+	  (point[i] < GridDimension[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
+  // Check to see if an integer array is inside the real zones.
+  inline int PointInGridGZ( Eint64 *point ){
+    for( int i = 0; i < GridRank; i++ ){
+      if( ((point[i] >= 0) &&
+	  (point[i] < GridDimension[i])) == FALSE )
+	return FALSE;
+    }
+    return TRUE;
+  }
+
   // Flags a 3D array where the grid overlaps.
   // Very similar to the FastSib stuff. (I think.)
   void FlagGridArray( HierarchyEntry ***GridArray, int *dx,

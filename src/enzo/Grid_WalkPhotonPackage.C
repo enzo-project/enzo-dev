@@ -49,7 +49,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
-			    float TimeUnits) {
+			    float TimeUnits, bool Subsampling, bool Mainray,
+			    bool &SplitMainray,
+			    FLOAT &TerminationRadius) {
 
   const float erg_eV = 1.602176e-12;
   const float c_cgs = 2.99792e10;
@@ -89,12 +91,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     return SUCCESS;
   }
 
-  if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
-    ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
-	    "\t %x %x %x %x\n",
-	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages)
-  }
+  if (Mainray)
+    if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP))
+      ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
+		 "\t %x %x %x %x\n",
+		 (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
+		 PhotonPackages)
 
   /* This controls the splitting condition, where this many rays must
      exist in each cell */
@@ -153,12 +155,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
-    if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
-      DeleteMe = TRUE;
-      return SUCCESS;
-      //ENZO_FAIL("Ray out of grid?");
-    }
+    if (Mainray)
+      if (g[dim] < 0 || g[dim] >= GridDimension[dim])
+	ENZO_FAIL("Ray out of grid?");
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions
@@ -171,12 +170,21 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      grid, or needs to be moved */
 
   cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
-  if (SubgridMarker[cindex] != this) {
-    FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
-		      DeltaLevel, DomainWidth, DeleteMe, 
-		      ParentGrid);
-    return SUCCESS;
-  }
+  if (Mainray)
+    if (SubgridMarker[cindex] != this) {
+      FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
+			DeltaLevel, DomainWidth, DeleteMe, 
+			ParentGrid);
+      TerminationRadius = (*PP)->Radius;
+      return SUCCESS;
+    }
+
+  /* For subrays, we want to start the ray at the grid edge instead of
+     at a shell with radius r.  This reduces variations in the
+     radiation fields at grid boundaries. */
+
+  if (!Mainray)
+    SubrayGridBoundaryCorrection(*PP, u, u_sign, u_dir, u_inv, f, r, g);
 
   /* Compute the photon distance that corresponds to a distance =
      R_merge away from the super source. 
@@ -188,7 +196,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      d := vector between current and super source
   */
 
-  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
+  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL &&
+      Mainray) {
     r_merge = 2*RadiativeTransferPhotonMergeRadius *
       (*PP)->CurrentSource->ClusteringRadius;
     d2_ss = 0.0;
@@ -330,11 +339,21 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     /* If the photon has left the grid, determine MoveToGrid,
        DeltaLevel, and DeleteMe, and exit the loop. */
 
-    if (SubgridMarker[cindex] != this) {
-      FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
-			DeltaLevel, DomainWidth, DeleteMe, 
-			ParentGrid);
-      break;
+    if (Mainray) {
+      if (SubgridMarker[cindex] != this) {
+	FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
+			  DeltaLevel, DomainWidth, DeleteMe, 
+			  ParentGrid);
+	TerminationRadius = (*PP)->Radius;
+	break;
+      }
+    } else {
+
+      /* For subsampling rays, only check if we've left the grid */
+
+      if (this->PointInGridGZ(g) == FALSE)
+	break;
+
     }
 
     /* Check for photons that have left the domain (only for root
@@ -342,10 +361,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
        the photon coordinates if it needs wrapping around the
        periodic boundary. */
 
-    if (GravityBoundaryType != SubGridIsolated)
+    if (GravityBoundaryType != SubGridIsolated && Mainray)
       if (this->PhotonPeriodicBoundary(cindex, r, g, s, *PP, *MoveToGrid,
-				       DomainWidth, DeleteMe) == FALSE)
+				       DomainWidth, DeleteMe) == FALSE) {
+	TerminationRadius = (*PP)->Radius;
 	break;
+      }
 
     oldr = (*PP)->Radius;
     min_dr = 1e20;
@@ -372,10 +393,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     radius = min_dr + PFLOAT_EPSILON;
     dr = radius - oldr;
 
-    if (dr < 0) {
+    if (dr < 0 && Mainray) {
       printf("dr < 0:   %"GSYM" %"GSYM" %"GSYM"\n", dr, min_dr, oldr);
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
+      TerminationRadius = (*PP)->Radius;
       return SUCCESS;
     }
 
@@ -397,17 +419,27 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     splitMe = (solid_angle > SplitCriteron);
 
     if (splitMe && radius < SplitWithinRadius && 
-	(*PP)->level < MAX_HEALPIX_LEVEL) {
-
-      // split the package
-      int return_value = SplitPhotonPackage((*PP));
-
-      // discontinue parent ray 
-      (*PP)->Photons = -1;
+	(*PP)->level < MAX_HEALPIX_LEVEL && Mainray) {
 
       DeleteMe = TRUE;
-      NumberOfPhotonPackages += 4;
-      return return_value;
+
+      /* With subsampling, we want to split after we calculate the
+	 remaining photons from summing up the sub-ray fluxes. */
+
+      if (Subsampling) {
+	TerminationRadius = (*PP)->Radius;
+	SplitMainray = true;
+	return SUCCESS;
+      } else {
+	// split the package
+	int return_value = SplitPhotonPackage((*PP));
+
+	// discontinue parent ray 
+	(*PP)->Photons = -1;
+
+	NumberOfPhotonPackages += 4;
+	return return_value;
+      }
 
     }  // if (splitting condition)
     
@@ -419,12 +451,23 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     ddr    = dr;
 
     // nor do we want transport longer than the grid timestep
-    ddr    = min(ddr, c*(EndTime-(*PP)->CurrentTime));
-    cdt = ddr * c_inv;
+    if (Mainray) {
+      ddr    = min(ddr, c*(EndTime-(*PP)->CurrentTime));
+      cdt = ddr * c_inv;
+    } else {
+      fraction = 1.0f;
+      // With a subray, don't go farther than TerminationRadius.
+      // Don't shorten on grid boundaries (causes artifacts).
+      if ((*PP)->Radius+ddr > TerminationRadius) {
+	fraction = (TerminationRadius - (*PP)->Radius) / ddr;
+	ddr *= fraction;
+	cdt *= fraction;
+      }
+    }
 
     // Check for ray merging, only consider a fraction of the ray to
     // make r=PauseRadius and return.
-    if ((*PP)->Radius+ddr > PauseRadius) {
+    if ((*PP)->Radius+ddr > PauseRadius && Mainray) {
       fraction = (PauseRadius-(*PP)->Radius) / ddr;
       fraction = max(fraction, PFLOAT_EPSILON);
       //fraction = min(fraction,0.1);
@@ -513,12 +556,18 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  dPi[i] = min((*PP)->Photons*tau, (*PP)->Photons);
 	dP1 = dPi[i] * slice_factor2;
 
+	/* Don't add to the fields if it's the main ray with subsampling */
+
+	if (!(Mainray && Subsampling)) {
+
 	// contributions to the photoionization rate is over whole timestep
 	BaryonField[kphNum[i]][index] += dP1*factor1;
 	
 	// the heating rate is just the number of photo ionizations
 	// times the excess energy units here are eV/s *TimeUnits.
 	BaryonField[gammaNum][index] += dP1*factor2[i];
+
+	} // ENDIF !(Mainray && Subsampling)
 
 	// Exit the loop if everything's been absorbed
 	if (tau > 2.e1) break;
@@ -561,8 +610,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dP = 0;
       else
 	dP = (*PP)->Photons * (1 - shield2/shield1);
-      BaryonField[kdissH2INum][index] += (*PP)->Photons * sigma[0] * factor3 * 
-	(ddr * omega_package * radius * radius * Volume_inv);
+
+      /* Don't add to the fields if it's the main ray with subsampling */
+
+      if (!(Mainray && Subsampling))
+	BaryonField[kdissH2INum][index] += (*PP)->Photons * sigma[0] * factor3 * 
+	  (ddr * omega_package * radius * radius * Volume_inv);
 
       break;
 
@@ -604,6 +657,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  dPXray[i] = min((*PP)->Photons*tau, (*PP)->Photons);
 	dP1 = dPXray[i] * slice_factor2;
 
+	/* Don't add to the fields if it's the main ray with subsampling */
+	
+	if (!(Mainray && Subsampling)) {
+
 	// contributions to the photoionization rate is over whole timestep
 	// units are 1/s *TimeUnits
 	BaryonField[kphNum[i]][index] += dP1 * factor1 * ion2_factor[i];
@@ -611,6 +668,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	// the heating rate is just the number of photo ionizations times
 	// the excess energy; units are eV/s *TimeUnits; check Grid_FinalizeRadiationFields
 	BaryonField[gammaNum][index] += dP1 * factor2[i] * heat_factor;
+
+	} // ENDIF !(Mainray && Subsampling)
 
       } // ENDFOR absorber
 
@@ -641,7 +700,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	dP1 = dPXray[3] * slice_factor2;
 
 	// the heating rate by energy transfer during Compton scattering
-	BaryonField[gammaNum][index] += dP1 * factor2[3]; 
+	
+	if (!(Mainray && Subsampling))
+	  BaryonField[gammaNum][index] += dP1 * factor2[3]; 
 
 	// a photon loses only a fraction of photon energy in Compton scatering, 
 	// and keeps propagating; to model this with monochromatic energy,
@@ -685,6 +746,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, i);
 	dP1 = dPXray[i] * slice_factor2;
 
+	/* Don't add to the fields if it's the main ray with subsampling */
+	
+	if (!(Mainray && Subsampling)) {
+
 	// units are 1/s *TimeUnits
 	BaryonField[kphNum[i]][index] += dP1 * factor1; 
 	
@@ -693,6 +758,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[gammaNum][index] += dP1 * factor1 * 
 	  ( ReturnValuesFromSpectrumTable((*PP)->ColumnDensity, dColumnDensity, 3) - 
 	    EnergyThresholds[i] );
+
+	} // ENDIF !(Main ray && Subsampling)
 
       }
 
@@ -736,21 +803,32 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	BaryonField[RPresNum1+dim][index] += 
 	  RadiationPressureConversion * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
+
+    if ((g[0] == 3 || g[0] == 4) && 
+	(g[1] == 19 || g[1] == 20) && g[2] == 3 && CellWidth[0][0] < 0.01) {
+      printf("(%d %d) %g, sl2=%g, dP=%g, dr=%g, main=%d (%d %d)\n", 
+	     g[0], g[1], BaryonField[kphHINum][cindex], slice_factor2, 
+	     dP*factor1, ddr, Mainray, (*PP)->level, (*PP)->ipix);
+    }
     
     (*PP)->CurrentTime += cdt;
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
 
-    if (RadiativeTransferLoadBalance)
-      BaryonField[RaySegNum][index] += 1.0;
+//    if (RadiativeTransferLoadBalance && !Mainray)
+//      BaryonField[RaySegNum][index] += 1.0;
+    if (RadiativeTransferLoadBalance && !Mainray)
+      BaryonField[RaySegNum][index] += slice_factor2;
 
     // return in case we're pausing to merge
-    if (PauseMe)
+    if (PauseMe && Mainray) {
+      TerminationRadius = PauseRadius;
       return SUCCESS;
+    }
 
     // return in case we're out of photons
-    if ((*PP)->Photons < tiny_number || 
-	(*PP)->ColumnDensity > tau_delete) {
+    if (((*PP)->Photons < tiny_number || 
+	 (*PP)->ColumnDensity > tau_delete) && Mainray) {
       if (DEBUG>1) {
 	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
 		"PP->CurrentTime: %"FSYM"\n",
@@ -760,15 +838,22 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       }
       (*PP)->Photons = -1;
       DeleteMe = TRUE;
+      if (Mainray)
+	TerminationRadius = (*PP)->Radius;
       return SUCCESS;
     }
+
+    if (!Mainray)
+      if ((*PP)->Radius >= TerminationRadius)
+	return SUCCESS;
     
     // are we done ? 
-    if (((*PP)->CurrentTime) >= EndTime) {
-      if (RadiativeTransferAdaptiveTimestep) {
-	(*PP)->Photons = -1;
-	DeleteMe = TRUE;
-      }
+    if (((*PP)->CurrentTime) >= EndTime && Mainray) {
+
+      (*PP)->Photons = -1;
+      if (Mainray)
+	TerminationRadius = (*PP)->Radius;
+      DeleteMe = TRUE;
       return SUCCESS;
     }
 
@@ -777,7 +862,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     g[direction] += u_sign[direction];
     cindex += u_sign[direction] * offset[direction];
     
-  } // while keep walking
+    } // while keep walking
 
   return SUCCESS;
-}
+  }
