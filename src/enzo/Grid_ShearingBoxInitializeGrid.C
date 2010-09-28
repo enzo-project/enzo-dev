@@ -122,9 +122,9 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	float xVel[3] ={0,0,0};
 
 	if (ShearingBoxProblemType == 0){
+          /* put the overdensity in pressure equilibrium */
 	  if (x*x+y*y+z*z<0.25*ShearingGeometry*ShearingGeometry){
 	    BaryonField[iden ][n]=500.0*rho;
-	    
 	  }
 	  else if (x*x+y*y+z*z<ShearingGeometry*ShearingGeometry){ 
 	    BaryonField[iden ][n]=50.0*rho;
@@ -132,7 +132,7 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 	  }
 	  else BaryonField[iden ][n]=rho;
 	  xVel[ShearingBoundaryDirection]=10*AngularVelocity;
-	 
+          pressure = c_s*c_s*rho/Gamma;
 	}
 	else if (ShearingBoxProblemType == 1){ 
 	  xVel[ShearingBoundaryDirection]=magnitude*sin(xPos[ShearingOtherDirection]*2.0*ShearingGeometry*M_PI);
@@ -150,12 +150,22 @@ int grid::ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
           c_s = 4.08*AngularVelocity;
           xVel[ShearingBoundaryDirection] = magnitude*sin(2*M_PI*(N_x* xPos[ShearingBoundaryDirection] + N_y * xPos[ShearingVelocityDirection] + N_z * xPos[ShearingOtherDirection]));
           BaryonField[iden][n] = rho;
+          if (EOSType == 3)
+            pressure=c_s*c_s*rho/Gamma;
+          else
+            pressure = 1e-6;
+        }
+        else if (ShearingBoxProblemType ==4) {
+          /* simple epicyclic motion test */
+          c_s = AngularVelocity;
+          xVel[ShearingBoundaryDirection] = magnitude*c_s;
+          BaryonField[iden][n] = rho;
+          pressure = c_s*c_s*rho/Gamma;
         }
 
-	float rhoActual=BaryonField[iden ][n];
-	pressure=c_s*c_s*rhoActual/Gamma;
-	float realpressure=pressure*PressureUnits;  
+        float realpressure=pressure*PressureUnits;  
 	float InitialBField=sqrt((8*M_PI*realpressure/(ThermalMagneticRatio)))/bunit;
+	float rhoActual=BaryonField[iden ][n];
 
 	eint=0.0;
 	
