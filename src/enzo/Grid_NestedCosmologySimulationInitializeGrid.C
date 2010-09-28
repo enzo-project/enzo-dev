@@ -100,6 +100,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           float CosmologySimulationInitialFractionHM,
                           float CosmologySimulationInitialFractionH2I,
                           float CosmologySimulationInitialFractionH2II,
+			  float CosmologySimulationInitialFractionMetal,
                           int   UseMetallicityField,
                           PINT &CurrentParticleNumber,
                           int CosmologySimulationManuallySetParticleMassRatio,
@@ -558,10 +559,13 @@ int grid::NestedCosmologySimulationInitializeGrid(
       
       if (UseMetallicityField && ReadData)
 	for (i = 0; i < size; i++) {
-	  BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];
+	  BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
+	    * BaryonField[0][i];
 	  if(MultiMetals){
-	    BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
-	    BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];
+	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
+	      * BaryonField[0][i];
+	    BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
+	      * BaryonField[0][i];
 	  }
 	}
 

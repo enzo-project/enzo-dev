@@ -44,6 +44,7 @@ void fpcol(float *x, int n, int m, FILE *fptr);
 
 #define FUZZY_BOUNDARY 0.1
 #define FUZZY_ITERATIONS 10
+#define NO_SYNC_TIMING
 
 int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles)
@@ -71,7 +72,9 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   int iter;
 
   double tt0, tt1;
+#ifdef SYNC_TIMING
   CommunicationBarrier();
+#endif
   tt0 = ReturnWallTime();
 
   /* Find the bounding box of the grids */
@@ -317,7 +320,9 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
       GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
   }
 
+#ifdef SYNC_TIMING
   CommunicationBarrier();
+#endif
   if (debug && GridsMoved > 0) {
     tt1 = ReturnWallTime();
     printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "

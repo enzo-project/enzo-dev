@@ -74,6 +74,7 @@ static float CosmologySimulationInitialFractionHeIII = 1.0e-17;
 static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
+static float CosmologySimulationInitialFractionMetal = 1.0e-10;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
@@ -263,6 +264,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionH2I);
     ret += sscanf(line, "CosmologySimulationInitialFractionH2II = %"FSYM,
 		  &CosmologySimulationInitialFractionH2II);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetal = %"FSYM,
+		  &CosmologySimulationInitialFractionMetal);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -349,7 +352,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       CosmologySimulationParticlePositionNames[0] == NULL &&
       !CosmologySimulationCalculatePositions) {
     ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
-	      "CosmologySimualtionCalculatePositions or 1-component particle "
+	      "CosmologySimulationCalculatePositions or 1-component particle "
 	      "position files.\n");
   }
  
@@ -579,6 +582,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionHM,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
+			     CosmologySimulationInitialFractionMetal,
 #ifdef TRANSFER
 			     RadHydroInitialRadiationEnergy,
 #endif
@@ -760,6 +764,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionH2I);
     fprintf(Outfptr, "CosmologySimulationInitialFractionH2II  = %"GSYM"\n",
 	    CosmologySimulationInitialFractionH2II);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetal = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetal);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
   }
@@ -885,6 +891,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationInitialFractionHM,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
+			     CosmologySimulationInitialFractionMetal,
 #ifdef TRANSFER
 			     RadHydroInitialRadiationEnergy,
 #endif

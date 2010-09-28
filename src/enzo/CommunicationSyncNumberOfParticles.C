@@ -35,32 +35,35 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 				       int NumberOfGrids)
 {
 
-  int i;
-  int *AllNumberOfParticles = new int[NumberOfGrids];
-  int *AllNumberOfStars = new int[NumberOfGrids];
+  int i, idx;
+  //int *AllNumberOfParticles = new int[NumberOfGrids];
+  //int *AllNumberOfStars = new int[NumberOfGrids];
+  int *buffer = new int[2*NumberOfGrids];
 
-  for (i = 0; i < NumberOfGrids; i++)
+  for (i = 0, idx = 0; i < NumberOfGrids; i++, idx += 2)
     if (GridHierarchyPointer[i]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
-      AllNumberOfParticles[i] = GridHierarchyPointer[i]->GridData->
+      buffer[idx] = GridHierarchyPointer[i]->GridData->
 	ReturnNumberOfParticles();
-      AllNumberOfStars[i] = GridHierarchyPointer[i]->GridData->ReturnNumberOfStars();
+      buffer[idx+1] = GridHierarchyPointer[i]->GridData->ReturnNumberOfStars();
     } else {
-      AllNumberOfParticles[i] = 0;
-      AllNumberOfStars[i] = 0;
+      buffer[idx] = 0;
+      buffer[idx+1] = 0;
     }
 
 #ifdef USE_MPI
-  CommunicationAllReduceValues(AllNumberOfParticles, NumberOfGrids, MPI_SUM);
-  CommunicationAllReduceValues(AllNumberOfStars, NumberOfGrids, MPI_SUM);
+  CommunicationAllReduceValues(buffer, 2*NumberOfGrids, MPI_SUM);
+  //CommunicationAllReduceValues(AllNumberOfParticles, NumberOfGrids, MPI_SUM);
+  //CommunicationAllReduceValues(AllNumberOfStars, NumberOfGrids, MPI_SUM);
 #endif
 
-  for (i = 0; i < NumberOfGrids; i++) {
-    GridHierarchyPointer[i]->GridData->SetNumberOfParticles(AllNumberOfParticles[i]);
-    GridHierarchyPointer[i]->GridData->SetNumberOfStars(AllNumberOfStars[i]);
+  for (i = 0, idx = 0; i < NumberOfGrids; i++, idx += 2) {
+    GridHierarchyPointer[i]->GridData->SetNumberOfParticles(buffer[idx]);
+    GridHierarchyPointer[i]->GridData->SetNumberOfStars(buffer[idx+1]);
   }
 
-  delete [] AllNumberOfParticles;
-  delete [] AllNumberOfStars;
+  delete [] buffer;
+  //delete [] AllNumberOfParticles;
+  //delete [] AllNumberOfStars;
 
   return SUCCESS;
 }

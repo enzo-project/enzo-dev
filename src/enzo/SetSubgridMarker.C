@@ -47,7 +47,7 @@ int SetSubgridMarker(TopGridData &MetaData,
   if (!RadiativeTransfer)
     return SUCCESS;
 
-  int i, grid2;
+  int i, grid2, StartLevel;
   LevelHierarchyEntry *Temp;
   HierarchyEntry *Subgrid;
 
@@ -67,7 +67,8 @@ int SetSubgridMarker(TopGridData &MetaData,
     for (Temp = LevelArray[0]; Temp; Temp = Temp->NextGridThisLevel)
       Temp->GridData->SetSubgridMarkerFromSubgrid(NULL);
 
-  for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)  {
+  StartLevel = max(level, 0);
+  for (i = StartLevel; i < MAX_DEPTH_OF_HIERARCHY-1; i++)  {
 
     /* Initialize and fill out the fast sibling chaining mesh. */
 
@@ -127,7 +128,7 @@ int SetSubgridMarker(TopGridData &MetaData,
 	 different processor */
       
       for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->SubgridMarkerPostParallel
+	Temp->GridData->SubgridMarkerPostParallelGZ
 	  (Temp->GridHierarchyEntry->ParentGrid->GridData, Grids,
 	   NumberOfGrids);
 
