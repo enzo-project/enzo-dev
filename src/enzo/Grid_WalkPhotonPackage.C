@@ -804,12 +804,14 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	  RadiationPressureConversion * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
 
+#ifdef UNUSED
     if ((g[0] == 3 || g[0] == 4) && 
 	(g[1] == 19 || g[1] == 20) && g[2] == 3 && CellWidth[0][0] < 0.01) {
       printf("(%d %d) %g, sl2=%g, dP=%g, dr=%g, main=%d (%d %d)\n", 
 	     g[0], g[1], BaryonField[kphHINum][cindex], slice_factor2, 
 	     dP*factor1, ddr, Mainray, (*PP)->level, (*PP)->ipix);
     }
+#endif
     
     (*PP)->CurrentTime += cdt;
     (*PP)->Photons     -= dP;

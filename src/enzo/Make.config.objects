@@ -782,7 +782,6 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
-	star_maker9.o \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
