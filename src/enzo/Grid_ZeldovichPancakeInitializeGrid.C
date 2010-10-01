@@ -147,13 +147,12 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     }
  
     /* Set density. */
- 
-    BaryonField[0][i] = ZeldovichPancakeOmegaBaryonNow/
-                        (1 - Amplitude*cos(kx*xEulerian));
- 
+    // correct Zeldovich test: 
+    //    BaryonField[0][i] = ZeldovichPancakeOmegaBaryonNow/
+    //                        (1 - Amplitude*cos(kx*xEulerian));
     // terribly fudge since the folks that do B field tests
     // did not set up the density fields consistently ...
-    if  (ZeldovichPancakeInitialUniformBField[1] != 0)
+    // MATCH RYU 1993 et al paper ..... 
       BaryonField[0][i] = 1.;
 
     /* Set total energy, gas energy. */

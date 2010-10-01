@@ -193,10 +193,10 @@ int grid::SourceTerms(float **dU)
 	  vy = BaryonField[Vel2Num][igrid];
 	  vz = BaryonField[Vel3Num][igrid];
 
-	  dU[iS1  ][n] += dtFixed*gx*rho/a;
-	  dU[iS2  ][n] += dtFixed*gy*rho/a;
-	  dU[iS3  ][n] += dtFixed*gz*rho/a;
-	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz)/a;
+	  dU[iS1  ][n] += dtFixed*gx*rho;
+	  dU[iS2  ][n] += dtFixed*gy*rho;
+	  dU[iS3  ][n] += dtFixed*gz*rho;
+	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
 	}
       }
     }

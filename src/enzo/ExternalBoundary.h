@@ -119,6 +119,9 @@ class ExternalBoundary
   int SetDoubleMachBoundary(FLOAT time, FLOAT CellLeftEdge[], 
                             FLOAT CellWidth[]);
 
+// Wengen colliding flow with pseudo cooling has  a particular shape.
+  int SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftEdge[], 
+                            FLOAT CellWidth[]);
 
 /*  RandomForcing tricks. */
 

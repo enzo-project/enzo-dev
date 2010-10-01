@@ -157,6 +157,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetExternalBoundaryParticles.o \
         ExternalBoundary_SetShockPoolBoundary.o \
         ExternalBoundary_SetWavePoolBoundary.o \
+        ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
         ExtractSection.o \
         FastFourierTransform.o \

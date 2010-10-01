@@ -1,4 +1,5 @@
 #include "fortran.def"
+#ifdef UNUSED
 c=======================================================================
 c///////////////////////  SUBROUTINE EXPAND_TERMS  \\\\\\\\\\\\\\\\\\\\\
 c
@@ -195,3 +196,4 @@ c
 c
       return
       end
+#endif

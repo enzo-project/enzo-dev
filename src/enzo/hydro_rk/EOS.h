@@ -11,6 +11,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
        1: polytropic EOS
        2: another polytropic EOS
        3: isothermal 
+       4: pseudocooling for Wengen 2 test
      mode:  
        1: given p and rho, calculate others.
        2: given rho and e, calculate others.
@@ -82,6 +83,19 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
   if (eostype == 3) { // straight isothermal
     cs = EOSSoundSpeed;
     p = rho*cs*cs;
+    e = p / ((Gamma-1.0)*rho);
+    dpdrho = 1;
+    dpde = 1;
+    h = e + p/rho;
+  }
+
+  if (eostype == 4) { // Wengen 2 test wants pseudocooling
+    cs = 0.112611;
+    // divided by 1000 is the suggested wengen EOS
+    // doing to only 100 should reduce the resolution requirements
+    // for the initial tests
+    //    p = rho * (cs*cs/1000 + cs*cs/(1.+pow(rho, 1.5)));
+    p = rho * (cs*cs/100 + cs*cs/(1.+pow(rho, 1.5)));
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;
     dpde = 1;
