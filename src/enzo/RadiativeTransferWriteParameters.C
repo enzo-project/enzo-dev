@@ -49,8 +49,6 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferSplitPhotonRadius);
   fprintf(fptr, "RadiativeTransferRaysPerCell              = %"FSYM"\n", 
 	  RadiativeTransferRaysPerCell);
-  fprintf(fptr, "RadiativeTransferChildRayLevel            = %"ISYM"\n", 
-	  RadiativeTransferChildRayLevel);
   fprintf(fptr, "RadiativeTransferTimestepVelocityLimit    = %"FSYM"\n", 
 	  RadiativeTransferTimestepVelocityLimit);
   fprintf(fptr, "RadiativeTransferInitialHEALPixLevel      = %"ISYM"\n", 

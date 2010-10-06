@@ -361,9 +361,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
-		      float LengthUnits, float TimeUnits, bool Subsampling, 
-		      bool Mainray, bool &SplitMainray,
-		      FLOAT &TerminationRadius);
+		      float LengthUnits, float TimeUnits);
 
 int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 		      PhotonPackageEntry* &PP,
@@ -430,8 +428,3 @@ int DeleteEmissivity(void);
 int CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD);
 int AddRadiationImpulse(int field, double Luminosity, double sigma, 
 			FLOAT BirthTime, FLOAT* pos);
-
-// Routine for Subray correction to radius on grid boundaries
-int SubrayGridBoundaryCorrection
-(PhotonPackageEntry* &PP, FLOAT u[], int u_sign[], int u_dir[], 
- FLOAT u_inv[], FLOAT f[], FLOAT r[], int g[]);

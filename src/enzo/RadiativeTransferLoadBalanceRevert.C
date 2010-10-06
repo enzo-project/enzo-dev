@@ -40,15 +40,6 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
-  if (NumberOfProcessors == 1)
-    return SUCCESS;
-
-  if (RadiativeTransfer == FALSE)
-    return SUCCESS;
-
-  if (RadiativeTransferLoadBalance == FALSE)
-    return SUCCESS;
-
   int i, level, temp_proc, ori_proc, nph;
 
   /* Delete baryon fields in replicated grid */

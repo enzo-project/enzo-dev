@@ -782,7 +782,6 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
-	star_maker9.o \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
@@ -894,7 +893,6 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
         Grid_SubgridMarkerPostParallel.o \
-	Grid_SubrayGridBoundaryCorrection.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
         Grid_WalkPhotonPackage.o \
@@ -919,7 +917,6 @@ POBJS_CONFIG_LIB = \
         SetSubgridMarker.o \
         SplitPhotonPackage.o \
         StarParticleRadTransfer.o \
-	SubsamplePhotonPackage.o \
         TemperatureFieldToolsForComptonHeating.o \
 	WritePhotonSources.o
 
