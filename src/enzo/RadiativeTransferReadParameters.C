@@ -50,7 +50,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferOpticallyThinH2            = TRUE;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
-  RadiativeTransferChildRayLevel              = 0;
   RadiativeTransferInitialHEALPixLevel        = 3;
   RadiativeTransferPhotonEscapeRadius         = 0.0;   // kpc
   RadiativeTransferInterpolateField           = FALSE;
@@ -96,8 +95,6 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferSplitPhotonRadius);
     ret += sscanf(line, "RadiativeTransferRaysPerCell = %"FSYM, 
 		  &RadiativeTransferRaysPerCell);
-    ret += sscanf(line, "RadiativeTransferChildRayLevel = %"ISYM, 
-		  &RadiativeTransferChildRayLevel);
     ret += sscanf(line, "RadiativeTransferTimestepVelocityLimit = %"FSYM, 
 		  &RadiativeTransferTimestepVelocityLimit);
     ret += sscanf(line, "RadiativeTransferInitialHEALPixLevel = %"ISYM, 

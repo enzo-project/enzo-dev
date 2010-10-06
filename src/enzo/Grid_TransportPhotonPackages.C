@@ -28,7 +28,6 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int SplitPhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
@@ -36,8 +35,6 @@ int FindField(int field, int farray[], int numfields);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-int SubsamplePhotonPackage(PhotonPackageEntry *&PP, PhotonPackageEntry **Subrays,
-			   int SubrayLevel, int NumberOfSubrays, int mode);
 
 int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 
 				  int GridNum, grid **Grids0, int nGrids0, 
@@ -45,7 +42,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 {
 
   int i,j,k, dim, index, count;
-  grid *MoveToGrid, *TempMoveGrid;
+  grid *MoveToGrid;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -141,22 +138,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int trcount = 0;
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
-  int ChildDeleteMe = FALSE, ChildDeltaLevel = FALSE, 
-    ChildPauseMe = FALSE;
-  int NumberOfSubsamples = 1;
-  bool Subsampling, Mainray, SplitMainray;
-  FLOAT TerminationRadius;
-
-  /* Allocation memory for subsampling rays, if needed */
-
-  PhotonPackageEntry **Subrays = NULL;
-
-  if (RadiativeTransferChildRayLevel > 0) {
-    NumberOfSubsamples = 1 << (2*RadiativeTransferChildRayLevel);
-    Subrays = new PhotonPackageEntry*[NumberOfSubsamples];
-    for (i = 0; i < NumberOfSubsamples; i++)
-      Subrays[i] = new PhotonPackageEntry;
-  }
 
   const float clight = 2.9979e10;
   float LightCrossingTime = 1.7320508 * (VelocityUnits) /
@@ -175,77 +156,15 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     AdvancePhotonPointer = TRUE;
 
     if ((PP->CurrentTime) < EndTime) {
-
-      /* No subsampling of the main ray. */
-
-      if (RadiativeTransferChildRayLevel == 0) {
-	Subsampling = false;
-	Mainray = true;
-	WalkPhotonPackage
-	  (&PP, &MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-	   DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
-	   kphHINum, gammaNum, kphHeINum, 
-	   kphHeIINum, kdissH2INum, RPresNum1,
-	   RPresNum2, RPresNum3, RaySegNum,
-	   DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
-	   DensityUnits, TemperatureUnits, VelocityUnits, LengthUnits, 
-	   TimeUnits, Subsampling, Mainray, SplitMainray, 
-	   TerminationRadius);
-      } 
-
-      /* Subsample main ray into 4^ChildRayLevel rays */
-
-      else {
-
-	SubsamplePhotonPackage(PP, Subrays, RadiativeTransferChildRayLevel, 
-			       NumberOfSubsamples, SPLIT_RAY);
-
-	/* Trace main ray (but don't contribute to the photo- fields)
-	   to determine the radius the subrays should travel. */
-	
-	TempMoveGrid = NULL;
-	Subsampling = true;
-	Mainray = true;
-	SplitMainray = false;
-	WalkPhotonPackage
-	  (&PP, &MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
-	   DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
-	   kphHINum, gammaNum, kphHeINum, 
-	   kphHeIINum, kdissH2INum, RPresNum1,
-	   RPresNum2, RPresNum3, RaySegNum,
-	   DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
-	   DensityUnits, TemperatureUnits, VelocityUnits, LengthUnits, 
-	   TimeUnits, Subsampling, Mainray, SplitMainray, 
-	   TerminationRadius);
-
-	Mainray = false;
-	for (i = 0; i < NumberOfSubsamples; i++) {
-	  WalkPhotonPackage
-	    (Subrays+i, &TempMoveGrid, ParentGrid, CurrentGrid, 
-	     Grids0, nGrids0, DensNum, DeNum, HINum, HeINum, HeIINum, 
-	     H2INum, kphHINum, gammaNum, kphHeINum, 
-	     kphHeIINum, kdissH2INum, RPresNum1,
-	     RPresNum2, RPresNum3, RaySegNum,
-	     ChildDeleteMe, ChildPauseMe, ChildDeltaLevel, 
-	     LightCrossingTime,
-	     DensityUnits, TemperatureUnits, VelocityUnits, LengthUnits, 
-	     TimeUnits, Subsampling, Mainray, SplitMainray, 
-	     TerminationRadius);
-	} // ENDFOR subsamples
-
-	SubsamplePhotonPackage(PP, Subrays, RadiativeTransferChildRayLevel, 
-			       NumberOfSubsamples, COMBINE_RAY);
-
-	/* After summing up the photon flux, we can safely split the ray. */
-
-	if (SplitMainray) {
-	  SplitPhotonPackage(PP);
-	  PP->Photons = -1;
-	  NumberOfPhotonPackages += 4;
-	}
-	
-      }
-
+      WalkPhotonPackage(&PP,
+			&MoveToGrid, ParentGrid, CurrentGrid, Grids0, nGrids0,
+			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
+			kphHINum, gammaNum, kphHeINum, 
+			kphHeIINum, kdissH2INum, RPresNum1,
+			RPresNum2, RPresNum3, RaySegNum,
+			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
+			DensityUnits, TemperatureUnits, VelocityUnits, 
+			LengthUnits, TimeUnits);
       tcount++;
     } else {
 
@@ -339,14 +258,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
 	    tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
-
-  /* Cleanup subsampling ray array */
-  
-  if (RadiativeTransferChildRayLevel > 0) {
-    for (i = 0; i < NumberOfSubsamples; i++)
-      delete Subrays[i];
-    delete [] Subrays;
-  }
 
   /* For safety, clean up paused photon list */
 

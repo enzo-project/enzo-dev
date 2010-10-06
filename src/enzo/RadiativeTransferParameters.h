@@ -98,8 +98,3 @@ EXTERN char *RadiativeTransferTraceSpectrumTable;
 /* Flag for temporary load balancing for the ray tracing */
 
 EXTERN int RadiativeTransferLoadBalance;
-
-/* Number of additional levels that are traced by subsampling rays,
-   i.e. anti-aliasing. */
-
-EXTERN int RadiativeTransferChildRayLevel;

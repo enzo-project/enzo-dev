@@ -451,20 +451,19 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 11
+#define NUM_PARTICLE_TYPES 10
 
-#define PARTICLE_TYPE_RESET         -1
-#define PARTICLE_TYPE_GAS            0
-#define PARTICLE_TYPE_DARK_MATTER    1
-#define PARTICLE_TYPE_STAR           2
-#define PARTICLE_TYPE_TRACER         3
-#define PARTICLE_TYPE_MUST_REFINE    4
-#define PARTICLE_TYPE_SINGLE_STAR    5
-#define PARTICLE_TYPE_BLACK_HOLE     6
-#define PARTICLE_TYPE_CLUSTER        7
-#define PARTICLE_TYPE_MBH            8
-#define PARTICLE_TYPE_COLOR_STAR     9
-#define PARTICLE_TYPE_SIMPLE_SOURCE 10
+#define PARTICLE_TYPE_RESET       -1
+#define PARTICLE_TYPE_GAS          0
+#define PARTICLE_TYPE_DARK_MATTER  1
+#define PARTICLE_TYPE_STAR         2
+#define PARTICLE_TYPE_TRACER       3
+#define PARTICLE_TYPE_MUST_REFINE  4
+#define PARTICLE_TYPE_SINGLE_STAR  5
+#define PARTICLE_TYPE_BLACK_HOLE   6
+#define PARTICLE_TYPE_CLUSTER      7
+#define PARTICLE_TYPE_MBH          8
+#define PARTICLE_TYPE_COLOR_STAR   9
 
 /* Star particle handling */
 
@@ -514,11 +513,6 @@ typedef int            HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_LEVEL 3
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
-
-/* Ray subsampling modes */
-
-#define SPLIT_RAY 0
-#define COMBINE_RAY 1
 
 #define DEFAULT_MU 0.6
 
