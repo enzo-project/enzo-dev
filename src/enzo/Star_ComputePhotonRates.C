@@ -168,7 +168,7 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
 
     // radiating particle that ramps with time, independant of mass
     E[0] = 20.0;
-    Q[0] = 1.e50; // ramping done in StarParticleRadTransfer.C
+    Q[0] = SimpleQ; // ramping done in StarParticleRadTransfer.C
     break;
 
   default:
