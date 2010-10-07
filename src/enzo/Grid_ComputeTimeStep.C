@@ -403,7 +403,7 @@ float grid::ComputeTimeStep()
 
   float dtSafetyVelocity = huge_number;
   if (TimestepSafetyVelocity > 0)
-    dtSafetyVelocity = CellWidth[0][0] / 
+    dtSafetyVelocity = a*CellWidth[0][0] / 
       (TimestepSafetyVelocity*1e5 / VelocityUnits);    // parameter in km/s
 
   dt = min(dt, dtSafetyVelocity);
