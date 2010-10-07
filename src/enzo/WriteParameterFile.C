@@ -618,6 +618,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  BigStarFormation);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
+  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+	  SimpleQ);
+  fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
+	  SimpleRampTime);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
