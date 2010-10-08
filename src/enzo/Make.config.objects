@@ -458,6 +458,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
         Grid_ParticleSplitter.o \
@@ -517,6 +518,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -633,6 +635,7 @@ OBJS_CONFIG_LIB = \
         nr_3d.o \
         nr_st1.o \
 	NullProblem.o \
+	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\

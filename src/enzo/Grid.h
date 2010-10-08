@@ -2041,6 +2041,16 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Reset internal energy to initial values for cooling test. */
   int CoolingTestResetEnergies();
 
+  /* One-zone free-fall test initialization */
+  int OneZoneFreefallTestInitializeGrid(float InitialDensity,
+					float MinimumTemperature,
+					float MaximumTemperature,
+					float MinimumMetallicity,
+					float MaximumMetallicity);
+
+  /* Solve free-fall analytical solution. */
+  int SolveOneZoneFreefall();
+
 /* Tricks for Random Forcing. */
 
   int ReturnNumberOfBaryonFields(){return NumberOfBaryonFields;};

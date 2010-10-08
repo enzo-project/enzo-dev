@@ -32,6 +32,7 @@
 #include "RadiativeTransferParameters.h"
 #include "hydro_rk/EOS.h"
 #include "hydro_rk/tools.h"
+#include "phys_constants.h"
  
 /* function prototypes */
  
@@ -97,6 +98,13 @@ float grid::ComputeTimeStep()
 					 Vel3Num, TENum) == FAIL) {
       fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
       exit(FAIL);
+    }
+
+    /* For one-zone free-fall test, just compute free-fall time. */
+    if (ProblemType == 63) {
+      dt = TestProblemData.OneZoneFreefallTimestepFraction * 
+	POW(((3 * pi) / (32 * GravitationalConstant * BaryonField[DensNum][0])), 0.5);
+      return dt;
     }
  
     /* Compute the pressure. */

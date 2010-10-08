@@ -107,6 +107,8 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   TopGridData &MetaData);
 int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData); 
+int OneZoneFreefallTestInitialize(FILE *fptr, FILE *Outfptr, 
+				  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                   HierarchyEntry &TopGrid,
                                   TopGridData &MetaData);
@@ -510,6 +512,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 62) Cooling test problem
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  // 63) 1-zone free-fall test problem
+  if (ProblemType == 63)
+    ret = OneZoneFreefallTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
   // 70) Conduction test problem with hydro disabled
   // 71) Conduction test problem with hydro turned on

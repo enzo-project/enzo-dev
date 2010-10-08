@@ -591,6 +591,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
+  TestProblemData.MetallicityNormalization = 0.0204;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;
