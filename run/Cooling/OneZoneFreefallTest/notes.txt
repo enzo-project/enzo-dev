@@ -1,0 +1,9 @@
+OneZoneFreefallTest
+----------------
+
+This test problem will set up a 2D grid varying in energy and metallicity.  
+All points have the same density, which evolves according to the analytical 
+solution for free-fall collapse.  The timestep is calculated as a fraction of 
+the free-fall time.  Since the timestep continually decreases, outputs are 
+done on cycles.  This test problem can be used to test chemistry and 
+cooling routines.
