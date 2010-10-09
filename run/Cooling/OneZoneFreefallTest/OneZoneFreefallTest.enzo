@@ -7,7 +7,7 @@
 #
 #  problem setup
 #
-# Cooling Test
+# One-zone free-fall test
 ProblemType =  63
 
 #
