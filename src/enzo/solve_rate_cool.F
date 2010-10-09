@@ -32,6 +32,7 @@
      &                irt_honly,
      &                kphHI, kphHeI, kphHeII, kdissH2I, 
      &                photogamma, 
+     &                ih2optical, iciecool, ithreebody, ciecoa, 
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -127,7 +128,7 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
-     &        igammah
+     &        igammah, ih2optical, iciecool, ithreebody
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
 
@@ -153,7 +154,7 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec)
+     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -238,7 +239,7 @@
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), edot(ijk)
       real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
-     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
+     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), cieco(ijk)
 
 !  Iteration mask
 
@@ -352,6 +353,7 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
+     &                ih2optical, iciecool, ciecoa, cieco,
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -362,7 +364,8 @@
 !         (maybe should add itmask to this call)
 
             call lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &               is, ie, ijk, iradtype, iradshield, in, jn, kn,
+     &               is, ie, ijk, iradtype, iradshield, ithreebody,
+     &               in, jn, kn,
      &               ispecies, tgas, HI, HII, HeI, HeII,
      &               k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &               k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
@@ -784,7 +787,8 @@ c -------------------------------------------------------------------
 !   of temperature.
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &                is, ie, ijk, iradtype, iradshield, in, jn, kn,
+     &                is, ie, ijk, iradtype, iradshield, ithreebody,
+     &                in, jn, kn,
      &                ispecies, tgas1d, HI, HII, HeI, HeII,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
@@ -805,7 +809,7 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer is, ie, ijk, iradtype, iradshield, nratec, 
-     &        in, jn, kn, ispecies, j, k
+     &        in, jn, kn, ispecies, ithreebody, j, k
       real temstart, temend, tgas1d(in), dom
       double precision coolunit, tbase1
       logical itmask(ijk)
@@ -1009,9 +1013,9 @@ c -------------------------------------------------------------------
 !         May/00: there appears to be a problem with the density-dependent
 !             collisional rates.  Currently turned off until further notice.
 
-#define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE_OFF
+#define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
 #ifdef USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
-            if (ispecies .gt. 1) then
+            if (ispecies .gt. 1 .and. ithreebody .eq. 0) then
                do i = is+1, ie+1
                   if (itmask(i)) then
                   nh = min(HI(i,j,k)*dom, 1.0e9)
