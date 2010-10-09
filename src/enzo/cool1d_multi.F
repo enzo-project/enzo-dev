@@ -437,6 +437,8 @@
             fudge = min(fudge, 1.0)
 #endif /* OPTICAL_DEPTH_FUDGE */
 
+            fudge = (0.76*d(i,j,k)*dom/8.0e9)**(-0.45)
+            fudge = min(fudge, 1.0)
             galdl(i) = gaHI(i) * HI(i,j,k)  + gaH2(i) * H2I(i,j,k)
      &               + gaHe(i) * HeI(i,j,k) + gaHp(i) * HII(i,j,k)
      &               + gael(i) * de(i,j,k)

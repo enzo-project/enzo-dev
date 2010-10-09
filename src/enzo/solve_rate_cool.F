@@ -209,7 +209,7 @@
       integer i, j, k, iter
       integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
       real ttmin, dom, energy, comp1, comp2
-      double precision coolunit, dbase1, tbase1, xbase1
+      double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
 
 !  row temporaries
 
@@ -258,6 +258,8 @@
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
+      uvel     = uxyz / utim
+      chunit = (7.17775e-12)/(2.0*uvel*uvel*mh)
 
 !  Convert densities from comoving to proper
 
@@ -388,7 +390,7 @@
      &                     k50, k51, k52, k53, k54, k55,
      &                     k56, k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask)
+     &                     kdissH2I, itmask, edot, chunit)
 
 !           Find timestep that keeps relative chemical changes below 10%
 
@@ -1007,7 +1009,7 @@ c -------------------------------------------------------------------
 !         May/00: there appears to be a problem with the density-dependent
 !             collisional rates.  Currently turned off until further notice.
 
-#define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
+#define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE_OFF
 #ifdef USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
             if (ispecies .gt. 1) then
                do i = is+1, ie+1
@@ -1044,7 +1046,7 @@ c -------------------------------------------------------------------
      &                     k50, k51, k52, k53, k54, k55,
      &                     k56, k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask)
+     &                     kdissH2I, itmask, edot, chunit)
 
 ! -------------------------------------------------------------------
 
@@ -1053,7 +1055,7 @@ c -------------------------------------------------------------------
 !     arguments
 
       integer ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
-      real dedot(in), HIdot(in)
+      real dedot(in), HIdot(in), edot(in)
       logical itmask(in)
 
 !     Density fields
@@ -1067,6 +1069,8 @@ c -------------------------------------------------------------------
 
       real    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &        kdissH2I(in,jn,kn)
+
+      double precision chunit
 
 !     Rate values
 
@@ -1160,6 +1164,14 @@ c -------------------------------------------------------------------
      &               +  k25shield(i)*HeII(i,j,k)/4.0
      &               +  k26shield(i)*HeI(i,j,k)/4.0)
 #endif /* RADIATION */
+
+            edot(i) = edot(i) + chunit * (
+     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
+     &                    - k13(i) * H2I(i,j,k))
+!     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
+!     &                    - k23(i) * H2I(i,j,k))
+     &                  )
+!H * (k22 * H^2 - k13 * H_2) + H_2 * (k21 * H^2 - k23 * H_2) */
          endif                  ! itmask
          enddo
       endif
