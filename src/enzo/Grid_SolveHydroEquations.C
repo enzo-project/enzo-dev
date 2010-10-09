@@ -474,6 +474,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	ENZO_FAIL("ZeusSolver() failed!\n");
 	
 
+
     /* Clean up allocated fields. */
 
     delete [] GammaField;

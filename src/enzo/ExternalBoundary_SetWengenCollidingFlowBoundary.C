@@ -25,7 +25,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "ShockPoolGlobalData.h"
+#include "MHD2DTestGlobalData.h"
 #include "hydro_rk/EOS.h"
  
 /* function prototypes */
@@ -51,9 +51,9 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+				       Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
@@ -89,37 +89,38 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
  
       for (i = 0; i < BoundaryDimension[dim1]; i++)
 	for (j = 0; j < BoundaryDimension[dim2]; j++) {
- 	  x = (float(i-Offset[dim1]))*
+ 	  x = (float(i-Offset[dim1]) )*
 	    (DomainRightEdge[dim1]-DomainLeftEdge[dim1]) /
-	      float(NumberOfZones[dim1]);
-	  y = (float(j-Offset[dim2]))*
+	      float(NumberOfZones[dim1]) ;
+	  y = (float(j-Offset[dim2]) )*
 	    (DomainRightEdge[dim2]-DomainLeftEdge[dim2]) /
-	      float(NumberOfZones[dim2]);
+	      float(NumberOfZones[dim2]) ;
 
 	  /* Set the field values. */
 	  //	  fprintf(stdout, "%g %g \n", x ,y);
 	  index = j*BoundaryDimension[dim1] + i;
 	  float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
 	  float rho, vx, vy, f, vxu, vxl, vyu, vyl, Bxl, Byl, etotl, RampWidth;
-	  rho = 1.;
-	  vxl = -0.22522;
-	  vxu =  0.22522;
-	  vyl =  0.45044;
-	  vyu = -0.45044;
-	  Bxl = 0.;
-	  Byl = 0.;
-	  RampWidth = 0.05;
+	  rho = LowerDensity;
+	  vxl = LowerVelocityX;
+	  vxu = UpperVelocityX;
+	  vyl = LowerVelocityY;
+	  vyu = LowerVelocityY;
+	  Bxl = LowerBx;
+	  Byl = LowerBy;
 	  pres = 0.112611*0.112611* rho; // isothermal sound speed = 0.112611
+	  pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // 
+	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
 	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1); // compute eintl
 	  ramp =  1./(1.+exp(-2/RampWidth*(y-0.5)));
-	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.);
-	  vx = f * (vxl + ramp*(vxu-vxl));
+	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
+	  vx = f * (vxl + ramp*(vxu-vxl)) ;
 	  vy = vyl + ramp*(vyu - vyl);
 	  etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
 
 	  *(BoundaryValue[DensNum][dim][0] + index) = rho;
 	  *(BoundaryValue[TENum][dim][0]   + index) = etotl;
-	  *(BoundaryValue[Vel1Num][dim][0] + index) = vx;
+	  *(BoundaryValue[Vel1Num][dim][0] + index) = vx ;
 	  if (BoundaryRank > 1)
 	    *(BoundaryValue[Vel2Num][dim][0] + index) = vy;
 	  if (BoundaryRank > 2)
@@ -127,11 +128,20 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
  
 	  *(BoundaryValue[DensNum][dim][1] + index) = rho;
 	  *(BoundaryValue[TENum][dim][1]   + index) = etotl;
-	  *(BoundaryValue[Vel1Num][dim][1] + index) = -vx;
+	  *(BoundaryValue[Vel1Num][dim][1] + index) = -vx ;
 	  if (BoundaryRank > 1)
 	    *(BoundaryValue[Vel2Num][dim][1] + index) = -vy;
 	  if (BoundaryRank > 2)
 	    *(BoundaryValue[Vel3Num][dim][1] + index) = 0.;
+
+	  if (HydroMethod == MHD_RK) {
+	    *(BoundaryValue[B1Num][dim][0] + index) = Bxl ;
+	    *(BoundaryValue[B2Num][dim][0] + index) = Byl;
+	    *(BoundaryValue[B3Num][dim][0] + index) = 0;
+	    *(BoundaryValue[B1Num][dim][1] + index) = Bxl ;
+	    *(BoundaryValue[B2Num][dim][1] + index) = Byl;
+	    *(BoundaryValue[B3Num][dim][1] + index) = 0;
+	  }
 
  
     } // end loop over boundary directions

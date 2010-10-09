@@ -67,7 +67,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 
   /* For the SetWengenCollidingFlowBoundary problem, set the inflow boundary conditions. */
  
-  if (ProblemType == 201 && EOSType == 4)
+  if (ProblemType == 201 && (EOSSoundSpeed > 0)) 
     if (Exterior->SetWengenCollidingFlowBoundary(Time, CellLeftEdge[0], CellWidth[0])
 	== FAIL) {
       ENZO_FAIL("Error in exterior->SetWengenCollidingFlowBoundary.\n");

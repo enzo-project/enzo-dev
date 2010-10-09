@@ -90,12 +90,26 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
   }
 
   if (eostype == 4) { // Wengen 2 test wants pseudocooling
-    cs = 0.112611;
+    cs = EOSSoundSpeed;
+    // cooling only to 100 should reduce the resolution requirements
+    // for the initial tests
+    //    cs  = sqrt(1.e-3 + 1./(1.+pow(rho, 1.5)));
+    cs *= sqrt(1.e-1 + 1./(1.+pow(rho, 1.5)));
+    p = rho * cs*cs;
+    e = p / ((Gamma-1.0)*rho);
+    dpdrho = 1;
+    dpde = 1;
+    h = e + p/rho;
+  }
+
+  if (eostype == 5) { // Wengen 2 test wants pseudocooling
+    // this is the discontinuous one originally suggested
+    cs = EOSSoundSpeed;
     // divided by 1000 is the suggested wengen EOS
     // doing to only 100 should reduce the resolution requirements
-    // for the initial tests
-    //    p = rho * (cs*cs/1000 + cs*cs/(1.+pow(rho, 1.5)));
-    p = rho * (cs*cs/100 + cs*cs/(1.+pow(rho, 1.5)));
+    // for the initial tests			
+    cs = (rho > 1) ?  cs* sqrt(max(pow(rho, -1.5), 1.e-3)) : cs ;
+    p = rho*cs*cs ;
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;
     dpde = 1;
