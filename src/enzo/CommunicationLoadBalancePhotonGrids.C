@@ -49,7 +49,7 @@ void icol(int *x, int n, int m, FILE *log_fptr);
 
 Eint32 _compare(const void * a, const void * b)
 {
-  return ( *(float*)a - *(float*)b );
+  return ( *(Eflt32*)a - *(Eflt32*)b );
 }
 
 int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids)
@@ -82,6 +82,9 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
   int i, index, index2, lvl, dim, proc, GridsMoved, TotalNumberOfGrids;
   int NumberOfBaryonFields, Nonzero;
   int FieldTypes[MAX_NUMBER_OF_BARYON_FIELDS];
+  float AxialRatio, GridVolume;
+  float *ProcessorComputeTime = new float[NumberOfProcessors];
+  Eflt32 *SortedComputeTime = new Eflt32[NumberOfProcessors];
 
   GridsMoved = 0;
 
@@ -164,12 +167,88 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
 
   } // ENDIF ROOT_PROCESSOR
 
-#ifdef USE_MPI
-  MPI_Arg Root = ROOT_PROCESSOR;
-  MPI_Arg Count = TotalNumberOfGrids;
-  MPI_Bcast ((void*) NewProcessorNumber, Count, IntDataType,
-	     Root, MPI_COMM_WORLD);
-#endif
+    for (i = 0; i < NumberOfProcessors; i++) {
+      Mean += ProcessorComputeTime[i];
+      if (ProcessorComputeTime[i] > MaxVal) {
+	MaxVal = ProcessorComputeTime[i];
+	MaxProc = i;
+      }
+    }
+    for (i = 0; i < NumberOfProcessors; i++) {
+      if (ProcessorComputeTime[i] < MinVal) {
+	MinVal = ProcessorComputeTime[i];
+	MinProc = i;
+      }
+    }
+
+    Mean /= NumberOfProcessors;
+
+    for (i = 0; i < NumberOfProcessors; i++)
+      SortedComputeTime[i] = ProcessorComputeTime[i];
+    qsort(SortedComputeTime, (size_t) NumberOfProcessors, sizeof(Eflt32), 
+	  _compare);
+    FirstNonZero = NumberOfProcessors-1;
+    for (i = 0; i < NumberOfProcessors; i++)
+      if (SortedComputeTime[i] > 0) {
+	FirstNonZero = i;
+	break;
+      }
+    Median = SortedComputeTime[FirstNonZero + (NumberOfProcessors-FirstNonZero)/2];
+
+    if (MaxVal > LOAD_BALANCE_RATIO*MinVal) {
+      /* Find a grid to transfer. */
+
+      for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++) {
+      BreakLoop = false;
+      for (i = 0; i < NumberOfGrids[lvl]; i++) {
+	//proc = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
+	proc = NewProcessorNumber[lvl][i];
+	//if (ProcessorComputeTime[proc] > Mean && debug && ComputeTime[lvl][i] > 0)
+	//  printf("P%d / L%d :: grid %d - work = %g, min = %g, max = %g, median = %g\n",
+	//	 MyProcessorNumber, lvl, i, ComputeTime[lvl][i], MinVal, MaxVal, Median);
+	if (ProcessorComputeTime[proc] > Mean && 
+	    ComputeTime[lvl][i] < Mean && ComputeTime[lvl][i] > 0 && 
+	    MoveFlag[lvl][i] == FALSE) {
+
+//	  if (debug)
+//	    printf("\t P%d / L%d :: moving grid %d from %d => %d\n",
+//		   MyProcessorNumber, lvl, i, proc, MinProc);
+ 
+	  NewProcessorNumber[lvl][i] = MinProc;
+	  GridsMoved++;
+ 
+	  /* Update processor compute times. */
+ 
+	  ProcessorComputeTime[proc] -= ComputeTime[lvl][i];
+	  ProcessorComputeTime[MinProc] += ComputeTime[lvl][i];
+	  MoveFlag[lvl][i] = TRUE;
+
+	  BreakLoop = true;
+	  break;
+	}
+      } // ENDFOR grids
+
+      if (BreakLoop) break;
+ 
+      /* If we didn't find an appropriate transfer then quit. */
+ 
+      if (i == NumberOfGrids[lvl])
+	Done = TRUE;
+      
+      } // ENDFOR levels
+
+    } // ENDIF !( load balanced )
+    else {
+      Done = TRUE;
+    }
+    
+  } // ENDWHILE !Done
+
+//  if (debug) {
+//    printf("After load balancing:\n");
+//    fpcol(ProcessorComputeTime, NumberOfProcessors, 8, stdout);
+//  }
+
 
   /* Now we know where the grids are going, transfer them. */
 

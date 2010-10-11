@@ -821,118 +821,72 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 	    if (ii < *nmax) {
 
-	      // PUT BIG STAR FORMATION IF STATEMENT HERE
-	      if(BigStarFormation){
 
-		/* Calculate change in density */
+	      /* Calculate change in density */
 
-		if (*jlrefine > 0)
-		  maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-		else
-		  maxdens = densthresh;
-		oldrho = d[index];
-		adddens = d[index] - maxdens;
-		BigStarFormation = 0;
-		StarParticleCreation = 0;
-		CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
-		CommunicationBroadcastValue(&StarParticleCreation, MyProcessorNumber);
-		printf("BigStarFormation complete: no more star formation from now on. ");
+	      if (*jlrefine > 0)
+		maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+	      else
+		maxdens = densthresh;
+	      oldrho = d[index];
+	      adddens = d[index] - maxdens;
 	    
-		/* Remove mass from grid */
+	      /* Remove mass from grid */
 	    
-		d[index] = maxdens;
+	      d[index] = maxdens;
 
-		//printf("star_maker8: making new star\n" );
-		mp[ii] = adddens;
-		type[ii] = *ctype;
-	      
-		/* Set positions and velocities */
-	    
-		xp[ii] = xpos;
-		yp[ii] = ypos;
-		zp[ii] = zpos;;
-		up[ii] = ugrid;
-		vp[ii] = vgrid;
-		wp[ii] = wgrid;
+	      /* Get velocity at grid center (averaged over cells ... ONLY
+		 for PPM) */
 
-		/* Set creation time */
-	      
-		tcp[ii] = (float) *t;
-		tdp[ii] = 0.0;
-		dm[ii]  = adddens*POW(*dx,3);
+	      if (*imethod == 2) {
+		ugrid = 0.5*(u[index] + u[index+xo]);
+		vgrid = 0.5*(v[index] + v[index+yo]);
+		wgrid = 0.5*(w[index] + w[index+zo]);
+	      } else {
+		total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
+		  d[index+yo] + d[index-zo] + d[index+zo];
 
-		ii++;
+		ugrid = (u[index]*d[index] + 
+			 u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
+			 u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
+			 u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
+		  total_density;
 
+		vgrid = (v[index]*d[index] + 
+			 v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
+			 v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
+			 v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
+		  total_density;
 
-
+		wgrid = (w[index]*d[index] + 
+			 w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
+			 w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
+			 w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
+		  total_density;
 	      }
-	      else {
-
-		/* Calculate change in density */
-
-		if (*jlrefine > 0)
-		  maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-		else
-		  maxdens = densthresh;
-		oldrho = d[index];
-		adddens = d[index] - maxdens;
-	    
-		/* Remove mass from grid */
-	    
-		d[index] = maxdens;
-
-		/* Get velocity at grid center (averaged over cells ... ONLY
-		   for PPM) */
-
-		if (*imethod == 2) {
-		  ugrid = 0.5*(u[index] + u[index+xo]);
-		  vgrid = 0.5*(v[index] + v[index+yo]);
-		  wgrid = 0.5*(w[index] + w[index+zo]);
-		} else {
-		  total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
-		    d[index+yo] + d[index-zo] + d[index+zo];
-
-		  ugrid = (u[index]*d[index] + 
-			   u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
-			   u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
-			   u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
-		    total_density;
-
-		  vgrid = (v[index]*d[index] + 
-			   v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
-			   v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
-			   v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
-		    total_density;
-
-		  wgrid = (w[index]*d[index] + 
-			   w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
-			   w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
-			   w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
-		    total_density;
-		}
-		//printf("star_maker8: making new star\n" );
-		mp[ii] = adddens;
-		type[ii] = *ctype;
+	      //printf("star_maker8: making new star\n" );
+	      mp[ii] = adddens;
+	      type[ii] = *ctype;
 	      
-		/* Set positions and velocities */
+	      /* Set positions and velocities */
 	    
-		xp[ii] = xpos;
-		yp[ii] = ypos;
-		zp[ii] = zpos;
-		up[ii] = ugrid;
-		vp[ii] = vgrid;
-		wp[ii] = wgrid;
+	      xp[ii] = xpos;
+	      yp[ii] = ypos;
+	      zp[ii] = zpos;
+	      up[ii] = ugrid;
+	      vp[ii] = vgrid;
+	      wp[ii] = wgrid;
 
-		/* Set creation time */
+	      /* Set creation time */
 	      
-		tcp[ii] = (float) *t;
-		tdp[ii] = 0.0;
-		dm[ii]  = adddens*POW(*dx,3);
+	      tcp[ii] = (float) *t;
+	      tdp[ii] = 0.0;
+	      dm[ii]  = adddens*POW(*dx,3);
 
-		ii++;
+	      ii++;
 
 
-	      }
+	      
 
 	    } // ENDIF create a new sink
 	    

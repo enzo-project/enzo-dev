@@ -1,0 +1,121 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  GRID CLASS
+//
+//  written by: David A. Ventimiglia & Brian O'Shea
+//  date:       March 2010
+//  modified1:  
+//
+//  PURPOSE: 
+//
+//  RETURNS: FAIL or SUCCESS
+//
+////////////////////////////////////////////////////////////////////////////////
+ 
+#include <stdio.h>
+#include <math.h>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+
+// Grid Initializer
+int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int PulseType) {
+
+  if (debug) {
+    printf("Entering ConductionTestInitialize\n");
+    fflush(stdout);
+  }
+
+  if (ProcessorNumber != MyProcessorNumber) 
+    return SUCCESS;
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
+  
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+				       Vel3Num, TENum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  }
+
+  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
+
+  for (int dim = 0; dim<GridRank; dim++) {
+    GridStart[dim] = 0;
+    GridEnd[dim] = GridDimension[dim]-1;
+  }
+
+  FLOAT sig2 = PulseWidth*PulseWidth;
+
+  FLOAT x,y,z, r2;
+
+  int i,j,k;
+
+  // loop over grid and set pulse values
+  for (k = GridStart[2]; k <= GridEnd[2]; k++) 
+    for (j = GridStart[1]; j <= GridEnd[1]; j++) 
+      for (i = GridStart[0]; i <= GridEnd[0]; i++) {
+
+	/* Compute position */
+	x=y=z=0.0;
+
+	/* Find distance from center. */
+
+	// radius squared: assume we always want to be at center of 
+	// box
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	r2 = POW(x-0.5, 2.0);
+
+	if(GridRank>1){
+	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	  r2 += POW(y-0.5, 2.0);
+	}
+
+	if(GridRank>2){
+	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+	  r2 += POW(z-0.5, 2.0);
+	}
+
+	float val=1.0;
+
+	/* now we select between our different pulse options */
+
+	if(PulseType==1){  // gaussian pulse
+
+	  val = 1.0 + exp(-1.0*r2/sig2/2.0)*(PulseHeight-1.0);
+
+	} else if(PulseType==2){ // square pulse
+
+	  if(r2 <= sig2)
+	    val = PulseHeight;
+	  
+	} else if(PulseType ==3){  // sinusoidal pulse with values along x-axis
+
+	  val = 1.0 + PulseHeight + PulseHeight * sin(2.0 * 3.14158 * x / PulseWidth);
+	  
+	} else {
+
+	  ENZO_FAIL("Grid::ConductionTestInitialize: PulseType is not 1,2 or 3!");
+	  
+	}
+
+	if(HydroMethod==Zeus_Hydro){  // ZEUS
+	  BaryonField[TENum][ELT(i,j,k)] *= val;  // TE = gas energy
+	} else{ // PPM
+	  
+	  BaryonField[TENum][ELT(i,j,k)] *= val;  // TE = total energy energy, but velocity=0 here.
+
+	  if(DualEnergyFormalism)
+	    BaryonField[GENum][ELT(i,j,k)] *= val;  // if DEF=1, need to separately set the gas internal energy.
+	}
+
+      } // for(i...)
+
+  if (debug) {
+    printf("Exiting ConductionTestInitialize\n");
+    fflush(stdout);}
+  return SUCCESS;
+}

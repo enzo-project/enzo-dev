@@ -87,6 +87,8 @@ OBJS_CONFIG_LIB = \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
+	ConductionBubbleInitialize.o \
+	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
         ComputeRandomForcingNormalization.o \
@@ -335,11 +337,13 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeCellCenteredField.o \
+	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
 	Grid_ComputeExternalNohBoundary.o \
 	Grid_ComputeGammaField.o \
+        Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
@@ -349,6 +353,9 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeVectorAnalysisFields.o \
 	Grid_ComputeVertexCenteredField.o \
 	Grid_ComputeXrayEmissivity.o \
+        Grid_ConductHeat.o \
+	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_ConvertToNumpy.o \
@@ -457,6 +464,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
         Grid_ParticleSplitter.o \
@@ -516,6 +524,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -634,6 +643,7 @@ OBJS_CONFIG_LIB = \
         nr_3d.o \
         nr_st1.o \
 	NullProblem.o \
+	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\
@@ -784,6 +794,7 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
+	star_maker9.o \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
