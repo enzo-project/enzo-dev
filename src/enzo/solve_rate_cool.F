@@ -484,7 +484,7 @@
 !              If the temperature is at the bottom of the temperature look-up 
 !              table and edot < 0, then shut off the cooling.
 
-               if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
+               if (tgas(i) .le. 1.01*temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !

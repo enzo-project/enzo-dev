@@ -647,10 +647,12 @@ Hydrodynamic Parameters
     ============ ===========================
     0            PPM DE (a direct-Eulerian version of PPM)
     1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
-    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 
-    3            Runge Kutta third order based MUSCL solvers. 
-    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set. 
-    ============ ===========================
+  2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFor\
+malism`` flags.
+    3            Runge Kutta third order based MUSCL solvers.
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to\
+ set.
+   ============ ===========================
 
     Default: 0
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -664,9 +666,13 @@ Hydrodynamic Parameters
     2              Marquina
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+<<<<<<< local
+=======
+    5              TwoShock
+>>>>>>> other
     ============== ===========================
 
-    Default: 1 (HLL)
+   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for ``HydroMethod`` = 0
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -680,7 +686,7 @@ Hydrodynamic Parameters
     4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
     ===================== ====================
 
-    Default: 0 (PLM)
+   Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then

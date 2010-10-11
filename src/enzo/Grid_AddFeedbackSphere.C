@@ -94,15 +94,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   /* Find Metallicity or SNColour field and set flag. */
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
+    Galaxy2ColourNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
-  MetalNum = max(MetalNum, SNColourNum);
+  MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
@@ -896,8 +897,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] *= factor;
 	    }
 
-	    if (MetallicityField == TRUE)
-	      BaryonField[MetalNum][index] *= factor;
+	    if (SNColourNum > 0)
+	      BaryonField[SNColourNum][index] *= factor;
+	    if (Metal2Num > 0)
+	      BaryonField[Metal2Num][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star

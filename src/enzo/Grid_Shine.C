@@ -109,8 +109,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   /* Shake source within the grid cell every time it shines */
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    //ShakeSource[dim] = 0.0;
-    ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
+    ShakeSource[dim] = 0.0;
+  //ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
 
   switch (RS->Type) {
   case PopII:
