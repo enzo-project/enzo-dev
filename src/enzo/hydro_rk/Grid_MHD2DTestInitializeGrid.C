@@ -972,7 +972,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
   if (MHD2DProblemType == 14) { 
 
-    float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
+    float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot, bx ,by;
 
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
@@ -992,7 +992,9 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
 	vx = f * (vxl+ ramp*(vxu-vxl))  ;
 	vy = vyl + ramp*(vyu - vyl);
-	etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
+	bx = (Bxl+ ramp*(Bxu-Bxl))  ;
+	by = (Byl+ ramp*(Byu-Byl))  ;
+	etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(bx*bx+by*by)/rho;
 	BaryonField[iden ][igrid] = rho;
 	BaryonField[ivx  ][igrid] = vx ;
 	BaryonField[ivy  ][igrid] = vy;
@@ -1003,8 +1005,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ieint][igrid] = pres / ((Gamma-1.0)*rho);
 	}
 	if (HydroMethod == MHD_RK) {
-	  BaryonField[iBx  ][igrid] = Bxl;
-	  BaryonField[iBy  ][igrid] = Byl;
+	  BaryonField[iBx  ][igrid] = bx;
+	  BaryonField[iBy  ][igrid] = by;
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}

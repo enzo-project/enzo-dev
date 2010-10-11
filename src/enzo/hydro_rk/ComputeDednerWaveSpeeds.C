@@ -70,6 +70,8 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData, LevelHierarchyEntry *LevelArr
   //  C_h = min( C_h, 1e6/VelocityUnits); // never faster than __ cm/s (for very small dt0 a problems)
   if (EOSType == 3)  // for isothermal runs just use the constant sound speed
     C_h = EOSSoundSpeed;
+  if (EOSType == 4 || EOSType == 5)  // for isothermal runs just use the constant sound speed
+    C_h = EOSSoundSpeed;
   
   C_p = sqrt(0.18*DivBDampingLength*C_h);
 

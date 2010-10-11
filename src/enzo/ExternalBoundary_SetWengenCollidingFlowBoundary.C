@@ -58,7 +58,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
   }
  
   /* set the appropriate BoundaryValues on the left side */
-  //  fprintf(stdout, "ints: %i %i %i \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
+  fprintf(stdout, "boundary ints: %i %i %i \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
   for (dim = 0; dim < BoundaryRank; dim++)
     if (BoundaryDimension[dim] != 1) {
  
@@ -84,30 +84,36 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	Offset[i]        = min(DEFAULT_GHOST_ZONES, BoundaryDimension[i]) - 1;
       }
       pos[dim] = 0.0;
-      //      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
+      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
+      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
       /* Loop over the boundary face. */
  
       for (i = 0; i < BoundaryDimension[dim1]; i++)
 	for (j = 0; j < BoundaryDimension[dim2]; j++) {
- 	  x = (float(i-Offset[dim1]) )*
+ 	  x = (float(i-Offset[dim1]) -0.5 )*
 	    (DomainRightEdge[dim1]-DomainLeftEdge[dim1]) /
 	      float(NumberOfZones[dim1]) ;
-	  y = (float(j-Offset[dim2]) )*
-	    (DomainRightEdge[dim2]-DomainLeftEdge[dim2]) /
-	      float(NumberOfZones[dim2]) ;
+	  y = (float(j) -0.5)*
+	    (DomainRightEdge[dim]-DomainLeftEdge[dim]) /
+	      float(NumberOfZones[dim]) ;
 
 	  /* Set the field values. */
-	  //	  fprintf(stdout, "%g %g \n", x ,y);
+	  fprintf(stdout, "lower: %g %g \n", x ,y);
+
 	  index = j*BoundaryDimension[dim1] + i;
 	  float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
-	  float rho, vx, vy, f, vxu, vxl, vyu, vyl, Bxl, Byl, etotl, RampWidth;
+	  float rho, vx, vy, bx,by, f, vxu, vxl, vyu, vyl, Bxl, Byl, Bxu, Byu, etotl, RampWidth;
 	  rho = LowerDensity;
 	  vxl = LowerVelocityX;
 	  vxu = UpperVelocityX;
 	  vyl = LowerVelocityY;
-	  vyu = LowerVelocityY;
+	  vyu = UpperVelocityY;
 	  Bxl = LowerBx;
 	  Byl = LowerBy;
+	  Bxu = UpperBx;
+	  Byu = UpperBy;
+
+	  // lower y boundary
 	  pres = 0.112611*0.112611* rho; // isothermal sound speed = 0.112611
 	  pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // 
 	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
@@ -116,7 +122,10 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
 	  vx = f * (vxl + ramp*(vxu-vxl)) ;
 	  vy = vyl + ramp*(vyu - vyl);
-	  etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(Bxl*Bxl+Byl*Byl)/rho;
+	  bx = (Bxl+ ramp*(Bxu-Bxl))  ;
+	  by = (Byl+ ramp*(Byu-Byl))  ;
+
+	  etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(bx*bx+by*by)/rho;
 
 	  *(BoundaryValue[DensNum][dim][0] + index) = rho;
 	  *(BoundaryValue[TENum][dim][0]   + index) = etotl;
@@ -125,21 +134,45 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	    *(BoundaryValue[Vel2Num][dim][0] + index) = vy;
 	  if (BoundaryRank > 2)
 	    *(BoundaryValue[Vel3Num][dim][0] + index) = 0.;
+
+	  if (HydroMethod == MHD_RK) {
+	    *(BoundaryValue[B1Num][dim][0] + index) = bx ;
+	    *(BoundaryValue[B2Num][dim][0] + index) = by;
+	    *(BoundaryValue[B3Num][dim][0] + index) = 0;
+	  }
+
+	  // upper y boundary
+
+	  y = DomainRightEdge[dim] + (float(j) + 0.5)*
+	    (DomainRightEdge[dim]-DomainLeftEdge[dim]) /
+	      float(NumberOfZones[dim]) ;
+
+	  fprintf(stdout, "upper: %g %g \n", x,y);
+
+	  pres = 0.112611*0.112611* rho; // isothermal sound speed = 0.112611
+	  pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // 
+	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
+	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1); // compute eintl
+	  ramp =  1./(1.+exp(-2/RampWidth*(y-0.5)));
+	  f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
+	  vx = f * (vxl + ramp*(vxu-vxl)) ;
+	  vy = vyl + ramp*(vyu - vyl);
+	  bx = (Bxl+ ramp*(Bxu-Bxl))  ;
+	  by = (Byl+ ramp*(Byu-Byl))  ;
+
+	  etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(bx*bx+by*by)/rho;
  
 	  *(BoundaryValue[DensNum][dim][1] + index) = rho;
 	  *(BoundaryValue[TENum][dim][1]   + index) = etotl;
-	  *(BoundaryValue[Vel1Num][dim][1] + index) = -vx ;
+	  *(BoundaryValue[Vel1Num][dim][1] + index) = vx ;
 	  if (BoundaryRank > 1)
-	    *(BoundaryValue[Vel2Num][dim][1] + index) = -vy;
+	    *(BoundaryValue[Vel2Num][dim][1] + index) = vy;
 	  if (BoundaryRank > 2)
 	    *(BoundaryValue[Vel3Num][dim][1] + index) = 0.;
 
 	  if (HydroMethod == MHD_RK) {
-	    *(BoundaryValue[B1Num][dim][0] + index) = Bxl ;
-	    *(BoundaryValue[B2Num][dim][0] + index) = Byl;
-	    *(BoundaryValue[B3Num][dim][0] + index) = 0;
-	    *(BoundaryValue[B1Num][dim][1] + index) = Bxl ;
-	    *(BoundaryValue[B2Num][dim][1] + index) = Byl;
+	    *(BoundaryValue[B1Num][dim][1] + index) = bx;
+	    *(BoundaryValue[B2Num][dim][1] + index) = by;
 	    *(BoundaryValue[B3Num][dim][1] + index) = 0;
 	  }
 
