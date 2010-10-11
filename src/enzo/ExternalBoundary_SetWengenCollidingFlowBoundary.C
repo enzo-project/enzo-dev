@@ -58,7 +58,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
   }
  
   /* set the appropriate BoundaryValues on the left side */
-  fprintf(stdout, "boundary ints: %i %i %i \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
+  //  fprintf(stdout, "boundary ints: %i %i %i \n", BoundaryDimension[0],BoundaryDimension[1],BoundaryRank);
   for (dim = 0; dim < BoundaryRank; dim++)
     if (BoundaryDimension[dim] != 1) {
  
@@ -84,8 +84,8 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	Offset[i]        = min(DEFAULT_GHOST_ZONES, BoundaryDimension[i]) - 1;
       }
       pos[dim] = 0.0;
-      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
-      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
+      //      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
+      //      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
       /* Loop over the boundary face. */
  
       for (i = 0; i < BoundaryDimension[dim1]; i++)
@@ -98,7 +98,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	      float(NumberOfZones[dim]) ;
 
 	  /* Set the field values. */
-	  fprintf(stdout, "lower: %g %g \n", x ,y);
+	  //	  fprintf(stdout, "lower: %g %g \n", x ,y);
 
 	  index = j*BoundaryDimension[dim1] + i;
 	  float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
@@ -147,7 +147,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	    (DomainRightEdge[dim]-DomainLeftEdge[dim]) /
 	      float(NumberOfZones[dim]) ;
 
-	  fprintf(stdout, "upper: %g %g \n", x,y);
+	  //	  fprintf(stdout, "upper: %g %g \n", x,y);
 
 	  pres = 0.112611*0.112611* rho; // isothermal sound speed = 0.112611
 	  pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // 
