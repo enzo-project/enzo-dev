@@ -393,7 +393,15 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE)
+	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
+	    FieldType[field] != Bfield1 &&
+	    FieldType[field] != Bfield2 &&
+	    FieldType[field] != Bfield3 &&
+	    FieldType[field] != PhiField &&
+	    FieldType[field] != DrivingField1 &&
+	    FieldType[field] != DrivingField2 &&
+	    FieldType[field] != DrivingField3 &&
+	    FieldType[field] != GravPotential)
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,
