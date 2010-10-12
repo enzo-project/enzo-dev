@@ -23,9 +23,9 @@ MACH_FILE  = Make.mach.sunnyvale
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /opt/lam/7.1.4/Intel10.1
+LOCAL_MPI_INSTALL    = /opt/lam/7.1.4/intel-11.1.072
 #LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.2.5/amd64_linux26
-LOCAL_HDF5_INSTALL   = /opt/hdf5/1.8.0
+LOCAL_HDF5_INSTALL   = /opt/hdf5/1.8.5
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-x86_64/
 
 #-----------------------------------------------------------------------
