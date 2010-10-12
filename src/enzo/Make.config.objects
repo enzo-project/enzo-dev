@@ -222,7 +222,6 @@ OBJS_CONFIG_LIB = \
 	GadgetMakeCoolingTable.o \
 	GadgetReadIonizeParams.o \
 	GalaxySimulationInitialize.o \
-	GasolineCosmologyGalaxyInitialize.o \
 	GenerateGridArray.o \
 	GetNodeFreeMemory.o \
 	GetUnits.o \
@@ -410,7 +409,6 @@ OBJS_CONFIG_LIB = \
 	Grid_Gadgetfindabundancesandrates.o \
 	Grid_GadgetEquilibriumCooling.o \
 	Grid_GalaxySimulationInitializeGrid.o \
-	Grid_GasolineCosmologyGalaxyInitializeGrid.o \
         Grid_GetEnclosedMass.o \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
