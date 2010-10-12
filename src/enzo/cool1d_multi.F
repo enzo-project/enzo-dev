@@ -570,7 +570,7 @@ c               Matt's attempt at a second exponentialier cutoff
                 tau = max(tau, 1.e-5)
                 ciefudge = ciefudge*min((1.-exp(-tau))/tau,1.0)
 c               ciefudge, which is applied to the continuum, is applied to edot
-                edot(i) = ciefudge*(edot(i) + 
+                edot(i) = ciefudge*(edot(i) - 
      &                  H2I(i,j,k)*(d(i,j,k)*cieco(i)))
               endif
             endif

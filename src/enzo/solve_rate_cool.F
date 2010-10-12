@@ -496,7 +496,7 @@
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
-!                 dtit(i) = min(real(abs(0.01*energy/edot(i))), 
+!                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
                   dtit(i) = min(real(abs(0.1*energy/edot(i))), 
@@ -1171,7 +1171,7 @@ c -------------------------------------------------------------------
 
             edot(i) = edot(i) + chunit * (
      &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
-     &                    - k13(i) * H2I(i,j,k))
+     &                    - k13(i) * H2I(i,j,k)/2.0d0)
 !     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
 !     &                    - k23(i) * H2I(i,j,k))
      &                  )
