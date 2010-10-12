@@ -19,7 +19,7 @@
 #include "mpe.h"
 #endif /* USE_MPE */
 #endif /* USE_MPI */
- 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,6 +33,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "CosmologyParameters.h"
 #include "fortran.def"
 #include "flowdefs.h"
 #include "error.h"
@@ -43,10 +44,11 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, float *MassUnits, FLOAT Time);
+	     float *VelocityUnits, FLOAT Time);
 
 int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
 
+static float LengthUnits;
 
 int grid::GasolineCosmologyGalaxyInitializeGrid(
 			    int GCGDMParticleNumber,
@@ -56,23 +58,25 @@ int grid::GasolineCosmologyGalaxyInitializeGrid(
 
   /* declarations */
 
-  float xpos, ypos, zpos, xvel, yvel, zvel, mass;
+  double xpos, ypos, zpos, xvel, yvel, zvel, mass;
   float CellVolume;
   int i;
   char c, ch;
 
   /* Get unit conversions */
 
-  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
+  LengthUnits = 1.0;
+  float DensityUnits=1, TemperatureUnits=1, TimeUnits=1,
     VelocityUnits=1;
   double MassUnits=1;
  
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, 
-	       Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, 
+	       InitialTimeInCodeUnits) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
+  GravitationalConstant = 4.0*pi*GravConst*MassUnits*pow(TimeUnits,2)/pow(LengthUnits,3);
 
   if (ProcessorNumber == MyProcessorNumber) { 
 
@@ -108,34 +112,21 @@ int grid::GasolineCosmologyGalaxyInitializeGrid(
 	  ungetc(c,fin);
 	  fgets(line, MAX_LINE_LENGTH, fin); // grab entire line
 	  
-	  sscanf(line, "%s %f %f %f %f %f %f", &line2, &ypos, &zpos, &xvel, &yvel, &zvel, &mass);
-	  // fscanf(fin, "%s %s\n", &line, &line2);
-	  //xpos = float(line);
-	  printf("line: %s\n", line);
-	  printf("line2: %s\n", line2);
-	  printf("ypos: %f\n", ypos);
-	  sscanf(line2, "%f\n", &ypos);
-	  printf("ypos: %f\n", ypos);
-
-	  //fscanf(fin, "\t%g\t%g\t%g\t%g\t%g\t%g\t%g\n",
-	  //	 &xpos, &ypos, &zpos, &xvel, &yvel, &zvel, &mass);
-
-	  //  printf("line %s %f %f %f %f %f %f\n", line2, ypos, zpos, xvel, yvel, zvel, mass);
-
-
+	  sscanf(line, "%lf %lf %lf %lf %lf %lf %lf", &xpos, &ypos, &zpos, &xvel, &yvel, &zvel, &mass);
+	
 	  ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
 	  ParticleNumber[i] = i;
 	  ParticleMass[i] = mass*(4.7526e16*SolarMass/MassUnits)/CellVolume;
 
 	  // recentre box from [0,1]
-	  ParticlePosition[0][i] = (xpos+0.5)*68.4932*(Mpc/LengthUnits); 
-	  ParticlePosition[1][i] = (ypos+0.5)*68.4932*(Mpc/LengthUnits);
-	  ParticlePosition[2][i] = (zpos+0.5)*68.4932*(Mpc/LengthUnits);
+	  ParticlePosition[0][i] = (xpos+0.5)*DomainRightEdge[0];
+	  ParticlePosition[1][i] = (ypos+0.5)*DomainRightEdge[1];
+	  ParticlePosition[2][i] = (zpos+0.5)*DomainRightEdge[2];
 	  ParticleVelocity[0][i] = xvel*1727.4714*1e5/VelocityUnits;
-	  ParticleVelocity[0][i] = yvel*1727.4714*1e5/VelocityUnits;
-	  ParticleVelocity[0][i] = zvel*1727.4714*1e5/VelocityUnits;
+	  ParticleVelocity[1][i] = yvel*1727.4714*1e5/VelocityUnits;
+	  ParticleVelocity[2][i] = zvel*1727.4714*1e5/VelocityUnits;
 
-	  //	  printf("Position %g %g %g Original %g %g %g\n", ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i], xpos, ypos, zpos);
+	  // printf("Velocity %g %g %g Vel %g %g %g Pos %g %g %g\n", ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i], xvel, yvel, zvel, xpos, ypos, zpos);
 
 	  i++;
 	} // end read in input file
