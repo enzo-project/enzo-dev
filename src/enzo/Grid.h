@@ -1928,14 +1928,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowDensity,
 				     int level);
 
-  /* Initialization for Gasoline start cosmology sim */
-
-  int GasolineCosmologyGalaxyInitializeGrid(
-			    int GCGDMParticleNumber,
-			    char *GCGInputFilename,
-			    int level);
-
-
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
 				  float FreeExpansionDensity,
