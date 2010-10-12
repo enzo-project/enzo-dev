@@ -123,13 +123,12 @@ MACHNOTES:
 %.exe: 	$(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f ${ENZO_DIR}/$@
 	@echo "Linking enzo executable. Type  cat $(OUTPUT)  in case it fails."
-	@echo "libs " $(LIBS) "LD " $(LD) "LDFLAGS " $(LDFLAGS)
 	@(if [ $(VERBOSE) -eq 0 ]; then \
 		cd $(ENZO_DIR) ; \
 		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
 		cd $(TOP_DIR)/$(PATCH) ; \
 	else \
-		cd $(ENZO_DIR) ; \
+		cd $(ENZO_DIR) \
 		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
 		2>&1 ; \
 		cd $(TOP_DIR)/$(PATCH) ; \
