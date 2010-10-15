@@ -430,33 +430,33 @@
 
 !              Output some debugging information if required
 
-               if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
-     &             abs((dt-ttot(i))/dt) .gt. 1.0e-3) then
-                  write(4,1000) iter,i,j,k,dtit(i),
-     &              ttot(i),dt,de(i,j,k),dedot(i),HI(i,j,k),HIdot(i),
-     &              tgas(i), dedot_prev(i), HIdot_prev(i)
-                  write(4,1100) HI(i,j,k),HII(i,j,k),
-     &              HeI(i,j,k),HeII(i,j,k),HeIII(i,j,k),
-     &              HM(i,j,k),H2I(i,j,k),H2II(i,j,k),de(i,j,k)
-                  write(4,1100)
-     &               -    k1(i) *de(i,j,k)    *HI(i,j,k)  ,
-     &               -    k7(i) *de(i,j,k)    *HI(i,j,k),
-     &               -    k8(i) *HM(i,j,k)    *HI(i,j,k),
-     &               -    k9(i) *HII(i,j,k)   *HI(i,j,k),
-     &               -    k10(i)*H2II(i,j,k)  *HI(i,j,k)/2.,
-     &               - 2.*k22(i)*HI(i,j,k)**2 *HI(i,j,k),
-     &               +    k2(i) *HII(i,j,k)   *de(i,j,k) ,
-     &               + 2.*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2.,
-     &               +    k11(i)*HII(i,j,k)   *H2I(i,j,k)/2.,
-     &               + 2.*k12(i)*de(i,j,k)    *H2I(i,j,k)/2.,
-     &               +    k14(i)*HM(i,j,k)    *de(i,j,k),
-     &               +    k15(i)*HM(i,j,k)    *HI(i,j,k),
-     &               + 2.*k16(i)*HM(i,j,k)    *HII(i,j,k),
-     &               + 2.*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.,
-     &               +    k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.
-               endif
- 1000          format(i5,3(i3,1x),1p,11(e11.3))
- 1100          format(1p,20(e11.3))
+c               if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
+c     &             abs((dt-ttot(i))/dt) .gt. 1.0e-3) then
+c                  write(4,1000) iter,i,j,k,dtit(i),
+c     &              ttot(i),dt,de(i,j,k),dedot(i),HI(i,j,k),HIdot(i),
+c     &              tgas(i), dedot_prev(i), HIdot_prev(i)
+c                  write(4,1100) HI(i,j,k),HII(i,j,k),
+c     &              HeI(i,j,k),HeII(i,j,k),HeIII(i,j,k),
+c     &              HM(i,j,k),H2I(i,j,k),H2II(i,j,k),de(i,j,k)
+c                  write(4,1100)
+c     &               -    k1(i) *de(i,j,k)    *HI(i,j,k)  ,
+c     &               -    k7(i) *de(i,j,k)    *HI(i,j,k),
+c     &               -    k8(i) *HM(i,j,k)    *HI(i,j,k),
+c     &               -    k9(i) *HII(i,j,k)   *HI(i,j,k),
+c     &               -    k10(i)*H2II(i,j,k)  *HI(i,j,k)/2.,
+c     &               - 2.*k22(i)*HI(i,j,k)**2 *HI(i,j,k),
+c     &               +    k2(i) *HII(i,j,k)   *de(i,j,k) ,
+c     &               + 2.*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2.,
+c     &               +    k11(i)*HII(i,j,k)   *H2I(i,j,k)/2.,
+c     &               + 2.*k12(i)*de(i,j,k)    *H2I(i,j,k)/2.,
+c     &               +    k14(i)*HM(i,j,k)    *de(i,j,k),
+c     &               +    k15(i)*HM(i,j,k)    *HI(i,j,k),
+c     &               + 2.*k16(i)*HM(i,j,k)    *HII(i,j,k),
+c     &               + 2.*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.,
+c     &               +    k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.
+c               endif
+c 1000          format(i5,3(i3,1x),1p,11(e11.3))
+c 1100          format(1p,20(e11.3))
             else               ! itmask
                dtit(i) = dt;
             endif
@@ -515,12 +515,12 @@
 
 !              If the timestep is too small, then output some debugging info
 
-               if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) 
-     &               .or. iter .gt. itmax-100) .and.
-     &              abs((dt-ttot(i))/dt) .gt. 1.0e-3)
-     &           write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
-     &             energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
- 2000          format(4(i4,1x),1p,10(e14.3))
+c               if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) 
+c     &               .or. iter .gt. itmax-100) .and.
+c     &              abs((dt-ttot(i))/dt) .gt. 1.0e-3)
+c     &           write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
+c     &             energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
+c 2000          format(4(i4,1x),1p,10(e14.3))
             endif   ! itmask
             enddo   ! end loop over i
 
@@ -529,8 +529,8 @@
             do i = is+1, ie+1
                if (itmask(i)) then
                e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
-               if (e(i,j,k) .ne. e(i,j,k)) 
-     &              write(3,*) edot(i),d(i,j,k),dtit(i)
+c               if (e(i,j,k) .ne. e(i,j,k)) 
+c     &              write(3,*) edot(i),d(i,j,k),dtit(i)
 
 !              If using the dual energy formalism, there are 2 energy fields
 
@@ -543,8 +543,8 @@
 !     &                      0.5*ge(i,j,k))
 !                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
-                  if (ge(i,j,k) .le. 0.0) write(3,*)
-     &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
+c                  if (ge(i,j,k) .le. 0.0) write(3,*)
+c     &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
                endif
             endif               ! itmask
             enddo
