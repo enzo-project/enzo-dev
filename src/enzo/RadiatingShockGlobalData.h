@@ -12,19 +12,19 @@
 ************************************************************************/
 
 #ifdef DEFINE_STORAGE
-# define SPEXTERN
+# define RADIATING_SHOCK_EXTERN
 #else /* DEFINE_STORAGE */
-# define SPEXTERN extern
+# define RADIATING_SHOCK_EXTERN extern
 #endif /* DEFINE_STORAGE */
 
 /* Density and total energy in the ambient medium. */
 
-SPEXTERN float RadiatingShockDensity;
-SPEXTERN float RadiatingShockTotalEnergy;
+RADIATING_SHOCK_EXTERN float RadiatingShockDensity;
+RADIATING_SHOCK_EXTERN float RadiatingShockTotalEnergy;
 
 /* Density and total energy in the "inner" state. */
 
-SPEXTERN float RadiatingShockInnerTotalEnergy;
+RADIATING_SHOCK_EXTERN float RadiatingShockInnerTotalEnergy;
 
 
 

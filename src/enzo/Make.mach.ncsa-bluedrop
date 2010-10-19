@@ -1,0 +1,143 @@
+#=======================================================================
+#
+# FILE:        Make.mach.ncsa-bluedrop
+#
+# DESCRIPTION: Makefile settings for IBM BlueDrop
+#
+# AUTHOR:      Daniel R. Reynolds
+#
+# DATE:        2010-08-27
+#
+#=======================================================================
+
+MACH_TEXT  = NCSA Blue Drop
+MACH_VALID = 1
+MACH_FILE  = Make.mach.ncsa-bluedrop
+
+MACHINE_NOTES = "BlueDrop prototype for BlueWaters at UIUC/NCSA."
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL   = 
+LOCAL_HDF5_INSTALL  = /opt/hdf5-1.8.4-patch1-xl64/
+LOCAL_HDF4_INSTALL  = 
+LOCAL_HDF4_INSTALL  = 
+LOCAL_SPRNG_INSTALL = 
+LOCAL_PNG_INSTALL   = 
+LOCAL_HYPRE_INSTALL = /home/dreynold/sw/hypre-2.6.0b/
+LOCAL_ACML_INSTALL  = 
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CDEF      = -D
+MACH_FDEF      = "-WF,-D"
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpCC
+MACH_CXX_MPI   = mpCC
+MACH_FC_MPI    = mpfort -compiler xlf90_r
+MACH_F90_MPI   = mpfort -compiler xlf90_r
+MACH_LD_MPI    = mpCC
+# MACH_CC_MPI    = gcc
+# MACH_CXX_MPI   = g++
+# MACH_FC_MPI    = gfortran
+# MACH_F90_MPI   = gfortran
+# MACH_LD_MPI    = g++
+
+# Without MPI
+
+MACH_CC_NOMPI  = xlc_r
+MACH_CXX_NOMPI = xlC_r
+MACH_FC_NOMPI  = xlf_r
+MACH_F90_NOMPI = xlf90_r
+MACH_LD_NOMPI  = xlC_r
+# MACH_CC_NOMPI  = gcc
+# MACH_CXX_NOMPI = g++
+# MACH_FC_NOMPI  = gfortran
+# MACH_F90_NOMPI = gfortran
+# MACH_LD_NOMPI  = g++
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES = -DLINUX_IBM_XL -DHAVE_GNUPLOT -DH5_USE_16_API -DNO_IO_LOG
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+
+#MACH_CFLAGS   = -q64 -qarch=pwr7 -qtune=pwr7 -qaltivec -qreport -qlist -qsmp=omp 
+#MACH_CXXFLAGS = -q64 -qarch=pwr7 -qtune=pwr7 -qaltivec -qreport -qlist -qsmp=omp 
+#MACH_FFLAGS   = -q64 -qarch=pwr7 -qtune=pwr7 -qsmp=omp -qextname 
+#MACH_F90FLAGS = -q64 -qarch=pwr7 -qtune=pwr7 -qfree -qsmp=omp -qextname 
+#MACH_LDFLAGS =  -q64 -qarch=pwr7 -qtune=pwr7 -qsmp=omp 
+
+MACH_CFLAGS   = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qthreaded  
+MACH_CXXFLAGS = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qthreaded -qsmp=noauto -D__NO_MATH_INLINES 
+MACH_FFLAGS   = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qsmp=noauto -qreport=smplist -qmaxmem=1 -qthreaded -qextname -qfixed=132 
+MACH_F90FLAGS = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qsmp=noauto -qreport=smplist -qmaxmem=1 -qthreaded -qextname -qfree 
+MACH_LDFLAGS =  -qarch=pwr7 -qtune=pwr7 -qsmp=noauto -qcache=auto -qthreaded
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -qintsize=4
+MACH_FFLAGS_INTEGER_64 = -qintsize=8
+MACH_FFLAGS_REAL_32    = -qrealsize=4
+MACH_FFLAGS_REAL_64    = -qrealsize=8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g -qsource -qstrict 
+MACH_OPT_DEBUG       = -g -O0 -p -pg -qsource -qstrict 
+MACH_OPT_HIGH        = -O2 -qsource -qstrict  #-qdebug=nfuse,nsimdcost
+MACH_OPT_AGGRESSIVE  = -O3 #-qstrict 
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
+LOCAL_INCLUDES_PNG    =
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI   = 
+LOCAL_LIBS_HDF5  = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -L/usr/lib64 -lz 
+LOCAL_LIBS_HYPRE = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_SPRNG = -L$(LOCAL_SPRNG_INSTALL)/lib -llcg64
+LOCAL_LIBS_PNG     = -L$(LOCAL_PNG_INSTALL)/lib -lz -lpng -lfreetype
+
+LOCAL_LIBS_MACH   = -L/opt/ibmcmp/xlf/13.1/lib64 -lxl -lxlf90_r -lxlfmath -lxlopt -lxlfpad -lxlfpmt4 -lxlfpmt8
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_SPRNG)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
