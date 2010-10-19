@@ -12,20 +12,20 @@
 ************************************************************************/
 
 #ifdef DEFINE_STORAGE
-# define SPEXTERN
+# define SEDOV_BLAST_EXTERN
 #else /* DEFINE_STORAGE */
-# define SPEXTERN extern
+# define SEDOV_BLAST_EXTERN extern
 #endif /* DEFINE_STORAGE */
 
 /* Density and total energy in the ambient medium. */
 
-SPEXTERN int   SedovBlastFullBox;
-SPEXTERN float SedovBlastDensity;
-SPEXTERN float SedovBlastTotalEnergy;
+SEDOV_BLAST_EXTERN int   SedovBlastFullBox;
+SEDOV_BLAST_EXTERN float SedovBlastDensity;
+SEDOV_BLAST_EXTERN float SedovBlastTotalEnergy;
 
 /* Density and total energy in the "inner" state. */
 
-SPEXTERN float SedovBlastInnerTotalEnergy;
+SEDOV_BLAST_EXTERN float SedovBlastInnerTotalEnergy;
 
 
  
