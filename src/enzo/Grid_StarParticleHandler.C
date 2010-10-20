@@ -939,6 +939,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 			&JeansLengthRefinement, temperature, &Gamma, &Mu,
 			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
 	  ENZO_FAIL("Error in star_maker9.\n");
+
 	}
       }
       else if(StellarWindFeedback || HydroMethod == MHD_RK || HydroMethod == HD_RK || ProblemType == 107){
