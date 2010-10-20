@@ -8,6 +8,9 @@
 /
 /
 ************************************************************************/
+#ifdef USE_MPI
+#include <mpi.h>
+#endif /* USE_MPI */
 
 #include <string.h>
 #include <stdio.h>
@@ -23,6 +26,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -34,7 +38,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *VelocityUnits, FLOAT Time);
 
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData)
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
   const char *DensName = "Density";
   const char *TEName   = "TotalEnergy";
@@ -89,6 +93,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     SphereCutOff[MAX_SPHERES],
     SphereAng1[MAX_SPHERES],
     SphereAng2[MAX_SPHERES];
+
   int	SphereNumShells[MAX_SPHERES];
   FLOAT SphereRadius[MAX_SPHERES],
     SphereCoreRadius[MAX_SPHERES],
@@ -140,7 +145,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "InitialBField = %"FSYM, &Bnaught);
     ret += sscanf(line, "theta_B = %"FSYM, &theta_B);
     ret += sscanf(line, "Bdirection = %"ISYM, &Bdirection);
- 
+
     if (sscanf(line, "SphereType[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "SphereType[%"ISYM"] = %"ISYM, &sphere,
 		    &SphereType[sphere]);
@@ -212,9 +217,9 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     double rhoc = ksi_e*ksi_e*f*cs*cs/(re*re*4*M_PI*G);
 
     SphereDensity[0] = rhoc;
-    //    MediumDensity = rhoc/14.0;
+    MediumDensity *= rhoc/14.0; // in this case medium density is the ratio to decrease the outside density 
     
-    MediumPressure = rhoc*cs*cs/14.0;
+    MediumPressure = MediumDensity*cs*cs;
     double m_be = pow(f,1.5)*1.18*pow(cs,4)/pow(G,1.5)/sqrt(MediumPressure);
     double msun = 1.989e33;
     m_be /= msun;
@@ -250,135 +255,183 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 
   printf("rhoc=%"GSYM", rhom=%"GSYM", pm=%"GSYM"\n", SphereDensity[0], MediumDensity, MediumPressure);
 
-
-  if (TopGrid.GridData->CollapseMHD3DInitializeGrid(
-	     n_sphere, SphereRadius,
-	     SphereCoreRadius, SphereDensity,
-	     SpherePressure, SphereSoundVelocity, SpherePosition, 
-	     SphereAngVel, Bnaught, theta_B, Bdirection,
-	     SphereType,
-             MediumDensity, MediumPressure, 0) == FAIL) {
-    fprintf(stderr, "Error in CollapseTestInitializeGrid.\n");
-    return FAIL;
-  }
-
-  /* Convert minimum initial overdensity for refinement to mass
-     (unless MinimumMass itself was actually set). */
-
-  if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
-    MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
-    for (int dim = 0; dim < MetaData.TopGridRank; dim++)
-      MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
-	float(MetaData.TopGridDims[dim]);
-  }
-
-  /* If requested, refine the grid to the desired level. */
-
-  if (RefineAtStart) {
-
-    /* Declare, initialize and fill out the LevelArray. */
-
-    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-      LevelArray[level] = NULL;
-    AddLevel(LevelArray, &TopGrid, 0);
-
-    /* Add levels to the maximum depth or until no new levels are created,
-       and re-initialize the level after it is created. */
-
-    for (level = 0; level < MaximumRefinementLevel; level++) {
-
-      if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
-	fprintf(stderr, "Error in RebuildHierarchy.\n");
-	return FAIL;
-      }
-      if (LevelArray[level+1] == NULL)
-	break;
-
-      LevelHierarchyEntry *Temp = LevelArray[level+1];
-      while (Temp != NULL) {
-	if (Temp->GridData->CollapseMHD3DInitializeGrid(
-				n_sphere, SphereRadius,
-				SphereCoreRadius, SphereDensity,
-				SpherePressure, SphereSoundVelocity, 
-				SpherePosition, SphereAngVel, 
-				Bnaught, theta_B, Bdirection,
-				SphereType, MediumDensity, MediumPressure, level+1) == FAIL) {
-	  fprintf(stderr, "Error in Collapse3DInitializeGrid.\n");
-	  return FAIL;
-	}
-	Temp = Temp->NextGridThisLevel;
-      }
-    } // end: loop over levels
-
-    /* Loop back from the bottom, restoring the consistency among levels. */
-
-    for (level = MaximumRefinementLevel; level > 0; level--) {
-      LevelHierarchyEntry *Temp = LevelArray[level];
-      while (Temp != NULL) {
-	if (Temp->GridData->ProjectSolutionToParentGrid(
-				   *LevelArray[level-1]->GridData) == FAIL) {
-	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
-	  return FAIL;
-	}
-	Temp = Temp->NextGridThisLevel;
-      }
-    }
-
-  } // end: if (RefineAtStart)
-
-  /* set up field names and units */
-
+  HierarchyEntry *CurrentGrid; // all level 0 grids on this processor first
+  CurrentGrid = &TopGrid;
   int count = 0;
-  DataLabel[count++] = (char*) DensName;
-  DataLabel[count++] = (char*) Vel1Name;
-  DataLabel[count++] = (char*) Vel2Name;
-  DataLabel[count++] = (char*) Vel3Name;
-  DataLabel[count++] = (char*) TEName;
-  if (DualEnergyFormalism) {
-    DataLabel[count++] = (char*) GEName;
-  }
-  if (HydroMethod == MHD_RK) {
-    DataLabel[count++] = (char*) BxName;
-    DataLabel[count++] = (char*) ByName;
-    DataLabel[count++] = (char*) BzName;
-    DataLabel[count++] = (char*) PhiName;
-  }
-
-  if (MultiSpecies) {
-    DataLabel[count++] = (char*) ElectronName;
-    DataLabel[count++] = (char*) HIName;
-    DataLabel[count++] = (char*) HIIName;
-    DataLabel[count++] = (char*) HeIName;
-    DataLabel[count++] = (char*) HeIIName;
-    DataLabel[count++] = (char*) HeIIIName;
-    if (MultiSpecies > 1) {
-      DataLabel[count++] = (char*) HMName;
-      DataLabel[count++] = (char*) H2IName;
-      DataLabel[count++] = (char*) H2IIName;
+  while (CurrentGrid != NULL) {
+    printf("count %i %i\n", count++, MyProcessorNumber);
+    if (CurrentGrid->GridData->CollapseMHD3DInitializeGrid(
+						      n_sphere, SphereRadius,
+						      SphereCoreRadius, SphereDensity,
+						      SpherePressure, SphereSoundVelocity, SpherePosition, 
+						      SphereAngVel, SphereTurbulence, Bnaught, theta_B, Bdirection,
+						      SphereType,
+						      MediumDensity, MediumPressure, 0, SetBaryonFields) == FAIL) {
+      fprintf(stderr, "Error in CollapseMHD3DInitializeGrid.\n");
+      return FAIL;
     }
-    if (MultiSpecies > 2) {
-      DataLabel[count++] = (char*) DIName;
-      DataLabel[count++] = (char*) DIIName;
-      DataLabel[count++] = (char*) HDIName;
+    CurrentGrid = CurrentGrid->NextGridThisLevel;
+  }
+
+
+  if (SetBaryonFields) {
+
+    // Compute Velocity Normalization
+    double v_rms  = 0;
+    double Volume = 0;
+    Eflt fac = 1;
+    
+    if (SphereTurbulence[0] > 0.) {
+      CurrentGrid = &TopGrid;
+      while (CurrentGrid != NULL) {
+	if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
+	  fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
+	  return FAIL;
+	}
+	CurrentGrid = CurrentGrid->NextGridThisLevel;
+	fprintf(stderr, "Prepared: v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      }
+      
+#ifdef USE_MPI
+      CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
+      CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
+#endif
+      fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+      // Carry out the Normalization
+      v_rms = sqrt(v_rms/Volume); // actuall v_rms
+      fac = SphereSoundVelocity[0]*SphereTurbulence[0]/v_rms;
+      
+      CurrentGrid = &TopGrid;
+      while (CurrentGrid != NULL) {
+	if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+	  fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	  return FAIL;
+	}
+	CurrentGrid = CurrentGrid->NextGridThisLevel;
+      }
     }
-  }  // if Multispecies
+    if (fac != 0. ) SphereTurbulence[0] = fac;
 
-  if(UseDivergenceCleaning){
-    DataLabel[count++] = (char*) Phi_pName;
-    DataLabel[count++] = (char*) DebugName;
-  }
+    /* Convert minimum initial overdensity for refinement to mass
+       (unless MinimumMass itself was actually set). */
 
-  if (WritePotential) {
-    DataLabel[count++] = (char*) GravPotenName;
-    DataLabel[count++] = (char*) Acce1Name;
-    DataLabel[count++] = (char*) Acce2Name;
-    DataLabel[count++] = (char*) Acce3Name;
-  }
+    if (MinimumMassForRefinement[0] == FLOAT_UNDEFINED) {
+      MinimumMassForRefinement[0] = MinimumOverDensityForRefinement[0];
+      for (int dim = 0; dim < MetaData.TopGridRank; dim++)
+	MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
+	  float(MetaData.TopGridDims[dim]);
+    }
 
-  for (i = 0; i < count; i++) {
-    DataUnits[i] = NULL;
-  }
+    /* If requested, refine the grid to the desired level. */
+
+    if (RefineAtStart) {
+
+      /* Declare, initialize and fill out the LevelArray. */
+
+      LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+      for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+	LevelArray[level] = NULL;
+      AddLevel(LevelArray, &TopGrid, 0);
+
+      /* Add levels to the maximum depth or until no new levels are created,
+	 and re-initialize the level after it is created. */
+
+      for (level = 0; level < MaximumRefinementLevel; level++) {
+
+	if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
+	  fprintf(stderr, "Error in RebuildHierarchy.\n");
+	  return FAIL;
+	}
+	if (LevelArray[level+1] == NULL)
+	  break;
+
+	LevelHierarchyEntry *Temp = LevelArray[level+1];
+	while (Temp != NULL) {
+	  if (Temp->GridData->CollapseMHD3DInitializeGrid(
+							  n_sphere, SphereRadius,
+							  SphereCoreRadius, SphereDensity,
+							  SpherePressure, SphereSoundVelocity, 
+							  SpherePosition, SphereAngVel, SphereTurbulence,  
+							  Bnaught, theta_B, Bdirection,
+							  SphereType, MediumDensity, MediumPressure, level+1,
+							  SetBaryonFields) == FAIL) {
+	    fprintf(stderr, "Error in Collapse3DInitializeGrid.\n");
+	    return FAIL;
+	  }
+	  Temp = Temp->NextGridThisLevel;
+	}
+      } // end: loop over levels
+    
+      /* Loop back from the bottom, restoring the consistency among levels. */
+
+      for (level = MaximumRefinementLevel; level > 0; level--) {
+	LevelHierarchyEntry *Temp = LevelArray[level];
+	while (Temp != NULL) {
+	  if (Temp->GridData->ProjectSolutionToParentGrid(
+							  *LevelArray[level-1]->GridData) == FAIL) {
+	    fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
+	    return FAIL;
+	  }
+	  Temp = Temp->NextGridThisLevel;
+	}
+      }
+
+    } // end: if (RefineAtStart)
+
+    /* set up field names and units */
+
+    int count = 0;
+    DataLabel[count++] = (char*) DensName;
+    DataLabel[count++] = (char*) Vel1Name;
+    DataLabel[count++] = (char*) Vel2Name;
+    DataLabel[count++] = (char*) Vel3Name;
+    DataLabel[count++] = (char*) TEName;
+    if (DualEnergyFormalism) {
+      DataLabel[count++] = (char*) GEName;
+    }
+    if (HydroMethod == MHD_RK) {
+      DataLabel[count++] = (char*) BxName;
+      DataLabel[count++] = (char*) ByName;
+      DataLabel[count++] = (char*) BzName;
+      DataLabel[count++] = (char*) PhiName;
+    }
+
+    if (MultiSpecies) {
+      DataLabel[count++] = (char*) ElectronName;
+      DataLabel[count++] = (char*) HIName;
+      DataLabel[count++] = (char*) HIIName;
+      DataLabel[count++] = (char*) HeIName;
+      DataLabel[count++] = (char*) HeIIName;
+      DataLabel[count++] = (char*) HeIIIName;
+      if (MultiSpecies > 1) {
+	DataLabel[count++] = (char*) HMName;
+	DataLabel[count++] = (char*) H2IName;
+	DataLabel[count++] = (char*) H2IIName;
+      }
+      if (MultiSpecies > 2) {
+	DataLabel[count++] = (char*) DIName;
+	DataLabel[count++] = (char*) DIIName;
+	DataLabel[count++] = (char*) HDIName;
+      }
+    }  // if Multispecies
+
+    if(UseDivergenceCleaning){
+      DataLabel[count++] = (char*) Phi_pName;
+      DataLabel[count++] = (char*) DebugName;
+    }
+
+    if (WritePotential) {
+      DataLabel[count++] = (char*) GravPotenName;
+      DataLabel[count++] = (char*) Acce1Name;
+      DataLabel[count++] = (char*) Acce2Name;
+      DataLabel[count++] = (char*) Acce3Name;
+    }
+
+    for (i = 0; i < count; i++) {
+      DataUnits[i] = NULL;
+    }
+
+  } // end if  SetBaryonField
 
   return SUCCESS;
 

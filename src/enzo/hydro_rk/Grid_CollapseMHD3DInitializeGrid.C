@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1: Tom Abel 2010, add turbulence generator to this problem as well
 /
 /
 ************************************************************************/
@@ -27,6 +27,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 double Gaussian(double cs);
+void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
+
 
 int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 				      FLOAT r_sphere[MAX_SPHERES],
@@ -36,10 +40,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 				      float cs_sphere[MAX_SPHERES],
 				      FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
 				      float omega_sphere[MAX_SPHERES], 
+				      float turb_sphere[MAX_SPHERES], 
 				      float Bnaught, float theta_B,
 				      int Bdirection,
 				      int   sphere_type[MAX_SPHERES],
-				      float rho_medium, float p_medium, int level)
+				      float rho_medium, float p_medium, int level,
+				      int SetBaryonFields)
 {
 
   const float HIIFraction = 1.2e-5;
@@ -48,6 +54,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   const float HMFraction = 2.0e-9;
   const float H2IFraction = 2.0e-20;
   const float H2IIFraction = 3.0e-14;
+  int TurbulenceSeed = 191105;
+  float *TurbulenceVelocity[3];
   float HIFraction, HeIFraction, eFraction;
   HIFraction = CoolData.HydrogenFractionByMass - HIIFraction;
   if (MultiSpecies > 1)
@@ -58,11 +66,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   if (MultiSpecies > 1)
     eFraction += 0.5*H2IIFraction - HMFraction;
 
+
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, field, sphere, size, activesize;
 
-    int phip_num;
+  int phip_num;
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -119,6 +128,11 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     return SUCCESS;
   }
 
+  //  for (i=0; i< NumberOfBaryonFields; i++)    BaryonField[i] = NULL;
+
+
+  printf("Grid_CollapseMHD3DInitialize: Setting up grid variables.\n");
+
   /* Units and parameters */
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0, 
@@ -133,6 +147,17 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
+  activesize = 1;
+  for (dim = 0; dim < GridRank; dim++) {
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+  }
+
+  for (dim = 0; dim < GridRank; dim++) {
+    TurbulenceVelocity[dim] = new float[activesize];
+    for (int n = 0; n < activesize; n++) {
+      TurbulenceVelocity[dim][n] = 0.0;
+    }
+  }
 
   int count=0;
   for (field = 0; field < NumberOfBaryonFields; field++) {
@@ -146,6 +171,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
   printf("r_sphere: %"GSYM"\n", r_sphere[0]);
+  printf("turb_sphere: %"GSYM"\n", turb_sphere[0]);
+
   // if use BE sphere, read in the BE sphere density profile
 
   char *filename = "be.dat";
@@ -406,6 +433,72 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     }
   }
 
+
+
+  /* Initialize turbulent velocity field */
+
+  if (SetBaryonFields && (turb_sphere[0] > 0.)) {
+
+    float k1, k2, dk;
+      k1 = 5;
+      k2 = 8.0;
+      dk = 1.0;
+
+    printf("Begin generating turbulent velocity spectrum...\n");
+    Turbulence_Generator(TurbulenceVelocity, 
+			 GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);    
+
+    printf("Turbulent spectrum generated\n");
+
+    float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+    if (level > 0) VelocityNormalization = turb_sphere[0];
+    printf("Cloud Mach Number = %"GSYM" \n",turb_sphere[0]);
+    for (i = 0; i < 3; i++) {
+      for (n = 0; n < activesize; n++) {
+	TurbulenceVelocity[i][n] *= VelocityNormalization;
+      }
+    }
+
+
+    /* Set turbulent velocity field */
+  FLOAT x,y,z;
+  int igrid;
+    n = 0;
+    /*    for (k = 0; k < GridDimension[2]; k++) {
+      for (j = 0; j < GridDimension[1]; j++) {
+      for (i = 0; i < GridDimension[0]; i++, n++) { */
+	  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) { 
+	    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) { 
+	  igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+	  
+	  BaryonField[ivx][igrid] += TurbulenceVelocity[0][n];
+	  BaryonField[ivy][igrid] += TurbulenceVelocity[1][n];
+	  BaryonField[ivz][igrid] += TurbulenceVelocity[2][n];
+	  BaryonField[ietot][igrid] += 
+	    0.5 * (pow(TurbulenceVelocity[0][n],2) + 
+		   pow(TurbulenceVelocity[1][n],2) + 
+		   pow(TurbulenceVelocity[2][n],2));
+
+	} 
+      }
+    }    
+
+  }
+
+
+
+
+
+
   int TestBinary = 0;
   if (TestBinary == 1 && level == 0) {
 
@@ -516,5 +609,6 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	}
   }
 
+  printf("Grid_CollapseMHD3DInitiailize: done with this grid\n");
   return SUCCESS;
 }

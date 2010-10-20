@@ -2488,10 +2488,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				  float cs_sphere[MAX_SPHERES],
 				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
 				  float omega_sphere[MAX_SPHERES], 
+				  float turb_sphere[MAX_SPHERES], 
 				  float Bnaught, float theta_B,
 				  int Bdirection,
 				  int   sphere_type[MAX_SPHERES],
-				  float rho_medium, float p_medium, int level);
+				  float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				  float Bnaught, int seed, int level, int SetBaryonFields);
 

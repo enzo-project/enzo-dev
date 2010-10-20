@@ -19,6 +19,9 @@
  
 // This routine intializes a new simulation based on the parameter file.
  
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
  
 #include <string.h>
 #include <stdio.h>
@@ -33,6 +36,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
  
 // Function prototypes
  
@@ -190,7 +194,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr, 
 			HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
@@ -566,7 +570,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 202) 3D MHD Collapse */
   if (ProblemType == 202) {
-    ret = CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 203) MHD Turbulence Collapse */
@@ -892,6 +896,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
   }
   
+  
+  if (ProblemType == 202)
+    CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 1);
+
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.
   if (ProblemType == 203)
@@ -900,7 +908,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("Error in MHDTurbulenceReInitialize.\n");
     }
   
-  
+  CommunicationBarrier();
+ 
   // Close parameter files
   
   fclose(fptr);
