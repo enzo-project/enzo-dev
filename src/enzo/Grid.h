@@ -1672,11 +1672,23 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
   int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
-				    float LeftDensity, float RightDensity, 
+				    float LeftDensity, float RightDensity,
 				    float LeftVelocityX, float RightVelocityX,
 				    float LeftVelocityY, float RightVelocityY,
 				    float LeftVelocityZ, float RightVelocityZ,
 				    float LeftPressure, float RightPressure);
+  int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
+				    float SecondDiscontinuity,
+				    float LeftDensity, float RightDensity,
+				    float CenterDensity,
+				    float LeftVelocityX, float RightVelocityX,
+				    float CenterVelocityX,
+				    float LeftVelocityY, float RightVelocityY,
+				    float CenterVelocityY,
+				    float LeftVelocityZ, float RightVelocityZ,
+				    float CenterVelocityZ,
+				    float LeftPressure, float RightPressure,
+				    float CenterPressure);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
@@ -1753,7 +1765,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float ZeldovichPancakeOmegaBaryonNow,
 				     float ZeldovichPancakeOmegaCDMNow,
 				     float ZeldovichPancakeCollapseRedshift,
-				     float ZeldovichPancakeInitialTemperature);
+				     float ZeldovichPancakeInitialTemperature,
+				     float ZeldovichPancakeInitialUniformBField[]);
 
 /* 1D Pressureless Collapse: initialize grid. */
 
@@ -1928,7 +1941,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationManualParticleMassRatio,
 			  int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
-			  FLOAT SubDomainRightEdge[]);
+			  FLOAT SubDomainRightEdge[],
+			  float CosmologySimulationInitialUniformBField[]);
 
 
   /* Initialization for isolated galaxy sims */
@@ -2040,6 +2054,16 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Reset internal energy to initial values for cooling test. */
   int CoolingTestResetEnergies();
+
+  /* One-zone free-fall test initialization */
+  int OneZoneFreefallTestInitializeGrid(float InitialDensity,
+					float MinimumTemperature,
+					float MaximumTemperature,
+					float MinimumMetallicity,
+					float MaximumMetallicity);
+
+  /* Solve free-fall analytical solution. */
+  int SolveOneZoneFreefall();
 
 /* Tricks for Random Forcing. */
 
@@ -2272,7 +2296,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[], float &OneOverRSquaredSum);
   int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
-			     float &mass, float &metallicity, 
+			     float &mass, float &metallicity2, 
+			     float &metallicity3,
 			     float &coldgas_mass, float AvgVelocity[]);
 
   int RemoveParticle(int ID, bool disable=false);
@@ -2462,9 +2487,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				  float p_sphere[MAX_SPHERES],
 				  float cs_sphere[MAX_SPHERES],
 				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-				  float omega_sphere[MAX_SPHERES], float Bnaught, float theta_B,
+				  float omega_sphere[MAX_SPHERES], 
+				  float turb_sphere[MAX_SPHERES], 
+				  float Bnaught, float theta_B,
+				  int Bdirection,
 				  int   sphere_type[MAX_SPHERES],
-				  float rho_medium, float p_medium, int level);
+				  float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				  float Bnaught, int seed, int level, int SetBaryonFields);
 

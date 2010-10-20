@@ -19,6 +19,9 @@
  
 // This routine intializes a new simulation based on the parameter file.
  
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
  
 #include <string.h>
 #include <stdio.h>
@@ -33,6 +36,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "CommunicationUtilities.h"
  
 // Function prototypes
  
@@ -75,7 +79,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int RadiatingShockInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ZeldovichPancakeInitialize(FILE *fptr, FILE *Outfptr,
-			       HierarchyEntry &TopGrid);
+			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int PressurelessCollapseInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
@@ -107,6 +111,8 @@ int ProtostellarCollapseInitialize(FILE *fptr, FILE *Outfptr,
 				   TopGridData &MetaData);
 int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData); 
+int OneZoneFreefallTestInitialize(FILE *fptr, FILE *Outfptr, 
+				  HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
                                   HierarchyEntry &TopGrid,
                                   TopGridData &MetaData);
@@ -188,7 +194,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr, 
 			HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData);
+			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
 int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr, 
@@ -406,7 +412,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 20) Zeldovich Pancake
  
   if (ProblemType == 20)
-    ret = ZeldovichPancakeInitialize(fptr, Outfptr, TopGrid);
+    ret = ZeldovichPancakeInitialize(fptr, Outfptr, TopGrid, MetaData);
  
   // 21) 1D Pressureless collapse
  
@@ -511,6 +517,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 62)
     ret = CoolingTestInitialize(fptr, Outfptr, TopGrid, MetaData);
 
+  // 63) 1-zone free-fall test problem
+  if (ProblemType == 63)
+    ret = OneZoneFreefallTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+
   // 70) Conduction test problem with hydro disabled
   // 71) Conduction test problem with hydro turned on
   if (ProblemType == 70 || ProblemType == 71)
@@ -560,7 +570,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   /* 202) 3D MHD Collapse */
   if (ProblemType == 202) {
-    ret = CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
 
   /* 203) MHD Turbulence Collapse */
@@ -886,6 +896,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
   }
   
+  
+  if (ProblemType == 202)
+    CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 1);
+
   // For ProblemType 203 (Turbulence Simulation we only initialize the data
   // once the topgrid has been split.
   if (ProblemType == 203)
@@ -894,7 +908,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ENZO_FAIL("Error in MHDTurbulenceReInitialize.\n");
     }
   
-  
+  CommunicationBarrier();
+ 
   // Close parameter files
   
   fclose(fptr);

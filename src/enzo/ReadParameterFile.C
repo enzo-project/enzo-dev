@@ -674,6 +674,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarClusterMinDynamicalTime);
     ret += sscanf(line, "StarClusterHeliumIonization = %"ISYM, 
 		  &StarClusterHeliumIonization);
+    ret += sscanf(line, "StarClusterUnresolvedModel = %"ISYM, 
+		  &StarClusterUnresolvedModel);
     ret += sscanf(line, "StarClusterIonizingLuminosity = %lf", 
 		  &StarClusterIonizingLuminosity);
     ret += sscanf(line, "StarClusterSNEnergy = %lf", &StarClusterSNEnergy);
@@ -696,6 +698,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIInitialMassFunction);
     ret += sscanf(line, "PopIIIInitialMassFunctionSeed = %"ISYM, 
 		  &PopIIIInitialMassFunctionSeed);
+    ret += sscanf(line, "PopIIIInitialMassFunctionCalls = %"ISYM, 
+		  &PopIIIInitialMassFunctionCalls);
     ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
 		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
     ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 
@@ -847,7 +851,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
+    ret += sscanf(line, "RiemannSolverFallback = %"ISYM, &RiemannSolverFallback);
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
+    ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
@@ -951,6 +957,34 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
+  /* Now we know which hydro solver we're using, we can assign the
+     default Riemann solver and flux reconstruction methods.  These
+     parameters aren't used for PPM_LagrangeRemap and Zeus. */
+
+  if (HydroMethod == PPM_DirectEuler) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = TwoShock;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PPM;
+    if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("RiemannSolver = HLL, ReconstructionMethod = PLM.\n"
+	       "These are the defaults for the MUSCL (hydro_rk) solvers,\n"
+	       "but don't exist for the FORTRAN solvers.  Changing to the\n"
+	       "old FORTRAN default, two-shock and PPM.\n"
+	       "-- To override this, set RiemannSolver = -1\n");
+      RiemannSolver = TwoShock;
+      ReconstructionMethod = PPM;
+    }
+    if (RiemannSolver == -HLL) RiemannSolver = HLL;
+  } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = HLL;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PLM;
+  }
+
+  //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
   /* Even if this is not cosmology, due to a check for nested grid cosmology
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */

@@ -33,6 +33,7 @@ OBJS_CONFIG_LIB = \
         calcdiss.o \
         calc_dt.o \
         calc_dt_c.o \
+	calc_eigen.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -141,6 +142,7 @@ OBJS_CONFIG_LIB = \
         EvolveHierarchy.o \
 	execinfo_local.o \
         expand_terms.o \
+        expand_mhd_terms.o \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
         ExposeGridHierarchy.o \
@@ -157,6 +159,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetExternalBoundaryParticles.o \
         ExternalBoundary_SetShockPoolBoundary.o \
         ExternalBoundary_SetWavePoolBoundary.o \
+        ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
         ExtractSection.o \
         FastFourierTransform.o \
@@ -177,6 +180,9 @@ OBJS_CONFIG_LIB = \
         FindSubgrids.o \
         flow.o \
         FluxFix_Grid_CorrectForRefinedFluxes.o \
+	flux_hll.o \
+	flux_hllc.o \
+	flux_twoshock.o \
         FOF.o \
         FOF_allocate.o \
         FOF_cmpfunc.o \
@@ -458,6 +464,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
         Grid_ParticleSplitter.o \
@@ -517,6 +524,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -600,6 +608,8 @@ OBJS_CONFIG_LIB = \
         int_lin3d.o \
         intrmp.o \
         int_spline.o \
+	intpos.o \
+	intprim.o \
         intvar.o \
         Isdigit.o \
         KHInitialize.o \
@@ -633,6 +643,7 @@ OBJS_CONFIG_LIB = \
         nr_3d.o \
         nr_st1.o \
 	NullProblem.o \
+	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\
