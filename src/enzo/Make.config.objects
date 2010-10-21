@@ -826,7 +826,6 @@ OBJS_CONFIG_LIB = \
         WriteConfigure.o \
         WriteDataCubes.o \
         WriteDataHierarchy.o \
-        WriteHierarchyStuff.o \
         WriteMemoryMap.o \
         WriteParameterFile.o \
         WriteRadiationData.o \
