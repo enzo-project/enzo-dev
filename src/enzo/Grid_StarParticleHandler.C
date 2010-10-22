@@ -887,7 +887,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
     /* This creates sink particles which suck up mass off the grid. */
 
-    //if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
+    //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
     //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
     if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
       /* Set the density threshold by using the mass in a cell which
@@ -900,8 +900,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	if (CellFlaggingMethod[method] == 2)
 	  SinkParticleMassThreshold = MinimumMassForRefinement[method]*
 	    pow(RefineBy, level*MinimumMassForRefinementLevelExponent[method]);
-	if (CellFlaggingMethod[method] == 6)
+	if (CellFlaggingMethod[method] == 6) { 
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
+	}
       }
 
       if(BigStarFormation){

@@ -52,7 +52,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   const float HeIIFraction = 1.0e-14;
   const float HeIIIFraction = 1.0e-17;
   const float HMFraction = 2.0e-9;
-  const float H2IFraction = 2.0e-20;
+  const float H2IFraction = 2.0e-4;
   const float H2IIFraction = 3.0e-14;
   int TurbulenceSeed = 191105;
   float *TurbulenceVelocity[3];
@@ -353,7 +353,10 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 		n = n_bin -1;
 	      }
 	      rho = rho_sphere[sphere]*rho_be[n];
-	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      //	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      FLOAT omega = omega_sphere[sphere];
 	      vel[0] = -omega*ypos;
 	      vel[1] = omega*xpos;

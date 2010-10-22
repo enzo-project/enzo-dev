@@ -219,7 +219,7 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
     SphereDensity[0] = rhoc;
     MediumDensity *= rhoc/14.0; // in this case medium density is the ratio to decrease the outside density 
     
-    MediumPressure = MediumDensity*cs*cs;
+    MediumPressure = rhoc/14.0 *cs*cs/Gamma;
     double m_be = pow(f,1.5)*1.18*pow(cs,4)/pow(G,1.5)/sqrt(MediumPressure);
     double msun = 1.989e33;
     m_be /= msun;
