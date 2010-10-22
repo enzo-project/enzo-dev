@@ -211,12 +211,15 @@
       integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
       real ttmin, dom, energy, comp1, comp2
       double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
+      double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
+     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
 
 !  row temporaries
 
       integer indixe(ijk)
       real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
-     &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk)
+     &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
+     &     olddtit
 
 !  Rate equation row temporaries
 
@@ -261,6 +264,8 @@
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
       chunit = (7.17775e-12)/(2.0*uvel*uvel*mh)
+
+      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
 
 !  Convert densities from comoving to proper
 
@@ -429,9 +434,52 @@
 
 !              compute minimum rate timestep
 
+               olddtit = dtit(i)
                dtit(i) = min(abs(0.1*de(i,j,k)/dedot(i)), 
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
+
+              if (d(i,j,k)*dom.gt.1e8.and.edot(i).gt.0.0)then
+                ! Equilibrium value for H is:
+                !  H = (-1.0 / (4*k22)) * (k13 - sqrt(8 k13 k22 rho + k13^2))
+                ! We now want this to change by 10% or less, but we're only
+                ! differentiating by dT.  We have de/dt.  We need dT/de.
+                ! T = (g-1)*p2d*utem/N; tgas == (g-1)(p2d*utem/N)
+                ! dH_eq / dt = (dH_eq/dT) * (dT/de) * (de/dt)
+                !   dH_eq / dT (see above; we can calculate the derivative here)
+                !   dT / de = utem * (gamma - 1.0) / N == tgas / p2d
+                !   de / dt = edot
+                ! Now we use our estimate of dT/de to get the estimated
+                ! difference in the equilibrium
+                eqt2 = min(log(tgas(i)) + 0.1*dlogtem, t2(i))
+                eqtdef = (eqt2 - t1(i))/(t2(i) - t1(i))
+                eqk222 = k22a(indixe(i)) +
+     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
+                eqk132 = k13a(indixe(i)) +
+     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
+                heq2 = (-1.0 / (4*eqk222)) *
+     &          (eqk132-sqrt(8.0*eqk132*eqk222*fh*d(i,j,k)+eqk132**2.0))
+
+                eqt1 = max(log(tgas(i)) - 0.1*dlogtem, t1(i))
+                eqtdef = (eqt1 - t1(i))/(t2(i) - t1(i))
+                eqk221 = k22a(indixe(i)) +
+     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
+                eqk131 = k13a(indixe(i)) +
+     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
+                heq1 = (-1.0 / (4*eqk221)) *
+     &          (eqk131-sqrt(8.0*eqk131*eqk221*fh*d(i,j,k)+eqk131**2.0))
+
+                dheq = (abs(heq2-heq1)/(exp(eqt2) - exp(eqt1)))
+     &               * (tgas(i)/p2d(i)) * edot(i)
+                heq = (-1.0 / (4*k22(i))) *
+     &          (k13(i)-sqrt(8.0*k13(i)*k22(i)*fh*d(i,j,k)+k13(i)**2.0))
+                !write(0,*) heq2, heq1, eqt2, eqt1, tgas(i), p2d(i), 
+!     &                     edot(i)
+                if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *)
+     &              HI(i,j,k)/heq, edot(i),tgas(i)
+                dtit(i) = min(dtit(i), 0.1*heq/dheq)
+              endif
+              if (iter.gt.10) dtit(i) = min(olddtit*1.5, dtit(i))
 
 !              Output some debugging information if required
 
@@ -499,7 +547,7 @@
 !                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
-                  dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+                  dtit(i) = min(real(abs(0.01*energy/edot(i))), 
      &                        dt-ttot(i), dtit(i))
 !              endif
 
@@ -1090,6 +1138,7 @@ c -------------------------------------------------------------------
 !     locals
 
       integer i
+      double precision H2delta, H2dmag, atten, tau
 
       if (ispecies .eq. 1) then
 
@@ -1169,12 +1218,18 @@ c -------------------------------------------------------------------
      &               +  k26shield(i)*HeI(i,j,k)/4.0)
 #endif /* RADIATION */
 
-            edot(i) = edot(i) + chunit * (
+            H2delta = 
      &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
      &                    - k13(i) * H2I(i,j,k)/2.0d0)
+            H2dmag = abs(H2delta)/(
+     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
+     &                    + k13(i) * H2I(i,j,k)/2.0d0))
+            tau = (H2dmag/1e-5)**-1.0d0
+            tau = max(tau, 1.e-5)
+            atten = min((1.-exp(-tau))/tau,1.0)
+            edot(i) = edot(i) + chunit * H2delta * atten
 !     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
 !     &                    - k23(i) * H2I(i,j,k))
-     &                  )
 !H * (k22 * H^2 - k13 * H_2) + H_2 * (k21 * H^2 - k23 * H_2) */
          endif                  ! itmask
          enddo
