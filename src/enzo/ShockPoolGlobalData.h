@@ -12,28 +12,28 @@
 ************************************************************************/
 
 #ifdef DEFINE_STORAGE
-# define SPEXTERN
+# define SHOCK_POOL_EXTERN
 #else /* DEFINE_STORAGE */
-# define SPEXTERN extern
+# define SHOCK_POOL_EXTERN extern
 #endif /* DEFINE_STORAGE */
 
 /* Angle of the vector of propogation with respect to the x-axis.  */
 
-SPEXTERN float ShockPoolAngle;
+SHOCK_POOL_EXTERN float ShockPoolAngle;
 
 /* Speed of shock itself. */
 
-SPEXTERN float ShockPoolShockSpeed;
+SHOCK_POOL_EXTERN float ShockPoolShockSpeed;
 
 /* Density, pressure and velocity of the pre shock state. */
 
-SPEXTERN float ShockPoolDensity;
-SPEXTERN float ShockPoolTotalEnergy;
-SPEXTERN float ShockPoolVelocity[MAX_DIMENSION];
+SHOCK_POOL_EXTERN float ShockPoolDensity;
+SHOCK_POOL_EXTERN float ShockPoolTotalEnergy;
+SHOCK_POOL_EXTERN float ShockPoolVelocity[MAX_DIMENSION];
 
 /* Density, pressure and velocity of the post shock state. */
 
-SPEXTERN float ShockPoolShockDensity;
-SPEXTERN float ShockPoolShockTotalEnergy;
-SPEXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
+SHOCK_POOL_EXTERN float ShockPoolShockDensity;
+SHOCK_POOL_EXTERN float ShockPoolShockTotalEnergy;
+SHOCK_POOL_EXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
  
