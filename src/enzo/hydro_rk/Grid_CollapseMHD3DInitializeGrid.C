@@ -122,6 +122,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
+  FieldType[NumberOfBaryonFields++] = DebugField;
+
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -163,6 +165,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if (BaryonField[field] == NULL) {
       BaryonField[field] = new float[size];
+      for (i=0;i<size;i++)
+	BaryonField[field][i] = 0.;
       count++;
     }
   }
@@ -307,6 +311,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      // BUT keep the pressure constant everywhere
 	      // to avoid discontinuities at the sphere boundaries
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0)/m2mode;
+	      float p, cs, h, dpdrho, dpde;
+	      p = pow(cs_sphere[sphere], 2)*rho;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
 	      // for the B-field we put it along x to slow the 
 	      // collapse along the z direction
 	      Bx = Bnaught;
@@ -410,6 +417,19 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      vel[1] = omega_sphere[sphere]*xpos;
 	    }
 
+	    /* Rotating Gaussian of Truelove et al 1997 */
+
+	    if (sphere_type[sphere] == 7) {
+	      float m2mode = 1. + 0.1*cos(2.*phi);
+	      rho = rho_sphere[sphere] * exp(-pow(r/r_sphere[sphere]/0.58,2));
+	      rho *= m2mode;
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      vel[0] = -omega_sphere[sphere]*ypos;
+	      vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
 
 	  } // if (r < r_sphere)
 	} // end: loop over spheres
@@ -431,7 +451,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	  BaryonField[iBz ][n] = Bz;
 	  BaryonField[iPhi][n] = 0.0;
 	}
-
+	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }
   }
@@ -543,10 +563,21 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   }
 
 
-  int PutSinkParticle = 0;
-  if (PutSinkParticle == 1 && level == MaximumRefinementLevel) {
+  int PutSinkParticle = 1;
+  float ppos[3];
+  ppos[0] = 0.50001;
+  ppos[1] = 0.50001;
+  ppos[2] = 0.50001;
 
-    double mass_p = 1.1*1.989e33;
+  this->DeleteParticles();
+  NumberOfParticles = 0;
+  NumberOfStars    = 0;
+  //  if (PutSinkParticle == 1 && level == MaximumRefinementLevel) {
+  if (PutSinkParticle == 1 && GridLeftEdge[0] < ppos[0] && GridRightEdge[0] > ppos[0] &&
+      GridLeftEdge[1] < ppos[1] && GridRightEdge[1] > ppos[1] &&
+      GridLeftEdge[2] < ppos[2] && GridRightEdge[2] > ppos[2]) {
+
+    double mass_p = 1.*1.989e32;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -556,14 +587,15 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
+    NumberOfParticleAttributes = 3;
     //    MaximumParticleNumber = 1;
     this->AllocateNewParticles(NumberOfParticles);
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.501; // 0.6; // 0.55;                         
-    ParticlePosition[1][0] = 0.501;
-    ParticlePosition[2][0] = 0.501;
+    ParticlePosition[0][0] = ppos[0]; // 0.6; // 0.55;                         
+    ParticlePosition[1][0] = ppos[1];
+    ParticlePosition[2][0] = ppos[2];
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;

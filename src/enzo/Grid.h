@@ -807,6 +807,10 @@ public:
 
    int FlagCellsToBeRefinedByJeansLength();
 
+/* Flag all points that require refining by the total Jean's length criterion. (Tom Abel 10/2010) */
+
+   int FlagCellsToBeRefinedByTotalJeansLength();
+
 /* Flag all points that require refining by the Resistive Scale length criterion. 
    abs(B)/abs(curl(B)) should be larger than cell size*/
 
@@ -1315,20 +1319,20 @@ public:
 /* Particles: delete particle fields and set null. */
 
    void DeleteParticles() {
-     delete [] ParticleMass;
-     delete [] ParticleNumber;
-     delete [] ParticleType;
+     if (ParticleMass != NULL) delete [] ParticleMass;
+     if (ParticleNumber != NULL) delete [] ParticleNumber;
+     if (ParticleType != NULL) delete [] ParticleType;
      ParticleMass = NULL;
      ParticleNumber = NULL;
      ParticleType = NULL;
      for (int dim = 0; dim < GridRank; dim++) {
-       delete [] ParticlePosition[dim];
-       delete [] ParticleVelocity[dim];
+       if (ParticlePosition[dim] != NULL) delete [] ParticlePosition[dim];
+       if (ParticleVelocity[dim] != NULL) delete [] ParticleVelocity[dim];
        ParticlePosition[dim] = NULL;
        ParticleVelocity[dim] = NULL;
      }
      for (int i = 0; i < NumberOfParticleAttributes; i++) {
-       delete [] ParticleAttribute[i];
+       if (ParticleAttribute[i] != NULL) delete [] ParticleAttribute[i];
        ParticleAttribute[i] = NULL;
      }   
    };

@@ -399,6 +399,7 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToAvoidRefinement.o \
 	Grid_FlagCellsToBeRefinedByCoolingTime.o \
 	Grid_FlagCellsToBeRefinedByJeansLength.o \
+	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \

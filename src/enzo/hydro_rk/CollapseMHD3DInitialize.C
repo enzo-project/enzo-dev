@@ -309,8 +309,9 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 	}
 	CurrentGrid = CurrentGrid->NextGridThisLevel;
       }
+      if (fac != 0. ) SphereTurbulence[0] = fac;
     }
-    if (fac != 0. ) SphereTurbulence[0] = fac;
+
 
     /* Convert minimum initial overdensity for refinement to mass
        (unless MinimumMass itself was actually set). */
@@ -426,6 +427,8 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = (char*) Acce2Name;
       DataLabel[count++] = (char*) Acce3Name;
     }
+
+    DataLabel[count++] = (char*) DebugName;
 
     for (i = 0; i < count; i++) {
       DataUnits[i] = NULL;

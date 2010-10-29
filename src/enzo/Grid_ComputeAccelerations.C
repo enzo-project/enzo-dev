@@ -44,6 +44,7 @@ int grid::ComputeAccelerations(int level)
        staggered (cell-centered).  Staggered will generate a self-force. */
 
     DiffType = DIFFERENCE_TYPE_NORMAL;
+    //    DiffType = DIFFERENCE_TYPE_STAGGERED;
 
     /* Compute the acceleration field for particles from potential. */
  
