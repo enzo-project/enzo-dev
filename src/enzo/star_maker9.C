@@ -120,7 +120,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 
   /* Loop over grid looking for a cell with mass larger than massthres */
-  if(BigStarFormation){
+  if(BigStarFormation == 1){
     if (*level == MaximumRefinementLevel) {
       float oldrho;
       float SinkCollapseDistance = SinkMergeDistance;
@@ -168,7 +168,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	      if (ii < *nmax) {
 
 		// PUT BIG STAR FORMATION IF STATEMENT HERE
-		if(BigStarFormation){
+		if(BigStarFormation == 1){
 
 		  /* Calculate change in density */
 
@@ -178,7 +178,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		    maxdens = densthresh;
 		  oldrho = d[index];
 		  adddens = d[index] - maxdens;
-		  BigStarFormation = 0;
+		  BigStarFormation = 2;
 		  //StarParticleCreation = 0;
 		  //StarParticleFeedback = 0;
 		  CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
