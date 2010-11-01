@@ -35,9 +35,30 @@ class CollapsingCoolingCloudGrid : private grid {
 
 int FindField(int field, int farray[], int numfields);
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
+
+/* stuff from BWO for this problem type */
 void mt_init(unsigned_int seed);
 
 unsigned_long_int mt_random();
+
+void calculate_radial_profiles(float central_density, float central_temperature, FLOAT outer_radius);
+float dTdr(float r, float T);
+float Mass_of_r(float r);
+float n_of_r(float r);
+float dn_dr(float r);
+float g_of_r(float r);
+
+#define PC_CGS 3.0857e+18
+#define RADIUS_BINS 2048
+
+double mu = 1.22, mp=1.67e-24, kb=1.38e-16, gravconst=6.67e-8;
+float n_core, r_core, n0, r0, r_outer, T_center, this_radius;
+float numdens_of_r[RADIUS_BINS],radius_bins[RADIUS_BINS],T_of_r[RADIUS_BINS];
+
+/* end of BWO stuff */
 
 class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 {
@@ -49,8 +70,10 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
         float CollapsingCoolingCloudBField[3];   // gas initally at rest
         FLOAT CollapsingCoolingCloudRadius;
         float CollapsingCoolingCloudLambda;
-        float CollapsingCoolingCloudOverdensity;
-        float CollapsingCoolingCloudDensity;
+        float CollapsingCoolingCloudExternalDensity;
+        float CollapsingCoolingCloudCentralDensity;
+        float CollapsingCoolingCloudExternalTemperature;
+        float CollapsingCoolingCloudCentralTemperature;
         float CollapsingCoolingCloudTotalEnergy;
         int CollapsingCoolingCloudUseDensityFluctuations;
         int CollapsingCoolingCloudRandomSeedInitialize;
@@ -120,8 +143,10 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
         this->CollapsingCoolingCloudBField[2] = 0.0; // gas initally at rest
       this->CollapsingCoolingCloudRadius = 0.3;
       this->CollapsingCoolingCloudLambda = 0.05;
-      this->CollapsingCoolingCloudOverdensity = 20.0;
-      this->CollapsingCoolingCloudDensity = 1.0;
+      this->CollapsingCoolingCloudCentralDensity = 100.0;
+      this->CollapsingCoolingCloudExternalDensity = 1.0;
+      this->CollapsingCoolingCloudCentralTemperature = 1000.0;
+      this->CollapsingCoolingCloudExternalTemperature = 100.0;
       this->CollapsingCoolingCloudTotalEnergy = 1.0;
       float Pi                      = 3.14159;
 
@@ -146,7 +171,11 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 
         /* read parameters specifically for radiating shock problem*/
 
-        ret += sscanf(line, "CollapsingCoolingCloudOverdensity  = %"FSYM, &CollapsingCoolingCloudOverdensity);
+        ret += sscanf(line, "CollapsingCoolingCloudCentralDensity  = %"FSYM, &CollapsingCoolingCloudCentralDensity);
+        ret += sscanf(line, "CollapsingCoolingCloudExternalDensity  = %"FSYM, &CollapsingCoolingCloudExternalDensity);
+        ret += sscanf(line, "CollapsingCoolingCloudCentralTemperature  = %"FSYM, &CollapsingCoolingCloudCentralTemperature);
+        ret += sscanf(line, "CollapsingCoolingCloudExternalTemperature  = %"FSYM, &CollapsingCoolingCloudExternalTemperature);
+
         ret += sscanf(line, "CollapsingCoolingCloudSubgridLeft = %"PSYM,
             &CollapsingCoolingCloudSubgridLeft);
         ret += sscanf(line, "CollapsingCoolingCloudSubgridRight = %"PSYM,
@@ -212,13 +241,47 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
 
       } // end input from parameter file
 
+      /* Set the units. */
+      
+      float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1.0,
+	TimeUnits = 1.0, VelocityUnits = 1.0, MassUnits=1.0;
+      FLOAT Time=0.0;
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+		   &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+      }
+      float EnergyUnits;
+      float TempToEnergyConversion;
+      EnergyUnits = POW(LengthUnits, 2.0) / POW(TimeUnits, 2.0);
+      TempToEnergyConversion =  kb/((Gamma - 1.0)*mu*mp); 
+      TempToEnergyConversion /= EnergyUnits;  // this times temperature gives you energy units in ENZO UNITS (K -> Enzo)
+
+      // returns three arrays:  n(r), T(r), r, in cm^-3, Kelvin, pc respectively.
+      calculate_radial_profiles(CollapsingCoolingCloudCentralDensity,CollapsingCoolingCloudCentralTemperature,CollapsingCoolingCloudRadius);
+
+      // convert from number density, Kelvin, parsecs to Enzo internal units.
+      for(int i=0; i<RADIUS_BINS;i++){
+	numdens_of_r[i] *= mu*mp/DensityUnits;  // now in Enzo internal density units 
+	T_of_r[i] *= TempToEnergyConversion;  // now in internal energy units
+	radius_bins[i] *= PC_CGS/LengthUnits;
+      }
+
+      float ExternalDensity, ExternalEnergy;
+
+      ExternalDensity = numdens_of_r[RADIUS_BINS-1];
+      ExternalEnergy = T_of_r[RADIUS_BINS-1];
+
+      printf("internal/external density/energy are:  %e/%e   %e/%e\n",numdens_of_r[0], numdens_of_r[RADIUS_BINS-1],
+	     T_of_r[0],T_of_r[RADIUS_BINS-1]);
+
+      CollapsingCoolingCloudRadius *= PC_CGS/LengthUnits;  // now in internal length units
 
       this->InitializeUniformGrid(TopGrid.GridData,
-            CollapsingCoolingCloudDensity,
-            CollapsingCoolingCloudTotalEnergy,
-            CollapsingCoolingCloudTotalEnergy,
-            CollapsingCoolingCloudVelocity,
-            CollapsingCoolingCloudBField);
+				  ExternalDensity,
+				  ExternalEnergy,
+				  ExternalEnergy,
+				  CollapsingCoolingCloudVelocity,
+				  CollapsingCoolingCloudBField);
 
       /* Create as many subgrids as there are refinement levels
          needed to resolve the initial explosion region upon the start-up. */
@@ -276,9 +339,9 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
                                         TopGrid.GridData,
                                         MetaData.TopGridRank, SubgridDims,
                                         LeftEdge, RightEdge, 0,
-                                        CollapsingCoolingCloudDensity,
-                                        CollapsingCoolingCloudTotalEnergy,
-                                        CollapsingCoolingCloudTotalEnergy,
+                                        ExternalDensity,
+					ExternalEnergy,
+					ExternalEnergy,
                                         CollapsingCoolingCloudVelocity,
                                         CollapsingCoolingCloudBField);
 
@@ -350,7 +413,11 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       /* Write parameters to parameter output file */
 
       if (MyProcessorNumber == ROOT_PROCESSOR) {
-        fprintf(Outfptr, "CollapsingCoolingCloudOverdensity         = %"FSYM"\n"  , CollapsingCoolingCloudOverdensity);
+        fprintf(Outfptr, "CollapsingCoolingCloudCentralDensity         = %"FSYM"\n"  , CollapsingCoolingCloudCentralDensity);
+        fprintf(Outfptr, "CollapsingCoolingCloudExternalDensity         = %"FSYM"\n"  , CollapsingCoolingCloudExternalDensity);
+        fprintf(Outfptr, "CollapsingCoolingCloudCentralTemperature         = %"FSYM"\n"  , CollapsingCoolingCloudCentralTemperature);
+        fprintf(Outfptr, "CollapsingCoolingCloudExternalTemperature         = %"FSYM"\n"  , CollapsingCoolingCloudExternalTemperature);
+
         fprintf(Outfptr, "CollapsingCoolingCloudLambda         = %"FSYM"\n"  , CollapsingCoolingCloudLambda);
         fprintf(Outfptr, "CollapsingCoolingCloudTotalEnergy         = %"FSYM"\n"  , CollapsingCoolingCloudTotalEnergy);
         fprintf(Outfptr, "CollapsingCoolingCloudRadius         = %"PSYM"\n"  , CollapsingCoolingCloudRadius);
@@ -431,7 +498,7 @@ This is the grid-by-grid initializer.
           this->CollapsingCoolingCloudCenterPosition[1],
           this->CollapsingCoolingCloudCenterPosition[2]);
       printf("CollapsingCoolingCloudLambda = %e\n",this->CollapsingCoolingCloudLambda);
-      printf("CollapsingCoolingCloudOverdensity = %e\n",this->CollapsingCoolingCloudOverdensity);
+      printf("CollapsingCoolingCloudCentralDensity = %e\n",this->CollapsingCoolingCloudCentralDensity);
 
 
       /* declarations */
@@ -483,7 +550,7 @@ This is the grid-by-grid initializer.
 
       outside_rho =  thisgrid->BaryonField[DensNum][0];
 
-      omega = CollapsingCoolingCloudLambda * sqrt(GravitationalConstant * CollapsingCoolingCloudOverdensity * outside_rho) / 0.117;
+      omega = CollapsingCoolingCloudLambda * sqrt(GravitationalConstant * numdens_of_r[0]/numdens_of_r[RADIUS_BINS-1]) / 0.117;
 
       if(HydroMethod==2){  // ZEUS
 
@@ -498,6 +565,9 @@ This is the grid-by-grid initializer.
         }
 
       }  // if(HydroMethod==2)
+
+      int cell_radial_index;
+
 
       for (k = 0; k < thisgrid->GridDimension[2]; k++)
         for (j = 0; j < thisgrid->GridDimension[1]; j++)
@@ -522,11 +592,16 @@ This is the grid-by-grid initializer.
 
 	    radius = xyradius + POW(z-CollapsingCoolingCloudCenterPosition[2], 2.0);
 
-            xyradius = sqrt(xyradius);  // ok, now it's just radius
+            xyradius = sqrt(xyradius);  // ok, now it's just xy-radius
             radius = sqrt(radius);  // ok, now it's just radius
 
             if ( radius <= CollapsingCoolingCloudRadius ){
 
+	      for(int thisindex=1;thisindex<=RADIUS_BINS;thisindex++)
+		if(radius_bins[thisindex-1] <= radius &&
+		   radius < radius_bins[thisindex-1])
+		  cell_radial_index=thisindex;
+	      
 	      therandomfraction=1.0;
 
 	      if(CollapsingCoolingCloudUseDensityFluctuations){
@@ -545,7 +620,7 @@ This is the grid-by-grid initializer.
 
 	      }
 
-              thisgrid->BaryonField[DensNum][cellindex] = therandomfraction * CollapsingCoolingCloudOverdensity;
+              thisgrid->BaryonField[DensNum][cellindex] = therandomfraction * numdens_of_r[cell_radial_index];
 
               sintheta = (y-CollapsingCoolingCloudCenterPosition[1])/xyradius;
               costheta = (x-CollapsingCoolingCloudCenterPosition[0])/xyradius;
@@ -561,12 +636,12 @@ This is the grid-by-grid initializer.
               if(HydroMethod == 2){
 
                 // ZEUS
-                thisgrid->BaryonField[TENum][cellindex] = outside_TE / CollapsingCoolingCloudOverdensity;
+                thisgrid->BaryonField[TENum][cellindex] = T_of_r[cell_radial_index] ;
 
               } else {
 
                 // PPM
-                thisgrid->BaryonField[TENum][cellindex] = outside_TE / CollapsingCoolingCloudOverdensity
+                thisgrid->BaryonField[TENum][cellindex] =  T_of_r[cell_radial_index] 
                   + 0.5 * thisgrid->BaryonField[Vel1Num][cellindex] *
                   thisgrid->BaryonField[Vel1Num][cellindex]
                   + 0.5 * thisgrid->BaryonField[Vel2Num][cellindex] *
@@ -576,7 +651,7 @@ This is the grid-by-grid initializer.
 
                 // gas energy (PPM dual energy formalims)
                 if(DualEnergyFormalism)
-                  thisgrid->BaryonField[GENum][cellindex] = outside_GE / CollapsingCoolingCloudOverdensity;
+                  thisgrid->BaryonField[GENum][cellindex] =  T_of_r[cell_radial_index]; 
 
               } // if(HydroMethod == 2)
 
@@ -647,6 +722,14 @@ This is the grid-by-grid initializer.
 	      
 
             } // if (r <= CollapsingCoolingCloudRadius)
+	    else {  // set external density, temperature so it all doesn't fall apart.
+              thisgrid->BaryonField[DensNum][cellindex] = numdens_of_r[RADIUS_BINS-1];
+	      thisgrid->BaryonField[TENum][cellindex] = T_of_r[RADIUS_BINS-1] ;
+	      if(DualEnergyFormalism)
+		thisgrid->BaryonField[GENum][cellindex] = T_of_r[RADIUS_BINS-1] ;
+
+	    } // else if  (r <= CollapsingCoolingCloudRadius)
+
 
           } // for (i = 0; i < GridDimension[0]; i++)
 
@@ -659,7 +742,6 @@ This is the grid-by-grid initializer.
 
     } 
 
-
 };
 
 //.. register:
@@ -667,5 +749,96 @@ namespace{
     EnzoProblemType_creator_concrete<ProblemType_CollapsingCoolingCloud>
         rtcyl("CollapsingCoolingCloud");
 }
+
+
+
+void calculate_radial_profiles(float central_density, float central_temperature, FLOAT outer_radius){
+
+  // user sets these
+  n_core = central_density;  // n_H: particles/cc
+
+  r_outer = outer_radius; // pc
+  T_center = central_temperature;  // Kelvin
+
+  double dr, k1, k2, k3, k4, this_temperature;
+
+  n0 = 1.0e+3; // particles/cc
+  r0 = 1.0 * PC_CGS;  // in parsecs
+
+  r_core = r0 * pow( n_core/n0, -1.0/2.2);
+
+  printf("n0,n_c, r0, r_c = %e %e    %e %e\n",n0,n_core,r0,r_core);
+
+  dr = (r_outer - 0.0) * PC_CGS / RADIUS_BINS;  // dr in cm 
+
+  this_temperature = T_center;
+
+  this_radius = dr/10.0;  // small starting radius (in cm)
+
+  for(int i=0; i<RADIUS_BINS; i++){
+    numdens_of_r[i]=radius_bins[i]=T_of_r[i]= -1.0;
+  }
+
+  printf("%e    %e    %e\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius) );
+
+  int counter=0;
+
+  T_of_r[counter]=this_temperature;  // Kelvin
+  numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
+  radius_bins[counter]=this_radius;  // in CGS
+  counter++;
+
+  while(this_radius <= r_outer*PC_CGS && counter < RADIUS_BINS){
+
+    k1 = dTdr(this_radius,          this_temperature);
+    k2 = dTdr(this_radius + 0.5*dr, this_temperature + 0.5*dr*k1);
+    k3 = dTdr(this_radius + 0.5*dr, this_temperature + 0.5*dr*k2);
+    k4 = dTdr(this_radius + dr,     this_temperature + dr*k3);
+
+    this_temperature += (1.0/6.0) * dr * (k1 + 2.0*k2 + 2.0*k3 + k4);
+    this_radius += dr;  // new radius
+
+    T_of_r[counter]=this_temperature;  // Kelvin
+    numdens_of_r[counter]=n_of_r(this_radius);  // particles/CC
+    radius_bins[counter]=this_radius;  // in CGS
+
+    printf("%e    %e    %e   %e  %e  %d\n", this_radius/PC_CGS, this_temperature, n_of_r(this_radius), dr, r_outer*PC_CGS, counter );
+
+    counter++;
+
+  } // while()
+
+}
+
+float dTdr(float r, float T){
+  return (-1.0*dn_dr(r) * (T / n_of_r(r)) - g_of_r(r) * mu*mp/kb);
+}
+
+float n_of_r(float r){
+  if(r <= r_core)
+    return n_core;
+  else
+    return n0*pow(r/r0, -2.2);
+}
+
+float dn_dr(float r){
+  if(r <= r_core)
+    return 0.0;
+  else
+    return -2.2*(n0/r0)*pow(r/r0, -3.2);
+}
+
+float g_of_r(float r){
+  return -gravconst*Mass_of_r(r)/(r*r);
+}
+
+float Mass_of_r(float r){
+  if(r <= r_core)
+    return ( (4.0/3.0) * 3.14159 * pow(r, 3.0) * mu * mp * n_core);
+   else 
+    return ( (4.0/3.0) * 3.14159 * pow(r_core, 3.0) * mu * mp * n_core
+	     + 5.0 * 3.14159 * mu * mp * n0 * pow(r0, 2.2) * (pow(r,0.8) - pow(r_core, 0.8) ) );
+}
+
 
 #endif
