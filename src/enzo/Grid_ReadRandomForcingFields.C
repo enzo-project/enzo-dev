@@ -6,6 +6,7 @@
 /  date:       January, 2004
 /  modified  : Robert Harkness
 /  date:       May, 2008
+/  modified2:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE: At restart reads initial velocity fields from the first output
 /           data file(s) (e.g. data_0000.grid000?) and stores them as
@@ -49,14 +50,15 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
  
  
-int grid::ReadRandomForcingFields(FILE *fptr)
+int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
 {
  
   int i, j, k, dim, field, size, active_size;
   char name[MAX_LINE_LENGTH], dummy[MAX_LINE_LENGTH];
  
   int ActiveDim[MAX_DIMENSION];
- 
+  
+  fpos_t position; 
   FILE *log_fptr;
  
   hid_t       file_id, dset_id;
@@ -120,12 +122,6 @@ int grid::ReadRandomForcingFields(FILE *fptr)
   }
  
  
-  /* Store the file position indicator. */
- 
-  fpos_t position;
-  if (fgetpos(fptr, &position) != 0)
-    WARNING_MESSAGE;
- 
   /* Assume general grid class data are known and
      read velocity fields only (as RandomForcingFields).
      Do not modify the existing current BaryonFields and grid class data. */
@@ -135,21 +131,32 @@ int grid::ReadRandomForcingFields(FILE *fptr)
     ERROR_MESSAGE;
   }
  
-  /* Read the filename where the current baryon fields are; assume that
-     initial fields were sitting in a file with the same name but different
-     number; change the current number into '0000' and, thus, prepare the
-     required name. */
- 
-  if (fsetpos(fptr, &BaryonFileNamePosition) != 0)
-    ERROR_MESSAGE;
-  if (fscanf(fptr, "BaryonFileName = %s\n", name) != 1) {
-    fprintf(stderr, "Error reading BaryonFileName.\n");
-    ERROR_MESSAGE;
+
+  if (HierarchyFileInputFormat == 1) {
+    /* Store the file position indicator. */
+    if (fgetpos(fptr, &position) != 0)
+      WARNING_MESSAGE;
+    
+    /* Read the filename where the current baryon fields are; assume that
+       initial fields were sitting in a file with the same name but different
+       number; change the current number into '0000' and, thus, prepare the
+       required name. */
+    
+    if (fsetpos(fptr, &BaryonFileNamePosition) != 0)
+      ERROR_MESSAGE;
+    if (fscanf(fptr, "BaryonFileName = %s\n", name) != 1) {
+      fprintf(stderr, "Error reading BaryonFileName.\n");
+      ERROR_MESSAGE;
+    }
   }
- 
+
+  if (HierarchyFileInputFormat % 2 == 0) {
+    strcpy(name, DataFilename);
+  }
+
   /* this wont work if file prefix contains anoter ".grid" and/or
      if restart is invoked for cycle # > 9999 */
- 
+  
   char * numberEnd = NULL;
   if ( (numberEnd = strstr(name, ".grid")) == NULL )
     ERROR_MESSAGE;
@@ -314,12 +321,12 @@ int grid::ReadRandomForcingFields(FILE *fptr)
     if (io_log) fclose(log_fptr);
   }
  
-  /* Set the file position indicator. */
- 
-  if (fsetpos(fptr, &position) != 0)
+  if (HierarchyFileInputFormat == 1) {
+    /* Set the file position indicator. */
+    if (fsetpos(fptr, &position) != 0)
+      WARNING_MESSAGE;
+  }
 
-    WARNING_MESSAGE;
- 
   return SUCCESS;
  
 }

@@ -130,7 +130,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   LoadBalancingMaxLevel = MAX_DEPTH_OF_HIERARCHY;  //All Levels
 
   FileDirectedOutput = 1;
-  WriteBinaryHierarchy = 0;
+
+  // Default Hierarchy File IO settings
+  HierarchyFileInputFormat = 0; // HDF5
+  HierarchyFileOutputFormat = 0 ; // HDF5 only
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;

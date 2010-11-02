@@ -6,6 +6,7 @@
 /  date:       November, 1994
 /  modified1:  Robert Harkness, July 2006
 /              Pass through HDF5 file id to group routines
+/  modified2:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -27,7 +28,6 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
-#include "BinaryHierarchy.h"
  
 /* function prototypes */
  
@@ -42,7 +42,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
  
   /* Write out header info for this grid */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "\nGrid = %"ISYM"\n", GridID);
   OriginalID = GridID;
 
@@ -74,7 +74,7 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
  
   NextGridThisLevelID = GridID + 1;
   if (Grid->NextGridThisLevel == NULL) NextGridThisLevelID = 0;
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n", OriginalID,
 	    NextGridThisLevelID);
  
@@ -90,12 +90,11 @@ int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *
  
   NextGridNextLevelID = GridID + 1;
   if (Grid->NextGridNextLevel == NULL) NextGridNextLevelID = 0;
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n", OriginalID,
 	    NextGridNextLevelID);
  
   if (NextGridNextLevelID != 0) {
-    HierarchyArrays.current_parent = OriginalID;
     GridID++;
     if (Group_WriteDataHierarchy(fptr, MetaData, Grid->NextGridNextLevel,
                 base_name, GridID, WriteTime, file_id, CheckpointDump) == FAIL) {
