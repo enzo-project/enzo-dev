@@ -12,8 +12,9 @@
 #include <mpi.h>
 #endif /* USE_MPI */
 
-#include <string.h>
 #include <stdio.h>
+#include <map>
+#include <string>
 #include <math.h>
 #include "macros_and_parameters.h"
 #include "typedefs.h"
