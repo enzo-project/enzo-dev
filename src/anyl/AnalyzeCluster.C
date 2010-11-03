@@ -350,10 +350,14 @@ main(Eint32 argc, char *argv[])
 
     /* Set base name. */
 
+    char AnalyzeBaseName[MAX_LINE_LENGTH];
+    strcpy(AnalyzeBaseName, argv[1]);
+    strcat(AnalyzeBaseName, "_analyze");
+
     if (NumberOfCenters == 1)
-      sprintf(Name, "%s", "AnalyzeCluster");
+      sprintf(Name, "%s", AnalyzeBaseName);
     else
-      sprintf(Name, "%s%.3d", "AnalyzeCluster", center);
+      sprintf(Name, "%s%.3d", AnalyzeBaseName, center);
 
     /* ------------------------------------------------------------ */
     /* Find the highest density spot if Center not specified. */
