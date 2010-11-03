@@ -263,7 +263,7 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       for(int i=0; i<RADIUS_BINS;i++){
 	numdens_of_r[i] *= mu*mp/DensityUnits;  // now in Enzo internal density units 
 	T_of_r[i] *= TempToEnergyConversion;  // now in internal energy units
-	radius_bins[i] *= PC_CGS/LengthUnits;
+	radius_bins[i] /= LengthUnits;
       }
 
       float ExternalDensity, ExternalEnergy;
@@ -597,9 +597,9 @@ This is the grid-by-grid initializer.
 
             if ( radius <= CollapsingCoolingCloudRadius ){
 
-	      for(int thisindex=1;thisindex<=RADIUS_BINS;thisindex++)
+	      for(int thisindex=1;thisindex<RADIUS_BINS;thisindex++)
 		if(radius_bins[thisindex-1] <= radius &&
-		   radius < radius_bins[thisindex-1])
+		   radius < radius_bins[thisindex])
 		  cell_radial_index=thisindex;
 	      
 	      therandomfraction=1.0;
