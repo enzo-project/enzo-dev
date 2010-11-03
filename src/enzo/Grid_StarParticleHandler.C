@@ -899,7 +899,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
       }
 
-      if(BigStarFormation){
+      if(BigStarFormation > 0){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
