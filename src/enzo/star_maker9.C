@@ -120,7 +120,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 
   /* Loop over grid looking for a cell with mass larger than massthres */
-  if(BigStarFormation == 1){
+  printf("BigStarFormationDone = %"ISYM" MyProcessorNumber = %"ISYM"\n", BigStarFormationDone,MyProcessorNumber);
+  if(BigStarFormationDone == 0){
     if (*level == MaximumRefinementLevel) {
       float oldrho;
       float SinkCollapseDistance = SinkMergeDistance;
@@ -178,17 +179,17 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		    maxdens = densthresh;
 		  oldrho = d[index];
 		  adddens = d[index] - maxdens;
-		  BigStarFormation = 2;
+		  BigStarFormationDone = 1;
 		  //StarParticleCreation = 0;
 		  //StarParticleFeedback = 0;
-		  CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
+		  CommunicationBroadcastValue(&BigStarFormationDone, MyProcessorNumber);
 		  //CommunicationBroadcastValue(&StarParticleCreation, MyProcessorNumber);
 		  //CommunicationBroadcastValue(&StarParticleFeedback, MyProcessorNumber);
 	    
 		  /* Remove mass from grid */
 	    
 		  d[index] = maxdens;
-		  printf("BigStarFormation: no more star formation from now on. ");
+		  printf("BigStarFormation: no more star formation from now on. BigStarFormation = %"ISYM" \n", BigStarFormation);
 
 		  if (*imethod == 2) {
 		    ugrid = 0.5*(u[index] + u[index+xo]);

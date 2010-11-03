@@ -393,6 +393,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   BigStarFormation                 = FALSE;
+  BigStarFormationDone             = FALSE;
   BigStarSeparation                = 0.25;
   SimpleQ                          = 1e50;
   SimpleRampTime                   = 0.1;

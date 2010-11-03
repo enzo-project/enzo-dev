@@ -527,6 +527,7 @@ EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
+EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
 EXTERN float SimpleQ;
 EXTERN float SimpleRampTime;

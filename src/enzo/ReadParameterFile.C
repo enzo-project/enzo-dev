@@ -609,6 +609,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
+    ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
     ret += sscanf(line, "SimpleQ = %"FSYM, &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
