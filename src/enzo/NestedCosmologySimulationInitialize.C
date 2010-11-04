@@ -332,12 +332,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
         ENZO_FAIL("Error in GetUnits.");
   }
-  PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
+  PressureUnits = DensityUnits * VelocityUnits*VelocityUnits;
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
 
-  for (int dim = 0; dim < MAX_DIMENSION; dim++) 
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
-
+    printf("magnetic field: %"FSYM" %"ESYM" \n", MagneticUnits,  CosmologySimulationInitialUniformBField[dim]);
+  }
   // Generate the grids and set-up the hierarchy
  
   HierarchyEntry *GridsList[MAX_INITIAL_GRIDS];
@@ -772,10 +773,11 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
 
+    float CSBField[MAX_DIMENSION];  // in proper Gauss
     for (int dim = 0; dim < MAX_DIMENSION; dim++) 
-      CosmologySimulationInitialUniformBField[dim] *= MagneticUnits;
+      CSBField[dim] = CosmologySimulationInitialUniformBField[dim] * MagneticUnits;
     fprintf(Outfptr, "CosmologySimulationInitialUniformBField = ");
-    WriteListOfFloats(Outfptr, 3, CosmologySimulationInitialUniformBField);
+    WriteListOfFloats(Outfptr, 3, CSBField);
 
   }
  

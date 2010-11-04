@@ -618,20 +618,21 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	if (CosmologySimulationTotalEnergyName == NULL &&
 	    HydroMethod != Zeus_Hydro) {
 	  for (dim = 0; dim < GridRank; dim++)
-	    for (i = 0; i < size; i++)
+	    for (i = 0; i < size; i++) {
 	      BaryonField[iTE][i] +=
 		0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-	  
-	  if (HydroMethod == MHD_RK) {
-	    BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
-	    BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
-	    BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
-	    BaryonField[iPhi ][i] = 0.0;
-	    BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
-					  BaryonField[iBy][i] * BaryonField[iBy][i]+
-					  BaryonField[iBz][i] * BaryonField[iBz][i])/
-	      BaryonField[iden][i];
-	  }
+	      
+	      if (HydroMethod == MHD_RK) {
+		BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
+		BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
+		BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
+		BaryonField[iPhi ][i] = 0.0;
+		BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
+					    BaryonField[iBy][i] * BaryonField[iBy][i]+
+					    BaryonField[iBz][i] * BaryonField[iBz][i])/
+		  BaryonField[iden][i];
+	      }
+	    }
 	}
 
 	  

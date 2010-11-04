@@ -44,7 +44,10 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
  
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
- 
+
+  if (SelfGravity == 0) 
+    return SUCCESS;
+
   /* declarations */
  
   int dim, size = 1, Offset[MAX_DIMENSION] = {0,0,0};

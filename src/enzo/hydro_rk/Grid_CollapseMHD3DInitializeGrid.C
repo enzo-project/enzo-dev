@@ -185,6 +185,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   float rho_be[n_bin];
 
   if (sphere_type[0] == 3 || sphere_type[0] == 4) {
+    printf("Opening ./be.dat\n");
     FILE *fptr = fopen(filename, "r");
     char line[MAX_LINE_LENGTH];
     for (int i = 0; i < n_bin; i++) {
@@ -194,6 +195,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
       }
       sscanf(line, "%"GSYM" %"GSYM, &radius[i], &rho_be[i]);
     }
+    printf("Reading ./be.dat finished.\n");
     fclose(fptr);
   }
 
@@ -428,6 +430,34 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
 	      vel[0] = -omega_sphere[sphere]*ypos;
 	      vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
+	    /* Rotating Gaussian similar to Truelove et al 1997 no m=2 mode*/
+
+	    if (sphere_type[sphere] == 8) {
+	      rho = rho_sphere[sphere] * exp(-pow(r/r_sphere[sphere]/0.58,2));
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      vel[0] = -omega_sphere[sphere]*ypos;
+	      vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
+	    if (sphere_type[sphere] == 9) {
+	      rho  = rho_sphere[sphere];
+	      // Uniform Burkert Bodenheimer test
+	      // BUT keep the pressure constant everywhere
+	      // to avoid discontinuities at the sphere boundaries
+	      float p, cs, h, dpdrho, dpde;
+	      p = pow(cs_sphere[sphere], 2)*rho/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      // for the B-field we put it along x to slow the 
+	      // collapse along the z direction
+	      Bx = Bnaught;
+	      By = 0;
+	      Bz = 0;
+              vel[0] = -omega_sphere[sphere]*ypos;
+              vel[1] = omega_sphere[sphere]*xpos;
 	    }
 
 

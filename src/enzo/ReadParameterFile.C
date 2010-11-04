@@ -990,6 +990,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
   CosmologySimulationNumberOfInitialGrids = 1;
 
+  if (HydroMethod != MHD_RK)
+    BAnyl = 0; // set this to zero no matter what unless we have a magnetic field to analyze.
+
   /* Count static nested grids since this isn't written in the
      parameter file */
 
