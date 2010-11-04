@@ -528,6 +528,8 @@ EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN float BigStarSeparation;
+EXTERN float SimpleQ;
+EXTERN float SimpleRampTime;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */

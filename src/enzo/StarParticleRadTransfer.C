@@ -116,7 +116,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 	// should be an parameter or determined from the data
 	ramptime = TimeInYears * 50e3;
       else if (cstar->ReturnType() == SimpleSource)
-	ramptime = TimeInYears * 1e5;
+	ramptime = TimeInYears * 1e6 * SimpleRampTime;
 
       /* Transfer the shining particle properties to the radiative
 	 transfer source particle */

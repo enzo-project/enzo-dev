@@ -12,19 +12,19 @@
 ************************************************************************/
 
 #ifdef DEFINE_STORAGE
-# define SPEXTERN
+# define IMPLOSION_EXTERN
 #else /* DEFINE_STORAGE */
-# define SPEXTERN extern
+# define IMPLOSION_EXTERN extern
 #endif /* DEFINE_STORAGE */
 
 /* Density, pressure and velocity of the surrounding state. */
 
-SPEXTERN float ImplosionDensity;
-SPEXTERN float ImplosionTotalEnergy;
+IMPLOSION_EXTERN float ImplosionDensity;
+IMPLOSION_EXTERN float ImplosionTotalEnergy;
 
 /* Density and pressure of the "diamond" state. */
 
-SPEXTERN float ImplosionDiamondDensity;
-SPEXTERN float ImplosionDiamondTotalEnergy;
+IMPLOSION_EXTERN float ImplosionDiamondDensity;
+IMPLOSION_EXTERN float ImplosionDiamondTotalEnergy;
 
  
