@@ -421,15 +421,13 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
 
   //   Update dependent chemical species densities (ne, nHII, nHeIII) 
   //   using computed values
-  if (Nchem == 0) {        // do nothing
-  }
-  else if (Nchem == 1) {   // update ne, HII
+  if (Nchem == 1) {   // update ne, HII
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) {
       nHII[i] = max(rho[i]*HFrac - nHI[i], 0.0);
       ne[i] = nHII[i];
     }
   }
-  else if (Nchem == 3) {   // update ne, HII, HeIII
+  if ((Nchem > 1) || (HFrac < 1.0)) {   // update ne, HII, HeIII
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) {
       nHII[i] = max(rho[i]*HFrac - nHI[i], 0.0);
       nHeIII[i] = max(rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i], 0.0);

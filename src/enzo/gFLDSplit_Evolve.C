@@ -462,6 +462,42 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
 //   if (debug)  printf("Writing out initial guess to file x.vec\n");
 //   HYPRE_StructVectorPrint("x.vec",solvec,1);
 
+  //       for periodic dims, only coarsen until grid no longer divisible by 2
+  Eint32 max_levels, level=-1;
+  int Ndir;
+  if (BdryType[0][0] == 0) {
+    level = 0;
+    Ndir = GlobDims[0];
+    while ( Ndir%2 == 0 ) {
+      level++;
+      Ndir /= 2;
+    }
+  }
+  max_levels = level;
+  if (rank > 1) {
+    if (BdryType[1][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[0];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+  if (rank > 2) {
+    if (BdryType[2][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[0];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+  max_levels = min(level,max_levels);
+
   //       set up the solver [PCG] and preconditioner [PFMG]
   //          create the solver & preconditioner
   HYPRE_StructSolver solver;
@@ -470,6 +506,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
   HYPRE_StructPFMGCreate(MPI_COMM_WORLD, &preconditioner);
     
   //          set preconditioner options
+  if (max_levels > -1) 
+    HYPRE_StructPFMGSetMaxLevels(preconditioner, max_levels);
   HYPRE_StructPFMGSetMaxIter(preconditioner, sol_maxit/4);
   HYPRE_StructPFMGSetRelaxType(preconditioner, sol_rlxtype);
   HYPRE_StructPFMGSetNumPreRelax(preconditioner, sol_npre);
@@ -731,7 +769,7 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float deltat)
       ne[i] = nHII[i];
     }
   }
-  else if (Nchem == 3) {   // update ne, HII, HeIII
+  if ((Nchem > 1) || (HFrac < 1.0)) {   // update ne, HII, HeIII
     for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++) {
       nHII[i] = max(rho[i]*HFrac - nHI[i], 0.0);
       nHeIII[i] = max(rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i], 0.0);
