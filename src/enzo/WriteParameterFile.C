@@ -786,6 +786,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "EOSCriticalDensity         = %g\n", EOSCriticalDensity);
   fprintf(fptr, "EOSGamma                   = %g\n", EOSGamma); 
   fprintf(fptr, "Mu                         = %g\n", Mu);
+  fprintf(fptr, "DivBDampingLength          = %g\n", DivBDampingLength);
   fprintf(fptr, "CoolingCutOffDensity1      = %g\n", CoolingCutOffDensity1);
   fprintf(fptr, "CoolingCutOffDensity2      = %g\n", CoolingCutOffDensity2);
   fprintf(fptr, "CoolingCutOffTemperature   = %g\n", CoolingCutOffTemperature);
