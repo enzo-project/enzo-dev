@@ -189,7 +189,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 		  /* Remove mass from grid */
 	    
 		  d[index] = maxdens;
-		  printf("BigStarFormation: no more star formation from now on. BigStarFormation = %"ISYM" \n", BigStarFormation);
+		  printf("BigStarFormation: no more star formation from now on. ");
+		  //printf("now BigStarFormation = %"ISYM"\n", BigStarFormation);
 
 		  if (*imethod == 2) {
 		    ugrid = 0.5*(u[index] + u[index+xo]);
