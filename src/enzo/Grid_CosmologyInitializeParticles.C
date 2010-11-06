@@ -140,11 +140,7 @@ int grid::CosmologyInitializeParticles(
 
   */
 
-  float32 vfact;
-  float disp_factor;
-  err |= readAttribute(file_id, H5T_NATIVE_FLOAT, "vfact", &vfact);
-  assert(err == 0);
-  H5Fclose(file_id);
+  float32 vfact;                                                                                                    float disp_factor;                                                                                                hid_t grp_id = H5Gopen(file_id,"/");                                                                              err |= readAttribute(grp_id, H5T_NATIVE_FLOAT, "vfact", &vfact);                                                  H5Gclose(grp_id);                                                                                                 assert(err == 0);                                                                                                 H5Fclose(file_id);                                                                                              
 
   disp_factor = 1e-5*VelocityUnits / vfact / (ComovingBoxSize / HubbleConstantNow);
 

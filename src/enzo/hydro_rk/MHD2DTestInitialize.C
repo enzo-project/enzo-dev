@@ -124,8 +124,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end input from parameter file
 
-  if (MyProcessorNumber != ROOT_PROCESSOR) 
-    return SUCCESS;
 
 
   float DensityUnits = 1, LengthUnits = 1,
