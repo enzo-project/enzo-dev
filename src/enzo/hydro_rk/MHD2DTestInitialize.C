@@ -116,11 +116,17 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     //        fprintf(stderr, "%"ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
+    /*
     if (ret == 0 && strstr(line, "=") && strstr(line, "CollapseTest") 
 	&& line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
+    */
 
   } // end input from parameter file
+
+  if (MyProcessorNumber != ROOT_PROCESSOR) 
+    return SUCCESS;
+
 
   float DensityUnits = 1, LengthUnits = 1,
     TemperatureUnits = 1, TimeUnits = 1, VelocityUnits = 1;
@@ -129,7 +135,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
   }
-
 
   /* set up grid */
 

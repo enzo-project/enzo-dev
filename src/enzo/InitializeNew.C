@@ -896,8 +896,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     //  if (HydroMethod == Zeus_Hydro) ConvertTotalEnergyToGasEnergy(&TopGrid);
   }
   
-  
-  if (ProblemType == 202)
+    if (ProblemType == 202)
     CollapseMHD3DInitialize(fptr, Outfptr, TopGrid, MetaData, 1);
 
   // For ProblemType 203 (Turbulence Simulation we only initialize the data

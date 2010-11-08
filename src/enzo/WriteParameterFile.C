@@ -432,11 +432,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiationShield                = %"ISYM"\n", RadiationData.RadiationShield);
   fprintf(fptr, "RadiationSpectrumNormalization = %"GSYM"\n", CoolData.f3);
   fprintf(fptr, "RadiationSpectrumSlope         = %"GSYM"\n", CoolData.alpha0);
+  fprintf(fptr, "CoolDataf0to3                  = %"FSYM"\n", CoolData.f0to3);
+  fprintf(fptr, "RadiationRedshiftOn            = %"FSYM"\n", CoolData.RadiationRedshiftOn);
+  fprintf(fptr, "RadiationRedshiftOff           = %"FSYM"\n", CoolData.RadiationRedshiftOff);
+  fprintf(fptr, "RadiationRedshiftFullOn        = %"FSYM"\n", CoolData.RadiationRedshiftFullOn);
+  fprintf(fptr, "RadiationRedshiftDropOff       = %"FSYM"\n", CoolData.RadiationRedshiftDropOff);
+  fprintf(fptr, "HydrogenFractionByMass         = %"FSYM"\n", CoolData.HydrogenFractionByMass);
+  fprintf(fptr, "DeuteriumToHydrogenRatio       = %"FSYM"\n", CoolData.DeuteriumToHydrogenRatio);
+  fprintf(fptr, "NumberOfTemperatureBins        = %"ISYM"\n", CoolData.NumberOfTemperatureBins);
+  fprintf(fptr, "CoolDataIh2co                  = %"ISYM"\n", CoolData.ih2co);
+  fprintf(fptr, "CoolDataIpiht                  = %"ISYM"\n", CoolData.ipiht);
+  fprintf(fptr, "TemperatureStart               = %"FSYM"\n", CoolData.TemperatureStart);
+  fprintf(fptr, "TemperatureEnd                 = %"FSYM"\n", CoolData.TemperatureEnd);
+  fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
+  fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
-
-  if (CoolData.ParameterFilename != NULL)
-    fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
-
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
@@ -608,6 +618,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  BigStarFormation);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
+  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+	  SimpleQ);
+  fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
+	  SimpleRampTime);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
@@ -772,6 +786,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "EOSCriticalDensity         = %g\n", EOSCriticalDensity);
   fprintf(fptr, "EOSGamma                   = %g\n", EOSGamma); 
   fprintf(fptr, "Mu                         = %g\n", Mu);
+  fprintf(fptr, "DivBDampingLength          = %g\n", DivBDampingLength);
   fprintf(fptr, "CoolingCutOffDensity1      = %g\n", CoolingCutOffDensity1);
   fprintf(fptr, "CoolingCutOffDensity2      = %g\n", CoolingCutOffDensity2);
   fprintf(fptr, "CoolingCutOffTemperature   = %g\n", CoolingCutOffTemperature);

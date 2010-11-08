@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "phys_constants.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -93,7 +94,11 @@ int grid::FlagCellsToBeRefinedByJeansLength()
  
   if (ProblemType == 60 || ProblemType == 61)
     JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
- 
+
+  if (EOSType == 3)
+    JLSquared = EOSSoundSpeed*EOSSoundSpeed*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+  printf("JLSquared %g", JLSquared);
+
   /* This is the safety factor to decrease the Jean's length by. */
  
   JLSquared /= POW(RefineByJeansLengthSafetyFactor, 2);
@@ -118,8 +123,15 @@ int grid::FlagCellsToBeRefinedByJeansLength()
  
   FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
   for (i = 0; i < size; i++)
-    if (CellWidthSquared > JLSquared*temperature[i]/BaryonField[DensNum][i])
-      FlaggingField[i]++;
+    {
+      if (EOSType != 3) {
+	if (CellWidthSquared > JLSquared*temperature[i]/BaryonField[DensNum][i])
+	  FlaggingField[i]++; 
+      }
+      else // isothermal sound speed version
+	if (CellWidthSquared > JLSquared/BaryonField[DensNum][i])
+	  FlaggingField[i]++; 
+    }
  
   /* clean up */
  

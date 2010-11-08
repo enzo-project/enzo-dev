@@ -463,7 +463,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // Recompute potential and accelerations with time centered baryon Field
     // this also does the particles again at the moment so could be made more efficient.
 
-    RK2SecondStepBaryonDeposit = 0; // set this to (0/1) to (not use/use) this extra step  //#####
+    RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
@@ -477,7 +477,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       /* Gravity: compute acceleration field for grid and particles. */
-      if (RK2SecondStepBaryonDeposit) {
+      if (RK2SecondStepBaryonDeposit && SelfGravity) {
 	int Dummy;
 	if (level <= MaximumGravityRefinementLevel) {
 	  if (level > 0) 
@@ -537,6 +537,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
         );
  
+
       /* Gravity: clean up AccelerationField. */
 
 	 if (level != MaximumGravityRefinementLevel ||
@@ -675,7 +676,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
 
     //    LevelWallTime[level] += ReturnWallTime() - time1;
-    if (dtThisLevelSoFar < dtLevelAbove) 
+    //    if (dtThisLevelSoFar < dtLevelAbove) 
       RebuildHierarchy(MetaData, LevelArray, level);
 
     time1 = ReturnWallTime();

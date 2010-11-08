@@ -40,8 +40,6 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
  
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
-  float pos[MAX_DIMENSION];
-  const float TwoPi = 6.283185;
  
   /* Compute size of entire mesh. */
  
@@ -75,7 +73,8 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
       /* Compute quantities needed for boundary face loop (below). */
  
       int dim1, dim2;
-      float x,y,vx,vy;
+      FLOAT x,y;
+      float vx,vy;
       dim1 = (dim == 0) ? 1 : 0;
       dim2 = dim1 + 1;
       dim2 = (dim2 == dim) ? dim2+1 : dim2;
@@ -83,7 +82,6 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 	NumberOfZones[i] = max(BoundaryDimension[i] - 2*DEFAULT_GHOST_ZONES,1);
 	Offset[i]        = min(DEFAULT_GHOST_ZONES, BoundaryDimension[i]) - 1;
       }
-      pos[dim] = 0.0;
       //      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
       //      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);
       /* Loop over the boundary face. */
@@ -91,11 +89,11 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
       for (i = 0; i < BoundaryDimension[dim1]; i++)
 	for (j = 0; j < BoundaryDimension[dim2]; j++) {
  	  x = (float(i-Offset[dim1]) -0.5 )*
-	    (DomainRightEdge[dim1]-DomainLeftEdge[dim1]) /
-	      float(NumberOfZones[dim1]) ;
-	  y = (float(j) -0.5)*
-	    (DomainRightEdge[dim]-DomainLeftEdge[dim]) /
-	      float(NumberOfZones[dim]) ;
+	    ((DomainRightEdge[dim1]-DomainLeftEdge[dim1]) /
+	    float(NumberOfZones[dim1])) ;
+	  y = (float(j-Offset[dim2]) -0.5)*
+	    ((DomainRightEdge[dim]-DomainLeftEdge[dim]) /
+	     float(NumberOfZones[dim])) ;
 
 	  /* Set the field values. */
 	  //	  fprintf(stdout, "lower: %g %g \n", x ,y);
@@ -143,9 +141,9 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 
 	  // upper y boundary
 
-	  y = DomainRightEdge[dim] + (float(j) + 0.5)*
-	    (DomainRightEdge[dim]-DomainLeftEdge[dim]) /
-	      float(NumberOfZones[dim]) ;
+	  y = DomainRightEdge[dim] + (float(j-Offset[dim2]) + 0.5)*
+	    ((DomainRightEdge[dim]-DomainLeftEdge[dim]) /
+	     float(NumberOfZones[dim])) ;
 
 	  //	  fprintf(stdout, "upper: %g %g \n", x,y);
 

@@ -528,6 +528,8 @@ EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN float BigStarSeparation;
+EXTERN float SimpleQ;
+EXTERN float SimpleRampTime;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */
@@ -653,11 +655,12 @@ EXTERN float EOSCriticalDensity;
 EXTERN float EOSGamma;
 EXTERN float C_h;
 EXTERN float C_p;
+EXTERN float DivBDampingLength;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
 EXTERN int ExternalGravity;
-EXTERN int StringKick;
+EXTERN float StringKick;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;

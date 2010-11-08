@@ -341,7 +341,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
  
     FieldType[NumberOfBaryonFields++] = Density;
-  FieldType[NumberOfBaryonFields++] = Density;
   vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
@@ -591,9 +590,23 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
       if (CosmologySimulationDensityName != NULL && ReadData) {
 	if (CosmologySimulationTotalEnergyName == NULL)
-	  for (i = 0; i < size; i++)
-	    BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
-	      TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
+
+	  if (StringKick > 0.) { // gives only baryons a uniform kick velocity in x direction
+	    // models http://adsabs.harvard.edu/abs/2010PhRvD..82h3520T
+	    printf("adding string kick %"FSYM" %"FSYM"\n", StringKick, StringKick/VelocityUnits*1e5);
+	    for (i = 0; i < size; i++) {
+	      BaryonField[0][i]   = 	    
+		(CosmologySimulationOmegaBaryonNow)/(OmegaMatterNow);
+;
+	      BaryonField[vel][i] = StringKick/VelocityUnits*1e5; // input in km/s
+	      BaryonField[vel+1][i] = 0.; // do not neglect initial perturbations. (below jeans length)
+	      BaryonField[vel+2][i] = 0.;
+	    }
+	  }
+
+	for (i = 0; i < size; i++)
+	  BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
+	    TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
  
 	/*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
 		    / (Gamma-1); */
@@ -605,21 +618,24 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	if (CosmologySimulationTotalEnergyName == NULL &&
 	    HydroMethod != Zeus_Hydro) {
 	  for (dim = 0; dim < GridRank; dim++)
-	    for (i = 0; i < size; i++)
+	    for (i = 0; i < size; i++) {
 	      BaryonField[iTE][i] +=
 		0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-	  
-	  if (HydroMethod == MHD_RK) {
-	    BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
-	    BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
-	    BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
-	    BaryonField[iPhi ][i] = 0.0;
-	    BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
-					  BaryonField[iBy][i] * BaryonField[iBy][i]+
-					  BaryonField[iBz][i] * BaryonField[iBz][i])/
-	      BaryonField[iden][i];
-	  }
+	      
+	      if (HydroMethod == MHD_RK) {
+		BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
+		BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
+		BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
+		BaryonField[iPhi ][i] = 0.0;
+		BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
+					    BaryonField[iBy][i] * BaryonField[iBy][i]+
+					    BaryonField[iBz][i] * BaryonField[iBz][i])/
+		  BaryonField[iden][i];
+	      }
+	    }
 	}
+
+	  
 
 
 	//Shock/Cosmic Ray Model

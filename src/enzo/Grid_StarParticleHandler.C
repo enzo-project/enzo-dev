@@ -905,7 +905,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	}
       }
 
-      if(BigStarFormation){
+      if(BigStarFormation > 0){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
@@ -940,6 +940,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 			&JeansLengthRefinement, temperature, &Gamma, &Mu,
 			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
 	  ENZO_FAIL("Error in star_maker9.\n");
+
 	}
       }
       else if(StellarWindFeedback || HydroMethod == MHD_RK || HydroMethod == HD_RK || ProblemType == 107){
