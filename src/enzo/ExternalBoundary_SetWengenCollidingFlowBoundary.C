@@ -100,7 +100,7 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
 
 	  index = j*BoundaryDimension[dim1] + i;
 	  float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot;
-	  float rho, vx, vy, bx,by, f, vxu, vxl, vyu, vyl, Bxl, Byl, Bxu, Byu, etotl, RampWidth;
+	  float rho, vx, vy, bx,by, f, vxu, vxl, vyu, vyl, Bxl, Byl, Bxu, Byu, etotl;
 	  rho = LowerDensity;
 	  vxl = LowerVelocityX;
 	  vxu = UpperVelocityX;
