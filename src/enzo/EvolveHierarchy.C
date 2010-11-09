@@ -190,7 +190,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	fprintf(stderr, "ERROR: "
 		"\tTo use the optimized CommunicationTransferParticles routine,\n"
 		"\tthe top grid must be split evenly, "
-		"i.e. mod(Dims[i], Layout[i]) != 0\n"
+		"i.e. mod(Dims[i], Layout[i]) must be 0\n"
 		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
 		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim]);
       ENZO_FAIL("");
