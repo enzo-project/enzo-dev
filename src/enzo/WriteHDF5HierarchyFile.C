@@ -23,18 +23,22 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#include "CosmologyParameters.h"
+
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int SetGlobalGridID(int &GlobalID, HierarchyEntry *Grid);
 
 // the following HDF5 helper routines are defined in
 // Grid_WriteHierarchyInformationHDF5.C
 int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, int Attribute, FILE *log_fptr);
+int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, FLOAT Attribute, FILE *log_fptr);
 int HDF5_WriteDataset(hid_t group_id, const char *DatasetName, int *Dataset, int NumberOfElements, FILE *log_fptr);
 
 // #define IO_LOG
 
 
-int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierarchyEntry *LevelArray[]) {
+int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData MetaData, LevelHierarchyEntry *LevelArray[]) {
   char FileName[MAX_LINE_LENGTH];
   char GroupName[MAX_LINE_LENGTH];
   char DatasetName[MAX_LINE_LENGTH];
@@ -97,6 +101,15 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierar
   if (io_log) fprintf(log_fptr, "H5Fcreate id: %"ISYM"\n", file_id);
 
   
+  // Calculate CurrentRedshift and add as attribute (if Cosmology)
+  FLOAT CurrentRedshift, a = 1, dadt;
+  if (ComovingCoordinates)
+    CosmologyComputeExpansionFactor(MetaData.Time, &a, &dadt);
+  CurrentRedshift = (1 + InitialRedshift)/a - 1;
+
+  HDF5_WriteAttribute(file_id, "Redshift", CurrentRedshift, log_fptr);
+
+
   // Add NumberOfProcessors attribute to the root group
   HDF5_WriteAttribute(file_id, "NumberOfProcessors", NumberOfProcessors, log_fptr);
 
@@ -105,7 +118,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierar
   for(level = MAX_DEPTH_OF_HIERARCHY-1; LevelArray[level]==NULL; level--)
     FinestLevel = level;
   FinestLevel--;
-  if (io_log) fprintf(log_fptr, "FinestLevel = %d\n",FinestLevel);
+  if (io_log) fprintf(log_fptr, "FinestLevel = %"ISYM"\n",FinestLevel);
 
 
   int NumberOfGrids[FinestLevel+1];
@@ -145,7 +158,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierar
     
     if (io_log) fprintf(log_fptr, "Calling H5Gcreate with Name %s\n", GroupName);
     group_id = H5Gcreate(file_id, GroupName, 0);
-    if (io_log) fprintf(log_fptr, "H5Gcreate: %"ISYM"\n", group_id);
+    if (io_log) fprintf(log_fptr, "H5Gcreate: %"ISYM"\n", (int) group_id);
     
 
     // create all grid groups and and write its datasets
@@ -212,7 +225,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierar
 
     // Close this group
     h5_status = H5Gclose(group_id);
-    if (io_log) fprintf(log_fptr, "H5Gclose: %"ISYM"\n", h5_status);
+    if (io_log) fprintf(log_fptr, "H5Gclose: %"ISYM"\n", (int) h5_status);
     
   } // loop over levels
   //  fprintf(stderr,"Total number of grids = %"ISYM"\n",TotalNumberOfGrids);
@@ -242,7 +255,7 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierar
   // Close the file
   h5_status = H5Fclose(file_id);
 
-  if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", h5_status);
+  if (io_log) fprintf(log_fptr, "H5Fclose: %"ISYM"\n", (int) h5_status);
 
 
   if (io_log) fclose(log_fptr);

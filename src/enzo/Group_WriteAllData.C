@@ -67,7 +67,7 @@ int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, in
 int Group_WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *TopGrid,
 		       char *gridbasename, int &GridID, FLOAT WriteTime, hid_t file_id,
                int CheckpointDump = FALSE);
-int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, LevelHierarchyEntry *LevelArray[]);
+int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData MetaData, LevelHierarchyEntry *LevelArray[]);
 int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 		   char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteConfigure(FILE *optr);
@@ -683,7 +683,7 @@ int Group_WriteAllData(char *basename, int filenumber,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
     if( HierarchyFileOutputFormat % 2 == 0 )
-      WriteHDF5HierarchyFile(name, TempTopGrid, LevelArray);      
+      WriteHDF5HierarchyFile(name, TempTopGrid, MetaData, LevelArray);      
     
     if (HierarchyFileOutputFormat > 0)
       if ((fptr = fopen(hierarchyname, "w")) == NULL) 
