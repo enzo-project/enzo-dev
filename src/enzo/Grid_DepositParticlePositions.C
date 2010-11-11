@@ -282,7 +282,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
       /* Deposit sink particles (only) to field using CIC. */
 
-      FORTRAN_NAME(cic_deposit)(
+      PFORTRAN_NAME(cic_deposit)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
 	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
