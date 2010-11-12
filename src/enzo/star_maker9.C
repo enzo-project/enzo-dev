@@ -44,6 +44,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "phys_constants.h"
+// #include "CommunicationUtilities.h"
 
 #define USE
 
@@ -118,9 +119,10 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   yo = *nx;
   zo = (*nx) * (*ny);
 
+  //BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
 
   /* Loop over grid looking for a cell with mass larger than massthres */
-  printf("BigStarFormationDone = %"ISYM" MyProcessorNumber = %"ISYM"\n", BigStarFormationDone,MyProcessorNumber);
+  //printf("BigStarFormationDone = %"ISYM" MyProcessorNumber = %"ISYM"\n", BigStarFormationDone,MyProcessorNumber);
   if(BigStarFormationDone == 0){
     if (*level == MaximumRefinementLevel) {
       float oldrho;

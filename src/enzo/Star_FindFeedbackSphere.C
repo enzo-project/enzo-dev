@@ -237,13 +237,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       break;
 
     }  // ENDSWITCH FeedbackFlag
-    if (type == SimpleSource){
-      EjectaDensity = (float) 
-	(double(Msun * (MassEnclosed)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
-	 DensityUnits);  
-    }
-    else if (type != MBH)  
+    if (type != MBH)  
       // Remove the stellar mass from the sphere and distribute the
       // gas evenly in the sphere since this is what will happen once
       // the I-front passes through it.
@@ -319,6 +313,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       printf("FindFeedbackSphere[%"ISYM"][%"ISYM"]: Adding sphere for feedback type = %"ISYM"\n", 
 	     level, Identifier, FeedbackFlag);
     }
+    if (abs(type) == SimpleSource){
+      EjectaDensity = (float) 
+	(double(MassEnclosed));
+      printf(" \n              XXXXXXX EjectaDensity = %"FSYM"\n\n",EjectaDensity );
+      // HERE DENSITY is actually a mass so factor is calculated correctly in Grid_AddFeedbackSphere
+    }
+
 
     // If there is little cold gas, then give up hope of accreting
     // more gas and form the star.  If more gas is accreted, another
