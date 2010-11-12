@@ -173,12 +173,12 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 		  /* Calculate change in density */
 
-		  if (*jlrefine > 0)
-		    maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-		  else
-		    maxdens = densthresh;
-		  oldrho = d[index];
-		  adddens = d[index] - maxdens;
+// 		  if (*jlrefine > 0)
+// 		    maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+// 		  else
+// 		    maxdens = densthresh;
+// 		  oldrho = d[index];
+// 		  adddens = d[index] - maxdens;
 		  BigStarFormationDone = 1;
 		  //StarParticleCreation = 0;
 		  //StarParticleFeedback = 0;
@@ -188,7 +188,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	    
 		  /* Remove mass from grid */
 	    
-		  d[index] = maxdens;
+// 		  d[index] = maxdens;
 		  printf("BigStarFormation: no more star formation from now on. ");
 		  //printf("now BigStarFormation = %"ISYM"\n", BigStarFormation);
 
@@ -221,8 +221,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 
 
 		  printf("star_maker9: making new star, type = %"ISYM"\n",*ctype );
-		  mp[ii] = adddens;
-		  type[ii] = *ctype;
+		  mp[ii] = 0.0; //adddens;
+		  type[ii] = -*ctype;
 	      
 		  /* Set positions and velocities */
 	    
@@ -237,7 +237,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	      
 		  tcp[ii] = (float) *t;
 		  tdp[ii] = 1.0e20;
-		  dm[ii]  = adddens*POW(*dx,3);
+		  dm[ii]  = 0.0; //adddens*POW(*dx,3);
 
 		  ii++;
 

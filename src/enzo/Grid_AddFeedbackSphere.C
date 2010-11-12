@@ -871,8 +871,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
-
-	    factor = EjectaDensity / BaryonField[DensNum][index];
+	    if (cstar->type == SimpleSource) 
+	      factor = 0.5;
+	    else 
+	      factor = EjectaDensity / BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] *= factor;
 
 	    if (MultiSpecies) {

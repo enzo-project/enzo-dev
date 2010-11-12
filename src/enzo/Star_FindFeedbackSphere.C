@@ -199,6 +199,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       AccretedMass = this->FinalMass - float(Mass);
       break;
 
+    case SimpleSource:  // Single star
+      SphereTooSmall = MassEnclosed < 2*this->FinalMass;
+      ColdGasFraction = 1.0;
+      // to make the total mass PopIIIStarMass
+      AccretedMass = this->FinalMass - float(Mass);
+      break;
+
     case PopII:  // Star Cluster Formation
       AvgDensity = (float) 
 	(double(Msun * (MassEnclosed + Mass)) / 
@@ -230,8 +237,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       break;
 
     }  // ENDSWITCH FeedbackFlag
-
-    if (type != MBH)  
+    if (type == SimpleSource){
+      EjectaDensity = (float) 
+	(double(Msun * (MassEnclosed)) / 
+	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
+	 DensityUnits);  
+    }
+    else if (type != MBH)  
       // Remove the stellar mass from the sphere and distribute the
       // gas evenly in the sphere since this is what will happen once
       // the I-front passes through it.
@@ -261,7 +273,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	SphereContained = FALSE;
 	return SUCCESS;
       }
-
+    if (StarType == SimpleSource && LevelArray[level+1] != NULL)
+      if (MassEnclosed > (1.0+epsMass)*(AccretedMass+float(Mass))) {
+	SphereContained = FALSE;
+	return SUCCESS;
+      }
     // t_dyn \propto M_enc^{-1/2} => t_dyn > sqrt(1.0+eps)*lifetime
     // Star cluster
     if (StarType == PopII && LevelArray[level+1] != NULL) {
@@ -290,7 +306,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     if (debug) {
       printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM", Z = %"GSYM"\n",
 	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity);
-      if (StarType == PopII || StarType == PopIII)
+      if (StarType == PopII || StarType == PopIII || StarType == SimpleSource)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
 	       "\t vel = %"FSYM" %"FSYM" %"FSYM" (%"FSYM" %"FSYM" %"FSYM")\n"
