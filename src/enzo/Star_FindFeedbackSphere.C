@@ -313,12 +313,12 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       printf("FindFeedbackSphere[%"ISYM"][%"ISYM"]: Adding sphere for feedback type = %"ISYM"\n", 
 	     level, Identifier, FeedbackFlag);
     }
-    if (abs(type) == SimpleSource){
-      EjectaDensity = (float) 
-	(double(MassEnclosed));
-      printf(" \n              XXXXXXX EjectaDensity = %"FSYM"\n\n",EjectaDensity );
+    //if (abs(type) == SimpleSource){
+    //  EjectaDensity = (float) 
+//	(double(MassEnclosed));
+    //  printf(" \n              XXXXXXX EjectaDensity = %"FSYM"\n\n",EjectaDensity );
       // HERE DENSITY is actually a mass so factor is calculated correctly in Grid_AddFeedbackSphere
-    }
+    //}
 
 
     // If there is little cold gas, then give up hope of accreting
