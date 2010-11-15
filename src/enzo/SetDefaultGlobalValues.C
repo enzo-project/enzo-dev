@@ -536,6 +536,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EOSCriticalDensity	     = 1e-13;
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
+  DivBDampingLength          = 1.;
   CoolingCutOffDensity1	     = 0;
   CoolingCutOffDensity2	     = 1e10;
   CoolingCutOffTemperature   = 0.0;

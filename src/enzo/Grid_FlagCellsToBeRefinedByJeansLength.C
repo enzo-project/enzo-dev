@@ -97,7 +97,7 @@ int grid::FlagCellsToBeRefinedByJeansLength()
 
   if (EOSType == 3)
     JLSquared = EOSSoundSpeed*EOSSoundSpeed*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
-  printf("JLSquared %g", JLSquared);
+  /*printf("JLSquared %g", JLSquared);*/
 
   /* This is the safety factor to decrease the Jean's length by. */
  

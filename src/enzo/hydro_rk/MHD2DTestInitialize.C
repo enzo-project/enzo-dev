@@ -66,7 +66,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = FALSE;
   int MHD2DProblemType = 0;
-  float RampWidth = 0.05;
+  RampWidth = 0.05;
   LowerDensity = 1.0; UpperDensity = 1.0;
   LowerVelocityX = 0; UpperVelocityX = 0;
   LowerVelocityY = 0; UpperVelocityY = 0; 
@@ -112,7 +112,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &MHD2DProblemType);
     ret += sscanf(line, "RampWidth = %"FSYM,
 		  &RampWidth);
-
     //        fprintf(stderr, "%"ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 

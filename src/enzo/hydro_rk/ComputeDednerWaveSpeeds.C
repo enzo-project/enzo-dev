@@ -57,7 +57,7 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData, LevelHierarchyEntry *LevelArr
   }
 
   //      lmax = 0; // <- Pengs version had lmax = 6
-  FLOAT dx0, dy0, dz0, h_min, DivBDampingLength = 1.;
+  FLOAT dx0, dy0, dz0, h_min;
   
   dx0 = (DomainRightEdge[0] - DomainLeftEdge[0]) / MetaData->TopGridDims[0];
   dy0 = (MetaData->TopGridRank > 1) ? 
@@ -72,7 +72,7 @@ int ComputeDednerWaveSpeeds(TopGridData *MetaData, LevelHierarchyEntry *LevelArr
     C_h = EOSSoundSpeed;
   if (EOSType == 4 || EOSType == 5)  // for isothermal runs just use the constant sound speed
     C_h = EOSSoundSpeed;
-  
+
   C_p = sqrt(0.18*DivBDampingLength*C_h);
 
   return SUCCESS;
