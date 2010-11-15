@@ -372,6 +372,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
     ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
 		  &BaryonSelfGravityApproximation);
+    ret += sscanf(line, "KeepAccelerationField = %"ISYM, &KeepAccelerationField);
  
     ret += sscanf(line, "GreensFunctionMaxNumber   = %"ISYM,
 		  &GreensFunctionMaxNumber);

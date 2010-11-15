@@ -205,7 +205,7 @@ int grid::MHDSourceTerms(float **dU)
   }
 
 
-  if ((SelfGravity) || ExternalGravity) {
+  if ((SelfGravity) || ExternalGravity || UniformGravity || PointSourceGravity) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;

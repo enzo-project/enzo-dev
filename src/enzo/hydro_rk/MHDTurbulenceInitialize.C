@@ -136,6 +136,19 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 #endif
     fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
+
+    // Normalize Velocities now
+    v_rms = sqrt(v_rms/Volume); // actuall v_rms
+    fac = cs*mach/v_rms;
+
+    CurrentGrid = &TopGrid;
+    while (CurrentGrid != NULL) {
+      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	return FAIL;
+      }
+      CurrentGrid = CurrentGrid->NextGridThisLevel;
+    }
     
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -186,7 +199,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
 
-    for (level = MaximumRefinementLevel; level >= 0; level--) {
+    for (level = MaximumRefinementLevel; level > 0; level--) {
       LevelHierarchyEntry *Temp = LevelArray[level];
       while (Temp != NULL) {
 	if (Temp->GridData->NormalizeVelocities(fac) == FAIL) {

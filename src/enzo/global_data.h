@@ -230,6 +230,11 @@ EXTERN int PotentialIterations;
 
 EXTERN int BaryonSelfGravityApproximation;
 
+/* Flag indicating whether to delete the Acceleration Fields after they have 
+   been applied to the grid. */
+
+EXTERN int KeepAccelerationField;
+
 /* Coefficient in front of source term in Poisson's equations.
    (i.e. Del^phi = GravitationConstant * density, usually 4*Pi*G). */
 
