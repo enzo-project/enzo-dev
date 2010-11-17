@@ -593,7 +593,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   }
 
 
-  int PutSinkParticle = 1;
+  int PutSinkParticle = 0;
   float ppos[3];
   ppos[0] = 0.50001;
   ppos[1] = 0.50001;

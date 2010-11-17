@@ -24,6 +24,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "hydro_rk/EOS.h"
  
 /* function prototypes */
  
@@ -54,7 +55,7 @@ int grid::FlagCellsToBeRefinedByJeansLength()
   /* Compute the temperature field. */
  
   float *temperature = NULL;
-  if (ProblemType != 60 && ProblemType != 61) { //AK
+  if (ProblemType != 60 && ProblemType != 61 && (EOSType == 0)) { //AK
     temperature = new float[size];
     if (this->ComputeTemperatureField(temperature) == FAIL) {
       fprintf(stderr, "Error in grid->ComputeTemperature.\n");
@@ -95,9 +96,12 @@ int grid::FlagCellsToBeRefinedByJeansLength()
   if (ProblemType == 60 || ProblemType == 61)
     JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
 
-  if (EOSType == 3)
-    JLSquared = EOSSoundSpeed*EOSSoundSpeed*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
-  /*printf("JLSquared %g", JLSquared);*/
+  if (EOSType > 0)
+    {
+      float cs,dpdrho,dpde, eint, h, rho, p;
+      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
+      JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
+    }
 
   /* This is the safety factor to decrease the Jean's length by. */
  
@@ -124,11 +128,11 @@ int grid::FlagCellsToBeRefinedByJeansLength()
   FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
   for (i = 0; i < size; i++)
     {
-      if (EOSType != 3) {
+      if (EOSType == 0) {
 	if (CellWidthSquared > JLSquared*temperature[i]/BaryonField[DensNum][i])
 	  FlaggingField[i]++; 
       }
-      else // isothermal sound speed version
+      else // isothermal and ploytropic sound speed version
 	if (CellWidthSquared > JLSquared/BaryonField[DensNum][i])
 	  FlaggingField[i]++; 
     }
@@ -136,7 +140,6 @@ int grid::FlagCellsToBeRefinedByJeansLength()
   /* clean up */
  
   if (ProblemType != 60 && ProblemType != 61) //AK
-
     delete temperature;
  
   /* Count number of flagged Cells. */

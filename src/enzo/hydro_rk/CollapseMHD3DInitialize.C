@@ -40,34 +40,34 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
 {
-  const char *DensName = "Density";
-  const char *TEName   = "TotalEnergy";
-  const char *GEName   = "GasEnergy";
-  const char *Vel1Name = "x-velocity";
-  const char *Vel2Name = "y-velocity";
-  const char *Vel3Name = "z-velocity";
-  const char *ElectronName = "Electron_Density";
-  const char *HIName    = "HI_Density";
-  const char *HIIName   = "HII_Density";
-  const char *HeIName   = "HeI_Density";
-  const char *HeIIName  = "HeII_Density";
-  const char *HeIIIName = "HeIII_Density";
-  const char *HMName    = "HM_Density";
-  const char *H2IName   = "H2I_Density";
-  const char *H2IIName  = "H2II_Density";
-  const char *DIName    = "DI_Density";
-  const char *DIIName   = "DII_Density";
-  const char *HDIName   = "HDI_Density";
-  const char *BxName = "Bx";
-  const char *ByName = "By";
-  const char *BzName = "Bz";
-  const char *PhiName = "Phi";
-  const char *DebugName = "Debug";
-  const char *Phi_pName = "Phip";
-  const char *GravPotenName = "PotentialField";
-  const char *Acce1Name = "AccelerationField1";
-  const char *Acce2Name = "AccelerationField2";
-  const char *Acce3Name = "AccelerationField3";
+   const char *DensName = "Density";
+   const char *TEName   = "TotalEnergy";
+   const char *GEName   = "GasEnergy";
+   const char *Vel1Name = "x-velocity";
+   const char *Vel2Name = "y-velocity";
+   const char *Vel3Name = "z-velocity";
+   const char *ElectronName = "Electron_Density";
+   const char *HIName    = "HI_Density";
+   const char *HIIName   = "HII_Density";
+   const char *HeIName   = "HeI_Density";
+   const char *HeIIName  = "HeII_Density";
+   const char *HeIIIName = "HeIII_Density";
+   const char *HMName    = "HM_Density";
+   const char *H2IName   = "H2I_Density";
+   const char *H2IIName  = "H2II_Density";
+   const char *DIName    = "DI_Density";
+   const char *DIIName   = "DII_Density";
+   const char *HDIName   = "HDI_Density";
+   const char *BxName = "Bx";
+   const char *ByName = "By";
+   const char *BzName = "Bz";
+   const char *PhiName = "Phi";
+   const char *DebugName = "Debug";
+   const char *Phi_pName = "Phip";
+   const char *GravPotenName = "PotentialField";
+   const char *Acce1Name = "AccelerationField1";
+   const char *Acce2Name = "AccelerationField2";
+   const char *Acce3Name = "AccelerationField3";
 
   /* declarations */
 
@@ -379,63 +379,63 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
 
     } // end: if (RefineAtStart)
 
-    /* set up field names and units */
-
-    int count = 0;
-    DataLabel[count++] = (char*) DensName;
-    DataLabel[count++] = (char*) Vel1Name;
-    DataLabel[count++] = (char*) Vel2Name;
-    DataLabel[count++] = (char*) Vel3Name;
-    DataLabel[count++] = (char*) TEName;
-    if (DualEnergyFormalism) {
-      DataLabel[count++] = (char*) GEName;
-    }
-    if (HydroMethod == MHD_RK) {
-      DataLabel[count++] = (char*) BxName;
-      DataLabel[count++] = (char*) ByName;
-      DataLabel[count++] = (char*) BzName;
-      DataLabel[count++] = (char*) PhiName;
-    }
-
-    if (MultiSpecies) {
-      DataLabel[count++] = (char*) ElectronName;
-      DataLabel[count++] = (char*) HIName;
-      DataLabel[count++] = (char*) HIIName;
-      DataLabel[count++] = (char*) HeIName;
-      DataLabel[count++] = (char*) HeIIName;
-      DataLabel[count++] = (char*) HeIIIName;
-      if (MultiSpecies > 1) {
-	DataLabel[count++] = (char*) HMName;
-	DataLabel[count++] = (char*) H2IName;
-	DataLabel[count++] = (char*) H2IIName;
-      }
-      if (MultiSpecies > 2) {
-	DataLabel[count++] = (char*) DIName;
-	DataLabel[count++] = (char*) DIIName;
-	DataLabel[count++] = (char*) HDIName;
-      }
-    }  // if Multispecies
-
-    if(UseDivergenceCleaning){
-      DataLabel[count++] = (char*) Phi_pName;
-      DataLabel[count++] = (char*) DebugName;
-    }
-
-    if (WritePotential) {
-      DataLabel[count++] = (char*) GravPotenName;
-      DataLabel[count++] = (char*) Acce1Name;
-      DataLabel[count++] = (char*) Acce2Name;
-      DataLabel[count++] = (char*) Acce3Name;
-    }
-
-    DataLabel[count++] = (char*) DebugName;
-
-    for (i = 0; i < count; i++) {
-      DataUnits[i] = NULL;
-    }
-
   } // end if  SetBaryonField
 
+    /* set up field names and units */
+  count = 0;
+  DataLabel[count++] = (char*)  DensName;
+  DataLabel[count++] = (char*) Vel1Name;
+  DataLabel[count++] = (char*) Vel2Name;
+  DataLabel[count++] = (char*) Vel3Name;
+  DataLabel[count++] = (char*) TEName;
+  if (DualEnergyFormalism) {
+    DataLabel[count++] = (char*) GEName;
+  }
+  if (HydroMethod == MHD_RK) {
+    DataLabel[count++] = (char*) BxName;
+    DataLabel[count++] = (char*) ByName;
+    DataLabel[count++] = (char*) BzName;
+    DataLabel[count++] = (char*) PhiName;
+  }
+  
+  if (MultiSpecies) {
+    DataLabel[count++] = (char*) ElectronName;
+    DataLabel[count++] = (char*) HIName;
+    DataLabel[count++] = (char*) HIIName;
+    DataLabel[count++] = (char*) HeIName;
+    DataLabel[count++] = (char*) HeIIName;
+    DataLabel[count++] = (char*) HeIIIName;
+    if (MultiSpecies > 1) {
+      DataLabel[count++] = (char*) HMName;
+      DataLabel[count++] = (char*) H2IName;
+      DataLabel[count++] = (char*) H2IIName;
+    }
+    if (MultiSpecies > 2) {
+      DataLabel[count++] = (char*) DIName;
+      DataLabel[count++] = (char*) DIIName;
+      DataLabel[count++] = (char*) HDIName;
+    }
+  }  // if Multispecies
+  
+  if(UseDivergenceCleaning){
+    DataLabel[count++] = (char*) Phi_pName;
+    DataLabel[count++] = (char*) DebugName;
+  }
+  
+  if (WritePotential) {
+    DataLabel[count++] = (char*) GravPotenName;
+    DataLabel[count++] = (char*) Acce1Name;
+    DataLabel[count++] = (char*) Acce2Name;
+    DataLabel[count++] = (char*) Acce3Name;
+  }
+  
+  DataLabel[count++] = (char*) DebugName;
+  
+  for (i = 0; i < count; i++) {
+    DataUnits[i] = NULL;
+  }
+  
+  
   return SUCCESS;
 
 }

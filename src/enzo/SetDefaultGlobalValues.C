@@ -294,7 +294,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
-  KeepAccelerationField       = 0;                 // Usually do not need this other than in EvolveLevel
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet

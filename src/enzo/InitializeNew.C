@@ -656,13 +656,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("Error in problem initialization.");
   }
  
-  if (debug)
-    printf("InitializeNew: Finished problem initialization.\n");
-
-  /* If requested, initialize streaming data files. */
-
-  InitializeMovieFile(MetaData, TopGrid);
- 
   /* Do some error checking */
  
   if (MetaData.StopTime == FLOAT_UNDEFINED)
@@ -925,6 +918,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   MetaData.FirstTimestepAfterRestart = FALSE;
   
+  if (debug)
+    printf("InitializeNew: Finished problem initialization.\n");
+
+  /* If requested, initialize streaming data files. */
+
+  InitializeMovieFile(MetaData, TopGrid);
+ 
 
 
   return SUCCESS;

@@ -50,7 +50,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
 
     cs = c_s*sqrt(1.0 + EOSGamma*pow(rho/rho_cr, EOSGamma-1.0));
     p = rho*c_s*c_s*(1.0 + pow(rho/rho_cr, EOSGamma-1.0));
-    
+
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;
     dpde = 1;

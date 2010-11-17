@@ -340,6 +340,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
       }
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
+      //      if (FieldType[field] != Density && FieldType[field] != DebugField) {
       if (FieldType[field] != Density) {
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,

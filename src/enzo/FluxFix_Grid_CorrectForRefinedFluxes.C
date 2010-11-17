@@ -490,24 +490,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex] -= CorrectionAmountLeft;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
-				 CorrectionAmountLeft,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+				   CorrectionAmountLeft,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
-				 CorrectionAmountLeft,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				   CorrectionAmountLeft,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
@@ -519,24 +521,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex+Offset] -= CorrectionAmountRight;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
-				 CorrectionAmountRight,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+				   CorrectionAmountRight,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
-				 CorrectionAmountRight,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				   CorrectionAmountRight,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
