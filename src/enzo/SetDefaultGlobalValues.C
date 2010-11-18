@@ -88,7 +88,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CycleSkipRestartDump = 0;
   MetaData.CycleLastDataDump    = INT_UNDEFINED;
   MetaData.CycleSkipDataDump    = 0;
-  MetaData.SubcycleLastDataDump    = INT_UNDEFINED;
+  MetaData.SubcycleLastDataDump    = 0;
   MetaData.SubcycleSkipDataDump    = 0;
   MetaData.CycleLastHistoryDump = INT_UNDEFINED;
   MetaData.CycleSkipHistoryDump = 0;
