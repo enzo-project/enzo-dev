@@ -85,6 +85,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
+  FieldType[NumberOfBaryonFields++] = Metallicity;
+  int ColourNum = NumberOfBaryonFields;
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
@@ -278,7 +280,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    Density = CloudDensity / (1.0 + pow(6.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	  }
-
+ 
 	  /* Type 4: 1/r^2 profile with a smaller core.
 	     This is a model for massive star formation with a seed
 	     protostar in the center */
@@ -333,18 +335,19 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	  if (CloudType == 4) {
 	    Density = max(DensityUnits,0.5*4.25*CloudDensity/(1.0 + pow(9.0*r/CloudRadius,2)));
-	    eint = CloudInternalEnergy*200.0; //400.0;
+	    eint = CloudInternalEnergy*2.0; //400.0;
 	  }
 
 
           if (CloudType ==6) {
 	    Density = max(DensityUnits, 0.5*CloudDensity/(1.0 + pow(4.0*r/CloudRadius,2)));
-	    eint = CloudInternalEnergy*200.0; //400.0;
+	    eint = CloudInternalEnergy*2.0; //400.0;
 	  }
 
 	}
 
 	BaryonField[iden ][n] = Density;
+	BaryonField[ColourNum][n] = Density*0.018477 ;
 	BaryonField[ivx  ][n] = Velx;
 	BaryonField[ivy  ][n] = Vely;
 	BaryonField[ivz  ][n] = Velz;
