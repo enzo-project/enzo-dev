@@ -510,6 +510,7 @@ OBJS_CONFIG_LIB = \
 	Grid_RotatingCylinderInitialize.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
+	Grid_SedovBlastInitializeGrid3DFixedR.o \
 	Grid_SetExternalBoundaryValues.o \
 	Grid_SetFlaggingField.o \
 	Grid_SetFlaggingFieldStaticRegions.o \

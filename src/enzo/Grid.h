@@ -1719,6 +1719,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int SedovBlastInitializeGrid3D(char * fname);
 
+  int SedovBlastInitializeGrid3DFixedR(float dr);
+
+
 /* Initialize a grid for RadiatingShock (Sedov+Cooling) Explosion */
 
   int RadiatingShockInitializeGrid(FLOAT RadiatingShockInitialRadius,

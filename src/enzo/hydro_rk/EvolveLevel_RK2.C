@@ -475,7 +475,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // Recompute potential and accelerations with time centered baryon Field
     // this also does the particles again at the moment so could be made more efficient.
 
-    RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
+      RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
@@ -499,15 +499,18 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
       } // end: if (SelfGravity)
 
-#ifdef SAB
+
     } // End of loop over grids
-    
+
+#ifdef SAB    
     //Ensure the consistency of the AccelerationField
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
-    
+
+#endif //SAB.    
+
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-#endif //SAB.
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK)
@@ -595,6 +598,33 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
 
+    //dcc cut second potential cut: Duplicate?
+ 
+    if (SelfGravity && WritePotential) {
+      CopyGravPotential = TRUE;
+      When = 0.0;
+ 
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else   // !FAST_SIB
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
+ 
+ 
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        if (level <= MaximumGravityRefinementLevel) {
+ 
+          /* Compute the potential. */
+ 
+          if (level > 0)
+            Grids[grid1]->GridData->SolveForPotential(level);
+          Grids[grid1]->GridData->CopyPotentialToBaryonField();
+        }
+      } //  end loop over grids
+      CopyGravPotential = FALSE;
+
+    } // if WritePotential
+ 
 
     OutputFromEvolveLevel(LevelArray,MetaData,level,Exterior
 #ifdef TRANSFER

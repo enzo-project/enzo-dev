@@ -108,7 +108,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "SoundVelocity = %"FSYM, &CloudSoundSpeed);
     ret += sscanf(line, "MachNumber = %"FSYM, &CloudMachNumber);
     ret += sscanf(line, "AngularVelocity = %"FSYM, &CloudAngularVelocity);
-    ret += sscanf(line, "CloudRadius = %"FSYM, &CloudRadius);
+    ret += sscanf(line, "CloudRadius = %"PSYM, &CloudRadius);
     ret += sscanf(line, "SetTurbulence = %"ISYM, &SetTurbulence);
     ret += sscanf(line, "RandomSeed = %"ISYM, &RandomSeed);
     ret += sscanf(line, "InitialBfield = %"FSYM, &InitialBField);

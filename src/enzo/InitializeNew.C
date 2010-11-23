@@ -337,6 +337,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     
   } // end: if (ProblemType != 40 && ProblemType !=51)
   
+
+
+
   // Call problem initializer
 
   PrintMemoryUsage("Call problem init");
@@ -669,8 +672,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
 
   PrintMemoryUsage("1st Initialization done");
-  
-  
+
+
   if (debug)
     printf("Initialize Exterior\n");
   
@@ -740,6 +743,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     fprintf(stderr, "End of set exterior\n");
   }
   
+
   // Set values that were left undefined (above)
   
   if (MetaData.TimeLastDataDump == FLOAT_UNDEFINED)
