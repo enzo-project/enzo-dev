@@ -43,7 +43,8 @@ double Gaussian(double cs);
      }
    }
 
-   printf("Turbulence_Generator: seed=%"ISYM", kmin=%"GSYM", kmax=%"GSYM"\n", seed, kmin, kmax);
+   printf("Turbulence_Generator: seed=%"ISYM", kmin=%"GSYM", kmax=%"GSYM", dk = %"GSYM"\n", 
+	  seed, kmin, kmax, dk);
    srand(seed);
 
    double phix, phiy, phiz, Ax, Ay, Az, AA, Ak0;
