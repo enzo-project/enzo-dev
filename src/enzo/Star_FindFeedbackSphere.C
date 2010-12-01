@@ -317,6 +317,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // If there is little cold gas, then give up hope of accreting
     // more gas and form the star.  If more gas is accreted, another
     // star particle will form.
+#ifdef UNUSED
     if (StarType == PopII && 
 	AccretedMass < 0.001*StarClusterMinimumMass) {
       if (debug) 
@@ -326,6 +327,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       this->BirthTime = Time;
       this->type = PopII;
     }
+#endif
 
     deltaZ = Metallicity2 + Metallicity3;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
