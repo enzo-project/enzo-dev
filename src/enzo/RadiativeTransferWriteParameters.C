@@ -31,6 +31,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferLoadBalance);
   fprintf(fptr, "RadiativeTransferRadiationPressure        = %"ISYM"\n", 
 	  RadiationPressure);
+  fprintf(fptr, "RadiativeTransferRadiationPressureScale   = %"FSYM"\n", 
+	  RadiationPressureScale);
   fprintf(fptr, "RadiativeTransferSourceRadius             = %"GSYM"\n", 
 	  RadiativeTransferSourceRadius);
   fprintf(fptr, "RadiativeTransferPropagationSpeedFraction = %"GSYM"\n", 

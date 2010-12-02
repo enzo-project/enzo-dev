@@ -56,9 +56,10 @@ EXTERN int RadiativeTransferSourceClustering;
 
 EXTERN float RadiativeTransferPhotonMergeRadius;
 
-/* Radiative pressure flag */
+/* Radiative pressure flag and scale factor */
 
 EXTERN int RadiationPressure;
+EXTERN float RadiationPressureScale;
 
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
