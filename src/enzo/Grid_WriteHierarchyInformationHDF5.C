@@ -188,6 +188,9 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
     if (io_log) fprintf(log_fptr, "Calling H5Gcreate with Name %s\n", GroupName);
     subgroup_id = H5Gcreate(group_id, GroupName, 0);
     if (io_log) fprintf(log_fptr, "H5Gcreate: subgroup_id = %"ISYM"\n", (int) subgroup_id);
+
+    // write daughter grid id array
+    HDF5_WriteAttribute(subgroup_id, "DaughterGridIDs", DaughterGridIDs, NumberOfDaughterGrids, log_fptr);
     
     for(int i=0;i<NumberOfDaughterGrids;i++) {
       
