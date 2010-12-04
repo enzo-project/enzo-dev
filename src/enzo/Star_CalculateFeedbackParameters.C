@@ -43,6 +43,12 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
+  const float TypeIILowerMass = 8, TypeIIUpperMass = 50;
+  const float PISNLowerMass = 140, PISNUpperMass = 260;
+
+  const float TypeIIMetalEjecta = 1.0;  // Msun
+  const double TypeIIEnergy = 1e52;
+
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
 
@@ -61,15 +67,23 @@ void Star::CalculateFeedbackParameters(float &Radius,
   StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(this->level));
 
   switch (this->FeedbackFlag) {
-  case SUPERNOVA:  // pair-instability SNe
+  case SUPERNOVA:  // Single thermal bubble of SN feedback
     Radius = PopIIISupernovaRadius * pc / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(PopIIISupernovaRadius*pc, 3);
     EjectaDensity = Mass * Msun / EjectaVolume / DensityUnits;
-    HeliumCoreMass = (13./24.) * (Mass - 20);
-    SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
-    EjectaMetalDensity = HeliumCoreMass * Msun / EjectaVolume / 
-      DensityUnits;
+
+    // pair-instability SNe
+    if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
+      HeliumCoreMass = (13./24.) * (Mass - 20);
+      SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
+      EjectaMetalDensity = HeliumCoreMass * Msun / EjectaVolume / 
+	DensityUnits;
+    } else if (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) {
+      SNEnergy = TypeIIEnergy;
+      EjectaMetalDensity = TypeIIMetalEjecta * Msun / EjectaVolume / 
+	DensityUnits;
+    }
     EjectaThermalEnergy = SNEnergy / (Mass * Msun) / VelocityUnits /
       VelocityUnits;
 
