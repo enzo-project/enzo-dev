@@ -56,7 +56,7 @@ int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *TopGrid,
 			    int NumberOfRootGrids, int *RootGridProcessors,
 			    bool ReadParticlesOnly=false, FILE *log_fptr=NULL);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int ReadStarParticleData(FILE *fptr);
+int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
 int InitialLoadBalanceRootGrids(FILE *fptr, hid_t Hfile_id, int TopGridRank,
@@ -249,7 +249,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     // read NumberOfProcessors attribute
     HDF5_ReadAttribute(Hfile_id, "NumberOfProcessors", PreviousMaxTask, log_fptr);
     PreviousMaxTask--;
-
+    
     // read TotalNumberOfGrids attribute
     HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
 
@@ -417,14 +417,14 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   /* Read StarParticle data. */
  
-  if (ReadStarParticleData(fptr) == FAIL) {
+  if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
         ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
  
   if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
-      RadiationData.RadiationShield == TRUE) {
+      (RadiationData.RadiationShield == TRUE && RadiationFieldType != 12)) {
     FILE *Radfptr;
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);

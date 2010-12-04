@@ -44,7 +44,7 @@ void my_exit(int status);
  
 int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *TopGrid, int GridID, HierarchyEntry *ParentGrid, FILE *log_fptr);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int ReadStarParticleData(FILE *fptr);
+int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
  
@@ -205,8 +205,10 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     Hfile_id = H5Fopen(HDF5hierarchyname, H5F_ACC_RDONLY, H5P_DEFAULT);
     if( Hfile_id == h5_error )
       ENZO_VFAIL("Error opening HDF5 hierarchy file: %s",HDF5hierarchyname)
-	// read TotalNumberOfGrids attribute
-	HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
+
+    // read TotalNumberOfGrids attribute
+    HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
+
     
     // read LevelLookupTable
     LevelLookupTable = new int[TotalNumberOfGrids];
@@ -281,14 +283,14 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   /* Read StarParticle data. */
  
-  if (ReadStarParticleData(fptr) == FAIL) {
+  if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
         ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
  
   if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
-      RadiationData.RadiationShield == TRUE) {
+      (RadiationData.RadiationShield == TRUE && RadiationFieldType != 12)) {
     FILE *Radfptr;
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);

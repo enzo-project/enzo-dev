@@ -6,6 +6,11 @@
 /  date:       March, 1997
 /  modified1: Ji-hoon Kim - added additional outputs
 /             November, 2009
+/  modified2: Michael Kuhlen - moved Ji-hoon's additional output to
+/                              [Group_]WriteAllData.C, since this routine
+/                              is no longer called when
+/                              HierarchyFileInputFormat=0.
+/             December 2010
 /
 /  PURPOSE:
 /
@@ -27,9 +32,9 @@
 int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
 {
  
-  if (StarParticleCreation == FALSE && MBHParticleIO == FALSE)
+  if (StarParticleCreation == FALSE)
     return SUCCESS;
-
+  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
     /* Write out particle number data. */
@@ -38,28 +43,9 @@ int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
     fprintf(fptr, "NumberOfStarParticles      = %"ISYM"\n", NumberOfStarParticles);
     fprintf(fptr, "NumberOfOtherParticles     = %"ISYM"\n", NumberOfOtherParticles); 
 
-    /* Write out MBH particle data (mass, angular momentum) */ 
-
-    if(MBHParticleIO == TRUE) {
-
-      FILE *fptr2;
-      if ((fptr2 = fopen(MBHParticleIOFilename, "a")) == NULL) {
-	ENZO_VFAIL("Error opening file %s\n", MBHParticleIOFilename)
-
-      }
-
-      // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum
-      for (int i = 0; i < G_TotalNumberOfStars; i++) { 
-	fprintf(fptr2, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf\n", 
-		MetaData.Time, NumberOfStarParticles, (int)(MBHParticleIOTemp[i][0]), 
-		MBHParticleIOTemp[i][1], (float)(MBHParticleIOTemp[i][2]), 
-		(float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]),
-		MBHParticleIOTemp[i][5]);
-      }
-
-      fclose(fptr2);
-    }
-
+    /* mqk 12/04/2010: moved MBH particle data output to
+       (Group_)WriteAllData, since this routine is not called when
+       HierarchyFileInputFormat=0. */
   }
 
   return SUCCESS;

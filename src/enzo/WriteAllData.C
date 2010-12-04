@@ -525,7 +525,29 @@ int WriteAllData(char *basename, int filenumber,
   if (WriteStarParticleData(fptr, MetaData) == FAIL) {
     ENZO_FAIL("Error in WriteStarParticleData\n");
   }
- 
+
+  // Output MBH particle data
+  
+  if (MBHParticleIO == TRUE && MyProcessorNumber == ROOT_PROCESSOR) {
+    FILE *MBHfptr;
+    
+    if ((MBHfptr = fopen(MBHParticleIOFilename, "a")) == NULL) {
+      ENZO_VFAIL("Error opening file %s\n", MBHParticleIOFilename)
+	}
+    
+    // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum
+    for (int i = 0; i < G_TotalNumberOfStars; i++) { 
+      fprintf(MBHfptr, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf\n", 
+	      MetaData.Time, NumberOfStarParticles, (int)(MBHParticleIOTemp[i][0]), 
+	      MBHParticleIOTemp[i][1], (float)(MBHParticleIOTemp[i][2]), 
+	      (float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]),
+	      MBHParticleIOTemp[i][5]);
+    }
+    
+    fclose(MBHfptr);
+    
+  }
+   
   // Output memory map
 
   if (MyProcessorNumber == ROOT_PROCESSOR)

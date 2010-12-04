@@ -113,6 +113,13 @@ int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData
   // Add NumberOfProcessors attribute to the root group
   HDF5_WriteAttribute(file_id, "NumberOfProcessors", NumberOfProcessors, log_fptr);
 
+  if (StarParticleCreation) {
+    // Add NumberOfStarParticles attribute to the root group
+    HDF5_WriteAttribute(file_id, "NumberOfStarParticles", NumberOfStarParticles, log_fptr);
+    
+    // Add NumberOfOtherParticles attribute to the root group
+    HDF5_WriteAttribute(file_id, "NumberOfOtherParticles", NumberOfOtherParticles, log_fptr);
+  }
   
   // find finest level with grids
   for(level = MAX_DEPTH_OF_HIERARCHY-1; LevelArray[level]==NULL; level--)
