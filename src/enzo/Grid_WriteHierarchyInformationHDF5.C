@@ -26,6 +26,10 @@
 void my_exit(int status);
  
 
+// set this if you want to soft links to the daughter and parent
+// grids, and external links to the data file
+#define WITHOUT_HDF5_LINKS
+
 // set this if you're using HDF5 1.8+ (regardless of H5_USE_16_API)
 #define HAVE_HDF5_18
 
@@ -169,6 +173,7 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
   // ***** External Link to the grid data in the external .cpuXXXX file *****
   // (only supported under HDF5 1.8+)
 
+#ifdef WITH_HDF5_LINKS
 #ifdef HAVE_HDF5_18
   sprintf(TargetName,"Grid%"GROUP_TAG_FORMAT""ISYM, ID);
   sprintf(LinkName,"GridData");
@@ -178,7 +183,7 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
 
   if (io_log) fprintf(log_fptr, "H5Lcreate_external: status = %"ISYM"\n", (int) h5_status);
 #endif  
-
+#endif
 
   // ***** Links to daughter grids *****
   if (NumberOfDaughterGrids > 0) {
@@ -192,9 +197,11 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
     // write daughter grid id array
     HDF5_WriteAttribute(subgroup_id, "DaughterGridIDs", DaughterGridIDs, NumberOfDaughterGrids, log_fptr);
     
+#ifdef WITH_HDF5_LINKS    
+    // create soft links to daughter grids
     for(int i=0;i<NumberOfDaughterGrids;i++) {
       
-      sprintf(LinkName,"DaughterGrid%"ISYM,i);
+      sprintf(LinkName,"DaughterGrid%"GRID_TAG_FORMAT""ISYM,i);
       sprintf(TargetName,"/Level%"ISYM"/Grid%"GROUP_TAG_FORMAT""ISYM,level+1,DaughterGridIDs[i]);
 
 #ifdef HAVE_HDF5_18
@@ -208,12 +215,14 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
 #endif      
 
     }
+#endif
 
     h5_status = H5Gclose(subgroup_id);
     if (io_log) fprintf(log_fptr, "H5Gclose: status = %"ISYM"\n", (int) h5_status);
     
   }
 
+#ifdef WITH_HDF5_LINKS
   // ***** Links to parent grids *****
   if (level > 0) {
 
@@ -244,7 +253,7 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
     if (io_log) fprintf(log_fptr, "H5Gclose: status = %"ISYM"\n", (int) h5_status);
     
   }
-
+#endif
 
 
   // ***** Close this grid *****
