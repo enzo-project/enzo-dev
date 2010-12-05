@@ -132,8 +132,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FileDirectedOutput = 1;
 
   // Default Hierarchy File IO settings
-  HierarchyFileInputFormat = 0; // HDF5
-  HierarchyFileOutputFormat = 0 ; // HDF5 only
+  HierarchyFileInputFormat = 1; // ASCII
+  HierarchyFileOutputFormat = 2 ; // both HDF5 and ASCII
 
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;

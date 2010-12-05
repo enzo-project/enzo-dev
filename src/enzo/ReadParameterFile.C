@@ -950,8 +950,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   // HierarchyFile IO sanity check
+
+  // Note that although I only do not allow HierarchyFileInputFormat=2
+  // (both ASCII and HDF5 input), it is supported internally for
+  // debugging purpose.
   if ((HierarchyFileInputFormat < 0) || (HierarchyFileInputFormat > 1))
     ENZO_FAIL("Invalid HierarchyFileInputFormat. Must be 0 (HDF5) or 1 (ASCII).")
+
   if ((HierarchyFileOutputFormat < 0) || (HierarchyFileOutputFormat > 2))
     ENZO_FAIL("Invalid HierarchyFileOutputFormat. Must be 0 (HDF5), 1 (ASCII), or 2 (both).")
   
