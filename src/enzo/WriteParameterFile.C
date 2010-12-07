@@ -168,6 +168,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
+#ifdef USE_PYTHON
+  fprintf(fptr, "NumberOfPythonCalls     = %"ISYM"\n", NumberOfPythonCalls);
+#endif
+
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
 

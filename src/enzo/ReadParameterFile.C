@@ -799,6 +799,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Embedded Python */
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
 
+#ifdef USE_PYTHON
+    ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
+#endif
+
     /* Inline halo finder */
 
     ret += sscanf(line, "InlineHaloFinder = %"ISYM, &InlineHaloFinder);
