@@ -547,7 +547,7 @@
 !                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
-                  dtit(i) = min(real(abs(0.01*energy/edot(i))), 
+                  dtit(i) = min(real(abs(0.1*energy/edot(i))), 
      &                        dt-ttot(i), dtit(i))
 !              endif
 
