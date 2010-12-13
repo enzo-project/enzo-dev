@@ -238,7 +238,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     /* If required, Change the mass of particles in this grid. */
  
     if (MassFactor != 1.0 || 
-	((STARMAKE_METHOD(StarParticleCreation) == SINK_PARTICLE) && SmoothField == TRUE)) {
+	((StarParticleCreation == (1 << SINK_PARTICLE)) && 
+	 SmoothField == TRUE)) {
       ParticleMassTemp = new float[NumberOfParticles];
       for (i = 0; i < NumberOfParticles; i++)
 	ParticleMassTemp[i] = ParticleMass[i]*MassFactor;
@@ -272,7 +273,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       /* Note that several types of particles may be appropriate for this,
          but they will have to be added if needed. */
     if ((this->ReturnNumberOfStarParticles() > 0) && 
-	STARMAKE_METHOD(StarParticleCreation) == SINK_PARTICLE && SmoothField == TRUE) {
+	(StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
       ParticleMassPointerSink = new float[NumberOfParticles];
       for (i = 0; i < NumberOfParticles; i++) {
 	if (ParticleType[i] == PARTICLE_TYPE_STAR) {
@@ -320,7 +321,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     }
     
     if ((this->ReturnNumberOfStarParticles() > 0) && 
-	STARMAKE_METHOD(StarParticleCreation) == SINK_PARTICLE && SmoothField == TRUE) {
+	(StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
       for (i = 0; i < NumberOfParticles; i++) {
 	if (ParticleType[i] == PARTICLE_TYPE_STAR) {
 	  ParticleMassPointer[i] = ParticleMassPointerSink[i];
