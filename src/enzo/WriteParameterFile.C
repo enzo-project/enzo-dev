@@ -167,9 +167,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
 
 
+  fprintf(fptr, "PythonTopGridSkip       = %"ISYM"\n", PythonTopGridSkip);
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
 #ifdef USE_PYTHON
-  fprintf(fptr, "NumberOfPythonCalls     = %"ISYM"\n", NumberOfPythonCalls);
+  fprintf(fptr, "NumberOfPythonCalls         = %"ISYM"\n", NumberOfPythonCalls);
+  fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
+  fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
 #endif
 
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK

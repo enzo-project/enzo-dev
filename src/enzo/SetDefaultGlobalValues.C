@@ -416,6 +416,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
+  PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
 
   InlineHaloFinder                 = FALSE;
@@ -678,6 +679,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_PYTHON
   NumberOfPythonCalls = 0;
+  NumberOfPythonTopGridCalls = 0;
+  NumberOfPythonSubcycleCalls = 0;
   grid_dictionary = PyDict_New();
   old_grid_dictionary = PyDict_New();
   hierarchy_information = PyDict_New();
