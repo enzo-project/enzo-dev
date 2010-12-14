@@ -425,6 +425,7 @@ EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
 
 /* Parameter(s) for embedded python execution */
+EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
 
 /* Parameters to control inline halo finding */
@@ -741,6 +742,8 @@ EXTERN char GlobalPath[MAX_LINE_LENGTH];
 
 #ifdef USE_PYTHON
 EXTERN int NumberOfPythonCalls;
+EXTERN int NumberOfPythonTopGridCalls;
+EXTERN int NumberOfPythonSubcycleCalls;
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
