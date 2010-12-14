@@ -661,6 +661,7 @@ EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
 EXTERN int ExternalGravity;
 EXTERN float StringKick;
+EXTERN int StringKickDimension;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;

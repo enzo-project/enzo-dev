@@ -847,6 +847,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
 
     ret += sscanf(line, "StringKick = %"FSYM, &StringKick);
+    ret += sscanf(line, "StringKickDimension = %"ISYM, &StringKickDimension);
     ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
     ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
     ret += sscanf(line, "RKOrder = %d", &RKOrder);

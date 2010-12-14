@@ -550,6 +550,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseResistivity	     = 0;
 
   StringKick = 0;
+  StringKickDimension = 0;
 
   iden	= 0;
   ivx	= 1;
