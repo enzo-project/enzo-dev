@@ -287,7 +287,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   int *RootGridProcessors = NULL, NumberOfRootGrids = 1;
   InitialLoadBalanceRootGrids(fptr, Hfile_id, MetaData.TopGridRank, MetaData.TopGridDims[0], NumberOfRootGrids, RootGridProcessors);
-  
+
   /* Read Data Hierarchy. */
 
   if(LoadGridDataAtStart){
@@ -319,8 +319,10 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #else
 
-    if (debug) fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
-    // printf("P%d: OPEN data hierarchy %s\n", MyProcessorNumber, hierarchyname);
+    if (debug && HierarchyFileInputFormat == 1)
+      fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
+    if (debug && HierarchyFileInputFormat % 2 == 0)
+      fprintf(stdout, "OPEN data hierarchy %s\n", HDF5hierarchyname);
     file_id = h5_error;
 
 #endif /* SINGLE OPEN */
