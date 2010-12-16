@@ -314,10 +314,10 @@ int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, FLOAT Attribu
   dspace_id = H5Screate(H5S_SCALAR);
   if (io_log) fprintf(log_fptr, "H5Screate: dspace_id = %"ISYM"\n", (int) dspace_id);
 
-  attr_id = H5Acreate(group_id, AttributeName, HDF5_FILE_REAL, dspace_id, H5P_DEFAULT);
+  attr_id = H5Acreate(group_id, AttributeName, HDF5_FILE_PREC, dspace_id, H5P_DEFAULT);
   if (io_log) fprintf(log_fptr, "H5Acreate: attr_id = %"ISYM"\n", (int) attr_id);
 
-  h5_status = H5Awrite(attr_id,  HDF5_REAL, &Attribute);
+  h5_status = H5Awrite(attr_id,  HDF5_PREC, &Attribute);
   if (io_log) fprintf(log_fptr, "H5Awrite: status = %"ISYM"\n", (int) h5_status);
 
   h5_status = H5Aclose(attr_id);
@@ -482,10 +482,10 @@ int HDF5_WriteDataset(hid_t group_id, const char *DatasetName, FLOAT *Dataset, i
   dspace_id = H5Screate_simple(1, OutDims, NULL);
   if (io_log) fprintf(log_fptr, "H5Screate_simple: dspace_id = %"ISYM"\n", (int) dspace_id);
 
-  dset_id = H5Dcreate(group_id, DatasetName, HDF5_FILE_REAL, dspace_id, H5P_DEFAULT);
+  dset_id = H5Dcreate(group_id, DatasetName, HDF5_FILE_PREC, dspace_id, H5P_DEFAULT);
   if (io_log) fprintf(log_fptr, "H5Dcreate: dset_id = %"ISYM"\n", (int) dset_id);
 
-  h5_status = H5Dwrite(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
+  h5_status = H5Dwrite(dset_id, HDF5_PREC, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
   if (io_log) fprintf(log_fptr, "H5Dwrite: status = %"ISYM"\n", (int) h5_status);
 
   h5_status = H5Dclose(dset_id);

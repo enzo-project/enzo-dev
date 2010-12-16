@@ -216,7 +216,7 @@ int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, FLOAT &Attribu
   attr_id = H5Aopen_name(group_id, AttributeName);
   if (io_log) fprintf(log_fptr, "H5Aopen_name: attr_id = %"ISYM"\n", (int) attr_id);
 
-  h5_status = H5Aread(attr_id, HDF5_REAL, &Attribute);
+  h5_status = H5Aread(attr_id, HDF5_PREC, &Attribute);
   if (io_log) fprintf(log_fptr, "H5Aread: status = %"ISYM"\n", (int) h5_status);
 
   h5_status = H5Aclose(attr_id);
@@ -340,7 +340,7 @@ int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, FLOAT Dataset[], F
   dset_id = H5Dopen(group_id, DatasetName);
   if (io_log) fprintf(log_fptr, "H5Dopen: dset_id = %"ISYM"\n", (int) dset_id);
 
-  h5_status = H5Dread(dset_id, HDF5_REAL, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
+  h5_status = H5Dread(dset_id, HDF5_PREC, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) Dataset);
   if (io_log) fprintf(log_fptr, "H5Dread: status = %"ISYM"\n", (int) h5_status);
   
   h5_status = H5Dclose(dset_id);
