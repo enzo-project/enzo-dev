@@ -94,10 +94,10 @@ int grid::ComputeHeat (float dedt[]) {
   rho = BaryonField[DensNum];
 
   // Set up a struct to hold properties defined on cell faces
-  struct cellface {float T, dT, kappa, dedt;} l, r, cfzero;
+  struct cellface {float T, dT, kappa, dedt, rho;} l, r, cfzero;
 
   // zero struct
-  cfzero.T = cfzero.dT = cfzero.kappa = cfzero.dedt = 0.0;
+  cfzero.T = cfzero.dT = cfzero.kappa = cfzero.dedt = cfzero.rho = 0.0;
 
   /* When computing heat, loop over the whole grid, EXCEPT for the
      first and last cells.*/
@@ -105,8 +105,8 @@ int grid::ComputeHeat (float dedt[]) {
     GridEnd[] = {0, 0, 0};
 
   for (int dim = 0; dim<GridRank; dim++) {
-    GridStart[dim] = 1;
-    GridEnd[dim] = GridDimension[dim]-2;
+    GridStart[dim] = 0;
+    GridEnd[dim] = GridDimension[dim]-1;
   }
 
   /* for each grid rank (x,y,z) loop over 1D 'pencils' and calculate
@@ -122,17 +122,25 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
 	  l = r;
 
-	  // get temperature, temperature gradient on + face of cell
-	  // (the 'l' struct has it on the right face)
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i+1,j,k)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i+1,j,k)];
+	  if(i == GridEnd[0]){
+	    r = cfzero;
+	  } else {
 
-	  // kappa is the spitzer conductivity, which scales as 
-	  // the temperature to the 2.5 power
-	  r.kappa = kappa_star*POW(r.T, 2.5);
-	  // conduction saturation
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
-	  r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
+	    // get temperature, temperature gradient on + face of cell
+	    // (the 'l' struct has it on the right face)
+	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i+1,j,k)], 0.50);
+	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i+1,j,k)], 0.50);
+	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i+1,j,k)];
+
+	    // kappa is the spitzer conductivity, which scales as 
+	    // the temperature to the 2.5 power
+	    r.kappa = kappa_star*POW(r.T, 2.5);
+	    // conduction saturation
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+	    r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
+
+	  }
+
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}
       }
@@ -146,12 +154,19 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
 	  l = r;
 
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j+1,k)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
+	  if(j==GridEnd[1]){
+	    r = cfzero;
+	  } else {
 
-	  r.kappa = kappa_star*POW(r.T, 2.5);
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
-	  r.dedt = r.kappa*r.dT;
+	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j+1,k)], 0.50);
+	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i,j+1,k)], 0.50);
+	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
+	    
+	    r.kappa = kappa_star*POW(r.T, 2.5);
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+	    r.dedt = r.kappa*r.dT;
+	  }
+
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}
       }
@@ -165,12 +180,19 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
 	  l = r;
 
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j,k+1)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
+	  if(k==GridEnd[2]){
+	    r = cfzero;
+	  } else {
 
-	  r.kappa = kappa_star*POW(r.T, 2.5);
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
-	  r.dedt = r.kappa*r.dT;
+	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j,k+1)], 0.50);
+	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i,j,k+1)], 0.50);
+	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
+
+	    r.kappa = kappa_star*POW(r.T, 2.5);
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+	    r.dedt = r.kappa*r.dT;
+	  }
+
 	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
 	}
       }

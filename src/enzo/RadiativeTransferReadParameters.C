@@ -30,6 +30,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   /* Set defaults. */
 
   RadiationPressure           = FALSE;             // off
+  RadiationPressureScale      = 1.0;
   PhotonTime                  = 0; 
   dtPhoton                    = FLOAT_UNDEFINED;
   for (i = 0; i < 4; i++) {
@@ -79,6 +80,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
     
     ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, 
 		  &RadiationPressure);
+    ret += sscanf(line, "RadiativeTransferRadiationPressureScale = %"FSYM, 
+		  &RadiationPressureScale);
     ret += sscanf(line, "RadiativeTransferSourceRadius = %"FSYM, 
 		  &RadiativeTransferSourceRadius);
     ret += sscanf(line, "RadiativeTransferPropagationSpeedFraction = %"FSYM, 

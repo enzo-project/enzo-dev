@@ -283,7 +283,7 @@ c            endif
              dtit(i) = min(real(abs(0.1*energy/edot(i))),
      &                     dt-ttot(i), dt2)
 
-             if ( dt-ttot(i) <= tolerance*dt ) then
+             if ( dt-ttot(i) .le. tolerance*dt ) then
                 itmask(i) = .false.
              end if
 
@@ -356,7 +356,7 @@ c            endif
 
              e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
-             if (e(i,j,k) < 0.0) then
+             if (e(i,j,k) .lt. 0.0) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                call open_mpi_error_file( 'F3', 3, 'unknown' )
                 write(6,*) 'Eijk < 0', e(i,j,k)

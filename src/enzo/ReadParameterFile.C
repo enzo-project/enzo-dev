@@ -609,6 +609,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
+    ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
     ret += sscanf(line, "SimpleQ = %"FSYM, &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
@@ -800,7 +801,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
 
     /* Embedded Python */
+    ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
+
+#ifdef USE_PYTHON
+    ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
+    ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
+    ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
+#endif
 
     /* Inline halo finder */
 

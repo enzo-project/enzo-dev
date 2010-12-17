@@ -187,7 +187,7 @@ c
 !       dpdul, dpdur depend on ps only
 
           do i=i1,i2
-            if ( mask(i) > 0 ) then
+            if ( mask(i) .gt. 0 ) then
             zl (i) = cl(i)*sqrt((1.0+qa*(ps(i)/pls(i,j)-1.0)))
             zr (i) = cr(i)*sqrt((1.0+qa*(ps(i)/prs(i,j)-1.0)))
             ubl(i) = uls(i,j) - (ps(i)-pls(i,j))/zl(i)
@@ -196,7 +196,7 @@ c
           enddo
 
           do i=i1,i2
-            if ( mask(i) > 0 ) then
+            if ( mask(i) .gt. 0 ) then
             dpdul(i) = -4.0*zl(i)**3/dls(i,j)
      &        /(4.0*zl(i)**2/dls(i,j) - (gamma+1.0)*(ps(i)-pls(i,j)))
             dpdur(i) =  4.0*zr(i)**3/drs(i,j)
@@ -208,7 +208,7 @@ c            if (ps(i) .lt. pmin) ps(i) = min(pls(i,j),prs(i,j))
 
             delta_ps(i) = ps(i) - old_ps(i)
             old_ps(i) = ps(i)
-            if ( abs(delta_ps(i) / ps(i)) < tolerance ) then
+            if ( abs(delta_ps(i) / ps(i)) .lt. tolerance ) then
               mask(i) = 0
             end if
             end if

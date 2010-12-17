@@ -734,7 +734,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	(*PP)->Radius > (*PP)->SourcePositionDiff)
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	BaryonField[RPresNum1+dim][index] += 
-	  RadiationPressureConversion * dP * (*PP)->Energy / 
+	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
     
     (*PP)->CurrentTime += cdt;

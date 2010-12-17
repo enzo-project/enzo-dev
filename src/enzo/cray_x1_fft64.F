@@ -244,8 +244,8 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1)
+      integer rank, n1, n2, n3, idir
+      complex x(n1)
 
       write(0,'("Dummy Cray X1 1D FFT - error")')
       ERROR_MESSAGE
@@ -257,8 +257,8 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2)
+      integer rank, n1, n2, n3, idir
+      complex x(n1,n2)
 
       write(0,'("Dummy Cray X1 2D FFT - error")')
       ERROR_MESSAGE
@@ -270,8 +270,8 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2,n3)
+      integer rank, n1, n2, n3, idir
+      complex x(n1,n2,n3)
 
       write(0,'("Dummy Cray X1 3D FFT - error")')
       ERROR_MESSAGE

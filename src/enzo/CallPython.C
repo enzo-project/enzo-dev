@@ -33,15 +33,26 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime);
 void CommunicationBarrier();
 
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level)
+               int level, int from_topgrid)
 {
 #ifndef USE_PYTHON
     return SUCCESS;
 #else
     if(access("user_script.py", F_OK) == -1) return SUCCESS;
-    if (LevelArray[level+1] != NULL) return SUCCESS;
+
     NumberOfPythonCalls++;
-    if((NumberOfPythonCalls % PythonSubcycleSkip) != 0) return SUCCESS;
+    if (from_topgrid) {
+      NumberOfPythonTopGridCalls++;
+      if (!(PythonTopGridSkip) ||
+	  (NumberOfPythonTopGridCalls % PythonTopGridSkip) != 0) return SUCCESS;
+    }
+    else {
+      if (LevelArray[level+1] != NULL) return SUCCESS;
+      NumberOfPythonSubcycleCalls++;
+      if (!(PythonSubcycleSkip) ||
+	  (NumberOfPythonSubcycleCalls % PythonSubcycleSkip) != 0) return SUCCESS;
+    }
+
     FLOAT CurrentTime;
     int num_grids, start_index;
     num_grids = 0; start_index = 1;

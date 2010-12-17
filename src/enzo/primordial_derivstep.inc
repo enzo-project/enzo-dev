@@ -85,7 +85,7 @@ c
      &                h2heatp, h2heatm, hiheatp, heiheatp, heiiheatp,
      &                tsc, esterr, tgas,
      &                rejected, itererror, eqmask, dom, dt, ttot )
-              if(inneriter.gt.1.and.itererror.lt.1e-4) exit
+            if(inneriter.gt.1.and.itererror.lt.1e-4) return
             enddo
 #ifdef UNUSED_TABULATED_EQ
             if(eqflag.eqv..true.)then

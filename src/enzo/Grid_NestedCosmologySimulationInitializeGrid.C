@@ -89,9 +89,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           char *CosmologySimulationVelocityNames[],
                           char *CosmologySimulationParticlePositionName,
                           char *CosmologySimulationParticleVelocityName,
+ 			  char *CosmologySimulationParticleDisplacementName,
                           char *CosmologySimulationParticleMassName,
                           char *CosmologySimulationParticleTypeName,
                           char *CosmologySimulationParticleVelocityNames[],
+ 			  char *CosmologySimulationParticleDisplacementNames[],
                           int   CosmologySimulationSubgridsAreStatic,
                           int   TotalRefinement,
                           float CosmologySimulationInitialFractionHII,
@@ -1281,10 +1283,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
       } // end: if (ParallelRootGridIO && PresortedParticles == 1)
 
       if (CosmologySimulationCalculatePositions) {
-	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName,
+	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName, 
+					 CosmologySimulationParticleDisplacementName,
 					 CosmologySimulationParticleMassName,
 					 CosmologySimulationParticleTypeName,
 					 CosmologySimulationParticleVelocityNames,
+					 CosmologySimulationParticleDisplacementNames,
 					 CosmologySimulationOmegaBaryonNow,
 					 Offset, level) == FAIL) {
 	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.\n");
