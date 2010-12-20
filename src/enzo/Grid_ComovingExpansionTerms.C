@@ -13,6 +13,7 @@
 ************************************************************************/
 
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -49,6 +50,7 @@ int grid::ComovingExpansionTerms()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
+  LCAPERF_START("ComovingExpansionTerms");
   this->DebugCheck("ComovingExpansionTerms");
 
   if (NumberOfBaryonFields > 0) {
@@ -306,5 +308,6 @@ int grid::ComovingExpansionTerms()
 
   }
 
+  LCAPERF_STOP("ComovingExpansionTerms");
   return SUCCESS;
 }

@@ -131,6 +131,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
 
   TIME_MSG("Depositing particle mass field");
+  LCAPERF_START("DepositParticleMassField");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -161,6 +162,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("DepositParticleMassField");
     
 
 #ifdef FORCE_BUFFER_PURGE
@@ -180,6 +182,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	    MyProcessorNumber);
  
   TIME_MSG("PrepareGravitatingMassField1");
+  LCAPERF_START("PrepareGravitatingMassField1");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -204,6 +207,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("PrepareGravitatingMassField1");
 
 
 #ifdef FORCE_MSG_PROGRESS 
@@ -215,6 +219,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	    MyProcessorNumber);
  
   TIME_MSG("PrepareGravitatingMassField2");
+  LCAPERF_START("PrepareGravitatingMassField2a");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -257,6 +262,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif /* BITWISE_IDENTICALITY */
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("PrepareGravitatingMassField2a");
 
 #ifdef FORCE_BUFFER_PURGE
   CommunicationBufferPurge();
@@ -267,6 +273,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
  
   /************************************************************************/
+  LCAPERF_START("PrepareGravitatingMassField2b");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -289,6 +296,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("PrepareGravitatingMassField2b");
 
   /************************************************************************/
   /* Copy overlapping mass fields to ensure consistency and B.C.'s. */
@@ -300,6 +308,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	    MyProcessorNumber);
  
   TIME_MSG("CopyOverlappingMassField");
+  LCAPERF_START("CopyOverlappingMassField");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -347,6 +356,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("CopyOverlappingMassField");
 
 #ifdef FORCE_BUFFER_PURGE
   CommunicationBufferPurge();
@@ -363,6 +373,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
   if (level == 0) {
     TIME_MSG("ComputePotentialFieldLevelZero");
+    LCAPERF_START("ComputePotentialFieldLevelZero");
     if (traceMPI) 
       fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): CPFLZero "
 	      "(send-receive)\n", MyProcessorNumber);
@@ -372,6 +383,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #else
     ComputePotentialFieldLevelZero(MetaData, Grids, NumberOfGrids);
 #endif
+    LCAPERF_STOP("ComputePotentialFieldLevelZero");
   }
        
   /************************************************************************/
@@ -379,6 +391,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
  
   int iterate;
   if (level > 0) {
+    LCAPERF_START("SolveForPotential");
     CopyPotentialFieldAverage = 1;
     for (iterate = 0; iterate < PotentialIterations; iterate++) {
       
@@ -487,6 +500,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       } // ENDFOR grid batches
     } // ENDFOR iterations
     CopyPotentialFieldAverage = 0;
+    LCAPERF_STOP("SolveForPotential");
   } // ENDIF level > 0
   
   /* if level > MaximumGravityRefinementLevel, then do final potential
