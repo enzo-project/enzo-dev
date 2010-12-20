@@ -146,7 +146,7 @@
         nd = (n2+np)*nblk+np
 
 !$omp parallel private(c)
-        call zfft1d0(a,a,b,c,c(nd+1),w1,w2,ww,ww(nw2+1),ww(nw3+1),
+        call zfft1d0(a,a,b,c,c(nd+1),w1,w2,ww,ww(nw2+1),ww(nw3+1),&
      &               ww(nw4+1),n1,n2,m1,m2,ip1,ip2)
 !$omp end parallel
 
@@ -163,7 +163,7 @@
       end subroutine ffte_zfft1d
 
 
-      subroutine zfft1d0(a1,a2,b,c,d,w1,w2,ww1,ww2,ww3,ww4,n1,n2,m1,m2,
+      subroutine zfft1d0(a1,a2,b,c,d,w1,w2,ww1,ww2,ww3,ww4,n1,n2,m1,m2,&
      &                   ip1,ip2)
 
       use ffte_param
@@ -203,7 +203,7 @@
               do i = ii,min(ii+nblk-1,n1)
                 ir = (i-1)/m1+1
                 ij = mod(i-1,m1)+1
-                b(i,j) = c(j,i-ii+1)*(ww1(ij,ik)*ww2(ij,is)
+                b(i,j) = c(j,i-ii+1)*(ww1(ij,ik)*ww2(ij,is)&
      &                *ww3(ik,ir)*ww4(ir,is))
               end do
             end do
@@ -878,7 +878,7 @@
       ip(3) = 0
       n2 = n
 
-      if (mod(n,2) .ne. 0 .and. mod(n,3) .ne. 0 .and.
+      if (mod(n,2) .ne. 0 .and. mod(n,3) .ne. 0 .and.&
      &    mod(n,5) .ne. 0) return
 
    10 continue

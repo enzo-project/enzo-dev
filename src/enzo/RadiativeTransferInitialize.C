@@ -58,6 +58,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*RadAccel3Name = "RadAccel3";
   const char	*MetalName     = "Metal_Density";
   const char	*ColourName    = "SN_Colour";
+  const char    *RaySegName    = "Ray_Segments";
   const char    *Rad0Name      = "Radiation0";
   const char    *Rad1Name      = "Radiation1";
   const char    *Rad2Name      = "Radiation2";
@@ -130,6 +131,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
+      if (RadiativeTransferLoadBalance)
+	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
 
     if (StarParticleFeedback && !AddedMetallicity)
@@ -262,6 +265,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
     case RadiationFreq3:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad3Name;
       break;
+    case RaySegments:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
+      break;
     } // ENDSWITCH
   } // ENDFOR fields
 
@@ -278,6 +284,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[2] = kphHeI;
     ObsoleteFields[3] = kphHeII;
   }
+  if (RadiativeTransferLoadBalance == FALSE)
+    ObsoleteFields[NumberOfObsoleteFields++] = RaySegments;
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -329,8 +337,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
       ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
     }
-  }
-
+  
+}
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
   if (RadiativeTransferFLD) {

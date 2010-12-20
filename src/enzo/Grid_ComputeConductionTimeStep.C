@@ -30,6 +30,7 @@
 
 
 // Function prototypes
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
@@ -43,14 +44,17 @@ int grid::ComputeConductionTimeStep (float &dt) {
   // Some locals
   int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num;
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
+  FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho;
   float dt_est;
   double all_units;
 
-  int size = 1; 
-  for (int dim = 0; dim < GridRank; dim++) {size *= GridDimension[dim];};
+  int size = 1, grid_index, right_side_index; 
+  for (int dim = 0; dim < GridRank; dim++) {
+    size *= GridDimension[dim];
+  }
 
   float *Temp = new float[size];
   FLOAT dx = CellWidth[0][0];
@@ -58,6 +62,17 @@ int grid::ComputeConductionTimeStep (float &dt) {
   // Get system of units
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
+  }
+
+  if (ComovingCoordinates) {
+ 
+    if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
+	== FAIL) {
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+    }
+ 
+    aUnits = 1.0/(1.0 + InitialRedshift);
+ 
   }
 
   // for conduction saturation
@@ -81,19 +96,19 @@ int grid::ComputeConductionTimeStep (float &dt) {
   rho = BaryonField[DensNum];
 
   // Set up a struct to hold properties defined on cell faces
-  struct cellface {float T, dT, kappa, dedt;} l, r, cfzero;
+  struct cellface {float T, dT, kappa, dedt, rho;} l, r, cfzero;
 
   // zero struct
-  cfzero.T = cfzero.dT = cfzero.kappa = cfzero.dedt = 0.0;
+  cfzero.T = cfzero.dT = cfzero.kappa = cfzero.dedt = cfzero.rho = 0.0;
 
   // Find shortest time scale on the grid patch
-  int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
+  int GridStart[] = {0, 0, 0}, 
+    GridEnd[] = {0, 0, 0};
   for (int dim = 0; dim<GridRank; dim++) {
-    GridStart[dim] = 1;
-    GridEnd[dim] = GridDimension[dim]-2;}
+    GridStart[dim] = 0;
+    GridEnd[dim] = GridDimension[dim]-1;}
 
   dt = huge_number;
-
 
   /* timestep is calculated as dt < 0.5 * dx^2 / alpha, where
      alpha = thermal diffusivity = Kappa/(number density * k_boltz).
@@ -113,16 +128,26 @@ int grid::ComputeConductionTimeStep (float &dt) {
 	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
 	  l = r;
 
-	  // get temperature, temperature gradient on + face of cell
-	  // (the 'l' struct has it on the right face)
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i+1,j,k)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i+1,j,k)];
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i+1,j,k);
 
-	  // kappa is the spitzer conductivity, which scales as 
-	  // the temperature to the 2.5 power
-	  r.kappa = POW(r.T, 2.5);
-	  // conduction saturation
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+	  if(i == GridEnd[0]){
+	    r = cfzero;
+	  } else {
+
+	    // get temperature, temperature gradient on + face of cell
+	    // (the 'l' struct has it on the right face)
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
+
+	    // kappa is the spitzer conductivity, which scales as 
+	    // the temperature to the 2.5 power
+	    r.kappa = POW(r.T, 2.5);
+	    // conduction saturation
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+
+	  }
 
 	  dt_est = rho[ELT(i,j,k)] / r.kappa;
 	  dt = min(dt, dt_est);
@@ -138,11 +163,20 @@ int grid::ComputeConductionTimeStep (float &dt) {
 	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
 	  l = r;
 
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j+1,k)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i,j+1,k);
 
-	  r.kappa = POW(r.T, 2.5);
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+	  if(j==GridEnd[1]){
+	    r = cfzero;
+	  } else {
+
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
+	    
+	    r.kappa = POW(r.T, 2.5);
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+	  }
 
 	  dt_est = rho[ELT(i,j,k)] / r.kappa;
 	  dt = min(dt, dt_est);
@@ -158,11 +192,20 @@ int grid::ComputeConductionTimeStep (float &dt) {
 	for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
 	  l = r;
 
-	  r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j,k+1)], 0.50);
-	  r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i,j,k+1);
 
-	  r.kappa = POW(r.T, 2.5);
-	  r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / rho[ELT(i,j,k)]));
+	  if(k==GridEnd[2]){
+	    r = cfzero;
+	  } else {
+
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
+
+	    r.kappa = POW(r.T, 2.5);
+	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+	  }
 
 	  dt_est = rho[ELT(i,j,k)] / r.kappa;
 	  dt = min(dt, dt_est);

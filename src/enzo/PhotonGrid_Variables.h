@@ -25,4 +25,4 @@ int HasRadiation;
 // through with a cumulative optical depth >0.1.
 float MaximumkphIfront;
 int IndexOfMaximumkph;
-
+int OriginalProcessorNumber;

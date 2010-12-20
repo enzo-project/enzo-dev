@@ -136,7 +136,11 @@ int ShearingBoxStratifiedInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &T
                         TopGridData &MetaData);
 #ifdef TRANSFER
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
-			 HierarchyEntry &TopGrid, TopGridData &MetaData);
+			 HierarchyEntry &TopGrid, TopGridData &MetaData,
+			 bool Reinitialize=false);
+int PhotonTestRestartInitialize(FILE *fptr, FILE *Outfptr,
+			       HierarchyEntry &TopGrid, TopGridData &MetaData,
+			       ExternalBoundary &Exterior);
 int FSMultiSourceInitialize(FILE *fptr, FILE *Outfptr,
 			    HierarchyEntry &TopGrid,
 			    TopGridData &MetaData, int local);
@@ -235,6 +239,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ENZO_FAIL("Error opening parameter file.");
   }
  
+  // Clear OutputLog
+
+  FILE *sptr;
+  if ( MyProcessorNumber == ROOT_PROCESSOR ){
+    sptr = fopen("OutputLog", "w");
+    fclose(sptr);
+  }
+
   // Open output file
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -271,9 +283,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // If the problem reads in a restart dump, then skip over the following
  
-  if (ProblemType != 40) {
+  if (ProblemType != 40 && ProblemType != 51) {
  
   // Error check the rank
+    printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
       ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
@@ -316,7 +329,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     TopGrid.ParentGrid        = NULL;  // always true
     TopGrid.NextGridNextLevel = NULL;  // can be reset by initializer
     
-  } // end: if (ProblemType != 40)
+  } // end: if (ProblemType != 40 && ProblemType !=51)
   
   // Call problem initializer
 
@@ -476,6 +489,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #ifdef TRANSFER
   if (ProblemType == 50)
     ret = PhotonTestInitialize(fptr, Outfptr, TopGrid, MetaData);
+#endif /* TRANSFER */
+
+  // 51) PhotonTestRestart
+#ifdef TRANSFER
+  if (ProblemType == 51)
+    ret = PhotonTestRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
+				     Exterior);
 #endif /* TRANSFER */
 
   // 60) Turbulence Simulation.
@@ -840,15 +860,23 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
   }
   
+  // For PhotonTest, using ParallelGridIO, initialize data only after
+  // partitioning grid.  Last argument tells it it's the 2nd pass.
+
+#ifdef TRANSFER 
+  if (ParallelRootGridIO == TRUE && ProblemType == 50)
+    if (PhotonTestInitialize(fptr, Outfptr, TopGrid, MetaData, true) == FAIL)
+      ENZO_FAIL("Error in PhotonTestInitialize(2nd pass).");
+#endif
+
   PrintMemoryUsage("After 2nd pass");
   
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.
  
   if (ParallelRootGridIO == TRUE && ProblemType == 60)
-    if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL) {
+    if (TurbulenceSimulationReInitialize(&TopGrid, MetaData) == FAIL)
       ENZO_FAIL("Error in TurbulenceSimulationReInitialize.");
-    }
   
   if (ProblemType == 106){
     if (TurbulenceInitialize(fptr, Outfptr, TopGrid, MetaData, 1)

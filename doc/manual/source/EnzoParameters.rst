@@ -640,15 +640,47 @@ Hydrodynamic Parameters
 
 ``HydroMethod`` (external)
     This integer specifies the hydrodynamics method that will be used.
-    Currently implemented are: 0 - PPM DE (a direct-Eulerian version of
-    PPM), 1 - PPM LR (a Lagrange-Remap version of PPM), 2 - ZEUS (a
-    Cartesian, 3D version of Stone & Norman). The PPM LR version is not
-    recommended. Note that if ZEUS is selected, it automatically turns
-    off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 3
-    - Runge Kutta third order based MUSCL solvers. 4 - Same as three
-    but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are
-    the additional parameters ``RiemannSolver`` and ``ReconstructionMethod``
-    you want to set. Default: 0
+    Currently implemented are
+
+    ============ ===========================
+    Hydro method Description
+    ============ ===========================
+    0            PPM DE (a direct-Eulerian version of PPM)
+    1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
+    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 
+    3            Runge Kutta third order based MUSCL solvers. 
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set. 
+    ============ ===========================
+
+    Default: 0
+``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
+    This integer specifies the Riemann solver used by the MUSCL solver. Choice of
+
+    ============== ===========================
+    Riemann solver Description
+    ============== ===========================
+    0              FluxReconstruction
+    1              HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
+    2              Marquina
+    3              LLF (Local Lax-Friedrichs)
+    4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    ============== ===========================
+
+    Default: 1 (HLL)
+``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
+    This integer specifies the reconstruction method for the MUSCL solver. Choice of
+
+    ===================== ====================
+    Reconstruction Method Description
+    ===================== ====================
+    0                     PLM (piecewise linear)
+    1                     PPM (piecwise parabolic)
+    2                     CENO
+    3                     WENO3 (Weighted Essentially Non-Oscillating, 3rd order)
+    4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
+    ===================== ====================
+
+    Default: 0 (PLM)
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then

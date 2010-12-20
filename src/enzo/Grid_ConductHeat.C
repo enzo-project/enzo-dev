@@ -115,8 +115,8 @@ int grid::ConductHeat(){
     int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
 
     for (int dim = 0; dim<GridRank; dim++) {
-      GridStart[dim] = 1;
-      GridEnd[dim] = GridDimension[dim]-2;
+      GridStart[dim] = 0;
+      GridEnd[dim] = GridDimension[dim] - 0;
     }
 
     for (k = GridStart[2]; k <= GridEnd[2]; k++) 

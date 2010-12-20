@@ -202,7 +202,7 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
-	int WroteData=1);
+	int WroteData=1, int FOFOnly=FALSE);
 
 #ifdef TASKMAP
 int GetNodeFreeMemory(void);
@@ -481,7 +481,7 @@ Eint32 main(Eint32 argc, char *argv[])
     // Removing it however lets one to restart from a single grid
     // but write parallel root grid io for all new outputs
 
-    if (restart && TopGrid.NextGridThisLevel == NULL) {
+    if (restart && TopGrid.NextGridThisLevel == NULL && !HaloFinderOnly) {
       CommunicationPartitionGrid(&TopGrid, 0);  // partition top grid if necessary
     }
  
@@ -565,7 +565,7 @@ Eint32 main(Eint32 argc, char *argv[])
   if (HaloFinderOnly) {
     InlineHaloFinder = TRUE;
     HaloFinderSubfind = TRUE;
-    FOF(&MetaData, LevelArray);
+    FOF(&MetaData, LevelArray, TRUE, TRUE);
     my_exit(EXIT_SUCCESS);
   }
 

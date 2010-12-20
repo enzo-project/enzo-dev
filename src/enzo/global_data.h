@@ -425,6 +425,7 @@ EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
 
 /* Parameter(s) for embedded python execution */
+EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
 
 /* Parameters to control inline halo finding */
@@ -527,7 +528,10 @@ EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
+EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
+EXTERN float SimpleQ;
+EXTERN float SimpleRampTime;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */
@@ -738,6 +742,8 @@ EXTERN char GlobalPath[MAX_LINE_LENGTH];
 
 #ifdef USE_PYTHON
 EXTERN int NumberOfPythonCalls;
+EXTERN int NumberOfPythonTopGridCalls;
+EXTERN int NumberOfPythonSubcycleCalls;
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;

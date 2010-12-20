@@ -117,7 +117,7 @@ grid::grid()
   }
 
 #ifdef TRANSFER
-  NumberOfPhotonPackages                = 0;
+  NumberOfPhotonPackages = 0;
   PhotonPackages = new PhotonPackageEntry;
   PhotonPackages->NextPackage     = NULL;
   PhotonPackages->PreviousPackage = NULL;

@@ -172,7 +172,7 @@ endif
 #=======================================================================
 
 # Override previous defines with the exception of particle id size
-DEFINES = -DUSE_HDF5 $(ASSEMBLE_IDS_DEFINES)
+DEFINES = -DUSE_HDF5 -DH5_USE_16_API $(ASSEMBLE_IDS_DEFINES)
 
 #-----------------------------------------------------------------------
 # Implicit rules
@@ -224,9 +224,9 @@ DEFINES = -DUSE_HDF5 $(ASSEMBLE_IDS_DEFINES)
 	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
           fi)

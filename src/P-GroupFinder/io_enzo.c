@@ -157,6 +157,10 @@ int enzoFindFiles (char *fname)
     Omega * (3.0 * pow(HUBBLE*HubbleConstantNow, 2) / 8.0 / PI / GRAVITY) *
     pow(BoxSize/HubbleConstantNow*CM_PER_MPC,3) /
     (TopGrid[0] * TopGrid[1] * TopGrid[2]);
+  // Critical density in units of Msun / kpc^3
+  RhoCritical0 = 1.4775867e31 * 
+    ((3 * pow(100 * HubbleConstantNow / 3.086e19, 2)) / (8 * M_PI * GRAVITY));
+
 
   EnzoTimeUnit = CM_PER_MPC * (BoxSize/HubbleConstantNow/(1+initialRedshift)) / 
     EnzoVelocityUnit;
@@ -360,7 +364,7 @@ void enzoCountLocalParticles (char *fname, int files)
   for(i=0; i<files; i++) {
 
     if (i % (files/20) == 0 && ThisTask == 0) {
-      fprintf(stdout, "Read %d out of %d files.\n", i, files);
+      fprintf(stdout, "Read %d out of %d grids.\n", i, files);
       fflush(stdout);
     }
 
@@ -395,7 +399,7 @@ void enzoCountLocalParticles (char *fname, int files)
       MPI_Finalize();
       exit(1);
     }
-    if ((group_id = H5Gopen(h5_file, buf, H5P_DEFAULT)) < 0) {
+    if ((group_id = H5Gopen(h5_file, buf)) < 0) {
       fprintf(stderr, "enzoCountLoadParticles: error opening %s in %s\n", 
 	      buf, filename[i]);
       MPI_Finalize();

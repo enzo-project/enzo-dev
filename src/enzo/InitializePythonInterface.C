@@ -117,6 +117,9 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
     TEMP_PYFLOAT(OmegaMatterNow);
     PyDict_SetItemString(yt_parameter_file, "CosmologyOmegaMatterNow",temp_float);
 
+    TEMP_PYFLOAT(OmegaLambdaNow);
+    PyDict_SetItemString(yt_parameter_file, "CosmologyOmegaLambdaNow",temp_float);
+
     TEMP_PYFLOAT(HubbleConstantNow);
     PyDict_SetItemString(yt_parameter_file, "CosmologyHubbleConstantNow",temp_float);
 
@@ -163,8 +166,29 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   TEMP_PYINT(NumberOfPythonCalls);
   PyDict_SetItemString(yt_parameter_file, "NumberOfPythonCalls", temp_int);
 
+  TEMP_PYINT(NumberOfPythonSubcycleCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonSubcycleCalls", temp_int);
+
+  TEMP_PYINT(NumberOfPythonTopGridCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonTopGridCalls", temp_int);
+
   TEMP_PYFLOAT(CurrentMaximumDensity);
   PyDict_SetItemString(yt_parameter_file, "CurrentMaximumDensity", temp_float);
+
+  TEMP_PYFLOAT(AngularVelocity);
+  PyDict_SetItemString(yt_parameter_file, "AngularVelocity", temp_float);
+
+  TEMP_PYFLOAT(VelocityGradient);
+  PyDict_SetItemString(yt_parameter_file, "VelocityGradient", temp_float);
+
+  TEMP_PYFLOAT(MetaData->dtDataDump);
+  PyDict_SetItemString(yt_parameter_file, "dtDataDump", temp_float);
+
+  TEMP_PYFLOAT(MetaData->TimeLastDataDump);
+  PyDict_SetItemString(yt_parameter_file, "TimeLastDataDump", temp_float);
+
+  TEMP_PYINT(MetaData->WroteData);
+  PyDict_SetItemString(yt_parameter_file, "WroteData", temp_int);
 
   PyObject *tgd_tuple, *tgd0, *tgd1, *tgd2;
   

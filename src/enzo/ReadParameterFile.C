@@ -47,7 +47,6 @@ int ReadListOfFloats(FILE *fptr, int N, float floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime);
 int ReadUnits(FILE *fptr);
-int InitializeCloudyCooling(FLOAT Time);
 int InitializeCosmicRayData();
 int InitializeRateData(FLOAT Time);
 int InitializeEquilibriumCoolData(FLOAT Time);
@@ -423,17 +422,26 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
     ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
-    ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM,
-		  &RadiationFieldLevelRecompute);    
-    ret += sscanf(line, "RadiationShield = %"ISYM,
-		  &RadiationData.RadiationShield);
-    ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM,
-		  &CoolData.f3);
+    ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM, &RadiationFieldLevelRecompute);    
+    ret += sscanf(line, "RadiationShield = %"ISYM, &RadiationData.RadiationShield);
+    ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM, &CoolData.f3);
     ret += sscanf(line, "RadiationSpectrumSlope = %"FSYM, &CoolData.alpha0);
+    ret += sscanf(line, "CoolDataf0to3 = %"FSYM, &CoolData.f0to3);
+    ret += sscanf(line, "RadiationRedshiftOn = %"FSYM, &CoolData.RadiationRedshiftOn);
+    ret += sscanf(line, "RadiationRedshiftOff = %"FSYM, &CoolData.RadiationRedshiftOff);
+    ret += sscanf(line, "RadiationRedshiftFullOn = %"FSYM, &CoolData.RadiationRedshiftFullOn);
+    ret += sscanf(line, "RadiationRedshiftDropOff = %"FSYM, &CoolData.RadiationRedshiftDropOff);
+    ret += sscanf(line, "HydrogenFractionByMass = %"FSYM, &CoolData.HydrogenFractionByMass);
+    ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM, &CoolData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM, &CoolData.NumberOfTemperatureBins);
+    ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
+    ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
+    ret += sscanf(line, "TemperatureStart = %"FSYM, &CoolData.TemperatureStart);
+    ret += sscanf(line, "TemperatureEnd = %"FSYM, &CoolData.TemperatureEnd);
+    ret += sscanf(line, "CoolDataCompXray = %"FSYM, &CoolData.comp_xray);
+    ret += sscanf(line, "CoolDataTempXray = %"FSYM, &CoolData.temp_xray);
+    ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM, &RateData.CaseBRecombination);
     ret += sscanf(line, "PhotoelectricHeating  = %"ISYM, &PhotoelectricHeating);
-
-    if (sscanf(line, "CoolDataParameterFile = %s", dummy) == 1)
-      CoolData.ParameterFilename = dummy;
 
     ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
     ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
@@ -601,7 +609,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
+    ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
+    ret += sscanf(line, "SimpleQ = %"FSYM, &SimpleQ);
+    ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
@@ -786,7 +797,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
 
     /* Embedded Python */
+    ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
+
+#ifdef USE_PYTHON
+    ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
+    ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
+    ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
+#endif
 
     /* Inline halo finder */
 
@@ -1027,6 +1045,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
 	MinimumMassForRefinement[i] /= MassUnits;
       }
+    if (GravitationalConstant > 12.49 && GravitationalConstant < 12.61) {
+      GravitationalConstant = 4.0 * 3.1415926 * 6.6726e-8 * DensityUnits * pow(TimeUnits,2);
+      printf("Gravitational Constant recalculated from 4pi to 4piG in code units\n");
+    }
 
   }
 
@@ -1080,9 +1102,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (MultiSpecies > 0) {
     if (InitializeRateData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeRateData.");
-    }
-    if (InitializeCloudyCooling(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeCloudyCooling.");
     }
   }
  

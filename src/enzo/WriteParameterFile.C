@@ -167,7 +167,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
 
 
+  fprintf(fptr, "PythonTopGridSkip       = %"ISYM"\n", PythonTopGridSkip);
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
+#ifdef USE_PYTHON
+  fprintf(fptr, "NumberOfPythonCalls         = %"ISYM"\n", NumberOfPythonCalls);
+  fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
+  fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
+#endif
+
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
 
@@ -432,11 +439,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiationShield                = %"ISYM"\n", RadiationData.RadiationShield);
   fprintf(fptr, "RadiationSpectrumNormalization = %"GSYM"\n", CoolData.f3);
   fprintf(fptr, "RadiationSpectrumSlope         = %"GSYM"\n", CoolData.alpha0);
+  fprintf(fptr, "CoolDataf0to3                  = %"FSYM"\n", CoolData.f0to3);
+  fprintf(fptr, "RadiationRedshiftOn            = %"FSYM"\n", CoolData.RadiationRedshiftOn);
+  fprintf(fptr, "RadiationRedshiftOff           = %"FSYM"\n", CoolData.RadiationRedshiftOff);
+  fprintf(fptr, "RadiationRedshiftFullOn        = %"FSYM"\n", CoolData.RadiationRedshiftFullOn);
+  fprintf(fptr, "RadiationRedshiftDropOff       = %"FSYM"\n", CoolData.RadiationRedshiftDropOff);
+  fprintf(fptr, "HydrogenFractionByMass         = %"FSYM"\n", CoolData.HydrogenFractionByMass);
+  fprintf(fptr, "DeuteriumToHydrogenRatio       = %"FSYM"\n", CoolData.DeuteriumToHydrogenRatio);
+  fprintf(fptr, "NumberOfTemperatureBins        = %"ISYM"\n", CoolData.NumberOfTemperatureBins);
+  fprintf(fptr, "CoolDataIh2co                  = %"ISYM"\n", CoolData.ih2co);
+  fprintf(fptr, "CoolDataIpiht                  = %"ISYM"\n", CoolData.ipiht);
+  fprintf(fptr, "TemperatureStart               = %"FSYM"\n", CoolData.TemperatureStart);
+  fprintf(fptr, "TemperatureEnd                 = %"FSYM"\n", CoolData.TemperatureEnd);
+  fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
+  fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
-
-  if (CoolData.ParameterFilename != NULL)
-    fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
-
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
@@ -606,8 +623,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StarParticleCreation);
   fprintf(fptr, "BigStarFormation                      = %"ISYM"\n",
 	  BigStarFormation);
+  fprintf(fptr, "BigStarFormationDone                  = %"ISYM"\n",
+	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
+  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+	  SimpleQ);
+  fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
+	  SimpleRampTime);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
@@ -778,7 +801,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
 #ifdef ECUDA
-  fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
+  fprintf(fptr, "UseCUDA = %"ISYM"\n", UseCUDA);
 #endif
 
   /* Poisson Solver */

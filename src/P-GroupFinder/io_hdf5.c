@@ -27,7 +27,7 @@ void ReadParticleFieldHDF5_DOUBLE(hid_t group_id, char *label, int nPart, double
   hsize_t freal_size;
   float 	*temp  = NULL;
 
-  if ((data_id = H5Dopen(group_id, label, H5P_DEFAULT)) < 0) {
+  if ((data_id = H5Dopen(group_id, label)) < 0) {
     fprintf(stderr, "ReadParticleField: cannot read %s\n", label);
     fprintf(stderr, "GROUP_ID = %d, DATA_ID = %d\n", group_id, data_id);
     MPI_Finalize();
@@ -96,7 +96,7 @@ void ReadParticleFieldHDF5_FLOAT(hid_t group_id, char *label, int nPart, float *
   hsize_t freal_size;
   float 	*temp  = NULL;
 
-  if ((data_id = H5Dopen(group_id, label, H5P_DEFAULT)) < 0) {
+  if ((data_id = H5Dopen(group_id, label)) < 0) {
     fprintf(stderr, "ReadParticleField: cannot read %s\n", label);
     fprintf(stderr, "GROUP_ID = %d, DATA_ID = %d\n", group_id, data_id);
     MPI_Finalize();
@@ -164,7 +164,7 @@ void ReadParticleFieldHDF5_INT(hid_t group_id, char *label, int nPart, PINT **da
   hid_t data_id, data_type_id;
   PINT 	*temp  = NULL;
 
-  if ((data_id = H5Dopen(group_id, label, H5P_DEFAULT)) < 0) {
+  if ((data_id = H5Dopen(group_id, label)) < 0) {
     fprintf(stderr, "ReadParticleField: cannot read %s\n", label);
     fprintf(stderr, "GROUP_ID = %d, DATA_ID = %d\n", group_id, data_id);
     MPI_Finalize();

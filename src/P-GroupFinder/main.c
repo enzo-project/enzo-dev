@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <math.h>
 #include <mpi.h>
+#include <hdf5.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -13,6 +14,7 @@
 #include "allvars.h"
 #include "nrsrc/nrutil.h"
 #include "proto.h"
+#include "h5utilities.h"
 
 double LinkLength = 0.1;   /* in terms of mean interparticle seperation */
 int    GroupMinLen= 50;    /*  store only groups in the catalogue 
@@ -60,9 +62,12 @@ int main(int argc, char **argv)
 {
   char input_fname[200];
   char cataloguetxt[200];
+  char scataloguetxt[200];
   char catalogue_fname[200];
   char subhalos_fname[200];
   char particles_fname[200];
+  char particles_fname5[200];
+  char sparticles_fname5[200];
   char parttypes_fname[200];
   char partids_fname[200];
   char subprop_fname[200];
@@ -79,15 +84,15 @@ int main(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &ThisTask);
   MPI_Comm_size(MPI_COMM_WORLD, &NTask);
 
-  if(NTask<=1)
-    {
-      if(ThisTask==0)
-	fprintf(stdout, "Number of processors MUST be a larger than 1.\n");
-      MPI_Finalize(); 
-      exit(1);
-    }
+//  if(NTask<=1)
+//    {
+//      if(ThisTask==0)
+//	fprintf(stdout, "Number of processors MUST be a larger than 1.\n");
+//      MPI_Finalize(); 
+//      exit(1);
+//    }
 
-  if(NTask&1)
+  if(NTask&1 && NTask>1)
     {
       if(ThisTask==0)
 	fprintf(stdout, "Number of processors MUST be a multiple of 2.\n");
@@ -103,7 +108,7 @@ int main(int argc, char **argv)
 	  fprintf(stderr,"<path>      (path)\n");
 	  fprintf(stderr,"<basename>  (basename of snapshot files)\n");
 	  fprintf(stderr,"<num>       (number of snapshot)\n");
-	  fprintf(stderr,"<format>    (0 = GADGET, 1 = Enzo/HDF4)\n");
+	  fprintf(stderr,"<format>    (0 = GADGET, 1 = Enzo/HDF)\n");
 	  fprintf(stderr,"\n\n");
 	}
       MPI_Finalize(); 
@@ -117,7 +122,7 @@ int main(int argc, char **argv)
 
   if (formatType != GADGET && formatType != ENZO) {
     fprintf(stderr, "error: please specify a correct format\n"
-	    "0 = GADGET, 1 = Enzo/HDF4\n");
+	    "0 = GADGET, 1 = Enzo/HDF\n");
     MPI_Finalize();
     exit(1);
   }
@@ -139,6 +144,9 @@ int main(int argc, char **argv)
     sprintf(partids_fname, "%s/groups/groups_%4.4d.ids", path, Snapshot);
     sprintf(catalogue_fname, "%s/groups/groups_%4.4d.fofcat", path, Snapshot);
     sprintf(cataloguetxt, "%s/groups/groups_%4.4d.dat", path, Snapshot);
+    sprintf(scataloguetxt, "%s/groups/subgroups_%4.4d.dat", path, Snapshot);
+    sprintf(particles_fname5, "%s/groups/particles_%4.4d.h5", path, Snapshot);
+    sprintf(sparticles_fname5, "%s/groups/subparticles_%4.4d.h5", path, Snapshot);
     sprintf(subhalos_fname,  "%s/groups/groups_%4.4d.subcat", path, Snapshot);
     sprintf(subprop_fname,   "%s/groups/groups_%4.4d.subprop", path, Snapshot);
     sprintf(fofprop_fname,   "%s/groups/groups_%4.4d.fofprop", path, Snapshot);
@@ -176,32 +184,35 @@ int main(int argc, char **argv)
   /*  adjust_sfr();*/
 
   marking();
- 
-  exchange_shadow();
+
+  if (NTask>1)
+    exchange_shadow();
 
   init_coarse_grid();
   
   link_local_slab(); 
     
-  do
-    {
-      find_minids();
-    }
-  while(link_accross()>0);
+  if (NTask>1)
+    do
+      {
+	find_minids();
+      }
+    while(link_accross()>0);
   
   find_minids();
   
-  stitch_together(); 
+  if (NTask>1)
+    stitch_together(); 
 
   compile_group_catalogue();
 
-#ifdef FOF_ONLY
-  save_groups(particles_fname, catalogue_fname, parttypes_fname, 
-	      partids_fname);
-#else
+  save_groups(particles_fname, particles_fname5, catalogue_fname, 
+	      parttypes_fname, partids_fname, cataloguetxt);
+#ifndef FOF_ONLY
   subfind(particles_fname, catalogue_fname, subhalos_fname, 
-	  parttypes_fname, partids_fname, subprop_fname, fofprop_fname);
-  write_ascii_catalog(catalogue_fname, fofprop_fname, cataloguetxt);
+	  parttypes_fname, partids_fname, subprop_fname, fofprop_fname,
+	  sparticles_fname5, scataloguetxt);
+  //write_ascii_catalog(catalogue_fname, fofprop_fname, cataloguetxt);
 #endif
 
   MPI_Barrier(MPI_COMM_WORLD);
@@ -214,16 +225,25 @@ int main(int argc, char **argv)
 
 
 
-void save_groups(char *particles_fname, char *catalogue_fname,
-		 char *parttypes_fname, char *partids_fname)
+void save_groups(char *particles_fname, char *particles_fname5, 
+		 char *catalogue_fname, char *parttypes_fname, 
+		 char *partids_fname, char *cataloguetxt)
 {
-  FILE   *fd, *fdtypes, *fdids;
-  int    i, gr, offset;
+  FILE   *fd, *fdtypes, *fdids, *fdtxt;
+  int    i, gr, offset, index, dim;
   int    ntot;
   int    head, len;
   char   ctype;
-  float cm[3], mtot, mgas, mstars, sfr, mcloud;	  
+  char   halo_name[200];
+  double *temp;
+  PINT *TempPINT;
+  float cm[3], cmv[3], AM[3], vrms, spin, mtot, mgas, mstars, 
+    sfr, mcloud, mvir, rvir;
   struct particle_data *Pbuf;
+
+  hid_t  file_id, dset_id, dspace_id, group_id;
+  hsize_t hdims[2];
+  herr_t status;
 
   if(ThisTask==0)
     {
@@ -278,6 +298,68 @@ void save_groups(char *particles_fname, char *catalogue_fname,
       fwrite(&ntot, sizeof(int), 1, fdids);
     }
 
+  if (ThisTask == 0) {
+
+    fprintf(stdout, "Saving halo ASCII list to %s\n", cataloguetxt);
+    fprintf(stdout, "Saving halo HDF5 particle list to %s\n", particles_fname5);
+    if ((fdtxt = fopen(cataloguetxt, "w")) == NULL) {
+      printf("can't open file `%s`\n", cataloguetxt );
+      MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
+    }
+
+    // Write header
+
+    float redshift = 1.0 / Time - 1.0;
+    fprintf(fdtxt, "# Scale Factor = %f\n", Time);
+    fprintf(fdtxt, "# Redshift = %f\n", redshift);
+    fprintf(fdtxt, "# Number of halos = %d\n", NgroupsAll);
+    fprintf(fdtxt, "#\n");
+    fprintf(fdtxt, "# Column 1.  Center of mass (x)\n");
+    fprintf(fdtxt, "# Column 2.  Center of mass (y)\n");
+    fprintf(fdtxt, "# Column 3.  Center of mass (z)\n");
+    fprintf(fdtxt, "# Column 4.  Halo number\n");
+    fprintf(fdtxt, "# Column 5.  Number of particles\n");
+    fprintf(fdtxt, "# Column 6.  Halo mass [solar masses]\n");
+    fprintf(fdtxt, "# Column 7.  Virial mass [solar masses]\n");
+    fprintf(fdtxt, "# Column 8.  Stellar mass [solar masses]\n");
+    fprintf(fdtxt, "# Column 9.  Virial radius (r200) [kpc]\n");
+    fprintf(fdtxt, "# Column 10. Mean x-velocity [km/s]\n");
+    fprintf(fdtxt, "# Column 11. Mean y-velocity [km/s]\n");
+    fprintf(fdtxt, "# Column 12. Mean z-velocity [km/s]\n");
+    fprintf(fdtxt, "# Column 13. Velocity dispersion [km/s]\n");
+    fprintf(fdtxt, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+    fprintf(fdtxt, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+    fprintf(fdtxt, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+    fprintf(fdtxt, "# Column 17. Spin parameter\n");
+    fprintf(fdtxt, "#\n");
+    fprintf(fdtxt, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+    fprintf(fdtxt, "#\n");
+    fprintf(fdtxt, "datavar 0 halo_number\n");
+    fprintf(fdtxt, "datavar 1 number_of_particles\n");
+    fprintf(fdtxt, "datavar 2 halo_mass\n");
+    fprintf(fdtxt, "datavar 3 virial_mass\n");
+    fprintf(fdtxt, "datavar 4 stellar_mass\n");
+    fprintf(fdtxt, "datavar 5 virial_radius\n");
+    fprintf(fdtxt, "datavar 6 x_velocity\n");
+    fprintf(fdtxt, "datavar 7 y_velocity\n");
+    fprintf(fdtxt, "datavar 8 z_velocity\n");
+    fprintf(fdtxt, "datavar 9 velocity_dispersion\n");
+    fprintf(fdtxt, "datavar 10 x_angular_momentum\n");
+    fprintf(fdtxt, "datavar 11 y_angular_momentum\n");
+    fprintf(fdtxt, "datavar 12 z_angular_momentum\n");
+    fprintf(fdtxt, "datavar 13 spin\n");
+    fprintf(fdtxt, "\n");
+
+    file_id = H5Fcreate(particles_fname5, H5F_ACC_TRUNC, H5P_DEFAULT, 
+			H5P_DEFAULT);
+    group_id = H5Gcreate(file_id, "/Parameters", 0);
+    writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Redshift", &redshift);
+    writeScalarAttribute(group_id, H5T_NATIVE_DOUBLE, "Scale Factor", &Time);
+    writeScalarAttribute(group_id, H5T_NATIVE_INT, "Number of groups", &NgroupsAll);
+    H5Gclose(group_id);
+
+  } // ENDIF Task 0
+  
 
   for(gr=NgroupsAll-1; gr>=0; gr--)
     {
@@ -308,7 +390,61 @@ void save_groups(char *particles_fname, char *catalogue_fname,
 	      fwrite(&ctype, sizeof(char), 1, fdtypes);
 	    }
 
-	  get_properties(Pbuf, len, &cm[0], &mtot, &mgas, &mstars, &sfr, &mcloud);
+	  get_properties(Pbuf, len, &cm[0], &mtot, &mgas, &mstars, &sfr, &mcloud,
+			 0, &cmv[0], &mvir, &rvir, AM, &vrms, &spin);
+
+	  /* Write to ASCII catalog */
+
+	  fprintf(fdtxt, "%12.6f %12.6f %12.6f %12d %12d %12.6g %12.6g %12.6g "
+		  "%12.6g %12.6g %12.6g %12.6g %12.6g %12.6g %12.6g %12.6g %12.6g\n",
+		  cm[0], cm[1], cm[2], NgroupsAll-1-gr, len, 
+		  mtot, mvir, mstars, rvir, cmv[0], cmv[1], cmv[2], vrms, 
+		  AM[0], AM[1], AM[2], spin);
+
+	  /* Write to HDF5 particle list */
+
+	  temp = (double*) malloc(3*len*sizeof(double));
+	  TempPINT = (PINT*) malloc(len*sizeof(PINT));
+
+	  index = 0;
+	  for (dim = 0; dim < 3; dim++)
+	    for (i = 0; i < len; i++, index++)
+	      temp[index] = Pbuf[i].Pos[dim] / BoxSize;
+	  for (i = 0; i < len; i++)
+	    TempPINT[i] = Pbuf[i].PartID;
+
+	  sprintf(halo_name, "Halo%8.8d", NgroupsAll-1-gr);
+	  group_id = H5Gcreate(file_id, halo_name, 0);
+	  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Total Mass", &mtot);
+	  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Stellar Mass", &mstars);
+	  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Spin parameter", &spin);
+	  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Velocity dispersion", &vrms);
+	  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Center of mass", cm);
+	  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Mean velocity [km/s]", cmv);
+	  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Angular momentum [Mpc * km/s]", AM);
+
+	  hdims[0] = 3;
+	  hdims[1] = (hsize_t) len;
+	  dspace_id = H5Screate_simple(2, hdims, NULL);
+	  dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE, dspace_id,
+			      H5P_DEFAULT);
+	  H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) temp);
+	  H5Sclose(dspace_id);
+	  H5Dclose(dset_id);
+	
+	  hdims[0] = (hsize_t) len;
+	  hdims[1] = 1;
+	  dspace_id = H5Screate_simple(1, hdims, NULL);
+	  dset_id = H5Dcreate(group_id, "Particle ID", HDF5_PINT, dspace_id,
+			      H5P_DEFAULT);
+	  H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*) TempPINT);
+	  H5Sclose(dspace_id);
+	  H5Dclose(dset_id);
+
+	  H5Gclose(group_id);
+
+	  free(temp);
+	  free(TempPINT);
 
 	  free(Pbuf);
 	}
@@ -316,9 +452,11 @@ void save_groups(char *particles_fname, char *catalogue_fname,
 
   if(ThisTask==0)
     {
+      fclose(fdtxt);
       fclose(fd);
       fclose(fdids);
       fclose(fdtypes);
+      H5Fclose(file_id);
       printf("done.\n");
     }
 }
@@ -332,6 +470,19 @@ int get_particles(int dest, int minid, int len, struct particle_data *buf)
   MPI_Status status;
   int i, imin, imax, pp, nlocal, nrecv;
   struct particle_data *localbuf;
+
+  if (NTask == 1) {
+    // No communication required.  Just created an array of particles
+    // from the linked list.
+
+    i = 0;
+    pp = Head[minid - Noffset[ThisTask]];
+    do {
+      buf[i++] = P[pp];
+    } while (pp = Next[pp]);
+
+    return len;
+  } // ENDIF
 
   MPI_Bcast(&minid,  1, MPI_INT, dest, MPI_COMM_WORLD);
   MPI_Bcast(&len,    1, MPI_INT, dest, MPI_COMM_WORLD);
@@ -572,8 +723,14 @@ void compile_group_catalogue(void)
 	  }
     }
 
-  MPI_Allreduce(&Ngroups,  &NgroupsAll, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(&nbound,   &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  if (NTask == 1) {
+    NgroupsAll = Ngroups;
+    Nbound = nbound;
+  }
+  else {
+    MPI_Allreduce(&Ngroups,  &NgroupsAll, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&nbound,   &Nbound, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  }
 
   if(ThisTask==0)
     {
@@ -611,7 +768,10 @@ void compile_group_catalogue(void)
 
   NgroupsList= mymalloc(sizeof(int)*NTask);
 
-  MPI_Allgather(&Ngroups, 1, MPI_INT, NgroupsList, 1, MPI_INT, MPI_COMM_WORLD);
+  if (NTask == 1)
+    NgroupsList[0] = Ngroups;
+  else
+    MPI_Allgather(&Ngroups, 1, MPI_INT, NgroupsList, 1, MPI_INT, MPI_COMM_WORLD);
 
 
   GroupDatAll= mymalloc(NgroupsAll*sizeof(struct gr_data)); 
@@ -1442,6 +1602,10 @@ void write_ascii_catalog(char *catalogue_fname, char *fofprop_fname,
 	      CM[3*i+1] / RootBoxSize[1] + leftEdge[1],
 	      CM[3*i+2] / RootBoxSize[2] + leftEdge[2]);
     fclose(out);
+
+    free(Npart_g);
+    free(Mass);
+    free(CM);
 
   } // ENDIF root task
 

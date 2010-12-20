@@ -364,8 +364,14 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       AllMovedParticles = TotalNumberToMove;
       AllMovedStars = TotalStarsToMove;
 #ifdef USE_MPI
-      CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
-      CommunicationAllReduceValues(&AllMovedStars, 1, MPI_SUM);
+      int ibuffer[2];
+      if (NumberOfProcessors > 1) {
+	ibuffer[0] = AllMovedParticles;
+	ibuffer[1] = AllMovedStars;
+	CommunicationAllReduceValues(ibuffer, 2, MPI_SUM);
+	AllMovedParticles = ibuffer[0];
+	AllMovedStars = ibuffer[1];
+      }
 #endif
 
 #ifdef DEBUG_CCP
