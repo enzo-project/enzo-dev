@@ -159,7 +159,8 @@ public:
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits, FLOAT Time);
+			 float VelocityUnits, FLOAT Time,
+			 bool &MarkedSubgrids);
 
   int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
 		      float Radius);

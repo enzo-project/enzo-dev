@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -407,6 +408,7 @@ void Star::CopyToGrid()
 
 void Star::UpdatePositionVelocity(void)
 {
+  LCAPERF_START("star_UpdatePositionVelocity");
   int i, dim;
   int _id = -1;
   if (CurrentGrid != NULL && type >= 0) { // on local processor and active
@@ -422,6 +424,7 @@ void Star::UpdatePositionVelocity(void)
       vel[dim] = CurrentGrid->ParticleVelocity[dim][_id];
     }
   }
+  LCAPERF_STOP("star_UpdatePositionVelocity");
   return;
 }
 

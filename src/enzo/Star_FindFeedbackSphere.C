@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -36,7 +37,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 			     int &SphereContained, int &SkipMassRemoval,
 			     float DensityUnits, float LengthUnits, 
 			     float TemperatureUnits, float TimeUnits,
-			     float VelocityUnits, FLOAT Time)
+			     float VelocityUnits, FLOAT Time,
+			     bool &MarkedSubgrids)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
@@ -47,10 +49,11 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
     MBHFeedbackThermalRadiusTooSmall;
   float MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, 
-    ColdGasFraction, initialRadius;
+    ColdGasFraction, initialRadius, tdyn_code;
   float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
     ShellVelocity[MAX_DIMENSION];
-  LevelHierarchyEntry *Temp, *Temp2;
+  LevelHierarchyEntry *Temp;
+  HierarchyEntry *Temp2;
 
   /* Get cell width */
 
@@ -65,6 +68,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   StarType = ABS(this->type);
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     AvgVelocity[dim] = 0.0;
+  tdyn_code = StarClusterMinDynamicalTime/(TimeUnits/yr);
 
   // If there is already enough mass from accretion, create it
   // without removing a sphere of material.  It was already done in
@@ -124,22 +128,23 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       ShellVelocity[dim] = 0.0;
 
+    LCAPERF_START("star_FindFeedbackSphere_Zero");
     for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++) {
       Temp = LevelArray[l];
       while (Temp != NULL) {
 
 	/* Zero under subgrid field */
 
-	if (FirstLoop == 1) {
+	if (!MarkedSubgrids) {
 	  Temp->GridData->
 	    ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
-	  Temp2 = LevelArray[l+1];
+	  Temp2 = Temp->GridHierarchyEntry->NextGridNextLevel;
 	  while (Temp2 != NULL) {
 	    Temp->GridData->ZeroSolutionUnderSubgrid(Temp2->GridData, 
 						     ZERO_UNDER_SUBGRID_FIELD);
 	    Temp2 = Temp2->NextGridThisLevel;
 	  }
-	}
+	} // ENDIF !MarkedSubgrids
 
 	/* Sum enclosed mass in this grid */
 
@@ -152,10 +157,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 
       } // END: Grids
 
-      if (l == MAX_DEPTH_OF_HIERARCHY-1)
-	FirstLoop = 0;
-
     } // END: level
+    MarkedSubgrids = true;
+    LCAPERF_STOP("star_FindFeedbackSphere_Zero");
 
     values[0] = ShellMetallicity2;
     values[1] = ShellMetallicity3;
@@ -164,7 +168,9 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       values[4+dim] = ShellVelocity[dim];
 
+    LCAPERF_START("star_FindFeedbackSphere_Sum");
     CommunicationAllSumValues(values, 7);
+    LCAPERF_STOP("star_FindFeedbackSphere_Sum");
 
     ShellMetallicity2 = values[0];
     ShellMetallicity3 = values[1];
@@ -222,8 +228,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	TimeUnits;
       ColdGasFraction = ColdGasMass / (MassEnclosed + float(Mass));
       AccretedMass = ColdGasFraction * StarClusterFormEfficiency * MassEnclosed;
-      SphereTooSmall = DynamicalTime < 
-	StarClusterMinDynamicalTime/(TimeUnits/yr);
+      SphereTooSmall = DynamicalTime < tdyn_code;
       break;
 
     case PopIII_CF:
@@ -283,7 +288,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // t_dyn \propto M_enc^{-1/2} => t_dyn > sqrt(1.0+eps)*lifetime
     // Star cluster
     if (StarType == PopII && LevelArray[level+1] != NULL) {
-      eps_tdyn = sqrt(1.0+epsMass) * StarClusterMinDynamicalTime/(TimeUnits/yr);
+      eps_tdyn = sqrt(1.0+epsMass) * tdyn_code;
       if (DynamicalTime > eps_tdyn) {
 	SphereContained = FALSE;
 	return SUCCESS;
@@ -331,20 +336,19 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     //}
 
 
-    // If there is little cold gas, then give up hope of accreting
-    // more gas and form the star.  If more gas is accreted, another
-    // star particle will form.
-#ifdef UNUSED
-    if (StarType == PopII && 
-	AccretedMass < 0.001*StarClusterMinimumMass) {
+    // If the star hasn't accreted enough mass after a dynamical time,
+    // then turn it on.
+    //#ifdef UNUSED
+    if (StarType == PopII && this->Mass < StarClusterMinimumMass &&
+	Time-this->BirthTime > tdyn_code) {
       if (debug) 
-	printf("star::FindFeedbackSphere: SMALL AccretedMass = %g. "
+	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
-	       AccretedMass, this->Mass, this->Identifier);
+	       (Time-this->BirthTime)*TimeUnits/yr, this->Mass, this->Identifier);
       this->BirthTime = Time;
       this->type = PopII;
     }
-#endif
+    //#endif
 
     deltaZ = Metallicity2 + Metallicity3;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
