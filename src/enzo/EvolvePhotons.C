@@ -42,6 +42,7 @@
 
 /* function prototypes */
 void my_exit(int status);
+int RadiationFieldCalculateRates(FLOAT Time);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 bool local_transport,
 				 int &keep_transporting);
@@ -151,6 +152,11 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     FirstTimeCalled = FALSE;
   }
 #endif
+
+  /* For early termination with a background, calculate background
+     intensities */
+
+  RadiationFieldCalculateRates(PhotonTime+0.5*dtPhoton);
 
   int i, lvl, GridNum;
   grid *Helper;

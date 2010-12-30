@@ -108,11 +108,11 @@ c
       parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
      &           msolar=1.989e33, mh=1.673e-24)
 c
-      if (iradtrans .eq. 0) then
-         write(6,*) 'Radiative transfer required for cluster_maker!'
-         write(6,*) 'Check parameter file.'
-         stop
-      endif
+c      if (iradtrans .eq. 0) then
+c         write(6,*) 'Radiative transfer required for cluster_maker!'
+c         write(6,*) 'Check parameter file.'
+c         stop
+c      endif
 
       ii = np
 c
