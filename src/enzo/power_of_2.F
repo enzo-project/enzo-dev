@@ -4,29 +4,29 @@
 
       integer in, n, m
 
-      if( in < 1 ) then
+      if( in .lt. 1 ) then
         power_of_2 = -1
         return
       end if
 
-      if( in == 1 ) then
+      if( in .eq. 1 ) then
         power_of_2 = 0
         return
       end if
 
-      if( in == 2 ) then
+      if( in .eq. 2 ) then
         power_of_2 = 0
         return
       end if
 
-      if( in > 2 ) then
+      if( in .gt. 2 ) then
 
         power_of_2 = -1
         n = in
 
-        do
+        do while (.true.)
 
-        if( n > 2 ) then
+        if( n .gt. 2 ) then
 
           m = mod(n,2)
 

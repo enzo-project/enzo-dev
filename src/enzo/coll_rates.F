@@ -126,7 +126,7 @@ c     redefine k4 if case B recombination rates are requested
 
 c     set HII recombination rate as either case A or case B
       IF (casebrates.eq.1) THEN
-         IF (T < 1.0d9) then
+         IF (T .lt. 1.0d9) then
             k2 = 4.881357d-6*T**(-1.5d0) 
      &           * (1.d0+1.14813d2*T**(-0.407d0))**(-2.242d0) / kunit
          ELSE
@@ -151,7 +151,7 @@ c     set HII recombination rate as either case A or case B
       
 c     set HeIII recombination rate as either case A or case B
       IF (casebrates.eq.1) THEN
-         IF (T < 1.0d9) then
+         IF (T .lt. 1.0d9) then
             k6 = 7.8155d-5*T**(-1.5d0) 
      &           * (1.d0+2.0189d2*T**(-0.407d0))**(-2.242d0) / kunit
          ELSE

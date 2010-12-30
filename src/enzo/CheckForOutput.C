@@ -65,14 +65,14 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 	           ImplicitProblemABC *ImplicitSolver,
 #endif
-		   int &WroteData, int Restart)
+		   int Restart)
 {
  
   /* Declarations. */
  
   char *Name;
   int i, Number;
-  WroteData = FALSE;
+  MetaData.WroteData = FALSE;
   double SavedCPUTime;
 
   /* Check for output: CPU time-based.  
@@ -91,7 +91,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
   if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
       FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
-      WroteData == FALSE) {
+      MetaData.WroteData == FALSE) {
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     SavedCPUTime = MetaData.CPUTime;
     MetaData.CPUTime = 0.0;
@@ -103,7 +103,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #endif
 		       );
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   } // ENDIF
 
   /* Check for output: restart-based. */
@@ -111,7 +111,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   char *param;
   FILE *pfptr;
 
-  if (Restart == TRUE && WroteData == FALSE) {
+  if (Restart == TRUE && MetaData.WroteData == FALSE) {
 
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
 
@@ -145,7 +145,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       delete [] param;
     } // ENDIF ROOT_PROCESSOR
 
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     return SUCCESS;
   }
     
@@ -174,7 +174,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //     }
 // #endif
 
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: cycle-based. */
@@ -205,7 +205,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: redshift-based. */
@@ -243,7 +243,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
 	  MetaData.CPUTime = SavedCPUTime;
-	  WroteData = TRUE;
+	  MetaData.WroteData = TRUE;
 	}
 
 #ifdef UNUSED
@@ -259,7 +259,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		       TopGrid, MetaData, Exterior);
 
     OutputWhenJetsHaveNotEjected = FALSE;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     my_exit(EXIT_SUCCESS);
 
   }

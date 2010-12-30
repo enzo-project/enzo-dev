@@ -2,13 +2,13 @@
 
       implicit none
 
-      integer :: n1,n2
-      complex :: x(n1,n2), y(n2,n1)
+      integer n1,n2
+      complex x(n1,n2), y(n2,n1)
 
-      integer :: i,j
-      integer :: ii,jj
-      integer :: ib,jb
-      integer :: bs
+      integer i,j
+      integer ii,jj
+      integer ib,jb
+      integer bs
 
       bs = 64
       ib = n1/max(n1/bs,1)

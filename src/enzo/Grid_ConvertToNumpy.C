@@ -15,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -93,6 +94,21 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
         }
+
+	/* Get grid temperature field. */
+	int size = 1;
+	float *temperature;
+	for (dim = 0; dim < GridRank; dim++)
+	  size *= GridDimension[dim];
+	temperature = new float[size];
+	if (this->ComputeTemperatureField(temperature) == FAIL) {
+	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+	}
+	dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+	        3, dims, ENPY_BFLOAT, temperature);
+	dataset->flags &= NPY_OWNDATA;
+	PyDict_SetItemString(grid_data, "Temperature", (PyObject*) dataset);
+	Py_DECREF(dataset);
 
         /* Now we do our particle fields */
 
