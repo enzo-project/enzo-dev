@@ -876,7 +876,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
  
   int dim, gridnum = 0;
- 
+
   HierarchyEntry *CurrentGrid;
   HierarchyEntry *Temp;
  
