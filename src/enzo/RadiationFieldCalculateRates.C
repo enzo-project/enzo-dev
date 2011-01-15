@@ -383,8 +383,30 @@ int RadiationFieldCalculateRates(FLOAT Time)
     }
 
 
+  /* ------------------------------------------------------------------ */
+  /* 14) molecular hydrogen photo-dissociation only with a fit from
+     the Wise & Abel (2005) model, updated for WMAP7, reionization at
+     z=6.8.  Only valid for 6<z<50.  At z>50, set to tiny.  At z<6,
+     set it to CoolData.f3.
+
+     rate is 1.13e-8 * F_LW  (flux in Lyman-Werner bands) */
+
+  if (RadiationFieldType == 14) {
+    float logJ;
+    if (Redshift > 50.0)
+      RateData.k31 = tiny_number;
+    else if (Redshift > 6.0) {
+      logJ = -23.56688 + 4.56213e-1 * (1.0+Redshift) -
+	2.67982e-2 * POW(1.0+Redshift, 2.0) + 
+	5.88234e-4 * POW(1.0+Redshift, 3.0) -
+	5.05576e-6 * POW(1.0+Redshift, 4.0);
+      RateData.k31 = 1.13e8 * 4.0*M_PI*POW(10.0,logJ) * TimeUnits;
+    } else
+      RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+  }
+
 /* ------------------------------------------------------------------ */
-  if (RadiationFieldType < 0 || RadiationFieldType > 12) {
+  if (RadiationFieldType < 0 || RadiationFieldType > 13) {
     ENZO_VFAIL("RadiationFieldType %"ISYM" not recognized.\n", 
 	    RadiationFieldType)
    }
