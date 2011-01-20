@@ -83,7 +83,8 @@ int grid::ComputeHeat (float dedt[]) {
   }
 
   // conversion from CGS to Enzo internal units for de/dt
-  double units = POW(TimeUnits, 3.0)/POW((a*aUnits), 2.0)/POW(LengthUnits, 4.0)/DensityUnits;
+  double units = a * POW(TimeUnits, 3.0) * POW(aUnits, 2.0) / 
+    POW(LengthUnits, 4.0) / DensityUnits;
 
   // for conduction saturation
   double saturation_factor = 4.874e-20 / (DensityUnits * LengthUnits * dx);
