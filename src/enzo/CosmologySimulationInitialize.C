@@ -60,11 +60,13 @@ static char *CosmologySimulationTotalEnergyName      = NULL;
 static char *CosmologySimulationGasEnergyName        = NULL;
 static char *CosmologySimulationParticlePositionName = NULL;
 static char *CosmologySimulationParticleVelocityName = NULL;
+static char *CosmologySimulationParticleDisplacementName = NULL;
 static char *CosmologySimulationParticleMassName     = NULL;
 static char *CosmologySimulationParticleTypeName     = NULL;
 static char *CosmologySimulationVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticleVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticlePositionNames[MAX_DIMENSION];
+static char *CosmologySimulationParticleDisplacementNames[MAX_DIMENSION];
 
 static int   CosmologySimulationSubgridsAreStatic    = TRUE;
  
@@ -134,10 +136,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   HierarchyEntry *Subgrid;
  
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
-    *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
-    *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
-    *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION],
-    *ParticlePositionNames[MAX_DIMENSION];
+    *ParticlePositionName = NULL, *ParticleVelocityName = NULL, 
+    *ParticleDisplacementName = NULL, *ParticleMassName = NULL, 
+    *VelocityNames[MAX_DIMENSION], *ParticleTypeName = NULL, 
+    *ParticlePositionNames[MAX_DIMENSION], *ParticleVelocityNames[MAX_DIMENSION], 
+    *ParticleDisplacementNames[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     VelocityNames[dim] = NULL;
@@ -148,8 +151,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     VelocityNames[dim] = NULL;
     ParticlePositionNames[dim] = NULL;
     ParticleVelocityNames[dim] = NULL;
+    ParticleDisplacementNames[dim] = NULL;
     CosmologySimulationParticlePositionNames[dim] = NULL;
     CosmologySimulationParticleVelocityNames[dim] = NULL;
+    CosmologySimulationParticleDisplacementNames[dim] = NULL;
     CosmologySimulationVelocityNames[dim] = NULL;
   }
  
@@ -211,6 +216,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	== 1) CosmologySimulationParticlePositionName = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocityName = %s", dummy)
 	== 1) CosmologySimulationParticleVelocityName = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacementName = %s", dummy)
+	== 1) CosmologySimulationParticleDisplacementName = dummy;
     if (sscanf(line, "CosmologySimulationParticleMassName = %s", dummy) == 1)
       CosmologySimulationParticleMassName = dummy;
     if (sscanf(line, "CosmologySimulationParticleTypeName = %s", dummy) == 1)
@@ -226,7 +233,13 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (sscanf(line, "CosmologySimulationParticleVelocity2Name = %s", dummy) == 1)
       CosmologySimulationParticleVelocityNames[1] = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocity3Name = %s", dummy) == 1)
-      CosmologySimulationParticleVelocityNames[2] = dummy;    
+      CosmologySimulationParticleVelocityNames[2] = dummy;  
+    if (sscanf(line, "CosmologySimulationParticleDisplacement1Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[0] = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacement2Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[1] = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacement3Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[2] = dummy;  
 
     ret += sscanf(line, "CosmologySimulationNumberOfInitialGrids = %"ISYM,
 		  &CosmologySimulationNumberOfInitialGrids);
@@ -326,6 +339,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (CosmologySimulationDensityName == NULL &&
       (CosmologySimulationParticlePositionName == NULL &&
        CosmologySimulationParticlePositionNames[0] == NULL &&
+       CosmologySimulationParticleDisplacementName == NULL &&
+       CosmologySimulationParticleDisplacementNames[0] == NULL &&
        !CosmologySimulationCalculatePositions)) {
     ENZO_FAIL("Missing initial data.\n");
   }
@@ -524,6 +539,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (CosmologySimulationParticleVelocityName)
 	sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleVelocityName, gridnum);
+      if (CosmologySimulationParticleDisplacementName)
+ 	sprintf(ParticleDisplacementName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+ 		CosmologySimulationParticleDisplacementName, gridnum);
       if (CosmologySimulationParticleMassName)
 	sprintf(ParticleMassName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleMassName, gridnum);
@@ -537,6 +555,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	if (CosmologySimulationParticlePositionNames[dim])
 	  sprintf(ParticlePositionNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		  CosmologySimulationParticlePositionNames[dim], gridnum);
+	if (CosmologySimulationParticleDisplacementNames[dim])
+	  sprintf(ParticleDisplacementNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		  CosmologySimulationParticleDisplacementNames[dim], gridnum);
       }
  
     } else {
@@ -546,12 +567,14 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       for (dim = 0; dim < MetaData.TopGridRank; dim++)
 	VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
       ParticlePositionName   = CosmologySimulationParticlePositionName;
+      ParticleDisplacementName = CosmologySimulationParticleDisplacementName;
       ParticleVelocityName   = CosmologySimulationParticleVelocityName;
       ParticleMassName       = CosmologySimulationParticleMassName;
       ParticleTypeName       = CosmologySimulationParticleTypeName;
       for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-	ParticlePositionNames[dim]   = CosmologySimulationParticlePositionNames[dim];
-	ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
+	ParticlePositionNames[dim] = CosmologySimulationParticlePositionNames[dim];
+	ParticleVelocityNames[dim] = CosmologySimulationParticleVelocityNames[dim];
+	ParticleDisplacementNames[dim] = CosmologySimulationParticleDisplacementNames[dim];
       }
     }
  
@@ -572,9 +595,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       CosmologySimulationInitialTemperature,
 			     DensityName, TotalEnergyName,
 			       GasEnergyName, VelocityNames,
-			       ParticlePositionName, ParticleVelocityName,
-			       ParticleMassName, ParticleTypeName,
-			     ParticlePositionNames, ParticleVelocityNames,
+ 			       ParticlePositionName, ParticleVelocityName, 
+			       ParticleDisplacementName, ParticleMassName, 
+			       ParticleTypeName, ParticlePositionNames, 
+			       ParticleVelocityNames, ParticleDisplacementNames,
 			     SubgridsAreStatic, TotalRefinement,
 			     CosmologySimulationInitialFractionHII,
 			     CosmologySimulationInitialFractionHeII,
@@ -710,11 +734,14 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "CosmologySimulationVelocity3Name        = %s\n",
 	    CosmologySimulationVelocityNames[2]);
     if (CosmologySimulationParticlePositionName)
-    fprintf(Outfptr, "CosmologySimulationParticlePositionName = %s\n",
-	    CosmologySimulationParticlePositionName);
+      fprintf(Outfptr, "CosmologySimulationParticlePositionName = %s\n",
+	      CosmologySimulationParticlePositionName);
     if (CosmologySimulationParticleVelocityName)
-    fprintf(Outfptr, "CosmologySimulationParticleVelocityName = %s\n",
-	    CosmologySimulationParticleVelocityName);
+      fprintf(Outfptr, "CosmologySimulationParticleVelocityName = %s\n",
+	      CosmologySimulationParticleVelocityName);
+    if (CosmologySimulationParticleDisplacementName)
+      fprintf(Outfptr, "CosmologySimulationParticleDisplacementName = %s\n",
+	      CosmologySimulationParticleDisplacementName);
     if (CosmologySimulationParticleMassName)
     fprintf(Outfptr, "CosmologySimulationParticleMassName     = %s\n\n",
 	    CosmologySimulationParticleMassName);
@@ -730,6 +757,12 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationParticleVelocityNames[1]);
     fprintf(Outfptr, "CosmologySimulationParticleVelocity3Name        = %s\n",
 	    CosmologySimulationParticleVelocityNames[2]);
+    fprintf(Outfptr, "CosmologySimulationParticleDisplacement1Name    = %s\n",
+	    CosmologySimulationParticleDisplacementNames[0]);
+    fprintf(Outfptr, "CosmologySimulationParticleDisplacement2Name    = %s\n",
+	    CosmologySimulationParticleDisplacementNames[1]);
+    fprintf(Outfptr, "CosmologySimulationParticleDisplacement3Name    = %s\n",
+	    CosmologySimulationParticleDisplacementNames[2]);
     
     fprintf(Outfptr, "CosmologySimulationNumberOfInitialGrids = %"ISYM"\n",
 	    CosmologySimulationNumberOfInitialGrids);
@@ -790,12 +823,14 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
     *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
+    *ParticleDisplacementName = NULL,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
     *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION], 
-    *ParticlePositionNames[MAX_DIMENSION];
+    *ParticlePositionNames[MAX_DIMENSION], *ParticleDisplacementNames[MAX_DIMENSION];
   
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticlePositionNames[dim] = NULL;
+    ParticleDisplacementNames[dim] = NULL;
     ParticleVelocityNames[dim] = NULL;
     VelocityNames[dim] = NULL;
   }
@@ -823,6 +858,9 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     if (CosmologySimulationParticlePositionName)
       sprintf(ParticlePositionName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticlePositionName, gridnum);
+    if (CosmologySimulationParticleDisplacementName)
+      sprintf(ParticleDisplacementName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+	      CosmologySimulationParticleDisplacementName, gridnum);
     if (CosmologySimulationParticleVelocityName)
       sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticleVelocityName, gridnum);
@@ -839,6 +877,9 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       if (CosmologySimulationParticlePositionNames[dim])
 	sprintf(ParticlePositionNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticlePositionNames[dim], gridnum);
+      if (CosmologySimulationParticleDisplacementNames[dim])
+	sprintf(ParticleDisplacementNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		CosmologySimulationParticleDisplacementNames[dim], gridnum);
     }
  
   } else {
@@ -848,12 +889,14 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
     ParticlePositionName   = CosmologySimulationParticlePositionName;
+    ParticleDisplacementName = CosmologySimulationParticleDisplacementName;
     ParticleVelocityName   = CosmologySimulationParticleVelocityName;
     ParticleMassName       = CosmologySimulationParticleMassName;
     ParticleTypeName       = CosmologySimulationParticleTypeName;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      ParticlePositionNames[dim]   = CosmologySimulationParticlePositionNames[dim];
-      ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
+      ParticleDisplacementNames[dim] = CosmologySimulationParticleDisplacementNames[dim];
+      ParticlePositionNames[dim] = CosmologySimulationParticlePositionNames[dim];
+      ParticleVelocityNames[dim] = CosmologySimulationParticleVelocityNames[dim];
     }
   }
  
@@ -882,8 +925,10 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     DensityName, TotalEnergyName,
 			       GasEnergyName, VelocityNames,
 			       ParticlePositionName, ParticleVelocityName,
+			       ParticleDisplacementName,
 			       ParticleMassName, ParticleTypeName,
 			       ParticlePositionNames, ParticleVelocityNames,
+			       ParticleDisplacementNames,
 			     SubgridsAreStatic, TotalRefinement,
 			     CosmologySimulationInitialFractionHII,
 			     CosmologySimulationInitialFractionHeII,
