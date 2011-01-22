@@ -400,13 +400,13 @@ int RadiationFieldCalculateRates(FLOAT Time)
 	2.67982e-2 * POW(1.0+Redshift, 2.0) + 
 	5.88234e-4 * POW(1.0+Redshift, 3.0) -
 	5.05576e-6 * POW(1.0+Redshift, 4.0);
-      RateData.k31 = 1.13e8 * 4.0*M_PI*POW(10.0,logJ) * TimeUnits;
+      RateData.k31 = 1.13e8 * POW(10.0,logJ) * TimeUnits;  //*4.0*M_PI
     } else
       RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
   }
 
 /* ------------------------------------------------------------------ */
-  if (RadiationFieldType < 0 || RadiationFieldType > 13) {
+  if (RadiationFieldType < 0 || RadiationFieldType > 14) {
     ENZO_VFAIL("RadiationFieldType %"ISYM" not recognized.\n", 
 	    RadiationFieldType)
    }
