@@ -322,6 +322,7 @@ public:
 /* Return time, timestep */
 
    FLOAT ReturnTime() {return Time;};
+   FLOAT ReturnOldTime() {return OldTime;};
    float ReturnTimeStep() {return dtFixed;};
 
   /* Return, set grid ID */
