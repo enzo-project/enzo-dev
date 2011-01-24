@@ -1226,9 +1226,10 @@ c -------------------------------------------------------------------
             H2dmag = abs(H2delta)/(
      &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
      &                    + k13(i) * H2I(i,j,k)/2.0d0))
-            tau = (H2dmag/1e-5)**-1.0d0
-            tau = max(tau, 1.e-5)
-            atten = min((1.-exp(-tau))/tau,1.0)
+!            tau = (H2dmag/1e-5)**-1.0d0
+!            tau = max(tau, 1.e-5)
+!            atten = min((1.-exp(-tau))/tau,1.0)
+            atten = 1.0
             edot(i) = edot(i) + chunit * H2delta * atten
 !     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
 !     &                    - k23(i) * H2I(i,j,k))
