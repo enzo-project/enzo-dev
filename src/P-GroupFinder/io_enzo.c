@@ -185,9 +185,11 @@ int enzoFindFiles (char *fname)
 	      "\t right edge = (%f, %f, %f)\n",
 	      finestStaticLevel+1, leftEdge[0], leftEdge[1], leftEdge[2],
 	      rightEdge[0], rightEdge[1], rightEdge[2]);
-      BoxSize *= (rightEdge[0] - leftEdge[0]);
     }
   }
+
+  if (finestStaticLevel != -1)
+    BoxSize *= (rightEdge[0] - leftEdge[0]);
 
   /******* Get number of files and particles from .hierarchy file *******/
 
@@ -443,15 +445,6 @@ void enzoCountLocalParticles (char *fname, int files)
       slab = (int) ((pos[0][n]-leftEdge[0])/(rightEdge[0]-leftEdge[0])*NTask);
       PbufPlace = Nlocal_in_file;
       Nslab_local[slab]++;
-      Pbuf_local[PbufPlace].Pos[0] = 0;
-	
-      if ((pos[0][n]-leftEdge[0])*BoxSize / (rightEdge[0]-leftEdge[0]) < 
-	  slab*BoxSize/NTask + SearchRadius)
-	NtoLeft_local[slab]++; 
-
-      if ((pos[0][n]-leftEdge[0])*BoxSize / (rightEdge[0]-leftEdge[0]) > 
-	  (slab+1)*BoxSize/NTask - SearchRadius)
-	NtoRight_local[slab]++; 
 
       for (dim = 0; dim < 3; dim++) {
 	Pbuf_local[PbufPlace].Pos[dim] = (pos[dim][n] - leftEdge[dim]) * 
@@ -460,6 +453,15 @@ void enzoCountLocalParticles (char *fname, int files)
 	  vel[dim][n] * EnzoVelocityUnit / UnitVelocity_in_cm_per_s;
       }  // ENDFOR dimension
 	
+	
+      if (Pbuf_local[PbufPlace].Pos[0] <
+	  slab*BoxSize/NTask + SearchRadius)
+	NtoLeft_local[slab]++; 
+
+      if (Pbuf_local[PbufPlace].Pos[0] > 
+	  (slab+1)*BoxSize/NTask - SearchRadius)
+	NtoRight_local[slab]++; 
+
       Pbuf_local[PbufPlace].Mass =
 	mass[n] * EnzoMassUnit / pow(8.0, level[i]) / UnitMass_in_g;
 

@@ -1005,7 +1005,7 @@ void exchange_shadow(void)
 
       if(slab!=ThisTask)
 	MPI_Abort(MPI_COMM_WORLD, 11);
-		  
+
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
       
