@@ -10,6 +10,7 @@
 
  double  SearchRadius;
 
+ int     ParticleTypeInFile;
  PINT    NumPart;   /* total particle number */
  int     *NpartInGrids;
 

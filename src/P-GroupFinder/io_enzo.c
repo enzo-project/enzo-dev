@@ -112,6 +112,7 @@ int enzoFindFiles (char *fname)
     exit(1);
   }
 
+  ParticleTypeInFile = 0;
   for (dim = 0; dim < 3; dim++) {
     leftEdge[dim] = 0.0;
     rightEdge[dim] = 1.0;
@@ -130,6 +131,7 @@ int enzoFindFiles (char *fname)
     sscanf(line, "CosmologyCurrentRedshift = %f", &redshift);
     sscanf(line, "#DataCGSConversionFactor[3] = %lg %*s", &EnzoVelocityUnit);
     sscanf(line, "StaticRefineRegionLevel[%*d] = %d", &staticLevel);
+    sscanf(line, "ParticleTypeInFile = %d", &ParticleTypeInFile);
 
     // Get finest static grid, and only perform analysis there
 
@@ -176,13 +178,15 @@ int enzoFindFiles (char *fname)
 	    "--) Time    = %lg\n"
 	    "--) z       = %f\n",
 	    BoxSize, Omega, OmegaLambda, Time, redshift);
-    if (finestStaticLevel != -1)
+    if (finestStaticLevel != -1) {
       fprintf(stdout, "Looking only in finest grid:\n"
 	      "\t level %d\n"
 	      "\t left edge  = (%f, %f, %f)\n"
 	      "\t right edge = (%f, %f, %f)\n",
 	      finestStaticLevel+1, leftEdge[0], leftEdge[1], leftEdge[2],
 	      rightEdge[0], rightEdge[1], rightEdge[2]);
+      BoxSize *= (rightEdge[0] - leftEdge[0]);
+    }
   }
 
   /******* Get number of files and particles from .hierarchy file *******/
@@ -256,6 +260,7 @@ void enzoCountLocalParticles (char *fname, int files)
   float          ln2 = log(2.0);
   double 	*pos[3];
   float         *vel[3], *mass;
+  int           *ptype;
 
   // Particle HDF labels
   char *ParticlePositionLabel[] = 
@@ -264,6 +269,7 @@ void enzoCountLocalParticles (char *fname, int files)
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleMassLabel = "particle_mass";
   char *ParticleIDLabel = "particle_index";
+  char *ParticleTypeLabel = "particle_type";
 
   // HDF variables
 #ifdef USE_HDF4
@@ -390,6 +396,8 @@ void enzoCountLocalParticles (char *fname, int files)
     ReadParticleField_FLOAT32(sd_id, ParticleMassLabel, NpartInGrids[i],
 			      &mass);
     ReadParticleField_INT(sd_id, ParticleIDLabel, NpartInGrids[i], &id);
+    if (ParticleTypeInFile == 1)
+      ReadParticleField_INT(sd_id, ParticleTypeLabel, NpartInGrids[i], &ptype);
 #endif
 
 #ifdef USE_HDF5
@@ -413,6 +421,9 @@ void enzoCountLocalParticles (char *fname, int files)
     }  // ENDFOR dimension
     ReadParticleFieldHDF5_FLOAT(group_id, ParticleMassLabel, NpartInGrids[i], &mass);
     ReadParticleFieldHDF5_INT(group_id, ParticleIDLabel, NpartInGrids[i], &id);
+    if (ParticleTypeInFile == 1)
+      ReadParticleFieldHDF5_INT(group_id, ParticleTypeLabel, NpartInGrids[i], 
+				&ptype);
 #endif
 
     for(n=0; n<NpartInGrids[i]; n++) {
@@ -453,7 +464,10 @@ void enzoCountLocalParticles (char *fname, int files)
 	mass[n] * EnzoMassUnit / pow(8.0, level[i]) / UnitMass_in_g;
 
       Pbuf_local[PbufPlace].PartID 	= id[n];
-      Pbuf_local[PbufPlace].Type 	= 1;
+      if (ParticleTypeInFile == 1)
+	Pbuf_local[PbufPlace].Type 	= ptype[n];
+      else
+	Pbuf_local[PbufPlace].Type 	= 1;
       Pbuf_local[PbufPlace].Mfs 	= 0;
       Pbuf_local[PbufPlace].Sfr 	= 0;
       Pbuf_local[PbufPlace].Energy 	= 0;
@@ -485,6 +499,8 @@ void enzoCountLocalParticles (char *fname, int files)
     }
     free(id);
     free(mass);
+    if (ParticleTypeInFile == 1)
+      free(ptype);
     
     filecount_local++;
 

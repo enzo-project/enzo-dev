@@ -110,6 +110,7 @@ extern struct  gr_data
 } *GroupDat, *GroupDatAll;
 
 extern int    Nx,Ny,Nz;
+extern int    ParticleTypeInFile;
 
 /* Quantities for all particles */
 
