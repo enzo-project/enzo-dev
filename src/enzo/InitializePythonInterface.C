@@ -104,7 +104,8 @@ int FinalizePythonInterface()
 #define TEMP_PYFLOAT(A) Py_XDECREF(temp_float); temp_float = PyFloat_FromDouble((double) A);
 #define TEMP_PYSTRING(A) Py_XDECREF(temp_string); temp_string = PyString_FromString(A);
 
-void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime)
+void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, 
+			 float dtFixed)
 {
   /* We need: */
 
@@ -174,6 +175,9 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
 
   TEMP_PYFLOAT(OldTime);
   PyDict_SetItemString(yt_parameter_file, "OldTime", temp_float);
+
+  TEMP_PYFLOAT(dtFixed);
+  PyDict_SetItemString(yt_parameter_file, "dtFixed", temp_float);
 
   TEMP_PYINT(ComovingCoordinates);
   PyDict_SetItemString(yt_parameter_file, "ComovingCoordinates", temp_int);

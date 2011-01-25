@@ -29,7 +29,7 @@
 int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid, 
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
-void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime);
+void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime, float dtFixed);
 void CommunicationBarrier();
 
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
@@ -54,6 +54,7 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     }
 
     FLOAT CurrentTime, OldTime;
+    float dtFixed;
     int num_grids, start_index;
     num_grids = 0; start_index = 1;
 
@@ -76,13 +77,14 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
         Temp2 = Temp2->NextGridThisLevel; /* ugh: find last in linked list */
     CurrentTime = LevelArray[level]->GridData->ReturnTime();
     OldTime = LevelArray[level]->GridData->ReturnOldTime();
+    dtFixed = LevelArray[level]->GridData->ReturnTimeStep();
     if (ExposeDataHierarchy(MetaData, Temp2->GridHierarchyEntry, start_index,
                 CurrentTime, 1, 0, 0) == FAIL) {
         fprintf(stderr, "Error in ExposeDataHierarchy\n");
         return FAIL;
     }
 
-    ExportParameterFile(MetaData, CurrentTime, OldTime);
+    ExportParameterFile(MetaData, CurrentTime, OldTime, dtFixed);
 
     CommunicationBarrier();
     PyRun_SimpleString("user_script.main()\n");
