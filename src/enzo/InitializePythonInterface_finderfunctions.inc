@@ -753,23 +753,8 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "BigStarFormationDone", 21) == 0) {
-        PyObject *rv = PyLong_FromLong((long) BigStarFormationDone);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "BigStarSeparation", 18) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) BigStarSeparation);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "SimpleQ", 8) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) SimpleQ);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "SimpleRampTime", 15) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) SimpleRampTime);
         return rv;
     }
 
@@ -1072,16 +1057,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "PositiveReconstruction", 23) == 0) {
-        PyObject *rv = PyLong_FromLong((long) PositiveReconstruction);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "RiemannSolverFallback", 22) == 0) {
-        PyObject *rv = PyLong_FromLong((long) RiemannSolverFallback);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "RiemannSolver", 14) == 0) {
         PyObject *rv = PyLong_FromLong((long) RiemannSolver);
         return rv;
@@ -1122,11 +1097,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "DivBDampingLength", 18) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) DivBDampingLength);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "UseConstantAcceleration", 24) == 0) {
         PyObject *rv = PyLong_FromLong((long) UseConstantAcceleration);
         return rv;
@@ -1144,11 +1114,6 @@
 
     if (strncmp(parameter_name, "StringKick", 11) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) StringKick);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "StringKickDimension", 20) == 0) {
-        PyObject *rv = PyLong_FromLong((long) StringKickDimension);
         return rv;
     }
 
@@ -1450,11 +1415,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "RadiationPressureScale", 23) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) RadiationPressureScale);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "RadiativeTransferOpticallyThinH2", 33) == 0) {
         PyObject *rv = PyLong_FromLong((long) RadiativeTransferOpticallyThinH2);
         return rv;
@@ -1500,10 +1460,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "RadiativeTransferFluxBackgroundLimit", 37) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) RadiativeTransferFluxBackgroundLimit);
-        return rv;
-    }
 #ifdef MEMORY_POOL
 #endif /* MEMORY_POOL */ 
 
@@ -1634,5 +1590,10 @@
 
     if (strncmp(parameter_name, "ConductionCourantSafetyNumber", 30) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) ConductionCourantSafetyNumber);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "StarMassEjectionFraction", 24) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) StarMassEjectionFraction);
         return rv;
     }
