@@ -291,8 +291,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType != 40 && ProblemType != 51) {
  
-  // Error check the rank
-    printf("This should only run if not a restart!");
+    // Error check the rank
+    //printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
       ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
