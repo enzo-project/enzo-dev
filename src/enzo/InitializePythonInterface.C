@@ -173,6 +173,9 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
   TEMP_PYFLOAT(CurrentTime);
   PyDict_SetItemString(yt_parameter_file, "InitialTime", temp_float);
 
+  TEMP_PYFLOAT(MetaData->StopTime);
+  PyDict_SetItemString(yt_parameter_file, "StopTime", temp_float);
+
   TEMP_PYFLOAT(OldTime);
   PyDict_SetItemString(yt_parameter_file, "OldTime", temp_float);
 
