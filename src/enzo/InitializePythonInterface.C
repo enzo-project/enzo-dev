@@ -41,7 +41,26 @@ int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid,
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
 
+static PyObject *_parameterFindingError;
+
+static PyObject *PyGetEnzoParameter(PyObject *obj, PyObject *args)
+{
+
+    char *parameter_name;
+
+    if (!PyArg_ParseTuple(args, "s", &parameter_name))
+        return PyErr_Format(_parameterFindingError,
+                    "FindBindingEnergy: Invalid parameters.");
+
+    fprintf(stderr, "Looking for %s\n", parameter_name);
+#include "InitializePythonInterface_finderfunctions.inc"
+
+    return Py_None;
+    
+}
+
 static PyMethodDef _EnzoModuleMethods[] = {
+  {"get_parameter", PyGetEnzoParameter, METH_VARARGS},
   {NULL, NULL, 0, NULL}
 };
 
@@ -66,6 +85,8 @@ int InitializePythonInterface(int argc, char *argv[])
   PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
   PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
   PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
+  _parameterFindingError = PyErr_NewException("enzo.ParameterFindingError", NULL, NULL);
+  PyDict_SetItemString(enzo_module_dict, "ParameterFindingError", _parameterFindingError);
   import_array1(FAIL);
   if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
   if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
