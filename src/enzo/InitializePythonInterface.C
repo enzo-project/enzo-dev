@@ -166,6 +166,12 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   TEMP_PYINT(NumberOfPythonCalls);
   PyDict_SetItemString(yt_parameter_file, "NumberOfPythonCalls", temp_int);
 
+  TEMP_PYINT(NumberOfPythonSubcycleCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonSubcycleCalls", temp_int);
+
+  TEMP_PYINT(NumberOfPythonTopGridCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonTopGridCalls", temp_int);
+
   TEMP_PYFLOAT(CurrentMaximumDensity);
   PyDict_SetItemString(yt_parameter_file, "CurrentMaximumDensity", temp_float);
 

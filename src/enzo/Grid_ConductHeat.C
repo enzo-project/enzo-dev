@@ -61,27 +61,15 @@ int grid::ConductHeat(){
 
   if (HydroMethod==Zeus_Hydro){
     e = BaryonField[TENum];  // 'total energy' is really gas internal energy in zeus
-  } else {
-
+  } 
+  else {
     if(DualEnergyFormalism){
       e = BaryonField[GENum];  // if DEF, gas energy is really gas energy.
-
-    } else {
-
+    }
+    else {
+      // energy will be calculated below inside time loop.
       e = new float[size];
-
-      // convert total energy into internal energy
-      for (i = 0; i < size; i++) {
-	e[i] = BaryonField[TENum][i] - 0.5*POW(BaryonField[Vel1Num][i], 2.0);
-	if(GridRank > 1)
-	  e[i] -= 0.5*POW(BaryonField[Vel2Num][i], 2.0);
-	if(GridRank > 2)
-	  e[i] -= 0.5*POW(BaryonField[Vel3Num][i], 2.0);
-
-      } 
-
     } // else
-
   } // else(HydroMethod==Zeus_Hydro)
 
   // Sub-cycle, computing and applying heat
@@ -95,6 +83,17 @@ int grid::ConductHeat(){
   Nsub=0;  // number of subcycles
 
   while(dtSoFar < dtFixed){
+
+    // convert total energy into internal energy
+    if(HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0) {
+      for (i = 0; i < size; i++) {
+	e[i] = BaryonField[TENum][i] - 0.5*POW(BaryonField[Vel1Num][i], 2.0);
+	if(GridRank > 1)
+	  e[i] -= 0.5*POW(BaryonField[Vel2Num][i], 2.0);
+	if(GridRank > 2)
+	  e[i] -= 0.5*POW(BaryonField[Vel3Num][i], 2.0);
+      }
+    }
 
     // compute this subcycle timestep
     if (this->ComputeConductionTimeStep(dtSubcycle) == FAIL) {
@@ -115,8 +114,8 @@ int grid::ConductHeat(){
     int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
 
     for (int dim = 0; dim<GridRank; dim++) {
-      GridStart[dim] = 1;
-      GridEnd[dim] = GridDimension[dim]-2;
+      GridStart[dim] = 0;
+      GridEnd[dim] = GridDimension[dim] - 1;
     }
 
     for (k = GridStart[2]; k <= GridEnd[2]; k++) 
@@ -134,6 +133,18 @@ int grid::ConductHeat(){
 		       e[ELT(i,j,k)],dedt[idx], eold, i,j,k,
 		       dtFixed, dtSubcycle);
 	  }
+
+	  // energy needs to be updated here if hydro is PPM
+	  if(HydroMethod != Zeus_Hydro){
+
+	    BaryonField[TENum][idx] = e[idx] + 0.5*POW(BaryonField[Vel1Num][idx], 2.0);
+	    if(GridRank > 1)
+	      BaryonField[TENum][idx] += 0.5*POW(BaryonField[Vel2Num][idx], 2.0);
+	    if(GridRank > 2)
+	      BaryonField[TENum][idx] += 0.5*POW(BaryonField[Vel3Num][idx], 2.0);
+
+	  }
+
 	} // triple for loop
 
     // increment timestep
@@ -143,25 +154,6 @@ int grid::ConductHeat(){
   } // while(dtSoFar < dtFixed)
 
   if(debug1) printf("Grid::ConductHeat:  Nsubcycles = %"ISYM"\n",Nsub);
-
-  // don't forget to update total energy! (PPM, DEF)
-  if(HydroMethod != Zeus_Hydro){
-
-    /* first reset the internal energy in the Total Energy.   */
-    for (i = 0; i < size; i++) 
-      BaryonField[TENum][i] = e[i];
-
-    // Then add kinetic back in.
-    for (i = 0; i < size; i++) {
-      BaryonField[TENum][i] += 0.5*POW(BaryonField[Vel1Num][i], 2.0);
-      if(GridRank > 1)
-	BaryonField[TENum][i] += 0.5*POW(BaryonField[Vel2Num][i], 2.0);
-      if(GridRank > 2)
-	BaryonField[TENum][i] += 0.5*POW(BaryonField[Vel3Num][i], 2.0);
-    } // for (i = 0 ...) 
-
-  } // if(HydroMethod != Zeus_Hydro)
-
 
   if(HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0)
     delete [] e;

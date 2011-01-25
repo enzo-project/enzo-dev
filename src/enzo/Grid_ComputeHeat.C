@@ -28,6 +28,7 @@
 #include "CosmologyParameters.h"
 
 // Function prototypes
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
@@ -41,20 +42,21 @@ int grid::ComputeHeat (float dedt[]) {
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
 
-  this->DebugCheck("ConductHeat");
+  this->DebugCheck("ComputeHeat");
 
   // Some locals
   int DensNum, TENum, GENum, Vel1Num, Vel2Num, Vel3Num;
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
-  float VelocityUnits = 1.0, TimeUnits = 1.0;
+  float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
+  FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho;
   double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
 
-  int size = 1; 
-
-  for (int dim = 0; dim < GridRank; dim++) 
+  int size = 1, grid_index, right_side_index;
+  for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
+  }
 
   float *Temp = new float[size];
   FLOAT dx = CellWidth[0][0];
@@ -69,8 +71,20 @@ int grid::ComputeHeat (float dedt[]) {
     ENZO_FAIL("Error in GetUnits.");
   }
 
+  if (ComovingCoordinates) {
+ 
+    if (CosmologyComputeExpansionFactor(Time, &a, &dadt)
+	== FAIL) {
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+    }
+ 
+    aUnits = 1.0/(1.0 + InitialRedshift);
+ 
+  }
+
   // conversion from CGS to Enzo internal units for de/dt
-  double units = POW(TimeUnits, 3.0)/POW(LengthUnits, 4.0)/DensityUnits;
+  double units = a * POW(TimeUnits, 3.0) * POW(aUnits, 2.0) / 
+    POW(LengthUnits, 4.0) / DensityUnits;
 
   // for conduction saturation
   double saturation_factor = 4.874e-20 / (DensityUnits * LengthUnits * dx);
@@ -122,15 +136,18 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
 	  l = r;
 
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i+1,j,k);
+
 	  if(i == GridEnd[0]){
 	    r = cfzero;
 	  } else {
 
 	    // get temperature, temperature gradient on + face of cell
 	    // (the 'l' struct has it on the right face)
-	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i+1,j,k)], 0.50);
-	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i+1,j,k)], 0.50);
-	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i+1,j,k)];
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
 
 	    // kappa is the spitzer conductivity, which scales as 
 	    // the temperature to the 2.5 power
@@ -141,7 +158,7 @@ int grid::ComputeHeat (float dedt[]) {
 
 	  }
 
-	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
+	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
 	}
       }
     }
@@ -154,20 +171,23 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
 	  l = r;
 
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i,j+1,k);
+
 	  if(j==GridEnd[1]){
 	    r = cfzero;
 	  } else {
 
-	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j+1,k)], 0.50);
-	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i,j+1,k)], 0.50);
-	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j+1,k)];
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
 	    
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
 	    r.dedt = r.kappa*r.dT;
 	  }
 
-	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
+	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
 	}
       }
     }
@@ -180,20 +200,23 @@ int grid::ComputeHeat (float dedt[]) {
 	for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
 	  l = r;
 
+	  grid_index = ELT(i,j,k);
+	  right_side_index = ELT(i,j,k+1);
+
 	  if(k==GridEnd[2]){
 	    r = cfzero;
 	  } else {
 
-	    r.T = POW(Temp[ELT(i,j,k)]*Temp[ELT(i,j,k+1)], 0.50);
-	    r.rho = POW(rho[ELT(i,j,k)]*rho[ELT(i,j,k+1)], 0.50);
-	    r.dT = Temp[ELT(i,j,k)] - Temp[ELT(i,j,k+1)];
+	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
+	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
+	    r.dT = Temp[grid_index] - Temp[right_side_index];
 
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
 	    r.dedt = r.kappa*r.dT;
 	  }
 
-	  dedt[ELT(i,j,k)] += (l.dedt - r.dedt)/rho[ELT(i,j,k)];
+	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
 	}
       }
     }
