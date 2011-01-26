@@ -632,6 +632,14 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
 
+#ifdef NEW_PROBLEM_TYPES
+  if (ProblemType == -978)
+  {
+    /*CurrentProblemType = get_problem_types()[ProblemTypeName];*/
+    CurrentProblemType = select_problem_type(ProblemTypeName);
+    ret = CurrentProblemType->InitializeSimulation(fptr, Outfptr, TopGrid, MetaData);
+  }
+#endif
 
   // Insert new problem intializer here...
 
