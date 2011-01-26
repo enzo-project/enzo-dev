@@ -1,4 +1,3 @@
-
 /***********************************************************************
 /
 /  SUBTRACT ACCRETED MASS FROM CELLS
@@ -59,8 +58,7 @@ int Star::SubtractAccretedMassFromCell(void)
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
   
   /* Find Multi-species fields. */
@@ -71,8 +69,7 @@ int Star::SubtractAccretedMassFromCell(void)
     if (CurrentGrid->IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, 
 				    HeIIINum, HMNum, H2INum, H2IINum, DINum, 
 				    DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
 
   /* Find Metallicity or SNColour field and set flag. */
@@ -82,8 +79,7 @@ int Star::SubtractAccretedMassFromCell(void)
 
   if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -169,6 +165,7 @@ int Star::SubtractAccretedMassFromCell(void)
     CurrentGrid->BaryonField[MetalNum][index] *= factor;
 
   if (MBHColourNum > 0)
+
     CurrentGrid->BaryonField[MBHColourNum][index] *= factor;    
 
   return SUCCESS;

@@ -60,8 +60,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
   /* Deposit baryons to GravitatingMassField in this grid. */
  
   if (Grid->GridData->DepositBaryons(Grid->GridData, TimeMidStep) == FAIL) {
-    fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->DepositBaryons.\n");
   }
  
   /* Recursively deposit baryons in children (at TimeMidStep). */
@@ -69,8 +68,7 @@ int DepositBaryons(HierarchyEntry *Grid, FLOAT When)
   if (Grid->NextGridNextLevel != NULL)
     if (DepositBaryonsChildren(Grid, Grid->NextGridNextLevel, TimeMidStep)
 	== FAIL) {
-      fprintf(stderr, "Error in DepositBaryonsChildren.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositBaryonsChildren.\n");
     }
  
   return SUCCESS;
@@ -98,8 +96,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
  
   if (Grid->GridData->DepositBaryons(DepositGrid->GridData, DepositTime)
       == FAIL) {
-    fprintf(stderr, "Error in grid->DepositBaryons.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->DepositBaryons.\n");
   }
  
   /* Next grid on this level. */
@@ -107,8 +104,7 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
   if (Grid->NextGridThisLevel != NULL)
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridThisLevel,
 			       DepositTime) == FAIL) {
-      fprintf(stderr, "Error in DepositBaryonsChildren(1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositBaryonsChildren(1).\n");
     }
  
   /* Recursively deposit baryons in children. */
@@ -116,8 +112,8 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
   if (Grid->NextGridNextLevel != NULL)
     if (DepositBaryonsChildren(DepositGrid, Grid->NextGridNextLevel,
 			       DepositTime) == FAIL) {
-      fprintf(stderr, "Error in DepositBaryonsChildren(2).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in DepositBaryonsChildren(2).\n");
+
     }
  
   return SUCCESS;

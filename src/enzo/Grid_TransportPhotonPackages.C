@@ -31,6 +31,7 @@
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
+int FindField(int field, int farray[], int numfields);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -53,10 +54,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     return SUCCESS;
 
   if (RadiativeTransfer > 0 && GridRank < 3) {
-    fprintf(stderr, "Grid_TransportPhotonPackage: failed\n");
-    fprintf(stderr, "Grid_TransportPhotonPackage: "
-	    "Transfer in less than 3D is not implemented.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Transfer in less than 3D is not implemented!\n");
   }
 
   if (PhotonPackages->NextPackage == NULL)
@@ -67,8 +65,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
 				       Vel3Num, TENum) == FAIL) {
-    fprintf(stdout, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
   /* Find Multi-species fields. */
@@ -77,8 +74,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       DINum, DIINum, HDINum;
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    fprintf(stdout, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
 
   /* Find radiative transfer fields. */
@@ -91,6 +87,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   if (RadiationPressure)
     IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3);
 
+  int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
+
   /* Get units. */
 
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
@@ -98,8 +96,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
-    fprintf(stdout, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
@@ -126,9 +123,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     for (i = 0; i < NumberOfBaryonFields; i++)
       if (FieldsToInterpolate[i] == TRUE)
 	if (this->ComputeVertexCenteredField(i) == FAIL) {
-	  fprintf(stderr, "Error in grid->ComputeVertexCenteredField "
-		  "(field %"ISYM").\n", i);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error in grid->ComputeVertexCenteredField "
+		  "(field %"ISYM").\n", i)
 	}
 
   count = 0;
@@ -165,8 +161,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 			DensNum, DeNum, HINum, HeINum, HeIINum, H2INum,
 			kphHINum, gammaNum, kphHeINum, 
 			kphHeIINum, kdissH2INum, RPresNum1,
-			RPresNum2, RPresNum3, DeleteMe, PauseMe, DeltaLevel, 
-			LightCrossingTime,
+			RPresNum2, RPresNum3, RaySegNum,
+			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
 			LengthUnits, TimeUnits);
       tcount++;
@@ -245,8 +241,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     // Merge "paused" photons only when all photons have been transported
     if (PP == NULL && PausedPP->NextPackage != NULL) {
       if (this->MergePausedPhotonPackages() == FAIL) {
-	fprintf(stderr, "Error in grid::MergePausedPhotonPackages.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid::MergePausedPhotonPackages.\n");
       }
       // Reset temp pointers
       PP = PhotonPackages->NextPackage;
@@ -286,6 +281,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
 	if (BaryonField[kphHINum][index] > 0) {
+
 	  HasRadiation = TRUE;
 	  break;
 	}

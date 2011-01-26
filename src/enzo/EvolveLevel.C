@@ -96,6 +96,8 @@
 #endif
 #ifdef NEW_PROBLEM_TYPES
 #include "EventHooks.h"
+#else
+void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
 #endif
  
 /* function prototypes */
@@ -215,7 +217,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
+		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -232,7 +234,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[],
 void my_exit(int status);
  
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+               int level, int from_topgrid);
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -371,13 +373,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
+#ifdef TRANSFER
     /* Initialize the radiative transfer */
 
-#ifdef TRANSFER
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 			     dtLevelAbove);
     RadiativeTransferCallFLD(LevelArray, level, MetaData, AllStars, 
 			     ImplicitSolver);
+
+    /* Solve the radiative transfer */
+	
+    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+ 
 #endif /* TRANSFER */
 
     /* trying to clear Emissivity here after FLD uses it, doesn't work */
@@ -401,13 +409,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
 
-    /* Solve the radiative transfer */
-	
-#ifdef TRANSFER
-    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
-    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
-#endif /* TRANSFER */
- 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
@@ -447,8 +448,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComputePotential)
 	if (CheckEnergyConservation(Grids, grid, NumberOfGrids, level,
 				    dtThisLevel) == FAIL) {
-	  fprintf(stderr, "Error in CheckEnergyConservation.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in CheckEnergyConservation.\n");
 	}
 */
 #ifdef SAB
@@ -509,7 +509,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include shock-finding and cosmic ray acceleration */
 
       Grids[grid1]->GridData->ShocksHandler();
- 
+
+      /* Compute and apply thermal conduction. */
+      if(Conduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  fprintf(stderr, "Error in grid->ConductHeat.\n");
+	  return FAIL;
+	}
+      }
+
       /* Gravity: clean up AccelerationField. */
 
       if ((level != MaximumGravityRefinementLevel ||
@@ -601,8 +609,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		      , ImplicitSolver
 #endif
 		      ) == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
     }
 
@@ -617,7 +624,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
-    CallPython(LevelArray, MetaData, level);
+    CallPython(LevelArray, MetaData, level, 0);
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note
@@ -721,7 +728,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* Clean up the sibling list. */
 
-  if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
+  if ((NumberOfGrids >1) || ( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       delete [] SiblingList[grid1].GridList;
     delete [] SiblingList;

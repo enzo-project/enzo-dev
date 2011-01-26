@@ -44,15 +44,13 @@ int grid::AddBaryonsToGravitatingMassField()
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                                        Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
   }
  
   /* Error check. */
  
   if (GravitatingMassField == NULL) {
-    fprintf(stderr, "GravitatingMassField not allocated.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("GravitatingMassField not allocated.\n");
   }
  
   /* Compute Offset between baryon field and GravitatingMassField. */
@@ -62,8 +60,8 @@ int grid::AddBaryonsToGravitatingMassField()
     Offset[dim] = nint((CellLeftEdge[dim][0] -
 			GravitatingMassFieldLeftEdge[dim])/CellWidth[dim][0]);
     if (Offset[dim] < 0) {
-      fprintf(stderr, "Offset[%"ISYM"] = %"ISYM" < 0\n", dim, Offset[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Offset[%"ISYM"] = %"ISYM" < 0\n", dim, Offset[dim])
+
     }
   }
  

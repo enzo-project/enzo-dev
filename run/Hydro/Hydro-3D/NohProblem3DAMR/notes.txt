@@ -1,0 +1,85 @@
+NohProblem3DAMR (See Noh (1987) J. Comp. Phys. 72, 78)
+Tested by: Sam Skillman, 7/19/2010
+Versions Tested:
+Enzo-1.5
+SVN Branch   http://mngrid.ucsd.edu/svn/Enzo/public/trunk
+SVN Revision 3043 
+
+Enzo-2.0
+Mercurial Branch   458103a933ae
+Mercurial Revision enzo-2.0
+-------------------------------------------
+
+The Noh Problem test sets up a a uniform gas of density of 1.0 that
+has a uniform inward radial velocity of 1.0
+
+Noh (1987) J. Comp. Phys. 72, 78 introduced an infinite shock
+reflection problem that has an exact analytical solution. Gas with
+initially uniform density of 1 and zero pressure converges onto the
+origin with a uniform radial velocity of 1 in a unit domain x, y \in
+[0, 1].
+
+In spherical geometry (3D) the postshock density is 64 and in the
+preshock region the density varies as (1 + t/sqrt(x^2 + y^2))^2. All
+other dependencies remain the same as in the 2D case.
+
+We set the initial pressure to be 10^-6 instead of zero for numerical
+reasons. We use reflecting boundaries at x=0 and at y=0 and set up the
+outer boundaries at x=1 and y=1 based on the exact analytical
+solution.  We follow the propagation of the shock until it reaches a
+radius of 2/3 at t=2. At this point we compare our results with
+similar tests performed with other Eulerian numerical schemes, see
+Liska & Wendroff (2003), Section 4.5 in this PDF document or in SIAM
+J. Sci. Comput. 25, 995, 2003. See also Rider (2000),
+J. Comp. Phys. 162, 395 for a discussion of "wall heating" phenomenon
+near the origin that seriously affects the results obtained with
+Lagrangian schemes. Numerically, this is a difficult problem.
+
+Results
+------
+
+Enzo-1.5 : This test problem runs to completion.  We check the
+accuracy by producing a scatter plot of the density as a function of
+radius for all the zones in the simulation as well as only the zones
+along the x=y=z diagonal, and compare them to the analytical result.
+The location of the shock as well as the pre-shock behavior is very
+accurate.  The diagonal zones match up very well near the shock but
+fall below the analytical value of 64 towards the center.  A scatter
+plot of all the zones shows there is larger variation on the
+off-diagonal zones.  By examining a slice of the density in the z=0
+plane, we see that edge effects seem to be playing a role in the
+variation in the post-shock region, artificially raising the density.
+
+Note that Enzo-1.5 requires:
+RightFaceBoundaryCondition  = 4 4 4 //  undefined
+and Enzo-2.0 requires
+RightFaceBoundaryCondition  = 6 6 6 //  undefined
+
+Enzo-2.0 : This test problem currently fails the Enzo-2.0 revision
+mentioned above with an euler: dnu <= 0.
+
+Testing
+------
+
+To run the analysis script to compare to the analytical result, run:
+
+python scripts.py
+
+This produces two plots for each dataset:
+noh3damr_####_Slice_z_Density.png - A slice of the density
+noh3damr_####_density.png - A radial profile of density and comparison to the
+analytical result
+
+Regression Testing
+---------------
+There are three tests:
+noh3damr_image: Tests a fixed resolution image (400x400) of Density to delta's of 5.0e-3
+noh3damr_max: Tests the maximum density value with a delta of 5.0e-3
+noh3damr_radial: Tests density radial profile with the shape to exact accuracy and delta to 5.0e-3
+
+$ ./enzo-1.5 -d NohProblem3DAMR.enzo
+$ enzo_test store enzo-1.5 test_noh3damr.py
+$ rm -rf DD* OutputLog
+$ ./enzo-2.0 -d NohProblem3DAMR.enzo
+$ enzo_test compare enzo-1.5 enzo-2.0 $ test_noh3damr.py
+

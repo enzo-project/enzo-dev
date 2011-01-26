@@ -69,6 +69,7 @@ float grid::ComputeTimeStep()
   float dtExpansion    = huge_number;
   float dtAcceleration = huge_number;
   float dtMHD          = huge_number;
+  float dtConduction   = huge_number;
   int dim, i, result;
  
   /* Compute the field size. */
@@ -332,14 +333,26 @@ float grid::ComputeTimeStep()
     if (dtAcceleration != huge_number)
       dtAcceleration *= 0.5;
   }
- 
-  /* 5) calculate minimum timestep */
+
+  /* 5) Calculate minimum dt due to thermal conduction. */
+
+  if(Conduction){
+    if (this->ComputeConductionTimeStep(dtConduction) == FAIL) {
+      fprintf(stderr, "Error in ComputeConductionTimeStep.\n");
+      return FAIL;
+    }
+    dtConduction *= ConductionCourantSafetyNumber;  // for stability
+    dtConduction *= float(DEFAULT_GHOST_ZONES);     // for subcycling 
+  }
+
+  /* 6) calculate minimum timestep */
  
   dt = min(dtBaryons, dtParticles);
   dt = min(dt, dtMHD);
   dt = min(dt, dtViscous);
   dt = min(dt, dtAcceleration);
   dt = min(dt, dtExpansion);
+  dt = min(dt, dtConduction);
 
 #ifdef TRANSFER
 
@@ -350,8 +363,7 @@ float grid::ComputeTimeStep()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   float mindtNOstars;  // Myr
@@ -383,8 +395,7 @@ float grid::ComputeTimeStep()
     int RPresNum1, RPresNum2, RPresNum3;
     if (IdentifyRadiationPressureFields(RPresNum1, RPresNum2, RPresNum3) 
 	== FAIL) {
-      fprintf(stdout, "Error in IdentifyRadiationPressureFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyRadiationPressureFields.\n");
     }
 
     for (i = 0; i < size; i++)
@@ -418,7 +429,7 @@ float grid::ComputeTimeStep()
 #endif /* TRANSFER */
  
   /* Debugging info. */
- 
+  
   if (debug1) {
     printf("ComputeTimeStep = %"FSYM" (", dt);
     if (HydroMethod != MHD_RK && NumberOfBaryonFields > 0)
@@ -433,6 +444,8 @@ float grid::ComputeTimeStep()
       printf("Acc = %"FSYM" ", dtAcceleration);
     if (NumberOfParticles)
       printf("Part = %"FSYM" ", dtParticles);
+    if (Conduction)
+      printf("Cond = %"FSYM" ",(dtConduction));
     printf(")\n");
   }
  

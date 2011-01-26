@@ -1,9 +1,9 @@
 /***********************************************************************
 /
-/  COMMUNICATION ROUTINE: LOAD BALANCE GRIDS
+/  COMMUNICATION ROUTINE: LOAD BALANCE GRIDS BY RAY TRACING WORK
 /
-/  written by: Greg Bryan
-/  date:       December, 1997
+/  written by: John Wise
+/  date:       September, 2010
 /  modified1:
 /
 /  PURPOSE:
@@ -28,19 +28,32 @@
 #include "TopGridData.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+#include "communication.h"
+#include "CommunicationUtilities.h"
+
+#define LOAD_BALANCE_RATIO 1.05
+#define MIN_LEVEL 1
 
 /* function prototypes */
 
-void WriteListOfFloats(FILE *fptr, int N, float floats[]);
-int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);
+int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
+				int NumberOfSubgrids[] = NULL,
+				int FluxFlag = FALSE,
+				TopGridData* MetaData = NULL);
+double ReturnWallTime(void);
+int FindField(int field, int farray[], int numfields);
+void fpcol(Eflt32 *x, int n, int m, FILE *log_fptr);
+void icol(int *x, int n, int m, FILE *log_fptr);
 
-#define PHOTON_WEIGHT 5.1
+Eint32 _compare(const void * a, const void * b)
+{
+  return ( *(Eflt32*)a - *(Eflt32*)b );
+}
 
-int CommunicationLoadBalancePhotonGrids(HierarchyEntry *GridHierarchyPointer[],
-					int NumberOfGrids)
+int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
-  if (NumberOfProcessors == 1 || NumberOfGrids <= 1)
+  if (NumberOfProcessors == 1)
     return SUCCESS;
 
 #ifdef TRANSFER // nee TRANSFER
@@ -48,119 +61,264 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry *GridHierarchyPointer[],
   if (RadiativeTransfer == FALSE)
     return SUCCESS;
 
+  if (RadiativeTransferLoadBalance == FALSE)
+    return SUCCESS;
+
+  double tt0, tt1;
+#ifdef SYNC_TIMING
+  CommunicationBarrier();
+#endif
+  tt0 = ReturnWallTime();
+
   /* Initialize */
 
-  int i, dim, GridMemory, NumberOfCells, CellsTotal, Particles;
+  float *ComputeTime[MAX_DEPTH_OF_HIERARCHY];
+  int *NewProcessorNumber[MAX_DEPTH_OF_HIERARCHY];
+  char *MoveFlag[MAX_DEPTH_OF_HIERARCHY];
+
+  int i, index, lvl, dim, proc, GridsMoved, TotalNumberOfGrids;
+  int NumberOfBaryonFields;
+  int FieldTypes[MAX_NUMBER_OF_BARYON_FIELDS];
   float AxialRatio, GridVolume;
-  float rad_factor;
-  float *ComputeTime = new float[NumberOfGrids];
   float *ProcessorComputeTime = new float[NumberOfProcessors];
+  Eflt32 *SortedComputeTime = new Eflt32[NumberOfProcessors];
 
-  int *GridRadiation = new int[NumberOfGrids];
-  FLOAT r_photon[MAX_DIMENSION];
-//  for (dim = 0; dim < MAX_DIMENSION; dim++)
-//    r_photon[dim] = new FLOAT[NumberOfGrids];
-  long Nside = (long) ceil(sqrt(NumberOfProcessors / 12.0));
-  long Npix  = 12 * Nside * Nside;
-
+  GridsMoved = 0;
   for (i = 0; i < NumberOfProcessors; i++)
     ProcessorComputeTime[i] = 0;
+
+  TotalNumberOfGrids = 0;
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (NumberOfGrids[lvl] > 0) {
+      ComputeTime[lvl] = new float[NumberOfGrids[lvl]];
+      NewProcessorNumber[lvl] = new int[NumberOfGrids[lvl]];
+      MoveFlag[lvl] = new char[NumberOfGrids[lvl]];
+      TotalNumberOfGrids += NumberOfGrids[lvl];
+    }
   
   /* Compute work for each grid. */
 
-  for (i = 0; i < NumberOfGrids; i++) {
+  NumberOfBaryonFields = Grids[0][0]->GridData->
+    ReturnNumberOfBaryonFields();
+  Grids[0][0]->GridData->ReturnFieldType(FieldTypes);
+  int RaySegNum = FindField(RaySegments, FieldTypes, NumberOfBaryonFields);
 
-    if (GridHierarchyPointer[i]->GridData->RadiationPresent() == TRUE)
-      continue;
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < NumberOfGrids[lvl]; i++) {
 
-    GridHierarchyPointer[i]->GridData->
-      CollectGridInformation(GridMemory, GridVolume, NumberOfCells, 
-			     AxialRatio, CellsTotal, Particles);
-    //    ComputeTime[i] = GridMemory; // roughly speaking
-    ComputeTime[i] = float(NumberOfCells);
+      proc = Grids[lvl][i]->GridData->ReturnProcessorNumber();
+      Grids[lvl][i]->GridData->SetOriginalProcessorNumber(proc);
+      if (MyProcessorNumber == proc)
+	ComputeTime[lvl][i] = Grids[lvl][i]->GridData->
+	  ReturnTotalNumberOfRaySegments(RaySegNum);
+      else
+	ComputeTime[lvl][i] = 0.0;
 
-  /* For grids with radiation and if there exists some radiation
-     source(s), add an additional ComputeTime, find the closest
-     radiation source, and determine the processor by grouping the
-     grids by HEALPIX to reduce the communication of photons. */
-
-    if (GlobalRadiationSources->NextSource != NULL) {
-
-      FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION], Center[MAX_DIMENSION];
-      int Rank, Dims[MAX_DIMENSION];
-      
-      GridHierarchyPointer[i]->GridData->ReturnGridInfo(&Rank,Dims,Left,Right);
-      for (dim = 0; dim < MAX_DIMENSION; dim++)
-	Center[dim] = 0.5 * (Left[dim] + Right[dim]);
-
-      /* Find the closest radiation source and record the r-vector
-	 from the source to the grid center */
-
-      RadiationSourceEntry *RS;
-      RS = GlobalRadiationSources->NextSource;
-      float radius2, delx, dely, delz, min_radius2 = huge_number;
-      int ToProcessor, FromProcessor;
-      long ipix;
-
-      while (RS != NULL) {
-	radius2 = 0;
-	delx = RS->Position[0] - Center[0];
-	dely = RS->Position[1] - Center[1];
-	delz = RS->Position[2] - Center[2];
-	radius2 = delx*delx + dely*dely + delz*delz;
-
-	if (radius2 < min_radius2) {
-	  min_radius2 = radius2;
-	  r_photon[0] = (FLOAT) delx;
-	  r_photon[1] = (FLOAT) dely;
-	  r_photon[2] = (FLOAT) delz;
-	}
-
-	RS = RS->NextSource;
-
-      } // ENDWHILE RADIATION SOURCE
-
-      /* Compute the HEALPIX pixel where this grid exists, and move it
-	 to the corresponding processor if not there */
-
-      if (vec2pix_nest(Nside, r_photon, &ipix) == FAIL) {
-	fprintf(stderr, "Error in vec2pix_nest.\n");
-	ENZO_FAIL("");
-      }
-
-      // Group pixels together according to processor number
-      // i.e. for 12 pixels and np=4 :: 0 0 0 1 1 1 2 2 2 3 3 3
-      ToProcessor = (int)
-	floor(float(ipix) / ((12.0*Nside*Nside) / float(NumberOfProcessors)));
-      FromProcessor = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
-
-      GridHierarchyPointer[i]->GridData->CommunicationMoveGrid(ToProcessor);
-
-      ProcessorComputeTime[ToProcessor] += ComputeTime[i];
-
-//      if (debug) {
-//	fprintf(stdout, "LB[G%"ISYM"]: nside = %"ISYM", ncells = %"ISYM", Center = %"GSYM" %"GSYM" %"GSYM"\n",
-//		i, (int)Nside, NumberOfCells, Center[0], Center[1], Center[2]);
-//	fprintf(stdout, "LB[G%"ISYM"]: r_vec = %"GSYM" %"GSYM" %"GSYM", ipix = %"ISYM", ToProc = %"ISYM"\n",
-//		i, delx, dely, delz, (int)ipix, ToProcessor);
-//      }
-//      if (FromProcessor != ToProcessor) {
-//	if (debug)
-//	  printf("LB[G%"ISYM"]: Moving grid P%"ISYM"->P%"ISYM"\n", i,FromProcessor,ToProcessor);
-//	GridHierarchyPointer[i]->GridData->CommunicationMoveGrid(ToProcessor);
-//      }
-
-    }
+      MoveFlag[lvl][i] = FALSE;
+      NewProcessorNumber[lvl][i] = proc;
 
   } // ENDFOR grids
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
-    printf("LoadBalancePhotons (grids=%"ISYM"): ", NumberOfGrids);
-    WriteListOfFloats(stdout, NumberOfProcessors, ProcessorComputeTime);
+  /* Get total compute time over all processors */
+
+  float *buffer = new float[TotalNumberOfGrids];
+
+  for (lvl = MIN_LEVEL, index = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < NumberOfGrids[lvl]; i++, index++)
+      buffer[index] = ComputeTime[lvl][i];
+
+  CommunicationAllSumValues(buffer, TotalNumberOfGrids);
+
+  for (lvl = MIN_LEVEL, index = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < NumberOfGrids[lvl]; i++, index++) {
+      ComputeTime[lvl][i] = buffer[index];
+      ProcessorComputeTime[NewProcessorNumber[lvl][i]] += buffer[index];
+    }
+
+  delete [] buffer;
+
+//  if (debug)
+//    fpcol(ProcessorComputeTime, NumberOfProcessors, 8, stdout);
+
+  /* Transfer grids from heavily-loaded processors. */
+
+  bool BreakLoop;
+  int Done = FALSE, MinProc, MaxProc = 0;
+  while (!Done) {
+
+    /* Find min and max */
+
+    int FirstNonZero;
+    float MaxVal = 0, MinVal = huge_number;
+    float Mean, Median;
+
+    MaxProc = -1;
+    MinProc = -1;
+    Mean = 0;
+
+    for (i = 0; i < NumberOfProcessors; i++) {
+      Mean += ProcessorComputeTime[i];
+      if (ProcessorComputeTime[i] > MaxVal) {
+	MaxVal = ProcessorComputeTime[i];
+	MaxProc = i;
+      }
+    }
+    for (i = 0; i < NumberOfProcessors; i++) {
+      if (ProcessorComputeTime[i] < MinVal) {
+	MinVal = ProcessorComputeTime[i];
+	MinProc = i;
+      }
+    }
+
+    Mean /= NumberOfProcessors;
+
+    for (i = 0; i < NumberOfProcessors; i++)
+      SortedComputeTime[i] = ProcessorComputeTime[i];
+    qsort(SortedComputeTime, (size_t) NumberOfProcessors, sizeof(Eflt32), 
+	  _compare);
+    FirstNonZero = NumberOfProcessors-1;
+    for (i = 0; i < NumberOfProcessors; i++)
+      if (SortedComputeTime[i] > 0) {
+	FirstNonZero = i;
+	break;
+      }
+    Median = SortedComputeTime[FirstNonZero + (NumberOfProcessors-FirstNonZero)/2];
+
+    if (MaxVal > LOAD_BALANCE_RATIO*MinVal) {
+      /* Find a grid to transfer. */
+
+      for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++) {
+      BreakLoop = false;
+      for (i = 0; i < NumberOfGrids[lvl]; i++) {
+	//proc = GridHierarchyPointer[i]->GridData->ReturnProcessorNumber();
+	proc = NewProcessorNumber[lvl][i];
+	//if (ProcessorComputeTime[proc] > Mean && debug && ComputeTime[lvl][i] > 0)
+	//  printf("P%d / L%d :: grid %d - work = %g, min = %g, max = %g, median = %g\n",
+	//	 MyProcessorNumber, lvl, i, ComputeTime[lvl][i], MinVal, MaxVal, Median);
+	if (ProcessorComputeTime[proc] > Mean && 
+	    ComputeTime[lvl][i] < Mean && ComputeTime[lvl][i] > 0 && 
+	    MoveFlag[lvl][i] == FALSE) {
+
+//	  if (debug)
+//	    printf("\t P%d / L%d :: moving grid %d from %d => %d\n",
+//		   MyProcessorNumber, lvl, i, proc, MinProc);
+ 
+	  NewProcessorNumber[lvl][i] = MinProc;
+	  GridsMoved++;
+ 
+	  /* Update processor compute times. */
+ 
+	  ProcessorComputeTime[proc] -= ComputeTime[lvl][i];
+	  ProcessorComputeTime[MinProc] += ComputeTime[lvl][i];
+	  MoveFlag[lvl][i] = TRUE;
+
+	  BreakLoop = true;
+	  break;
+	}
+      } // ENDFOR grids
+
+      if (BreakLoop) break;
+ 
+      /* If we didn't find an appropriate transfer then quit. */
+ 
+      if (i == NumberOfGrids[lvl])
+	Done = TRUE;
+      
+      } // ENDFOR levels
+
+    } // ENDIF !( load balanced )
+    else {
+      Done = TRUE;
+    }
+    
+  } // ENDWHILE !Done
+
+//  if (debug) {
+//    printf("After load balancing:\n");
+//    fpcol(ProcessorComputeTime, NumberOfProcessors, 8, stdout);
+//  }
+
+  /* Now we know where the grids are going, transfer them. */
+
+  /* Post receives */
+
+  CommunicationReceiveIndex = 0;
+  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+  CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < NumberOfGrids[lvl]; i++) 
+      if (Grids[lvl][i]->GridData->ReturnProcessorNumber() !=
+	  NewProcessorNumber[lvl][i]) {
+      Grids[lvl][i]->GridData->
+	CommunicationMoveGrid(NewProcessorNumber[lvl][i], FALSE, FALSE);
+      MoveFlag[lvl][i] = TRUE;
+    } else {
+      MoveFlag[lvl][i] = FALSE;
+    }
+
+  /* Send grids */
+
+  CommunicationDirection = COMMUNICATION_SEND;
+
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+  for (i = 0; i < NumberOfGrids[lvl]; i++)
+    if (Grids[lvl][i]->GridData->ReturnProcessorNumber() !=
+	NewProcessorNumber[lvl][i]) {
+      if (RandomForcing)  //AK
+	Grids[lvl][i]->GridData->AppendForcingToBaryonFields();
+      Grids[lvl][i]->GridData->
+	CommunicationMoveGrid(NewProcessorNumber[lvl][i], FALSE, FALSE);
+    }
+
+  /* Receive grids */
+
+  if (CommunicationReceiveHandler() == FAIL)
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+
+  /* Update processor numbers */
+  
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+  for (i = 0; i < NumberOfGrids[lvl]; i++) {
+    Grids[lvl][i]->GridData->SetProcessorNumber(NewProcessorNumber[lvl][i]);
+    if (RandomForcing)  //AK
+      Grids[lvl][i]->GridData->RemoveForcingFromBaryonFields();
   }
 
-  delete [] ComputeTime;
+  /* Delete the SubgridMarker buffers on the original processors */
+
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < NumberOfGrids[lvl]; i++)
+      Grids[lvl][i]->GridData->DeleteSubgridMarker();
+
+  /* Unpack the SubgridMarker buffers into grid pointers */
+
+#ifdef UNUSED
+  for (i = 0; i < NumberOfGrids; i++)
+    if (MoveFlag[i])
+      GridHierarchyPointer[i]->GridData->SubgridMarkerPostParallel
+	(AllGrids, AllNumberOfGrids);
+#endif
+
+  CommunicationBarrier();
+
+  if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
+    tt1 = ReturnWallTime();
+    printf("PhotonLoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
+	   "(%lg seconds elapsed)\n", GridsMoved, TotalNumberOfGrids, tt1-tt0);
+  }
+
+  /* Cleanup */
+
   delete [] ProcessorComputeTime;
+  delete [] SortedComputeTime;
+
+  for (lvl = MIN_LEVEL; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (NumberOfGrids[lvl] > 0) {
+      delete [] ComputeTime[lvl];
+      delete [] NewProcessorNumber[lvl];
+      delete [] MoveFlag[lvl];
+    }
 
 #endif /* TRANSFER */
 

@@ -110,6 +110,11 @@ help-config:
 	@echo "      gmake python-yes"
 	@echo "      gmake python-no"
 	@echo
+	@echo "   Set whether to use embedded CVODE solver"
+	@echo
+	@echo "      gmake cvode-yes"
+	@echo "      gmake cvode-no"
+	@echo
 	@echo "   Set whether to perform unigrid communication transpose"
 	@echo
 	@echo "      gmake unigrid-transpose-yes"
@@ -231,39 +236,40 @@ show-config:
 	@echo "   MACHINE: $(MACH_TEXT)"
 	@echo "   MACHINE-NAME: $(CONFIG_MACHINE)"
 	@echo
-	@echo "   PARAMETER_MAX_SUBGRIDS:       $(PARAMETER_MAX_SUBGRIDS)"
-	@echo "   PARAMETER_MAX_BARYONS:        $(PARAMETER_MAX_BARYONS)"
-	@echo "   PARAMETER_MAX_TASKS_PER_NODE: $(PARAMETER_MAX_TASKS_PER_NODE)"
-	@echo "   PARAMETER_MEMORY_POOL_SIZE:   $(PARAMETER_MEMORY_POOL_SIZE)"
+	@echo "   PARAMETER_MAX_SUBGRIDS  [max-subgrids-###]                : $(PARAMETER_MAX_SUBGRIDS)"
+	@echo "   PARAMETER_MAX_BARYONS  [max-baryons-###]                  : $(PARAMETER_MAX_BARYONS)"
+	@echo "   PARAMETER_MAX_TASKS_PER_NODE  [max-tasks-per-node-###]    : $(PARAMETER_MAX_TASKS_PER_NODE)"
+	@echo "   PARAMETER_MEMORY_POOL_SIZE  [memory-pool-###]             : $(PARAMETER_MEMORY_POOL_SIZE)"
 	@echo
-	@echo "   CONFIG_PRECISION:             $(CONFIG_PRECISION)"
-	@echo "   CONFIG_PARTICLES:             $(CONFIG_PARTICLES)"
-	@echo "   CONFIG_INTEGERS:              $(CONFIG_INTEGERS)" 
-	@echo "   CONFIG_PARTICLE_IDS:          $(CONFIG_PARTICLE_IDS)"
-	@echo "   CONFIG_INITS:                 $(CONFIG_INITS)"
-	@echo "   CONFIG_IO:                    $(CONFIG_IO)"
-	@echo "   CONFIG_USE_MPI:               $(CONFIG_USE_MPI)"
-	@echo "   CONFIG_OBJECT_MODE:           $(CONFIG_OBJECT_MODE)"
-	@echo "   CONFIG_TASKMAP:               $(CONFIG_TASKMAP)"
-	@echo "   CONFIG_PACKED_AMR:            $(CONFIG_PACKED_AMR)"
-	@echo "   CONFIG_PACKED_MEM:            $(CONFIG_PACKED_MEM)"
-	@echo "   CONFIG_LCAPERF:               $(CONFIG_LCAPERF)"
-	@echo "   CONFIG_PAPI:                  $(CONFIG_PAPI)"
-	@echo "   CONFIG_PYTHON:                $(CONFIG_PYTHON)"
-	@echo "   CONFIG_ECUDA:                 $(CONFIG_ECUDA)"
-	@echo "   CONFIG_OOC_BOUNDARY:          $(CONFIG_OOC_BOUNDARY)"
-	@echo "   CONFIG_OPT:                   $(CONFIG_OPT)"
-	@echo "   CONFIG_TESTING:               $(CONFIG_TESTING)"
-	@echo "   CONFIG_TPVEL:                 $(CONFIG_TPVEL)"
-	@echo "   CONFIG_PHOTON:                $(CONFIG_PHOTON)"
-	@echo "   CONFIG_HYPRE:                 $(CONFIG_HYPRE)"
-	@echo "   CONFIG_EMISSIVITY:            $(CONFIG_EMISSIVITY)"
-	@echo "   CONFIG_USE_HDF4:              $(CONFIG_USE_HDF4)"
-	@echo "   CONFIG_NEW_GRID_IO:           $(CONFIG_NEW_GRID_IO)"
-	@echo "   CONFIG_BITWISE_IDENTICALITY:  $(CONFIG_BITWISE_IDENTICALITY)"
-	@echo "   CONFIG_FAST_SIB:              $(CONFIG_FAST_SIB)"
-	@echo "   CONFIG_FLUX_FIX:              $(CONFIG_FLUX_FIX)"
-	@echo "   CONFIG_GRAVITY_4S:            $(CONFIG_GRAVITY_4S)"
+	@echo "   CONFIG_PRECISION  [precision-{32,64}]                     : $(CONFIG_PRECISION)"
+	@echo "   CONFIG_PARTICLES  [particles-{32,64,128}]                 : $(CONFIG_PARTICLES)"
+	@echo "   CONFIG_INTEGERS  [integers-{32,64}]                       : $(CONFIG_INTEGERS)" 
+	@echo "   CONFIG_PARTICLE_IDS  [particle-id-{32,64}]                : $(CONFIG_PARTICLE_IDS)"
+	@echo "   CONFIG_INITS  [inits-{32,64}]                             : $(CONFIG_INITS)"
+	@echo "   CONFIG_IO  [io-{32,64}]                                   : $(CONFIG_IO)"
+	@echo "   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : $(CONFIG_USE_MPI)"
+	@echo "   CONFIG_OBJECT_MODE  [object-mode-{32,64}]                 : $(CONFIG_OBJECT_MODE)"
+	@echo "   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : $(CONFIG_TASKMAP)"
+	@echo "   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : $(CONFIG_PACKED_AMR)"
+	@echo "   CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : $(CONFIG_PACKED_MEM)"
+	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
+	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
+	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
+	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
+	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
+	@echo "   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : $(CONFIG_OPT)"
+	@echo "   CONFIG_TESTING  [testing-{yes,no}]                        : $(CONFIG_TESTING)"
+	@echo "   CONFIG_TPVEL  [tpvel-{yes,no}]]                           : $(CONFIG_TPVEL)"
+	@echo "   CONFIG_PHOTON  [photon-{yes,no}]                          : $(CONFIG_PHOTON)"
+	@echo "   CONFIG_HYPRE  [hypre-{yes,no}]                            : $(CONFIG_HYPRE)"
+	@echo "   CONFIG_EMISSIVITY  [emissivity-{yes,no}]                  : $(CONFIG_EMISSIVITY)"
+	@echo "   CONFIG_USE_HDF4  [use-hdf4-{yes,no}]                      : $(CONFIG_USE_HDF4)"
+	@echo "   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : $(CONFIG_NEW_GRID_IO)"
+	@echo "   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : $(CONFIG_BITWISE_IDENTICALITY)"
+	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
+	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
+	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -303,8 +309,8 @@ max-subgrids-%: suggest-clean
         grep -v PARAMETER_MAX_SUBGRIDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "PARAMETER_MAX_SUBGRIDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep PARAMETER_MAX_SUBGRIDS:
-	@echo
+	$(MAKE)  show-config | grep PARAMETER_MAX_SUBGRIDS; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -314,8 +320,8 @@ max-baryons-%: suggest-clean
         grep -v PARAMETER_MAX_BARYONS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "PARAMETER_MAX_BARYONS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep PARAMETER_MAX_BARYONS:
-	@echo
+	$(MAKE)  show-config | grep PARAMETER_MAX_BARYONS; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -325,8 +331,8 @@ max-tasks-per-node-%: suggest-clean
         grep -v PARAMETER_MAX_TASKS_PER_NODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "PARAMETER_MAX_TASKS_PER_NODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep PARAMETER_MAX_TASKS_PER_NODE:
-	@echo
+	$(MAKE)  show-config | grep PARAMETER_MAX_TASKS_PER_NODE; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -337,8 +343,8 @@ memory-pool-%:
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "PARAMETER_MEMORY_POOL_SIZE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	touch $(TOP_DIR)/src/enzo/enzo.C $(TOP_DIR)/src/enzo/EvolvePhotons.C; \
-	$(MAKE)  show-config | grep PARAMETER_MEMORY_POOL_SIZE:
-	@echo
+	$(MAKE)  show-config | grep PARAMETER_MEMORY_POOL_SIZE; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -354,8 +360,8 @@ machine-%: suggest-clean
            echo; \
 	   echo "   No such machine file "'"'"Make.mach.$*"'"'; \
            echo; \
-        fi
-	@echo
+        fi; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -371,8 +377,8 @@ CONFIG_INTEGERS-%: suggest-clean
 	grep -v CONFIG_INTEGERS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
 	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
 	echo "CONFIG_INTEGERS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_INTEGERS:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_INTEGERS; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -388,8 +394,8 @@ CONFIG_PARTICLE_IDS-%: suggest-clean
 	grep -v CONFIG_PARTICLE_IDS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
 	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
 	echo "CONFIG_PARTICLE_IDS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PARTICLE_IDS:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PARTICLE_IDS; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -405,14 +411,14 @@ CONFIG_PRECISION-%: suggest-clean
         grep -v CONFIG_PRECISION $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PRECISION = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PRECISION:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PRECISION; \
+	echo
 
 #-----------------------------------------------------------------------
 
 VALID_PARTICLES = particles-32 particles-64 particles-128
 .PHONY: $(VALID_PARTICLES)
-.PHONE: particles-%
+.PHONY: particles-%
 
 particles-32:  CONFIG_PARTICLES-32
 particles-64:  CONFIG_PARTICLES-64
@@ -425,8 +431,8 @@ CONFIG_PARTICLES-%: suggest-clean
         grep -v CONFIG_PARTICLES $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PARTICLES = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PARTICLES:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PARTICLES; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -442,8 +448,8 @@ CONFIG_INITS-%: suggest-clean
         grep -v CONFIG_INITS $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_INITS = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_INITS:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_INITS; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -459,8 +465,8 @@ CONFIG_IO-%: suggest-clean
         grep -v CONFIG_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_IO:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_IO; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -476,8 +482,8 @@ CONFIG_USE-MPI-%: suggest-clean
         grep -v CONFIG_USE_MPI $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_USE_MPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_USE_MPI:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_USE_MPI; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -493,8 +499,8 @@ CONFIG_OBJECT-MODE-%: suggest-clean
         grep -v CONFIG_OBJECT_MODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_OBJECT_MODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_OBJECT_MODE; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -510,8 +516,8 @@ CONFIG_TASKMAP-%: suggest-clean
         grep -v CONFIG_TASKMAP $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_TASKMAP = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_TASKMAP:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_TASKMAP; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -527,8 +533,8 @@ CONFIG_PACKED-AMR-%: suggest-clean
         grep -v CONFIG_PACKED_AMR $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PACKED_AMR = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PACKED_AMR:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PACKED_AMR; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -544,8 +550,8 @@ CONFIG_PACKED-MEM-%: suggest-clean
         grep -v CONFIG_PACKED_MEM $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PACKED_MEM = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PACKED_MEM:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PACKED_MEM; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -561,8 +567,8 @@ CONFIG_LCAPERF-%: suggest-clean
         grep -v CONFIG_LCAPERF $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_LCAPERF = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_LCAPERF:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_LCAPERF; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -578,8 +584,8 @@ CONFIG_PAPI-%: suggest-clean
         grep -v CONFIG_PAPI $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PAPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PAPI:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PAPI; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -595,8 +601,25 @@ CONFIG_PYTHON-%: suggest-clean
         grep -v CONFIG_PYTHON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_PYTHON:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_PYTHON; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_CVODE = cvode-yes cvode-no
+.PHONY: $(VALID_CVODE)
+
+cvode-yes: CONFIG_CVODE-yes
+cvode-no: CONFIG_CVODE-no
+cvode-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_CVODE)]\n\n"
+CONFIG_CVODE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_CVODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_CVODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_CVODE; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -613,8 +636,8 @@ CONFIG_ECUDA-%: suggest-clean
         grep -v CONFIG_ECUDA $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_ECUDA = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_ECUDA:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_ECUDA; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -630,8 +653,8 @@ CONFIG_OOC-BOUNDARY-%: suggest-clean
         grep -v CONFIG_OOC_BOUNDARY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_OOC_BOUNDARY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OOC_BOUNDARY:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_OOC_BOUNDARY; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -650,8 +673,8 @@ CONFIG_OPT-%: suggest-clean
         grep -v CONFIG_OPT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_OPT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_OPT:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_OPT; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -667,8 +690,8 @@ CONFIG_TESTING-%: suggest-clean
         grep -v CONFIG_TESTING $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_TESTING = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_TESTING:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_TESTING; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -684,8 +707,8 @@ CONFIG_TPVEL-%: suggest-clean
         grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_TPVEL = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_TPVEL:
-	@echo
+	$(MAKE) show-config | grep CONFIG_TPVEL; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -701,8 +724,9 @@ CONFIG_PHOTON-%: suggest-clean
         grep -v CONFIG_PHOTON $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PHOTON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_PHOTON:
-	@echo
+	$(MAKE) show-config | grep CONFIG_PHOTON; \
+	echo
+
 
 #-----------------------------------------------------------------------
 
@@ -718,8 +742,8 @@ CONFIG_HYPRE-%: suggest-clean
         grep -v CONFIG_HYPRE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_HYPRE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_HYPRE:
-	@echo
+	$(MAKE) show-config | grep CONFIG_HYPRE; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -735,8 +759,8 @@ CONFIG_EMISSIVITY-%:
         grep -v CONFIG_EMISSIVITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_EMISSIVITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_EMISSIVITY:
-	@echo
+	$(MAKE) show-config | grep CONFIG_EMISSIVITY; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -752,8 +776,8 @@ CONFIG_NEW_GRID_IO-%: suggest-clean
         grep -v CONFIG_NEW_GRID_IO $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_NEW_GRID_IO = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_NEW_GRID_IO:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_NEW_GRID_IO; \
+	echo
 
 #-----------------------------------------------------------------------
 
@@ -769,8 +793,8 @@ CONFIG_FAST_SIB-%: suggest-clean
         grep -v CONFIG_FAST_SIB $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_FAST_SIB = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_FAST_SIB:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_FAST_SIB; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -780,15 +804,15 @@ VALID_BITWISE_IDENTICALITY = bitwise-yes bitwise-no
 
 bitwise-yes: CONFIG_BITWISE_IDENTICALITY-yes
 bitwise-no: CONFIG_BITWISE_IDENTICALITY-no
-BITWISE_IDETICALITY-%:
+bitwise-%:
 	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_BITWISE_IDENTICALITY)]\n\n"
 CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	@tmp=.config.temp; \
         grep -v CONFIG_BITWISE_IDENTICALITY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_BITWISE_IDENTICALITY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -805,8 +829,8 @@ CONFIG_FLUX_FIX-%: suggest-clean
         grep -v CONFIG_FLUX_FIX $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_FLUX_FIX = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_FLUX_FIX:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_FLUX_FIX; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -823,8 +847,8 @@ CONFIG_USE-HDF4-%: suggest-clean
         grep -v CONFIG_USE_HDF4 $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_USE_HDF4 = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_USE_HDF4:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_USE_HDF4; \
+	echo
 
 
 #-----------------------------------------------------------------------
@@ -842,8 +866,8 @@ CONFIG_GRAVITY_4S-%: suggest-clean
         grep -v CONFIG_GRAVITY_4S $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRAVITY_4S = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_GRAVITY_4S:
-	@echo
+	$(MAKE)  show-config | grep CONFIG_GRAVITY_4S; \
+	echo
 
 
 #-----------------------------------------------------------------------

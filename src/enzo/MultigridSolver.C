@@ -71,8 +71,7 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
     for (MinDim = Dims[0][depth], dim = 0; dim < Rank; dim++) {
       Dims[dim][depth+1] = (Dims[dim][depth]+1)/2;
 /*      if (Dims[dim][depth+1]*2-1 != Dims[dim][depth]+1) {
-	fprintf(stderr, "Dims[%"ISYM"]=%"ISYM" not of form 2^j+1\n", dim, Dims[dim][0]);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Dims[%"ISYM"]=%"ISYM" not of form 2^j+1\n", dim, Dims[dim][0])
       }
 */
       MinDim = min(Dims[dim][depth+1], MinDim);
@@ -91,13 +90,11 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   /* Error check */
  
   if (depth == MAX_DEPTH) {
-    fprintf(stderr, "Depth(%"ISYM") > MAX_DEPTH\n", depth);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Depth(%"ISYM") > MAX_DEPTH\n", depth)
   }
  
   if (start_depth > bottom) {
-    fprintf(stderr, "Start depth(%"ISYM") > bottom(%"ISYM")!\n", start_depth, bottom);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Start depth(%"ISYM") > bottom(%"ISYM")!\n", start_depth, bottom)
   }
  
   /* Initial smoothing of density field, if requested. */
@@ -237,9 +234,9 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   }
  
   if (tol_check > tolerance) {
-    fprintf(stderr, "Too many iterations (%"ISYM"): tol=%"GSYM", check=%"GSYM"\n", iter,
-	    tolerance, tol_check);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Too many iterations (%"ISYM"): tol=%"GSYM", check=%"GSYM"\n", iter,
+	    tolerance, tol_check)
+
   }
  
   /* Free allocated memory. */

@@ -55,13 +55,11 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
     return SUCCESS;
  
   if (BaryonField[NumberOfBaryonFields] == NULL && level >= 0) {
-    fprintf(stderr, "UNDER_SUBGRID_FLAG field not set.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("UNDER_SUBGRID_FLAG field not set.\n");
   }
  
   if (SelfGravity && GravityResolution != 1) {
-    fprintf(stderr, "ProjectToPlane assumes GravityResolution == 1.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ProjectToPlane assumes GravityResolution == 1.\n");
   }
  
   /* Declarations */
@@ -87,8 +85,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   if (NumberOfBaryonFields > 0)
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
  
   /* Find metallicity field and set flag. */
@@ -145,8 +142,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
   if (ComovingCoordinates) {
     const double SolarMass = 1.989e33, Mpc = 3.0824e24;
@@ -183,8 +179,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
   temperature = new float[size];
   if (NumberOfBaryonFields > 0) {
     if (this->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
     }
  
     /* Set the temperature to zero wherever the baryon density is. */
@@ -431,8 +426,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
 //      if (this->ComputeElementalDensity(temperature, elemental_density, i)
       if (this->ComputeElementalDensity(temperature, elemental_density, 6)
 	  == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeElementalDensity\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeElementalDensity\n");
       }
       FORTRAN_NAME(projplane)(elemental_density, NULL,
                              BaryonField[NumberOfBaryonFields], &One,
@@ -467,6 +461,7 @@ int grid::ProjectToPlane(FLOAT ProjectedFieldLeftEdge[],
 	    break;
 	}
 	if (dim == GridRank)
+
 	  ProjectedField[8][Index[bdim]*ProjectedFieldDims[adim]+Index[adim]]
 	    += ParticleMass[i]*weight;
       }

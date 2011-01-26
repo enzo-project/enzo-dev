@@ -36,8 +36,7 @@ int WriteTaskMap(FILE *fptr, HierarchyEntry *Grid,
   OriginalID = GridID;
  
   if (Grid->GridData->WriteTaskMap(fptr, base_name, GridID) == FAIL) {
-    fprintf(stderr, "Error in grid->WriteTaskMap.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->WriteTaskMap.\n");
   }
 
   NextGridThisLevelID = GridID + 1;
@@ -46,8 +45,7 @@ int WriteTaskMap(FILE *fptr, HierarchyEntry *Grid,
   if (NextGridThisLevelID != 0) {
     GridID++;
     if (WriteTaskMap(fptr, Grid->NextGridThisLevel, base_name, GridID, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteTaskMap(1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteTaskMap(1).\n");
     }
   }
  
@@ -57,8 +55,8 @@ int WriteTaskMap(FILE *fptr, HierarchyEntry *Grid,
   if (NextGridNextLevelID != 0) {
     GridID++;
     if (WriteTaskMap(fptr, Grid->NextGridNextLevel, base_name, GridID, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteTaskMap (1).\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteTaskMap (1).\n");
+
     }
   }
  

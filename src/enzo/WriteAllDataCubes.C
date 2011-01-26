@@ -90,8 +90,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
  
   if (CubeDumpEnabled == 1) {
     if (WriteDataCubes(TempTopGrid, TGdims, name, GridJD, WriteTime) == FAIL) {
-      fprintf(stderr, "Error in WriteDataCubes\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteDataCubes\n");
     }
   }
  
@@ -122,6 +121,7 @@ int WriteAllDataCubes(char *basename, int filenumber,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry)
 {
   if (GridEntry->NextGridThisLevel != NULL)
+
      DeleteGridHierarchy(GridEntry->NextGridThisLevel);
  
   delete GridEntry;

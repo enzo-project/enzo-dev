@@ -49,12 +49,10 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
   /* error check */
  
   if (ZeldovichPancakeDirection < 0 || ZeldovichPancakeDirection >= GridRank) {
-    fprintf(stderr, "ZeldovichPancakeDirection is improperly set.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("ZeldovichPancakeDirection is improperly set.\n");
   }
   if (ZeldovichPancakeOmegaCDMNow != 0) {
-    fprintf(stderr, "Dark matter not yet supported.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Dark matter not yet supported.\n");
   }
  
   /* create fields */
@@ -84,8 +82,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   /* Determine the size of the fields. */
@@ -168,6 +165,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   for (field = vel; field < vel+GridRank; field++)
     if (field != ZeldovichPancakeDirection+vel)
+
       for (i = 0; i < size; i++)
 	BaryonField[field][i] = 0.0;
  

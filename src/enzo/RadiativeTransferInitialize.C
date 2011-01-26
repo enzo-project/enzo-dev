@@ -58,6 +58,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*RadAccel3Name = "RadAccel3";
   const char	*MetalName     = "Metal_Density";
   const char	*ColourName    = "SN_Colour";
+  const char    *RaySegName    = "Ray_Segments";
   const char    *Rad0Name      = "Radiation0";
   const char    *Rad1Name      = "Radiation1";
   const char    *Rad2Name      = "Radiation2";
@@ -70,8 +71,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
-    fprintf(stderr, "Error opening ParameterFile %s\n", ParameterFile);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Error opening ParameterFile %s\n", ParameterFile)
   }
 
   RadiativeTransferReadParameters(fptr);
@@ -96,14 +96,14 @@ int RadiativeTransferInitialize(char *ParameterFile,
 //  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
 //    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 //      if (Temp->GridData->FindNewStarParticles(level) == FAIL) {
-//	fprintf(stderr, "Error in grid::FindStarParticles.\n");
-//	ENZO_FAIL("");
+//	ENZO_FAIL("Error in grid::FindStarParticles.\n");
 //      }
 
   /* If we're restarting from a non-radiative run, create radiation
      fields.  We will check if the field already exists inside the
      grid routine. */
 
+  bool AddedMetallicity = false;
   int OldNumberOfBaryonFields = 0, FieldsToAdd = 0;
   int TypesToAdd[MAX_NUMBER_OF_BARYON_FIELDS];
   int ExistingTypes[MAX_NUMBER_OF_BARYON_FIELDS];
@@ -111,22 +111,32 @@ int RadiativeTransferInitialize(char *ParameterFile,
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
     ExistingTypes[i] = FieldUndefined;
 
-  if (RadiativeTransfer) {
-    TypesToAdd[FieldsToAdd++] = kphHI;
-    TypesToAdd[FieldsToAdd++] = PhotoGamma;
-    if (RadiativeTransferHydrogenOnly == FALSE) {
-      TypesToAdd[FieldsToAdd++] = kphHeI;
-      TypesToAdd[FieldsToAdd++] = kphHeII;
+  if (RadiativeTransfer || StarParticleFeedback) {
+
+    if (RadiativeTransfer) {
+      TypesToAdd[FieldsToAdd++] = kphHI;
+      TypesToAdd[FieldsToAdd++] = PhotoGamma;
+      if (RadiativeTransferHydrogenOnly == FALSE) {
+	TypesToAdd[FieldsToAdd++] = kphHeI;
+	TypesToAdd[FieldsToAdd++] = kphHeII;
+      }
+      if (MultiSpecies > 1)
+	TypesToAdd[FieldsToAdd++] = kdissH2I;
+      if (RadiationPressure)
+	for (i = RadPressure0; i <= RadPressure2; i++)
+	  TypesToAdd[FieldsToAdd++] = i;
+      if (PopIIISupernovaUseColour)
+	TypesToAdd[FieldsToAdd++] = SNColour;
+      if (StarClusterUseMetalField) {
+	TypesToAdd[FieldsToAdd++] = Metallicity;
+	AddedMetallicity = true;
+      }
+      if (RadiativeTransferLoadBalance)
+	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
-    if (MultiSpecies > 1)
-      TypesToAdd[FieldsToAdd++] = kdissH2I;
-    if (RadiationPressure)
-      for (i = RadPressure0; i <= RadPressure2; i++)
-	TypesToAdd[FieldsToAdd++] = i;
-    if (PopIIISupernovaUseColour)
-      TypesToAdd[FieldsToAdd++] = SNColour;
-    if (StarClusterUseMetalField)
-      TypesToAdd[FieldsToAdd++] = Metallicity;
+
+    if (StarParticleFeedback && !AddedMetallicity)
+	TypesToAdd[FieldsToAdd++] = Metallicity;
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;
@@ -255,6 +265,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
     case RadiationFreq3:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad3Name;
       break;
+    case RaySegments:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
+      break;
     } // ENDSWITCH
   } // ENDFOR fields
 
@@ -271,6 +284,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[2] = kphHeI;
     ObsoleteFields[3] = kphHeII;
   }
+  if (RadiativeTransferLoadBalance == FALSE)
+    ObsoleteFields[NumberOfObsoleteFields++] = RaySegments;
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -322,8 +337,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
       ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
     }
-  }
-
+  
+}
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
   if (RadiativeTransferFLD) {
@@ -335,6 +350,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   }
 #else
   if (RadiativeTransferFLD)
+
     ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
 #endif
 

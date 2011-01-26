@@ -56,9 +56,10 @@ EXTERN int RadiativeTransferSourceClustering;
 
 EXTERN float RadiativeTransferPhotonMergeRadius;
 
-/* Radiative pressure flag */
+/* Radiative pressure flag and scale factor */
 
 EXTERN int RadiationPressure;
+EXTERN float RadiationPressureScale;
 
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
@@ -85,8 +86,16 @@ EXTERN int RadiativeTransferAdaptiveTimestep;
 
 EXTERN float GlobalMaximumkphIfront;
 
+/* Angle (in degrees) to collimate radiation for PhotonSourceType = 2 */
+
+EXTERN float RadiativeTransferSourceBeamAngle;
+
 /* Flag to trace the spectrum in ray tracing */
 
 EXTERN int RadiativeTransferTraceSpectrum;
 
 EXTERN char *RadiativeTransferTraceSpectrumTable;
+
+/* Flag for temporary load balancing for the ray tracing */
+
+EXTERN int RadiativeTransferLoadBalance;

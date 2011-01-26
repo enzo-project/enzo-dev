@@ -1,4 +1,3 @@
-
 /***********************************************************************
 /
 /  GRID: SUBTRACT ACCRETED MASS FROM NEARBY CELLS
@@ -89,8 +88,7 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 
   if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -190,6 +188,7 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 	    BaryonField[MetalNum][index] *= increase;
 	  
 	  if (MBHColourNum > 0)
+
 	    BaryonField[MBHColourNum][index] *= increase;    
 	  
 	  CellsModified++;

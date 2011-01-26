@@ -1,0 +1,24 @@
+BrioWu-MHD-1D
+=============
+From
+ Brio, M., & Wu, C. C. 1988, J. Comput. Phys., 75, 400
+ Wang, P., & Abel, T. 2009, Astrophysical Journal, 696:96-109
+
+Run: Ji-hoon Kim, July 2010
+
+
+Test Description
+================
+
+This test sets up an one-dimensional Riemann problem for MHD, and has become a useful 
+standard test for any MHD solver.  Detailed description of the initial set up can be 
+found in the papers above.  This test problem is new for enzo2.0.  It uses the new 
+Stanford hydro_rk solver.
+
+This test runs to completion while generating 12 outputs, and scripts.py will 
+produce the plots for Density, x-velocity, By, Internal Energy for the last snapshot 
+(t=0.1).  This last snapshot should be compared to figure 18 from Figure 2 of Brio & 
+Wu (1988) or Figure 15 of Wang & Abel (2009)
+
+Success in test_briowu.py is determined by nearly exact match (5e-3) in Density and By. 
+

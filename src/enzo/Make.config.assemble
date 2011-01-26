@@ -446,6 +446,35 @@
     endif
 
 #-----------------------------------------------------------------------
+# DETERMINE CVODE SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_CVODE = 1
+
+    # Settings to turn CVODE ON
+
+    ifeq ($(CONFIG_CVODE),yes)
+        ERROR_CVODE = 0
+        ASSEMBLE_CVODE_DEFINES = -DUSE_CVODE
+        ASSEMBLE_CVODE_INCLUDES = $(MACH_INCLUDES_CVODE)
+        ASSEMBLE_CVODE_LIBS     = $(MACH_LIBS_CVODE)
+    endif
+
+    # Settings to turn CVODE OFF
+
+    ifeq ($(CONFIG_CVODE),no)
+        ERROR_CVODE = 0
+    endif
+
+    # error if CONFIG_CVODE is incorrect
+
+    ifeq ($(ERROR_CVODE),1)
+       .PHONY: error_CVODE
+       error_CVODE:
+	$(error Illegal value '$(CONFIG_CVODE)' for $$(CONFIG_CVODE))
+    endif
+
+#-----------------------------------------------------------------------
 # DETERMINE PAPI SETTINGS
 #-----------------------------------------------------------------------
 
@@ -944,6 +973,7 @@
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_LCAPERF_DEFINES) \
               $(ASSEMBLE_PYTHON_DEFINES) \
+              $(ASSEMBLE_CVODE_DEFINES) \
               $(ASSEMBLE_MPI_DEFINES) \
               $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
               $(ASSEMBLE_PAPI_DEFINES) \
@@ -970,6 +1000,7 @@
     	       $(ASSEMBLE_MPI_INCLUDES) \
                $(ASSEMBLE_HYPRE_INCLUDES) \
                $(ASSEMBLE_LCAPERF_INCLUDES) \
+               $(ASSEMBLE_CVODE_INCLUDES) \
                $(ASSEMBLE_PYTHON_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
@@ -985,6 +1016,7 @@
            $(ASSEMBLE_HYPRE_LIBS) \
            $(ASSEMBLE_LCAPERF_LIBS) \
            $(ASSEMBLE_PAPI_LIBS) \
+           $(ASSEMBLE_CVODE_LIBS) \
            $(ASSEMBLE_PYTHON_LIBS) \
            $(ASSEMBLE_CUDA_LIBS)
 

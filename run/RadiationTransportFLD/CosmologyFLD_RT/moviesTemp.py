@@ -2,10 +2,6 @@
 #
 ################################################
 
-
-from yt.config import ytcfg
-ytcfg["lagos","serialize"] = "False"
-
 from yt.mods import *
 
 min_output_number = 273

@@ -52,8 +52,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* set the appropriate BoundaryValues on the left side */
@@ -135,6 +134,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	    if (BoundaryRank > 1)
 	      BoundaryValue[Vel2Num][dim][0][index] = ShockPoolVelocity[1];
 	    if (BoundaryRank > 2)
+
 	      BoundaryValue[Vel3Num][dim][0][index] = ShockPoolVelocity[2];
  
 	  }

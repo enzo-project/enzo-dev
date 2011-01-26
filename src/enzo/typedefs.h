@@ -158,7 +158,10 @@ const field_type
   RadiationFreq8  = 93,
   RadiationFreq9  = 94,
 
-  FieldUndefined  = 95;
+  /* Number of ray segments for ray tracing load balancing */
+  RaySegments     = 95,
+
+  FieldUndefined  = 96;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -171,9 +174,9 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? FALSE : TRUE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE) 
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -230,7 +233,7 @@ const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
   LLF = 3, HLLC = 4;
 const enum_type Neumann = 0, Dirichlet = 1;
-
+const enum_type Isotropic = 1, Beamed = 2;
 
 /* Stanford RK MUSCL solvers support */ 
 //enum {Cartesian, Spherical, Cylindrical};
@@ -250,6 +253,7 @@ const fieldtype SCALAR = 1, VECTOR = 3;
 const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
+  SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;

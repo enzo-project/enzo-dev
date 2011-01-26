@@ -41,6 +41,7 @@ void fpcol(float *x, int n, int m, FILE *fptr);
 double ReturnWallTime(void);
  
 #define LOAD_BALANCE_RATIO 1.05
+#define NO_SYNC_TIMING
  
 int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles)
@@ -64,7 +65,9 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 #endif
 
   double tt0, tt1;
+#ifdef SYNC_TIMING
   CommunicationBarrier();
+#endif
   tt0 = ReturnWallTime();
  
   GridsMoved = 0;
@@ -283,8 +286,8 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
   /* Receive grids */
 
   if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("");
-
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+  
   /* Update processor numbers */
   
   for (i = 0; i < NumberOfGrids; i++) {
@@ -293,7 +296,9 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
       GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
   }
 
+#ifdef SYNC_TIMING
   CommunicationBarrier();
+#endif
   if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0) {
     tt1 = ReturnWallTime();
     printf("LoadBalance: Number of grids moved = %"ISYM" out of %"ISYM" "
@@ -302,6 +307,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 #ifdef UNUSED
   CommunicationSumValues(ProcessorComputeTime, NumberOfProcessors);
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
     float norm = ProcessorComputeTime[0];
     for (i = 1; i < NumberOfProcessors; i++)

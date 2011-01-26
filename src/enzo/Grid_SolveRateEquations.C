@@ -84,8 +84,7 @@ int grid::SolveRateEquations()
  
   if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
   }
  
   /* Find photo-ionization fields */
@@ -114,16 +113,14 @@ int grid::SolveRateEquations()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
  
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -134,8 +131,7 @@ int grid::SolveRateEquations()
   /* Calculate the rates due to the radiation field. */
  
   if (RadiationFieldCalculateRates(Time+0.5*dtFixed) == FAIL) {
-    fprintf(stderr, "Error in RadiationFieldCalculateRates.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiationFieldCalculateRates.\n");
   }
  
   /* Set up information for rates which depend on the radiation field. */
@@ -158,8 +154,8 @@ int grid::SolveRateEquations()
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
-    fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+
   }
  
   /* Call the fortran routine to solve cooling equations. */

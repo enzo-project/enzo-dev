@@ -28,10 +28,10 @@
 /* function prototypes */
  
 extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
-			FLOAT *posz, int *ndim, int *npositions,
+			FLOAT *posz, float *partmass, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-			int *imatch1, int *imatch2, int *buffersize);
+		       	int *imatch1, int *imatch2, float *minmassmust, int *buffersize);
  
  
 int grid::DepositMustRefineParticles(int pmethod, int level)
@@ -85,11 +85,11 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
  
   PFORTRAN_NAME(cic_flag)(
-           ParticlePosition[0], ParticlePosition[1], ParticlePosition[2],
+	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
 	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, 
-	   &ParticleBufferSize);
+	   &MustRefineParticlesMinimumMass, &ParticleBufferSize);
 
   /* Increase particle mass flagging field for definite refinement */
 

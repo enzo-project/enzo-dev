@@ -53,8 +53,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
 			      NumberOfColours, colnum) == FAIL) {
-	  fprintf(stderr, "Error in xEulerSweep.  k = %d\n", k);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error in xEulerSweep.  k = %d\n", k)
 	}
       } // ENDFOR k
     } // ENDIF x-direction
@@ -65,8 +64,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
 			      NumberOfColours, colnum) == FAIL) {
-	  fprintf(stderr, "Error in yEulerSweep.  i = %d\n", i);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error in yEulerSweep.  i = %d\n", i)
 	}
       } // ENDFOR i
     } // ENDIF y-direction
@@ -77,8 +75,8 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 	if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
 			      NumberOfColours, colnum) == FAIL) {
-	  fprintf(stderr, "Error in zEulerSweep.  j = %d\n", j);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error in zEulerSweep.  j = %d\n", j)
+
 	}
       } // ENDFOR j
     } // ENDIF z-direction

@@ -37,6 +37,7 @@ LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
+LOCAL_CVODE_INSTALL  = /usr/local/
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -69,7 +70,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DNEW_PROBLEM_TYPES
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 #-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
 
 #-----------------------------------------------------------------------
@@ -112,8 +113,10 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.5/ \
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
+LOCAL_INCLUDES_CVODE  = -I$(LOCAL_CVODE_INSTALL)/include/cvode/
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA) \
+                        $(LOCAL_INCLUDES_CVODE)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
@@ -122,11 +125,13 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran
-LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
+LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
+                    -lsundials_nvecserial -lhdf5_hl
 
-MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
+MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_CVODE)
 
 MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)

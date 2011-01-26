@@ -95,8 +95,7 @@ int grid::PrepareFFT(region *InitialRegion, int Field, int DomainDim[])
     if (Field == POTENTIAL_FIELD)
       FieldPointer = PotentialField;
     if (FieldPointer == NULL) {
-      fprintf(stderr, "Field type %"ISYM" not recognized.\n", Field);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Field type %"ISYM" not recognized.\n", Field)
     }
  
     InitialRegion->Data = new float[size];
@@ -121,6 +120,7 @@ int grid::PrepareFFT(region *InitialRegion, int Field, int DomainDim[])
     }
  
   } // end: if (MyProcessorNumber == ...)
+
  
   return SUCCESS;
 }

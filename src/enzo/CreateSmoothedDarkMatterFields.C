@@ -41,7 +41,7 @@ void FOF_Initialize(TopGridData *MetaData,
 		    LevelHierarchyEntry *LevelArray[], 
 		    FOFData &D, bool SmoothData);
 void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[], 
-		  TopGridData *MetaData);
+		  TopGridData *MetaData, int FOFOnly=FALSE);
 int CopyParticlesAcrossPeriodicBoundaries(FOFData &D, int TopGridResolution);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
@@ -136,7 +136,8 @@ int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGri
   // Wait for the receives and sum fields
 
   if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("");
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+  
 
   // Reset to default
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;

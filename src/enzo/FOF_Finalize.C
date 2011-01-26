@@ -41,7 +41,12 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+#ifdef OPTIMIZED_CTP
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[]);
+#else
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
+#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 				  int level, bool ParticlesAreLocal, 
 				  bool SyncNumberOfParticles, 
@@ -56,7 +61,7 @@ int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
 */
 
 void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[], 
-		  TopGridData *MetaData)
+		  TopGridData *MetaData, int FOFOnly)
 {
 
   /* Get enzo units */
@@ -93,6 +98,8 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
 
   delete [] D.P;
 
+  if (FOFOnly == FALSE) {
+
   /* Move the particles into their correct grids.  Just like
      RebuildHierarchy. */
 
@@ -119,7 +126,11 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
 				SyncNumberOfParticles, MoveStars,
 				SIBLINGS_ONLY);
 
+#ifdef OPTIMIZED_CTP
+  CommunicationTransferParticles(GridPointer, ngrids, MetaData->TopGridDims);
+#else
   CommunicationTransferParticles(GridPointer, ngrids);
+#endif
 
   ParticlesAreLocal = false;
   SyncNumberOfParticles = true;
@@ -136,5 +147,7 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
       CommunicationCollectParticles(LevelArray, level, ParticlesAreLocal,
 				    SyncNumberOfParticles, MoveStars,
 				    SUBGRIDS_GLOBAL);
+
+  } // ENDIF FOFOnly == FALSE
 
 }

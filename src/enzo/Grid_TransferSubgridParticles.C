@@ -110,9 +110,8 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	NumberToMove[proc]++;
       }
       if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
-	fprintf(stderr, "particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
-		subgrid[i], NumberOfSubgrids);
-	ENZO_FAIL("");
+	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
+		subgrid[i], NumberOfSubgrids)
       }
       
     } // ENDFOR particles
@@ -285,6 +284,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 				Attribute);
  
   } // end: if (COPY_IN)
+
 
  
   return SUCCESS;

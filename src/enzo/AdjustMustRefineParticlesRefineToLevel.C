@@ -58,8 +58,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
   if (!(MetaData->TopGridRank == 3 &&
 	MetaData->TopGridDims[0] == MetaData->TopGridDims[1] &&
 	MetaData->TopGridDims[1] == MetaData->TopGridDims[2])) {
-    fprintf(stderr, "Your setup of assymmetrical topgrid is never tested.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Your setup of assymmetrical topgrid is never tested.\n");
   }
       
   const double pc = 3.086e18, ln2 = 0.69314718;
@@ -71,8 +70,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
     VelocityUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, MetaData->Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   /* Compute new MustRefineParticlesRefineToLevel */
@@ -85,6 +83,7 @@ int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level)
 		     / MustRefineParticlesRefineToLevelAutoAdjust / pc) / ln2);
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     printf("AdjustMustRefineParticlesRefineToLevel: Changed MustRefineParticlesRefineToLevel from %"ISYM" to %"ISYM"\n", 
 	   MustRefineParticlesRefineToLevel_prev, MustRefineParticlesRefineToLevel);
 //  printf("AdjustMustRefineParticlesRefineToLevel: LengthUnits = %g\n", LengthUnits);

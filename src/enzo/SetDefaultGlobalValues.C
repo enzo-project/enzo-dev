@@ -190,8 +190,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
-  MinimumSubgridEdge        = 4;                 // min for acceptable subgrid
-  MaximumSubgridSize        = 2000;              // max for acceptable subgrid
+  MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
+  MaximumSubgridSize        = 32768;             // max for acceptable subgrid
+  SubgridSizeAutoAdjust     = FALSE; // true for adjusting maxsize and minedge
+  OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
  
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
@@ -330,12 +332,28 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AdjustUVBackground          = 1;
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;
-  CoolData.alpha0             = 1.5;               // radiation spectral slope
-  CoolData.f3                 = 1.0e-21;           // radiation normalization
-  CoolData.ParameterFilename  = NULL;
   PhotoelectricHeating	      = 0;
   RadiationXRaySecondaryIon   = 0;
   RadiationXRayComptonHeating = 0;
+
+  CoolData.alpha0             = 1.5;               // radiation spectral slope
+  CoolData.f3                 = 1.0e-21;           // radiation normalization
+  CoolData.f0to3                    = 0.1;
+  CoolData.RadiationRedshiftOn      = 7.0;
+  CoolData.RadiationRedshiftOff     = 0.0;
+  CoolData.RadiationRedshiftFullOn  = 6.0;
+  CoolData.RadiationRedshiftDropOff = 0.0;
+  CoolData.HydrogenFractionByMass   = 0.76;
+  /* The DToHRatio is by mass in the code, so multiply by 2. */
+  CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
+  CoolData.NumberOfTemperatureBins = 600;
+  CoolData.ih2co                   = 1;
+  CoolData.ipiht                   = 1;
+  CoolData.TemperatureStart        = 1.0;
+  CoolData.TemperatureEnd          = 1.0e8;
+  CoolData.comp_xray               = 0;
+  CoolData.temp_xray               = 0;
+  RateData.CaseBRecombination      = 0;   // default to case A rates
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";
@@ -370,11 +388,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
+  MustRefineParticlesMinimumMass   = 0.0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
   BigStarFormation                 = FALSE;
+  BigStarFormationDone             = FALSE;
   BigStarSeparation                = 0.25;
+  SimpleQ                          = 1e50;
+  SimpleRampTime                   = 0.1;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;
@@ -390,6 +412,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleTypeInFile               = TRUE;
   OutputParticleTypeGrouping       = FALSE;
 
+  Conduction = FALSE;
+  ConductionSpitzerFraction = 1.0;
+  ConductionCourantSafetyNumber = 0.5;
+
+  PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
 
   InlineHaloFinder                 = FALSE;
@@ -652,6 +679,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_PYTHON
   NumberOfPythonCalls = 0;
+  NumberOfPythonTopGridCalls = 0;
+  NumberOfPythonSubcycleCalls = 0;
   grid_dictionary = PyDict_New();
   old_grid_dictionary = PyDict_New();
   hierarchy_information = PyDict_New();

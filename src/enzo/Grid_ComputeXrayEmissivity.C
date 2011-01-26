@@ -72,8 +72,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
   /* Find Density, if possible. */
  
   if ((DensNum = FindField(Density, FieldType, NumberOfBaryonFields)) < 0) {
-    fprintf(stderr, "Cannot find density.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Cannot find density.\n");
   }
  
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
@@ -84,8 +83,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
   
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
@@ -102,8 +100,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
     FILE *fptr = fopen(XrayTableFileName, "r");
     char *dummy = new char[MAX_LINE_LENGTH];
     if (fptr == NULL) {
-      fprintf(stderr, "Error in spectral file %s\n", XrayTableFileName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error in spectral file %s\n", XrayTableFileName)
     }
  
     /* read in table description: ignore first two lines, then read
@@ -114,8 +111,7 @@ int grid::ComputeXrayEmissivity(float *temperature,
     fgets(dummy, MAX_LINE_LENGTH, fptr);
     if (fscanf(fptr, "%"ISYM" %"FSYM" %"FSYM, &NumberOfTemperatureBins, &temp1, &temp2)
 	!= 3) {
-      fprintf(stderr, "Error reading temperature info\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading temperature info\n");
     }
     if (debug)
       printf("NumberOfTemperatureBins = %"ISYM" (%"GSYM"-%"GSYM")\n", NumberOfTemperatureBins,
@@ -137,16 +133,14 @@ int grid::ComputeXrayEmissivity(float *temperature,
  
     for (j = 0; j < NumberOfSpectralBins; j++)
       if (fscanf(fptr, "%"FSYM, SpectrumEnergykeV+j) != 1) {
-	fprintf(stderr, "Error reading energy: %s\n", XrayTableFileName);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading energy: %s\n", XrayTableFileName)
       }
  
     int n = 0;
     for (i = 0; i < NumberOfTemperatureBins; i++)
       for (j = 0; j < NumberOfSpectralBins; j++, n++) {
 	if (fscanf(fptr, "%"FSYM, SpectrumEmissivity+n) != 1) {
-	  fprintf(stderr, "Error reading file %s\n", XrayTableFileName);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error reading file %s\n", XrayTableFileName)
 	}
       }
  
@@ -204,8 +198,8 @@ int grid::ComputeXrayEmissivity(float *temperature,
     frac = (temp - (temp1+j*deltemp))/deltemp;
  
     if (frac < -0.01 || frac > 1.01) {
-      printf("prob: %"GSYM" %"ISYM" %"ISYM" %"GSYM"\n", frac, j, i, temp);
-      ENZO_FAIL("");
+      ENZO_VFAIL("prob: %"GSYM" %"ISYM" %"ISYM" %"GSYM"\n", frac, j, i, temp)
+
     }
     frac = min(max(frac, 0), 1);
  

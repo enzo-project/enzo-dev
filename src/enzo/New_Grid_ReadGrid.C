@@ -268,7 +268,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     /* loop over fields, reading each one */
 
     for (field = 0; field < NumberOfBaryonFields; field++) {
-
       BaryonField[field] = new float[size];
       for (i = 0; i < size; i++)
         BaryonField[field][i] = 0;
@@ -278,7 +277,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             group_id, HDF5_REAL, (VOIDP) temp,
             TRUE, BaryonField[field], ActiveDim);
       } else {
-
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             group_id, HDF5_REAL, BaryonField[field],
             FALSE, NULL, NULL);
@@ -292,7 +290,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
             FALSE, NULL, NULL);
 
       }
- 
+
     } // end: loop over fields
  
 
@@ -408,9 +406,13 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
           group_id, HDF5_PINT, (VOIDP) ParticleNumber, FALSE);
 
     // Read ParticleType if present
+
+    H5E_BEGIN_TRY{
+      dset_id = H5Dopen(group_id, "particle_type");
+    }H5E_END_TRY
  
-    if (ParticleTypeInFile == TRUE) {
- 
+    if (ParticleTypeInFile == TRUE && dset_id != h5_error) {
+
       /* Read ParticleType into temporary buffer and Copy to ParticleType. */
       this->read_dataset(1, TempIntArray, "particle_type",
             group_id, HDF5_INT, (VOIDP) ParticleType, FALSE);
@@ -510,13 +512,13 @@ int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
 
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++){
           copy_to[i + j*GridDimension[0] +
             k*GridDimension[0]*GridDimension[1]] =
 	      ((float *)read_to)[(i-GridStartIndex[0])                             +
 	                         (j-GridStartIndex[1])*active_dims[0]              +
-	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ];
-
+	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ];   
+}
   }
   return SUCCESS;
 }

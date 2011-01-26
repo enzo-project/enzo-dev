@@ -35,11 +35,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 {
   /* If using cosmology, get cosmology units */
   if (ComovingCoordinates) {
-    //    fprintf(stderr, "Using CosmologyCoordinates.\n");
+    //fprintf(stderr, "Using CosmologyCoordinates.\n");
     if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
                           TimeUnits, VelocityUnits, Time) == FAIL) {
-      fprintf(stderr, "Error in CosmologyGetUnits.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyGetUnits.\n");
     }
   }
   else {
@@ -64,6 +63,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
   if (ComovingCoordinates) {
     //    fprintf(stderr, "Using CosmologyCoordinates.\n");
     if (CosmologyGetUnits(DensityUnits, LengthUnits, TemperatureUnits,
+
                           TimeUnits, VelocityUnits, Time) == FAIL) {
       fprintf(stderr, "Error in CosmologyGetUnits.\n");
       return FAIL;

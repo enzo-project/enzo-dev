@@ -86,6 +86,8 @@ OBJS_CONFIG_LIB = \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
+	ConductionBubbleInitialize.o \
+	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
         ComputeRandomForcingNormalization.o \
@@ -124,6 +126,7 @@ OBJS_CONFIG_LIB = \
         DepositParticleMassFlaggingField.o \
 	DetermineNumberOfNodes.o \
 	DetermineParallelism.o \
+	DetermineSubgridSizeExtrema.o \
         DoubleMachInitialize.o \
         E_ColumnFormat.o \
         ealFloat.o \
@@ -329,11 +332,13 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
 	Grid_ComputeCellCenteredField.o \
+	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
 	Grid_ComputeExternalNohBoundary.o \
 	Grid_ComputeGammaField.o \
+        Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
@@ -343,6 +348,9 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeVectorAnalysisFields.o \
 	Grid_ComputeVertexCenteredField.o \
 	Grid_ComputeXrayEmissivity.o \
+        Grid_ConductHeat.o \
+	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
 	Grid_ConvertToNumpy.o \
@@ -479,6 +487,7 @@ OBJS_CONFIG_LIB = \
 	Grid_RadiationComputeDensities.o \
 	Grid_RadiatingShockInitializeGrid.o \
 	Grid_ReadGrid.o \
+        Grid_CosmologyReadParticles3D.o \
 	Grid_ReadRandomForcingFields.o \
 	Grid_RemoveForcingFromBaryonFields.o \
 	Grid_RemoveParticle.o \
@@ -507,6 +516,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ShocksHandler.o \
 	Grid_SolveForPotential.o \
         Grid_SolveHighDensityPrimordialChemistry.o \
+        Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
@@ -713,6 +723,7 @@ OBJS_CONFIG_LIB = \
         RotatingCylinderInitialize.o \
         s66_st1.o \
         s90_st1.o \
+	SearchUtilities.o \
         SedovBlastInitialize.o \
         select_fft.o \
 	SetBoundaryConditions.o \
@@ -776,6 +787,7 @@ OBJS_CONFIG_LIB = \
 	star_maker5.o \
         star_maker7.o \
 	star_maker8.o \
+	star_maker9.o \
 	particle_splitter.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
@@ -861,6 +873,7 @@ POBJS_CONFIG_LIB = \
 	Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \
+        Grid_ComputePhotonTimestepTau.o \
         Grid_ConvertToCellCenteredRadiation.o \
         Grid_CorrectRadiationIncompleteness.o \
 	Grid_CreateEmissivityLW.o \
@@ -879,12 +892,12 @@ POBJS_CONFIG_LIB = \
         Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
+        Grid_PhotonTestRestartInitializeGrid.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromParent.o \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
-        Grid_SolveCoupledRateEquations.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \
@@ -892,13 +905,16 @@ POBJS_CONFIG_LIB = \
         LinkedListRoutines.o \
 	PhotonPackageRoutines.o \
 	PhotonTestInitialize.o \
+	PhotonTestRestartInitialize.o \
 	RadiativeTransferCallFLD.o \
         RadiativeTransferComputeTimestep.o \
         RadiativeTransferHealpixRoutines.o \
+	RadiativeTransferLoadBalanceRevert.o \
         RadiativeTransferInitialize.o \
         RadiativeTransferPrepare.o \
         RadiativeTransferReadParameters.o \
         RadiativeTransferWriteParameters.o \
+	RadiativeTransferMoveLocalPhotons.o \
         ReadPhotonSources.o \
         ReadRadiativeTransferSpectrumTable.o \
         ReassignSuperSources.o \
@@ -911,8 +927,8 @@ POBJS_CONFIG_LIB = \
 	WritePhotonSources.o
 
 OBJS_HYDRO_RK = \
-      	hydro_rk/ModifiedBesselFunctions.o \
-      	hydro_rk/AGNDiskInitialize.o \
+	hydro_rk/ModifiedBesselFunctions.o \
+	hydro_rk/AGNDiskInitialize.o \
         hydro_rk/Collapse1DInitialize.o \
         hydro_rk/Collapse3DInitialize.o \
         hydro_rk/ComputeDednerWaveSpeeds.o \

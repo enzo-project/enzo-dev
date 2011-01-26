@@ -44,8 +44,8 @@ int WriteStarParticleData(FILE *fptr, TopGridData &MetaData)
 
       FILE *fptr2;
       if ((fptr2 = fopen(MBHParticleIOFilename, "a")) == NULL) {
-	fprintf(stderr, "Error opening file %s\n", MBHParticleIOFilename);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error opening file %s\n", MBHParticleIOFilename)
+
       }
 
       // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum

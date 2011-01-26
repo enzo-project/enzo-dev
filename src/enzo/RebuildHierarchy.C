@@ -54,8 +54,17 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
+int DetermineSubgridSizeExtrema(LevelHierarchyEntry *LevelArray[],
+				int level);
+#ifdef OPTIMIZED_CTP
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[]);
+int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
+			       int TopGridDims[]);
+#else
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
+#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -121,7 +130,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   timer[0] += starttime - tmptime;
   counter[0] ++;
 #endif /* MPI_INSTRUMENTATION */
- 
+
   /* --------------------------------------------------------------------- */
   /* For each grid on this level collect all the particles below it.
      Notice that this must be done even for static hierarchy's.  */
@@ -230,8 +239,13 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
+#ifdef OPTIMIZED_CTP
+    CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
+    CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
+#else
     CommunicationTransferParticles(GridPointer, grids);
     CommunicationTransferStars(GridPointer, grids);
+#endif
 
     /* We need to collect particles again */
 
@@ -272,7 +286,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   if (dbx) fprintf(stderr, "Rebuild pos 3\n");
   ReportMemoryUsage("Rebuild pos 3");
   if (MetaData->StaticHierarchy == FALSE) {
- 
+
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 1");
  
     /* 1) Create a new TempLevelArray in which to keep the old grids. */
@@ -311,6 +325,11 @@ int RebuildHierarchy(TopGridData *MetaData,
       if (LevelArray[i] == NULL)
 	break;
 
+      /* Determine the subgrid minimum and maximum sizes, if
+	 requested. */
+
+      DetermineSubgridSizeExtrema(LevelArray, i);
+ 
       /* 3a) Generate an array of grids on this level. */
  
 //??      HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
@@ -619,8 +638,9 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  if (RadiativeTransferLoadBalance == FALSE || MetaData->FirstTimestepAfterRestart)
+    if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
+      ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

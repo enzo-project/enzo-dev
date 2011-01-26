@@ -95,9 +95,12 @@ int grid::CosmologySimulationInitializeGrid(
 			  char *CosmologySimulationVelocityNames[],
 			  char *CosmologySimulationParticlePositionName,
 			  char *CosmologySimulationParticleVelocityName,
+ 			  char *CosmologySimulationParticleDisplacementName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
+			  char *CosmologySimulationParticlePositionNames[],
 			  char *CosmologySimulationParticleVelocityNames[],
+ 			  char *CosmologySimulationParticleDisplacementNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
 			  float CosmologySimulationInitialFractionHII,
@@ -106,6 +109,7 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionHM,
 			  float CosmologySimulationInitialFractionH2I,
 			  float CosmologySimulationInitialFractionH2II,
+			  float CosmologySimulationInitialFractionMetal,
 #ifdef TRANSFER
 			  float RadHydroRadiation,
 #endif
@@ -386,8 +390,7 @@ int grid::CosmologySimulationInitializeGrid(
       if (READFILE(CosmologySimulationVelocityNames[dim], GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   BaryonField[vel+dim], &tempbuffer, idim, ndim) == FAIL) {
-	fprintf(stderr, "Error reading velocity field %"ISYM".\n", dim);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
       }
     } // ENDFOR dim
   } // ENDIF grid velocities
@@ -472,11 +475,13 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (UseMetallicityField && ReadData)
     for (i = 0; i < size; i++) {
-      BaryonField[MetalNum][i] = 1.0e-10 * BaryonField[0][i];  
-      //BaryonField[MetalNum][i] = 3e-3 * 0.0204 * BaryonField[0][i];    // Z = 1e-4Zs  //#####
+      BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
+	* BaryonField[0][i];  
       if(MultiMetals){
-	BaryonField[ExtraField[0]][i] = 1.0e-10 * BaryonField[0][i];
-	BaryonField[ExtraField[1]][i] = 1.0e-10 * BaryonField[0][i];
+	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
+	  * BaryonField[0][i];
+	BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
+	  * BaryonField[0][i];
       }
     }
     if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
@@ -544,6 +549,7 @@ int grid::CosmologySimulationInitializeGrid(
  
  
   if ((CosmologySimulationParticlePositionName != NULL ||
+       CosmologySimulationParticlePositionNames[0] != NULL ||
        CosmologySimulationCalculatePositions) && ReadData) {
  
     // Get the number of particles by reading the file attributes
@@ -552,7 +558,8 @@ int grid::CosmologySimulationInitializeGrid(
  
     int TempIntArray[MAX_DIMENSION], TotalParticleCount;
 
-    if (!CosmologySimulationCalculatePositions) {
+    if (!CosmologySimulationCalculatePositions &&
+	CosmologySimulationParticlePositionNames[0] == NULL) {
  
     ReadAttr(CosmologySimulationParticlePositionName,
                   &TempInt, TempIntArray, &NSeg, &LSeg, log_fptr);
@@ -560,9 +567,8 @@ int grid::CosmologySimulationInitializeGrid(
     // Error check
  
     if (TempInt != 1) {
-      fprintf(stderr, "Rank (%"ISYM") is not one in file %s.\n", TempInt,
-	      CosmologySimulationParticlePositionName);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Rank (%"ISYM") is not one in file %s.\n", TempInt,
+	      CosmologySimulationParticlePositionName)
     }
  
     // If doing parallel root grid IO then read in the full list of particle
@@ -586,6 +592,7 @@ int grid::CosmologySimulationInitializeGrid(
     } // ENDIF ! calculate positions
  
     if (ParallelRootGridIO == TRUE && TotalRefinement == -1 &&
+	CosmologySimulationParticlePositionNames[0] == NULL &&
 	!CosmologySimulationCalculatePositions) {
  
 //    for(i=0; i<GridRank;i++)
@@ -807,8 +814,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   if ( TotParticleCount != TotalParticleCount )
   {
-    printf("DISASTER! Inconsistent particle count\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("DISASTER! Inconsistent particle count\n");
   }
  
   NumberOfParticles = NumSortedParticles;
@@ -1283,7 +1289,8 @@ int grid::CosmologySimulationInitializeGrid(
  
 // Normal ||rgio
  
-if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
+if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions &&
+    CosmologySimulationParticlePositionNames[0] == NULL)
 {
  
   printf("UnsortedParticles - ParallelRootGridIO\n");
@@ -1484,8 +1491,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
  
         if ( Slab_Rank != 2 )
         {
-          printf(" MAJOR ERROR!! Particle Slab_Rank != 2\n");
-          ENZO_FAIL("");
+          ENZO_FAIL(" MAJOR ERROR!! Particle Slab_Rank != 2\n");
         }
  
         Slab_Dims[0] = component_rank_attr;
@@ -2421,16 +2427,32 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
  
     // ENDIF: ||RootGridIO && TotalRefinement == -1 && !calculate positions
     } else {
- 
- 
-      if (CosmologySimulationCalculatePositions) {
+
+      // If provided particle positions and velocity in components,
+      // assume they're in a 3D data structure
+      if (CosmologySimulationParticlePositionNames[0] != NULL &&
+	  CosmologySimulationParticleVelocityNames[0] != NULL) {
+	if (CosmologyReadParticles3D(CosmologySimulationParticleVelocityName,
+				     CosmologySimulationParticleMassName,
+				     CosmologySimulationParticleTypeName,
+				     CosmologySimulationParticlePositionNames,
+				     CosmologySimulationParticleVelocityNames,
+				     CosmologySimulationOmegaBaryonNow,
+				     Offset, level) == FAIL)
+	  ENZO_FAIL("Error in grid::CosmologyReadParticles3D.");
+      }
+
+      // Calculate particle positions from velocities
+      else if (CosmologySimulationCalculatePositions) {
 	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName,
+ 					 CosmologySimulationParticleDisplacementName,
 					 CosmologySimulationParticleMassName,
 					 CosmologySimulationParticleTypeName,
 					 CosmologySimulationParticleVelocityNames,
+ 					 CosmologySimulationParticleDisplacementNames,
 					 CosmologySimulationOmegaBaryonNow,
 					 Offset, level) == FAIL) {
-	  	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.");
+	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.");
 	}
       } else {
  
@@ -2456,8 +2478,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
       for (dim = 0; dim < GridRank; dim++) {
 	if (READFILE(CosmologySimulationParticlePositionName, 1, Dim,
 		     Start, End, Zero, NULL, &tempbuffer, dim, 3) == FAIL) {
-	  fprintf(stderr, "Error reading particle position %"ISYM".\n", dim);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error reading particle position %"ISYM".\n", dim)
 	}
 	for (i = Start[0]; i <= End[0]; i++)
 	  ParticlePosition[dim][i] = FLOAT(tempbuffer[i]);
@@ -2473,8 +2494,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
 	for (dim = 0; dim < GridRank; dim++) {
 	  if (READFILE(CosmologySimulationParticleVelocityName, 1, Dim,
 	     Start, End, Zero, ParticleVelocity[dim], &tempbuffer, dim, 3) == FAIL) {
-	    fprintf(stderr, "Error reading particle velocity %"ISYM".\n", dim);
-	    ENZO_FAIL("");
+	    ENZO_VFAIL("Error reading particle velocity %"ISYM".\n", dim)
 	  }
 //        fcol(ParticleVelocity[dim], NumberOfParticles, 10, log_fptr);
 	}
@@ -2624,6 +2644,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions)
   OldTime = Time;
  
   if (io_log) fclose(log_fptr);
+
  
   return SUCCESS;
 }

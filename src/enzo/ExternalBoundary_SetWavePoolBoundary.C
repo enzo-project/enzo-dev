@@ -59,8 +59,7 @@ int ExternalBoundary::SetWavePoolBoundary(FLOAT time)
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* set the appropriate BoundaryValues on the left side */
@@ -150,6 +149,7 @@ int ExternalBoundary::SetWavePoolBoundary(FLOAT time)
 	  if (BoundaryRank > 1)
 	    *(BoundaryValue[Vel2Num][dim][0] + index) = WaveVelocity123[1];
 	  if (BoundaryRank > 2)
+
 	    *(BoundaryValue[Vel3Num][dim][0] + index) = WaveVelocity123[2];
  
 	} // end loop over boundary slice

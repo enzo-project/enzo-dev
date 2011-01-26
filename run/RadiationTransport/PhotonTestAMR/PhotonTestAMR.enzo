@@ -52,6 +52,7 @@ PhotonTestSourceType[0]       = 1
 PhotonTestSourcePosition[0]   = 1e-3 1e-3 1e-3
 PhotonTestSourceLuminosity[0] = 1e50       // photon number flux [#/s]
 PhotonTestSourceLifeTime[0]   = 1e10
+PhotonTestSourceCreationTime[0]   = -1
 PhotonTestSourceEnergyBins[0] = 1
 PhotonTestSourceEnergy[0] = 23.2686
 #PhotonTestSourceEnergy[0] = 13.60001

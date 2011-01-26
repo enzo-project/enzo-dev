@@ -54,7 +54,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
 {
  
   if (ParentGrid == NULL)
-    ENZO_FAIL("");
+    ENZO_FAIL("Undefined ParentGrid!\n");
  
   /* Return if this doesn't involve us. */
  
@@ -113,9 +113,8 @@ int grid::PreparePotentialField(grid *ParentGrid)
     ParentDim[dim] = ParentGrid->GravitatingMassFieldDimension[dim];
     if (ParentStartIndex[dim] < 0 ||
 	ParentStartIndex[dim]+ParentTempDim[dim] > ParentDim[dim]) {
-      fprintf(stderr, "ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
-	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim]);
-      ENZO_FAIL("");
+      ENZO_VFAIL("ParentStartIndex[%"ISYM"] = %"ISYM" ParentTempDim = %"ISYM"(%"ISYM").\n",
+	      dim, ParentStartIndex[dim], ParentTempDim[dim], ParentDim[dim])
     }
   }
  
@@ -206,6 +205,7 @@ int grid::PreparePotentialField(grid *ParentGrid)
   /* Clean up parent. */
  
   if (MyProcessorNumber != ParentGrid->ProcessorNumber) {
+
     delete [] ParentGrid->PotentialField;
     ParentGrid->PotentialField = NULL;
   }

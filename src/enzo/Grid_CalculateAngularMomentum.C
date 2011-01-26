@@ -64,8 +64,7 @@ int grid::CalculateAngularMomentum(FLOAT Center[], float AngularMomentum[],
     int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
  
     /* Loop over grid. */
@@ -135,6 +134,7 @@ int grid::CalculateAngularMomentum(FLOAT Center[], float AngularMomentum[],
       DMMass          += ParticleMass[i];
     }
     if (DMMass > 0) {
+
       DMVelocity[dim] /= DMMass;
       DMCofM[dim]     /= DMMass;
     }

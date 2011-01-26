@@ -85,8 +85,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
 #if 0
     if (NumberOfCompleteRequests == MPI_UNDEFINED) {
-      fprintf(stderr, "Error in MPI_Waitsome\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in MPI_Waitsome\n");
     }
 #endif
 
@@ -197,8 +196,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 
 	  if (grid_one->GetProjectedBoundaryFluxes(grid_two, 
 					       SubgridFluxesRefined) == FAIL) {
-	    fprintf(stderr, "Error in grid->GetProjectedBoundaryFluxes.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->GetProjectedBoundaryFluxes.\n");
 	  }
 	
 	  /* Correct this grid for the refined fluxes (step #19)
@@ -214,16 +212,14 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1],
 	       SUBling, MetaData)) == FAIL) {
-	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->CorrectForRefinedFluxes.\n");
 	  }
 #else
 	  if ((errcode = grid_two->CorrectForRefinedFluxes
 	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1]     ))
 	      == FAIL) {
-	    fprintf(stderr, "Error in grid->CorrectForRefinedFluxes.\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Error in grid->CorrectForRefinedFluxes.\n");
 	  }
 #endif
 	  break;
@@ -280,18 +276,17 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 #endif
 
 	default:
-	  fprintf(stderr, "Unrecognized call type %"ISYM"\n", 
-		  CommunicationReceiveCallType[index]);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Unrecognized call type %"ISYM"\n", 
+		  CommunicationReceiveCallType[index])
 
 	} // end: switch on call type
 
 	/* Report error if there has been one in any of the above calls. */
 
 	if (errcode == FAIL) {
-	  fprintf(stderr, "Error in CommunicationReceiveHandler, method %"ISYM"\n",
-		  CommunicationReceiveCallType[index]);
-	  ENZO_FAIL("");
+	  ENZO_VFAIL("Error in CommunicationReceiveHandler, method %"ISYM"\n",
+		  CommunicationReceiveCallType[index])
+
 	}
 
 	/* Mark this receive complete. */

@@ -32,6 +32,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+Star *PopStar(Star * &Node);
+void InsertStarAfter(Star * &Node, Star * &NewNode);
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -40,7 +42,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
-  Star *ThisStar, *OtherStar, *PrevStar;
+  Star *ThisStar, *OtherStar, *LastStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
@@ -86,10 +88,10 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	  printf("OtherStar:\n");
 	  OtherStar->PrintInfo();
 	}
-	ENZO_FAIL("");
+	ENZO_FAIL("Merging Duplicate Particle!?\n");
       }
-      if (ThisStar->Mergable(OtherStar))
-	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
+      if (ThisStar->Mergable(*OtherStar))
+	if (ThisStar->Separation2(*OtherStar) <= rmerge2) {
 	  ThisStar->Merge(OtherStar);
 	  OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
@@ -102,13 +104,24 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
      particles */
   
   ThisStar = AllStars;
-  while (ThisStar)
-    if (ThisStar->MarkedToDelete()) {
-      ThisStar->DeleteCopyInGrid();
-      ThisStar->DisableParticle(LevelArray); // convert to a massless particle
-      DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()
-    } else
-      ThisStar = ThisStar->NextStar;
+  AllStars = NULL;
+  LastStar = NULL;
+  while (ThisStar) {
+    MoveStar = PopStar(ThisStar);  // ThisStar becomes the next star in PopStar()
+    if (MoveStar->MarkedToDelete()) {
+      MoveStar->DeleteCopyInGrid();
+      MoveStar->DisableParticle(LevelArray); // convert to a massless particle
+      DeleteStar(MoveStar);
+    } else {
+      // Re-insert at the end of the list to keep the ordering the
+      // same
+      if (LastStar == NULL)
+	InsertStarAfter(AllStars, MoveStar);
+      else
+	InsertStarAfter(LastStar, MoveStar);
+      LastStar = MoveStar;
+    }
+  } // ENDWHILE
 
   return SUCCESS;
 

@@ -45,9 +45,11 @@ int ReadIntFile(char *name, int Rank, int Dims[], int StartIndex[],
 
 int grid::CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,
+		   char *CosmologySimulationParticleDisplacementName,
 		   char *CosmologySimulationParticleMassName,
 		   char *CosmologySimulationParticleTypeName,
 		   char *CosmologySimulationParticleVelocityNames[],
+		   char *CosmologySimulationParticleDisplacementNames[],
 		   float CosmologySimulationOmegaBaryonNow,
 		   int *Offset, int level)
 {
@@ -61,17 +63,15 @@ int grid::CosmologyInitializeParticles(
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits,
 	       InitialTimeInCodeUnits) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   /* Check if we have one component per file */
 
   if (CosmologySimulationParticleVelocityName != NULL &&
       CosmologySimulationParticleVelocityNames[0] != NULL) {
-    fprintf(stderr, "grid::CosmologyInitializeParticles: Both 3-component and 1-component "
+    ENZO_FAIL("grid::CosmologyInitializeParticles: Both 3-component and 1-component "
 	    "particle velocity files are defined.  Choose one or the other!\n");
-    ENZO_FAIL("");
   }
 
   if (CosmologySimulationParticleVelocityNames[0] != NULL)
@@ -163,15 +163,13 @@ int grid::CosmologyInitializeParticles(
       if (ReadFile(CosmologySimulationParticleVelocityNames[dim], GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, 0, 1) == FAIL) {
-	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error reading particle velocity field %"ISYM".\n", dim)
       }
     } else {
       if (ReadFile(CosmologySimulationParticleVelocityName, GridRank,
 		   GridDimension, GridStartIndex, GridEndIndex, Offset,
 		   NULL, &tempbuffer, dim, 3) == FAIL) {
-	fprintf(stderr, "Error reading particle velocity field %"ISYM".\n", dim);
-      ENZO_FAIL("");
+      ENZO_VFAIL("Error reading particle velocity field %"ISYM".\n", dim)
       }
     } // ENDELSE OneComponentPerFile
     temp_vel[dim] = new float[size];
@@ -183,8 +181,7 @@ int grid::CosmologyInitializeParticles(
     if (ReadFile(CosmologySimulationParticleMassName, GridRank,
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading particle mass.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading particle mass.\n");
     }
     mass = new float[size];
     for (i = 0; i < size; i++)
@@ -196,8 +193,7 @@ int grid::CosmologyInitializeParticles(
     if (ReadIntFile(CosmologySimulationParticleTypeName, GridRank,
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &int_tempbuffer, 0, 1) == FAIL) {
-      fprintf(stderr, "Error reading particle mass.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error reading particle mass.\n");
     }
     types = new int[size];
     for (i = 0; i < size; i++)
@@ -231,6 +227,55 @@ int grid::CosmologyInitializeParticles(
       } // ENDFOR i
     } // ENDFOR j
   } // ENDFOR k
+	
+  if( CosmologySimulationParticleDisplacementName != NULL ||
+      CosmologySimulationParticleDisplacementNames[0] != NULL )
+    {
+      if (CosmologySimulationParticleDisplacementName != NULL &&
+	  CosmologySimulationParticleDisplacementNames[0] != NULL) {
+	ENZO_FAIL("grid::CosmologyInitializeParticles: Both 3-component and 1-component "
+		  "particle displacement files are defined.  Choose one or the other!\n");
+      }
+		
+		
+      inits_type *tempbuffer = new inits_type[size];
+		
+      for (dim = 0; dim < GridRank; dim++) {
+	if (CosmologySimulationParticleDisplacementNames[dim] != NULL) {
+	  if (ReadFile(CosmologySimulationParticleDisplacementNames[dim], GridRank,
+		       GridDimension, GridStartIndex, GridEndIndex, Offset,
+		       NULL, &tempbuffer, 0, 1) == FAIL) {
+	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	      }
+	} else {
+	  if (ReadFile(CosmologySimulationParticleDisplacementName, GridRank,
+		       GridDimension, GridStartIndex, GridEndIndex, Offset,
+		       NULL, &tempbuffer, dim, 3) == FAIL) {
+	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	      }
+	} // ENDELSE OneComponentPerFile
+
+	count = 0;
+	for (k = 0; k < ActiveDim[2]; k++) {
+	  this_pos[2] = GridLeftEdge[2] + (k+0.5)*CellWidth[2][0];
+	  for (j = 0; j < ActiveDim[1]; j++) {
+	    this_pos[1] = GridLeftEdge[1] + (j+0.5)*CellWidth[1][0];
+	    index = (k*ActiveDim[1] + j)*ActiveDim[0];
+	    for (i = 0; i < ActiveDim[0]; i++, index++) {
+	      if (mask[index]) {
+		this_pos[0] = GridLeftEdge[0] + (i+0.5)*CellWidth[0][0];
+		ParticlePosition[dim][count] = this_pos[dim] + tempbuffer[index];
+		count++;
+	      } // ENDIF mask
+	    } // ENDFOR i
+	  } // ENDFOR j
+	} // ENDFOR k
+			
+			
+      } //ENDFOR dim
+		
+      delete[] tempbuffer;
+    }
 
   // If provided, store masses
   count = 0;
@@ -354,6 +399,7 @@ int grid::CosmologyInitializeParticles(
   if (mass != NULL)
     delete [] mass;
   if (types != NULL)
+
     delete [] types;
 
   return SUCCESS;

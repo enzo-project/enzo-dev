@@ -338,8 +338,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       float *temperature = new float[size];
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeTemperatureField.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
       }
  
       /* Copy active part of field into grid */
@@ -538,7 +537,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       }
  
     
-      fprintf(stderr,  DataLabelN[field]);
+      // fprintf(stderr,  DataLabelN[field]);
 
       WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
     
@@ -601,8 +600,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 	       &TimeUnits, &VelocityUnits, Time);
 
       if (this->ComputeCoolingTime(cooling_time) == FAIL) {
-	fprintf(stderr, "Error in grid->ComputeCoolingTime.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in grid->ComputeCoolingTime.\n");
       }
 
       // Make all cooling time values positive and convert to seconds.
@@ -994,11 +992,9 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     if (ParticleTypeInFile == TRUE) {
 
     int *tempint = new int[NumberOfParticles];
- 
-    if( ParticleType == NULL ){my_exit(EXIT_FAILURE);}
- 
+    
     if (ParticleType == NULL)
-      ENZO_FAIL("");
+      ENZO_FAIL("Undefined ParticleType!\n");
  
     for (i = 0; i < NumberOfParticles; i++)
       tempint[i] = ParticleType[i];
@@ -1098,6 +1094,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
     if (SelfGravity)
+
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
  
   /* Clean up. */

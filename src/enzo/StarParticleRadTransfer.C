@@ -85,8 +85,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 
       // Calculate photon luminosity
       if (cstar->ComputePhotonRates(nbins, energies, Q) == FAIL) {
-	fprintf(stderr, "Error in ComputePhotonRates.\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       
       QTotal = 0;
@@ -111,6 +110,8 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       else if (cstar->ReturnType() == PopIII)
 	// should be an parameter or determined from the data
 	ramptime = TimeInYears * 50e3;
+      else if (cstar->ReturnType() == SimpleSource)
+	ramptime = TimeInYears * 1e6 * SimpleRampTime;
 
       /* Transfer the shining particle properties to the radiative
 	 transfer source particle */
@@ -129,6 +130,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       }
 
       if (GlobalRadiationSources->NextSource != NULL)
+
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
       

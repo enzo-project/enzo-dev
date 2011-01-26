@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -28,6 +29,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
+
  
 /* function prototypes */
  
@@ -48,8 +50,8 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 {
  
-
-
+  MustRefineParticlesMinimumMass *= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   int dim;
  
@@ -60,8 +62,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   double MassUnits = 1;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
  
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, presu = 1.0;
@@ -71,7 +72,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     presu = rhou*lenu*lenu/tu/tu;
 
     /* Change input physical parameters into real units */
-
+    MustRefineParticlesMinimumMass *= massu;
     StarMakerOverDensityThreshold *= rhou;
     //  StarEnergyFeedbackRate = StarEnergyFeedbackRate/pow(LengthUnits,2)*pow(TimeUnits,3);
     
@@ -105,6 +106,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
 
   }
+
 
   /* write data to Parameter output file */
  
@@ -165,7 +167,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
 
 
+  fprintf(fptr, "PythonTopGridSkip       = %"ISYM"\n", PythonTopGridSkip);
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
+#ifdef USE_PYTHON
+  fprintf(fptr, "NumberOfPythonCalls         = %"ISYM"\n", NumberOfPythonCalls);
+  fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
+  fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
+#endif
+
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
 
@@ -272,27 +281,30 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
  
   /* write global Parameters */
  
-  fprintf(fptr, "ProblemType            = %"ISYM"\n", ProblemType);
-  fprintf(fptr, "HydroMethod            = %"ISYM"\n", HydroMethod);
-  fprintf(fptr, "huge_number            = %e\n", huge_number);
-  fprintf(fptr, "tiny_number            = %e\n", tiny_number);
-  fprintf(fptr, "Gamma                  = %"GSYM"\n", Gamma);
-  fprintf(fptr, "PressureFree           = %"ISYM"\n", PressureFree);
-  fprintf(fptr, "RefineBy               = %"ISYM"\n", RefineBy);
-  fprintf(fptr, "MaximumRefinementLevel = %"ISYM"\n", MaximumRefinementLevel);
-  fprintf(fptr, "MaximumGravityRefinementLevel = %"ISYM"\n",
+  fprintf(fptr, "ProblemType                    = %"ISYM"\n", ProblemType);
+  fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
+  fprintf(fptr, "huge_number                    = %e\n", huge_number);
+  fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
+  fprintf(fptr, "Gamma                          = %"GSYM"\n", Gamma);
+  fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
+  fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
+  fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
+  fprintf(fptr, "MaximumGravityRefinementLevel  = %"ISYM"\n",
 	  MaximumGravityRefinementLevel);
   fprintf(fptr, "MaximumParticleRefinementLevel = %"ISYM"\n",
 	  MaximumParticleRefinementLevel);
-  fprintf(fptr, "CellFlaggingMethod     = ");
+  fprintf(fptr, "CellFlaggingMethod             = ");
   WriteListOfInts(fptr, MAX_FLAGGING_METHODS, CellFlaggingMethod);
-  fprintf(fptr, "FluxCorrection         = %"ISYM"\n", FluxCorrection);
-  fprintf(fptr, "InterpolationMethod    = %"ISYM"\n", InterpolationMethod);
-  fprintf(fptr, "ConservativeInterpolation = %"ISYM"\n", ConservativeInterpolation);
-  fprintf(fptr, "MinimumEfficiency      = %"GSYM"\n", MinimumEfficiency);
-  fprintf(fptr, "MinimumSubgridEdge     = %"ISYM"\n", MinimumSubgridEdge);
-  fprintf(fptr, "MaximumSubgridSize     = %"ISYM"\n", MaximumSubgridSize);
-  fprintf(fptr, "NumberOfBufferZones    = %"ISYM"\n\n", NumberOfBufferZones);
+  fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
+  fprintf(fptr, "InterpolationMethod            = %"ISYM"\n", InterpolationMethod);
+  fprintf(fptr, "ConservativeInterpolation      = %"ISYM"\n", ConservativeInterpolation);
+  fprintf(fptr, "MinimumEfficiency              = %"GSYM"\n", MinimumEfficiency);
+  fprintf(fptr, "SubgridSizeAutoAdjust          = %"ISYM"\n", SubgridSizeAutoAdjust);
+  fprintf(fptr, "OptimalSubgridsPerProcessor    = %"ISYM"\n", 
+	  OptimalSubgridsPerProcessor);
+  fprintf(fptr, "MinimumSubgridEdge             = %"ISYM"\n", MinimumSubgridEdge);
+  fprintf(fptr, "MaximumSubgridSize             = %"ISYM"\n", MaximumSubgridSize);
+  fprintf(fptr, "NumberOfBufferZones            = %"ISYM"\n\n", NumberOfBufferZones);
 
   fprintf(fptr, "FastSiblingLocatorEntireDomain      = %"ISYM"\n", 
 	  FastSiblingLocatorEntireDomain);
@@ -427,11 +439,21 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiationShield                = %"ISYM"\n", RadiationData.RadiationShield);
   fprintf(fptr, "RadiationSpectrumNormalization = %"GSYM"\n", CoolData.f3);
   fprintf(fptr, "RadiationSpectrumSlope         = %"GSYM"\n", CoolData.alpha0);
+  fprintf(fptr, "CoolDataf0to3                  = %"FSYM"\n", CoolData.f0to3);
+  fprintf(fptr, "RadiationRedshiftOn            = %"FSYM"\n", CoolData.RadiationRedshiftOn);
+  fprintf(fptr, "RadiationRedshiftOff           = %"FSYM"\n", CoolData.RadiationRedshiftOff);
+  fprintf(fptr, "RadiationRedshiftFullOn        = %"FSYM"\n", CoolData.RadiationRedshiftFullOn);
+  fprintf(fptr, "RadiationRedshiftDropOff       = %"FSYM"\n", CoolData.RadiationRedshiftDropOff);
+  fprintf(fptr, "HydrogenFractionByMass         = %"FSYM"\n", CoolData.HydrogenFractionByMass);
+  fprintf(fptr, "DeuteriumToHydrogenRatio       = %"FSYM"\n", CoolData.DeuteriumToHydrogenRatio);
+  fprintf(fptr, "NumberOfTemperatureBins        = %"ISYM"\n", CoolData.NumberOfTemperatureBins);
+  fprintf(fptr, "CoolDataIh2co                  = %"ISYM"\n", CoolData.ih2co);
+  fprintf(fptr, "CoolDataIpiht                  = %"ISYM"\n", CoolData.ipiht);
+  fprintf(fptr, "TemperatureStart               = %"FSYM"\n", CoolData.TemperatureStart);
+  fprintf(fptr, "TemperatureEnd                 = %"FSYM"\n", CoolData.TemperatureEnd);
+  fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
+  fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
-
-  if (CoolData.ParameterFilename != NULL)
-    fprintf(fptr, "CoolDataParameterFile = %s\n\n", CoolData.ParameterFilename);
-
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
@@ -467,6 +489,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           MustRefineParticlesRefineToLevel);
   fprintf(fptr, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM"\n",
           MustRefineParticlesRefineToLevelAutoAdjust);
+  fprintf(fptr, "MustRefineParticlesMinimumMass = %"FSYM"\n",
+          MustRefineParticlesMinimumMass);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
@@ -599,8 +623,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StarParticleCreation);
   fprintf(fptr, "BigStarFormation                      = %"ISYM"\n",
 	  BigStarFormation);
+  fprintf(fptr, "BigStarFormationDone                  = %"ISYM"\n",
+	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
+  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+	  SimpleQ);
+  fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
+	  SimpleRampTime);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
@@ -643,6 +673,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarEnergyToQuasarUV);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
+  fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);
+  fprintf(fptr, "ConductionSpitzerFraction       = %"FSYM"\n", ConductionSpitzerFraction);
+  fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
   fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
@@ -768,7 +801,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);
 #ifdef ECUDA
-  fprintf(fptr, "UseCUDA = %f\n", UseCUDA);
+  fprintf(fptr, "UseCUDA = %"ISYM"\n", UseCUDA);
 #endif
 
   /* Poisson Solver */
@@ -808,14 +841,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   if (ComovingCoordinates) {
     if (CosmologyWriteParameters(fptr, MetaData.StopTime, MetaData.Time) ==
 	FAIL) {
-      fprintf(stderr, "Error in CosmologyWriteParameters.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyWriteParameters.\n");
     }
   }
   else {
     if (WriteUnits(fptr) == FAIL) {
-      fprintf(stderr, "Error in WriteUnits.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WriteUnits.\n");
     }
   }
 
@@ -824,14 +855,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
 #ifdef TRANSFER
   if (RadiativeTransferWriteParameters(fptr) == FAIL) {
-    fprintf(stderr, "Error in RadiativeTransferWriteParameters.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in RadiativeTransferWriteParameters.\n");
   }
 
   if (ProblemType == 50)
     if (WritePhotonSources(fptr, MetaData.Time) == FAIL) {
-      fprintf(stderr, "Error in WritePhotonSources.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in WritePhotonSources.\n");
     }
 #endif
 
@@ -847,6 +876,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     SmallT /= tempu;
     MaximumAlvenSpeed /= velu;
     EOSSoundSpeed /=  velu;
+    MustRefineParticlesMinimumMass /= massu;
     /*
     for (int i = 0; i < MAX_FLAGGING_METHODS; i++) {
       if (MinimumMassForRefinement[i] != FLOAT_UNDEFINED) {
@@ -865,6 +895,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
     */
 
   }
+
+  MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
+				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
 
   /* Output current time */
   time_t ID;
@@ -888,6 +921,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	    MetaData.RestartDatasetUUID);
   }
   if(MetaData.InitialConditionsUUID != NULL){
+
     fprintf(fptr, "MetaDataInitialConditionsUUID   = %s\n",
 	    MetaData.InitialConditionsUUID);
   }

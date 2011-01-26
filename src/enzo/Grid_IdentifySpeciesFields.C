@@ -51,9 +51,8 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
  
   if (DeNum < 0 || HINum < 0 || HIINum < 0 || HeINum < 0 || HeIINum < 0 ||
       HeIIINum < 0) {
-    fprintf(stderr, "De=%"ISYM", HI=%"ISYM", HII=%"ISYM", HeI=%"ISYM", HeII=%"ISYM", HeIII=%"ISYM"\n",
-	    DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum);
-    ENZO_FAIL("");
+    ENZO_VFAIL("De=%"ISYM", HI=%"ISYM", HII=%"ISYM", HeI=%"ISYM", HeII=%"ISYM", HeIII=%"ISYM"\n",
+	    DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum)
   }
  
   /* Find Fields for the 9-species model. */
@@ -64,8 +63,7 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
     H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
  
     if (HMNum < 0 || H2INum < 0 || H2IINum < 0) {
-      fprintf(stderr, "H2 related field missing.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("H2 related field missing.\n");
     }
  
   }
@@ -78,8 +76,8 @@ int grid::IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum,
     HDINum  = FindField(HDIDensity, FieldType, NumberOfBaryonFields);
  
     if (DINum < 0 || DIINum < 0 || HDINum < 0) {
-      fprintf(stderr, "HD related field missing.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("HD related field missing.\n");
+
     }
  
   }

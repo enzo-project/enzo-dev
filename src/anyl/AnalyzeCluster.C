@@ -50,7 +50,8 @@
 int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		ExternalBoundary *Exterior, float *Inititaldt);
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
-		      ExternalBoundary *Exterior, float *Initialdt);
+              ExternalBoundary *Exterior, float *Initialdt,
+              bool ReadParticlesOnly=false);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CopyOverlappingZones(grid* CurrentGrid, TopGridData *MetaData, 
@@ -349,10 +350,14 @@ main(Eint32 argc, char *argv[])
 
     /* Set base name. */
 
+    char AnalyzeBaseName[MAX_LINE_LENGTH];
+    strcpy(AnalyzeBaseName, argv[1]);
+    strcat(AnalyzeBaseName, "_analyze");
+
     if (NumberOfCenters == 1)
-      sprintf(Name, "%s", "AnalyzeCluster");
+      sprintf(Name, "%s", AnalyzeBaseName);
     else
-      sprintf(Name, "%s%.3d", "AnalyzeCluster", center);
+      sprintf(Name, "%s%.3d", AnalyzeBaseName, center);
 
     /* ------------------------------------------------------------ */
     /* Find the highest density spot if Center not specified. */

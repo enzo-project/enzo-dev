@@ -68,8 +68,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* make sure this is 2D or 3D */
 
   if (MetaData.TopGridRank < 2 || MetaData.TopGridRank > 3) {
-    printf("Cannot model SedovBlast in %"ISYM" dimension(s)\n", MetaData.TopGridRank);
-    ENZO_FAIL("");
+    ENZO_VFAIL("Cannot model SedovBlast in %"ISYM" dimension(s)\n", MetaData.TopGridRank)
   }    
 
   /* There are four parameters:
@@ -315,6 +314,7 @@ int SedovBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+
     fprintf(Outfptr, "SedovBlastFullBox         = %"ISYM"\n"  , SedovBlastFullBox);
     fprintf(Outfptr, "SedovBlastDensity         = %"FSYM"\n"  , SedovBlastDensity);
     fprintf(Outfptr, "SedovBlastPressure        = %"FSYM"\n"  , SedovBlastPressure);

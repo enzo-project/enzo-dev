@@ -32,6 +32,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+Star *PopStar(Star * &Node);
+void InsertStarAfter(Star * &Node, Star * &NewNode);
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -40,14 +42,24 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
-  Star *ThisStar, *OtherStar, *PrevStar;
+  Star *ThisStar, *OtherStar, *MoveStar, *LastStar;
   LevelHierarchyEntry *Temp;
   float rmerge2;
   double vcirc2;
   FLOAT TimeNow;
   int dim, level;
+  bool MBH_Exists = false;
   const float pc = 3.086e18;
   const double Grav = 6.673e-8, Msun = 1.989e33;
+
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
+    if (ThisStar->ReturnType() == MBH) {
+      MBH_Exists = true;
+      break;
+    }
+
+  if (!MBH_Exists)
+    return SUCCESS;
 
   /* Get the time at the finest level */
   
@@ -74,8 +86,7 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     for (OtherStar = ThisStar->NextStar; OtherStar;
 	 OtherStar = OtherStar->NextStar) {
       if (ThisStar->ReturnID() == OtherStar->ReturnID()) {
-	printf("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID());
-	ENZO_FAIL("");
+	ENZO_VFAIL("%"ISYM" -- merging duplicate particle??\n", ThisStar->ReturnID())
       }
 
 
@@ -103,13 +114,24 @@ int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
      particles */
   
   ThisStar = AllStars;
-  while (ThisStar)
-    if (ThisStar->MarkedToDelete()) {
-      ThisStar->DeleteCopyInGrid();
-      ThisStar->DisableParticle(LevelArray);
-      DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()
-    } else
-      ThisStar = ThisStar->NextStar;
+  AllStars = NULL;
+  LastStar = NULL;
+  while (ThisStar) {
+    MoveStar = PopStar(ThisStar);  // ThisStar becomes the next star in PopStar()
+    if (MoveStar->MarkedToDelete()) {
+      MoveStar->DeleteCopyInGrid();
+      MoveStar->DisableParticle(LevelArray); // convert to a massless particle
+      DeleteStar(MoveStar);
+    } else {
+      // Re-insert at the end of the list to keep the ordering the
+      // same
+      if (LastStar == NULL)
+	InsertStarAfter(AllStars, MoveStar);
+      else
+	InsertStarAfter(LastStar, MoveStar);
+      LastStar = MoveStar;
+    }
+  } // ENDWHILE
 
   return SUCCESS;
 

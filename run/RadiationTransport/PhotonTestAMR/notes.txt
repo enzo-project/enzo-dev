@@ -1,0 +1,17 @@
+PhotonTestAMR
+----------
+
+This problem is the classical HII region expansion in an isothermal
+sphere with a constant density core with a point source at the origin.
+The source has a T=10^5 K blackbody spectrum with 1 energy group.  It
+has the same parameters (at a lower base resolution, but with AMR) as
+Test 6 in Iliev et al. (2009) MNRAS, 400, 1283.  The source should
+heat and ionize a spherical region around it and drive a shock
+outwards.  There is no analytical solution to this problem but has
+been studied in great detail.
+
+This test produces 25 outputs at intervals of 1 Myr.  The analysis
+script (1) finds the ionization front radius for each output, (2)
+creates radial profiles at a few times, (3) produces slices at the
+origin in the final output, and (4) computes the deviation in the
+photo-ionization rates from 1/r^2.

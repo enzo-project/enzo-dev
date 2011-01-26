@@ -75,6 +75,10 @@ int Star::SetFeedbackFlag(FLOAT Time)
     else // main sequence
       this->FeedbackFlag = NO_FEEDBACK;
     break;
+
+  case SimpleSource:
+    if (this->type < 0) // birth
+      this->FeedbackFlag = FORMATION;
     
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;

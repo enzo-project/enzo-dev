@@ -63,10 +63,10 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 
   if (MyProcessorNumber == ProcessorNumber)
     if (SubgridMarker == NULL)
-      ENZO_FAIL("SubgridMarker not allocated!");
+      ENZO_VFAIL("SubgridMarker not allocated! level=%d", level)
   if (MyProcessorNumber == Parent->ProcessorNumber)
     if (Parent->SubgridMarker == NULL)
-      ENZO_FAIL("Parent SubgridMarker not allocated!");
+      ENZO_VFAIL("Parent SubgridMarker not allocated! level=%d", level)
 
   /* Calculate where the grid (including ghost zones) lies in the
      parent grid */

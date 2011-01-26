@@ -126,8 +126,7 @@ int grid::SolveRadiativeCooling()
  
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum, B1Num, B2Num, B3Num ) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
  
   /* Find Multi-species fields. */
@@ -138,8 +137,7 @@ int grid::SolveRadiativeCooling()
   if (MultiSpecies)
     if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
                       HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-      fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
     }
  
   /* Find photo-ionization fields */
@@ -178,16 +176,14 @@ int grid::SolveRadiativeCooling()
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   if (ComovingCoordinates) {
  
     if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt)
 	== FAIL) {
-      fprintf(stderr, "Error in CosmologyComputeExpansionFactors.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
  
     aUnits = 1.0/(1.0 + InitialRedshift);
@@ -205,7 +201,7 @@ int grid::SolveRadiativeCooling()
   // the solver)
   MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
   SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
-  MetalFieldPresent = (MetalNum != -1 || SNColour != -1);
+  MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
 
   // Double check if there's a metal field when we have metal cooling
   if (MetalCooling && MetalFieldPresent == FALSE) {
@@ -221,7 +217,7 @@ int grid::SolveRadiativeCooling()
   float *MetalPointer;
   float *TotalMetals = NULL;
 
-  if (MetalNum != -1 && SNColour != -1) {
+  if (MetalNum != -1 && SNColourNum != -1) {
     TotalMetals = new float[size];
     for (i = 0; i < size; i++)
       TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
@@ -359,6 +355,7 @@ int grid::SolveRadiativeCooling()
       /* Always trust gas energy in cooling routine */
 
       if (DualEnergyFormalism) {
+
 	v2 = pow(BaryonField[Vel1Num][n],2) + 
 	  pow(BaryonField[Vel2Num][n],2) + pow(BaryonField[Vel3Num][n],2);
 	BaryonField[TENum][n] = gasenergy[n] + 0.5*v2 + 0.5*B2/BaryonField[DensNum][n];

@@ -77,18 +77,21 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
         ENZO_FAIL("Error in StarParticleFindAll.");
   }
 
-  /* Merge any newly created, clustered particles */
+  if (MetaData->FirstTimestepAfterRestart == FALSE) {
 
-  if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
+    /* Merge any newly created, clustered particles */
+
+    if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
-  }
+    }
 
   /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
 
-  if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
-    fprintf(stderr, "Error in StarParticleMergeMBH.\n");
-    ENZO_FAIL("");
-  }
+    if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
+      ENZO_FAIL("Error in StarParticleMergeMBH.\n");
+    }
+
+  } // ENDIF !restart
 
   /* 
      Set feedback flags.  
@@ -99,6 +102,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   */
 
 //  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
 //    for (cstar = AllStars; cstar; cstar = cstar->NextStar)
 //      cstar->PrintInfo();
 //  }

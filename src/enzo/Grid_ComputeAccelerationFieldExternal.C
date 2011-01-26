@@ -108,7 +108,6 @@ int grid::ComputeAccelerationFieldExternal()
 	  == FAIL) {
 		ENZO_FAIL("Error in CosmologyComputeExpansionFactor.");
       }
- 
 
     /* Loop over grid, adding acceleration to field. */
 

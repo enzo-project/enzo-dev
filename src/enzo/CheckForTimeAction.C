@@ -56,8 +56,8 @@ int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 	while (Temp != NULL) {
 	  if (Temp->GridData->ApplyTimeAction(TimeActionType[i],
 					   TimeActionParameter[i]) == FAIL) {
-	    fprintf(stderr, "Errot in grid->ApplyTimeAction\n");
-	    ENZO_FAIL("");
+	    ENZO_FAIL("Errot in grid->ApplyTimeAction\n");
+
 	  }
 	  Temp = Temp->NextGridThisLevel;
 	}

@@ -29,21 +29,26 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
- 
+
+int search_lower_bound(int *arr, int value, int low, int high, 
+		       int total);
  
 int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-					 int ThisGridNum, int *&NumberToMove, 
+					 int ThisGridNum, int TopGridDims[],
+					 int *&NumberToMove, 
 					 int StartIndex, int EndIndex, 
 					 particle_data *&List,
-					 int *Layout, int *GridMap, 
+					 int *Layout, int *GStartIndex[], 
+					 int *GridMap, 
 					 int CopyDirection)
 {
  
   /* Declarations. */
  
-  int i, j, k, dim, grid, proc, grid_num;
+  int i, j, k, dim, grid, proc, grid_num, bin, CenterIndex;
   int GridPosition[MAX_DIMENSION];
-  int *ToGrid;
+  int *ToGrid, *pbin;
+  FLOAT r[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     GridPosition[dim] = 0;
@@ -73,11 +78,9 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     ToGrid = new int[NumberOfParticles];
 
     float DomainWidth[MAX_DIMENSION], DomainWidthInv[MAX_DIMENSION];
-    float LayoutFloat[MAX_DIMENSION];
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
       DomainWidthInv[dim] = 1.0/DomainWidth[dim];
-      LayoutFloat[dim] = (float) Layout[dim];
     }
 
     // Periodic boundaries
@@ -92,21 +95,39 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
     for (i = 0; i < NumberOfParticles; i++) {
 
       for (dim = 0; dim < GridRank; dim++) {
-	GridPosition[dim] = 
-	  (int) (LayoutFloat[dim] * 
+
+	if (Layout[dim] == 1) {
+	  GridPosition[dim] = 0;
+	} else {
+
+	  CenterIndex = 
+	  (int) (TopGridDims[dim] * 
 		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
-	GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
-      }
+
+	  GridPosition[dim] = 
+	    search_lower_bound(GStartIndex[dim], CenterIndex, 0, Layout[dim],
+			       Layout[dim]);
+	  GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
+	  
+	} // ENDELSE
+
+      } // ENDFOR dim
 
       grid_num = GridPosition[0] + 
 	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
+
       grid = GridMap[grid_num];
       if (grid != ThisGridNum) {
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
+//	printf("grid %d->%d: Pos = %f %f %f\n", ThisGridNum, grid, 
+//	       ParticlePosition[0][i], ParticlePosition[1][i], 
+//	       ParticlePosition[2][i]);
       }
+
       ToGrid[i] = grid;
+
     } // ENDFOR particles
 
     /* Allocate space. */
@@ -151,7 +172,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	  List[n1].proc = MyProcessorNumber;
 	  ParticleMass[i] = FLOAT_UNDEFINED;
 	  n1++;
-	} // ENDIF different processor
+	} // ENDIF different grid
       } // ENDFOR particles
 
     } // ENDIF TotalToMove > PreviousTotalToMove
@@ -216,8 +237,7 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 	Attribute[i] = new float[TotalNumberOfParticles];
 
       if (Velocity[GridRank-1] == NULL && TotalNumberOfParticles != 0) {
-	fprintf(stderr, "malloc error (out of memory?)\n");
-	ENZO_FAIL("");
+	ENZO_FAIL("malloc error (out of memory?)\n");
       }
 
 #ifdef USE_MPI
@@ -304,7 +324,6 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
   } // end: if (COPY_IN)
 
- 
   return SUCCESS;
 }
 #endif /* OPTIMIZED_CTP */

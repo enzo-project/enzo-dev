@@ -42,7 +42,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   // Set defaults
 
   for (source = 0; source < MAX_SOURCES; source++) {
-    PhotonTestSourceType[source] = 0;
+    PhotonTestSourceType[source] = Isotropic;
     PhotonTestSourceLuminosity[source] = 0.;
     PhotonTestSourceLifeTime[source] = 0.;
     PhotonTestSourceCreationTime[source] = CurrentTime;
@@ -60,8 +60,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
   }
 
   char line[MAX_LINE_LENGTH];
@@ -73,10 +72,10 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    ret = 0;
+     ret = 0;
     ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
 		  &PhotonTestNumberOfSources);
-    if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
+     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceType[source]);
       if (debug)
@@ -185,6 +184,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     RadSources->PreviousSource = GlobalRadiationSources;
     RadSources->NextSource     = GlobalRadiationSources->NextSource;
     RadSources->SuperSource    = NULL;
+    RadSources->GridID         = INT_UNDEFINED;
+    RadSources->GridLevel      = INT_UNDEFINED;
     RadSources->Type           = PhotonTestSourceType[i]; 
     RadSources->Luminosity     = PhotonTestSourceLuminosity[i]; 
     RadSources->LifeTime       = PhotonTestSourceLifeTime[i]; 
@@ -202,7 +203,16 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       RadSources->Energy[j] = PhotonTestSourceEnergy[i][j];
       RadSources->SED[j]    = PhotonTestSourceSED[i][j];
     }
+
+    if (RadSources->Type < Isotropic || RadSources->Type > Beamed) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stderr, "PhotonTestSourceType must be 1 or 2\n",
+		"\tChanging to 1 (isotropic)\n");
+      RadSources->Type = Isotropic;
+    }
+
     GlobalRadiationSources->NextSource = RadSources;
+
   }  
 
   /* Delete allocated memory for temporary (for I/O) photon sources */
@@ -219,8 +229,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   
   if (RadiativeTransferSourceClustering == TRUE)
     if (CreateSourceClusteringTree(NULL, NULL, NULL) == FAIL) {
-      fprintf(stderr, "Error in CreateSourceClusteringTree.\n");
-      ENZO_FAIL("");
+      ENZO_FAIL("Error in CreateSourceClusteringTree.\n");
+
     }
   
   return SUCCESS;

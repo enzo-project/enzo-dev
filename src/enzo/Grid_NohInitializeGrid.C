@@ -32,8 +32,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
   /* error check */
 
   if (GridRank < 2 || GridRank > 3) {
-    fprintf(stderr, "GridRank must be 2 or 3\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("GridRank must be 2 or 3\n");
   }
 
   /* create fields */
@@ -92,6 +91,7 @@ int grid::NohInitializeGrid(float d0, float p0, float u0)
 	if (GridRank > 2)
 	  BaryonField[4][index+i]  = u0*zz/radius;
 	if (HydroMethod != Zeus_Hydro)
+
 	  BaryonField[1][index+i] += 0.5*u0*u0;
       }
     }

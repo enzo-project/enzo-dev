@@ -24,8 +24,8 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime)
     VelocityUnits;
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, CurrentTime) == FAIL) {
-    fprintf(stderr, "Error in GetUnits.\n");
-    ENZO_FAIL("");
+    ENZO_FAIL("Error in GetUnits.\n");
+
   }
 
   RadiationSourceEntry *RS = GlobalRadiationSources->NextSource;

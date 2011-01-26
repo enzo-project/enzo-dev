@@ -30,6 +30,9 @@ void Star::ActivateNewStar(FLOAT Time)
   if (this->IsUnborn()) {  // unborn
     StarType = ABS(type);
     switch (StarType) {
+    case SimpleSource:
+      type = StarType;
+      break;
     case PopII:
       if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
