@@ -51,7 +51,8 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 char *kt_global,
 				 int &keep_transporting);
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids);
-int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids);
+int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids,
+					int FirstTimeAfterRestart);
 int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
 				      int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
@@ -88,7 +89,7 @@ static MPI_Datatype MPI_PhotonList;
 #endif
 
 //#define NONBLOCKING_RT_OFF  // moved to a compile-time define
-#define REPORT_PERF_OFF
+#define REPORT_PERF
 #define MAX_ITERATIONS 5
 
 #ifdef REPORT_PERF
@@ -213,9 +214,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      segments.  We'll move the grids back at the end of this
      routine */
 
-  if (RadiativeTransferLoadBalance &&
-      LoopTime == TRUE) { // LoopTime means it's not a restart
-    CommunicationLoadBalancePhotonGrids(Grids, nGrids);
+  if (RadiativeTransferLoadBalance) {
+    CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
+					MetaData->FirstTimestepAfterRestart);
     SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
   }
 
@@ -475,6 +476,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->MoveFinishedPhotonsBack();
     END_PERF(7);
+    PrintMemoryUsage("EvolvePhotons -- deleted photons");
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
@@ -667,9 +669,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      CommunicationLoadBalancePhotonGrids.  Photon packages must be
      moved back, too. */
 
-  if (RadiativeTransferLoadBalance && LoopTime == TRUE) {
+  PrintMemoryUsage("EvolvePhotons -- before LB revert");
+  if (RadiativeTransferLoadBalance)
     RadiativeTransferLoadBalanceRevert(Grids, nGrids);
-  } // ENDIF RTLoadBalance
+  PrintMemoryUsage("EvolvePhotons -- finished");
 
   /* Delete grid lists */
 

@@ -80,7 +80,7 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
 #ifdef TRANSFER
 int SetSubgridMarker(TopGridData &MetaData, 
 		     LevelHierarchyEntry *LevelArray[], int level,
-		     int UpdateReplicatedGridsOnly=FALSE);
+		     int UpdateReplicatedGridsOnly);
 #endif
 double ReturnWallTime(void);
 
@@ -639,8 +639,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  SetSubgridMarker(*MetaData, LevelArray, level, FALSE);
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

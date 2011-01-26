@@ -588,18 +588,19 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 
   /* Initialize */
   
-  int *GridWork = new int[NumberOfGrids];
+  float *GridWork = new float[NumberOfGrids];
   hilbert_data *HilbertData = new hilbert_data[NumberOfGrids];
   int *BlockDivisions = new int[NumberOfProcessors];
-  int *ProcessorWork = new int[NumberOfProcessors];
+  float *ProcessorWork = new float[NumberOfProcessors];
 
-  int TotalWork, WorkThisProcessor, WorkPerProcessor, WorkLeft, GridsLeft;
+  int GridsLeft;
   int i, dim, grid_num, Rank, block_num, Dims[MAX_DIMENSION];
   FLOAT GridCenter[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT BoundingBox[2][MAX_DIMENSION];
   FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
   float GridVolume, AxialRatio;
+  float TotalWork, WorkThisProcessor, WorkPerProcessor, WorkLeft;
   int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
   int iter, GridsThisProcessor, GridsPerProcessor;
 
@@ -654,6 +655,12 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
     GridWork[i] = InputGridWork[HilbertData[i].grid_num];
     TotalWork += GridWork[i];
   }
+
+//  if (debug) {
+//    printf("TotalWork = %g\n", TotalWork);
+//    printf("InputGridWork:\n");
+//    fpcol(InputGridWork, NumberOfGrids, 16, stdout);
+//  }
 
   /* Partition into nearly equal workloads */
 
@@ -725,9 +732,8 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   double div_hkey, min_hkey, max_hkey, global_min_hkey;
   double hkey_boundary;
   char direction;
-  int LoadedBlock, UnloadedBlock, WorkDifference;
-  int MinWork, MaxWork;
-  float WorkImbalance;
+  int LoadedBlock, UnloadedBlock;
+  float WorkDifference, MinWork, MaxWork, WorkImbalance;
 
   for (iter = 0; iter < FUZZY_ITERATIONS; iter++) {
     MinWork = 0x7FFFFFFF;
