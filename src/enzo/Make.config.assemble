@@ -118,6 +118,7 @@
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_4
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
+        ASSEMBLE_PRECISION_NUMBER = 4
     endif
 
     # Settings for 64-bit floating point baryon precision
@@ -126,6 +127,7 @@
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_8
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
+        ASSEMBLE_PRECISION_NUMBER = 8
     endif
 
     # error if CONFIG_PRECISION is incorrect
@@ -147,6 +149,7 @@
     ifeq ($(CONFIG_PARTICLES),32)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_4
+        ASSEMBLE_PARTICLE_NUMBER = 4
     endif
 
     # Settings for 64-bit particle position precision
@@ -154,6 +157,7 @@
     ifeq ($(CONFIG_PARTICLES),64)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_8
+        ASSEMBLE_PARTICLE_NUMBER = 8
     endif
 
     # Settings for 128-bit particle position precision
@@ -161,6 +165,7 @@
     ifeq ($(CONFIG_PARTICLES),128)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_16
+        ASSEMBLE_PARTICLE_NUMBER = 16
     endif
 
     # error if CONFIG_PARTICLES is incorrect
