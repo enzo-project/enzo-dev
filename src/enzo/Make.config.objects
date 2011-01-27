@@ -662,6 +662,7 @@ OBJS_CONFIG_LIB = \
         PrepareIsolatedGreensFunction.o \
         PressurelessCollapseInitialize.o \
         ProblemType.o \
+        ProblemType_General.o \
         ProblemType_RotatingCylinder.o \
         ProblemType_CollapsingCoolingCloud.o \
         ProcMap.o \
