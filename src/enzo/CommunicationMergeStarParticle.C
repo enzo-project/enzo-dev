@@ -212,7 +212,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* communicate to check whether all the particles are added */
 
-  MPI_Allreduce(PartialAdded, TotalAdded, NumberOfGroups, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(PartialAdded, TotalAdded, NumberOfGroups, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 
   int total = 0;
   for (int i = 0; i < NumberOfGroups; i++)
