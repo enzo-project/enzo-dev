@@ -148,6 +148,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
               (PyObject*) dataset);
           Py_DECREF(dataset);
 
+          /* Type */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_INT, ParticleType);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_type",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
         }
 
         grid_id = PyLong_FromLong((long) GridID);
