@@ -377,6 +377,7 @@ OBJS_CONFIG_LIB = \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
 	Grid_DeleteAllFields.o \
+	Grid_DeleteBaryonFields.o \
 	Grid_DeleteFlaggingField.o \
         Grid_DeleteObsoleteFields.o \
 	Grid_DepositBaryons.o \

@@ -89,10 +89,10 @@ int grid::InitializeRadiativeTransferFields()
   }  /* ENDIF RadiationPressure */
 
   if (RadiativeTransferLoadBalance)
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
-	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++)
+    for (k = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0];
+	for (i = 0; i < GridDimension[0]; i++, index++)
 	  BaryonField[RaySegNum][index] = 0.0;
       }  // loop over grid
 

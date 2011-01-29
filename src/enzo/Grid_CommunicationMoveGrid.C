@@ -34,7 +34,7 @@
  
  
 int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles, 
-				int DeleteOldFields)
+				int DeleteAllFields)
 {
 
   int dim;
@@ -87,14 +87,17 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 
     /* Delete fields on old grid. */
  
-    if (DeleteOldFields == TRUE &&
-	MyProcessorNumber == ProcessorNumber && ProcessorNumber != ToProcessor &&
+    if (MyProcessorNumber == ProcessorNumber && ProcessorNumber != ToProcessor &&
 	(CommunicationDirection == COMMUNICATION_SEND ||
 	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE)) {
-      if (MoveParticles == TRUE)
-	this->DeleteAllFields();
-      else
-	this->DeleteAllButParticles();
+      if (DeleteAllFields == TRUE) {
+	if (MoveParticles == TRUE)
+	  this->DeleteAllFields();
+	else
+	  this->DeleteAllButParticles();
+      } else {
+	this->DeleteBaryonFields();
+      }
     }
     
   } // ENDIF right processor
