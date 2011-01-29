@@ -733,6 +733,10 @@ public:
 
    void DeleteAllButParticles();
 
+/* Delete all the baryon fields */
+
+   void DeleteBaryonFields();
+
 /* Sum particle mass flagging fields into ProcessorNumber if particles
    aren't local. */
 
@@ -1465,7 +1469,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Move a grid from one processor to another. */
 
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
-			    int DeleteOldFields = TRUE);
+			    int DeleteAllFields = TRUE);
 
 /* Send particles from one grid to another. */
 

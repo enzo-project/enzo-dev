@@ -581,8 +581,8 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	      for (i = 0; i < NumberOfParticles; i++)
 		ParticlePosition[dim][i] = FLOAT(temp128[i]);
 
-	    //delete [] temp64;
-	    //delete [] temp128;
+	    delete [] temp64;
+	    delete [] temp128;
 
 	  }
 	} // end: loop over dims
