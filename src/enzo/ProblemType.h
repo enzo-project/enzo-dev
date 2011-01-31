@@ -20,10 +20,10 @@ class EnzoProblemType
 public:
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
-    {}
+    {return SUCCESS;}
     virtual int InitializeGrid(grid *thisgrid,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
-    {}
+    {return SUCCESS;}
 protected:
     //.. constructor
     EnzoProblemType( )

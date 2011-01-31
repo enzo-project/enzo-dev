@@ -61,7 +61,11 @@ struct LevelHierarchyEntry;
 
 class grid
 {
+#ifdef NEW_PROBLEM_TYPES
+ protected:
+#else
  private:
+#endif
 //
 //  General grid class data
 //
@@ -171,7 +175,7 @@ class grid
   friend int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid);
   friend class Star;
 #ifdef NEW_PROBLEM_TYPES
-  friend class ProblemType;
+  friend class EnzoProblemType;
 #endif
 
 #ifdef TRANSFER
