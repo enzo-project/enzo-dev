@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GENERAL PROBLEM TYPE FOR MANIPULATION
+/  PYTHON PROBLEM TYPE INITIALIZER
 /
 /  written by: Matthew Turk
 /  date:       January, 2011
@@ -10,15 +10,15 @@
 ************************************************************************/
 
 #ifdef NEW_PROBLEM_TYPES
-#include "ProblemType_General.h"
+#include "ProblemType_Python.h"
 
-ProblemType_General::ProblemType_General() : EnzoProblemType() { 
+ProblemType_Python::ProblemType_Python() : EnzoProblemType() { 
     this->DataLabelCount = 0;
 }
 
-ProblemType_General::~ProblemType_General() { }
+ProblemType_Python::~ProblemType_Python() { }
 
-int ProblemType_General::AddDataLabel(const char *FieldName) {
+int ProblemType_Python::AddDataLabel(const char *FieldName) {
     /* We allocate a new copy of FieldName */
     /* Include NUL-terminator */
     int slen = strlen(FieldName) + 1;

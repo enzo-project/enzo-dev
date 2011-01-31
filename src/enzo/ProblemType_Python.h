@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GENERAL PROBLEM TYPE FOR MANIPULATION
+/  PYTHON PROBLEM TYPE INITIALIZER
 /
 /  written by: Matthew Turk
 /  date:       January, 2011
@@ -27,17 +27,17 @@
 #include "ProblemType.h"
 #include "EventHooks.h"
 
-class ProblemType_General;
+class ProblemType_Python;
 
-class GeneralGrid : private grid {
-    friend class ProblemType_General;
+class PythonGrid : private grid {
+    friend class ProblemType_Python;
 };
 
-class ProblemType_General : public EnzoProblemType
+class ProblemType_Python : public EnzoProblemType
 {
     public:
-    ProblemType_General();
-    ~ProblemType_General();
+    ProblemType_Python();
+    ~ProblemType_Python();
     int AddDataLabel(const char *FieldName);
 
     //private:
