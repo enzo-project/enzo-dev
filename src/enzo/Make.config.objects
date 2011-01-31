@@ -819,6 +819,11 @@ OBJS_CONFIG_LIB = \
         uuid/unpack.o \
         uuid/unparse.o \
         uuid/uuid_time.o \
+		libconfig/grammar.o \
+		libconfig/libconfig.o \
+		libconfig/scanctx.o \
+		libconfig/scanner.o \
+		libconfig/strbuf.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \

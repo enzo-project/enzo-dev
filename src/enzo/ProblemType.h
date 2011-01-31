@@ -24,7 +24,7 @@ public:
     virtual int InitializeGrid(grid *thisgrid,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {return SUCCESS;}
-protected:
+
     //.. constructor
     EnzoProblemType( )
     {}
@@ -50,6 +50,10 @@ protected:
 
     void FinalizeGrids(HierarchyEntry **RefLevels, HierarchyEntry &TopGrid,
                        TopGridData &MetaData);
+
+    protected:
+
+    private:
 };
 
 /*!
