@@ -48,7 +48,6 @@ static PyMethodDef _EnzoModuleMethods[] = {
 int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
-
   Py_SetProgramName("embed_enzo");
 
   Py_Initialize();

@@ -10,10 +10,15 @@
 ************************************************************************/
 
 #ifdef NEW_PROBLEM_TYPES
+#ifdef USE_PYTHON
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
+
+class ProblemType_Python;
+#include "enzolib/enzolib/problemtype_handler_api.h"
+
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -27,7 +32,6 @@
 #include "ProblemType.h"
 #include "EventHooks.h"
 
-class ProblemType_Python;
 
 class PythonGrid : private grid {
     friend class ProblemType_Python;
@@ -38,11 +42,12 @@ class ProblemType_Python : public EnzoProblemType
     public:
     ProblemType_Python();
     ~ProblemType_Python();
-    int AddDataLabel(const char *FieldName);
+    /*PyObject *problem_creator_wrapper;*/
 
-    //private:
-    int DataLabelCount;
+    virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
+            HierarchyEntry &TopGrid, TopGridData &MetaData);
 
 };
 
+#endif /* USE_PYTHON */
 #endif

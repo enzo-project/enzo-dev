@@ -18,18 +18,21 @@ class EnzoProblemType
 {
 /* These will be overridden in the public namespace by implementations */
 public:
+
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {return SUCCESS;}
     virtual int InitializeGrid(grid *thisgrid,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {return SUCCESS;}
+    int AddDataLabel(const char *FieldName);
+
 protected:
     //.. constructor
-    EnzoProblemType( )
-    {}
+    EnzoProblemType();
     virtual ~EnzoProblemType()
     {}
+    int DataLabelCount;
 
     grid *CreateNewUniformGrid(grid *ParentGrid,
             int Rank, int Dimensions[], 

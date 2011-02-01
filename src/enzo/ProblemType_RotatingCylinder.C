@@ -451,7 +451,7 @@ This is the grid-by-grid initializer.
 //.. register:
 namespace{
     EnzoProblemType_creator_concrete<ProblemType_RotatingCylinder>
-        rtcyl("RotatingCylinder");
+        rotating_cylinder("RotatingCylinder");
 }
 
 #endif

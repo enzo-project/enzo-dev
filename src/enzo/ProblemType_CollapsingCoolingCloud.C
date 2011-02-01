@@ -747,7 +747,7 @@ This is the grid-by-grid initializer.
 //.. register:
 namespace{
     EnzoProblemType_creator_concrete<ProblemType_CollapsingCoolingCloud>
-        rtcyl("CollapsingCoolingCloud");
+        collapsing_cooling_cloud("CollapsingCoolingCloud");
 }
 
 
