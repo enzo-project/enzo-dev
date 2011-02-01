@@ -99,11 +99,14 @@ cdef extern from "CommunicationUtilities.h":
 include "enzo_magic_numbers.pxi"
 #include "top_grid_data.pyx"
 include "enzo_top_grid_data.pxi"
+include "enzo_field_types.pxi"
 
 cdef extern from "LevelHierarchy.h":
     pass
 
 cdef extern from "ProblemType_Python.h":
+    void PyArray_NOOWNDATA(np.ndarray)
+
     cdef cppclass PythonGrid:
         Eflt *BaryonField[]
 
@@ -121,7 +124,8 @@ cdef extern from "ProblemType_Python.h":
                 Eflt UniformVelocity[], 
                 Eflt UniformBField[])
 
-        void SetField(PythonGrid *grid, Eint field_index, Eflt *data)
+        void SetField(PythonGrid *grid, Eint field_index, Eflt *data,
+                      Eint field_type)
 
 cdef class GridHolder:
     cdef PythonGrid *this_grid
@@ -133,11 +137,14 @@ cdef class GridHolder:
 cdef class ProblemCreator:
     cdef ProblemType_Python *prob
     cdef public object datalabel_mapping
+    cdef public object field_numbers
 
     def __cinit__(self, create_container = True):
         if create_container:
             self.prob = new ProblemType_Python()
         self.datalabel_mapping = {}
+        self.field_numbers = field_enums
+        print self.field_numbers
 
     def add_data_label(self, char *f):
         cdef int i = self.prob.AddDataLabel(f)
@@ -147,13 +154,14 @@ cdef class ProblemCreator:
         pass
         
     def set_grid_field(self, GridHolder grid,
-                       field_name, np.ndarray[np.float64_t, ndim=3] data):
+                       field_name, np.ndarray[np.float64_t, ndim=3] data,
+                       int field_type):
         cdef PythonGrid *my_grid = grid.this_grid
         cdef Eint dli = self.datalabel_mapping[field_name]
         cdef np.ndarray[np.float64_t, ndim=3] dcopy = data.copy("F")
-        np.PyArray_FLAGSWAP(dcopy, np.NPY_OWNDATA)
         cdef double *darray = <double *> dcopy.data
-        self.prob.SetField(my_grid, dli, darray)
+        PyArray_NOOWNDATA(dcopy)
+        self.prob.SetField(my_grid, dli, darray, field_type)
 
 cdef public int create_problem_instance(
         ProblemType_Python *prob, PythonGrid *TopGrid):

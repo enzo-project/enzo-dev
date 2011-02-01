@@ -48,6 +48,8 @@ with C++ code mixed with public APIs.  It may some day become obsolete.
 #define __cplusplus
 #endif
 
+#define PyArray_NOOWNDATA(obj) (((PyArrayObject *)(obj))->flags &= ~NPY_OWNDATA)
+
 class ProblemType_Python : public EnzoProblemType
 {
     public:
@@ -58,7 +60,7 @@ class ProblemType_Python : public EnzoProblemType
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData);
 
-    void SetField(PythonGrid *grid, int FieldIndex, float *data);
+    void SetField(PythonGrid *grid, int FieldIndex, float *data, int FieldType);
 
 };
 

@@ -81,7 +81,6 @@ int EnzoProblemType::AddDataLabel(const char *FieldName) {
     return DataLabelCount++;
 }
 
-
 grid *EnzoProblemType::CreateNewUniformGrid(
                 grid *ParentGrid,
                 int Rank, int Dimensions[],
