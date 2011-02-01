@@ -31,6 +31,10 @@ class ProblemType_Python;
 #include "ProblemType.h"
 #include "EventHooks.h"
 
+class PythonGrid : private grid {
+    friend class ProblemType_Python;
+};
+
 /* 
 This next bit of sanitization is required because of Cython's difficulty
 with C++ code mixed with public APIs.  It may some day become obsolete.
@@ -44,10 +48,6 @@ with C++ code mixed with public APIs.  It may some day become obsolete.
 #define __cplusplus
 #endif
 
-class PythonGrid : private grid {
-    friend class ProblemType_Python;
-};
-
 class ProblemType_Python : public EnzoProblemType
 {
     public:
@@ -57,6 +57,8 @@ class ProblemType_Python : public EnzoProblemType
 
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData);
+
+    void SetField(PythonGrid *grid, int FieldIndex, float *data);
 
 };
 

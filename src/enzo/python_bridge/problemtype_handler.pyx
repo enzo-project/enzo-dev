@@ -26,6 +26,7 @@ License:
 import numpy as np
 cimport numpy as np
 cimport cython
+cimport libc.stdlib
 
 ctypedef double Eflt
 ctypedef double FLOAT
@@ -103,47 +104,67 @@ cdef extern from "LevelHierarchy.h":
     pass
 
 cdef extern from "ProblemType_Python.h":
+    cdef cppclass PythonGrid:
+        Eflt *BaryonField[]
+
     cdef cppclass ProblemType_Python:
         ProblemTypeGeneral()
-        int AddDataLabel(char *FieldLabel)
-        int DataLabelCount
+        Eint AddDataLabel(char *FieldLabel)
+        Eint DataLabelCount
 
         grid *CreateNewUniformGrid(grid *ParentGrid,
-                int Rank, int Dimensions[], 
-                FLOAT LeftEdge[], FLOAT RightEdge[], int NumParticles,
-                float UniformDensity,
-                float UniformTotalEnergy,
-                float UniformInternalEnergy,
-                float UniformVelocity[], 
-                float UniformBField[])
+                Eint Rank, Eint Dimensions[], 
+                Eflt LeftEdge[], FLOAT RightEdge[], Eint NumParticles,
+                Eflt UniformDensity,
+                Eflt UniformTotalEnergy,
+                Eflt UniformInternalEnergy,
+                Eflt UniformVelocity[], 
+                Eflt UniformBField[])
+
+        void SetField(PythonGrid *grid, Eint field_index, Eflt *data)
 
 cdef class GridHolder:
-    cdef grid *this_grid
+    cdef PythonGrid *this_grid
     #cdef public TopGridData top_grid_data
     def __cinit__(self, create_grid = False):
         if create_grid:
-            self.this_grid = new grid()
+            self.this_grid = new PythonGrid()
 
 cdef class ProblemCreator:
     cdef ProblemType_Python *prob
+    cdef public object datalabel_mapping
 
     def __cinit__(self, create_container = True):
         if create_container:
             self.prob = new ProblemType_Python()
+        self.datalabel_mapping = {}
 
     def add_data_label(self, char *f):
-        self.prob.AddDataLabel(f)
+        cdef int i = self.prob.AddDataLabel(f)
+        self.datalabel_mapping[f] = i
 
     def add_uniform_grid(self, GridHolder parent_grid, int rank):
         pass
+        
+    def set_grid_field(self, GridHolder grid,
+                       field_name, np.ndarray[np.float64_t, ndim=3] data):
+        cdef PythonGrid *my_grid = grid.this_grid
+        cdef Eint dli = self.datalabel_mapping[field_name]
+        cdef np.ndarray[np.float64_t, ndim=3] dcopy = data.copy("F")
+        np.PyArray_FLAGSWAP(dcopy, np.NPY_OWNDATA)
+        cdef double *darray = <double *> dcopy.data
+        self.prob.SetField(my_grid, dli, darray)
 
-cdef public int create_problem_instance( ProblemType_Python *prob ):
+cdef public int create_problem_instance(
+        ProblemType_Python *prob, PythonGrid *TopGrid):
     print "Hello there"
     import problem_definition
     print "Yes, me again"
     pc = ProblemCreator(False)
+    tg = GridHolder()
+    tg.this_grid = TopGrid
     pc.prob = prob
-    problem_definition.run(pc)
+    problem_definition.run(pc, tg)
 
 cdef public int print_hello():
     print "Seems to be working"

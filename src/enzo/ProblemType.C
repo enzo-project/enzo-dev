@@ -76,6 +76,8 @@ int EnzoProblemType::AddDataLabel(const char *FieldName) {
     char *fcopy = new char[slen];
     strncpy(fcopy, FieldName, slen);
     DataLabel[this->DataLabelCount] = fcopy;
+    std::cout << "Adding " << DataLabel[this->DataLabelCount]
+              << " in place " << this->DataLabelCount << std::endl;
     return DataLabelCount++;
 }
 

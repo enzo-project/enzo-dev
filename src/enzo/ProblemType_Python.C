@@ -33,6 +33,17 @@ ProblemType_Python::ProblemType_Python() : EnzoProblemType() {
 
 ProblemType_Python::~ProblemType_Python() { }
 
+void ProblemType_Python::SetField(PythonGrid *grid,
+        int FieldIndex, float *data) {
+
+    if (grid->BaryonField[FieldIndex] != NULL) {
+        delete grid->BaryonField[FieldIndex];
+    }
+    grid->BaryonField[FieldIndex] = data;
+}
+
+// All methods must go above this method
+
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
     HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
@@ -49,7 +60,10 @@ int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
 
     initproblemtype_handler();
     print_hello();
-    rv = create_problem_instance(this); 
+    PythonGrid *pgrid = static_cast<PythonGrid*> (TopGrid.GridData);
+    rv = create_problem_instance(this, pgrid);
+
+    return SUCCESS;
 }
 
 #endif
