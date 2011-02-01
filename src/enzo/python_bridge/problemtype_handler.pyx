@@ -44,6 +44,9 @@ cdef extern from "math.h":
 cdef extern from "string.h":
     pass
 
+cdef extern from "map":
+    pass
+
 cdef extern from "stdio.h":
     pass
 
