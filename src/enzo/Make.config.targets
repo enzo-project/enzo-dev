@@ -110,6 +110,11 @@ help-config:
 	@echo "      gmake python-yes"
 	@echo "      gmake python-no"
 	@echo
+	@echo "   Set whether to use the new problem initializers"
+	@echo
+	@echo "      gmake new-problem-types-yes"
+	@echo "      gmake new-problem-types-no"
+	@echo
 	@echo "   Set whether to use embedded CVODE solver"
 	@echo
 	@echo "      gmake cvode-yes"
@@ -255,6 +260,7 @@ show-config:
 	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_PYTHON)"
 	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -602,6 +608,23 @@ CONFIG_PYTHON-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_PYTHON = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_PYTHON; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_PYTHON = new-problem-types-yes new-problem-types-no
+.PHONY: $(VALID_PYTHON)
+
+new-problem-types-yes: CONFIG_NEW_PROBLEM_TYPES-yes
+new-problem-types-no: CONFIG_NEW_PROBLEM_TYPES-no
+new-problem-types-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_NEW_PROBLEM_TYPES)]\n\n"
+CONFIG_NEW_PROBLEM_TYPES-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_NEW_PROBLEM_TYPES $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_NEW_PROBLEM_TYPES = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_NEW_PROBLEM_TYPES; \
 	echo
 
 #-----------------------------------------------------------------------

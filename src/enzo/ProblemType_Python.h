@@ -17,7 +17,6 @@
 #include <iostream>
 
 class ProblemType_Python;
-#include "enzolib/enzolib/problemtype_handler_api.h"
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -32,6 +31,18 @@ class ProblemType_Python;
 #include "ProblemType.h"
 #include "EventHooks.h"
 
+/* 
+This next bit of sanitization is required because of Cython's difficulty
+with C++ code mixed with public APIs.  It may some day become obsolete.
+*/
+#ifdef __cplusplus
+#undef __cplusplus
+#define __reset_cplusplus
+#endif
+#include "python_bridge/problemtype_handler.h"
+#ifdef __reset_cplusplus
+#define __cplusplus
+#endif
 
 class PythonGrid : private grid {
     friend class ProblemType_Python;

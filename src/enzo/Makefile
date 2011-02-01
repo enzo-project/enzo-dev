@@ -156,6 +156,10 @@ lib%.$(MACH_SHARED_EXT): $(MODULES) autogen dep enzo.o $(OBJS_LIB)
 	   echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
 
+.pyx.C: 
+	@cython --cplus $*.pyx -o $*.C 
+ProblemType_Python.o: python_bridge/problemtype_handler.o
+
 #-----------------------------------------------------------------------
 # WRITE ALL COMPILER OUTPUT TO FILE
 #-----------------------------------------------------------------------
@@ -171,7 +175,7 @@ verbose: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .F .F90 .o .cu
+.SUFFIXES: .c .C .F .F90 .o .cu .pyx
 
 # Inhibit removing any *.o files after compiling
 
@@ -388,7 +392,10 @@ help:
 clean:
 	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
           auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
-          uuid/*.oo DEPEND
+          uuid/*.oo DEPEND \
+          python_bridge/problemtype_handler.C \
+          python_bridge/problemtype_handler.h \
+          python_bridge/problemtype_handler.o
 	-@touch DEPEND
 
 #-----------------------------------------------------------------------

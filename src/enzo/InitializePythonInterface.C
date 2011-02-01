@@ -12,12 +12,9 @@
 /    SUCCESS or FAIL
 /
 ************************************************************************/
-#ifdef USE_PYTHON
-#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
+
 #include <Python.h>
 #include "numpy/arrayobject.h"
-#define ENZO_PYTHON_IMPORTED
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,12 +45,14 @@ static PyMethodDef _EnzoModuleMethods[] = {
 int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
-  Py_SetProgramName("embed_enzo");
-
-  Py_Initialize();
-
-  PySys_SetArgv(argc, argv);
-  PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
+  if(PythonInterpreterInitialized == 0){
+    Py_SetProgramName("embed_enzo");
+    Py_Initialize();
+    PySys_SetArgv(argc, argv);
+    import_array1(FAIL);
+    PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
+    PythonInterpreterInitialized = 1;
+  }
   PyObject *enzo_module, *enzo_module_dict; 
   enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
   enzo_module_dict = PyModule_GetDict(enzo_module);
@@ -65,7 +64,6 @@ int InitializePythonInterface(int argc, char *argv[])
   PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
   PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
   PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
-  import_array1(FAIL);
   if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
   if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
   return SUCCESS;
