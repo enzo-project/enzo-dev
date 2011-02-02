@@ -8,6 +8,10 @@
 /  PURPOSE:
 /
 ************************************************************************/
+#ifdef NEW_PROBLEM_TYPES
+#ifndef __EVENT_HOOKS__
+#define __EVENT_HOOKS__
+
 
 /*
    Plugins maybe should instead be classes, so that they can store state and be
@@ -31,3 +35,5 @@ void RegisterEventHook(std::string event_name, std::string plugin_name);
 
 EXTERN std::multimap<std::string, std::string> event_hooks;
 EXTERN std::map<std::string, plugin_function> plugins;
+#endif
+#endif
