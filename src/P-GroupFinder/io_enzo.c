@@ -121,6 +121,7 @@ int enzoFindFiles (char *fname)
   while (fgets(line, 200, fptr) != NULL) {
 
     sscanf(line, "InitialTime        = %lf", &Time);
+    sscanf(line, "InitialCycleNumber = %d", &CycleNumber);
     sscanf(line, "TopGridDimensions   = %d %d %d", 
 	   TopGrid, TopGrid+1, TopGrid+2);
     sscanf(line, "CosmologyHubbleConstantNow = %f", &HubbleConstantNow);
