@@ -12,7 +12,6 @@
 #ifndef __EVENT_HOOKS__
 #define __EVENT_HOOKS__
 
-
 /*
    Plugins maybe should instead be classes, so that they can store state and be
    instantiated by things like EnzoProblemType instances and be registered in

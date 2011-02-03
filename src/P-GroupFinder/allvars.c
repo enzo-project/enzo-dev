@@ -2,6 +2,7 @@
 
 
  int     ThisTask, NTask;
+ int     CycleNumber;
 
  double  Time;
  double  BoxSize;
