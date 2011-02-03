@@ -583,6 +583,7 @@ OBJS_CONFIG_LIB = \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
+        InitializeLymanWernerTable.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
@@ -689,6 +690,7 @@ OBJS_CONFIG_LIB = \
 	RadiationGetUnits.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
+        RadiationFieldLymanWernerTable.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
         ReadAttr.o \
