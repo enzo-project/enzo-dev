@@ -4,9 +4,13 @@
 //
 //  written by: David A. Ventimiglia, Brian O'Shea
 //  date:       June 2009
-//  modified:  
+//  modified:  February 10, 2011 by BWO
 //
-//  PURPOSE: 
+//  PURPOSE: This initializes a bubble with user-controlled entropy in an 
+//     ambient medium that is initially in hydrostatic equilibrium
+//     (with density, temperature profile controlled by the user).  The
+//     bubble then does its thing based on its entropy relative to the 
+//     ambient medium.
 //
 //  RETURNS: SUCCESS or FAIL
 //

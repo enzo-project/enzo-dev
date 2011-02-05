@@ -36,19 +36,10 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
   
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum;
-
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
-
-  if (MultiSpecies)
-    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-            ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
-    }
 
   int MetallicityField = FALSE;
   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
@@ -124,9 +115,6 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	  
 	}
 
-	/*--------- MODIFY THE DENSITY HERE -----------*/
-	BaryonField[DensNum][ELT(i,j,k)] /= val;
-
 	if(HydroMethod==Zeus_Hydro){  // ZEUS
 	  BaryonField[TENum][ELT(i,j,k)] *= val;  // TE = gas energy
 	} else{ // PPM
@@ -136,43 +124,6 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	  if(DualEnergyFormalism)
 	    BaryonField[GENum][ELT(i,j,k)] *= val;  // if DEF=1, need to separately set the gas internal energy.
 	}
-
-	if(TestProblemData.MultiSpecies>1){
-	  fprintf(stderr,"This problem type is not set up for MultiSpecies > 1.  Oops!\n");
-	  ENZO_FAIL("Error in Grid::ConductionTestInitialize.");
-	}
-
-	// Set multispecies fields!
-	// this attempts to set them such that species conservation is maintained,
-	// using the method in CosmologySimulationInitializeGrid.C
-	if(TestProblemData.MultiSpecies) {
-
-	  BaryonField[HIINum][ELT(i,j,k)] = TestProblemData.HII_Fraction * 
-	    BaryonField[DensNum][ELT(i,j,k)]*TestProblemData.HydrogenFractionByMass;
-	  
-	  BaryonField[HeIINum][ELT(i,j,k)] = TestProblemData.HeII_Fraction *
-	    BaryonField[DensNum][ELT(i,j,k)]*(1.-TestProblemData.HydrogenFractionByMass);
-	      
-	  BaryonField[HeIIINum][ELT(i,j,k)] = TestProblemData.HeIII_Fraction *
-	    BaryonField[DensNum][ELT(i,j,k)]*(1.-TestProblemData.HydrogenFractionByMass);
-
-	  BaryonField[HeINum][ELT(i,j,k)] = BaryonField[DensNum][ELT(i,j,k)]*(1.-TestProblemData.HydrogenFractionByMass) -
-	    BaryonField[HeIINum][ELT(i,j,k)] - BaryonField[HeIIINum][ELT(i,j,k)];
-
-	  // HI density is calculated by subtracting off the various ionized fractions
-	  // from the total
-	  BaryonField[HINum][ELT(i,j,k)] = TestProblemData.HydrogenFractionByMass*BaryonField[DensNum][ELT(i,j,k)]
-	    - BaryonField[HIINum][ELT(i,j,k)];
-	  
-	  // Electron "density" (remember, this is a factor of m_p/m_e scaled from the 'normal'
-	  // density for convenience) is calculated by summing up all of the ionized species.
-	  // The factors of 0.25 and 0.5 in front of HeII and HeIII are to fix the fact that we're
-	  // calculating mass density, not number density (because the BaryonField values are 4x as
-	  // heavy for helium for a single electron)
-	  BaryonField[DeNum][ELT(i,j,k)] = BaryonField[HIINum][ELT(i,j,k)] +
-	    0.25*BaryonField[HeIINum][ELT(i,j,k)] + 0.5*BaryonField[HeIIINum][ELT(i,j,k)];
-	  
-	} // if(TestProblemData.MultiSpecies)
 
 	if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE)
 	  BaryonField[MetalNum][ELT(i,j,k)] = 
