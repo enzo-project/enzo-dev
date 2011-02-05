@@ -531,6 +531,14 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
         );
  
+      /* Compute and apply thermal conduction. */
+      if(Conduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  fprintf(stderr, "Error in grid->ConductHeat.\n");
+	  return FAIL;
+	}
+      }
+
       /* Gravity: clean up AccelerationField. */
 
 	 if (level != MaximumGravityRefinementLevel ||
