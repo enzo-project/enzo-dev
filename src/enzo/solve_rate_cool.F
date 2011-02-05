@@ -32,7 +32,6 @@
      &                irt_honly,
      &                kphHI, kphHeI, kphHeII, kdissH2I, 
      &                photogamma, 
-     &                ih2optical, iciecool, ithreebody, ciecoa, 
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -128,7 +127,7 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
-     &        igammah, ih2optical, iciecool, ithreebody
+     &        igammah
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
 
@@ -154,7 +153,7 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -210,16 +209,13 @@
       integer i, j, k, iter
       integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
       real ttmin, dom, energy, comp1, comp2
-      double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
-      double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
-     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
+      double precision coolunit, dbase1, tbase1, xbase1
 
 !  row temporaries
 
       integer indixe(ijk)
       real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
-     &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
-     &     olddtit
+     &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk)
 
 !  Rate equation row temporaries
 
@@ -242,7 +238,7 @@
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), edot(ijk)
       real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
-     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), cieco(ijk)
+     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
 
 !  Iteration mask
 
@@ -262,10 +258,6 @@
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
-      uvel     = uxyz / utim
-      chunit = (7.17775e-12)/(2.0*uvel*uvel*mh)
-
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
 
 !  Convert densities from comoving to proper
 
@@ -274,7 +266,7 @@
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, imetal, aye**(-3))
 
-      call ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
+      call ceiling_species(de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, metal,
      &                     is, ie, js, je, ks, ke,
      &                     in, jn, kn, ispecies, imetal)
@@ -358,7 +350,6 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
-     &                ih2optical, iciecool, ciecoa, cieco,
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -369,8 +360,7 @@
 !         (maybe should add itmask to this call)
 
             call lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &               is, ie, ijk, iradtype, iradshield, ithreebody,
-     &               in, jn, kn,
+     &               is, ie, ijk, iradtype, iradshield, in, jn, kn,
      &               ispecies, tgas, HI, HII, HeI, HeII,
      &               k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &               k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
@@ -398,7 +388,7 @@
      &                     k50, k51, k52, k53, k54, k55,
      &                     k56, k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit)
+     &                     kdissH2I, itmask)
 
 !           Find timestep that keeps relative chemical changes below 10%
 
@@ -434,52 +424,9 @@
 
 !              compute minimum rate timestep
 
-               olddtit = dtit(i)
                dtit(i) = min(abs(0.1*de(i,j,k)/dedot(i)), 
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5*dt)
-
-              if (d(i,j,k)*dom.gt.1e8.and.edot(i).gt.0.0)then
-                ! Equilibrium value for H is:
-                !  H = (-1.0 / (4*k22)) * (k13 - sqrt(8 k13 k22 rho + k13^2))
-                ! We now want this to change by 10% or less, but we're only
-                ! differentiating by dT.  We have de/dt.  We need dT/de.
-                ! T = (g-1)*p2d*utem/N; tgas == (g-1)(p2d*utem/N)
-                ! dH_eq / dt = (dH_eq/dT) * (dT/de) * (de/dt)
-                !   dH_eq / dT (see above; we can calculate the derivative here)
-                !   dT / de = utem * (gamma - 1.0) / N == tgas / p2d
-                !   de / dt = edot
-                ! Now we use our estimate of dT/de to get the estimated
-                ! difference in the equilibrium
-                eqt2 = min(log(tgas(i)) + 0.1*dlogtem, t2(i))
-                eqtdef = (eqt2 - t1(i))/(t2(i) - t1(i))
-                eqk222 = k22a(indixe(i)) +
-     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
-                eqk132 = k13a(indixe(i)) +
-     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
-                heq2 = (-1.0 / (4*eqk222)) *
-     &          (eqk132-sqrt(8.0*eqk132*eqk222*fh*d(i,j,k)+eqk132**2.0))
-
-                eqt1 = max(log(tgas(i)) - 0.1*dlogtem, t1(i))
-                eqtdef = (eqt1 - t1(i))/(t2(i) - t1(i))
-                eqk221 = k22a(indixe(i)) +
-     &            (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
-                eqk131 = k13a(indixe(i)) +
-     &            (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
-                heq1 = (-1.0 / (4*eqk221)) *
-     &          (eqk131-sqrt(8.0*eqk131*eqk221*fh*d(i,j,k)+eqk131**2.0))
-
-                dheq = (abs(heq2-heq1)/(exp(eqt2) - exp(eqt1)))
-     &               * (tgas(i)/p2d(i)) * edot(i)
-                heq = (-1.0 / (4*k22(i))) *
-     &          (k13(i)-sqrt(8.0*k13(i)*k22(i)*fh*d(i,j,k)+k13(i)**2.0))
-                !write(0,*) heq2, heq1, eqt2, eqt1, tgas(i), p2d(i), 
-!     &                     edot(i)
-                if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *)
-     &              HI(i,j,k)/heq, edot(i),tgas(i)
-                dtit(i) = min(dtit(i), 0.1*heq/dheq)
-              endif
-              if (iter.gt.10) dtit(i) = min(olddtit*1.5, dtit(i))
 
 !              Output some debugging information if required
 
@@ -537,14 +484,14 @@
 !              If the temperature is at the bottom of the temperature look-up 
 !              table and edot < 0, then shut off the cooling.
 
-               if (tgas(i) .le. 1.01*temstart .and. edot(i) .lt. 0.0) 
+               if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
-!                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+!                 dtit(i) = min(real(abs(0.01*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
                   dtit(i) = min(real(abs(0.1*energy/edot(i))), 
@@ -757,7 +704,7 @@ c -------------------------------------------------------------------
 c -----------------------------------------------------------
 !   This routine ensures that the species aren't below tiny.
 
-      subroutine ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
+      subroutine ceiling_species(de, HI, HII, HeI, HeII, HeIII,
      &                           HM, H2I, H2II, DI, DII, HDI, metal,
      &                           is, ie, js, je, ks, ke,
      &                           in, jn, kn, ispecies, imetal)
@@ -768,7 +715,6 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
-      real     d(in,jn,kn)
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
@@ -789,7 +735,7 @@ c -------------------------------------------------------------------
                HII(i,j,k)   = max(HII(i,j,k), tiny)
                HeI(i,j,k)   = max(HeI(i,j,k), tiny)
                HeII(i,j,k)  = max(HeII(i,j,k), tiny)
-               HeIII(i,j,k) = max(HeIII(i,j,k), 1e-5*tiny)
+               HeIII(i,j,k) = max(HeIII(i,j,k), tiny)
             enddo
          enddo
       enddo
@@ -819,8 +765,7 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  metal(i,j,k) = min(max(metal(i,j,k), tiny),
-     $                               0.9*d(i,j,k))
+                  metal(i,j,k) = max(metal(i,j,k), tiny)
                enddo
             enddo
          enddo
@@ -837,8 +782,7 @@ c -------------------------------------------------------------------
 !   of temperature.
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &                is, ie, ijk, iradtype, iradshield, ithreebody,
-     &                in, jn, kn,
+     &                is, ie, ijk, iradtype, iradshield, in, jn, kn,
      &                ispecies, tgas1d, HI, HII, HeI, HeII,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
@@ -859,7 +803,7 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer is, ie, ijk, iradtype, iradshield, nratec, 
-     &        in, jn, kn, ispecies, ithreebody, j, k
+     &        in, jn, kn, ispecies, j, k
       real temstart, temend, tgas1d(in), dom
       double precision coolunit, tbase1
       logical itmask(ijk)
@@ -1065,7 +1009,7 @@ c -------------------------------------------------------------------
 
 #define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
 #ifdef USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
-            if (ispecies .gt. 1 .and. ithreebody .eq. 0) then
+            if (ispecies .gt. 1) then
                do i = is+1, ie+1
                   if (itmask(i)) then
                   nh = min(HI(i,j,k)*dom, 1.0e9)
@@ -1100,7 +1044,7 @@ c -------------------------------------------------------------------
      &                     k50, k51, k52, k53, k54, k55,
      &                     k56, k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit)
+     &                     kdissH2I, itmask)
 
 ! -------------------------------------------------------------------
 
@@ -1109,7 +1053,7 @@ c -------------------------------------------------------------------
 !     arguments
 
       integer ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
-      real dedot(in), HIdot(in), edot(in)
+      real dedot(in), HIdot(in)
       logical itmask(in)
 
 !     Density fields
@@ -1123,8 +1067,6 @@ c -------------------------------------------------------------------
 
       real    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &        kdissH2I(in,jn,kn)
-
-      double precision chunit
 
 !     Rate values
 
@@ -1140,7 +1082,6 @@ c -------------------------------------------------------------------
 !     locals
 
       integer i
-      double precision H2delta, H2dmag, atten, tau
 
       if (ispecies .eq. 1) then
 
@@ -1219,21 +1160,6 @@ c -------------------------------------------------------------------
      &               +  k25shield(i)*HeII(i,j,k)/4.0
      &               +  k26shield(i)*HeI(i,j,k)/4.0)
 #endif /* RADIATION */
-
-            H2delta = 
-     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
-     &                    - k13(i) * H2I(i,j,k)/2.0d0)
-            H2dmag = abs(H2delta)/(
-     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.0d0
-     &                    + k13(i) * H2I(i,j,k)/2.0d0))
-!            tau = (H2dmag/1e-5)**-1.0d0
-!            tau = max(tau, 1.e-5)
-!            atten = min((1.-exp(-tau))/tau,1.0)
-            atten = 1.0
-            edot(i) = edot(i) + chunit * H2delta * atten
-!     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
-!     &                    - k23(i) * H2I(i,j,k))
-!H * (k22 * H^2 - k13 * H_2) + H_2 * (k21 * H^2 - k23 * H_2) */
          endif                  ! itmask
          enddo
       endif
@@ -1641,7 +1567,7 @@ c
          HII(i,j,k)   = max(HIIp(i), tiny)
          HeI(i,j,k)   = max(HeIp(i), tiny)
          HeII(i,j,k)  = max(HeIIp(i), tiny)
-         HeIII(i,j,k) = max(HeIIIp(i), 1e-5*tiny)
+         HeIII(i,j,k) = max(HeIIIp(i), tiny)
 
 !        de(i,j,k)    = dep(i)
 
